@@ -9,6 +9,7 @@ import type { MusicLoop } from '../sound'
 import { ARCADE_DIFFICULTIES } from '../types'
 import {
   PINKWAKE,
+  SPIRE,
   pinkwakeDialogue,
   PINKWAKE_GUARDIAN,
   PINKWAKE_SECTIONS,
@@ -16,8 +17,10 @@ import {
   PINKWAKE_WAVE_SIZES,
   pinkwakeScene,
   pinkwakeSpawns,
+  pinkwakeSpires,
   pinkwakeStage,
   type PinkwakeEnemy,
+  type PinkwakeSceneId,
 } from './rainbowPinkwake'
 import {
   BOSS_MAX_HP,
@@ -295,6 +298,24 @@ const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
+/**
+ * Act I after Silas's first playtest: tougher craft (urchins take a real beating), and craft that keep
+ * firing while they cross the screen, every this many frames at Pilot (slower for a Cadet, faster for an Ace).
+ */
+const ACT_ONE_HEALTH: Record<string, number> = {
+  picket: 3,
+  spiral: 4,
+  anchor: 5,
+  urchin: 9,
+  diver: 3,
+}
+const ACT_ONE_RELOAD: Record<string, number> = {
+  picket: 150,
+  spiral: 170,
+  urchin: 140,
+}
+/** A diver cruises in, locks the nearest pilot's lane this far from the right edge, then swoops along it. */
+const DIVER = { lockFrom: 130, cruise: 1.5, swoop: 3.2, steer: 1.6 } as const
 /** Frames a hurt craft flashes white. */
 const HIT_FLASH_FRAMES = 6
 /** A guardian beaten early hands the Act on this many frames before its section would have ended. */
@@ -392,6 +413,8 @@ const BASE_HEALTH: Record<string, number> = {
   hammerhead: 5,
   salvager: 6,
   scrap: 1,
+  diver: 3,
+  spire: 1,
   brood: 9,
   drone: 1,
   turret: 5,
@@ -550,6 +573,10 @@ type Reef = {
   freed?: boolean
   /** Frames left of the white flash a craft shows when a shot hurts it. */
   flash?: number
+  /** An Act I craft's frames until it fires again. */
+  reload?: number
+  /** A coral spire hangs from the ceiling (else it rises from the floor); `y` is its tip. */
+  fromTop?: boolean
   wave: number | null
 }
 type EnemyShot = {
@@ -608,9 +635,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
   sceneId:
-    | 'A01.OPEN'
-    | 'A01.TURN'
-    | 'A01.AFTER'
+    | PinkwakeSceneId
     | 'A02.OPEN'
     | 'A02.TURN'
     | 'A02.AFTER'
@@ -1550,14 +1575,75 @@ export function createRainbowPrincessPreview(
       health: Math.max(
         1,
         Math.round(
-          coopEnemyHealth(BASE_HEALTH[kind] ?? 5, activePlayers) *
-            level.craftHp,
+          coopEnemyHealth(
+            (moonStart === null ? ACT_ONE_HEALTH[kind] : undefined) ??
+              BASE_HEALTH[kind] ??
+              5,
+            activePlayers,
+          ) * level.craftHp,
         ),
       ),
       kind,
       fired: false,
       wave,
+      ...(moonStart === null && ACT_ONE_RELOAD[kind]
+        ? { reload: actOneReload(kind) }
+        : {}),
     })
+  }
+
+  /** An Act I craft's frames between shots at this difficulty. */
+  function actOneReload(kind: string) {
+    return Math.round((ACT_ONE_RELOAD[kind] ?? 0) / level.bulletSpeed)
+  }
+
+  /** A coral spire (Act I terrain) rising on its tick. */
+  function spawnSpire(spire: { top: boolean; y: number }) {
+    reefs.push({
+      x: W + 20,
+      y: spire.y,
+      phase: 0,
+      health: 1,
+      kind: 'spire',
+      fired: true,
+      wave: null,
+      fromTop: spire.top,
+    })
+  }
+
+  /** Whether a point lies in a coral spire's column, grown by `pad`. */
+  function inSpire(reef: Reef, x: number, y: number, pad: number) {
+    if (Math.abs(x - reef.x) > SPIRE.halfWidth + pad) return false
+    return reef.fromTop ? y < reef.y + pad : y > reef.y - pad
+  }
+
+  /** A diver cruises in, locks the nearest pilot's lane with an aimed pellet, then swoops along it. */
+  function stepDiver(reef: Reef) {
+    if (reef.dive === undefined) {
+      reef.x -= DIVER.cruise
+      reef.y += Math.sin(tick / 20 + reef.phase) * 0.6
+      if (reef.x < W - DIVER.lockFrom) {
+        const living = livingShips()
+        const target = living.length
+          ? living.reduce((best, ship) =>
+              Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y)
+                ? ship
+                : best,
+            )
+          : null
+        reef.homeY = target ? target.y : reef.y
+        reef.dive = 0
+        reef.fired = true
+        fireEnemy(reef)
+      }
+      return
+    }
+    reef.dive++
+    reef.x -= Math.min(DIVER.swoop, DIVER.cruise + reef.dive * 0.06)
+    reef.y += Math.max(
+      -DIVER.steer,
+      Math.min(DIVER.steer, (reef.homeY! - reef.y) * 0.06),
+    )
   }
 
   /** A formation that loses no craft to escape or ramming pays a school bonus on its last kill. */
@@ -2119,6 +2205,7 @@ export function createRainbowPrincessPreview(
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
       if (seat === 1 && reef.x < ship.x) continue
+      if (reef.kind === 'spire') continue
       if (reef.kind === 'captive') {
         freeCaptive(reef)
         continue
@@ -2306,7 +2393,8 @@ export function createRainbowPrincessPreview(
       reef.kind === 'gate' ||
       reef.kind === 'pylon' ||
       reef.kind === 'brood' ||
-      reef.kind === 'captive'
+      reef.kind === 'captive' ||
+      reef.kind === 'spire'
     )
       return
     if (reef.kind === 'mirror') {
@@ -2773,6 +2861,7 @@ export function createRainbowPrincessPreview(
         for (const entry of pinkwakeSpawns(tick)) {
           spawn(entry.kind, entry.y, entry.wave)
         }
+        for (const spire of pinkwakeSpires(tick)) spawnSpire(spire)
         if (tick === PINKWAKE.stationAppears) station = { x: W + 18, y: 190 }
       } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
         reefs.length = 0
@@ -3063,6 +3152,14 @@ export function createRainbowPrincessPreview(
       const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
+        // The attract demo flies around the nearest coral spire ahead.
+        const spire = reefs
+          .filter((reef) => reef.kind === 'spire' && reef.x > ship.x - 30)
+          .sort((a, b) => a.x - b.x)[0]
+        if (spire && spire.x < ship.x + 150)
+          ship.y = spire.fromTop
+            ? Math.max(ship.y, spire.y + 26 + seat * 6)
+            : Math.min(ship.y, spire.y - 26 - seat * 6)
         // At the Act III fork the attract demo shows both routes: odd crews fly up into the vault,
         // even crews down the safe passage, easing into the channel and back out after the choice.
         const fork = trenchStart === null ? -1 : trenchFrame()
@@ -3219,6 +3316,14 @@ export function createRainbowPrincessPreview(
         stepGlassCraft(reef)
         continue
       }
+      if (reef.kind === 'spire') {
+        reef.x -= SPIRE.speed
+        continue
+      }
+      if (reef.kind === 'diver') {
+        stepDiver(reef)
+        continue
+      }
       if (reef.kind === 'captive') {
         // A captive drifts with the palace current; once freed it lifts away out of the fight.
         if (reef.freed) {
@@ -3269,6 +3374,11 @@ export function createRainbowPrincessPreview(
           vy: 0,
           grazed: 0,
         })
+      // Act I craft keep firing while they cross the screen.
+      if (reef.reload !== undefined && reef.fired && --reef.reload <= 0) {
+        reef.reload = actOneReload(reef.kind)
+        if (reef.x > 70) fireEnemy(reef)
+      }
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
@@ -3525,17 +3635,19 @@ export function createRainbowPrincessPreview(
       const hitIndex = reefs.findIndex((reef) =>
         shot.struck?.includes(reef) || reef.kind === 'captive'
           ? false
-          : reef.kind === 'eel'
-            ? Math.abs(reef.x - shot.x) < 8 &&
-              Math.abs(reef.y - shot.y) < EEL.half + 6
-            : Math.abs(reef.x - shot.x) < 14 &&
-              Math.abs(reef.y - shot.y) <
-                (reef.kind === 'hammerhead' ||
-                reef.kind === 'scrap' ||
-                reef.kind === 'bulwark' ||
-                reef.kind === 'pylon'
-                  ? 20
-                  : 13),
+          : reef.kind === 'spire'
+            ? inSpire(reef, shot.x, shot.y, 3)
+            : reef.kind === 'eel'
+              ? Math.abs(reef.x - shot.x) < 8 &&
+                Math.abs(reef.y - shot.y) < EEL.half + 6
+              : Math.abs(reef.x - shot.x) < 14 &&
+                Math.abs(reef.y - shot.y) <
+                  (reef.kind === 'hammerhead' ||
+                  reef.kind === 'scrap' ||
+                  reef.kind === 'bulwark' ||
+                  reef.kind === 'pylon'
+                    ? 20
+                    : 13),
       )
       if (hitIndex >= 0) {
         const reef = reefs[hitIndex]!
@@ -3545,6 +3657,7 @@ export function createRainbowPrincessPreview(
             Math.abs(shot.y - reef.y) < EEL.half - EEL.endReach) ||
           reef.kind === 'scrap' ||
           reef.kind === 'gate' ||
+          reef.kind === 'spire' ||
           (reef.kind === 'bulwark' && !bulwarkOpen(reef))
         if (shot.pierce && !soaks) {
           shot.pierce--
@@ -3557,7 +3670,13 @@ export function createRainbowPrincessPreview(
         )
           continue
         // Wreck slabs soak every shot.
-        if (reef.kind === 'scrap' || reef.kind === 'gate') continue
+        // Wreck slabs and coral spires soak every shot.
+        if (
+          reef.kind === 'scrap' ||
+          reef.kind === 'gate' ||
+          reef.kind === 'spire'
+        )
+          continue
         // A closed bulwark shell soaks every shot.
         if (reef.kind === 'bulwark' && !bulwarkOpen(reef)) continue
         // A reef turret's stem breaks at double damage.
@@ -3771,6 +3890,16 @@ export function createRainbowPrincessPreview(
       if (reef.x < -25) {
         if (reef.wave !== null) brokenWaves.add(reef.wave)
         reefs.splice(ei, 1)
+        continue
+      }
+      if (reef.kind === 'spire') {
+        // Terrain: it stays, and a pilot who touches it takes a hit.
+        for (const ship of livingShips())
+          if (
+            ship.invulnerable === 0 &&
+            inSpire(reef, ship.x, ship.y, CORE_RADIUS + 2)
+          )
+            hitShip(ship)
         continue
       }
       if (reef.kind === 'captive') continue
@@ -4715,13 +4844,85 @@ export function createRainbowPrincessPreview(
         g.fill()
         g.restore()
       }
+      // Coral spires: terrain columns from the floor or the ceiling, knobbed, with a glowing tip.
+      for (const reef of reefs) {
+        if (reef.kind !== 'spire') continue
+        const base = reef.fromTop ? WALL_TOP - 14 : H + 4
+        const half = SPIRE.halfWidth
+        const body = g.createLinearGradient(reef.x - half, 0, reef.x + half, 0)
+        body.addColorStop(0, '#3d1a52')
+        body.addColorStop(0.5, '#b04e8e')
+        body.addColorStop(1, '#3d1a52')
+        g.save()
+        g.fillStyle = body
+        g.strokeStyle = '#ffc6e6'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.moveTo(reef.x - half, base)
+        const dir = reef.fromTop ? 1 : -1
+        const length = Math.abs(reef.y - base)
+        for (let k = 1; k < 6; k++) {
+          const y = base + (dir * (length * k)) / 6
+          g.lineTo(reef.x - half + (k % 2 ? 3 : 0), y)
+        }
+        g.arc(
+          reef.x,
+          reef.y,
+          half,
+          reef.fromTop ? Math.PI : 0,
+          reef.fromTop ? 0 : Math.PI,
+          reef.fromTop,
+        )
+        for (let k = 5; k > 0; k--) {
+          const y = base + (dir * (length * k)) / 6
+          g.lineTo(reef.x + half - (k % 2 ? 3 : 0), y)
+        }
+        g.lineTo(reef.x + half, base)
+        g.closePath()
+        g.fill()
+        g.stroke()
+        g.fillStyle = '#ff9fd8'
+        for (let k = 1; k < 5; k++) {
+          g.beginPath()
+          g.arc(
+            reef.x + (k % 2 ? -4 : 4),
+            base + (dir * (length * k)) / 5,
+            2.5,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+        }
+        g.globalAlpha = 0.6 + 0.3 * Math.sin(tick / 15 + reef.x / 50)
+        g.fillStyle = '#ffe6f6'
+        g.beginPath()
+        g.arc(reef.x, reef.y, 4, 0, Math.PI * 2)
+        g.fill()
+        g.restore()
+      }
+      // A diver about to swoop marks the lane it locked.
+      for (const reef of reefs) {
+        if (reef.kind !== 'diver' || reef.dive === undefined || reef.dive > 40)
+          continue
+        g.save()
+        g.strokeStyle = '#ff4d6d'
+        g.globalAlpha = 0.55 * (1 - reef.dive / 40)
+        g.lineWidth = 1.5
+        g.setLineDash([4, 5])
+        g.beginPath()
+        g.moveTo(reef.x - 14, reef.y)
+        g.lineTo(reef.x - 120, reef.homeY!)
+        g.stroke()
+        g.restore()
+      }
       for (const reef of reefs) {
         if (
           reef.kind === 'scrap' ||
           reef.kind === 'gate' ||
           reef.kind === 'pylon' ||
           reef.kind === 'prism' ||
-          reef.kind === 'captive'
+          reef.kind === 'captive' ||
+          reef.kind === 'spire'
         )
           continue
         if (
@@ -4746,7 +4947,12 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'eel') g.rotate(-Math.PI / 2)
         if (reef.kind === 'brood') g.scale(1.6, 1.6)
         if (reef.kind === 'drone') g.scale(0.65, 0.65)
-        g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
+        g.shadowColor =
+          reef.kind === 'urchin'
+            ? '#ffe38a'
+            : reef.kind === 'diver'
+              ? '#ff4d6d'
+              : '#ffa3e6'
         g.shadowBlur = 12
         g.fillStyle =
           reef.kind === 'urchin'
@@ -4765,7 +4971,10 @@ export function createRainbowPrincessPreview(
                         ? '#e4c0ff'
                         : '#d09ffd'
         if (
-          !drawRainbowEnemySprite(g, reef.kind) &&
+          !drawRainbowEnemySprite(
+            g,
+            reef.kind === 'diver' ? 'picket' : reef.kind,
+          ) &&
           !(reef.kind === 'drone' && drawRainbowEnemySprite(g, 'skimmer'))
         ) {
           g.beginPath()
@@ -6362,7 +6571,7 @@ export function createRainbowPrincessPreview(
                         )
                       : act === 1
                         ? pinkwakeDialogue(
-                            scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                            scene.id as PinkwakeSceneId,
                             scene.elapsed,
                             activePlayers,
                             rescuedStation,

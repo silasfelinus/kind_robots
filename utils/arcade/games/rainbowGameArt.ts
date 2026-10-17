@@ -83,10 +83,29 @@ export const RAINBOW_ACT_THREE_ENEMY_SPRITES = [
   'skate',
 ] as const
 
+/**
+ * Acts IV and V's painted craft (round-25 Kontext from the round-3 concepts), ready before their stages:
+ * E13 Dolphin Pair 247868, E14 Dolphin Courier 247869, E15 Electric Eel Threader 247870, then E16 Shark
+ * Cutter 247871, E17 Shark Hammerhead 247873 (fin missile pods) and E18 Octopus Salvager 247875.
+ */
+export const RAINBOW_ACT_FOUR_ENEMY_SPRITES = [
+  'dolphin',
+  'courier',
+  'eel',
+] as const
+export const RAINBOW_ACT_FIVE_ENEMY_SPRITES = [
+  'cutter',
+  'hammerhead',
+  'salvager',
+] as const
+
 export function rainbowEnemySprite(kind: string): string | null {
-  return [...RAINBOW_ENEMY_SPRITES, ...RAINBOW_ACT_THREE_ENEMY_SPRITES].some(
-    (name) => name === kind,
-  )
+  return [
+    ...RAINBOW_ENEMY_SPRITES,
+    ...RAINBOW_ACT_THREE_ENEMY_SPRITES,
+    ...RAINBOW_ACT_FOUR_ENEMY_SPRITES,
+    ...RAINBOW_ACT_FIVE_ENEMY_SPRITES,
+  ].some((name) => name === kind)
     ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
     : null
 }
@@ -105,10 +124,15 @@ export function drawRainbowEnemySprite(
 }
 
 /**
- * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern), keyed at 256 px so
- * they stay crisp at guardian size; until they load the engine scales up the scout sprite instead.
+ * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern; round 25: 247876
+ * armoured clawstrike with its cannon claw), keyed at 256 px so they stay crisp at guardian size; until they
+ * load the engine scales up the scout sprite instead.
  */
-export const RAINBOW_GUARDIAN_SPRITES = ['urchin', 'lantern'] as const
+export const RAINBOW_GUARDIAN_SPRITES = [
+  'urchin',
+  'lantern',
+  'clawstrike',
+] as const
 
 export function rainbowGuardianSprite(kind: string): string | null {
   return (RAINBOW_GUARDIAN_SPRITES as readonly string[]).includes(kind)
@@ -154,9 +178,11 @@ export function drawRainbowPickupSprite(
 
 /**
  * Calm, damaged (phase 2) and enraged (phase 3) pictures: B01 Pearl Seahorse and B02 Aurelia Array, which fly
- * today, and B03 Clawburst for Act III (round-18 Kontext 247730, round-20 phases 247765 and 247768).
+ * today, B03 Clawburst for Act III (round-18 Kontext 247730, round-20 phases 247765 and 247768), and, ahead
+ * of their Acts, B04 Delphion and B05 Sawtooth Regent (round-15 bases 247593 and 247594, round-25 phases
+ * 247878/247881 and 247883/247884).
  */
-export const RAINBOW_BOSS_SPRITES = ['b01', 'b02', 'b03'] as const
+export const RAINBOW_BOSS_SPRITES = ['b01', 'b02', 'b03', 'b04', 'b05'] as const
 export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
 
 export function rainbowBossSprite(boss: RainbowBossKey, phase: number): string {

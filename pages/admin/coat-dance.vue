@@ -103,6 +103,24 @@
             {{ store.selected ? 'View video' : 'Upload video' }}
           </button>
         </div>
+        <div
+          v-if="
+            store.selected &&
+            (store.selected.full
+              ? !store.selected.full.artJobId
+              : store.selected.pilot && !store.selected.pilot.artJobId)
+          "
+          class="flex shrink-0 items-center justify-between gap-2 rounded-lg border border-warning/30 bg-base-100 p-2 text-xs"
+          role="status"
+        >
+          <span>Saved project needs an ArtJob queue link.</span>
+          <button
+            type="button"
+            class="kr-btn-outline-xs"
+            :disabled="store.syncing"
+            @click="store.refresh()"
+          >{{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}</button>
+        </div>
         <nav
           class="grid grid-cols-2 gap-1 rounded-xl bg-base-200 p-1"
           aria-label="Studio views"

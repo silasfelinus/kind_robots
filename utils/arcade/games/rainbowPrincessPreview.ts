@@ -58,15 +58,20 @@ import {
 import { RAINBOW_LANES } from './rainbowFormations'
 import {
   TRENCH,
+  TRENCH_ALL_WAVES,
+  TRENCH_FORK,
   TRENCH_GUARDIAN,
   TRENCH_SECTIONS,
-  TRENCH_WAVES,
   TRENCH_WAVE_SIZES,
   trenchDialogue,
+  trenchRouteFor,
   trenchScene,
+  trenchSections,
   trenchSpawns,
   trenchStage,
   type TrenchEnemy,
+  type TrenchRoute,
+  type TrenchSceneId,
 } from './rainbowTrench'
 import {
   CLAWBURST_MAX_HP,
@@ -233,6 +238,7 @@ export type RainbowCombatSnapshot = {
     | 'A02.TURN'
     | 'A02.AFTER'
     | 'A03.OPEN'
+    | 'A03.FORK'
     | 'A03.TURN'
     | 'A03.AFTER'
     | null
@@ -243,6 +249,10 @@ export type RainbowCombatSnapshot = {
   /** Each Act's guardian: still to come (or in play), destroyed, or escaped. */
   guardians: Readonly<Record<1 | 2 | 3, GuardianOutcome>>
   rescuedNemi: boolean
+  /** Act III's route: null until the fork, then the vault gauntlet or the safe passage. */
+  trenchRoute: TrenchRoute | null
+  /** The story flag the vault route earns once the crew rejoins with its salvage. */
+  securedSalvage: boolean
   actTwoFrame: number
   actThreeFrame: number
   rescuedStation: boolean
@@ -311,6 +321,8 @@ export function createRainbowPrincessPreview(
   let clawBossCarryHp: number | null = null
   let trenchDefeatedFrame: number | null = null
   let rescuedNemi = false
+  let trenchRoute: TrenchRoute | null = null
+  let routeSettled = false
   let nemi: { x: number; y: number } | null = null
   const waveSpawned = new Map<number, number>()
   const waveLeft = new Map<number, number>()
@@ -322,6 +334,8 @@ export function createRainbowPrincessPreview(
     score: 0,
     rescuedStation: false,
     rescuedNemi: false,
+    trenchRoute: null,
+    routeSettled: false,
     schoolBonuses: 0,
   }
   let continueLeft = 0
@@ -335,6 +349,46 @@ export function createRainbowPrincessPreview(
   }
   function currentAct(): 1 | 2 | 3 {
     return trenchStart !== null ? 3 : moonStart !== null ? 2 : 1
+  }
+
+  /** The fork: where the living crew flies at the decision frame picks the route. */
+  function chooseTrenchRoute() {
+    trenchRoute = trenchRouteFor(
+      ships
+        .slice(0, activePlayers)
+        .filter((ship) => ship.lives > 0)
+        .map((ship) => ship.y),
+    )
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: trenchRoute === 'vault' ? 'SALVAGE VAULT' : 'SAFE PASSAGE',
+      age: 0,
+    })
+  }
+
+  /** The rejoin: the vault pays out its salvage, the safe passage a shield repair. */
+  function settleTrenchRoute() {
+    routeSettled = true
+    const living = ships
+      .slice(0, activePlayers)
+      .filter((ship) => ship.lives > 0)
+    if (trenchRoute === 'vault') {
+      score += TRENCH_FORK.salvageScore
+      for (const ship of living) ship.power = Math.min(3, ship.power + 1)
+    } else {
+      for (const ship of living) ship.shield = Math.min(3, ship.shield + 1)
+    }
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text:
+        trenchRoute === 'vault'
+          ? `SALVAGE SECURED +${TRENCH_FORK.salvageScore} · POWER UP`
+          : 'SAFE PASSAGE · SHIELDS REPAIRED',
+      age: 0,
+    })
+    options.sound.play('pickup')
   }
 
   function defeatClawBoss() {
@@ -433,6 +487,8 @@ export function createRainbowPrincessPreview(
       score,
       rescuedStation,
       rescuedNemi,
+      trenchRoute,
+      routeSettled,
       schoolBonuses,
     }
     if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
@@ -458,7 +514,7 @@ export function createRainbowPrincessPreview(
           ? PINKWAKE_WAVES
           : checkpoint.act === 2
             ? MOONJELLY_WAVES
-            : TRENCH_WAVES
+            : TRENCH_ALL_WAVES
       const base =
         checkpoint.act === 1
           ? 0
@@ -489,6 +545,8 @@ export function createRainbowPrincessPreview(
       score = checkpoint.score
       rescuedStation = checkpoint.rescuedStation
       rescuedNemi = checkpoint.rescuedNemi
+      trenchRoute = checkpoint.trenchRoute
+      routeSettled = checkpoint.routeSettled
       schoolBonuses = checkpoint.schoolBonuses
     }
     reefs.length = 0
@@ -882,11 +940,20 @@ export function createRainbowPrincessPreview(
       const frame = trenchFrame()
       const stage = trenchStage(frame, trenchDefeatedFrame)
       if (trenchDefeatedFrame === null) {
+        // Route before checkpoint, so a checkpoint on the fork or rejoin frame keeps what it decided.
+        if (frame === TRENCH_FORK.decideAt && trenchRoute === null)
+          chooseTrenchRoute()
+        if (
+          frame === TRENCH_FORK.rejoinAt &&
+          trenchRoute !== null &&
+          !routeSettled
+        )
+          settleTrenchRoute()
         passCheckpoint(3, frame)
         summonGuardian(3, frame, TRENCH_GUARDIAN)
       }
       if (stage === 'waves') {
-        for (const entry of trenchSpawns(frame)) {
+        for (const entry of trenchSpawns(frame, trenchRoute)) {
           spawn(entry.kind, entry.y, entry.wave)
         }
       } else if (stage === 'turn' && frame === TRENCH.turnStarts) {
@@ -913,6 +980,19 @@ export function createRainbowPrincessPreview(
       ship.focus = !options.demo && keys.held.b
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
+        // At the Act III fork the attract demo shows both routes: odd crews fly up into the vault,
+        // even crews down the safe passage, easing into the channel and back out after the choice.
+        const fork = trenchStart === null ? -1 : trenchFrame()
+        const lead = Math.min(
+          fork - TRENCH_FORK.markFrom,
+          TRENCH_FORK.decideAt + 60 - fork,
+        )
+        if (lead >= 0) {
+          const lane =
+            (activePlayers % 2 === 1 ? 88 : 182) +
+            Math.sin(tick / 33 + seat) * 14
+          ship.y += (lane - ship.y) * Math.min(1, lead / 60)
+        }
       } else {
         const dx = Number(keys.held.right) - Number(keys.held.left)
         const dy = Number(keys.held.down) - Number(keys.held.up)
@@ -1260,6 +1340,8 @@ export function createRainbowPrincessPreview(
         guardian: guardian ? { ...guardian } : null,
         guardians: { ...guardians },
         rescuedNemi,
+        trenchRoute,
+        securedSalvage: trenchRoute === 'vault' && routeSettled,
         actTwoFrame: moonFrame(),
         actThreeFrame: trenchFrame(),
         rescuedStation,
@@ -2016,9 +2098,10 @@ export function createRainbowPrincessPreview(
       const dialogue = scene
         ? act === 3
           ? trenchDialogue(
-              scene.id as 'A03.OPEN' | 'A03.TURN' | 'A03.AFTER',
+              scene.id as TrenchSceneId,
               scene.elapsed,
               activePlayers,
+              trenchRoute,
             )
           : act === 1
             ? pinkwakeDialogue(
@@ -2110,6 +2193,46 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
+      if (act === 3 && trenchDefeatedFrame === null) {
+        const frame = trenchFrame()
+        if (frame >= TRENCH_FORK.markFrom && frame < TRENCH_FORK.decideAt) {
+          // The fork: a channel line with the vault above it and the safe passage below.
+          g.save()
+          g.globalAlpha = 0.6 + 0.25 * Math.sin(frame / 8)
+          g.strokeStyle = '#ffe2fa'
+          g.lineWidth = 1
+          g.setLineDash([8, 6])
+          g.beginPath()
+          g.moveTo(W - 170, TRENCH_FORK.splitY)
+          g.lineTo(W, TRENCH_FORK.splitY)
+          g.stroke()
+          g.setLineDash([])
+          g.font = 'bold 9px monospace'
+          g.textAlign = 'right'
+          g.fillStyle = '#ffd36e'
+          g.fillText('▲ SALVAGE VAULT', W - 8, TRENCH_FORK.splitY - 8)
+          g.fillStyle = '#9ff3ff'
+          g.fillText('▼ SAFE PASSAGE', W - 8, TRENCH_FORK.splitY + 16)
+          g.restore()
+        } else if (
+          trenchRoute !== null &&
+          frame >= TRENCH_FORK.decideAt &&
+          frame < TRENCH_FORK.rejoinAt
+        ) {
+          g.save()
+          g.font = '8px monospace'
+          g.textAlign = 'right'
+          g.fillStyle = trenchRoute === 'vault' ? '#ffd36e' : '#9ff3ff'
+          g.fillText(
+            trenchRoute === 'vault'
+              ? 'ROUTE · SALVAGE VAULT'
+              : 'ROUTE · SAFE PASSAGE',
+            W - 8,
+            H - 8,
+          )
+          g.restore()
+        }
+      }
       for (const popup of popups) {
         g.save()
         g.globalAlpha = Math.max(0, 1 - popup.age / POPUP_FRAMES)
@@ -2180,11 +2303,17 @@ export function createRainbowPrincessPreview(
                 PINKWAKE.bossStarts,
                 checkpoint.frame,
               )
-            : checkpointLabel(
-                MOONJELLY_SECTIONS,
-                MOONJELLY.bossStarts,
-                checkpoint.frame,
-              )
+            : checkpoint.act === 2
+              ? checkpointLabel(
+                  MOONJELLY_SECTIONS,
+                  MOONJELLY.bossStarts,
+                  checkpoint.frame,
+                )
+              : checkpointLabel(
+                  trenchSections(checkpoint.trenchRoute),
+                  TRENCH.bossStarts,
+                  checkpoint.frame,
+                )
         g.save()
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)

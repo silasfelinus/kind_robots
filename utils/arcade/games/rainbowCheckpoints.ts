@@ -18,6 +18,9 @@ export type RainbowCheckpoint = {
   score: number
   rescuedStation: boolean
   rescuedNemi: boolean
+  /** Act III's fork: the route chosen (null before the fork) and whether the crew has rejoined. */
+  trenchRoute: 'vault' | 'safe' | null
+  routeSettled: boolean
   schoolBonuses: number
 }
 

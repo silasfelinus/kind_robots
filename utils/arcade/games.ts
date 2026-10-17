@@ -812,7 +812,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     title: 'Rainbow Bullet Hell Space Princess',
     riffsOn: 'cinematic side-scrolling shmups',
     blurb:
-      'Private four-Act preview: Pinkwake Estuary, Moonjelly Fields, the Chromatic Trench and the Rosefin Express, four bosses, four guardians, rescues, checkpoints and one to four numbered local pilots. It is not yet the complete eight-stage campaign.',
+      'Private five-Act preview: Pinkwake Estuary, Moonjelly Fields, the Chromatic Trench, the Rosefin Express and the Blossom Wreckyard, five bosses, five guardians, route choices, rescues, checkpoints and one to four numbered local pilots. It is not yet the complete eight-stage campaign.',
     howTo: [
       'ARROWS  FLY',
       'HOLD A  FIRE',

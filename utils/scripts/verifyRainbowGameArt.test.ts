@@ -5,6 +5,7 @@ import {
   RAINBOW_ACT_FOUR_ENEMY_SPRITES,
   RAINBOW_ACT_SIX_ENEMY_SPRITES,
   RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
+  RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
   RAINBOW_ACT_THREE_ENEMY_SPRITES,
   RAINBOW_BOSS_SPRITES,
   RAINBOW_COMMS_SPEAKERS,
@@ -114,13 +115,14 @@ for (const kind of RAINBOW_ENEMY_SPRITES) {
   assert.ok(existsSync(publicFile(src)), `${kind} sprite is committed`)
   assert.ok(statSync(publicFile(src)).size < 32_000, `${kind} stays small`)
 }
-// Acts III-VII's craft are painted ahead of the stages that spawn them.
+// Acts III-VIII's craft are painted ahead of the stages that spawn them.
 for (const kind of [
   ...RAINBOW_ACT_THREE_ENEMY_SPRITES,
   ...RAINBOW_ACT_FOUR_ENEMY_SPRITES,
   ...RAINBOW_ACT_FIVE_ENEMY_SPRITES,
   ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
   ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
+  ...RAINBOW_ACT_EIGHT_ENEMY_SPRITES,
 ]) {
   const src = rainbowEnemySprite(kind)!
   assert.equal(src, `/rainbow-princess-art/enemies/${kind}.webp`)

@@ -210,3 +210,8 @@ export function endlessPressure(round: number): {
     gremlinBonus: Math.min(0.15, tier * 0.03),
   }
 }
+
+/** Pyramid height per round: the wide 8-row board remixes every 4th round. */
+export function boardRows(round: number): number {
+  return Math.trunc(round) % 4 === 0 ? 8 : 7
+}

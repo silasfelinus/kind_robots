@@ -431,7 +431,7 @@ for (const players of [1, 2]) {
       `the solo demo frees ${a.snapshot.captivesFreed} of ${PALACE_CAPTIVES} captives`,
     )
     assert.ok(
-      minutes >= 10 && minutes <= 15,
+      minutes >= 3 && minutes <= 15, // 10-15 before Silas's 2026-10-17 playtest cut the Acts
       `a clean solo Act VIII takes ${minutes.toFixed(2)} minutes`,
     )
     assert.ok(bossFrames >= 30 * 60, 'the Leviathan is a real fight')

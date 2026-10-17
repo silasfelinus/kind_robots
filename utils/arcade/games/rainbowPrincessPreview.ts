@@ -295,6 +295,10 @@ const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
+/** Frames a hurt craft flashes white. */
+const HIT_FLASH_FRAMES = 6
+/** A guardian beaten early hands the Act on this many frames before its section would have ended. */
+const GUARDIAN_SKIP_LEAD = 240
 /** Frames of credits before A skips the rest to THE END (t-012). */
 const CREDITS_SKIP_GRACE = 60
 /** U12 Recovery Cache: how long a dropped power level waits (4 s), and how far ahead of the pilot it falls. */
@@ -483,6 +487,8 @@ type Ship = {
   graze: number
   lives: number
   focus: boolean
+  /** Smoothed vertical speed, so the ship banks into a climb or a dive. */
+  bank: number
 }
 type Spark = {
   x: number
@@ -542,6 +548,8 @@ type Reef = {
   volleys?: number
   /** A captive whose collar has been broken: it flies free and nothing touches it. */
   freed?: boolean
+  /** Frames left of the white flash a craft shows when a shot hurts it. */
+  flash?: number
   wave: number | null
 }
 type EnemyShot = {
@@ -704,6 +712,7 @@ export function createRainbowPrincessPreview(
     graze: 0,
     lives: level.lives,
     focus: false,
+    bank: 0,
   })
   const ships: Ship[] = Array.from({ length: count }, (_, seat) =>
     createShip(seat),
@@ -1653,6 +1662,19 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  /** Move an Act's clock on by `frames` (Act I runs on the tick; later Acts count from their start). */
+  function advanceAct(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, frames: number) {
+    if (frames <= 0) return
+    if (act === 1) tick += frames
+    else if (act === 2) moonStart! -= frames
+    else if (act === 3) trenchStart! -= frames
+    else if (act === 4) rosefinStart! -= frames
+    else if (act === 5) wreckStart! -= frames
+    else if (act === 6) reefStart! -= frames
+    else if (act === 7) glassStart! -= frames
+    else palaceStart! -= frames
+  }
+
   /** Earn a mastery goal (once a game); the game announces it only the first time ever. */
   function earn(id: string) {
     if (earned.includes(id)) return
@@ -2124,16 +2146,16 @@ export function createRainbowPrincessPreview(
         (calm ? RAINBOW_EFFECTS.calmShare : 1),
     )
     const life = big ? RAINBOW_EFFECTS.bossLife : RAINBOW_EFFECTS.craftLife
-    if (big && !calm)
+    if (!calm)
       sparks.push({
         x,
         y,
         vx: 0,
         vy: 0,
         age: 0,
-        life,
-        color: '#fff2a8',
-        size: 0,
+        life: big ? life : 16,
+        color: big ? '#fff2a8' : '#ffffff',
+        size: big ? 1.6 : 1.3,
         ring: true,
       })
     for (let i = 0; i < count; i++) {
@@ -2153,6 +2175,54 @@ export function createRainbowPrincessPreview(
     // The budget: the oldest sparks give way.
     if (sparks.length > RAINBOW_EFFECTS.maxSparks)
       sparks.splice(0, sparks.length - RAINBOW_EFFECTS.maxSparks)
+  }
+
+  /** A pickup taken: a ring and sparks in its colour, and its name. */
+  function collected(pickup: Pickup) {
+    const color =
+      pickup.kind === 'power'
+        ? '#a5f3fc'
+        : pickup.kind === 'shield'
+          ? '#f9a8d4'
+          : '#fde68a'
+    if (!calm)
+      sparks.push({
+        x: pickup.x,
+        y: pickup.y,
+        vx: 0,
+        vy: 0,
+        age: 0,
+        life: 18,
+        color,
+        size: 1.4,
+        ring: true,
+      })
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2
+      sparks.push({
+        x: pickup.x,
+        y: pickup.y,
+        vx: Math.cos(angle) * 1.6,
+        vy: Math.sin(angle) * 1.6,
+        age: 0,
+        life: 20,
+        color,
+        size: 2,
+      })
+    }
+    if (sparks.length > RAINBOW_EFFECTS.maxSparks)
+      sparks.splice(0, sparks.length - RAINBOW_EFFECTS.maxSparks)
+    popups.push({
+      x: pickup.x,
+      y: pickup.y - 12,
+      text:
+        pickup.kind === 'power'
+          ? 'POWER UP'
+          : pickup.kind === 'shield'
+            ? 'SHIELD +1'
+            : 'CHARGE +35',
+      age: 0,
+    })
   }
 
   function defeat(index: number, seat: number) {
@@ -2511,7 +2581,14 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The finale has no guardian of its own.
-    if (act !== 9) guardians[act] = 'defeated'
+    if (act !== 9) {
+      guardians[act] = 'defeated'
+      // Nothing flies in a guardian's section, so once it falls the Act moves on after a short breath.
+      advanceAct(
+        act,
+        guardianSections[act].to - GUARDIAN_SKIP_LEAD - actFrame(act),
+      )
+    }
     if (Object.values(guardians).every((outcome) => outcome === 'defeated'))
       earn('guardian-breaker')
     // Like a boss, a destroyed guardian takes its pellets with it.
@@ -2600,6 +2677,7 @@ export function createRainbowPrincessPreview(
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     for (let i = popups.length - 1; i >= 0; i--)
       if (++popups[i]!.age > POPUP_FRAMES) popups.splice(i, 1)
+    for (const reef of reefs) if (reef.flash) reef.flash--
     for (let i = sparks.length - 1; i >= 0; i--) {
       const spark = sparks[i]!
       spark.x += spark.vx
@@ -2982,6 +3060,7 @@ export function createRainbowPrincessPreview(
       if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
+      const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
         // At the Act III fork the attract demo shows both routes: odd crews fly up into the vault,
@@ -3010,6 +3089,15 @@ export function createRainbowPrincessPreview(
             Math.sin(tick / 33 + seat) * (wreckRoute === 'depot' ? 34 : 14)
           ship.y += (lane - ship.y) * Math.min(1, wreckLead / 60)
         }
+        // Odd crews on the depot route steer for the nearest survivor pod ahead, so the demo frees the depot
+        // however the Act's clock has run (a guardian beaten early moves it on).
+        const pod =
+          wreckRoute === 'depot' && activePlayers % 2 === 1
+            ? survivors.find((p) => p.x > ship.x - 8 && p.x < ship.x + 140)
+            : undefined
+        // (The demo sets its lane afresh each frame, so ease all the way in as the pod nears.)
+        if (pod)
+          ship.y += (pod.y - ship.y) * Math.min(1, (ship.x + 140 - pod.x) / 70)
         const reef = reefStart === null ? -1 : reefFrame()
         const reefLead = Math.min(
           reef - CROWN_REEF_FORK.markFrom,
@@ -3077,6 +3165,7 @@ export function createRainbowPrincessPreview(
         ship.x = Math.max(20, Math.min(W - 40, ship.x + (dx / length) * speed))
         ship.y = Math.max(34, Math.min(H - 25, ship.y + (dy / length) * speed))
       }
+      ship.bank += (ship.y - lastY - ship.bank) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
@@ -3490,6 +3579,7 @@ export function createRainbowPrincessPreview(
         // A hit while a salvager's arms are out jams its grab.
         if (reef.kind === 'salvager' && reef.charge && reef.charge > 0)
           reef.jammed = true
+        reef.flash = HIT_FLASH_FRAMES
         reef.health -= shot.damage * (dolphinStaggered(reef) ? 2 : 1)
         if (reef.health <= 0) defeat(hitIndex, shot.seat)
         continue
@@ -3854,6 +3944,7 @@ export function createRainbowPrincessPreview(
         )
       if (!ship) continue
       pickups.splice(pi, 1)
+      collected(pickup)
       if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
       else if (pickup.kind === 'shield')
         ship.shield = Math.min(3, ship.shield + 1)
@@ -5890,7 +5981,26 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const pickup of pickups) {
-        if (drawRainbowPickupSprite(g, pickup.kind, pickup.x, pickup.y))
+        // Pickups bob and pulse so they read as something to grab.
+        const bob = Math.sin(tick / 9 + pickup.x / 40) * 2.5
+        const pulse = 1 + Math.sin(tick / 6) * 0.1
+        g.save()
+        g.globalAlpha = 0.35 + 0.2 * Math.sin(tick / 6)
+        g.strokeStyle = '#ffffff'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.arc(pickup.x, pickup.y + bob, 13 * pulse, 0, Math.PI * 2)
+        g.stroke()
+        g.restore()
+        if (
+          drawRainbowPickupSprite(
+            g,
+            pickup.kind,
+            pickup.x,
+            pickup.y + bob,
+            22 * pulse,
+          )
+        )
           continue
         g.fillStyle =
           pickup.kind === 'power'
@@ -5911,7 +6021,19 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
-      // Explosions: sparks that slow and fade, and a boss's shockwave ring.
+      // A craft a shot just hurt flashes white.
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.fillStyle = '#ffffff'
+      for (const reef of reefs) {
+        if (!reef.flash) continue
+        g.globalAlpha = (reef.flash / HIT_FLASH_FRAMES) * 0.75
+        g.beginPath()
+        g.arc(reef.x, reef.y, 15, 0, Math.PI * 2)
+        g.fill()
+      }
+      g.restore()
+      // Explosions: sparks that slow and fade, and a shockwave ring.
       for (const spark of sparks) {
         const fade = 1 - spark.age / spark.life
         g.globalAlpha = fade
@@ -5919,7 +6041,7 @@ export function createRainbowPrincessPreview(
           g.strokeStyle = spark.color
           g.lineWidth = 1 + 3 * fade
           g.beginPath()
-          g.arc(spark.x, spark.y, 8 + spark.age * 1.6, 0, Math.PI * 2)
+          g.arc(spark.x, spark.y, 8 + spark.age * spark.size, 0, Math.PI * 2)
           g.stroke()
         } else {
           g.fillStyle = spark.color
@@ -5976,6 +6098,9 @@ export function createRainbowPrincessPreview(
           continue
         g.save()
         g.translate(ship.x, ship.y)
+        // Bank into a climb or a dive: tilt with the vertical speed, flattening a little as it turns.
+        g.rotate(Math.max(-0.35, Math.min(0.35, ship.bank * 0.12)))
+        g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
         g.shadowColor = PILOT_COLORS[seat]!
         g.shadowBlur = 10
         if (!drawRainbowShipSprite(g, seat)) {

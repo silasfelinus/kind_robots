@@ -173,7 +173,7 @@ assert.equal(rainbowPickupSprite('extra-life'), null)
 assert.equal(drawRainbowPickupSprite(g, 'power', 0, 0), false)
 assert.match(
   engine,
-  /if \(drawRainbowPickupSprite\(g, pickup\.kind, pickup\.x, pickup\.y\)\)\s+continue/,
+  /if \(\s*drawRainbowPickupSprite\(\s*g,\s*pickup\.kind,\s*pickup\.x,\s*pickup\.y \+ bob,\s*22 \* pulse,?\s*\)\s*\)\s+continue/,
   'pickups keep the lettered circle until the sprite loads',
 )
 

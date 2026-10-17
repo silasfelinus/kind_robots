@@ -292,6 +292,8 @@ const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
+/** U12 Recovery Cache: how long a dropped power level waits (4 s), and how far ahead of the pilot it falls. */
+export const RECOVERY_CACHE = { frames: 240, ahead: 36, reach: 18 } as const
 const INTRO_FRAMES = 160
 const STRIP_HEIGHT = 50
 const STRIP_SPEED = 0.55
@@ -552,6 +554,8 @@ type EnemyShot = {
   ghost?: boolean
 }
 type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
+/** U12 Recovery Cache: the power level a pilot lost with a life, waiting where it fell for its pilot alone. */
+type RecoveryCache = { x: number; y: number; seat: number; age: number }
 type GuardianOutcome = 'waiting' | 'defeated' | 'escaped'
 
 export type RainbowCombatSnapshot = {
@@ -561,6 +565,8 @@ export type RainbowCombatSnapshot = {
   shots: ReadonlyArray<Readonly<Shot>>
   /** Explosion sparks in flight (t-011), within RAINBOW_EFFECTS.maxSparks. */
   sparks: number
+  /** Recovery Caches waiting for their pilots (U12). */
+  caches: ReadonlyArray<Readonly<RecoveryCache>>
   /** Calm motion is on (t-011). */
   calm: boolean
   /** Medals won so far, by Act (t-010). */
@@ -812,6 +818,7 @@ export function createRainbowPrincessPreview(
   let continues = 0
   const popups: Array<{ x: number; y: number; text: string; age: number }> = []
   const sparks: Spark[] = []
+  const caches: RecoveryCache[] = []
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
@@ -1735,6 +1742,7 @@ export function createRainbowPrincessPreview(
    */
   function resumeFromCheckpoint() {
     continueLeft = 0
+    caches.length = 0
     continues++
     actContinues++
     if (escapeFrame !== null) {
@@ -2515,6 +2523,14 @@ export function createRainbowPrincessPreview(
     if (ship.shield <= 0) {
       ship.lives--
       ship.shield = 3
+      // The power level lost with the life falls just ahead as a Recovery Cache (U12) for four seconds.
+      if (ship.power > 1 && ship.lives > 0)
+        caches.push({
+          x: Math.min(W - 30, ship.x + RECOVERY_CACHE.ahead),
+          y: ship.y,
+          seat: ships.indexOf(ship),
+          age: 0,
+        })
       ship.power = Math.max(1, ship.power - 1)
       if (
         !options.demo &&
@@ -3773,6 +3789,20 @@ export function createRainbowPrincessPreview(
       if (consumed) continue
     }
 
+    for (let ci = caches.length - 1; ci >= 0; ci--) {
+      const cache = caches[ci]!
+      const ship = ships[cache.seat]
+      if (
+        ship &&
+        ship.lives > 0 &&
+        Math.hypot(ship.x - cache.x, ship.y - cache.y) < RECOVERY_CACHE.reach
+      ) {
+        caches.splice(ci, 1)
+        ship.power = Math.min(3, ship.power + 1)
+        popups.push({ x: cache.x, y: cache.y - 14, text: 'RECOVERED', age: 0 })
+        options.sound.play('pickup')
+      } else if (++cache.age >= RECOVERY_CACHE.frames) caches.splice(ci, 1)
+    }
     for (let pi = pickups.length - 1; pi >= 0; pi--) {
       const pickup = pickups[pi]!
       if (pickup.x < -15) {
@@ -3835,6 +3865,7 @@ export function createRainbowPrincessPreview(
         shots: shots.map((shot) => ({ ...shot })),
         medals: { ...medals },
         sparks: sparks.length,
+        caches: caches.map((cache) => ({ ...cache })),
         calm,
         earned: [...earned],
         difficulty,
@@ -5767,6 +5798,35 @@ export function createRainbowPrincessPreview(
         g.strokeStyle = '#fff5b3'
         g.lineWidth = 2
         g.stroke()
+      }
+      for (const cache of caches) {
+        // A white chevron in its pilot's colour ring, the ring running down; it blinks in its last second.
+        const left = 1 - cache.age / RECOVERY_CACHE.frames
+        if (left < 0.25 && Math.floor(cache.age / 5) % 2 === 0) continue
+        g.save()
+        g.translate(cache.x, cache.y)
+        g.strokeStyle = PILOT_COLORS[cache.seat]!
+        g.lineWidth = 2
+        g.beginPath()
+        g.arc(0, 0, 10, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2)
+        g.stroke()
+        g.fillStyle = '#ffffff'
+        g.strokeStyle = '#1b163e'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.moveTo(-5, -5)
+        g.lineTo(2, 0)
+        g.lineTo(-5, 5)
+        g.lineTo(-2, 0)
+        g.closePath()
+        g.moveTo(1, -5)
+        g.lineTo(8, 0)
+        g.lineTo(1, 5)
+        g.lineTo(4, 0)
+        g.closePath()
+        g.fill()
+        g.stroke()
+        g.restore()
       }
       for (const pickup of pickups) {
         if (drawRainbowPickupSprite(g, pickup.kind, pickup.x, pickup.y))

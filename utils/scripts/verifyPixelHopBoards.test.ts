@@ -3,6 +3,7 @@ import {
   RULES,
   bridgeBoard,
   cellKey,
+  boardRows,
   endlessFoes,
   endlessPressure,
   hopTile,
@@ -79,3 +80,9 @@ assert.ok(endlessPressure(24).hopTrim > endlessPressure(16).hopTrim)
 assert.ok(endlessPressure(9999).maxEnemies <= 6, 'pressure is capped')
 
 console.log('Pixel Hop boards, rule engine and tile effects passed')
+
+assert.equal(boardRows(1), 7)
+assert.equal(boardRows(3), 7)
+assert.equal(boardRows(4), 8, 'the wide pyramid remixes every 4th round')
+assert.equal(boardRows(8), 8)
+assert.equal(pyramidBoard(boardRows(4)).cells.length, 36)

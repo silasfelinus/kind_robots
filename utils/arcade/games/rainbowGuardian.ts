@@ -14,6 +14,7 @@ export type RainbowGuardianKind =
   | 'salvager'
   | 'bulwark'
   | 'mirror'
+  | 'herald'
 
 export type RainbowGuardianSection = {
   name: string
@@ -32,7 +33,7 @@ export type RainbowGuardian = {
   nextVolley: number
   volleys: number
   leaving: boolean
-  /** A clawstrike guardian's lanes, locked when its warning starts: the lanes its bolts fly. */
+  /** A clawstrike (or herald) guardian's lanes, locked when its warning starts: the lanes its bolts fly. */
   lanes: number[]
 }
 
@@ -88,6 +89,17 @@ export function rainbowGuardianWarning(guardian: RainbowGuardian): boolean {
   )
 }
 
+/**
+ * True when the coming volley flies down marked lanes: every clawstrike volley, and every other herald
+ * volley (the herald alternates lane bolts with a ring).
+ */
+export function rainbowGuardianMarksLanes(guardian: RainbowGuardian): boolean {
+  return (
+    guardian.kind === 'clawstrike' ||
+    (guardian.kind === 'herald' && guardian.volleys % 2 === 0)
+  )
+}
+
 /** True once an escaping guardian has left the playfield. */
 export function rainbowGuardianGone(guardian: RainbowGuardian): boolean {
   return guardian.leaving && guardian.x > 520
@@ -119,7 +131,7 @@ export function stepRainbowGuardian(
     living[0] ?? { x: 80, y: 135, lives: 1 },
   )
   if (
-    guardian.kind === 'clawstrike' &&
+    rainbowGuardianMarksLanes(guardian) &&
     guardian.frame === guardian.nextVolley - RAINBOW_GUARDIAN.warningFrames
   ) {
     // Three lanes (five when enraged) centred on the nearest pilot; the gaps between them are safe.
@@ -151,6 +163,19 @@ export function stepRainbowGuardian(
       const fromGap = (i - gap + count) % count
       if (fromGap < 3) continue
       shot((i / count) * Math.PI * 2, 1.45)
+    }
+  } else if (guardian.kind === 'herald') {
+    // The Crown Herald remixes two old lessons, one per volley: bolts down the lanes its warning marked,
+    // then a ring of pearls with a gap that walks round.
+    if (guardian.volleys % 2 === 1)
+      for (const lane of guardian.lanes)
+        shots.push({ x: guardian.x - 18, y: lane, vx: -4.2, vy: 0, grazed: 0 })
+    else {
+      const count = enraged ? 16 : 12
+      const gap = (guardian.volleys * 5) % count
+      for (let i = 0; i < count; i++)
+        if ((i - gap + count) % count >= 3)
+          shot((i / count) * Math.PI * 2, 1.45)
     }
   } else if (guardian.kind === 'clawstrike') {
     // A straight bolt down every lane its warning marked.

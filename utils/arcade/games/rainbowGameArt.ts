@@ -99,13 +99,24 @@ export const RAINBOW_ACT_FIVE_ENEMY_SPRITES = [
   'hammerhead',
   'salvager',
 ] as const
-/** Act VI's craft, ahead of their stage: E20 Reef Turret 247892 and E21 Nautilus Bulwark 247893 (round 26). */
-export const RAINBOW_ACT_SIX_ENEMY_SPRITES = ['turret', 'bulwark'] as const
 /**
- * Act VII's craft (round 27): E22 Mirror Eel 247941 and E24 Crown Harbinger 247944. The crystal squid waits on
- * a txt2img redo, and prism pylons are drawn by hand.
+ * Act VI's craft: E20 Reef Turret 247892 and E21 Nautilus Bulwark 247893 (round 26), and E19 Manta Broodship
+ * 247959 (round-28 txt2img, seen from above and turned to face left).
  */
-export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = ['mirror', 'harbinger'] as const
+export const RAINBOW_ACT_SIX_ENEMY_SPRITES = [
+  'turret',
+  'bulwark',
+  'brood',
+] as const
+/**
+ * Act VII's craft: E22 Mirror Eel 247941 and E24 Crown Harbinger 247944 (round 27), and E23 Crystal Squid 247963
+ * (round-28 txt2img, turned so its tentacles trail). Prism pylons are drawn by hand.
+ */
+export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = [
+  'mirror',
+  'harbinger',
+  'squid',
+] as const
 
 export function rainbowEnemySprite(kind: string): string | null {
   return [
@@ -136,7 +147,7 @@ export function drawRainbowEnemySprite(
 /**
  * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern; round 25: 247876
  * armoured clawstrike with its cannon claw; round 26: 247895 rose-gold courier and 247897 armoured salvager;
- * round 27: 247946 nautilus bulwark),
+ * round 27: 247946 nautilus bulwark; round 29: 247964 silver mirror eel),
  * keyed at 256 px so they stay crisp at guardian size; until they load the engine scales up the scout sprite
  * instead.
  */
@@ -147,6 +158,7 @@ export const RAINBOW_GUARDIAN_SPRITES = [
   'courier',
   'salvager',
   'bulwark',
+  'mirror',
 ] as const
 
 export function rainbowGuardianSprite(kind: string): string | null {

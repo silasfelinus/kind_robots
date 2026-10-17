@@ -550,177 +550,59 @@
             </div>
             <div
               v-if="store.selected"
-              class="kr-pane-scroll min-h-0 flex-1 space-y-2 border-t border-base-300 pt-2 text-xs"
+              class="min-h-0 shrink-0 space-y-2 border-t border-base-300 pt-2 text-xs"
             >
-              <p class="font-bold">Saved render plan</p>
-              <p class="text-base-content/70 sm:hidden">
-                {{ store.selected.segments.length }} windows ·
-                {{ store.selected.quality }} target
-              </p>
-              <div class="hidden grid-cols-2 gap-2 sm:grid">
-                <span class="rounded-lg bg-base-200 p-2"
-                  >{{ store.selected.segments.length }} motion windows</span
-                >
-                <span class="rounded-lg bg-base-200 p-2"
-                  >{{ store.selected.quality }} target</span
-                >
+              <div class="flex items-center justify-between gap-2">
+                <strong>{{ store.selected.title }}</strong>
+                <span>{{ statusLabel(store.selected.status) }}</span>
               </div>
+              <p class="text-base-content/70">
+                {{ labelFor(store.selected.style) }} · {{ store.selected.quality }} ·
+                {{ formatRestyleTime(store.selected.sourceDurationSec) }}
+              </p>
               <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
-                <div
-                  class="h-full bg-primary"
-                  :style="{ width: store.selected.progress + '%' }"
-                />
+                <div class="h-full bg-primary" :style="{ width: store.selected.progress + '%' }" />
               </div>
               <p class="text-base-content/70">{{ store.selected.stage }}</p>
+              <p v-if="store.selected.full || store.selected.pilot" class="text-base-content/70">
+                {{ store.selected.full?.completedSegments ?? store.selected.pilot?.completedSegments }}/{{ store.selected.full?.totalSegments ?? store.selected.pilot?.totalSegments }}
+                completed windows · {{ Math.round(store.selected.progress) }}%
+              </p>
               <NuxtLink
-                v-if="
-                  store.selected.full?.artJobId ||
-                  store.selected.pilot?.artJobId
-                "
+                v-if="store.selected.full?.artJobId || store.selected.pilot?.artJobId"
                 :to="{
                   path: '/artjob',
-                  query: {
-                    jobId:
-                      store.selected.full?.artJobId ||
-                      store.selected.pilot?.artJobId,
-                  },
+                  query: { jobId: store.selected.full?.artJobId || store.selected.pilot?.artJobId },
                 }"
-                class="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
-              >
-                View ArtJob #{{
-                  store.selected.full?.artJobId ||
-                  store.selected.pilot?.artJobId
-                }}
-                in the queue
-              </NuxtLink>
-              <div
-                v-else-if="store.selected.pilot"
-                class="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-warning/30 bg-warning/10 p-2"
-              >
-                <span>Not registered in ArtJob yet.</span>
+                class="font-semibold text-primary hover:underline"
+              >View ArtJob #{{ store.selected.full?.artJobId || store.selected.pilot?.artJobId }} in the queue</NuxtLink>
+              <p v-if="store.selected.error" class="text-error" role="alert">{{ store.selected.error }}</p>
+              <div class="flex flex-wrap gap-2">
                 <button
+                  v-if="store.selected.status === 'DONE' && store.selected.full"
                   type="button"
-                  class="kr-btn-outline-xs"
-                  :disabled="store.syncing"
-                  @click="store.refresh()"
-                >
-                  {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showFull"
+                >Watch finished full film</button>
+                <button
+                  v-if="store.selected.status === 'REVIEW' || store.selected.full"
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showPilot()"
+                >Watch animated pilot</button>
+                <button
+                  v-if="store.selected.pilot?.previousRevision"
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.sourceBusy"
+                  @click="showPilot(true)"
+                >Watch previous pilot for comparison</button>
+                <button type="button" class="kr-btn btn-outline flex-1" @click="activePanel = 'studio'">
+                  Choose look / render
                 </button>
               </div>
-              <p v-if="store.selected.full" class="text-base-content/70">
-                Full film · {{ store.selected.full.completedSegments }}/{{
-                  store.selected.full.totalSegments
-                }}
-                windows · {{ Math.round(store.selected.progress) }}%
-              </p>
-              <p v-else-if="store.selected.pilot" class="text-base-content/70">
-                {{ store.selected.pilot.completedSegments }}/{{
-                  store.selected.pilot.totalSegments
-                }}
-                pilot windows · {{ Math.round(store.selected.progress) }}%
-              </p>
-              <p v-if="store.selected.error" class="text-error" role="alert">
-                {{ store.selected.error }}
-              </p>
-              <button
-                v-if="
-                  (store.selected.status === 'STAGED' ||
-                    store.selected.status === 'PILOT_BLOCKED' ||
-                    store.selected.status === 'PILOT_FAILED' ||
-                    store.selected.status === 'REVIEW') &&
-                  !sourceFile
-                "
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy || lookChanged"
-                @click="
-                  store.selected.status === 'PILOT_FAILED'
-                    ? store.retryPilot(store.selected.id)
-                    : store.queuePilot(store.selected.id)
-                "
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : store.selected.status === 'PILOT_FAILED'
-                      ? 'Retry pilot in the same ArtJob'
-                      : store.selected.status === 'REVIEW'
-                        ? 'Render improved continuity pilot'
-                        : 'Render 24-second motion pilot'
-                }}
-              </button>
-              <button
-                v-if="
-                  store.selected.status === 'REVIEW' && !store.selected.full
-                "
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy || lookChanged"
-                @click="store.queueFull(store.selected.id)"
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film`
-                }}
-              </button>
-              <p
-                v-if="
-                  store.selected.status === 'REVIEW' && !store.selected.full
-                "
-                class="kr-text-faded-xs"
-              >
-                Full-length rendering can run overnight. Completed windows are
-                reusable after interruptions. The original soundtrack is
-                restored.
-              </p>
-              <button
-                v-if="store.selected.status === 'FULL_FAILED'"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.busy"
-                @click="store.retryFull(store.selected.id)"
-              >
-                {{
-                  store.busy
-                    ? 'Queueing…'
-                    : 'Resume full film using saved windows'
-                }}
-              </button>
-              <button
-                v-if="store.selected.status === 'DONE' && store.selected.full"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.sourceBusy"
-                @click="showFull"
-              >
-                {{ store.sourceBusy ? 'Loading…' : 'Watch finished full film' }}
-              </button>
-              <button
-                v-if="store.selected.status === 'REVIEW' || store.selected.full"
-                type="button"
-                class="kr-btn kr-btn-primary w-full"
-                :disabled="store.sourceBusy"
-                @click="showPilot()"
-              >
-                {{ store.sourceBusy ? 'Loading…' : 'Watch animated pilot' }}
-              </button>
-              <button
-                v-if="store.selected.pilot?.previousRevision"
-                type="button"
-                class="btn btn-outline w-full"
-                :disabled="store.sourceBusy"
-                @click="showPilot(true)"
-              >
-                Watch previous pilot for comparison
-              </button>
-              <p v-if="lookChanged" class="kr-text-faded-xs">
-                {{
-                  store.selected.status === 'STAGED'
-                    ? 'Save these settings in Looks before rendering.'
-                    : 'This project is already rendering or reviewed. Create a separate style project in Looks.'
-                }}
-              </p>
             </div>
             <details
               class="shrink-0 rounded-xl border border-base-300 bg-base-200/50 p-2 text-xs"

@@ -63,6 +63,9 @@ tutorial:
     Medals, mastery and saves
     Every Act ends with a medal: gold for no hits, silver for no continues, bronze for the clear. The cabinet's mastery ladder tracks First Light, Gold Wing, The End, Guardian Breaker, No One Left Behind, Every Ending and a secret goal. Each Act start from Act II on saves on this device; the next game offers a Flight Log to continue from that Act with its score, rescues, routes, medals and difficulty, or to start a new flight. Reaching THE END clears the save.
 
+    Motion and readability
+    Craft burst into sparks when destroyed; guardians and bosses burst bigger, with a shockwave ring. The cabinet's Motion switch (it starts calm when the device asks for reduced motion) turns on calm motion, even mid-game: no full-screen super flash and no shockwaves, fewer sparks, and the scenery drifts at under a third of its speed. Every solid enemy pellet sits on a dark halo inside its light rim, so it reads against bright and dark scenery alike.
+
     Boss fights
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 

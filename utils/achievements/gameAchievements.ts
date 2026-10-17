@@ -125,9 +125,8 @@ const OTHER_GAMES: AchievementGame[] = [
     key: 'emperor-of-dust',
     title: 'Emperor of Dust',
     section: 'emperor-of-dust',
-    route: '/admin/emperor-of-dust',
+    route: '/play/emperor-of-dust',
     arcade: false,
-    adminOnly: true,
   },
 ]
 

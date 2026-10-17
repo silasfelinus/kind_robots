@@ -14,6 +14,7 @@
 //   6 Moon Garden: low gravity, no wind, huge inertia; meteor streaks; the Old Lander (t-072).
 
 import type { MissionSpec, ThemeId } from './missions'
+import { MIN_PAD } from './missions'
 
 export type Island = {
   id: string
@@ -1331,6 +1332,120 @@ const MOON: Island = {
   ],
 }
 
+// --- 7. The Seed Vault (secret) -------------------------------------------------------------------
+// Opened by every golden acorn on the six islands. The same skies remixed harder: narrower beds
+// worth more, double the wind, a heavier pod. It ends on Every Seed: one of each kind of plant.
+
+const vaultOf = (
+  m: MissionSpec,
+  over: Partial<MissionSpec> & { id: string; name: string; brief: string },
+): MissionSpec => ({
+  ...m,
+  theme: 'night',
+  wind: Math.min(0.009, m.wind * 2 + 0.002),
+  gravity: 1.08,
+  acorns: undefined,
+  map: {
+    ...m.map,
+    pads: m.map.pads.map((p) =>
+      p.kind === undefined || p.kind === 'seed'
+        ? {
+            ...p,
+            w: Math.max(MIN_PAD, Math.round(p.w * 0.7)),
+            mult: Math.min(5, (p.mult ?? 1) + 1),
+          }
+        : p,
+    ),
+  },
+  ...over,
+})
+
+export const VAULT: Island = {
+  id: 'vault',
+  name: 'THE SEED VAULT',
+  about: 'EVERY ACORN OPENED IT: THE HARDEST SKY',
+  theme: 'night',
+  missions: [
+    vaultOf(S1, {
+      id: 'vault-1',
+      name: 'NARROW BEDS',
+      brief: 'THE BEDS ARE THINNER AND THE WIND TWICE AS RUDE',
+    }),
+    vaultOf(S2, {
+      id: 'vault-2',
+      name: 'VAULT SUNFLOWER',
+      brief: 'THE GOLD BED STILL GROWS A SUNFLOWER: LAND IT FIRST',
+    }),
+    vaultOf(S3, {
+      id: 'vault-3',
+      name: 'VAULT MAIL',
+      brief: 'TOW EACH CRATE THROUGH THE HEAVY AIR',
+    }),
+    vaultOf(S4, {
+      id: 'vault-4',
+      name: 'VAULT RINGS',
+      brief: 'FLY THE RINGS BEFORE THE NIGHT CLOSES',
+    }),
+    vaultOf(S5, {
+      id: 'vault-5',
+      name: 'LAST RESCUE',
+      brief: 'TOW THE LAST STRANDED SPROUT-BOTS HOME',
+    }),
+    {
+      id: 'vault-6',
+      name: 'EVERY SEED',
+      brief: 'PLANT ONE OF EACH KIND OF PLANT',
+      kind: 'plant',
+      theme: 'night',
+      finale: true,
+      map: {
+        w: 960,
+        h: 260,
+        ground: [
+          [0, 206],
+          [160, 210],
+          [320, 200],
+          [480, 214],
+          [640, 204],
+          [800, 212],
+          [960, 206],
+        ],
+        pads: [
+          { id: 'sun', x: 70, w: 30, kind: 'sun' },
+          { id: 'flower', x: 190, w: 24, mult: 2 },
+          { id: 'sunflower', x: 330, w: 24, mult: 2, grows: 'sunflower' },
+          { id: 'mush', x: 470, w: 24, mult: 3, grows: 'mushroom' },
+          {
+            id: 'bean',
+            x: 620,
+            w: 24,
+            mult: 3,
+            grows: 'beanstalk',
+            reach: [[40, -80]],
+          },
+          {
+            id: 'vine',
+            x: 800,
+            w: 24,
+            mult: 4,
+            grows: 'vine',
+            reach: [
+              [22, -34],
+              [-24, -70],
+            ],
+          },
+        ],
+      },
+      start: { x: 40, y: 50 },
+      sun: 1500,
+      wind: 0.004,
+      gravity: 1.08,
+      seeds: 5,
+      par: par(1000, 90),
+    },
+  ],
+}
+
 export const ISLANDS: readonly Island[] = [
   MEADOW,
   DOWNS,
@@ -1344,3 +1459,20 @@ export const ISLANDS: readonly Island[] = [
 export const ALL_ACORNS: readonly string[] = ISLANDS.flatMap((i) =>
   i.missions.flatMap((m) => (m.acorns ?? []).map((a) => a.id)),
 )
+
+/** The Seed Vault sits one past the last ordinary island. */
+export const VAULT_INDEX = ISLANDS.length
+
+/** Has this save found every golden acorn on the six islands (what opens the Seed Vault)? */
+export function vaultOpen(found: ReadonlySet<string>): boolean {
+  return ALL_ACORNS.every((a) => found.has(a))
+}
+
+/** Island `i`, counting the Seed Vault as the secret one past the last. */
+export function islandAt(
+  i: number,
+  found: ReadonlySet<string>,
+): Island | undefined {
+  if (i === VAULT_INDEX) return vaultOpen(found) ? VAULT : undefined
+  return ISLANDS[i]
+}

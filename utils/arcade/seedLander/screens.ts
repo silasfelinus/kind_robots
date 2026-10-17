@@ -565,8 +565,19 @@ export function drawShed(
     })
 }
 
-/** Past the last island this version has: the replanting continues soon. */
-export function drawSoon(g: CanvasRenderingContext2D, tick: number) {
+/**
+ * Past the last island the player can reach: the ending. `acorns` is how many golden acorns they
+ * hold of the `total` that open the Seed Vault; `vault` is whether it has been replanted too.
+ */
+export function drawSoon(
+  g: CanvasRenderingContext2D,
+  tick: number,
+  ending: { got: number; total: number; vault: boolean } = {
+    got: 0,
+    total: 0,
+    vault: false,
+  },
+) {
   bandedGradient(
     g,
     0,
@@ -576,23 +587,28 @@ export function drawSoon(g: CanvasRenderingContext2D, tick: number) {
     [RAMPS.night[1], RAMPS.night[3], RAMPS.purple[2]],
     6,
   )
-  drawText(g, 'MORE ISLANDS', W / 2, 80, {
-    scale: 3,
+  drawText(g, ending.vault ? 'EVERY SEED' : 'THE SKY IS REPLANTED', W / 2, 70, {
+    scale: ending.vault ? 3 : 2,
     align: 'center',
     color: '#ffffff',
     outline: INK,
   })
-  drawText(g, 'ARE STILL WILTING', W / 2, 110, {
-    scale: 2,
-    align: 'center',
-    color: RAMPS.leaf[3],
-    outline: INK,
-  })
-  drawText(g, 'YOUR PROGRESS IS SAVED', W / 2, 140, {
-    align: 'center',
-    color: RAMPS.gold[4],
-    outline: INK,
-  })
+  drawText(
+    g,
+    ending.vault ? 'THE SEED VAULT BLOOMS' : 'ONE LAST SECRET REMAINS',
+    W / 2,
+    110,
+    { scale: 2, align: 'center', color: RAMPS.leaf[3], outline: INK },
+  )
+  drawText(
+    g,
+    ending.vault
+      ? 'THE TRUE ENDING'
+      : `GOLDEN ACORNS ${ending.got} OF ${ending.total}`,
+    W / 2,
+    140,
+    { align: 'center', color: RAMPS.gold[4], outline: INK },
+  )
   if (tick % 40 < 28)
     drawText(g, 'A  TO FINISH', W / 2, 170, {
       align: 'center',

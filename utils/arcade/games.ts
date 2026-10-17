@@ -732,7 +732,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Lamp Lighter Run',
     riffsOn: 'Donkey Kong',
     blurb:
-      'Wick, a lamplighter robot, climbs a scaffold of sloping girders to relight ten street lamps before the lantern timer runs out, hopping the gloom-balls that roll down from the chute. Every level the girders tilt more, the balls roll faster and the timer shrinks, across three night streets.',
+      'Wick, a lamplighter robot, climbs a scaffold of sloping girders to relight ten street lamps before the lantern timer runs out, hopping the gloom-balls that roll down from the chute. Every level the girders tilt more, the balls roll faster and the timer shrinks, across five night streets.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'UP/DOWN  CLIMB',

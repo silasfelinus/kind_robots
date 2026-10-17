@@ -104,6 +104,11 @@ export type ArcadeGameMeta = {
    */
   touchLayout?: 'pinball'
   /**
+   * The game honours calm motion (ArcadeGameOptions.stillCamera: no flashes, slower scenery), so the cabinet
+   * shows its motion switch; a pinball table's still camera shows its own.
+   */
+  calmMotion?: boolean
+  /**
    * The game offers difficulty levels: their names, easiest first (easy, normal, hard). The cabinet
    * shows a switch for them and passes the choice as ArcadeGameOptions.difficulty.
    */
@@ -169,6 +174,8 @@ export interface ArcadeGameInstance {
   readonly over: boolean
   /** Optional live local seat adjustment, performed while the Arcade is paused. */
   setPlayers?(count: number): void
+  /** Change the calm-motion choice mid-game, for a game whose meta sets calmMotion. */
+  setStillCamera?(still: boolean): void
   /** Mastery goals earned this game, for a cabinet with a ladder. */
   readonly mastered?: readonly string[]
   /** Achievement deeds performed since the last call, for a table that reports them. */

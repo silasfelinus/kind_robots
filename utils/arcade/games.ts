@@ -711,7 +711,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Crate Stack Shuffle',
     riffsOn: 'Tetris',
     blurb:
-      'Stacker, a little warehouse robot, turns and drops falling crates of seven odd shapes to finish full rows, and every finished row ships out. Each ten rows is a new level and the crates fall faster. From level 3 some crates are wrapped in sticky tape, which only comes off the first time its row fills, and from level 5 heavy crates plummet.',
+      'Stacker, a little warehouse robot, turns and drops falling crates of seven odd shapes to finish full rows, and every finished row ships out. Each ten rows is a new level and the crates fall faster. From level 3 some crates are wrapped in sticky tape, which only comes off the first time its row fills, and from level 5 heavy crates plummet. The warehouse changes every level, through five bays.',
     howTo: [
       'LEFT/RIGHT  SLIDE',
       'A OR UP  TURN',

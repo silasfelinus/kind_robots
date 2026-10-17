@@ -271,6 +271,51 @@ export function shipRows(bay: Bay): { shipped: number[]; unstuck: number[] } {
   return { shipped, unstuck }
 }
 
+type Warehouse = {
+  sky: [string, string, string]
+  shelves: string
+  beam: string
+  stud: string
+}
+
+/** Five warehouse bays, one per level in turn: night shift, cold store, harbour, greenhouse, ember. */
+export const WAREHOUSES: readonly Warehouse[] = [
+  {
+    sky: [RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
+    shelves: mix(RAMPS.night[2], RAMPS.purple[1], 0.5),
+    beam: RAMPS.steel[1],
+    stud: RAMPS.gold[2],
+  },
+  {
+    sky: [RAMPS.sky[0], RAMPS.night[2], RAMPS.night[1]],
+    shelves: mix(RAMPS.sky[0], RAMPS.steel[0], 0.5),
+    beam: RAMPS.steel[2],
+    stud: RAMPS.sky[4],
+  },
+  {
+    sky: [RAMPS.steel[0], RAMPS.night[2], RAMPS.night[1]],
+    shelves: mix(RAMPS.steel[0], RAMPS.night[2], 0.5),
+    beam: RAMPS.rust[1],
+    stud: RAMPS.gold[3],
+  },
+  {
+    sky: [RAMPS.leaf[0], RAMPS.night[2], RAMPS.night[1]],
+    shelves: mix(RAMPS.leaf[0], RAMPS.night[2], 0.5),
+    beam: RAMPS.leaf[1],
+    stud: RAMPS.leaf[4],
+  },
+  {
+    sky: [RAMPS.rust[0], RAMPS.purple[0], RAMPS.night[1]],
+    shelves: mix(RAMPS.rust[0], RAMPS.night[2], 0.5),
+    beam: RAMPS.rust[2],
+    stud: RAMPS.gold[4],
+  },
+]
+
+export function warehouseFor(level: number): number {
+  return (Math.max(1, Math.floor(level)) - 1) % WAREHOUSES.length
+}
+
 export function shipScore(rows: number, level: number): number {
   return (SHIP_POINTS[Math.min(4, rows)] ?? 0) * level
 }
@@ -666,23 +711,17 @@ class CrateStackShuffle implements ArcadeGameInstance {
   }
 
   private renderBackdrop(g: CanvasRenderingContext2D) {
-    cachedLayer(g, 'crate-stack-shuffle-bg', W, H, (layer) => {
-      bandedGradient(
-        layer,
-        0,
-        0,
-        W,
-        H,
-        [RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
-        6,
-      )
+    const bay = warehouseFor(this.level)
+    const look = WAREHOUSES[bay]
+    cachedLayer(g, `crate-stack-shuffle-bg-${bay}`, W, H, (layer) => {
+      bandedGradient(layer, 0, 0, W, H, look.sky, 6)
       // Warehouse shelving silhouettes.
-      const rand = backdropRng(5)
+      const rand = backdropRng(5 + bay)
       for (let i = 0; i < 9; i++) {
         const x = Math.round(rand() * W)
         const w = 18 + Math.round(rand() * 22)
         const h = 40 + Math.round(rand() * 80)
-        layer.fillStyle = mix(RAMPS.night[2], RAMPS.purple[1], 0.5)
+        layer.fillStyle = look.shelves
         layer.fillRect(x, H - h, w, h)
         layer.fillStyle = RAMPS.night[3]
         layer.fillRect(x, H - h, w, 1)
@@ -692,14 +731,14 @@ class CrateStackShuffle implements ArcadeGameInstance {
         }
       }
       // The overhead girder with hazard studs.
-      layer.fillStyle = RAMPS.steel[1]
+      layer.fillStyle = look.beam
       layer.fillRect(0, 0, W, 14)
       layer.fillStyle = RAMPS.steel[3]
       layer.fillRect(0, 0, W, 1)
       layer.fillStyle = INK
       layer.fillRect(0, 14, W, 1)
       for (let x = 6; x < W; x += 24) {
-        layer.fillStyle = RAMPS.gold[2]
+        layer.fillStyle = look.stud
         layer.fillRect(x, 4, 8, 4)
       }
     })

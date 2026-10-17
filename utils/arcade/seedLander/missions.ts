@@ -95,8 +95,9 @@ export type CargoSpec = {
 }
 
 /** How a mission's sky and ground are painted. */
-export type ThemeId =
+type SkyId =
   'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge' | 'cavern' | 'storm'
+export type ThemeId = SkyId | 'moon'
 
 /** A petal ring to fly through (a Ring Race). */
 export type RingSpec = { x: number; y: number; r: number }

@@ -16,6 +16,9 @@
 //   phase 3 it surfaces in three places in turn.
 //   The Glowworm Queen (Firefly Caverns): a cave-long worm whose lit segment is the only pad. The
 //   light runs down her body in a sequence you learn, and each phase speeds it up.
+//   The Old Lander (Moon Garden): a rusty ancient lander drifting in low gravity, with a footpad
+//   on each of its three legs. Phase 1 it floats; in phase 2 streak marks show where a meteor
+//   will land (that footpad is off limits); phase 3 is quicker with the streaks sooner.
 //   Thunderhead (Storm Shelf): a grumpy storm cloud with four puffy tops to plant sun seeds on.
 //   Phase 1 is rain (the tops drift), phase 2 lightning (a top crackles, glowing, for a beat
 //   before it strikes: be elsewhere) and phase 3 hail (everything faster, the tops bounce).
@@ -24,7 +27,7 @@ import type { Pad, Terrain } from './terrain'
 import { segmentDistance } from './hazards'
 
 export type BossId =
-  'scarecrow' | 'galemill' | 'tortoise' | 'queen' | 'thunderhead'
+  'scarecrow' | 'galemill' | 'tortoise' | 'queen' | 'thunderhead' | 'oldlander'
 
 export type BossView = {
   id: BossId
@@ -742,6 +745,132 @@ export class Thunderhead implements Boss {
   }
 }
 
+/** The Old Lander's body and pace. */
+export const OLD_LANDER = {
+  legs: 3,
+  pad: 34,
+  gap: 90,
+  y: 140,
+  amp: [18, 26, 34],
+  rate: [0.008, 0.011, 0.015],
+  bob: [4, 8, 12],
+  /** Ticks a streak shows before its meteor lands, by phase (phase 0 has none). */
+  streak: [0, 140, 90],
+  need: 2,
+  hold: 90,
+} as const
+
+function legX(x: number, k: number): number {
+  return x + (k - (OLD_LANDER.legs - 1) / 2) * OLD_LANDER.gap
+}
+
+export class OldLander implements Boss {
+  readonly id = 'oldlander' as const
+  readonly name = 'THE OLD LANDER'
+  readonly title = 'PLANT ON HIS FOOTPADS, AWAY FROM THE STREAKS'
+  readonly phases = 3
+  phase = 0
+  done = false
+  pads: Pad[]
+  wind: number | null = null
+  private t = 0
+  private got = 0
+  private hold = 0
+
+  constructor(
+    private terrain: Terrain,
+    readonly x: number,
+  ) {
+    this.pads = Array.from({ length: OLD_LANDER.legs }, (_, k) =>
+      terrain.addLivePad({
+        id: `leg${k}`,
+        x0: 0,
+        x1: OLD_LANDER.pad,
+        y: OLD_LANDER.y,
+        mult: 5,
+        kind: 'seed',
+        grows: 'sunflower',
+        reach: [],
+      }),
+    )
+    this.place()
+    for (const p of this.pads) {
+      p.vx = 0
+      p.vy = 0
+    }
+  }
+
+  /** The footpad under a streak now, or -1. */
+  streaking(): number {
+    const n = OLD_LANDER.streak[Math.min(this.phase, 2)]!
+    if (n === 0 || this.hold > 0) return -1
+    return [1, 0, 2][Math.floor(this.t / n) % OLD_LANDER.legs]!
+  }
+
+  /** 0..1 through the warning before the meteor lands. */
+  streakLeft(): number {
+    const n = OLD_LANDER.streak[Math.min(this.phase, 2)]!
+    return n === 0 ? 0 : 1 - (this.t % n) / n
+  }
+
+  private place() {
+    const ph = Math.min(this.phase, 2)
+    const live = this.hold > 0 ? 0 : 1
+    const bad = this.streaking()
+    this.pads.forEach((p, k) => {
+      const w = this.t * OLD_LANDER.rate[ph]! + k * 2.1
+      this.terrain.movePad(
+        p,
+        legX(this.x, k) + Math.sin(w) * OLD_LANDER.amp[ph]! * live,
+        OLD_LANDER.y + Math.sin(w * 1.4) * OLD_LANDER.bob[ph]! * live,
+      )
+      p.blocked = !p.planted && k === bad
+    })
+  }
+
+  update() {
+    if (this.done) return
+    if (this.hold > 0) this.hold--
+    else this.t++
+    this.place()
+  }
+
+  planted(pad: Pad): boolean {
+    pad.planted = false
+    this.got++
+    if (this.got < OLD_LANDER.need) return false
+    this.got = 0
+    this.phase++
+    this.t = 0
+    this.hold = OLD_LANDER.hold
+    if (this.phase >= this.phases) {
+      this.done = true
+      for (const p of this.pads) p.blocked = false
+    } else this.place()
+    return true
+  }
+
+  hits(x: number, y: number): string | null {
+    const reach = OLD_LANDER.amp[2]! + OLD_LANDER.pad / 2
+    const a = legX(this.x, 0) - reach
+    const b = legX(this.x, OLD_LANDER.legs - 1) + reach
+    // The rusty cabin hangs above the legs.
+    if (x > a && x < b && y > OLD_LANDER.y - 52 && y < OLD_LANDER.y - 26)
+      return 'BUMPED THE OLD LANDER'
+    return null
+  }
+
+  view(): BossView {
+    return {
+      id: this.id,
+      phase: this.phase,
+      phases: this.phases,
+      got: this.got,
+      need: OLD_LANDER.need,
+    }
+  }
+}
+
 /** Build a boss on its arena's terrain, standing at x. */
 export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
   switch (id) {
@@ -755,6 +884,8 @@ export function makeBoss(id: BossId, terrain: Terrain, x: number): Boss {
       return new GlowwormQueen(terrain, x)
     case 'thunderhead':
       return new Thunderhead(terrain, x)
+    case 'oldlander':
+      return new OldLander(terrain, x)
   }
 }
 
@@ -764,4 +895,5 @@ export const BOSS_NAMES: Record<BossId, string> = {
   tortoise: 'THE GEYSER TORTOISE',
   queen: 'THE GLOWWORM QUEEN',
   thunderhead: 'THUNDERHEAD',
+  oldlander: 'THE OLD LANDER',
 }

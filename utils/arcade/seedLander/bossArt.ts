@@ -26,6 +26,8 @@ import {
   TORTOISE,
   THUNDERHEAD,
   Thunderhead,
+  OldLander,
+  OLD_LANDER,
 } from './bosses'
 
 const PERCHED_CROW = pixelSprite(
@@ -44,6 +46,7 @@ export function drawBoss(
   if (boss instanceof GeyserTortoise) drawTortoise(g, boss, tick)
   if (boss instanceof GlowwormQueen) drawQueen(g, boss, tick)
   if (boss instanceof Thunderhead) drawThunderhead(g, boss, tick)
+  if (boss instanceof OldLander) drawOldLander(g, boss, tick)
 }
 
 function drawScarecrow(
@@ -349,5 +352,52 @@ function drawThunderhead(
           4,
         )
     }
+  })
+}
+
+/** The Old Lander: a rusty cabin over three legs, each footpad a pad; a streak marks the next meteor. */
+function drawOldLander(
+  g: CanvasRenderingContext2D,
+  b: OldLander,
+  tick: number,
+) {
+  const bad = b.streaking()
+  const cx = b.x
+  const top = OLD_LANDER.y - 52
+  // Cabin and a sleepy face.
+  shadedOrb(g, cx, top + 14, 30, RAMPS.earth)
+  g.fillStyle = INK
+  g.fillRect(Math.round(cx) - 12, top + 8, 5, 5)
+  g.fillRect(Math.round(cx) + 7, top + 8, 5, 5)
+  g.fillRect(Math.round(cx) - 6, top + 20, 12, 2)
+  b.pads.forEach((p, k) => {
+    const mx = (p.x0 + p.x1) / 2
+    // The leg from the cabin to its footpad.
+    g.fillStyle = RAMPS.steel[2]
+    const steps = 6
+    for (let i = 0; i <= steps; i++) {
+      const f = i / steps
+      g.fillRect(
+        Math.round(cx + (mx - cx) * f) - 1,
+        Math.round(top + 24 + (p.y - top - 24) * f),
+        3,
+        3,
+      )
+    }
+    const on = k === bad
+    if (on && (b.streakLeft() < 0.5 ? tick % 6 < 3 : tick % 12 < 6)) {
+      // Streak marks slant down toward the doomed footpad.
+      g.fillStyle = RAMPS.gold[4]
+      for (let i = 0; i < 6; i++)
+        g.fillRect(
+          Math.round(mx) - 12 + i * 3,
+          Math.round(p.y) - 40 + i * 6,
+          2,
+          5,
+        )
+    }
+    bevel(g, p.x0, p.y, p.x1 - p.x0, 5, on ? RAMPS.gold : RAMPS.steel, {
+      depth: 1,
+    })
   })
 }

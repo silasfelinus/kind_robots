@@ -59,6 +59,8 @@ import {
   TORTOISE,
   THUNDERHEAD,
   Thunderhead,
+  OldLander,
+  OLD_LANDER,
   makeBoss,
 } from '../seedLander/bosses'
 import type { Boss } from '../seedLander/bosses'
@@ -952,7 +954,9 @@ class SeedLander implements ArcadeGameInstance {
             ? 'THAT SEGMENT WAS DARK'
             : this.boss?.id === 'thunderhead'
               ? 'LIGHTNING STRUCK THAT TOP'
-              : 'A CROW WAS SITTING THERE',
+              : this.boss?.id === 'oldlander'
+                ? 'A METEOR LANDED THERE'
+                : 'A CROW WAS SITTING THERE',
       )
     const rank = pad
       ? rankLanding(pod.vx - pad.vx, pod.vy - pad.vy, pod.tilt, this.legs)
@@ -1112,7 +1116,11 @@ class SeedLander implements ArcadeGameInstance {
                 ? boss.phase === 2
                   ? 'HAIL! THE TOPS BOUNCE'
                   : 'THE TOPS CRACKLE BEFORE A STRIKE'
-                : 'THE WIND TURNS',
+                : boss.id === 'oldlander'
+                  ? boss.phase === 2
+                    ? 'METEORS FALL FASTER'
+                    : 'STREAKS MARK THE NEXT METEOR'
+                  : 'THE WIND TURNS',
       ticks: 140,
     }
   }
@@ -1846,6 +1854,17 @@ class SeedLander implements ArcadeGameInstance {
         if (Math.abs(mid(top) - pod.x) < 40 && pod.y > top.y - 70)
           goal = { kind: 'land', pad: top }
         else goal = { kind: 'hover', x: mid(top), y: THUNDERHEAD.y - 50 }
+        goalX = pod.x
+      } else if (this.boss instanceof OldLander) {
+        // The Old Lander: land on the nearest footpad not under a streak, else hover over it.
+        const old = this.boss
+        const open = old.pads
+          .filter((p, k) => !p.planted && k !== old.streaking())
+          .sort((p, q) => Math.abs(mid(p) - pod.x) - Math.abs(mid(q) - pod.x))
+        const leg = open[0] ?? this.boss.pads[0]!
+        if (Math.abs(mid(leg) - pod.x) < 40 && pod.y > leg.y - 70)
+          goal = { kind: 'land', pad: leg }
+        else goal = { kind: 'hover', x: mid(leg), y: OLD_LANDER.y - 60 }
         goalX = pod.x
       } else if (this.boss instanceof GlowwormQueen) {
         // The Glowworm Queen: land on the lit segment while it has time left, else hover over

@@ -7,11 +7,19 @@ import {
   RESTYLE_PREVIEW_HEIGHT,
   RESTYLE_PREVIEW_SCENE,
   RESTYLE_PREVIEW_STEPS,
+  RESTYLE_GRAB_BAG,
   RESTYLE_PREVIEW_WIDTH,
   RESTYLE_STYLES,
+  isRestyleLook,
   isRestyleStyle,
+  normalizeGrabBagStyles,
   planRestyleSegments,
+  planRestyleStyleSchedule,
+  restyleLookLabel,
   restylePreviewPrompt,
+  restyleRenderWindowCount,
+  restyleScheduleRecipe,
+  shuffleRestyleStyles,
 } from '../videoRestylePlan'
 
 assert.equal(RESTYLE_STYLES.length, 33)
@@ -115,7 +123,8 @@ assert.ok(queueCard.includes('KR Relay will claim this VACE pilot'))
 assert.ok(studio.includes('View ArtJob #'))
 assert.ok(queueCard.includes('isRestylePilot'))
 assert.ok(queueCard.includes('Open Coat Dance Studio'))
-assert.ok(media.includes('return capabilities.supportsVideoRestyle === true'))
+assert.ok(media.includes('capabilities.supportsVideoRestyle === true &&'))
+assert.ok(media.includes('capabilities.supportsVideoRestyleGrabBag === true'))
 
 const storeSource = readFileSync('stores/videoRestyleStore.ts', 'utf8')
 const refreshSource = storeSource.slice(
@@ -256,7 +265,12 @@ assert.ok(restyleJobs.includes('export async function queueRestyleFull'))
 assert.ok(restyleJobs.includes("job.status !== 'REVIEW'"))
 assert.ok(restyleJobs.includes("status: 'FULL_QUEUED'"))
 assert.ok(restyleJobs.includes('startSec: 0'))
-assert.ok(restyleJobs.includes('Math.round(durationSec * 16)'))
+assert.ok(restyleJobs.includes('restyleRenderWindowCount(durationSec)'))
+assert.ok(
+  readFileSync('utils/videoRestylePlan.ts', 'utf8').includes(
+    'Math.round(durationSec * RESTYLE_RENDER_FPS)',
+  ),
+)
 assert.ok(reconcile.includes('syncRestyleFullArtJob'))
 assert.ok(artjob.includes("phase: 'full'"))
 assert.ok(artjob.includes('retryFailedRestyleFullArtJob'))
@@ -345,3 +359,108 @@ assert.ok(
   !studio.includes('grid-cols-3 gap-1 rounded-xl bg-base-200 p-1 lg:hidden'),
 )
 assert.ok(!studio.includes('class="block text-[10px] opacity-65"'))
+
+{
+  const bag = ['illustrious', 'noir', 'paper-cut', 'watercolor'] as const
+  assert.equal(isRestyleLook(RESTYLE_GRAB_BAG.id), true)
+  assert.equal(isRestyleStyle(RESTYLE_GRAB_BAG.id), false)
+  assert.ok(
+    !RESTYLE_STYLES.some((entry) => String(entry.id) === RESTYLE_GRAB_BAG.id),
+  )
+  assert.equal(restyleLookLabel(RESTYLE_GRAB_BAG.id), 'Grab bag')
+  assert.deepEqual(normalizeGrabBagStyles([...bag]), [...bag])
+  assert.deepEqual(normalizeGrabBagStyles(bag.join(',')), [...bag])
+  assert.equal(normalizeGrabBagStyles(['illustrious']), null)
+  assert.equal(normalizeGrabBagStyles(['illustrious', 'illustrious']), null)
+  assert.equal(normalizeGrabBagStyles(['illustrious', 'grab-bag']), null)
+  assert.equal(normalizeGrabBagStyles(['illustrious', 'unverified']), null)
+  assert.equal(
+    normalizeGrabBagStyles(RESTYLE_STYLES.slice(0, 13).map((s) => s.id)),
+    null,
+  )
+
+  const workerWindows = (frames: number) => {
+    const starts = [0]
+    while (starts.at(-1)! + 65 < frames) starts.push(starts.at(-1)! + 57)
+    return starts.length
+  }
+  for (const seconds of [1, 4, 24, 30.4, 332, 900]) {
+    assert.equal(
+      restyleRenderWindowCount(seconds),
+      workerWindows(Math.max(1, Math.round(seconds * 16))),
+      `${seconds}s window count must match the VACE worker`,
+    )
+  }
+
+  const full = planRestyleStyleSchedule(0, 332, bag)
+  assert.equal(full.length, 94)
+  assert.deepEqual(
+    full.slice(0, 6).map((window) => window.styleId),
+    ['illustrious', 'noir', 'paper-cut', 'watercolor', 'illustrious', 'noir'],
+  )
+  full.forEach((window, index) => {
+    assert.equal(window.index, index)
+    assert.equal(window.styleId, bag[index % bag.length])
+  })
+
+  const pilot = planRestyleStyleSchedule(158, 24, bag)
+  assert.equal(pilot.length, 7)
+  for (const window of pilot) {
+    const atSameTime = full.find(
+      (candidate) =>
+        Math.abs(candidate.sourceStartSec - window.sourceStartSec) <
+        57 / 16 / 2,
+    )!
+    assert.equal(
+      window.styleId,
+      atSameTime.styleId,
+      'pilot shows the look the full film uses at the same source time',
+    )
+  }
+  assert.deepEqual(
+    planRestyleStyleSchedule(158, 24, bag),
+    pilot,
+    're-renders and retries never reshuffle',
+  )
+  for (let index = 1; index < pilot.length; index += 1) {
+    assert.notEqual(pilot[index]!.styleId, pilot[index - 1]!.styleId)
+  }
+
+  const recipe = restyleScheduleRecipe(pilot)
+  assert.deepEqual(
+    recipe.styleSchedule.map((window) => window.styleId),
+    pilot.map((window) => window.styleId),
+  )
+  assert.deepEqual(Object.keys(recipe.stylePrompts).sort(), [...bag].sort())
+  assert.equal(
+    recipe.stylePrompts.noir,
+    RESTYLE_STYLES.find((entry) => entry.id === 'noir')!.prompt,
+  )
+
+  let seed = 7
+  const seeded = () => (seed = (seed * 9301 + 49297) % 233280) / 233280
+  const shuffled = shuffleRestyleStyles(bag, seeded)
+  assert.deepEqual([...shuffled].sort(), [...bag].sort())
+  assert.deepEqual([...bag], ['illustrious', 'noir', 'paper-cut', 'watercolor'])
+
+  const jobsSource = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
+  assert.ok(jobsSource.includes('...passSchedule(job, startSec, durationSec)'))
+  assert.ok(jobsSource.includes('...passSchedule(job, 0, durationSec)'))
+  assert.ok(jobsSource.includes('full: undefined,'))
+  const artJobSource = readFileSync(
+    'server/utils/videoRestyleArtJob.ts',
+    'utf8',
+  )
+  assert.ok(
+    artJobSource.includes('grabBagRecipe(job, job.pilot.styleSchedule)'),
+  )
+  assert.ok(artJobSource.includes('grabBagRecipe(job, job.full.styleSchedule)'))
+  const claimSource = readFileSync('server/api/art/queue/claim.post.ts', 'utf8')
+  assert.ok(claimSource.includes('supportsVideoRestyleGrabBag'))
+  const page = readFileSync('pages/admin/coat-dance.vue', 'utf8')
+  assert.ok(page.includes('Loop in listed order'))
+  assert.ok(page.includes('Shuffle once, then lock'))
+  assert.ok(page.includes('preview collage shows'))
+  assert.ok(page.includes('Sequence:'))
+}
+console.info('Grab bag rotation schedule verified')

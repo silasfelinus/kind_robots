@@ -71,6 +71,7 @@ type ClaimRequestBody = {
   supportsInputImages?: boolean | null
   supportsAudio?: boolean | null
   supportsVideoRestyle?: boolean | null
+  supportsVideoRestyleGrabBag?: boolean | null
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
@@ -108,6 +109,8 @@ export default defineEventHandler(async (event) => {
     const supportsInputImages = body?.supportsInputImages === true
     const supportsAudio = body?.supportsAudio === true
     const supportsVideoRestyle = body?.supportsVideoRestyle === true
+    const supportsVideoRestyleGrabBag =
+      body?.supportsVideoRestyleGrabBag === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false
@@ -169,6 +172,17 @@ export default defineEventHandler(async (event) => {
       })
       for (const pilot of pilots) {
         if (!isVideoRestyleArtJobPayload(pilot.payload)) continue
+        // A relay that predates per-window looks would render a Grab bag in
+        // one style. Leave it PENDING until an upgraded relay declares support.
+        if (
+          !artJobClaimableBy(pilot.payload, {
+            supportsInputImages,
+            supportsAudio,
+            supportsVideoRestyle,
+            supportsVideoRestyleGrabBag,
+          })
+        )
+          continue
         const won = await prisma.artJob.updateMany({
           where: {
             id: pilot.id,
@@ -323,6 +337,7 @@ export default defineEventHandler(async (event) => {
             supportsInputImages,
             supportsAudio,
             supportsVideoRestyle,
+            supportsVideoRestyleGrabBag,
           }),
         )
 

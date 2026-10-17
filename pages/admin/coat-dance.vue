@@ -353,17 +353,66 @@
                 class="grid grid-cols-3 gap-1.5 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7"
               >
                 <button
+                  type="button"
+                  class="overflow-hidden rounded-xl border-2 bg-base-200 text-left transition-colors"
+                  :class="
+                    isGrabBag
+                      ? 'border-primary'
+                      : 'border-transparent hover:border-base-content/30'
+                  "
+                  :aria-pressed="isGrabBag"
+                  @click="toggleGrabBag"
+                >
+                  <span
+                    class="relative grid aspect-[4/5] grid-cols-2 grid-rows-2 gap-px overflow-hidden bg-gradient-to-br"
+                    :class="RESTYLE_GRAB_BAG.tone"
+                  >
+                    <span
+                      v-for="(tile, tileIndex) in collageStyles"
+                      :key="`${tile.id}-${tileIndex}`"
+                      class="relative block overflow-hidden bg-gradient-to-br"
+                      :class="tile.tone"
+                    >
+                      <img
+                        v-if="store.stylePreviews[tile.id]?.imageUrl"
+                        :src="store.stylePreviews[tile.id]!.imageUrl!"
+                        :alt="`${tile.label} in the grab bag`"
+                        loading="lazy"
+                        class="absolute inset-0 h-full w-full object-cover"
+                      />
+                    </span>
+                    <span
+                      class="absolute left-1 top-1 rounded-full bg-base-100/85 px-1.5 py-0.5 text-[10px] font-semibold"
+                      >{{ grabBagStyles.length }} looks</span
+                    >
+                    <span
+                      v-if="isGrabBag"
+                      class="absolute right-1 top-1 rounded-full bg-primary p-1 text-primary-content"
+                    >
+                      <icon name="kind-icon:check" class="h-3 w-3" />
+                    </span>
+                  </span>
+                  <span class="block px-1.5 py-1">
+                    <span class="block truncate text-[11px] font-bold">{{
+                      RESTYLE_GRAB_BAG.label
+                    }}</span>
+                    <span class="block truncate text-[10px] opacity-65">{{
+                      RESTYLE_GRAB_BAG.note
+                    }}</span>
+                  </span>
+                </button>
+                <button
                   v-for="look in RESTYLE_STYLES"
                   :key="look.id"
                   type="button"
                   class="overflow-hidden rounded-xl border-2 bg-base-200 text-left transition-colors"
                   :class="
-                    style === look.id
+                    lookActive(look.id)
                       ? 'border-primary'
                       : 'border-transparent hover:border-base-content/30'
                   "
-                  :aria-pressed="style === look.id"
-                  @click="style = look.id"
+                  :aria-pressed="lookActive(look.id)"
+                  @click="pickLook(look.id)"
                 >
                   <span
                     class="relative block aspect-[4/5] overflow-hidden bg-gradient-to-br"
@@ -387,7 +436,12 @@
                       >{{ previewBadge(look.id) }}</span
                     >
                     <span
-                      v-if="style === look.id"
+                      v-if="isGrabBag && lookActive(look.id)"
+                      class="absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-content"
+                      >{{ grabBagStyles.indexOf(look.id) + 1 }}</span
+                    >
+                    <span
+                      v-else-if="lookActive(look.id)"
                       class="absolute right-1 top-1 rounded-full bg-primary p-1 text-primary-content"
                     >
                       <icon name="kind-icon:check" class="h-3 w-3" />
@@ -405,6 +459,91 @@
               </div>
             </div>
             <div
+              v-if="isGrabBag"
+              class="shrink-0 space-y-1.5 border-t border-base-300 pt-2 text-xs"
+              aria-label="Grab bag rotation"
+            >
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="min-w-0 flex-1 truncate">
+                  <strong>Grab bag</strong> · {{ grabBagStyles.length }}/{{
+                    RESTYLE_GRAB_BAG_MAX_STYLES
+                  }}
+                  looks · tap looks to add or remove · preview collage shows the
+                  first {{ collageStyles.length }}
+                </span>
+                <div class="flex flex-wrap gap-1">
+                  <button
+                    v-if="missingGrabBagPreviews.length"
+                    type="button"
+                    class="kr-btn-xs btn-outline"
+                    :disabled="store.stylePreviewBusy"
+                    @click="
+                      store.queueStylePreviews({
+                        styleIds: missingGrabBagPreviews,
+                      })
+                    "
+                  >
+                    Generate missing ({{ missingGrabBagPreviews.length }})
+                  </button>
+                  <button
+                    type="button"
+                    class="kr-btn-xs"
+                    :class="
+                      grabBagMode === 'cycle' ? 'btn-primary' : 'btn-outline'
+                    "
+                    :aria-pressed="grabBagMode === 'cycle'"
+                    @click="setGrabBagMode('cycle')"
+                  >
+                    Loop in listed order
+                  </button>
+                  <button
+                    type="button"
+                    class="kr-btn-xs"
+                    :class="
+                      grabBagMode === 'shuffle_locked'
+                        ? 'btn-primary'
+                        : 'btn-outline'
+                    "
+                    :aria-pressed="grabBagMode === 'shuffle_locked'"
+                    @click="setGrabBagMode('shuffle_locked')"
+                  >
+                    Shuffle once, then lock
+                  </button>
+                  <button
+                    v-if="grabBagMode === 'shuffle_locked'"
+                    type="button"
+                    class="kr-btn-xs btn-ghost"
+                    @click="reshuffleGrabBag"
+                  >
+                    Reshuffle
+                  </button>
+                </div>
+              </div>
+              <ol class="flex flex-wrap gap-1" aria-label="Rotation order">
+                <li
+                  v-for="(id, order) in grabBagStyles"
+                  :key="id"
+                  class="flex items-center gap-1 rounded-full border border-base-300 bg-base-200 py-0.5 pl-2 pr-0.5"
+                >
+                  <span class="font-semibold"
+                    >{{ order + 1 }}. {{ labelFor(id) }}</span
+                  >
+                  <button
+                    type="button"
+                    class="kr-btn-xs btn-ghost btn-circle"
+                    :aria-label="`Remove ${labelFor(id)} from the grab bag`"
+                    @click="pickLook(id)"
+                  >
+                    ×
+                  </button>
+                </li>
+              </ol>
+              <p v-if="!grabBagReady" class="text-warning">
+                Pick at least {{ RESTYLE_GRAB_BAG_MIN_STYLES }} looks to rotate.
+              </p>
+            </div>
+            <div
+              v-if="!isGrabBag"
               class="flex flex-wrap items-center justify-between gap-2 border-t border-base-300 pt-2 text-xs"
             >
               <span class="min-w-0 flex-1 truncate">
@@ -425,12 +564,7 @@
                 type="button"
                 class="kr-btn-xs btn-outline"
                 :disabled="store.stylePreviewBusy || previewActive"
-                @click="
-                  store.queueStylePreviews({
-                    styleIds: [style],
-                    force: Boolean(selectedPreview?.imageUrl),
-                  })
-                "
+                @click="queueSelectedPreview"
               >
                 {{
                   selectedPreview?.imageUrl
@@ -525,6 +659,20 @@
                   statusLabel(store.selected.status)
                 }}</span>
               </div>
+              <p
+                v-if="isGrabBag"
+                class="hidden text-xs text-base-content/80 sm:block"
+              >
+                <strong>Sequence:</strong> {{ grabBagSequenceLabel }}<br />
+                <strong>Behavior:</strong> new look every motion window (~{{
+                  windowSeconds
+                }}s),
+                {{
+                  grabBagMode === 'cycle'
+                    ? 'looping in listed order'
+                    : 'shuffled once and locked'
+                }}. Pilot and full film share this saved sequence.
+              </p>
               <p v-if="sourceFile" class="text-xs text-base-content/80">
                 New source selected. Prepare it with
                 {{ labelFor(style) }} before generating.
@@ -550,7 +698,7 @@
               <p v-else class="text-xs text-base-content/70">
                 Upload a video in Library to create a project.
               </p>
-              <div class="flex flex-wrap gap-2">
+              <div class="flex flex-wrap gap-2 [&>button]:min-w-[9rem]">
                 <button
                   v-if="sourceFile"
                   type="button"
@@ -569,7 +717,7 @@
                   "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
-                  :disabled="store.busy"
+                  :disabled="store.busy || !grabBagReady"
                   @click="saveLook"
                 >
                   {{ store.busy ? 'Saving…' : 'Save look to this project' }}
@@ -582,7 +730,7 @@
                   "
                   type="button"
                   class="kr-btn btn-outline flex-1"
-                  :disabled="store.busy"
+                  :disabled="store.busy || !grabBagReady"
                   @click="createVariant"
                 >
                   {{
@@ -618,7 +766,9 @@
                       : store.selected.status === 'PILOT_FAILED'
                         ? 'Retry pilot in the same ArtJob'
                         : store.selected.status === 'REVIEW'
-                          ? 'Render improved continuity pilot'
+                          ? store.selected.style === RESTYLE_GRAB_BAG.id
+                            ? 'Re-render grab bag pilot'
+                            : 'Render improved continuity pilot'
                           : 'Render 24-second pilot'
                   }}
                 </button>
@@ -749,6 +899,42 @@
                 {{ store.selected.quality }} ·
                 {{ formatRestyleTime(store.selected.sourceDurationSec) }}
               </p>
+              <p
+                v-if="store.selected.variantStyleIds?.length"
+                class="text-base-content/70"
+              >
+                Sequence:
+                {{ store.selected.variantStyleIds.map(labelFor).join(' → ') }}
+              </p>
+              <div
+                v-if="savedSchedule.length"
+                class="space-y-1"
+                aria-label="Saved look per motion window"
+              >
+                <span class="text-base-content/70"
+                  >{{
+                    store.selected.full ? 'Full film' : 'Pilot'
+                  }}
+                  windows</span
+                >
+                <ol class="kr-pane-scroll flex max-h-20 flex-wrap gap-0.5">
+                  <li
+                    v-for="window in savedSchedule"
+                    :key="window.index"
+                    class="relative h-8 w-6 overflow-hidden rounded bg-gradient-to-br"
+                    :class="toneFor(window.styleId)"
+                    :title="`Window ${window.index + 1} · ${formatRestyleTime(window.sourceStartSec)} · ${labelFor(window.styleId)}`"
+                  >
+                    <img
+                      v-if="store.stylePreviews[window.styleId]?.imageUrl"
+                      :src="store.stylePreviews[window.styleId]!.imageUrl!"
+                      :alt="`Window ${window.index + 1}: ${labelFor(window.styleId)}`"
+                      loading="lazy"
+                      class="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </li>
+                </ol>
+              </div>
               <div class="h-1.5 overflow-hidden rounded-full bg-base-300">
                 <div
                   class="h-full bg-primary"
@@ -857,13 +1043,23 @@ import type { VideoRestyleJob } from '@/server/utils/videoRestyleJobs'
 import { useVideoRestyleStore } from '@/stores/videoRestyleStore'
 import { useUserStore } from '@/stores/userStore'
 import {
+  RESTYLE_GRAB_BAG,
+  RESTYLE_GRAB_BAG_DEFAULT_STYLES,
+  RESTYLE_GRAB_BAG_MAX_STYLES,
+  RESTYLE_GRAB_BAG_MIN_STYLES,
   RESTYLE_MAX_BYTES,
   RESTYLE_MAX_DURATION_SEC,
+  RESTYLE_RENDER_FPS,
+  RESTYLE_RENDER_WINDOW_STEP,
   RESTYLE_STYLES,
   formatRestyleTime,
+  restyleLookLabel,
+  shuffleRestyleStyles,
+  type RestyleLookId,
   type RestylePreviewState,
   type RestyleQuality,
   type RestyleStyleId,
+  type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
 
 const userStore = useUserStore()
@@ -875,7 +1071,45 @@ const panels = [
 ] as const
 const activePanel = ref<(typeof panels)[number]['value']>('studio')
 const qualityOptions = ['720p', '1080p'] as const
-const style = ref<RestyleStyleId>('illustrious')
+const style = ref<RestyleLookId>('illustrious')
+const grabBagStyles = ref<RestyleStyleId[]>([
+  ...RESTYLE_GRAB_BAG_DEFAULT_STYLES,
+])
+const grabBagMode = ref<RestyleVariantMode>('cycle')
+const isGrabBag = computed(() => style.value === RESTYLE_GRAB_BAG.id)
+const grabBagReady = computed(
+  () =>
+    !isGrabBag.value ||
+    grabBagStyles.value.length >= RESTYLE_GRAB_BAG_MIN_STYLES,
+)
+const grabBagChoice = computed(() =>
+  isGrabBag.value
+    ? {
+        variantStyleIds: [...grabBagStyles.value],
+        variantMode: grabBagMode.value,
+      }
+    : {},
+)
+const collageStyles = computed(() =>
+  grabBagStyles.value
+    .slice(0, 4)
+    .map((id) => RESTYLE_STYLES.find((entry) => entry.id === id)!),
+)
+const grabBagSequenceLabel = computed(() =>
+  grabBagStyles.value.map(labelFor).join(' → '),
+)
+const missingGrabBagPreviews = computed(() =>
+  grabBagStyles.value.filter((id) => !store.stylePreviews[id]?.imageUrl),
+)
+const windowSeconds = (RESTYLE_RENDER_WINDOW_STEP / RESTYLE_RENDER_FPS).toFixed(
+  1,
+)
+const savedSchedule = computed(
+  () =>
+    store.selected?.full?.styleSchedule ??
+    store.selected?.pilot?.styleSchedule ??
+    [],
+)
 const quality = ref<RestyleQuality>('1080p')
 const isPrivate = ref(true)
 const isMature = ref(false)
@@ -887,6 +1121,10 @@ const lookChanged = computed(() =>
   Boolean(
     store.selected &&
     (store.selected.style !== style.value ||
+      (isGrabBag.value &&
+        ((store.selected.variantStyleIds ?? []).join(',') !==
+          grabBagStyles.value.join(',') ||
+          (store.selected.variantMode ?? 'cycle') !== grabBagMode.value)) ||
       store.selected.quality !== quality.value ||
       (store.selected.isPrivate ?? true) !== isPrivate.value ||
       (store.selected.isMature ?? false) !== isMature.value),
@@ -902,11 +1140,16 @@ const canStage = computed(() =>
     sourceFile.value &&
     sourceFile.value.size <= RESTYLE_MAX_BYTES &&
     durationSec.value >= 1 &&
-    durationSec.value <= RESTYLE_MAX_DURATION_SEC,
+    durationSec.value <= RESTYLE_MAX_DURATION_SEC &&
+    grabBagReady.value,
   ),
 )
 
-const selectedPreview = computed(() => store.stylePreviews[style.value])
+const selectedPreview = computed(() =>
+  isGrabBag.value
+    ? undefined
+    : store.stylePreviews[style.value as RestyleStyleId],
+)
 const previewActive = computed(() =>
   ['QUEUED', 'RENDERING'].includes(selectedPreview.value?.state ?? ''),
 )
@@ -935,8 +1178,55 @@ function previewBadge(value: RestyleStyleId): string {
   return preview.stale ? 'Prompt changed' : ''
 }
 
-function labelFor(value: RestyleStyleId): string {
-  return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
+function labelFor(value: RestyleLookId): string {
+  return restyleLookLabel(value)
+}
+
+function toneFor(value: RestyleStyleId): string {
+  return RESTYLE_STYLES.find((entry) => entry.id === value)?.tone || ''
+}
+
+function lookActive(value: RestyleStyleId): boolean {
+  return isGrabBag.value
+    ? grabBagStyles.value.includes(value)
+    : style.value === value
+}
+
+function pickLook(value: RestyleStyleId) {
+  if (!isGrabBag.value) {
+    style.value = value
+    return
+  }
+  if (grabBagStyles.value.includes(value)) {
+    grabBagStyles.value = grabBagStyles.value.filter((id) => id !== value)
+  } else if (grabBagStyles.value.length < RESTYLE_GRAB_BAG_MAX_STYLES) {
+    grabBagStyles.value = [...grabBagStyles.value, value]
+  }
+}
+
+function toggleGrabBag() {
+  style.value = isGrabBag.value
+    ? (grabBagStyles.value[0] ?? 'illustrious')
+    : RESTYLE_GRAB_BAG.id
+}
+
+function setGrabBagMode(mode: RestyleVariantMode) {
+  if (mode === 'shuffle_locked' && grabBagMode.value !== mode) {
+    grabBagStyles.value = shuffleRestyleStyles(grabBagStyles.value)
+  }
+  grabBagMode.value = mode
+}
+
+function reshuffleGrabBag() {
+  grabBagStyles.value = shuffleRestyleStyles(grabBagStyles.value)
+}
+
+function queueSelectedPreview() {
+  if (isGrabBag.value) return
+  store.queueStylePreviews({
+    styleIds: [style.value as RestyleStyleId],
+    force: Boolean(selectedPreview.value?.imageUrl),
+  })
 }
 
 function statusLabel(value: VideoRestyleJob['status']): string {
@@ -963,6 +1253,10 @@ function selectJob(job: VideoRestyleJob) {
   durationSec.value = job.sourceDurationSec
   title.value = job.title
   style.value = job.style
+  if (job.variantStyleIds?.length) {
+    grabBagStyles.value = [...job.variantStyleIds]
+    grabBagMode.value = job.variantMode ?? 'cycle'
+  }
   quality.value = job.quality
   isPrivate.value = job.isPrivate ?? true
   isMature.value = job.isMature ?? false
@@ -997,6 +1291,7 @@ async function saveLook() {
     quality.value,
     isPrivate.value,
     isMature.value,
+    grabBagChoice.value,
   )
 }
 
@@ -1012,6 +1307,7 @@ async function createVariant() {
       quality: quality.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
+      ...grabBagChoice.value,
     })
   ) {
     if (store.selected) selectJob(store.selected)
@@ -1054,6 +1350,7 @@ async function stage() {
       quality: quality.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
+      ...grabBagChoice.value,
     })
   ) {
     activePanel.value = 'studio'

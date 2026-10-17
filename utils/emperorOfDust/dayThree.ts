@@ -1,0 +1,136 @@
+import type { Briefing } from './dayOne'
+import type { Incident } from './types'
+
+export const DAY_THREE_BRIEFINGS: readonly Briefing[] = [
+  {
+    id: 'bell-without-hand',
+    source: 'Hollow Bell pilgrims',
+    text: 'The bell at the old chapel rang all night and nobody was near the rope.',
+    truth: true,
+  },
+  {
+    id: 'jackal-toll-lifted',
+    source: 'A cheerful toll-clerk',
+    text: 'Jackalwire has abolished its road toll out of loyalty to the tower.',
+    truth: false,
+  },
+  {
+    id: 'mire-lights',
+    source: 'Mirefen reed-cutters',
+    text: 'Lanterns are moving through the fen where no one lives, and they are moving together.',
+    truth: true,
+  },
+]
+
+export const KOMODO_DAY_THREE_HINT =
+  'A bell that rings itself is a rumor with a rope in it, and lanterns walking in step are rarely ghosts. The toll-clerk is smiling, Your Majesty. Nobody abolishes a toll and smiles about it.'
+
+export const DAY_THREE_INCIDENTS: readonly Incident[] = [
+  {
+    id: 'd003-bell-vigil',
+    day: 3,
+    title: 'The Bell That Rang Alone',
+    destinationId: 'hollow-bell',
+    opensAtHour: 7,
+    deadlineHour: 14,
+    outwardHours: 2,
+    missionHours: 2,
+    hordeMinimum: 3,
+    hordeMaximum: 10,
+    neglected: { popularity: -4 },
+    choices: [
+      {
+        id: 'keep-vigil',
+        label: 'Post a quiet vigil in the chapel and wait for the rope to move',
+        approach: 'diplomacy',
+        difficulty: 3,
+        moralEffect: { popularity: 2 },
+        success: { popularity: 3, prosperity: 2 },
+        failure: { popularity: -2 },
+        injuryDaysOnFailure: 0,
+      },
+      {
+        id: 'muffle-bell',
+        label: 'Muffle the clapper and search the tower stairs',
+        approach: 'ingenuity',
+        difficulty: 4,
+        specialty: 'mechanics',
+        moralEffect: { popularity: 0 },
+        success: { prosperity: 4 },
+        failure: { prosperity: -2, horde: -2 },
+        injuryDaysOnFailure: 1,
+      },
+    ],
+  },
+  {
+    id: 'd003-toll-audit',
+    day: 3,
+    title: 'The Vanishing Toll',
+    destinationId: 'jackalwire',
+    opensAtHour: 8,
+    deadlineHour: 18,
+    outwardHours: 4,
+    missionHours: 2,
+    hordeMinimum: 5,
+    hordeMaximum: 14,
+    neglected: { prosperity: -4, popularity: -1 },
+    choices: [
+      {
+        id: 'count-the-gate',
+        label: 'Count every cart through the gate and compare it to the ledger',
+        approach: 'ingenuity',
+        difficulty: 3,
+        specialty: 'archives',
+        moralEffect: { popularity: 1 },
+        success: { prosperity: 5 },
+        failure: { prosperity: -2 },
+        injuryDaysOnFailure: 0,
+      },
+      {
+        id: 'seize-the-booth',
+        label: 'Seize the toll booth and reinstate the old rate by force',
+        approach: 'might',
+        difficulty: 3,
+        moralEffect: { popularity: -3 },
+        success: { prosperity: 6 },
+        failure: { horde: -4, popularity: -2 },
+        injuryDaysOnFailure: 2,
+      },
+    ],
+  },
+  {
+    id: 'd003-fen-lanterns',
+    day: 3,
+    title: 'Lanterns in the Fen',
+    destinationId: 'mirefen',
+    opensAtHour: 10,
+    deadlineHour: 20,
+    outwardHours: 5,
+    missionHours: 3,
+    hordeMinimum: 6,
+    hordeMaximum: 16,
+    neglected: { horde: -3, prosperity: -2 },
+    choices: [
+      {
+        id: 'ambush-march',
+        label: 'Hide the Horde in the reeds and ambush the marching lanterns',
+        approach: 'might',
+        difficulty: 4,
+        moralEffect: { popularity: -1 },
+        success: { prosperity: 4, horde: 2 },
+        failure: { horde: -4 },
+        injuryDaysOnFailure: 3,
+      },
+      {
+        id: 'hail-them',
+        label: 'Light a lantern of your own and hail them across the water',
+        approach: 'diplomacy',
+        difficulty: 5,
+        moralEffect: { popularity: 2 },
+        success: { popularity: 3, horde: 3 },
+        failure: { popularity: -2, horde: -2 },
+        injuryDaysOnFailure: 1,
+      },
+    ],
+  },
+]

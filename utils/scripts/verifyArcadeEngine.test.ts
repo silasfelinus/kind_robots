@@ -25,7 +25,9 @@ import {
   combineFrame,
   keepPads,
   P1_KEYS,
+  KEY_MAP,
   P2_KEYS,
+  readFourButtonPad,
   readGamepad,
 } from '../arcade/input'
 import {
@@ -277,6 +279,25 @@ import {
   assert.equal(pad.a, true)
   assert.equal(pad.left, true)
   assert.equal(pad.up, false, 'inside the deadzone is not a press')
+  // Four-button games (fourButtons): X and Y stay apart from A and B.
+  const faceX = {
+    buttons: [
+      { pressed: false },
+      { pressed: false },
+      { pressed: true },
+      { pressed: false },
+    ] as unknown as GamepadButton[],
+    axes: [0, 0],
+  }
+  assert.equal(readGamepad(faceX).a, true, 'two-button games double X as A')
+  assert.equal(readFourButtonPad(faceX).x, true)
+  assert.equal(
+    readFourButtonPad(faceX).a,
+    false,
+    'four-button games keep X apart',
+  )
+  assert.equal(KEY_MAP.KeyC, 'x')
+  assert.equal(KEY_MAP.KeyV, 'y')
   // Seating: one player reads every pad; two take one each, and a lone pad
   // goes to player 2 (player 1 has the left of the keyboard).
   assert.deepEqual(assignPads([0, 1], 1), [null])

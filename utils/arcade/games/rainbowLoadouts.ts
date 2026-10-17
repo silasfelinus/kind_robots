@@ -13,11 +13,58 @@ import type { RainbowCheckpoint } from './rainbowCheckpoints'
  * spread; focus trades it for the family's precise weapon.
  */
 export const RAINBOW_LOADOUTS = [
-  { ship: 'Petal Wing', focus: 'Rose Needle' },
-  { ship: 'Prism Lance', focus: 'Prism Thread' },
-  { ship: 'Halo Fin', focus: 'Halo Link' },
-  { ship: 'Comet Crown', focus: 'Comet Arc' },
+  {
+    ship: 'Petal Wing',
+    focus: 'Rose Needle',
+    special: 'Petal Shield',
+    evade: 'Barrel Roll',
+  },
+  {
+    ship: 'Prism Lance',
+    focus: 'Prism Thread',
+    special: 'Prism Beam',
+    evade: 'Prism Dash',
+  },
+  {
+    ship: 'Halo Fin',
+    focus: 'Halo Link',
+    special: 'Halo Pulse',
+    evade: 'Halo Blink',
+  },
+  {
+    ship: 'Comet Crown',
+    focus: 'Comet Arc',
+    special: 'Comet Volley',
+    evade: 'Comet Boost',
+  },
 ] as const
+
+/**
+ * The four-button cabinet (Silas, 2026-10-17: "a fire button, super button, unique special, and unique
+ * movement evade"): X fires each pilot's special on a cooldown, Y her evade, which no pellet or craft can touch.
+ */
+export const RAINBOW_SPECIAL = {
+  cooldown: 360,
+  /** Maribel: petals orbit the ship and eat every pellet that reaches them. */
+  shield: { frames: 150, radius: 26 },
+  /** Azure: a beam down her lane, a piercing shot every few frames. */
+  beam: { frames: 48, every: 3, speed: 16, damage: 1 },
+  /** Solenne: a pulse that clears the pellets around her and hurts the craft it reaches. */
+  pulse: { radius: 84, damage: 5 },
+  /** Vivi: a fan of sparks that glance off the walls once. */
+  volley: { count: 7, spread: 0.5, speed: 8, damage: 2 },
+} as const
+export const RAINBOW_EVADE = {
+  cooldown: 84,
+  /** Maribel: a barrel roll, untouchable while it spins. */
+  roll: 30,
+  /** Azure: a dash in the held direction (forward by default). */
+  dash: { frames: 10, step: 6.5 },
+  /** Solenne: a blink in the held direction (up by default), and a beat untouchable after. */
+  blink: { reach: 56, safe: 22 },
+  /** Vivi: a boost at double speed. */
+  boost: { frames: 26, speed: 2 },
+} as const
 
 /** Focused fire, by seat (the World Bible's numbers; craft health is 1 to 12). */
 export const RAINBOW_FOCUS = {

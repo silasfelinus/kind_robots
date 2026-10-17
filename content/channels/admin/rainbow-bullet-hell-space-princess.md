@@ -60,6 +60,9 @@ tutorial:
     Focused weapons
     Hold B to focus: each ship trades its spread for its own precise weapon. Petal Wing fires a Rose Needle, one fast needle that hits twice as hard, with a twin from power 2. Prism Lance fires a Prism Thread that passes through two craft, one more per power level; walls, slabs and closed shells still stop it. Halo Fin's two orbit drones fire inward so their shots cross on your line. Comet Crown throws Comet Arc sparks up and down that glance off the walls twice.
 
+    Four buttons
+    A fires; hold B to focus, and tap B at 100% for the super. X fires your pilot's special, and Y is her evade; each has its own cooldown, and the HUD shows an X or a Y beside your ship's line when it is ready. Specials: Maribel's Petal Shield (petals orbit the ship and eat every pellet that reaches them), Azure's Prism Beam (a piercing beam down her lane), Solenne's Halo Pulse (clears the pellets around her and hurts nearby craft) and Vivi's Comet Volley (a fan of sparks that glance off the walls). Evades: Maribel's Barrel Roll, Azure's Prism Dash (forward, or the way you are steering), Solenne's Halo Blink (up, or the way you are steering) and Vivi's Comet Boost (double speed). Nothing can hit you while you evade. Keyboard: C or L is X, V or I is Y.
+
     Medals, mastery and saves
     Every Act ends with a medal: gold for no hits, silver for no continues, bronze for the clear. The cabinet's mastery ladder tracks First Light, Gold Wing, The End, Guardian Breaker, No One Left Behind, Every Ending and a secret goal. Each Act start from Act II on saves on this device; the next game offers a Flight Log to continue from that Act with its score, rescues, routes, medals and difficulty, or to start a new flight. Reaching THE END clears the save.
 

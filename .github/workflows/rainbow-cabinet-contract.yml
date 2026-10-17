@@ -8,7 +8,7 @@ on:
       - 'components/arcade/arcade-pinball-touch.vue'
       - 'components/navigation/tutorial-flyer.vue'
       - 'content/channels/admin/index.md'
-      - 'content/channels/admin/rainbow-bullet-hell-space-princess.md'
+      - 'content/channels/arcade/rainbow-bullet-hell-space-princess.md'
       - 'stores/helpers/channelContent.ts'
       - 'utils/arcade/**'
       - 'utils/scripts/arcadeCabinetFixture.mjs'

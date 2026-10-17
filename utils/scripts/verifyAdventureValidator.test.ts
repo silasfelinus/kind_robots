@@ -11,9 +11,21 @@ const codes = (b: Adventure) => validateAdventure(b).errors.map((e) => e.code)
 
 const good = validateAdventure(load())
 assert.equal(good.ok, true, JSON.stringify(good.errors))
-assert.deepEqual(good.stats, { nodes: 7, endings: 3, reachable: 7 })
+assert.deepEqual(good.stats, { nodes: 8, endings: 4, reachable: 8 })
+
+const secret = load().nodes.lullaby!
+assert.equal(secret.ending?.kind, 'secret')
+assert.deepEqual(
+  load().nodes.attic!.choices!.find((c) => c.to === 'lullaby')?.requires,
+  ['wound'],
+)
 
 let b = load()
+b.nodes.music!.choices![0]!.sets = []
+b.nodes.start!.choices![0]!.sets = []
+assert.ok(codes(b).includes('flag-never-set'))
+
+b = load()
 b.nodes.start!.choices![0]!.to = 'nowhere'
 assert.ok(codes(b).includes('dangling-link'))
 

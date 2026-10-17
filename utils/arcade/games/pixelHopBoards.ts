@@ -190,3 +190,23 @@ export function endlessFoes(round: number): string[] {
   )
   return ENDLESS_FOES.slice(0, n)
 }
+
+/**
+ * Endless Pyramid pressure past the old round-12 plateau: the board holds more
+ * foes, they hop and drop faster, and the gremlin chance keeps growing.
+ */
+export function endlessPressure(round: number): {
+  maxEnemies: number
+  hopTrim: number
+  dropTrim: number
+  gremlinBonus: number
+} {
+  const extra = Math.max(0, Math.trunc(round) - 12)
+  const tier = Math.floor(extra / 4)
+  return {
+    maxEnemies: Math.min(6, 4 + Math.floor((extra + 3) / 8)),
+    hopTrim: Math.min(6, tier * 2),
+    dropTrim: Math.min(50, tier * 10),
+    gremlinBonus: Math.min(0.15, tier * 0.03),
+  }
+}

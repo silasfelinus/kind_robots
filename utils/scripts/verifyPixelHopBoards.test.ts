@@ -4,6 +4,7 @@ import {
   bridgeBoard,
   cellKey,
   endlessFoes,
+  endlessPressure,
   hopTile,
   miniMap,
   paintPicture,
@@ -65,5 +66,16 @@ assert.equal(endlessFoes(4).length, 4)
 assert.equal(endlessFoes(5).length, 5)
 assert.ok(endlessFoes(13).length > endlessFoes(12).length)
 assert.equal(endlessFoes(999).length, 10)
+
+const old = endlessPressure(12)
+assert.deepEqual(
+  [old.maxEnemies, old.hopTrim, old.dropTrim, old.gremlinBonus],
+  [4, 0, 0, 0],
+  'rounds up to 12 are unchanged',
+)
+const late = endlessPressure(40)
+assert.ok(late.maxEnemies > 4 && late.hopTrim > 0 && late.dropTrim > 0)
+assert.ok(endlessPressure(24).hopTrim > endlessPressure(16).hopTrim)
+assert.ok(endlessPressure(9999).maxEnemies <= 6, 'pressure is capped')
 
 console.log('Pixel Hop boards, rule engine and tile effects passed')

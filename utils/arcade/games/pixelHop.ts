@@ -18,6 +18,7 @@
 // down-right, Down down-left, Left up-left.
 
 import { levelCurve } from '../curve'
+import { endlessPressure } from './pixelHopBoards'
 import { drawText } from '../font'
 import {
   INK,
@@ -782,8 +783,10 @@ class PixelHop implements ArcadeGameInstance {
 
   private spawn() {
     if (--this.dropTimer > 0) return
-    this.dropTimer = Math.round(levelCurve(this.round, HOP_CURVES.dropEvery))
-    if (this.enemies.length >= 4) return
+    const press = endlessPressure(this.round)
+    this.dropTimer =
+      Math.round(levelCurve(this.round, HOP_CURVES.dropEvery)) - press.dropTrim
+    if (this.enemies.length >= press.maxEnemies) return
     const roll = this.rng()
     const hasBoing = this.enemies.some(
       (e) => e.kind === 'boing' || e.kind === 'purple',
@@ -792,7 +795,9 @@ class PixelHop implements ArcadeGameInstance {
     if (!hasBoing && roll < 0.35) kind = 'purple'
     else if (
       roll <
-      0.35 + Math.max(0, levelCurve(this.round, HOP_CURVES.gremlinChance))
+      0.35 +
+        Math.max(0, levelCurve(this.round, HOP_CURVES.gremlinChance)) +
+        press.gremlinBonus
     )
       kind = 'gremlin'
     else if (roll > 0.9) kind = 'green'
@@ -810,8 +815,16 @@ class PixelHop implements ArcadeGameInstance {
     })
   }
 
+  /** Ticks between enemy hops; keeps tightening past the old round-12 plateau. */
+  private hopEvery(): number {
+    return (
+      Math.round(levelCurve(this.round, HOP_CURVES.enemyHop)) -
+      endlessPressure(this.round).hopTrim
+    )
+  }
+
   private moveEnemies() {
-    const every = Math.round(levelCurve(this.round, HOP_CURVES.enemyHop))
+    const every = this.hopEvery()
     for (const e of this.enemies) {
       if (e.falling > 0) {
         e.falling--
@@ -1313,7 +1326,7 @@ class PixelHop implements ArcadeGameInstance {
   ) {
     const face = facing(e)
     const airborne = e.hop > 0 || e.falling > 0
-    const every = Math.round(levelCurve(this.round, HOP_CURVES.enemyHop))
+    const every = this.hopEvery()
     const landing =
       !airborne && (e.wait > every - 5 || this.freeze > 0 || this.dead > 0)
     const x = at.x

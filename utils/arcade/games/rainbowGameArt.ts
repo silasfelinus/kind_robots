@@ -101,6 +101,11 @@ export const RAINBOW_ACT_FIVE_ENEMY_SPRITES = [
 ] as const
 /** Act VI's craft, ahead of their stage: E20 Reef Turret 247892 and E21 Nautilus Bulwark 247893 (round 26). */
 export const RAINBOW_ACT_SIX_ENEMY_SPRITES = ['turret', 'bulwark'] as const
+/**
+ * Act VII's craft (round 27): E22 Mirror Eel 247941 and E24 Crown Harbinger 247944. The crystal squid waits on
+ * a txt2img redo, and prism pylons are drawn by hand.
+ */
+export const RAINBOW_ACT_SEVEN_ENEMY_SPRITES = ['mirror', 'harbinger'] as const
 
 export function rainbowEnemySprite(kind: string): string | null {
   return [
@@ -109,6 +114,7 @@ export function rainbowEnemySprite(kind: string): string | null {
     ...RAINBOW_ACT_FOUR_ENEMY_SPRITES,
     ...RAINBOW_ACT_FIVE_ENEMY_SPRITES,
     ...RAINBOW_ACT_SIX_ENEMY_SPRITES,
+    ...RAINBOW_ACT_SEVEN_ENEMY_SPRITES,
   ].some((name) => name === kind)
     ? `${RAINBOW_GAME_ART_ROOT}/enemies/${kind}.webp`
     : null
@@ -129,7 +135,8 @@ export function drawRainbowEnemySprite(
 
 /**
  * Painted mid-Act guardians (round-24 Kontext: 247858 armoured urchin, 247860 lantern; round 25: 247876
- * armoured clawstrike with its cannon claw; round 26: 247895 rose-gold courier and 247897 armoured salvager),
+ * armoured clawstrike with its cannon claw; round 26: 247895 rose-gold courier and 247897 armoured salvager;
+ * round 27: 247946 nautilus bulwark),
  * keyed at 256 px so they stay crisp at guardian size; until they load the engine scales up the scout sprite
  * instead.
  */
@@ -139,6 +146,7 @@ export const RAINBOW_GUARDIAN_SPRITES = [
   'clawstrike',
   'courier',
   'salvager',
+  'bulwark',
 ] as const
 
 export function rainbowGuardianSprite(kind: string): string | null {
@@ -188,7 +196,8 @@ export function drawRainbowPickupSprite(
  * today, B03 Clawburst for Act III (round-18 Kontext 247730, round-20 phases 247765 and 247768), and, ahead
  * of their Acts, B04 Delphion and B05 Sawtooth Regent (round-15 bases 247593 and 247594, round-25 phases
  * 247878/247881 and 247883/247884), then B06 Lantern Ray (round-12 247595, mirrored to face left; round-26
- * phases 247899 and 247901) and B07 Glass Eel (247596; 247903 and 247905).
+ * phases 247899 and 247901) and B07 Glass Eel (247596; 247903 and 247905), then B08 Prism Leviathan (247597;
+ * round-27 phases 247947 and 247950) and B09 Eclipse Crown (247598; 247952 and 247954).
  */
 export const RAINBOW_BOSS_SPRITES = [
   'b01',
@@ -198,6 +207,8 @@ export const RAINBOW_BOSS_SPRITES = [
   'b05',
   'b06',
   'b07',
+  'b08',
+  'b09',
 ] as const
 export type RainbowBossKey = (typeof RAINBOW_BOSS_SPRITES)[number]
 

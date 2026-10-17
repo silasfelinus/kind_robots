@@ -455,11 +455,15 @@
               <div class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs">
                 <span>
                   <strong>Selected look: {{ labelFor(style) }}</strong>
-                  <span v-if="store.selected" class="opacity-70"> · {{ store.selected.title }}</span>
+                  <span v-if="sourceFile" class="opacity-70"> · New upload</span>
+                  <span v-else-if="store.selected" class="opacity-70"> · {{ store.selected.title }}</span>
                 </span>
                 <span v-if="store.selected" class="opacity-70">{{ statusLabel(store.selected.status) }}</span>
               </div>
-              <p v-if="store.selected && lookChanged" class="text-xs text-base-content/80" role="status">
+              <p v-if="sourceFile" class="text-xs text-base-content/80">
+                New source selected. Prepare it with {{ labelFor(style) }} before generating.
+              </p>
+              <p v-else-if="store.selected && lookChanged" class="text-xs text-base-content/80" role="status">
                 {{ store.selected.status === 'STAGED'
                   ? 'Unsaved choices. Save this look before rendering this project.'
                   : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.` }}
@@ -471,6 +475,13 @@
                 Upload a video in Library to create a project.
               </p>
               <div class="flex flex-wrap gap-2">
+                <button
+                  v-if="sourceFile"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="!canStage || store.busy"
+                  @click="stage"
+                >{{ store.busy ? 'Uploading…' : 'Upload & prepare this look' }}</button>
                 <button
                   v-if="store.selected && !sourceFile && store.selected.status === 'STAGED' && lookChanged"
                   type="button"

@@ -130,9 +130,24 @@ try {
     summary.push(`${width}px help+cabinet`)
   }
 
-  // 2. One pilot: keyboard start, keyboard pause, gamepad Start pause and resume.
+  // 2. One pilot: the difficulty switch, then keyboard start, keyboard pause, gamepad Start pause and resume.
   {
     const { page, errors } = await open(1440, 900)
+    const levels = []
+    for (let i = 0; i < 4; i++) {
+      const button = page.locator('#cabinet button.cabinet-switch', {
+        hasText: /^(Cadet|Pilot|Ace)$/,
+      })
+      levels.push((await button.textContent()).trim())
+      if (i < 3) await button.click()
+    }
+    assert.deepEqual(
+      levels,
+      ['Pilot', 'Ace', 'Cadet', 'Pilot'],
+      'the difficulty switch starts on Pilot and cycles Ace, Cadet, Pilot',
+    )
+    // A clicked switch keeps focus, where Enter would press it again instead of starting the run.
+    await page.evaluate(() => document.activeElement?.blur())
     await startRun(page)
     assert.ok((await advancing(page)) > 10, 'the run plays after Enter')
     await page.keyboard.press('KeyP')
@@ -167,7 +182,7 @@ try {
       await page.screenshot({ path: path.join(shots, 'one-pilot-playing.png') })
     assert.deepEqual(errors, [])
     await page.close()
-    summary.push('keyboard+gamepad pause')
+    summary.push('difficulty switch + keyboard+gamepad pause')
   }
 
   // 3. Two pilots split the keyboard: WASD flies pilot 1 only, the arrows fly pilot 2 only.

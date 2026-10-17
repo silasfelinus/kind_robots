@@ -54,6 +54,9 @@ tutorial:
     Checkpoints and continues
     Every section start and each boss is a checkpoint; a CHECKPOINT toast marks it. When the whole crew is down, a ten-second CONTINUE? countdown holds the battle still. Press A to resume from the last checkpoint with every pilot restored; the score returns to what it was at that checkpoint. Let the countdown run out to end the run. A continue during a boss fight brings the boss back as damaged as you left it, so every attempt chips away at it.
 
+    Difficulty
+    The cabinet's difficulty switch picks Cadet, Pilot or Ace before a run starts. Cadets fly with five lives, slower enemy pellets and softer craft and bosses; Aces face faster pellets and tougher craft and bosses. Every attack keeps its full warning at every level. The score scales with the level (half for Cadet, one and a half times for Ace), so everyone shares one leaderboard.
+
     Boss fights
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. A clean solo run of each Act takes about ten minutes; a first clear with continues takes twelve to fifteen, and a crew of four finishes each in about ten to eleven.
 

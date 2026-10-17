@@ -1,4 +1,5 @@
 import type {
+  ArcadeDifficulty,
   ArcadeGameInstance,
   ArcadeGameModule,
   ArcadeGameOptions,
@@ -412,6 +413,25 @@ function burstShots(bullet: EnemyShot): EnemyShot[] {
 }
 /** Presses this soon after the crew falls are fire-button carry-over, not a choice to continue. */
 const CONTINUE_GRACE_FRAMES = 30
+/**
+ * Difficulty (conductor rainbow t-010): Cadet, Pilot and Ace. Cadet flies with five lives, slower enemy
+ * pellets and softer craft and bosses; Ace with faster pellets and tougher craft and bosses. Every attack keeps
+ * its full warning at every level. The score scales with the level, so one leaderboard stays fair.
+ */
+export const RAINBOW_DIFFICULTY: Record<
+  ArcadeDifficulty,
+  {
+    lives: number
+    bulletSpeed: number
+    craftHp: number
+    bossHp: number
+    score: number
+  }
+> = {
+  easy: { lives: 5, bulletSpeed: 0.8, craftHp: 0.8, bossHp: 0.7, score: 0.5 },
+  normal: { lives: 3, bulletSpeed: 1, craftHp: 1, bossHp: 1, score: 1 },
+  hard: { lives: 3, bulletSpeed: 1.15, craftHp: 1.25, bossHp: 1.3, score: 1.5 },
+}
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
@@ -591,6 +611,14 @@ export function createRainbowPrincessPreview(
 ): ArcadeGameInstance & { readonly snapshot: RainbowCombatSnapshot } {
   const count = Math.max(1, Math.min(4, options.players ?? 1))
   let activePlayers = count
+  const difficulty: ArcadeDifficulty =
+    options.difficulty && options.difficulty in RAINBOW_DIFFICULTY
+      ? options.difficulty
+      : 'normal'
+  const level = RAINBOW_DIFFICULTY[difficulty]
+  /** A boss's hull for this crew at this difficulty. */
+  const bossHp = (base: number) =>
+    Math.max(1, Math.round(rainbowBossHp(base, activePlayers) * level.bossHp))
   const createShip = (seat: number): Ship => ({
     x: 65,
     y: 80 + seat * 32,
@@ -600,7 +628,7 @@ export function createRainbowPrincessPreview(
     power: 1,
     charge: 0,
     graze: 0,
-    lives: 3,
+    lives: level.lives,
     focus: false,
   })
   const ships: Ship[] = Array.from({ length: count }, (_, seat) =>
@@ -1406,7 +1434,13 @@ export function createRainbowPrincessPreview(
       x: W + 18,
       y: y ?? 40 + options.rng() * (H - 80),
       phase: wave === null ? options.rng() * Math.PI * 2 : wave * 0.9,
-      health: coopEnemyHealth(BASE_HEALTH[kind] ?? 5, activePlayers),
+      health: Math.max(
+        1,
+        Math.round(
+          coopEnemyHealth(BASE_HEALTH[kind] ?? 5, activePlayers) *
+            level.craftHp,
+        ),
+      ),
       kind,
       fired: false,
       wave,
@@ -2114,8 +2148,13 @@ export function createRainbowPrincessPreview(
     if (
       frame >= section.from &&
       frame < section.to - RAINBOW_GUARDIAN.escapeLead
-    )
+    ) {
       guardian = createRainbowGuardian(section.kind, activePlayers)
+      guardian.maxHp = guardian.hp = Math.max(
+        1,
+        Math.round(guardian.maxHp * level.bossHp),
+      )
+    }
   }
 
   function defeatGuardian(seat: number) {
@@ -2264,7 +2303,7 @@ export function createRainbowPrincessPreview(
         reefs.length = 0
         enemyShots.length = 0
       } else if (stage === 'boss' && !boss) {
-        boss = createPinkwakeBoss(rainbowBossHp(BOSS_MAX_HP, activePlayers))
+        boss = createPinkwakeBoss(bossHp(BOSS_MAX_HP))
         if (bossCarryHp !== null) boss.hp = Math.min(boss.hp, bossCarryHp)
       }
     } else if (trenchStart === null) {
@@ -2288,9 +2327,7 @@ export function createRainbowPrincessPreview(
         reefs.length = 0
         enemyShots.length = 0
       } else if (stage === 'boss' && !moonBoss && moonDefeatedFrame === null) {
-        moonBoss = createMoonjellyBoss(
-          rainbowBossHp(AURELIA_MAX_HP, activePlayers),
-        )
+        moonBoss = createMoonjellyBoss(bossHp(AURELIA_MAX_HP))
         if (moonBossCarryHp !== null)
           moonBoss.hp = Math.min(moonBoss.hp, moonBossCarryHp)
       }
@@ -2322,9 +2359,7 @@ export function createRainbowPrincessPreview(
         !clawBoss &&
         trenchDefeatedFrame === null
       ) {
-        clawBoss = createClawburstBoss(
-          rainbowBossHp(CLAWBURST_MAX_HP, activePlayers),
-        )
+        clawBoss = createClawburstBoss(bossHp(CLAWBURST_MAX_HP))
         if (clawBossCarryHp !== null)
           clawBoss.hp = Math.min(clawBoss.hp, clawBossCarryHp)
       }
@@ -2353,9 +2388,7 @@ export function createRainbowPrincessPreview(
         !delphion &&
         rosefinDefeatedFrame === null
       ) {
-        delphion = createDelphionBoss(
-          rainbowBossHp(DELPHION_MAX_HP, activePlayers),
-        )
+        delphion = createDelphionBoss(bossHp(DELPHION_MAX_HP))
         if (delphionCarryHp !== null)
           delphion.hp = Math.min(delphion.hp, delphionCarryHp)
       }
@@ -2386,9 +2419,7 @@ export function createRainbowPrincessPreview(
         reefs.length = 0
         enemyShots.length = 0
       } else if (stage === 'boss' && !sawtooth && wreckDefeatedFrame === null) {
-        sawtooth = createSawtoothBoss(
-          rainbowBossHp(SAWTOOTH_MAX_HP, activePlayers),
-        )
+        sawtooth = createSawtoothBoss(bossHp(SAWTOOTH_MAX_HP))
         if (sawtoothCarryHp !== null)
           sawtooth.hp = Math.min(sawtooth.hp, sawtoothCarryHp)
       }
@@ -2420,9 +2451,7 @@ export function createRainbowPrincessPreview(
         !lanternRay &&
         reefDefeatedFrame === null
       ) {
-        lanternRay = createLanternRayBoss(
-          rainbowBossHp(LANTERN_RAY_MAX_HP, activePlayers),
-        )
+        lanternRay = createLanternRayBoss(bossHp(LANTERN_RAY_MAX_HP))
         if (lanternRayCarryHp !== null)
           lanternRay.hp = Math.min(lanternRay.hp, lanternRayCarryHp)
       }
@@ -2448,9 +2477,7 @@ export function createRainbowPrincessPreview(
         enemyShots.length = 0
         navigator = null
       } else if (stage === 'boss' && !glassEel && glassDefeatedFrame === null) {
-        glassEel = createGlassEelBoss(
-          rainbowBossHp(GLASS_EEL_MAX_HP, activePlayers),
-        )
+        glassEel = createGlassEelBoss(bossHp(GLASS_EEL_MAX_HP))
         if (glassEelCarryHp !== null)
           glassEel.hp = Math.min(glassEel.hp, glassEelCarryHp)
       }
@@ -2481,9 +2508,7 @@ export function createRainbowPrincessPreview(
         !leviathan &&
         palaceDefeatedFrame === null
       ) {
-        leviathan = createPrismLeviathanBoss(
-          rainbowBossHp(PRISM_LEVIATHAN_MAX_HP, activePlayers),
-        )
+        leviathan = createPrismLeviathanBoss(bossHp(PRISM_LEVIATHAN_MAX_HP))
         if (leviathanCarryHp !== null)
           leviathan.hp = Math.min(leviathan.hp, leviathanCarryHp)
       }
@@ -2496,9 +2521,7 @@ export function createRainbowPrincessPreview(
       ) {
         passCheckpoint(9, frame)
         if (frame >= FINALE.bossStarts && !crown) {
-          crown = createEclipseCrownBoss(
-            rainbowBossHp(ECLIPSE_CROWN_MAX_HP, activePlayers),
-          )
+          crown = createEclipseCrownBoss(bossHp(ECLIPSE_CROWN_MAX_HP))
           if (crownCarryHp !== null) crown.hp = Math.min(crown.hp, crownCarryHp)
         }
       } else if (choiceFrame !== null) {
@@ -2948,8 +2971,8 @@ export function createRainbowPrincessPreview(
     }
     for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
       const bullet = enemyShots[bi]!
-      bullet.x += bullet.vx
-      bullet.y += bullet.vy
+      bullet.x += bullet.vx * level.bulletSpeed
+      bullet.y += bullet.vy * level.bulletSpeed
       if (bullet.bounces && (bullet.y < WALL_TOP || bullet.y > WALL_BOTTOM)) {
         bullet.vy = -bullet.vy
         bullet.y = Math.max(WALL_TOP, Math.min(WALL_BOTTOM, bullet.y))
@@ -3400,8 +3423,9 @@ export function createRainbowPrincessPreview(
   }
 
   return {
+    /** The score the cabinet records: scaled by difficulty, so every level shares one board. */
     get score() {
-      return score
+      return Math.round(score * level.score)
     },
     get level() {
       return currentAct()
@@ -5771,7 +5795,7 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#ffe7f5'
           g.font = '10px monospace'
           g.fillText(
-            `FINAL SCORE ${score} · ${(finalChoice ?? 'evacuate').toUpperCase()}`,
+            `FINAL SCORE ${Math.round(score * level.score)} · ${(finalChoice ?? 'evacuate').toUpperCase()}`,
             W / 2,
             140,
           )

@@ -104,6 +104,11 @@ export type ArcadeGameMeta = {
    */
   touchLayout?: 'pinball'
   /**
+   * The game offers difficulty levels: their names, easiest first (easy, normal, hard). The cabinet
+   * shows a switch for them and passes the choice as ArcadeGameOptions.difficulty.
+   */
+  difficulty?: readonly [easy: string, normal: string, hard: string]
+  /**
    * The game never reads Start while it plays, so the cabinet treats any seat's Start (Enter or a
    * gamepad's Start) as Pause. Without it, pausing mid-game takes P, Escape or the pause button.
    */
@@ -135,7 +140,20 @@ export type ArcadeGameOptions = {
    * camera sweeps, and a cut instead of a pan when the view must change.
    */
   stillCamera?: boolean
+  /**
+   * The player's difficulty, for a game whose meta lists `difficulty` names (default 'normal'). A game
+   * that scales its score by difficulty keeps one leaderboard fair across levels.
+   */
+  difficulty?: ArcadeDifficulty
 }
+
+/** The three difficulty levels a cabinet can offer. */
+export type ArcadeDifficulty = 'easy' | 'normal' | 'hard'
+export const ARCADE_DIFFICULTIES: readonly ArcadeDifficulty[] = [
+  'easy',
+  'normal',
+  'hard',
+]
 
 /**
  * The subset of ArcadeSound a game may call (lets tests pass a stub): the shared presets, and

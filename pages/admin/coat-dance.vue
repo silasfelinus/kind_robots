@@ -355,6 +355,11 @@
             <p v-if="store.stylePreviewError" class="text-xs text-error">
               {{ store.stylePreviewError }}
             </p>
+            <details class="shrink-0 rounded-xl border border-base-300 bg-base-100 px-2 py-1 text-xs">
+              <summary class="cursor-pointer font-semibold">
+                Render settings · {{ quality }} · {{ isPrivate ? 'Private' : 'Release candidate' }}{{ isMature ? ' · Mature' : '' }}
+              </summary>
+              <div class="space-y-2 pt-2">
             <div
               class="flex items-center justify-between gap-2 border-t border-base-300 pt-2"
             >
@@ -407,40 +412,77 @@
                 marked as candidates for future publication.
               </p>
             </div>
-            <button
-              v-if="
-                store.selected &&
-                !sourceFile &&
-                store.selected.status === 'STAGED'
-              "
-              type="button"
-              class="kr-btn kr-btn-primary w-full"
-              :disabled="store.busy || !lookChanged"
-              @click="saveLook"
-            >
-              {{
-                store.busy
-                  ? 'Saving…'
-                  : lookChanged
-                    ? 'Save look to this project'
-                    : 'Look saved'
-              }}
-            </button>
-            <button
-              v-if="store.selected && !sourceFile"
-              type="button"
-              class="kr-btn btn-outline w-full"
-              :disabled="store.busy"
-              @click="createVariant"
-            >
-              {{
-                store.busy ? 'Creating…' : 'New style project from saved video'
-              }}
-            </button>
-            <p v-if="store.selected && !sourceFile" class="kr-text-faded-xs">
-              Creates an independent project without uploading again or altering
-              the current pilot.
-            </p>
+
+              </div>
+            </details>
+            <div class="shrink-0 space-y-2 rounded-xl border border-primary/30 bg-base-200/60 p-2" aria-label="Selected look and next render">
+              <div class="flex flex-wrap items-baseline justify-between gap-x-2 text-xs">
+                <span>
+                  <strong>Selected look: {{ labelFor(style) }}</strong>
+                  <span v-if="store.selected" class="opacity-70"> · {{ store.selected.title }}</span>
+                </span>
+                <span v-if="store.selected" class="opacity-70">{{ statusLabel(store.selected.status) }}</span>
+              </div>
+              <p v-if="store.selected && lookChanged" class="text-xs text-base-content/80" role="status">
+                {{ store.selected.status === 'STAGED'
+                  ? 'Unsaved choices. Save this look before rendering this project.'
+                  : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.` }}
+              </p>
+              <p v-else-if="store.selected" class="text-xs text-base-content/70">
+                Matches the saved {{ labelFor(store.selected.style) }} project. Render actions use this look.
+              </p>
+              <p v-else class="text-xs text-base-content/70">
+                Upload a video in Library to create a project.
+              </p>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-if="store.selected && !sourceFile && store.selected.status === 'STAGED' && lookChanged"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="saveLook"
+                >{{ store.busy ? 'Saving…' : 'Save look to this project' }}</button>
+                <button
+                  v-if="store.selected && !sourceFile && (lookChanged || store.selected.status !== 'STAGED')"
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  :disabled="store.busy"
+                  @click="createVariant"
+                >{{ store.busy ? 'Creating…' : 'New style project from saved video' }}</button>
+                <button
+                  v-if="store.selected && !sourceFile && !lookChanged && ['STAGED', 'PILOT_BLOCKED', 'PILOT_FAILED', 'REVIEW'].includes(store.selected.status)"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="store.selected.status === 'PILOT_FAILED' ? store.retryPilot(store.selected.id) : store.queuePilot(store.selected.id)"
+                >
+                  {{ store.busy ? 'Queueing…'
+                    : store.selected.status === 'PILOT_FAILED' ? 'Retry pilot in the same ArtJob'
+                    : store.selected.status === 'REVIEW' ? 'Render improved continuity pilot'
+                    : 'Render 24-second pilot' }}
+                </button>
+                <button
+                  v-if="store.selected && !lookChanged && store.selected.status === 'REVIEW' && !store.selected.full"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="store.queueFull(store.selected.id)"
+                >{{ store.busy ? 'Queueing…' : `Render full ${formatRestyleTime(store.selected.sourceDurationSec)} film` }}</button>
+                <button
+                  v-if="store.selected && !lookChanged && store.selected.status === 'FULL_FAILED'"
+                  type="button"
+                  class="kr-btn kr-btn-primary flex-1"
+                  :disabled="store.busy"
+                  @click="store.retryFull(store.selected.id)"
+                >{{ store.busy ? 'Queueing…' : 'Resume full film using saved windows' }}</button>
+                <button
+                  v-if="store.selected && (store.selected.status === 'REVIEW' || store.selected.status === 'DONE')"
+                  type="button"
+                  class="kr-btn btn-outline flex-1"
+                  @click="activePanel = 'library'"
+                >View results</button>
+              </div>
+            </div>
           </section>
 
           <section

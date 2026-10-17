@@ -307,6 +307,10 @@ export class PlumberRun implements ArcadeGameInstance {
   gusts: Gust[] = []
   /** Crates in flight from the Pocket Lift. */
   thrown: Soot[] = []
+  /** This stage's Golden Gear, and the stages whose gear has ever been found. */
+  gear: { x: number; y: number; taken: boolean } | null = null
+  gears = new Set<string>()
+  gearFlash = 0
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
   carrying = false
@@ -335,6 +339,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.resume = this.demo ? null : readPlumberSave(options.resume)
     this.saveData = this.resume
     this.heroineSeed = this.resume?.heroine ?? plumberHeroine().seed
+    this.gears = new Set(this.resume?.gears ?? [])
     this.cursor = rosterIndex(this.heroineSeed)
     if (this.autopilot) {
       this.stageIndex = Math.max(
@@ -379,6 +384,7 @@ export class PlumberRun implements ArcadeGameInstance {
       lives: Math.max(1, this.lives),
       tokens: this.tokens,
       cleared: this.saveData?.cleared === true,
+      gears: [...this.gears],
       ...extra,
     }
   }
@@ -518,6 +524,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cargo = []
     this.soot = []
     this.pickups = []
+    this.gear = null
     this.gusts = []
     this.thrown = []
     this.carrying = false
@@ -592,6 +599,13 @@ export class PlumberRun implements ArcadeGameInstance {
         }
         case 'wind':
           this.windy[spawn.col] = 1
+          break
+        case 'gear':
+          this.gear = {
+            x: cx,
+            y: bottom - 8,
+            taken: this.gears.has(stage.code),
+          }
           break
         case 'power-springstep':
         case 'power-storm':
@@ -1312,6 +1326,22 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private collectPickups() {
     const hero = this.hero
+    if (this.gearFlash) this.gearFlash--
+    const gear = this.gear
+    if (
+      gear &&
+      !gear.taken &&
+      Math.abs(gear.x - hero.x) < 16 &&
+      gear.y > hero.y - 12 &&
+      gear.y < hero.y + TALL + 10
+    ) {
+      gear.taken = true
+      this.gears.add(this.stage.code)
+      this.score += 1000
+      this.gearFlash = 120
+      if (!this.demo) this.remember()
+      this.sound.play('level')
+    }
     for (const pickup of this.pickups) {
       if (pickup.taken) continue
       if (Math.abs(pickup.x - hero.x) > 15) continue
@@ -2685,7 +2715,14 @@ export class PlumberRun implements ArcadeGameInstance {
       13,
       '#d6f2ee',
     )
-    this.text(g, `SCORE ${this.score}`, W / 2, 256, 14, '#ffd98a')
+    this.text(
+      g,
+      `SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
+      W / 2,
+      256,
+      13,
+      '#ffd98a',
+    )
   }
 
   private renderFinale(g: CanvasRenderingContext2D) {
@@ -2718,7 +2755,14 @@ export class PlumberRun implements ArcadeGameInstance {
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
     this.drawHeroSprite(g, 320, 236, 'cheer', 1.4)
-    this.text(g, `FINAL SCORE ${this.score}`, W / 2, 258, 14, '#ffd98a')
+    this.text(
+      g,
+      `FINAL SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
+      W / 2,
+      258,
+      13,
+      '#ffd98a',
+    )
   }
 
   private renderStage(g: CanvasRenderingContext2D) {
@@ -3193,6 +3237,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     this.renderWindAndCargo(g)
     this.renderPowers(g)
+    this.renderGear(g)
     for (const puff of this.soot) {
       g.fillStyle = 'rgba(52, 44, 66, 0.85)'
       g.beginPath()
@@ -3216,6 +3261,63 @@ export class PlumberRun implements ArcadeGameInstance {
         )
         g.fill()
       }
+    }
+  }
+
+  /** A gold cog: the painted prop once it is delivered, drawn teeth until then. */
+  private drawCog(
+    g: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    r: number,
+    turn: number,
+    ghost = false,
+  ) {
+    if (
+      !ghost &&
+      drawSprite(g, PLUMBER_ART.prop('golden-gear'), x, y + r, r * 2.2)
+    )
+      return
+    g.save()
+    g.translate(x, y)
+    g.rotate(turn)
+    g.beginPath()
+    for (let k = 0; k < 16; k++) {
+      const a = (k * Math.PI) / 8
+      const rad = k % 2 ? r : r * 1.28
+      g.lineTo(Math.cos(a) * rad, Math.sin(a) * rad)
+    }
+    g.closePath()
+    g.fillStyle = ghost ? 'rgba(255, 217, 138, 0.25)' : '#f5c542'
+    g.strokeStyle = ghost ? 'rgba(255, 244, 220, 0.45)' : '#8a5a12'
+    g.lineWidth = 1.5
+    g.fill()
+    g.stroke()
+    g.beginPath()
+    g.arc(0, 0, r * 0.42, 0, Math.PI * 2)
+    g.fillStyle = ghost ? 'rgba(27, 52, 64, 0.4)' : '#8a5a12'
+    g.fill()
+    g.restore()
+  }
+
+  private renderGear(g: CanvasRenderingContext2D) {
+    const gear = this.gear
+    if (!gear) return
+    const t = this.tick
+    const bob = Math.sin(t / 18) * 2
+    if (gear.taken) {
+      this.drawCog(g, gear.x, gear.y + bob, 7, t / 40, true)
+      return
+    }
+    const glow = g.createRadialGradient(gear.x, gear.y, 0, gear.x, gear.y, 20)
+    glow.addColorStop(0, 'rgba(255, 224, 138, 0.55)')
+    glow.addColorStop(1, 'rgba(255, 224, 138, 0)')
+    g.fillStyle = glow
+    g.fillRect(gear.x - 20, gear.y - 20, 40, 40)
+    this.drawCog(g, gear.x, gear.y + bob, 8, t / 30)
+    if (t % 40 < 8) {
+      g.fillStyle = '#fffbe8'
+      g.fillRect(gear.x + 6, gear.y - 10 + bob, 2, 2)
     }
   }
 
@@ -3764,7 +3866,7 @@ export class PlumberRun implements ArcadeGameInstance {
       g.bezierCurveTo(x + 9, 12, x + 7, 2, x, 9)
       g.fill()
     }
-    this.text(g, `◎ ${this.tokens}`, 262, 17, 12, '#ffd98a', 'left')
+    this.text(g, `◎ ${this.tokens}`, 256, 17, 12, '#ffd98a', 'left')
     this.text(
       g,
       `${this.member.name} ×${this.lives}`,
@@ -3774,6 +3876,8 @@ export class PlumberRun implements ArcadeGameInstance {
       '#fff1ce',
       'left',
     )
+    this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
+    if (this.gearFlash) this.text(g, 'GOLDEN GEAR!', W / 2, 46, 18, '#ffd98a')
     if (this.power) {
       g.fillStyle = 'rgba(255, 244, 220, 0.25)'
       g.beginPath()

@@ -338,7 +338,7 @@
               >
                 {{
                   plumber.nextStage
-                    ? `Saved at ${plumber.nextStage}`
+                    ? `Saved at ${plumber.nextStage} · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears`
                     : 'Pick your heroine in the cabinet'
                 }}
               </span>

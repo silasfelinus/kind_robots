@@ -16,6 +16,8 @@ export type PlumberSave = {
   tokens: number
   /** World 1 has been cleared at least once. */
   cleared?: boolean
+  /** Stage codes whose Golden Gear has been found, kept across runs. */
+  gears?: string[]
 }
 
 export const PLUMBER_SLUG = 'save-the-plumber'
@@ -38,5 +40,16 @@ export function readPlumberSave(raw: unknown): PlumberSave | null {
     lives: Math.max(1, r.lives as number),
     tokens: r.tokens as number,
     cleared: r.cleared === true,
+    gears: Array.isArray(r.gears)
+      ? [
+          ...new Set(
+            r.gears.filter(
+              (code): code is string =>
+                typeof code === 'string' &&
+                CAMPAIGN.some((s) => s.code === code),
+            ),
+          ),
+        ]
+      : [],
   }
 }

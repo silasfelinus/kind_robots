@@ -1,7 +1,7 @@
 <template>
   <main class="kr-surface min-h-full">
     <div class="kr-scroll mx-auto max-w-7xl space-y-5 px-3 py-5 pb-24 sm:px-6">
-        <template>
+      <template>
         <header
           class="relative overflow-hidden rounded-3xl border border-base-content/15 bg-base-200 p-5 shadow-xl sm:p-8"
         >

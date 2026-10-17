@@ -34,6 +34,7 @@ import {
 } from './savePlumberLevels'
 import {
   PLUMBER_ROSTER,
+  type PlumberSpecial,
   actionPoses,
   rosterFor,
   rosterHeroine,
@@ -55,6 +56,8 @@ const SPRING_JUMP = -10.2
 const FLOAT = 0.6
 const SPRING = -12.2
 const RUN = 2.85
+/** Top speed while B is held. */
+const RUN_FAST = 4.2
 const HALF = 11
 const TALL = 26
 const START_LIVES = 3
@@ -303,6 +306,12 @@ export class PlumberRun implements ArcadeGameInstance {
   /** The power the heroine carries; a hit costs it instead of a heart. */
   power: PlumberPower | null = null
   carrying = false
+  /** The heroine's special on Y: ticks left in it, its cooldown, and one use per airtime. */
+  specialTimer = 0
+  specialCooldown = 0
+  airSpecial = false
+  running = false
+  floating = false
   /** One flag per column: 1 where a wind corridor blows. */
   windy: Uint8Array = new Uint8Array(0)
   private solid!: Uint8Array
@@ -773,17 +782,25 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.immune) this.immune--
     if (this.cooldown) this.cooldown--
     if (this.swing) this.swing--
+    if (this.specialCooldown) this.specialCooldown--
     const hero = this.hero
     if (this.riding) {
       this.moveX(hero, HALF, TALL, this.riding.dx)
       hero.y += this.riding.dy
     }
     const move = Number(keys.held.right) - Number(keys.held.left)
-    hero.vx = move
-      ? Math.max(-RUN, Math.min(RUN, hero.vx + move * 0.44))
-      : hero.vx * 0.77
+    this.running = keys.held.b === true
+    const top = this.running ? RUN_FAST : RUN
+    if (move) {
+      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
+      if (Math.abs(next) > top)
+        next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
+      hero.vx = next
+    } else hero.vx *= 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
-    if (move) this.facing = move > 0 ? 1 : -1
+    if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
+    if (keys.pressed.y) this.useSpecial()
+    this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
     if (this.moveX(hero, HALF, TALL, hero.vx)) hero.vx = 0
     const push = this.windAt(hero.x, this.tick) + this.beltUnder(hero)
@@ -834,11 +851,14 @@ export class PlumberRun implements ArcadeGameInstance {
         break
       }
     }
-    if (this.ground && !wasGround) this.landed = 6
-    else if (this.landed) this.landed--
+    if (this.ground && !wasGround) {
+      this.landed = 6
+      this.airSpecial = false
+      if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
+    } else if (this.landed) this.landed--
     this.updateSprings(prevBottom)
     if (keys.pressed.down && this.ground) this.tryDoor()
-    if (keys.pressed.b && !this.cooldown) this.useTool()
+    if (keys.pressed.x && !this.cooldown) this.useTool()
     this.collectTokens()
     this.collectPickups()
     this.updateFoes(prevBottom)
@@ -876,6 +896,155 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const target = this.cameraTarget()
     this.camera += (target - this.camera) * 0.2
+  }
+
+  get specialKind(): PlumberSpecial {
+    return this.member.special.key
+  }
+
+  /** Y: start the heroine's special, if it is ready here. */
+  private useSpecial() {
+    const hero = this.hero
+    const kind = this.specialKind
+    if (this.specialCooldown || this.specialTimer) return
+    const air = !this.ground
+    if (air && this.airSpecial) return
+    switch (kind) {
+      case 'dash':
+        this.specialTimer = 12
+        this.specialCooldown = 40
+        break
+      case 'double-jump':
+        if (!air) {
+          this.jumpBuffer = 7
+          return
+        }
+        hero.vy = JUMP * 0.92
+        this.sprung = true
+        this.specialCooldown = 10
+        break
+      case 'pound':
+        if (!air) {
+          this.shock(hero.x, hero.y + TALL, 48)
+          this.specialCooldown = 45
+          return
+        }
+        this.specialTimer = 90
+        hero.vx = 0
+        hero.vy = 9
+        break
+      case 'charge':
+        this.specialTimer = 22
+        this.specialCooldown = 50
+        break
+      case 'float':
+        return
+      case 'spin':
+        this.specialTimer = 18
+        this.specialCooldown = 36
+        if (air) hero.vy = Math.min(hero.vy, -1.5)
+        this.shock(hero.x, hero.y + TALL / 2, 40)
+        break
+      case 'roll':
+        if (air) return
+        this.specialTimer = 24
+        this.specialCooldown = 40
+        break
+      case 'vault':
+        if (air) return
+        hero.vy = SPRING * 0.95
+        this.sprung = true
+        this.ground = false
+        this.riding = null
+        this.specialCooldown = 50
+        break
+    }
+    if (air) this.airSpecial = true
+    this.sound.play(kind === 'pound' || kind === 'charge' ? 'boom' : 'extra')
+  }
+
+  /** While a special runs it steers the heroine; returns nothing, moves her in place. */
+  private driveSpecial(keys: InputFrame) {
+    const hero = this.hero
+    const kind = this.specialKind
+    this.floating = kind === 'float' && !this.ground && keys.held.y === true
+    if (this.floating && hero.vy > 1.2) hero.vy = 1.2
+    if (!this.specialTimer) return
+    this.specialTimer--
+    if (kind === 'dash') {
+      hero.vx = this.facing * 6.4
+      hero.vy = Math.min(hero.vy, 0)
+    } else if (kind === 'charge' || kind === 'roll') {
+      hero.vx = this.facing * (kind === 'charge' ? 5 : 4.6)
+      if (kind === 'charge') this.smashAhead()
+    } else if (kind === 'pound') {
+      hero.vx = 0
+      hero.vy = 9
+    } else if (kind === 'spin' && this.specialTimer === 9)
+      this.shock(hero.x, hero.y + TALL / 2, 40)
+  }
+
+  /** Nothing hurts a heroine mid-charge or mid-roll. */
+  private get shielded(): boolean {
+    return (
+      this.specialTimer > 0 &&
+      (this.specialKind === 'charge' || this.specialKind === 'roll')
+    )
+  }
+
+  private poundLands() {
+    this.specialTimer = 0
+    this.specialCooldown = 45
+    const hero = this.hero
+    this.shock(hero.x, hero.y + TALL, 56)
+    const row = Math.floor((hero.y + TALL + 2) / TILE)
+    for (let dx = -1; dx <= 1; dx++) {
+      const col = Math.floor(hero.x / TILE) + dx
+      if (this.solidAt(col, row) === SOLID_CRATE) {
+        this.setSolid(col, row, 0)
+        this.score += 70
+        this.tokens++
+      }
+    }
+    this.sound.play('boom')
+  }
+
+  /** A charge breaks the crate in front of the heroine. */
+  private smashAhead() {
+    const hero = this.hero
+    const col = Math.floor((hero.x + this.facing * (HALF + 3)) / TILE)
+    for (
+      let row = Math.floor(hero.y / TILE);
+      row <= Math.floor((hero.y + TALL - 1) / TILE);
+      row++
+    )
+      if (this.solidAt(col, row) === SOLID_CRATE) {
+        this.setSolid(col, row, 0)
+        this.score += 70
+        this.tokens++
+        this.sound.play('pop')
+      }
+  }
+
+  /** A shockwave: strikes every foe within `radius`, and turns valves. */
+  private shock(x: number, y: number, radius: number) {
+    for (const foe of this.foes) {
+      if (foe.state === 'gone' || foe.fade) continue
+      if (foe.kind === 'minnow' && foe.y >= foe.homeY) continue
+      if (Math.hypot(foe.x - x, foe.y - 10 - y) > radius) continue
+      this.strikeFoe(foe)
+    }
+    for (const valve of this.valves)
+      if (!valve.open && Math.hypot(valve.x - x, valve.y - 8 - y) < radius) {
+        valve.open = true
+        this.score += 200
+        for (let i = 0; i < this.solid.length; i++)
+          if (this.solid[i] === SOLID_GATE) this.solid[i] = 0
+        this.sound.play('extra')
+      }
+    const boss = this.boss
+    if (boss && boss.state === 'recover' && Math.abs(boss.x - x) < radius)
+      this.hitBoss()
   }
 
   /** The headwind push at `x` on tick `t`: gusts blow for half of every cycle. */
@@ -1543,6 +1712,14 @@ export class PlumberRun implements ArcadeGameInstance {
         hero.y < foe.y
       if (!overlap || this.mode !== 'play') continue
       const stomp = hero.vy > 0.5 && prevBottom <= foe.y - 10
+      if (this.shielded && !stomp) {
+        if (this.specialKind === 'charge') this.strikeFoe(foe)
+        continue
+      }
+      if (stomp && this.specialKind === 'pound' && this.specialTimer) {
+        this.defeat(foe, true, 200)
+        continue
+      }
       if (stomp) {
         hero.vy = this.jumpHeld ? -7.6 : -5.4
         this.ground = false
@@ -1814,7 +1991,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private hurt(dir: number) {
-    if (this.immune || this.mode !== 'play') return
+    if (this.immune || this.shielded || this.mode !== 'play') return
     if (this.power) {
       this.power = null
       this.carrying = false
@@ -1829,6 +2006,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private die() {
+    this.specialTimer = 0
     this.power = null
     this.carrying = false
     this.sound.play('die')
@@ -1905,13 +2083,13 @@ export class PlumberRun implements ArcadeGameInstance {
         go = false
       } else if (dx < 40) {
         go = false
-        if (!this.cooldown) input.pressed.b = true
+        if (!this.cooldown) input.pressed.x = true
       }
     } else if (wall === SOLID_CRATE) {
       go = false
-      if (!this.cooldown) input.pressed.b = true
+      if (!this.cooldown) input.pressed.x = true
     } else if (wall && this.carrying && !this.cooldown) {
-      input.pressed.b = true
+      input.pressed.x = true
     } else if (wall) {
       jump = this.pickJump(
         (land) => land.feet < feet - 4 || land.x > hero.x + 24,
@@ -1954,7 +2132,7 @@ export class PlumberRun implements ArcadeGameInstance {
           !this.cooldown
         ) {
           if (dx * this.facing < 0) input.held.left = dx < 0
-          input.pressed.b = true
+          input.pressed.x = true
         }
         continue
       }
@@ -1965,13 +2143,13 @@ export class PlumberRun implements ArcadeGameInstance {
         foe.kind === 'chimney-spirit' ||
         foe.kind === 'puddle-mimic'
       ) {
-        if (!this.cooldown && dx < 54) input.pressed.b = true
+        if (!this.cooldown && dx < 54) input.pressed.x = true
         continue
       }
       if (foe.state === 'stunned' || foe.state === 'kicked') {
         if (dx < 34 && foe.state === 'stunned' && !jump)
           jump = { hold: 12, right: true }
-      } else if (!this.cooldown && dx < 54) input.pressed.b = true
+      } else if (!this.cooldown && dx < 54) input.pressed.x = true
     }
     const aheadBridge = [1, 2, 3].some(
       (k) =>
@@ -2364,6 +2542,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.text(g, member.name, px + 70, 70, 24, '#ffd98a')
     this.text(g, member.build, px + 70, 90, 11, '#d6f2ee')
     this.text(g, member.signature, px + 70, 106, 10, '#d6f2ee')
+    this.text(g, `Y · ${member.special.name}`, px + 70, 124, 11, '#ffd98a')
     const frame = Math.floor(this.tick / 6) % 6
     const runReady = keyedSheet(member.run, 6) !== null
     const drawn = drawSheetFrame(
@@ -2537,6 +2716,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.renderThings(g)
     this.renderFoes(g)
     if (this.boss) this.renderBoss(g)
+    this.renderSpecial(g, false)
     const blink = this.immune && Math.floor(this.tick / 5) % 2
     if (!blink || this.mode === 'dying')
       this.drawHeroSprite(
@@ -2549,9 +2729,104 @@ export class PlumberRun implements ArcadeGameInstance {
             ? 'cheer'
             : null,
       )
+    this.renderSpecial(g, true)
     g.restore()
     if (this.stage.dark) this.renderDark(g)
     this.renderHud(g)
+  }
+
+  /** Cues for running and the special: behind the heroine, then in front. */
+  private renderSpecial(g: CanvasRenderingContext2D, front: boolean) {
+    if (this.mode !== 'play') return
+    const hero = this.hero
+    const t = this.tick
+    const kind = this.specialKind
+    const active = this.specialTimer > 0
+    const mid = hero.y + TALL / 2
+    if (!front) {
+      const streaking =
+        active && (kind === 'dash' || kind === 'charge' || kind === 'roll')
+      if (
+        streaking ||
+        (this.running && this.ground && Math.abs(hero.vx) > 3.3)
+      ) {
+        g.fillStyle = streaking
+          ? 'rgba(255, 244, 220, 0.8)'
+          : 'rgba(255, 244, 220, 0.45)'
+        for (let k = 0; k < (streaking ? 4 : 2); k++) {
+          const len = 8 + ((t * 3 + k * 5) % 8)
+          const x = hero.x - this.facing * (HALF + 4 + k * 6)
+          g.fillRect(
+            Math.min(x, x - this.facing * len),
+            hero.y + 5 + k * 5,
+            len,
+            2,
+          )
+        }
+      }
+      if (active && kind === 'pound')
+        for (let k = 0; k < 3; k++) {
+          g.fillStyle = 'rgba(255, 255, 255, 0.7)'
+          g.fillRect(
+            hero.x - 8 + k * 7,
+            hero.y - 18 - ((t * 4 + k * 6) % 14),
+            2,
+            12,
+          )
+        }
+      return
+    }
+    g.lineWidth = 2
+    if (active && kind === 'spin') {
+      g.strokeStyle = 'rgba(255, 217, 138, 0.9)'
+      for (let k = 0; k < 3; k++) {
+        const a = t / 2 + (k * Math.PI * 2) / 3
+        g.beginPath()
+        g.arc(hero.x, mid, 22, a, a + 1.1)
+        g.stroke()
+      }
+    }
+    if (active && kind === 'roll') {
+      g.strokeStyle = 'rgba(200, 238, 255, 0.85)'
+      g.beginPath()
+      g.arc(hero.x, mid + 2, 15, t / 2, t / 2 + 4.2)
+      g.stroke()
+    }
+    if (active && kind === 'charge') {
+      g.strokeStyle = 'rgba(255, 159, 120, 0.9)'
+      g.beginPath()
+      g.arc(hero.x + this.facing * 6, mid, 16, -0.9, 0.9)
+      if (this.facing < 0) {
+        g.beginPath()
+        g.arc(hero.x - 6, mid, 16, Math.PI - 0.9, Math.PI + 0.9)
+      }
+      g.stroke()
+    }
+    if (this.floating) {
+      const top = hero.y - 26
+      g.fillStyle = '#ef8fb4'
+      g.beginPath()
+      g.arc(hero.x, top + 6, 15, Math.PI, 0)
+      g.closePath()
+      g.fill()
+      g.strokeStyle = '#7a3a55'
+      g.lineWidth = 1.5
+      g.beginPath()
+      g.moveTo(hero.x, top + 6)
+      g.lineTo(hero.x, hero.y + 6)
+      g.stroke()
+    }
+    if (
+      kind === 'double-jump' &&
+      this.airSpecial &&
+      !this.ground &&
+      hero.vy < -4
+    ) {
+      g.strokeStyle = 'rgba(255, 255, 255, 0.7)'
+      g.beginPath()
+      g.ellipse(hero.x, hero.y + TALL + 6, 12, 3, 0, 0, Math.PI * 2)
+      g.stroke()
+    }
   }
 
   private shade: HTMLCanvasElement | null = null

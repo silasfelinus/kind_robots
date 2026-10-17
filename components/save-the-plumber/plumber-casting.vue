@@ -194,6 +194,7 @@ const member = computed(() => rosterFor(heroine.value))
 
 const traits = computed(() => [
   { label: 'Build', value: member.value.build, colour: '' },
+  { label: 'Special', value: member.value.special.name, colour: '' },
   { label: 'Look', value: member.value.signature, colour: heroine.value.hair },
   { label: 'Workwear', value: '', colour: heroine.value.outfit },
   { label: 'Scarf', value: '', colour: heroine.value.scarf },

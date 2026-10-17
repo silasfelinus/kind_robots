@@ -215,3 +215,60 @@ export function endlessPressure(round: number): {
 export function boardRows(round: number): number {
   return Math.trunc(round) % 4 === 0 ? 8 : 7
 }
+
+// --- hop combos -------------------------------------------------------------
+
+export type HopCombo = 'stripe' | 'prism'
+
+/**
+ * Stripe: the landing cell completes a whole board row. `done` is per cell, in
+ * `board.cells` order, and must already include the landing.
+ */
+export function stripeComplete(
+  board: HopBoard,
+  done: readonly boolean[],
+  landed: HopCell,
+): boolean {
+  let any = false
+  for (let i = 0; i < board.cells.length; i++) {
+    const cell = board.cells[i]!
+    if (cell.r !== landed.r) continue
+    any = true
+    if (!done[i]) return false
+  }
+  return any
+}
+
+/**
+ * Prism: the landing cell finishes a 3-cube triangle, a cell with the two
+ * neighbours it shares a face with (down-left pair, down-right pair, or the
+ * pair above), all finished.
+ */
+export function prismComplete(
+  board: HopBoard,
+  done: readonly boolean[],
+  landed: HopCell,
+): boolean {
+  const index = new Map<string, number>()
+  board.cells.forEach((x, i) => index.set(cellKey(x.r, x.c), i))
+  const ok = (r: number, c: number) => {
+    const i = index.get(cellKey(r, c))
+    return i !== undefined && !!done[i]
+  }
+  const { r, c } = landed
+  if (!ok(r, c)) return false
+  return (
+    (ok(r + 1, c) && ok(r + 1, c + 1)) ||
+    (ok(r - 1, c) && ok(r - 1, c - 1)) ||
+    (ok(r, c - 1) && ok(r + 1, c)) ||
+    (ok(r, c + 1) && ok(r + 1, c + 1))
+  )
+}
+
+/** Speed Paint par in frames: a fixed budget per cube, so bigger boards allow longer. */
+export function speedPaintPar(board: HopBoard, rule: HopRule): number {
+  return board.cells.length * rule.steps * 22
+}
+
+export const speedPaintBonus = (frames: number, par: number): number =>
+  frames > par ? 0 : Math.min(5000, Math.round(((par - frames) / par) * 5000))

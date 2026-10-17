@@ -6,7 +6,8 @@
  */
 import { rainbowBossHp } from './rainbowPinkwakeBoss'
 
-export type RainbowGuardianKind = 'urchin' | 'lantern' | 'clawstrike'
+export type RainbowGuardianKind =
+  'urchin' | 'lantern' | 'clawstrike' | 'courier'
 
 export type RainbowGuardianSection = {
   name: string
@@ -35,6 +36,9 @@ export type RainbowGuardianShot = {
   vx: number
   vy: number
   grazed: number
+  /** A courier guardian's cargo mine: frames until it bursts into a ring. */
+  fuse?: number
+  burst?: 'ring'
 }
 
 export const RAINBOW_GUARDIAN = {
@@ -144,6 +148,20 @@ export function stepRainbowGuardian(
     // A straight bolt down every lane its warning marked.
     for (const lane of guardian.lanes)
       shots.push({ x: guardian.x - 18, y: lane, vx: -4.2, vy: 0, grazed: 0 })
+  } else if (guardian.kind === 'courier') {
+    // Cargo mines lobbed in a spread at the nearest pilot; each bursts into a ring where it ripens.
+    const aim = Math.atan2(nearest.y - guardian.y, nearest.x - guardian.x)
+    const spread = enraged ? [-0.5, -0.17, 0.17, 0.5] : [-0.36, 0, 0.36]
+    for (const offset of spread)
+      shots.push({
+        x: guardian.x - 18,
+        y: guardian.y,
+        vx: Math.cos(aim + offset) * 1.3,
+        vy: Math.sin(aim + offset) * 1.3,
+        grazed: 0,
+        fuse: 80,
+        burst: 'ring',
+      })
   } else {
     // Two lantern fans either side of the nearest living pilot; the lane straight at them stays open.
     const target = nearest

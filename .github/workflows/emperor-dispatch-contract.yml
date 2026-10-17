@@ -11,10 +11,10 @@ on:
       - 'utils/scripts/verifyEmperorDispatch.test.ts'
       - 'utils/scripts/verifyEmperorCampaign.test.ts'
       - 'utils/scripts/verifyEmperorMap.test.ts'
+      - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/admin/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
-      - 'content/channels/admin/emperor-of-dust.md'
       - '.github/workflows/emperor-dispatch-contract.yml'
   push:
     branches: [main]
@@ -23,10 +23,10 @@ on:
       - 'utils/scripts/verifyEmperorDispatch.test.ts'
       - 'utils/scripts/verifyEmperorCampaign.test.ts'
       - 'utils/scripts/verifyEmperorMap.test.ts'
+      - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/admin/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
-      - 'content/channels/admin/emperor-of-dust.md'
       - '.github/workflows/emperor-dispatch-contract.yml'
 
 jobs:

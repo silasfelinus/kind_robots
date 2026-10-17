@@ -272,3 +272,44 @@ export function speedPaintPar(board: HopBoard, rule: HopRule): number {
 
 export const speedPaintBonus = (frames: number, par: number): number =>
   frames > par ? 0 : Math.min(5000, Math.round(((par - frames) / par) * 5000))
+
+// --- Skitter & Scoot sideways movement ---------------------------------------
+
+/**
+ * Skitter & Scoot slide along a row instead of hopping down the pyramid:
+ * `side` -1 moves to the cube on the left of the same row, +1 to the right.
+ * Null means the slide runs off the row's end.
+ */
+export function sidewaysStep(
+  board: HopBoard,
+  from: HopCell,
+  side: -1 | 1,
+): HopCell | null {
+  const next = { r: from.r, c: from.c + side }
+  return board.cells.some((x) => x.r === next.r && x.c === next.c) ? next : null
+}
+
+// --- rule demonstration intermission -----------------------------------------
+
+/**
+ * The intermission before a new rule: a scripted pair of hops on a 3-row
+ * pyramid whose painted levels show what the rule does. Pure data; the
+ * cabinet plays the hops back and draws the levels.
+ */
+export function ruleDemo(rule: HopRule): {
+  board: HopBoard
+  hops: HopCell[]
+  levels: number[]
+} {
+  const board = pyramidBoard(3)
+  const hops: HopCell[] = [
+    { r: 1, c: 0 },
+    { r: 1, c: 0 },
+    { r: 1, c: 0 },
+  ]
+  const levels: number[] = []
+  let level = 0
+  for (let i = 0; i < hops.length; i++)
+    levels.push((level = hopTile(rule, level)))
+  return { board, hops, levels }
+}

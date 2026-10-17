@@ -119,7 +119,9 @@
             class="kr-btn-outline-xs"
             :disabled="store.syncing"
             @click="store.refresh()"
-          >{{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}</button>
+          >
+            {{ store.syncing ? 'Registering…' : 'Register in ArtJob' }}
+          </button>
         </div>
         <nav
           class="grid grid-cols-2 gap-1 rounded-xl bg-base-200 p-1"

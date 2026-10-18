@@ -18,6 +18,11 @@
 import { levelCurve } from '../curve'
 import { drawText, measureText } from '../font'
 import {
+  SNIFFER_SPEED_SCALE,
+  snifferCount,
+  sniffStep,
+} from '../seedBurst/sniffer'
+import {
   INK,
   RAMPS,
   Sparkles,
@@ -124,6 +129,8 @@ type Gnat = {
   p: number
   dir: Dir
   ghost: boolean
+  /** Follows the nearest gardener at junctions (from round 2). */
+  sniffer: boolean
   speed: number
 }
 type Particle = {
@@ -453,6 +460,7 @@ function gnatSprites(body: Ramp, wing: Ramp, eye: string) {
 }
 const GNAT_SPRITES = gnatSprites(RAMPS.earth, RAMPS.steel, RAMPS.gold[3])
 const GHOST_SPRITES = gnatSprites(RAMPS.purple, RAMPS.pink, RAMPS.teal[4])
+const SNIFFER_SPRITES = gnatSprites(RAMPS.rust, RAMPS.cream, RAMPS.sky[4])
 
 const POWER_SPRITES: Record<Power, PixelSprite> = {
   pod: pixelSprite(
@@ -687,6 +695,7 @@ class SeedBurst implements ArcadeGameInstance {
       Math.floor(levelCurve(round, SEED_CURVES.ghosts)),
     )
     const speed = levelCurve(round, SEED_CURVES.gnatSpeed)
+    const sniffers = snifferCount(round, count)
     const open: Array<{ x: number; y: number }> = []
     for (let y = 1; y < ROWS - 1; y++)
       for (let x = 1; x < COLS - 1; x++)
@@ -697,7 +706,12 @@ class SeedBurst implements ArcadeGameInstance {
           open.push({ x, y })
     for (let i = 0; i < count && open.length; i++) {
       const at = open.splice(Math.floor(this.rng() * open.length), 1)[0]!
-      this.gnats.push(this.newGnat(at.x, at.y, i < ghosts, speed))
+      const gnat = this.newGnat(at.x, at.y, i < ghosts, speed)
+      if (!gnat.ghost && i >= count - sniffers) {
+        gnat.sniffer = true
+        gnat.speed = speed * SNIFFER_SPEED_SCALE
+      }
+      this.gnats.push(gnat)
     }
     this.timer = ROUND_TIME
     this.banner = {
@@ -716,6 +730,7 @@ class SeedBurst implements ArcadeGameInstance {
       p: 0,
       dir: DIRS[Math.floor(this.rng() * 4)]!,
       ghost,
+      sniffer: false,
       speed: ghost ? speed * 0.8 : speed,
     }
   }
@@ -973,7 +988,18 @@ class SeedBurst implements ArcadeGameInstance {
         const options = DIRS.filter(can)
         if (options.length === 0) continue
         // Mostly keep going; sometimes wander off down a side path.
-        if (!can(gnat.dir) || this.rng() < 0.25) {
+        const scent = gnat.sniffer
+          ? sniffStep(
+              { x: gnat.tx, y: gnat.ty },
+              options,
+              this.gardeners
+                .filter((gd) => gd.down === 0)
+                .map((gd) => ({ x: gd.tx, y: gd.ty })),
+              this.rng(),
+            )
+          : null
+        if (scent) gnat.dir = scent
+        else if (!can(gnat.dir) || this.rng() < 0.25) {
           const turns = options.filter(
             (d) => d.dx !== -gnat.dir.dx || d.dy !== -gnat.dir.dy,
           )
@@ -1543,7 +1569,11 @@ class SeedBurst implements ArcadeGameInstance {
     if (gnat.ghost) glow(g, x, y + hover, 11, RAMPS.purple[3], 0.45)
     drawSprite(
       g,
-      (gnat.ghost ? GHOST_SPRITES : GNAT_SPRITES)[flap]!,
+      (gnat.ghost
+        ? GHOST_SPRITES
+        : gnat.sniffer
+          ? SNIFFER_SPRITES
+          : GNAT_SPRITES)[flap]!,
       x,
       y + hover,
       { flipX: gnat.dir.dx < 0, alpha: gnat.ghost ? 0.8 : 1 },

@@ -100,6 +100,22 @@ import {
 } from '../cableCrawler/bosses'
 import { earnedMedals, MEDAL_NAMES } from '../cableCrawler/medals'
 import {
+  CYCLE,
+  MARATHON_LEN_CAP,
+  MODES,
+  MODE_BLURBS,
+  MODE_NAMES,
+  type Mode,
+  betterTime,
+  formatTime,
+  legId,
+  marathonClock,
+  marathonLeg,
+  marathonPace,
+  marathonScore,
+  trialOpen,
+} from '../cableCrawler/modes'
+import {
   BOSS_MUSIC,
   BIOS_INDEX,
   biosOpen,
@@ -361,6 +377,20 @@ class CableCrawler implements ArcadeGameInstance {
   private trueEnd = false
   /** A saved run waiting on CONTINUE (A) or NEW RUN (B). */
   private offer: CableSave | null = null
+  /** Which way the cabinet is played: the Odyssey campaign, Marathon, or one Maze Trial. */
+  private mode: Mode = 'odyssey'
+  /** The mode select (a real game only): the mode list, then the Maze Trials list. */
+  private menu: {
+    stage: 'mode' | 'trial'
+    cursor: number
+    note: string
+  } | null = null
+  /** Marathon's wave (from 0), and a Maze Trial's clock in ticks. */
+  private wave = 0
+  private trialTicks = 0
+  /** Mazes cleared in any mode, and the best Maze Trial times. */
+  private cleared = new Set<string>()
+  private best: Record<string, number> = {}
   // The Workbench kit, and the Workbench screen while it is open.
   private copper = 0
   private reachBonus = 0
@@ -447,15 +477,19 @@ class CableCrawler implements ArcadeGameInstance {
     if (stored) {
       this.bytes = new Set(stored.bytes)
       this.medals = new Set(stored.medals ?? [])
+      this.cleared = new Set(stored.cleared ?? [])
+      this.best = { ...(stored.best ?? {}) }
       this.reached = stored.reached
       if (stored.comp > 0) this.offer = stored
       this.save = stored
     }
     this.beginComponent(0)
+    if (options.selectScreen && !this.demo)
+      this.menu = { stage: 'mode', cursor: 0, note: '' }
   }
 
   get music(): MusicLoop | null {
-    if (this.over || this.offer) return null
+    if (this.over || this.offer || this.menu) return null
     const kind = this.steps[this.stepIndex]?.kind
     if (kind === 'boss') return BOSS_MUSIC
     if (kind === 'screensaver') return SCREENSAVER_MUSIC
@@ -523,12 +557,111 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   private advance() {
+    if (this.mode === 'marathon') {
+      this.wave++
+      this.startLeg(this.wave)
+      return
+    }
+    if (this.mode === 'trials') {
+      this.finishTrial()
+      return
+    }
     this.stepIndex++
     if (this.stepIndex >= this.steps.length) {
       this.beginComponent(this.nextComponent())
       return
     }
     this.startStep()
+  }
+
+  /** Marathon wave n: the next maze of the cycle in its own component's look. */
+  private startLeg(wave: number) {
+    const { leg, cycle } = marathonLeg(wave)
+    this.playLeg(leg, cycle)
+  }
+
+  /** A single maze as the whole board (Marathon waves and Maze Trials). */
+  private playLeg(leg: { comp: number; maze: number }, lap: number) {
+    const { component } = componentAt(leg.comp)
+    this.compIndex = leg.comp
+    this.component = component
+    this.lap = lap
+    this.steps = [
+      { kind: 'maze', index: leg.maze, layout: component.mazes[leg.maze]! },
+    ]
+    this.stepIndex = 0
+    this.bench = null
+    this.cardTicks = 0
+    this.startStep()
+    this.trialTicks = 0
+  }
+
+  /** The Maze Trial is cleared: its time against the best, then the cabinet is done. */
+  private finishTrial() {
+    const id = this.maze.id
+    const fresh = betterTime(this.best, id, this.trialTicks)
+    if (fresh && !this.demo) {
+      this.best[id] = this.trialTicks
+      this.persist()
+    }
+    this.over = true
+    this.banner = {
+      text: 'TRIAL CLEAR',
+      sub: `TIME ${formatTime(this.trialTicks)}${fresh ? '  NEW BEST' : ''}`,
+      ticks: 9999,
+    }
+  }
+
+  /** Pick a mode off the select: the Odyssey carries on as before. */
+  private chooseMode(mode: Mode, leg?: { comp: number; maze: number }) {
+    this.menu = null
+    this.mode = mode
+    if (mode === 'odyssey') return
+    this.offer = null
+    this.score = 0
+    this.level = 0
+    this.nextExtra = EXTRA_FIRST
+    if (mode === 'marathon') {
+      this.wave = 0
+      this.lives = START_LIVES
+      this.startLeg(0)
+    } else {
+      this.lives = 1
+      this.playLeg(leg!, 0)
+    }
+    this.cardTicks = 0
+  }
+
+  private updateMenu(input: InputFrame) {
+    const m = this.menu!
+    const trial = m.stage === 'trial'
+    const n = trial ? CYCLE.length : MODES.length
+    if (input.pressed.down) m.cursor = (m.cursor + 1) % n
+    else if (input.pressed.up) m.cursor = (m.cursor + n - 1) % n
+    else if (input.pressed.b && trial) {
+      m.stage = 'mode'
+      m.cursor = 2
+      m.note = ''
+    } else if (input.pressed.a || input.pressed.start) {
+      if (!trial) {
+        const mode = MODES[m.cursor]!
+        if (mode === 'trials') {
+          m.stage = 'trial'
+          m.cursor = Math.max(
+            0,
+            CYCLE.findIndex((l) => trialOpen(this.cleared, l)),
+          )
+          m.note = this.cleared.size ? '' : 'CLEAR A MAZE FIRST'
+        } else this.chooseMode(mode)
+      } else {
+        const leg = CYCLE[m.cursor]!
+        if (trialOpen(this.cleared, leg)) this.chooseMode('trials', leg)
+        else {
+          m.note = 'CLEAR THIS MAZE FIRST'
+          this.sound.play('warn')
+        }
+      }
+    }
   }
 
   private startStep() {
@@ -626,12 +759,19 @@ class CableCrawler implements ArcadeGameInstance {
     this.biggestSurge = 0
     this.arcs = []
     const index = s.kind === 'maze' ? s.index : s.kind === 'screensaver' ? 3 : 5
-    this.startLen = START_LEN + LEN_RAMP * index
+    this.startLen =
+      START_LEN +
+      LEN_RAMP *
+        (this.mode === 'marathon'
+          ? Math.min(this.wave, MARATHON_LEN_CAP)
+          : index)
     const c = this.component
     const seconds =
       s.kind === 'boss'
         ? c.battery + 30
-        : Math.max(45, c.battery - index * 4 - this.lap * 10)
+        : this.mode === 'marathon'
+          ? marathonClock(this.wave)
+          : Math.max(45, c.battery - index * 4 - this.lap * 10)
     this.batteryMax = seconds * 60
     this.resetCable()
     const saverLine: Record<Saver['kind'], string> = {
@@ -656,6 +796,8 @@ class CableCrawler implements ArcadeGameInstance {
   /** The board's label: MAZE 1-3, SCREENSAVER, BOSS or WORKBENCH. */
   private boardTitle(): string {
     const s = this.stepNow
+    if (this.mode === 'marathon') return `WAVE ${this.wave + 1}`
+    if (this.mode === 'trials') return 'TRIAL'
     if (s.kind === 'maze') return `MAZE ${this.component.number}-${s.index + 1}`
     if (s.kind === 'workbench') return 'WORKBENCH'
     return s.kind === 'boss' ? 'BOSS!' : 'SCREENSAVER'
@@ -665,6 +807,7 @@ class CableCrawler implements ArcadeGameInstance {
   private stepTicks(): number {
     const s = this.stepNow
     if (s.kind === 'screensaver') return 6
+    if (this.mode === 'marathon') return marathonPace(this.wave)
     const index = s.kind === 'maze' ? s.index : 4
     return Math.max(3, this.component.step - index * 0.25 - this.lap)
   }
@@ -760,12 +903,14 @@ class CableCrawler implements ArcadeGameInstance {
       // At a component's start the finder bought for it is in use; at the bench, it's for next.
       finder: bench ? this.finder : this.finding,
       bench,
+      cleared: [...this.cleared],
+      best: { ...this.best },
     }
   }
 
   /** Remember the run at this component's start (a real campaign game only). */
   private keep() {
-    if (this.demo || this.offer) return
+    if (this.demo || this.offer || this.mode !== 'odyssey') return
     this.save = this.snapshot(this.compIndex, false)
   }
 
@@ -778,6 +923,8 @@ class CableCrawler implements ArcadeGameInstance {
       bytes: [...this.bytes],
       medals: [...this.medals],
       reached: this.reached,
+      cleared: [...this.cleared],
+      best: { ...this.best },
     }
   }
 
@@ -815,6 +962,10 @@ class CableCrawler implements ArcadeGameInstance {
     this.updateEffects()
     if (this.banner && --this.banner.ticks <= 0) this.banner = null
     if (this.over) return
+    if (this.menu) {
+      this.updateMenu(input)
+      return
+    }
     if (this.offer) {
       if (input.pressed.a || input.pressed.start) {
         const s = this.offer
@@ -846,7 +997,7 @@ class CableCrawler implements ArcadeGameInstance {
         if (this.lives <= 0) {
           this.over = true
           this.banner = { text: 'UNPLUGGED', sub: 'GAME OVER', ticks: 9999 }
-          if (this.save && !this.demo)
+          if (this.save && !this.demo && this.mode === 'odyssey')
             this.save = { ...this.save, continued: true }
         } else this.resetCable()
       }
@@ -870,6 +1021,7 @@ class CableCrawler implements ArcadeGameInstance {
       return
     }
     const controls = this.demo ? this.demoInput() : input
+    this.trialTicks++
     this.steer(controls)
     if (this.surgeGlow > 0) this.surgeGlow--
     if (this.slow > 0) this.slow--
@@ -2344,6 +2496,10 @@ class CableCrawler implements ArcadeGameInstance {
     const picture = pictureById(this.maze.picture)
     if (picture)
       this.addScore(PICTURE_BONUS * this.mult, W / 2, H / 2 + 14, true)
+    if (!this.demo && !this.cleared.has(this.maze.id)) {
+      this.cleared.add(this.maze.id)
+      this.persist()
+    }
     const won = earnedMedals({
       bitten: this.bitten,
       biggestSurge: this.biggestSurge,
@@ -2802,6 +2958,7 @@ class CableCrawler implements ArcadeGameInstance {
       this.renderBench(g)
       this.renderHud(g)
       if (this.offer) this.renderOffer(g, this.offer)
+      if (this.menu) this.renderMenu(g, this.menu)
       return
     }
     if (!this.boardArt || this.boardArt.walls !== this.walls) {
@@ -2873,7 +3030,8 @@ class CableCrawler implements ArcadeGameInstance {
     }
     if (this.banner && this.cardTicks === 0 && !this.offer) this.renderBanner(g)
     if (this.cardTicks > 0 && !this.offer) this.renderCard(g)
-    if (this.offer) this.renderOffer(g, this.offer)
+    if (this.offer && !this.menu) this.renderOffer(g, this.offer)
+    if (this.menu) this.renderMenu(g, this.menu)
   }
 
   /** The Mainframe's chassis round the board: a steel case with vents. */
@@ -3922,11 +4080,23 @@ class CableCrawler implements ArcadeGameInstance {
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
-    const score = String(this.score).padStart(6, '0')
-    const scoreW = measureText(score, 2) + 12
+    // Marathon's counter is nine digits wide, so it is drawn small.
+    const marathon = this.mode === 'marathon'
+    const score = marathon
+      ? marathonScore(this.score)
+      : String(this.score).padStart(6, '0')
+    const scale = marathon ? 1 : 2
+    const scoreW = measureText(score, scale) + 12
     hudPanel(g, 2, 2, scoreW, 20)
-    drawText(g, score, 8, 5, { scale: 2, color: RAMPS.gold[3], outline: INK })
-    const hi = `HI ${Math.max(this.hiScore, this.score)}`
+    drawText(g, score, 8, marathon ? 9 : 5, {
+      scale,
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    const hi =
+      this.mode === 'trials'
+        ? formatTime(this.trialTicks)
+        : `HI ${Math.max(this.hiScore, this.score)}`
     const where = this.boardTitle()
       .replace('!', '')
       .replace('SCREENSAVER', 'SAVER')
@@ -4116,6 +4286,83 @@ class CableCrawler implements ArcadeGameInstance {
     drawText(g, 'A: BUY / GO   B: GO', W / 2, BY + BOARD_H - 10, {
       align: 'center',
       color: RAMPS.steel[2],
+      outline: INK,
+    })
+  }
+
+  private renderMenu(
+    g: CanvasRenderingContext2D,
+    m: NonNullable<CableCrawler['menu']>,
+  ) {
+    g.save()
+    g.fillStyle = rgba(INK, 0.86)
+    g.fillRect(0, 0, W, H)
+    g.restore()
+    hudPanel(g, 14, 22, W - 28, 180)
+    const trial = m.stage === 'trial'
+    drawText(g, trial ? 'MAZE TRIALS' : 'CHOOSE A MODE', W / 2, 32, {
+      scale: 2,
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    })
+    if (!trial) {
+      MODES.forEach((mode, i) => {
+        const y = 66 + i * 32
+        const on = i === m.cursor
+        drawText(g, `${on ? '> ' : ''}${MODE_NAMES[mode]}`, W / 2, y, {
+          scale: 2,
+          align: 'center',
+          color: on ? '#ffffff' : RAMPS.steel[3],
+          outline: INK,
+        })
+        drawText(g, MODE_BLURBS[mode], W / 2, y + 15, {
+          align: 'center',
+          color: RAMPS.teal[3],
+          outline: INK,
+        })
+      })
+      drawText(g, 'UP/DOWN  A: PLAY', W / 2, 186, {
+        align: 'center',
+        color: RAMPS.steel[3],
+        outline: INK,
+      })
+      return
+    }
+    // The trial list: seven rows around the cursor.
+    const first = Math.max(0, Math.min(CYCLE.length - 8, m.cursor - 4))
+    for (let r = 0; r < 8; r++) {
+      const i = first + r
+      const leg = CYCLE[i]!
+      const open = trialOpen(this.cleared, leg)
+      const time = this.best[legId(leg)]
+      const on = i === m.cursor
+      const y = 54 + r * 14
+      drawText(
+        g,
+        `${on ? '>' : ' '} ${String(i + 1).padStart(2, '0')}`,
+        24,
+        y,
+        {
+          color: on ? '#ffffff' : RAMPS.steel[3],
+          outline: INK,
+        },
+      )
+      drawText(
+        g,
+        open ? (time !== undefined ? formatTime(time) : '--:--.--') : 'LOCKED',
+        W - 24,
+        y,
+        {
+          align: 'right',
+          color: open ? RAMPS.gold[3] : RAMPS.steel[2],
+          outline: INK,
+        },
+      )
+    }
+    drawText(g, m.note || 'A: RACE   B: BACK', W / 2, 186, {
+      align: 'center',
+      color: m.note ? RAMPS.ember[3] : RAMPS.steel[3],
       outline: INK,
     })
   }

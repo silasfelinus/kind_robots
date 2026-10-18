@@ -684,16 +684,19 @@
                         <template v-if="!(manyRoutes && lockFor(choice))">
                           <span
                             v-if="choice.roll"
-                            class="flex items-center gap-1 rounded-md bg-base-300 font-bold"
+                            class="flex cursor-help items-center gap-1 rounded-md bg-base-300 font-bold"
                             :class="chipSize"
+                            :title="rollExplain(choice)"
+                            @click.stop.prevent="toggleRollTip(choice.id)"
                           >
                             <icon name="kind-icon:dice" class="size-3.5" />
-                            <span class="capitalize">{{
-                              choice.roll.skill
+                            {{ DIFFICULTY[choice.roll.target] ?? 'Roll' }}
+                            <span class="roll-need font-black text-sky-700">{{
+                              needFor(choice)
                             }}</span>
-                            {{ run.skills[choice.roll.skill] }} ·
-                            {{ DIFFICULTY[choice.roll.target] ?? '' }}
-                            {{ choice.roll.target }}
+                            <span class="sr-only">{{
+                              rollExplain(choice)
+                            }}</span>
                           </span>
                           <span
                             v-else
@@ -730,6 +733,12 @@
                         }}</span></span
                       >
                       <span
+                        v-if="rollTip === choice.id && choice.roll"
+                        class="rounded-md bg-sky-100 px-2 py-1 text-xs leading-snug text-sky-950"
+                        aria-hidden="true"
+                        >{{ rollExplain(choice) }}</span
+                      >
+                      <span
                         v-if="gradeBadge(choice)"
                         class="flex items-center gap-1 self-start rounded-md bg-stone-800 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-50"
                       >
@@ -756,29 +765,34 @@
                       </span>
                     </button>
                   </div>
-                  <ul
-                    v-if="lockedRoutes.length"
-                    class="flex shrink-0 flex-wrap gap-1.5"
-                    aria-label="Routes you have not earned"
-                  >
-                    <li
-                      v-for="choice in lockedRoutes"
-                      :key="choice.id"
-                      class="locked-chip flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
-                      :title="lockFor(choice) ?? undefined"
-                    >
-                      <icon
-                        name="kind-icon:lock"
-                        class="size-3 shrink-0 text-error"
-                      />
-                      <span class="truncate">{{ choice.label }}</span>
-                      <span class="sr-only">{{ lockFor(choice) }}</span>
-                    </li>
-                  </ul>
                   <div
-                    v-if="anyRoll || favorToggleShown || mutationToggleShown"
-                    class="flex shrink-0 flex-wrap gap-1.5 text-xs"
+                    v-if="
+                      lockedRoutes.length ||
+                      anyRoll ||
+                      favorToggleShown ||
+                      mutationToggleShown
+                    "
+                    class="flex shrink-0 flex-wrap items-center gap-1.5 text-xs"
                   >
+                    <ul
+                      v-if="lockedRoutes.length"
+                      class="contents"
+                      aria-label="Routes you have not earned"
+                    >
+                      <li
+                        v-for="choice in lockedRoutes"
+                        :key="choice.id"
+                        class="locked-chip flex max-w-full items-center gap-1 rounded-lg border border-base-300 bg-base-200 px-2 py-1 text-xs text-base-content/70 max-md:max-w-[calc(50%-0.375rem)]"
+                        :title="lockFor(choice) ?? undefined"
+                      >
+                        <icon
+                          name="kind-icon:lock"
+                          class="size-3 shrink-0 text-error"
+                        />
+                        <span class="truncate">{{ choice.label }}</span>
+                        <span class="sr-only">{{ lockFor(choice) }}</span>
+                      </li>
+                    </ul>
                     <label
                       v-if="anyRoll"
                       class="flex cursor-pointer items-center gap-1.5 rounded-lg border border-base-300 bg-base-200 px-2 py-1"
@@ -905,6 +919,8 @@ import {
   favorAvailable,
   lockReason,
   mutationAppliesTo,
+  diceNeeded,
+  rollBoost,
   mutationById,
   societyById,
   locationById,
@@ -1244,6 +1260,47 @@ function favorFor(choice: Choice): boolean {
   return !!run.value && useFavor.value && favorAppliesTo(run.value, choice)
 }
 
+// The dice chip reads "Risky 8": the difficulty word, then what the two dice
+// must show once skill and any switched-on bonus are counted. Hover or tap it
+// for the sum (Silas, 2026-10-18).
+const rollTip = ref<string | null>(null)
+
+function toggleRollTip(id: string): void {
+  rollTip.value = rollTip.value === id ? null : id
+}
+
+function boostFor(choice: Choice): number {
+  if (!run.value) return 0
+  return rollBoost(run.value, choice, {
+    spendForm: spendForm.value,
+    favor: favorFor(choice),
+    mutate: mutationFor(choice),
+  })
+}
+
+function needFor(choice: Choice): number | null {
+  return run.value ? diceNeeded(run.value, choice, boostFor(choice)) : null
+}
+
+function rollExplain(choice: Choice): string {
+  if (!run.value || !choice.roll) return ''
+  const { skill, target, modifier } = choice.roll
+  const name = skill.charAt(0).toUpperCase() + skill.slice(1)
+  const parts = [`${name} ${signed(run.value.skills[skill])}`]
+  if (modifier) parts.push(`card ${signed(modifier)}`)
+  const boost = boostFor(choice)
+  if (boost) parts.push(`bonuses ${signed(boost)}`)
+  return (
+    `${DIFFICULTY[target] ?? 'Roll'} ${target}: you roll two dice and add ` +
+    `${parts.join(', ')}, so the dice need to show ${needFor(choice)} or ` +
+    'more. Double six always succeeds; double one always fails.'
+  )
+}
+
+function signed(n: number): string {
+  return n < 0 ? `${n}` : `+${n}`
+}
+
 function mutationFor(choice: Choice): boolean {
   return (
     !!run.value && useMutation.value && mutationAppliesTo(run.value, choice)
@@ -1355,6 +1412,7 @@ async function pick(choice: Choice): Promise<void> {
   })
   useFavor.value = false
   useMutation.value = false
+  rollTip.value = null
   spendForm.value = false
   await nextTick()
   nextButton.value?.focus()

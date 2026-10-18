@@ -38,6 +38,7 @@ import {
   isRunState,
   lockReason,
   newRun,
+  diceNeeded,
   nextRandom,
   GRADES,
   START_GRADES,
@@ -1393,6 +1394,35 @@ assert.match(
   /cy\.reload\(\)/,
   'browser contract reloads the saved run',
 )
+
+// Silas, 2026-10-18: the dice chip says "Risky 8", what the two dice must show
+// once skill, the card modifier and switched-on bonuses are counted.
+{
+  const rolled = DEPARTMENTS.flatMap((d) => d.encounters)
+    .flatMap((e) => e.choices)
+    .find((c) => c.roll && c.roll.modifier === 0 && c.roll.target === 9)!
+  const probe = newRun('dice-probe', 'temp')
+  const skill = probe.skills[rolled.roll!.skill]
+  assert.equal(diceNeeded(probe, rolled), Math.min(12, Math.max(3, 9 - skill)))
+  assert.equal(
+    diceNeeded(probe, rolled, 2),
+    Math.min(12, Math.max(3, 7 - skill)),
+    'an attached Form lowers what the dice must show by two',
+  )
+  assert.equal(diceNeeded(probe, { ...rolled, roll: null }), null)
+  const capped = { ...rolled, roll: { ...rolled.roll!, target: 30 } }
+  assert.equal(diceNeeded(probe, capped), 12, 'double six always succeeds')
+  const floored = { ...rolled, roll: { ...rolled.roll!, target: 0 } }
+  assert.equal(diceNeeded(probe, floored), 3, 'double one always fails')
+  const desk = asset('../../pages/play/shifting-desks.vue')
+  assert.match(desk, /needFor\(choice\)/, 'the chip shows the dice target')
+  assert.match(desk, /rollExplain\(choice\)/, 'the chip explains its sum')
+  assert.match(
+    desk,
+    /@click\.stop\.prevent="toggleRollTip/,
+    'tapping the chip explains instead of choosing',
+  )
+}
 
 console.log(
   `shifting desks contract ok (${completed}/3000 completed, ${eliminated} eliminated; endings reached: ${[...endingsSeen].sort().join(', ')})`,

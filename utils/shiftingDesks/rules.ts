@@ -434,6 +434,40 @@ export const DIFFICULTY: Record<number, string> = {
   11: 'Dire',
 }
 
+// What the two dice must show for a roll to succeed, after the player's skill,
+// the card's modifier and any bonus they have switched on (the same sums
+// choose() uses). Double six always succeeds and double one always fails, so
+// the answer stays between 3 and 12.
+export function rollBoost(
+  state: RunState,
+  choice: Choice,
+  aids: { spendForm?: boolean; favor?: boolean; mutate?: boolean },
+): number {
+  if (!choice.roll) return 0
+  let boost =
+    aids.spendForm && state.meters.forms + (choice.cost.forms ?? 0) >= 1 ? 2 : 0
+  const society = societyById(state.societyId)
+  if (aids.favor && society.favor.kind === 'bonus')
+    boost += society.favor.amount ?? 0
+  const mutation = mutationById(state.mutationId)
+  if (aids.mutate && mutation.kind === 'bonus') boost += mutation.amount ?? 0
+  return boost
+}
+
+export function diceNeeded(
+  state: RunState,
+  choice: Choice,
+  boost = 0,
+): number | null {
+  if (!choice.roll) return null
+  const need =
+    choice.roll.target -
+    state.skills[choice.roll.skill] -
+    choice.roll.modifier -
+    boost
+  return Math.min(12, Math.max(3, need))
+}
+
 export type LogEntry = {
   cardId: string
   cardTitle: string

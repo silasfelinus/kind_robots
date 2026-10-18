@@ -20,6 +20,7 @@ import {
   RESTYLE_MAX_DURATION_SEC,
   RESTYLE_STYLES,
   isRestyleLook,
+  isRestyleRenderSpeed,
   normalizeGrabBagStyles,
   planRestyleSegments,
   planRestyleStyleSchedule,
@@ -27,6 +28,7 @@ import {
   restyleRenderWindowCount,
   type RestyleLookId,
   type RestyleQuality,
+  type RestyleRenderSpeed,
   type RestyleSegment,
   type RestyleStatus,
   type RestyleStyleId,
@@ -46,6 +48,7 @@ export type VideoRestyleJob = {
   variantStyleIds?: RestyleStyleId[]
   variantMode?: RestyleVariantMode
   quality: RestyleQuality
+  renderSpeed?: RestyleRenderSpeed
   isPrivate?: boolean
   isMature?: boolean
   sourceProjectId?: string
@@ -224,6 +227,7 @@ export async function stageRestyleVideo(input: {
   durationSec: unknown
   variantStyleIds?: unknown
   variantMode?: unknown
+  renderSpeed?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -276,6 +280,7 @@ export async function stageRestyleVideo(input: {
     sourceDurationProvenance: 'browser-unverified',
     ...lookFields(look),
     quality: input.quality,
+    renderSpeed: restyleSpeed(input.renderSpeed, 'standard'),
     isPrivate: restyleFlag(input.isPrivate, true),
     isMature: restyleFlag(input.isMature, false),
     status: 'STAGED',
@@ -309,6 +314,16 @@ export async function stageRestyleVideo(input: {
   return job
 }
 
+/** Projects saved before Fast draft existed render at standard speed. */
+function restyleSpeed(
+  value: unknown,
+  fallback: RestyleRenderSpeed,
+): RestyleRenderSpeed {
+  if (value === undefined || value === null || value === '') return fallback
+  if (isRestyleRenderSpeed(value)) return value
+  throw createError({ statusCode: 400, message: 'Unknown render speed.' })
+}
+
 function restyleFlag(value: unknown, fallback: boolean): boolean {
   if (value === undefined || value === null) return fallback
   if (value === true || value === 'true') return true
@@ -327,6 +342,7 @@ export async function cloneRestyleVideo(input: {
   quality: unknown
   variantStyleIds?: unknown
   variantMode?: unknown
+  renderSpeed?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -358,6 +374,10 @@ export async function cloneRestyleVideo(input: {
     sourceProjectId: source.sourceProjectId ?? source.id,
     ...lookFields(look),
     quality: input.quality,
+    renderSpeed: restyleSpeed(
+      input.renderSpeed,
+      source.renderSpeed ?? 'standard',
+    ),
     isPrivate: restyleFlag(input.isPrivate, source.isPrivate ?? true),
     isMature: restyleFlag(input.isMature, source.isMature ?? false),
     status: 'STAGED',
@@ -406,6 +426,7 @@ export async function updateRestyleSettings(
   isMature?: unknown,
   variantStyleIds?: unknown,
   variantMode?: unknown,
+  renderSpeed?: unknown,
 ): Promise<VideoRestyleJob> {
   const look = resolveRestyleLook(styleId, variantStyleIds, variantMode)
   if (quality !== '720p' && quality !== '1080p') {
@@ -423,6 +444,7 @@ export async function updateRestyleSettings(
     ...job,
     ...lookFields(look),
     quality,
+    renderSpeed: restyleSpeed(renderSpeed, job.renderSpeed ?? 'standard'),
     isPrivate: restyleFlag(isPrivate, job.isPrivate ?? true),
     isMature: restyleFlag(isMature, job.isMature ?? false),
     updatedAt: new Date().toISOString(),

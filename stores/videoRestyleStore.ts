@@ -9,6 +9,7 @@ import {
   type RestyleLookId,
   type RestylePreview,
   type RestyleQuality,
+  type RestyleRenderSpeed,
   type RestyleStyleId,
   type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
@@ -102,6 +103,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       durationSec: number
       style: RestyleLookId
       quality: RestyleQuality
+      renderSpeed: RestyleRenderSpeed
       isPrivate: boolean
       isMature: boolean
     } & GrabBagChoice,
@@ -130,6 +132,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         form.append('variantMode', input.variantMode ?? 'cycle')
       }
       form.append('quality', input.quality)
+      form.append('renderSpeed', input.renderSpeed)
       form.append('isPrivate', String(input.isPrivate))
       form.append('isMature', String(input.isMature))
       const response = await performFetch<VideoRestyleJob>(
@@ -203,6 +206,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       title: string
       style: RestyleLookId
       quality: RestyleQuality
+      renderSpeed: RestyleRenderSpeed
       isPrivate: boolean
       isMature: boolean
     } & GrabBagChoice,
@@ -380,6 +384,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     isPrivate: boolean,
     isMature: boolean,
     grabBag: GrabBagChoice = {},
+    renderSpeed: RestyleRenderSpeed = 'standard',
   ): Promise<boolean> {
     busy.value = true
     error.value = ''
@@ -394,6 +399,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
             quality,
             isPrivate,
             isMature,
+            renderSpeed,
             ...grabBag,
           }),
         },

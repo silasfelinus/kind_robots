@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
         isMature?: unknown
         variantStyleIds?: unknown
         variantMode?: unknown
+        renderSpeed?: unknown
       }>(event)) ?? {}
     const cloned = await cloneRestyleVideo({
       userId: auth.user.id,
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
       quality: body.quality,
       variantStyleIds: body.variantStyleIds,
       variantMode: body.variantMode,
+      renderSpeed: body.renderSpeed,
       isPrivate: body.isPrivate,
       isMature: body.isMature,
     })

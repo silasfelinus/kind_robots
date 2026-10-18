@@ -391,6 +391,19 @@ export function restylePreviewPrompt(styleId: RestyleStyleId): string {
 }
 
 export type RestyleQuality = '720p' | '1080p'
+
+/**
+ * Fast draft samples each motion window with the CausVid distillation LoRA:
+ * 8 steps at cfg 1 instead of 20 at cfg 6, about a fifth of the GPU work.
+ * Only a relay whose ComfyUI lists that LoRA may claim it.
+ */
+export type RestyleRenderSpeed = 'standard' | 'fast'
+
+export function isRestyleRenderSpeed(
+  value: unknown,
+): value is RestyleRenderSpeed {
+  return value === 'standard' || value === 'fast'
+}
 export type RestyleStatus =
   | 'STAGED'
   | 'PROCESSING'

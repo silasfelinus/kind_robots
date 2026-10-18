@@ -158,6 +158,9 @@
             <span class="opacity-80">
               {{ labelFor(store.selected.style) }} ·
               {{ store.selected.quality }} ·
+              <span v-if="store.selected.renderSpeed === 'fast'"
+                >Fast draft ·
+              </span>
               {{ formatRestyleTime(store.selected.sourceDurationSec) }}
               <span v-if="store.selected.isMature"> · Mature</span>
               <span v-if="store.selected.isPrivate === false">
@@ -648,6 +651,7 @@
             >
               <summary class="cursor-pointer font-semibold">
                 Render settings · {{ quality }} ·
+                {{ renderSpeed === 'fast' ? 'Fast draft ·' : '' }}
                 {{ isPrivate ? 'Private' : 'Release candidate'
                 }}{{ isMature ? ' · Mature' : '' }}
               </summary>
@@ -664,6 +668,25 @@
                     @click="quality = value"
                   >
                     {{ value }}
+                  </button>
+                </span>
+                <span class="flex items-center gap-1">
+                  <span class="font-semibold">Speed</span>
+                  <button
+                    v-for="option in speedOptions"
+                    :key="option.value"
+                    type="button"
+                    class="kr-btn-xs"
+                    :class="
+                      renderSpeed === option.value
+                        ? 'btn-primary'
+                        : 'btn-outline'
+                    "
+                    :aria-pressed="renderSpeed === option.value"
+                    :title="option.note"
+                    @click="renderSpeed = option.value"
+                  >
+                    {{ option.label }}
                   </button>
                 </span>
                 <label class="flex cursor-pointer items-center gap-1">
@@ -684,8 +707,11 @@
                 </label>
                 <p class="kr-text-faded-xs w-full">
                   Prompt-guided Wan VACE looks; 1080p is upscaled after
-                  assembly. Sources and pilots stay access-controlled even when
-                  marked as release candidates.
+                  assembly. Fast draft uses the CausVid LoRA (8 steps instead of
+                  20) for roughly five times the speed, with some loss of
+                  detail; it waits until KR Relay has that LoRA installed.
+                  Sources and pilots stay access-controlled even when marked as
+                  release candidates.
                 </p>
               </div>
             </details>
@@ -792,6 +818,7 @@ import {
   type RestyleLookId,
   type RestylePreviewState,
   type RestyleQuality,
+  type RestyleRenderSpeed,
   type RestyleStyleId,
   type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
@@ -818,6 +845,18 @@ const playingLabel = computed(
     })[playing.value],
 )
 const qualityOptions = ['720p', '1080p'] as const
+const speedOptions: {
+  value: RestyleRenderSpeed
+  label: string
+  note: string
+}[] = [
+  { value: 'standard', label: 'Standard', note: '20 steps, full detail' },
+  {
+    value: 'fast',
+    label: 'Fast draft',
+    note: 'CausVid LoRA, 8 steps: about five times faster',
+  },
+]
 const style = ref<RestyleLookId>('illustrious')
 const grabBagStyles = ref<RestyleStyleId[]>([
   ...RESTYLE_GRAB_BAG_DEFAULT_STYLES,
@@ -860,6 +899,7 @@ const savedSchedule = computed(
     [],
 )
 const quality = ref<RestyleQuality>('1080p')
+const renderSpeed = ref<RestyleRenderSpeed>('standard')
 const isPrivate = ref(true)
 const isMature = ref(false)
 const title = ref('Coat Dance')
@@ -875,6 +915,7 @@ const lookChanged = computed(() =>
           grabBagStyles.value.join(',') ||
           (store.selected.variantMode ?? 'cycle') !== grabBagMode.value)) ||
       store.selected.quality !== quality.value ||
+      (store.selected.renderSpeed ?? 'standard') !== renderSpeed.value ||
       (store.selected.isPrivate ?? true) !== isPrivate.value ||
       (store.selected.isMature ?? false) !== isMature.value),
   ),
@@ -1056,6 +1097,7 @@ function selectJob(job: VideoRestyleJob) {
     grabBagMode.value = job.variantMode ?? 'cycle'
   }
   quality.value = job.quality
+  renderSpeed.value = job.renderSpeed ?? 'standard'
   isPrivate.value = job.isPrivate ?? true
   isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
@@ -1104,6 +1146,7 @@ async function saveLookAndRender() {
       isPrivate.value,
       isMature.value,
       grabBagChoice.value,
+      renderSpeed.value,
     )
   ) {
     await store.queueFull(id)
@@ -1120,6 +1163,7 @@ async function renderAsNewFilm() {
       title: name,
       style: style.value,
       quality: quality.value,
+      renderSpeed: renderSpeed.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
       ...grabBagChoice.value,
@@ -1176,6 +1220,7 @@ async function stage() {
       durationSec: durationSec.value,
       style: style.value,
       quality: quality.value,
+      renderSpeed: renderSpeed.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
       ...grabBagChoice.value,

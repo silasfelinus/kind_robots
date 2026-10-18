@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
       durationSec: field('durationSec'),
       variantStyleIds: field('variantStyleIds'),
       variantMode: field('variantMode'),
+      renderSpeed: field('renderSpeed'),
       isPrivate: field('isPrivate'),
       isMature: field('isMature'),
     })

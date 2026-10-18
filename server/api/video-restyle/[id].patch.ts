@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
         isMature?: unknown
         variantStyleIds?: unknown
         variantMode?: unknown
+        renderSpeed?: unknown
       }>(event)) ?? {}
     const job = await updateRestyleSettings(
       auth.user.id,
@@ -24,6 +25,7 @@ export default defineEventHandler(async (event) => {
       body.isMature,
       body.variantStyleIds,
       body.variantMode,
+      body.renderSpeed,
     )
     return {
       success: true,

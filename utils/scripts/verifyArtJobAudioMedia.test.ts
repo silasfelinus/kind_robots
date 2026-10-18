@@ -12,6 +12,7 @@ import { isAudioType, resolveArtImageSource } from '../artImageSource.js'
 import {
   artJobClaimableBy,
   isAudioArtJobPayload,
+  isFastRestyleArtJobPayload,
   isGrabBagRestyleArtJobPayload,
   isVideoRestyleArtJobPayload,
 } from '../artJobMedia.js'
@@ -200,3 +201,49 @@ assert.equal(
   )
 }
 console.log('✅ Grab bag VACE jobs need a per-window-look relay')
+
+{
+  const standard = {
+    media: 'video-restyle-vace',
+    videoRestyle: { phase: 'full' },
+  }
+  const fast = {
+    media: 'video-restyle-vace',
+    videoRestyle: { phase: 'full', renderSpeed: 'fast' },
+  }
+  const relay = {
+    supportsInputImages: true,
+    supportsAudio: true,
+    supportsVideoRestyle: true,
+    supportsVideoRestyleGrabBag: true,
+  }
+  assert.equal(isFastRestyleArtJobPayload(fast), true)
+  assert.equal(isFastRestyleArtJobPayload(JSON.stringify(fast)), true)
+  assert.equal(isFastRestyleArtJobPayload(standard), false)
+  assert.equal(
+    isFastRestyleArtJobPayload({
+      media: 'image',
+      videoRestyle: { renderSpeed: 'fast' },
+    }),
+    false,
+  )
+  assert.equal(artJobClaimableBy(standard, relay), true)
+  assert.equal(
+    artJobClaimableBy(fast, relay),
+    false,
+    'a relay without the CausVid LoRA must never claim a Fast draft',
+  )
+  assert.equal(
+    artJobClaimableBy(fast, { ...relay, supportsVideoRestyleFast: true }),
+    true,
+  )
+  assert.equal(
+    artJobClaimableBy(fast, {
+      ...relay,
+      supportsVideoRestyle: false,
+      supportsVideoRestyleFast: true,
+    }),
+    false,
+  )
+}
+console.log('✅ Fast draft VACE jobs need a relay with the CausVid LoRA')

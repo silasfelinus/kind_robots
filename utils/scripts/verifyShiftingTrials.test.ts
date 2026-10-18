@@ -32,14 +32,32 @@ const rawBossSource = readFileSync(
   'utf8',
 )
 const bossSource = JSON.parse(rawBossSource)
-const sourceBlob = createHash('sha1')
-  .update(`blob ${Buffer.byteLength(rawBossSource)}\0`)
-  .update(rawBossSource)
+const trialRules = createHash('sha1')
+  .update(
+    JSON.stringify(
+      bossSource.trials.map(
+        (trial: {
+          landId: string
+          choices: Array<Record<string, unknown>>
+        }) => ({
+          landId: trial.landId,
+          choices: trial.choices.map((choice) => ({
+            id: choice.id,
+            skill: choice.skill,
+            target: choice.target,
+            cost: choice.cost,
+            requiredAnyFlags: choice.requiredAnyFlags,
+          })),
+        }),
+      ),
+    ),
+  )
   .digest('hex')
+assert.equal(TRIAL_SOURCE_SHA, '1acc49193e828ca102483c79c038e7626ae9d325')
 assert.equal(
-  TRIAL_SOURCE_SHA,
-  sourceBlob,
-  'V5 save source must pin the exact authored trials Git blob',
+  trialRules,
+  '925b733b60d75c5d5bf812af7443bff18bb14a06',
+  'V5 trial rules (choices, skills, targets, costs, clue flags) are pinned; prose may be rewritten, rules need a new save version',
 )
 const earnedFlags = new Set(
   FIVE_LAND_CARDS.flatMap((card) =>
@@ -257,6 +275,18 @@ for (let seed = 1; seed <= 260; seed++) {
     corrupted.trialResults[0]!.roll.dice[0] = 7
     assert.equal(restoreJourneyLedgerV5(corrupted), null)
   }
+  const oldWording = JSON.parse(
+    JSON.stringify(ledger, (key, value) =>
+      ['text', 'reason', 'resultText'].includes(key)
+        ? 'Zuzu said it differently before the prose pass.'
+        : value,
+    ),
+  )
+  assert.deepEqual(
+    restoreJourneyLedgerV5(oldWording),
+    ledger,
+    'a save written with earlier card prose restores to the current wording',
+  )
 }
 assert.ok(bossSuccess > 60)
 assert.ok(bossFailure > 30)

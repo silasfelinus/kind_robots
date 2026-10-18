@@ -35,29 +35,29 @@
       "id": "family-at-the-fence",
       "locationId": "border-farm",
       "title": "A Family at the Fence",
-      "flavor": "An orchard fence bows beneath apples too small to harvest. Behind it, a family watches Zuzu approach, hands motionless over a patch of stubborn vegetables. One child has placed a bowl of water outside the gate. No one seems certain whether it is an invitation.",
+      "flavor": "An orchard fence bows under apples too small to pick. Behind it a family stands among stubborn rows of vegetables, hands still, watching you come up the track. The youngest has set a bowl of water outside the gate, and none of the grown-ups will say whether she meant it as a welcome.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "honor-guest",
-          "label": "Bow and request shelter",
-          "intent": "Honor the household boundary before asking for a roof.",
-          "risk": "Low physical risk; a social check may earn supplies.",
+          "label": "Bow and ask for shelter",
+          "intent": "Bow at the gate and wait to be invited before you ask for a roof.",
+          "risk": "If they read you wrong, the gate stays shut.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The eldest returns his bow. There is room beside their hearth, and a small parcel for the road.",
+            "text": "The eldest returns your bow and lifts the latch. You sleep beside their hearth, and at first light he tucks a cloth parcel of bread and windfall apples under your arm for the road.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["orchard-family-trust"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Their courtesy is strained. They shut the gate, and Zuzu loses precious daylight finding another way.",
+            "text": "Their courtesy holds, but only just. The gate closes, and you spend the last of the daylight walking the long way around the orchard, footsore and chilled by the time you find a dry ditch to sleep in.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["orchard-family-wary"],
@@ -66,23 +66,23 @@
         },
         {
           "id": "guard-the-gate",
-          "label": "Study the fence before approaching",
-          "intent": "Look for signs of a hurried defense before trusting the welcome.",
-          "risk": "Moderate risk; an insight check can expose a warning.",
+          "label": "Study the fence first",
+          "intent": "Read the posts and latch for signs of a hurried defense before trusting the welcome.",
+          "risk": "Lingering at a stranger's fence can look like a threat.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The broken latch is wired from the inside. Zuzu repairs it before speaking, earning a cautious nod.",
+            "text": "The broken latch has been wired shut from the inside by someone in a hurry. You mend it properly before you say a word. The father watches, nods once, and passes a few apples and a heel of cheese over the rails.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["orchard-latch-repaired"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His hesitation reads as a threat. The family retreats indoors and leaves him outside in the cold.",
+            "text": "Your long look reads as a threat. The mother pulls the children indoors and bars the shutters, and you spend a cold, aching night against the fence with the wind at your back.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["orchard-family-wary"],
@@ -95,29 +95,29 @@
       "id": "the-orchard-debt",
       "locationId": "border-farm",
       "title": "The Orchard Debt",
-      "flavor": "A farmer struggles to raise a water barrel onto a cart. One wheel sits crooked in the dust, and a storm is forming beyond the hills. She has enough food to trade but not enough strength to move her harvest alone. Zuzu remembers debts better than prices.",
+      "flavor": "At the edge of the orchard, a farmer strains to heave a water barrel onto her cart. One wheel sits crooked in the dust, and a storm is building over the hills. She has food enough to trade but not the strength to move her harvest alone, and she says plainly that she will owe whoever helps.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "lift-together",
           "label": "Help lift the barrel",
-          "intent": "Spend effort to straighten the cart and save the load.",
-          "risk": "Physical risk; success secures a generous meal.",
+          "intent": "Put your back under the barrel and heave it aboard before the storm breaks.",
+          "risk": "A slipping barrel can crack ribs.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "With a grunt and a crack of timber, the wheel settles. She presses dried fruit into Zuzu's hands.",
+            "text": "With a grunt and a crack of timber, the wheel settles and the barrel rides level. She fills your hands with dried fruit and a sack of meal, and tells you she will not forget it.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["orchard-debt-owed"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The barrel slips against his ribs. The cart rolls free, but he leaves the farm bruised.",
+            "text": "The barrel slips and slams into your ribs. The cart rolls free and the harvest is saved, but you leave the farm bruised, carrying the small bag of dried apples she insisted you take.",
             "hp_delta": -1,
             "provisions_delta": 1,
             "add_flags": ["orchard-debt-owed"],
@@ -126,23 +126,23 @@
         },
         {
           "id": "brace-axle",
-          "label": "Repair the axle first",
-          "intent": "Find a safer repair before attempting the lift.",
-          "risk": "Thinking check; failure wastes time in the approaching storm.",
+          "label": "Mend the axle first",
+          "intent": "Fix the crooked wheel properly so the lift does not wreck the cart.",
+          "risk": "If the repair fails, the storm arrives first.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Zuzu wedges the axle with a scavenged pin. The farmer quietly offers food and dry cloth.",
+            "text": "You wedge the axle with a pin pulled from a fence post, and the wheel runs true. The farmer loads you with food and a dry cloth against the rain, and calls it the first payment on her debt.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["orchard-cart-mended"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The improvised pin snaps. He saves the crop but cuts his palm catching the axle.",
+            "text": "The pin snaps under the load. You catch the axle before the cart tips and the crop is saved, but the iron opens your palm, and you are still binding it when the first rain comes down.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["orchard-cart-mended"],
@@ -155,29 +155,29 @@
       "id": "scarecrows-lantern",
       "locationId": "border-farm",
       "title": "The Scarecrow's Lantern",
-      "flavor": "By the grain shed, a lantern sways from a wooden figure although there is no wind. A thin trail of footprints leads behind the barn, where someone has laid fishing line across the approach. The light is less a miracle than an invitation.",
+      "flavor": "By the grain shed, a lantern swings from the arm of a scarecrow, though the air is dead still. A thin line of footprints runs behind the barn, and across that path someone has strung fishing line at shin height. Whoever lit the lantern wants you looking at it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "cut-the-line",
           "label": "Cut the hidden line",
-          "intent": "Disable the snare and confront whoever set it.",
-          "risk": "Awareness check; a failed move may spring the trap.",
+          "intent": "Find the snare line, cut it, and confront whoever is waiting behind the barn.",
+          "risk": "One wrong step and the trap springs on you.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The wire parts cleanly. A startled thief flees, leaving a pouch of stolen rations behind.",
+            "text": "The line parts cleanly under your knife. A thin figure bolts from behind the barn and over the fence, dropping a pouch of stolen rations in the dirt. No one comes to claim it, so it goes into your pack.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["farm-snare-disarmed"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A board snaps up from the dirt. Zuzu staggers backward as the thief vanishes.",
+            "text": "Your foot finds a second line you never saw. A board snaps up out of the dirt and cracks across your shins, and while you stagger, the thief disappears into the dark.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["farm-thief-escaped"],
@@ -187,22 +187,22 @@
         {
           "id": "follow-footsteps",
           "label": "Circle around the grain shed",
-          "intent": "Avoid the snare and intercept the intruder at the back fence.",
-          "risk": "Riskier stealth approach; the land may shift afterward.",
+          "intent": "Skirt the snare and cut off the intruder at the back fence.",
+          "risk": "The ground behind the barn is soft and undercut.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "He appears where the thief least expects him. In the chase, the nearby shortcut collapses into the ditch.",
+            "text": "You come around the shed exactly where the thief least expects you, and he drops a sack of food to run. In the chase, the old shortcut by the ditch caves in behind you, and the road ahead will have to bend another way.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["farm-shortcut-collapsed"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "The thief doubles back through the brush. Zuzu loses the trail and the last of the light.",
+            "text": "The thief doubles back through the brush. You crash after the sound until your lungs burn and your legs give out, and you lose both the trail and the last of the light.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["farm-thief-escaped"],
@@ -215,29 +215,29 @@
       "id": "the-last-seed",
       "locationId": "border-farm",
       "title": "The Last Seed",
-      "flavor": "A lone gardener kneels over an improbable green shoot in cracked soil. She holds a tin of seeds as carefully as a relic. The well beside her is nearly dry. She asks for no gift, only for Zuzu not to trample what little survives.",
+      "flavor": "A gardener kneels over a single green shoot pushing through cracked soil. She holds a tin of seeds the way others hold a prayer book, and she says these are the last she has. The well beside her is nearly dry. She asks for nothing except that you not trample what little is still alive.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "share-water",
-          "label": "Offer a measure of water",
-          "intent": "Exchange precious provisions for the keeper's trust.",
-          "risk": "Social check; mercy may return more than it costs.",
+          "label": "Offer some of your water",
+          "intent": "Pour from your own flask so the shoot can survive the dry week.",
+          "risk": "Water spilled in this dust does not come back.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "She waters the sprout, then insists Zuzu take a handful of preserved fruit from her cellar.",
+            "text": "You pour slowly while she guides the stream to the root. When the soil is dark and wet, she climbs down into her cellar and returns with a jar of preserved fruit she will not let you refuse.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["seed-keeper-trust"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He fumbles the measure and spills most of it. She thanks him, but there is little to spare.",
+            "text": "Your hand shakes and most of the water runs off into the cracks. She thanks you anyway, and means it, but your flask is lighter and the shoot is barely wet.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["seed-keeper-trust"],
@@ -246,23 +246,23 @@
         },
         {
           "id": "shield-shoot",
-          "label": "Build a shelter for the sprout",
-          "intent": "Use fieldcraft to protect the fragile plant from wind.",
-          "risk": "Wits check; success discovers a small cache beneath the soil.",
+          "label": "Build a windbreak for the sprout",
+          "intent": "Stack stones around the shoot so the hot wind cannot tear it out.",
+          "risk": "The wind may rise before the wall is finished.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "A stone windbreak holds. Beneath its foundation lies a sealed jar of old provisions.",
+            "text": "Your little stone wall holds against the first gust. Digging for its footing, you strike a sealed jar of old provisions someone buried long ago, and the gardener insists it is yours by right of finding.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["sprout-sheltered"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The wind returns before he finishes. He takes a cut across the knuckles rescuing the seed tin.",
+            "text": "The wind comes back before you finish and knocks the stones flat. You lunge to catch the seed tin before it rolls into the well and split your knuckles on the rim.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["sprout-sheltered"],
@@ -275,29 +275,29 @@
       "id": "rope-at-dawn",
       "locationId": "old-well",
       "title": "Rope at Dawn",
-      "flavor": "A bucket hangs halfway down a stone well, swinging over water black with reflected sky. Its keeper kneels by a fraying rope and will not let anyone pull alone. A second traveler waits with an empty cup, too tired to argue.",
+      "flavor": "At dawn a bucket hangs halfway down the stone well, turning slowly over water black with reflected sky. Its keeper kneels beside a fraying rope and will not let anyone pull alone. Behind you, a second traveler waits with an empty cup, too tired to argue.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "take-the-rope",
           "label": "Take the strain on the rope",
-          "intent": "Anchor the pulley with strength while the keeper repairs it.",
-          "risk": "Steel check; the rope may injure Zuzu if it breaks.",
+          "intent": "Hold the bucket's weight yourself while the keeper splices the worn rope.",
+          "risk": "If the rope parts, it will take skin with it.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The bucket rises safely. The keeper fills Zuzu's flask and shares the morning's small breakfast.",
+            "text": "You lean back and hold. The keeper splices the fray, the bucket rises full, and she fills your flask before sharing the morning's flatbread with you and the tired traveler.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["well-pulley-secured"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The rope burns through his palm. Water is saved, but the wound throbs beneath his bandage.",
+            "text": "The rope runs through your grip and burns your palm raw. The water is saved and the keeper fills your flask, but the wound throbs under its bandage all morning.",
             "hp_delta": -1,
             "provisions_delta": 1,
             "add_flags": ["well-pulley-secured"],
@@ -306,23 +306,23 @@
         },
         {
           "id": "tie-new-knot",
-          "label": "Teach the keeper a safer knot",
-          "intent": "Repair the rigging without risking the bucket.",
-          "risk": "Wits check; a misstep could foul the well.",
+          "label": "Show the keeper a safer knot",
+          "intent": "Retie the rigging so it holds without anyone straining on the line.",
+          "risk": "A bad knot could drop the bucket down the shaft.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The knot settles under tension. Soon the line moves as smoothly as a song without words.",
+            "text": "The knot bites and holds under the full weight. Soon the line runs as smoothly as a hummed tune, and the keeper presses a twist of dried meat into your hand.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["well-line-repaired"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The new line snags against the stone. Zuzu buys a replacement rope with his remaining provisions.",
+            "text": "The new line snags on the stone and frays through. You trade some of your own food to a passing carter for a replacement rope, so the keeper is not left with nothing.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["well-line-repaired"],
@@ -335,29 +335,29 @@
       "id": "a-cup-offered",
       "locationId": "old-well",
       "title": "A Cup Offered",
-      "flavor": "A traveler offers Zuzu the first drink from a polished tin cup. Her kindness is almost ceremonious, yet the cup smells faintly of something bitter. She keeps watching his face instead of the water.",
+      "flavor": "A traveler offers you the first drink from a polished tin cup, holding it out in both hands as if it were a ceremony. The water smells faintly of something bitter. She keeps her eyes on your face instead of on the cup.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "ask-ingredients",
-          "label": "Ask what has been added",
-          "intent": "Politely insist on knowing what is in the drink.",
-          "risk": "Insight check; truth may reveal practical medicine.",
+          "label": "Ask what is in the cup",
+          "intent": "Thank her, then ask plainly what she has added before you drink.",
+          "risk": "The question may sound like an accusation.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The bitter note is willow bark. She explains its use and gives Zuzu a wrapped medicinal dose.",
+            "text": "She laughs, a little embarrassed. The bitterness is willow bark for aching joints, she says, and she shows you how to steep it. The dose she wraps for you eases the ache in your shoulders by nightfall.",
             "hp_delta": 1,
             "provisions_delta": 0,
             "add_flags": ["well-herbalist-trust"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His question sounds like an accusation. She tips the cup into the sand, and the exchange ends coldly.",
+            "text": "To her, the question sounds like an accusation. She tips the cup out onto the sand, shoulders her pack, and walks to the far side of the well without another word.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["well-herbalist-offended"],
@@ -367,22 +367,22 @@
         {
           "id": "drink-first",
           "label": "Accept the offered cup",
-          "intent": "Honor hospitality despite uncertainty.",
-          "risk": "Resolve check; a mistake risks a painful night.",
+          "intent": "Drink as you are asked, trusting her hospitality over your doubts.",
+          "risk": "If the bitterness is poison, it will be a long night.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The bitterness passes, leaving a welcome calm in his aching limbs. The traveler offers a second dose.",
+            "text": "The bitterness fades, and a slow calm spreads through your sore limbs. The traveler nods, satisfied, and fills the cup again; it is willow bark, she tells you, good for the road.",
             "hp_delta": 1,
             "provisions_delta": 0,
             "add_flags": ["well-herbalist-trust"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The herbs are too strong on an empty stomach. Zuzu retreats behind the well to recover.",
+            "text": "The herbs hit hard on an empty stomach. You make it behind the well before you are sick, and spend the afternoon shaking in the shade while she apologizes from a careful distance.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["well-herbalist-offended"],
@@ -395,29 +395,29 @@
       "id": "marks-below-water",
       "locationId": "old-well",
       "title": "Marks Below the Water",
-      "flavor": "At the waterline are fresh scratches beneath older carved circles. A solitary watcher insists the marks were not there yesterday. The well stones tremble when carts pass nearby, yet the marks seem to move on their own.",
+      "flavor": "Just above the waterline, fresh scratches cut beneath older carved circles, and more show pale under the surface. A lone watcher swears none of them were there yesterday. The well stones tremble whenever a cart rolls past, but the marks seem to shift even when the road is empty.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "measure-stone",
-          "label": "Measure the altered stones",
-          "intent": "Look for structural danger before drawing water.",
-          "risk": "Awareness check; uncovering the flaw can alter the future route.",
+          "label": "Measure the shifted stones",
+          "intent": "Check the well's stonework for danger before anyone else draws water.",
+          "risk": "Loose stones may give way under your weight.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "One foundation block has slipped. Zuzu helps mark a safe detour before the passage gives way.",
+            "text": "One foundation block has slipped a hand's width toward the shaft, and the road beside it is hollow underneath. You help the watcher stake out a detour, and the way ahead now swings wide around the well.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["well-stones-slipping"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "His boot loosens a cracked step. Stones spill into the shaft and bruising dust blinds him.",
+            "text": "Your foot loosens a cracked step. Stones crash into the shaft, a falling chunk bruises your shin, and a cloud of grit leaves you blind and coughing at the rim.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["well-unsafe"],
@@ -427,22 +427,22 @@
         {
           "id": "sound-depth",
           "label": "Lower a weighted line",
-          "intent": "Probe the well without entering its unstable throat.",
-          "risk": "Wits check; the line might be lost.",
+          "intent": "Sound the well's depth from the rim instead of climbing into its unstable throat.",
+          "risk": "The stones below may cut the line.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "The weight touches a shelf where none should be. He pockets a small brass fitting and backs away.",
+            "text": "The weight stops on a shelf where no shelf should be. Your hook comes up snagged on a small brass fitting and a bundle of oilcloth-wrapped hardtack someone hid down there, and you back away from the rim.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["well-hidden-shelf"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The rope snaps against sharp stone. Whatever moved below remains unseen, and Zuzu is left soaked and shivering.",
+            "text": "The line saws through on sharp stone, and the pouch of dried beans you tied on as a weight goes with it. Leaning after it, you slip on the wet stones and end up soaked and shivering.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["well-unsafe"],
@@ -455,29 +455,29 @@
       "id": "two-empty-buckets",
       "locationId": "old-well",
       "title": "The Two Empty Buckets",
-      "flavor": "Two buckets stand beside the well, each painted with a different household mark. The second owner has not returned for three days. An exhausted courier has been carrying water to both homes rather than let the other family go without.",
+      "flavor": "Two empty buckets stand beside the well, each painted with a different household's mark. The owner of the second has not come for it in three days. Rather than let that family go dry, an exhausted courier has been hauling water to both homes, and her shoulders shake under the yoke.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "carry-buckets",
           "label": "Carry the water for the courier",
-          "intent": "Honor the absent neighbor's claim as well as the courier's.",
-          "risk": "Steel check; helping may improve both households' supplies.",
+          "intent": "Take up both buckets so the absent neighbor's share arrives along with the courier's.",
+          "risk": "The path is steep, and water is heavy.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "Both doors open to receive the water. One household quietly repays the journey with bread.",
+            "text": "You make both deliveries before noon while the courier sleeps in the shade. Both doors open to take the water, and one household sends you off with a loaf and a wedge of hard cheese.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["well-households-helped"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Zuzu trips on loose stone and spills a bucket. He uses his own water to make the delivery whole.",
+            "text": "You trip on loose stone and one bucket empties into the dirt. You top it up from your own water skin so the household is not shorted, and walk on with less than you came with.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["well-households-helped"],
@@ -486,23 +486,23 @@
         },
         {
           "id": "follow-missing",
-          "label": "Follow the unclaimed bucket's mark",
-          "intent": "Investigate the absent neighbor instead of simply delivering water.",
-          "risk": "Awareness check; clues may become useful at the mission.",
+          "label": "Follow the second bucket's mark",
+          "intent": "Trace where the absent household went instead of only carrying their water.",
+          "risk": "Night falls fast out here, and the marks are faint.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The trail leads toward the refuge road, where a small ribbon is tied to a marker stone.",
+            "text": "The household's mark appears again on fence posts, then on stones, leading toward the refuge road. On the last marker stone, someone has tied a small ribbon, knotted tight, as if meant to be found.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["mission-road-clue"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The marks lead in circles after dusk. Zuzu returns to the well with bleeding feet and few answers.",
+            "text": "After dusk the marks seem to lead in circles. You walk until your feet bleed in your boots, then limp back to the well with fewer answers than you set out with.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["missing-household-unfound"],
@@ -515,29 +515,29 @@
       "id": "gate-still-open",
       "locationId": "wayside-refuge",
       "title": "The Gate Still Open",
-      "flavor": "The refuge gate is open despite the hour. A smiling sister holds a lantern beneath the adobe arch, offering stew and a place to rest. From inside comes the steady rhythm of plates being stacked, but no children's laughter.",
+      "flavor": "The refuge gate stands open, though the hour is late. Beneath the adobe arch, a smiling sister holds up a lantern and offers you stew and a bed. From inside comes the steady clack of plates being stacked, but no children's voices, though this is a house built to take them in.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "accept-stew",
           "label": "Enter with formal thanks",
-          "intent": "Accept food while maintaining Zuzu's customary courtesy.",
-          "risk": "Bearing check; care may come with strings attached.",
+          "intent": "Thank the sister properly and accept her stew, keeping both your manners and your guard.",
+          "risk": "Charity here may come with strings.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The stew warms his hands. A novice brings extra bread and the names of nearby roads.",
+            "text": "The stew is hot and thick, and its warmth goes into your hands and then deeper. A novice brings extra bread for your pack and, unasked, the names of the roads nearby.",
             "hp_delta": 1,
             "provisions_delta": 1,
             "add_flags": ["refuge-welcomed"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A bell sounds before he can finish eating. He leaves uneasy, with his pack lighter than before.",
+            "text": "A bell sounds inside before you finish eating, and the sister hurries you back out through the gate. Only on the road do you notice that your pack is lighter than when you set it down.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["refuge-watchful"],
@@ -546,23 +546,23 @@
         },
         {
           "id": "inspect-arch",
-          "label": "Observe the gate before entering",
-          "intent": "Look for traffic patterns that contradict the welcome.",
-          "risk": "Insight check; danger is social rather than immediate.",
+          "label": "Watch the gate before entering",
+          "intent": "Study who comes and goes beneath the arch before you trust the welcome.",
+          "risk": "Watching too closely is its own kind of insult.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Tracks enter under the arch more often than they leave. Zuzu commits the detail to memory.",
+            "text": "You wait in the shadow of the wall and read the dust. Small tracks pass in under the arch far more often than they come back out. You say nothing and fix the pattern in your memory.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["gate-one-way-tracks"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His scrutiny is noticed. The sister's smile thins, and Zuzu sleeps beyond the wall instead.",
+            "text": "Your staring is noticed. The sister's smile thins, the gate swings shut, and you spend the night outside the wall on cold ground, waking stiff and aching.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["refuge-watchful"],
@@ -575,29 +575,29 @@
       "id": "the-locked-dormitory",
       "locationId": "wayside-refuge",
       "title": "The Locked Dormitory",
-      "flavor": "A narrow corridor smells of soap and polished wood. Behind a locked door, a small wooden toy rests beneath an empty coat hook. A nervous novice insists the room is being cleaned and asks Zuzu to return to the refectory.",
+      "flavor": "A narrow corridor smells of soap and polished wood. Through the keyhole of a locked dormitory door you can see stripped beds and a small wooden toy lying beneath an empty coat hook. A nervous novice says the room is being cleaned and asks you to go back to the refectory.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "question-novice",
           "label": "Question the novice gently",
-          "intent": "Give the attendant room to speak without public confrontation.",
-          "risk": "Bearing check; the wrong tone closes the conversation.",
+          "intent": "Speak quietly, away from the others, so the novice can talk without being overheard.",
+          "risk": "One wrong word and the novice will say nothing more.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The novice whispers of a missing roster and slips Zuzu a room number before hurrying away.",
+            "text": "The novice glances down the corridor, then whispers that the roster of children has gone missing. A scrap of paper with a room number is pressed into your hand, and the novice hurries off before you can ask more.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["dormitory-room-number"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Footsteps approach. The novice retreats behind a practiced smile, and Zuzu is sent outside.",
+            "text": "Footsteps come down the corridor. The novice retreats behind a practiced smile, and a senior sister walks you outside, keeping the supper parcel you had left in the refectory.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["novice-silenced"],
@@ -607,22 +607,22 @@
         {
           "id": "search-lock",
           "label": "Examine the old lock",
-          "intent": "Find evidence without forcing an accusation.",
-          "risk": "Wits check; an alarm could turn the mission against him.",
+          "intent": "Look for proof in the lock and hinges without making an accusation yet.",
+          "risk": "If you are caught, the whole refuge turns against you.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "A splinter of ribbon caught in the hinge matches one seen on the refuge road. Zuzu keeps it.",
+            "text": "Caught in the hinge is a frayed scrap of ribbon, like the ribbons tied to marker stones along the refuge road. You work it free and tuck it away before anyone comes.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["dormitory-ribbon-evidence"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The lock catches his tool. A caretaker arrives before he can retrieve it, and Zuzu flees wounded.",
+            "text": "Your pick jams in the old lock. A caretaker rounds the corner before you can work it loose, and you abandon it, wrenching your shoulder on the window ledge as you climb out.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["refuge-watchful"],
@@ -635,29 +635,29 @@
       "id": "a-crust-for-the-road",
       "locationId": "wayside-refuge",
       "title": "A Crust for the Road",
-      "flavor": "Near the kitchen door, a tired sister presses a small parcel of bread into Zuzu's palm. She says it is excess from supper, then glances back toward the convent windows. She may simply be kind, or frightened of being seen.",
+      "flavor": "By the kitchen door, a tired sister presses a small parcel of bread into your hand, crusts and heels wrapped in cloth for the road. She says it is only what was left from supper, then glances back at the convent windows. She may simply be kind, or she may be afraid of being seen.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "thank-with-bow",
           "label": "Accept the bread with a bow",
-          "intent": "Take the kindness without asking for more.",
-          "risk": "Bearing check; success may earn a trusted messenger.",
+          "intent": "Take the gift with quiet thanks and ask nothing that could get her in trouble.",
+          "risk": "Even a thank-you may be seen from those windows.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The sister relaxes at his measured thanks and includes a note about the safer road east.",
+            "text": "Your quiet thanks seem to settle her. She tucks a second loaf into the parcel and, beneath it, a folded note in small handwriting: the eastern road is safer than it looks.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["kitchen-novice-trust"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A superior calls from within. She retreats before he can thank her, leaving only a crust.",
+            "text": "A voice calls her name from inside. She pulls back before you can finish thanking her, and all you are left holding is a single crust, still warm.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["kitchen-novice-wary"],
@@ -666,23 +666,23 @@
         },
         {
           "id": "offer-help",
-          "label": "Offer to help at the kitchen",
-          "intent": "Repay hospitality through work rather than inquiry.",
-          "risk": "Resolve check; lingering may draw unwelcome attention.",
+          "label": "Offer to help in the kitchen",
+          "intent": "Repay the bread with an evening's work instead of questions.",
+          "risk": "The longer you stay, the more eyes find you.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "He washes the last pans and hears a whispered warning about a door that stays locked.",
+            "text": "You scrub the last pans beside her in silence. As you dry your hands, she whispers about a dormitory door that stays locked day and night, and wraps an extra crust for your trouble.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["refuge-locked-door-clue"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He stays too long under watchful eyes. A sleepless night in the cold costs him strength.",
+            "text": "You linger too long under watchful eyes, and the senior sisters turn you out after dark. The night is cold and sleepless, and you start the morning drained.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["kitchen-novice-wary"],
@@ -695,29 +695,29 @@
       "id": "the-silent-bell",
       "locationId": "wayside-refuge",
       "title": "The Silent Bell",
-      "flavor": "The bell tower rope hangs motionless above a swept courtyard. A caretaker tells Zuzu not to touch it, saying the bell has not been used for years. Through the open stairwell he can see where a part of the mechanism should be.",
+      "flavor": "A bell tower rises over a swept courtyard, its rope hanging dead still. A caretaker tells you not to touch it; the bell, he says, has not rung in years. Through the open stairwell you can see the bronze bell above, and a gap in the mechanism where some part should hang.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "ask-about-bell",
           "label": "Ask why the bell never rings",
-          "intent": "Seek the caretaker's explanation without trespassing.",
-          "risk": "Insight check; silence may conceal a deliberate choice.",
+          "intent": "Ask the caretaker about the bell rather than climbing the tower uninvited.",
+          "risk": "Some silences here are kept on purpose.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The caretaker lets slip that the clapper was removed on orders from above, then refuses to say more.",
+            "text": "The caretaker says more than he means to: the clapper was taken down on orders from above. Then the caretaker's mouth sets hard, and he will not say another word about it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["bell-clapper-removed"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He calls the question impertinent and sends Zuzu down the wrong lane outside the gate.",
+            "text": "He calls the question impertinent, walks you out of the gate, and points you down the wrong lane. By the time you realize it, you have walked miles on sore feet, and the road ahead runs somewhere new.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["bell-caretaker-hostile"],
@@ -726,23 +726,23 @@
         },
         {
           "id": "climb-stairs",
-          "label": "Climb and inspect the bell",
-          "intent": "Risk discovery to examine the mechanism directly.",
-          "risk": "Awareness check; a fall or confrontation could follow.",
+          "label": "Climb up and inspect the bell",
+          "intent": "Slip up the stairwell to see the bell's mechanism with your own eyes.",
+          "risk": "The stairs are old, and someone may see you climb.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "The bronze bell is intact but mute by design. Zuzu marks the tower as a place to return.",
+            "text": "The bronze bell hangs whole and sound, but its clapper has been unbolted and carried off. Someone silenced it on purpose. You fix the tower in your memory and slip back down unseen.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["bell-physical-evidence"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A loose stair gives beneath him. Zuzu catches the rail but limps away as watchers assemble below.",
+            "text": "A rotten stair gives way under you. You catch the rail and wrench your arm, your knee strikes stone, and by the time you limp down, watchers are gathering in the courtyard below.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["bell-caretaker-hostile"],

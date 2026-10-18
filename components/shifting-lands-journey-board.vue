@@ -194,10 +194,10 @@
 
           <div
             v-if="zoomed && consequence"
-            class="kr-pane-scroll"
+            class="kr-pane-scroll journey-reader"
             aria-label="Consequence of your choice"
           >
-            <div class="encounter-grid min-h-full">
+            <div class="encounter-grid">
               <div
                 class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
               >
@@ -209,11 +209,10 @@
                     radius="0"
                   >
                     <template #front>
-                      <img
+                      <ShiftingLandsSceneImage
                         :src="consequence.plate.src"
                         :alt="consequence.title + ': ' + consequence.choice"
-                        class="size-full object-cover"
-                        :class="
+                        :tint="
                           consequence.plate.painted
                             ? ''
                             : consequence.success
@@ -264,7 +263,7 @@
                 </button>
               </div>
               <div
-                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                class="encounter-text flex flex-col gap-2.5 bg-base-200/95 p-3 sm:p-4"
                 aria-live="polite"
               >
                 <p
@@ -319,7 +318,7 @@
                 <h3
                   ref="outcomeHeading"
                   tabindex="-1"
-                  class="font-serif text-lg font-bold leading-snug outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-2xl"
+                  class="font-serif text-base font-bold leading-snug outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-lg"
                 >
                   {{ consequence.text }}
                 </h3>
@@ -364,10 +363,10 @@
 
           <div
             v-else-if="zoomed && game.activeCard"
-            class="kr-pane-scroll"
+            class="kr-pane-scroll journey-reader"
             aria-label="Current encounter"
           >
-            <div class="encounter-grid min-h-full">
+            <div class="encounter-grid">
               <div
                 class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
               >
@@ -379,12 +378,11 @@
                     radius="0"
                   >
                     <template #front>
-                      <img
+                      <ShiftingLandsSceneImage
                         :src="game.activeArt"
                         :alt="
                           game.activeEncounter?.title || game.activeCard.label
                         "
-                        class="size-full object-cover"
                       />
                     </template>
                     <template #back>
@@ -406,7 +404,7 @@
                 </button>
               </div>
               <div
-                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                class="encounter-text flex flex-col gap-2.5 bg-base-200/95 p-3 sm:p-4"
               >
                 <div>
                   <p
@@ -417,11 +415,11 @@
                   <h3
                     ref="encounterHeading"
                     tabindex="-1"
-                    class="mt-1 font-serif text-xl font-black leading-tight outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-3xl"
+                    class="mt-0.5 font-serif text-xl font-black leading-tight outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-2xl"
                   >
                     {{ game.activeEncounter?.title || game.activeCard.label }}
                   </h3>
-                  <p class="mt-2 text-sm leading-relaxed opacity-85">
+                  <p class="mt-1.5 text-sm leading-relaxed">
                     {{ game.activeEncounter?.flavor || game.activeCard.teaser }}
                   </p>
                 </div>
@@ -433,7 +431,8 @@
                     v-for="option in game.activeEncounter.choices"
                     :key="option.id"
                     type="button"
-                    class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 p-3 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                    class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 px-3 py-2 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
+                    :title="option.risk"
                     @click="chooseEncounter(option.id)"
                   >
                     <span class="flex items-start justify-between gap-2">
@@ -441,14 +440,33 @@
                         class="text-sm leading-snug group-hover:text-warning sm:text-base"
                         >{{ option.label }}</strong
                       >
-                      <span
-                        class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-warning/40 px-1.5 py-0.5 text-[11px] font-bold capitalize"
-                        ><Icon name="kind-icon:dice" class="size-3.5" />
-                        {{ option.roll.skill }} · {{ option.roll.target }}</span
-                      >
+                      <ShiftingLandsCheckChip
+                        :reading="
+                          readCheck(
+                            option.roll.skill,
+                            option.roll.target,
+                            option.roll.modifier,
+                          )
+                        "
+                        :open="checkTip === option.id"
+                        @toggle="toggleCheckTip(option.id)"
+                      />
                     </span>
-                    <span class="text-sm">{{ option.intent }}</span>
-                    <span class="text-xs opacity-65">{{ option.risk }}</span>
+                    <span class="text-sm leading-snug opacity-85">{{
+                      option.intent
+                    }}</span>
+                    <span
+                      v-if="checkTip === option.id"
+                      class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
+                      >{{
+                        readCheck(
+                          option.roll.skill,
+                          option.roll.target,
+                          option.roll.modifier,
+                        ).explain
+                      }}
+                      {{ option.risk }}</span
+                    >
                   </button>
                 </div>
                 <template v-else>
@@ -487,17 +505,17 @@
 
           <div
             v-else-if="zoomed && game.bossReady"
-            class="kr-pane-scroll"
+            class="kr-pane-scroll journey-reader"
             aria-label="Major trial"
           >
-            <div class="encounter-grid min-h-full">
+            <div class="encounter-grid">
               <div
                 class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
               >
-                <img
+                <ShiftingLandsSceneImage
+                  class="absolute inset-0"
                   :src="game.bossArt"
                   :alt="game.currentLand.boss.label"
-                  class="absolute inset-0 size-full object-cover"
                 />
                 <div
                   class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent p-4 text-white"
@@ -523,7 +541,7 @@
                 </button>
               </div>
               <div
-                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                class="encounter-text flex flex-col gap-2.5 bg-base-200/95 p-3 sm:p-4"
               >
                 <p class="text-sm leading-relaxed">
                   {{
@@ -539,7 +557,7 @@
                       v-for="choice in game.currentTrial.choices"
                       :key="choice.id"
                       type="button"
-                      class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 p-3 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
+                      class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 px-3 py-2 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-55"
                       :disabled="!game.canTrial(choice.id)"
                       @click="attemptTrialWithCue(choice.id)"
                     >
@@ -547,15 +565,22 @@
                         <strong class="text-sm leading-snug sm:text-base">{{
                           choice.label
                         }}</strong>
-                        <span
-                          class="inline-flex shrink-0 items-center gap-1 rounded-lg border border-warning/40 px-1.5 py-0.5 text-[11px] font-bold capitalize"
-                          ><Icon name="kind-icon:dice" class="size-3.5" />
-                          {{ choice.skill }} · {{ choice.target }}</span
-                        >
+                        <ShiftingLandsCheckChip
+                          :reading="readCheck(choice.skill, choice.target)"
+                          :open="checkTip === choice.id"
+                          @toggle="toggleCheckTip(choice.id)"
+                        />
                       </span>
-                      <span class="text-sm opacity-85">{{
+                      <span class="text-sm leading-snug opacity-85">{{
                         choice.intent
                       }}</span>
+                      <span
+                        v-if="checkTip === choice.id"
+                        class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
+                        >{{
+                          readCheck(choice.skill, choice.target).explain
+                        }}</span
+                      >
                       <span
                         v-if="
                           choice.cost ||
@@ -634,17 +659,17 @@
 
           <div
             v-else-if="zoomed && game.finished"
-            class="kr-pane-scroll"
+            class="kr-pane-scroll journey-reader"
             aria-label="Journey complete"
           >
-            <div class="encounter-grid min-h-full">
+            <div class="encounter-grid">
               <div
                 class="relative aspect-[16/10] overflow-hidden bg-base-300 encounter-art"
               >
-                <img
+                <ShiftingLandsSceneImage
+                  class="absolute inset-0"
                   src="/zuzu-gamebook/scenes/zuzu-alone.webp"
-                  alt="Zuzu the ronin at journey's end"
-                  class="absolute inset-0 size-full object-cover"
+                  alt="A lone traveler at journey's end"
                 />
                 <button
                   type="button"
@@ -656,7 +681,7 @@
                 </button>
               </div>
               <div
-                class="flex flex-col justify-center gap-3 bg-base-200/95 p-4 sm:p-6"
+                class="encounter-text flex flex-col gap-2.5 bg-base-200/95 p-3 sm:p-4"
               >
                 <p
                   class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
@@ -1254,9 +1279,10 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
 import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
 import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
-import type {
-  BossApproach,
-  EncounterApproach,
+import {
+  readCheck,
+  type BossApproach,
+  type EncounterApproach,
 } from '~/utils/shiftingLands/journey'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
 import {
@@ -1299,6 +1325,10 @@ const sideTab = computed<JourneyTab>(() =>
   tab.value === 'road' ? 'zuzu' : tab.value,
 )
 const roadPeek = ref(false)
+const checkTip = ref<string | null>(null)
+function toggleCheckTip(id: string): void {
+  checkTip.value = checkTip.value === id ? null : id
+}
 type Reveal = { kind: 'encounter' | 'trial'; turn: number }
 const reveal = ref<Reveal | null>(null)
 const consequenceKey = ref(0)
@@ -1329,7 +1359,7 @@ const bossCleared = computed(() =>
 )
 const endTitle = computed(() => {
   if (game.state.phase === 'complete') return 'The five lands are behind you.'
-  if (game.state.phase === 'fallen') return 'Zuzu has fallen.'
+  if (game.state.phase === 'fallen') return 'You have fallen.'
   if (game.state.phase === 'retired') return 'The road ends here.'
   return 'The journey goes on.'
 })
@@ -1600,10 +1630,36 @@ onMounted(() => {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
 }
+/* One screen per reader (Silas, 2026-10-18): the whole painting stays in
+   view and the text column scrolls inside itself only when a phone forces it,
+   so the board never becomes a tall page. */
+.journey-reader {
+  container: reader / size;
+  overflow: hidden;
+}
 .encounter-grid {
   display: grid;
+  height: 100%;
   grid-template-columns: minmax(0, 1fr);
-  align-content: start;
+  grid-template-rows: minmax(7rem, 1fr) fit-content(68%);
+}
+.encounter-art {
+  aspect-ratio: auto;
+  min-height: 0;
+}
+.encounter-text {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@container reader (min-aspect-ratio: 19 / 10) and (min-width: 40rem) {
+  .encounter-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .encounter-text {
+    justify-content: center;
+  }
 }
 .journey-hidden-narrow {
   display: none;
@@ -1615,16 +1671,6 @@ onMounted(() => {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(100%, 26rem);
     margin-inline: auto;
-  }
-}
-@container (min-width: 47rem) {
-  .encounter-grid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
-    align-content: stretch;
-  }
-  .encounter-art {
-    aspect-ratio: auto;
-    min-height: 100%;
   }
 }
 @container (min-width: 64rem) {

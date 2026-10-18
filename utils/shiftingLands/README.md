@@ -220,3 +220,24 @@ existing five-land/boss and old-save tests run alongside it.
 This implementation is an admin-only source change. The bespoke
 character/companion illustration campaign, authenticated live visual
 vetting and public launch are separate tasks.
+
+## Second-person prose pass (2026-10-18)
+
+Every card, trial and journal line is written in second person ("you"),
+present tense, without naming, gendering or describing the hero, so a
+later character can walk the same quest. The Kind Robots packs are now the
+source of truth for player-facing wording; the pinned Conductor blob SHAs
+still name the rules each pack was imported from.
+
+Prose is presentation. Restores (`sameReplay` in `saveLedger.ts`) still
+demand identical dice, choices, flags, HP, provisions, routes and trial
+results, but ignore `text`, `reason` and `resultText`, so a save made
+before a wording change restores with the new wording instead of being
+rejected. Rules stay pinned: `verifyShiftingTrials` fingerprints every
+trial choice's skill, target, cost and clue flags, and any change there
+still needs a new save version.
+
+Choice chips read like Shifting Desks: a difficulty word for the target
+(`readCheck` in `journey.ts`: Routine 7 … Desperate 12) followed by what
+the two dice must show after the skill bonus. Tapping the chip explains
+the sum and shows the stake line (`risk`).

@@ -366,7 +366,7 @@ export function stepAuthoredJourney(
       turn,
       kind: 'end',
       landId: 'homestead',
-      text: 'Zuzu falls on the road. The journey ends.',
+      text: 'You fall on the road. The journey ends.',
     })
   const journey: JourneyState = {
     ...advanced,

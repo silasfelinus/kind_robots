@@ -79,6 +79,49 @@ const SKILLS: Record<Skill, number> = {
   resolve: 2,
   insight: 2,
 }
+// The dice chip reads "Risky 7": a difficulty word for the target, then what
+// the two dice must show once the skill bonus every reducer adds (the table
+// above) and the card's own modifier count. Mirrors Shifting Desks' chip
+// (Silas, 2026-10-18).
+export const CHECK_WORDS: Record<number, string> = {
+  7: 'Routine',
+  8: 'Fair',
+  9: 'Risky',
+  10: 'Hard',
+  11: 'Dire',
+  12: 'Desperate',
+}
+
+export type CheckReading = {
+  word: string
+  need: number
+  bonus: number
+  explain: string
+}
+
+export function readCheck(
+  skill: Skill,
+  target: number,
+  modifier = 0,
+): CheckReading {
+  const word = CHECK_WORDS[Math.max(7, Math.min(12, target))] ?? 'Risky'
+  const bonus = SKILLS[skill] + modifier
+  const need = target - bonus
+  const name = skill.charAt(0).toUpperCase() + skill.slice(1)
+  const odds =
+    need <= 2
+      ? 'any roll succeeds'
+      : need > 12
+        ? 'no roll can succeed'
+        : `the two dice need to show ${need} or more`
+  return {
+    word,
+    need: Math.max(2, Math.min(12, need)),
+    bonus,
+    explain: `${word} ${target}: you roll two dice and add ${name} ${bonus < 0 ? bonus : '+' + bonus}, so ${odds}.`,
+  }
+}
+
 const SHIFT_CAUSES: Record<string, string> = {
   homestead: 'A fallen fence redirects the road through the Homestead',
   dustwater: 'The changing current closes a crossing along Dustwater',
@@ -156,12 +199,7 @@ export function newJourney(seed: number): JourneyState {
     bosses: [],
     shifts: [],
     journal: [
-      entry(
-        0,
-        'start',
-        JOURNEY_WORLD.lands[0]!.id,
-        'Zuzu enters the Homestead.',
-      ),
+      entry(0, 'start', JOURNEY_WORLD.lands[0]!.id, 'You enter the Homestead.'),
     ],
     lastRoll: null,
     turn: 0,
@@ -202,10 +240,10 @@ export function travelJourney(
         'travel',
         land.id,
         visited
-          ? 'Zuzu returns to ' +
+          ? 'You return to ' +
               location.label +
               '. This encounter cannot be drawn again.'
-          : 'Zuzu reaches ' + location.label + '.',
+          : 'You reach ' + location.label + '.',
       ),
     ],
   }
@@ -283,7 +321,7 @@ export function resolveJourney(
       'encounter',
       land.id,
       approach === 'withdraw'
-        ? 'Zuzu withdraws from ' + location.label + ', paying the cost.'
+        ? 'You withdraw from ' + location.label + ', paying the cost.'
         : location.label +
             ': ' +
             check!.dice.join('+') +
@@ -328,7 +366,7 @@ export function resolveJourney(
     hp <= 0 ? 'fallen' : remaining.length === 0 ? 'boss' : 'explore'
   if (phase === 'fallen')
     journal.push(
-      entry(turn, 'end', land.id, 'Zuzu falls on the road. The journey ends.'),
+      entry(turn, 'end', land.id, 'You fall on the road. The journey ends.'),
     )
   if (phase === 'boss')
     journal.push(
@@ -372,7 +410,7 @@ export function confrontJourneyBoss(
           turn,
           'end',
           land.id,
-          'Zuzu leaves ' + land.name + ' without victory.',
+          'You leave ' + land.name + ' without victory.',
         ),
       ],
     }
@@ -408,7 +446,7 @@ export function confrontJourneyBoss(
   ]
   if (!check.success) {
     if (hp === 0)
-      journal.push(entry(turn, 'end', land.id, 'Zuzu falls before the trial.'))
+      journal.push(entry(turn, 'end', land.id, 'You fall before the trial.'))
     return {
       ...state,
       rngState,
@@ -427,14 +465,14 @@ export function confrontJourneyBoss(
   const final = state.landIndex === JOURNEY_WORLD.lands.length - 1
   const phase: JourneyPhase = final ? 'complete' : 'explore'
   if (final)
-    journal.push(entry(turn, 'end', land.id, 'Zuzu survives all five lands.'))
+    journal.push(entry(turn, 'end', land.id, 'You survive all five lands.'))
   else
     journal.push(
       entry(
         turn,
         'start',
         JOURNEY_WORLD.lands[state.landIndex + 1]!.id,
-        'Zuzu enters ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
+        'You enter ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
       ),
     )
   return {

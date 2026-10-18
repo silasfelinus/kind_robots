@@ -7,6 +7,7 @@ import { LATER_LAND_PACK, stepFiveLandJourney } from './authoredFiveLands'
 import { JOURNEY_WORLD } from './journey'
 import {
   newJourneyLedger,
+  sameReplay,
   stepJourneyLedger,
   type JourneyLedgerAction,
 } from './saveLedger'
@@ -112,7 +113,7 @@ export function restoreJourneyLedgerV4(value: unknown): JourneyLedgerV4 | null {
       usedRewards = step.usedRewards
     }
     if (
-      JSON.stringify(current) !== JSON.stringify(saved.current) ||
+      !sameReplay(current, saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards)
     )
       return null

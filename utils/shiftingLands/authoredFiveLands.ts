@@ -217,7 +217,7 @@ export function stepFiveLandJourney(
       turn,
       kind: 'end',
       landId: land.id,
-      text: 'Zuzu falls on the road. The journey ends.',
+      text: 'You fall on the road. The journey ends.',
     })
   const journey: JourneyState = {
     ...advanced,

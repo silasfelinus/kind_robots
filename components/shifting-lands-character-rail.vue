@@ -7,15 +7,17 @@
       <img
         src="/zuzu-gamebook/scenes/zuzu-alone.webp"
         alt="Zuzu the grey koala ronin on the frontier"
-        class="h-32 w-full object-cover object-[center_35%] sm:h-40"
+        class="h-20 w-full object-cover object-[center_30%] sm:h-24"
       />
       <div
-        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-3 pb-2 pt-8 text-white"
+        class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent px-3 pb-1.5 pt-6 text-white"
       >
         <p class="text-[10px] font-black uppercase tracking-[.22em] opacity-80">
           The traveling ronin
         </p>
-        <h3 class="font-serif text-xl font-black">Zuzu · Character sheet</h3>
+        <h3 class="font-serif text-lg font-black leading-tight">
+          Zuzu · Character sheet
+        </h3>
       </div>
     </div>
     <div class="space-y-3 p-3">
@@ -89,10 +91,6 @@
             <span>Injury · {{ condition.penaltySkill }}</span>
           </p>
         </div>
-        <p class="px-3 pb-3 text-[11px] leading-relaxed opacity-65">
-          Skills reflect your earned history. Saved dice use the rules of their
-          original expedition version; this sheet does not rescore past rolls.
-        </p>
       </details>
 
       <details

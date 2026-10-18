@@ -151,7 +151,7 @@ export function stepAuthoredTrial(
         turn,
         kind: 'end',
         landId: land.id,
-        text: 'Zuzu falls before the trial. The journey ends.',
+        text: 'You fall before the trial. The journey ends.',
       })
     return {
       journey: {
@@ -180,15 +180,14 @@ export function stepAuthoredTrial(
       turn,
       kind: 'end',
       landId: land.id,
-      text: 'Zuzu crosses the last threshold. The five lands are behind him.',
+      text: 'You cross the last threshold. The five lands are behind you.',
     })
   else
     journal.push({
       turn,
       kind: 'start',
       landId: JOURNEY_WORLD.lands[state.landIndex + 1]!.id,
-      text:
-        'Zuzu enters ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
+      text: 'You enter ' + JOURNEY_WORLD.lands[state.landIndex + 1]!.name + '.',
     })
   return {
     journey: {

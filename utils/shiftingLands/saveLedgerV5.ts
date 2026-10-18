@@ -11,7 +11,7 @@ import {
 } from './authoredBosses'
 import { JOURNEY_WORLD } from './journey'
 import { newJourneyLedgerV4, stepJourneyLedgerV4 } from './saveLedgerV4'
-import type { JourneyLedgerAction } from './saveLedger'
+import { sameReplay, type JourneyLedgerAction } from './saveLedger'
 
 export type JourneyActionV5 =
   | JourneyLedgerAction
@@ -33,8 +33,10 @@ export type JourneyLedgerV5 = {
 
 const MAX_ACTIONS = 1200
 const MAX_SAVE_SIZE = 500_000
-// Git blob of authoredTrials.json. Changing the trial narrative or check rules
-// requires an explicit save-version migration, not a silent reroll on restore.
+// Names the V5 trial rules first published as Git blob 1acc491 of
+// authoredTrials.json. The trial prose has since been rewritten in second
+// person (restore ignores prose); the choices, skills, targets, costs and clue
+// flags are pinned by verifyShiftingTrials and need a new save version to change.
 export const TRIAL_SOURCE_SHA = '1acc49193e828ca102483c79c038e7626ae9d325'
 const SOURCE_SHAS = LATER_LAND_PACK.sources.map((source) => source.blobSha)
 const validSeed = (seed: unknown): seed is number =>
@@ -156,9 +158,9 @@ export function restoreJourneyLedgerV5(value: unknown): JourneyLedgerV5 | null {
       trialResults = step.trialResults
     }
     if (
-      JSON.stringify(current) !== JSON.stringify(saved.current) ||
+      !sameReplay(current, saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards) ||
-      JSON.stringify(trialResults) !== JSON.stringify(saved.trialResults)
+      !sameReplay(trialResults, saved.trialResults)
     )
       return null
     return {

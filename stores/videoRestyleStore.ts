@@ -237,6 +237,34 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     }
   }
 
+  async function deleteProject(id: string): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    notice.value = ''
+    try {
+      const response = await performFetch<{ id: string }>(
+        `/api/video-restyle/${encodeURIComponent(id)}`,
+        { method: 'DELETE' },
+        1,
+        60_000,
+      )
+      if (!response.success) {
+        error.value = response.message || 'Unable to delete the project.'
+        return false
+      }
+      jobs.value = jobs.value.filter((job) => job.id !== id)
+      if (selectedId.value === id) {
+        clearPreview()
+        selectedId.value = jobs.value[0]?.id ?? null
+      }
+      notice.value = 'Project deleted, including its private video and renders.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
   async function queuePilot(id: string): Promise<boolean> {
     busy.value = true
     error.value = ''
@@ -497,6 +525,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     createVariant,
     saveSettings,
     queuePilot,
+    deleteProject,
     queueFull,
     retryFull,
     retryPilot,

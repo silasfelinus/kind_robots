@@ -3,38 +3,34 @@ contentType: tab
 channelKey: zuzu
 tabKey: emperor-of-dust
 label: Emperor of Dust
-title: 'Emperor of Dust: One Hundred Days'
-subtitle: Work in progress · The wasteland still has a chance
-description: A public work-in-progress Day 1 dispatch prototype for the Zuzu-world prequel.
+title: 'Emperor of Dust: Fifty Days'
+subtitle: Work in progress · Rule the wasteland from a fortress of salvage
+description: A public work-in-progress fortress game for the Zuzu-world prequel, with throne-room petitions, day-long quests and rewindable saves.
 summary: Govern the wasteland before Zuzu.
 icon: kind-icon:crown
 route: /play/emperor-of-dust
 sort: 150
 tutorial:
-  title: The Emperor's desk
+  title: The Emperor's fortress
   body: >-
-    This is a public work-in-progress Day 1 systems pilot, not an authored
-    100-day campaign. The court fits into one screen: use Map & Orders to
-    choose a district and dispatch a party, Briefing to hear Young Komodo
-    and read the three daily intelligence reports, Followers to inspect
-    your commanders and prospective recruits, Relics to manage the next
-    run's Items of Power, and Ledger to review decisions or restart.
-    Each view scrolls inside its own bounded court stage to reach every
-    item, including the bottom of the follower gallery. The imperial
-    clock moves only when commanded. Incidents have opening hours and
-    deadlines; outbound travel, missions, return travel and multi-day
-    injury recovery persist in the local device save. Choose one to
-    three ready leaders, allocate numerical Horde troops, pick a moral
-    approach and check the exact 2d6 odds. Sending nobody also changes
-    the world. The Horde is headcount, not favor tokens, and ordinary
-    failed missions do not automatically kill leaders. Two morning
-    reports are true and one is a harmless rumor; the Eye of the Elder
-    Crow reveals the false one if earned and equipped in a future run.
-    The Brass Hourglass saves one outward-travel hour per day; the
-    second relic slot unlocks through a later milestone. Story rewards
-    and portraits are not yet fully authored or illustrated. Only Day 1
-    has incident scripts; later days exist for travel/recovery tests.
-    No cloud sync yet. This playable Day 1 preview is still in development.
+    Each day is one turn. Start in the Throne room: Young Komodo reads
+    three morning reports (two true, one false), then petitioners ask for
+    help. Your answers can cost brass, shift the five fortress factions,
+    or post quests. In the Quest room, send one to four ready followers on
+    a quest that takes one to three days; hidden requirements show as a
+    range until someone scouts them. Quests left on the board expire,
+    sometimes with consequences. The Barracks shows your followers, their
+    stats, unique abilities and any secret strengths or weaknesses the
+    court has uncovered (those stay uncovered in future runs). Buy gear in
+    the Market and equip it in the Barracks. The Map room shows each
+    region's mood and the taxes it pays. When you are ready, press Finish:
+    followers ride out, night falls, and dawn brings their results. The
+    game saves after every order. In the Chronicle you can save to three
+    slots, choose relics for your next reign, or rewind to the dawn of any
+    earlier day; a rewound day rolls fresh, so it may not go the same way
+    twice. Only Days 1 to 4 are scripted so far; later days bring the
+    wasteland's everyday chores. Portraits are placeholders until the art
+    is painted.
 ---
 
-The Tower is waiting for its first orders. Only Day 1 incidents are playable.
+The fortress is waiting. Days 1 to 4 are scripted; the rest of the fifty are still being written.

@@ -29,6 +29,19 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   const nextStage = computed(() =>
     progress.value ? CAMPAIGN[progress.value.stage]!.code : null,
   )
+  const gears = computed(() => new Set(progress.value?.gears ?? []))
+  const gearCount = computed(() => gears.value.size)
+  const gearTotal = CAMPAIGN.length
 
-  return { seed, heroine, rosterSlot, chosen, nextStage, progress }
+  return {
+    seed,
+    heroine,
+    rosterSlot,
+    chosen,
+    nextStage,
+    progress,
+    gears,
+    gearCount,
+    gearTotal,
+  }
 })

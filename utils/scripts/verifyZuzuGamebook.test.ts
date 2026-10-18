@@ -411,6 +411,19 @@ for (let walk = 0; walk < 6000; walk++) {
 for (const id of endings)
   assert.ok(reached.has(id), 'ending never reached in play: ' + id)
 
+// The Keeper of the Empty Bell: from the tower, only when the children were freed.
+const towerRun: Run = { ...startRun(11), sceneId: 'a9-tower', flags: [] }
+const keeperChoice = scene('a9-tower').choices?.find((c) => c.id === 'keeper')
+assert.ok(keeperChoice, 'the tower offers the keeper choice')
+assert.equal(keeperChoice.to, 'ending-bell-keeper')
+assert.ok(lockReason(towerRun, keeperChoice), 'locked without children-freed')
+const freedRun: Run = { ...towerRun, flags: ['children-freed'] }
+assert.equal(lockReason(freedRun, keeperChoice), null)
+const keptRun = takeChoice(freedRun, 'keeper')
+assert.equal(keptRun.sceneId, 'ending-bell-keeper')
+assert.equal(scene('ending-bell-keeper').ending, 'bittersweet')
+assert.ok(keptRun.endings.includes('ending-bell-keeper'))
+
 // Silas, 2026-10-16 layout sweep: one solid toolbar row, the fitted page from
 // portrait tablets up, and wide-but-short screens set the plate beside the text.
 const page = readFileSync(

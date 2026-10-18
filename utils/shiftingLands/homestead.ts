@@ -95,6 +95,16 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     reward: 'A fair trade and a bandaged scrape restore one health.',
     penalty: 'A sharp bargain and a sharper dog cost Zuzu one health.',
   },
+  {
+    id: 'camp',
+    title: "The Drovers' Camp",
+    art: '/zuzu-gamebook/scenes/camp.webp',
+    teaser: 'Embers glow beside a ring of unhitched carts.',
+    narrative:
+      'Weary drovers share a fire and a warning about the road ahead. Zuzu may read their faces before he sits down among them.',
+    reward: 'Warm stew and a few hours of rest restore one health.',
+    penalty: 'A restless night and a stolen blanket cost Zuzu one health.',
+  },
 ]
 export const BOSS_CARD: HomesteadCard = {
   id: 'abbess',

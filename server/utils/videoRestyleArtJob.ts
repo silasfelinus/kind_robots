@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { readFile, rename, writeFile } from 'node:fs/promises'
+import { readFile, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import prisma from '@/server/utils/prisma'
 import { createError } from 'h3'
@@ -210,6 +210,55 @@ export async function syncRestylePilotArtJob(
   })
   await rename(temporary, destination)
   return updated
+}
+
+/**
+ * Delete one Coat Dance project: its private source, pilots and film.
+ * Refused while KR Relay holds a claim on any of its ArtJobs. Queued and
+ * failed ArtJobs are withdrawn first so a relay can never claim a project
+ * whose source is gone; DONE rows stay as render history. Variants hold
+ * their own copy of the source and are untouched.
+ */
+export async function deleteRestyleProject(
+  userId: number,
+  id: string,
+): Promise<{ id: string; cancelledArtJobs: number }> {
+  const job = await loadRestyleJob(userId, id)
+  const linked = {
+    userId,
+    projectSlug: PROJECT_SLUG,
+    payload: { contains: job.id },
+  }
+  const busy = () =>
+    prisma.artJob.count({ where: { ...linked, status: 'RUNNING' } })
+  const rendering = {
+    statusCode: 409,
+    message:
+      'KR Relay is rendering this project right now. Let it finish or fail, then delete it.',
+  }
+  if (await busy()) throw createError(rendering)
+  const cancelled = await prisma.artJob.updateMany({
+    where: { ...linked, status: { in: ['PENDING', 'FAILED'] } },
+    data: {
+      status: 'CANCELLED',
+      error: 'Coat Dance project deleted.',
+      claimedBy: null,
+      claimedAt: null,
+    },
+  })
+  // A claim can land between the check and the cancel; keep the files then.
+  if (await busy()) throw createError(rendering)
+  const folder = path.dirname(restyleSourcePath(job))
+  // Leave the listing in one step (the name is no longer a project id), then
+  // remove the bytes. A failed removal leaves a hidden folder, never a
+  // half-deleted project.
+  const trash = path.join(
+    path.dirname(folder),
+    `.deleted-${job.id}-${randomUUID()}`,
+  )
+  await rename(folder, trash)
+  await rm(trash, { recursive: true, force: true })
+  return { id: job.id, cancelledArtJobs: cancelled.count }
 }
 
 /**

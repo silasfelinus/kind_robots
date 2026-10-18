@@ -102,6 +102,32 @@ assert.equal(
   'pilot and full ArtJobs both carry the Fast draft speed',
 )
 assert.ok(media.includes('capabilities.supportsVideoRestyleFast === true'))
+{
+  const route = readFileSync('server/api/video-restyle/[id].delete.ts', 'utf8')
+  assert.ok(route.includes('requireAdminApiUser'), 'delete is admin-only')
+  assert.ok(route.includes('deleteRestyleProject(\n      auth.user.id'))
+  const body = artjob.slice(
+    artjob.indexOf('async function deleteRestyleProject'),
+  )
+  const refuse = body.indexOf("status: 'RUNNING'")
+  const cancel = body.indexOf("status: 'CANCELLED'")
+  const move = body.indexOf('await rename(folder, trash)')
+  const wipe = body.indexOf('await rm(trash')
+  assert.ok(refuse > 0, 'a project KR Relay is rendering is never deleted')
+  assert.ok(
+    refuse < cancel && cancel < move && move < wipe,
+    'withdraw queued ArtJobs, then leave the listing, then remove bytes',
+  )
+  assert.ok(
+    body.includes('`.deleted-${job.id}-'),
+    'trash name is not a project id',
+  )
+  const page = readFileSync('pages/admin/coat-dance.vue', 'utf8')
+  assert.ok(page.includes('window.confirm('), 'delete asks before removing')
+  assert.ok(
+    page.includes(':disabled="store.busy || isRendering(store.selected)"'),
+  )
+}
 assert.ok(pilot.includes('syncRestylePilotArtJob'))
 assert.ok(reconcile.includes('requireAdminApiUser'))
 assert.ok(reconcile.includes('syncRestylePilotArtJob'))

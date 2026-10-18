@@ -64,6 +64,20 @@
           >
             Refresh
           </button>
+          <button
+            v-if="store.selected && !sourceFile"
+            type="button"
+            class="kr-btn-xs btn-ghost shrink-0 text-error"
+            :disabled="store.busy || isRendering(store.selected)"
+            :title="
+              isRendering(store.selected)
+                ? 'KR Relay is rendering this project; delete it after the render finishes or fails.'
+                : 'Delete this project, its private source video and every render'
+            "
+            @click="deleteSelected"
+          >
+            Delete
+          </button>
         </template>
       </header>
 
@@ -996,6 +1010,35 @@ function labelFor(value: RestyleLookId): string {
 function projectOptionLabel(job: VideoRestyleJob): string {
   const look = labelFor(job.style)
   return job.title.includes(look) ? job.title : `${job.title} · ${look}`
+}
+
+function isRendering(job: VideoRestyleJob): boolean {
+  return job.status === 'PILOT_RUNNING' || job.status === 'FULL_RUNNING'
+}
+
+async function deleteSelected() {
+  const job = store.selected
+  if (!job || isRendering(job)) return
+  const doomed = [
+    'the private source video',
+    job.pilot ? 'its pilots' : '',
+    job.full ? 'its full film' : '',
+  ]
+    .filter(Boolean)
+    .join(', ')
+  if (
+    !window.confirm(
+      `Delete “${projectOptionLabel(job)}”? This removes ${doomed}. It cannot be undone. Other looks made from this video keep their own copy.`,
+    )
+  )
+    return
+  if (await store.deleteProject(job.id)) {
+    if (store.selected) selectJob(store.selected)
+    else {
+      playing.value = ''
+      stageView.value = 'looks'
+    }
+  }
 }
 
 function rootTitle(job: VideoRestyleJob): string {

@@ -20,9 +20,11 @@
 import { levelCurve } from '../curve'
 import {
   boardRows,
+  endlessFoes,
   endlessPressure,
   prismComplete,
   pyramidBoard,
+  sidewaysStep,
   stripeComplete,
 } from './pixelHopBoards'
 import { drawText } from '../font'
@@ -139,8 +141,10 @@ type Hopper = {
   /** Off the pyramid: falling to the bottom of the screen. */
   falling: number
 }
-type EnemyKind = 'gumball' | 'purple' | 'boing' | 'green' | 'gremlin'
-type Enemy = Hopper & { kind: EnemyKind; wait: number }
+type EnemyKind =
+  'gumball' | 'purple' | 'boing' | 'green' | 'gremlin' | 'skitter'
+/** `side` is a skitter's sliding direction along its row. */
+type Enemy = Hopper & { kind: EnemyKind; wait: number; side?: -1 | 1 }
 type Disc = { side: -1 | 1; row: number; used: boolean }
 type Particle = {
   x: number
@@ -361,6 +365,7 @@ const GUMBALL_LOOKS = {
   gumball: { ramp: RAMPS.ember, eyes: false },
   purple: { ramp: RAMPS.purple, eyes: true },
   green: { ramp: RAMPS.leaf, eyes: false },
+  skitter: { ramp: RAMPS.water, eyes: true },
 } as const
 const GUMBALL_SPRITES = Object.fromEntries(
   Object.entries(GUMBALL_LOOKS).map(([kind, look]) => {
@@ -381,7 +386,10 @@ const GUMBALL_SPRITES = Object.fromEntries(
       ],
     ]
   }),
-) as Record<'gumball' | 'purple' | 'green', [PixelSprite, PixelSprite]>
+) as Record<
+  'gumball' | 'purple' | 'green' | 'skitter',
+  [PixelSprite, PixelSprite]
+>
 
 /** Pip: a round tangerine pixel-bot with a snorkel nose and big purple sneakers. */
 const PIP_RAMP: Ramp = ['#4a1606', '#9a3a0c', '#f07a1f', '#ffb15e', '#fff1d0']
@@ -821,6 +829,28 @@ class PixelHop implements ArcadeGameInstance {
     const hasBoing = this.enemies.some(
       (e) => e.kind === 'boing' || e.kind === 'purple',
     )
+    // Skitter & Scoot join from round 5: one at a time, sliding along a row.
+    const hasSkitter = this.enemies.some((e) => e.kind === 'skitter')
+    if (
+      !hasSkitter &&
+      endlessFoes(this.round).includes('skitter') &&
+      this.rng() < 0.25
+    ) {
+      const side: -1 | 1 = this.rng() < 0.5 ? 1 : -1
+      const row = this.rows - 1 - Math.floor(this.rng() * 3)
+      this.enemies.push({
+        kind: 'skitter',
+        r: row,
+        c: side === 1 ? 0 : row,
+        fr: -1,
+        fc: 0,
+        hop: HOP_TICKS,
+        falling: 0,
+        wait: 30,
+        side,
+      })
+      return
+    }
     let kind: EnemyKind = 'gumball'
     if (!hasBoing && roll < 0.35) kind = 'purple'
     else if (
@@ -896,6 +926,15 @@ class PixelHop implements ArcadeGameInstance {
         }
       }
       return best
+    }
+    if (e.kind === 'skitter') {
+      // Skitter & Scoot slide sideways along a row, then drop off its end.
+      const next = sidewaysStep(
+        pyramidBoard(this.rows),
+        { r: e.r, c: e.c },
+        e.side ?? 1,
+      )
+      return next ? [0, next.c - e.c] : [0, e.side ?? 1]
     }
     // Everything else bounces down, left or right at random.
     return this.rng() < 0.5 ? [1, 0] : [1, 1]
@@ -1028,6 +1067,10 @@ class PixelHop implements ArcadeGameInstance {
       if (e.falling > 0 || e.kind === 'green' || e.kind === 'gremlin') continue
       cells.add(`${e.r},${e.c}`)
       // Where it might hop next.
+      if (e.kind === 'skitter') {
+        cells.add(`${e.r},${e.c + (e.side ?? 1)}`)
+        continue
+      }
       for (const [dr, dc] of e.kind === 'boing' ? MOVES : MOVES.slice(1, 3))
         cells.add(`${e.r + dr},${e.c + dc}`)
     }

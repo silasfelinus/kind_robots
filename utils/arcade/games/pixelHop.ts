@@ -604,9 +604,14 @@ class PixelHop implements ArcadeGameInstance {
   }
 
   /** The painting rule: hops to finish a tile, and whether a finished tile turns back. */
-  private get rule(): { hops: 1 | 2; flips: boolean } {
-    const tier = (this.level - 1) % 4
-    return { hops: tier === 1 || tier === 3 ? 2 : 1, flips: tier >= 2 }
+  private get rule(): { hops: 1 | 2; flips: boolean; cycle: boolean } {
+    const tier = (this.level - 1) % 5
+    if (tier === 4) return { hops: 1, flips: false, cycle: true }
+    return {
+      hops: tier === 1 || tier === 3 ? 2 : 1,
+      flips: tier >= 2,
+      cycle: false,
+    }
   }
 
   // --- rounds ------------------------------------------------------------------
@@ -631,8 +636,9 @@ class PixelHop implements ArcadeGameInstance {
     const rule = this.rule
     this.banner = {
       text: `LEVEL ${this.level}  ROUND ${((round - 1) % ROUNDS_PER_LEVEL) + 1}`,
-      sub:
-        rule.hops === 2 && rule.flips
+      sub: rule.cycle
+        ? 'EVERY HOP CYCLES THE COLOUR. END ON THE GLOW'
+        : rule.hops === 2 && rule.flips
           ? 'TWO HOPS, AND DONE TILES FLIP BACK'
           : rule.hops === 2
             ? 'TWO HOPS PAINT A TILE'
@@ -778,12 +784,13 @@ class PixelHop implements ArcadeGameInstance {
     const rule = this.rule
     const tile = this.paint[r]![c]!
     let next = tile
-    if (tile < 2) next = rule.hops === 1 ? 2 : tile + 1
+    if (rule.cycle) next = (tile + 1) % 3
+    else if (tile < 2) next = rule.hops === 1 ? 2 : tile + 1
     else if (rule.flips) next = rule.hops === 1 ? 0 : 1
     if (next !== tile) {
       this.paint[r]![c] = next
       this.tileFx(r, c, next > tile, next === 2)
-      if (next > tile) {
+      if (next > tile || (rule.cycle && next === 2)) {
         const at = cubeTop(r, c)
         this.addScore(PAINT_POINTS, at.x, at.y - 14)
         if (next === 2) this.hopCombos(r, c)
@@ -811,7 +818,7 @@ class PixelHop implements ArcadeGameInstance {
     const rule = this.rule
     const par = speedPaintPar(
       pyramidBoard(this.rows),
-      rule.hops === 2 ? RULES.two : RULES.one,
+      rule.hops === 2 || rule.cycle ? RULES.two : RULES.one,
     )
     const swift = speedPaintBonus(this.tick - this.roundStart, par)
     this.addScore(bonus + unused * 50 + swift, W / 2, 120)

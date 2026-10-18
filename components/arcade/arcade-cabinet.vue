@@ -147,7 +147,10 @@
           </div>
           <div
             class="cabinet-buttons"
-            :class="{ 'cabinet-buttons--four': fourButtons && !duo }"
+            :class="{
+              'cabinet-buttons--four': fourButtons && !duo,
+              'cabinet-buttons--labelled': labelled,
+            }"
           >
             <template v-if="fourButtons && !duo">
               <button
@@ -160,6 +163,9 @@
                 @lostpointercapture="press('x', false, seat)"
               >
                 X
+                <span v-if="labelled" class="cabinet-ball-label">
+                  {{ buttonLabels.x }}
+                </span>
               </button>
               <button
                 type="button"
@@ -171,6 +177,9 @@
                 @lostpointercapture="press('y', false, seat)"
               >
                 Y
+                <span v-if="labelled" class="cabinet-ball-label">
+                  {{ buttonLabels.y }}
+                </span>
               </button>
             </template>
             <button
@@ -183,6 +192,9 @@
               @lostpointercapture="press('b', false, seat)"
             >
               B
+              <span v-if="labelled" class="cabinet-ball-label">
+                {{ buttonLabels.b }}
+              </span>
             </button>
             <button
               type="button"
@@ -194,6 +206,9 @@
               @lostpointercapture="press('a', false, seat)"
             >
               A
+              <span v-if="labelled" class="cabinet-ball-label">
+                {{ buttonLabels.a }}
+              </span>
             </button>
           </div>
           <div
@@ -548,7 +563,12 @@ const canvasStyle = computed<CSSProperties>(() => {
 })
 const touchControls = ref(false)
 const compactDpad = computed(
-  () => props.slug === 'rainbow-bullet-hell-space-princess',
+  () => props.slug === 'rainbow-bullet-hell-space-princess' || labelled.value,
+)
+/** A game's names for its face buttons: shown on big touch buttons (solo only). */
+const buttonLabels = computed(() => meta.value?.buttonLabels ?? {})
+const labelled = computed(
+  () => !duo.value && Object.keys(buttonLabels.value).length > 0,
 )
 /** Directions held on each seat's touch d-pad. */
 const dpadHeld = ref<Array<Record<DpadDirection, boolean>>>(
@@ -2866,6 +2886,38 @@ onBeforeUnmount(() => {
 
 .cabinet-ball-x {
   background: #f59e0b;
+}
+
+.cabinet-buttons--labelled .cabinet-ball {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  line-height: 1;
+}
+
+.cabinet-buttons--labelled .cabinet-ball-a {
+  width: 5.75rem;
+  height: 5.75rem;
+}
+
+.cabinet-ball-label {
+  margin-top: 0.2rem;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.cabinet-overlay .cabinet-buttons--labelled .cabinet-ball {
+  width: calc(var(--key) * 1.45);
+  height: calc(var(--key) * 1.45);
+}
+
+.cabinet-overlay .cabinet-buttons--labelled .cabinet-ball-a {
+  width: calc(var(--key) * 1.7);
+  height: calc(var(--key) * 1.7);
 }
 
 .cabinet-ball-y {

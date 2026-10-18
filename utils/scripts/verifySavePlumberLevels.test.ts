@@ -6,6 +6,7 @@ import {
 import { ENEMY_ANIMATIONS } from '../arcade/games/savePlumberAnimations'
 import {
   CAMPAIGN,
+  SOLID_BLOCK,
   SOLID_CRATE,
   SOLID_BELT_LEFT,
   SOLID_BELT_RIGHT,
@@ -86,9 +87,10 @@ for (const def of CAMPAIGN) {
     `${def.code} ends at a goal valve or a boss`,
   )
 }
-const first = parseStage(WORLD_ONE[0]!)
-assert.equal(first.doors.length, 2, '1-1 hides a pipe-door secret room')
-assert.ok(parseStage(WORLD_ONE[2]!).solid.includes(SOLID_GATE))
+assert.ok(
+  parseStage(WORLD_ONE[1]!).solid.includes(SOLID_GATE),
+  '1-2 has a valve gate to open on the run',
+)
 assert.notEqual(
   parseStage(WORLD_ONE[3]!).gate,
   null,
@@ -100,27 +102,27 @@ const kindsIn = (world: number) =>
       parseStage(d).spawns.map((s) => s.kind),
     ),
   )
-for (const kind of ['minnow', 'cork-crab', 'glass-gull', 'raft'] as const)
+for (const kind of ['minnow', 'cork-crab', 'glider', 'raft'] as const)
   assert.ok(kindsIn(2).has(kind), `World 2 has ${kind}`)
 for (const kind of ['moss-lantern', 'spring-hare'] as const)
   assert.ok(kindsIn(3).has(kind), `World 3 has ${kind}`)
-for (const kind of ['gasket-golem', 'rivet-roller', 'piston', 'lift'] as const)
+for (const kind of ['gasket-golem', 'rivet-roller', 'valve'] as const)
   assert.ok(kindsIn(4).has(kind), `World 4 has ${kind}`)
-for (const kind of ['paper-kite', 'umbrella-mite', 'wind', 'cargo'] as const)
+for (const kind of ['umbrella-mite', 'wind'] as const)
   assert.ok(kindsIn(5).has(kind), `World 5 has ${kind}`)
-for (const kind of ['puddle-mimic', 'siphon-sprite', 'valve'] as const)
+for (const kind of ['puddle-mimic', 'valve'] as const)
   assert.ok(kindsIn(6).has(kind), `World 6 has ${kind}`)
 for (const kind of [
   'chimney-spirit',
   'tea-kettle-knight',
-  'springstep',
+  'power-springstep',
 ] as const)
   assert.ok(kindsIn(7).has(kind), `World 7 has ${kind}`)
+for (let world = 1; world <= 8; world++)
+  assert.ok(kindsIn(world).has('glider'), `World ${world} sends gliders`)
 assert.ok(
-  WORLD_SIX.slice(0, 3).every((d) =>
-    parseStage(d).solid.includes(SOLID_BRIDGE),
-  ),
-  'the Underworks stages cross crystal bridges',
+  WORLD_SIX.every((d) => parseStage(d).solid.includes(SOLID_BRIDGE)),
+  'every Underworks leg crosses a crystal bridge',
 )
 assert.ok(
   WORLD_SIX.some((d) => d.dark),
@@ -128,21 +130,24 @@ assert.ok(
 )
 for (const kind of [
   'gasket-golem',
-  'siphon-sprite',
+  'rivet-roller',
   'pumpbug',
-  'raft',
+  'minnow',
   'valve',
   'wind',
-  'cargo',
-  'lift',
+  'steam-vent',
 ] as const)
   assert.ok(kindsIn(8).has(kind), `the Citadel brings back ${kind}`)
 assert.ok(
-  WORLD_FOUR.every((d) => {
+  [...WORLD_FOUR, ...WORLD_EIGHT].every((d) => {
     const solid = parseStage(d).solid
     return solid.includes(SOLID_BELT_LEFT) || solid.includes(SOLID_BELT_RIGHT)
   }),
-  'every Clockwork Fair stage has conveyor belts',
+  'every Clockwork Fair and Citadel stage has conveyor belts',
+)
+assert.ok(
+  WORLD_TWO.every((d) => parseStage(d).solid.includes(SOLID_WATER)),
+  'every marina leg has water to jump',
 )
 assert.ok(
   parseStage(WORLD_TWO[0]!).solid.includes(SOLID_WATER),
@@ -170,7 +175,8 @@ for (const world of [
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..', '.'] }))
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..'] }))
 
-// Every stage is finishable: the predictive autopilot plays each one through.
+// Every runner leg is finishable: the predictive autopilot only jumps, slides
+// and swings (she runs on her own) and clears each one without losing a life.
 const bosses = [
   'Madame Pressure',
   'Captain Barnaclejack',
@@ -187,11 +193,17 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
     autopilot: true,
   })
   const input = emptyInput()
+  const lives = game.lives
   let ticks = 0
   while (!game.cleared.length && ticks < 60 * 120) {
     game.update(input)
     ticks++
   }
+  assert.equal(
+    game.lives,
+    lives,
+    `${CAMPAIGN[index]!.code} is cleared without losing a life`,
+  )
   assert.deepEqual(
     game.cleared,
     [CAMPAIGN[index]!.code],
@@ -203,10 +215,23 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
   }
 }
 
-// Controls: A jumps, B runs, X swings the wrench, Y is the heroine's special.
-const play = createSavePlumberPreview(options(), { stage: 0 })
-play.loadStage(0)
-play.mode = 'play'
+// Runner controls: she runs on her own; A jumps, B slides (or drops fast in
+// the air), X swings the wrench, Y is the heroine's special. Tested on 1-1
+// flattened into a bare track.
+const track = () => {
+  const g = createSavePlumberPreview(options(), { stage: 0 })
+  g.loadStage(0)
+  g.mode = 'play'
+  g.foes.length = 0
+  g.vents.length = 0
+  const { cols, rows } = g.stage
+  const solid = (g as unknown as { solid: Uint8Array }).solid
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      solid[r * cols + c] = r >= g.groundRow ? SOLID_BLOCK : 0
+  return { g, solid, cols }
+}
+const play = track().g
 const step = (held: ArcadeButton[] = [], pressed: ArcadeButton[] = []) => {
   const frame = emptyInput()
   for (const b of held) frame.held[b] = true
@@ -222,23 +247,57 @@ assert.ok(play.ground)
 step([], ['x'])
 assert.ok(play.ground, 'X does not jump')
 assert.ok(play.swing > 0, 'X swings the wrench')
-const topSpeed = (run: boolean) => {
-  const g = createSavePlumberPreview(options(), { stage: 0 })
-  g.loadStage(0)
-  g.mode = 'play'
-  g.foes.length = 0
-  let fastest = 0
-  for (let i = 0; i < 50; i++) {
-    const f = emptyInput()
-    f.held.right = true
-    f.held.b = run
-    g.update(f)
-    fastest = Math.max(fastest, g.hero.vx)
-  }
-  return fastest
+const runner = track().g
+const startX = runner.hero.x
+for (let i = 0; i < 60; i++) {
+  const f = emptyInput()
+  f.held.left = true
+  runner.update(f)
 }
-assert.ok(topSpeed(false) <= 2.9, 'walking tops out at walking speed')
-assert.ok(topSpeed(true) > 4, 'holding B runs')
+assert.ok(runner.runnerOn, 'outside a boss arena she is a runner')
+assert.ok(runner.hero.x > startX + 120, 'she runs forward on her own')
+assert.ok(
+  Math.abs(runner.hero.vx - runner.runSpeed) < 0.2,
+  'at the world pace, whatever the stick says',
+)
+const slide = (held: boolean) => {
+  const f = emptyInput()
+  f.held.b = held
+  runner.update(f)
+}
+const standingTop = runner.heroTop
+slide(true)
+assert.ok(runner.ducking, 'B slides')
+assert.ok(runner.heroTop > standingTop + 8, 'a slide drops her head low')
+assert.ok(runner.hero.vx > 2, 'and keeps her running, not sprinting')
+for (let i = 0; i < 5; i++) slide(false)
+assert.ok(!runner.ducking, 'letting go of B stands her back up')
+assert.ok(runner.runSpeed > 0 && runner.runSpeed < 4, 'B no longer runs')
+
+// A beam at head height: slide under it or take the hit.
+const beamRun = (duck: boolean) => {
+  const { g, solid, cols } = track()
+  const col = Math.floor(g.hero.x / TILE) + 8
+  for (let r = 1; r <= g.groundRow - 2; r++) solid[r * cols + col] = SOLID_BLOCK
+  for (let i = 0; i < 60; i++) {
+    const f = emptyInput()
+    f.held.b = duck
+    g.update(f)
+  }
+  return g.hero.x > (col + 1) * TILE
+}
+assert.ok(beamRun(true), 'sliding passes under a beam')
+assert.ok(!beamRun(false), 'standing runs into it')
+
+// Pinned against a wall she cannot clear, she loses a life.
+const pinned = track()
+const wallCol = Math.floor(pinned.g.hero.x / TILE) + 6
+for (let r = 1; r < pinned.g.groundRow; r++)
+  pinned.solid[r * pinned.cols + wallCol] = SOLID_BLOCK
+const pinnedLives = pinned.g.lives
+for (let i = 0; i < 160 && pinned.g.lives === pinnedLives; i++)
+  pinned.g.update(emptyInput())
+assert.equal(pinned.g.lives, pinnedLives - 1, 'pinned too long costs a life')
 
 // Every heroine's special on Y does her own thing.
 const withHeroine = (key: string) => {
@@ -410,8 +469,42 @@ const lab = (stage: number) => {
   g.mode = 'play'
   return g
 }
-const marina = lab(4)
+
+// Gliders fly at her head: slide under them.
+const gliderSource = lab(1).foes.find((f) => f.glide)!
+const gliderRun = (duck: boolean) => {
+  const { g } = track()
+  for (let i = 0; i < 10; i++) g.update(emptyInput())
+  g.foes.push({ ...gliderSource, x: g.hero.x + 120, homeY: g.hero.y + 8 })
+  g.immune = 0
+  for (let i = 0; i < 60; i++) {
+    const f = emptyInput()
+    f.held.b = duck
+    g.update(f)
+  }
+  return g.hearts
+}
+assert.equal(gliderRun(true), 3, 'a glider passes over a slide')
+assert.ok(gliderRun(false) < 3, 'and hits her if she stands')
+
+// B in the air drops her fast.
+const drop = (fast: boolean) => {
+  const { g } = track()
+  for (let i = 0; i < 10; i++) g.update(emptyInput())
+  g.update(frame(['a'], ['a']))
+  for (let i = 0; i < 14; i++) g.update(frame(['a']))
+  let ticks = 0
+  while (!g.ground && ticks < 120) {
+    g.update(frame(fast ? ['b'] : []))
+    ticks++
+  }
+  return ticks
+}
+assert.ok(drop(true) < drop(false) - 4, 'B in the air drops her fast')
+
+const marina = lab(5)
 const gull = marina.foes.find((f) => f.kind === 'glass-gull')!
+assert.ok(gull.glide, "the marina's gliders are glass gulls")
 marina.tokens = 9
 marina.immune = 0
 marina.hero.x = gull.x
@@ -420,15 +513,19 @@ marina.hero.vy = 0
 marina.update(emptyInput())
 assert.ok(gull.carry > 0, 'a glass gull steals tokens')
 assert.equal(marina.hearts, 3, 'a steal costs tokens, not hearts')
-const minnow = marina.foes.find((f) => f.kind === 'minnow')!
+const pond = lab(4)
+const minnow = pond.foes.find((f) => f.kind === 'minnow')!
 let leapt = false
 for (let i = 0; i < 400 && !leapt; i++) {
-  marina.update(emptyInput())
+  pond.immune = 99
+  pond.hero = { x: minnow.x - 150, y: pond.hero.y, vx: 0, vy: 0 }
+  pond.update(emptyInput())
   leapt = minnow.y < minnow.homeY - 40
 }
 assert.ok(leapt, 'a clockwork minnow leaps out of the water')
 const sink = lab(4)
-sink.hero.x = 20 * TILE
+sink.hero.x =
+  ((sink.stage.solid.indexOf(SOLID_WATER) % sink.stage.cols) + 0.5) * TILE
 sink.hero.y = (sink.groundRow + 1) * TILE - 20
 for (let i = 0; i < 40; i++) sink.update(emptyInput())
 assert.equal(sink.mode, 'dying', 'water costs a life')
@@ -495,21 +592,21 @@ assert.ok(golem.fade > 0, 'the second stomp topples a gasket golem')
 
 const ropeway = lab(16)
 const mite = ropeway.foes.find((f) => f.kind === 'umbrella-mite')!
+mite.y -= 96
 let fastest = 0
-for (let i = 0; i < 600; i++) {
+for (let i = 0; i < 90; i++) {
   ropeway.immune = 99
+  ropeway.hero = { x: mite.x - 150, y: ropeway.hero.y, vx: 0, vy: 0 }
   ropeway.update(emptyInput())
   fastest = Math.max(fastest, mite.vy)
 }
-assert.ok(fastest > 0.5, 'an umbrella mite walks off its ledge')
+assert.ok(fastest > 0.5, 'an umbrella mite in the air drifts down')
 assert.ok(fastest <= 1.1, 'an umbrella mite floats down slowly')
-const kite = ropeway.foes.find((f) => f.kind === 'paper-kite')!
-const kiteYs = new Set<number>()
-for (let i = 0; i < 120; i++) {
-  ropeway.update(emptyInput())
-  kiteYs.add(Math.round(kite.y))
-}
-assert.ok(kiteYs.size > 10, 'a paper kite rides the air')
+assert.equal(
+  ropeway.foes.find((f) => f.glide)!.kind,
+  'paper-kite',
+  'paper kites glide at her over the ropeways',
+)
 
 const windmill = lab(17)
 const windCol = windmill.windy.indexOf(1)
@@ -517,15 +614,6 @@ assert.ok(windCol > 0, '5-2 has a wind corridor')
 assert.ok(windmill.windAt(windCol * TILE + 4, 10) < 0, 'gusts blow a headwind')
 assert.equal(windmill.windAt(windCol * TILE + 4, 200), 0, 'and then calm')
 assert.equal(windmill.windAt(2 * TILE, 10), 0, 'outside the corridor is still')
-
-const yard = lab(18)
-const crate = yard.cargo[0]!
-for (let i = 0; i < 800 && crate.state !== 'landed'; i++) {
-  yard.immune = 99
-  yard.update(emptyInput())
-}
-assert.equal(crate.state, 'landed', 'falling cargo lands')
-assert.ok(yard.platforms.includes(crate.pad!), 'landed cargo is a step')
 
 const duel = (stage: number) => {
   const g = lab(stage)
@@ -692,12 +780,17 @@ assert.equal(stormy.gusts.length, 1, 'Bottled Storm throws a gust')
 for (let i = 0; i < 40; i++) stormy.update(emptyInput())
 assert.equal(stormy.foes.at(-1)!.state, 'stunned', 'the gust strikes at range')
 
-const lifter = powerLab('4-3', 'pocket-lift')
-const crateCol = lifter.stage.solid.indexOf(SOLID_CRATE) % lifter.stage.cols
+const lifter = powerLab('8-2', 'pocket-lift')
+const crateAt = lifter.stage.solid.findIndex(
+  (x, i) => x === SOLID_CRATE && i % lifter.stage.cols > lifter.hero.x / TILE,
+)
+const crateCol = crateAt % lifter.stage.cols
+lifter.hero.x = crateCol * TILE - 40
+lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - 26
 for (let i = 0; i < 200 && !lifter.carrying; i++) {
   const walk = emptyInput()
-  walk.held.right = lifter.hero.x < crateCol * TILE - 14
-  walk.pressed.x = !walk.held.right && i % 25 === 0
+  walk.pressed.x = lifter.hero.x > crateCol * TILE - 20 && i % 25 === 0
+  lifter.immune = 99
   lifter.update(walk)
 }
 assert.ok(lifter.carrying, 'Pocket Lift picks a crate up')
@@ -707,14 +800,18 @@ const live = () =>
     (x) => x === SOLID_CRATE,
   ).length
 assert.equal(live(), stacked - 1, 'the lifted crate leaves its stack')
-lifter.facing = -1
-for (let i = 0; i < 30; i++) lifter.update(emptyInput())
+// Clear the rest of the stack (a thrown crate smashes crates it hits).
+const liveSolid = (lifter as unknown as { solid: Uint8Array }).solid
+liveSolid.forEach((x, i) => {
+  if (x === SOLID_CRATE) liveSolid[i] = 0
+})
+for (let i = 0; i < 20; i++) lifter.update(emptyInput())
 const toss = emptyInput()
 toss.pressed.x = true
 lifter.update(toss)
 assert.equal(lifter.carrying, false)
 for (let i = 0; i < 60; i++) lifter.update(emptyInput())
-assert.equal(live(), stacked, 'a thrown crate lands as a new step')
+assert.equal(live(), 1, 'a thrown crate lands as a new step')
 
 const mended = powerLab('1-2', 'heart')
 assert.equal(mended.hearts, 3)

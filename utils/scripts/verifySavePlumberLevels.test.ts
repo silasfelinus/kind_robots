@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   FOE_ANIMATION,
+  HERO_TALL,
   createSavePlumberPreview,
 } from '../arcade/games/savePlumberPreview'
 import { ENEMY_ANIMATIONS } from '../arcade/games/savePlumberAnimations'
@@ -226,7 +227,7 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
     const before = game.mode
     game.update(input)
     if (game.mode === 'dying' && before !== 'dying') deaths++
-    if (game.ground) highest = Math.min(highest, game.hero.y + 26)
+    if (game.ground) highest = Math.min(highest, game.hero.y + HERO_TALL)
     ticks++
   }
   assert.ok(
@@ -305,7 +306,7 @@ const crouch = track().g
 for (let i = 0; i < 10; i++) crouch.update(emptyInput())
 const tallTop = crouch.heroTop
 crouch.update(held('down'))
-assert.ok(crouch.ducking && crouch.heroTop > tallTop + 8, 'Down ducks')
+assert.ok(crouch.ducking && crouch.heroTop > tallTop + 4, 'Down ducks')
 const crawlFrom = crouch.hero.x
 for (let i = 0; i < 30; i++) crouch.update(held('down', 'right'))
 assert.ok(
@@ -372,7 +373,7 @@ const slide = (held: boolean) => {
 const standingTop = runner.heroTop
 slide(true)
 assert.ok(runner.ducking, 'B slides')
-assert.ok(runner.heroTop > standingTop + 8, 'a slide drops her head low')
+assert.ok(runner.heroTop > standingTop + 4, 'a slide drops her head low')
 assert.ok(runner.hero.vx > 2, 'and keeps her running, not sprinting')
 for (let i = 0; i < 5; i++) slide(false)
 assert.ok(!runner.ducking, 'letting go of B stands her back up')
@@ -578,7 +579,11 @@ const gliderSource = lab(1).foes.find((f) => f.glide)!
 const gliderRun = (duck: boolean) => {
   const { g } = track(true)
   for (let i = 0; i < 10; i++) g.update(emptyInput())
-  g.foes.push({ ...gliderSource, x: g.hero.x + 120, homeY: g.hero.y + 8 })
+  g.foes.push({
+    ...gliderSource,
+    x: g.hero.x + 120,
+    homeY: g.hero.y + HERO_TALL - 16,
+  })
   g.immune = 0
   for (let i = 0; i < 60; i++) {
     const f = emptyInput()
@@ -670,7 +675,7 @@ const fair = lab(beltStage)
 const beltAt = fair.stage.solid.indexOf(SOLID_BELT_RIGHT)
 fair.foes.length = 0
 fair.hero.x = (beltAt % fair.stage.cols) * TILE + 40
-fair.hero.y = Math.floor(beltAt / fair.stage.cols) * TILE - 26
+fair.hero.y = Math.floor(beltAt / fair.stage.cols) * TILE - HERO_TALL
 fair.update(emptyInput())
 const onBelt = fair.hero.x
 for (let i = 0; i < 20; i++) fair.update(emptyInput())
@@ -762,7 +767,7 @@ const sluice = lab(20)
 const mimic = sluice.foes.find((f) => f.kind === 'puddle-mimic')!
 assert.equal(mimic.state, 'idle', 'a puddle mimic lies still')
 sluice.hero.x = mimic.x - 60
-sluice.hero.y = mimic.y - 26
+sluice.hero.y = mimic.y - HERO_TALL
 sluice.immune = 99
 sluice.update(emptyInput())
 assert.equal(mimic.state, 'walk', 'and rises when you come close')
@@ -770,7 +775,7 @@ assert.equal(mimic.state, 'walk', 'and rises when you come close')
 const roofs = lab(24)
 const spirit = roofs.foes.find((f) => f.kind === 'chimney-spirit')!
 roofs.hero.x = spirit.x - 100
-roofs.hero.y = spirit.y - 26
+roofs.hero.y = spirit.y - HERO_TALL
 let puffed = false
 for (let i = 0; i < 260 && !puffed; i++) {
   roofs.immune = 99
@@ -781,7 +786,7 @@ assert.ok(puffed, 'a chimney spirit lobs soot')
 const knightLab = lab(24)
 const knight = knightLab.foes.find((f) => f.kind === 'tea-kettle-knight')!
 knightLab.hero.x = knight.x - 70
-knightLab.hero.y = knight.y - 26
+knightLab.hero.y = knight.y - HERO_TALL
 let whistled = false
 let lunged = false
 for (let i = 0; i < 120; i++) {
@@ -805,13 +810,13 @@ assert.equal(spigot.boss!.kind, 'spigot')
 assert.equal(spigot.boss!.state, 'burst')
 spigot.immune = 0
 spigot.hero.x = spigot.boss!.x + spigot.boss!.dir * 60
-spigot.hero.y = spigot.boss!.y - 26
+spigot.hero.y = spigot.boss!.y - HERO_TALL
 spigot.update(emptyInput())
 assert.equal(spigot.hearts, 2, 'her jet soaks the hissing side')
 const safe = duel(31)
 safe.immune = 0
 safe.hero.x = safe.boss!.x - safe.boss!.dir * 60
-safe.hero.y = safe.boss!.y - 26
+safe.hero.y = safe.boss!.y - HERO_TALL
 safe.update(emptyInput())
 assert.equal(safe.hearts, 3, 'the quiet side stays dry')
 
@@ -876,7 +881,7 @@ const golemTarget = lab(12).foes.find((f) => f.kind === 'gasket-golem')!
 stormy.foes.push({
   ...golemTarget,
   x: stormy.hero.x + 90,
-  y: stormy.hero.y + 26,
+  y: stormy.hero.y + HERO_TALL,
 })
 stormy.facing = 1
 const blast = emptyInput()
@@ -892,7 +897,7 @@ const crateAt = lifter.stage.solid.findIndex(
 )
 const crateCol = crateAt % lifter.stage.cols
 lifter.hero.x = crateCol * TILE - 40
-lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - 26
+lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - HERO_TALL
 for (let i = 0; i < 200 && !lifter.carrying; i++) {
   const walk = emptyInput()
   walk.pressed.x = lifter.hero.x > crateCol * TILE - 20 && i % 25 === 0

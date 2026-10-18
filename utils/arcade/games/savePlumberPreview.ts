@@ -67,11 +67,17 @@ const RUNNER_SPEED = [2.9, 3.0, 3.1, 3.2, 3.35, 3.5, 3.65, 3.8]
 /** The Endless run's top pace, reached in its fifteenth zone. */
 const ENDLESS_TOP = 4.6
 /** Ducking lowers her head by this much; a slide fits under a one-tile beam. */
-const DUCK = 12
+const DUCK = 6
 /** Pinned against a wall this long, a runner loses a life instead of soft-locking. */
 const PINNED = 45
-const HALF = 11
-const TALL = 26
+/**
+ * The heroine's hitbox: about a tile and a quarter tall, so a leg can stack
+ * routes two tiles apart. Her sprite stands a little over two tiles.
+ */
+const HALF = 9
+const TALL = 20
+/** Her sprite's height in pixels (before her roster scale). */
+const HERO_SPRITE = 36
 const START_LIVES = 3
 const HEARTS = 3
 const LAST_WORLD = stageWorld(CAMPAIGN[CAMPAIGN.length - 1]!.code)
@@ -263,6 +269,10 @@ type Boss = {
 }
 
 /** Options for tests: start on a stage, and let the autopilot play it. */
+/** The heroine's hitbox height and half-width, for tests and tools. */
+export const HERO_TALL = TALL
+export const HERO_HALF = HALF
+
 export type PlumberRunOptions = {
   stage?: number
   autopilot?: boolean
@@ -719,7 +729,7 @@ export class PlumberRun implements ArcadeGameInstance {
           this.foes.push({
             kind: GLIDERS[stageWorld(stage.code) - 1] ?? 'glass-gull',
             x: cx,
-            y: bottom - 18,
+            y: bottom - 16,
             vx: 0,
             vy: 0,
             dir: -1,
@@ -728,7 +738,7 @@ export class PlumberRun implements ArcadeGameInstance {
             fade: 0,
             flipped: false,
             homeX: cx,
-            homeY: bottom - 18,
+            homeY: bottom - 16,
             carry: 0,
             pad: null,
             glide: true,
@@ -944,6 +954,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const runner = this.runnerOn
     const move = runner ? 1 : Number(keys.held.right) - Number(keys.held.left)
+    this.updateDuck(keys, move)
     this.running = runner || (keys.held.b === true && move !== 0)
     const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     if (runner) hero.vx += (top - hero.vx) * 0.25
@@ -959,7 +970,6 @@ export class PlumberRun implements ArcadeGameInstance {
     } else hero.vx *= 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
-    this.updateDuck(keys, move)
     if (keys.pressed.y) this.useSpecial()
     this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
@@ -2355,6 +2365,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.pilotSeek = null
     }
     let go = true
+    let turn = false
     let jump: { hold: number; right: boolean } | null = null
     const footRow = Math.floor((feet + 1) / TILE)
     const aheadCol = Math.floor((hero.x + HALF + 4) / TILE)
@@ -2392,7 +2403,9 @@ export class PlumberRun implements ArcadeGameInstance {
         go = false
       } else if (dx < 40) {
         go = false
-        if (!this.cooldown) input.pressed.x = true
+        // Face the switch first: a step back to it leaves her facing away.
+        if (this.facing < 0) turn = true
+        else if (!this.cooldown) input.pressed.x = true
       }
     } else if (wall === SOLID_CRATE) {
       go = false
@@ -2433,7 +2446,7 @@ export class PlumberRun implements ArcadeGameInstance {
         f.state !== 'gone' &&
         f.x - hero.x > -24 &&
         f.x - hero.x < 100 &&
-        Math.abs(f.y - (feet - 18)) < 14,
+        Math.abs(f.y - (feet - 16)) < 14,
     )
     if (glider && !jump) {
       input.held.down = true
@@ -2555,7 +2568,7 @@ export class PlumberRun implements ArcadeGameInstance {
       input.held.right = jump.right
       return input
     }
-    input.held.right = go && !input.held.left
+    input.held.right = (go || turn) && !input.held.left
     return input
   }
 
@@ -2688,7 +2701,7 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.ventActiveAt(vent, this.tick + k) === 2) hot = true
       if (hot) jump = choose((land) => land.x > vent.x + HALF + 6)
     }
-    if (glider && Math.abs(glider.y - (feet - 18)) < 14) {
+    if (glider && Math.abs(glider.y - (feet - 16)) < 14) {
       const reach = glider.x - hero.x
       if (reach < 100 || (jump !== null && !edge)) jump = null
       if (reach < 100) beam = true
@@ -3210,7 +3223,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.text(g, `WORLD ${world.id} CLEAR!`, W / 2, 46, 30, '#ffd98a')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
-    this.drawHeroSprite(g, 320, 230, 'cheer', 1.6)
+    this.drawHeroSprite(g, 320, 230, 'cheer', 2.2)
     this.text(
       g,
       `${world.boss.name} lets the river go.`,
@@ -3268,7 +3281,7 @@ export class PlumberRun implements ArcadeGameInstance {
     )
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
-    this.drawHeroSprite(g, 320, 236, 'cheer', 1.4)
+    this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
     this.text(
       g,
       `FINAL SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
@@ -3299,7 +3312,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const feet = this.hero.y + TALL + 1
       g.save()
       g.translate(this.hero.x, feet)
-      g.scale(1.15, 0.56)
+      g.scale(1.1, (TALL - DUCK) / TALL)
       g.translate(-this.hero.x, -feet)
       this.drawHeroSprite(g, this.hero.x, feet, null)
       g.restore()
@@ -4272,7 +4285,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const member = this.member
     const poses = actionPoses(member)
     const moves = PLUMBER_ART.anim(`heroine-${member.key}-moves`)
-    const height = 50 * member.scale * zoom
+    const height = HERO_SPRITE * member.scale * zoom
     const flipX = this.facing < 0
     if (special) {
       if (
@@ -4340,7 +4353,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (typeof Path2D !== 'undefined')
-      drawHeroine(g, rosterHeroine(this.heroineSeed), x, feet, 40 * zoom, {
+      drawHeroine(g, rosterHeroine(this.heroineSeed), x, feet, 29 * zoom, {
         stride: this.stride,
         run: Math.min(1, Math.abs(this.hero.vx) / 2.2),
         airborne: !this.ground,

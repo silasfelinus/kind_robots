@@ -4,6 +4,8 @@
 // cabinet save.
 import assert from 'node:assert/strict'
 import {
+  HERO_HALF,
+  HERO_TALL,
   createSavePlumberPreview,
   type PlumberRun,
 } from '../arcade/games/savePlumberPreview'
@@ -11,7 +13,8 @@ import { CAMPAIGN, TILE, parseStage } from '../arcade/games/savePlumberLevels'
 import { readPlumberSave } from '../arcade/games/savePlumberSave'
 import { emptyInput } from '../arcade/types'
 
-const TALL = 26
+const TALL = HERO_TALL
+const HALF = HERO_HALF
 const options = (extra = {}) => ({
   rng: () => 0.37,
   sound: { play() {} },
@@ -105,8 +108,8 @@ function touchable(index: number): { touched: Uint8Array; cols: number } {
           r++
         )
           for (
-            let c = Math.max(0, Math.floor((h.x - 11) / TILE));
-            c <= Math.min(cols - 1, Math.floor((h.x + 11) / TILE));
+            let c = Math.max(0, Math.floor((h.x - HALF) / TILE));
+            c <= Math.min(cols - 1, Math.floor((h.x + HALF) / TILE));
             c++
           )
             touched[r * cols + c] = 1
@@ -149,7 +152,7 @@ const average = (from: number, to: number) => {
   return sum / (to - from)
 }
 assert.ok(
-  average(24, 32) > average(0, 8) + 4,
+  average(24, 32) > average(0, 8) + 2,
   'late gears sit far higher than early ones',
 )
 

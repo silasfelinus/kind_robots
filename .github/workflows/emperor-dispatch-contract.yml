@@ -14,6 +14,8 @@ on:
       - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'utils/scripts/verifyEmperorDayThree.test.ts'
       - 'utils/scripts/verifyEmperorDayFour.test.ts'
+      - 'utils/scripts/verifyEmperorFortress.test.ts'
+      - 'stores/emperorFortressStore.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/play/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
@@ -28,6 +30,8 @@ on:
       - 'utils/scripts/verifyEmperorDayTwo.test.ts'
       - 'utils/scripts/verifyEmperorDayThree.test.ts'
       - 'utils/scripts/verifyEmperorDayFour.test.ts'
+      - 'utils/scripts/verifyEmperorFortress.test.ts'
+      - 'stores/emperorFortressStore.ts'
       - 'components/EmperorOfDustImperialRoadMap.vue'
       - 'pages/play/emperor-of-dust.vue'
       - 'stores/emperorOfDustStore.ts'
@@ -53,3 +57,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorDayTwo.test.ts
       - run: npx tsx utils/scripts/verifyEmperorDayThree.test.ts
       - run: npx tsx utils/scripts/verifyEmperorDayFour.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts

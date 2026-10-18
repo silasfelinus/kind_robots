@@ -23,6 +23,9 @@ import {
   endlessPressure,
   prismComplete,
   pyramidBoard,
+  RULES,
+  speedPaintBonus,
+  speedPaintPar,
   stripeComplete,
 } from './pixelHopBoards'
 import { drawText } from '../font'
@@ -557,6 +560,8 @@ class PixelHop implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
+  /** Tick the current round began on, for the Speed Paint bonus. */
+  private roundStart = 0
   private round = 1
   /** Each tile's paint: 0 start, 1 halfway, 2 target. */
   private paint: number[][] = []
@@ -605,6 +610,7 @@ class PixelHop implements ArcadeGameInstance {
 
   private startRound(round: number) {
     this.round = round
+    this.roundStart = this.tick
     this.rows = boardRows(round)
     this.level = 1 + Math.floor((round - 1) / ROUNDS_PER_LEVEL)
     this.paint = Array.from({ length: this.rows }, (_, r) =>
@@ -795,7 +801,15 @@ class PixelHop implements ArcadeGameInstance {
   private roundClear() {
     const bonus = ROUND_BONUS + 250 * (this.round - 1)
     const unused = this.discs.filter((d) => !d.used).length
-    this.addScore(bonus + unused * 50, W / 2, 120)
+    const rule = this.rule
+    const speed = speedPaintBonus(
+      this.tick - this.roundStart,
+      speedPaintPar(
+        pyramidBoard(this.rows),
+        rule.hops === 2 ? RULES.two : RULES.one,
+      ),
+    )
+    this.addScore(bonus + unused * 50 + speed, W / 2, 120)
     this.clear = ROUND_CLEAR_TICKS
     this.enemies = []
     for (let r = 0; r < this.rows; r += 2)
@@ -805,7 +819,7 @@ class PixelHop implements ArcadeGameInstance {
       }
     this.banner = {
       text: 'PYRAMID PAINTED!',
-      sub: `BONUS ${bonus}${unused ? `  DISCS ${unused * 50}` : ''}`,
+      sub: `BONUS ${bonus}${unused ? `  DISCS ${unused * 50}` : ''}${speed ? `  SPEED ${speed}` : ''}`,
       ticks: ROUND_CLEAR_TICKS,
     }
     this.sound.play('level')

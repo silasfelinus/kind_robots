@@ -72,6 +72,7 @@ type ClaimRequestBody = {
   supportsAudio?: boolean | null
   supportsVideoRestyle?: boolean | null
   supportsVideoRestyleGrabBag?: boolean | null
+  supportsVideoRestyleFast?: boolean | null
   supportsCompletionProof?: boolean | null
   agentVersion?: string | null
   smartQueue?: boolean | null
@@ -111,6 +112,7 @@ export default defineEventHandler(async (event) => {
     const supportsVideoRestyle = body?.supportsVideoRestyle === true
     const supportsVideoRestyleGrabBag =
       body?.supportsVideoRestyleGrabBag === true
+    const supportsVideoRestyleFast = body?.supportsVideoRestyleFast === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false
@@ -173,13 +175,15 @@ export default defineEventHandler(async (event) => {
       for (const pilot of pilots) {
         if (!isVideoRestyleArtJobPayload(pilot.payload)) continue
         // A relay that predates per-window looks would render a Grab bag in
-        // one style. Leave it PENDING until an upgraded relay declares support.
+        // one style, and one without the CausVid LoRA cannot run a Fast
+        // draft. Leave either PENDING until a capable relay declares support.
         if (
           !artJobClaimableBy(pilot.payload, {
             supportsInputImages,
             supportsAudio,
             supportsVideoRestyle,
             supportsVideoRestyleGrabBag,
+            supportsVideoRestyleFast,
           })
         )
           continue
@@ -338,6 +342,7 @@ export default defineEventHandler(async (event) => {
             supportsAudio,
             supportsVideoRestyle,
             supportsVideoRestyleGrabBag,
+            supportsVideoRestyleFast,
           }),
         )
 

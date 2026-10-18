@@ -32,6 +32,12 @@ function grabBagRecipe(
   }
 }
 
+// Absent on standard renders so their payloads, and the in-place sync that
+// compares them, stay byte-identical to before Fast draft existed.
+function speedRecipe(job: VideoRestyleJob) {
+  return job.renderSpeed === 'fast' ? { renderSpeed: 'fast' as const } : {}
+}
+
 function trackedStatus(status: VideoRestyleJob['status']) {
   if (status === 'PILOT_RUNNING') return 'RUNNING' as const
   if (status === 'REVIEW' || status === 'DONE') return 'DONE' as const
@@ -82,6 +88,7 @@ export async function syncRestylePilotArtJob(
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,
       ...grabBagRecipe(job, job.pilot.styleSchedule),
+      ...speedRecipe(job),
     },
     save: {
       isPublic: false,
@@ -329,6 +336,7 @@ export async function syncRestyleFullArtJob(
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,
       ...grabBagRecipe(job, job.full.styleSchedule),
+      ...speedRecipe(job),
     },
     save: {
       isPublic: false,

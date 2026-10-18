@@ -96,6 +96,12 @@ const reconcile = readFileSync(
 const artjob = readFileSync('server/utils/videoRestyleArtJob.ts', 'utf8')
 const queueCard = readFileSync('components/art/artjob-queue-card.vue', 'utf8')
 const media = readFileSync('utils/artJobMedia.ts', 'utf8')
+assert.equal(
+  artjob.match(/\.\.\.speedRecipe\(job\)/g)?.length,
+  2,
+  'pilot and full ArtJobs both carry the Fast draft speed',
+)
+assert.ok(media.includes('capabilities.supportsVideoRestyleFast === true'))
 assert.ok(pilot.includes('syncRestylePilotArtJob'))
 assert.ok(reconcile.includes('requireAdminApiUser'))
 assert.ok(reconcile.includes('syncRestylePilotArtJob'))
@@ -534,6 +540,59 @@ console.info('Grab bag rotation schedule verified')
         .map((w) => w.styleId),
       everyLook,
       'one batch walks every chosen look in order',
+    )
+
+    const { cloneRestyleVideo, updateRestyleSettings } =
+      await import('../../server/utils/videoRestyleJobs')
+    assert.equal(single.renderSpeed, 'standard')
+    const fast = await stageRestyleVideo({
+      userId: 7,
+      data: mp4,
+      title: 'Fast draft',
+      style: 'noir',
+      quality: '720p',
+      durationSec: 332,
+      renderSpeed: 'fast',
+    })
+    assert.equal(fast.renderSpeed, 'fast')
+    const slowed = await updateRestyleSettings(
+      7,
+      fast.id,
+      'noir',
+      '720p',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      'standard',
+    )
+    assert.equal(slowed.renderSpeed, 'standard')
+    const kept = await updateRestyleSettings(7, fast.id, 'noir', '720p')
+    assert.equal(
+      kept.renderSpeed,
+      'standard',
+      'omitted speed keeps the saved one',
+    )
+    const copy = await cloneRestyleVideo({
+      userId: 7,
+      id: single.id,
+      title: 'Fast copy',
+      style: 'noir',
+      quality: '720p',
+      renderSpeed: 'fast',
+    })
+    assert.equal(copy.renderSpeed, 'fast', 'a finished film can be redone fast')
+    await assert.rejects(
+      stageRestyleVideo({
+        userId: 7,
+        data: mp4,
+        title: 'Bad speed',
+        style: 'noir',
+        quality: '720p',
+        durationSec: 332,
+        renderSpeed: 'turbo',
+      }),
+      /Unknown render speed/,
     )
   } finally {
     if (previousRoot === undefined) delete process.env.PRIVATE_PATH

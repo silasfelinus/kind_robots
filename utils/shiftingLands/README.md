@@ -241,3 +241,39 @@ Choice chips read like Shifting Desks: a difficulty word for the target
 (`readCheck` in `journey.ts`: Routine 7 … Desperate 12) followed by what
 the two dice must show after the skill bonus. Tapping the chip explains
 the sum and shows the stake line (`risk`).
+
+## V6: Shifting Desks-depth decks (t-031/t-032, 2026-10-18)
+
+Silas asked for Shifting Desks' depth (24 encounters per level) in the Zuzu
+voice: hard decisions, the cost of sacrifice, and doing good in a world that
+does not always reward it. A run still draws one card per location, so the
+pool size and the choices on each card are what make replays differ.
+
+- **Content**: `authoredDecksV6.json` adds 72 cards (eight per location, 24
+  per land, 120 in all) and a third or fourth choice to each of the 48
+  original cards. The originals keep their text and their first two choices
+  in the base packs, so V2–V5 saves replay untouched.
+- **Choices** (`deckV6.ts`): a choice may be _certain_ (`roll: null`, no
+  failure), _gated_ (`requires.anyFlags` on one of ten shared deed flags such
+  as `deed-shared-bread` or `deed-left-someone`, so early mercy or cruelty
+  echoes later), and may carry an up-front `cost` in health or provisions.
+  `choiceLock` explains a closed route in words; every card keeps at least
+  one route with no gate and no cost.
+- **Moral ledger**: outcomes add `marks` (mercy, honesty, courage, cunning,
+  ruthlessness). Nothing reads them yet; endings that do are t-034.
+- **Save**: `kr.shiftingLands.journeyLedger.v6` (`saveLedgerV6.ts`) replays
+  every action; trials reuse the V5 trial rules. New journeys start on V6;
+  a V5 save keeps playing V5.
+- **Board**: certain choices show a "Certain" chip, costs show in red,
+  and locked routes sit in a compact dashed row that explains itself on tap.
+
+`verifyShiftingV6.test.ts` checks the content contract, plays 320 seeded
+runs with four policies (exact replay, prose-tolerant restore, forged dice
+and forged marks rejected, locked routes refused, no dice for certain
+choices, costs applied), and pins a fingerprint of the deck rules: any change
+to ids, weights, rolls, costs, gates or effects must bump `schemaVersion`
+because saves replay against the old draw pools.
+
+Balance at merge (400 seeds per policy, see t-035): V5 random play wins
+29%; V6 random 40%, cautious 45%, ruthless 46%, kind 28%. Kindness costs
+you, by design; t-034's endings are where it is meant to pay.

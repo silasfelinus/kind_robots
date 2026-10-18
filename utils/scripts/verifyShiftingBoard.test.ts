@@ -35,7 +35,9 @@ assert.match(board, /<FlipCard\b/)
 assert.match(board, /<kr-card-flip/)
 assert.match(board, /encounter-back\.svg/)
 assert.match(board, /trial-back\.svg/)
-assert.match(board, /v-for="option in game\.activeEncounter\.choices"/)
+assert.match(board, /v-for="option in openChoices"/)
+assert.match(board, /v-for="option in lockedChoices"/)
+assert.match(board, /game\.activeEncounter\?\.choices/)
 assert.match(board, /v-for="\(card, index\) in game\.locations"/)
 assert.match(board, /game\.reachable\.includes\(card\.id\)/)
 assert.match(board, /:disabled=/)
@@ -56,7 +58,8 @@ assert.match(board, /onMounted\(\(\) => \{/)
 assert.match(board, /game\.initialize\(\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreJourneyLedgerV5\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV6\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV5\(JSON\.parse\(savedV5\)\)/)
 assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(savedV4\)\)/)
 assert.match(store, /restoreJourneyLedger\(JSON\.parse\(savedV3\)\)/)
 assert.match(store, /migrateJourneyLedger\(JSON\.parse\(legacy\)\)/)
@@ -69,8 +72,13 @@ assert.match(
   store,
   /stepJourneyLedgerV4\(active, action as JourneyLedgerAction\)/,
 )
-assert.match(store, /stepJourneyLedgerV5\(active, action\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/)
+assert.match(store, /stepJourneyLedgerV5\(active, action as JourneyActionV5\)/)
+assert.match(store, /stepJourneyLedgerV6\(active, action as JourneyActionV6\)/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v6'/)
+assert.match(
+  store,
+  /const LEGACY_V5_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/,
+)
 assert.match(
   store,
   /const LEGACY_V4_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v4'/,
@@ -93,9 +101,13 @@ assert.match(legacy, /const SAVE_KEY = 'kr\.shiftingLands\.homestead\.v1'/)
 assert.match(store, /if \(!loaded\.value\) return false/)
 assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
-assert.match(store, /const key =\s+ledger\.value\.version === 5/)
+assert.match(
+  store,
+  /const key =\s+ledger\.value\.version === 6\s+\? SAVE_KEY\s+: ledger\.value\.version === 5/,
+)
 assert.match(store, /if \(savedV3 !== null\) \{/)
-assert.match(board, /findFiveLandCard/)
+assert.match(board, /game\.findCard\(/)
+assert.match(store, /v6Card\(id\) \?\? findFiveLandCard\(id\)/)
 assert.match(board, /v-for="choice in game\.currentTrial\.choices"/)
 assert.match(board, /attemptTrialWithCue\(choice\.id\)/)
 assert.match(

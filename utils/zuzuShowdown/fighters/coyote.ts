@@ -4,7 +4,7 @@
 // One-eyed, destitute, fighting after the croc took his right hand: a knife
 // lashed to the stump, and a revolver he fires left-handed and badly. A
 // scrappy trickster: an unreliable six-shooter that has to be reloaded,
-// pocket sand that stops you blocking, a three-stab rush, a pickpocket grab
+// pocket sand that stops you blocking, a low gutter slide, a three-stab rush, a pickpocket grab
 // that steals meter, and a Play Dead counter that loses to lows and grabs.
 // Lv1 Last Meal is a desperate rush; Lv3 Six Bad Shots is the Showdown super.
 //
@@ -137,6 +137,22 @@ const playDead: MoveData = {
   parry: { from: 3, to: 26, damage: 110, guards: ['mid', 'high'] },
 }
 
+const gutterSlide: MoveData = {
+  startup: 9,
+  active: 4,
+  recovery: 24,
+  hitbox: { x: 6, y: 0, w: 36, h: 10 },
+  damage: 55,
+  chip: 5,
+  hitstun: 18,
+  blockstun: 11,
+  hitstop: 7,
+  pushback: 5,
+  guard: 'low',
+  knockdown: true,
+  velocity: { from: 9, to: 13, x: 5 * SUB },
+}
+
 const reload: MoveData = {
   startup: 20,
   active: 1,
@@ -228,6 +244,13 @@ const specials: SpecialMove[] = [
     button: 'D',
     level: 'special',
     move: playDead,
+  },
+  {
+    id: 'gutter-slide',
+    motion: 'dp',
+    button: 'K',
+    level: 'special',
+    move: gutterSlide,
   },
   { id: 'reload', motion: 'dd', button: 'P', level: 'special', move: reload },
   {

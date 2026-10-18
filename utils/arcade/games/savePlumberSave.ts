@@ -18,6 +18,8 @@ export type PlumberSave = {
   cleared?: boolean
   /** Stage codes whose Golden Gear has been found, kept across runs. */
   gears?: string[]
+  /** The longest Endless run, in metres (tiles). */
+  endlessBest?: number
 }
 
 export const PLUMBER_SLUG = 'save-the-plumber'
@@ -51,5 +53,8 @@ export function readPlumberSave(raw: unknown): PlumberSave | null {
           ),
         ]
       : [],
+    endlessBest: count(r.endlessBest, 9_999_999)
+      ? (r.endlessBest as number)
+      : 0,
   }
 }

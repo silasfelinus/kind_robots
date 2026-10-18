@@ -328,7 +328,7 @@
               >
                 {{
                   plumber.nextStage
-                    ? `Saved at ${plumber.nextStage} · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears`
+                    ? `Saved at ${plumber.nextStage} · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears${plumber.endlessBest ? ` · Endless ${plumber.endlessBest} m` : ''}`
                     : 'Pick your heroine in the cabinet'
                 }}
               </span>
@@ -467,6 +467,7 @@ const controls = [
     keys: ['←', '→'],
     does: 'Move, in boss arenas only (she runs on her own everywhere else)',
   },
+  { keys: ['↑', '↓'], does: 'Title menu: New Game, Continue or Endless' },
 ]
 
 onMounted(() => {

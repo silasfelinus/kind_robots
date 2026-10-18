@@ -32,6 +32,8 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   const gears = computed(() => new Set(progress.value?.gears ?? []))
   const gearCount = computed(() => gears.value.size)
   const gearTotal = CAMPAIGN.length
+  /** The longest Endless run on this device, in metres (0 before the first). */
+  const endlessBest = computed(() => progress.value?.endlessBest ?? 0)
 
   return {
     seed,
@@ -43,5 +45,6 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
     gears,
     gearCount,
     gearTotal,
+    endlessBest,
   }
 })

@@ -26,7 +26,8 @@ on:
       - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/verifyShiftingSceneArt.test.ts'
       - 'utils/scripts/verifyShiftingV6.test.ts'
-      - 'components/shifting-lands-*.vue'
+      - 'components/shifting-lands-check-chip.vue'
+      - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -53,7 +54,8 @@ on:
       - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/verifyShiftingSceneArt.test.ts'
       - 'utils/scripts/verifyShiftingV6.test.ts'
-      - 'components/shifting-lands-*.vue'
+      - 'components/shifting-lands-check-chip.vue'
+      - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:

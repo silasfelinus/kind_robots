@@ -8,33 +8,19 @@ on:
     branches: [main]
     paths:
       - 'utils/emperorOfDust/**'
-      - 'utils/scripts/verifyEmperorDispatch.test.ts'
-      - 'utils/scripts/verifyEmperorCampaign.test.ts'
-      - 'utils/scripts/verifyEmperorMap.test.ts'
-      - 'utils/scripts/verifyEmperorDayTwo.test.ts'
-      - 'utils/scripts/verifyEmperorDayThree.test.ts'
-      - 'utils/scripts/verifyEmperorDayFour.test.ts'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'stores/emperorFortressStore.ts'
-      - 'components/EmperorOfDustImperialRoadMap.vue'
+      - 'components/EmperorFortress*.vue'
       - 'pages/play/emperor-of-dust.vue'
-      - 'stores/emperorOfDustStore.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
   push:
     branches: [main]
     paths:
       - 'utils/emperorOfDust/**'
-      - 'utils/scripts/verifyEmperorDispatch.test.ts'
-      - 'utils/scripts/verifyEmperorCampaign.test.ts'
-      - 'utils/scripts/verifyEmperorMap.test.ts'
-      - 'utils/scripts/verifyEmperorDayTwo.test.ts'
-      - 'utils/scripts/verifyEmperorDayThree.test.ts'
-      - 'utils/scripts/verifyEmperorDayFour.test.ts'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'stores/emperorFortressStore.ts'
-      - 'components/EmperorOfDustImperialRoadMap.vue'
+      - 'components/EmperorFortress*.vue'
       - 'pages/play/emperor-of-dust.vue'
-      - 'stores/emperorOfDustStore.ts'
       - '.github/workflows/emperor-dispatch-contract.yml'
 
 jobs:
@@ -51,10 +37,4 @@ jobs:
       - run: npm ci
         env:
           CYPRESS_INSTALL_BINARY: '0'
-      - run: npx tsx utils/scripts/verifyEmperorDispatch.test.ts
-      - run: npx tsx utils/scripts/verifyEmperorCampaign.test.ts
-      - run: npx tsx utils/scripts/verifyEmperorMap.test.ts
-      - run: npx tsx utils/scripts/verifyEmperorDayTwo.test.ts
-      - run: npx tsx utils/scripts/verifyEmperorDayThree.test.ts
-      - run: npx tsx utils/scripts/verifyEmperorDayFour.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts

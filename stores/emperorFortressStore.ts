@@ -34,10 +34,28 @@ import type {
   DawnReport,
   FortressRun,
 } from '~/utils/emperorOfDust/fortress/types'
-import { decodeRelicVault } from '~/utils/emperorOfDust/relics'
+import {
+  acquireRelic,
+  chooseNextLoadout,
+  claimableRelics,
+  decodeRelicVault,
+  emptyRelicVault,
+  encodeRelicVault,
+} from '~/utils/emperorOfDust/fortress/relics'
+import type { RelicId, RelicVault } from '~/utils/emperorOfDust/fortress/relics'
+import { useAchievementStore } from './achievementStore'
 
-// Emperor of Dust v0.3 (Fortress). Runs alongside the v0.2 store until the
-// fortress UI replaces the pilot page (emperor-of-dust/t-020).
+// Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
+export type TextSpeed = 'normal' | 'fast' | 'instant'
+const TEXT_SPEEDS: readonly TextSpeed[] = ['normal', 'fast', 'instant']
+const SPEED_KEY = 'kr-emperor-of-dust-text-speed'
+// Day 1 petitions and their kind answers, for the existing achievements.
+const DAY_ONE_PETITIONS = ['q-d01-aqueduct', 'q-d01-toll', 'q-d01-mirefen']
+const KIND_ORDERS = [
+  'q-d01-aqueduct-repair',
+  'q-d01-toll-parley',
+  'q-d01-mirefen-escort',
+]
 const AUTO_KEY = 'kr-emperor-of-dust-fortress-auto-v3'
 const CODEX_KEY = 'kr-emperor-of-dust-codex-v1'
 const RELIC_KEY = 'kr-emperor-of-dust-relic-vault-v1'
@@ -61,11 +79,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const storageWarning = ref('')
   const lastResponse = ref('')
   const lastReport = ref<DawnReport | null>(null)
+  const relicVault = ref<RelicVault>(emptyRelicVault())
+  const textSpeed = ref<TextSpeed>('normal')
+  let relicVaultUnreadable = false
 
   const run = computed<FortressRun | null>(() => book.value?.current ?? null)
   const day = computed(() => run.value?.day ?? 1)
   const rewindableDays = computed(() =>
     (book.value?.dawns ?? []).map((dawn) => dawn.day),
+  )
+  const claimable = computed(() =>
+    run.value ? claimableRelics(run.value, relicVault.value) : [],
   )
 
   function write(key: string, value: string): boolean {
@@ -103,7 +127,57 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   function equippedRelics(): string[] {
-    return decodeRelicVault(read(RELIC_KEY))?.nextLoadout ?? []
+    return [...relicVault.value.nextLoadout]
+  }
+
+  function saveRelics(next: RelicVault) {
+    if (relicVaultUnreadable)
+      throw new Error(
+        'The relic vault is unreadable; it will not be overwritten',
+      )
+    if (!write(RELIC_KEY, encodeRelicVault(next)))
+      throw new Error('The relic vault could not be saved; nothing changed')
+    relicVault.value = next
+  }
+
+  function claimRelic(id: RelicId) {
+    saveRelics(acquireRelic(relicVault.value, current(), id))
+  }
+
+  function setNextRelics(ids: RelicId[]) {
+    saveRelics(chooseNextLoadout(relicVault.value, ids))
+  }
+
+  function setTextSpeed(speed: TextSpeed) {
+    textSpeed.value = speed
+    write(SPEED_KEY, speed)
+  }
+
+  function awardAchievements(next: FortressRun) {
+    const won = new Set(
+      next.reports
+        .flatMap((report) => report.quests)
+        .filter((quest) => quest.tier === 'success' || quest.tier === 'triumph')
+        .map((quest) => quest.questId),
+    )
+    if (!won.size) return
+    const achievements = useAchievementStore()
+    void achievements.rewardAchievementByCode(
+      'emperor-of-dust-orders-carried-out',
+    )
+    const ids = [...won]
+    if (
+      DAY_ONE_PETITIONS.every((prefix) =>
+        ids.some((id) => id.startsWith(prefix)),
+      )
+    )
+      void achievements.rewardAchievementByCode(
+        'emperor-of-dust-day-well-ruled',
+      )
+    if (KIND_ORDERS.every((id) => won.has(id)))
+      void achievements.rewardAchievementByCode(
+        'emperor-of-dust-merciful-court',
+      )
   }
 
   function load() {
@@ -111,6 +185,15 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     if (!storage())
       storageWarning.value =
         'Browser storage is blocked. This run may not persist.'
+    const rawRelics = read(RELIC_KEY)
+    const vault = decodeRelicVault(rawRelics)
+    relicVaultUnreadable = !!rawRelics && !vault
+    if (relicVaultUnreadable)
+      storageWarning.value =
+        'The relic vault could not be read. It was not overwritten.'
+    relicVault.value = vault ?? emptyRelicVault()
+    const speed = read(SPEED_KEY)
+    textSpeed.value = TEXT_SPEEDS.find((entry) => entry === speed) ?? 'normal'
     const rawCodex = read(CODEX_KEY)
     codex.value = decodeCodex(rawCodex) ?? emptyCodex()
     const raw = read(AUTO_KEY)
@@ -182,6 +265,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     book.value = recordDawn(book.value!, result.run)
     lastReport.value = result.report
     persist()
+    awardAchievements(result.run)
   }
 
   function rewind(toDay: number) {
@@ -259,6 +343,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     storageWarning,
     lastResponse,
     lastReport,
+    relicVault,
+    claimable,
+    textSpeed,
     run,
     day,
     rewindableDays,
@@ -278,5 +365,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     saveToSlot,
     loadFromSlot,
     clearSlot,
+    claimRelic,
+    setNextRelics,
+    setTextSpeed,
   }
 })

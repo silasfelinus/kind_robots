@@ -40,6 +40,15 @@ import {
   updateCurrent,
   validateRun,
 } from '../emperorOfDust/fortress/saves'
+import {
+  acquireRelic,
+  chooseNextLoadout,
+  claimableRelics,
+  decodeRelicVault,
+  emptyRelicVault,
+  encodeRelicVault,
+  eyeReveals,
+} from '../emperorOfDust/fortress/relics'
 import { STATS } from '../emperorOfDust/fortress/types'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
@@ -421,5 +430,25 @@ assert.ok(
   bounded.flags.includes('crisis:yard'),
   'an emptied local faction raises a crisis',
 )
+
+// Items of Power: earned by story flags, kept in a vault outside the run.
+const vault = emptyRelicVault()
+const plain = createRun(3)
+assert.deepEqual(claimableRelics(plain, vault), [])
+assert.throws(() => acquireRelic(vault, plain, 'eye-of-elder-crow'), /earned/)
+const earned = { ...plain, flags: ['relic-eye-earned'] }
+const owned = acquireRelic(vault, earned, 'eye-of-elder-crow')
+assert.deepEqual(claimableRelics(earned, owned), [])
+const loadout = chooseNextLoadout(owned, ['eye-of-elder-crow'])
+assert.deepEqual(decodeRelicVault(encodeRelicVault(loadout)), loadout)
+assert.throws(
+  () => chooseNextLoadout(owned, ['komodo-brass-hourglass']),
+  /collected/,
+)
+assert.equal(decodeRelicVault('{"version":1,"owned":["nope"]}'), null)
+const seeing = createRun(3, loadout.nextLoadout)
+assert.equal(eyeReveals(seeing, false), true, 'the Eye marks the lie')
+assert.equal(eyeReveals(seeing, true), false)
+assert.equal(eyeReveals(plain, false), false, 'no Eye, no reveal')
 
 console.log('Emperor of Dust fortress contract: ok')

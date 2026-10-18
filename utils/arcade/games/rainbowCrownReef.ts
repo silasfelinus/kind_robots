@@ -17,6 +17,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type ReefEnemy =
   'brood' | 'drone' | 'turret' | 'bulwark' | 'gate' | 'pylon'
@@ -29,7 +34,7 @@ export type ReefSpawn = RainbowSpawn<ReefEnemy>
 /** S06's route: high to break the Crown's damage relay, or low to the shield cache. */
 export type ReefRoute = 'relay' | 'cache'
 
-export const CROWN_REEF = {
+const AUTHORED_CROWN_REEF = {
   openingEnds: 300,
   turnStarts: 31500,
   bossStarts: 31800,
@@ -43,7 +48,7 @@ export const CROWN_REEF = {
   revealAt: 9900,
 } as const
 
-export const CROWN_REEF_SECTIONS = [
+const AUTHORED_CROWN_REEF_SECTIONS = [
   { name: 'Brood wings', from: 300, to: 1800 },
   { name: 'Petal turrets', from: 1800, to: 3300 },
   { name: 'Bulwark shells', from: 3300, to: 4800 },
@@ -64,7 +69,7 @@ export const CROWN_REEF_SECTIONS = [
 ] as const
 
 /** The Bulwark guardian holds the Act after the coral merge; no waves fly in its section. */
-export const CROWN_REEF_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_CROWN_REEF_GUARDIAN: RainbowGuardianSection = {
   name: 'Bulwark guardian',
   from: 8100,
   to: 9900,
@@ -75,7 +80,7 @@ export const CROWN_REEF_GUARDIAN: RainbowGuardianSection = {
  * The fork: two comms lines from markFrom, the crew's position decides at decideAt, and the routes rejoin
  * at rejoinAt. The relay route breaks the relay if every pylon falls; the cache route refills shields.
  */
-export const CROWN_REEF_FORK = {
+const AUTHORED_CROWN_REEF_FORK = {
   markFrom: 25908,
   decideAt: 26100,
   rejoinAt: 29700,
@@ -83,7 +88,7 @@ export const CROWN_REEF_FORK = {
   relayScore: 3000,
 } as const
 
-export const CROWN_REEF_WAVES: readonly ReefWave[] = [
+const AUTHORED_CROWN_REEF_WAVES: readonly ReefWave[] = [
   // Brood wings: a broodship darkens its wings, then launches two interceptor drones.
   wave(420, 'brood', 'single', 1, 0.5),
   wave(780, 'brood', 'single', 1, 0.3),
@@ -195,7 +200,7 @@ export const CROWN_REEF_WAVES: readonly ReefWave[] = [
 ]
 
 /** The relay route: three relay pylons among a heavy guard, flown only on that route. */
-export const CROWN_REEF_RELAY_WAVES: readonly ReefWave[] = [
+const AUTHORED_CROWN_REEF_RELAY_WAVES: readonly ReefWave[] = [
   wave(26220, 'pylon', 'single', 1, 0.15),
   wave(26340, 'brood', 'single', 1, 0.5),
   wave(26700, 'turret', 'single', 1, 0.3),
@@ -213,7 +218,7 @@ export const CROWN_REEF_RELAY_WAVES: readonly ReefWave[] = [
 ]
 
 /** The shield cache route: a light patrol, flown only on that route. */
-export const CROWN_REEF_CACHE_WAVES: readonly ReefWave[] = [
+const AUTHORED_CROWN_REEF_CACHE_WAVES: readonly ReefWave[] = [
   wave(26340, 'brood', 'single', 1, 0.75),
   wave(26880, 'turret', 'single', 1, 0.8),
   wave(27420, 'brood', 'single', 1, 0.7),
@@ -223,6 +228,68 @@ export const CROWN_REEF_CACHE_WAVES: readonly ReefWave[] = [
 ]
 
 /** Every Act VI wave, both routes; a wave's id is CROWN_REEF.waveBase plus its index here. */
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act VI keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_CROWN_REEF_SECTIONS, [
+  'Coral merge',
+  'Brood nests',
+  'Petal storm',
+  'Shell parade',
+  'Closing gates',
+  'Golden nebula',
+  'Tendril maze',
+  'Crown arches',
+  'Reef heart',
+])
+export const CROWN_REEF = {
+  ...AUTHORED_CROWN_REEF,
+  turnStarts: CUT.at(AUTHORED_CROWN_REEF.turnStarts),
+  bossStarts: CUT.at(AUTHORED_CROWN_REEF.bossStarts),
+  revealAt: CUT.at(AUTHORED_CROWN_REEF.revealAt),
+} as const
+export const CROWN_REEF_FORK = {
+  ...AUTHORED_CROWN_REEF_FORK,
+  decideAt: CUT.at(AUTHORED_CROWN_REEF_FORK.decideAt),
+  rejoinAt: CUT.at(AUTHORED_CROWN_REEF_FORK.rejoinAt),
+  markFrom:
+    CUT.at(AUTHORED_CROWN_REEF_FORK.decideAt) -
+    (AUTHORED_CROWN_REEF_FORK.decideAt - AUTHORED_CROWN_REEF_FORK.markFrom),
+} as const
+export const CROWN_REEF_SECTIONS = CUT.sections
+export const CROWN_REEF_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_CROWN_REEF_GUARDIAN,
+  from: CUT.at(AUTHORED_CROWN_REEF_GUARDIAN.from),
+  to: CUT.at(AUTHORED_CROWN_REEF_GUARDIAN.to),
+}
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const CROWN_REEF_REINFORCEMENTS = reinforcements<ReefWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['drone'],
+    every: {
+      'Brood wings': 420,
+      'Petal turrets': 300,
+      'Bulwark shells': 300,
+      'Reef gate': 360,
+      'Bioluminescent arches': 300,
+      'Nursery approach': 420,
+    },
+  },
+)
+export const CROWN_REEF_WAVES: readonly ReefWave[] = withReinforcements(
+  CUT.waves(AUTHORED_CROWN_REEF_WAVES),
+  CROWN_REEF_REINFORCEMENTS,
+)
+export const CROWN_REEF_RELAY_WAVES: readonly ReefWave[] = CUT.waves(
+  AUTHORED_CROWN_REEF_RELAY_WAVES,
+)
+export const CROWN_REEF_CACHE_WAVES: readonly ReefWave[] = CUT.waves(
+  AUTHORED_CROWN_REEF_CACHE_WAVES,
+)
+
 export const CROWN_REEF_ALL_WAVES: readonly ReefWave[] = [
   ...CROWN_REEF_WAVES,
   ...CROWN_REEF_RELAY_WAVES,

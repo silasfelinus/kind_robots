@@ -73,7 +73,8 @@ for (const entry of PALACE_WAVES)
     assert.ok(member.at < PALACE.turnStarts, 'every craft enters before CORE')
 const craft = PALACE_WAVE_SIZES.reduce((sum, size) => sum + size, 0)
 assert.ok(craft >= 140, `Act VIII authors ${craft} craft`)
-assert.ok(PALACE_CAPTIVES >= 25, `${PALACE_CAPTIVES} captives to free`)
+// The t-023 recut kept the captive armada, the council and the last captives (25 before it).
+assert.ok(PALACE_CAPTIVES >= 12, `${PALACE_CAPTIVES} captives to free`)
 // Recognizable legacy motifs: craft from every earlier Act's family return.
 const families = [
   ['spiral'],
@@ -431,7 +432,7 @@ for (const players of [1, 2]) {
       `the solo demo frees ${a.snapshot.captivesFreed} of ${PALACE_CAPTIVES} captives`,
     )
     assert.ok(
-      minutes >= 3 && minutes <= 15, // 10-15 before Silas's 2026-10-17 playtest cut the Acts
+      minutes >= 3.5 && minutes <= 7, // t-023's recut aims at 4-6 (10-15 before Silas's 2026-10-17 playtest)
       `a clean solo Act VIII takes ${minutes.toFixed(2)} minutes`,
     )
     assert.ok(bossFrames >= 30 * 60, 'the Leviathan is a real fight')

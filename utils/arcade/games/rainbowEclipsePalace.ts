@@ -18,6 +18,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type PalaceEnemy =
   | 'harbinger'
@@ -52,7 +57,7 @@ export type PalaceFlags = {
   captivesFreed: number
 }
 
-export const PALACE = {
+const AUTHORED_PALACE = {
   openingEnds: 300,
   turnStarts: 31500,
   bossStarts: 31800,
@@ -63,7 +68,7 @@ export const PALACE = {
   councilAt: 9900,
 } as const
 
-export const PALACE_SECTIONS = [
+const AUTHORED_PALACE_SECTIONS = [
   { name: 'Corona gate', from: 300, to: 1800 },
   { name: 'Captive armada', from: 1800, to: 3300 },
   { name: 'Lantern hall', from: 3300, to: 4800 },
@@ -85,7 +90,7 @@ export const PALACE_SECTIONS = [
 ] as const
 
 /** The Herald guardian holds the palace after the convoy; no waves fly in its section. */
-export const PALACE_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_PALACE_GUARDIAN: RainbowGuardianSection = {
   name: 'Herald guardian',
   from: 8100,
   to: 9900,
@@ -102,7 +107,7 @@ export const PALACE_CAPTIVE = {
   freeScore: 300,
 } as const
 
-export const PALACE_WAVES: readonly PalaceWave[] = [
+const AUTHORED_PALACE_WAVES: readonly PalaceWave[] = [
   // Corona gate: harbingers glow on the eclipse corona; every pattern starts with its warning.
   wave(420, 'harbinger', 'single', 1, 0.5),
   wave(720, 'spiral', 'vee', 3, 0.3),
@@ -231,6 +236,56 @@ export const PALACE_WAVES: readonly PalaceWave[] = [
   wave(30960, 'squid', 'pair', 2, 0.2),
   wave(31200, 'prism', 'single', 1, 0.6),
 ]
+
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act VIII keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_PALACE_SECTIONS, [
+  'Convoy of the collared',
+  'Wreck motifs',
+  'Reef motifs',
+  'Glass motifs',
+  'Captive column',
+  'Lower heart spires',
+  'Elite formations',
+  'Second armada',
+  'Upper heart spires',
+  'Corona storm',
+])
+export const PALACE = {
+  ...AUTHORED_PALACE,
+  turnStarts: CUT.at(AUTHORED_PALACE.turnStarts),
+  bossStarts: CUT.at(AUTHORED_PALACE.bossStarts),
+  councilAt: CUT.at(AUTHORED_PALACE.councilAt),
+} as const
+export const PALACE_SECTIONS = CUT.sections
+export const PALACE_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_PALACE_GUARDIAN,
+  from: CUT.at(AUTHORED_PALACE_GUARDIAN.from),
+  to: CUT.at(AUTHORED_PALACE_GUARDIAN.to),
+}
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const PALACE_REINFORCEMENTS = reinforcements<PalaceWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['spiral', 'cutter', 'lantern', 'dolphin', 'skate'],
+    every: {
+      'Corona gate': 420,
+      'Captive armada': 360,
+      'Lantern hall': 300,
+      'Trench echoes': 300,
+      'The council': 360,
+      'Last captives': 360,
+      'Core approach': 420,
+    },
+  },
+)
+export const PALACE_WAVES: readonly PalaceWave[] = withReinforcements(
+  CUT.waves(AUTHORED_PALACE_WAVES),
+  PALACE_REINFORCEMENTS,
+)
 
 const schedule = buildFormationSchedule(PALACE_WAVES, PALACE.waveBase)
 

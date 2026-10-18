@@ -19,6 +19,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type GlassEnemy = 'mirror' | 'squid' | 'harbinger' | 'prism'
 export type GlassStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -28,7 +33,7 @@ export type GlassDialogue = { speaker: string; text: string }
 export type GlassWave = RainbowWave<GlassEnemy>
 export type GlassSpawn = RainbowSpawn<GlassEnemy>
 
-export const GLASS = {
+const AUTHORED_GLASS = {
   openingEnds: 300,
   turnStarts: 31500,
   bossStarts: 31800,
@@ -39,7 +44,7 @@ export const GLASS = {
   echoAt: 9900,
 } as const
 
-export const GLASS_SECTIONS = [
+const AUTHORED_GLASS_SECTIONS = [
   { name: 'Mirror canyon', from: 300, to: 1800 },
   { name: 'Split lenses', from: 1800, to: 3300 },
   { name: 'Harbinger glass', from: 3300, to: 4800 },
@@ -61,7 +66,7 @@ export const GLASS_SECTIONS = [
 ] as const
 
 /** The Mirror guardian holds the Act after the refraction merge; no waves fly in its section. */
-export const GLASS_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_GLASS_GUARDIAN: RainbowGuardianSection = {
   name: 'Mirror guardian',
   from: 8100,
   to: 9900,
@@ -72,7 +77,7 @@ export const GLASS_GUARDIAN: RainbowGuardianSection = {
  * The Lost Navigator: two comms lines open the Lost signal section, then the navigator's pod drifts out of
  * the glass at podAppears, weaving across the canyon. Touching it rescues the navigator.
  */
-export const GLASS_NAVIGATOR = {
+const AUTHORED_GLASS_NAVIGATOR = {
   commsFrom: 26100,
   podAppears: 26340,
   podSpeed: 0.5,
@@ -80,7 +85,7 @@ export const GLASS_NAVIGATOR = {
   rescueScore: 2000,
 } as const
 
-export const GLASS_WAVES: readonly GlassWave[] = [
+const AUTHORED_GLASS_WAVES: readonly GlassWave[] = [
   // Mirror canyon: mirror eels fire a solid pellet beside a phantom copy; only the outlined one is real.
   wave(420, 'mirror', 'single', 1, 0.5),
   wave(720, 'mirror', 'single', 1, 0.3),
@@ -210,6 +215,61 @@ export const GLASS_WAVES: readonly GlassWave[] = [
   wave(30960, 'squid', 'pair', 2, 0.2),
   wave(31200, 'prism', 'single', 1, 0.5),
 ]
+
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act VII keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_GLASS_SECTIONS, [
+  'Refraction merge',
+  'False corridor',
+  'Lens garden',
+  'Old patterns',
+  'Fractured beams',
+  'Crystal strata',
+  'Lens ribbons',
+  'Mirror maze',
+  'Refraction storm',
+  'Shattered light',
+])
+export const GLASS = {
+  ...AUTHORED_GLASS,
+  turnStarts: CUT.at(AUTHORED_GLASS.turnStarts),
+  bossStarts: CUT.at(AUTHORED_GLASS.bossStarts),
+  echoAt: CUT.at(AUTHORED_GLASS.echoAt),
+} as const
+export const GLASS_NAVIGATOR = {
+  ...AUTHORED_GLASS_NAVIGATOR,
+  commsFrom: CUT.at(AUTHORED_GLASS_NAVIGATOR.commsFrom),
+  podAppears: CUT.at(AUTHORED_GLASS_NAVIGATOR.podAppears),
+} as const
+export const GLASS_SECTIONS = CUT.sections
+export const GLASS_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_GLASS_GUARDIAN,
+  from: CUT.at(AUTHORED_GLASS_GUARDIAN.from),
+  to: CUT.at(AUTHORED_GLASS_GUARDIAN.to),
+}
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const GLASS_REINFORCEMENTS = reinforcements<GlassWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['mirror', 'squid'],
+    every: {
+      'Mirror canyon': 420,
+      'Split lenses': 300,
+      'Harbinger glass': 300,
+      'Prism pylons': 300,
+      'Machine echo': 300,
+      'Lost signal': 360,
+      'Palace corridor': 420,
+    },
+  },
+)
+export const GLASS_WAVES: readonly GlassWave[] = withReinforcements(
+  CUT.waves(AUTHORED_GLASS_WAVES),
+  GLASS_REINFORCEMENTS,
+)
 
 const schedule = buildFormationSchedule(GLASS_WAVES, GLASS.waveBase)
 

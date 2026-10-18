@@ -387,7 +387,7 @@ for (const players of [1, 4]) {
       assert.ok(count > 0, `the solo run saw a ${what}`)
     // A clean solo run, excluding retries, lands in the world bible's 10-15 minute window.
     assert.ok(
-      minutes >= 3 && minutes <= 15, // 10-15 before Silas's 2026-10-17 playtest cut the Acts
+      minutes >= 3.5 && minutes <= 7, // t-023's recut aims at 4-6 (10-15 before Silas's 2026-10-17 playtest)
       `a clean solo Act IV takes ${minutes.toFixed(2)} minutes`,
     )
     assert.ok(bossFrames >= 30 * 60, 'Delphion is a real fight')

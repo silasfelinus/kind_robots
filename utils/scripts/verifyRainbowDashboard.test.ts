@@ -16,7 +16,10 @@ assert.match(endpoint, /userId: auth\.user\.id/)
 // human and must come from somebody outside the same human/agent account.
 assert.match(workspace, /RECENT_REPLY_LIMIT = 12/)
 assert.match(workspace, /parent\.userId = \$\{input\.userId\}/)
-assert.match(workspace, /reply\.userId IS NULL OR reply\.userId <> \$\{input\.userId\}/)
+assert.match(
+  workspace,
+  /reply\.userId IS NULL OR reply\.userId <> \$\{input\.userId\}/,
+)
 assert.match(workspace, /reply\.isPublic = true/)
 assert.match(workspace, /reply\.isActive = true/)
 assert.match(workspace, /reply\.isMature = false/)
@@ -48,7 +51,10 @@ assert.match(workspace, /objects\.slice\(0, RECENT_OBJECT_LIMIT\)/)
 
 // No Rainbow shadow database, no private Conductor projection, and no claim
 // that a missing read-state system exists.
-assert.doesNotMatch(workspace, /ConductorProjection|readConductorProjection|buildConductorData/)
+assert.doesNotMatch(
+  workspace,
+  /ConductorProjection|readConductorProjection|buildConductorData/,
+)
 assert.match(workspace, /Canonical Kind Robots userId ownership/)
 
 console.log('Rainbow dashboard workspace contract OK')

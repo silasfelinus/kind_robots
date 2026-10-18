@@ -43,11 +43,10 @@ function modernHeaders(method: string, name?: string): RainbowMcpHeaders {
   }
 }
 
-assert.deepEqual([...SUPPORTED_MCP_PROTOCOL_VERSIONS], [
-  '2026-07-28',
-  '2025-11-25',
-  '2025-06-18',
-])
+assert.deepEqual(
+  [...SUPPORTED_MCP_PROTOCOL_VERSIONS],
+  ['2026-07-28', '2025-11-25', '2025-06-18'],
+)
 assert.equal(isKnownMcpProtocolVersion('2026-07-28'), true)
 assert.equal(isKnownMcpProtocolVersion('2025-11-25'), true)
 assert.equal(isKnownMcpProtocolVersion('2099-01-01'), false)
@@ -62,8 +61,14 @@ assert.equal(isAllowedMcpOrigin('http://127.0.0.1:5173', false), true)
 assert.equal(isAllowedMcpOrigin('not a url', false), false)
 
 const listRequest = modernRequest('tools/list')
-assert.equal(requestClaimsModernMcp(listRequest, modernHeaders('tools/list')), true)
-assert.equal(validateModernMcpRequest(listRequest, modernHeaders('tools/list')), null)
+assert.equal(
+  requestClaimsModernMcp(listRequest, modernHeaders('tools/list')),
+  true,
+)
+assert.equal(
+  validateModernMcpRequest(listRequest, modernHeaders('tools/list')),
+  null,
+)
 
 const callRequest = modernRequest('tools/call', {
   name: 'rainbow_check_in',
@@ -91,8 +96,10 @@ assert.equal(
   'Mcp-Method must agree with the JSON-RPC body',
 )
 assert.equal(
-  validateModernMcpRequest(callRequest, modernHeaders('tools/call', 'wrong_tool'))
-    ?.code,
+  validateModernMcpRequest(
+    callRequest,
+    modernHeaders('tools/call', 'wrong_tool'),
+  )?.code,
   -32020,
   'Mcp-Name must agree with params.name',
 )
@@ -110,7 +117,8 @@ const missingCapabilities = modernRequest('tools/list')
   'io.modelcontextprotocol/protocolVersion': MODERN_MCP_PROTOCOL_VERSION,
 }
 assert.equal(
-  validateModernMcpRequest(missingCapabilities, modernHeaders('tools/list'))?.code,
+  validateModernMcpRequest(missingCapabilities, modernHeaders('tools/list'))
+    ?.code,
   -32602,
 )
 
@@ -140,7 +148,10 @@ const originMiddleware = readFileSync(
   'utf8',
 )
 const runtime = readFileSync('server/utils/agentProfileRuntime.ts', 'utf8')
-const checkInRoute = readFileSync('server/api/v1/agent/check-in.post.ts', 'utf8')
+const checkInRoute = readFileSync(
+  'server/api/v1/agent/check-in.post.ts',
+  'utf8',
+)
 
 const toolNames = Array.from(
   route.matchAll(/const TOOL_[A-Z_]+ = '([^']+)'/g),
@@ -155,14 +166,20 @@ assert.match(route, /request\.method === 'tools\/list'/)
 assert.match(route, /request\.method === 'tools\/call'/)
 assert.match(route, /requireBoundAgentProfile\(event, 'profile:read'\)/)
 assert.match(route, /requireBoundAgentProfile\(event, 'agent:checkin'\)/)
-assert.match(route, /assertAgentCheckInRateAllowed\(event, context\.auth\.credentialId\)/)
+assert.match(
+  route,
+  /assertAgentCheckInRateAllowed\(event, context\.auth\.credentialId\)/,
+)
 assert.match(route, /structuredContent: value/)
 assert.match(route, /content: \[\{ type: 'text', text: toolText\(value\) \}\]/)
 assert.match(route, /Object\.keys\(getQuery\(event\)\)\.length/)
 assert.match(route, /query-string credentials/)
 assert.match(route, /WWW-Authenticate/)
 assert.doesNotMatch(route, /fetch\(|\$fetch\(/)
-assert.doesNotMatch(route, /agentCredential\.create|agent-credentials|generation:art|forum:write/)
+assert.doesNotMatch(
+  route,
+  /agentCredential\.create|agent-credentials|generation:art|forum:write/,
+)
 assert.doesNotMatch(route, /console\.log|console\.error|authorization.*log/i)
 
 assert.match(originMiddleware, /pathname !== '\/api\/v1\/mcp'/)

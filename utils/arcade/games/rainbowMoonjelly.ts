@@ -15,6 +15,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type MoonjellyEnemy = 'lantern' | 'relay' | 'skimmer' | 'coral'
 export type MoonjellyStage =
@@ -24,7 +29,7 @@ export type MoonjellyDialogue = { speaker: string; text: string }
 export type MoonjellyWave = RainbowWave<MoonjellyEnemy>
 export type MoonjellySpawn = RainbowSpawn<MoonjellyEnemy>
 
-export const MOONJELLY = {
+const AUTHORED_MOONJELLY = {
   openingEnds: 300,
   nemiAppears: 1680,
   turnStarts: 3900,
@@ -36,7 +41,7 @@ export const MOONJELLY = {
   waveBase: 1000,
 } as const
 
-export const MOONJELLY_SECTIONS = [
+const AUTHORED_MOONJELLY_SECTIONS = [
   { name: 'Lantern gap lesson', from: 300, to: 1500 },
   { name: 'Relay links', from: 1500, to: 2700 },
   { name: 'Skimmer rain', from: 2700, to: 3900 },
@@ -58,14 +63,14 @@ export const MOONJELLY_SECTIONS = [
 ] as const
 
 /** The Lantern guardian holds the Act between the Bell remix and the escalations; no waves fly in its section. */
-export const MOONJELLY_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_MOONJELLY_GUARDIAN: RainbowGuardianSection = {
   name: 'Lantern guardian',
   from: 6900,
   to: 8700,
   kind: 'lantern',
 }
 
-export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
+const AUTHORED_MOONJELLY_WAVES: readonly MoonjellyWave[] = [
   wave(330, 'lantern', 'single', 1, 0.5),
   wave(540, 'lantern', 'pair', 2, 0.25),
   wave(780, 'lantern', 'single', 1, 0.3),
@@ -236,6 +241,57 @@ export const MOONJELLY_WAVES: readonly MoonjellyWave[] = [
   wave(29880, 'relay', 'column', 4, 0.5, { spread: 0.2 }),
   wave(30060, 'skimmer', 'vee', 5, 0.3),
 ]
+
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act II keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_MOONJELLY_SECTIONS, [
+  'Bell remix',
+  'Lantern lattice',
+  'Moonrise surge',
+  'Bell canyon',
+  'Relay storm',
+  'Bell veil',
+  'Tendril crossing',
+  'Lantern choir',
+  'Glow drift',
+  'Coral orchard',
+  'Tide of bells',
+])
+export const MOONJELLY = {
+  ...AUTHORED_MOONJELLY,
+  nemiAppears: CUT.at(AUTHORED_MOONJELLY.nemiAppears),
+  turnStarts: CUT.at(AUTHORED_MOONJELLY.turnStarts),
+  turnEnds: CUT.at(AUTHORED_MOONJELLY.turnEnds),
+  approachStarts: CUT.at(AUTHORED_MOONJELLY.approachStarts),
+  bossStarts: CUT.at(AUTHORED_MOONJELLY.bossStarts),
+} as const
+export const MOONJELLY_SECTIONS = CUT.sections
+export const MOONJELLY_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_MOONJELLY_GUARDIAN,
+  from: CUT.at(AUTHORED_MOONJELLY_GUARDIAN.from),
+  to: CUT.at(AUTHORED_MOONJELLY_GUARDIAN.to),
+}
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const MOONJELLY_REINFORCEMENTS = reinforcements<MoonjellyWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['lantern', 'skimmer', 'relay'],
+    every: {
+      'Relay links': 300,
+      'Skimmer rain': 300,
+      'Coral cover': 300,
+      'Tendril maze': 420,
+      'Colony wake': 240,
+    },
+  },
+)
+export const MOONJELLY_WAVES: readonly MoonjellyWave[] = withReinforcements(
+  CUT.waves(AUTHORED_MOONJELLY_WAVES),
+  MOONJELLY_REINFORCEMENTS,
+)
 
 const schedule = buildFormationSchedule(MOONJELLY_WAVES, MOONJELLY.waveBase)
 

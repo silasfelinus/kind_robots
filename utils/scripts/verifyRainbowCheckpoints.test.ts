@@ -23,23 +23,14 @@ const actTwo = actCheckpoints(MOONJELLY_SECTIONS, MOONJELLY.bossStarts)
 assert.deepEqual(actOne, [
   0,
   300,
-  2100,
+  1500,
+  2700,
   3900,
-  5700,
-  7200,
-  8400,
-  10200,
-  12000,
-  13800,
-  15600,
-  17400,
-  19200,
-  21000,
-  22800,
-  24600,
-  26400,
-  28200,
-  30000,
+  5100,
+  6600,
+  7800,
+  9300,
+  10800,
   PINKWAKE.bossStarts,
 ])
 assert.deepEqual(actTwo, [
@@ -69,7 +60,7 @@ assert.equal(
   'ACT START',
 )
 assert.equal(
-  checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, 2100),
+  checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, 1500),
   'SPIRAL EDDIES',
 )
 assert.equal(
@@ -83,7 +74,7 @@ assert.equal(
 assert.equal(continueSeconds(RAINBOW_CONTINUE.countdownFrames), 10)
 assert.equal(continueSeconds(1), 1)
 // The next update replays the checkpoint frame itself in either Act.
-assert.equal(resumeTick({ act: 1, frame: 2100 }, null) + 1, 2100)
+assert.equal(resumeTick({ act: 1, frame: 1500 }, null) + 1, 1500)
 assert.equal(resumeTick({ act: 1, frame: 0 }, null), 0)
 assert.equal(resumeTick({ act: 2, frame: 1500 }, 9000) + 1 - 9000, 1500)
 assert.equal(resumeTick({ act: 2, frame: 0 }, 9000) + 1, 9000)

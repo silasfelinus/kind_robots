@@ -48,6 +48,14 @@ export const SYSTEM_ROUTES: Record<string, string> = {
   '/coloring-page':
     'per-image action, opened from an image card with ?imageId=',
   '/build-bench': 'Art dashboard tab, reached from the Art page',
+  '/admin/emperor-of-dust':
+    'legacy URL, 301-redirects to /play/emperor-of-dust',
+  '/admin/rainbow-bullet-hell-space-princess':
+    'legacy URL, 301-redirects to /play/rainbow-bullet-hell-space-princess',
+  '/admin/save-the-plumber':
+    'legacy URL, 301-redirects to /play/save-the-plumber',
+  '/admin/sliding-tile-gallery':
+    'legacy URL, 301-redirects to /play/sliding-tile-gallery',
   '/admin/zuzu-pinball': 'legacy URL, 301-redirects to /play/zuzu-pinball',
   '/admin/zuzu-shifting-lands':
     'legacy URL, 301-redirects to /play/zuzu-shifting-lands',

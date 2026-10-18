@@ -306,7 +306,7 @@ export const GROUP_4: GameAchievementDef[] = [
     icon: 'kind-icon:trophy',
     rule: { kind: 'level', min: 10 },
     artPrompt:
-      'A small teal lamplighter robot with a cream round head and a tall gold hat standing triumphant atop a steeply tilted scaffold, lighting-pole raised high, three night streets below glowing with rows of golden lamps, gloom-balls rolling away into the dark, centered heroic badge composition with a clear silhouette. 80s Saturday-morning cartoon cel painting, bold black ink outlines, flat cel colour with soft two-tone shadows, candy palette of teal, pink, purple and gold, glossy highlights, neon glow, sparkles and tiny stars',
+      'A small teal lamplighter robot with a cream round head and a tall gold hat standing triumphant atop a steeply tilted scaffold, lighting-pole raised high, five night streets below glowing with rows of golden lamps, gloom-balls rolling away into the dark, centered heroic badge composition with a clear silhouette. 80s Saturday-morning cartoon cel painting, bold black ink outlines, flat cel colour with soft two-tone shadows, candy palette of teal, pink, purple and gold, glossy highlights, neon glow, sparkles and tiny stars',
   },
   {
     game: 'dune-digger-dash',

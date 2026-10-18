@@ -38,6 +38,8 @@ export default defineEventHandler(async (event) => {
       style: field('style'),
       quality: field('quality'),
       durationSec: field('durationSec'),
+      variantStyleIds: field('variantStyleIds'),
+      variantMode: field('variantMode'),
       isPrivate: field('isPrivate'),
       isMature: field('isMature'),
     })

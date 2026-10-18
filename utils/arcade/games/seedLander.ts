@@ -145,7 +145,13 @@ import {
   drawRings,
   drawWindmill,
 } from '../seedLander/islandArt'
-import { ALL_ACORNS, ISLANDS, MISSIONS_PER_ISLAND } from '../seedLander/islands'
+import {
+  ALL_ACORNS,
+  ISLANDS,
+  MISSIONS_PER_ISLAND,
+  VAULT_INDEX,
+  islandAt,
+} from '../seedLander/islands'
 import { H, HAZARD_NAMES, HUD_H, W, freeHill } from '../seedLander/missions'
 import type { MissionSpec, VentSpec } from '../seedLander/missions'
 import { pilotInput } from '../seedLander/pilot'
@@ -328,7 +334,7 @@ class SeedLander implements ArcadeGameInstance {
     this.hiScore = options.hiScore
     const stored = this.demo
       ? null
-      : readLanderSave(options.resume, ISLANDS.length, MISSIONS_PER_ISLAND)
+      : readLanderSave(options.resume, VAULT_INDEX + 1, MISSIONS_PER_ISLAND)
     if (stored) {
       this.saveData = stored
       this.adoptProgress(stored)
@@ -420,7 +426,7 @@ class SeedLander implements ArcadeGameInstance {
     const t = this.flightTier
     const rows: Array<MenuRow & { id: MenuId }> = []
     if (this.offer) {
-      const isle = ISLANDS[this.offer.island]
+      const isle = islandAt(this.offer.island, new Set(this.offer.acorns))
       rows.push({
         id: 'continue',
         name: 'CONTINUE',
@@ -511,7 +517,7 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private toMap() {
-    this.screen = this.island >= ISLANDS.length ? 'soon' : 'map'
+    this.screen = islandAt(this.island, this.acorns) ? 'map' : 'soon'
     this.level = this.island * MISSIONS_PER_ISLAND + this.missionIndex + 1
   }
 
@@ -558,7 +564,7 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private startCampaignMission() {
-    const isle = ISLANDS[this.island]!
+    const isle = islandAt(this.island, this.acorns)!
     const spec = isle.missions[this.missionIndex]!
     this.missionLabel = `${isle.id.toUpperCase()} ${spec.kind === 'boss' ? 'BOSS' : this.missionIndex + 1}`
     this.level = this.island * MISSIONS_PER_ISLAND + this.missionIndex + 1
@@ -1271,7 +1277,7 @@ class SeedLander implements ArcadeGameInstance {
       this.medals[this.mission.id] = had | bits
       let nectar = 0
       for (let b = fresh; b; b >>= 1) nectar += (b & 1) * MEDAL_NECTAR
-      if (this.boss?.done) {
+      if (this.islandWon) {
         nectar += BOSS_NECTAR
         this.cleared.add(this.island)
         if (this.lives < MAX_PODS) {
@@ -1282,7 +1288,7 @@ class SeedLander implements ArcadeGameInstance {
       this.nectar += nectar
       if (nectar) this.tally.push({ label: 'NECTAR', value: `+${nectar}` })
       // Earned now, kept now: the next mission (or the Pod Shed's island) is the resume point.
-      if (this.boss?.done) {
+      if (this.islandWon) {
         this.island++
         this.missionIndex = 0
       } else this.missionIndex++
@@ -1297,8 +1303,13 @@ class SeedLander implements ArcadeGameInstance {
       this.lives++
       this.tally.push({ label: 'SPARE POD', value: '+1' })
     }
-    this.sound.play(this.boss?.done ? 'extra' : 'level')
+    this.sound.play(this.islandWon ? 'extra' : 'level')
     this.banner = null
+  }
+
+  /** The mission just cleared replants its island: a boss fell, or the Seed Vault's finale. */
+  private get islandWon(): boolean {
+    return !!this.boss?.done || !!this.mission.finale
   }
 
   private afterClear() {
@@ -1306,7 +1317,7 @@ class SeedLander implements ArcadeGameInstance {
       this.startHill(this.level + 1)
       return
     }
-    if (this.boss?.done) {
+    if (this.islandWon) {
       // The island is replanted: the Pod Shed, then on to the next island.
       this.screen = 'shed'
       this.shedPick = 0
@@ -2148,7 +2159,11 @@ class SeedLander implements ArcadeGameInstance {
 
   private renderScreen(g: CanvasRenderingContext2D) {
     if (this.screen === 'soon') {
-      drawSoon(g, this.tick)
+      drawSoon(g, this.tick, {
+        got: ALL_ACORNS.filter((a) => this.acorns.has(a)).length,
+        total: ALL_ACORNS.length,
+        vault: this.cleared.has(VAULT_INDEX),
+      })
       return
     }
     if (this.screen === 'shed') {
@@ -2176,7 +2191,7 @@ class SeedLander implements ArcadeGameInstance {
       })
       return
     }
-    const isle = ISLANDS[this.island]!
+    const isle = islandAt(this.island, this.acorns)!
     const islandAcorns = isle.missions.flatMap((m) => m.acorns ?? [])
     drawIslandMap(g, {
       islands: Array.from({ length: 6 }, (_, i) => {

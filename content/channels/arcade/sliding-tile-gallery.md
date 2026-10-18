@@ -1,20 +1,19 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: sliding-tile-gallery
 label: Sliding Tile Gallery
-title: Sliding Tile Gallery · Workshop
-subtitle: Piece the picture back together
+title: Sliding Tile Gallery · Work in progress
+subtitle: Work in progress · Piece the picture back together
 description: Play a three-by-three sliding puzzle, reveal an illustrated postcard and collect solved boards on this device.
-summary: Play the private tile gallery.
+summary: WIP · Play the sliding tile puzzle.
 icon: kind-icon:gridsquare
-route: /admin/sliding-tile-gallery
+route: /play/sliding-tile-gallery
 sort: 138
-requiredRole: ADMIN
 tutorial:
   title: Sliding Tile Gallery
   body: >-
-    This private prototype is a solvable three-by-three sliding puzzle. Click
+    This work-in-progress public prototype is a solvable three-by-three sliding puzzle. Click
     or tap a tile immediately beside the empty square to move it. Rearrange
     tiles from 1 to 8, leaving the bottom-right corner empty. Daily puzzle
     makes the same seeded board for everyone on the same UTC day; Practice
@@ -24,4 +23,4 @@ tutorial:
     still need review.
 ---
 
-This protected workshop houses the first playable Sliding Tile Gallery build.
+This public work-in-progress page houses the first playable Sliding Tile Gallery build.

@@ -143,7 +143,7 @@ assert.equal(
   0,
 )
 
-const page = source('../../pages/admin/save-the-plumber.vue')
+const page = source('../../pages/play/save-the-plumber.vue')
 for (const part of [
   '<PlumberTitleScene',
   '<PlumberWorldMap',
@@ -156,7 +156,7 @@ for (const part of [
   'id="plumber-casting"',
 ])
   assert.ok(page.includes(part), `front page includes ${part}`)
-assert.match(page, /!user\.isAdmin/)
+assert.doesNotMatch(page, /!user\.isAdmin/)
 
 const components = [
   'plumber-title-scene',

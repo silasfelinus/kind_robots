@@ -711,7 +711,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Crate Stack Shuffle',
     riffsOn: 'Tetris',
     blurb:
-      'Stacker, a little warehouse robot, turns and drops falling crates of seven odd shapes to finish full rows, and every finished row ships out. Each ten rows is a new level and the crates fall faster. From level 3 some crates are wrapped in sticky tape, which only comes off the first time its row fills, and from level 5 heavy crates plummet.',
+      'Stacker, a little warehouse robot, turns and drops falling crates of seven odd shapes to finish full rows, and every finished row ships out. Each ten rows is a new level and the crates fall faster. From level 3 some crates are wrapped in sticky tape, which only comes off the first time its row fills, and from level 5 heavy crates plummet. The warehouse changes every level, through five bays.',
     howTo: [
       'LEFT/RIGHT  SLIDE',
       'A OR UP  TURN',
@@ -732,7 +732,7 @@ export const ARCADE_GAMES: ArcadeGameMeta[] = [
     title: 'Lamp Lighter Run',
     riffsOn: 'Donkey Kong',
     blurb:
-      'Wick, a lamplighter robot, climbs a scaffold of sloping girders to relight ten street lamps before the lantern timer runs out, hopping the gloom-balls that roll down from the chute. Every level the girders tilt more, the balls roll faster and the timer shrinks, across three night streets.',
+      'Wick, a lamplighter robot, climbs a scaffold of sloping girders to relight ten street lamps before the lantern timer runs out, hopping the gloom-balls that roll down from the chute. Every level the girders tilt more, the balls roll faster and the timer shrinks, across five night streets.',
     howTo: [
       'LEFT/RIGHT  WALK',
       'UP/DOWN  CLIMB',
@@ -824,6 +824,8 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'HOLD B  FOCUS',
       'FOCUS: NEEDLE · THREAD · LINK · ARC',
       'B AT 100%  SUPER',
+      'X  PILOT SPECIAL',
+      'Y  EVADE: ROLL · DASH · BLINK · BOOST',
       'START  PAUSE',
       '1 TO 4 LOCAL PILOTS',
       'CADET · PILOT · ACE DIFFICULTY',
@@ -840,6 +842,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     difficulty: RAINBOW_DIFFICULTY_NAMES,
     mastery: RAINBOW_MASTERY,
     calmMotion: true,
+    fourButtons: true,
   },
   {
     slug: 'zuzu-pinball',

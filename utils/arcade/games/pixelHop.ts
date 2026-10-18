@@ -18,7 +18,13 @@
 // down-right, Down down-left, Left up-left.
 
 import { levelCurve } from '../curve'
-import { endlessPressure } from './pixelHopBoards'
+import {
+  boardRows,
+  endlessPressure,
+  prismComplete,
+  pyramidBoard,
+  stripeComplete,
+} from './pixelHopBoards'
 import { drawText } from '../font'
 import {
   INK,
@@ -52,7 +58,6 @@ import type {
 
 const W = 256
 const H = 240
-const ROWS = 7
 const CUBE_W = 28
 const ROW_H = 21
 const FACE_H = 14
@@ -68,6 +73,8 @@ const ROUNDS_PER_LEVEL = 4
 const EXTRA_EVERY = 12_000
 
 const PAINT_POINTS = 25
+const STRIPE_POINTS = 150
+const PRISM_POINTS = 100
 const ROUND_BONUS = 1000
 const BOING_LURE_POINTS = 500
 const GREMLIN_POINTS = 300
@@ -145,8 +152,8 @@ type Particle = {
 }
 type Floater = { x: number; y: number; text: string; life: number }
 
-function onPyramid(r: number, c: number): boolean {
-  return r >= 0 && r < ROWS && c >= 0 && c <= r
+function onPyramid(r: number, c: number, rows: number): boolean {
+  return r >= 0 && r < rows && c >= 0 && c <= r
 }
 
 function cubeTop(r: number, c: number): { x: number; y: number } {
@@ -543,6 +550,8 @@ class PixelHop implements ArcadeGameInstance {
   over = false
 
   private rng: () => number
+  /** Pyramid height this round: the wide board shows up every 4th round. */
+  private rows = 7
   private sound: ArcadeGameOptions['sound']
   private demo: boolean
   private hiScore: number
@@ -590,10 +599,17 @@ class PixelHop implements ArcadeGameInstance {
 
   // --- rounds ------------------------------------------------------------------
 
+  private onBoard(r: number, c: number): boolean {
+    return onPyramid(r, c, this.rows)
+  }
+
   private startRound(round: number) {
     this.round = round
+    this.rows = boardRows(round)
     this.level = 1 + Math.floor((round - 1) / ROUNDS_PER_LEVEL)
-    this.paint = Array.from({ length: ROWS }, (_, r) => Array(r + 1).fill(0))
+    this.paint = Array.from({ length: this.rows }, (_, r) =>
+      Array(r + 1).fill(0),
+    )
     this.discs = [
       { side: -1, row: 2 + Math.floor(this.rng() * 4), used: false },
       { side: 1, row: 2 + Math.floor(this.rng() * 4), used: false },
@@ -642,8 +658,8 @@ class PixelHop implements ArcadeGameInstance {
           this.banner = { text: 'GAME OVER', ticks: 9999 }
         } else {
           // Back on the pyramid where you were (or the top after a fall).
-          const r = onPyramid(this.me.r, this.me.c) ? this.me.r : 0
-          const c = onPyramid(this.me.r, this.me.c) ? this.me.c : 0
+          const r = this.onBoard(this.me.r, this.me.c) ? this.me.r : 0
+          const c = this.onBoard(this.me.r, this.me.c) ? this.me.c : 0
           this.me = { r, c, fr: r, fc: c, hop: 0, falling: 0 }
           this.enemies = []
           this.dropTimer = 90
@@ -711,7 +727,7 @@ class PixelHop implements ArcadeGameInstance {
   /** Landed at the end of a hop: on a tile, onto a disc, or off into the air. */
   private arrive() {
     const me = this.me
-    if (onPyramid(me.r, me.c)) {
+    if (this.onBoard(me.r, me.c)) {
       this.land()
       return
     }
@@ -757,9 +773,23 @@ class PixelHop implements ArcadeGameInstance {
       if (next > tile) {
         const at = cubeTop(r, c)
         this.addScore(PAINT_POINTS, at.x, at.y - 14)
+        if (next === 2) this.hopCombos(r, c)
       }
     }
     if (this.paint.every((row) => row.every((t) => t === 2))) this.roundClear()
+  }
+
+  /** Stripe (a whole row done) and Prism (a 3-cube triangle done) bonuses. */
+  private hopCombos(r: number, c: number) {
+    const board = pyramidBoard(this.rows)
+    const done = board.cells.map((cell) => this.paint[cell.r]![cell.c] === 2)
+    const landed = { r, c }
+    const at = cubeTop(r, c)
+    if (r > 0 && stripeComplete(board, done, landed)) {
+      this.addScore(STRIPE_POINTS, at.x, at.y - 28)
+    } else if (prismComplete(board, done, landed)) {
+      this.addScore(PRISM_POINTS, at.x, at.y - 28)
+    }
   }
 
   private roundClear() {
@@ -768,7 +798,7 @@ class PixelHop implements ArcadeGameInstance {
     this.addScore(bonus + unused * 50, W / 2, 120)
     this.clear = ROUND_CLEAR_TICKS
     this.enemies = []
-    for (let r = 0; r < ROWS; r += 2)
+    for (let r = 0; r < this.rows; r += 2)
       for (let c = 0; c <= r; c++) {
         const at = cubeTop(r, c)
         this.fx.burst(at.x, at.y, this.fxRng, { count: 3 })
@@ -844,7 +874,7 @@ class PixelHop implements ArcadeGameInstance {
       e.hop = HOP_TICKS
     }
     this.enemies = this.enemies.filter(
-      (e) => !(e.falling === 1 || e.r > ROWS + 2),
+      (e) => !(e.falling === 1 || e.r > this.rows + 2),
     )
   }
 
@@ -856,7 +886,7 @@ class PixelHop implements ArcadeGameInstance {
       for (const [dr, dc] of MOVES) {
         const r = e.r + dr
         const c = e.c + dc
-        if (!onPyramid(r, c)) continue
+        if (!this.onBoard(r, c)) continue
         const d =
           Math.abs(r - this.me.r) +
           Math.abs(c - r / 2 - (this.me.c - this.me.r / 2))
@@ -872,11 +902,11 @@ class PixelHop implements ArcadeGameInstance {
   }
 
   private enemyArrive(e: Enemy) {
-    if (!onPyramid(e.r, e.c)) {
+    if (!this.onBoard(e.r, e.c)) {
       e.falling = 40
       return
     }
-    if (e.kind === 'purple' && e.r === ROWS - 1) {
+    if (e.kind === 'purple' && e.r === this.rows - 1) {
       // At the bottom the purple gumball hatches into Boing.
       e.kind = 'boing'
       this.burst(cubeTop(e.r, e.c).x, cubeTop(e.r, e.c).y, 10, '#c084fc')
@@ -1046,7 +1076,7 @@ class PixelHop implements ArcadeGameInstance {
         const r = cur.r + dr
         const c = cur.c + dc
         const key = `${r},${c}`
-        if (!onPyramid(r, c) || prev.has(key) || danger.has(key)) continue
+        if (!this.onBoard(r, c) || prev.has(key) || danger.has(key)) continue
         prev.set(key, { from: `${cur.r},${cur.c}`, dir })
         if (want(r, c)) {
           goal = key
@@ -1060,7 +1090,7 @@ class PixelHop implements ArcadeGameInstance {
       for (let dir = 0; dir < 4; dir++) {
         const [dr, dc] = MOVES[dir]!
         const key = `${me.r + dr},${me.c + dc}`
-        if (onPyramid(me.r + dr, me.c + dc) && !danger.has(key))
+        if (this.onBoard(me.r + dr, me.c + dc) && !danger.has(key))
           return this.press(frame, keys[dir]!)
       }
       return frame
@@ -1081,7 +1111,7 @@ class PixelHop implements ArcadeGameInstance {
 
   render(g: CanvasRenderingContext2D) {
     this.renderSky(g)
-    for (let r = 0; r < ROWS; r++)
+    for (let r = 0; r < this.rows; r++)
       for (let c = 0; c <= r; c++) this.renderCube(g, r, c)
     for (const d of this.discs)
       if (!d.used) this.renderDisc(g, d.side, d.row, false)
@@ -1297,13 +1327,13 @@ class PixelHop implements ArcadeGameInstance {
       if (h.fr < 0) lift = (1 - t) * 50 + Math.sin(t * Math.PI) * 14
       else {
         // Hopping off the edge: no tile to land the shadow on past halfway.
-        if (!onPyramid(h.r, h.c) && t > 0.5) return
+        if (!this.onBoard(h.r, h.c) && t > 0.5) return
         const from = cubeTop(h.fr, h.fc)
         x = from.x + (to.x - from.x) * t
         y = from.y + (to.y - from.y) * t
         lift = Math.sin(t * Math.PI) * 14
       }
-    } else if (!onPyramid(h.r, h.c)) return
+    } else if (!this.onBoard(h.r, h.c)) return
     const k = Math.max(0.35, 1 - lift / 40)
     dropShadow(g, x, y + 1, 7 * k, 2.5 * k, 0.45 * k)
   }

@@ -337,6 +337,33 @@ export const RESTYLE_STYLES = [
 ] as const
 export type RestyleStyleId = (typeof RESTYLE_STYLES)[number]['id']
 
+export const RESTYLE_GRAB_BAG = {
+  id: 'grab-bag',
+  label: 'Grab bag',
+  note: 'Rotates looks by motion window',
+  tone: 'from-fuchsia-400/50 via-amber-300/40 to-cyan-400/50',
+} as const
+export type RestyleLookId = RestyleStyleId | typeof RESTYLE_GRAB_BAG.id
+export type RestyleVariantMode = 'cycle' | 'shuffle_locked'
+export const RESTYLE_GRAB_BAG_MIN_STYLES = 2
+export const RESTYLE_GRAB_BAG_MAX_STYLES = RESTYLE_STYLES.length
+export const RESTYLE_GRAB_BAG_DEFAULT_STYLES: RestyleStyleId[] = [
+  'illustrious',
+  'noir',
+  'paper-cut',
+  'watercolor',
+]
+
+export const RESTYLE_RENDER_FPS = 16
+export const RESTYLE_RENDER_WINDOW_FRAMES = 65
+export const RESTYLE_RENDER_WINDOW_STEP = 57
+
+export type RestyleStyleWindow = {
+  index: number
+  sourceStartSec: number
+  styleId: RestyleStyleId
+}
+
 export const RESTYLE_PREVIEW_SCENE =
   'A stylish young woman in a fitted black outfit dances in a nightclub, a dramatic white coat flung wide open from her shoulders, caught mid-spin in a joyful celebratory pose, warm hanging lights glowing overhead and a softly blurred nightlife crowd behind her'
 export const RESTYLE_PREVIEW_ENGINE = 'krea2'
@@ -388,6 +415,99 @@ export type RestyleSegment = {
 
 export function isRestyleStyle(value: unknown): value is RestyleStyleId {
   return RESTYLE_STYLES.some((style) => style.id === value)
+}
+
+export function isRestyleLook(value: unknown): value is RestyleLookId {
+  return value === RESTYLE_GRAB_BAG.id || isRestyleStyle(value)
+}
+
+export function restyleLookLabel(value: string): string {
+  if (value === RESTYLE_GRAB_BAG.id) return RESTYLE_GRAB_BAG.label
+  return RESTYLE_STYLES.find((entry) => entry.id === value)?.label || value
+}
+
+/** Distinct, known looks in the exact order they will rotate, or null. */
+export function normalizeGrabBagStyles(
+  value: unknown,
+): RestyleStyleId[] | null {
+  const list =
+    typeof value === 'string'
+      ? value.split(',').map((entry) => entry.trim())
+      : value
+  if (!Array.isArray(list)) return null
+  if (
+    list.length < RESTYLE_GRAB_BAG_MIN_STYLES ||
+    list.length > RESTYLE_GRAB_BAG_MAX_STYLES ||
+    !list.every(isRestyleStyle) ||
+    new Set(list).size !== list.length
+  ) {
+    return null
+  }
+  return [...list]
+}
+
+export function shuffleRestyleStyles(
+  styleIds: readonly RestyleStyleId[],
+  random: () => number = Math.random,
+): RestyleStyleId[] {
+  const order = [...styleIds]
+  for (let index = order.length - 1; index > 0; index -= 1) {
+    const swap = Math.floor(random() * (index + 1))
+    ;[order[index], order[swap]] = [order[swap]!, order[index]!]
+  }
+  return order
+}
+
+/** Same window count as the VACE worker: 65-frame windows every 57 frames. */
+export function restyleRenderWindowCount(durationSec: number): number {
+  const frames = Math.max(1, Math.round(durationSec * RESTYLE_RENDER_FPS))
+  return (
+    Math.ceil(
+      Math.max(0, frames - RESTYLE_RENDER_WINDOW_FRAMES) /
+        RESTYLE_RENDER_WINDOW_STEP,
+    ) + 1
+  )
+}
+
+/**
+ * Resolve one concrete look per motion window. The rotation is anchored to
+ * SOURCE time, so a pilot at 2:38 shows the looks the full film will use at
+ * 2:38, and every re-render or retry reproduces the identical sequence.
+ */
+export function planRestyleStyleSchedule(
+  startSec: number,
+  durationSec: number,
+  styleIds: readonly RestyleStyleId[],
+): RestyleStyleWindow[] {
+  if (!styleIds.length) throw new Error('Grab bag needs at least one look.')
+  const firstFrame = Math.round(startSec * RESTYLE_RENDER_FPS)
+  const middle = Math.floor(RESTYLE_RENDER_WINDOW_FRAMES / 2)
+  return Array.from(
+    { length: restyleRenderWindowCount(durationSec) },
+    (_, index) => {
+      const frame = firstFrame + index * RESTYLE_RENDER_WINDOW_STEP
+      const slot = Math.floor((frame + middle) / RESTYLE_RENDER_WINDOW_STEP)
+      return {
+        index,
+        sourceStartSec: Number((frame / RESTYLE_RENDER_FPS).toFixed(3)),
+        styleId: styleIds[slot % styleIds.length]!,
+      }
+    },
+  )
+}
+
+/** Compact worker recipe: per-window ids plus each used look's prompt once. */
+export function restyleScheduleRecipe(schedule: readonly RestyleStyleWindow[]) {
+  const used = [...new Set(schedule.map((window) => window.styleId))]
+  return {
+    styleSchedule: schedule.map(({ index, styleId }) => ({ index, styleId })),
+    stylePrompts: Object.fromEntries(
+      used.map((id) => [
+        id,
+        RESTYLE_STYLES.find((entry) => entry.id === id)!.prompt,
+      ]),
+    ) as Record<string, string>,
+  }
 }
 
 export function planRestyleSegments(

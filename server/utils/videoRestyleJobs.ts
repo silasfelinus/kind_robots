@@ -14,14 +14,24 @@ import { createError } from 'h3'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import {
   RESTYLE_MAX_BYTES,
+  RESTYLE_GRAB_BAG,
+  RESTYLE_GRAB_BAG_MAX_STYLES,
+  RESTYLE_GRAB_BAG_MIN_STYLES,
   RESTYLE_MAX_DURATION_SEC,
   RESTYLE_STYLES,
-  isRestyleStyle,
+  isRestyleLook,
+  normalizeGrabBagStyles,
   planRestyleSegments,
+  planRestyleStyleSchedule,
+  restyleLookLabel,
+  restyleRenderWindowCount,
+  type RestyleLookId,
   type RestyleQuality,
   type RestyleSegment,
   type RestyleStatus,
   type RestyleStyleId,
+  type RestyleStyleWindow,
+  type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
 
 export type VideoRestyleJob = {
@@ -32,7 +42,9 @@ export type VideoRestyleJob = {
   sourceBytes: number
   sourceDurationSec: number
   sourceDurationProvenance: 'browser-unverified'
-  style: RestyleStyleId
+  style: RestyleLookId
+  variantStyleIds?: RestyleStyleId[]
+  variantMode?: RestyleVariantMode
   quality: RestyleQuality
   isPrivate?: boolean
   isMature?: boolean
@@ -47,6 +59,7 @@ export type VideoRestyleJob = {
     totalSegments: number
     artJobId?: number
     renderModel: string
+    styleSchedule?: RestyleStyleWindow[]
   }
   pilot?: {
     startSec: number
@@ -57,6 +70,7 @@ export type VideoRestyleJob = {
     revision?: number
     previousRevision?: number
     renderModel: string
+    styleSchedule?: RestyleStyleWindow[]
   }
   createdAt: string
   updatedAt: string
@@ -84,6 +98,72 @@ function root(userId: number): string {
 
 export function restyleSourcePath(job: VideoRestyleJob): string {
   return path.join(root(job.userId), job.id, job.sourceFile)
+}
+
+type ResolvedLook = {
+  style: RestyleLookId
+  variantStyleIds?: RestyleStyleId[]
+  variantMode?: RestyleVariantMode
+  stylePrompt: string
+}
+
+/** Validate a single look, or a Grab bag with its locked rotation order. */
+export function resolveRestyleLook(
+  style: unknown,
+  variantStyleIds?: unknown,
+  variantMode?: unknown,
+): ResolvedLook {
+  if (!isRestyleLook(style)) {
+    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
+  }
+  if (style !== RESTYLE_GRAB_BAG.id) {
+    const look = RESTYLE_STYLES.find((entry) => entry.id === style)!
+    return { style, stylePrompt: look.prompt }
+  }
+  const styleIds = normalizeGrabBagStyles(variantStyleIds)
+  if (!styleIds) {
+    throw createError({
+      statusCode: 400,
+      message: `Grab bag needs ${RESTYLE_GRAB_BAG_MIN_STYLES}-${RESTYLE_GRAB_BAG_MAX_STYLES} different looks.`,
+    })
+  }
+  if (
+    variantMode !== undefined &&
+    variantMode !== 'cycle' &&
+    variantMode !== 'shuffle_locked'
+  ) {
+    throw createError({ statusCode: 400, message: 'Unknown grab bag order.' })
+  }
+  return {
+    style,
+    variantStyleIds: styleIds,
+    variantMode: variantMode ?? 'cycle',
+    stylePrompt: `Grab bag rotation, one look per motion window: ${styleIds.map(restyleLookLabel).join(' -> ')}`,
+  }
+}
+
+function lookFields(look: ResolvedLook) {
+  return {
+    style: look.style,
+    variantStyleIds: look.variantStyleIds,
+    variantMode: look.variantMode,
+  }
+}
+
+function passSchedule(
+  job: VideoRestyleJob,
+  startSec: number,
+  durationSec: number,
+): { styleSchedule?: RestyleStyleWindow[] } {
+  if (job.style !== RESTYLE_GRAB_BAG.id || !job.variantStyleIds?.length)
+    return {}
+  return {
+    styleSchedule: planRestyleStyleSchedule(
+      startSec,
+      durationSec,
+      job.variantStyleIds,
+    ),
+  }
 }
 
 export async function loadRestyleJob(
@@ -142,6 +222,8 @@ export async function stageRestyleVideo(input: {
   style: unknown
   quality: unknown
   durationSec: unknown
+  variantStyleIds?: unknown
+  variantMode?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -157,8 +239,11 @@ export async function stageRestyleVideo(input: {
       statusCode: 415,
       message: 'Upload an MP4, MOV or WebM video.',
     })
-  if (!isRestyleStyle(input.style))
-    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
+  const look = resolveRestyleLook(
+    input.style,
+    input.variantStyleIds,
+    input.variantMode,
+  )
   if (input.quality !== '720p' && input.quality !== '1080p') {
     throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
   }
@@ -177,9 +262,6 @@ export async function stageRestyleVideo(input: {
   const directory = path.join(root(input.userId), id)
   await mkdir(directory, { recursive: true, mode: 0o700 })
   const now = new Date().toISOString()
-  const style = RESTYLE_STYLES.find(
-    (candidate) => candidate.id === input.style,
-  )!
   const file = `source.${format}`
   const job: VideoRestyleJob = {
     id,
@@ -192,7 +274,7 @@ export async function stageRestyleVideo(input: {
     sourceBytes: input.data.length,
     sourceDurationSec: duration,
     sourceDurationProvenance: 'browser-unverified',
-    style: input.style,
+    ...lookFields(look),
     quality: input.quality,
     isPrivate: restyleFlag(input.isPrivate, true),
     isMature: restyleFlag(input.isMature, false),
@@ -212,7 +294,7 @@ export async function stageRestyleVideo(input: {
       preserveAudio: true,
       outputFps: 24,
       upscaleAfterAssembly: input.quality === '1080p',
-      stylePrompt: style.prompt,
+      stylePrompt: look.stylePrompt,
     },
   }
   await writeFile(path.join(directory, file), input.data, {
@@ -243,6 +325,8 @@ export async function cloneRestyleVideo(input: {
   title: unknown
   style: unknown
   quality: unknown
+  variantStyleIds?: unknown
+  variantMode?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -253,25 +337,26 @@ export async function cloneRestyleVideo(input: {
       message: 'Invalid saved source file.',
     })
   }
-  if (!isRestyleStyle(input.style)) {
-    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
-  }
+  const look = resolveRestyleLook(
+    input.style,
+    input.variantStyleIds,
+    input.variantMode,
+  )
   if (input.quality !== '720p' && input.quality !== '1080p') {
     throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
   }
   const id = randomUUID()
   const folder = path.join(root(input.userId), id)
   const now = new Date().toISOString()
-  const style = RESTYLE_STYLES.find((entry) => entry.id === input.style)!
   const cloned: VideoRestyleJob = {
     ...source,
     id,
     title:
-      String(input.title || `${source.title} · ${style.label}`)
+      String(input.title || `${source.title} · ${restyleLookLabel(look.style)}`)
         .trim()
         .slice(0, 120) || source.title,
     sourceProjectId: source.sourceProjectId ?? source.id,
-    style: input.style,
+    ...lookFields(look),
     quality: input.quality,
     isPrivate: restyleFlag(input.isPrivate, source.isPrivate ?? true),
     isMature: restyleFlag(input.isMature, source.isMature ?? false),
@@ -279,13 +364,14 @@ export async function cloneRestyleVideo(input: {
     stage: 'Saved source reused; ready to queue a new style pilot',
     progress: 0,
     pilot: undefined,
+    full: undefined,
     resultFile: null,
     error: null,
     createdAt: now,
     updatedAt: now,
     renderRecipe: {
       ...source.renderRecipe,
-      stylePrompt: style.prompt,
+      stylePrompt: look.stylePrompt,
       upscaleAfterAssembly: input.quality === '1080p',
     },
   }
@@ -318,10 +404,10 @@ export async function updateRestyleSettings(
   quality: unknown,
   isPrivate?: unknown,
   isMature?: unknown,
+  variantStyleIds?: unknown,
+  variantMode?: unknown,
 ): Promise<VideoRestyleJob> {
-  if (!isRestyleStyle(styleId)) {
-    throw createError({ statusCode: 400, message: 'Unknown animation style.' })
-  }
+  const look = resolveRestyleLook(styleId, variantStyleIds, variantMode)
   if (quality !== '720p' && quality !== '1080p') {
     throw createError({ statusCode: 400, message: 'Choose 720p or 1080p.' })
   }
@@ -333,10 +419,9 @@ export async function updateRestyleSettings(
         'Rendering has already started; these settings can no longer be changed.',
     })
   }
-  const style = RESTYLE_STYLES.find((entry) => entry.id === styleId)!
   const updated: VideoRestyleJob = {
     ...job,
-    style: styleId,
+    ...lookFields(look),
     quality,
     isPrivate: restyleFlag(isPrivate, job.isPrivate ?? true),
     isMature: restyleFlag(isMature, job.isMature ?? false),
@@ -344,7 +429,7 @@ export async function updateRestyleSettings(
     renderRecipe: {
       ...job.renderRecipe,
       upscaleAfterAssembly: quality === '1080p',
-      stylePrompt: style.prompt,
+      stylePrompt: look.stylePrompt,
     },
   }
   const target = path.join(root(userId), id, 'job.json')
@@ -407,8 +492,9 @@ export async function queueRestylePilot(
           ? { previousRevision: job.pilot.previousRevision }
           : {}),
       completedSegments: 0,
-      totalSegments: Math.ceil(Math.max(0, durationSec * 16 - 65) / 57) + 1,
+      totalSegments: restyleRenderWindowCount(durationSec),
       renderModel: 'wan2.1_vace_1.3B_fp16.safetensors',
+      ...passSchedule(job, startSec, durationSec),
     },
     updatedAt: new Date().toISOString(),
   }
@@ -422,16 +508,24 @@ export async function queueRestylePilot(
   return updated
 }
 
-/** Queue a whole-source pass only after a completed, personally reviewable pilot. */
+const FULL_QUEUEABLE: RestyleStatus[] = [
+  'STAGED',
+  'PILOT_BLOCKED',
+  'PILOT_FAILED',
+  'REVIEW',
+]
+
+/** Queue the whole source in one batch; a pilot is optional, never required. */
 export async function queueRestyleFull(
   userId: number,
   id: string,
 ): Promise<VideoRestyleJob> {
   const job = await loadRestyleJob(userId, id)
-  if (job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4') {
+  if (!FULL_QUEUEABLE.includes(job.status)) {
     throw createError({
       statusCode: 409,
-      message: 'Review the completed pilot before queueing a full-length film.',
+      message:
+        'This project is already rendering; wait for it before queueing the full film.',
     })
   }
   if (job.full) {
@@ -441,12 +535,13 @@ export async function queueRestyleFull(
     })
   }
   const durationSec = job.sourceDurationSec
-  const frameCount = Math.max(1, Math.round(durationSec * 16))
-  const totalSegments = Math.ceil(Math.max(0, frameCount - 65) / 57) + 1
+  const totalSegments = restyleRenderWindowCount(durationSec)
   const updated: VideoRestyleJob = {
     ...job,
     status: 'FULL_QUEUED',
-    stage: 'Full-length render queued; pilot preserved for comparison',
+    stage: job.pilot
+      ? 'Full-length render queued; pilot preserved for comparison'
+      : 'Full-length render queued for KR Relay',
     progress: 0,
     error: null,
     resultFile: null,
@@ -456,6 +551,7 @@ export async function queueRestyleFull(
       completedSegments: 0,
       totalSegments,
       renderModel: 'wan2.1_vace_1.3B_fp16.safetensors',
+      ...passSchedule(job, 0, durationSec),
     },
     updatedAt: new Date().toISOString(),
   }

@@ -5,7 +5,7 @@ import { parse, compileScript, compileStyle } from '@vue/compiler-sfc'
 import { parse as parseYaml } from 'yaml'
 import { build } from 'esbuild'
 
-// Shared browser fixture for the actual ArcadeCabinet (and the tutorial flyer that renders an admin tab's
+// Shared browser fixture for the actual ArcadeCabinet (and the tutorial flyer that renders a Play tab's
 // help). Compiles the real single-file components with esbuild, stubs only the stores (no network), and
 // wraps the Rainbow engine's create so a test can read its snapshot. Used by the Rainbow cabinet help/
 // controls contract (t-015) and the touch replay contract (t-018).
@@ -15,11 +15,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const frontMatter = (file) =>
   parseYaml(readFileSync(path.join(root, file), 'utf8').split('---')[1])
 
-/** The admin channel and one admin tab, as the content store would resolve them. */
-export function adminTabContent(tab) {
+/** The Play channel and one playable tab, as the content store would resolve them. */
+export function playTabContent(tab) {
   return [
-    frontMatter('content/channels/admin/index.md'),
-    frontMatter(`content/channels/admin/${tab}.md`),
+    frontMatter('content/channels/arcade/index.md'),
+    frontMatter(`content/channels/arcade/${tab}.md`),
   ]
 }
 
@@ -70,7 +70,7 @@ import TutorialFlyer from '@/components/navigation/tutorial-flyer.vue'
 createApp({
   render: () => h('main', { id: 'deck' }, [
     window.__help
-      ? h('section', { id: 'help' }, [h(Suspense, null, { default: () => h(TutorialFlyer, { channel: 'admin', tab: window.__help, inline: true }) })])
+      ? h('section', { id: 'help' }, [h(Suspense, null, { default: () => h(TutorialFlyer, { channel: 'arcade', tab: window.__help, inline: true }) })])
       : null,
     h('section', { id: 'cabinet' }, [h(ArcadeCabinet, { slug: window.__slug })]),
   ]),
@@ -183,7 +183,7 @@ export async function bundleCabinetFixture() {
 
 /**
  * Open a page with the fixture mounted. `touch` gives a coarse-pointer phone-like context, so the
- * cabinet shows its on-screen controls. `help` names an admin tab whose tutorial is mounted above.
+ * cabinet shows its on-screen controls. `help` names a Play tab whose tutorial is mounted above.
  */
 export async function openCabinet(
   browser,
@@ -211,7 +211,7 @@ export async function openCabinet(
       navigator.getGamepads = () => window.__pads
     },
     {
-      items: help ? adminTabContent(help) : [],
+      items: help ? playTabContent(help) : [],
       seatCount: seats,
       game: slug,
       tab: help,
@@ -245,9 +245,25 @@ export function rainbowRun(page) {
   })
 }
 
-/** Press Start and wait until a Rainbow run has played its first half second. */
+/**
+ * Press Start, launch through the pilot select with the defaults (A after its beat, the way a player
+ * does), and wait until a Rainbow run has played its first half second.
+ */
 export async function startRainbowRun(page) {
   await page.keyboard.press('Enter')
+  await page.waitForFunction(() =>
+    (window.__games ?? []).some((entry) => !entry.demo),
+  )
+  if (
+    await page.evaluate(
+      () =>
+        (window.__games ?? []).filter((entry) => !entry.demo).at(-1)?.game
+          .snapshot.selectMenu,
+    )
+  ) {
+    await wait(500)
+    await page.keyboard.press('KeyZ')
+  }
   await page.waitForFunction(() =>
     (window.__games ?? []).some(
       (entry) => !entry.demo && entry.game.snapshot.tick > 30,

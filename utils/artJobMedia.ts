@@ -13,6 +13,7 @@ export type ArtJobRelayCapabilities = {
   supportsInputImages: boolean
   supportsAudio: boolean
   supportsVideoRestyle?: boolean
+  supportsVideoRestyleGrabBag?: boolean
 }
 
 function payloadObject(payload: unknown): Record<string, unknown> | null {
@@ -35,6 +36,14 @@ export function isVideoRestyleArtJobPayload(payload: unknown): boolean {
   return payloadObject(payload)?.media === 'video-restyle-vace'
 }
 
+/** Coat Dance Grab bag: one look per motion window, worker must honor it. */
+export function isGrabBagRestyleArtJobPayload(payload: unknown): boolean {
+  const body = payloadObject(payload)
+  if (body?.media !== 'video-restyle-vace') return false
+  const video = body.videoRestyle as Record<string, unknown> | undefined
+  return Array.isArray(video?.styleSchedule) && video.styleSchedule.length > 0
+}
+
 export function isAudioArtJobPayload(payload: unknown): boolean {
   const media = payloadObject(payload)?.media
   return typeof media === 'string' && media.trim().toLowerCase() === 'audio'
@@ -46,7 +55,11 @@ export function artJobClaimableBy(
 ): boolean {
   const body = payloadObject(payload)
   if (isVideoRestyleArtJobPayload(body))
-    return capabilities.supportsVideoRestyle === true
+    return (
+      capabilities.supportsVideoRestyle === true &&
+      (!isGrabBagRestyleArtJobPayload(body) ||
+        capabilities.supportsVideoRestyleGrabBag === true)
+    )
   const needsInputImages =
     Array.isArray(body?.images) && (body?.images as unknown[]).length > 0
   if (needsInputImages && !capabilities.supportsInputImages) return false

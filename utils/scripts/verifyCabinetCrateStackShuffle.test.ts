@@ -26,6 +26,8 @@ import {
   shipScore,
   spawnPiece,
   turnedCells,
+  WAREHOUSES,
+  warehouseFor,
 } from '../arcade/games/crateStackShuffle'
 import { emptyInput } from '../arcade/types'
 
@@ -155,5 +157,10 @@ assert.deepEqual([...newBag(mulberry32(3))].sort(), [...KINDS].sort())
   assert.ok(game.level >= 2, 'good play reaches level 2')
   assert.ok(game.score > 0)
 }
+
+assert.equal(WAREHOUSES.length, 5)
+assert.equal(warehouseFor(1), 0)
+assert.equal(warehouseFor(WAREHOUSES.length + 1), 0)
+assert.equal(new Set([1, 2, 3, 4, 5].map(warehouseFor)).size, 5)
 
 console.log('crate stack shuffle: ok')

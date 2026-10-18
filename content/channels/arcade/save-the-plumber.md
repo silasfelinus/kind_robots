@@ -1,22 +1,21 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: save-the-plumber
 label: Save the Plumber
 title: Save the Plumber
-subtitle: An eight-world platform adventure in development
-description: A private original platformer workshop. Play all eight worlds, from the Rainy Courtyard to Lady Spigot and Teo's rescue.
+subtitle: Work in progress · Eight-world adventure
+description: A work-in-progress platformer in Play. Play all eight worlds, from the Rainy Courtyard to Lady Spigot and Teo's rescue.
 summary: Rescue your plumber in eight worlds.
 icon: kind-icon:wrench
-route: /admin/save-the-plumber
+route: /play/save-the-plumber
 sort: 135
-requiredRole: ADMIN
 tutorial:
   title: Your rescue starts here
   body: |-
     Thirty-two stages, one determined heroine.
 
-    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Admin page is its front door: the title screen, a prologue, the overworld map, the eight heroines, the cast and the Arcade cabinet, where all eight worlds are playable: thirty-two stages, eight bosses and the rescue finale. A new game opens with a painted story of Teo's capture (press A to turn the page, START to skip). Glowing bubbles hold powers: Springstep (higher jumps, and hold A to float down), Bottled Storm (X also throws a gust that strikes foes, turns valves and breaks crates at range) and Pocket Lift (X lifts a crate; X again throws it to knock out a foe, or lands it as a new step). A hit while powered costs the power instead of a heart, and water hearts restore one.
+    Save the Plumber is planned as a full eight-world side-scrolling adventure. This Play page is its front door: the title screen, a prologue, the overworld map, the eight heroines, the cast and the Arcade cabinet, where all eight worlds are playable: thirty-two stages, eight bosses and the rescue finale. A new game opens with a painted story of Teo's capture (press A to turn the page, START to skip). Glowing bubbles hold powers: Springstep (higher jumps, and hold A to float down), Bottled Storm (X also throws a gust that strikes foes, turns valves and breaks crates at range) and Pocket Lift (X lifts a crate; X again throws it to knock out a foe, or lands it as a new step). A hit while powered costs the power instead of a heart, and water hearts restore one.
 
     Movement lab
     Scroll to the cabinet and press Start. Choose New Game, then pick one of eight heroines with the arrows and press A (B picks one at random). Use Left and Right to run, and A or Up to jump; hold A to jump higher. Jump input is buffered just before landing and remains available for a few frames after leaving a ledge. The cabinet saves your heroine and stage on this device, so Continue picks up where you left off. The Arcade cabinet also manages gamepad, touch, pause and sound.
@@ -31,6 +30,6 @@ tutorial:
     Meet the eight painted heroines on this page; hover or tap one to preview her. You choose her in the cabinet when you start a new game, and the page then stars your saved heroine on the title screen and the map. Looks are cosmetic: every heroine shares one hitbox and the same abilities.
 ---
 
-An original eight-world rescue platformer. The admin-only front page carries the
+An original eight-world rescue platformer. This work-in-progress Play page carries the
 title screen, overworld map, the heroine roster and the whole playable campaign (thirty-two
-stages, eight bosses and the rescue finale); it is not yet a public Arcade cabinet.
+stages, eight bosses and the rescue finale); it is public to play, but still in development.

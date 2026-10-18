@@ -8,7 +8,7 @@
 // Left and right walk, Up and Down climb a ladder, A or B hops. Touch every lamp to light it;
 // lighting all ten clears the street (the lantern timer left is a bonus). A gloom-ball, or an
 // empty lantern, costs a life. Each level the girders tilt more, the balls roll faster and drop
-// more often, the lantern timer shrinks, and the street changes (three night backdrops in turn).
+// more often, the lantern timer shrinks, and the street changes (five night backdrops in turn).
 //
 // The rules (girder heights, balls, hops, lamps, timer, the pilot) are small exported functions
 // so the engine test can pin each one.
@@ -353,7 +353,7 @@ type Street = {
   stars: number
 }
 
-/** Three night streets, one per level in turn. */
+/** Five night streets, one per level in turn: midnight, harbour, ember, meadow and frost. */
 export const STREETS: readonly Street[] = [
   {
     sky: [RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
@@ -375,6 +375,20 @@ export const STREETS: readonly Street[] = [
     window: RAMPS.pink[3],
     girder: RAMPS.rust,
     stars: 59,
+  },
+  {
+    sky: [RAMPS.leaf[0], RAMPS.night[2], RAMPS.night[1]],
+    towers: mix(RAMPS.leaf[0], RAMPS.night[2], 0.5),
+    window: RAMPS.leaf[3],
+    girder: RAMPS.leaf,
+    stars: 41,
+  },
+  {
+    sky: [RAMPS.sky[0], RAMPS.purple[0], RAMPS.night[1]],
+    towers: mix(RAMPS.sky[0], RAMPS.steel[0], 0.5),
+    window: RAMPS.sky[4],
+    girder: RAMPS.steel,
+    stars: 67,
   },
 ]
 

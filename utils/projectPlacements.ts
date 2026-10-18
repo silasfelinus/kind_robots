@@ -13,9 +13,9 @@ export type ProjectPlacement = {
 
 export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   'kind-sliding-tile-gallery': {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'sliding-tile-gallery',
-    route: '/admin/sliding-tile-gallery',
+    route: '/play/sliding-tile-gallery',
   },
   'music-mentor': {
     channelKey: 'projects',
@@ -119,19 +119,19 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/arcade',
   },
   'save-the-plumber': {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'save-the-plumber',
-    route: '/admin/save-the-plumber',
+    route: '/play/save-the-plumber',
   },
   'emperor-of-dust': {
     channelKey: 'zuzu',
     tabKey: 'emperor-of-dust',
-    route: '/admin/emperor-of-dust',
+    route: '/play/emperor-of-dust',
   },
   'rainbow-bullet-hell-space-princess': {
-    channelKey: 'admin',
+    channelKey: 'arcade',
     tabKey: 'rainbow-bullet-hell-space-princess',
-    route: '/admin/rainbow-bullet-hell-space-princess',
+    route: '/play/rainbow-bullet-hell-space-princess',
   },
   'zuzu-shifting-lands': {
     channelKey: 'zuzu',

@@ -9,6 +9,10 @@ import {
 } from '@/server/utils/artJobPayload'
 import { isVideoRestyleArtJobPayload } from '@/utils/artJobMedia'
 import {
+  restyleScheduleRecipe,
+  type RestyleStyleWindow,
+} from '@/utils/videoRestylePlan'
+import {
   loadRestyleJob,
   restyleSourcePath,
   type VideoRestyleJob,
@@ -16,6 +20,17 @@ import {
 
 export const RESTYLE_ARTJOB_MEDIA = 'video-restyle-vace'
 const PROJECT_SLUG = 'coat-dance'
+
+function grabBagRecipe(
+  job: VideoRestyleJob,
+  schedule: RestyleStyleWindow[] | undefined,
+) {
+  if (!schedule?.length) return {}
+  return {
+    variantMode: job.variantMode ?? 'cycle',
+    ...restyleScheduleRecipe(schedule),
+  }
+}
 
 function trackedStatus(status: VideoRestyleJob['status']) {
   if (status === 'PILOT_RUNNING') return 'RUNNING' as const
@@ -66,6 +81,7 @@ export async function syncRestylePilotArtJob(
       stylePrompt: job.renderRecipe.stylePrompt,
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,
+      ...grabBagRecipe(job, job.pilot.styleSchedule),
     },
     save: {
       isPublic: false,
@@ -312,6 +328,7 @@ export async function syncRestyleFullArtJob(
       stylePrompt: job.renderRecipe.stylePrompt,
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,
+      ...grabBagRecipe(job, job.full.styleSchedule),
     },
     save: {
       isPublic: false,

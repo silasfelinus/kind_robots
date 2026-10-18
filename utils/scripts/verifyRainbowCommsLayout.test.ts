@@ -22,11 +22,11 @@ assert.doesNotMatch(
 )
 assert.match(
   engine,
-  /bursts\.push\(\{ seat, x: ship\.x, y: ship\.y, age: 0 \}\)/,
+  /bursts\.push\(\{ seat, pilot: kind, x: ship\.x, y: ship\.y, age: 0 \}\)/,
 )
 assert.match(engine, /for \(const burst of bursts\)/)
 assert.match(engine, /SUPER READY · TAP B/)
-assert.match(engine, /TAP B AT 100% = SUPER/)
+assert.match(engine, /B FOCUS, SUPER AT 100% · X SPECIAL · Y EVADE/)
 assert.match(
   engine,
   /const HUD_LEFT = 44\n/,

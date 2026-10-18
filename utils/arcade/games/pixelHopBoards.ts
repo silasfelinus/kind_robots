@@ -210,3 +210,106 @@ export function endlessPressure(round: number): {
     gremlinBonus: Math.min(0.15, tier * 0.03),
   }
 }
+
+/** Pyramid height per round: the wide 8-row board remixes every 4th round. */
+export function boardRows(round: number): number {
+  return Math.trunc(round) % 4 === 0 ? 8 : 7
+}
+
+// --- hop combos -------------------------------------------------------------
+
+export type HopCombo = 'stripe' | 'prism'
+
+/**
+ * Stripe: the landing cell completes a whole board row. `done` is per cell, in
+ * `board.cells` order, and must already include the landing.
+ */
+export function stripeComplete(
+  board: HopBoard,
+  done: readonly boolean[],
+  landed: HopCell,
+): boolean {
+  let any = false
+  for (let i = 0; i < board.cells.length; i++) {
+    const cell = board.cells[i]!
+    if (cell.r !== landed.r) continue
+    any = true
+    if (!done[i]) return false
+  }
+  return any
+}
+
+/**
+ * Prism: the landing cell finishes a 3-cube triangle, a cell with the two
+ * neighbours it shares a face with (down-left pair, down-right pair, or the
+ * pair above), all finished.
+ */
+export function prismComplete(
+  board: HopBoard,
+  done: readonly boolean[],
+  landed: HopCell,
+): boolean {
+  const index = new Map<string, number>()
+  board.cells.forEach((x, i) => index.set(cellKey(x.r, x.c), i))
+  const ok = (r: number, c: number) => {
+    const i = index.get(cellKey(r, c))
+    return i !== undefined && !!done[i]
+  }
+  const { r, c } = landed
+  if (!ok(r, c)) return false
+  return (
+    (ok(r + 1, c) && ok(r + 1, c + 1)) ||
+    (ok(r - 1, c) && ok(r - 1, c - 1)) ||
+    (ok(r, c - 1) && ok(r + 1, c)) ||
+    (ok(r, c + 1) && ok(r + 1, c + 1))
+  )
+}
+
+/** Speed Paint par in frames: a fixed budget per cube, so bigger boards allow longer. */
+export function speedPaintPar(board: HopBoard, rule: HopRule): number {
+  return board.cells.length * rule.steps * 22
+}
+
+export const speedPaintBonus = (frames: number, par: number): number =>
+  frames > par ? 0 : Math.min(5000, Math.round(((par - frames) / par) * 5000))
+
+// --- Skitter & Scoot sideways movement ---------------------------------------
+
+/**
+ * Skitter & Scoot slide along a row instead of hopping down the pyramid:
+ * `side` -1 moves to the cube on the left of the same row, +1 to the right.
+ * Null means the slide runs off the row's end.
+ */
+export function sidewaysStep(
+  board: HopBoard,
+  from: HopCell,
+  side: -1 | 1,
+): HopCell | null {
+  const next = { r: from.r, c: from.c + side }
+  return board.cells.some((x) => x.r === next.r && x.c === next.c) ? next : null
+}
+
+// --- rule demonstration intermission -----------------------------------------
+
+/**
+ * The intermission before a new rule: a scripted pair of hops on a 3-row
+ * pyramid whose painted levels show what the rule does. Pure data; the
+ * cabinet plays the hops back and draws the levels.
+ */
+export function ruleDemo(rule: HopRule): {
+  board: HopBoard
+  hops: HopCell[]
+  levels: number[]
+} {
+  const board = pyramidBoard(3)
+  const hops: HopCell[] = [
+    { r: 1, c: 0 },
+    { r: 1, c: 0 },
+    { r: 1, c: 0 },
+  ]
+  const levels: number[] = []
+  let level = 0
+  for (let i = 0; i < hops.length; i++)
+    levels.push((level = hopTile(rule, level)))
+  return { board, hops, levels }
+}

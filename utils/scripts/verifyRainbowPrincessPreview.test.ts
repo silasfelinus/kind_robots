@@ -10,18 +10,18 @@ import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 const file = (path: string) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
 const tab = file(
-  '../../content/channels/admin/rainbow-bullet-hell-space-princess.md',
+  '../../content/channels/arcade/rainbow-bullet-hell-space-princess.md',
 )
-const page = file('../../pages/admin/rainbow-bullet-hell-space-princess.vue')
+const page = file('../../pages/play/rainbow-bullet-hell-space-princess.vue')
 const registry = file('../arcade/games.ts')
 const placement = file('../projectPlacements.ts')
-assert.match(tab, /channelKey: admin/)
-assert.match(tab, /requiredRole: ADMIN/)
-const admin = resolveChannels([
-  { contentType: 'channel', channelKey: 'admin', label: 'Admin' },
+assert.match(tab, /channelKey: arcade/)
+assert.doesNotMatch(tab, /requiredRole: ADMIN/)
+const play = resolveChannels([
+  { contentType: 'channel', channelKey: 'arcade', label: 'Play' },
   parse(tab.split('---')[1]!),
 ])[0]!
-const tutorial = admin.tabs.find(
+const tutorial = play.tabs.find(
   (item) => item.key === 'rainbow-bullet-hell-space-princess',
 )?.tutorial
 assert.ok(tutorial?.explicit, 'the tab has authored tutorial help')
@@ -34,8 +34,8 @@ for (const section of [
     tutorial.body.includes(section),
     `visible tutorial includes ${section}`,
   )
-assert.match(tab, /route: \/admin\/rainbow-bullet-hell-space-princess/)
-assert.match(page, /!user\.isAdmin/)
+assert.match(tab, /route: \/play\/rainbow-bullet-hell-space-princess/)
+assert.doesNotMatch(page, /!user\.isAdmin/)
 const cabinet = file('../../components/arcade/arcade-cabinet.vue')
 assert.match(cabinet, /'cabinet-dpad--compact': compactDpad/)
 assert.match(cabinet, /compactDpad\.value \? 0\.1 : 0\.22/)
@@ -72,6 +72,7 @@ assert.deepEqual(
   'unmeasured touch pad cannot produce accidental movement',
 )
 
+assert.match(tab, /Work in progress/)
 assert.match(page, /ArcadeCabinet slug="rainbow-bullet-hell-space-princess"/)
 assert.match(
   registry,
@@ -79,7 +80,7 @@ assert.match(
 )
 assert.match(
   placement,
-  /'rainbow-bullet-hell-space-princess':\s*\{[\s\S]*?channelKey: 'admin'/,
+  /'rainbow-bullet-hell-space-princess':\s*\{[\s\S]*?channelKey: 'arcade'/,
 )
 assert.ok(
   !HALL_GAMES.some((g) => g.slug === 'rainbow-bullet-hell-space-princess'),
@@ -102,4 +103,4 @@ assert.equal(game.level, 1)
 assert.equal(game.over, false)
 assert.equal(game.lives, 12)
 assert.ok(game.score >= 0)
-console.log('Rainbow Princess private Arcade preview integration passed')
+console.log('Rainbow Princess public Play preview integration passed')

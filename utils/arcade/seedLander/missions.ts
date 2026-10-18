@@ -148,6 +148,8 @@ export type MissionSpec = {
   boss?: { id: BossId; x: number }
   /** Crates to deliver to clear a Deliver mission (all of them if omitted). */
   deliveries?: number
+  /** Clearing it replants the whole island, as a boss does (the Seed Vault's Every Seed). */
+  finale?: boolean
 }
 
 /** Free Flight's levers: they keep rising long after the old hill-8 plateau. */

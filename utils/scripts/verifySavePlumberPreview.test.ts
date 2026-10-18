@@ -8,16 +8,16 @@ import { findArcadeGame, HALL_GAMES, loadArcadeGame } from '../arcade/games'
 
 const source = (path: string) =>
   readFileSync(new URL(path, import.meta.url), 'utf8')
-const tab = source('../../content/channels/admin/save-the-plumber.md')
-const page = source('../../pages/admin/save-the-plumber.vue')
+const tab = source('../../content/channels/arcade/save-the-plumber.md')
+const page = source('../../pages/play/save-the-plumber.vue')
 const placement = source('../projectPlacements.ts')
-assert.match(tab, /channelKey: admin/)
-assert.match(tab, /requiredRole: ADMIN/)
-const admin = resolveChannels([
-  { contentType: 'channel', channelKey: 'admin', label: 'Admin' },
+assert.match(tab, /channelKey: arcade/)
+assert.doesNotMatch(tab, /requiredRole: ADMIN/)
+const play = resolveChannels([
+  { contentType: 'channel', channelKey: 'arcade', label: 'Play' },
   parse(tab.split('---')[1]!),
 ])[0]!
-const tutorial = admin.tabs.find(
+const tutorial = play.tabs.find(
   (item) => item.key === 'save-the-plumber',
 )?.tutorial
 assert.ok(tutorial?.explicit, 'the tab has authored tutorial help')
@@ -26,9 +26,10 @@ for (const section of ['Movement lab', 'Tools and enemies', 'Eight worlds'])
     tutorial.body.includes(section),
     `visible tutorial includes ${section}`,
   )
-assert.match(page, /!user\.isAdmin/)
+assert.doesNotMatch(page, /!user\.isAdmin/)
+assert.match(tab, /Work in progress/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
-assert.match(placement, /'save-the-plumber':\s*\{[\s\S]*?channelKey: 'admin'/)
+assert.match(placement, /'save-the-plumber':\s*\{[\s\S]*?channelKey: 'arcade'/)
 assert.equal(findArcadeGame('save-the-plumber')?.maxPlausibleScore, 0)
 assert.ok(!HALL_GAMES.some((game) => game.slug === 'save-the-plumber'))
 assert.equal(
@@ -66,4 +67,4 @@ assert.equal(game.lives, 3)
 input.held.right = false
 for (let frame = 0; frame < 30; frame++) game.update(input)
 assert.equal(game.over, false)
-console.log('Save the Plumber private Arcade route and opening flow verified')
+console.log('Save the Plumber public Play route and opening flow verified')

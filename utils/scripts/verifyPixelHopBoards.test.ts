@@ -1,8 +1,13 @@
 import assert from 'node:assert/strict'
 import {
   RULES,
+  prismComplete,
+  speedPaintBonus,
+  speedPaintPar,
+  stripeComplete,
   bridgeBoard,
   cellKey,
+  boardRows,
   endlessFoes,
   endlessPressure,
   hopTile,
@@ -11,6 +16,8 @@ import {
   pictureProgress,
   pyramidBoard,
   resolveTile,
+  ruleDemo,
+  sidewaysStep,
   tileDone,
   withSpecial,
 } from '../arcade/games/pixelHopBoards'
@@ -79,3 +86,49 @@ assert.ok(endlessPressure(24).hopTrim > endlessPressure(16).hopTrim)
 assert.ok(endlessPressure(9999).maxEnemies <= 6, 'pressure is capped')
 
 console.log('Pixel Hop boards, rule engine and tile effects passed')
+
+assert.equal(boardRows(1), 7)
+assert.equal(boardRows(3), 7)
+assert.equal(boardRows(4), 8, 'the wide pyramid remixes every 4th round')
+assert.equal(boardRows(8), 8)
+assert.equal(pyramidBoard(boardRows(4)).cells.length, 36)
+
+{
+  const b = pyramidBoard(4)
+  const done = b.cells.map(() => false)
+  const at = (r: number, c: number) =>
+    b.cells.findIndex((x) => x.r === r && x.c === c)
+  done[at(2, 0)] = done[at(2, 1)] = true
+  assert.equal(stripeComplete(b, done, { r: 2, c: 1 }), false, 'row 2 has 3')
+  done[at(2, 2)] = true
+  assert.equal(stripeComplete(b, done, { r: 2, c: 2 }), true, 'full row')
+  assert.equal(stripeComplete(b, done, { r: 9, c: 0 }), false, 'off board')
+
+  const d2 = b.cells.map(() => false)
+  d2[at(1, 0)] = d2[at(2, 0)] = d2[at(2, 1)] = true
+  assert.equal(prismComplete(b, d2, { r: 1, c: 0 }), true, 'filled triangle')
+  assert.equal(prismComplete(b, d2, { r: 3, c: 0 }), false, 'unpainted')
+  d2[at(2, 1)] = false
+  assert.equal(prismComplete(b, d2, { r: 1, c: 0 }), false, 'missing corner')
+
+  const par = speedPaintPar(pyramidBoard(7), RULES.one)
+  assert.equal(par, 28 * 22)
+  assert.ok(speedPaintPar(pyramidBoard(7), RULES.two) > par)
+  assert.equal(speedPaintBonus(par + 1, par), 0)
+  assert.ok(speedPaintBonus(par / 2, par) > speedPaintBonus(par - 1, par))
+  assert.ok(speedPaintBonus(0, par) <= 5000)
+  console.log('Pixel Hop combos passed')
+}
+
+{
+  const b = pyramidBoard(4)
+  assert.deepEqual(sidewaysStep(b, { r: 2, c: 1 }, 1), { r: 2, c: 2 })
+  assert.deepEqual(sidewaysStep(b, { r: 2, c: 1 }, -1), { r: 2, c: 0 })
+  assert.equal(sidewaysStep(b, { r: 2, c: 2 }, 1), null, 'off the row end')
+  assert.equal(sidewaysStep(b, { r: 0, c: 0 }, -1), null)
+
+  assert.deepEqual(ruleDemo(RULES.two).levels, [1, 2, 2])
+  assert.deepEqual(ruleDemo(RULES.flip).levels, [1, 0, 1])
+  assert.deepEqual(ruleDemo(RULES.cycle).levels, [1, 2, 3])
+  console.log('Pixel Hop sideways and demo passed')
+}

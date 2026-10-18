@@ -9,6 +9,7 @@ import type { MusicLoop } from '../sound'
 import { ARCADE_DIFFICULTIES } from '../types'
 import {
   PINKWAKE,
+  SPIRE,
   pinkwakeDialogue,
   PINKWAKE_GUARDIAN,
   PINKWAKE_SECTIONS,
@@ -16,8 +17,10 @@ import {
   PINKWAKE_WAVE_SIZES,
   pinkwakeScene,
   pinkwakeSpawns,
+  pinkwakeSpires,
   pinkwakeStage,
   type PinkwakeEnemy,
+  type PinkwakeSceneId,
 } from './rainbowPinkwake'
 import {
   BOSS_MAX_HP,
@@ -267,6 +270,9 @@ import {
 import {
   RAINBOW_DIFFICULTY_NAMES,
   RAINBOW_FOCUS,
+  RAINBOW_EVADE,
+  RAINBOW_LOADOUTS,
+  RAINBOW_SPECIAL,
   RAINBOW_MASTERY,
   rainbowMedal,
   readRainbowSave,
@@ -295,6 +301,28 @@ const CUTIN_FADE_FRAMES = 10
 const POPUP_FRAMES = 50
 /** Frames before the continue/new menu takes an A press. */
 const RESUME_MENU_GRACE = 20
+/**
+ * Act I after Silas's first playtest: tougher craft (urchins take a real beating), and craft that keep
+ * firing while they cross the screen, every this many frames at Pilot (slower for a Cadet, faster for an Ace).
+ */
+const ACT_ONE_HEALTH: Record<string, number> = {
+  picket: 3,
+  spiral: 4,
+  anchor: 5,
+  urchin: 9,
+  diver: 3,
+}
+const ACT_ONE_RELOAD: Record<string, number> = {
+  picket: 150,
+  spiral: 170,
+  urchin: 140,
+}
+/** A diver cruises in, locks the nearest pilot's lane this far from the right edge, then swoops along it. */
+const DIVER = { lockFrom: 130, cruise: 1.5, swoop: 3.2, steer: 1.6 } as const
+/** Frames a hurt craft flashes white. */
+const HIT_FLASH_FRAMES = 6
+/** A guardian beaten early hands the Act on this many frames before its section would have ended. */
+const GUARDIAN_SKIP_LEAD = 240
 /** Frames of credits before A skips the rest to THE END (t-012). */
 const CREDITS_SKIP_GRACE = 60
 /** U12 Recovery Cache: how long a dropped power level waits (4 s), and how far ahead of the pilot it falls. */
@@ -388,6 +416,8 @@ const BASE_HEALTH: Record<string, number> = {
   hammerhead: 5,
   salvager: 6,
   scrap: 1,
+  diver: 3,
+  spire: 1,
   brood: 9,
   drone: 1,
   turret: 5,
@@ -483,6 +513,15 @@ type Ship = {
   graze: number
   lives: number
   focus: boolean
+  /** Smoothed vertical speed, so the ship banks into a climb or a dive. */
+  bank: number
+  /** Four-button cabinet: frames left of the pilot's special and of her evade, their cooldowns, and a dash. */
+  special: number
+  specialCooldown: number
+  evade: number
+  evadeCooldown: number
+  dashX: number
+  dashY: number
 }
 type Spark = {
   x: number
@@ -504,7 +543,7 @@ type Shot = {
   seat: number
   damage: number
   /** A focused weapon's shot (t-010), drawn in its family's shape; unfocused fire leaves it out. */
-  kind?: 'needle' | 'thread' | 'link' | 'arc'
+  kind?: 'needle' | 'thread' | 'link' | 'arc' | 'beam'
   /** A Prism Thread passes through this many more craft, never the same one twice. */
   pierce?: number
   struck?: Reef[]
@@ -542,6 +581,12 @@ type Reef = {
   volleys?: number
   /** A captive whose collar has been broken: it flies free and nothing touches it. */
   freed?: boolean
+  /** Frames left of the white flash a craft shows when a shot hurts it. */
+  flash?: number
+  /** An Act I craft's frames until it fires again. */
+  reload?: number
+  /** A coral spire hangs from the ceiling (else it rises from the floor); `y` is its tip. */
+  fromTop?: boolean
   wave: number | null
 }
 type EnemyShot = {
@@ -585,6 +630,10 @@ export type RainbowCombatSnapshot = {
   difficulty: ArcadeDifficulty
   /** The continue/new menu's highlighted line (0 continue, 1 new flight), or null when it is not shown. */
   resumeMenu: 0 | 1 | null
+  /** The pilot and difficulty select, or null when it is not shown. */
+  selectMenu: { row: 0 | 1; pilot: number; difficulty: ArcadeDifficulty } | null
+  /** The pilot each seat flies (RAINBOW_PILOTS index). */
+  pilots: readonly number[]
   enemies: ReadonlyArray<Readonly<Reef>>
   enemyShots: ReadonlyArray<Readonly<EnemyShot>>
   pickups: ReadonlyArray<Readonly<Pickup>>
@@ -600,9 +649,7 @@ export type RainbowCombatSnapshot = {
     | ReturnType<typeof palaceStage>
     | ReturnType<typeof finaleStage>
   sceneId:
-    | 'A01.OPEN'
-    | 'A01.TURN'
-    | 'A01.AFTER'
+    | PinkwakeSceneId
     | 'A02.OPEN'
     | 'A02.TURN'
     | 'A02.AFTER'
@@ -704,6 +751,13 @@ export function createRainbowPrincessPreview(
     graze: 0,
     lives: level.lives,
     focus: false,
+    bank: 0,
+    special: 0,
+    specialCooldown: 0,
+    evade: 0,
+    evadeCooldown: 0,
+    dashX: 0,
+    dashY: 0,
   })
   const ships: Ship[] = Array.from({ length: count }, (_, seat) =>
     createShip(seat),
@@ -717,7 +771,13 @@ export function createRainbowPrincessPreview(
   let over = false
   let clearCount = 0
   let supers = 0
-  const bursts: Array<{ seat: number; x: number; y: number; age: number }> = []
+  const bursts: Array<{
+    seat: number
+    pilot: number
+    x: number
+    y: number
+    age: number
+  }> = []
   let boss: PinkwakeBoss | null = null
   let defeatedAt: number | null = null
   let rescuedStation = false
@@ -846,6 +906,18 @@ export function createRainbowPrincessPreview(
   const offered = options.demo ? null : readRainbowSave(options.resume)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
+  /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
+  let pick = 0
+  const pilotOf = (seat: number) => (seat + pick) % RAINBOW_PILOTS.length
+  /** The pilot and difficulty select a seated game opens with when the cabinet asks for it. */
+  const newSelect = () => ({
+    row: 0 as 0 | 1,
+    pilot: pick,
+    difficulty: ARCADE_DIFFICULTIES.indexOf(difficulty),
+    frame: 0,
+  })
+  let selectMenu: ReturnType<typeof newSelect> | null =
+    options.selectScreen && !options.demo && !offered ? newSelect() : null
   function moonFrame() {
     return moonStart === null ? 0 : tick - moonStart
   }
@@ -1541,14 +1613,75 @@ export function createRainbowPrincessPreview(
       health: Math.max(
         1,
         Math.round(
-          coopEnemyHealth(BASE_HEALTH[kind] ?? 5, activePlayers) *
-            level.craftHp,
+          coopEnemyHealth(
+            (moonStart === null ? ACT_ONE_HEALTH[kind] : undefined) ??
+              BASE_HEALTH[kind] ??
+              5,
+            activePlayers,
+          ) * level.craftHp,
         ),
       ),
       kind,
       fired: false,
       wave,
+      ...(moonStart === null && ACT_ONE_RELOAD[kind]
+        ? { reload: actOneReload(kind) }
+        : {}),
     })
+  }
+
+  /** An Act I craft's frames between shots at this difficulty. */
+  function actOneReload(kind: string) {
+    return Math.round((ACT_ONE_RELOAD[kind] ?? 0) / level.bulletSpeed)
+  }
+
+  /** A coral spire (Act I terrain) rising on its tick. */
+  function spawnSpire(spire: { top: boolean; y: number }) {
+    reefs.push({
+      x: W + 20,
+      y: spire.y,
+      phase: 0,
+      health: 1,
+      kind: 'spire',
+      fired: true,
+      wave: null,
+      fromTop: spire.top,
+    })
+  }
+
+  /** Whether a point lies in a coral spire's column, grown by `pad`. */
+  function inSpire(reef: Reef, x: number, y: number, pad: number) {
+    if (Math.abs(x - reef.x) > SPIRE.halfWidth + pad) return false
+    return reef.fromTop ? y < reef.y + pad : y > reef.y - pad
+  }
+
+  /** A diver cruises in, locks the nearest pilot's lane with an aimed pellet, then swoops along it. */
+  function stepDiver(reef: Reef) {
+    if (reef.dive === undefined) {
+      reef.x -= DIVER.cruise
+      reef.y += Math.sin(tick / 20 + reef.phase) * 0.6
+      if (reef.x < W - DIVER.lockFrom) {
+        const living = livingShips()
+        const target = living.length
+          ? living.reduce((best, ship) =>
+              Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y)
+                ? ship
+                : best,
+            )
+          : null
+        reef.homeY = target ? target.y : reef.y
+        reef.dive = 0
+        reef.fired = true
+        fireEnemy(reef)
+      }
+      return
+    }
+    reef.dive++
+    reef.x -= Math.min(DIVER.swoop, DIVER.cruise + reef.dive * 0.06)
+    reef.y += Math.max(
+      -DIVER.steer,
+      Math.min(DIVER.steer, (reef.homeY! - reef.y) * 0.06),
+    )
   }
 
   /** A formation that loses no craft to escape or ramming pays a school bonus on its last kill. */
@@ -1653,6 +1786,19 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  /** Move an Act's clock on by `frames` (Act I runs on the tick; later Acts count from their start). */
+  function advanceAct(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8, frames: number) {
+    if (frames <= 0) return
+    if (act === 1) tick += frames
+    else if (act === 2) moonStart! -= frames
+    else if (act === 3) trenchStart! -= frames
+    else if (act === 4) rosefinStart! -= frames
+    else if (act === 5) wreckStart! -= frames
+    else if (act === 6) reefStart! -= frames
+    else if (act === 7) glassStart! -= frames
+    else palaceStart! -= frames
+  }
+
   /** Earn a mastery goal (once a game); the game announces it only the first time ever. */
   function earn(id: string) {
     if (earned.includes(id)) return
@@ -1692,6 +1838,7 @@ export function createRainbowPrincessPreview(
       checkpoint: { ...checkpoint },
       guardians: met,
       medals: { ...medals },
+      pilot: pick,
     }
   }
 
@@ -1699,10 +1846,28 @@ export function createRainbowPrincessPreview(
    * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
    * before it flown and its own Act about to begin (its first update is its frame 0).
    */
-  function continueFrom(save: RainbowSave) {
-    difficulty = save.difficulty
+  /** Fly at `chosen` from the start: its lives, pellets, hulls and score. */
+  function setDifficulty(chosen: ArcadeDifficulty) {
+    difficulty = chosen
     level = RAINBOW_DIFFICULTY[difficulty]
     for (const ship of ships) ship.lives = level.lives
+  }
+
+  /** A line of dialogue with the crew's names swapped for the pilots actually flying each seat. */
+  function crewLine<Line extends { speaker: string; text: string }>(
+    line: Line,
+  ): Line {
+    if (!pick) return line
+    const names = RAINBOW_PILOTS.map((pilot) => pilot.name.split(' ')[0]!)
+    const pattern = new RegExp(`\\b(${names.join('|')})\\b`, 'g')
+    const swap = (text: string) =>
+      text.replace(pattern, (name) => names[pilotOf(names.indexOf(name))]!)
+    return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
+  }
+
+  function continueFrom(save: RainbowSave) {
+    setDifficulty(save.difficulty)
+    pick = save.pilot ?? 0
     const c = save.checkpoint
     score = c.score
     rescuedStation = c.rescuedStation
@@ -1919,8 +2084,9 @@ export function createRainbowPrincessPreview(
 
   /** Each ship's focused weapon family (t-010): precise fire that trades away the spread. */
   function fireFocused(ship: Ship, seat: number) {
+    const kind = pilotOf(seat)
     const power = ship.power
-    if (seat === 0) {
+    if (kind === 0) {
       // Petal Wing's Rose Needle: one fast needle, a twin from power 2.
       const { speed, damage, cooldown } = RAINBOW_FOCUS.needle
       for (const dy of power >= 2 ? [-2, 2] : [0])
@@ -1934,7 +2100,7 @@ export function createRainbowPrincessPreview(
           kind: 'needle',
         })
       ship.cooldown = cooldown
-    } else if (seat === 1) {
+    } else if (kind === 1) {
       // Prism Lance's Prism Thread: pierces craft, one more per power level.
       const { speed, damage, pierce, cooldown } = RAINBOW_FOCUS.thread
       shots.push({
@@ -1948,7 +2114,7 @@ export function createRainbowPrincessPreview(
         pierce: pierce + power - 1,
       })
       ship.cooldown = cooldown
-    } else if (seat === 2) {
+    } else if (kind === 2) {
       // Halo Fin's Halo Link: the orbit drones' shots cross on the line ahead; power 3 hits harder.
       const { speed, offset, crossAt, cooldown } = RAINBOW_FOCUS.link
       shots.push({
@@ -1999,16 +2165,17 @@ export function createRainbowPrincessPreview(
   }
 
   function fire(ship: Ship, seat: number) {
+    const kind = pilotOf(seat)
     if (ship.focus) {
       fireFocused(ship, seat)
       return
     }
     const power = ship.power
-    const speed = seat === 1 ? 10 : seat === 3 ? 9 : 8
-    const damage = seat === 1 ? 2 : 1
+    const speed = kind === 1 ? 10 : kind === 3 ? 9 : 8
+    const damage = kind === 1 ? 2 : 1
     shots.push({ x: ship.x + 15, y: ship.y, vx: speed, vy: 0, seat, damage })
     if (!ship.focus && power >= 2) {
-      const spread = seat === 0 ? 1.8 : 1.1
+      const spread = kind === 0 ? 1.8 : 1.1
       shots.push({
         x: ship.x + 12,
         y: ship.y - 3,
@@ -2026,7 +2193,7 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    if (power >= 3 && (seat === 2 || seat === 3)) {
+    if (power >= 3 && (kind === 2 || kind === 3)) {
       shots.push({
         x: ship.x + 10,
         y: ship.y - 10,
@@ -2044,67 +2211,201 @@ export function createRainbowPrincessPreview(
         damage: 1,
       })
     }
-    ship.cooldown = ship.focus ? 8 : seat === 3 ? 7 : 11
+    ship.cooldown = ship.focus ? 8 : kind === 3 ? 7 : 11
+  }
+
+  /** X: the pilot's special, on its cooldown. */
+  function useSpecial(ship: Ship, seat: number) {
+    if (ship.specialCooldown > 0) return
+    const kind = pilotOf(seat)
+    ship.specialCooldown = RAINBOW_SPECIAL.cooldown
+    popups.push({
+      x: ship.x,
+      y: ship.y - 18,
+      text: RAINBOW_LOADOUTS[kind]!.special.toUpperCase(),
+      age: 0,
+    })
+    options.sound.play('extra')
+    if (kind === 0) ship.special = RAINBOW_SPECIAL.shield.frames
+    else if (kind === 1) ship.special = RAINBOW_SPECIAL.beam.frames
+    else if (kind === 2) {
+      // Halo Pulse: clear the pellets in reach and hurt every craft it touches (terrain and captives aside).
+      const { radius, damage } = RAINBOW_SPECIAL.pulse
+      for (let i = enemyShots.length - 1; i >= 0; i--)
+        if (
+          Math.hypot(enemyShots[i]!.x - ship.x, enemyShots[i]!.y - ship.y) <
+          radius
+        )
+          enemyShots.splice(i, 1)
+      for (let i = reefs.length - 1; i >= 0; i--) {
+        const reef = reefs[i]!
+        if (reef.kind === 'spire' || reef.kind === 'captive') continue
+        if (Math.hypot(reef.x - ship.x, reef.y - ship.y) > radius) continue
+        reef.health -= damage
+        reef.flash = HIT_FLASH_FRAMES
+        if (reef.health <= 0) defeat(i, seat)
+      }
+      sparks.push({
+        x: ship.x,
+        y: ship.y,
+        vx: 0,
+        vy: 0,
+        age: 0,
+        life: 24,
+        color: PILOT_COLORS[kind]!,
+        size: radius / 24,
+        ring: true,
+      })
+    } else {
+      // Comet Volley: a fan of sparks that glance off the walls once.
+      const { count, spread, speed, damage } = RAINBOW_SPECIAL.volley
+      for (let i = 0; i < count; i++) {
+        const angle = (i / (count - 1) - 0.5) * 2 * spread
+        shots.push({
+          x: ship.x + 12,
+          y: ship.y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          seat,
+          damage,
+          kind: 'arc',
+          bounces: 1,
+        })
+      }
+    }
+  }
+
+  /** A special that lasts: the petal shield eats pellets, the prism beam fires down the lane. */
+  function stepSpecial(ship: Ship, seat: number) {
+    const kind = pilotOf(seat)
+    if (kind === 0) {
+      for (let i = enemyShots.length - 1; i >= 0; i--) {
+        const bullet = enemyShots[i]!
+        if (bullet.ghost) continue
+        if (
+          Math.hypot(bullet.x - ship.x, bullet.y - ship.y) <
+          RAINBOW_SPECIAL.shield.radius
+        ) {
+          enemyShots.splice(i, 1)
+          score += 2
+        }
+      }
+    } else if (kind === 1 && ship.special % RAINBOW_SPECIAL.beam.every === 0) {
+      shots.push({
+        x: ship.x + 15,
+        y: ship.y,
+        vx: RAINBOW_SPECIAL.beam.speed,
+        vy: 0,
+        seat,
+        damage: RAINBOW_SPECIAL.beam.damage,
+        kind: 'beam',
+        pierce: 99,
+      })
+    }
+  }
+
+  /** Y: the pilot's evade, untouchable while it lasts. */
+  function useEvade(ship: Ship, seat: number, keys: InputFrame) {
+    if (ship.evadeCooldown > 0) return
+    const kind = pilotOf(seat)
+    ship.evadeCooldown = RAINBOW_EVADE.cooldown
+    const dx = Number(keys.held.right) - Number(keys.held.left)
+    const dy = Number(keys.held.down) - Number(keys.held.up)
+    const length = Math.hypot(dx, dy)
+    options.sound.play('blip')
+    if (kind === 0) ship.evade = RAINBOW_EVADE.roll
+    else if (kind === 1) {
+      // Prism Dash: forward unless a direction is held.
+      const { frames, step } = RAINBOW_EVADE.dash
+      ship.dashX = length ? (dx / length) * step : step
+      ship.dashY = length ? (dy / length) * step : 0
+      ship.evade = frames + 4
+    } else if (kind === 2) {
+      // Halo Blink: up unless a direction is held.
+      const { reach, safe } = RAINBOW_EVADE.blink
+      sparks.push({
+        x: ship.x,
+        y: ship.y,
+        vx: 0,
+        vy: 0,
+        age: 0,
+        life: 14,
+        color: PILOT_COLORS[kind]!,
+        size: 1,
+        ring: true,
+      })
+      ship.x = Math.max(
+        20,
+        Math.min(W - 40, ship.x + (length ? (dx / length) * reach : 0)),
+      )
+      ship.y = Math.max(
+        34,
+        Math.min(H - 25, ship.y + (length ? (dy / length) * reach : -reach)),
+      )
+      ship.evade = safe
+    } else ship.evade = RAINBOW_EVADE.boost.frames
   }
 
   function superAttack(seat: number) {
+    const kind = pilotOf(seat)
     const ship = ships[seat]!
     if (ship.charge < 100) return
     ship.charge = 0
     supers++
-    bursts.push({ seat, x: ship.x, y: ship.y, age: 0 })
+    bursts.push({ seat, pilot: kind, x: ship.x, y: ship.y, age: 0 })
     enemyShots.length = 0
     if (boss && boss.frame > 85) {
-      boss.hp -= seat === 1 ? 28 : 20
+      boss.hp -= kind === 1 ? 28 : 20
       if (boss.hp <= 0) defeatBoss()
     }
     if (moonBoss && moonBoss.frame > 85) {
-      moonBoss.hp -= seat === 1 ? 28 : 20
+      moonBoss.hp -= kind === 1 ? 28 : 20
       if (moonBoss.hp <= 0) defeatMoonBoss()
     }
     if (clawBoss && clawBoss.frame > 85) {
-      clawBoss.hp -= seat === 1 ? 28 : 20
+      clawBoss.hp -= kind === 1 ? 28 : 20
       if (clawBoss.hp <= 0) defeatClawBoss()
     }
     if (delphion && delphion.frame > 85) {
-      delphion.hp -= seat === 1 ? 28 : 20
+      delphion.hp -= kind === 1 ? 28 : 20
       if (delphion.hp <= 0) defeatDelphion()
     }
     if (sawtooth && sawtooth.frame > 85) {
-      sawtooth.hp -= seat === 1 ? 28 : 20
+      sawtooth.hp -= kind === 1 ? 28 : 20
       if (sawtooth.hp <= 0) defeatSawtooth()
     }
     if (lanternRay && lanternRay.frame > 85) {
-      lanternRay.hp -= seat === 1 ? 28 : 20
+      lanternRay.hp -= kind === 1 ? 28 : 20
       if (lanternRay.hp <= 0) defeatLanternRay()
     }
     if (glassEel && glassEel.frame > 85) {
-      glassEel.hp -= seat === 1 ? 28 : 20
+      glassEel.hp -= kind === 1 ? 28 : 20
       if (glassEel.hp <= 0) defeatGlassEel()
     }
     if (leviathan && leviathan.frame > 85) {
-      leviathan.hp -= seat === 1 ? 28 : 20
+      leviathan.hp -= kind === 1 ? 28 : 20
       if (leviathan.hp <= 0) defeatLeviathan()
     }
     if (crown && crown.frame > 85) {
-      crown.hp -= seat === 1 ? 28 : 20
+      crown.hp -= kind === 1 ? 28 : 20
       if (crown.hp <= 0) subdueCrown()
     }
     if (guardian && guardian.frame > 60) {
-      guardian.hp -= seat === 1 ? 28 : 20
+      guardian.hp -= kind === 1 ? 28 : 20
       if (guardian.hp <= 0) defeatGuardian(seat)
     }
     for (let i = reefs.length - 1; i >= 0; i--) {
       const reef = reefs[i]!
-      if (seat === 1 && reef.x < ship.x) continue
+      if (kind === 1 && reef.x < ship.x) continue
+      if (reef.kind === 'spire') continue
       if (reef.kind === 'captive') {
         freeCaptive(reef)
         continue
       }
-      reef.health -= seat === 1 ? 8 : 5
-      if (reef.health <= 0) defeat(i, seat)
+      reef.health -= kind === 1 ? 8 : 5
+      if (reef.health <= 0) defeat(i, seat, false)
     }
-    if (seat === 2) {
+    if (kind === 2) {
       haloRevive(ships, activePlayers, seat)
       for (const ally of ships.slice(0, activePlayers)) {
         ally.shield = Math.min(3, ally.shield + 1)
@@ -2124,16 +2425,16 @@ export function createRainbowPrincessPreview(
         (calm ? RAINBOW_EFFECTS.calmShare : 1),
     )
     const life = big ? RAINBOW_EFFECTS.bossLife : RAINBOW_EFFECTS.craftLife
-    if (big && !calm)
+    if (!calm)
       sparks.push({
         x,
         y,
         vx: 0,
         vy: 0,
         age: 0,
-        life,
-        color: '#fff2a8',
-        size: 0,
+        life: big ? life : 16,
+        color: big ? '#fff2a8' : '#ffffff',
+        size: big ? 1.6 : 1.3,
         ring: true,
       })
     for (let i = 0; i < count; i++) {
@@ -2155,7 +2456,56 @@ export function createRainbowPrincessPreview(
       sparks.splice(0, sparks.length - RAINBOW_EFFECTS.maxSparks)
   }
 
-  function defeat(index: number, seat: number) {
+  /** A pickup taken: a ring and sparks in its colour, and its name. */
+  function collected(pickup: Pickup) {
+    const color =
+      pickup.kind === 'power'
+        ? '#a5f3fc'
+        : pickup.kind === 'shield'
+          ? '#f9a8d4'
+          : '#fde68a'
+    if (!calm)
+      sparks.push({
+        x: pickup.x,
+        y: pickup.y,
+        vx: 0,
+        vy: 0,
+        age: 0,
+        life: 18,
+        color,
+        size: 1.4,
+        ring: true,
+      })
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2
+      sparks.push({
+        x: pickup.x,
+        y: pickup.y,
+        vx: Math.cos(angle) * 1.6,
+        vy: Math.sin(angle) * 1.6,
+        age: 0,
+        life: 20,
+        color,
+        size: 2,
+      })
+    }
+    if (sparks.length > RAINBOW_EFFECTS.maxSparks)
+      sparks.splice(0, sparks.length - RAINBOW_EFFECTS.maxSparks)
+    popups.push({
+      x: pickup.x,
+      y: pickup.y - 12,
+      text:
+        pickup.kind === 'power'
+          ? 'POWER UP'
+          : pickup.kind === 'shield'
+            ? 'SHIELD +1'
+            : 'CHARGE +35',
+      age: 0,
+    })
+  }
+
+  /** A craft destroyed by `seat`; a super's own kills (`refund` false) never recharge it. */
+  function defeat(index: number, seat: number, refund = true) {
     const reef = reefs[index]!
     reefs.splice(index, 1)
     explode(reef.x, reef.y)
@@ -2172,10 +2522,11 @@ export function createRainbowPrincessPreview(
     creditWave(reef)
     clearCount++
     const ship = ships[seat]!
-    ship.charge = Math.min(
-      100,
-      ship.charge + (reef.kind === 'urchin' ? 24 : 12),
-    )
+    if (refund)
+      ship.charge = Math.min(
+        100,
+        ship.charge + (reef.kind === 'urchin' ? 24 : 12),
+      )
     if (clearCount % 3 === 0) {
       const kinds: Pickup['kind'][] = ['power', 'shield', 'charge']
       pickups.push({
@@ -2236,7 +2587,8 @@ export function createRainbowPrincessPreview(
       reef.kind === 'gate' ||
       reef.kind === 'pylon' ||
       reef.kind === 'brood' ||
-      reef.kind === 'captive'
+      reef.kind === 'captive' ||
+      reef.kind === 'spire'
     )
       return
     if (reef.kind === 'mirror') {
@@ -2511,7 +2863,14 @@ export function createRainbowPrincessPreview(
     guardian = null
     const act = currentAct()
     // The finale has no guardian of its own.
-    if (act !== 9) guardians[act] = 'defeated'
+    if (act !== 9) {
+      guardians[act] = 'defeated'
+      // Nothing flies in a guardian's section, so once it falls the Act moves on after a short breath.
+      advanceAct(
+        act,
+        guardianSections[act].to - GUARDIAN_SKIP_LEAD - actFrame(act),
+      )
+    }
     if (Object.values(guardians).every((outcome) => outcome === 'defeated'))
       earn('guardian-breaker')
     // Like a boss, a destroyed guardian takes its pellets with it.
@@ -2529,7 +2888,7 @@ export function createRainbowPrincessPreview(
   function hitShip(ship: Ship) {
     // The attract-mode flythrough must be able to reach its authored boss and
     // second Act rather than silently losing every autonomous pilot.
-    if (options.demo || ship.invulnerable > 0) return
+    if (options.demo || ship.invulnerable > 0 || ship.evade > 0) return
     actHits++
     ship.invulnerable = 90
     ship.shield--
@@ -2568,7 +2927,41 @@ export function createRainbowPrincessPreview(
         const chosen = resumeMenu
         resumeMenu = null
         if (chosen.pick === 0) continueFrom(chosen.save)
+        else if (options.selectScreen) selectMenu = newSelect()
         options.sound.play('blip')
+      }
+      return
+    }
+    if (selectMenu) {
+      // Left and right change the highlighted row, up and down switch rows, A launches (after a beat).
+      const keys = [input, ...seated]
+      const pressed = (button: 'up' | 'down' | 'left' | 'right' | 'a') =>
+        keys.some((frame) => frame?.pressed[button])
+      if (pressed('up') || pressed('down')) {
+        selectMenu.row = selectMenu.row ? 0 : 1
+        options.sound.play('blip')
+      }
+      const step = Number(pressed('right')) - Number(pressed('left'))
+      if (step) {
+        if (selectMenu.row === 0)
+          selectMenu.pilot =
+            (selectMenu.pilot + step + RAINBOW_PILOTS.length) %
+            RAINBOW_PILOTS.length
+        else
+          selectMenu.difficulty = Math.max(
+            0,
+            Math.min(
+              ARCADE_DIFFICULTIES.length - 1,
+              selectMenu.difficulty + step,
+            ),
+          )
+        options.sound.play('blip')
+      }
+      if (++selectMenu.frame > RESUME_MENU_GRACE && pressed('a')) {
+        pick = selectMenu.pilot
+        setDifficulty(ARCADE_DIFFICULTIES[selectMenu.difficulty]!)
+        selectMenu = null
+        options.sound.play('start')
       }
       return
     }
@@ -2600,6 +2993,7 @@ export function createRainbowPrincessPreview(
       if (++bursts[i]!.age > BURST_FRAMES) bursts.splice(i, 1)
     for (let i = popups.length - 1; i >= 0; i--)
       if (++popups[i]!.age > POPUP_FRAMES) popups.splice(i, 1)
+    for (const reef of reefs) if (reef.flash) reef.flash--
     for (let i = sparks.length - 1; i >= 0; i--) {
       const spark = sparks[i]!
       spark.x += spark.vx
@@ -2695,6 +3089,7 @@ export function createRainbowPrincessPreview(
         for (const entry of pinkwakeSpawns(tick)) {
           spawn(entry.kind, entry.y, entry.wave)
         }
+        for (const spire of pinkwakeSpires(tick)) spawnSpire(spire)
         if (tick === PINKWAKE.stationAppears) station = { x: W + 18, y: 190 }
       } else if (stage === 'turn' && tick === PINKWAKE.turnStarts) {
         reefs.length = 0
@@ -2982,8 +3377,20 @@ export function createRainbowPrincessPreview(
       if (!keys) continue
       if (ship.lives <= 0) continue
       ship.focus = !options.demo && keys.held.b
+      const lastY = ship.y
       if (options.demo) {
         ship.y = 135 + Math.sin(tick / 33 + seat) * 56
+        // A guardian on screen: the attract demo lines up on it, so it shows the guardian beaten.
+        if (guardian && guardian.frame > 60)
+          ship.y += (guardian.y + (seat - 1.5) * 8 - ship.y) * 0.7
+        // The attract demo flies around the nearest coral spire ahead.
+        const spire = reefs
+          .filter((reef) => reef.kind === 'spire' && reef.x > ship.x - 30)
+          .sort((a, b) => a.x - b.x)[0]
+        if (spire && spire.x < ship.x + 150)
+          ship.y = spire.fromTop
+            ? Math.max(ship.y, spire.y + 26 + seat * 6)
+            : Math.min(ship.y, spire.y - 26 - seat * 6)
         // At the Act III fork the attract demo shows both routes: odd crews fly up into the vault,
         // even crews down the safe passage, easing into the channel and back out after the choice.
         const fork = trenchStart === null ? -1 : trenchFrame()
@@ -3010,6 +3417,15 @@ export function createRainbowPrincessPreview(
             Math.sin(tick / 33 + seat) * (wreckRoute === 'depot' ? 34 : 14)
           ship.y += (lane - ship.y) * Math.min(1, wreckLead / 60)
         }
+        // Odd crews on the depot route steer for the nearest survivor pod ahead, so the demo frees the depot
+        // however the Act's clock has run (a guardian beaten early moves it on).
+        const pod =
+          wreckRoute === 'depot' && activePlayers % 2 === 1
+            ? survivors.find((p) => p.x > ship.x - 8 && p.x < ship.x + 140)
+            : undefined
+        // (The demo sets its lane afresh each frame, so ease all the way in as the pod nears.)
+        if (pod)
+          ship.y += (pod.y - ship.y) * Math.min(1, (ship.x + 140 - pod.x) / 70)
         const reef = reefStart === null ? -1 : reefFrame()
         const reefLead = Math.min(
           reef - CROWN_REEF_FORK.markFrom,
@@ -3073,14 +3489,33 @@ export function createRainbowPrincessPreview(
         const dx = Number(keys.held.right) - Number(keys.held.left)
         const dy = Number(keys.held.down) - Number(keys.held.up)
         const length = Math.hypot(dx, dy) || 1
-        const speed = ship.focus ? FOCUS_SPEED : SPEED
+        const speed =
+          (ship.focus ? FOCUS_SPEED : SPEED) *
+          (ship.evade > 0 && pilotOf(seat) === 3
+            ? RAINBOW_EVADE.boost.speed
+            : 1)
         ship.x = Math.max(20, Math.min(W - 40, ship.x + (dx / length) * speed))
         ship.y = Math.max(34, Math.min(H - 25, ship.y + (dy / length) * speed))
+        if (ship.dashX || ship.dashY) {
+          ship.x = Math.max(20, Math.min(W - 40, ship.x + ship.dashX))
+          ship.y = Math.max(34, Math.min(H - 25, ship.y + ship.dashY))
+          if (ship.evade <= 4) ship.dashX = ship.dashY = 0
+        }
       }
+      ship.bank += (ship.y - lastY - ship.bank) * 0.25
       if (ship.cooldown > 0) ship.cooldown--
       if (ship.invulnerable > 0) ship.invulnerable--
       if ((options.demo || keys.held.a) && ship.cooldown === 0) fire(ship, seat)
       if (!options.demo && keys.pressed.b) superAttack(seat)
+      if (!options.demo && keys.pressed.x) useSpecial(ship, seat)
+      if (!options.demo && keys.pressed.y) useEvade(ship, seat, keys)
+      if (ship.specialCooldown > 0) ship.specialCooldown--
+      if (ship.evadeCooldown > 0) ship.evadeCooldown--
+      if (ship.evade > 0) ship.evade--
+      if (ship.special > 0) {
+        ship.special--
+        stepSpecial(ship, seat)
+      }
     }
 
     for (const shot of shots) {
@@ -3128,6 +3563,14 @@ export function createRainbowPrincessPreview(
         reef.kind === 'prism'
       ) {
         stepGlassCraft(reef)
+        continue
+      }
+      if (reef.kind === 'spire') {
+        reef.x -= SPIRE.speed
+        continue
+      }
+      if (reef.kind === 'diver') {
+        stepDiver(reef)
         continue
       }
       if (reef.kind === 'captive') {
@@ -3180,6 +3623,11 @@ export function createRainbowPrincessPreview(
           vy: 0,
           grazed: 0,
         })
+      // Act I craft keep firing while they cross the screen.
+      if (reef.reload !== undefined && reef.fired && --reef.reload <= 0) {
+        reef.reload = actOneReload(reef.kind)
+        if (reef.x > 70) fireEnemy(reef)
+      }
     }
     if (boss) {
       enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
@@ -3436,17 +3884,19 @@ export function createRainbowPrincessPreview(
       const hitIndex = reefs.findIndex((reef) =>
         shot.struck?.includes(reef) || reef.kind === 'captive'
           ? false
-          : reef.kind === 'eel'
-            ? Math.abs(reef.x - shot.x) < 8 &&
-              Math.abs(reef.y - shot.y) < EEL.half + 6
-            : Math.abs(reef.x - shot.x) < 14 &&
-              Math.abs(reef.y - shot.y) <
-                (reef.kind === 'hammerhead' ||
-                reef.kind === 'scrap' ||
-                reef.kind === 'bulwark' ||
-                reef.kind === 'pylon'
-                  ? 20
-                  : 13),
+          : reef.kind === 'spire'
+            ? inSpire(reef, shot.x, shot.y, 3)
+            : reef.kind === 'eel'
+              ? Math.abs(reef.x - shot.x) < 8 &&
+                Math.abs(reef.y - shot.y) < EEL.half + 6
+              : Math.abs(reef.x - shot.x) < 14 &&
+                Math.abs(reef.y - shot.y) <
+                  (reef.kind === 'hammerhead' ||
+                  reef.kind === 'scrap' ||
+                  reef.kind === 'bulwark' ||
+                  reef.kind === 'pylon'
+                    ? 20
+                    : 13),
       )
       if (hitIndex >= 0) {
         const reef = reefs[hitIndex]!
@@ -3456,6 +3906,7 @@ export function createRainbowPrincessPreview(
             Math.abs(shot.y - reef.y) < EEL.half - EEL.endReach) ||
           reef.kind === 'scrap' ||
           reef.kind === 'gate' ||
+          reef.kind === 'spire' ||
           (reef.kind === 'bulwark' && !bulwarkOpen(reef))
         if (shot.pierce && !soaks) {
           shot.pierce--
@@ -3468,7 +3919,13 @@ export function createRainbowPrincessPreview(
         )
           continue
         // Wreck slabs soak every shot.
-        if (reef.kind === 'scrap' || reef.kind === 'gate') continue
+        // Wreck slabs and coral spires soak every shot.
+        if (
+          reef.kind === 'scrap' ||
+          reef.kind === 'gate' ||
+          reef.kind === 'spire'
+        )
+          continue
         // A closed bulwark shell soaks every shot.
         if (reef.kind === 'bulwark' && !bulwarkOpen(reef)) continue
         // A reef turret's stem breaks at double damage.
@@ -3490,6 +3947,7 @@ export function createRainbowPrincessPreview(
         // A hit while a salvager's arms are out jams its grab.
         if (reef.kind === 'salvager' && reef.charge && reef.charge > 0)
           reef.jammed = true
+        reef.flash = HIT_FLASH_FRAMES
         reef.health -= shot.damage * (dolphinStaggered(reef) ? 2 : 1)
         if (reef.health <= 0) defeat(hitIndex, shot.seat)
         continue
@@ -3683,6 +4141,16 @@ export function createRainbowPrincessPreview(
         reefs.splice(ei, 1)
         continue
       }
+      if (reef.kind === 'spire') {
+        // Terrain: it stays, and a pilot who touches it takes a hit.
+        for (const ship of livingShips())
+          if (
+            ship.invulnerable === 0 &&
+            inSpire(reef, ship.x, ship.y, CORE_RADIUS + 2)
+          )
+            hitShip(ship)
+        continue
+      }
       if (reef.kind === 'captive') continue
       const ship = ships
         .slice(0, activePlayers)
@@ -3690,6 +4158,7 @@ export function createRainbowPrincessPreview(
           (candidate) =>
             candidate.lives > 0 &&
             candidate.invulnerable === 0 &&
+            candidate.evade === 0 &&
             (reef.kind === 'eel' && reef.charge === 0
               ? Math.abs(candidate.x - reef.x) < CORE_RADIUS + 5 &&
                 Math.abs(candidate.y - reef.y) < EEL.half + CORE_RADIUS
@@ -3801,7 +4270,7 @@ export function createRainbowPrincessPreview(
         const distance = Math.hypot(ship.x - bullet.x, ship.y - bullet.y)
         const contact = enemyBulletContact(
           distance,
-          ship.invulnerable > 0,
+          ship.invulnerable > 0 || ship.evade > 0,
           CORE_RADIUS + 3,
           GRAZE_RADIUS,
         )
@@ -3854,6 +4323,7 @@ export function createRainbowPrincessPreview(
         )
       if (!ship) continue
       pickups.splice(pi, 1)
+      collected(pickup)
       if (pickup.kind === 'power') ship.power = Math.min(3, ship.power + 1)
       else if (pickup.kind === 'shield')
         ship.shield = Math.min(3, ship.shield + 1)
@@ -3888,7 +4358,8 @@ export function createRainbowPrincessPreview(
      * the ending, or the failure ending; silence in the demo, the menus and the CONTINUE? countdown.
      */
     get music(): MusicLoop | null {
-      if (options.demo || over || resumeMenu || continueLeft > 0) return null
+      if (options.demo || over || resumeMenu || selectMenu || continueLeft > 0)
+        return null
       return rainbowMusicFor({
         act: currentAct(),
         boss: Boolean(
@@ -3931,6 +4402,14 @@ export function createRainbowPrincessPreview(
         earned: [...earned],
         difficulty,
         resumeMenu: resumeMenu ? resumeMenu.pick : null,
+        selectMenu: selectMenu
+          ? {
+              row: selectMenu.row,
+              pilot: selectMenu.pilot,
+              difficulty: ARCADE_DIFFICULTIES[selectMenu.difficulty]!,
+            }
+          : null,
+        pilots: ships.slice(0, activePlayers).map((_, seat) => pilotOf(seat)),
         enemies: reefs.map((reef) => ({ ...reef })),
         enemyShots: enemyShots.map((bullet) => ({ ...bullet })),
         pickups: pickups.map((pickup) => ({ ...pickup })),
@@ -4624,13 +5103,85 @@ export function createRainbowPrincessPreview(
         g.fill()
         g.restore()
       }
+      // Coral spires: terrain columns from the floor or the ceiling, knobbed, with a glowing tip.
+      for (const reef of reefs) {
+        if (reef.kind !== 'spire') continue
+        const base = reef.fromTop ? WALL_TOP - 14 : H + 4
+        const half = SPIRE.halfWidth
+        const body = g.createLinearGradient(reef.x - half, 0, reef.x + half, 0)
+        body.addColorStop(0, '#3d1a52')
+        body.addColorStop(0.5, '#b04e8e')
+        body.addColorStop(1, '#3d1a52')
+        g.save()
+        g.fillStyle = body
+        g.strokeStyle = '#ffc6e6'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.moveTo(reef.x - half, base)
+        const dir = reef.fromTop ? 1 : -1
+        const length = Math.abs(reef.y - base)
+        for (let k = 1; k < 6; k++) {
+          const y = base + (dir * (length * k)) / 6
+          g.lineTo(reef.x - half + (k % 2 ? 3 : 0), y)
+        }
+        g.arc(
+          reef.x,
+          reef.y,
+          half,
+          reef.fromTop ? Math.PI : 0,
+          reef.fromTop ? 0 : Math.PI,
+          reef.fromTop,
+        )
+        for (let k = 5; k > 0; k--) {
+          const y = base + (dir * (length * k)) / 6
+          g.lineTo(reef.x + half - (k % 2 ? 3 : 0), y)
+        }
+        g.lineTo(reef.x + half, base)
+        g.closePath()
+        g.fill()
+        g.stroke()
+        g.fillStyle = '#ff9fd8'
+        for (let k = 1; k < 5; k++) {
+          g.beginPath()
+          g.arc(
+            reef.x + (k % 2 ? -4 : 4),
+            base + (dir * (length * k)) / 5,
+            2.5,
+            0,
+            Math.PI * 2,
+          )
+          g.fill()
+        }
+        g.globalAlpha = 0.6 + 0.3 * Math.sin(tick / 15 + reef.x / 50)
+        g.fillStyle = '#ffe6f6'
+        g.beginPath()
+        g.arc(reef.x, reef.y, 4, 0, Math.PI * 2)
+        g.fill()
+        g.restore()
+      }
+      // A diver about to swoop marks the lane it locked.
+      for (const reef of reefs) {
+        if (reef.kind !== 'diver' || reef.dive === undefined || reef.dive > 40)
+          continue
+        g.save()
+        g.strokeStyle = '#ff4d6d'
+        g.globalAlpha = 0.55 * (1 - reef.dive / 40)
+        g.lineWidth = 1.5
+        g.setLineDash([4, 5])
+        g.beginPath()
+        g.moveTo(reef.x - 14, reef.y)
+        g.lineTo(reef.x - 120, reef.homeY!)
+        g.stroke()
+        g.restore()
+      }
       for (const reef of reefs) {
         if (
           reef.kind === 'scrap' ||
           reef.kind === 'gate' ||
           reef.kind === 'pylon' ||
           reef.kind === 'prism' ||
-          reef.kind === 'captive'
+          reef.kind === 'captive' ||
+          reef.kind === 'spire'
         )
           continue
         if (
@@ -4655,7 +5206,12 @@ export function createRainbowPrincessPreview(
         if (reef.kind === 'eel') g.rotate(-Math.PI / 2)
         if (reef.kind === 'brood') g.scale(1.6, 1.6)
         if (reef.kind === 'drone') g.scale(0.65, 0.65)
-        g.shadowColor = reef.kind === 'urchin' ? '#ffe38a' : '#ffa3e6'
+        g.shadowColor =
+          reef.kind === 'urchin'
+            ? '#ffe38a'
+            : reef.kind === 'diver'
+              ? '#ff4d6d'
+              : '#ffa3e6'
         g.shadowBlur = 12
         g.fillStyle =
           reef.kind === 'urchin'
@@ -4674,7 +5230,10 @@ export function createRainbowPrincessPreview(
                         ? '#e4c0ff'
                         : '#d09ffd'
         if (
-          !drawRainbowEnemySprite(g, reef.kind) &&
+          !drawRainbowEnemySprite(
+            g,
+            reef.kind === 'diver' ? 'picket' : reef.kind,
+          ) &&
           !(reef.kind === 'drone' && drawRainbowEnemySprite(g, 'skimmer'))
         ) {
           g.beginPath()
@@ -5866,7 +6425,7 @@ export function createRainbowPrincessPreview(
         if (left < 0.25 && Math.floor(cache.age / 5) % 2 === 0) continue
         g.save()
         g.translate(cache.x, cache.y)
-        g.strokeStyle = PILOT_COLORS[cache.seat]!
+        g.strokeStyle = PILOT_COLORS[pilotOf(cache.seat)]!
         g.lineWidth = 2
         g.beginPath()
         g.arc(0, 0, 10, -Math.PI / 2, -Math.PI / 2 + left * Math.PI * 2)
@@ -5890,7 +6449,26 @@ export function createRainbowPrincessPreview(
         g.restore()
       }
       for (const pickup of pickups) {
-        if (drawRainbowPickupSprite(g, pickup.kind, pickup.x, pickup.y))
+        // Pickups bob and pulse so they read as something to grab.
+        const bob = Math.sin(tick / 9 + pickup.x / 40) * 2.5
+        const pulse = 1 + Math.sin(tick / 6) * 0.1
+        g.save()
+        g.globalAlpha = 0.35 + 0.2 * Math.sin(tick / 6)
+        g.strokeStyle = '#ffffff'
+        g.lineWidth = 1.5
+        g.beginPath()
+        g.arc(pickup.x, pickup.y + bob, 13 * pulse, 0, Math.PI * 2)
+        g.stroke()
+        g.restore()
+        if (
+          drawRainbowPickupSprite(
+            g,
+            pickup.kind,
+            pickup.x,
+            pickup.y + bob,
+            22 * pulse,
+          )
+        )
           continue
         g.fillStyle =
           pickup.kind === 'power'
@@ -5911,7 +6489,19 @@ export function createRainbowPrincessPreview(
         )
         g.textAlign = 'left'
       }
-      // Explosions: sparks that slow and fade, and a boss's shockwave ring.
+      // A craft a shot just hurt flashes white.
+      g.save()
+      g.globalCompositeOperation = 'lighter'
+      g.fillStyle = '#ffffff'
+      for (const reef of reefs) {
+        if (!reef.flash) continue
+        g.globalAlpha = (reef.flash / HIT_FLASH_FRAMES) * 0.75
+        g.beginPath()
+        g.arc(reef.x, reef.y, 15, 0, Math.PI * 2)
+        g.fill()
+      }
+      g.restore()
+      // Explosions: sparks that slow and fade, and a shockwave ring.
       for (const spark of sparks) {
         const fade = 1 - spark.age / spark.life
         g.globalAlpha = fade
@@ -5919,7 +6509,7 @@ export function createRainbowPrincessPreview(
           g.strokeStyle = spark.color
           g.lineWidth = 1 + 3 * fade
           g.beginPath()
-          g.arc(spark.x, spark.y, 8 + spark.age * 1.6, 0, Math.PI * 2)
+          g.arc(spark.x, spark.y, 8 + spark.age * spark.size, 0, Math.PI * 2)
           g.stroke()
         } else {
           g.fillStyle = spark.color
@@ -5933,7 +6523,8 @@ export function createRainbowPrincessPreview(
       }
       g.globalAlpha = 1
       for (const shot of shots) {
-        g.fillStyle = PILOT_COLORS[shot.seat]!
+        if (shot.kind === 'beam') continue
+        g.fillStyle = PILOT_COLORS[pilotOf(shot.seat)]!
         if (shot.kind === 'needle') {
           // Rose Needle: a long thin needle with a white point.
           g.fillRect(shot.x - 4, shot.y - 1, 16, 2)
@@ -5975,11 +6566,71 @@ export function createRainbowPrincessPreview(
         )
           continue
         g.save()
+        if (ship.special > 0 && pilotOf(seat) === 1) {
+          // Prism Beam: a bright lane from the ship to the edge.
+          g.save()
+          g.globalCompositeOperation = 'lighter'
+          g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
+          g.lineWidth = 6 + Math.sin(tick / 2) * 2
+          g.beginPath()
+          g.moveTo(ship.x + 14, ship.y)
+          g.lineTo(W, ship.y)
+          g.stroke()
+          g.strokeStyle = '#ffffff'
+          g.lineWidth = 2
+          g.stroke()
+          g.restore()
+        }
+        if (ship.evade > 0 && (pilotOf(seat) === 1 || pilotOf(seat) === 3)) {
+          // A dash or a boost leaves a streak.
+          g.save()
+          g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
+          g.globalAlpha = 0.5
+          g.lineWidth = 3
+          for (const offset of [-5, 0, 5]) {
+            g.beginPath()
+            g.moveTo(ship.x - 14, ship.y + offset)
+            g.lineTo(ship.x - 44, ship.y + offset)
+            g.stroke()
+          }
+          g.restore()
+        }
         g.translate(ship.x, ship.y)
-        g.shadowColor = PILOT_COLORS[seat]!
+        if (ship.special > 0 && pilotOf(seat) === 0) {
+          // Petal Shield: six petals orbit the ship.
+          g.save()
+          g.fillStyle = PILOT_COLORS[0]!
+          g.globalAlpha = 0.85
+          for (let k = 0; k < 6; k++) {
+            const angle = tick / 8 + (k / 6) * Math.PI * 2
+            g.beginPath()
+            g.ellipse(
+              Math.cos(angle) * RAINBOW_SPECIAL.shield.radius,
+              Math.sin(angle) * RAINBOW_SPECIAL.shield.radius,
+              5,
+              2.5,
+              angle,
+              0,
+              Math.PI * 2,
+            )
+            g.fill()
+          }
+          g.restore()
+        }
+        if (ship.evade > 0 && pilotOf(seat) === 0)
+          // Barrel Roll: the ship turns over once.
+          g.scale(
+            1,
+            Math.cos((1 - ship.evade / RAINBOW_EVADE.roll) * Math.PI * 2),
+          )
+        if (ship.evade > 0 && pilotOf(seat) === 2) g.globalAlpha = 0.55
+        // Bank into a climb or a dive: tilt with the vertical speed, flattening a little as it turns.
+        g.rotate(Math.max(-0.35, Math.min(0.35, ship.bank * 0.12)))
+        g.scale(1, 1 - Math.min(0.18, Math.abs(ship.bank) * 0.05))
+        g.shadowColor = PILOT_COLORS[pilotOf(seat)]!
         g.shadowBlur = 10
-        if (!drawRainbowShipSprite(g, seat)) {
-          g.fillStyle = PILOT_COLORS[seat]!
+        if (!drawRainbowShipSprite(g, pilotOf(seat))) {
+          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.shadowBlur = 15
           g.beginPath()
           g.moveTo(16, 0)
@@ -5995,7 +6646,7 @@ export function createRainbowPrincessPreview(
         g.shadowBlur = 0
         g.fillStyle = '#44235c'
         g.fillRect(-3, -3, 6, 6)
-        g.strokeStyle = PILOT_COLORS[seat]!
+        g.strokeStyle = PILOT_COLORS[pilotOf(seat)]!
         g.lineWidth = 1
         g.strokeRect(-3, -3, 6, 6)
         if (ship.focus) {
@@ -6008,7 +6659,7 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 9px sans-serif'
         g.strokeText(String(seat + 1), -3, -17)
         if (ship.charge >= 100 && Math.floor(tick / 10) % 2 === 0) {
-          g.fillStyle = PILOT_COLORS[seat]!
+          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
           g.font = 'bold 7px monospace'
           g.textAlign = 'center'
           g.fillText('SUPER READY · TAP B', 0, 24)
@@ -6019,7 +6670,7 @@ export function createRainbowPrincessPreview(
       for (const burst of bursts) {
         const t = burst.age / BURST_FRAMES
         const fade = 1 - t
-        const color = PILOT_COLORS[burst.seat]!
+        const color = PILOT_COLORS[burst.pilot]!
         g.save()
         if (burst.age < 8 && !calm) {
           g.globalAlpha = (8 - burst.age) / 16
@@ -6031,7 +6682,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = color
         g.shadowColor = color
         g.shadowBlur = 18
-        if (burst.seat === 0) {
+        if (burst.pilot === 0) {
           const r = 20 + t * 170
           for (let petal = 0; petal < 8; petal++) {
             const a = (petal / 8) * Math.PI * 2 + t * 1.5
@@ -6047,12 +6698,12 @@ export function createRainbowPrincessPreview(
             )
             g.fill()
           }
-        } else if (burst.seat === 1) {
+        } else if (burst.pilot === 1) {
           const half = 22 * fade + 2
           g.fillRect(burst.x, burst.y - half, W - burst.x, half * 2)
           g.fillStyle = '#ffffff'
           g.fillRect(burst.x, burst.y - half / 3, W - burst.x, (half * 2) / 3)
-        } else if (burst.seat === 2) {
+        } else if (burst.pilot === 2) {
           g.lineWidth = 4 * fade + 1
           for (const scale of [1, 0.6]) {
             g.beginPath()
@@ -6141,7 +6792,11 @@ export function createRainbowPrincessPreview(
         12,
       )
       g.font = '9px monospace'
-      g.fillText('A FIRE · HOLD B FOCUS · TAP B AT 100% = SUPER', HUD_LEFT, 24)
+      g.fillText(
+        'A FIRE · B FOCUS, SUPER AT 100% · X SPECIAL · Y EVADE',
+        HUD_LEFT,
+        24,
+      )
       g.textAlign = 'right'
       g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
       if (activePlayers > 1) {
@@ -6150,9 +6805,9 @@ export function createRainbowPrincessPreview(
       }
       for (let seat = 0; seat < activePlayers; seat++) {
         const ship = ships[seat]!
-        g.fillStyle = PILOT_COLORS[seat]!
+        g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
         g.fillText(
-          `${SHIP_NAMES[seat]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%`,
+          `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
           HUD_RIGHT,
           24 + seat * 10,
         )
@@ -6181,7 +6836,7 @@ export function createRainbowPrincessPreview(
                             escapeFrame,
                             endingFrame,
                           )
-      const dialogue = scene
+      const said = scene
         ? act === 9
           ? finaleDialogue(
               scene.id as FinaleSceneId,
@@ -6237,7 +6892,7 @@ export function createRainbowPrincessPreview(
                         )
                       : act === 1
                         ? pinkwakeDialogue(
-                            scene.id as 'A01.OPEN' | 'A01.TURN' | 'A01.AFTER',
+                            scene.id as PinkwakeSceneId,
                             scene.elapsed,
                             activePlayers,
                             rescuedStation,
@@ -6249,6 +6904,7 @@ export function createRainbowPrincessPreview(
                             rescuedNemi,
                           )
         : null
+      const dialogue = said && crewLine(said)
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
         g.fillStyle = '#160b34e8'
@@ -6538,7 +7194,7 @@ export function createRainbowPrincessPreview(
       // super has just cleared every enemy shot, so the banner hides no threat while it plays.
       const cut = bursts[bursts.length - 1]
       if (cut) {
-        const pilot = RAINBOW_PILOTS[cut.seat % RAINBOW_PILOTS.length]!
+        const pilot = RAINBOW_PILOTS[cut.pilot % RAINBOW_PILOTS.length]!
         const slide = Math.min(1, cut.age / 6)
         const x = 15 - (1 - slide) * 200
         // A ship flying under the banner stays visible through it.
@@ -6567,7 +7223,7 @@ export function createRainbowPrincessPreview(
           commsTop + 2,
           48,
         )
-        g.strokeStyle = PILOT_COLORS[cut.seat]!
+        g.strokeStyle = PILOT_COLORS[cut.pilot]!
         g.lineWidth = 2
         g.strokeRect(x, commsTop, 270, 52)
         const textX = x + artWidth + 10
@@ -6578,7 +7234,7 @@ export function createRainbowPrincessPreview(
           textX,
           commsTop + 17,
         )
-        g.fillStyle = PILOT_COLORS[cut.seat]!
+        g.fillStyle = PILOT_COLORS[cut.pilot]!
         g.font = 'bold 13px monospace'
         g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
         g.restore()
@@ -6703,6 +7359,116 @@ export function createRainbowPrincessPreview(
           g.font = '8px monospace'
           g.fillText('PRESS A', W / 2, 244)
         }
+        g.restore()
+      }
+      if (selectMenu) {
+        const menu = selectMenu
+        g.save()
+        g.fillStyle = '#0c0620ee'
+        g.fillRect(0, 0, W, H)
+        g.textAlign = 'center'
+        g.fillStyle = '#ffd2ef'
+        g.font = 'bold 16px monospace'
+        g.fillText('CHOOSE YOUR PILOT', W / 2, 30)
+        RAINBOW_PILOTS.forEach((pilot, i) => {
+          const x = 18 + i * 113
+          const chosen = menu.pilot === i
+          // The seat that flies this pilot, if any: P1 flies the chosen one, the others follow in order.
+          const seat =
+            (i - menu.pilot + RAINBOW_PILOTS.length) % RAINBOW_PILOTS.length
+          g.fillStyle = chosen ? '#2a1450' : '#160b34'
+          g.fillRect(x, 42, 105, 162)
+          g.strokeStyle = PILOT_COLORS[i]!
+          g.lineWidth = chosen
+            ? menu.row === 0
+              ? 2 + Math.sin(tick / 6)
+              : 2
+            : 1
+          g.globalAlpha = chosen ? 1 : 0.55
+          g.strokeRect(x, 42, 105, 162)
+          if (
+            !drawRainbowCommsPortrait(
+              g,
+              pilot.name.split(' ')[0]!,
+              x + 30,
+              48,
+              44,
+            )
+          ) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.beginPath()
+            g.arc(x + 52, 70, 18, 0, Math.PI * 2)
+            g.fill()
+          }
+          g.save()
+          g.translate(x + 52, 112)
+          g.scale(1.3, 1.3)
+          if (!drawRainbowShipSprite(g, i)) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.beginPath()
+            g.moveTo(16, 0)
+            g.lineTo(-13, -11)
+            g.lineTo(-6, 0)
+            g.lineTo(-13, 11)
+            g.closePath()
+            g.fill()
+          }
+          g.restore()
+          g.fillStyle = PILOT_COLORS[i]!
+          g.font = 'bold 10px monospace'
+          g.fillText(pilot.name.split(' ')[0]!.toUpperCase(), x + 52, 142)
+          g.fillStyle = '#e8ddff'
+          g.font = '7px monospace'
+          g.fillText(pilot.ship.toUpperCase(), x + 52, 153)
+          g.fillText(
+            `FOCUS ${RAINBOW_LOADOUTS[i]!.focus.toUpperCase()}`,
+            x + 52,
+            164,
+          )
+          g.fillText(`SUPER ${pilot.superName.toUpperCase()}`, x + 52, 175)
+          g.fillText(
+            `X ${RAINBOW_LOADOUTS[i]!.special.toUpperCase()}`,
+            x + 52,
+            186,
+          )
+          g.fillText(
+            `Y ${RAINBOW_LOADOUTS[i]!.evade.toUpperCase()}`,
+            x + 52,
+            197,
+          )
+          if (seat < activePlayers) {
+            g.fillStyle = PILOT_COLORS[i]!
+            g.font = 'bold 9px monospace'
+            g.fillText(`P${seat + 1}`, x + 10, 54)
+          }
+          g.globalAlpha = 1
+        })
+        const levels = [
+          ['CADET', 'Five lives, slower pellets, softer craft: half score'],
+          ['PILOT', 'Three lives: the flight as designed'],
+          ['ACE', 'Faster pellets, tougher craft and bosses: score x1.5'],
+        ] as const
+        levels.forEach(([name], i) => {
+          const chosen = menu.difficulty === i
+          g.fillStyle = chosen
+            ? menu.row === 1
+              ? '#fff2a8'
+              : '#ffd2ef'
+            : '#7a6fa4'
+          g.font = `bold ${chosen ? 12 : 10}px monospace`
+          g.fillText(chosen ? `[ ${name} ]` : name, W / 2 + (i - 1) * 110, 220)
+        })
+        g.fillStyle = '#e8ddff'
+        g.font = '8px monospace'
+        g.fillText(levels[menu.difficulty]![1], W / 2, 234)
+        g.fillStyle = '#9b8fc4'
+        g.fillText(
+          menu.row === 0
+            ? 'LEFT / RIGHT: PILOT · UP / DOWN: DIFFICULTY · A: LAUNCH'
+            : 'LEFT / RIGHT: DIFFICULTY · UP / DOWN: PILOT · A: LAUNCH',
+          W / 2,
+          246,
+        )
         g.restore()
       }
       if (resumeMenu) {

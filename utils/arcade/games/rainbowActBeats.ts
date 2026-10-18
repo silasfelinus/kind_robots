@@ -308,11 +308,18 @@ export const ACT_TERRAIN: Record<
   8: { section: 'Core approach', name: 'heart spires', weave: true },
 }
 
-/** How an Act's terrain is painted: the body's edge and middle, its rim, its knobs and its glowing tip. */
+/** How an Act's terrain (Act I's coral spires included) is painted: the body's edge and middle, its rim, its knobs and its glowing tip. */
 export const ACT_TERRAIN_PALETTE: Record<
-  ActBeatAct,
+  1 | ActBeatAct,
   { edge: string; middle: string; rim: string; knob: string; tip: string }
 > = {
+  1: {
+    edge: '#3d1a52',
+    middle: '#b04e8e',
+    rim: '#ffc6e6',
+    knob: '#ff9fd8',
+    tip: '#ffe6f6',
+  },
   2: {
     edge: '#1d3b5a',
     middle: '#5fb6d8',

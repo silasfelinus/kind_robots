@@ -300,6 +300,7 @@ export const ROSEFIN_REINFORCEMENTS = reinforcements<RosefinWave['kind']>(
   CUT.sections,
   {
     kinds: ['dolphin', 'courier'],
+    pairs: true,
     every: {
       'Dolphin pairs': 300,
       'Courier lanes': 300,

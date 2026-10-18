@@ -69,20 +69,37 @@ const REINFORCEMENT_PATTERN: ReadonlyArray<
 /**
  * Silas's playtest also asked for more craft ("Bullets and enemies should be more plentiful"): the recut Acts
  * kept their sparse teaching waves, so each adds schools of its cheaper craft through the sections named,
- * one every so many frames (per section) from a second and a half in until five seconds before it ends.
+ * one every so many frames (per section) from five seconds in (past a section's opening comms and its lesson
+ * craft) until five seconds before it ends. `pairs` flies every school as mirrored pairs (Act IV's dolphins dive
+ * across a partner).
  */
 export function reinforcements<Kind extends string>(
   sections: readonly PacedSection[],
-  plan: { kinds: readonly Kind[]; every: Readonly<Record<string, number>> },
+  plan: {
+    kinds: readonly Kind[]
+    every: Readonly<Record<string, number>>
+    pairs?: boolean
+  },
 ): RainbowWave<Kind>[] {
   const waves: RainbowWave<Kind>[] = []
   let n = 0
   for (const [name, every] of Object.entries(plan.every)) {
     const section = sections.find((s) => s.name === name)
     if (!section) throw new Error(`reinforcements: no section named ${name}`)
-    for (let at = section.from + 90; at <= section.to - 300; at += every) {
+    for (let at = section.from + 300; at <= section.to - 300; at += every) {
       const school = REINFORCEMENT_PATTERN[n % REINFORCEMENT_PATTERN.length]!
-      waves.push({ at, kind: plan.kinds[n % plan.kinds.length]!, ...school })
+      waves.push({
+        at,
+        kind: plan.kinds[n % plan.kinds.length]!,
+        ...school,
+        ...(plan.pairs
+          ? {
+              formation: 'pair' as const,
+              count: 4,
+              lane: Math.min(school.lane, 1 - school.lane),
+            }
+          : {}),
+      })
       n++
     }
   }

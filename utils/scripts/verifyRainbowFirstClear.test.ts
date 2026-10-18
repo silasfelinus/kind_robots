@@ -14,11 +14,12 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 // no snapshot edits) fly both Acts, spend their super at the bosses and continue where they fall.
 // Every boss must show all three phases and last a real fight, and a continue mid-fight must keep the
 // damage the crew already dealt. The world bible's pacing target was 10-15 minutes per Act; Silas's first
-// playtest (2026-10-17: "too easy and too long ... monotonous") cut it, so a clean solo run (the deathless
-// demo pilot) must now land between CLEAN_MIN and CLEAN_MAX minutes. Ordinary pilots, continues included,
+// playtest (2026-10-17: "too easy and too long ... monotonous") cut it (Act I by hand, II-VIII in t-023's
+// recut, to about 4-6 minutes each), so a clean solo run (the deathless demo pilot) must now land between
+// CLEAN_MIN and CLEAN_MAX minutes. Ordinary pilots, continues included,
 // may take longer but not absurdly so, and may not fall below the floor.
-const CLEAN_MIN_MINUTES = 3
-const CLEAN_MAX_MINUTES = 15
+const CLEAN_MIN_MINUTES = 3.5
+const CLEAN_MAX_MINUTES = 7
 const ACT_FLOOR_MINUTES = 3
 const ACT_CEILING_MINUTES = 20
 

@@ -49,6 +49,8 @@ import {
   drawRainbowSuperCutin,
 } from './rainbowGameArt'
 import { RAINBOW_PILOTS } from './rainbowPilots'
+import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
+import type { ActBeatAct } from './rainbowActBeats'
 import {
   MOONJELLY,
   moonjellyDialogue,
@@ -61,7 +63,7 @@ import {
   moonjellyStage,
   type MoonjellyEnemy,
 } from './rainbowMoonjelly'
-import { RAINBOW_LANES } from './rainbowFormations'
+import { RAINBOW_LANES, laneY } from './rainbowFormations'
 import {
   TRENCH,
   TRENCH_ALL_WAVES,
@@ -316,6 +318,19 @@ const ACT_ONE_RELOAD: Record<string, number> = {
   picket: 150,
   spiral: 170,
   urchin: 140,
+}
+/**
+ * The later Acts' recut (t-023): their plain craft keep firing too. Craft with their own rhythm (a clawstrike's
+ * marked bolt, the turrets, eels and the rest) keep it.
+ */
+const LATER_RELOAD: Record<string, number> = {
+  lantern: 260,
+  relay: 300,
+  skimmer: 280,
+  pistol: 360,
+  angler: 340,
+  skate: 260,
+  spiral: 260,
 }
 /** A diver cruises in, locks the nearest pilot's lane this far from the right edge, then swoops along it. */
 const DIVER = { lockFrom: 130, cruise: 1.5, swoop: 3.2, steer: 1.6 } as const
@@ -587,6 +602,8 @@ type Reef = {
   reload?: number
   /** A coral spire hangs from the ceiling (else it rises from the floor); `y` is its tip. */
   fromTop?: boolean
+  /** The Act whose terrain a spire is (Act I's coral when absent), for its colours. */
+  terrain?: ActBeatAct
   wave: number | null
 }
 type EnemyShot = {
@@ -960,6 +977,46 @@ export function createRainbowPrincessPreview(
                   : moonStart !== null
                     ? 2
                     : 1
+  }
+  /** Acts II-VIII while they fly their waves: the Act, its clock and its sections as flown (t-023). */
+  function flyingAct(): {
+    act: ActBeatAct
+    frame: number
+    sections: ReadonlyArray<{ name: string; from: number; to: number }>
+  } | null {
+    const act = currentAct()
+    if (act === 1 || act === 9) return null
+    const frame = actFrame(act)
+    const stage =
+      act === 2
+        ? moonjellyStage(frame, moonDefeatedFrame)
+        : act === 3
+          ? trenchStage(frame, trenchDefeatedFrame)
+          : act === 4
+            ? rosefinStage(frame, rosefinDefeatedFrame)
+            : act === 5
+              ? wreckStage(frame, wreckDefeatedFrame)
+              : act === 6
+                ? reefStage(frame, reefDefeatedFrame)
+                : act === 7
+                  ? glassStage(frame, glassDefeatedFrame)
+                  : palaceStage(frame, palaceDefeatedFrame)
+    if (stage !== 'waves' && stage !== 'remix') return null
+    const sections =
+      act === 2
+        ? MOONJELLY_SECTIONS
+        : act === 3
+          ? trenchSections(trenchRoute)
+          : act === 4
+            ? ROSEFIN_SECTIONS
+            : act === 5
+              ? WRECK_SECTIONS
+              : act === 6
+                ? CROWN_REEF_SECTIONS
+                : act === 7
+                  ? GLASS_SECTIONS
+                  : PALACE_SECTIONS
+    return { act, frame, sections }
   }
   /** The Act's own clock: Act I runs on the global tick, later Acts count from their first frame. */
   function actFrame(act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9) {
@@ -1624,19 +1681,21 @@ export function createRainbowPrincessPreview(
       kind,
       fired: false,
       wave,
-      ...(moonStart === null && ACT_ONE_RELOAD[kind]
-        ? { reload: actOneReload(kind) }
-        : {}),
+      ...(craftReload(kind) ? { reload: craftReload(kind) } : {}),
     })
   }
 
-  /** An Act I craft's frames between shots at this difficulty. */
-  function actOneReload(kind: string) {
-    return Math.round((ACT_ONE_RELOAD[kind] ?? 0) / level.bulletSpeed)
+  /** A craft's frames between shots at this difficulty (0: it fires on its own rhythm). */
+  function craftReload(kind: string) {
+    const table = moonStart === null ? ACT_ONE_RELOAD : LATER_RELOAD
+    return Math.round((table[kind] ?? 0) / level.bulletSpeed)
   }
 
-  /** A coral spire (Act I terrain) rising on its tick. */
-  function spawnSpire(spire: { top: boolean; y: number }) {
+  /** A coral spire (Act I terrain, or a later Act's in its own look) rising on its tick. */
+  function spawnSpire(
+    spire: { top: boolean; y: number },
+    terrain?: ActBeatAct,
+  ) {
     reefs.push({
       x: W + 20,
       y: spire.y,
@@ -1646,6 +1705,7 @@ export function createRainbowPrincessPreview(
       fired: true,
       wave: null,
       fromTop: spire.top,
+      terrain,
     })
   }
 
@@ -3079,6 +3139,10 @@ export function createRainbowPrincessPreview(
           [input, ...seated].some((keys) => keys?.pressed.a)))
     )
       launchRosefin()
+    const flying = flyingAct()
+    if (flying)
+      for (const spire of actTerrain(flying.act, flying.sections, flying.frame))
+        spawnSpire({ top: spire.top, y: laneY(spire.tip) }, flying.act)
     if (moonStart === null) {
       const stage = pinkwakeStage(tick, defeatedAt)
       if (defeatedAt === null) {
@@ -3623,9 +3687,9 @@ export function createRainbowPrincessPreview(
           vy: 0,
           grazed: 0,
         })
-      // Act I craft keep firing while they cross the screen.
+      // Plain craft keep firing while they cross the screen.
       if (reef.reload !== undefined && reef.fired && --reef.reload <= 0) {
-        reef.reload = actOneReload(reef.kind)
+        reef.reload = craftReload(reef.kind)
         if (reef.x > 70) fireEnemy(reef)
       }
     }
@@ -5108,13 +5172,14 @@ export function createRainbowPrincessPreview(
         if (reef.kind !== 'spire') continue
         const base = reef.fromTop ? WALL_TOP - 14 : H + 4
         const half = SPIRE.halfWidth
+        const paint = ACT_TERRAIN_PALETTE[reef.terrain ?? 1]
         const body = g.createLinearGradient(reef.x - half, 0, reef.x + half, 0)
-        body.addColorStop(0, '#3d1a52')
-        body.addColorStop(0.5, '#b04e8e')
-        body.addColorStop(1, '#3d1a52')
+        body.addColorStop(0, paint.edge)
+        body.addColorStop(0.5, paint.middle)
+        body.addColorStop(1, paint.edge)
         g.save()
         g.fillStyle = body
-        g.strokeStyle = '#ffc6e6'
+        g.strokeStyle = paint.rim
         g.lineWidth = 1.5
         g.beginPath()
         g.moveTo(reef.x - half, base)
@@ -5140,7 +5205,7 @@ export function createRainbowPrincessPreview(
         g.closePath()
         g.fill()
         g.stroke()
-        g.fillStyle = '#ff9fd8'
+        g.fillStyle = paint.knob
         for (let k = 1; k < 5; k++) {
           g.beginPath()
           g.arc(
@@ -5153,7 +5218,7 @@ export function createRainbowPrincessPreview(
           g.fill()
         }
         g.globalAlpha = 0.6 + 0.3 * Math.sin(tick / 15 + reef.x / 50)
-        g.fillStyle = '#ffe6f6'
+        g.fillStyle = paint.tip
         g.beginPath()
         g.arc(reef.x, reef.y, 4, 0, Math.PI * 2)
         g.fill()
@@ -6904,7 +6969,13 @@ export function createRainbowPrincessPreview(
                             rescuedNemi,
                           )
         : null
-      const dialogue = said && crewLine(said)
+      // Acts II-VIII: between scripted scenes, Lilt calls each section as it begins (t-023).
+      const flying = scene ? null : flyingAct()
+      const callout =
+        flying &&
+        actCallout(flying.act, flying.sections, flying.frame, activePlayers)
+      const line = said ?? callout
+      const dialogue = line && crewLine(line)
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
       if (dialogue) {
         g.fillStyle = '#160b34e8'
@@ -6928,7 +6999,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
-          `${scene!.id} / ${dialogue.speaker.toUpperCase()}`,
+          `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}`,
           textX,
           commsTop + 16,
         )

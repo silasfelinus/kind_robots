@@ -33,6 +33,7 @@ assert.deepEqual(actOne, [
   10800,
   PINKWAKE.bossStarts,
 ])
+// Act II after t-023's recut: its teaching sections, guardian and two closing escalations.
 assert.deepEqual(actTwo, [
   0,
   300,
@@ -40,19 +41,8 @@ assert.deepEqual(actTwo, [
   2700,
   4200,
   5700,
-  6900,
-  8700,
-  10500,
-  12300,
-  14100,
-  15900,
-  17700,
-  19500,
-  21300,
-  23100,
-  24900,
-  26700,
-  28500,
+  7500,
+  9300,
   MOONJELLY.bossStarts,
 ])
 assert.equal(

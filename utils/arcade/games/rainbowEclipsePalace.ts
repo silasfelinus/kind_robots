@@ -270,7 +270,7 @@ export const PALACE_GUARDIAN: RainbowGuardianSection = {
 export const PALACE_REINFORCEMENTS = reinforcements<PalaceWave['kind']>(
   CUT.sections,
   {
-    kinds: ['spiral', 'cutter', 'lantern', 'skate'],
+    kinds: ['spiral', 'cutter', 'lantern', 'dolphin', 'skate'],
     every: {
       'Corona gate': 420,
       'Captive armada': 360,

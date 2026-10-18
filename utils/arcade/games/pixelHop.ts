@@ -142,12 +142,7 @@ type Hopper = {
   falling: number
 }
 type EnemyKind =
-  | 'gumball'
-  | 'purple'
-  | 'boing'
-  | 'green'
-  | 'gremlin'
-  | 'skitter'
+  'gumball' | 'purple' | 'boing' | 'green' | 'gremlin' | 'skitter'
 /** `side` is a skitter's sliding direction along its row. */
 type Enemy = Hopper & { kind: EnemyKind; wait: number; side?: -1 | 1 }
 type Disc = { side: -1 | 1; row: number; used: boolean }

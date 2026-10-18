@@ -11,7 +11,7 @@ import { CH, s } from '../sections'
  * the bell (hang the found `clapper`, the kept revolver, or forge one from the cell chains) and the yard at dawn.
  *
  * Endings authored here: `ending-bell` (Honor ≥ 6, Taint ≤ 1, `clapper`), `ending-hollow-saint` (Taint ≥ 3),
- * `ending-coyote-road` (`ally-coyote`). Shipped endings reached from here: `ending-three`, `ending-four`,
+ * `ending-coyote-road` (`ally-coyote`), `ending-bell-keeper` (`children-freed`, from the tower). Shipped endings reached from here: `ending-three`, `ending-four`,
  * `ending-seal`, `ending-hunted`.
  *
  * Reads: children-freed, clapper, wren-ally, wren-betrayed, met:wren, met:mags, mob-coming, ally-coyote,
@@ -724,6 +724,14 @@ export const ACT_IX: Act = {
             },
           },
           {
+            id: 'keeper',
+            label:
+              'Sit down under the silent bell and keep the watch yourself.',
+            to: 'ending-bell-keeper',
+            needs: 'children-freed',
+            hint: 'No child is waiting below for you to stay.',
+          },
+          {
             id: 'leave',
             label: 'Leave the bell as it has always been, and go down.',
             to: 'a9-dawn-yard',
@@ -936,6 +944,14 @@ export const ACT_IX: Act = {
       "The Coyote's Road",
       'dust-road',
       "It takes nine days. You bury them in rows in the kitchen garden, the small ones nearest the water, and over each one you sing the river song until your voice is gone, and then you go on singing it without one. Nobody comes up the mission road. On the tenth morning you shoulder your pack, close the gate behind you, and follow two sets of small tracks and one set of large ones south, toward the coyote's country. They are old tracks now; the wind has been at them. You do not know whether you will catch them up, or whether, if you do, the sister will still be keeping a place for you by the fire.",
+      { ending: 'bittersweet' },
+    ),
+    s(
+      'ending-bell-keeper',
+      CH.END,
+      'The Keeper of the Empty Bell',
+      'bell-tower',
+      'You do not hang a tongue in it. You sit down on the boards beneath the green lip of the bell with your back to the post, and you stay. The sister brings you bread at noon and does not ask why. The toddler learns to climb the tower stair by holding the rope, and learns to be quiet when you put a finger to your mouth. Travellers on the Dustwater road see a small shape in the tower and a smoke from the kitchen garden, and some of them turn aside for water, and some do not. The bell never rings. But the house is lit every night, and the gate is never barred, and that is its own sort of sound.',
       { ending: 'bittersweet' },
     ),
   ],

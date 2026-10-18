@@ -346,6 +346,8 @@
             </button>
           </div>
 
+          <!-- The player is pinned to the stage box so the whole frame (and
+               its controls) always fits; letterboxing beats cropping. -->
           <div
             v-show="stageView === 'video'"
             class="relative grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-neutral text-neutral-content"
@@ -357,7 +359,7 @@
               controls
               playsinline
               preload="metadata"
-              class="max-h-full w-full object-contain"
+              class="absolute inset-0 h-full w-full object-contain"
               aria-label="Video playback preview"
               @loadedmetadata="readVideoMetadata"
             />

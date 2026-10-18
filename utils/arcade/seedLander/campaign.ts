@@ -8,6 +8,7 @@
 
 import type { TierId } from './flight'
 import { TIER_ORDER } from './flight'
+import type { MissionSpec } from './missions'
 
 /** The Pod Shed's upgrades. */
 export type UpgradeId = 'tank' | 'legs' | 'gyros' | 'lamp' | 'winch'
@@ -71,6 +72,25 @@ export type LanderSave = {
   cleared: number[]
   /** Free Flight's furthest hill. */
   bestHill: number
+  /** Gale Season rounds begun (New Game+ after the true ending); 0 on the first run. */
+  gale?: number
+}
+
+export const GALE_MAX = 9
+
+/**
+ * Gale Season: the whole campaign again with the sky turned up. Each round adds wind, weight and
+ * a little gravity to every mission; the gust ceiling grows with it, and bosses ride the same
+ * gravity. Round 0 returns the mission untouched.
+ */
+export function galeMission(spec: MissionSpec, gale: number): MissionSpec {
+  const n = Math.max(0, Math.min(GALE_MAX, Math.floor(gale)))
+  if (n === 0) return spec
+  return {
+    ...spec,
+    wind: Math.min(0.012, spec.wind * (1 + 0.4 * n) + 0.0005 * n),
+    gravity: (spec.gravity ?? 1) * (1 + 0.03 * n),
+  }
 }
 
 export function freshSave(tier: TierId = 'standard'): LanderSave {
@@ -88,6 +108,7 @@ export function freshSave(tier: TierId = 'standard'): LanderSave {
     medals: {},
     cleared: [],
     bestHill: 0,
+    gale: 0,
   }
 }
 
@@ -160,6 +181,7 @@ export function readLanderSave(
     medals,
     cleared,
     bestHill: (r.bestHill as number | undefined) ?? 0,
+    gale: count(r.gale, GALE_MAX) ? (r.gale as number) : 0,
   }
 }
 

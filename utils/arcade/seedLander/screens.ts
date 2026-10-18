@@ -572,7 +572,13 @@ export function drawShed(
 export function drawSoon(
   g: CanvasRenderingContext2D,
   tick: number,
-  ending: { got: number; total: number; vault: boolean } = {
+  ending: {
+    got: number
+    total: number
+    vault: boolean
+    gale?: number
+    another?: boolean
+  } = {
     got: 0,
     total: 0,
     vault: false,
@@ -609,6 +615,16 @@ export function drawSoon(
     140,
     { align: 'center', color: RAMPS.gold[4], outline: INK },
   )
+  if (ending.vault && ending.another) {
+    const next = (ending.gale ?? 0) + 1
+    if (tick % 40 < 28)
+      drawText(g, `A  GALE SEASON ${next}    B  FINISH`, W / 2, 170, {
+        align: 'center',
+        color: RAMPS.gold[3],
+        outline: INK,
+      })
+    return
+  }
   if (tick % 40 < 28)
     drawText(g, 'A  TO FINISH', W / 2, 170, {
       align: 'center',

@@ -75,11 +75,13 @@ import {
 } from '../seedLander/cavern'
 import type { LightSource } from '../seedLander/cavern'
 import {
+  GALE_MAX,
   MEDAL,
   UPGRADES,
   UPGRADE_EFFECT,
   UPGRADE_MAX,
   emptyShed,
+  galeMission,
   readLanderSave,
   upgradeCost,
 } from '../seedLander/campaign'
@@ -312,6 +314,8 @@ class SeedLander implements ArcadeGameInstance {
   private campaignTier: TierId = 'standard'
   private campaignStarted = false
   private saveData: LanderSave | null = null
+  /** Gale Season rounds begun: 0 on the first run through the campaign. */
+  private gale = 0
   private offer: LanderSave | null = null
   private shedPick = 0
   private shedNote = ''
@@ -398,6 +402,7 @@ class SeedLander implements ArcadeGameInstance {
     this.resumeLives = s.lives
     this.campaignTier = s.tier
     this.campaignStarted = s.campaignStarted === true
+    this.gale = s.gale ?? 0
   }
 
   /** Write the save: the campaign's resume point and everything earned so far. */
@@ -417,6 +422,7 @@ class SeedLander implements ArcadeGameInstance {
       medals: { ...this.medals },
       cleared: [...this.cleared],
       bestHill: this.bestHill,
+      gale: this.gale,
     }
   }
 
@@ -491,6 +497,7 @@ class SeedLander implements ArcadeGameInstance {
     this.mode = 'campaign'
     this.campaignStarted = true
     this.campaignTier = this.tier
+    this.gale = 0
     this.island = 0
     this.missionIndex = 0
     this.nectar = 0
@@ -516,6 +523,20 @@ class SeedLander implements ArcadeGameInstance {
     this.toMap()
   }
 
+  /** Gale Season: the islands again with the shed, acorns and medals kept and the wind turned up. */
+  private beginGale() {
+    this.gale += 1
+    this.island = 0
+    this.missionIndex = 0
+    this.cleared = new Set()
+    this.resumeScore = this.score
+    this.resumeLives = Math.max(this.lives, START_PODS)
+    this.lives = this.resumeLives
+    this.sound.play('start')
+    this.keep()
+    this.toMap()
+  }
+
   private toMap() {
     this.screen = islandAt(this.island, this.acorns) ? 'map' : 'soon'
     this.level = this.island * MISSIONS_PER_ISLAND + this.missionIndex + 1
@@ -524,7 +545,11 @@ class SeedLander implements ArcadeGameInstance {
   private updateScreen(input: InputFrame) {
     const go = input.pressed.a || input.pressed.start
     if (this.screen === 'soon') {
-      if (go) this.endRun()
+      if (this.cleared.has(VAULT_INDEX) && this.gale < GALE_MAX) {
+        // The true ending: A begins the next Gale Season, B finishes the run.
+        if (go) this.beginGale()
+        else if (input.pressed.b) this.endRun()
+      } else if (go) this.endRun()
       return
     }
     if (this.screen === 'map') {
@@ -566,13 +591,13 @@ class SeedLander implements ArcadeGameInstance {
   private startCampaignMission() {
     const isle = islandAt(this.island, this.acorns)!
     const spec = isle.missions[this.missionIndex]!
-    this.missionLabel = `${isle.id.toUpperCase()} ${spec.kind === 'boss' ? 'BOSS' : this.missionIndex + 1}`
+    this.missionLabel = `${isle.id.toUpperCase()} ${spec.kind === 'boss' ? 'BOSS' : this.missionIndex + 1}${this.gale ? ` G${this.gale}` : ''}`
     this.level = this.island * MISSIONS_PER_ISLAND + this.missionIndex + 1
     // The resume point: this mission, with the score and pods it began with.
     this.resumeScore = this.score
     this.resumeLives = this.lives
     this.keep()
-    this.startMission(spec)
+    this.startMission(galeMission(spec, this.gale))
   }
 
   // --- missions ---------------------------------------------------------------------------
@@ -2163,6 +2188,8 @@ class SeedLander implements ArcadeGameInstance {
         got: ALL_ACORNS.filter((a) => this.acorns.has(a)).length,
         total: ALL_ACORNS.length,
         vault: this.cleared.has(VAULT_INDEX),
+        gale: this.gale,
+        another: this.gale < GALE_MAX,
       })
       return
     }

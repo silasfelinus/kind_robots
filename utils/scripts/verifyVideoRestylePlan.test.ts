@@ -349,6 +349,12 @@ assert.ok(studio.includes("const stageView = ref<'looks' | 'video'>('looks')"))
 assert.ok(studio.includes('v-show="stageView === \'video\'"'))
 assert.ok(studio.includes('v-if="stageView === \'looks\'"'))
 assert.ok(studio.includes('New from video'))
+// The player fills the stage box and letterboxes: a grid auto row let the
+// video take its intrinsic height and crop the frame and its controls.
+assert.ok(
+  studio.includes('class="absolute inset-0 h-full w-full object-contain"'),
+)
+assert.ok(!studio.includes('class="max-h-full w-full object-contain"'))
 assert.ok(studio.includes('function cancelUpload()'))
 assert.ok(studio.includes('projectOptionLabel(job)'))
 assert.ok(studio.includes('rootTitle(store.selected)'))

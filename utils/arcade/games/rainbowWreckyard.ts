@@ -19,6 +19,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type WreckEnemy = 'cutter' | 'hammerhead' | 'salvager' | 'scrap'
 export type WreckStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -29,7 +34,7 @@ export type WreckSpawn = RainbowSpawn<WreckEnemy>
 /** S05's route: high to liberate the survivor depot, or low to raid the armory. */
 export type WreckRoute = 'depot' | 'armory'
 
-export const WRECK = {
+const AUTHORED_WRECK = {
   openingEnds: 300,
   turnStarts: 32100,
   bossStarts: 32400,
@@ -38,7 +43,7 @@ export const WRECK = {
   waveBase: 4000,
 } as const
 
-export const WRECK_SECTIONS = [
+const AUTHORED_WRECK_SECTIONS = [
   { name: 'Cutter lanes', from: 300, to: 1800 },
   { name: 'Hammerhead pods', from: 1800, to: 3300 },
   { name: 'Salvager arms', from: 3300, to: 4800 },
@@ -60,7 +65,7 @@ export const WRECK_SECTIONS = [
 ] as const
 
 /** The Salvager guardian holds the Act after the wreck merge; no waves fly in its section. */
-export const WRECK_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_WRECK_GUARDIAN: RainbowGuardianSection = {
   name: 'Salvager guardian',
   from: 8100,
   to: 9900,
@@ -72,7 +77,7 @@ export const WRECK_GUARDIAN: RainbowGuardianSection = {
  * branch ends at rejoinAt. On the depot route survivor pods drift out every podEvery frames; the crew frees
  * the depot by reaching at least podsToFree of them.
  */
-export const WRECK_FORK = {
+const AUTHORED_WRECK_FORK = {
   markFrom: 27612,
   decideAt: 27900,
   rejoinAt: 30300,
@@ -84,7 +89,7 @@ export const WRECK_FORK = {
   armoryScore: 3000,
 } as const
 
-export const WRECK_WAVES: readonly WreckWave[] = [
+const AUTHORED_WRECK_WAVES: readonly WreckWave[] = [
   // Cutter lanes: a cutter opens its jaws twice while it slides onto your lane, then charges down it.
   wave(420, 'cutter', 'single', 1, 0.5),
   wave(720, 'cutter', 'single', 1, 0.25),
@@ -223,7 +228,7 @@ export const WRECK_WAVES: readonly WreckWave[] = [
 ]
 
 /** The depot route's light escort waves, flown only on that route. */
-export const WRECK_DEPOT_WAVES: readonly WreckWave[] = [
+const AUTHORED_WRECK_DEPOT_WAVES: readonly WreckWave[] = [
   wave(28020, 'cutter', 'single', 1, 0.7),
   wave(28500, 'scrap', 'single', 1, 0.75),
   wave(28980, 'cutter', 'single', 1, 0.8),
@@ -232,7 +237,7 @@ export const WRECK_DEPOT_WAVES: readonly WreckWave[] = [
 ]
 
 /** The armory route's heavy raid, flown only on that route. */
-export const WRECK_ARMORY_WAVES: readonly WreckWave[] = [
+const AUTHORED_WRECK_ARMORY_WAVES: readonly WreckWave[] = [
   wave(27960, 'hammerhead', 'single', 1, 0.6),
   wave(28140, 'cutter', 'single', 1, 0.75),
   wave(28320, 'salvager', 'single', 1, 0.7),
@@ -248,6 +253,68 @@ export const WRECK_ARMORY_WAVES: readonly WreckWave[] = [
 ]
 
 /** Every Act V wave, both routes; a wave's id is WRECK.waveBase plus its index here. */
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act V keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_WRECK_SECTIONS, [
+  'Wreck merge',
+  'Pod crossfire',
+  'Grab yard',
+  'Slab drift',
+  'Jaw parade',
+  'Dock cranes',
+  'Rust tide',
+  'Keel graveyard',
+  'Bloom wreck',
+  'Signal wreck',
+])
+export const WRECK = {
+  ...AUTHORED_WRECK,
+  turnStarts: CUT.at(AUTHORED_WRECK.turnStarts),
+  bossStarts: CUT.at(AUTHORED_WRECK.bossStarts),
+} as const
+export const WRECK_FORK = {
+  ...AUTHORED_WRECK_FORK,
+  decideAt: CUT.at(AUTHORED_WRECK_FORK.decideAt),
+  rejoinAt: CUT.at(AUTHORED_WRECK_FORK.rejoinAt),
+  markFrom:
+    CUT.at(AUTHORED_WRECK_FORK.decideAt) -
+    (AUTHORED_WRECK_FORK.decideAt - AUTHORED_WRECK_FORK.markFrom),
+} as const
+export const WRECK_SECTIONS = CUT.sections
+export const WRECK_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_WRECK_GUARDIAN,
+  from: CUT.at(AUTHORED_WRECK_GUARDIAN.from),
+  to: CUT.at(AUTHORED_WRECK_GUARDIAN.to),
+}
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const WRECK_REINFORCEMENTS = reinforcements<WreckWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['cutter'],
+    every: {
+      'Cutter lanes': 420,
+      'Hammerhead pods': 300,
+      'Salvager arms': 300,
+      'Scrap field': 300,
+      'Petal hulls': 420,
+      "Regent's wake": 240,
+    },
+  },
+)
+export const WRECK_WAVES: readonly WreckWave[] = withReinforcements(
+  CUT.waves(AUTHORED_WRECK_WAVES),
+  WRECK_REINFORCEMENTS,
+)
+export const WRECK_DEPOT_WAVES: readonly WreckWave[] = CUT.waves(
+  AUTHORED_WRECK_DEPOT_WAVES,
+)
+export const WRECK_ARMORY_WAVES: readonly WreckWave[] = CUT.waves(
+  AUTHORED_WRECK_ARMORY_WAVES,
+)
+
 export const WRECK_ALL_WAVES: readonly WreckWave[] = [
   ...WRECK_WAVES,
   ...WRECK_DEPOT_WAVES,

@@ -21,6 +21,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type TrenchEnemy = 'clawstrike' | 'pistol' | 'angler' | 'skate'
 export type TrenchStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -31,7 +36,7 @@ export type TrenchDialogue = { speaker: string; text: string }
 export type TrenchWave = RainbowWave<TrenchEnemy>
 export type TrenchSpawn = RainbowSpawn<TrenchEnemy>
 
-export const TRENCH = {
+const AUTHORED_TRENCH = {
   openingEnds: 300,
   turnStarts: 31500,
   bossStarts: 31800,
@@ -44,7 +49,7 @@ export const TRENCH = {
  * The fork: two comms lines and the route marks from markFrom (after the guardian has stopped firing to
  * escape); the crew's position decides at decideAt, and both routes rejoin at rejoinAt.
  */
-export const TRENCH_FORK = {
+const AUTHORED_TRENCH_FORK = {
   markFrom: 9708,
   decideAt: 9900,
   rejoinAt: 17100,
@@ -53,7 +58,7 @@ export const TRENCH_FORK = {
   salvageScore: 2500,
 } as const
 
-export const TRENCH_SECTIONS = [
+const AUTHORED_TRENCH_SECTIONS = [
   { name: 'Sniper ridge', from: 300, to: 1800 },
   { name: 'Bubble pockets', from: 1800, to: 3300 },
   { name: 'Angler lights', from: 3300, to: 4800 },
@@ -75,7 +80,7 @@ export const TRENCH_SECTIONS = [
 ] as const
 
 /** The safe passage's sections, which replace the vault gauntlet's four on that route. */
-export const TRENCH_SAFE_SECTIONS = [
+const AUTHORED_TRENCH_SAFE_SECTIONS = [
   { name: 'Winding passage', from: 9900, to: 11700 },
   { name: 'Coral shelf', from: 11700, to: 13500 },
   { name: 'Quiet vents', from: 13500, to: 15300 },
@@ -95,14 +100,14 @@ export function trenchSections(
 }
 
 /** The Clawstrike guardian holds the Act after the vault-approach remix; no waves fly in its section. */
-export const TRENCH_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_TRENCH_GUARDIAN: RainbowGuardianSection = {
   name: 'Clawstrike guardian',
   from: 8100,
   to: 9900,
   kind: 'clawstrike',
 }
 
-export const TRENCH_WAVES: readonly TrenchWave[] = [
+const AUTHORED_TRENCH_WAVES: readonly TrenchWave[] = [
   // Sniper ridge: one clawstrike at a time, so each lane mark is read before the bolt.
   wave(360, 'clawstrike', 'single', 1, 0.2),
   wave(540, 'clawstrike', 'single', 1, 0.8),
@@ -286,7 +291,7 @@ export const TRENCH_WAVES: readonly TrenchWave[] = [
 ]
 
 /** The safe passage's waves; they fly only on that route, in place of the vault gauntlet's. */
-export const TRENCH_SAFE_WAVES: readonly TrenchWave[] = [
+const AUTHORED_TRENCH_SAFE_WAVES: readonly TrenchWave[] = [
   // Winding passage: single craft along a slow bend, each one alone on screen.
   wave(9960, 'skate', 'line', 2, 0.5),
   wave(10200, 'clawstrike', 'single', 1, 0.3),
@@ -318,6 +323,72 @@ export const TRENCH_SAFE_WAVES: readonly TrenchWave[] = [
 ]
 
 /** Every Act III wave, both routes; a wave's id is TRENCH.waveBase plus its index here. */
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act III keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_TRENCH_SECTIONS, [
+  'Vault approach',
+  'Mirror vents',
+  'Lure maze',
+  'Pressure drop',
+  'Ember drift',
+  'Sigil wreck',
+  'Echo trench',
+  'Cinder lanes',
+  'Hollow armoury',
+  'Deep vents',
+])
+export const TRENCH = {
+  ...AUTHORED_TRENCH,
+  turnStarts: CUT.at(AUTHORED_TRENCH.turnStarts),
+  bossStarts: CUT.at(AUTHORED_TRENCH.bossStarts),
+} as const
+export const TRENCH_FORK = {
+  ...AUTHORED_TRENCH_FORK,
+  decideAt: CUT.at(AUTHORED_TRENCH_FORK.decideAt),
+  rejoinAt: CUT.at(AUTHORED_TRENCH_FORK.rejoinAt),
+  markFrom:
+    CUT.at(AUTHORED_TRENCH_FORK.decideAt) -
+    (AUTHORED_TRENCH_FORK.decideAt - AUTHORED_TRENCH_FORK.markFrom),
+} as const
+export const TRENCH_SECTIONS = CUT.sections
+export const TRENCH_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_TRENCH_GUARDIAN,
+  from: CUT.at(AUTHORED_TRENCH_GUARDIAN.from),
+  to: CUT.at(AUTHORED_TRENCH_GUARDIAN.to),
+}
+export const TRENCH_SAFE_SECTIONS = AUTHORED_TRENCH_SAFE_SECTIONS.filter(
+  (section) => CUT.kept(section.from),
+).map((section) => ({
+  ...section,
+  from: CUT.at(section.from),
+  to: CUT.at(section.to),
+}))
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const TRENCH_REINFORCEMENTS = reinforcements<TrenchWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['skate', 'clawstrike'],
+    every: {
+      'Bubble pockets': 300,
+      'Angler lights': 300,
+      'Glass skates': 300,
+      'Crossfire ridge': 240,
+      'Bubble garden': 240,
+      'Vault gate': 420,
+    },
+  },
+)
+export const TRENCH_WAVES: readonly TrenchWave[] = withReinforcements(
+  CUT.waves(AUTHORED_TRENCH_WAVES),
+  TRENCH_REINFORCEMENTS,
+)
+export const TRENCH_SAFE_WAVES: readonly TrenchWave[] = CUT.waves(
+  AUTHORED_TRENCH_SAFE_WAVES,
+)
+
 export const TRENCH_ALL_WAVES: readonly TrenchWave[] = [
   ...TRENCH_WAVES,
   ...TRENCH_SAFE_WAVES,

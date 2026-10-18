@@ -19,6 +19,11 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import {
+  recutTimeline,
+  reinforcements,
+  withReinforcements,
+} from './rainbowPacing'
 
 export type RosefinEnemy = 'dolphin' | 'courier' | 'eel'
 export type RosefinStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
@@ -28,7 +33,7 @@ export type RosefinDialogue = { speaker: string; text: string }
 export type RosefinWave = RainbowWave<RosefinEnemy>
 export type RosefinSpawn = RainbowSpawn<RosefinEnemy>
 
-export const ROSEFIN = {
+const AUTHORED_ROSEFIN = {
   openingEnds: 300,
   turnStarts: 31500,
   bossStarts: 31800,
@@ -40,7 +45,7 @@ export const ROSEFIN = {
   dockMaxFrames: 600,
 } as const
 
-export const ROSEFIN_SECTIONS = [
+const AUTHORED_ROSEFIN_SECTIONS = [
   { name: 'Express launch', from: 300, to: 1800 },
   { name: 'Dolphin pairs', from: 1800, to: 3300 },
   { name: 'Courier lanes', from: 3300, to: 4800 },
@@ -62,7 +67,7 @@ export const ROSEFIN_SECTIONS = [
 ] as const
 
 /** The Courier guardian holds the Act after the convoy merge; no waves fly in its section. */
-export const ROSEFIN_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_ROSEFIN_GUARDIAN: RainbowGuardianSection = {
   name: 'Courier guardian',
   from: 8100,
   to: 9900,
@@ -74,7 +79,7 @@ export const ROSEFIN_GUARDIAN: RainbowGuardianSection = {
  * a civilian courier pod enters at podAppears and drifts across the rails. Enemy shots that touch it wear
  * its hull down; if it leaves the left edge intact the crew has rescued the courier.
  */
-export const ROSEFIN_ESCORT = {
+const AUTHORED_ROSEFIN_ESCORT = {
   commsFrom: 9708,
   podAppears: 10020,
   podY: 150,
@@ -85,7 +90,7 @@ export const ROSEFIN_ESCORT = {
 } as const
 
 /** Stretches where the whole express current surges: the background and craft speed up together. */
-export const ROSEFIN_SURGES = [
+const AUTHORED_ROSEFIN_SURGES = [
   { from: 300, to: 1800, peak: 1.5 },
   { from: 11700, to: 13500, peak: 1.45 },
   { from: 18900, to: 20700, peak: 1.45 },
@@ -105,7 +110,7 @@ export function rosefinSpeed(frame: number): number {
   return 1
 }
 
-export const ROSEFIN_WAVES: readonly RosefinWave[] = [
+const AUTHORED_ROSEFIN_WAVES: readonly RosefinWave[] = [
   // Express launch: the current accelerates under the crew; lone dolphins ride it in.
   wave(420, 'dolphin', 'single', 1, 0.3),
   wave(660, 'dolphin', 'single', 1, 0.7),
@@ -253,6 +258,62 @@ export const ROSEFIN_WAVES: readonly RosefinWave[] = [
   wave(30960, 'dolphin', 'pair', 4, 0.3),
   wave(31200, 'courier', 'line', 2, 0.6),
 ]
+
+/**
+ * Silas's playtest recut (conductor rainbow t-023, after Act I's in kind_robots#3806): Act IV keeps its
+ * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
+ * are cut out of its clock, and every later wave and event moves up by the time they took.
+ */
+const CUT = recutTimeline(AUTHORED_ROSEFIN_SECTIONS, [
+  'Convoy merge',
+  'Twin crossings',
+  'Eel weave',
+  'Courier rush',
+  'Aurora surge',
+  'Pod storm',
+  'Rail switch',
+  'Mirror pairs',
+  'Signal yard',
+  'Night freight',
+])
+export const ROSEFIN = {
+  ...AUTHORED_ROSEFIN,
+  turnStarts: CUT.at(AUTHORED_ROSEFIN.turnStarts),
+  bossStarts: CUT.at(AUTHORED_ROSEFIN.bossStarts),
+} as const
+export const ROSEFIN_ESCORT = {
+  ...AUTHORED_ROSEFIN_ESCORT,
+  commsFrom: CUT.at(AUTHORED_ROSEFIN_ESCORT.commsFrom),
+  podAppears: CUT.at(AUTHORED_ROSEFIN_ESCORT.podAppears),
+} as const
+export const ROSEFIN_SECTIONS = CUT.sections
+export const ROSEFIN_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_ROSEFIN_GUARDIAN,
+  from: CUT.at(AUTHORED_ROSEFIN_GUARDIAN.from),
+  to: CUT.at(AUTHORED_ROSEFIN_GUARDIAN.to),
+}
+export const ROSEFIN_SURGES = AUTHORED_ROSEFIN_SURGES.filter((surge) =>
+  CUT.kept(surge.from),
+).map((surge) => ({ ...surge, from: CUT.at(surge.from), to: CUT.at(surge.to) }))
+/** The recut keeps the teaching waves sparse; these schools of cheaper craft fill the rest (t-023). */
+export const ROSEFIN_REINFORCEMENTS = reinforcements<RosefinWave['kind']>(
+  CUT.sections,
+  {
+    kinds: ['dolphin', 'courier'],
+    every: {
+      'Dolphin pairs': 300,
+      'Courier lanes': 300,
+      'Eel gates': 300,
+      'Convoy escort': 360,
+      'Surge rails': 420,
+      'Terminus rails': 240,
+    },
+  },
+)
+export const ROSEFIN_WAVES: readonly RosefinWave[] = withReinforcements(
+  CUT.waves(AUTHORED_ROSEFIN_WAVES),
+  ROSEFIN_REINFORCEMENTS,
+)
 
 const schedule = buildFormationSchedule(ROSEFIN_WAVES, ROSEFIN.waveBase)
 

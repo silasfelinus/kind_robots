@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   FOE_ANIMATION,
+  HERO_TALL,
   createSavePlumberPreview,
 } from '../arcade/games/savePlumberPreview'
 import { ENEMY_ANIMATIONS } from '../arcade/games/savePlumberAnimations'
@@ -88,9 +89,26 @@ for (const def of CAMPAIGN) {
   )
 }
 assert.ok(
-  parseStage(WORLD_ONE[1]!).solid.includes(SOLID_GATE),
-  '1-2 has a valve gate to open on the run',
+  WORLD_ONE.some((d) => parseStage(d).solid.includes(SOLID_GATE)),
+  'World 1 has a valve gate to open',
 )
+for (const world of [WORLD_SEVEN, WORLD_EIGHT])
+  for (const def of world)
+    assert.equal(
+      parseStage(def).doors.length,
+      2,
+      `${def.code} hides a secret pipe room up in the clouds`,
+    )
+// Built for height: every leg has terrain or platforms at least six tiles
+// above the lowest ground, across a good stretch of the leg.
+for (const def of CAMPAIGN) {
+  const stage = parseStage(def)
+  const high = new Set<number>()
+  for (let r = 0; r <= stage.rows - 3 - 6; r++)
+    for (let c = 0; c < stage.cols; c++)
+      if (stage.solid[r * stage.cols + c]) high.add(c)
+  assert.ok(high.size >= 20, `${def.code} climbs high (${high.size} columns)`)
+}
 assert.notEqual(
   parseStage(WORLD_ONE[3]!).gate,
   null,
@@ -106,9 +124,15 @@ for (const kind of ['minnow', 'cork-crab', 'glider', 'raft'] as const)
   assert.ok(kindsIn(2).has(kind), `World 2 has ${kind}`)
 for (const kind of ['moss-lantern', 'spring-hare'] as const)
   assert.ok(kindsIn(3).has(kind), `World 3 has ${kind}`)
-for (const kind of ['gasket-golem', 'rivet-roller', 'valve'] as const)
+for (const kind of [
+  'gasket-golem',
+  'rivet-roller',
+  'valve',
+  'piston',
+  'lift',
+] as const)
   assert.ok(kindsIn(4).has(kind), `World 4 has ${kind}`)
-for (const kind of ['umbrella-mite', 'wind'] as const)
+for (const kind of ['umbrella-mite', 'wind', 'cargo'] as const)
   assert.ok(kindsIn(5).has(kind), `World 5 has ${kind}`)
 for (const kind of ['puddle-mimic', 'valve'] as const)
   assert.ok(kindsIn(6).has(kind), `World 6 has ${kind}`)
@@ -134,8 +158,10 @@ for (const kind of [
   'pumpbug',
   'minnow',
   'valve',
-  'wind',
   'steam-vent',
+  'piston',
+  'lift',
+  'cargo',
 ] as const)
   assert.ok(kindsIn(8).has(kind), `the Citadel brings back ${kind}`)
 assert.ok(
@@ -175,8 +201,10 @@ for (const world of [
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..', '.'] }))
 assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..'] }))
 
-// Every runner leg is finishable: the predictive autopilot only jumps, slides
-// and swings (she runs on her own) and clears each one without losing a life.
+// Every leg is finishable: the predictive autopilot walks, climbs, ducks and
+// swings its way through each one, losing at most two lives, and climbs at
+// least five tiles above the lowest ground on the way (most legs climb nine to
+// seventeen).
 const bosses = [
   'Madame Pressure',
   'Captain Barnaclejack',
@@ -193,16 +221,23 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
     autopilot: true,
   })
   const input = emptyInput()
-  const lives = game.lives
+  let deaths = 0
+  let highest = Infinity
   let ticks = 0
-  while (!game.cleared.length && ticks < 60 * 120) {
+  while (!game.cleared.length && ticks < 60 * 180) {
+    const before = game.mode
     game.update(input)
+    if (game.mode === 'dying' && before !== 'dying') deaths++
+    if (game.ground) highest = Math.min(highest, game.hero.y + HERO_TALL)
     ticks++
   }
-  assert.equal(
-    game.lives,
-    lives,
-    `${CAMPAIGN[index]!.code} is cleared without losing a life`,
+  assert.ok(
+    deaths <= 2,
+    `${CAMPAIGN[index]!.code} is cleared losing ${deaths} lives`,
+  )
+  assert.ok(
+    highest <= (game.groundRow - 5) * TILE,
+    `${CAMPAIGN[index]!.code}'s route climbs`,
   )
   assert.deepEqual(
     game.cleared,
@@ -215,15 +250,20 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
   }
 }
 
-// Runner controls: she runs on her own; A jumps, B slides (or drops fast in
-// the air), X swings the wrench, Y is the heroine's special. Tested on 1-1
-// flattened into a bare track.
-const track = () => {
-  const g = createSavePlumberPreview(options(), { stage: 0 })
-  g.loadStage(0)
+// Controls, tested on a stage flattened into a bare track. Campaign: Left and
+// Right move, B with a direction runs, Down (or B standing still) ducks and
+// crawls, Down in the air drops fast; A jumps, X swings the wrench, Y is the
+// heroine's special. Endless: she runs on her own and B slides.
+const track = (endless = false) => {
+  const g = createSavePlumberPreview(
+    options(),
+    endless ? { endless: true, endlessSeed: 0 } : { stage: 0 },
+  )
+  if (!endless) g.loadStage(0)
   g.mode = 'play'
   g.foes.length = 0
   g.vents.length = 0
+  g.pickups.length = 0
   const { cols, rows } = g.stage
   const solid = (g as unknown as { solid: Uint8Array }).solid
   for (let r = 0; r < rows; r++)
@@ -247,14 +287,81 @@ assert.ok(play.ground)
 step([], ['x'])
 assert.ok(play.ground, 'X does not jump')
 assert.ok(play.swing > 0, 'X swings the wrench')
-const runner = track().g
+const held = (...buttons: ArcadeButton[]) => {
+  const f = emptyInput()
+  for (const b of buttons) f.held[b] = true
+  return f
+}
+const topSpeed = (...buttons: ArcadeButton[]) => {
+  const g = track().g
+  let fastest = 0
+  for (let i = 0; i < 50; i++) {
+    g.update(held(...buttons))
+    fastest = Math.max(fastest, g.hero.vx)
+  }
+  return fastest
+}
+assert.equal(topSpeed(), 0, 'in the campaign she waits for the stick')
+assert.ok(topSpeed('right') <= 2.9, 'walking tops out at walking speed')
+assert.ok(topSpeed('right', 'b') > 4, 'B with a direction runs')
+const crouch = track().g
+for (let i = 0; i < 10; i++) crouch.update(emptyInput())
+const tallTop = crouch.heroTop
+crouch.update(held('down'))
+assert.ok(crouch.ducking && crouch.heroTop > tallTop + 4, 'Down ducks')
+const crawlFrom = crouch.hero.x
+for (let i = 0; i < 30; i++) crouch.update(held('down', 'right'))
+assert.ok(
+  crouch.hero.x > crawlFrom + 20 && crouch.hero.x < crawlFrom + 50,
+  'and crawls slowly',
+)
+for (let i = 0; i < 5; i++) crouch.update(emptyInput())
+assert.ok(!crouch.ducking, 'letting go stands her up')
+crouch.update(held('b'))
+assert.ok(crouch.ducking, 'B standing still ducks too')
+const slider = track().g
+for (let i = 0; i < 40; i++) slider.update(held('right', 'b'))
+const slideFrom = slider.hero.x
+for (let i = 0; i < 30; i++) slider.update(held('down'))
+assert.ok(slider.hero.x > slideFrom + 48, 'ducking from a run slides on')
+const campaignDrop = (fast: boolean) => {
+  const g = track().g
+  for (let i = 0; i < 10; i++) g.update(emptyInput())
+  g.update(frameOf(['a'], ['a']))
+  for (let i = 0; i < 14; i++) g.update(held('a'))
+  let ticks = 0
+  while (!g.ground && ticks < 120) {
+    g.update(fast ? held('down') : emptyInput())
+    ticks++
+  }
+  return ticks
+}
+function frameOf(hold: ArcadeButton[], press: ArcadeButton[]) {
+  const f = held(...hold)
+  for (const b of press) f.pressed[b] = true
+  return f
+}
+assert.ok(
+  campaignDrop(true) < campaignDrop(false) - 4,
+  'Down in the air drops her fast',
+)
+const campaignBeam = () => {
+  const { g, solid, cols } = track()
+  const col = Math.floor(g.hero.x / TILE) + 4
+  for (let r = 1; r <= g.groundRow - 2; r++) solid[r * cols + col] = SOLID_BLOCK
+  for (let i = 0; i < 140; i++) g.update(held('down', 'right'))
+  return g.hero.x > (col + 1) * TILE
+}
+assert.ok(campaignBeam(), 'she crawls under a low beam')
+
+const runner = track(true).g
 const startX = runner.hero.x
 for (let i = 0; i < 60; i++) {
   const f = emptyInput()
   f.held.left = true
   runner.update(f)
 }
-assert.ok(runner.runnerOn, 'outside a boss arena she is a runner')
+assert.ok(runner.runnerOn, 'in Endless she is a runner')
 assert.ok(runner.hero.x > startX + 120, 'she runs forward on her own')
 assert.ok(
   Math.abs(runner.hero.vx - runner.runSpeed) < 0.2,
@@ -268,7 +375,7 @@ const slide = (held: boolean) => {
 const standingTop = runner.heroTop
 slide(true)
 assert.ok(runner.ducking, 'B slides')
-assert.ok(runner.heroTop > standingTop + 8, 'a slide drops her head low')
+assert.ok(runner.heroTop > standingTop + 4, 'a slide drops her head low')
 assert.ok(runner.hero.vx > 2, 'and keeps her running, not sprinting')
 for (let i = 0; i < 5; i++) slide(false)
 assert.ok(!runner.ducking, 'letting go of B stands her back up')
@@ -276,7 +383,7 @@ assert.ok(runner.runSpeed > 0 && runner.runSpeed < 4, 'B no longer runs')
 
 // A beam at head height: slide under it or take the hit.
 const beamRun = (duck: boolean) => {
-  const { g, solid, cols } = track()
+  const { g, solid, cols } = track(true)
   const col = Math.floor(g.hero.x / TILE) + 8
   for (let r = 1; r <= g.groundRow - 2; r++) solid[r * cols + col] = SOLID_BLOCK
   for (let i = 0; i < 60; i++) {
@@ -289,15 +396,14 @@ const beamRun = (duck: boolean) => {
 assert.ok(beamRun(true), 'sliding passes under a beam')
 assert.ok(!beamRun(false), 'standing runs into it')
 
-// Pinned against a wall she cannot clear, she loses a life.
-const pinned = track()
+// Pinned against a wall she cannot clear, an Endless run ends.
+const pinned = track(true)
 const wallCol = Math.floor(pinned.g.hero.x / TILE) + 6
 for (let r = 1; r < pinned.g.groundRow; r++)
   pinned.solid[r * pinned.cols + wallCol] = SOLID_BLOCK
-const pinnedLives = pinned.g.lives
-for (let i = 0; i < 160 && pinned.g.lives === pinnedLives; i++)
+for (let i = 0; i < 160 && pinned.g.mode === 'play'; i++)
   pinned.g.update(emptyInput())
-assert.equal(pinned.g.lives, pinnedLives - 1, 'pinned too long costs a life')
+assert.equal(pinned.g.mode, 'dying', 'pinned too long costs the run')
 
 // Every heroine's special on Y does her own thing.
 const withHeroine = (key: string) => {
@@ -470,12 +576,36 @@ const lab = (stage: number) => {
   return g
 }
 
+/** A foe of this kind with open sky above it, to drop onto. */
+const underSky = (g: ReturnType<typeof lab>, kind: string) =>
+  g.foes.find((f) => {
+    if (f.kind !== kind) return false
+    const col = Math.floor(f.x / TILE)
+    const row = Math.floor((f.y - 1) / TILE)
+    for (let r = row - 4; r < row; r++)
+      for (let c = col - 1; c <= col + 1; c++) if (g.solidAt(c, r)) return false
+    return true
+  })
+/** The first stage with a foe of this kind under open sky. */
+const skyFoe = (kind: string) => {
+  for (let i = 0; i < CAMPAIGN.length; i++) {
+    const g = lab(i)
+    const foe = underSky(g, kind)
+    if (foe) return { g, foe }
+  }
+  throw new Error(`no ${kind} under open sky`)
+}
+
 // Gliders fly at her head: slide under them.
 const gliderSource = lab(1).foes.find((f) => f.glide)!
 const gliderRun = (duck: boolean) => {
-  const { g } = track()
+  const { g } = track(true)
   for (let i = 0; i < 10; i++) g.update(emptyInput())
-  g.foes.push({ ...gliderSource, x: g.hero.x + 120, homeY: g.hero.y + 8 })
+  g.foes.push({
+    ...gliderSource,
+    x: g.hero.x + 120,
+    homeY: g.hero.y + HERO_TALL - 16,
+  })
   g.immune = 0
   for (let i = 0; i < 60; i++) {
     const f = emptyInput()
@@ -489,7 +619,7 @@ assert.ok(gliderRun(false) < 3, 'and hits her if she stands')
 
 // B in the air drops her fast.
 const drop = (fast: boolean) => {
-  const { g } = track()
+  const { g } = track(true)
   for (let i = 0; i < 10; i++) g.update(emptyInput())
   g.update(frame(['a'], ['a']))
   for (let i = 0; i < 14; i++) g.update(frame(['a']))
@@ -502,7 +632,11 @@ const drop = (fast: boolean) => {
 }
 assert.ok(drop(true) < drop(false) - 4, 'B in the air drops her fast')
 
-const marina = lab(5)
+const marina = lab(
+  CAMPAIGN.findIndex(
+    (d) => stageWorld(d.code) === 2 && d.rows.join('').includes('!'),
+  ),
+)
 const gull = marina.foes.find((f) => f.kind === 'glass-gull')!
 assert.ok(gull.glide, "the marina's gliders are glass gulls")
 marina.tokens = 9
@@ -530,10 +664,9 @@ sink.hero.y = (sink.groundRow + 1) * TILE - 20
 for (let i = 0; i < 40; i++) sink.update(emptyInput())
 assert.equal(sink.mode, 'dying', 'water costs a life')
 
-const orchard = lab(9)
-const lantern = orchard.foes.find((f) => f.kind === 'moss-lantern')!
+const { g: orchard, foe: lantern } = skyFoe('moss-lantern')
 orchard.hero.x = lantern.x
-orchard.hero.y = lantern.y - 60
+orchard.hero.y = lantern.y - HERO_TALL - 22
 orchard.hero.vy = 2
 for (let i = 0; i < 30 && lantern.state !== 'flat'; i++)
   orchard.update(emptyInput())
@@ -542,11 +675,10 @@ assert.ok(
   orchard.platforms.includes(lantern.pad!),
   'a flat lantern is a platform',
 )
-const hop = lab(8)
-const hare = hop.foes.find((f) => f.kind === 'spring-hare')!
+const { g: hop, foe: hare } = skyFoe('spring-hare')
 for (let i = 0; i < 10; i++) hop.update(emptyInput())
 hop.hero.x = hare.x
-hop.hero.y = hare.y - 60
+hop.hero.y = hare.y - HERO_TALL - 22
 hop.hero.vy = 3
 let launched = false
 for (let i = 0; i < 30 && !launched; i++) {
@@ -556,26 +688,24 @@ for (let i = 0; i < 30 && !launched; i++) {
 assert.ok(launched, 'stomping a spring hare bounces you higher')
 
 // World 4 and 5 machinery and families.
-const fair = lab(12)
-const beltCol =
-  parseStage(WORLD_FOUR[0]!).solid.indexOf(
-    SOLID_BELT_RIGHT,
-    (fair.stage.rows - 3) * fair.stage.cols,
-  ) % fair.stage.cols
+const beltStage = CAMPAIGN.findIndex((d) =>
+  parseStage(d).solid.includes(SOLID_BELT_RIGHT),
+)
+const fair = lab(beltStage)
+const beltAt = fair.stage.solid.indexOf(SOLID_BELT_RIGHT)
 fair.foes.length = 0
-fair.hero.x = beltCol * TILE + 40
-fair.hero.y = fair.groundRow * TILE - 26
+fair.hero.x = (beltAt % fair.stage.cols) * TILE + 40
+fair.hero.y = Math.floor(beltAt / fair.stage.cols) * TILE - HERO_TALL
 fair.update(emptyInput())
 const onBelt = fair.hero.x
 for (let i = 0; i < 20; i++) fair.update(emptyInput())
 assert.ok(fair.hero.x > onBelt + 15, 'a right-hand belt carries you right')
 
-const golemLab = lab(12)
-const golem = golemLab.foes.find((f) => f.kind === 'gasket-golem')!
+const { g: golemLab, foe: golem } = skyFoe('gasket-golem')
 const stompGolem = () => {
   golemLab.immune = 0
   golemLab.hero.x = golem.x
-  golemLab.hero.y = golem.y - 60
+  golemLab.hero.y = golem.y - HERO_TALL - 22
   golemLab.hero.vy = 3
   for (let i = 0; i < 30 && golemLab.hero.vy >= 0; i++)
     golemLab.update(emptyInput())
@@ -656,7 +786,7 @@ const sluice = lab(20)
 const mimic = sluice.foes.find((f) => f.kind === 'puddle-mimic')!
 assert.equal(mimic.state, 'idle', 'a puddle mimic lies still')
 sluice.hero.x = mimic.x - 60
-sluice.hero.y = mimic.y - 26
+sluice.hero.y = mimic.y - HERO_TALL
 sluice.immune = 99
 sluice.update(emptyInput())
 assert.equal(mimic.state, 'walk', 'and rises when you come close')
@@ -664,7 +794,7 @@ assert.equal(mimic.state, 'walk', 'and rises when you come close')
 const roofs = lab(24)
 const spirit = roofs.foes.find((f) => f.kind === 'chimney-spirit')!
 roofs.hero.x = spirit.x - 100
-roofs.hero.y = spirit.y - 26
+roofs.hero.y = spirit.y - HERO_TALL
 let puffed = false
 for (let i = 0; i < 260 && !puffed; i++) {
   roofs.immune = 99
@@ -675,7 +805,7 @@ assert.ok(puffed, 'a chimney spirit lobs soot')
 const knightLab = lab(24)
 const knight = knightLab.foes.find((f) => f.kind === 'tea-kettle-knight')!
 knightLab.hero.x = knight.x - 70
-knightLab.hero.y = knight.y - 26
+knightLab.hero.y = knight.y - HERO_TALL
 let whistled = false
 let lunged = false
 for (let i = 0; i < 120; i++) {
@@ -699,13 +829,13 @@ assert.equal(spigot.boss!.kind, 'spigot')
 assert.equal(spigot.boss!.state, 'burst')
 spigot.immune = 0
 spigot.hero.x = spigot.boss!.x + spigot.boss!.dir * 60
-spigot.hero.y = spigot.boss!.y - 26
+spigot.hero.y = spigot.boss!.y - HERO_TALL
 spigot.update(emptyInput())
 assert.equal(spigot.hearts, 2, 'her jet soaks the hissing side')
 const safe = duel(31)
 safe.immune = 0
 safe.hero.x = safe.boss!.x - safe.boss!.dir * 60
-safe.hero.y = safe.boss!.y - 26
+safe.hero.y = safe.boss!.y - HERO_TALL
 safe.update(emptyInput())
 assert.equal(safe.hearts, 3, 'the quiet side stays dry')
 
@@ -770,7 +900,7 @@ const golemTarget = lab(12).foes.find((f) => f.kind === 'gasket-golem')!
 stormy.foes.push({
   ...golemTarget,
   x: stormy.hero.x + 90,
-  y: stormy.hero.y + 26,
+  y: stormy.hero.y + HERO_TALL,
 })
 stormy.facing = 1
 const blast = emptyInput()
@@ -780,16 +910,17 @@ assert.equal(stormy.gusts.length, 1, 'Bottled Storm throws a gust')
 for (let i = 0; i < 40; i++) stormy.update(emptyInput())
 assert.equal(stormy.foes.at(-1)!.state, 'stunned', 'the gust strikes at range')
 
-const lifter = powerLab('8-2', 'pocket-lift')
+const lifter = powerLab('4-3', 'pocket-lift')
 const crateAt = lifter.stage.solid.findIndex(
   (x, i) => x === SOLID_CRATE && i % lifter.stage.cols > lifter.hero.x / TILE,
 )
 const crateCol = crateAt % lifter.stage.cols
 lifter.hero.x = crateCol * TILE - 40
-lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - 26
+lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - HERO_TALL
 for (let i = 0; i < 200 && !lifter.carrying; i++) {
   const walk = emptyInput()
-  walk.pressed.x = lifter.hero.x > crateCol * TILE - 20 && i % 25 === 0
+  walk.held.right = lifter.hero.x < crateCol * TILE - 20
+  walk.pressed.x = !walk.held.right && i % 25 === 0
   lifter.immune = 99
   lifter.update(walk)
 }

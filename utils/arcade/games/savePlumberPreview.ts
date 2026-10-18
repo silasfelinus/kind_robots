@@ -58,16 +58,26 @@ const SPRING_JUMP = -10.2
 const FLOAT = 0.6
 const SPRING = -12.2
 const RUN = 2.85
+/** Campaign top speed while B is held with a direction. */
+const RUN_FAST = 4.2
+/** Crawling speed while ducked in the campaign. */
+const CRAWL = 1.2
 /** Runner pace for each world: she runs on her own, faster as the campaign goes. */
 const RUNNER_SPEED = [2.9, 3.0, 3.1, 3.2, 3.35, 3.5, 3.65, 3.8]
 /** The Endless run's top pace, reached in its fifteenth zone. */
 const ENDLESS_TOP = 4.6
-/** Ducking (B) lowers her head by this much; a slide fits under a one-tile beam. */
-const DUCK = 12
+/** Ducking lowers her head by this much; a slide fits under a one-tile beam. */
+const DUCK = 6
 /** Pinned against a wall this long, a runner loses a life instead of soft-locking. */
 const PINNED = 45
-const HALF = 11
-const TALL = 26
+/**
+ * The heroine's hitbox: about a tile and a quarter tall, so a leg can stack
+ * routes two tiles apart. Her sprite stands a little over two tiles.
+ */
+const HALF = 9
+const TALL = 20
+/** Her sprite's height in pixels (before her roster scale). */
+const HERO_SPRITE = 36
 const START_LIVES = 3
 const HEARTS = 3
 const LAST_WORLD = stageWorld(CAMPAIGN[CAMPAIGN.length - 1]!.code)
@@ -259,6 +269,10 @@ type Boss = {
 }
 
 /** Options for tests: start on a stage, and let the autopilot play it. */
+/** The heroine's hitbox height and half-width, for tests and tools. */
+export const HERO_TALL = TALL
+export const HERO_HALF = HALF
+
 export type PlumberRunOptions = {
   stage?: number
   autopilot?: boolean
@@ -361,8 +375,10 @@ export class PlumberRun implements ArcadeGameInstance {
   airSpecial = false
   running = false
   floating = false
-  /** B held on the ground: a slide under beams and gliders. */
+  /** Down (or B in Endless) held on the ground: a slide under beams and gliders. */
   ducking = false
+  /** This frame's duck input, so a landing can drop straight into a slide. */
+  private duckHeld = false
   pinned = 0
   /** One flag per column: 1 where a wind corridor blows. */
   windy: Uint8Array = new Uint8Array(0)
@@ -713,7 +729,7 @@ export class PlumberRun implements ArcadeGameInstance {
           this.foes.push({
             kind: GLIDERS[stageWorld(stage.code) - 1] ?? 'glass-gull',
             x: cx,
-            y: (stage.rows - 3) * TILE - 18,
+            y: bottom - 16,
             vx: 0,
             vy: 0,
             dir: -1,
@@ -722,7 +738,7 @@ export class PlumberRun implements ArcadeGameInstance {
             fade: 0,
             flipped: false,
             homeX: cx,
-            homeY: (stage.rows - 3) * TILE - 18,
+            homeY: bottom - 16,
             carry: 0,
             pad: null,
             glide: true,
@@ -938,18 +954,22 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     const runner = this.runnerOn
     const move = runner ? 1 : Number(keys.held.right) - Number(keys.held.left)
-    this.running = runner
-    const top = runner ? this.runSpeed : RUN
+    this.updateDuck(keys, move)
+    this.running = runner || (keys.held.b === true && move !== 0)
+    const top = runner ? this.runSpeed : this.running ? RUN_FAST : RUN
     if (runner) hero.vx += (top - hero.vx) * 0.25
-    else if (move) {
-      let next = hero.vx + move * 0.44
+    // A crouch keeps a run's momentum as a slide, then crawls.
+    else if (this.ducking && this.ground) {
+      if (Math.abs(hero.vx) > CRAWL) hero.vx *= 0.95
+      else hero.vx = move * CRAWL
+    } else if (move) {
+      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
     } else hero.vx *= 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
-    this.updateDuck(keys)
     if (keys.pressed.y) this.useSpecial()
     this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
@@ -1012,7 +1032,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.ground && !wasGround) {
       this.landed = 6
-      if (keys.held.b) this.ducking = true
+      if (this.duckHeld) this.ducking = true
       this.airSpecial = false
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
@@ -1058,6 +1078,8 @@ export class PlumberRun implements ArcadeGameInstance {
         this.locked = true
         for (let row = 1; row < this.groundRow; row++)
           this.setSolid(this.stage.gate, row, SOLID_BLOCK)
+        // The arena is the boss's: strays that rolled or wandered in are cleared.
+        for (const foe of this.foes) if (foe.x > gateX) foe.state = 'gone'
         if (this.boss) this.boss.state = 'walk'
         this.sound.play('extra')
       }
@@ -1067,9 +1089,9 @@ export class PlumberRun implements ArcadeGameInstance {
     this.cameraY += (this.cameraTargetY() - this.cameraY) * 0.14
   }
 
-  /** She runs on her own everywhere but a locked boss arena. */
+  /** In an Endless run she runs on her own (the campaign moves freely). */
   get runnerOn(): boolean {
-    return !this.locked
+    return this.endless && !this.locked
   }
 
   get runSpeed(): number {
@@ -1082,13 +1104,22 @@ export class PlumberRun implements ArcadeGameInstance {
     return this.hero.y + (this.ducking ? DUCK : 0)
   }
 
-  /** B: slide on the ground (staying down under a low ceiling), drop fast in the air. */
-  private updateDuck(keys: InputFrame) {
+  /**
+   * Duck: slide on the ground (staying down under a low ceiling), drop fast in
+   * the air. In Endless that is B; in the campaign it is Down, or B with no
+   * direction held (B with a direction runs).
+   */
+  private updateDuck(keys: InputFrame, move: number) {
     const hero = this.hero
-    const want = keys.held.b === true
+    const down = keys.held.down === true
+    const want = this.runnerOn
+      ? keys.held.b === true
+      : down || (keys.held.b === true && !move)
+    this.duckHeld = want
     if (!this.ground) {
       this.ducking = false
-      if (want && hero.vy > -2) hero.vy = Math.max(hero.vy, 6)
+      const drop = this.runnerOn ? keys.held.b === true : down
+      if (drop && hero.vy > -2) hero.vy = Math.max(hero.vy, 6)
       return
     }
     if (want) this.ducking = true
@@ -2334,6 +2365,7 @@ export class PlumberRun implements ArcadeGameInstance {
       this.pilotSeek = null
     }
     let go = true
+    let turn = false
     let jump: { hold: number; right: boolean } | null = null
     const footRow = Math.floor((feet + 1) / TILE)
     const aheadCol = Math.floor((hero.x + HALF + 4) / TILE)
@@ -2346,8 +2378,24 @@ export class PlumberRun implements ArcadeGameInstance {
       const s = this.solidAt(aheadCol, row)
       if (isWall(s)) wall = s
     }
+    // Only her head is blocked: duck and crawl under it.
+    let low = false
+    for (
+      let row = Math.floor((hero.y + DUCK + 2) / TILE);
+      row <= bodyRows[1]!;
+      row++
+    )
+      if (isWall(this.solidAt(aheadCol, row))) low = true
+    if ((wall && !low) || (this.ducking && !this.headroom())) {
+      input.held.down = true
+      input.held.right = true
+      return input
+    }
     const gate = this.gateAhead()
-    const valve = this.valves.find((v) => !v.open)
+    // The gate's own switch: the nearest valve still shut.
+    const valve = this.valves
+      .filter((v) => !v.open)
+      .sort((a, b) => Math.abs(a.x - hero.x) - Math.abs(b.x - hero.x))[0]
     if (gate !== null && valve && valve.x < hero.x + 40) {
       const dx = valve.x - hero.x
       if (dx < 6) {
@@ -2355,7 +2403,9 @@ export class PlumberRun implements ArcadeGameInstance {
         go = false
       } else if (dx < 40) {
         go = false
-        if (!this.cooldown) input.pressed.x = true
+        // Face the switch first: a step back to it leaves her facing away.
+        if (this.facing < 0) turn = true
+        else if (!this.cooldown) input.pressed.x = true
       }
     } else if (wall === SOLID_CRATE) {
       go = false
@@ -2388,6 +2438,32 @@ export class PlumberRun implements ArcadeGameInstance {
       )
       if (!jump) go = false
     }
+    // A glider at head height: duck and let it pass (crawling, never off an edge).
+    const glider = this.foes.find(
+      (f) =>
+        f.glide &&
+        !f.fade &&
+        f.state !== 'gone' &&
+        f.x - hero.x > -24 &&
+        f.x - hero.x < 100 &&
+        Math.abs(f.y - (feet - 16)) < 14,
+    )
+    if (glider && !jump) {
+      input.held.down = true
+      // Ducked, a walker ahead gets the wrench instead of a crawl into it.
+      const walker = this.foes.find(
+        (f) =>
+          !f.glide &&
+          !f.fade &&
+          f.state !== 'gone' &&
+          f.x - hero.x > -8 &&
+          f.x - hero.x < 64 &&
+          Math.abs(f.y - feet) < 20,
+      )
+      if (walker && !this.cooldown) input.pressed.x = true
+      input.held.right = go && !edge && !walker
+      return input
+    }
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade) continue
       if (foe.kind === 'minnow') continue
@@ -2408,6 +2484,22 @@ export class PlumberRun implements ArcadeGameInstance {
         }
         continue
       }
+      if (foe.kind === 'rivet-roller') {
+        // Rollers come fast: swing early, and jump one kicked back at her.
+        const coming =
+          foe.state === 'kicked' && Math.sign(foe.vx) === Math.sign(-dx)
+        if (dx < (coming ? -56 : -10) || dx > 110) continue
+        if (Math.abs(foe.y - feet) > 34) continue
+        if (foe.state === 'walk' && !this.cooldown && dx < 76)
+          input.pressed.x = true
+        else if (
+          !jump &&
+          ((coming && Math.abs(dx) < 70) ||
+            (foe.state === 'stunned' && dx < 34))
+        )
+          jump = this.pickJump((land) => land.x > foe.x + 16)
+        continue
+      }
       if (dx < -10 || dx > 70 || Math.abs(foe.y - feet) > 34) continue
       if (
         foe.kind === 'gasket-golem' ||
@@ -2420,7 +2512,7 @@ export class PlumberRun implements ArcadeGameInstance {
       }
       if (foe.state === 'stunned' || foe.state === 'kicked') {
         if (dx < 34 && foe.state === 'stunned' && !jump)
-          jump = { hold: 12, right: true }
+          jump = this.pickJump((land) => land.x > foe.x + 12)
       } else if (!this.cooldown && dx < 54) input.pressed.x = true
     }
     const aheadBridge = [1, 2, 3].some(
@@ -2470,12 +2562,13 @@ export class PlumberRun implements ArcadeGameInstance {
     if (jump) {
       input.pressed.a = true
       input.held.a = true
-      this.pilotHold = jump.hold
+      // The press frame already holds A: hold for the rest of the simulated frames.
+      this.pilotHold = Math.max(0, jump.hold - 1)
       this.pilotRight = jump.right
       input.held.right = jump.right
       return input
     }
-    input.held.right = go && !input.held.left
+    input.held.right = (go || turn) && !input.held.left
     return input
   }
 
@@ -2608,7 +2701,7 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.ventActiveAt(vent, this.tick + k) === 2) hot = true
       if (hot) jump = choose((land) => land.x > vent.x + HALF + 6)
     }
-    if (glider && Math.abs(glider.y - (feet - 18)) < 14) {
+    if (glider && Math.abs(glider.y - (feet - 16)) < 14) {
       const reach = glider.x - hero.x
       if (reach < 100 || (jump !== null && !edge)) jump = null
       if (reach < 100) beam = true
@@ -2935,7 +3028,7 @@ export class PlumberRun implements ArcadeGameInstance {
     })
     this.text(
       g,
-      'A  JUMP     B  DUCK     X  WRENCH     Y  SPECIAL',
+      'A  JUMP     B  RUN     ↓  DUCK     X  WRENCH     Y  SPECIAL',
       W / 2,
       256,
       10,
@@ -3130,7 +3223,7 @@ export class PlumberRun implements ArcadeGameInstance {
     this.text(g, `WORLD ${world.id} CLEAR!`, W / 2, 46, 30, '#ffd98a')
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 150, 230, 150)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 150, 230, 150)
-    this.drawHeroSprite(g, 320, 230, 'cheer', 1.6)
+    this.drawHeroSprite(g, 320, 230, 'cheer', 2.2)
     this.text(
       g,
       `${world.boss.name} lets the river go.`,
@@ -3188,7 +3281,7 @@ export class PlumberRun implements ArcadeGameInstance {
     )
     const teo = drawSprite(g, PLUMBER_ART.cast('teo-helping'), 160, 236, 120)
     if (!teo) drawSprite(g, PLUMBER_ART.cast('teo-caged'), 160, 236, 120)
-    this.drawHeroSprite(g, 320, 236, 'cheer', 1.4)
+    this.drawHeroSprite(g, 320, 236, 'cheer', 1.95)
     this.text(
       g,
       `FINAL SCORE ${this.score}   ·   GOLDEN GEARS ${this.gears.size} / ${CAMPAIGN.length}`,
@@ -3219,7 +3312,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const feet = this.hero.y + TALL + 1
       g.save()
       g.translate(this.hero.x, feet)
-      g.scale(1.15, 0.56)
+      g.scale(1.1, (TALL - DUCK) / TALL)
       g.translate(-this.hero.x, -feet)
       this.drawHeroSprite(g, this.hero.x, feet, null)
       g.restore()
@@ -4192,7 +4285,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const member = this.member
     const poses = actionPoses(member)
     const moves = PLUMBER_ART.anim(`heroine-${member.key}-moves`)
-    const height = 50 * member.scale * zoom
+    const height = HERO_SPRITE * member.scale * zoom
     const flipX = this.facing < 0
     if (special) {
       if (
@@ -4260,7 +4353,7 @@ export class PlumberRun implements ArcadeGameInstance {
       return
     }
     if (typeof Path2D !== 'undefined')
-      drawHeroine(g, rosterHeroine(this.heroineSeed), x, feet, 40 * zoom, {
+      drawHeroine(g, rosterHeroine(this.heroineSeed), x, feet, 29 * zoom, {
         stride: this.stride,
         run: Math.min(1, Math.abs(this.hero.vx) / 2.2),
         airborne: !this.ground,

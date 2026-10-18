@@ -33,6 +33,10 @@ export type CableSave = {
   finder?: boolean
   /** Resume at the Workbench before component `comp` (the boss before it was just beaten). */
   bench?: boolean
+  /** Maze ids cleared in any mode: the Maze Trials it opens. */
+  cleared?: string[]
+  /** Best Maze Trial time per maze id, in ticks. */
+  best?: Record<string, number>
 }
 
 /** Earned spares fit the existing save domain; Workbench purchases stop separately at nine. */
@@ -72,6 +76,20 @@ export function readCableSave(raw: unknown): CableSave | null {
         ),
       ]
     : []
+  const mazeIds = new Set([...BYTE_MAZES, ...BIOS.mazes.map((m) => m.id)])
+  const cleared = Array.isArray(r.cleared)
+    ? [
+        ...new Set(
+          r.cleared.filter(
+            (m): m is string => typeof m === 'string' && mazeIds.has(m),
+          ),
+        ),
+      ]
+    : []
+  const best: Record<string, number> = {}
+  if (r.best && typeof r.best === 'object' && !Array.isArray(r.best))
+    for (const [id, t] of Object.entries(r.best as Record<string, unknown>))
+      if (mazeIds.has(id) && count(t, 60 * 3600)) best[id] = t as number
   const num = (v: unknown, max: number) => (count(v, max) ? (v as number) : 0)
   return {
     v: 1,
@@ -88,5 +106,7 @@ export function readCableSave(raw: unknown): CableSave | null {
     colour: num(r.colour, CABLE_COLOURS - 1),
     finder: r.finder === true,
     bench: r.bench === true && (r.comp as number) > 0,
+    cleared,
+    best,
   }
 }

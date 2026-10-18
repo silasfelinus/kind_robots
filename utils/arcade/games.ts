@@ -798,7 +798,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
     fourButtons: true,
     buttonLabels: { a: 'JUMP', b: 'DUCK', x: 'WRENCH', y: 'SPECIAL' },
     blurb:
-      'Private full-campaign build: pick one of eight painted heroines and run all eight worlds from Bluebell Pipeworks to the Stardrain Citadel, past eight bosses from Madame Pressure to Lady Spigot, and free Teo.',
+      'Private full-campaign build: pick one of eight painted heroines and run all eight worlds from Bluebell Pipeworks to the Stardrain Citadel, past eight bosses from Madame Pressure to Lady Spigot, and free Teo. Or pick Endless: one life, zone after zone, faster every time.',
     howTo: [
       'SHE RUNS ON HER OWN',
       'A  JUMP   HOLD FOR HIGHER',
@@ -806,6 +806,7 @@ export const PREVIEW_GAMES: ArcadeGameMeta[] = [
       'X  WRENCH SPLASH',
       'Y  YOUR HEROINE SPECIAL',
       'BOSS ARENAS  ARROWS MOVE',
+      'ENDLESS  ONE LIFE  HOW FAR CAN YOU RUN',
     ],
     width: 480,
     height: 270,

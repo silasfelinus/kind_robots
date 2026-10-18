@@ -31,6 +31,7 @@ import {
   parseStage,
   stageWorld,
   type Stage,
+  type StageDef,
 } from './savePlumberLevels'
 import {
   PLUMBER_ROSTER,
@@ -46,6 +47,7 @@ import {
 import { readPlumberSave, type PlumberSave } from './savePlumberSave'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
+import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
 
 const W = 480
 const H = 270
@@ -58,6 +60,8 @@ const SPRING = -12.2
 const RUN = 2.85
 /** Runner pace for each world: she runs on her own, faster as the campaign goes. */
 const RUNNER_SPEED = [2.9, 3.0, 3.1, 3.2, 3.35, 3.5, 3.65, 3.8]
+/** The Endless run's top pace, reached in its fifteenth zone. */
+const ENDLESS_TOP = 4.6
 /** Ducking (B) lowers her head by this much; a slide fits under a one-tile beam. */
 const DUCK = 12
 /** Pinned against a wall this long, a runner loses a life instead of soft-locking. */
@@ -255,7 +259,14 @@ type Boss = {
 }
 
 /** Options for tests: start on a stage, and let the autopilot play it. */
-export type PlumberRunOptions = { stage?: number; autopilot?: boolean }
+export type PlumberRunOptions = {
+  stage?: number
+  autopilot?: boolean
+  /** Start straight into an Endless run (with autopilot: the Endless pilot). */
+  endless?: boolean
+  /** The Endless run's zone seed (default: drawn from the rng). */
+  endlessSeed?: number
+}
 
 const isWall = (s: number) =>
   s === SOLID_GROUND ||
@@ -282,6 +293,18 @@ export class PlumberRun implements ArcadeGameInstance {
   modeTimer = 0
   menu = 0
   storyPanel = 0
+  /** An Endless run: zone after zone, faster each time, scored in metres. */
+  endless = false
+  /** The Endless zone she is running (0 is the first). */
+  zone = 0
+  /** Metres run in this Endless run (a metre is a tile). */
+  distance = 0
+  endlessBest = 0
+  private zoneSeed = 0
+  /** Metres run before this zone began. */
+  private zoneStart = 0
+  /** Heroine select leads into an Endless run rather than the campaign. */
+  private pickEndless = false
   cursor: number
   readonly demo: boolean
   readonly autopilot: boolean
@@ -362,7 +385,11 @@ export class PlumberRun implements ArcadeGameInstance {
     this.heroineSeed = this.resume?.heroine ?? plumberHeroine().seed
     this.gears = new Set(this.resume?.gears ?? [])
     this.cursor = rosterIndex(this.heroineSeed)
-    if (this.autopilot) {
+    this.endlessBest = this.resume?.endlessBest ?? 0
+    if (run.endless) {
+      this.beginEndless(run.endlessSeed)
+      if (this.autopilot) this.mode = 'play'
+    } else if (this.autopilot) {
       this.stageIndex = Math.max(
         0,
         Math.min(CAMPAIGN.length - 1, run.stage ?? 0),
@@ -392,8 +419,8 @@ export class PlumberRun implements ArcadeGameInstance {
     return rosterFor(rosterHeroine(this.heroineSeed))
   }
 
-  private get menuItems(): ('continue' | 'new')[] {
-    return this.resume ? ['continue', 'new'] : ['new']
+  private get menuItems(): ('continue' | 'new' | 'endless')[] {
+    return this.resume ? ['continue', 'new', 'endless'] : ['new', 'endless']
   }
 
   private remember(extra: Partial<PlumberSave> = {}) {
@@ -406,8 +433,28 @@ export class PlumberRun implements ArcadeGameInstance {
       tokens: this.tokens,
       cleared: this.saveData?.cleared === true,
       gears: [...this.gears],
+      endlessBest: this.endlessBest,
       ...extra,
     }
+  }
+
+  /** Keep a new Endless best without touching the campaign's resume point. */
+  private rememberEndless() {
+    if (this.distance <= this.endlessBest) return
+    this.endlessBest = this.distance
+    this.saveData = this.saveData
+      ? { ...this.saveData, endlessBest: this.endlessBest }
+      : {
+          v: 1,
+          heroine: this.heroineSeed,
+          stage: 0,
+          score: 0,
+          lives: START_LIVES,
+          tokens: 0,
+          cleared: false,
+          gears: [...this.gears],
+          endlessBest: this.endlessBest,
+        }
   }
 
   private setMode(mode: Mode, timer = 0) {
@@ -457,7 +504,8 @@ export class PlumberRun implements ArcadeGameInstance {
   private updateTitle(keys: InputFrame) {
     const items = this.menuItems
     if (keys.pressed.up || keys.pressed.down) {
-      this.menu = (this.menu + 1) % items.length
+      const step = keys.pressed.up ? items.length - 1 : 1
+      this.menu = (this.menu + step) % items.length
       this.sound.play('blip')
     }
     if (!(keys.pressed.a || keys.pressed.start)) return
@@ -468,7 +516,10 @@ export class PlumberRun implements ArcadeGameInstance {
       this.tokens = this.resume.tokens
       this.heroineSeed = this.resume.heroine
       this.beginStage(this.resume.stage)
-    } else this.setMode('select')
+    } else {
+      this.pickEndless = items[this.menu] === 'endless'
+      this.setMode('select')
+    }
   }
 
   private updateSelect(keys: InputFrame) {
@@ -484,6 +535,7 @@ export class PlumberRun implements ArcadeGameInstance {
     if (!(keys.pressed.a || keys.pressed.start)) return
     this.sound.play('level')
     this.heroineSeed = seedForRoster(this.cursor, this.rng)
+    if (this.pickEndless) return this.beginEndless()
     this.score = 0
     this.lives = START_LIVES
     this.tokens = 0
@@ -499,6 +551,38 @@ export class PlumberRun implements ArcadeGameInstance {
     this.sound.play('blip')
     if (this.storyPanel >= STORY.length) this.setMode('intro', 150)
     else this.modeTimer = STORY_PANEL
+  }
+
+  /** An Endless run: one life, the first zone, the pace of World 1. */
+  private beginEndless(seed?: number) {
+    this.endless = true
+    this.zoneSeed = seed ?? Math.floor(this.rng() * 1e6)
+    this.zone = 0
+    this.zoneStart = 0
+    this.distance = 0
+    this.score = 0
+    this.lives = 1
+    this.tokens = 0
+    this.loadDef(buildEndlessZone(this.zoneSeed, 0))
+    this.setMode('intro', 90)
+  }
+
+  /** Hand her to the next zone on the shared flat strip, mid-stride. */
+  private nextZone() {
+    const shift = (this.stage.cols - ENDLESS_PAD) * TILE
+    const keep = {
+      hero: { ...this.hero, x: this.hero.x - shift },
+      ground: this.ground,
+      hearts: this.hearts,
+      immune: this.immune,
+      camera: this.camera - shift,
+      cameraY: this.cameraY,
+    }
+    this.zoneStart += this.stage.cols - ENDLESS_PAD
+    this.zone++
+    this.loadDef(buildEndlessZone(this.zoneSeed, this.zone))
+    Object.assign(this, keep)
+    this.sound.play('level')
   }
 
   private beginStage(index: number) {
@@ -530,8 +614,12 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   loadStage(index: number) {
-    const stage = parseStage(CAMPAIGN[index]!)
     this.stageIndex = index
+    this.loadDef(CAMPAIGN[index]!)
+  }
+
+  private loadDef(def: StageDef) {
+    const stage = parseStage(def)
     this.stage = stage
     this.solid = stage.solid.slice()
     this.platforms = []
@@ -950,6 +1038,14 @@ export class PlumberRun implements ArcadeGameInstance {
       this.sound.play('pop')
       return this.die()
     }
+    if (this.endless) {
+      this.distance = Math.max(
+        this.distance,
+        this.zoneStart + Math.floor(hero.x / TILE),
+      )
+      if (hero.x > (this.stage.cols - ENDLESS_PAD / 2) * TILE)
+        return this.nextZone()
+    }
     if (
       this.goal &&
       Math.abs(this.goal.x - hero.x) < 16 &&
@@ -977,6 +1073,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   get runSpeed(): number {
+    if (this.endless) return Math.min(ENDLESS_TOP, 2.9 + 0.12 * this.zone)
     return RUNNER_SPEED[Math.min(RUNNER_SPEED.length, this.world) - 1] ?? 3
   }
 
@@ -2182,6 +2279,12 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private afterDeath() {
+    if (this.endless) {
+      this.rememberEndless()
+      this.lives = 0
+      this.setMode('over', 220)
+      return
+    }
     if (!this.autopilot) this.lives--
     if (this.lives <= 0) {
       this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
@@ -2403,6 +2506,11 @@ export class PlumberRun implements ArcadeGameInstance {
       input.held.a = this.pilotHold > 0
       if (this.pilotHold) this.pilotHold--
       if (glider && hero.vy > 0 && glider.x - hero.x < 90) input.held.b = true
+      // A valve passing under a hop still gets its swing.
+      const lever = this.valves.find(
+        (v) => !v.open && v.x > hero.x && v.x - hero.x < 40,
+      )
+      if (lever && !this.cooldown && !this.carrying) input.pressed.x = true
       return input
     }
     const ahead = (dx: number, row: number) =>
@@ -2450,8 +2558,17 @@ export class PlumberRun implements ArcadeGameInstance {
     const valve = this.valves.find(
       (v) => !v.open && v.x > hero.x - 4 && v.x - hero.x < 96,
     )
-    if (valve && valve.x - hero.x < 40 && !this.cooldown) input.pressed.x = true
-    if (wall === SOLID_CRATE && !this.cooldown && !valve) input.pressed.x = true
+    // A carried crate goes first: X throws it, and a valve needs the wrench.
+    if (this.carrying && !this.cooldown) input.pressed.x = true
+    else if (valve && valve.x - hero.x < 40 && !this.cooldown)
+      input.pressed.x = true
+    // With Pocket Lift a swing lifts the crate, and a carried crate would cost
+    // the swing a valve needs: near a valve, hop crates instead.
+    const liftNearValve =
+      this.power === 'pocket-lift' &&
+      this.valves.some((v) => !v.open && v.x > hero.x && v.x - hero.x < 240)
+    if (wall === SOLID_CRATE && !this.cooldown && !valve && !liftNearValve)
+      input.pressed.x = true
     for (const foe of this.foes) {
       if (foe.state === 'gone' || foe.fade || foe.kind === 'minnow') continue
       if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
@@ -2461,6 +2578,15 @@ export class PlumberRun implements ArcadeGameInstance {
       if (Math.abs(foe.y - feet) > 30) continue
       if (!this.cooldown && dx < 52 && !valve) input.pressed.x = true
     }
+    if (jump === null && wall === SOLID_CRATE && liftNearValve)
+      // The lowest hop that clears it, so the wrench still reaches the lever.
+      for (const hold of [1, 3, 5, 8]) {
+        const land = this.simulateJump(hold, true)
+        if (land && land.x > hero.x + 24) {
+          jump = hold
+          break
+        }
+      }
     if (jump === null && wall && wall !== SOLID_CRATE && wall !== SOLID_GATE)
       jump = choose((land) => land.feet < feet - 4 || land.x > hero.x + 24)
     const below = Math.floor((feet + 1) / TILE)
@@ -2718,7 +2844,13 @@ export class PlumberRun implements ArcadeGameInstance {
         if (this.mode === 'intro') this.renderIntro(g)
         if (this.mode === 'clear')
           this.renderBanner(g, 'STAGE CLEAR', `+${1000 + this.hearts * 200}`)
-        if (this.mode === 'over')
+        if (this.mode === 'over' && this.endless)
+          this.renderBanner(
+            g,
+            this.distance >= this.endlessBest ? 'NEW BEST!' : 'RUN OVER',
+            `${this.distance} m · zone ${this.zone + 1} · best ${this.endlessBest} m`,
+          )
+        else if (this.mode === 'over')
           this.renderBanner(
             g,
             'GAME OVER',
@@ -2783,12 +2915,14 @@ export class PlumberRun implements ArcadeGameInstance {
       const label =
         item === 'continue' && this.resume
           ? `CONTINUE  ${CAMPAIGN[this.resume.stage]!.code}`
-          : 'NEW GAME'
-      const y = 182 + i * 26
+          : item === 'endless'
+            ? `ENDLESS${this.endlessBest ? `  BEST ${this.endlessBest} M` : ''}`
+            : 'NEW GAME'
+      const y = 172 + i * 24
       const on = i === this.menu
       if (on) {
         g.fillStyle = 'rgba(255, 217, 138, 0.25)'
-        g.fillRect(W / 2 - 92, y - 18, 184, 24)
+        g.fillRect(W / 2 - 112, y - 18, 224, 24)
       }
       this.text(
         g,
@@ -2946,11 +3080,28 @@ export class PlumberRun implements ArcadeGameInstance {
   private renderIntro(g: CanvasRenderingContext2D) {
     g.fillStyle = 'rgba(12, 40, 52, 0.72)'
     g.fillRect(0, 86, W, 96)
-    this.text(g, `WORLD ${this.stage.code}`, W / 2, 118, 18, '#ffd98a')
-    this.text(g, this.stage.name.toUpperCase(), W / 2, 150, 28)
     this.text(
       g,
-      `${this.member.name}  ×${this.lives}`,
+      this.endless ? 'ENDLESS RUN' : `WORLD ${this.stage.code}`,
+      W / 2,
+      118,
+      18,
+      '#ffd98a',
+    )
+    this.text(
+      g,
+      this.endless
+        ? this.worldDef.name.toUpperCase()
+        : this.stage.name.toUpperCase(),
+      W / 2,
+      150,
+      28,
+    )
+    this.text(
+      g,
+      this.endless
+        ? `${this.member.name}  ·  ONE LIFE  ·  HOW FAR CAN YOU RUN?`
+        : `${this.member.name}  ×${this.lives}`,
       W / 2,
       172,
       12,
@@ -4140,7 +4291,9 @@ export class PlumberRun implements ArcadeGameInstance {
     g.fillStyle = 'rgba(28, 63, 82, 0.82)'
     g.fillRect(0, 0, W, 24)
     // Long stage names shrink to stay clear of the hearts.
-    const title = `${this.stage.code}  ${this.stage.name.toUpperCase()}`
+    const title = this.endless
+      ? `ZONE ${this.zone + 1}  ${this.worldDef.name.toUpperCase()}`
+      : `${this.stage.code}  ${this.stage.name.toUpperCase()}`
     g.font = '900 12px "Lilita One", system-ui, sans-serif'
     const wide = g.measureText(title).width
     const size = wide > 172 ? Math.max(8, (12 * 172) / wide) : 12
@@ -4157,14 +4310,17 @@ export class PlumberRun implements ArcadeGameInstance {
     this.text(g, `◎ ${this.tokens}`, 256, 17, 12, '#ffd98a', 'left')
     this.text(
       g,
-      `${this.member.name} ×${this.lives}`,
+      this.endless
+        ? `BEST ${Math.max(this.endlessBest, this.distance)}`
+        : `${this.member.name} ×${this.lives}`,
       316,
       17,
-      12,
+      this.endless ? 10 : 12,
       '#fff1ce',
       'left',
     )
-    this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
+    // Endless zones hide no Golden Gear.
+    if (!this.endless) this.drawCog(g, 244, 12, 6, 0, !this.gear?.taken)
     if (this.gearFlash) this.text(g, 'GOLDEN GEAR!', W / 2, 46, 18, '#ffd98a')
     if (this.power) {
       g.fillStyle = 'rgba(255, 244, 220, 0.25)'
@@ -4173,7 +4329,15 @@ export class PlumberRun implements ArcadeGameInstance {
       g.fill()
       drawSprite(g, PLUMBER_ART.prop(this.power), 392, 21, 18)
     }
-    this.text(g, `${this.score}`, W - 10, 17, 12, '#fff1ce', 'right')
+    this.text(
+      g,
+      this.endless ? `${this.distance} m` : `${this.score}`,
+      W - 10,
+      17,
+      12,
+      '#fff1ce',
+      'right',
+    )
   }
 }
 

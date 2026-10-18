@@ -222,7 +222,7 @@
             </p>
             <ol
               v-if="savedSchedule.length"
-              class="kr-pane-scroll flex max-h-12 flex-wrap gap-0.5"
+              class="flex max-h-12 flex-wrap gap-0.5 overflow-y-auto"
               aria-label="Saved look per motion window"
             >
               <li
@@ -385,10 +385,7 @@
             </div>
           </div>
 
-          <div
-            v-if="stageView === 'looks'"
-            class="kr-pane-scroll min-h-0 flex-1"
-          >
+          <div v-if="stageView === 'looks'" class="kr-scroll min-h-0 flex-1">
             <div
               class="grid grid-cols-4 gap-1.5 sm:grid-cols-6 lg:grid-cols-8 2xl:grid-cols-10"
             >
@@ -496,7 +493,7 @@
 
         <!-- Render bar: the selected look, its settings and the one action -->
         <section
-          class="kr-pane-scroll max-h-[45%] shrink-0 space-y-1.5 rounded-2xl border border-primary/30 bg-base-100 p-2 text-xs shadow-sm"
+          class="max-h-[45%] shrink-0 overflow-y-auto overscroll-contain space-y-1.5 rounded-2xl border border-primary/30 bg-base-100 p-2 text-xs shadow-sm"
           aria-label="Selected look and next render"
         >
           <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -593,7 +590,7 @@
               Rotation order: {{ grabBagSequenceLabel }}
             </summary>
             <ol
-              class="kr-pane-scroll mt-1 flex max-h-20 flex-wrap gap-1"
+              class="mt-1 flex max-h-20 flex-wrap gap-1 overflow-y-auto"
               aria-label="Rotation order"
             >
               <li

@@ -115,6 +115,7 @@ check(
       'stump-shiv': '[b]f+P',
       'pick-pocket': 'HCB+K',
       'play-dead': 'dd+D',
+      'gutter-slide': 'DP+K',
       reload: 'dd+P',
       'last-meal': 'QCF QCF+K',
       'six-bad-shots': 'QCB QCB+HP',
@@ -187,6 +188,16 @@ check('a shot hits a standing target at range', () => {
 })
 
 // ---------------------------------------------------------------- dirty tricks
+
+check('Gutter Slide: a low slide that knocks a standing target down', () => {
+  const data = COYOTE.specials.find((m) => m.id === 'gutter-slide')!
+  assert.equal(data.move.guard, 'low')
+  assert.ok(data.move.knockdown)
+  const log: SimEvent[] = []
+  play(fightAt(50), 50, motion([6, 2, 3], { lk: true }), [], log)
+  assert.equal(specialsFired(log, 'gutter-slide'), 1)
+  assert.ok(hits(log).some((h) => h.move === 'gutter-slide'))
+})
 
 check('Pocket Sand: the victim can’t block for a moment', () => {
   const log: SimEvent[] = []

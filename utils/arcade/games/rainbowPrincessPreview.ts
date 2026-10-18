@@ -6858,7 +6858,8 @@ export function createRainbowPrincessPreview(
       )
       g.font = '9px monospace'
       g.fillText(
-        'A FIRE · B FOCUS, SUPER AT 100% · X SPECIAL · Y EVADE',
+        // Short enough to clear P1's status on the right of the same row.
+        'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
         HUD_LEFT,
         24,
       )

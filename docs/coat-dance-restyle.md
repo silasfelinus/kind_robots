@@ -30,8 +30,12 @@ status transitions, media probing, resumability and reassembly.
 4. Process ~4.5-second windows with 0.5-second overlaps; continuity anchors
    and optical alignment must cross each seam. Track immutable segment IDs,
    per-segment ArtJob IDs, attempts, output and failures to permit resume.
-5. Render a faithful 20-30 second sample including the coat flourish. Compare
-   motion and silhouettes side-by-side with the original before full production.
+5. ~~Render a 20-30 second pilot before full production.~~ Superseded by Silas,
+   2026-10-18: upload, choose a look, and the **whole film renders in one
+   batch**. The studio no longer queues pilots; existing pilot files remain
+   watchable, and `queueRestyleFull` accepts STAGED, PILOT_BLOCKED,
+   PILOT_FAILED and REVIEW projects. Windows are saved as they finish, so a
+   failed film resumes instead of restarting.
 6. Stitch using exact source PTS, blend overlaps instead of duplicating frames,
    copy the original synchronized audio and upscale _after_ assembly (target
    720p or 1080p). Check duration, A/V sync and dropped-frame count.
@@ -50,10 +54,10 @@ Every other look aims for continuity. **Grab bag** (`style: 'grab-bag'`) does
 the opposite on purpose: each VACE motion window (65 frames every 57 at 16 fps,
 about 3.6 s) gets a different look from the chosen list.
 
-- The job saves `variantStyleIds` (2-12 distinct looks, in rotation order) and
+- The job saves `variantStyleIds` (2 up to every look, in rotation order) and
   `variantMode` (`cycle`, or `shuffle_locked`, which is shuffled once in the
   studio and then saved as the fixed order). Nothing reshuffles after saving.
-- Queueing a pilot or full film persists `styleSchedule` on that pass: one
+- Queueing a render persists `styleSchedule` on that pass: one
   concrete look per window, computed by `planRestyleStyleSchedule`. The
   rotation is anchored to source time, so the 2:38 pilot shows the same looks
   the full film uses at 2:38. Pilot re-renders, retries, and full-film runs

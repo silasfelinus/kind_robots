@@ -81,7 +81,7 @@ const settings = readFileSync('server/api/video-restyle/[id].patch.ts', 'utf8')
 assert.ok(!studio.includes('v-show="activePanel'))
 assert.ok(studio.includes('hidden lg:flex'))
 assert.ok(studio.includes('Preview saved source'))
-assert.ok(studio.includes('Save look to this project'))
+assert.ok(studio.includes('Save look & render full film'))
 assert.ok(source.includes('requireAdminApiUser'))
 assert.ok(source.includes('restyleSourcePath'))
 assert.ok(settings.includes('updateRestyleSettings'))
@@ -183,7 +183,7 @@ assert.ok(artjob.includes('attempts: 0'))
 assert.ok(
   artjob.includes("where: { id, userId: job.userId, status: 'FAILED' }"),
 )
-assert.ok(studio.includes('Retry pilot in the same ArtJob'))
+assert.ok(!studio.includes('Render 24-second pilot'))
 assert.ok(storeSource.includes('/pilot/retry'))
 
 const queueSource = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
@@ -200,7 +200,7 @@ assert.ok(artjob.includes(':revision:'))
 assert.ok(resultSource.includes('getQuery(event).previous'))
 assert.ok(resultSource.includes('previousRevision'))
 assert.ok(resultSource.includes('requireAdminApiUser'))
-assert.ok(studio.includes('Render improved continuity pilot'))
+assert.ok(!studio.includes('store.queuePilot('))
 assert.ok(studio.includes('Watch previous pilot for comparison'))
 assert.ok(storeSource.includes("previous ? '?previous=1' : ''"))
 
@@ -232,7 +232,7 @@ assert.ok(newUpload.includes("isMature: field('isMature')"))
 assert.ok(settingsRoute.includes('body.isMature'))
 assert.ok(artjob.includes('isPublic: false'))
 assert.ok(artjob.includes('isMature: job.isMature ?? false'))
-assert.ok(studio.includes('New style project from saved video'))
+assert.ok(studio.includes('Render this look as a new film'))
 assert.ok(studio.includes('How rendering works'))
 assert.ok(studio.includes('statusLabel(job.status)'))
 assert.ok(studio.includes('v-model="isMature"'))
@@ -262,7 +262,8 @@ assert.ok(fullQueueRoute.includes('requireAdminApiUser'))
 assert.ok(fullQueueRoute.includes('queueRestyleFull'))
 assert.ok(fullQueueRoute.includes('syncRestyleFullArtJob'))
 assert.ok(restyleJobs.includes('export async function queueRestyleFull'))
-assert.ok(restyleJobs.includes("job.status !== 'REVIEW'"))
+assert.ok(restyleJobs.includes('FULL_QUEUEABLE'))
+assert.ok(!restyleJobs.includes('Review the completed pilot before queueing'))
 assert.ok(restyleJobs.includes("status: 'FULL_QUEUED'"))
 assert.ok(restyleJobs.includes('startSec: 0'))
 assert.ok(restyleJobs.includes('restyleRenderWindowCount(durationSec)'))
@@ -348,7 +349,7 @@ assert.ok(studio.includes('aria-label="Selected look and next render"'))
 assert.ok(studio.includes('Matches the saved'))
 assert.ok(studio.includes('Your existing'))
 assert.ok(studio.includes('Render settings ·'))
-assert.ok(studio.includes('Upload & prepare this look'))
+assert.ok(studio.includes('Upload & render full film'))
 assert.ok(studio.includes('View results'))
 assert.ok(studio.includes('Available video versions'))
 assert.ok(studio.includes('Choose look / render'))
@@ -374,9 +375,18 @@ assert.ok(!studio.includes('class="block text-[10px] opacity-65"'))
   assert.equal(normalizeGrabBagStyles(['illustrious', 'illustrious']), null)
   assert.equal(normalizeGrabBagStyles(['illustrious', 'grab-bag']), null)
   assert.equal(normalizeGrabBagStyles(['illustrious', 'unverified']), null)
+  const everyLook = RESTYLE_STYLES.map((s) => s.id)
+  assert.deepEqual(
+    normalizeGrabBagStyles(everyLook),
+    everyLook,
+    'Grab bag may include every look',
+  )
+  assert.equal(normalizeGrabBagStyles([...everyLook, everyLook[0]]), null)
+  const allWindows = planRestyleStyleSchedule(0, 332, everyLook)
   assert.equal(
-    normalizeGrabBagStyles(RESTYLE_STYLES.slice(0, 13).map((s) => s.id)),
-    null,
+    new Set(allWindows.map((window) => window.styleId)).size,
+    everyLook.length,
+    'a full film with every look shows each of them',
   )
 
   const workerWindows = (frames: number) => {
@@ -460,7 +470,67 @@ assert.ok(!studio.includes('class="block text-[10px] opacity-65"'))
   const page = readFileSync('pages/admin/coat-dance.vue', 'utf8')
   assert.ok(page.includes('Loop in listed order'))
   assert.ok(page.includes('Shuffle once, then lock'))
+  assert.ok(page.includes('addAllToGrabBag'))
   assert.ok(page.includes('preview collage shows'))
   assert.ok(page.includes('Sequence:'))
 }
 console.info('Grab bag rotation schedule verified')
+
+{
+  const { mkdtempSync, rmSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  const privateRoot = mkdtempSync(join(tmpdir(), 'coat-dance-full-'))
+  const previousRoot = process.env.PRIVATE_PATH
+  process.env.PRIVATE_PATH = privateRoot
+  try {
+    const { stageRestyleVideo, queueRestyleFull } =
+      await import('../../server/utils/videoRestyleJobs')
+    const mp4 = Buffer.concat([
+      Buffer.from([0, 0, 0, 0x18]),
+      Buffer.from('ftypmp42'),
+      Buffer.alloc(64),
+    ])
+    const single = await stageRestyleVideo({
+      userId: 7,
+      data: mp4,
+      title: 'One batch',
+      style: 'noir',
+      quality: '720p',
+      durationSec: 332,
+    })
+    assert.equal(single.status, 'STAGED')
+    const queued = await queueRestyleFull(7, single.id)
+    assert.equal(queued.status, 'FULL_QUEUED', 'no pilot is required')
+    assert.equal(queued.full?.totalSegments, 94)
+    assert.equal(queued.full?.styleSchedule, undefined)
+    assert.equal(queued.pilot, undefined)
+    await assert.rejects(queueRestyleFull(7, single.id), /already rendering/)
+
+    const everyLook = RESTYLE_STYLES.map((entry) => entry.id)
+    const bag = await stageRestyleVideo({
+      userId: 7,
+      data: mp4,
+      title: 'Every look',
+      style: RESTYLE_GRAB_BAG.id,
+      variantStyleIds: everyLook.join(','),
+      variantMode: 'cycle',
+      quality: '1080p',
+      durationSec: 332,
+    })
+    const bagFull = await queueRestyleFull(7, bag.id)
+    assert.equal(bagFull.full?.styleSchedule?.length, 94)
+    assert.deepEqual(
+      bagFull.full?.styleSchedule
+        ?.slice(0, everyLook.length)
+        .map((w) => w.styleId),
+      everyLook,
+      'one batch walks every chosen look in order',
+    )
+  } finally {
+    if (previousRoot === undefined) delete process.env.PRIVATE_PATH
+    else process.env.PRIVATE_PATH = previousRoot
+    rmSync(privateRoot, { recursive: true, force: true })
+  }
+}
+console.info('One-batch full film from a fresh upload verified')

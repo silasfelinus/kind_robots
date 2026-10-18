@@ -346,7 +346,7 @@ export const RESTYLE_GRAB_BAG = {
 export type RestyleLookId = RestyleStyleId | typeof RESTYLE_GRAB_BAG.id
 export type RestyleVariantMode = 'cycle' | 'shuffle_locked'
 export const RESTYLE_GRAB_BAG_MIN_STYLES = 2
-export const RESTYLE_GRAB_BAG_MAX_STYLES = 12
+export const RESTYLE_GRAB_BAG_MAX_STYLES = RESTYLE_STYLES.length
 export const RESTYLE_GRAB_BAG_DEFAULT_STYLES: RestyleStyleId[] = [
   'illustrious',
   'noir',

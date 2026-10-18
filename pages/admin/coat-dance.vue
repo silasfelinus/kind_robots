@@ -227,7 +227,10 @@
                 Original source
               </button>
               <button
-                v-if="store.selected.status === 'REVIEW' || store.selected.full"
+                v-if="
+                  store.selected.pilot &&
+                  (store.selected.status === 'REVIEW' || store.selected.full)
+                "
                 type="button"
                 class="kr-btn-xs btn-outline"
                 :disabled="store.sourceBusy"
@@ -318,9 +321,7 @@
             >
               <span v-if="store.busy" class="kr-spinner-xs" />
               {{
-                store.busy
-                  ? 'Uploading source…'
-                  : 'Upload & prepare render project'
+                store.busy ? 'Uploading source…' : 'Upload & render full film'
               }}
             </button>
           </section>
@@ -517,9 +518,20 @@
                   >
                     Reshuffle
                   </button>
+                  <button
+                    v-if="grabBagStyles.length < RESTYLE_STYLES.length"
+                    type="button"
+                    class="kr-btn-xs btn-outline"
+                    @click="addAllToGrabBag"
+                  >
+                    Add all {{ RESTYLE_STYLES.length }}
+                  </button>
                 </div>
               </div>
-              <ol class="flex flex-wrap gap-1" aria-label="Rotation order">
+              <ol
+                class="kr-pane-scroll flex max-h-16 flex-wrap gap-1 sm:max-h-20"
+                aria-label="Rotation order"
+              >
                 <li
                   v-for="(id, order) in grabBagStyles"
                   :key="id"
@@ -671,11 +683,11 @@
                   grabBagMode === 'cycle'
                     ? 'looping in listed order'
                     : 'shuffled once and locked'
-                }}. Pilot and full film share this saved sequence.
+                }}. Retries and resumes keep this saved sequence.
               </p>
               <p v-if="sourceFile" class="text-xs text-base-content/80">
-                New source selected. Prepare it with
-                {{ labelFor(style) }} before generating.
+                New source selected. Uploading renders the full film in
+                {{ labelFor(style) }}.
               </p>
               <p
                 v-else-if="store.selected && lookChanged"
@@ -684,7 +696,7 @@
               >
                 {{
                   store.selected.status === 'STAGED'
-                    ? 'Unsaved choices. Save this look before rendering this project.'
+                    ? 'Unsaved choices. Saving renders the full film in this look.'
                     : `New version selected. Your existing ${labelFor(store.selected.style)} project stays unchanged until you create another project.`
                 }}
               </p>
@@ -706,7 +718,7 @@
                   :disabled="!canStage || store.busy"
                   @click="stage"
                 >
-                  {{ store.busy ? 'Uploading…' : 'Upload & prepare this look' }}
+                  {{ store.busy ? 'Uploading…' : 'Upload & render full film' }}
                 </button>
                 <button
                   v-if="
@@ -718,66 +730,34 @@
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
                   :disabled="store.busy || !grabBagReady"
-                  @click="saveLook"
-                >
-                  {{ store.busy ? 'Saving…' : 'Save look to this project' }}
-                </button>
-                <button
-                  v-if="
-                    store.selected &&
-                    !sourceFile &&
-                    (lookChanged || store.selected.status !== 'STAGED')
-                  "
-                  type="button"
-                  class="kr-btn btn-outline flex-1"
-                  :disabled="store.busy || !grabBagReady"
-                  @click="createVariant"
+                  @click="saveLookAndRender"
                 >
                   {{
-                    store.busy
-                      ? 'Creating…'
-                      : 'New style project from saved video'
+                    store.busy ? 'Queueing…' : 'Save look & render full film'
                   }}
                 </button>
                 <button
                   v-if="
                     store.selected &&
                     !sourceFile &&
-                    !lookChanged &&
-                    [
-                      'STAGED',
-                      'PILOT_BLOCKED',
-                      'PILOT_FAILED',
-                      'REVIEW',
-                    ].includes(store.selected.status)
+                    store.selected.status !== 'STAGED' &&
+                    lookChanged
                   "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
-                  :disabled="store.busy"
-                  @click="
-                    store.selected.status === 'PILOT_FAILED'
-                      ? store.retryPilot(store.selected.id)
-                      : store.queuePilot(store.selected.id)
-                  "
+                  :disabled="store.busy || !grabBagReady"
+                  @click="renderAsNewFilm"
                 >
                   {{
-                    store.busy
-                      ? 'Queueing…'
-                      : store.selected.status === 'PILOT_FAILED'
-                        ? 'Retry pilot in the same ArtJob'
-                        : store.selected.status === 'REVIEW'
-                          ? store.selected.style === RESTYLE_GRAB_BAG.id
-                            ? 'Re-render grab bag pilot'
-                            : 'Render improved continuity pilot'
-                          : 'Render 24-second pilot'
+                    store.busy ? 'Queueing…' : 'Render this look as a new film'
                   }}
                 </button>
                 <button
                   v-if="
                     store.selected &&
+                    !sourceFile &&
                     !lookChanged &&
-                    store.selected.status === 'REVIEW' &&
-                    !store.selected.full
+                    canQueueFull
                   "
                   type="button"
                   class="kr-btn kr-btn-primary flex-1"
@@ -990,7 +970,8 @@
                 </button>
                 <button
                   v-if="
-                    store.selected.status === 'REVIEW' || store.selected.full
+                    store.selected.pilot &&
+                    (store.selected.status === 'REVIEW' || store.selected.full)
                   "
                   type="button"
                   class="kr-btn btn-outline flex-1"
@@ -1024,10 +1005,10 @@
                 How rendering works
               </summary>
               <p class="mt-2 leading-relaxed text-base-content/70">
-                KR Relay processes motion-controlled pilots using your saved
-                video. Each look has its own render project. The full-length
-                render waits for pilot review; no video is published from this
-                studio.
+                KR Relay renders the whole film in one batch from your saved
+                video, window by window, and resumes from saved windows after a
+                failure. Each look has its own render project; no video is
+                published from this studio.
               </p>
             </details>
           </section>
@@ -1095,9 +1076,11 @@ const collageStyles = computed(() =>
     .slice(0, 4)
     .map((id) => RESTYLE_STYLES.find((entry) => entry.id === id)!),
 )
-const grabBagSequenceLabel = computed(() =>
-  grabBagStyles.value.map(labelFor).join(' → '),
-)
+const grabBagSequenceLabel = computed(() => {
+  const shown = grabBagStyles.value.slice(0, 6).map(labelFor).join(' → ')
+  const more = grabBagStyles.value.length - 6
+  return more > 0 ? `${shown} → +${more} more` : shown
+})
 const missingGrabBagPreviews = computed(() =>
   grabBagStyles.value.filter((id) => !store.stylePreviews[id]?.imageUrl),
 )
@@ -1142,6 +1125,16 @@ const canStage = computed(() =>
     durationSec.value >= 1 &&
     durationSec.value <= RESTYLE_MAX_DURATION_SEC &&
     grabBagReady.value,
+  ),
+)
+
+const canQueueFull = computed(() =>
+  Boolean(
+    store.selected &&
+    !store.selected.full &&
+    ['STAGED', 'PILOT_BLOCKED', 'PILOT_FAILED', 'REVIEW'].includes(
+      store.selected.status,
+    ),
   ),
 )
 
@@ -1217,6 +1210,15 @@ function setGrabBagMode(mode: RestyleVariantMode) {
   grabBagMode.value = mode
 }
 
+function addAllToGrabBag() {
+  const added = RESTYLE_STYLES.map((look) => look.id).filter(
+    (id) => !grabBagStyles.value.includes(id),
+  )
+  const next = [...grabBagStyles.value, ...added]
+  grabBagStyles.value =
+    grabBagMode.value === 'shuffle_locked' ? shuffleRestyleStyles(next) : next
+}
+
 function reshuffleGrabBag() {
   grabBagStyles.value = shuffleRestyleStyles(grabBagStyles.value)
 }
@@ -1283,19 +1285,24 @@ async function showPilot(previous = false) {
   }
 }
 
-async function saveLook() {
+async function saveLookAndRender() {
   if (!store.selected || sourceFile.value) return
-  await store.saveSettings(
-    store.selected.id,
-    style.value,
-    quality.value,
-    isPrivate.value,
-    isMature.value,
-    grabBagChoice.value,
-  )
+  const id = store.selected.id
+  if (
+    await store.saveSettings(
+      id,
+      style.value,
+      quality.value,
+      isPrivate.value,
+      isMature.value,
+      grabBagChoice.value,
+    )
+  ) {
+    await store.queueFull(id)
+  }
 }
 
-async function createVariant() {
+async function renderAsNewFilm() {
   if (!store.selected || sourceFile.value) return
   const sourceId = store.selected.id
   const name = `${store.selected.title} · ${labelFor(style.value)}`
@@ -1312,6 +1319,7 @@ async function createVariant() {
   ) {
     if (store.selected) selectJob(store.selected)
     activePanel.value = 'studio'
+    if (store.selectedId) await store.queueFull(store.selectedId)
   }
 }
 
@@ -1357,6 +1365,7 @@ async function stage() {
     sourceFile.value = null
     durationSec.value = store.selected?.sourceDurationSec ?? 0
     if (fileInput.value) fileInput.value.value = ''
+    if (store.selectedId) await store.queueFull(store.selectedId)
   }
 }
 

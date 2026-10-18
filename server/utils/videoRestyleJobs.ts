@@ -508,16 +508,24 @@ export async function queueRestylePilot(
   return updated
 }
 
-/** Queue a whole-source pass only after a completed, personally reviewable pilot. */
+const FULL_QUEUEABLE: RestyleStatus[] = [
+  'STAGED',
+  'PILOT_BLOCKED',
+  'PILOT_FAILED',
+  'REVIEW',
+]
+
+/** Queue the whole source in one batch; a pilot is optional, never required. */
 export async function queueRestyleFull(
   userId: number,
   id: string,
 ): Promise<VideoRestyleJob> {
   const job = await loadRestyleJob(userId, id)
-  if (job.status !== 'REVIEW' || job.resultFile !== 'pilot.mp4') {
+  if (!FULL_QUEUEABLE.includes(job.status)) {
     throw createError({
       statusCode: 409,
-      message: 'Review the completed pilot before queueing a full-length film.',
+      message:
+        'This project is already rendering; wait for it before queueing the full film.',
     })
   }
   if (job.full) {
@@ -531,7 +539,9 @@ export async function queueRestyleFull(
   const updated: VideoRestyleJob = {
     ...job,
     status: 'FULL_QUEUED',
-    stage: 'Full-length render queued; pilot preserved for comparison',
+    stage: job.pilot
+      ? 'Full-length render queued; pilot preserved for comparison'
+      : 'Full-length render queued for KR Relay',
     progress: 0,
     error: null,
     resultFile: null,

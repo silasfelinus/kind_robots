@@ -253,8 +253,8 @@ pool size and the choices on each card are what make replays differ.
   per land, 120 in all) and a third or fourth choice to each of the 48
   original cards. The originals keep their text and their first two choices
   in the base packs, so V2–V5 saves replay untouched.
-- **Choices** (`deckV6.ts`): a choice may be *certain* (`roll: null`, no
-  failure), *gated* (`requires.anyFlags` on one of ten shared deed flags such
+- **Choices** (`deckV6.ts`): a choice may be _certain_ (`roll: null`, no
+  failure), _gated_ (`requires.anyFlags` on one of ten shared deed flags such
   as `deed-shared-bread` or `deed-left-someone`, so early mercy or cruelty
   echoes later), and may carry an up-front `cost` in health or provisions.
   `choiceLock` explains a closed route in words; every card keeps at least

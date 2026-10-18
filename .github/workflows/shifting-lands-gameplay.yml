@@ -25,6 +25,8 @@ on:
       - 'utils/scripts/verifyShiftingTrials.test.ts'
       - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/verifyShiftingSceneArt.test.ts'
+      - 'utils/scripts/verifyShiftingV6.test.ts'
+      - 'components/shifting-lands-*.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
   push:
@@ -50,6 +52,8 @@ on:
       - 'utils/scripts/verifyShiftingTrials.test.ts'
       - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/verifyShiftingSceneArt.test.ts'
+      - 'utils/scripts/verifyShiftingV6.test.ts'
+      - 'components/shifting-lands-*.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
@@ -75,3 +79,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingTrials.test.ts
       - run: npx tsx utils/scripts/verifyShiftingCharacterRail.test.ts
       - run: npx tsx utils/scripts/verifyShiftingSceneArt.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingV6.test.ts

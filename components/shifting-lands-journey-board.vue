@@ -251,7 +251,13 @@
                       : 'bg-error text-error-content'
                   "
                 >
-                  {{ consequence.success ? 'Success' : 'Failure' }}
+                  {{
+                    !consequence.roll
+                      ? 'Done'
+                      : consequence.success
+                        ? 'Success'
+                        : 'Failure'
+                  }}
                 </span>
                 <button
                   type="button"
@@ -274,7 +280,14 @@
                 <p class="-mt-2 font-bold leading-snug">
                   {{ consequence.choice }}
                 </p>
+                <p
+                  v-if="!consequence.roll"
+                  class="text-xs font-bold uppercase tracking-widest opacity-70"
+                >
+                  No roll: this choice was certain.
+                </p>
                 <div
+                  v-else
                   :key="consequenceKey"
                   class="flex flex-wrap items-center gap-2"
                   :class="reducedMotion ? '' : 'journey-dice-reveal'"
@@ -428,7 +441,7 @@
                   class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
                 >
                   <button
-                    v-for="option in game.activeEncounter.choices"
+                    v-for="option in openChoices"
                     :key="option.id"
                     type="button"
                     class="group flex w-full flex-col gap-1 rounded-xl border border-base-content/20 bg-base-300 px-3 py-2 text-left transition-colors hover:border-warning focus-visible:outline focus-visible:outline-4 focus-visible:outline-primary"
@@ -440,23 +453,39 @@
                         class="text-sm leading-snug group-hover:text-warning sm:text-base"
                         >{{ option.label }}</strong
                       >
-                      <ShiftingLandsCheckChip
-                        :reading="
-                          readCheck(
-                            option.roll.skill,
-                            option.roll.target,
-                            option.roll.modifier,
-                          )
-                        "
-                        :open="checkTip === option.id"
-                        @toggle="toggleCheckTip(option.id)"
-                      />
+                      <span class="flex shrink-0 flex-wrap justify-end gap-1">
+                        <span
+                          v-for="price in priceOf(option)"
+                          :key="price"
+                          class="inline-flex items-center rounded-lg border border-error/40 px-1.5 py-0.5 text-[11px] font-bold text-error"
+                          >{{ price }}</span
+                        >
+                        <ShiftingLandsCheckChip
+                          v-if="option.roll"
+                          :reading="
+                            readCheck(
+                              option.roll.skill,
+                              option.roll.target,
+                              option.roll.modifier,
+                            )
+                          "
+                          :open="checkTip === option.id"
+                          @toggle="toggleCheckTip(option.id)"
+                        />
+                        <span
+                          v-else
+                          class="inline-flex items-center gap-1 rounded-lg border border-success/40 px-1.5 py-0.5 text-[11px] font-bold"
+                          :title="option.risk"
+                          ><Icon name="kind-icon:check" class="size-3.5" />
+                          Certain</span
+                        >
+                      </span>
                     </span>
                     <span class="text-sm leading-snug opacity-85">{{
                       option.intent
                     }}</span>
                     <span
-                      v-if="checkTip === option.id"
+                      v-if="checkTip === option.id && option.roll"
                       class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
                       >{{
                         readCheck(
@@ -467,6 +496,21 @@
                       }}
                       {{ option.risk }}</span
                     >
+                  </button>
+                  <button
+                    v-for="option in lockedChoices"
+                    :key="option.id"
+                    type="button"
+                    class="locked-route flex items-center gap-1.5 rounded-xl border border-dashed border-base-content/25 bg-base-200/70 px-3 py-1.5 text-left text-xs text-base-content/70"
+                    :title="lockOf(option) ?? undefined"
+                    :aria-expanded="checkTip === option.id"
+                    @click="toggleCheckTip(option.id)"
+                  >
+                    <Icon name="kind-icon:lock" class="size-3.5 shrink-0" />
+                    <span class="font-bold">{{ option.label }}</span>
+                    <span v-if="checkTip === option.id" class="opacity-90">{{
+                      lockOf(option)
+                    }}</span>
                   </button>
                 </div>
                 <template v-else>
@@ -935,9 +979,11 @@
                 >
                   The road remembers ·
                   {{
-                    game.lastAuthoredOutcome.roll.success
-                      ? 'Success'
-                      : 'Failure'
+                    !game.lastAuthoredOutcome.roll
+                      ? 'Your choice'
+                      : game.lastAuthoredOutcome.success
+                        ? 'Success'
+                        : 'Failure'
                   }}
                 </p>
                 <h3 class="mt-1 font-serif text-lg font-bold leading-tight">
@@ -947,11 +993,13 @@
                   {{ game.lastAuthoredOutcome.resultText }}
                 </p>
                 <p class="mt-1 text-xs opacity-70">
-                  {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
-                  {{ game.lastAuthoredOutcome.roll.modifier }} =
-                  {{ game.lastAuthoredOutcome.roll.total }} vs
-                  {{ game.lastAuthoredOutcome.roll.difficulty }}
-                  · HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : ''
+                  <template v-if="game.lastAuthoredOutcome.roll">
+                    {{ game.lastAuthoredOutcome.roll.dice.join(' + ') }} +
+                    {{ game.lastAuthoredOutcome.roll.modifier }} =
+                    {{ game.lastAuthoredOutcome.roll.total }} vs
+                    {{ game.lastAuthoredOutcome.roll.difficulty }} ·
+                  </template>
+                  HP {{ game.lastAuthoredOutcome.hpChange >= 0 ? '+' : ''
                   }}{{ game.lastAuthoredOutcome.hpChange }} · Provisions
                   {{ game.lastAuthoredOutcome.provisionChange >= 0 ? '+' : ''
                   }}{{ game.lastAuthoredOutcome.provisionChange }}
@@ -1277,13 +1325,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useShiftingLandsJourneyStore } from '~/stores/shiftingLandsJourneyStore'
-import { findFiveLandCard } from '~/utils/shiftingLands/authoredFiveLands'
 import { trialForLand } from '~/utils/shiftingLands/authoredBosses'
 import {
   readCheck,
   type BossApproach,
   type EncounterApproach,
 } from '~/utils/shiftingLands/journey'
+import type { V6Choice } from '~/utils/shiftingLands/deckV6'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
 import {
   readShiftingLandsPresentation,
@@ -1300,7 +1348,7 @@ const lastTrialBossName = computed(
 )
 const lastPlayedTitle = computed(
   () =>
-    findFiveLandCard(game.lastAuthoredOutcome?.encounterId ?? '')?.title ??
+    game.findCard(game.lastAuthoredOutcome?.encounterId ?? '')?.title ??
     'An encounter remembered',
 )
 const dealKey = ref(0)
@@ -1326,6 +1374,29 @@ const sideTab = computed<JourneyTab>(() =>
 )
 const roadPeek = ref(false)
 const checkTip = ref<string | null>(null)
+type ShownChoice = NonNullable<typeof game.activeEncounter>['choices'][number]
+const shownChoices = computed<ShownChoice[]>(
+  () => game.activeEncounter?.choices ?? [],
+)
+const openChoices = computed(() =>
+  shownChoices.value.filter((choice) => !lockOf(choice)),
+)
+const lockedChoices = computed(() =>
+  shownChoices.value.filter((choice) => lockOf(choice)),
+)
+function lockOf(choice: ShownChoice): string | null {
+  return 'requires' in choice ? game.lockFor(choice as V6Choice) : null
+}
+function priceOf(choice: ShownChoice): string[] {
+  const cost = 'cost' in choice ? choice.cost : null
+  const prices: string[] = []
+  if (cost?.hp) prices.push(`${cost.hp} health`)
+  if (cost?.provisions)
+    prices.push(
+      `${cost.provisions} provision${cost.provisions === -1 ? '' : 's'}`,
+    )
+  return prices
+}
 function toggleCheckTip(id: string): void {
   checkTip.value = checkTip.value === id ? null : id
 }
@@ -1369,14 +1440,14 @@ const consequence = computed(() => {
   if (showing.kind === 'encounter') {
     const result = game.lastAuthoredOutcome
     if (!result || result.turn !== showing.turn) return null
-    const card = findFiveLandCard(result.encounterId)
+    const card = game.findCard(result.encounterId)
     return {
       kind: showing.kind,
       title: card?.title ?? 'An encounter remembered',
       choice:
         card?.choices.find((item) => item.id === result.choiceId)?.label ??
         'Your choice',
-      success: result.roll.success,
+      success: result.success,
       roll: result.roll,
       text: result.resultText,
       hp: result.hpChange,

@@ -50,7 +50,7 @@ assert.doesNotMatch(
 )
 assert.match(
   store,
-  /journeyCharacterSheet\(session\.value, ledger\.value\.usedRewards\)/,
+  /v6CharacterSheet\(ledger\.value\.current, ledger\.value\.usedRewards\)/,
 )
 assert.match(workflow, /verifyShiftingCharacterRail\.test\.ts/)
 

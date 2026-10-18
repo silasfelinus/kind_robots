@@ -75,17 +75,18 @@ assert.equal(
 assert.equal(restoreSlidingTilePuzzle({ ...solved, solved: false }), null)
 assert.equal(restoreSlidingTilePuzzle({ ...solved, moves: -1 }), null)
 
-const page = readFileSync('pages/admin/sliding-tile-gallery.vue', 'utf8')
+const page = readFileSync('pages/play/sliding-tile-gallery.vue', 'utf8')
 const tab = readFileSync(
-  'content/channels/admin/sliding-tile-gallery.md',
+  'content/channels/arcade/sliding-tile-gallery.md',
   'utf8',
 )
 const placements = readFileSync('utils/projectPlacements.ts', 'utf8')
 const store = readFileSync('stores/slidingTileGalleryStore.ts', 'utf8')
 
-assert.match(tab, /requiredRole: ADMIN/)
-assert.match(tab, /route: \/admin\/sliding-tile-gallery/)
-assert.match(page, /v-else-if="!user\.isAdmin"/)
+assert.doesNotMatch(tab, /requiredRole: ADMIN/)
+assert.match(tab, /route: \/play\/sliding-tile-gallery/)
+assert.doesNotMatch(page, /v-else-if="!user\.isAdmin"/)
+assert.match(tab, /Work in progress/)
 assert.match(page, /gallery\.move\(index\)/)
 assert.match(page, /gallery\.keepsakes/)
 assert.match(page, /v-if="gallery\.puzzle\.solved"/)

@@ -1,22 +1,21 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: rainbow-bullet-hell-space-princess
 label: Space Princess
 title: Rainbow Bullet Hell Space Princess
-subtitle: The whole campaign, from the Pinkwake Estuary to the Eclipse Crown
-description: A private Rainbow Bullet Hell Space Princess preview of the whole campaign, with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, the Crown Reef, the Glass Current, the Eclipse Palace and the Eclipse Crown finale, nine bosses, eight guardians, a final choice with three endings, route choices, optional rescues, checkpoints and 1–4 local pilots.
+subtitle: Work in progress · Fly the first playable acts
+description: A work-in-progress Rainbow Bullet Hell Space Princess preview, with Pinkwake, Moonjelly Fields, the Chromatic Trench, the Rosefin Express, the Blossom Wreckyard, the Crown Reef, the Glass Current, the Eclipse Palace and the Eclipse Crown finale, nine bosses, eight guardians, a final choice with three endings, route choices, optional rescues, checkpoints and 1–4 local pilots.
 summary: Fly the pastel nebula with friends.
 icon: kind-icon:rocket
-route: /admin/rainbow-bullet-hell-space-princess
+route: /play/rainbow-bullet-hell-space-princess
 sort: 134
-requiredRole: ADMIN
 tutorial:
   title: Princess pilot training
   body: |-
     Four pilots. One pearlescent galaxy.
 
-    This is the private flight deck, not the public Arcade release. Choose your player count in the standard Arcade cabinet and fly the Pinkwake Estuary through the Pearl Seahorse boss. After freeing its pod, the world and music bridge into Moonjelly Fields without resetting lives, weapons or charge. Act II introduces living jelly fleets, a stranded Nemi beacon, Lilt's warning, and the three-phase Aurelia Array. Each Act opens on its painted title card and runs eight authored sections of formations before its boss.
+    This Play flight deck is a work-in-progress preview, not a finished Arcade release. Choose your player count in the standard Arcade cabinet and fly the Pinkwake Estuary through the Pearl Seahorse boss. After freeing its pod, the world and music bridge into Moonjelly Fields without resetting lives, weapons or charge. Act II introduces living jelly fleets, a stranded Nemi beacon, Lilt's warning, and the three-phase Aurelia Array. Each Act opens on its painted title card and runs eight authored sections of formations before its boss.
 
     Flight controls
     Use directional controls to steer and hold A to fire. Hold B for precise, slower movement and focused shots; a fully charged super activates on a fresh B press. B no longer gives a free shield refill. Destroy enemy scouts and collect P (power), S (shield), and star (super charge) modules. The cabinet manages keyboard, gamepad, local player seats, pause and touch controls. Ships are numbered as well as color-coded. Choose up to four local pilots on the cabinet. While paused, the player-count switch can add or bench local players without restarting the run. Returning pilots keep their lives and upgrades; pausing does not refill supplies. With an earned full charge, Solenne's Halo super can revive one fallen active teammate.
@@ -73,8 +72,8 @@ tutorial:
     Each boss hull grows with the crew, and each extra pilot adds more than the first, so four powered-up pilots stacking supers still fight through all three phases. Phases turn at two thirds and one third of the hull. After the first playtest, Act I was recut to about four and three-quarter minutes for a clean solo run: eight dense sections, the Urchin guardian at about a minute and a half, and the Pearl Seahorse before four minutes. Its craft fire more than once, red-finned divers lock your lane and swoop, urchins take a real beating, and coral spires (which shots cannot break) rise from the floor and hang from the ceiling, so you weave between them. Lilt calls out every new section. Beating any guardian early moves the Act straight on. The later Acts still run about ten minutes each and are next in line for the same treatment.
 
     Future campaign
-    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. All eight Acts and the finale are playable today, Act I to THE END; the cinematic ending boards, voice and online co-op are still in production. This is an admin-only rehearsal, not a public leaderboard release.
+    Eight Acts are planned in total: Pinkwake, Moonjelly Fields, Chromatic Trench, Rosefin Express, Blossom Wreckyard, Crown Reef, Glass Current and Eclipse Palace, followed by the final confrontation. The Play page showcases the in-progress flight simulator, with Pinkwake and Moonjelly as the playable preview acts. The remaining acts, cinematic ending boards, voice and online co-op are still in production. This is a public work-in-progress preview, not a completed campaign.
 ---
 
-The pastel starport is a private development page with a real Arcade-powered
-two-Act vertical-slice combat preview. Public release is held for a later quality and approval gate.
+The pastel starport is a public work-in-progress Play page with an Arcade-powered
+two-Act combat preview. The remaining campaign and finishing passes are in development.

@@ -8,7 +8,7 @@ import {
 
 const root = new URL('../../', import.meta.url)
 const page = readFileSync(
-  new URL('pages/admin/rainbow-bullet-hell-space-princess.vue', root),
+  new URL('pages/play/rainbow-bullet-hell-space-princess.vue', root),
   'utf8',
 )
 const engine = readFileSync(

@@ -4,17 +4,16 @@ channelKey: zuzu
 tabKey: emperor-of-dust
 label: Emperor of Dust
 title: 'Emperor of Dust: One Hundred Days'
-subtitle: The wasteland still has a chance
-description: A private Day 1 playable dispatch prototype for the Zuzu-world prequel.
+subtitle: Work in progress · The wasteland still has a chance
+description: A public work-in-progress Day 1 dispatch prototype for the Zuzu-world prequel.
 summary: Govern the wasteland before Zuzu.
 icon: kind-icon:crown
-route: /admin/emperor-of-dust
+route: /play/emperor-of-dust
 sort: 150
-requiredRole: ADMIN
 tutorial:
   title: The Emperor's desk
   body: >-
-    This is a private, playable Day 1 systems pilot, not an authored
+    This is a public work-in-progress Day 1 systems pilot, not an authored
     100-day campaign. The court fits into one screen: use Map & Orders to
     choose a district and dispatch a party, Briefing to hear Young Komodo
     and read the three daily intelligence reports, Followers to inspect
@@ -35,7 +34,7 @@ tutorial:
     second relic slot unlocks through a later milestone. Story rewards
     and portraits are not yet fully authored or illustrated. Only Day 1
     has incident scripts; later days exist for travel/recovery tests.
-    No cloud sync or public /play release exists yet.
+    No cloud sync yet. This playable Day 1 preview is still in development.
 ---
 
 The Tower is waiting for its first orders. Only Day 1 incidents are playable.

@@ -139,6 +139,11 @@ export type ArcadeGameMeta = {
    * gamepad's X and Y to them (instead of doubling A and B) and lists C and V on the keyboard.
    */
   fourButtons?: boolean
+  /**
+   * Names for the face buttons (JUMP, DUCK…): a solo touch cabinet shows each one on a big
+   * labelled button and shrinks the d-pad, for games played mostly on the buttons.
+   */
+  buttonLabels?: Partial<Record<'a' | 'b' | 'x' | 'y', string>>
 }
 
 export type ArcadeGameOptions = {

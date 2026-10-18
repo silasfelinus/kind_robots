@@ -456,12 +456,17 @@ const prologue = [
 ]
 
 const controls = [
-  { keys: ['←', '→'], does: 'Run (hold to build speed)' },
   { keys: ['A', '↑'], does: 'Jump (hold for higher)' },
-  { keys: ['B'], does: 'Run (hold)' },
+  {
+    keys: ['B'],
+    does: 'Duck and slide under beams and gliders; in the air, drop fast',
+  },
   { keys: ['X'], does: 'Wrench splash: stun, break crates, turn valves' },
   { keys: ['Y'], does: 'Your heroine’s special' },
-  { keys: ['↓'], does: 'Enter a pipe you stand on' },
+  {
+    keys: ['←', '→'],
+    does: 'Move, in boss arenas only (she runs on her own everywhere else)',
+  },
 ]
 
 onMounted(() => {

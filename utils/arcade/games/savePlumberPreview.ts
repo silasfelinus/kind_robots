@@ -56,8 +56,12 @@ const SPRING_JUMP = -10.2
 const FLOAT = 0.6
 const SPRING = -12.2
 const RUN = 2.85
-/** Top speed while B is held. */
-const RUN_FAST = 4.2
+/** Runner pace for each world: she runs on her own, faster as the campaign goes. */
+const RUNNER_SPEED = [2.9, 3.0, 3.1, 3.2, 3.35, 3.5, 3.65, 3.8]
+/** Ducking (B) lowers her head by this much; a slide fits under a one-tile beam. */
+const DUCK = 12
+/** Pinned against a wall this long, a runner loses a life instead of soft-locking. */
+const PINNED = 45
 const HALF = 11
 const TALL = 26
 const START_LIVES = 3
@@ -142,6 +146,8 @@ type Foe = Body & {
   homeY: number
   carry: number
   pad: Platform | null
+  /** A runner glider: flies straight at her at head height; duck, swing or stomp. */
+  glide?: boolean
 }
 
 type BossKind =
@@ -171,6 +177,18 @@ export const FOE_ANIMATION: Record<FoeKind, string> = {
   'chimney-spirit': 'chimney-spirit',
   'tea-kettle-knight': 'tea-kettle-knight',
 }
+
+/** Each world's head-height glider, drawn from its own flyers. */
+const GLIDERS: FoeKind[] = [
+  'glass-gull',
+  'glass-gull',
+  'paper-kite',
+  'paper-kite',
+  'paper-kite',
+  'siphon-sprite',
+  'paper-kite',
+  'siphon-sprite',
+]
 
 /** Steps a boss takes in each world (the world's index into this list). */
 const BOSS_KINDS: BossKind[] = [
@@ -320,6 +338,9 @@ export class PlumberRun implements ArcadeGameInstance {
   airSpecial = false
   running = false
   floating = false
+  /** B held on the ground: a slide under beams and gliders. */
+  ducking = false
+  pinned = 0
   /** One flag per column: 1 where a wind corridor blows. */
   windy: Uint8Array = new Uint8Array(0)
   private solid!: Uint8Array
@@ -600,6 +621,25 @@ export class PlumberRun implements ArcadeGameInstance {
         case 'wind':
           this.windy[spawn.col] = 1
           break
+        case 'glider':
+          this.foes.push({
+            kind: GLIDERS[stageWorld(stage.code) - 1] ?? 'glass-gull',
+            x: cx,
+            y: (stage.rows - 3) * TILE - 18,
+            vx: 0,
+            vy: 0,
+            dir: -1,
+            state: 'walk',
+            timer: 0,
+            fade: 0,
+            flipped: false,
+            homeX: cx,
+            homeY: (stage.rows - 3) * TILE - 18,
+            carry: 0,
+            pad: null,
+            glide: true,
+          })
+          break
         case 'gear':
           this.gear = {
             x: cx,
@@ -808,23 +848,34 @@ export class PlumberRun implements ArcadeGameInstance {
       this.moveX(hero, HALF, TALL, this.riding.dx)
       hero.y += this.riding.dy
     }
-    const move = Number(keys.held.right) - Number(keys.held.left)
-    this.running = keys.held.b === true
-    const top = this.running ? RUN_FAST : RUN
-    if (move) {
-      let next = hero.vx + move * (this.running ? 0.5 : 0.44)
+    const runner = this.runnerOn
+    const move = runner ? 1 : Number(keys.held.right) - Number(keys.held.left)
+    this.running = runner
+    const top = runner ? this.runSpeed : RUN
+    if (runner) hero.vx += (top - hero.vx) * 0.25
+    else if (move) {
+      let next = hero.vx + move * 0.44
       if (Math.abs(next) > top)
         next = Math.sign(next) * Math.max(top, Math.abs(hero.vx) * 0.94)
       hero.vx = next
     } else hero.vx *= 0.77
     if (Math.abs(hero.vx) < 0.05) hero.vx = 0
     if (move && !this.specialTimer) this.facing = move > 0 ? 1 : -1
+    this.updateDuck(keys)
     if (keys.pressed.y) this.useSpecial()
     this.driveSpecial(keys)
     if (this.ground) this.stride += Math.abs(hero.vx) * 0.17
-    if (this.moveX(hero, HALF, TALL, hero.vx)) hero.vx = 0
+    const blocked = this.heroMoveX(hero.vx)
+    if (blocked) hero.vx = 0
     const push = this.windAt(hero.x, this.tick) + this.beltUnder(hero)
-    if (push) this.moveX(hero, HALF, TALL, push)
+    if (push) this.heroMoveX(push)
+    if (runner && blocked && !this.specialTimer) {
+      if (++this.pinned > PINNED) {
+        this.pinned = 0
+        this.sound.play('warn')
+        return this.die()
+      }
+    } else this.pinned = 0
     if (this.ground) this.grace = 7
     else if (this.grace) this.grace--
     const jumpDown = keys.pressed.a || keys.pressed.up
@@ -850,7 +901,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const wasGround = this.ground
     this.ground = false
     this.riding = null
-    const hit = this.moveY(hero, HALF, TALL, hero.vy)
+    const hit = this.heroMoveY(hero.vy)
     if (hit === 'land') {
       hero.vy = 0
       this.ground = true
@@ -873,6 +924,7 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (this.ground && !wasGround) {
       this.landed = 6
+      if (keys.held.b) this.ducking = true
       this.airSpecial = false
       if (this.specialKind === 'pound' && this.specialTimer) this.poundLands()
     } else if (this.landed) this.landed--
@@ -917,6 +969,63 @@ export class PlumberRun implements ArcadeGameInstance {
     const target = this.cameraTarget()
     this.camera += (target - this.camera) * 0.2
     this.cameraY += (this.cameraTargetY() - this.cameraY) * 0.14
+  }
+
+  /** She runs on her own everywhere but a locked boss arena. */
+  get runnerOn(): boolean {
+    return !this.locked
+  }
+
+  get runSpeed(): number {
+    return RUNNER_SPEED[Math.min(RUNNER_SPEED.length, this.world) - 1] ?? 3
+  }
+
+  /** The top of her hitbox: lower while she slides. */
+  get heroTop(): number {
+    return this.hero.y + (this.ducking ? DUCK : 0)
+  }
+
+  /** B: slide on the ground (staying down under a low ceiling), drop fast in the air. */
+  private updateDuck(keys: InputFrame) {
+    const hero = this.hero
+    const want = keys.held.b === true
+    if (!this.ground) {
+      this.ducking = false
+      if (want && hero.vy > -2) hero.vy = Math.max(hero.vy, 6)
+      return
+    }
+    if (want) this.ducking = true
+    else if (this.ducking && this.headroom()) this.ducking = false
+  }
+
+  /** Room to stand up: nothing solid where her head would go. */
+  private headroom(): boolean {
+    const hero = this.hero
+    const row = Math.floor((hero.y + 1) / TILE)
+    for (
+      let col = Math.floor((hero.x - HALF + 1) / TILE);
+      col <= Math.floor((hero.x + HALF - 1) / TILE);
+      col++
+    )
+      if (isWall(this.solidAt(col, row))) return false
+    return true
+  }
+
+  /** Move the heroine with her current hitbox (shorter while ducking). */
+  private heroMoveX(dx: number): boolean {
+    if (!this.ducking) return this.moveX(this.hero, HALF, TALL, dx)
+    const body: Body = { ...this.hero, y: this.hero.y + DUCK }
+    const hit = this.moveX(body, HALF, TALL - DUCK, dx)
+    this.hero.x = body.x
+    return hit
+  }
+
+  private heroMoveY(dy: number) {
+    if (!this.ducking) return this.moveY(this.hero, HALF, TALL, dy)
+    const body: Body = { ...this.hero, y: this.hero.y + DUCK }
+    const hit = this.moveY(body, HALF, TALL - DUCK, dy)
+    this.hero.y = body.y - DUCK
+    return hit
   }
 
   get specialKind(): PlumberSpecial {
@@ -1145,7 +1254,7 @@ export class PlumberRun implements ArcadeGameInstance {
       puff.y += puff.vy
       if (
         Math.abs(puff.x - hero.x) < HALF + 5 &&
-        puff.y > hero.y &&
+        puff.y > this.heroTop &&
         puff.y < hero.y + TALL
       ) {
         this.hurt(puff.vx < 0 ? -1 : 1)
@@ -1544,6 +1653,12 @@ export class PlumberRun implements ArcadeGameInstance {
 
   private moveFoe(foe: Foe) {
     const hero = this.hero
+    if (foe.glide) {
+      if (hero.x > foe.x - 400) foe.x -= 1.3
+      foe.y = foe.homeY + Math.sin(this.tick / 9) * 1.5
+      foe.dir = -1
+      return
+    }
     switch (foe.kind) {
       case 'pumpbug':
       case 'cork-crab':
@@ -1758,7 +1873,7 @@ export class PlumberRun implements ArcadeGameInstance {
       const overlap =
         Math.abs(foe.x - hero.x) < HALF + 9 &&
         hero.y + TALL > foe.y - 18 &&
-        hero.y < foe.y
+        this.heroTop < foe.y
       if (!overlap || this.mode !== 'play') continue
       const stomp = hero.vy > 0.5 && prevBottom <= foe.y - 10
       if (this.shielded && !stomp) {
@@ -1810,7 +1925,11 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   ventActive(vent: Vent): number {
-    const phase = (this.tick + vent.offset) % 180
+    return this.ventActiveAt(vent, this.tick)
+  }
+
+  ventActiveAt(vent: Vent, tick: number): number {
+    const phase = (tick + vent.offset) % 180
     if (phase >= 120) return 2
     if (phase >= 100) return 1
     return 0
@@ -1856,7 +1975,7 @@ export class PlumberRun implements ArcadeGameInstance {
       case 'walk': {
         boss.dir = hero.x < boss.x ? -1 : 1
         const step =
-          boss.kind === 'gale' || boss.kind === 'spigot'
+          boss.kind === 'gale' || boss.kind === 'spigot' || boss.kind === 'dive'
             ? Math.max(-boss.speed, Math.min(boss.speed, boss.home - boss.x))
             : boss.dir * boss.speed
         boss.x = Math.max(left, Math.min(right, boss.x + step))
@@ -2095,6 +2214,7 @@ export class PlumberRun implements ArcadeGameInstance {
     const boss = this.boss
     if (boss && this.locked && boss.state !== 'defeat')
       return this.pilotBoss(input)
+    if (this.runnerOn) return this.pilotRunner(input)
     const hero = this.hero
     const feet = hero.y + TALL
     if (!this.ground) {
@@ -2256,6 +2376,127 @@ export class PlumberRun implements ArcadeGameInstance {
     return input
   }
 
+  /** Extras the pilot reaches for: the gear, powers and hearts still waiting ahead. */
+  private pilotTarget(): Pickup | null {
+    const hero = this.hero
+    const ahead = (p: { x: number; y: number }) =>
+      p.x > hero.x + 4 && p.x < hero.x + 220
+    const gear = this.gear
+    if (gear && !gear.taken && ahead(gear))
+      return { x: gear.x, y: gear.y, kind: 'heart', taken: false }
+    return this.pickups.find((p) => !p.taken && ahead(p)) ?? null
+  }
+
+  /** Runner pilot: she runs on her own, so the pilot only jumps, ducks and swings. */
+  private pilotRunner(input: InputFrame): InputFrame {
+    const hero = this.hero
+    const feet = hero.y + TALL
+    const glider = this.foes.find(
+      (f) =>
+        f.glide &&
+        !f.fade &&
+        f.state !== 'gone' &&
+        f.x - hero.x > -24 &&
+        f.x - hero.x < 120,
+    )
+    if (!this.ground) {
+      input.held.a = this.pilotHold > 0
+      if (this.pilotHold) this.pilotHold--
+      if (glider && hero.vy > 0 && glider.x - hero.x < 90) input.held.b = true
+      return input
+    }
+    const ahead = (dx: number, row: number) =>
+      this.solidAt(Math.floor((hero.x + HALF + dx) / TILE), row)
+    const headRow = Math.floor((feet - TALL + 1) / TILE)
+    const footRow = Math.floor((feet - 2) / TILE)
+    let wall = 0
+    let beam = false
+    for (const dx of [2, 10, 18, 26]) {
+      const head = ahead(dx, headRow)
+      const foot = ahead(dx, footRow)
+      if (isWall(foot)) {
+        if (!wall && dx <= 18) wall = foot
+      } else if (isWall(head) && !wall) beam = true
+    }
+    let jump: number | null = null
+    const choose = (good: (land: { x: number; feet: number }) => boolean) => {
+      for (const hold of [16, 12, 8, 4, 1]) {
+        const land = this.simulateJump(hold, true)
+        if (
+          land &&
+          good(land) &&
+          !land.scorched &&
+          !this.ventAt(land.x, land.feet)
+        )
+          return hold
+      }
+      return null
+    }
+    // Extras first: a jump whose arc touches the target, or a climb toward it.
+    const target = this.pilotTarget()
+    // A pickup on the running line comes to her; only jump for raised ones.
+    if (target && target.y < feet - 20 && !beam && !this.ducking) {
+      for (const hold of [16, 14, 12, 10, 8, 6, 4, 2]) {
+        const land = this.simulateJump(hold, true, target)
+        if (land?.touched && !this.ventAt(land.x, land.feet)) {
+          jump = hold
+          break
+        }
+      }
+      if (jump === null && target.y < feet - 40 && target.x - hero.x < 140)
+        jump = choose((land) => land.feet < feet - 8 && land.x < target.x + 24)
+    }
+    // Swing at what the wrench can clear.
+    const valve = this.valves.find(
+      (v) => !v.open && v.x > hero.x - 4 && v.x - hero.x < 96,
+    )
+    if (valve && valve.x - hero.x < 40 && !this.cooldown) input.pressed.x = true
+    if (wall === SOLID_CRATE && !this.cooldown && !valve) input.pressed.x = true
+    for (const foe of this.foes) {
+      if (foe.state === 'gone' || foe.fade || foe.kind === 'minnow') continue
+      if (foe.kind === 'moss-lantern' && foe.state === 'flat') continue
+      const dx = foe.x - hero.x
+      if (dx < -6 || dx > 60) continue
+      if (foe.glide) continue
+      if (Math.abs(foe.y - feet) > 30) continue
+      if (!this.cooldown && dx < 52 && !valve) input.pressed.x = true
+    }
+    if (jump === null && wall && wall !== SOLID_CRATE && wall !== SOLID_GATE)
+      jump = choose((land) => land.feet < feet - 4 || land.x > hero.x + 24)
+    const below = Math.floor((feet + 1) / TILE)
+    const next = Math.floor((hero.x + HALF + 6) / TILE)
+    // A crystal bridge may fade under her mid-crossing, so jump it like a gap.
+    const bridge = this.solid[below * this.stage.cols + next] === SOLID_BRIDGE
+    const edge = bridge || !this.supportedAt(hero.x + HALF + 6, feet, below)
+    if (jump === null && edge)
+      jump =
+        choose((land) => land.x > hero.x + 12 || land.feet < feet - 12) ?? 16
+    for (const vent of this.vents) {
+      const dx = vent.x - hero.x
+      if (jump !== null || dx < 4 || dx > 48 || Math.abs(vent.y - feet) > 20)
+        continue
+      const arrive = Math.floor((dx - HALF - 7) / this.runSpeed)
+      const leave = Math.ceil((dx + HALF + 7) / this.runSpeed)
+      let hot = false
+      for (let k = Math.max(0, arrive); k <= leave; k++)
+        if (this.ventActiveAt(vent, this.tick + k) === 2) hot = true
+      if (hot) jump = choose((land) => land.x > vent.x + HALF + 6)
+    }
+    if (glider && Math.abs(glider.y - (feet - 18)) < 14) {
+      const reach = glider.x - hero.x
+      if (reach < 100 || (jump !== null && !edge)) jump = null
+      if (reach < 100) beam = true
+    }
+    if (jump !== null && !beam) {
+      input.pressed.a = true
+      input.held.a = true
+      this.pilotHold = jump
+      return input
+    }
+    input.held.b = beam
+    return input
+  }
+
   private gateAhead(): number | null {
     const from = Math.floor(this.hero.x / TILE)
     for (let col = from; col < from + 10; col++)
@@ -2315,22 +2556,28 @@ export class PlumberRun implements ArcadeGameInstance {
     )
   }
 
-  private simulateJump(hold: number, right: boolean) {
+  private simulateJump(hold: number, right: boolean, target?: Pickup | null) {
     try {
-      return this.predictJump(hold, right)
+      return this.predictJump(hold, right, target)
     } finally {
       this.clock = null
     }
   }
 
-  private predictJump(hold: number, right: boolean) {
+  private predictJump(hold: number, right: boolean, target?: Pickup | null) {
     const body: Body = { ...this.hero }
+    let touched = false
+    let scorched = false
     let vx = right ? body.vx : body.vx * 0.5
     const spring = this.power === 'springstep'
     let vy = spring ? SPRING_JUMP : JUMP
     for (let k = 1; k <= 120; k++) {
       this.clock = this.tick + k
-      vx = right ? Math.min(RUN, vx + 0.44) : vx * 0.77
+      vx = this.runnerOn
+        ? this.runSpeed
+        : right
+          ? Math.min(RUN, vx + 0.44)
+          : vx * 0.77
       if (this.moveX(body, HALF, TALL, vx)) vx = 0
       const gust = this.windAt(body.x, this.tick + k)
       if (gust) this.moveX(body, HALF, TALL, gust)
@@ -2339,7 +2586,22 @@ export class PlumberRun implements ArcadeGameInstance {
       vy = Math.min(floating ? 4 : 9, vy + GRAVITY * (floating ? FLOAT : 1))
       const prevBottom = body.y + TALL
       const hit = this.moveY(body, HALF, TALL, vy)
-      if (hit === 'land') return { x: body.x, feet: body.y + TALL }
+      for (const vent of this.vents)
+        if (
+          Math.abs(body.x - vent.x) < HALF + 7 &&
+          body.y + TALL > vent.y - 62 &&
+          this.ventActiveAt(vent, this.tick + k) === 2
+        )
+          scorched = true
+      if (
+        target &&
+        Math.abs(target.x - body.x) < 15 &&
+        target.y > body.y - 10 &&
+        target.y < body.y + TALL + 8
+      )
+        touched = true
+      if (hit === 'land')
+        return { x: body.x, feet: body.y + TALL, touched, scorched }
       if (hit === 'bump') vy = 0.5
       if (vy >= 0)
         for (const p of this.platforms) {
@@ -2352,7 +2614,7 @@ export class PlumberRun implements ArcadeGameInstance {
             body.x - HALF > at.x + p.w - 2
           )
             continue
-          return { x: body.x, feet: at.y }
+          return { x: body.x, feet: at.y, touched, scorched }
         }
       if (body.y > this.stage.rows * TILE) return null
     }
@@ -2403,7 +2665,21 @@ export class PlumberRun implements ArcadeGameInstance {
       return input
     }
     const flee = () => {
-      if (dx > 0) input.held.left = true
+      const away = dx > 0 ? -1 : 1
+      const row = Math.floor((hero.y + TALL - 4) / TILE)
+      const cornered = [1, 2, 3, 4].some((k) =>
+        isWall(
+          this.solidAt(Math.floor((hero.x + away * k * TILE) / TILE), row),
+        ),
+      )
+      // Pinned against the arena wall: hop over the boss instead.
+      if (cornered) {
+        if (boss.state !== 'walk' || Math.abs(dx) < 56) return
+        if (away < 0) input.held.right = true
+        else input.held.left = true
+        if (this.ground) input.pressed.a = true
+        input.held.a = true
+      } else if (away < 0) input.held.left = true
       else input.held.right = true
     }
     if (boss.state === 'recover' || boss.state === 'hurt') {
@@ -2523,7 +2799,14 @@ export class PlumberRun implements ArcadeGameInstance {
         on ? '#ffd98a' : '#fff4dc',
       )
     })
-    this.text(g, 'A  JUMP     B  TOOL     ↓  PIPES', W / 2, 256, 10, '#d6f2ee')
+    this.text(
+      g,
+      'A  JUMP     B  DUCK     X  WRENCH     Y  SPECIAL',
+      W / 2,
+      256,
+      10,
+      '#d6f2ee',
+    )
   }
 
   private renderSelect(g: CanvasRenderingContext2D) {
@@ -2781,7 +3064,15 @@ export class PlumberRun implements ArcadeGameInstance {
     if (this.boss) this.renderBoss(g)
     this.renderSpecial(g, false)
     const blink = this.immune && Math.floor(this.tick / 5) % 2
-    if (!blink || this.mode === 'dying')
+    if (this.ducking && this.mode === 'play' && !blink) {
+      const feet = this.hero.y + TALL + 1
+      g.save()
+      g.translate(this.hero.x, feet)
+      g.scale(1.15, 0.56)
+      g.translate(-this.hero.x, -feet)
+      this.drawHeroSprite(g, this.hero.x, feet, null)
+      g.restore()
+    } else if (!blink || this.mode === 'dying')
       this.drawHeroSprite(
         g,
         this.hero.x,
@@ -3848,15 +4139,12 @@ export class PlumberRun implements ArcadeGameInstance {
   private renderHud(g: CanvasRenderingContext2D) {
     g.fillStyle = 'rgba(28, 63, 82, 0.82)'
     g.fillRect(0, 0, W, 24)
-    this.text(
-      g,
-      `${this.stage.code}  ${this.stage.name.toUpperCase()}`,
-      10,
-      17,
-      12,
-      '#fff1ce',
-      'left',
-    )
+    // Long stage names shrink to stay clear of the hearts.
+    const title = `${this.stage.code}  ${this.stage.name.toUpperCase()}`
+    g.font = '900 12px "Lilita One", system-ui, sans-serif'
+    const wide = g.measureText(title).width
+    const size = wide > 172 ? Math.max(8, (12 * 172) / wide) : 12
+    this.text(g, title, 10, 17, size, '#fff1ce', 'left')
     for (let i = 0; i < HEARTS; i++) {
       const x = 196 + i * 16
       g.fillStyle = i < this.hearts ? '#ef5d7a' : 'rgba(255,255,255,0.25)'

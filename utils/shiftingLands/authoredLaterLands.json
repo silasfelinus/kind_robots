@@ -121,29 +121,29 @@
       "id": "lanterns-on-the-raft",
       "locationId": "ferry-landing",
       "title": "Lanterns on the Raft",
-      "flavor": "At the landing, a flat raft circles without touching shore. Its ferryman keeps a lantern lit in broad daylight, watching the current as though it might change its mind. A stranded family waits behind Zuzu, too frightened to call across the water.",
+      "flavor": "Lanterns hang from every post of a flat raft that circles the landing without ever touching shore. The ferryman keeps the largest one lit in broad daylight and watches the current as though it might change its mind. Behind you, a stranded family waits with their bundles, too frightened to call across the water.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "offer-to-steady-the-mooring",
-          "label": "Offer to steady the mooring",
-          "intent": "Zuzu chooses to offer to steady the mooring while respecting the consequences of this meeting.",
-          "risk": "steel check against 8; a poor outcome can cost health or provisions.",
+          "label": "Steady the mooring rope",
+          "intent": "Wade in and hold the raft against the current so the family can board.",
+          "risk": "The rope is wet, and the river is stronger than it looks.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "Zuzu anchors the rope and brings the passengers across in order, earning a packet of river cakes.",
+            "text": "You set your heels in the mud and hold. One by one the family steps across, the youngest clutching a lantern from the rail. Someone presses a packet of river cakes into your hand without a word.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["lanterns-on-the-raft-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The rope slips and scalds his palms; the family reaches shore, but Zuzu must cross alone in darkness.",
+            "text": "The rope runs through your grip and burns your hands raw. The family scrambles aboard anyway, but the raft pulls away before you can follow, and you cross alone after dark, hands throbbing.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["lanterns-on-the-raft-1-failure"],
@@ -153,22 +153,22 @@
         {
           "id": "ask-why-the-lantern-burns",
           "label": "Ask why the lantern burns",
-          "intent": "Zuzu chooses to ask why the lantern burns while respecting the consequences of this meeting.",
-          "risk": "insight check against 9; a poor outcome can cost health or provisions.",
+          "intent": "Call across the water and ask the ferryman what the daylight lantern is for.",
+          "risk": "He may hear mockery in the question and push off.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The ferryman explains that a submerged channel opens only when the current stills; Zuzu remembers the safer approach.",
+            "text": "The ferryman poles closer and speaks low: a sunken channel opens only when the current stills, and the lantern tells him when to wait. You keep the lesson, and the family boards on his next pass.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["lanterns-on-the-raft-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The ferryman mistakes the question for mockery and pushes off, leaving Zuzu on the wrong bank.",
+            "text": "He hears a jeer where you meant none and pushes off hard. You spend the hot afternoon trudging the bank for another crossing and end the day footsore, still on the wrong side of the river.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["lanterns-on-the-raft-2-failure"],
@@ -181,29 +181,29 @@
       "id": "toll-of-two-names",
       "locationId": "ferry-landing",
       "title": "The Toll of Two Names",
-      "flavor": "A registrar stops every traveler and writes down a name before permitting passage. On the open page, Zuzu sees the same pair of names repeated years apart, each in a different hand. No coin is requested, which makes the queue more uneasy.",
+      "flavor": "A registrar at the landing takes a name from every traveler as the only toll for passage. On her open ledger you see the same two names repeated years apart, each time in a different hand. She asks for no coin, and the queue behind you grows quieter with every name she writes.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "demand-an-honest-account",
           "label": "Demand an honest account",
-          "intent": "Zuzu chooses to demand an honest account while respecting the consequences of this meeting.",
-          "risk": "bearing check against 10; a poor outcome can cost health or provisions.",
+          "intent": "Put your hand on the ledger and ask her plainly what those repeated names mean.",
+          "risk": "Guards stand by the gate, and the crowd is packed tight.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The registrar shows the crossed-out entries: lost crossings were recorded as debts, and she erases Zuzu's name.",
+            "text": "She turns back the pages and shows you the struck-out entries: travelers lost on the crossing were written down as debts owed by whoever came next. Without a word, she draws a line through your name.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["toll-of-two-names-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The registrar summons guards; Zuzu backs away before they can close the gate, battered by the crush.",
+            "text": "She whistles once and the guards come running. You back away before the gate can close on you, but the crowd crushes in from every side and you come out of it bruised and shaken.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["toll-of-two-names-1-failure"],
@@ -213,22 +213,22 @@
         {
           "id": "copy-the-ledger-quietly",
           "label": "Copy the ledger quietly",
-          "intent": "Zuzu chooses to copy the ledger quietly while respecting the consequences of this meeting.",
-          "risk": "awareness check against 10; a poor outcome can cost health or provisions.",
+          "intent": "Read over the registrar's shoulder and quietly copy the altered dates into memory.",
+          "risk": "One careless move, and the guards will see what you are doing.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu memorizes the altered dates and slips through the line with an answer to one old disappearance.",
+            "text": "You fix the altered dates in your head and slip through with the line. Somewhere in those numbers is the answer to one old disappearance, and now you carry it with you.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["toll-of-two-names-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His sleeve catches a wax seal, alerting the guards; the crowd scatters and Zuzu loses his rations.",
+            "text": "Your sleeve catches a wax seal, and it cracks loud enough to turn heads. When the guards push in, the crowd scatters, an elbow catches you hard, and your rations are trampled into the mud.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["toll-of-two-names-2-failure"],
@@ -241,29 +241,29 @@
       "id": "the-boat-that-waits",
       "locationId": "ferry-landing",
       "title": "The Boat That Waits",
-      "flavor": "An empty skiff sits tied to a post long after the boats have departed. A boatwright says its owner promised to return before the flood, yet the water has fallen twice since. Every plank is sound except a splintered rudder.",
+      "flavor": "An empty skiff sits tied to a post long after the other boats have gone. The boatwright says its owner promised to come back before the flood, yet the water has fallen twice since. Every plank is sound except the rudder, which is splintered and half mended, as if someone left in a hurry.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "repair-the-rudder",
           "label": "Repair the rudder",
-          "intent": "Zuzu chooses to repair the rudder while respecting the consequences of this meeting.",
-          "risk": "wits check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Borrow the boatwright's tools and fit the waiting skiff with a sound rudder.",
+          "risk": "Old timber can hide a crack until the moment it fails.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "The skiff takes the current cleanly and the boatwright gives Zuzu a reliable route through the shallows.",
+            "text": "The skiff takes the current cleanly on its trial run. Pleased, the boatwright packs you a bundle of dried fish and tells you where the shallows run safe and steady.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-boat-that-waits-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A hidden crack splits the timber under strain, striking Zuzu's ankle as the skiff drifts away.",
+            "text": "A hidden crack splits under strain, and the tiller swings back hard into your foot. You limp to the bank and watch the skiff drift away downriver, as empty as when you found it.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-boat-that-waits-1-failure"],
@@ -273,22 +273,22 @@
         {
           "id": "wait-for-its-owner",
           "label": "Wait for its owner",
-          "intent": "Zuzu chooses to wait for its owner while respecting the consequences of this meeting.",
-          "risk": "resolve check against 9; a poor outcome can cost health or provisions.",
+          "intent": "Sit by the post with the boatwright and see who finally comes for the skiff.",
+          "risk": "You may wait all night, and waiting is not free.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The absent owner's sister arrives and offers testimony about the missing river patrol instead of a fare.",
+            "text": "Near dusk a woman comes down the bank: the owner's sister. She has no fare to offer, only the truth about what happened to the missing river patrol, and she gives it to you plainly.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-boat-that-waits-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Night falls without an answer; Zuzu's vigil costs a meal and reveals only a second unused rope.",
+            "text": "Night falls and no one comes. You eat a meal you meant to save just to keep going through the vigil, and at first light you find only a second rope, coiled and never used, beneath the seat.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-boat-that-waits-2-failure"],
@@ -301,29 +301,29 @@
       "id": "weighed-in-salt",
       "locationId": "trading-post",
       "title": "Weighed in Salt",
-      "flavor": "A trader's scale measures salt by the spoon while a queue of hungry travelers looks on. Each new customer receives less than the last. The merchant insists the fault lies in the shifting floorboards.",
+      "flavor": "At the trading post, a merchant weighs out salt by the spoon on a brass scale while a queue of hungry travelers looks on. Each new customer gets a little less than the one before. The merchant blames the shifting floorboards, and nobody in line has the strength left to argue.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "test-the-counterweights",
           "label": "Test the counterweights",
-          "intent": "Zuzu chooses to test the counterweights while respecting the consequences of this meeting.",
-          "risk": "wits check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Ask to hold the brass weights yourself and feel whether they are honest.",
+          "risk": "The merchant pays hired hands to keep questions short.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "Zuzu finds a stone hidden inside the brass weight; the merchant restores the fair measure to everyone.",
+            "text": "One weight is too light for its size. You pry it open and a hollow stone rolls onto the counter. The merchant restores the fair measure for everyone, and the woman behind you presses a twist of salt and a heel of bread into your hand.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["weighed-in-salt-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The merchant's hired hands throw Zuzu into a stack of crates before the cheating can be proved.",
+            "text": "Before you can prove anything, the merchant's hired hands grab you by the collar and throw you into a stack of crates. You pick yourself up sore and empty-handed while the line shuffles forward.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["weighed-in-salt-1-failure"],
@@ -333,22 +333,22 @@
         {
           "id": "trade-supplies-for-passage",
           "label": "Trade supplies for passage",
-          "intent": "Zuzu chooses to trade supplies for passage while respecting the consequences of this meeting.",
-          "risk": "bearing check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Bargain calmly for a crossing voucher instead of fighting over spoonfuls of salt.",
+          "risk": "This merchant knows how to make a bargain cost double.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "A calm bargain earns a sealed crossing voucher without surrendering the last provisions.",
+            "text": "You keep your voice even and your offer small. Eager to be rid of a patient customer, the merchant stamps a sealed crossing voucher and lets you keep your last provisions.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["weighed-in-salt-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The merchant takes a double measure and leaves Zuzu short of food for the coming trail.",
+            "text": "The merchant smiles, weighs your goods out twice, and keeps both measures. You walk away short of food for the trail ahead and no closer to a crossing.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["weighed-in-salt-2-failure"],
@@ -361,29 +361,29 @@
       "id": "the-mended-compass",
       "locationId": "trading-post",
       "title": "The Mended Compass",
-      "flavor": "A cartographer offers to exchange a repaired compass for a map that no longer matches the delta. She admits she has redrawn the river six times and erased only five versions. The sixth is folded beneath her stool.",
+      "flavor": "A cartographer offers to trade a compass she has mended with wire and patience for a map of the old delta. She admits she has redrawn the river six times. A neat new chart is pinned to her table, and the sixth draft, half erased, lies folded beneath her stool where she will not look at it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "compare-the-two-charts",
           "label": "Compare the two charts",
-          "intent": "Zuzu chooses to compare the two charts while respecting the consequences of this meeting.",
-          "risk": "insight check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Unfold the old draft beside the neat chart and look for what she erased.",
+          "risk": "If you trust the wrong chart, the river will not forgive it.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "The erased riverbend lines up with a surviving stone marker, giving Zuzu a safer trail.",
+            "text": "The erased riverbend lines up with a stone marker you passed that morning. The cartographer goes quiet, then hands you a full water skin and the old draft, saying it is safer in your pack than in hers.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-mended-compass-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Zuzu trusts the neat chart, only to discover its bridge washed away; the detour costs daylight and strength.",
+            "text": "You trust the neat chart. Its bridge washed out a season ago, and the long detour through the reeds costs you a day of light and most of your strength.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-mended-compass-1-failure"],
@@ -393,22 +393,22 @@
         {
           "id": "help-reset-the-compass",
           "label": "Help reset the compass",
-          "intent": "Zuzu chooses to help reset the compass while respecting the consequences of this meeting.",
-          "risk": "wits check against 9; a poor outcome can cost health or provisions.",
+          "intent": "Help her settle the mended compass so its needle points true again.",
+          "risk": "The needle is skittish, and you cannot see why.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The needle steadies, and the cartographer shares a packet of trail markers with her thanks.",
+            "text": "The needle shivers and steadies. She thanks you by marking three cairns on your map, ones she says she trusts more than any river she has ever drawn.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-mended-compass-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A magnet hidden in the table skews the reading; Zuzu leaves with an unreliable bearing.",
+            "text": "A lodestone hidden in her table drags the needle off true, and you do not find it until the work is done wrong. You leave her a meal from your pack for the wasted afternoon and walk on with a bearing you cannot trust.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-mended-compass-2-failure"],
@@ -421,29 +421,29 @@
       "id": "three-cups-on-the-table",
       "locationId": "trading-post",
       "title": "Three Cups on the Table",
-      "flavor": "A cook serves three cups of broth: one for the buyer, one for an absent traveler, and one for whoever asks no questions. A pair of armed patrons watch which cup Zuzu chooses. The cook has not touched her own meal.",
+      "flavor": "A cook sets three cups of broth on the table in front of you: one for the buyer, one for a traveler who never came back, and one for whoever asks no questions. Two armed patrons at the next bench watch to see which cup you lift. The cook's own bowl sits by the stove, untouched.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "share-the-untouched-meal",
           "label": "Share the untouched meal",
-          "intent": "Zuzu chooses to share the untouched meal while respecting the consequences of this meeting.",
-          "risk": "bearing check against 7; a poor outcome can cost health or provisions.",
+          "intent": "Carry the cook's untouched bowl to her and ask her to eat with you.",
+          "risk": "The patrons may take your choice as an insult.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The cook reveals an honest back route and sends Zuzu onward with bread wrapped in cloth.",
+            "text": "She sits, and after a few spoonfuls she starts to talk: there is an honest back road that skirts the checkpoint. When you leave, she sends you off with bread wrapped in cloth.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["three-cups-on-the-table-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The armed patrons take offense and overturn the table, leaving a bruised Zuzu to gather the scraps.",
+            "text": "The patrons take the gesture as an insult and kick the table over. Hot broth and broken cups go everywhere, and you are left bruised, kneeling in the scraps.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["three-cups-on-the-table-1-failure"],
@@ -453,22 +453,22 @@
         {
           "id": "question-the-armed-patrons",
           "label": "Question the armed patrons",
-          "intent": "Zuzu chooses to question the armed patrons while respecting the consequences of this meeting.",
-          "risk": "insight check against 9; a poor outcome can cost health or provisions.",
+          "intent": "Leave the cups where they stand and ask the patrons about the traveler who never returned.",
+          "risk": "Armed patrons do not like questions, and they are already watching.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Their account of a vanished caravan contradicts the cook's, exposing a false checkpoint downriver.",
+            "text": "Their story of a vanished caravan does not match the cook's. Between the two accounts you find the lie: the checkpoint downriver is false, set up to strip whoever passes through it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["three-cups-on-the-table-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A patron spits a warning and draws a knife; Zuzu escapes but loses precious time.",
+            "text": "One patron spits on the floor and draws a knife. You get out the door ahead of the blade, but the long run around the post in the heat leaves you winded and the day half gone.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["three-cups-on-the-table-2-failure"],
@@ -481,29 +481,29 @@
       "id": "footprints-in-the-silt",
       "locationId": "dry-delta",
       "title": "Footprints in the Silt",
-      "flavor": "A surveyor crouches beside footprints that begin in a dry channel and stop at an empty bank. A row of stakes records last season's waterline, but fresh mud lies higher than any of them. He wants help checking the next marker.",
+      "flavor": "A surveyor crouches beside a line of footprints pressed, still wet, into the silt. They begin in a dry channel and stop at an empty bank. His row of stakes marks last season's waterline, but fresh mud lies higher than any of them, and he wants help checking the next marker before the light goes.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "follow-the-wet-prints",
           "label": "Follow the wet prints",
-          "intent": "Zuzu chooses to follow the wet prints while respecting the consequences of this meeting.",
-          "risk": "awareness check against 9; a poor outcome can cost health or provisions.",
+          "intent": "Follow the wet prints across the channel to learn where the walker went.",
+          "risk": "Salt crust hides soft ground, and the prints are fresh.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The prints lead to a concealed spillway, and Zuzu marks the safe stone route before the water returns.",
+            "text": "The prints lead to a concealed spillway where the buried river surfaces. You mark a line of safe stones across it before the water returns, and the road ahead will run differently for everyone who comes after.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["footprints-in-the-silt-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "The ground gives way under a salt crust; Zuzu claws clear with a scraped shoulder.",
+            "text": "The salt crust breaks beneath your feet and the silt takes you to the knees. You claw your way out, scraped and shaking, and by the time you can stand the prints are gone.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["footprints-in-the-silt-1-failure"],
@@ -513,22 +513,22 @@
         {
           "id": "help-set-new-markers",
           "label": "Help set new markers",
-          "intent": "Zuzu chooses to help set new markers while respecting the consequences of this meeting.",
-          "risk": "steel check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Hold the stakes steady while the surveyor drives them in above the new mud.",
+          "risk": "The channel can fill without warning while you work.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "Together they anchor the stakes, and the surveyor shares a water skin and a practical warning.",
+            "text": "Together you set the stakes at the new line. The surveyor shares his water skin and a hard biscuit, and a warning worth more than either: the next channel floods at dusk.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["footprints-in-the-silt-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A sudden current tears away the rope; the tools are lost and Zuzu leaves soaked and aching.",
+            "text": "A sudden surge tears the rope from your hands and carries his tools downstream. You both haul yourselves out soaked and aching, with nothing to show for the work but mud.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["footprints-in-the-silt-2-failure"],
@@ -541,29 +541,29 @@
       "id": "a-road-of-bones",
       "locationId": "dry-delta",
       "title": "A Road of Bones",
-      "flavor": "White ribs of ancient driftwood cross a dry inlet in a pattern too deliberate for a flood. A salvage guide says the structure predates her grandparents, though she refuses to name its makers. Sand rattles beneath the timber.",
+      "flavor": "White ribs of ancient driftwood cross a dry inlet like the bones of something huge, laid in a pattern too deliberate for any flood. A salvage guide says the road was here before her grandparents, though she will not say who built it. Sand rattles beneath the timbers whenever the wind moves.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "cross-on-the-old-timbers",
           "label": "Cross on the old timbers",
-          "intent": "Zuzu chooses to cross on the old timbers while respecting the consequences of this meeting.",
-          "risk": "steel check against 10; a poor outcome can cost health or provisions.",
+          "intent": "Pick your way across the old timbers yourself, testing each beam before you trust it.",
+          "risk": "Some of these beams have been rotting for a century.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu finds stable braces beneath the bleached beams and reaches the opposite bank before dusk.",
+            "text": "Beneath the bleached beams you find braces that are still sound, and you step from one to the next. You reach the far bank before dusk, dusty and whole.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-road-of-bones-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A rotten beam splits; his fall leaves him bruised and forces a longer approach through the salt flats.",
+            "text": "A beam that looked sound splits under your weight and drops you into the rubble below. Bruised and limping, you take the long way around through the salt flats.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["a-road-of-bones-1-failure"],
@@ -573,22 +573,22 @@
         {
           "id": "ask-the-guide-to-lead",
           "label": "Ask the guide to lead",
-          "intent": "Zuzu chooses to ask the guide to lead while respecting the consequences of this meeting.",
-          "risk": "bearing check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Pay the guide from your pack to lead you across the sections she trusts.",
+          "risk": "You will be trusting a guide who keeps secrets.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "The guide admits which sections she reinforced and leads Zuzu safely across for a modest exchange.",
+            "text": "She takes a share of your food as her fee, then admits which sections she has reinforced herself. She walks you across without a misstep and leaves you at the far bank with a nod.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["a-road-of-bones-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "She vanishes with the advance provisions, leaving Zuzu to find his own difficult route.",
+            "text": "She takes your provisions up front, leads you to the middle of the inlet, and vanishes among the timbers. You find your own way across, slow and hard, and arrive spent.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["a-road-of-bones-2-failure"],
@@ -601,29 +601,29 @@
       "id": "the-reed-music",
       "locationId": "dry-delta",
       "title": "The Reed Music",
-      "flavor": "Music rises from a place the map labels empty. A lone reed player sits by a trickle of fresh water, claiming the melody helps travelers hear when the buried river is moving. His feet never leave the dry ground.",
+      "flavor": "Music rises from a stretch of ground the map marks as empty. A lone reed player sits beside a trickle of fresh water and says the melody helps travelers hear when the buried river is moving. He plays on without looking up, and his feet never leave the dry ground.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "listen-between-the-notes",
           "label": "Listen between the notes",
-          "intent": "Zuzu chooses to listen between the notes while respecting the consequences of this meeting.",
-          "risk": "awareness check against 8; a poor outcome can cost health or provisions.",
+          "intent": "Sit still beside the reed player and listen for the river under the music.",
+          "risk": "The wind is rising, and it could drown the notes.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "Zuzu hears water beneath the sand and finds a shallow drinking pool beyond the musician's stone.",
+            "text": "Under the melody you hear water moving beneath the sand. Beyond the musician's stone you find a shallow pool, clear and cold, and you fill every flask you carry.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-reed-music-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The rising wind drowns the warning notes; he wanders into a gritty gust that steals his breath.",
+            "text": "The wind rises and swallows the warning notes. You wander into a gust of grit that steals your breath and leaves you coughing, and it takes the rest of the day to recover.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-reed-music-1-failure"],
@@ -633,22 +633,22 @@
         {
           "id": "offer-an-old-traveling-song",
           "label": "Offer an old traveling song",
-          "intent": "Zuzu chooses to offer an old traveling song while respecting the consequences of this meeting.",
-          "risk": "resolve check against 7; a poor outcome can cost health or provisions.",
+          "intent": "Answer his music with an old traveling song you learned on another road.",
+          "risk": "A song carries far in open country, to friendly and unfriendly ears.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "The musician answers with a second melody and shows a path that avoids the worst of the crossing.",
+            "text": "He listens, smiles, and answers with a second melody you have never heard. When it ends, he points out a path that skirts the worst of the crossing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-reed-music-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The song attracts a patrol; Zuzu is forced to hide until the heat drains his remaining strength.",
+            "text": "Your voice carries farther than you meant, and a patrol comes to see who is singing. You lie flat behind the rocks until they leave, and the heat wrings the strength out of you.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-reed-music-2-failure"],
@@ -661,29 +661,29 @@
       "id": "hammer-under-the-stone",
       "locationId": "quarry",
       "title": "Hammer Under Stone",
-      "flavor": "The abandoned quarry is not entirely abandoned. A lone mason sounds the rock with an iron hammer and refuses to work near a freshly cut seam. He says someone reopened the quarry at night without marking the supports.",
+      "flavor": "The abandoned quarry is not entirely abandoned. A lone mason taps the rock face with an iron hammer, listening to the stone, and refuses to work near a freshly cut seam. Someone has been quarrying here at night, he says, and they never set a single support under what they cut.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "brace-the-loosened-wall",
           "label": "Brace the loosened wall",
-          "intent": "Zuzu chooses to brace the loosened wall rather than ignore the situation and its people.",
-          "risk": "Risk a steel check against 9; failure may cost provisions or health.",
+          "intent": "Wedge a timber under the cracked shelf before it comes down on the path.",
+          "risk": "If the stone shifts before the brace holds, you are under it.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Zuzu wedges a support beneath the cracked shelf and earns a safe passage and a mason's flask.",
+            "text": "You drive the support home beneath the cracked shelf, and it holds. The mason clasps your hand, presses his flask and a packet of hard cheese on you, and walks you out the safe way.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["hammer-under-the-stone-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The stone slips before the brace holds, bruising Zuzu's ribs and burying the easy road.",
+            "text": "The stone slips before the brace takes the weight. It slams your back against the wall and buries the easy road under rubble, and you crawl free, hurting with every breath.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-1-failure"],
@@ -693,22 +693,22 @@
         {
           "id": "inspect-the-fresh-cuts",
           "label": "Inspect the fresh cuts",
-          "intent": "Zuzu chooses to inspect the fresh cuts rather than ignore the situation and its people.",
-          "risk": "Risk a insight check against 10; failure may cost provisions or health.",
+          "intent": "Study the fresh chisel marks to learn who has been cutting here, and why.",
+          "risk": "Whoever made these cuts may still be close.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Chisel marks point toward a hidden side tunnel, revealing that the recent work was deliberate.",
+            "text": "The chisel marks are neat and purposeful, and they point toward a side tunnel no map shows. Whoever reopened this quarry did it on purpose, and did it quietly.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Loose shale gives away Zuzu's position to unseen miners, forcing a painful retreat.",
+            "text": "Loose shale skids out under your feet, and the clatter echoes down the seam. Voices answer from somewhere inside, and you scramble back the way you came, scraped and winded.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["hammer-under-the-stone-2-failure"],
@@ -721,29 +721,29 @@
       "id": "the-empty-pay-cart",
       "locationId": "quarry",
       "title": "The Empty Pay Cart",
-      "flavor": "An accountant counts pebbles into an empty ore cart where wages should have been. Workers have vanished, but their names remain on a pay sheet pinned beneath his hoof. He offers Zuzu a share to stay quiet.",
+      "flavor": "An accountant counts pebbles into an empty ore cart where the wages should be. The workers are gone, but their names are still on a pay sheet pinned beneath his hoof. He offers you a share of whatever is left if you keep quiet about what you have seen.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "refuse-the-crooked-bargain",
           "label": "Refuse the crooked bargain",
-          "intent": "Zuzu chooses to refuse the crooked bargain rather than ignore the situation and its people.",
-          "risk": "Risk a resolve check against 9; failure may cost provisions or health.",
+          "intent": "Turn down his money and tell him you will not help bury those names.",
+          "risk": "He may have guards nearby, paid better than his workers.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The accountant relents and shows Zuzu the tunnel where the missing workers last reported.",
+            "text": "He studies you for a long moment, then sags. He leads you to the mouth of a tunnel and tells you it is where the missing workers last reported for their shift.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-empty-pay-cart-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The accountant signals unseen guards; Zuzu escapes through falling stone at the cost of strength.",
+            "text": "He raises a hand, and guards step out of the dark. You get away through a rain of falling stone, but it batters you all the way to daylight.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-empty-pay-cart-1-failure"],
@@ -753,22 +753,22 @@
         {
           "id": "read-the-pay-sheet-aloud",
           "label": "Read the pay sheet aloud",
-          "intent": "Zuzu chooses to read the pay sheet aloud rather than ignore the situation and its people.",
-          "risk": "Risk a bearing check against 10; failure may cost provisions or health.",
+          "intent": "Pull the pay sheet out from under his hoof and read every name aloud.",
+          "risk": "If they take the sheet from you, the names go with it.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Surviving workers gather, recognize their names, and reclaim the cart and its supplies.",
+            "text": "One by one, workers step out of the tunnels as they hear their names. They take back the cart and the supplies hidden under its pebbles, and they share bread and lamp oil with you before you go.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-empty-pay-cart-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The ledger is snatched away and Zuzu is driven into a narrow, dangerous cut.",
+            "text": "Someone snatches the sheet before you reach the third name, and rough hands shove you into a narrow cut in the rock. You find your way out bruised, the names still unread.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-empty-pay-cart-2-failure"],
@@ -781,29 +781,29 @@
       "id": "the-glass-vein",
       "locationId": "quarry",
       "title": "The Glass Vein",
-      "flavor": "A collector works alone at a seam of black glass that sings when struck. She knows the material can cut skin without drawing blood at first. She asks for a steady hand to remove a fragment for the road.",
+      "flavor": "A collector works alone at a vein of black glass that sings when it is struck. She knows the stuff can cut so cleanly that it does not bleed at first. She needs a steady hand to free one fragment for the road, and a strong back to carry the tray she has already filled.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "cut-a-safe-sample",
           "label": "Cut a safe sample",
-          "intent": "Zuzu chooses to cut a safe sample rather than ignore the situation and its people.",
-          "risk": "Risk a wits check against 9; failure may cost provisions or health.",
+          "intent": "Ease a small, blunt-edged shard out of the vein with her finest chisel.",
+          "risk": "The seam is brittle, and the glass cuts before you feel it.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Zuzu eases a blunt shard free, and the collector marks a sheltered exit in gratitude.",
+            "text": "The shard comes free whole, its edges dull enough to hold. In thanks, she marks a sheltered way out of the quarry and fills your pack with dried figs from her own store.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-glass-vein-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The brittle seam fractures; shards scatter against Zuzu's forearms before he can withdraw.",
+            "text": "The seam fractures under the chisel, and slivers spray across your hands. You pull back too late, and the cuts only start to bleed after you have walked away.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-glass-vein-1-failure"],
@@ -813,22 +813,22 @@
         {
           "id": "carry-the-collector-s-load",
           "label": "Carry the collector's load",
-          "intent": "Zuzu chooses to carry the collector's load rather than ignore the situation and its people.",
-          "risk": "Risk a steel check against 8; failure may cost provisions or health.",
+          "intent": "Shoulder her heavy tray of glass and carry it up the quarry wall.",
+          "risk": "One slip on the climb, and the whole tray shatters.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "They move the tray without breaking a piece and share a meal beyond the quarry rim.",
+            "text": "You climb slow and steady, and not one piece breaks. At the quarry rim she shares her supper with you and sends you on with the rest of it wrapped in cloth.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-glass-vein-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A strap snaps on the climb, leaving Zuzu sore from saving the heavy tray.",
+            "text": "A strap snaps halfway up. You catch the tray before it falls and every piece survives, but the weight wrenches your back and you finish the climb aching.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-glass-vein-2-failure"],
@@ -841,29 +841,29 @@
       "id": "the-watchful-overhang",
       "locationId": "canyon-trail",
       "title": "The Watchful Overhang",
-      "flavor": "An ibex scout watches an overhang shed dust with every breeze. She warns that the canyon wall is moving faster than the weather can explain. Travelers behind Zuzu are already entering the shadow.",
+      "flavor": "An ibex scout watches an overhang shed dust with every breeze. She warns that the canyon wall is moving faster than any weather can explain. Behind you, a line of travelers is already walking into its shadow, too tired to look up.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "call-the-travelers-back",
           "label": "Call the travelers back",
-          "intent": "Zuzu chooses to call the travelers back rather than ignore the situation and its people.",
-          "risk": "Risk a bearing check against 9; failure may cost provisions or health.",
+          "intent": "Shout the travelers back out of the shadow before the wall comes down.",
+          "risk": "If they do not listen, you will be in there with them.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The caravan heeds Zuzu, and the scout leads everyone around the crumbling shelf.",
+            "text": "Your voice carries, and the caravan stops and turns. The scout leads everyone the long way around the crumbling shelf, and as you walk she shows you the old ledge paths only scouts use.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His warning comes too late; flying gravel bruises him as he shields the last traveler.",
+            "text": "Your warning comes too late for the last of them. You run back in and shield an old traveler as gravel rains down, and you both stagger out bruised and bleeding.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-1-failure"],
@@ -873,22 +873,22 @@
         {
           "id": "test-the-ledge-alone",
           "label": "Test the ledge alone",
-          "intent": "Zuzu chooses to test the ledge alone rather than ignore the situation and its people.",
-          "risk": "Risk a awareness check against 11; failure may cost provisions or health.",
+          "intent": "Go ahead alone, testing each foothold on the ledge before the others follow.",
+          "risk": "If the ledge gives way, there is a ravine beneath it.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu spots the hollow stone beneath the path and marks each safe foothold for those behind.",
+            "text": "You find the hollow stone beneath the path and mark every safe foothold for those behind you. The trail they walk now is not the one the old maps show.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-2-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "A loose slab pitches him toward the ravine; the rope catches him but tears his hands.",
+            "text": "A loose slab tips you toward the ravine. The rope catches you, but it tears through your hands as you drop, and you haul yourself back up bleeding.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-watchful-overhang-2-failure"],
@@ -901,29 +901,29 @@
       "id": "the-banner-in-the-wind",
       "locationId": "canyon-trail",
       "title": "The Banner in the Wind",
-      "flavor": "A torn banner hangs above a narrow bridge, tied where no courier would willingly stop. A captain searches for her missing rider and insists the pattern is a distress signal, not a territorial warning.",
+      "flavor": "A torn banner snaps in the wind above a narrow bridge, tied where no courier would willingly stop. A captain searching for her missing rider studies its knotted corners. She insists the pattern is a call for help, not a warning to keep out, and she is running out of daylight to prove it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "decode-the-banner-knots",
           "label": "Decode the banner knots",
-          "intent": "Zuzu chooses to decode the banner knots rather than ignore the situation and its people.",
-          "risk": "Risk a wits check against 10; failure may cost provisions or health.",
+          "intent": "Work out what the knots in the banner were tied to say.",
+          "risk": "The wind keeps twisting the cloth, and a misreading costs miles.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The knots describe an alternate bridge, and the captain shares her last trail ration.",
+            "text": "The knots describe a second bridge, older and hidden upstream. The captain listens, nods, and presses her last trail ration into your hands before she goes to look.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-banner-in-the-wind-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The wind twists the fabric into nonsense and Zuzu takes a long, exhausting detour.",
+            "text": "The wind twists the cloth into nonsense, and you follow the meaning you think you see. It leads you on a long, exhausting detour that ends where it began.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-banner-in-the-wind-1-failure"],
@@ -933,22 +933,22 @@
         {
           "id": "search-below-the-bridge",
           "label": "Search below the bridge",
-          "intent": "Zuzu chooses to search below the bridge rather than ignore the situation and its people.",
-          "risk": "Risk a awareness check against 11; failure may cost provisions or health.",
+          "intent": "Climb down beneath the bridge in case the rider fell rather than fled.",
+          "risk": "The rock under the bridge is loose, and the drop is long.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu finds the missing courier alive beneath the span and helps her climb to safety.",
+            "text": "Under the span you find the courier alive, wedged on a ledge with a broken strap. You help her climb up to the captain, who cannot speak for a moment.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-banner-in-the-wind-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A false foothold sends Zuzu sliding into a thicket of thorns above the riverbed.",
+            "text": "A foothold that looked solid crumbles, and you slide into a thicket of thorns above the riverbed. You climb out scratched and torn, with no sign of the rider.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-banner-in-the-wind-2-failure"],
@@ -961,29 +961,29 @@
       "id": "the-toll-without-a-keeper",
       "locationId": "canyon-trail",
       "title": "The Toll Without a Keeper",
-      "flavor": "A toll rope hangs across the canyon trail, though no guard stands behind it. The enforcer watches from the rocks, waiting to see who pays into an unattended box. Her spear has been deliberately blunted.",
+      "flavor": "A toll rope hangs across the canyon trail above a wooden box, and no one stands guard. The enforcer watches from the rocks overhead, waiting to see who will pay into an unattended box. Her spear has been deliberately blunted, as if she hopes never to use it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "challenge-the-false-toll",
           "label": "Challenge the false toll",
-          "intent": "Zuzu chooses to challenge the false toll rather than ignore the situation and its people.",
-          "risk": "Risk a steel check against 10; failure may cost provisions or health.",
+          "intent": "Cut the toll rope and face the enforcer without raising a weapon against her.",
+          "risk": "She may not be the only one watching from the rocks.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu cuts the rope without striking her, and the shaken enforcer abandons the extortion.",
+            "text": "You cut the rope and stand your ground without striking her. She comes down, looks at the frayed ends for a long time, and walks away from the box for good.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-toll-without-a-keeper-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The enforcer's hidden partner catches Zuzu off guard, and he retreats bruised.",
+            "text": "Her partner comes at you from behind rocks you never thought to check. You get clear, but you are bruised and driven back down the trail.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-toll-without-a-keeper-1-failure"],
@@ -993,22 +993,22 @@
         {
           "id": "offer-a-fair-trade",
           "label": "Offer a fair trade",
-          "intent": "Zuzu chooses to offer a fair trade rather than ignore the situation and its people.",
-          "risk": "Risk a bearing check against 9; failure may cost provisions or health.",
+          "intent": "Offer her food for honest word of the trail ahead instead of paying the box.",
+          "risk": "She may take your food and tell you nothing true.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "She accepts provisions for a reliable warning about the trail ahead and lets the party pass.",
+            "text": "She takes the provisions you offer and tells you exactly where the trail is failing. Then she lifts the rope and lets you and the travelers behind you pass.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-toll-without-a-keeper-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "She takes the payment and sends Zuzu toward a dead-end ledge.",
+            "text": "She takes the food, nods, and sends you down a fork that ends at a sheer drop. You climb back the long way, worn out and lighter by a meal.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-toll-without-a-keeper-2-failure"],
@@ -1021,29 +1021,29 @@
       "id": "one-place-by-the-fire",
       "locationId": "canyon-camp",
       "title": "One Place by the Fire",
-      "flavor": "A camp has one empty place by its fire and a rule against asking why. The host invites Zuzu to sit, while two exhausted travelers stare into their bowls. Somebody has scraped a name off the signboard.",
+      "flavor": "A camp keeps one empty place by its fire and one rule: no one asks why. The host waves you toward the seat while two exhausted travelers stare into their bowls. On the signboard behind them, someone has scraped a name away down to bare wood.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "accept-the-offered-place",
           "label": "Accept the offered place",
-          "intent": "Zuzu chooses to accept the offered place rather than ignore the situation and its people.",
-          "risk": "Risk a insight check against 9; failure may cost provisions or health.",
+          "intent": "Sit in the empty place, keep the rule, and listen to what goes unsaid.",
+          "risk": "Silence in a camp like this can turn ugly.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Zuzu notices the missing traveler left by choice, and the host shares a quiet meal and the safer road.",
+            "text": "From what the travelers leave unsaid, you understand the missing one left by choice. The host fills a bowl for you without a word and, as the fire burns down, quietly names the safer road.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["one-place-by-the-fire-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "An argument erupts over the unspoken rule, and Zuzu loses sleep keeping watch.",
+            "text": "An argument flares over the rule, and by midnight the camp has split in two. You stay up keeping watch between them and greet the morning exhausted.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["one-place-by-the-fire-1-failure"],
@@ -1053,22 +1053,22 @@
         {
           "id": "ask-about-the-missing-name",
           "label": "Ask about the missing name",
-          "intent": "Zuzu chooses to ask about the missing name rather than ignore the situation and its people.",
-          "risk": "Risk a bearing check against 10; failure may cost provisions or health.",
+          "intent": "Break the camp's rule and ask whose name was scraped from the board.",
+          "risk": "The rule exists for a reason; the camp may turn on you.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The host tells the truth about a vanished guide and gives Zuzu a route around the gorge.",
+            "text": "The host stares into the fire, then tells you the truth: a guide led travelers into the gorge and never came back. With a stick, the host draws you a way around it in the ash.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["one-place-by-the-fire-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The question divides the camp; Zuzu leaves hungry under hostile stares.",
+            "text": "The question splits the camp. To make peace, you hand your own food around the fire, and it is not enough; you leave before dawn under hostile stares, your pack lighter by a meal.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["one-place-by-the-fire-2-failure"],
@@ -1081,29 +1081,29 @@
       "id": "the-map-in-ashes",
       "locationId": "canyon-camp",
       "title": "The Map in Ashes",
-      "flavor": "An archivist feeds torn maps into the fire one corner at a time. She claims every version led a traveler into a trap, but one fragment still bears a recognizable canyon notch. Zuzu has only moments before it burns.",
+      "flavor": "An archivist feeds torn maps into the fire one corner at a time. She swears every version led some traveler into a trap. One fragment, already curling in the ashes, still shows a canyon notch you recognize, and the flames are almost on it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "rescue-the-marked-fragment",
           "label": "Rescue the marked fragment",
-          "intent": "Zuzu chooses to rescue the marked fragment rather than ignore the situation and its people.",
-          "risk": "Risk a awareness check against 9; failure may cost provisions or health.",
+          "intent": "Snatch the marked fragment out of the fire before it burns.",
+          "risk": "The embers are hot, and the paper is already curling.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Zuzu lifts the fragment intact and learns which canyon path was deliberately mislabeled.",
+            "text": "You lift the fragment out whole and blow the sparks from its edge. Beside the notch, someone has crossed out one canyon path's name and written another: it was mislabeled on purpose.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-map-in-ashes-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Hot embers burn his wrist, and the important corner collapses into ash.",
+            "text": "Embers sear your hand as you reach in, and the corner that mattered crumbles to ash between your fingers before you can read it.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-map-in-ashes-1-failure"],
@@ -1113,22 +1113,22 @@
         {
           "id": "persuade-her-to-stop",
           "label": "Persuade her to stop",
-          "intent": "Zuzu chooses to persuade her to stop rather than ignore the situation and its people.",
-          "risk": "Risk a bearing check against 9; failure may cost provisions or health.",
+          "intent": "Talk her away from the fire and ask what she is really afraid of.",
+          "risk": "She may burn the rest just to be rid of you.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The archivist admits her fear and shares an untouched chart with the safe camp marked.",
+            "text": "Her hands go still. She admits she is afraid of sending anyone else to die, then gives you an untouched chart with a safe camp marked in ink, and a twist of tea and salt from her own pack.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-map-in-ashes-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "She refuses and throws the rest into the fire, leaving Zuzu without guidance.",
+            "text": "She shakes her head and tips the whole stack into the fire. You watch every route burn and walk on with no better guidance than you had before.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-map-in-ashes-2-failure"],
@@ -1141,29 +1141,29 @@
       "id": "the-night-watch-debt",
       "locationId": "canyon-camp",
       "title": "The Night Watch Debt",
-      "flavor": "A retired sentry offers to watch the camp in exchange for one night's sleep. His lantern has no lens, yet he walks the perimeter with practiced care. At each circuit he stops to count unfamiliar footsteps.",
+      "flavor": "A retired sentry offers to watch the camp tonight, on one condition: whoever accepts will owe him a night's sleep in return. His lantern has no lens, yet he walks the perimeter with practiced care. At every circuit he stops to count footsteps that belong to no one in camp.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "take-the-first-watch",
           "label": "Take the first watch",
-          "intent": "Zuzu chooses to take the first watch rather than ignore the situation and its people.",
-          "risk": "Risk a resolve check against 10; failure may cost provisions or health.",
+          "intent": "Pay the debt up front by taking the first watch so the old sentry can rest.",
+          "risk": "You are already tired, and the dark here is crowded.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu catches a creeping thief before the supplies vanish and earns the sentry's respect.",
+            "text": "Near midnight you catch a thief creeping toward the supply packs and send him running. The sentry wakes, hears what happened, calls the debt paid, and presses a share of the saved food on you.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-night-watch-debt-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Exhaustion blurs the darkness; thieves steal the camp's food while Zuzu fights to stay upright.",
+            "text": "Exhaustion blurs the dark into shapes. You fight to stay on your feet, and while you do, thieves slip in and carry off the camp's food, your own with it.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-night-watch-debt-1-failure"],
@@ -1173,22 +1173,22 @@
         {
           "id": "follow-the-counted-footsteps",
           "label": "Follow the counted footsteps",
-          "intent": "Zuzu chooses to follow the counted footsteps rather than ignore the situation and its people.",
-          "risk": "Risk a awareness check against 10; failure may cost provisions or health.",
+          "intent": "Follow the footsteps the sentry keeps counting to find who is circling the camp.",
+          "risk": "The canyon throws echoes, and not every sound is a step.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The tracks reveal a harmless lost pilgrim, whom Zuzu guides back before panic spreads.",
+            "text": "The tracks lead to a lost pilgrim, frightened and harmless, who has been circling the fires too afraid to call out. You bring her in before the camp wakes to panic.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-night-watch-debt-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Zuzu mistakes echoes for steps, wandering into a cold gully until morning.",
+            "text": "You follow what you take for footsteps until you realize they are only echoes. By then you are deep in a cold gully, and you spend the night there shivering until morning.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-night-watch-debt-2-failure"],
@@ -1201,29 +1201,29 @@
       "id": "feathers-in-the-draft",
       "locationId": "cave-mouth",
       "title": "Feathers in the Draft",
-      "flavor": "At the cave mouth, a crow storm-reader sets paper charms into the wind without letting one blow away. She tells Zuzu the cavern remembers spoken bargains more clearly than faces. A cold current keeps returning from the wrong direction.",
+      "flavor": "At the cave mouth, a crow storm-reader pins paper charms into the wind, and not one tears loose. A cold draft keeps returning from the wrong direction, carrying black feathers that never settle. She says the cavern remembers spoken bargains better than faces, and she will not let you pass until you have answered her.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "answer-her-question-plainly",
           "label": "Answer her question plainly",
-          "intent": "Zuzu chooses to answer her question plainly rather than leave this encounter unanswered.",
-          "risk": "bearing check against 9; mistakes may cost health or provisions.",
+          "intent": "Tell her your name and your business straight, the way the cavern will hear it.",
+          "risk": "A careless word here could echo where you don't want it.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The storm-reader accepts Zuzu's name and gives him a chalk sign for a safe entrance.",
+            "text": "You give your name and nothing more. The storm-reader repeats it once into the wind, nods, and draws a chalk sign on your palm that marks the safe entrance.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["feathers-in-the-draft-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His answer echoes from three passages at once, drawing him into a cold pocket where he loses strength.",
+            "text": "Your answer comes back from three passages at once, and you follow the wrong one. The cold pocket at its end drains the warmth from your hands before you find your way out, shivering and spent.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["feathers-in-the-draft-1-failure"],
@@ -1233,22 +1233,22 @@
         {
           "id": "study-the-returning-draft",
           "label": "Study the returning draft",
-          "intent": "Zuzu chooses to study the returning draft rather than leave this encounter unanswered.",
-          "risk": "insight check against 10; mistakes may cost health or provisions.",
+          "intent": "Watch where the feathers go and find what keeps pushing the air back out.",
+          "risk": "The wind is strong, and the cave floor drops without warning.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu locates a narrow vent that explains the echo and marks a practical route below.",
+            "text": "You follow a feather to a narrow vent where the wind doubles back on itself. That explains the echo, and you scratch a mark beside the passage below that you know you can trust.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["feathers-in-the-draft-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The draft blows out his lantern, and sharp stone punishes his hurried descent.",
+            "text": "The draft snuffs your lantern halfway down. You hurry on in the dark, and sharp stone tears at your knees and hands before you crawl back to the grey light of the mouth.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["feathers-in-the-draft-2-failure"],
@@ -1261,29 +1261,29 @@
       "id": "the-third-shadow",
       "locationId": "cave-mouth",
       "title": "The Third Shadow",
-      "flavor": "A guide offers to lead Zuzu underground, but three shadows fall behind her from only two lanterns. She insists the third belongs to a traveler who turned back. At the entrance, a line of stones has been rearranged since sunrise.",
+      "flavor": "A guide offers to lead you underground, but three shadows stretch behind her from only two lanterns. She insists the third belongs to a traveler who turned back this morning. At the entrance, a line of marker stones has been moved since sunrise, and she will not look at it.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "count-the-lantern-positions",
           "label": "Count the lantern positions",
-          "intent": "Zuzu chooses to count the lantern positions rather than leave this encounter unanswered.",
-          "risk": "awareness check against 10; mistakes may cost health or provisions.",
+          "intent": "Work out where a hidden third light must be to cast that shadow.",
+          "risk": "Guess wrong, and whoever holds that light strikes first.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu finds the hidden third lamp and exposes a staged ambush without drawing his blade.",
+            "text": "You trace the angle back to a shuttered lamp in a crevice, where two trappers crouch waiting. Named aloud, they slip away without a fight, and the guide's face goes grey with shame.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-third-shadow-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He looks toward the wrong shadow, and a trapper's cord cuts his shoulder as he escapes.",
+            "text": "You turn toward the wrong shadow. A trapper's cord whips out of the dark and opens a cut across your shoulder, and you are bleeding by the time you scramble back into daylight.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-third-shadow-1-failure"],
@@ -1293,22 +1293,22 @@
         {
           "id": "demand-a-safer-passage",
           "label": "Demand a safer passage",
-          "intent": "Zuzu chooses to demand a safer passage rather than leave this encounter unanswered.",
-          "risk": "resolve check against 9; mistakes may cost health or provisions.",
+          "intent": "Tell the guide you know it's a trap, and ask for the honest way down.",
+          "risk": "Her friends may not like being found out.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The guide abandons the trick and reveals a genuine lower corridor in exchange for mercy.",
+            "text": "The guide drops the act. Her brother owes the trappers, she says, and this was his payment. In exchange for your mercy, she shows you a real lower corridor, dry and clear.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-third-shadow-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her accomplices block the gate; Zuzu fights free and loses his spare food.",
+            "text": "Her accomplices step out and block the gate. You fight your way free, bruised from the scuffle, but your food sack stays behind in their hands.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["the-third-shadow-2-failure"],
@@ -1321,29 +1321,29 @@
       "id": "shelter-for-the-storm",
       "locationId": "cave-mouth",
       "title": "Shelter for the Storm",
-      "flavor": "Rain lashes the ridge where a healer struggles to carry supplies into the cave. She is treating travelers stranded by sudden wind, and her lamp gutters with each gust. Beyond her lies a ledge where the water is already rising.",
+      "flavor": "Rain lashes the ridge as a healer drags a medicine chest toward the cave. Travelers stranded by the sudden storm huddle under the overhang behind her, and her lamp gutters with every gust. Below them, water is already rising over the ledge they must cross to reach real shelter.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "carry-the-medicine-chest",
           "label": "Carry the medicine chest",
-          "intent": "Zuzu chooses to carry the medicine chest rather than leave this encounter unanswered.",
-          "risk": "steel check against 8; mistakes may cost health or provisions.",
+          "intent": "Take the heavy chest so the healer's hands are free for the injured.",
+          "risk": "The stone is slick, and the chest is heavier than it looks.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "Zuzu bears the chest into shelter and receives a bandage and a careful map of the dry passage.",
+            "text": "You get the chest into the dry without cracking a single vial. The healer presses a roll of bandage and a heel of bread into your hands, and sketches the dry passage on the back of a label.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["shelter-for-the-storm-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The chest slips on wet stone, bruising his knee before he can lift it again.",
+            "text": "The chest slips on wet stone and comes down hard on your knee. You lift it again and finish the climb, but every step after reminds you of it.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["shelter-for-the-storm-1-failure"],
@@ -1353,22 +1353,22 @@
         {
           "id": "guide-the-stranded-travelers",
           "label": "Guide the stranded travelers",
-          "intent": "Zuzu chooses to guide the stranded travelers rather than leave this encounter unanswered.",
-          "risk": "bearing check against 9; mistakes may cost health or provisions.",
+          "intent": "Lead the frightened travelers across the ledge before the water takes it.",
+          "risk": "Fear spreads fast in a storm, and the ledge is narrow.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The travelers follow his calm directions into shelter and share provisions in thanks.",
+            "text": "You keep your voice low and steady, and they cross one at a time behind you. Once inside, an old drover splits his last dried apples with you and won't hear a refusal.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["shelter-for-the-storm-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Panic scatters the group; Zuzu spends a cold hour searching the slope and loses a meal.",
+            "text": "Thunder breaks over the ridge and the group scatters. You spend a cold hour calling them back down the slope, and somewhere in the dark a meal spills from your pack into the runoff.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["shelter-for-the-storm-2-failure"],
@@ -1381,29 +1381,29 @@
       "id": "the-candle-court",
       "locationId": "stone-hollow",
       "title": "The Candle Court",
-      "flavor": "Deep in the hollow, an adjudicator hears disputes by candlelight. Two miners each claim the same pouch of pale salt, and the witness is missing. The adjudicator asks Zuzu to judge the evidence before either party may leave.",
+      "flavor": "Deep in the hollow, an adjudicator holds court by candlelight, a hundred small flames ringing a slab of stone. Two miners each claim the same pouch of pale salt, and the only witness has not come. No one may leave until the matter is settled, and the adjudicator asks you to weigh the evidence.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "hear-both-testimonies",
           "label": "Hear both testimonies",
-          "intent": "Zuzu chooses to hear both testimonies rather than leave this encounter unanswered.",
-          "risk": "insight check against 10; mistakes may cost health or provisions.",
+          "intent": "Listen to each miner in full and look for what their stories leave out.",
+          "risk": "A rehearsed lie can sound more honest than the truth.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu notices an identical tear in the pouch and one miner's sleeve, securing a fair division.",
+            "text": "You notice a fresh tear in the pouch that matches a tear in one miner's sleeve. The adjudicator divides the salt by what you found, and the guilty miner pays without arguing.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-candle-court-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He mistakes rehearsed testimony for fact and earns the wrath of the wronged miner.",
+            "text": "You believe the smoother story. The wronged miner, a broad woman with salt-cracked hands, catches you outside the candlelight and lands one hard blow before the clerks pull her away.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-candle-court-1-failure"],
@@ -1413,22 +1413,22 @@
         {
           "id": "offer-a-shared-judgment",
           "label": "Offer a shared judgment",
-          "intent": "Zuzu chooses to offer a shared judgment rather than leave this encounter unanswered.",
-          "risk": "bearing check against 10; mistakes may cost health or provisions.",
+          "intent": "Propose they split the salt before witnesses, so neither has to be called a thief.",
+          "risk": "Neither miner may be willing to give an inch.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Both miners accept a witnessed bargain, and the adjudicator grants passage without a debt.",
+            "text": "Both miners grumble, then agree to a witnessed split. The adjudicator lets you pass without owing the court anything, and snuffs the candle nearest the door in your honor.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-candle-court-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The miners refuse compromise and the hearing drags through the night, costing Zuzu food.",
+            "text": "Neither miner will budge, and the hearing drags through the night. By the time the candles gutter, you have shared most of your food with the hungry court just to keep tempers cool.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-candle-court-2-failure"],
@@ -1441,29 +1441,29 @@
       "id": "salt-on-the-threshold",
       "locationId": "stone-hollow",
       "title": "Salt on the Threshold",
-      "flavor": "A mason has painted a thick salt line before a narrow doorway, though the stones behind it appear ordinary. She insists the mark keeps the cavern air from turning poisonous during a pressure shift. Her measurements are scratched into slate.",
+      "flavor": "A mason has laid a thick line of salt across a narrow doorway, though the stone beyond looks ordinary. She swears the salt keeps the cavern air from turning poisonous when the pressure shifts, and her measurements are scratched across a slab of slate. The vent above the door is cracked, and the shift is close.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "reinforce-the-vent-above",
           "label": "Reinforce the vent above",
-          "intent": "Zuzu chooses to reinforce the vent above rather than leave this encounter unanswered.",
-          "risk": "wits check against 10; mistakes may cost health or provisions.",
+          "intent": "Shore up the cracked vent over the door without breaking the salt seal below.",
+          "risk": "One slip of the chisel could break the seal.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu opens the vent without disturbing the seal, and the mason offers a useful route onward.",
+            "text": "You pack the crack and ease the vent open without moving a grain of salt. The mason grins, shares a strip of smoked fish from her pack, and tells you which turn past the doorway she trusts.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["salt-on-the-threshold-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The seal breaks under the chisel, filling the room with stinging dust before he can withdraw.",
+            "text": "The seal breaks under your chisel. Stinging dust pours from the vent and fills the room, and you stagger out with streaming eyes and a raw, burning chest.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["salt-on-the-threshold-1-failure"],
@@ -1473,22 +1473,22 @@
         {
           "id": "test-the-air-carefully",
           "label": "Test the air carefully",
-          "intent": "Zuzu chooses to test the air carefully rather than leave this encounter unanswered.",
-          "risk": "awareness check against 11; mistakes may cost health or provisions.",
+          "intent": "Hold a flame at the salt line and breathe slowly, checking whether her warning holds.",
+          "risk": "If the air turns while you're testing it, you're inside.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "A faint mineral odor confirms the warning, and Zuzu finds a clean bypass along the upper shelf.",
+            "text": "The flame bends and a faint mineral smell rises off the stone. Her warning is true. You find a clean way around along the upper shelf, and the salt line stays whole.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["salt-on-the-threshold-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "His test is too slow and the chalked passage floods with dust, leaving him coughing.",
+            "text": "You take too long. Dust floods the chalked passage and you back out coughing, your throat raw and your chest aching for the next mile.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["salt-on-the-threshold-2-failure"],
@@ -1501,29 +1501,29 @@
       "id": "the-forgotten-pledge",
       "locationId": "stone-hollow",
       "title": "The Forgotten Pledge",
-      "flavor": "A guardian stands before a sealed chamber, repeating an oath in a voice he no longer recognizes. The iron charm on his wrist glows only when he tries to leave. Whatever grips him was imposed by a ritual, not his ancestry.",
+      "flavor": "A guardian stands before a sealed chamber, repeating an oath in a voice he no longer recognizes as his own. The iron charm on his wrist glows only when he tries to step away. A ritual put it there, and he watches you as if you might remember the pledge he has forgotten.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "speak-the-oath-back-to-him",
           "label": "Speak the oath back to him",
-          "intent": "Zuzu chooses to speak the oath back to him rather than leave this encounter unanswered.",
-          "risk": "resolve check against 11; mistakes may cost health or provisions.",
+          "intent": "Repeat his oath slowly, in your own voice, so he can hear where it changed.",
+          "risk": "The binding may answer before he does.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu steadies the guardian long enough for him to remember who bound the charm and open the safe way.",
+            "text": "You speak the words back to him and he follows them like a rope out of deep water. He remembers who bound the charm, and unseals the safe way through.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-forgotten-pledge-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The binding surges through the chamber; Zuzu survives the guardian's involuntary blow but limps onward.",
+            "text": "The binding surges through the chamber. The guardian's arm swings without his consent and strikes you hard, and he is weeping apologies as you limp away.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-forgotten-pledge-1-failure"],
@@ -1533,22 +1533,22 @@
         {
           "id": "examine-the-iron-charm",
           "label": "Examine the iron charm",
-          "intent": "Zuzu chooses to examine the iron charm rather than leave this encounter unanswered.",
-          "risk": "wits check against 11; mistakes may cost health or provisions.",
+          "intent": "Look closely at the charm for the catch that holds it shut.",
+          "risk": "Charms like this are often built to punish curious hands.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu spots a removable fastening and frees the guardian without demanding payment.",
+            "text": "You find a fastening hidden under the scrollwork and work it loose. The charm drops to the stone. The guardian offers you everything he has, and you take nothing; he needs it more.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-forgotten-pledge-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "A false clasp snaps shut, and Zuzu takes a painful shock before breaking away.",
+            "text": "The clasp you press is false. It snaps shut on your fingers and a shock runs up your arm, throwing you clear of the guardian with your hand numb and burning.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-forgotten-pledge-2-failure"],
@@ -1561,29 +1561,29 @@
       "id": "three-doors-no-hinges",
       "locationId": "underground-crossroads",
       "title": "Three Doors Without Hinges",
-      "flavor": "Three stone arches stand where four tunnels ought to meet. An architect traces the missing route with her chain, explaining that earthquakes shift the intersections while their destinations remain. Her diagram is accurate only for this hour.",
+      "flavor": "Three stone doorways stand where four tunnels ought to meet: open arches with no hinges and nothing to close. An architect traces the missing route with a measuring chain, explaining that tremors shift these crossings while their destinations stay put. Her diagram, she admits, is accurate only for this hour.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "compare-the-chain-marks",
           "label": "Compare the chain marks",
-          "intent": "Zuzu chooses to compare the chain marks rather than leave this encounter unanswered.",
-          "risk": "wits check against 11; mistakes may cost health or provisions.",
+          "intent": "Match the scratches her chain left on each arch to find the one that hasn't moved.",
+          "risk": "The slabs move without warning, and corridors can close.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu identifies the stable arch by its old fracture and records the new arrangement for return.",
+            "text": "One arch carries an old fracture that lines up with every mark. You copy the new arrangement of the tunnels into your notes, and the way ahead redraws itself around the doorway that holds true.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "The chain snags beneath a moving slab, and Zuzu escapes the narrowing corridor with bruises.",
+            "text": "The chain snags beneath a grinding slab. You tear it free and squeeze out of the narrowing corridor, bruised along your arms and ribs.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-1-failure"],
@@ -1592,23 +1592,23 @@
         },
         {
           "id": "ask-for-a-witness-to-the-path",
-          "label": "Ask for a witness to the path",
-          "intent": "Zuzu chooses to ask for a witness to the path rather than leave this encounter unanswered.",
-          "risk": "bearing check against 10; mistakes may cost health or provisions.",
+          "label": "Ask someone to witness your path",
+          "intent": "Ask the architect to send someone with you, so your choice of door is on record.",
+          "risk": "She may spare no one, and you could end up choosing alone.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The architect sends a novice with Zuzu, ensuring neither can later deny which passage was chosen.",
+            "text": "The architect sends a quiet novice to walk with you. Neither of you can later deny which door you took, and the novice's chalk marks keep you from doubling back.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Her apprentice refuses; Zuzu must choose alone and sacrifices a night's rest to the maze.",
+            "text": "Her apprentice refuses to go. You choose alone, second-guess every turn, and give a night's sleep to the maze before you trust your footing, coming out hollow with exhaustion.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["three-doors-no-hinges-2-failure"],
@@ -1621,29 +1621,29 @@
       "id": "voices-across-the-rock",
       "locationId": "underground-crossroads",
       "title": "Voices Across the Rock",
-      "flavor": "A courier calls from behind a sheet of stone, though his voice reaches the wrong tunnel. He claims to have a letter for a village beyond the cave, and a second voice repeats his words a moment later. The sheet vibrates with underground thunder.",
+      "flavor": "A courier calls out from behind a sheet of stone, but his voice arrives through the wrong tunnel. He says he carries a letter for a village beyond the cave, and a second, flatter voice repeats his words a moment later. The rock between you shivers with underground thunder.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "trace-the-true-echo",
           "label": "Trace the true echo",
-          "intent": "Zuzu chooses to trace the true echo rather than leave this encounter unanswered.",
-          "risk": "awareness check against 10; mistakes may cost health or provisions.",
+          "intent": "Follow the first voice, not its copy, to find where the courier really is.",
+          "risk": "The false echo leads somewhere too.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "Zuzu finds the thin rock at the real source and leads the courier into open air.",
+            "text": "You press your ear to the stone until you find the thin place where his voice sounds warm. You chip a gap, pull him through, and lead him up into open air, his letter still dry.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["voices-across-the-rock-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The false echo draws him into falling grit and leaves him with a painful scrape.",
+            "text": "The false echo draws you into a low passage just as grit pours from the ceiling. You scrape your arm raw dragging yourself clear.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["voices-across-the-rock-1-failure"],
@@ -1653,22 +1653,22 @@
         {
           "id": "signal-a-safe-meeting-point",
           "label": "Signal a safe meeting point",
-          "intent": "Zuzu chooses to signal a safe meeting point rather than leave this encounter unanswered.",
-          "risk": "resolve check against 10; mistakes may cost health or provisions.",
+          "intent": "Tap a steady pattern on the stone and keep it up until he finds you.",
+          "risk": "Thunder may swallow the signal, and the search could run long.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The courier follows deliberate taps through the branching corridors and shares a spare meal.",
+            "text": "You tap and wait, tap and wait, until the courier stumbles out of a side corridor. He laughs with relief and splits his spare meal with you before going on.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["voices-across-the-rock-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The signal is drowned by thunder, and Zuzu spends his provisions keeping the search alive.",
+            "text": "Thunder drowns the taps. You keep the search alive for hours, eating through your food to stay sharp, and by the time the courier finds you, your pack is much lighter.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["voices-across-the-rock-2-failure"],
@@ -1681,29 +1681,29 @@
       "id": "the-red-vial",
       "locationId": "underground-crossroads",
       "title": "The Red Vial",
-      "flavor": "An exhausted pilgrim guards a red vial while asking strangers not to come too close. He says the liquid holds back a hunger placed upon him by a sorcerer. His trembling hands make the flask seem more dangerous than his size.",
+      "flavor": "An exhausted pilgrim crouches over a red vial and begs strangers not to come close. He says the liquid holds back a hunger a sorcerer laid on him, and that he has not slept in days. His hands shake so badly that the flask seems more dangerous than he is.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "help-secure-the-vial",
           "label": "Help secure the vial",
-          "intent": "Zuzu chooses to help secure the vial rather than leave this encounter unanswered.",
-          "risk": "steel check against 11; mistakes may cost health or provisions.",
+          "intent": "Steady his hands and wrap the flask somewhere it can't break.",
+          "risk": "If it shatters, neither of you knows what happens.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu braces the flask in a leather cradle; the pilgrim recovers and points out an unguarded tunnel.",
+            "text": "You wrap the flask in a leather cradle and buckle it against his chest. His breathing slows. Before you part, he tells you about a tunnel the sorcerer's people never watch.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-red-vial-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The vial nearly shatters, and the pilgrim shoves Zuzu away in panicked self-defense.",
+            "text": "The vial lurches and nearly shatters. In his panic the pilgrim shoves you hard into the rock wall, then cries out an apology as you pick yourself up, bruised and winded.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-red-vial-1-failure"],
@@ -1713,22 +1713,22 @@
         {
           "id": "ask-about-the-binding-spell",
           "label": "Ask about the binding spell",
-          "intent": "Zuzu chooses to ask about the binding spell rather than leave this encounter unanswered.",
-          "risk": "insight check against 11; mistakes may cost health or provisions.",
+          "intent": "Ask gently how the spell was cast, looking for a weakness in it.",
+          "risk": "He may hear the question as an accusation.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu recognizes a practical counter-sign among the scratches and gives the pilgrim a safer ritual to attempt.",
+            "text": "Among the scratches he draws for you, you recognize a counter-sign. You teach it to him slowly, and for the first time his hands go still around the vial.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-red-vial-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The pilgrim mistakes the question for an accusation, and the encounter ends in a desperate struggle.",
+            "text": "He hears accusation in your question and lunges. The struggle is short and desperate, and you both end up gasping on the cave floor, the vial unbroken and your ribs aching.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-red-vial-2-failure"],
@@ -1741,29 +1741,29 @@
       "id": "the-cooling-stones",
       "locationId": "obsidian-road",
       "title": "The Cooling Stones",
-      "flavor": "The black road retains warmth long after sunset. A road mender taps a line of stones that glow faintly under her tool, warning Zuzu that an old fissure opens when the ground cools. The next caravan is already approaching.",
+      "flavor": "The black road holds its warmth long after sunset. A road mender taps a line of stones that glow faintly under her hammer, and warns you that an old fissure opens here as the ground cools. Down the road, the lanterns of the next caravan are already in sight.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "mark-the-unsafe-seam",
           "label": "Mark the unsafe seam",
-          "intent": "Zuzu chooses to mark the unsafe seam with full responsibility for the outcome.",
-          "risk": "awareness check versus 11; mistakes may cost health or provisions.",
+          "intent": "Find where the fissure will open and wave the caravan away from it.",
+          "risk": "The seam may open while you're standing on it.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu traces a safe detour and signals the caravan before the fissure opens.",
+            "text": "You trace the seam to its end and find solid ground around it. Your lantern swings the caravan onto the detour just before the road splits, and the way ahead now bends around a fresh black gap.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-cooling-stones-1-success"],
             "map_effect": "recorded-prospective-shift"
           },
           "failure": {
-            "text": "The road parts beneath his boots and cuts his leg before he can retreat.",
+            "text": "The road parts beneath your feet. You throw yourself back, but the edge of the stone cuts deep into your leg before you reach solid ground.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-cooling-stones-1-failure"],
@@ -1773,22 +1773,22 @@
         {
           "id": "help-lay-a-new-crossing",
           "label": "Help lay a new crossing",
-          "intent": "Zuzu chooses to help lay a new crossing with full responsibility for the outcome.",
-          "risk": "steel check versus 11; mistakes may cost health or provisions.",
+          "intent": "Haul slabs with the mender to bridge the gap before the caravan arrives.",
+          "risk": "The slabs are heavy, and the ground beneath them is moving.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Together they place sturdy slabs over the gap and share water in the renewed shade.",
+            "text": "Together you lever the last slab into place as the first wagon rolls up. The drivers cross safely, and the mender fills your waterskin from the caravan's barrel in thanks.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-cooling-stones-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The slabs shift under their weight, forcing a painful climb and wasting the day's supplies.",
+            "text": "The slabs shift under your weight and slide into the fissure. You claw your way back up the hot rock, scraped and burning, while your supplies tumble into the dark below.",
             "hp_delta": -2,
             "provisions_delta": -1,
             "add_flags": ["the-cooling-stones-2-failure"],
@@ -1801,29 +1801,29 @@
       "id": "mirror-in-the-ash",
       "locationId": "obsidian-road",
       "title": "A Mirror in the Ash",
-      "flavor": "A scavenger turns a mirror toward the empty road and watches dust gather on its surface. She claims it shows travelers what they have already lost, though her own reflection remains ordinary. Beside the mirror lie several discarded letters.",
+      "flavor": "On a road buried in ash, a scavenger turns a mirror toward the empty horizon and watches dust settle on its face. She claims it shows travelers what they have already lost, though her own reflection stays ordinary. Beside the mirror lies a scatter of discarded letters, some never opened.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "read-the-discarded-letters",
           "label": "Read the discarded letters",
-          "intent": "Zuzu chooses to read the discarded letters with full responsibility for the outcome.",
-          "risk": "insight check versus 11; mistakes may cost health or provisions.",
+          "intent": "Sort through the letters she threw away, looking for something she missed.",
+          "risk": "The wind up here does not wait for slow readers.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu finds a map reference among the letters, not an answer to the world's older mysteries.",
+            "text": "One letter mentions a dry well and a cairn by the road, written by someone who meant to come back. It explains nothing about the mirror, but you fold it carefully and keep it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["mirror-in-the-ash-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Wind tears the letters apart before Zuzu can put them in order, leaving him exposed on the ridge.",
+            "text": "A gust tears the letters from your hands and scatters them down the slope. You chase them across the open ridge until the cold and the ash leave you worn through.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["mirror-in-the-ash-1-failure"],
@@ -1833,22 +1833,22 @@
         {
           "id": "trade-a-true-memory",
           "label": "Trade a true memory",
-          "intent": "Zuzu chooses to trade a true memory with full responsibility for the outcome.",
-          "risk": "resolve check versus 12; mistakes may cost health or provisions.",
+          "intent": "Give the scavenger an honest memory of something you lost, as she asks.",
+          "risk": "Some memories cost more to say aloud than you expect.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 12
           },
           "success": {
-            "text": "The scavenger accepts his honest recollection and points out a sheltered route past the ruins.",
+            "text": "You tell her about a loss you rarely speak of, and she listens without interrupting. When you finish, she points out a sheltered way past the ruins and asks for nothing more.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["mirror-in-the-ash-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The exchange shakes him with grief and distraction; he stumbles onward exhausted.",
+            "text": "The memory comes out harder than you meant, and grief follows it. You stumble on past the mirror, unable to steady yourself, and walk the next miles bone-tired.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["mirror-in-the-ash-2-failure"],
@@ -1861,29 +1861,29 @@
       "id": "ashes-at-the-border",
       "locationId": "obsidian-road",
       "title": "Ashes at the Border",
-      "flavor": "A ranger stops Zuzu where ash drifts across the road like snow. She guards a damaged watchtower and insists that no one is permitted through until the signal horn is repaired. Her comrades left hours ago for water.",
+      "flavor": "At the border, a ranger stops you while ash drifts across the road like snow. She guards a damaged watchtower and will let no one through until its signal horn is mended. Her comrades left hours ago for water, and she keeps glancing at the empty trail they took.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "repair-the-signal-horn",
           "label": "Repair the signal horn",
-          "intent": "Zuzu chooses to repair the signal horn with full responsibility for the outcome.",
-          "risk": "wits check versus 11; mistakes may cost health or provisions.",
+          "intent": "Clear the horn's jammed valve so the ranger can sound the all-clear.",
+          "risk": "The horn is old, and breaking it would cost you.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu clears the damaged valve, and the ranger sounds a warning that opens the road.",
+            "text": "You scrape packed ash from the valve and the horn finds its voice. The ranger sounds the warning, one long low note across the border, and waves you through the barrier.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["ashes-at-the-border-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The horn breaks further in his hands and the stranded ranger demands compensation he cannot pay.",
+            "text": "The horn splits in your hands. The stranded ranger, furious, demands payment for it, and you hand over most of your food because you have nothing else to give.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["ashes-at-the-border-1-failure"],
@@ -1893,22 +1893,22 @@
         {
           "id": "offer-to-scout-the-tower",
           "label": "Offer to scout the tower",
-          "intent": "Zuzu chooses to offer to scout the tower with full responsibility for the outcome.",
-          "risk": "awareness check versus 11; mistakes may cost health or provisions.",
+          "intent": "Climb the damaged tower and look for what the ranger can't see from the road.",
+          "risk": "The stairs are cracked, and ash hides the worst of it.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "From the tower Zuzu spots an approaching dust front and guides the ranger to safety.",
+            "text": "From the top you spot a dust front rolling toward the road. You shout down in time, and you and the ranger shelter behind the tower wall until it passes.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["ashes-at-the-border-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The stairs crumble under him, and he escapes the falling stones bruised and coughing.",
+            "text": "The stairs crumble under you halfway up. You make it down just ahead of the falling stones, bruised all over and coughing ash.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["ashes-at-the-border-2-failure"],
@@ -1921,29 +1921,29 @@
       "id": "the-last-watchfire",
       "locationId": "fortified-camp",
       "title": "The Last Watchfire",
-      "flavor": "The camp's final watchfire burns low despite plenty of wood. Its commander says the guards refuse to light a second flame while refugees are still missing outside the barricade. Her sabre rests untouched beside the gate.",
+      "flavor": "The camp's last watchfire burns low beside a stack of good dry wood. Its commander says the guards refuse to light a second flame while refugees are still lost outside the barricade. Her sabre rests untouched beside the gate, and no one has offered to go out into the dark.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "volunteer-for-the-search",
           "label": "Volunteer for the search",
-          "intent": "Zuzu chooses to volunteer for the search with full responsibility for the outcome.",
-          "risk": "resolve check versus 11; mistakes may cost health or provisions.",
+          "intent": "Go out past the barricade yourself and bring the missing refugees in.",
+          "risk": "The dark beyond the camp hides a ravine, and worse.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu follows quiet calls into the dark and returns with the missing refugees.",
+            "text": "You follow faint calls into the dark and come back with every one of them. A grandmother among the refugees pushes a cloth of dried figs into your hand and holds on a moment too long.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-last-watchfire-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He reaches the ravine too late and returns shaken and scraped by the narrow path.",
+            "text": "You reach the ravine too late; the tracks end at its edge. You climb back along the narrow path, scraped and shaking, and the commander does not ask what you found.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-last-watchfire-1-failure"],
@@ -1953,22 +1953,22 @@
         {
           "id": "organize-the-watch-rota",
           "label": "Organize the watch rota",
-          "intent": "Zuzu chooses to organize the watch rota with full responsibility for the outcome.",
-          "risk": "bearing check versus 10; mistakes may cost health or provisions.",
+          "intent": "Draw up a fair rotation so the guards can search and still hold the gate.",
+          "risk": "Tired guards don't take orders kindly from a stranger.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The camp accepts a fair division of duty, and fresh guards bring food from the stores.",
+            "text": "The camp accepts a fair split of duty, and a fresh patrol goes out at once. The quartermaster, grateful for a night's sleep, sends you off with bread from the stores.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-last-watchfire-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "Distrust splits the patrol and Zuzu is sent away before a new watch can be arranged.",
+            "text": "Old grudges split the patrol, and someone blames the stranger. You are sent out of the camp before a watch can be set, and the ration you set down by the fire stays behind.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-last-watchfire-2-failure"],
@@ -1981,29 +1981,29 @@
       "id": "the-closed-infirmary",
       "locationId": "fortified-camp",
       "title": "The Closed Infirmary",
-      "flavor": "A field physician keeps wounded travelers outside an infirmary whose door has been nailed shut. She insists the room is contaminated, but the only available bandages are inside. Several guards accuse her of inventing the danger.",
+      "flavor": "A field physician keeps wounded travelers waiting outside an infirmary whose door has been nailed shut. She insists the room is contaminated, but the only bandages in camp are inside. Guards crowd around a half-unloaded supply wagon, accusing her of inventing the danger, and one already has a crowbar in hand.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "inspect-the-sealed-room",
           "label": "Inspect the sealed room",
-          "intent": "Zuzu chooses to inspect the sealed room with full responsibility for the outcome.",
-          "risk": "insight check versus 11; mistakes may cost health or provisions.",
+          "intent": "Pry a board loose and see for yourself what is behind the door.",
+          "risk": "If she is right, the air in there could poison you.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu discovers spoiled herbs rather than a plague, and the clean supplies are recovered safely.",
+            "text": "Inside you find spoiled herbs rotting in a sack, not plague. You haul out the clean bandages, and the physician, embarrassed and grateful, packs some for your own road.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-closed-infirmary-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "He forces the door too quickly and inhales bitter fumes that leave him weak.",
+            "text": "You force the door too fast and breathe in a lungful of bitter fumes. You stagger back weak and retching, and the physician has to treat you first.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-closed-infirmary-1-failure"],
@@ -2013,22 +2013,22 @@
         {
           "id": "calm-the-waiting-guards",
           "label": "Calm the waiting guards",
-          "intent": "Zuzu chooses to calm the waiting guards with full responsibility for the outcome.",
-          "risk": "bearing check versus 10; mistakes may cost health or provisions.",
+          "intent": "Talk the guards down before they break the door and spread whatever is inside.",
+          "risk": "A frightened crowd turns quickly.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "The guards help carry fresh supplies to the wounded instead of breaking the door.",
+            "text": "You remind the guards there are clean supplies on the wagon behind them. They lower the crowbar and carry bandages to the wounded instead of breaking down the door.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-closed-infirmary-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The crowd panics and overturns the wagon; Zuzu takes a blow in the crush.",
+            "text": "Someone shouts plague and the crowd surges. The wagon goes over, and in the crush you take an elbow to the jaw and a knee to the ribs.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-closed-infirmary-2-failure"],
@@ -2041,29 +2041,29 @@
       "id": "the-prisoner-of-dusk",
       "locationId": "fortified-camp",
       "title": "The Prisoner of Dusk",
-      "flavor": "Guards hold a scout whose eyes flash red whenever the sun touches the copper wire on his wrists. A medic says the reaction began after an encounter with an occult relic. The commander fears what will happen at sundown.",
+      "flavor": "Guards hold a scout whose eyes flash red whenever sunlight touches the copper wire on his wrists. A medic says it began after he handled an occult relic out in the waste. The sun is sinking toward the ridge, and the commander keeps her hand on her sword, waiting to see what dusk will do to him.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "question-the-scout-quietly",
           "label": "Question the scout quietly",
-          "intent": "Zuzu chooses to question the scout quietly with full responsibility for the outcome.",
-          "risk": "insight check versus 12; mistakes may cost health or provisions.",
+          "intent": "Sit with the scout and ask what he touched, before the guards lose their nerve.",
+          "risk": "If his voice turns, the guards will strike first.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 12
           },
           "success": {
-            "text": "Zuzu learns the relic's location and persuades the commander to loosen the binding under supervision.",
+            "text": "In a low voice he tells you where the relic lies buried. You persuade the commander to loosen the wire under guard, and his eyes stay his own as dusk falls.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-prisoner-of-dusk-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The scout loses control of his voice and the frightened guards strike before Zuzu can intervene.",
+            "text": "His voice slips into something that is not his, and the guards panic. You step between them and him, and take a spear shaft across the shoulders for it.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-prisoner-of-dusk-1-failure"],
@@ -2073,22 +2073,22 @@
         {
           "id": "secure-the-copper-restraint",
           "label": "Secure the copper restraint",
-          "intent": "Zuzu chooses to secure the copper restraint with full responsibility for the outcome.",
-          "risk": "wits check versus 11; mistakes may cost health or provisions.",
+          "intent": "Mend the damaged clasp on his wire so it holds without cutting him.",
+          "risk": "The copper runs hot when the light touches it.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu rebuilds the damaged clasp without harming the captive, buying time for a healer.",
+            "text": "You rebuild the clasp so it holds firm without biting into his skin. It buys enough time for a healer to arrive, and the scout thanks you with his eyes shut tight.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-prisoner-of-dusk-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The clasp burns through his glove and the camp drives him away from the prisoner.",
+            "text": "The clasp heats in your grip and burns your palm. You cry out, the scout thrashes, and the guards drive you away from the prisoner with your hand blistered.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-prisoner-of-dusk-2-failure"],
@@ -2101,29 +2101,29 @@
       "id": "the-key-with-no-door",
       "locationId": "last-threshold",
       "title": "The Key Without a Door",
-      "flavor": "An archivist waits beside an unmarked gate and holds out a key carved from stone. She says the key belongs to a door no one can locate twice. Behind her, faded carvings show travelers arriving from different directions.",
+      "flavor": "An archivist waits beside an unmarked gate, holding out a key carved from stone. She says it belongs to a door no one has ever found twice, and the gate behind her has no lock at all. Faded carvings on the gatepost show travelers arriving from every direction, each by a different road.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "read-the-worn-carving",
           "label": "Read the worn carving",
-          "intent": "Zuzu chooses to read the worn carving with full responsibility for the outcome.",
-          "risk": "insight check versus 12; mistakes may cost health or provisions.",
+          "intent": "Study the carvings for a mark that repeats, whatever road each traveler came by.",
+          "risk": "Old stone crumbles, and the archivist may lose patience.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
             "target": 12
           },
           "success": {
-            "text": "Zuzu identifies a recurring mark that aligns the gate with the path he actually walked.",
+            "text": "Under the grime you find one mark repeated in every figure. Laid against the road you actually walked, it lines the gate up with your own steps, and the archivist nods slowly.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-key-with-no-door-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The pattern vanishes beneath his rubbing, and the archivist sends him toward a dangerous side passage.",
+            "text": "The pattern crumbles under your rubbing. The archivist sends you down a side passage to try another way, and its loose scree throws you down hard twice before you climb back out.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-key-with-no-door-1-failure"],
@@ -2133,22 +2133,22 @@
         {
           "id": "ask-who-forged-the-key",
           "label": "Ask who forged the key",
-          "intent": "Zuzu chooses to ask who forged the key with full responsibility for the outcome.",
-          "risk": "bearing check versus 11; mistakes may cost health or provisions.",
+          "intent": "Ask her plainly who made the key and what they wanted with it.",
+          "risk": "She may hear suspicion where you mean only curiosity.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "The archivist admits she does not know its makers but shows how to approach the gate safely.",
+            "text": "She admits she does not know who made it; it was handed to her the way she now offers it to you. Then she shows you how to approach the gate without waking its old warding.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-key-with-no-door-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "She hears accusation in his question and closes the audience, leaving him without supplies.",
+            "text": "She hears an accusation in your question and ends the audience. The supplies you set down as a courtesy gift stay with her, and you walk away with a lighter pack.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-key-with-no-door-2-failure"],
@@ -2161,29 +2161,29 @@
       "id": "a-promise-kept",
       "locationId": "last-threshold",
       "title": "A Promise Kept",
-      "flavor": "A messenger rests just short of the final gate, guarding a letter that has crossed several kingdoms. Its recipient may already have vanished, but the promise to deliver it remains. She asks Zuzu whether a duty can survive the loss of its purpose.",
+      "flavor": "A messenger rests just short of the final gate, one hand flat on a sealed letter that has crossed several kingdoms. Its recipient may have vanished long ago, but she promised to deliver it. She has begun to wonder aloud whether a duty can outlive its purpose, and she cannot carry it much farther alone.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "carry-the-sealed-letter",
           "label": "Carry the sealed letter",
-          "intent": "Zuzu chooses to carry the sealed letter with full responsibility for the outcome.",
-          "risk": "resolve check versus 11; mistakes may cost health or provisions.",
+          "intent": "Take the letter from her and promise to finish its journey, seal unbroken.",
+          "risk": "Another person's promise is heavy to carry on a hard road.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "Zuzu accepts the burden without opening the seal, and the messenger shares the final safe directions.",
+            "text": "You take the letter and do not open it. The messenger, lighter for it, gives you the last of her trail bread and the final safe directions she has carried this far.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["a-promise-kept-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The weight of another promise distracts him; a misstep costs him strength in the narrow pass.",
+            "text": "The letter weighs on your thoughts more than your pack does. In the narrow pass you misstep and wrench your ankle, and the climb takes more out of you than it should.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["a-promise-kept-1-failure"],
@@ -2193,22 +2193,22 @@
         {
           "id": "help-search-for-its-owner",
           "label": "Help search for its owner",
-          "intent": "Zuzu chooses to help search for its owner with full responsibility for the outcome.",
-          "risk": "awareness check versus 12; mistakes may cost health or provisions.",
+          "intent": "Search the road for any trace of the letter's recipient before giving up.",
+          "risk": "The trail is old, and searching will cost you time.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 12
           },
           "success": {
-            "text": "They find a sign left by the recipient and follow a more certain road to the threshold.",
+            "text": "Together you find a sign scratched into a waystone, left by the recipient for whoever came after. It confirms the road you are already on, and the messenger walks the rest of it with you, certain now.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-promise-kept-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The search yields only old tracks, and the delay consumes their last meal.",
+            "text": "The search turns up only old tracks, half buried in ash. The delay eats into your stores, and at the roadside you share your last meal with the messenger.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["a-promise-kept-2-failure"],
@@ -2221,29 +2221,29 @@
       "id": "the-price-of-silence",
       "locationId": "last-threshold",
       "title": "The Price of Silence",
-      "flavor": "A negotiator offers passage on one condition: Zuzu must promise never to speak of what he sees beyond the gate. No contract names the powers behind it. She waits without anger as the black stones cool at her feet.",
+      "flavor": "A negotiator offers you passage on one condition: you must never speak of what you see beyond the gate. No contract names the powers who set that price of silence. She waits without anger, hands folded, as the black stones cool at her feet.",
       "weight": 2,
       "art": null,
       "choices": [
         {
           "id": "refuse-the-secret-bargain",
           "label": "Refuse the secret bargain",
-          "intent": "Zuzu chooses to refuse the secret bargain with full responsibility for the outcome.",
-          "risk": "resolve check versus 12; mistakes may cost health or provisions.",
+          "intent": "Turn down her offer and look for a way past the gate that binds you to nothing.",
+          "risk": "Without her help, the only other ways are rough ones.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 12
           },
           "success": {
-            "text": "Zuzu refuses to surrender his judgment and finds an unbound route around the negotiator's seal.",
+            "text": "You decline, and she lets you. Following the old wall, you find a gap in the stones around her seal, unbound and unwatched, and you walk through it owing no one.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-price-of-silence-1-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "The negotiator closes the direct gate and Zuzu must climb a razor-edged ridge to continue.",
+            "text": "She closes the direct gate without a word. The only way left is over a razor-edged ridge of obsidian, and you reach the far side with cut hands and torn knees.",
             "hp_delta": -2,
             "provisions_delta": 0,
             "add_flags": ["the-price-of-silence-1-failure"],
@@ -2253,22 +2253,22 @@
         {
           "id": "question-the-cost-openly",
           "label": "Question the cost openly",
-          "intent": "Zuzu chooses to question the cost openly with full responsibility for the outcome.",
-          "risk": "bearing check versus 11; mistakes may cost health or provisions.",
+          "intent": "Ask her, in front of the others waiting, what silence actually costs.",
+          "risk": "She may simply keep you talking until night falls.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "The negotiator admits the price is obedience, not coin; Zuzu walks away with the truth intact.",
+            "text": "After a long pause, she admits the price is obedience, not coin. You refuse the bargain and walk away with the truth of it intact, which is more than most travelers get.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-price-of-silence-2-success"],
             "map_effect": "none"
           },
           "failure": {
-            "text": "She answers in riddles until dusk, leaving him hungry and dangerously exposed.",
+            "text": "She answers in riddles until dusk. By then you have eaten through more of your food than you meant to, and night comes down cold and open around you.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["the-price-of-silence-2-failure"],

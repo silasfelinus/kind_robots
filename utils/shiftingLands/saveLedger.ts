@@ -28,14 +28,27 @@ const REWARD_EFFECTS = {
   'willow-bark-dose': {
     hp: 2,
     provisions: 0,
-    text: 'Zuzu takes a measured dose of willow bark.',
+    text: 'You take a measured dose of willow bark.',
   },
   'recovered-rations': {
     hp: 0,
     provisions: 2,
-    text: 'Zuzu opens the recovered rations for the road.',
+    text: 'You open the recovered rations for the road.',
   },
 } as const
+
+// Story wording (journal lines, shift reasons, outcome prose) is presentation:
+// a restore must still agree on every die, choice, flag, HP and route, but a
+// prose rewrite of the authored cards must not reject a saved run.
+const PROSE_KEYS = new Set(['text', 'reason', 'resultText'])
+
+export function sameReplay(a: unknown, b: unknown): boolean {
+  const mechanics = (value: unknown) =>
+    JSON.stringify(value, (key, field) =>
+      PROSE_KEYS.has(key) ? undefined : field,
+    )
+  return mechanics(a) === mechanics(b)
+}
 
 const sourceIsCurrent = (s: JourneyLedger): boolean =>
   s.manifestBlobSha === JOURNEY_WORLD.source.blobSha &&
@@ -183,7 +196,7 @@ export function replayJourneyLedger(value: unknown): JourneyLedger | null {
       usedRewards = next.usedRewards
     }
     if (
-      JSON.stringify(current) !== JSON.stringify(saved.current) ||
+      !sameReplay(current, saved.current) ||
       JSON.stringify(usedRewards) !== JSON.stringify(saved.usedRewards)
     )
       return null

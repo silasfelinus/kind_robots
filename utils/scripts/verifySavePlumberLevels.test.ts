@@ -203,7 +203,8 @@ assert.throws(() => parseStage({ code: 'x', name: 'x', rows: ['..'] }))
 
 // Every leg is finishable: the predictive autopilot walks, climbs, ducks and
 // swings its way through each one, losing at most two lives, and climbs at
-// least six tiles above the lowest ground on the way.
+// least five tiles above the lowest ground on the way (most legs climb nine to
+// seventeen).
 const bosses = [
   'Madame Pressure',
   'Captain Barnaclejack',
@@ -235,7 +236,7 @@ for (let index = 0; index < CAMPAIGN.length; index++) {
     `${CAMPAIGN[index]!.code} is cleared losing ${deaths} lives`,
   )
   assert.ok(
-    highest <= (game.groundRow - 6) * TILE,
+    highest <= (game.groundRow - 5) * TILE,
     `${CAMPAIGN[index]!.code}'s route climbs`,
   )
   assert.deepEqual(

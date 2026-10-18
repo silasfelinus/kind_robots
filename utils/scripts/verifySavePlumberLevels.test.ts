@@ -263,6 +263,7 @@ const track = (endless = false) => {
   g.mode = 'play'
   g.foes.length = 0
   g.vents.length = 0
+  g.pickups.length = 0
   const { cols, rows } = g.stage
   const solid = (g as unknown as { solid: Uint8Array }).solid
   for (let r = 0; r < rows; r++)
@@ -575,6 +576,26 @@ const lab = (stage: number) => {
   return g
 }
 
+/** A foe of this kind with open sky above it, to drop onto. */
+const underSky = (g: ReturnType<typeof lab>, kind: string) =>
+  g.foes.find((f) => {
+    if (f.kind !== kind) return false
+    const col = Math.floor(f.x / TILE)
+    const row = Math.floor((f.y - 1) / TILE)
+    for (let r = row - 4; r < row; r++)
+      for (let c = col - 1; c <= col + 1; c++) if (g.solidAt(c, r)) return false
+    return true
+  })
+/** The first stage with a foe of this kind under open sky. */
+const skyFoe = (kind: string) => {
+  for (let i = 0; i < CAMPAIGN.length; i++) {
+    const g = lab(i)
+    const foe = underSky(g, kind)
+    if (foe) return { g, foe }
+  }
+  throw new Error(`no ${kind} under open sky`)
+}
+
 // Gliders fly at her head: slide under them.
 const gliderSource = lab(1).foes.find((f) => f.glide)!
 const gliderRun = (duck: boolean) => {
@@ -643,10 +664,9 @@ sink.hero.y = (sink.groundRow + 1) * TILE - 20
 for (let i = 0; i < 40; i++) sink.update(emptyInput())
 assert.equal(sink.mode, 'dying', 'water costs a life')
 
-const orchard = lab(9)
-const lantern = orchard.foes.find((f) => f.kind === 'moss-lantern')!
+const { g: orchard, foe: lantern } = skyFoe('moss-lantern')
 orchard.hero.x = lantern.x
-orchard.hero.y = lantern.y - 60
+orchard.hero.y = lantern.y - HERO_TALL - 22
 orchard.hero.vy = 2
 for (let i = 0; i < 30 && lantern.state !== 'flat'; i++)
   orchard.update(emptyInput())
@@ -655,11 +675,10 @@ assert.ok(
   orchard.platforms.includes(lantern.pad!),
   'a flat lantern is a platform',
 )
-const hop = lab(CAMPAIGN.findIndex((d) => d.rows.join('').includes('h')))
-const hare = hop.foes.find((f) => f.kind === 'spring-hare')!
+const { g: hop, foe: hare } = skyFoe('spring-hare')
 for (let i = 0; i < 10; i++) hop.update(emptyInput())
 hop.hero.x = hare.x
-hop.hero.y = hare.y - 60
+hop.hero.y = hare.y - HERO_TALL - 22
 hop.hero.vy = 3
 let launched = false
 for (let i = 0; i < 30 && !launched; i++) {
@@ -682,12 +701,11 @@ const onBelt = fair.hero.x
 for (let i = 0; i < 20; i++) fair.update(emptyInput())
 assert.ok(fair.hero.x > onBelt + 15, 'a right-hand belt carries you right')
 
-const golemLab = lab(12)
-const golem = golemLab.foes.find((f) => f.kind === 'gasket-golem')!
+const { g: golemLab, foe: golem } = skyFoe('gasket-golem')
 const stompGolem = () => {
   golemLab.immune = 0
   golemLab.hero.x = golem.x
-  golemLab.hero.y = golem.y - 60
+  golemLab.hero.y = golem.y - HERO_TALL - 22
   golemLab.hero.vy = 3
   for (let i = 0; i < 30 && golemLab.hero.vy >= 0; i++)
     golemLab.update(emptyInput())
@@ -901,7 +919,8 @@ lifter.hero.x = crateCol * TILE - 40
 lifter.hero.y = Math.floor(crateAt / lifter.stage.cols + 1) * TILE - HERO_TALL
 for (let i = 0; i < 200 && !lifter.carrying; i++) {
   const walk = emptyInput()
-  walk.pressed.x = lifter.hero.x > crateCol * TILE - 20 && i % 25 === 0
+  walk.held.right = lifter.hero.x < crateCol * TILE - 20
+  walk.pressed.x = !walk.held.right && i % 25 === 0
   lifter.immune = 99
   lifter.update(walk)
 }

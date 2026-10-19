@@ -18,9 +18,11 @@ import {
   equipItem,
   finishDay,
   followerStatus,
+  forecastMark,
   injuryDaysLeft,
   isOver,
   optionBlockers,
+  partyLimit,
   postDawnQuests,
   previewQuest,
   recruit,
@@ -34,6 +36,7 @@ import {
   ITEMS,
   followerDef,
 } from '../emperorOfDust/fortress/followers'
+import { NPCS, npcDef } from '../emperorOfDust/fortress/npcs'
 import {
   decodeBook,
   decodeCodex,
@@ -56,7 +59,11 @@ import {
   encodeRelicVault,
   eyeReveals,
 } from '../emperorOfDust/fortress/relics'
-import { STATS } from '../emperorOfDust/fortress/types'
+import {
+  KINGDOM_FACTIONS,
+  LOCAL_FACTIONS,
+  STATS,
+} from '../emperorOfDust/fortress/types'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
@@ -70,14 +77,38 @@ assert.equal(
   6,
   'six romanceable followers',
 )
-const lateKinds = FOLLOWERS.slice(10).map((def) => def.ability.kind)
-assert.equal(new Set(lateKinds).size, 10, 'F011-F020 abilities are distinct')
-for (const kind of lateKinds)
-  assert.equal(
-    FOLLOWERS.filter((def) => def.ability.kind === kind).length,
-    1,
-    `${kind} belongs to one follower`,
+assert.equal(
+  new Set(FOLLOWERS.map((def) => def.ability.kind)).size,
+  FOLLOWERS.length,
+  'every follower has a mechanic nobody else has',
+)
+const castSpecies = [
+  ...FOLLOWERS.map((def) => def.species),
+  ...NPCS.map((npc) => npc.species),
+].map((species) => species.toLowerCase())
+assert.equal(
+  new Set(castSpecies).size,
+  castSpecies.length,
+  'no two named characters share a species',
+)
+for (const day of DAYS)
+  for (const audience of day.audiences)
+    if (audience.npc) assert.ok(npcDef(audience.npc), audience.npc)
+for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
+  const reps = NPCS.filter((npc) => npc.faction === faction)
+  assert.ok(reps.length, `${faction} has a named NPC`)
+  assert.ok(
+    reps.some((npc) =>
+      DAYS.some((day) => day.audiences.some((a) => a.npc === npc.slug)),
+    ),
+    `${faction}'s NPC speaks at court by Day ${LAST_DAY}`,
   )
+}
+const kiyo = followerDef('F003')!
+assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
+assert.ok(kiyo.starter && !kiyo.romanceable)
+assert.ok(kiyo.talk?.some((line) => line.includes('Zuzu')))
+assert.ok(FOLLOWERS.some((def) => def.species === 'Fennec fox'))
 assert.ok(
   FOLLOWERS.some((def) =>
     def.traits.some(
@@ -899,5 +930,72 @@ assert.equal(
   DAYS.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length,
   4,
 )
+
+// Under the Wall: Keel's Wits count toward Might requirements.
+const keel = followerDef('F009')!
+const wellRoad = questDef('q-d01-well-road')!
+const dug = previewQuest(withCast(1, 1, ['F009']), 'q-d01-well-road', ['F009'])
+assert.equal(
+  dug.perRequirement[0]?.total,
+  keel.stats.might +
+    keel.stats.wits +
+    (wellRoad.faction ? (keel.factionModifiers[wellRoad.faction] ?? 0) : 0),
+)
+// Many Hands: Lumen joins a party that is already full.
+const crowded = withCast(1, 1, ['F001', 'F002', 'F004', 'F010'])
+assert.equal(partyLimit(wellRoad, ['F001', 'F010']), wellRoad.party.max + 1)
+const withLumen = assignQuest(crowded, 'q-d01-well-road', [
+  'F001',
+  'F002',
+  'F010',
+])
+assert.ok(validateRun(withLumen), 'a Many Hands party still saves')
+assert.throws(
+  () => assignQuest(crowded, 'q-d01-well-road', ['F001', 'F002', 'F004']),
+  /1-2 followers/,
+)
+// Stalling Letters: Ash buys one expiring quest a single extra day.
+const stalling = onDay(1, 1, {
+  roster: [{ id: 'F007', joinedDay: 1, equipment: {} }],
+  board: [{ questId: 'q-d01-toll-parley', postedDay: 1, lastDay: 1 }],
+})
+const stalledNight = finishDay(stalling)
+assert.equal(
+  stalledNight.run.board.find((e) => e.questId === 'q-d01-toll-parley')
+    ?.lastDay,
+  2,
+)
+assert.ok(stalledNight.report.events.some((e) => e.includes('Ash Quill')))
+const secondNight = finishDay(stalledNight.run)
+assert.ok(
+  secondNight.report.quests.some(
+    (q) => q.questId === 'q-d01-toll-parley' && q.tier === 'expired',
+  ),
+  'only once per quest',
+)
+assert.ok(
+  finishDay({ ...stalling, roster: [] }).report.quests.some(
+    (q) => q.questId === 'q-d01-toll-parley' && q.tier === 'expired',
+  ),
+  'without Ash it expires on time',
+)
+// Hot Meals First: Bram at home heals the wounded a day faster.
+const sore = (ids: string[]) =>
+  onDay(1, 5, {
+    roster: [
+      ...ids.map((id) => ({ id, joinedDay: 1, equipment: {} })),
+      { id: 'F001', joinedDay: 1, injuredUntilDay: 9, equipment: {} },
+    ],
+  })
+assert.equal(injuryDaysLeft(finishDay(sore(['F008'])).run, 'F001'), 2)
+assert.equal(injuryDaysLeft(finishDay(sore([])).run, 'F001'), 3)
+// Reads the Wind: Nera marks the false briefing, but not Komodo's own lie.
+const marks = (day: number, ids: string[]) =>
+  DAYS.find((def) => def.day === day)!.briefings.map((b) =>
+    forecastMark(withCast(1, day, ids), b),
+  )
+assert.deepEqual(marks(1, ['F006']), [null, 'false', null])
+assert.deepEqual(marks(7, ['F006']), [null, 'unreadable', null])
+assert.deepEqual(marks(1, ['F001']), [null, null, null])
 
 console.log('Emperor of Dust fortress contract: ok')

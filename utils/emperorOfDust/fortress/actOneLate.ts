@@ -650,7 +650,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         npc: 'sister-marrow',
         faction: 'abbey',
         lines: [
-          'Wenna Coldbrook stands with three children behind her and a baby on her hip. Their farm is ash. Beside her, an otter in grey Abbey robes smiles with great patience.',
+          'Wenna Coldbrook stands with three children behind her and a baby on her hip. Their farm is ash. Beside her, a white goat in grey Abbey robes smiles with great patience.',
           '“The Abbey would gladly take the little ones,” says Sister Marrow. “Warm beds. Lessons. Their mother may visit, of course, once they are settled.”',
         ],
         options: [
@@ -675,7 +675,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F012'],
             },
             response:
-              'Wenna holds the baby very tight. Sister Marrow’s smile does not move, and then she is gone. A young otter in a novice’s robe stays behind, and asks whether the Yard needs a cook.',
+              'Wenna holds the baby very tight. Sister Marrow’s smile does not move, and then she is gone. A young capybara in a novice’s robe stays behind, and asks whether the Yard needs a cook.',
           },
           {
             id: 'escort',

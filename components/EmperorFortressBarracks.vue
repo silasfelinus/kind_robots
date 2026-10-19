@@ -105,6 +105,12 @@
         </div>
       </div>
       <p class="text-sm">{{ def.biography }}</p>
+      <p
+        v-if="talkLine"
+        class="border-l-2 border-warning/60 pl-3 font-serif text-sm italic"
+      >
+        “{{ talkLine }}”
+      </p>
 
       <ul class="grid grid-cols-5 gap-1 text-center text-xs">
         <li
@@ -227,6 +233,11 @@ const modifiers = computed(() =>
       }`,
   ),
 )
+/** One line of barracks chatter per day, for followers who have some. */
+const talkLine = computed(() => {
+  const talk = def.value?.talk
+  return talk?.length ? talk[props.run.day % talk.length] : ''
+})
 const statusLine = computed(() => {
   if (!def.value) return ''
   const status = followerStatus(props.run, def.value.id)

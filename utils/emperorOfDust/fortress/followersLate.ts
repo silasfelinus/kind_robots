@@ -54,7 +54,7 @@ export const LATE_FOLLOWERS: readonly FollowerDef[] = [
   {
     id: 'F012',
     name: 'Brother Teodor Lull',
-    species: 'Otter',
+    species: 'Capybara',
     pronouns: 'he/him',
     origin: 'abbey',
     region: 'mission-road',
@@ -228,7 +228,7 @@ export const LATE_FOLLOWERS: readonly FollowerDef[] = [
   {
     id: 'F016',
     name: 'Sable Thorne',
-    species: 'Gorilla',
+    species: 'Black leopard',
     pronouns: 'they/them',
     origin: 'black-verge',
     region: 'black-verge',

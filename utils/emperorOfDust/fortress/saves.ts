@@ -139,7 +139,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
         text(entry.questId, 120) &&
         !!questDef(entry.questId) &&
         entry.party.length >= 1 &&
-        entry.party.length <= 4 &&
+        entry.party.length <= 5 &&
         entry.party.every((id: unknown) => text(id, 10) && rosterIds.has(id)) &&
         int(entry.departedDay, 1, day) &&
         int(entry.returnsDay, day, LAST_DAY + 4) &&

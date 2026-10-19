@@ -6,7 +6,7 @@ label: Ecotone
 title: Ecotone
 subtitle: Work in progress · A weird Humboldt card adventure
 description: One impossible festival weekend in Humboldt County. Choose how you meet it, follow one of four strangers, roll 2d6 against Bigfoot picnics, theater trapdoors and a squid holding Monday's newspaper, and help decide what the county becomes.
-summary: Follow the fog. Roll the dice. Decide what Humboldt becomes.
+summary: Follow the fog. Roll the dice.
 icon: kind-icon:pine
 route: /play/ecotone
 sort: 118

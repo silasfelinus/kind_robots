@@ -172,6 +172,7 @@
             :kind="stage.scene"
             :art="stage.art"
             :label="stage.alt"
+            :portrait="stage.portrait"
             class="absolute inset-0"
           />
           <div
@@ -417,6 +418,15 @@
                 : 'border-white/10 bg-black/25'
             "
           >
+            <div class="relative aspect-[4/3] overflow-hidden rounded-2xl">
+              <EcotoneScene
+                kind="grove"
+                :art="companion.art"
+                :label="`${companion.name}, ${companion.role}`"
+                portrait
+                class="absolute inset-0"
+              />
+            </div>
             <div class="flex items-center gap-3">
               <EcotoneEmblem
                 :id="companion.id"
@@ -707,12 +717,13 @@
               <div
                 v-for="slot in slotsFor(companion.id)"
                 :key="slot.id"
-                class="flex aspect-[2/3] flex-col items-center justify-center rounded-lg border text-center"
+                class="flex aspect-[2/3] flex-col items-center justify-center rounded-lg border bg-cover bg-center text-center"
                 :class="
                   slot.unlocked
                     ? 'border-success bg-success/20'
                     : 'border-white/10 bg-white/5'
                 "
+                :style="slotBack"
                 :title="`${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
               >
                 <span
@@ -749,6 +760,7 @@ import {
   LENSES,
   PROLOGUE,
   SKILLS,
+  artUrl,
   type Check,
   type CompanionId,
   type Effects,
@@ -888,6 +900,7 @@ const stage = computed(() => {
     title: PROLOGUE.title,
     body: PROLOGUE.body,
     lensLine: '',
+    portrait: false,
     emblem: null as null | { id: CompanionId; name: string }[],
   }
   if (!run) return fallback
@@ -897,6 +910,9 @@ const stage = computed(() => {
       ...fallback,
       eyebrow: `Prologue · ${lensLabel(c.lens)}`,
       title: `Meeting ${c.name}`,
+      art: c.art,
+      alt: `${c.name}, ${c.role}`,
+      portrait: true,
       body: COMPANION_INTROS[c.id],
       emblem: [{ id: c.id, name: c.name }],
     }
@@ -908,8 +924,9 @@ const stage = computed(() => {
     return {
       ...fallback,
       scene: 'bay' as SceneKind,
-      art: 'chapters/eureka-and-the-bay',
-      alt: 'An old-town waterfront on Humboldt Bay',
+      art: n.art,
+      alt: `${n.name}, ${n.role}`,
+      portrait: true,
       eyebrow: 'Crossroads · Eureka',
       title: `${n.name} crosses your path`,
       body: CROSSROADS[n.id],
@@ -940,6 +957,7 @@ const stage = computed(() => {
       lensLine: run.openingState
         ? (card.lensLines?.[run.openingState] ?? '')
         : '',
+      portrait: false,
       emblem: game.lead ? [{ id: game.lead.id, name: game.lead.name }] : null,
     }
   }
@@ -1043,6 +1061,15 @@ function slotsFor(id: CompanionId) {
     }),
   ).sort((a, b) => (a.fate === b.fate ? 0 : a.fate === 'hope' ? -1 : 1))
 }
+
+const slotBack = computed(() => {
+  const url = artUrl('ui/card-back')
+  return url
+    ? {
+        backgroundImage: `linear-gradient(rgb(11 29 31 / 0.55), rgb(11 29 31 / 0.55)), url(${url})`,
+      }
+    : undefined
+})
 
 function endingsFor(id: CompanionId) {
   return game.endings.filter((key) => key.startsWith(`${id}.`)).length

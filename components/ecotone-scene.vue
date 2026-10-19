@@ -570,7 +570,10 @@
         :src="src"
         :alt="label"
         class="ecotone-art absolute inset-0 size-full object-cover"
-        :class="loadedArt ? 'opacity-100' : 'opacity-0'"
+        :class="[
+          loadedArt ? 'opacity-100' : 'opacity-0',
+          portrait ? 'object-[50%_18%]' : '',
+        ]"
         @load="loadedArt = true"
         @error="failed = true"
       />
@@ -586,6 +589,7 @@ const props = defineProps<{
   kind: SceneKind
   art?: string
   label: string
+  portrait?: boolean
 }>()
 
 const uid = `eco${(useId() ?? 'scene').replace(/[^a-zA-Z0-9]/g, '')}`

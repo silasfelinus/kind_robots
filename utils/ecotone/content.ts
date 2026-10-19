@@ -141,6 +141,7 @@ export const COMPANIONS: Companion[] = [
     line: '“I don’t need to be high to know that tree just moved.”',
     anomaly:
       'A design she has never drawn keeps turning up in other people’s hands.',
+    art: 'companions/mara',
   },
   {
     id: 'kit',
@@ -151,6 +152,7 @@ export const COMPANIONS: Companion[] = [
     bio: 'Chinese American physical-theatre performer who came back to Humboldt for school, generations after her family was driven out of Eureka in 1885. Makes spectacle out of a broken bike, a ladder and a bad idea.',
     line: '“Every machine wants to be a parade. Most of them just need permission.”',
     anomaly: 'Her newest contraption has a mechanism she never designed.',
+    art: 'companions/kit',
   },
   {
     id: 'juniper',
@@ -161,6 +163,7 @@ export const COMPANIONS: Companion[] = [
     bio: 'A warm, teasing hippie in thrift-store layers who seems at home among redwoods in a way people aren’t. Her reflection has branches. Her own goals come first.',
     line: '“The woods remember you. That’s not always a compliment.”',
     anomaly: 'The forest is growing a shape it should not make.',
+    art: 'companions/juniper',
   },
   {
     id: 'cedar',
@@ -171,6 +174,7 @@ export const COMPANIONS: Companion[] = [
     bio: 'A country local in his thirties with oil-stained boots and a truck full of tools. One parent grew up logging, the other growing; they fell in love across the Timber Wars and are still together. He jokes about cosmic forces and fixes everything else.',
     line: '“Everybody in my family remembers the same tree. None of ’em remembers the same argument.”',
     anomaly: 'His CB picks up broadcasts from a Humboldt that hasn’t happened.',
+    art: 'companions/cedar',
   },
 ]
 
@@ -651,7 +655,24 @@ export const ENDING_IDS: string[] = COMPANIONS.flatMap((companion) =>
 
 export const ECOTONE_ART_ROOT = '/ecotone/'
 
-export const ECOTONE_ART: string[] = []
+export const ECOTONE_ART: string[] = [
+  'title/key-art',
+  'scenes/prologue-meadow',
+  'companions/mara',
+  'companions/kit',
+  'companions/juniper',
+  'chapters/arcata-after-hours',
+  'chapters/coast-of-improbable-tides',
+  'chapters/eureka-and-the-bay',
+  'chapters/backroads-and-bad-reception',
+  'encounters/wh-006-last-exit',
+  'ui/card-back',
+  'companions/cedar',
+  'chapters/southern-humboldt-older-roads',
+  'chapters/the-impossible-festival',
+  'encounters/wh-021-bigfoot-picnic',
+  'encounters/wh-061-perilous-plunge',
+]
 
 export function artUrl(asset?: string): string | null {
   if (!asset || !ECOTONE_ART.includes(asset)) return null

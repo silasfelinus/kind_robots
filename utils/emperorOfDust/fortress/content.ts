@@ -3,6 +3,7 @@ import { ACT_ONE_LATE_DAYS, ACT_ONE_LATE_QUESTS } from './actOneLate'
 import { ACT_TWO_DAYS, ACT_TWO_QUESTS } from './actTwo'
 import { ACT_THREE_DAYS, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_QUESTS } from './actFour'
+import { ACT_FIVE_DAYS, ACT_FIVE_QUESTS } from './actFive'
 import type { DayDef, QuestDef } from './types'
 
 // Seeded wasteland chores drawn at dawn. Each draw depends on the run's seed
@@ -162,6 +163,7 @@ const QUEST_INDEX = new Map<string, QuestDef>(
     ...ACT_TWO_QUESTS,
     ...ACT_THREE_QUESTS,
     ...ACT_FOUR_QUESTS,
+    ...ACT_FIVE_QUESTS,
     ...QUEST_TEMPLATES,
   ].map((quest) => [quest.id, quest]),
 )
@@ -178,6 +180,7 @@ export const DAYS: readonly DayDef[] = [
   ...ACT_TWO_DAYS,
   ...ACT_THREE_DAYS,
   ...ACT_FOUR_DAYS,
+  ...ACT_FIVE_DAYS,
 ]
 
 export const dayDef = (day: number): DayDef | undefined =>

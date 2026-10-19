@@ -2,7 +2,7 @@
   <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
     <section class="kr-panel space-y-3 p-4">
       <p class="text-xs font-semibold uppercase tracking-widest text-warning">
-        Young Komodo · morning briefing
+        {{ today?.advisor ?? 'Young Komodo' }} · morning briefing
       </p>
       <template v-if="today">
         <p class="font-serif text-lg italic">“{{ today.komodo }}”</p>

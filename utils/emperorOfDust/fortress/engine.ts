@@ -895,6 +895,8 @@ const actEnd = (run: FortressRun, events: string[]): void => {
   if (run.day === 41 && !run.flags.includes('komodo-betrayal')) {
     run.flags.push('komodo-betrayal')
     run.hideout = selectHideout(run)
+    // Act V content gates on the host: `hideout:mole-tunnels` and so on.
+    run.flags.push(`hideout:${run.hideout}`)
     events.push('Young Komodo has betrayed the throne. The court flees.')
   }
 }

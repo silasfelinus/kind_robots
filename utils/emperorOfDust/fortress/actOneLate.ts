@@ -11,7 +11,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     summary:
       'The Yard’s kitchens are three days from empty. Haggle flour barrels out of the Saltroad carts before the foreman’s patience runs out.',
     region: 'saltroad',
-    faction: 'yard',
+    faction: 'saltroad',
     durationDays: 1,
     boardDays: 2,
     party: { min: 1, max: 2 },

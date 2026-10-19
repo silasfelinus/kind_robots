@@ -104,6 +104,12 @@
           </p>
         </div>
       </div>
+      <img
+        v-if="art"
+        :src="art"
+        :alt="def.name"
+        class="mx-auto block max-h-96 w-auto rounded-xl object-contain"
+      />
       <p class="text-sm">{{ def.biography }}</p>
       <p
         v-if="talkLine"
@@ -193,6 +199,7 @@ import {
   KINGDOM_FACTION_DEFS,
   LOCAL_FACTION_DEFS,
 } from '~/utils/emperorOfDust/fortress/factions'
+import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
 import { STATS } from '~/utils/emperorOfDust/fortress/types'
 import type {
@@ -232,6 +239,18 @@ const modifiers = computed(() =>
         KINGDOM_FACTION_DEFS.find((faction) => faction.id === id)?.name ?? id
       }`,
   ),
+)
+/** The follower's illustration; a wounded follower shows their sad mood. */
+const art = computed(() =>
+  def.value
+    ? illustration(
+        'followers',
+        def.value.id,
+        followerStatus(props.run, def.value.id) === 'injured'
+          ? 'sad'
+          : 'neutral',
+      )
+    : undefined,
 )
 /** One line of barracks chatter per day, for followers who have some. */
 const talkLine = computed(() => {

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { existsSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
@@ -37,6 +38,7 @@ import {
   followerDef,
 } from '../emperorOfDust/fortress/followers'
 import { NPCS, npcDef } from '../emperorOfDust/fortress/npcs'
+import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
   decodeBook,
   decodeCodex,
@@ -997,5 +999,29 @@ const marks = (day: number, ids: string[]) =>
 assert.deepEqual(marks(1, ['F006']), [null, 'false', null])
 assert.deepEqual(marks(7, ['F006']), [null, 'unreadable', null])
 assert.deepEqual(marks(1, ['F001']), [null, null, null])
+
+// Cast art: every listed image exists and names a real character and slot.
+for (const asset of CAST_ART) {
+  const [group, slug, kind, state] = asset.split('/')
+  assert.ok(
+    existsSync(`public/emperor-of-dust/cast/${asset}.webp`),
+    `${asset} has its file`,
+  )
+  assert.ok(
+    group === 'followers' ? !!followerDef(slug ?? '') : !!npcDef(slug ?? ''),
+    `${asset} names a cast member`,
+  )
+  const slots =
+    kind === 'portrait'
+      ? ['neutral', 'injured', 'dead']
+      : ['neutral', 'happy', 'excited', 'sad', 'angry', 'betrayal']
+  assert.ok(
+    (kind === 'illustrated' ||
+      (kind === 'portrait' && group === 'followers')) &&
+      slots.includes(state ?? ''),
+    `${asset} is a known image slot`,
+  )
+}
+assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
 
 console.log('Emperor of Dust fortress contract: ok')

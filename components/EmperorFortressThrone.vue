@@ -95,6 +95,7 @@
           v-if="!heard(selected.id)"
           :key="selected.id"
           :speaker="selected.speaker"
+          :art="npc ? illustration('npcs', npc.slug) : undefined"
           :lines="selected.lines"
           :choices="choices"
           @choose="choose"
@@ -116,6 +117,7 @@ import {
   forecastMark,
   optionBlockers,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import { npcDef } from '~/utils/emperorOfDust/fortress/npcs'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'

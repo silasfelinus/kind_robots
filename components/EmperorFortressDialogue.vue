@@ -34,6 +34,12 @@
       </div>
     </div>
 
+    <img
+      v-if="art"
+      :src="art"
+      :alt="speaker"
+      class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
+    />
     <div v-if="showLog" class="max-h-48 space-y-2 overflow-y-auto p-3 text-sm">
       <p
         v-for="(entry, i) in lines.slice(0, index + 1)"
@@ -95,6 +101,8 @@ import type { TextSpeed } from '~/stores/emperorFortressStore'
 
 const props = defineProps<{
   speaker: string
+  /** Illustrated image of the speaker, when one has been rendered. */
+  art?: string
   lines: string[]
   choices: { id: string; label: string; note?: string; blockers: string[] }[]
 }>()

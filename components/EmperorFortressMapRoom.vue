@@ -11,29 +11,10 @@
         class="@container relative mt-3 overflow-hidden rounded-xl border border-base-content/15"
       >
         <img
-          src="/emperor-of-dust/map/wasteland-base.svg"
+          src="/emperor-of-dust/map/wasteland.webp"
           alt="Illustrated map of the wasteland around the fortress"
-          class="block aspect-[8/5] w-full object-cover"
+          class="block aspect-[1447/950] w-full object-cover"
         />
-        <div
-          v-for="fog in fogs"
-          :key="fog.id"
-          class="pointer-events-none absolute rounded-3xl bg-base-100/70 backdrop-blur-sm"
-          :style="{
-            left: fog.left + '%',
-            top: fog.top + '%',
-            width: fog.width + '%',
-            height: fog.height + '%',
-          }"
-        />
-        <span
-          class="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full bg-base-content/80 px-2 py-0.5 font-serif text-[10px] font-bold text-base-100 @md:text-xs"
-          :style="{
-            left: FORTRESS_ON_MAP.x + '%',
-            top: FORTRESS_ON_MAP.y + '%',
-          }"
-          >The fortress</span
-        >
         <button
           v-for="region in mapped"
           :key="region.id"
@@ -47,6 +28,7 @@
           ]"
           :style="{ left: region.x + '%', top: region.y + '%' }"
           :aria-label="markerLabel(region)"
+          :title="markerLabel(region)"
           :aria-pressed="focused === region.id"
           @click="focused = focused === region.id ? null : region.id"
         >
@@ -55,7 +37,6 @@
             :class="tierDot(region.tier, region.wiped)"
             aria-hidden="true"
           />
-          <span class="hidden @md:inline">{{ region.name }}</span>
         </button>
       </figure>
       <ul class="mt-3 grid gap-2 @md:grid-cols-2">
@@ -139,11 +120,9 @@
 import { computed, ref } from 'vue'
 import { dailyTaxes } from '~/utils/emperorOfDust/fortress/engine'
 import {
-  FORTRESS_ON_MAP,
   KINGDOM_FACTION_DEFS,
   LOCAL_FACTION_DEFS,
   LOCAL_MAX,
-  MAP_FOG,
   REGIONS,
   affinityTier,
 } from '~/utils/emperorOfDust/fortress/factions'
@@ -173,16 +152,6 @@ const regions = computed(() =>
 
 const focused = ref<string | null>(null)
 const mapped = computed(() => regions.value.filter((region) => !region.fogged))
-const fogs = computed(() =>
-  Object.entries(MAP_FOG)
-    .filter(
-      ([id]) =>
-        !props.run.revealedFactions.includes(
-          id as FortressRun['revealedFactions'][number],
-        ),
-    )
-    .map(([id, box]) => ({ id, ...box })),
-)
 const markerLabel = (region: (typeof regions.value)[number]) =>
   region.wiped
     ? `${region.name}: gone from the map`

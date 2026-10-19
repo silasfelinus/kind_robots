@@ -1034,7 +1034,7 @@ for (const asset of CAST_ART) {
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
 // The map room's illustrated base map and every region's marker on it.
-assert.ok(existsSync('public/emperor-of-dust/map/wasteland-base.svg'))
+assert.ok(existsSync('public/emperor-of-dust/map/wasteland.webp'))
 for (const region of REGIONS) {
   assert.ok(
     region.x > 0 && region.x < 100 && region.y > 0 && region.y < 100,

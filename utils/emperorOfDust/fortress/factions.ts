@@ -138,7 +138,7 @@ export type RegionDef = {
   name: string
   controller: KingdomFactionId
   tax: number
-  /** Marker position on the wasteland base map, in percent of its width and height. */
+  /** Marker position on the painted wasteland map, in percent of its width and height. */
   x: number
   y: number
 }
@@ -150,7 +150,7 @@ export const REGIONS: readonly RegionDef[] = [
     name: 'Eastern Ford',
     controller: 'freeholds',
     tax: 4,
-    x: 65,
+    x: 73,
     y: 58,
   },
   {
@@ -158,16 +158,16 @@ export const REGIONS: readonly RegionDef[] = [
     name: 'Hollow Bell',
     controller: 'hollow-bell',
     tax: 6,
-    x: 74,
-    y: 67,
+    x: 81,
+    y: 71,
   },
   {
     id: 'mission-road',
     name: 'The Mission Road',
     controller: 'abbey',
     tax: 3,
-    x: 77,
-    y: 49,
+    x: 87,
+    y: 43,
   },
   {
     id: 'storm-crow-heights',
@@ -175,74 +175,57 @@ export const REGIONS: readonly RegionDef[] = [
     controller: 'storm-crows',
     tax: 4,
     x: 13,
-    y: 29,
+    y: 19,
   },
   {
     id: 'mirefen',
     name: 'Mirefen',
     controller: 'mire-mothers',
     tax: 3,
-    x: 44,
-    y: 21,
+    x: 49,
+    y: 14,
   },
   {
     id: 'jackalwire',
     name: 'Jackalwire Canyon',
     controller: 'jackalwire',
     tax: 4,
-    x: 55,
-    y: 81,
+    x: 59,
+    y: 90,
   },
   {
     id: 'saltroad',
     name: 'The Saltroad',
     controller: 'saltroad',
     tax: 6,
-    x: 31,
-    y: 57,
+    x: 36,
+    y: 50,
   },
   {
     id: 'mole-tunnels',
     name: 'Mole Tunnels',
     controller: 'moles',
     tax: 2,
-    x: 30,
-    y: 79,
+    x: 36,
+    y: 78,
   },
   {
     id: 'rail-yards',
     name: 'Sunken Rail Yards',
     controller: 'rustline',
     tax: 4,
-    x: 82,
-    y: 83,
+    x: 92,
+    y: 94,
   },
   {
     id: 'black-verge',
     name: 'The Black Verge',
     controller: 'black-verge',
     tax: 5,
-    x: 89,
-    y: 29,
+    x: 94,
+    y: 26,
   },
 ]
-
-/**
- * Fogged land on the wasteland base map (percent boxes), lifted when the
- * faction is revealed: the Rustline on Day 11, the Black Verge on Day 21.
- */
-export const MAP_FOG: Partial<
-  Record<
-    KingdomFactionId,
-    { left: number; top: number; width: number; height: number }
-  >
-> = {
-  rustline: { left: 63, top: 70, width: 33, height: 24 },
-  'black-verge': { left: 87, top: 9, width: 10, height: 52 },
-}
-
-/** Where the fortress itself sits on the base map. */
-export const FORTRESS_ON_MAP = { x: 50, y: 41 }
 
 export const AFFINITY_FLOOR: Record<AffinityTier, number> = {
   hostile: -100,

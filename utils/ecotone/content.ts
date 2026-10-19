@@ -149,7 +149,7 @@ export const COMPANIONS: Companion[] = [
     role: 'Kinetic sculptor and juggler',
     lens: 'tipsy',
     motif: 'juggling clubs and a gear',
-    bio: 'Hmong American physical-theatre performer who came up to Humboldt for school and stayed for the kinetic-sculpture crowd. Makes spectacle out of a broken bike, a ladder and a bad idea.',
+    bio: 'An Arcata-raised Hmong American physical-theatre performer. Her grandparents came from Laos after the war and settled in Minnesota, where she was born; her parents brought the family west when she was small. Makes spectacle out of a broken bike, a ladder and a bad idea.',
     line: '“Every machine wants to be a parade. Most of them just need permission.”',
     anomaly: 'Her newest contraption has a mechanism she never designed.',
     art: 'companions/kit',

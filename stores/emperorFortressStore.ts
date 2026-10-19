@@ -232,6 +232,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     const result = chooseAudienceOption(current(), audienceId, optionId)
     lastResponse.value = result.response
     commit(result.run)
+    absorbAllegiances()
   }
 
   function preview(questId: string, party: string[], hourglass = false) {
@@ -266,6 +267,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     lastReport.value = result.report
     persist()
     awardAchievements(result.run)
+    absorbAllegiances()
   }
 
   function rewind(toDay: number) {
@@ -276,16 +278,22 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   /** Conversation flags; reveals any allegiance trait they unlock. */
-  function learn(flag: string) {
-    commit(earnFlag(current(), flag))
+  /** Allegiances revealed by a story flag join the persistent Codex. */
+  function absorbAllegiances() {
+    const flags = current().flags
     const unlocked = FOLLOWERS.flatMap((def) => def.traits)
-      .filter((trait) => trait.revealFlag === flag)
+      .filter((trait) => trait.revealFlag && flags.includes(trait.revealFlag))
       .map((trait) => trait.id)
     const merged = mergeCodex(codex.value, unlocked)
     if (merged !== codex.value) {
       codex.value = merged
       persistCodex()
     }
+  }
+
+  function learn(flag: string) {
+    commit(earnFlag(current(), flag))
+    absorbAllegiances()
   }
 
   function hire(followerId: string) {

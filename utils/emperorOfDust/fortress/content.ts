@@ -1,5 +1,6 @@
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from './actOne'
 import { ACT_ONE_LATE_DAYS, ACT_ONE_LATE_QUESTS } from './actOneLate'
+import { ACT_TWO_DAYS, ACT_TWO_QUESTS } from './actTwo'
 import type { DayDef, QuestDef } from './types'
 
 // Seeded wasteland chores drawn at dawn. Each draw depends on the run's seed
@@ -153,9 +154,12 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
 ]
 
 const QUEST_INDEX = new Map<string, QuestDef>(
-  [...ACT_ONE_QUESTS, ...ACT_ONE_LATE_QUESTS, ...QUEST_TEMPLATES].map(
-    (quest) => [quest.id, quest],
-  ),
+  [
+    ...ACT_ONE_QUESTS,
+    ...ACT_ONE_LATE_QUESTS,
+    ...ACT_TWO_QUESTS,
+    ...QUEST_TEMPLATES,
+  ].map((quest) => [quest.id, quest]),
 )
 
 /** Template instances are `${templateId}@${day}`. */
@@ -164,7 +168,11 @@ export const questDef = (id: string): QuestDef | undefined =>
 
 export const isTemplateInstance = (id: string): boolean => id.includes('@')
 
-export const DAYS: readonly DayDef[] = [...ACT_ONE_DAYS, ...ACT_ONE_LATE_DAYS]
+export const DAYS: readonly DayDef[] = [
+  ...ACT_ONE_DAYS,
+  ...ACT_ONE_LATE_DAYS,
+  ...ACT_TWO_DAYS,
+]
 
 export const dayDef = (day: number): DayDef | undefined =>
   DAYS.find((entry) => entry.day === day)

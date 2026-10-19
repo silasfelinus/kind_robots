@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
+import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
@@ -18,10 +19,12 @@ import {
   followerStatus,
   injuryDaysLeft,
   isOver,
+  optionBlockers,
   postDawnQuests,
   previewQuest,
   recruit,
   selectHideout,
+  traitKnown,
   upgradeBeds,
   withdrawQuest,
 } from '../emperorOfDust/fortress/engine'
@@ -113,7 +116,11 @@ assert.equal(
   FOLLOWERS.length,
   'abilities are unique per follower',
 )
-for (const quest of [...ACT_ONE_QUESTS, ...ACT_ONE_LATE_QUESTS]) {
+for (const quest of [
+  ...ACT_ONE_QUESTS,
+  ...ACT_ONE_LATE_QUESTS,
+  ...ACT_TWO_QUESTS,
+]) {
   assert.ok(quest.durationDays >= 1 && quest.durationDays <= 3, quest.id)
   assert.ok(quest.party.min >= 1 && quest.party.max <= 4, quest.id)
   assert.ok(quest.party.min <= quest.party.max, quest.id)
@@ -140,8 +147,8 @@ assert.deepEqual(
 )
 assert.deepEqual(
   DAYS.map((def) => def.day),
-  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-  'Act I is scripted end to end',
+  Array.from({ length: 20 }, (_, i) => i + 1),
+  'Acts I and II are scripted end to end',
 )
 for (const def of DAYS) {
   assert.ok(
@@ -316,8 +323,20 @@ assert.equal(deaths, 0, 'quests without a lethal marker never kill')
 
 // Day 9's convoy is marked lethal: a weak party can lose someone, rarely,
 // and never more than one follower per quest.
-const onDay = (seed: number, day: number): FortressRun => {
-  const run: FortressRun = { ...createRun(seed), day, board: [], reports: [] }
+// A run as it stands at dawn of `day`; `patch` is applied before dawn so the
+// day's audiences see it.
+const onDay = (
+  seed: number,
+  day: number,
+  patch: Partial<FortressRun> = {},
+): FortressRun => {
+  const run: FortressRun = {
+    ...createRun(seed),
+    day,
+    board: [],
+    reports: [],
+    ...patch,
+  }
   postDawnQuests(run)
   return run
 }
@@ -352,24 +371,23 @@ const plainDay5 = audiencesToday(onDay(5, 5)).map((a) => a.id)
 assert.ok(
   plainDay5.includes('d05-toll') && !plainDay5.includes('d05-toll-grudge'),
 )
-const grudgeDay5 = audiencesToday({
-  ...onDay(5, 5),
-  flags: ['feast-armed'],
-}).map((a) => a.id)
+const grudgeDay5 = audiencesToday(onDay(5, 5, { flags: ['feast-armed'] })).map(
+  (a) => a.id,
+)
 assert.ok(
   grudgeDay5.includes('d05-toll-grudge') && !grudgeDay5.includes('d05-toll'),
 )
 
 // --- barracks and market ----------------------------------------------------
 const pip = chooseAudienceOption(
-  { ...createRun(5), day: 4, board: [] },
+  onDay(5, 4),
   'd04-letter-from-bell',
   'welcome',
 ).run
 assert.ok(pip.roster.some((state) => state.id === 'F005'))
 assert.equal(bedsUsed(pip), 5)
 const turnedAway = chooseAudienceOption(
-  { ...createRun(5), day: 4, board: [] },
+  onDay(5, 4),
   'd04-letter-from-bell',
   'turn-away',
 ).run
@@ -445,7 +463,7 @@ while (!isOver(book.current)) {
   let run = book.current
   for (const audience of audiencesToday(run)) {
     const option = audience.options.find(
-      (o) => !(o.requires?.cost ?? 0) || o.requires!.cost! <= run.brass,
+      (o) => optionBlockers(run, o).length === 0,
     )
     if (option) run = chooseAudienceOption(run, audience.id, option.id).run
   }
@@ -454,9 +472,13 @@ while (!isOver(book.current)) {
     const ready = run.roster
       .filter((state) => followerStatus(run, state.id) === 'ready')
       .map((state) => state.id)
-      .slice(0, quest.party.min)
-    if (ready.length === quest.party.min)
-      run = assignQuest(run, entry.questId, ready)
+    if (quest.mustInclude && !ready.includes(quest.mustInclude)) continue
+    const party = [
+      ...(quest.mustInclude ? [quest.mustInclude] : []),
+      ...ready.filter((id) => id !== quest.mustInclude),
+    ].slice(0, quest.party.min)
+    if (party.length === quest.party.min)
+      run = assignQuest(run, entry.questId, party)
   }
   book = updateCurrent(book, run)
   book = recordDawn(book, finishDay(run).run)
@@ -554,13 +576,10 @@ assert.equal(eyeReveals(seeing, true), false)
 assert.equal(eyeReveals(plain, false), false, 'no Eye, no reveal')
 
 // --- the late cast's abilities ---------------------------------------------
-const withCast = (seed: number, day: number, ids: string[]): FortressRun => {
-  const run = onDay(seed, day)
-  return {
-    ...run,
+const withCast = (seed: number, day: number, ids: string[]): FortressRun =>
+  onDay(seed, day, {
     roster: ids.map((id) => ({ id, joinedDay: 1, equipment: {} })),
-  }
-}
+  })
 // Last Wall: the Day 9 lethal convoy never kills while Mags is along.
 let wardedDeaths = 0
 for (let seed = 1; seed <= 300; seed += 1) {
@@ -716,10 +735,9 @@ assert.ok(
   recruits(10, 'd10-oath', 'care').includes('F013'),
   'Mags after the oath',
 )
-const kitchens = audiencesToday({
-  ...onDay(1, 9),
-  local: { ...onDay(1, 9).local, yard: 12 },
-})
+const kitchens = audiencesToday(
+  onDay(1, 9, { local: { ...createRun(1).local, yard: 12 } }),
+)
 assert.ok(
   kitchens.some((a) => a.id === 'd09-kitchens'),
   'Juniper when the Yard is warm',
@@ -735,5 +753,87 @@ for (let seed = 1; seed <= 5; seed += 1) {
     'Cobb comes whatever befalls Thistledown',
   )
 }
+
+// --- Act II ------------------------------------------------------------------
+// Saffron's water engine is her own quest.
+const engineDay = withCast(4, 13, ['F001', 'F002'])
+const offered = chooseAudienceOption(engineDay, 'd13-saffron-deal', 'lend').run
+assert.throws(
+  () => assignQuest(offered, 'q-d13-water-engine', ['F001']),
+  /Saffron Kett must go/,
+)
+assert.ok(assignQuest(offered, 'q-d13-water-engine', ['F002']))
+assert.ok(
+  !audiencesToday(withCast(4, 13, ['F001'])).some(
+    (a) => a.id === 'd13-saffron-deal',
+  ),
+  'no Saffron, no Saffron deal',
+)
+// Both early Items of Power have a story route in Act II.
+const rewardFlags = (questId: string) =>
+  ACT_TWO_QUESTS.find((q) => q.id === questId)?.rewards.success.flags ?? []
+assert.ok(rewardFlags('q-d14-sick-courier').includes('relic-hourglass-earned'))
+assert.ok(rewardFlags('q-d17-who-lies').includes('relic-eye-earned'))
+// Tamsin's reading of the covenant reveals her hidden allegiance.
+const covenantDay = withCast(4, 11, ['F001', 'F011'])
+const read = chooseAudienceOption(covenantDay, 'd11-rainmaker', 'tamsin').run
+const bond = followerDef('F011')!.traits.find((t) => t.kind === 'allegiance')!
+assert.ok(traitKnown(read, bond, []), 'the covenant reading reveals Tamsin')
+// Act II recruitment: Ash, Pell, Isolde, Vesper and Hollin.
+const recruitedBy = (
+  questId: string,
+  tier: 'success' | 'triumph' = 'success',
+) =>
+  ACT_TWO_QUESTS.find((q) => q.id === questId)?.rewards[tier]?.recruitable ?? []
+assert.ok(
+  recruitedBy('q-d14-sick-courier').includes('F007'),
+  'Ash, the courier',
+)
+assert.ok(
+  recruitedBy('q-d15-study-glass').includes('F014'),
+  'Pell, the salvager',
+)
+assert.ok(
+  recruitedBy('q-d12-mirefen-defense').includes('F015'),
+  'Isolde, the witch',
+)
+assert.ok(
+  chooseAudienceOption(
+    { ...onDay(1, 18), brass: 100 },
+    'd18-fair',
+    'host',
+  ).run.recruitable.includes('F018'),
+  'Vesper, the fire-juggler',
+)
+const archive = onDay(1, 14, {
+  local: { ...createRun(1).local, lamplight: 12 },
+})
+assert.ok(
+  chooseAudienceOption(
+    archive,
+    'd14-hollin',
+    'welcome',
+  ).run.recruitable.includes('F019'),
+  'Hollin, when the Archive is warm',
+)
+// The covenant comes due only if it was signed.
+assert.ok(
+  !audiencesToday(onDay(1, 20)).some((a) => a.id === 'd20-covenant-due'),
+)
+assert.ok(
+  audiencesToday(onDay(1, 20, { flags: ['rain-covenant'] })).some(
+    (a) => a.id === 'd20-covenant-due',
+  ),
+)
+
+// The court seen at dawn stays all day: answering one petition never sends
+// another away, even if it changes what that petitioner needs.
+const flourDay = onDay(1, 9, { local: { ...createRun(1).local, yard: 12 } })
+assert.ok(audiencesToday(flourDay).some((a) => a.id === 'd09-kitchens'))
+const colderYard = { ...flourDay, local: { ...flourDay.local, yard: 3 } }
+assert.ok(
+  audiencesToday(colderYard).some((a) => a.id === 'd09-kitchens'),
+  'Juniper stays for the day even if the Yard cools',
+)
 
 console.log('Emperor of Dust fortress contract: ok')

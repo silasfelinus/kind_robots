@@ -144,6 +144,13 @@ export const postDawnQuests = (run: FortressRun): void => {
   if (isOver(run)) return
   for (const id of dayDef(run.day)?.quests ?? []) postQuest(run, id)
   drawTemplates(run)
+  // Whoever is eligible at dawn stays at court all day, whatever is decided
+  // in the other audiences.
+  run.dayAudiences = (dayDef(run.day)?.audiences ?? [])
+    .filter(
+      (audience) => unmetRequirements(run, audience.requires).length === 0,
+    )
+    .map((audience) => audience.id)
 }
 
 /** Authored days draw one seeded chore, unscripted days draw two. */
@@ -286,8 +293,10 @@ export const applyEffects = (
 // --- throne room ------------------------------------------------------------
 
 export const audiencesToday = (run: FortressRun): AudienceDef[] =>
-  (dayDef(run.day)?.audiences ?? []).filter(
-    (audience) => unmetRequirements(run, audience.requires).length === 0,
+  (dayDef(run.day)?.audiences ?? []).filter((audience) =>
+    run.dayAudiences
+      ? run.dayAudiences.includes(audience.id)
+      : unmetRequirements(run, audience.requires).length === 0,
   )
 
 export const optionBlockers = (
@@ -537,6 +546,10 @@ export const assignQuest = (
     throw new Error('that quest is not on the board')
   if (new Set(party).size !== party.length)
     throw new Error('a follower can only be sent once')
+  if (quest.mustInclude && !party.includes(quest.mustInclude))
+    throw new Error(
+      `${followerDef(quest.mustInclude)?.name ?? quest.mustInclude} must go on this quest`,
+    )
   if (party.length < quest.party.min || party.length > quest.party.max)
     throw new Error(
       `this quest needs ${quest.party.min}-${quest.party.max} followers`,

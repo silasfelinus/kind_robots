@@ -446,11 +446,10 @@ assert.equal(checkpointReport(4, { ticks: 1, crashes: 1 }).name, 'THE FAR SIDE')
   assert.ok(b!.targetWx > g.wx + 100, 'its ring is on the track ahead')
   b!.targetWx = g.wx + 400
   const ahead = b!.targetWx
-  let craters = 0
   for (let i = 0; i < 240 && !g.over; i++) {
     g.update(press('left'))
-    craters = g.obstacles.filter((o) => o.kind === 'crater').length
-    if (craters && g.bombs.length === 0) break
+    if (g.obstacles.some((o) => o.kind === 'crater') && g.bombs.length === 0)
+      break
   }
   const hole = g.obstacles.find((o) => o.kind === 'crater')
   assert.ok(hole, 'the bomb blasts a crater')

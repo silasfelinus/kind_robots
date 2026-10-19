@@ -22,15 +22,12 @@
 import { drawText } from '../font'
 import {
   COURSE,
-  LEAD_OUT,
   LETTERS,
   MOONS,
-  RAMP_W,
   SECTION_COUNT,
   checkpointReport,
   isOutpost,
   layoutSection,
-  moonRange,
   sectionStart,
   type CueKind,
   type PlaceKind,

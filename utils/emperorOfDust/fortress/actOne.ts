@@ -40,7 +40,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     id: 'q-d01-aqueduct-repair',
     title: 'The Broken Aqueduct',
     summary:
-      'Hollow Bell’s eastern aqueduct is leaking into the old roadbed. Send engineers to repair the channel.',
+      'Hollow Bell’s aqueduct is leaking into the old roadbed. Send engineers to repair the channel.',
     region: 'hollow-bell',
     faction: 'hollow-bell',
     durationDays: 2,
@@ -631,7 +631,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
       {
         id: 'aqueduct',
         source: 'Hollow Bell surveyors',
-        text: 'The eastern aqueduct is leaking into the old roadbed.',
+        text: 'The southern aqueduct is leaking into the old roadbed.',
         truth: true,
       },
       {

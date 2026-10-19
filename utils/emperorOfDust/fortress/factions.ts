@@ -54,7 +54,7 @@ export const KINGDOM_FACTION_DEFS: readonly KingdomFactionDef[] = [
   {
     id: 'hollow-bell',
     name: 'Hollow Bell',
-    home: 'Border town under the bell tower',
+    home: 'A small southern town around its chapel bell',
     revealedOnDay: 1,
     startAffinity: 10,
     startStrength: 6,
@@ -138,39 +138,92 @@ export type RegionDef = {
   name: string
   controller: KingdomFactionId
   tax: number
+  /** Marker position on the painted wasteland map, in percent of its width and height. */
+  x: number
+  y: number
 }
 
 /** Regions that pay taxes while their controller is Neutral or better. */
 export const REGIONS: readonly RegionDef[] = [
-  { id: 'east-ford', name: 'Eastern Ford', controller: 'freeholds', tax: 4 },
-  { id: 'hollow-bell', name: 'Hollow Bell', controller: 'hollow-bell', tax: 6 },
-  { id: 'mission-road', name: 'The Mission Road', controller: 'abbey', tax: 3 },
+  {
+    id: 'east-ford',
+    name: 'Eastern Ford',
+    controller: 'freeholds',
+    tax: 4,
+    x: 73,
+    y: 58,
+  },
+  {
+    id: 'hollow-bell',
+    name: 'Hollow Bell',
+    controller: 'hollow-bell',
+    tax: 6,
+    x: 81,
+    y: 71,
+  },
+  {
+    id: 'mission-road',
+    name: 'The Mission Road',
+    controller: 'abbey',
+    tax: 3,
+    x: 87,
+    y: 43,
+  },
   {
     id: 'storm-crow-heights',
     name: 'Storm Crow Heights',
     controller: 'storm-crows',
     tax: 4,
+    x: 13,
+    y: 19,
   },
-  { id: 'mirefen', name: 'Mirefen', controller: 'mire-mothers', tax: 3 },
+  {
+    id: 'mirefen',
+    name: 'Mirefen',
+    controller: 'mire-mothers',
+    tax: 3,
+    x: 49,
+    y: 14,
+  },
   {
     id: 'jackalwire',
     name: 'Jackalwire Canyon',
     controller: 'jackalwire',
     tax: 4,
+    x: 59,
+    y: 90,
   },
-  { id: 'saltroad', name: 'The Saltroad', controller: 'saltroad', tax: 6 },
-  { id: 'mole-tunnels', name: 'Mole Tunnels', controller: 'moles', tax: 2 },
+  {
+    id: 'saltroad',
+    name: 'The Saltroad',
+    controller: 'saltroad',
+    tax: 6,
+    x: 36,
+    y: 50,
+  },
+  {
+    id: 'mole-tunnels',
+    name: 'Mole Tunnels',
+    controller: 'moles',
+    tax: 2,
+    x: 36,
+    y: 78,
+  },
   {
     id: 'rail-yards',
     name: 'Sunken Rail Yards',
     controller: 'rustline',
     tax: 4,
+    x: 92,
+    y: 94,
   },
   {
     id: 'black-verge',
     name: 'The Black Verge',
     controller: 'black-verge',
     tax: 5,
+    x: 94,
+    y: 26,
   },
 ]
 

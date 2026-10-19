@@ -7,18 +7,51 @@
           {{ dailyTaxes(run) }} brass a day in taxes
         </span>
       </div>
+      <figure
+        class="@container relative mt-3 overflow-hidden rounded-xl border border-base-content/15"
+      >
+        <img
+          src="/emperor-of-dust/map/wasteland.webp"
+          alt="Illustrated map of the wasteland around the fortress"
+          class="block aspect-[1447/950] w-full object-cover"
+        />
+        <button
+          v-for="region in mapped"
+          :key="region.id"
+          type="button"
+          class="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-1 rounded-full border bg-base-100/90 px-1.5 py-0.5 text-[10px] font-semibold shadow @md:text-xs"
+          :class="[
+            focused === region.id
+              ? 'border-warning ring-2 ring-warning'
+              : 'border-base-content/30',
+            region.wiped ? 'line-through opacity-60' : '',
+          ]"
+          :style="{ left: region.x + '%', top: region.y + '%' }"
+          :aria-label="markerLabel(region)"
+          :title="markerLabel(region)"
+          :aria-pressed="focused === region.id"
+          @click="focused = focused === region.id ? null : region.id"
+        >
+          <span
+            class="h-2 w-2 shrink-0 rounded-full"
+            :class="tierDot(region.tier, region.wiped)"
+            aria-hidden="true"
+          />
+        </button>
+      </figure>
       <ul class="mt-3 grid gap-2 @md:grid-cols-2">
         <li
           v-for="region in regions"
           :key="region.id"
           class="rounded-xl border p-3 text-sm"
-          :class="
+          :class="[
             region.fogged
               ? 'border-dashed border-base-content/20 bg-base-200/50 opacity-60'
               : region.wiped
                 ? 'border-error/40 bg-error/5'
-                : 'border-base-content/15 bg-base-100'
-          "
+                : 'border-base-content/15 bg-base-100',
+            focused === region.id ? 'ring-2 ring-warning' : '',
+          ]"
         >
           <template v-if="region.fogged">
             <strong class="font-serif">Unmapped land</strong>
@@ -84,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { dailyTaxes } from '~/utils/emperorOfDust/fortress/engine'
 import {
   KINGDOM_FACTION_DEFS,
@@ -117,6 +150,23 @@ const regions = computed(() =>
   }),
 )
 
+const focused = ref<string | null>(null)
+const mapped = computed(() => regions.value.filter((region) => !region.fogged))
+const markerLabel = (region: (typeof regions.value)[number]) =>
+  region.wiped
+    ? `${region.name}: gone from the map`
+    : `${region.name}: ${region.tier}, ${region.paying ? 'pays' : 'withholds'} ${region.tax} brass`
+const tierDot = (tier: AffinityTier, wiped: boolean) =>
+  wiped
+    ? 'bg-base-content/40'
+    : {
+        hostile: 'bg-error',
+        wary: 'bg-warning',
+        neutral: 'bg-base-content/50',
+        friendly: 'bg-success',
+        allied: 'bg-success ring-2 ring-success/40',
+      }[tier]
+
 const tierClass = (tier: AffinityTier) =>
   ({
     hostile: 'text-error',
@@ -129,7 +179,7 @@ const tierClass = (tier: AffinityTier) =>
 const HIDEOUTS: Record<string, string> = {
   'mole-tunnels': 'the Mole tunnels beneath the badlands',
   'crow-cave': 'a Storm Crow cave',
-  'bell-cellars': 'the cellars under Hollow Bell’s tower',
+  'bell-cellars': 'the cellars under Hollow Bell’s chapel',
   'wagon-circle': 'a circle of painted wagons in the rail canyon',
   'moving-caravan': 'a Saltroad caravan that never stops moving',
   'freehold-barn': 'a Freehold barn and its root cellar',

@@ -33,9 +33,9 @@
         <p class="text-xs opacity-60">Two of these are true. One is not.</p>
       </template>
       <p v-else class="text-sm opacity-75">
-        Komodo has no written briefing for Day {{ run.day }} yet. Only Days 1–4
-        are scripted so far; the wasteland’s daily chores still reach the quest
-        room.
+        Komodo has no written briefing for Day {{ run.day }} yet. Only the first
+        {{ DAYS.length }} days are scripted so far; the wasteland’s daily chores
+        still reach the quest room.
       </p>
     </section>
 
@@ -98,7 +98,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
-import { dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
+import { DAYS, dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   audiencesToday,
   optionBlockers,

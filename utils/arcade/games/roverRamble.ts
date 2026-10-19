@@ -1,22 +1,41 @@
 // /utils/arcade/games/roverRamble.ts
 //
 // Rover Ramble -- the Kind Robots Arcade's Moon Patrol riff (conductor
-// kr-arcade/t-009 game factory, batch 4). A six-wheeled rover rolls across a
-// bumpy moon. Jump the craters, zap the boulders ahead, and shoot upward at
+// kr-arcade/t-009 game factory, batch 4; depth pass kr-arcade/t-098). A
+// six-wheeled rover rolls the Five Moons Rally, a lettered course from A to Z
+// with an end. Jump the craters, zap the boulders ahead, and shoot upward at
 // the meteor sprites that swoop overhead dropping pebbles (a pebble that lands
 // ahead of you digs a fresh crater). Checkpoint posts letter the route; reach
-// each one for a bonus that grows the faster you got there.
+// each one for a bonus that grows the faster you got there, and the outpost at
+// the end of each moon (E, J, O, T, Z) prints a time report with stamps.
 //
-// Big boulders take two zaps (the first knocks them down to a small one), and
-// from section 4 some boulders roll toward you. Clearing an obstacle by
-// jumping it pays too. Falling into a crater, bumping a boulder or catching a
-// pebble costs a rover, and you roll again from the last checkpoint.
-// ROVER_CURVES ramp the obstacles, the sprites and their pebbles.
+// The route is authored data (roverRamble/course.ts): every section is a
+// script of beats laid out with seeded variation. Big boulders take two zaps,
+// rollers come at you, landmines must be jumped, tanks shoot back along the
+// track, bomber saucers blast new craters where a target ring shows, zig
+// saucers weave at bumper height, moon creepers must be zapped as buds,
+// dust devils shove your speed and pursuers close in from behind (watch the
+// rear-view). Ramps launch long jumps; landing on a boulder is a stunt.
 //
 // Right speeds up, left slows down, Up or B jumps, A zaps ahead and overhead.
 
-import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  COURSE,
+  LEAD_OUT,
+  LETTERS,
+  MOONS,
+  RAMP_W,
+  SECTION_COUNT,
+  checkpointReport,
+  isOutpost,
+  layoutSection,
+  moonRange,
+  sectionStart,
+  type CueKind,
+  type PlaceKind,
+  type Report,
+} from '../roverRamble/course'
 import {
   INK,
   RAMPS,
@@ -51,7 +70,6 @@ const W = 320
 const H = 240
 const HUD_H = 24
 const GROUND = 206
-const SECTION = 2400
 const BASE_SPEED = 1.6
 const MIN_SPEED = 1
 const MAX_SPEED = 2.6
@@ -66,7 +84,6 @@ const PEBBLE_SPEED = 1.4
 const START_LIVES = 3
 const CRASH_TICKS = 110
 const EXTRA_AT = 10_000
-const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 const ROCK_POINTS = 50
 const BIG_POINTS = 100
@@ -74,20 +91,32 @@ const JUMP_POINTS = 50
 const SPRITE_POINTS = 150
 const CHECKPOINT_POINTS = 500
 
-export const ROVER_CURVES = {
-  /** Distance between obstacles. */
-  gap: { start: 230, step: -14, limit: 110 },
-  /** Widest crater. */
-  crater: { start: 26, step: 3, limit: 44 },
-  /** Ticks between waves of meteor sprites (from section 2). */
-  waveGap: { start: 520, step: -40, limit: 200 },
-  /** Chance per tick a sprite drops a pebble. */
-  pebble: { start: 0.006, step: 0.002, limit: 0.02 },
-  /** Par time for a section, in seconds. */
-  par: { start: 26, step: -0.5, limit: 20 },
-} as const
+const MINE_POINTS = 100
+const TANK_POINTS = 300
+const CREEPER_POINTS = 100
+const ZIG_POINTS = 250
+const PURSUER_POINTS = 150
+const STOMP_POINTS = 200
+const BIG_AIR_POINTS = 300
+const CLOSE_SHAVE_POINTS = 100
+const FINISH_POINTS = 5000
+/** Tank: ticks between shells, the turret lift that warns of one, the shell's speed. */
+const TANK_CYCLE = 170
+const TANK_LIFT = 36
+const SHELL_SPEED = 1.8
+/** Creeper: the bud swells this long once the rover is near, then the vine is full grown. */
+const CREEPER_GROW = 110
+const VINE_H = 24
+/** How much faster than the rover a pursuer closes. */
+const PURSUER_CLOSE = 1.4
+const BIG_AIR_SPEED = 2.4
+const BOMB_FALL = 2
+const ZIG_LOW = GROUND - 22
+const ZIG_HIGH = GROUND - 52
+/** How long a moon's time report stays up. */
+const REPORT_TICKS = 330
 
-type ObKind = 'crater' | 'rock' | 'big' | 'roller'
+type ObKind = PlaceKind
 type Ob = {
   kind: ObKind
   x: number
@@ -95,10 +124,27 @@ type Ob = {
   hp: number
   passed: boolean
   gone: boolean
+  /** A tank's or creeper's clock; a dust devil's push direction is `dir`. */
+  t: number
+  dir: number
 }
 type Shot = { x: number; y: number; ox: number }
-type Sprite = { x: number; y: number; baseY: number; vx: number; phase: number }
+type SpriteKind = 'sprite' | 'zig' | 'bomber'
+type Sprite = {
+  kind: SpriteKind
+  x: number
+  y: number
+  baseY: number
+  vx: number
+  phase: number
+  /** A bomber's target on the track and whether its bomb has dropped. */
+  targetWx: number
+  dropped: boolean
+}
 type Pebble = { x: number; y: number; vx: number }
+type Shell = { x: number }
+type Bomb = { wx: number; y: number }
+type Pursuer = { x: number; passed: boolean; gone: boolean }
 type Particle = {
   x: number
   y: number
@@ -110,6 +156,25 @@ type Particle = {
 type Floater = { x: number; y: number; text: string; life: number }
 
 const rockR = (o: Ob) => (o.kind === 'big' ? 9 : 6)
+/** Things a zap can hit on the ground (a creeper only while it is still a bud). */
+const zappable = (o: Ob) =>
+  o.kind === 'rock' ||
+  o.kind === 'big' ||
+  o.kind === 'roller' ||
+  o.kind === 'tank' ||
+  (o.kind === 'creeper' && o.t < CREEPER_GROW * 0.4)
+const vineHeight = (o: Ob) => (o.t / CREEPER_GROW) * VINE_H
+const newOb = (kind: ObKind, x: number, w: number): Ob => ({
+  kind,
+  x,
+  w,
+  hp: kind === 'big' ? 2 : kind === 'tank' ? 2 : 1,
+  passed: false,
+  gone: false,
+  // A tank has half its cycle run by the time it rolls into view.
+  t: kind === 'tank' ? TANK_CYCLE - 80 : 0,
+  dir: 0,
+})
 
 // --- 16-bit art (utils/arcade/snes.ts) -------------------------------------------
 
@@ -550,14 +615,25 @@ class RoverRamble implements ArcadeGameInstance {
   private alt = 0
   private vy = 0
   private sectionStart = 0
+  private sectionLen = 0
   private sectionTicks = 0
   private obstacles: Ob[] = []
+  private cues: { kind: CueKind; x: number; done: boolean }[] = []
   private fwd: Shot | null = null
   private ups: Shot[] = []
   private sprites: Sprite[] = []
   private pebbles: Pebble[] = []
-  private waveTimer = 0
+  private shells: Shell[] = []
+  private bombs: Bomb[] = []
+  private pursuers: Pursuer[] = []
   private crash = 0
+  /** Ticks and rovers lost since the last outpost, for its report. */
+  private moonTicks = 0
+  private moonCrashes = 0
+  /** Set when a ramp launched the rover at full speed: the landing pays. */
+  private airBonus = false
+  private report: { data: Report; ticks: number } | null = null
+  private won = false
   private nextExtra = EXTRA_AT
   private particles: Particle[] = []
   private floaters: Floater[] = []
@@ -571,7 +647,7 @@ class RoverRamble implements ArcadeGameInstance {
     this.sound = options.sound
     this.demo = options.demo
     this.hiScore = options.hiScore
-    this.startSection(1, 0)
+    this.startSection(1)
   }
 
   private get roverX(): number {
@@ -584,65 +660,36 @@ class RoverRamble implements ArcadeGameInstance {
 
   // --- the course ---------------------------------------------------------------
 
-  /** `rewind` puts the rover back at the start (after a crash). */
-  private startSection(section: number, start: number, rewind = true) {
+  /** Lays section `section` (1 is A) on the track; `rewind` puts the rover back at its start. */
+  private startSection(section: number, rewind = true) {
+    const def = COURSE[section - 1]!
+    const start = sectionStart(section - 1)
     this.level = section
     this.sectionStart = start
+    this.sectionLen = def.len
     this.sectionTicks = 0
     if (rewind) {
       this.wx = start + 40
       this.speed = BASE_SPEED
       this.alt = 0
       this.vy = 0
+      this.airBonus = false
     }
     this.fwd = null
     this.ups = []
     this.sprites = []
     this.pebbles = []
-    this.waveTimer = 240
-    this.obstacles = []
-    const gap = levelCurve(section, ROVER_CURVES.gap)
-    const widest = levelCurve(section, ROVER_CURVES.crater)
-    let x = start + 260
-    while (x < start + SECTION - 120) {
-      const roll = this.rng()
-      const kind: ObKind =
-        roll < 0.4
-          ? 'crater'
-          : roll < 0.65
-            ? 'rock'
-            : section >= 2 && roll < 0.85
-              ? 'big'
-              : section >= 4
-                ? 'roller'
-                : 'rock'
-      const w = kind === 'crater' ? 16 + this.rng() * (widest - 16) : 0
-      this.obstacles.push({
-        kind,
-        x,
-        w,
-        hp: kind === 'big' ? 2 : 1,
-        passed: false,
-        gone: false,
-      })
-      // From section 3, craters sometimes come in pairs.
-      if (kind === 'crater' && section >= 3 && this.rng() < 0.3) {
-        x += w + 70
-        this.obstacles.push({
-          kind: 'crater',
-          x,
-          w: 16 + this.rng() * 8,
-          hp: 1,
-          passed: false,
-          gone: false,
-        })
-      }
-      x += w + gap * (0.75 + this.rng() * 0.6)
-    }
-    const letter = LETTERS[(section - 1) % LETTERS.length]!
+    this.shells = []
+    this.bombs = []
+    this.pursuers = []
+    const layout = layoutSection(def, start, this.rng)
+    this.obstacles = layout.places.map((p) => newOb(p.kind, p.x, p.w))
+    for (const o of this.obstacles)
+      if (o.kind === 'devil') o.dir = o.x % 20 < 10 ? 1 : -1
+    this.cues = layout.cues.map((c) => ({ ...c, done: false }))
     this.banner = {
-      text: `SECTION ${letter}`,
-      sub: `PAR ${Math.round(levelCurve(section, ROVER_CURVES.par))} SECONDS`,
+      text: `SECTION ${def.letter}`,
+      sub: `${MOONS[def.moon]} MOON  PAR ${def.par} SECONDS`,
       ticks: 100,
     }
   }
@@ -663,18 +710,21 @@ class RoverRamble implements ArcadeGameInstance {
             sub: 'GAME OVER',
             ticks: 9999,
           }
-        } else this.startSection(this.level, this.sectionStart)
+        } else this.startSection(this.level)
       }
       return
     }
     const controls = this.demo ? this.demoInput() : input
     this.sectionTicks++
+    this.moonTicks++
     this.drive(controls)
     this.updateObstacles()
+    this.updateCues()
     this.updateShots()
     this.updateSprites()
     this.updatePebbles()
-    if (this.crash === 0 && this.wx >= this.sectionStart + SECTION)
+    this.updateEnemies()
+    if (this.crash === 0 && this.wx >= this.sectionStart + this.sectionLen)
       this.checkpoint()
   }
 
@@ -693,14 +743,25 @@ class RoverRamble implements ArcadeGameInstance {
       this.sound.play('blip')
     }
     if (this.alt > 0) {
+      // Holding the jump button on the way up carries the rover a little higher.
+      const held = input.held.up || input.held.b
       this.alt += this.vy
-      this.vy -= GRAVITY
+      this.vy -= held && this.vy > 0 ? GRAVITY * 0.88 : GRAVITY
       if (this.alt <= 0) {
         this.alt = 0
         this.vy = 0
+        this.land()
       }
     }
     if (input.pressed.a) this.fire()
+  }
+
+  private land() {
+    if (!this.airBonus) return
+    this.airBonus = false
+    this.addScore(BIG_AIR_POINTS, this.roverX, GROUND - 40)
+    this.cheer(this.roverX, GROUND - 10, 14)
+    this.sound.play('extra')
   }
 
   private fire() {
@@ -723,33 +784,121 @@ class RoverRamble implements ArcadeGameInstance {
   private updateObstacles() {
     for (const o of this.obstacles) {
       if (o.gone) continue
-      if (o.kind === 'roller') o.x -= 0.6
-      if (o.kind === 'crater') {
-        // On the ground with the rover's middle over the hole: in it goes.
-        if (this.alt === 0 && this.wx > o.x + 4 && this.wx < o.x + o.w - 4) {
-          this.crashRover('FELL IN A CRATER')
-          return
+      const dx = o.x - this.wx
+      switch (o.kind) {
+        case 'crater': {
+          // On the ground with the rover's middle over the hole: in it goes.
+          if (this.alt === 0 && this.wx > o.x + 4 && this.wx < o.x + o.w - 4) {
+            this.crashRover('FELL IN A CRATER')
+            return
+          }
+          if (!o.passed && this.wx - ROVER_HALF > o.x + o.w) {
+            o.passed = true
+            this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
+            this.cheer(this.roverX, GROUND - 10 - this.alt, 6)
+          }
+          break
         }
-        if (!o.passed && this.wx - ROVER_HALF > o.x + o.w) {
-          o.passed = true
-          this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
-          this.cheer(this.roverX, GROUND - 10 - this.alt, 6)
+        case 'ramp': {
+          // Leaving the top of a ramp on the ground throws the rover; speed sets how far.
+          const end = o.x + o.w
+          if (!o.passed && this.alt === 0 && this.wx >= end - 3) {
+            o.passed = true
+            this.vy = JUMP_V * 0.85 + (this.speed - MIN_SPEED)
+            this.alt = 0.01
+            this.airBonus = this.speed >= BIG_AIR_SPEED
+            this.sound.play('blip')
+            this.cheer(this.roverX, GROUND - 10, 6)
+          } else if (!o.passed && this.wx > end + 12) o.passed = true
+          break
         }
-      } else {
-        const r = rockR(o)
-        if (
-          Math.abs(o.x - this.wx) < ROVER_HALF + r - 3 &&
-          this.alt < r * 2 - 2
-        ) {
-          this.crashRover(
-            o.kind === 'roller' ? 'A BOULDER ROLLED IN' : 'BUMPED A BOULDER',
-          )
-          return
+        case 'rock':
+        case 'big':
+        case 'roller': {
+          if (o.kind === 'roller') o.x -= 0.6
+          const r = rockR(o)
+          if (Math.abs(o.x - this.wx) < ROVER_HALF + r - 3) {
+            // Coming down on top of a boulder is a stunt: the rover bounces off it.
+            if (this.vy < 0 && this.alt >= r * 2 - 5 && this.alt < r * 2 + 3) {
+              o.gone = true
+              this.vy = JUMP_V * 0.8
+              this.alt = r * 2 - 4
+              const sx = o.x - this.camera
+              this.addScore(STOMP_POINTS, sx, GROUND - 40)
+              this.cheer(sx, GROUND - 14, 10)
+              this.sparks(sx, GROUND - 8, '#a8a29e', 10)
+              this.sound.play('pop')
+              break
+            }
+            if (this.alt < r * 2 - 2) {
+              this.crashRover(
+                o.kind === 'roller'
+                  ? 'A BOULDER ROLLED IN'
+                  : 'BUMPED A BOULDER',
+              )
+              return
+            }
+          }
+          if (!o.passed && o.x + r < this.wx - ROVER_HALF) {
+            o.passed = true
+            this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
+            this.cheer(this.roverX, GROUND - 10 - this.alt, 6)
+          }
+          break
         }
-        if (!o.passed && o.x + r < this.wx - ROVER_HALF) {
-          o.passed = true
-          this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
-          this.cheer(this.roverX, GROUND - 10 - this.alt, 6)
+        case 'mine': {
+          if (Math.abs(dx) < ROVER_HALF + 1 && this.alt < 5) {
+            this.crashRover('STEPPED ON A LANDMINE')
+            return
+          }
+          if (!o.passed && o.x + 4 < this.wx - ROVER_HALF) {
+            o.passed = true
+            this.addScore(MINE_POINTS, this.roverX, GROUND - 30)
+            this.cheer(this.roverX, GROUND - 10 - this.alt, 6)
+          }
+          break
+        }
+        case 'tank': {
+          // A tank lifts its turret, then fires a slow shell along the track.
+          if (dx < 240 && dx > 30 && ++o.t >= TANK_CYCLE) {
+            o.t = 0
+            this.shells.push({ x: o.x - 14 })
+            this.sound.play('boom')
+          }
+          if (Math.abs(dx) < ROVER_HALF + 9 && this.alt < 14) {
+            this.crashRover('ROLLED INTO A TANK')
+            return
+          }
+          if (!o.passed && o.x + 12 < this.wx - ROVER_HALF) {
+            o.passed = true
+            this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
+          }
+          break
+        }
+        case 'creeper': {
+          // The bud swells as the rover nears; a full vine is a wall to jump.
+          if (dx < 170 && o.t < CREEPER_GROW) o.t++
+          if (Math.abs(dx) < ROVER_HALF + 2 && this.alt < vineHeight(o) - 2) {
+            this.crashRover('TANGLED IN A MOON CREEPER')
+            return
+          }
+          if (!o.passed && o.x + 5 < this.wx - ROVER_HALF) {
+            o.passed = true
+            this.addScore(JUMP_POINTS, this.roverX, GROUND - 30)
+          }
+          break
+        }
+        case 'devil': {
+          // A whirlwind crossing the track shoves the throttle, so the rover has to feather it.
+          o.x -= 0.7
+          o.t++
+          if (Math.abs(o.x - this.wx) < 16)
+            this.speed = Math.max(
+              MIN_SPEED,
+              Math.min(MAX_SPEED, this.speed + o.dir * 0.05),
+            )
+          if (o.x < this.wx - 60) o.gone = true
+          break
         }
       }
     }
@@ -758,20 +907,97 @@ class RoverRamble implements ArcadeGameInstance {
     )
   }
 
+  /** Scripted arrivals: sprite trios, zig and bomber saucers, pursuers. */
+  private updateCues() {
+    for (const c of this.cues) {
+      if (c.done || this.wx < c.x) continue
+      c.done = true
+      if (c.kind === 'sprites') {
+        const fromLeft = this.rng() < 0.5
+        const baseY = HUD_H + 26 + this.rng() * 40
+        for (let i = 0; i < 3; i++)
+          this.sprites.push({
+            kind: 'sprite',
+            x: fromLeft ? -20 - i * 22 : W + 20 + i * 22,
+            y: baseY,
+            baseY,
+            vx: fromLeft ? 1.3 : -1.3,
+            phase: i * 0.9,
+            targetWx: 0,
+            dropped: true,
+          })
+        this.sound.play('warn')
+      } else if (c.kind === 'zig') {
+        this.sprites.push({
+          kind: 'zig',
+          x: W + 20,
+          y: ZIG_LOW,
+          baseY: ZIG_LOW,
+          vx: -2.1,
+          phase: this.rng() * 2,
+          targetWx: 0,
+          dropped: true,
+        })
+        this.sound.play('warn')
+      } else if (c.kind === 'bomber') {
+        this.sprites.push({
+          kind: 'bomber',
+          x: W + 24,
+          y: HUD_H + 16,
+          baseY: HUD_H + 16,
+          vx: -2.4,
+          phase: 0,
+          targetWx: this.wx + 130 + this.rng() * 90,
+          dropped: false,
+        })
+        this.sound.play('warn')
+      } else {
+        // A horn, and a blip on the rear-view: something is coming up behind.
+        this.pursuers.push({
+          x: this.camera - 40,
+          passed: false,
+          gone: false,
+        })
+        this.sound.play('warn')
+        this.floaters.push({ x: 40, y: HUD_H + 26, text: 'HORN!', life: 60 })
+      }
+    }
+  }
+
   private updateShots() {
     if (this.fwd) {
-      this.fwd.x += SHOT_SPEED
-      const rock = this.obstacles.find(
+      const shot = this.fwd
+      shot.x += SHOT_SPEED
+      const target = this.obstacles.find(
         (o) =>
           !o.gone &&
-          o.kind !== 'crater' &&
-          Math.abs(o.x - this.fwd!.x) < rockR(o) + 2 &&
-          this.fwd!.y > GROUND - rockR(o) * 2 - 2,
+          zappable(o) &&
+          Math.abs(o.x - shot.x) < (o.kind === 'tank' ? 12 : rockR(o) + 2) &&
+          shot.y > GROUND - (o.kind === 'tank' ? 16 : rockR(o) * 2 + 2),
       )
-      if (rock) {
-        this.zapRock(rock)
+      const sx = shot.x - this.camera
+      const zig = this.sprites.find(
+        (sp) =>
+          sp.kind === 'zig' &&
+          Math.abs(sp.x - sx) < 9 &&
+          Math.abs(sp.y - shot.y) < 9,
+      )
+      const chaser = this.pursuers.find(
+        (p) => p.passed && !p.gone && Math.abs(p.x - shot.x) < 12,
+      )
+      if (target) {
+        this.zapGround(target)
         this.fwd = null
-      } else if (this.fwd.x - this.fwd.ox > SHOT_RANGE) this.fwd = null
+      } else if (zig) {
+        this.killSprite(zig)
+        this.fwd = null
+      } else if (chaser && shot.y > GROUND - 26) {
+        chaser.gone = true
+        this.addScore(PURSUER_POINTS, sx, GROUND - 24)
+        this.sparks(sx, GROUND - 8, '#c4b5fd', 14)
+        this.sound.play('boom')
+        this.fwd = null
+      } else if (shot.x - shot.ox > SHOT_RANGE) this.fwd = null
     }
     for (const s of this.ups) {
       s.y -= SHOT_SPEED
@@ -780,12 +1006,8 @@ class RoverRamble implements ArcadeGameInstance {
         (sp) => Math.abs(sp.x - sx) < 9 && Math.abs(sp.y - s.y) < 7,
       )
       if (hit) {
-        this.cheer(hit.x, hit.y, 12)
         s.y = -99
-        hit.y = -999
-        this.addScore(SPRITE_POINTS, hit.x, hit.baseY - 10)
-        this.sparks(hit.x, hit.baseY, '#c4b5fd', 12)
-        this.sound.play('pop')
+        this.killSprite(hit)
       }
       const pebble = this.pebbles.find(
         (p) => Math.abs(p.x - sx) < 5 && Math.abs(p.y - s.y) < 6,
@@ -800,7 +1022,19 @@ class RoverRamble implements ArcadeGameInstance {
     this.sprites = this.sprites.filter((sp) => sp.y > -900)
   }
 
-  private zapRock(o: Ob) {
+  private killSprite(sp: Sprite) {
+    this.cheer(sp.x, sp.y, 12)
+    sp.y = -999
+    this.addScore(
+      sp.kind === 'zig' ? ZIG_POINTS : SPRITE_POINTS,
+      sp.x,
+      sp.baseY - 10,
+    )
+    this.sparks(sp.x, sp.baseY, '#c4b5fd', 12)
+    this.sound.play('pop')
+  }
+
+  private zapGround(o: Ob) {
     const sx = o.x - this.camera
     if (o.kind === 'big' && o.hp > 1) {
       o.hp--
@@ -811,40 +1045,121 @@ class RoverRamble implements ArcadeGameInstance {
       this.sound.play('blip')
       return
     }
+    if (o.kind === 'tank' && o.hp > 1) {
+      o.hp--
+      this.sparks(sx, GROUND - 10, '#fb923c', 8)
+      this.sound.play('blip')
+      return
+    }
     o.gone = true
     this.cheer(sx, GROUND - 8, 10)
-    this.addScore(
-      o.kind === 'roller' ? BIG_POINTS : ROCK_POINTS,
+    const points =
+      o.kind === 'tank'
+        ? TANK_POINTS
+        : o.kind === 'creeper'
+          ? CREEPER_POINTS
+          : o.kind === 'roller'
+            ? BIG_POINTS
+            : ROCK_POINTS
+    this.addScore(points, sx, GROUND - 22)
+    this.sparks(
       sx,
-      GROUND - 22,
+      GROUND - 6,
+      o.kind === 'creeper' ? '#86efac' : '#a8a29e',
+      14,
     )
-    this.sparks(sx, GROUND - 6, '#a8a29e', 14)
     this.sound.play('boom')
   }
 
   private updateSprites() {
-    if (this.level >= 2 && --this.waveTimer <= 0) {
-      this.waveTimer = Math.round(levelCurve(this.level, ROVER_CURVES.waveGap))
-      const fromLeft = this.rng() < 0.5
-      const baseY = HUD_H + 26 + this.rng() * 40
-      for (let i = 0; i < 3; i++)
-        this.sprites.push({
-          x: fromLeft ? -20 - i * 22 : W + 20 + i * 22,
-          y: baseY,
-          baseY,
-          vx: fromLeft ? 1.3 : -1.3,
-          phase: i * 0.9,
-        })
-      this.sound.play('warn')
-    }
-    const pebble = levelCurve(this.level, ROVER_CURVES.pebble)
+    const pebble = 0.006 + Math.min(this.level, 9) * 0.0015
     for (const sp of this.sprites) {
-      sp.x += sp.vx
-      sp.y = sp.baseY + Math.sin(this.tick / 18 + sp.phase) * 14
-      if (sp.x > 20 && sp.x < W - 20 && this.rng() < pebble)
-        this.pebbles.push({ x: sp.x, y: sp.y + 6, vx: 0 })
+      if (sp.kind === 'sprite') {
+        sp.x += sp.vx
+        sp.y = sp.baseY + Math.sin(this.tick / 18 + sp.phase) * 14
+        if (sp.x > 20 && sp.x < W - 20 && this.rng() < pebble)
+          this.pebbles.push({ x: sp.x, y: sp.y + 6, vx: 0 })
+      } else if (sp.kind === 'zig') {
+        // Low at bumper height, then high, every second or so.
+        sp.x += sp.vx
+        const high = Math.floor((this.tick + sp.phase * 40) / 50) % 2 === 1
+        sp.y += ((high ? ZIG_HIGH : ZIG_LOW) - sp.y) * 0.2
+        sp.baseY = sp.y
+        if (
+          Math.abs(sp.x - this.roverX) < ROVER_HALF + 5 &&
+          sp.y > GROUND - this.alt - 28 &&
+          sp.y < GROUND - this.alt + 2
+        ) {
+          this.crashRover('SIDESWIPED BY A ZIG SAUCER')
+          return
+        }
+      } else {
+        // The bomber outruns the scenery, then lets one go over its ring on the track.
+        sp.vx = -(this.speed + 1)
+        sp.x += sp.vx
+        if (!sp.dropped && sp.x <= sp.targetWx - this.camera + 4) {
+          sp.dropped = true
+          this.bombs.push({ wx: sp.targetWx, y: sp.y + 6 })
+          this.sound.play('warn')
+        }
+      }
     }
     this.sprites = this.sprites.filter((sp) => sp.x > -90 && sp.x < W + 90)
+  }
+
+  private updateEnemies() {
+    // Tank shells roll toward the rover along the ground.
+    for (const s of this.shells) {
+      s.x -= SHELL_SPEED
+      if (Math.abs(s.x - this.wx) < ROVER_HALF + 2 && this.alt < 9) {
+        this.crashRover('HIT BY A TANK SHELL')
+        return
+      }
+    }
+    this.shells = this.shells.filter((s) => s.x > this.camera - 30)
+    // Bombs fall at the ring and blast a crater there.
+    for (const b of this.bombs) {
+      b.y += BOMB_FALL
+      const sx = b.wx - this.camera
+      if (
+        Math.abs(sx - this.roverX) < ROVER_HALF &&
+        b.y > GROUND - this.alt - 26 &&
+        b.y < GROUND - this.alt
+      ) {
+        this.crashRover('BOMBED FROM ABOVE')
+        return
+      }
+      if (b.y >= GROUND) {
+        b.y = H + 99
+        this.sparks(sx, GROUND, '#fb923c', 14)
+        this.sound.play('boom')
+        if (
+          !this.obstacles.some(
+            (o) => o.kind === 'crater' && Math.abs(o.x + o.w / 2 - b.wx) < 26,
+          )
+        )
+          this.obstacles.push(newOb('crater', b.wx - 14, 28))
+      }
+    }
+    this.bombs = this.bombs.filter((b) => b.y < H)
+    // Pursuers close in from behind; jump as one passes under the rover.
+    for (const p of this.pursuers) {
+      if (p.gone) continue
+      p.x += this.speed + PURSUER_CLOSE
+      const dx = p.x - this.wx
+      if (!p.passed && Math.abs(dx) < ROVER_HALF + 7) {
+        if (this.alt < 12) {
+          this.crashRover('RUN DOWN FROM BEHIND')
+          return
+        }
+      } else if (!p.passed && dx >= ROVER_HALF + 7) {
+        p.passed = true
+        if (this.alt > 0)
+          this.addScore(CLOSE_SHAVE_POINTS, this.roverX, GROUND - 40)
+      }
+      if (p.x > this.camera + W + 40) p.gone = true
+    }
+    this.pursuers = this.pursuers.filter((p) => !p.gone)
   }
 
   private updatePebbles() {
@@ -870,33 +1185,54 @@ class RoverRamble implements ArcadeGameInstance {
           wx > this.wx + 40 &&
           !this.obstacles.some((o) => Math.abs(o.x - wx) < 50)
         )
-          this.obstacles.push({
-            kind: 'crater',
-            x: wx - 8,
-            w: 16,
-            hp: 1,
-            passed: false,
-            gone: false,
-          })
+          this.obstacles.push(newOb('crater', wx - 8, 16))
       }
     }
     this.pebbles = this.pebbles.filter((p) => p.y < H)
   }
 
   private checkpoint() {
-    const par = levelCurve(this.level, ROVER_CURVES.par) * 60
+    const def = COURSE[this.level - 1]!
+    const index = this.level - 1
+    const par = def.par * 60
     const spare = Math.max(0, Math.round((par - this.sectionTicks) / 60))
     const bonus = CHECKPOINT_POINTS * this.level + spare * 100
     this.addScore(bonus, W / 2, 120)
     this.cheer(this.roverX, GROUND - 20, 24)
-    this.cheer(this.sectionStart + SECTION - this.camera, GROUND - 40, 16)
+    this.cheer(
+      this.sectionStart + this.sectionLen - this.camera,
+      GROUND - 40,
+      16,
+    )
     this.sound.play('level')
-    const letter = LETTERS[(this.level - 1) % LETTERS.length]!
-    const next = this.level + 1
-    this.startSection(next, this.sectionStart + SECTION, false)
+    const sub =
+      spare > 0 ? `${spare} SECONDS UNDER PAR  +${bonus}` : `+${bonus}`
+    if (isOutpost(index)) {
+      const data = checkpointReport(def.moon, {
+        ticks: this.moonTicks,
+        crashes: this.moonCrashes,
+      })
+      this.addScore(data.bonus, W / 2, 140)
+      this.report = { data, ticks: REPORT_TICKS }
+      this.moonTicks = 0
+      this.moonCrashes = 0
+    }
+    if (this.level >= SECTION_COUNT) {
+      this.won = true
+      this.over = true
+      this.addScore(FINISH_POINTS, W / 2, 130)
+      this.sound.play('extra')
+      this.banner = {
+        text: 'RALLY COMPLETE!',
+        sub: `THE FIVE MOONS ARE YOURS  +${FINISH_POINTS}`,
+        ticks: 9999,
+      }
+      return
+    }
+    this.startSection(this.level + 1, false)
     this.banner = {
-      text: `CHECKPOINT ${letter}!`,
-      sub: spare > 0 ? `${spare} SECONDS UNDER PAR  +${bonus}` : `+${bonus}`,
+      text: `CHECKPOINT ${def.letter}!`,
+      sub,
       ticks: 110,
     }
   }
@@ -904,6 +1240,7 @@ class RoverRamble implements ArcadeGameInstance {
   private crashRover(why: string) {
     if (this.crash > 0) return
     this.lives--
+    this.moonCrashes++
     this.crash = CRASH_TICKS
     this.sparks(this.roverX, GROUND - 8 - this.alt, '#fb923c', 20)
     this.sparks(this.roverX, GROUND - 8 - this.alt, '#e2e8f0', 10)
@@ -951,6 +1288,7 @@ class RoverRamble implements ArcadeGameInstance {
 
   private updateEffects() {
     this.fx.update()
+    if (this.report && --this.report.ticks <= 0) this.report = null
     for (const p of this.particles) {
       p.x += p.vx
       p.y += p.vy
@@ -968,8 +1306,9 @@ class RoverRamble implements ArcadeGameInstance {
   // --- attract-mode pilot -----------------------------------------------------
 
   /**
-   * Zaps ahead and overhead whenever it can, jumps craters (and any boulder it
-   * cannot zap in time), and eases off when a pebble is about to land on it.
+   * Zaps ahead and overhead whenever it can, jumps craters, mines and anything it cannot zap in
+   * time, floors it on the way to a ramp, jumps shells, zig saucers and pursuers as they arrive,
+   * and eases off when a pebble is about to land on it.
    */
   private demoInput(): InputFrame {
     const held = {
@@ -982,6 +1321,10 @@ class RoverRamble implements ArcadeGameInstance {
       start: false,
     }
     const frame: InputFrame = { held, pressed: { ...held } }
+    const jump = () => {
+      held.up = true
+      frame.pressed.up = true
+    }
     if (this.tick % 5 === 0) {
       held.a = true
       frame.pressed.a = true
@@ -995,25 +1338,66 @@ class RoverRamble implements ArcadeGameInstance {
       if (danger.x >= rx) held.left = true
       else held.right = true
     }
-    if (this.alt > 0) return frame
     const front = this.wx + ROVER_HALF
+    // A ramp ahead wants full speed.
+    const ramp = this.obstacles.find(
+      (o) => o.kind === 'ramp' && !o.passed && o.x - front < 220,
+    )
+    if (ramp && !danger) held.right = true
+    if (this.alt > 0) return frame
+    // Something coming up behind passes under the rover: jump as it arrives.
+    for (const p of this.pursuers) {
+      const behind = this.wx - p.x
+      if (!p.passed && behind > 24 && behind < 36) return (jump(), frame)
+    }
+    for (const s of this.shells) {
+      const dist = s.x - this.wx
+      if (dist > 30 && dist < 52) return (jump(), frame)
+    }
+    for (const sp of this.sprites) {
+      if (sp.kind !== 'zig') continue
+      const dist = sp.x - rx
+      if (dist > 14 && dist < 54 && sp.y > ZIG_LOW - 10) return (jump(), frame)
+    }
     for (const o of this.obstacles) {
       if (o.gone || o.passed) continue
       if (o.kind === 'crater') {
+        // The gap behind a ramp is cleared by the ramp's own launch.
+        const launch = this.obstacles.some(
+          (r) =>
+            r.kind === 'ramp' && !r.passed && Math.abs(r.x + r.w + 8 - o.x) < 1,
+        )
+        if (launch) continue
         const lead = this.speed * 6 + 4
         if (o.x - front < lead && o.x + o.w > this.wx - 4) {
-          held.up = true
-          frame.pressed.up = true
+          jump()
           break
         }
-      } else {
+      } else if (o.kind === 'mine') {
+        if (o.x - front < this.speed * 6 + 4 && o.x + 4 > this.wx - 4) {
+          jump()
+          break
+        }
+      } else if (o.kind === 'creeper') {
+        // A full vine is a wall; a bud gets zapped.
+        const dist = o.x - front
+        if (o.t > CREEPER_GROW * 0.4 && dist > 0 && dist < this.speed * 9) {
+          jump()
+          break
+        }
+      } else if (o.kind === 'tank') {
+        const dist = o.x - 12 - front
+        if (dist > 0 && dist < 40 + this.speed * 6) {
+          jump()
+          break
+        }
+      } else if (o.kind === 'rock' || o.kind === 'big' || o.kind === 'roller') {
         const r = rockR(o)
         const dist = o.x - r - front
         // Too close to zap away in time (a big one needs two): jump it.
         const needed = (o.kind === 'big' ? 40 : 18) + this.speed * 6
         if (dist > 0 && dist < needed && (this.fwd || o.kind === 'big')) {
-          held.up = true
-          frame.pressed.up = true
+          jump()
           break
         }
       }
@@ -1027,8 +1411,12 @@ class RoverRamble implements ArcadeGameInstance {
     this.renderSky(g)
     this.renderGround(g)
     for (const o of this.obstacles)
-      if (!o.gone && o.kind !== 'crater') this.renderRock(g, o)
+      if (!o.gone && o.kind !== 'crater') this.renderOb(g, o)
     this.renderPost(g)
+    this.renderRings(g)
+    for (const sh of this.shells) this.renderShell(g, sh)
+    for (const p of this.pursuers) this.renderPursuer(g, p)
+    for (const b of this.bombs) this.renderBomb(g, b)
     for (const sp of this.sprites) this.renderSprite(g, sp)
     for (const p of this.pebbles) {
       glow(g, p.x, p.y - 3, 7, RAMPS.ember[3], 0.45)
@@ -1212,6 +1600,246 @@ class RoverRamble implements ArcadeGameInstance {
     }
   }
 
+  private renderOb(g: CanvasRenderingContext2D, o: Ob) {
+    const sx = Math.round(o.x - this.camera)
+    if (sx < -70 || sx > W + 70) return
+    switch (o.kind) {
+      case 'mine': {
+        dropShadow(g, sx + 1, GROUND, 7, 2, 0.4)
+        g.fillStyle = INK
+        g.fillRect(sx - 6, GROUND - 6, 12, 6)
+        g.fillStyle = RAMPS.steel[2]
+        g.fillRect(sx - 5, GROUND - 5, 10, 4)
+        g.fillStyle = RAMPS.steel[4]
+        g.fillRect(sx - 4, GROUND - 5, 6, 1)
+        // The blinking sparkle on top is its tell.
+        if (Math.floor(this.tick / 10) % 2 === 0) {
+          glow(g, sx, GROUND - 9, 8, RAMPS.ember[3], 0.6)
+          g.fillStyle = RAMPS.ember[4]
+          g.fillRect(sx - 1, GROUND - 9, 2, 3)
+        }
+        break
+      }
+      case 'tank': {
+        const lifting = o.t > TANK_CYCLE - TANK_LIFT && o.t < TANK_CYCLE
+        dropShadow(g, sx, GROUND, 14, 2, 0.45)
+        g.fillStyle = INK
+        g.fillRect(sx - 14, GROUND - 11, 28, 11)
+        g.fillStyle = RAMPS.steel[1]
+        g.fillRect(sx - 13, GROUND - 4, 26, 4)
+        g.fillStyle = RAMPS.purple[2]
+        g.fillRect(sx - 12, GROUND - 10, 24, 6)
+        g.fillStyle = RAMPS.purple[4]
+        g.fillRect(sx - 12, GROUND - 10, 24, 1)
+        for (let i = 0; i < 4; i++) {
+          g.fillStyle = RAMPS.steel[3]
+          g.fillRect(
+            sx - 11 + i * 6 + (Math.floor(this.tick / 4) % 2),
+            GROUND - 3,
+            3,
+            2,
+          )
+        }
+        // The turret and its barrel, which lifts before a shell goes out.
+        g.fillStyle = INK
+        g.fillRect(sx - 6, GROUND - 17, 13, 7)
+        g.fillStyle = RAMPS.purple[3]
+        g.fillRect(sx - 5, GROUND - 16, 11, 5)
+        const lift = lifting ? 5 : 0
+        g.fillStyle = INK
+        g.fillRect(sx - 20, GROUND - 15 - lift, 15, 4)
+        g.fillStyle = RAMPS.steel[3]
+        g.fillRect(sx - 19, GROUND - 14 - lift, 13, 2)
+        if (lifting)
+          glow(g, sx - 20, GROUND - 15 - lift, 7, RAMPS.ember[3], 0.6)
+        break
+      }
+      case 'creeper': {
+        const h = vineHeight(o)
+        dropShadow(g, sx, GROUND, 6, 2, 0.35)
+        if (o.t < CREEPER_GROW * 0.4) {
+          // A bud swelling at the root: the moment to zap it.
+          const r = 3 + Math.floor(o.t / 8)
+          shadedOrb(g, sx, GROUND - r, r, RAMPS.leaf)
+          if (Math.floor(this.tick / 8) % 2 === 0)
+            glow(g, sx, GROUND - r, r + 5, RAMPS.pink[3], 0.4)
+        } else {
+          g.fillStyle = INK
+          g.fillRect(sx - 3, GROUND - h - 1, 6, h + 1)
+          g.fillStyle = RAMPS.leaf[2]
+          g.fillRect(sx - 2, GROUND - h, 4, h)
+          g.fillStyle = RAMPS.leaf[4]
+          g.fillRect(sx - 2, GROUND - h, 1, h)
+          for (let y = 4; y < h; y += 6) {
+            const side = (y / 6) % 2 ? 1 : -1
+            g.fillStyle = RAMPS.leaf[3]
+            g.fillRect(sx + (side > 0 ? 2 : -5), GROUND - y - 1, 3, 2)
+          }
+          g.fillStyle = RAMPS.pink[3]
+          g.fillRect(sx - 2, GROUND - h - 2, 4, 3)
+        }
+        break
+      }
+      case 'devil': {
+        for (let i = 0; i < 8; i++) {
+          const y = GROUND - 3 - i * 4
+          const sway = Math.round(
+            Math.sin(this.tick / 4 + i * 0.9) * (2 + i * 0.4),
+          )
+          const w = 4 + i * 2
+          g.fillStyle = rgba(DUST[3], 0.75)
+          g.fillRect(sx - Math.floor(w / 2) + sway, y, w, 2)
+          g.fillStyle = rgba(DUST[4], 0.8)
+          g.fillRect(sx - Math.floor(w / 2) + sway, y, Math.max(1, w >> 2), 1)
+        }
+        break
+      }
+      case 'ramp': {
+        dropShadow(g, sx + o.w / 2, GROUND, o.w / 2 + 2, 2, 0.35)
+        for (let c = 0; c < o.w; c++) {
+          const h = Math.max(1, Math.round((c / (o.w - 1)) * 10))
+          g.fillStyle = INK
+          g.fillRect(sx + c, GROUND - h - 1, 1, h + 1)
+          g.fillStyle = STONE[2]
+          g.fillRect(sx + c, GROUND - h, 1, h)
+          g.fillStyle = STONE[4]
+          g.fillRect(sx + c, GROUND - h, 1, 1)
+        }
+        g.fillStyle = HULL[3]
+        for (let c = 6; c < o.w - 4; c += 8)
+          g.fillRect(sx + c, GROUND - 3, 3, 1)
+        break
+      }
+      default:
+        this.renderRock(g, o)
+    }
+  }
+
+  /** The target ring a bomber's bomb will land in, on the track ahead. */
+  private renderRings(g: CanvasRenderingContext2D) {
+    const rings = [
+      ...this.sprites
+        .filter((sp) => sp.kind === 'bomber' && !sp.dropped && sp.y > 0)
+        .map((sp) => sp.targetWx),
+      ...this.bombs.map((b) => b.wx),
+    ]
+    for (const wx of rings) {
+      const sx = Math.round(wx - this.camera)
+      if (sx < -20 || sx > W + 20) continue
+      const pulse = Math.floor(this.tick / 6) % 2
+      g.fillStyle = rgba(RAMPS.ember[3], pulse ? 0.9 : 0.5)
+      g.fillRect(sx - 15, GROUND + 1, 30, 1)
+      g.fillRect(sx - 12, GROUND + 3, 24, 1)
+      g.fillRect(sx - 15, GROUND + 2, 2, 1)
+      g.fillRect(sx + 13, GROUND + 2, 2, 1)
+    }
+  }
+
+  private renderBomb(g: CanvasRenderingContext2D, b: Bomb) {
+    const sx = Math.round(b.wx - this.camera)
+    glow(g, sx, b.y, 8, RAMPS.ember[3], 0.4)
+    g.fillStyle = INK
+    g.fillRect(sx - 3, Math.round(b.y) - 3, 7, 7)
+    g.fillStyle = RAMPS.steel[2]
+    g.fillRect(sx - 2, Math.round(b.y) - 2, 5, 5)
+    g.fillStyle = RAMPS.steel[4]
+    g.fillRect(sx - 2, Math.round(b.y) - 2, 2, 2)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(sx, Math.round(b.y) - 5, 1, 2)
+  }
+
+  private renderShell(g: CanvasRenderingContext2D, s: Shell) {
+    const sx = Math.round(s.x - this.camera)
+    glow(g, sx, GROUND - 5, 8, RAMPS.ember[3], 0.5)
+    g.fillStyle = INK
+    g.fillRect(sx - 4, GROUND - 7, 9, 5)
+    g.fillStyle = RAMPS.ember[3]
+    g.fillRect(sx - 3, GROUND - 6, 7, 3)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(sx - 3, GROUND - 6, 3, 1)
+  }
+
+  /** A buggy coming up from behind: it faces right and passes under a jump. */
+  private renderPursuer(g: CanvasRenderingContext2D, p: Pursuer) {
+    const sx = Math.round(p.x - this.camera)
+    if (sx < -30 || sx > W + 30) return
+    dropShadow(g, sx, GROUND, 11, 2, 0.4)
+    g.fillStyle = INK
+    g.fillRect(sx - 12, GROUND - 11, 24, 8)
+    g.fillStyle = RAMPS.purple[2]
+    g.fillRect(sx - 11, GROUND - 10, 22, 6)
+    g.fillStyle = RAMPS.purple[4]
+    g.fillRect(sx - 11, GROUND - 10, 22, 1)
+    g.fillStyle = INK
+    g.fillRect(sx - 3, GROUND - 16, 10, 6)
+    g.fillStyle = RAMPS.sky[3]
+    g.fillRect(sx - 2, GROUND - 15, 8, 4)
+    glow(g, sx + 14, GROUND - 7, 7, RAMPS.gold[3], 0.6)
+    g.fillStyle = RAMPS.gold[4]
+    g.fillRect(sx + 11, GROUND - 8, 3, 3)
+    const spin = Math.floor(this.tick / 3) % 2
+    for (const wx of [sx - 8, sx + 7]) {
+      g.fillStyle = INK
+      g.fillRect(wx - 3, GROUND - 6, 7, 7)
+      g.fillStyle = spin ? RAMPS.steel[3] : RAMPS.steel[2]
+      g.fillRect(wx - 2, GROUND - 5, 5, 5)
+    }
+  }
+
+  /** The rear-view strip: a blip slides in as something closes from behind. */
+  private renderRearView(g: CanvasRenderingContext2D) {
+    hudPanel(g, 2, HUD_H + 3, 58, 13)
+    drawText(g, 'REAR', 6, HUD_H + 6, { color: RAMPS.teal[4], outline: INK })
+    g.fillStyle = INK
+    g.fillRect(34, HUD_H + 8, 22, 3)
+    g.fillStyle = RAMPS.night[3]
+    g.fillRect(35, HUD_H + 9, 20, 1)
+    g.fillStyle = HULL[3]
+    g.fillRect(53, HUD_H + 7, 3, 5)
+    for (const p of this.pursuers) {
+      const behind = this.wx - p.x
+      if (p.passed || behind > 330) continue
+      const bx = 53 - Math.round(Math.max(0, behind / 330) * 18)
+      if (behind > 120 || Math.floor(this.tick / 4) % 2 === 0) {
+        glow(g, bx, HUD_H + 9.5, 6, RAMPS.pink[3], 0.7)
+        g.fillStyle = RAMPS.pink[4]
+        g.fillRect(bx - 1, HUD_H + 7, 3, 5)
+      }
+    }
+  }
+
+  /** The time board at an outpost: split against par and the stamps earned. */
+  private renderReport(g: CanvasRenderingContext2D) {
+    if (!this.report) return
+    const r = this.report.data
+    hudPanel(g, 60, 70, 200, 78)
+    drawText(g, `${r.name} MOON OUTPOST`, W / 2, 76, {
+      align: 'center',
+      color: RAMPS.gold[4],
+      outline: INK,
+    })
+    drawText(g, `TIME ${r.seconds} S   PAR ${r.par} S`, W / 2, 90, {
+      align: 'center',
+      color: r.underPar ? RAMPS.leaf[4] : RAMPS.ember[4],
+      outline: INK,
+    })
+    const stamps: [string, boolean][] = [
+      ['UNDER PAR', r.underPar],
+      ['NO SCRAPE', r.noScrape],
+    ]
+    stamps.forEach(([label, earned], i) => {
+      drawText(g, `${earned ? '*' : '-'} ${label}`, 78, 106 + i * 12, {
+        color: earned ? RAMPS.gold[4] : RAMPS.night[4],
+        outline: INK,
+      })
+    })
+    drawText(g, `BONUS +${r.bonus}`, W / 2, 134, {
+      align: 'center',
+      color: '#ffffff',
+      outline: INK,
+    })
+  }
+
   private renderRock(g: CanvasRenderingContext2D, o: Ob) {
     const sx = o.x - this.camera
     const r = rockR(o)
@@ -1255,9 +1883,9 @@ class RoverRamble implements ArcadeGameInstance {
   }
 
   private renderPost(g: CanvasRenderingContext2D) {
-    const sx = Math.round(this.sectionStart + SECTION - this.camera)
+    const sx = Math.round(this.sectionStart + this.sectionLen - this.camera)
     if (sx < -20 || sx > W + 20) return
-    const letter = LETTERS[(this.level - 1) % LETTERS.length]!
+    const letter = LETTERS[this.level - 1]!
     dropShadow(g, sx + 3, GROUND, 8, 2, 0.4)
     bevel(g, sx - 3, GROUND - 4, 8, 4, RAMPS.steel, { depth: 1 })
     bevel(g, sx, GROUND - 40, 3, 37, RAMPS.steel, { depth: 1 })
@@ -1290,7 +1918,13 @@ class RoverRamble implements ArcadeGameInstance {
 
   private renderSprite(g: CanvasRenderingContext2D, sp: Sprite) {
     const frame = Math.floor((this.tick + sp.phase * 10) / 6) % 2
-    glow(g, sp.x, sp.y + 3, 14, RAMPS.purple[3], 0.35)
+    const tint =
+      sp.kind === 'zig'
+        ? RAMPS.ember[3]
+        : sp.kind === 'bomber'
+          ? RAMPS.gold[3]
+          : RAMPS.purple[3]
+    glow(g, sp.x, sp.y + 3, 14, tint, 0.35)
     drawSprite(g, frame ? SAUCER_SPRITES[1] : SAUCER_SPRITES[0], sp.x, sp.y, {
       flipX: sp.vx < 0,
     })
@@ -1349,14 +1983,17 @@ class RoverRamble implements ArcadeGameInstance {
     // Time against par, and the course gauge from this checkpoint to the next.
     hudPanel(g, 86, 2, 104, 19)
     const secs = Math.floor(this.sectionTicks / 60)
-    const par = Math.round(levelCurve(this.level, ROVER_CURVES.par))
+    const par = COURSE[this.level - 1]!.par
     drawText(g, `TIME ${secs}  PAR ${par}`, 92, 4, {
       color: secs <= par ? RAMPS.leaf[4] : RAMPS.ember[4],
       outline: INK,
     })
-    const letter = LETTERS[(this.level - 1) % LETTERS.length]!
-    const next = LETTERS[this.level % LETTERS.length]!
-    const progress = Math.min(1, (this.wx - this.sectionStart) / SECTION)
+    const letter = LETTERS[this.level - 1]!
+    const next = LETTERS[this.level] ?? '*'
+    const progress = Math.min(
+      1,
+      (this.wx - this.sectionStart) / this.sectionLen,
+    )
     drawText(g, letter, 91, 13, { color: RAMPS.teal[4], outline: INK })
     gauge(g, 100, 14, 76, 4, progress, RAMPS.pink)
     const mx = 100 + Math.round(76 * progress)
@@ -1379,16 +2016,18 @@ class RoverRamble implements ArcadeGameInstance {
       color: RAMPS.teal[4],
       outline: INK,
     })
+    this.renderRearView(g)
+    this.renderReport(g)
     if (this.banner) {
-      drawText(g, this.banner.text, W / 2, 84, {
+      drawText(g, this.banner.text, W / 2, this.report ? 42 : 84, {
         scale: 2,
         align: 'center',
-        color: '#ffffff',
+        color: this.won ? RAMPS.gold[4] : '#ffffff',
         outline: INK,
         shadow: RAMPS.purple[1],
       })
       if (this.banner.sub)
-        drawText(g, this.banner.sub, W / 2, 104, {
+        drawText(g, this.banner.sub, W / 2, this.report ? 58 : 104, {
           align: 'center',
           color: RAMPS.gold[3],
           outline: INK,

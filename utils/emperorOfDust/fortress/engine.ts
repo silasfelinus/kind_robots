@@ -36,7 +36,7 @@ import type {
 } from './types'
 
 export const START_BRASS = 120
-export const WAGE = 4
+export const WAGE = 6
 export const LOAN = 50
 export const BAND_NEED: Record<Band, number> = {
   low: 5,

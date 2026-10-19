@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
+import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
+  WAGE,
   applyEffects,
   assignQuest,
   audiencesToday,
@@ -16,6 +18,7 @@ import {
   followerStatus,
   injuryDaysLeft,
   isOver,
+  postDawnQuests,
   previewQuest,
   recruit,
   selectHideout,
@@ -82,7 +85,7 @@ assert.equal(
   FOLLOWERS.length,
   'abilities are unique per follower',
 )
-for (const quest of ACT_ONE_QUESTS) {
+for (const quest of [...ACT_ONE_QUESTS, ...ACT_ONE_LATE_QUESTS]) {
   assert.ok(quest.durationDays >= 1 && quest.durationDays <= 3, quest.id)
   assert.ok(quest.party.min >= 1 && quest.party.max <= 4, quest.id)
   assert.ok(quest.party.min <= quest.party.max, quest.id)
@@ -106,6 +109,31 @@ for (const def of DAYS) {
 assert.deepEqual(
   ACT_ONE_DAYS.map((def) => def.day),
   [1, 2, 3, 4],
+)
+assert.deepEqual(
+  DAYS.map((def) => def.day),
+  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+  'Act I is scripted end to end',
+)
+for (const def of DAYS) {
+  assert.ok(
+    def.audiences.length + def.quests.length >= 1,
+    `day ${def.day} has something to do`,
+  )
+  for (const report of def.briefings)
+    if (report.komodoLie) assert.equal(report.truth, false, report.id)
+}
+assert.ok(
+  new Set(DAYS.map((def) => def.briefings.findIndex((b) => !b.truth))).size > 1,
+  'the lie is not always in the same slot',
+)
+assert.ok(
+  DAYS.some((def) => def.briefings.some((b) => b.komodoLie)),
+  'Act I plants at least one of Komodo’s own lies',
+)
+assert.ok(
+  ACT_ONE_LATE_QUESTS.some((quest) => quest.lethal),
+  'Act I teaches the lethal marker',
 )
 
 // --- a new run --------------------------------------------------------------
@@ -191,7 +219,7 @@ assert.equal(
   'on-quest',
   'two-day quest still out',
 )
-assert.equal(day2.brass, sent.brass + dailyTaxes(day2) - 4 * bedsUsed(day2))
+assert.equal(day2.brass, sent.brass + dailyTaxes(day2) - WAGE * bedsUsed(day2))
 const wellExpired = day2.reports[0]?.quests.find(
   (q) => q.questId === 'q-d01-well-road',
 )
@@ -257,6 +285,52 @@ for (let seed = 1; seed <= 300; seed += 1) {
   deaths += run.memorials.length
 }
 assert.equal(deaths, 0, 'quests without a lethal marker never kill')
+
+// Day 9's convoy is marked lethal: a weak party can lose someone, rarely,
+// and never more than one follower per quest.
+const onDay = (seed: number, day: number): FortressRun => {
+  const run: FortressRun = { ...createRun(seed), day, board: [], reports: [] }
+  postDawnQuests(run)
+  return run
+}
+let convoyDeaths = 0
+for (let seed = 1; seed <= 300; seed += 1) {
+  let run = assignQuest(onDay(seed, 9), 'q-d09-iron-convoy', ['F003', 'F004'])
+  run = finishDay(finishDay(run).run).run
+  assert.ok(run.memorials.length <= 1, 'at most one death per quest')
+  convoyDeaths += run.memorials.length
+}
+assert.ok(convoyDeaths > 0, 'a lethal quest can kill')
+assert.ok(
+  convoyDeaths < 60,
+  `deaths stay rare (${convoyDeaths}/300 weak parties)`,
+)
+
+// Day 6's stable is where the court first learns its followers' secrets:
+// whichever starter goes alone reveals something.
+for (const id of ['F001', 'F002', 'F003', 'F004']) {
+  const run = assignQuest(onDay(6, 6), 'q-d06-empty-stable', [id])
+  const report = finishDay(run).report.quests.find(
+    (quest) => quest.questId === 'q-d06-empty-stable',
+  )
+  assert.ok(
+    report?.revealedTraits.length,
+    `${id} reveals a secret at the stable`,
+  )
+}
+
+// Day 5 has two versions of Vane's audience, never both.
+const plainDay5 = audiencesToday(onDay(5, 5)).map((a) => a.id)
+assert.ok(
+  plainDay5.includes('d05-toll') && !plainDay5.includes('d05-toll-grudge'),
+)
+const grudgeDay5 = audiencesToday({
+  ...onDay(5, 5),
+  flags: ['feast-armed'],
+}).map((a) => a.id)
+assert.ok(
+  grudgeDay5.includes('d05-toll-grudge') && !grudgeDay5.includes('d05-toll'),
+)
 
 // --- barracks and market ----------------------------------------------------
 const pip = chooseAudienceOption(

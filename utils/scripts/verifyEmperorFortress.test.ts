@@ -37,6 +37,7 @@ import {
   ITEMS,
   followerDef,
 } from '../emperorOfDust/fortress/followers'
+import { REGIONS } from '../emperorOfDust/fortress/factions'
 import { NPCS, npcDef } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
@@ -1032,5 +1033,13 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
+// The map room's illustrated base map and every region's marker on it.
+assert.ok(existsSync('public/emperor-of-dust/map/wasteland-base.svg'))
+for (const region of REGIONS) {
+  assert.ok(
+    region.x > 0 && region.x < 100 && region.y > 0 && region.y < 100,
+    `${region.id} sits on the map`,
+  )
+}
 
 console.log('Emperor of Dust fortress contract: ok')

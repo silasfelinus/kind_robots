@@ -26,6 +26,7 @@ import type {
   FollowerState,
   FortressRun,
   KingdomFactionId,
+  LocalFactionId,
   OddsPreview,
   QuestDef,
   QuestReport,
@@ -346,15 +347,30 @@ export const traitKnown = (
   known.includes(trait.id) ||
   (trait.revealFlag !== undefined && run.flags.includes(trait.revealFlag))
 
-const abilitiesOf = (
-  members: Member[],
-): { kind: AbilityKind; amount: number; stat?: Stat }[] =>
-  members.flatMap(({ def, state }) => [
-    def.ability,
-    ...Object.values(state.equipment)
-      .map((id) => (id ? itemDef(id)?.ability : undefined))
-      .filter((ability): ability is NonNullable<typeof ability> => !!ability),
-  ])
+type PartyAbility = {
+  kind: AbilityKind
+  amount: number
+  stat?: Stat
+  local?: LocalFactionId
+  ownerId: string
+}
+
+const abilitiesOf = (members: Member[]): PartyAbility[] =>
+  members.flatMap(({ def, state }) =>
+    [
+      def.ability,
+      ...Object.values(state.equipment)
+        .map((id) => (id ? itemDef(id)?.ability : undefined))
+        .filter((ability): ability is NonNullable<typeof ability> => !!ability),
+    ].map((ability) => ({ ...ability, ownerId: def.id })),
+  )
+
+const hasAbility = (abilities: PartyAbility[], kind: AbilityKind): boolean =>
+  abilities.some((ability) => ability.kind === kind)
+
+/** Cave-Luck rolls twice and keeps the better: the honest odds change too. */
+const luckyChance = (chance: number): number =>
+  Math.min(99, Math.round(100 * (1 - (1 - chance / 100) ** 2)))
 
 const abilityTotal = (
   abilities: ReturnType<typeof abilitiesOf>,
@@ -484,11 +500,12 @@ export const previewQuest = (
       : chanceWith()
     : 0
   const guardian = abilityTotal(abilities, 'guardian')
+  const luck = hasAbility(abilities, 'lucky') ? luckyChance : (c: number) => c
   return {
-    chance: estimate ? Math.round((low + high) / 2) : low,
+    chance: luck(estimate ? Math.round((low + high) / 2) : low),
     estimate,
-    low,
-    high,
+    low: luck(low),
+    high: luck(high),
     perRequirement: quest.requirements.map((req, i) => ({
       stat: req.stat,
       band: req.band,
@@ -639,8 +656,12 @@ export const earnFlag = (run: FortressRun, flag: string): FortressRun => {
 
 // --- finishing the day ------------------------------------------------------
 
-const tierFor = (chance: number, roll: number): QuestResultTier => {
-  if (roll < Math.floor(chance * 0.3)) return 'triumph'
+const tierFor = (
+  chance: number,
+  roll: number,
+  encore = false,
+): QuestResultTier => {
+  if (roll < Math.floor(chance * (encore ? 0.6 : 0.3))) return 'triumph'
   if (roll < chance) return 'success'
   if (roll < chance + Math.floor((100 - chance) * 0.4)) return 'partial'
   return 'failure'
@@ -664,8 +685,15 @@ const resolveQuest = (
     ),
   )
   const key = `${active.questId}:${active.departedDay}`
-  const roll = rollFor(run, `quest:${key}`)
-  const tier = tierFor(chance, roll)
+  const firstRoll = rollFor(run, `quest:${key}`)
+  const roll = hasAbility(abilities, 'lucky')
+    ? Math.min(firstRoll, rollFor(run, `luck:${key}`))
+    : firstRoll
+  const rolledTier = tierFor(chance, roll, hasAbility(abilities, 'encore'))
+  const tier =
+    rolledTier === 'failure' && hasAbility(abilities, 'omen')
+      ? 'partial'
+      : rolledTier
   const rewards =
     tier === 'triumph'
       ? (quest.rewards.triumph ?? quest.rewards.success)
@@ -673,12 +701,31 @@ const resolveQuest = (
         ? (quest.rewards.partial ?? {})
         : quest.rewards[tier]
   const effects: Effects = JSON.parse(JSON.stringify(rewards)) as Effects
+  const succeeded = tier === 'success' || tier === 'triumph'
   const envoy = abilityTotal(abilities, 'envoy')
-  if (envoy && quest.faction && (tier === 'success' || tier === 'triumph')) {
+  if (envoy && quest.faction && succeeded) {
     effects.affinity = {
       ...effects.affinity,
       [quest.faction]: (effects.affinity?.[quest.faction] ?? 0) + envoy,
     }
+  }
+  if (succeeded) {
+    effects.brass = (effects.brass ?? 0) + abilityTotal(abilities, 'bounty')
+    for (const ability of abilities) {
+      if (ability.kind !== 'beloved' || !ability.local) continue
+      effects.local = {
+        ...effects.local,
+        [ability.local]: (effects.local?.[ability.local] ?? 0) + ability.amount,
+      }
+    }
+    if (!effects.brass) delete effects.brass
+  } else if (hasAbility(abilities, 'apology')) {
+    effects.affinity = Object.fromEntries(
+      Object.entries(effects.affinity ?? {}).map(([id, delta]) => [
+        id,
+        (delta ?? 0) < 0 ? Math.trunc((delta ?? 0) / 2) : delta,
+      ]),
+    )
   }
   applyEffects(run, effects, events)
 
@@ -694,6 +741,7 @@ const resolveQuest = (
     const raw = lowDays + (rollFor(run, `wound:${key}:${def.id}`) % span)
     const lethalBlow =
       quest.lethal &&
+      !hasAbility(abilities, 'warden') &&
       tier === 'failure' &&
       deaths.length === 0 &&
       raw >= 5 &&
@@ -710,7 +758,8 @@ const resolveQuest = (
       events.push(`${def.name} did not come home.`)
       continue
     }
-    const days = raw - surgery
+    const ownHide = def.ability.kind === 'thick-hide'
+    const days = (ownHide ? Math.ceil(raw / 2) : raw) - surgery
     if (days <= 0) continue
     state.injuredUntilDay = Math.max(state.injuredUntilDay ?? 0, run.day + days)
     injuries.push({ followerId: def.id, days })
@@ -726,6 +775,25 @@ const resolveQuest = (
       )
       .map((trait) => trait.id),
   )
+  const confessors = abilities.filter((ability) => ability.kind === 'confessor')
+  if (succeeded && confessors.length) {
+    for (const { def } of members) {
+      if (confessors.every((ability) => ability.ownerId === def.id)) continue
+      const secret = def.traits.find(
+        (trait) =>
+          trait.kind !== 'allegiance' &&
+          !known.includes(trait.id) &&
+          !revealedTraits.includes(trait.id),
+      )
+      if (secret) revealedTraits.push(secret.id)
+    }
+  }
+  if (hasAbility(abilities, 'chronicle')) {
+    for (const entry of run.board) {
+      const flag = `scouted:${entry.questId}`
+      if (!run.flags.includes(flag)) run.flags.push(flag)
+    }
+  }
   return {
     questId: active.questId,
     tier,

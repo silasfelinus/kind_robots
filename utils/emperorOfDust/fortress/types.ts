@@ -92,12 +92,24 @@ export type AbilityKind =
   | 'scout'
   | 'envoy'
   | 'guardian'
+  | 'lucky'
+  | 'confessor'
+  | 'warden'
+  | 'bounty'
+  | 'omen'
+  | 'apology'
+  | 'thick-hide'
+  | 'encore'
+  | 'chronicle'
+  | 'beloved'
 
 export type AbilityDef = {
   kind: AbilityKind
   name: string
   text: string
   stat?: Stat
+  /** Local faction warmed by a `beloved` ability. */
+  local?: LocalFactionId
   amount: number
 }
 

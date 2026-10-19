@@ -1,8 +1,9 @@
+import { LATE_FOLLOWERS } from './followersLate'
 import type { FollowerDef, ItemDef } from './types'
 
 // F001-F010 from conductor FOLLOWERS-PILOT-01.md, re-expressed in the v0.3
-// schema. F011-F020 are authored under emperor-of-dust/t-011.
-export const FOLLOWERS: readonly FollowerDef[] = [
+// schema; F011-F020 live in followersLate.ts (conductor FOLLOWERS-V03.md).
+const FIRST_TEN: readonly FollowerDef[] = [
   {
     id: 'F001',
     name: 'Rook Bramble',
@@ -414,6 +415,11 @@ export const FOLLOWERS: readonly FollowerDef[] = [
     starter: false,
     recruitFee: 30,
   },
+]
+
+export const FOLLOWERS: readonly FollowerDef[] = [
+  ...FIRST_TEN,
+  ...LATE_FOLLOWERS,
 ]
 
 export const ITEMS: readonly ItemDef[] = [

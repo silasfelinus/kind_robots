@@ -27,13 +27,15 @@ assert.deepEqual(actOne, [
   2700,
   3900,
   5100,
-  6600,
-  7800,
-  9300,
-  10800,
+  // The Urchin guardian's section is 22 s longer since Silas's second playtest made it tougher.
+  7920,
+  9120,
+  10620,
+  12120,
   PINKWAKE.bossStarts,
 ])
-// Act II after t-023's recut: its teaching sections, guardian and two closing escalations.
+// Act II after t-023's recut: its teaching sections, guardian (17 s longer since the second playtest) and two
+// closing escalations.
 assert.deepEqual(actTwo, [
   0,
   300,
@@ -41,8 +43,8 @@ assert.deepEqual(actTwo, [
   2700,
   4200,
   5700,
-  7500,
-  9300,
+  8520,
+  10320,
   MOONJELLY.bossStarts,
 ])
 assert.equal(
@@ -187,14 +189,15 @@ assert.equal(
 )
 
 // The authored schedule replays from the checkpoint frame.
-// Craft enter at x 498 and move at most 1.25 a frame, so only this frame's arrivals sit past 496.7.
+// Craft enter at x 500 and rush in at most 3.8 a frame (Silas's second playtest), so only this frame's arrivals
+// sit past 494.
 let replayed = 0
 for (let i = 0; i < 240; i++) {
   log.push(pilot(i, game.snapshot.ships[0]!.y))
   game.update(log[log.length - 1]!)
   const { tick, enemies } = game.snapshot
   if (i === 0) assert.equal(tick, down.checkpoint.frame)
-  const fresh = enemies.filter((enemy) => enemy.x > 496.71).length
+  const fresh = enemies.filter((enemy) => enemy.x > 494).length
   assert.equal(fresh, pinkwakeSpawns(tick).length, `replayed spawns at ${tick}`)
   replayed += fresh
 }

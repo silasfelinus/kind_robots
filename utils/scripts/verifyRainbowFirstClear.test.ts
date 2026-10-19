@@ -71,6 +71,26 @@ function pilot(game: Game, seat: number, frame: number): InputFrame {
     target = fight.y + (fight.due < 30 ? side * 46 : (seat - 1.5) * 8)
     input.pressed.b = ship.charge >= 100
   } else target = 70 + ((Math.floor(frame / 240) + seat) % 3) * 70
+  // Step out of a mortar shell's landing ring (Silas's second playtest) before it bursts: the ring is the
+  // telegraph an ordinary pilot reads.
+  const shell = snapshot.enemyShots.find(
+    (shot) =>
+      shot.burst === 'cluster' &&
+      shot.ty !== undefined &&
+      Math.abs(shot.ty - ship.y) < 50 &&
+      Math.abs((shot.tx ?? 0) - ship.x) < 70,
+  )
+  if (shell) target = shell.ty! < 135 ? shell.ty! + 80 : shell.ty! - 80
+  // ...and slip past its bomblets before they burst.
+  const bomblet = snapshot.enemyShots.find(
+    (shot) =>
+      shot.burst === 'split' &&
+      shot.fuse !== undefined &&
+      Math.abs(shot.y - ship.y) < 40 &&
+      shot.x > ship.x - 20 &&
+      shot.x < ship.x + 90,
+  )
+  if (bomblet && !shell) target = bomblet.y < ship.y ? ship.y + 50 : ship.y - 50
   input.held.up = ship.y > target + 3
   input.held.down = ship.y < target - 3
   input.held.right = ship.x < 120

@@ -12,20 +12,31 @@ export type PacedSection = { name: string; from: number; to: number }
 /**
  * Cut `drop` (section names) out of an Act's timeline. `at` maps an authored frame to the recut clock (a frame
  * inside a dropped section lands where that section was cut); `kept` says whether a frame survives.
+ *
+ * `stretch` lengthens sections by name (Silas's second playtest, 2026-10-19: "The miniboss died too quick"):
+ * a tougher guardian gets a longer section to fight in, and everything after it moves back by the frames added.
+ * A guardian beaten early still hands the Act on at once, so the extra time is only there when it is needed.
  */
 export function recutTimeline<Section extends PacedSection>(
   sections: readonly Section[],
   drop: readonly string[],
+  stretch: Readonly<Record<string, number>> = {},
 ) {
-  for (const name of drop)
+  for (const name of [...drop, ...Object.keys(stretch)])
     if (!sections.some((section) => section.name === name))
       throw new Error(`recut: no section named ${name}`)
   const dropped = sections.filter((section) => drop.includes(section.name))
+  const stretched = sections.filter((section) => stretch[section.name])
   const at = (frame: number) =>
     frame -
     dropped.reduce(
       (cut, section) =>
         cut + Math.max(0, Math.min(frame, section.to) - section.from),
+      0,
+    ) +
+    stretched.reduce(
+      (added, section) =>
+        added + (frame >= section.to ? stretch[section.name]! : 0),
       0,
     )
   const kept = (frame: number) =>
@@ -33,11 +44,10 @@ export function recutTimeline<Section extends PacedSection>(
   return {
     at,
     kept,
-    /** Frames cut from the Act. */
-    removed: dropped.reduce(
-      (sum, section) => sum + section.to - section.from,
-      0,
-    ),
+    /** Frames cut from the Act, less the frames stretched into it. */
+    removed:
+      dropped.reduce((sum, section) => sum + section.to - section.from, 0) -
+      Object.values(stretch).reduce((sum, frames) => sum + frames, 0),
     sections: sections
       .filter((section) => !drop.includes(section.name))
       .map((section) => ({
@@ -79,13 +89,29 @@ export function reinforcements<Kind extends string>(
     kinds: readonly Kind[]
     every: Readonly<Record<string, number>>
     pairs?: boolean
+    /** A lone launcher (the mortar, after Silas's second playtest) every so many frames, high then low. */
+    launcher?: { kind: Kind; every: number }
   },
 ): RainbowWave<Kind>[] {
   const waves: RainbowWave<Kind>[] = []
   let n = 0
+  let launched = 0
   for (const [name, every] of Object.entries(plan.every)) {
     const section = sections.find((s) => s.name === name)
     if (!section) throw new Error(`reinforcements: no section named ${name}`)
+    if (plan.launcher)
+      for (
+        let at = section.from + 450;
+        at <= section.to - 420;
+        at += plan.launcher.every
+      )
+        waves.push({
+          at,
+          kind: plan.launcher.kind,
+          formation: 'single',
+          count: 1,
+          lane: launched++ % 2 ? 0.78 : 0.22,
+        })
     for (let at = section.from + 300; at <= section.to - 300; at += every) {
       const school = REINFORCEMENT_PATTERN[n % REINFORCEMENT_PATTERN.length]!
       waves.push({

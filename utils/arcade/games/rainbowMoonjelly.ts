@@ -21,7 +21,8 @@ import {
   withReinforcements,
 } from './rainbowPacing'
 
-export type MoonjellyEnemy = 'lantern' | 'relay' | 'skimmer' | 'coral'
+export type MoonjellyEnemy =
+  'lantern' | 'relay' | 'skimmer' | 'coral' | 'mortar'
 export type MoonjellyStage =
   'opening' | 'waves' | 'turn' | 'remix' | 'approach' | 'boss' | 'aftermath'
 export type MoonjellySceneId = 'A02.OPEN' | 'A02.TURN' | 'A02.AFTER'
@@ -247,19 +248,23 @@ const AUTHORED_MOONJELLY_WAVES: readonly MoonjellyWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_MOONJELLY_SECTIONS, [
-  'Bell remix',
-  'Lantern lattice',
-  'Moonrise surge',
-  'Bell canyon',
-  'Relay storm',
-  'Bell veil',
-  'Tendril crossing',
-  'Lantern choir',
-  'Glow drift',
-  'Coral orchard',
-  'Tide of bells',
-])
+const CUT = recutTimeline(
+  AUTHORED_MOONJELLY_SECTIONS,
+  [
+    'Bell remix',
+    'Lantern lattice',
+    'Moonrise surge',
+    'Bell canyon',
+    'Relay storm',
+    'Bell veil',
+    'Tendril crossing',
+    'Lantern choir',
+    'Glow drift',
+    'Coral orchard',
+    'Tide of bells',
+  ],
+  { [AUTHORED_MOONJELLY_GUARDIAN.name]: 1020 },
+)
 export const MOONJELLY = {
   ...AUTHORED_MOONJELLY,
   nemiAppears: CUT.at(AUTHORED_MOONJELLY.nemiAppears),
@@ -279,6 +284,7 @@ export const MOONJELLY_REINFORCEMENTS = reinforcements<MoonjellyWave['kind']>(
   CUT.sections,
   {
     kinds: ['lantern', 'skimmer', 'relay'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Relay links': 300,
       'Skimmer rain': 300,

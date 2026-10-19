@@ -25,7 +25,7 @@ import {
   withReinforcements,
 } from './rainbowPacing'
 
-export type GlassEnemy = 'mirror' | 'squid' | 'harbinger' | 'prism'
+export type GlassEnemy = 'mirror' | 'squid' | 'harbinger' | 'prism' | 'mortar'
 export type GlassStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type GlassSceneId =
   'A07.OPEN' | 'A07.ECHO' | 'A07.SIGNAL' | 'A07.TURN' | 'A07.AFTER'
@@ -221,18 +221,22 @@ const AUTHORED_GLASS_WAVES: readonly GlassWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_GLASS_SECTIONS, [
-  'Refraction merge',
-  'False corridor',
-  'Lens garden',
-  'Old patterns',
-  'Fractured beams',
-  'Crystal strata',
-  'Lens ribbons',
-  'Mirror maze',
-  'Refraction storm',
-  'Shattered light',
-])
+const CUT = recutTimeline(
+  AUTHORED_GLASS_SECTIONS,
+  [
+    'Refraction merge',
+    'False corridor',
+    'Lens garden',
+    'Old patterns',
+    'Fractured beams',
+    'Crystal strata',
+    'Lens ribbons',
+    'Mirror maze',
+    'Refraction storm',
+    'Shattered light',
+  ],
+  { [AUTHORED_GLASS_GUARDIAN.name]: 1020 },
+)
 export const GLASS = {
   ...AUTHORED_GLASS,
   turnStarts: CUT.at(AUTHORED_GLASS.turnStarts),
@@ -255,6 +259,7 @@ export const GLASS_REINFORCEMENTS = reinforcements<GlassWave['kind']>(
   CUT.sections,
   {
     kinds: ['mirror', 'squid'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Mirror canyon': 420,
       'Split lenses': 300,

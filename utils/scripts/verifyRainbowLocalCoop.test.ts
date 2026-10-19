@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
+import {
+  RAINBOW_SHIP_SPEED,
+  createRainbowPrincessPreview,
+} from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import {
   addCoopSeats,
@@ -142,7 +145,7 @@ for (let frame = 0; frame < 8; frame++) {
   benchFlight.update(p1, [p1, p2])
 }
 const benchY = benchFlight.snapshot.ships[1]!.y
-assert.ok(Math.abs(benchY - 132.8) < 0.01)
+assert.ok(Math.abs(benchY - (112 + 8 * RAINBOW_SHIP_SPEED)) < 0.01)
 benchFlight.setPlayers?.(1)
 assert.equal(benchFlight.snapshot.activePlayers, 1)
 for (let frame = 0; frame < 21; frame++) {

@@ -98,7 +98,8 @@ assert.match(engine, /drawRainbowCommsPortrait\(\s*g,\s*dialogue\.speaker/)
 // Enemies: every kind the engine spawns (the Pinkwake and Moonjelly type unions) has a painted sprite.
 // Two Act I kinds borrow art (Silas's 2026-10-17 playtest recut): a diver flies the picket sprite with a red
 // glow, and a coral spire is terrain the engine draws itself.
-const SPRITELESS_KINDS = ['diver', 'spire']
+// The mortar (Silas's second playtest) is drawn as a coral turret by the engine itself.
+const SPRITELESS_KINDS = ['diver', 'spire', 'mortar']
 const engineKinds = ['rainbowPinkwake', 'rainbowMoonjelly'].flatMap((name) => {
   const source = readFileSync(
     new URL(`../arcade/games/${name}.ts`, import.meta.url),

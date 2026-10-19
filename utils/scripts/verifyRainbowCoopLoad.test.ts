@@ -61,7 +61,10 @@ function continueIfDown(game: Flight) {
       return input
     })
     game.update(inputs[0]!, inputs)
-    charged = game.snapshot.ships.every((ship) => ship.charge === 100)
+    // Every pilot charged and still flying (a fallen seat cannot fire its super until the crew continues).
+    charged = game.snapshot.ships.every(
+      (ship) => ship.charge === 100 && ship.lives > 0,
+    )
   }
   assert.ok(charged, 'all four pilots earned a full super through gun hits')
   const before = game.snapshot

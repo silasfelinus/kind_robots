@@ -24,7 +24,7 @@ import {
 } from './rainbowPacing'
 
 export type ReefEnemy =
-  'brood' | 'drone' | 'turret' | 'bulwark' | 'gate' | 'pylon'
+  'brood' | 'drone' | 'turret' | 'bulwark' | 'gate' | 'pylon' | 'mortar'
 export type ReefStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type ReefSceneId =
   'A06.OPEN' | 'A06.REVEAL' | 'A06.FORK' | 'A06.TURN' | 'A06.AFTER'
@@ -233,17 +233,21 @@ const AUTHORED_CROWN_REEF_CACHE_WAVES: readonly ReefWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_CROWN_REEF_SECTIONS, [
-  'Coral merge',
-  'Brood nests',
-  'Petal storm',
-  'Shell parade',
-  'Closing gates',
-  'Golden nebula',
-  'Tendril maze',
-  'Crown arches',
-  'Reef heart',
-])
+const CUT = recutTimeline(
+  AUTHORED_CROWN_REEF_SECTIONS,
+  [
+    'Coral merge',
+    'Brood nests',
+    'Petal storm',
+    'Shell parade',
+    'Closing gates',
+    'Golden nebula',
+    'Tendril maze',
+    'Crown arches',
+    'Reef heart',
+  ],
+  { [AUTHORED_CROWN_REEF_GUARDIAN.name]: 1020 },
+)
 export const CROWN_REEF = {
   ...AUTHORED_CROWN_REEF,
   turnStarts: CUT.at(AUTHORED_CROWN_REEF.turnStarts),
@@ -269,6 +273,7 @@ export const CROWN_REEF_REINFORCEMENTS = reinforcements<ReefWave['kind']>(
   CUT.sections,
   {
     kinds: ['drone'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Brood wings': 420,
       'Petal turrets': 300,

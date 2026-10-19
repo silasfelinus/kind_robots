@@ -292,7 +292,9 @@ import {
 
 const W = 480
 const H = 270
-const SPEED = 2.6
+/** Silas's second playtest (2026-10-19): "ship should move faster" (2.6 before it). */
+export const RAINBOW_SHIP_SPEED = 3.4
+const SPEED = RAINBOW_SHIP_SPEED
 const FOCUS_SPEED = SPEED * 0.55
 const CORE_RADIUS = 4
 const GRAZE_RADIUS = 15
@@ -313,6 +315,7 @@ const ACT_ONE_HEALTH: Record<string, number> = {
   anchor: 5,
   urchin: 9,
   diver: 3,
+  mortar: 8,
 }
 const ACT_ONE_RELOAD: Record<string, number> = {
   picket: 150,
@@ -444,13 +447,86 @@ const BASE_HEALTH: Record<string, number> = {
   harbinger: 7,
   prism: 10,
   captive: 6,
+  mortar: 10,
 }
+/**
+ * Silas's second playtest (2026-10-19): "more variety in bullets: perhaps something that launches something else
+ * that explodes". A mortar glides in, anchors in the right third and lobs a cluster shell at the nearest pilot
+ * (its landing point is ringed while it flies); the shell bursts into three bomblets flying outward, and each
+ * bomblet bursts again into a three-pellet fan, so the blast blossoms away from where it landed. It lobs `shells` times, then drifts away.
+ */
+export const MORTAR = {
+  holdX: 372,
+  glide: 1.7,
+  drift: 0.3,
+  first: 50,
+  every: 180,
+  shells: 2,
+  flight: 72,
+  gravity: 0.05,
+  bomblets: 3,
+  bombletSpeed: 1.15,
+  bombletFuse: 34,
+} as const
+/**
+ * The same playtest: "everything just sits and floats". Plain craft rush in from the edge and brake to their
+ * own pace, and the lighter ones slide toward a pilot's lane every few seconds instead of drifting on a line.
+ * Craft whose lane is a telegraph (a clawstrike's mark, a harbinger's bolt) or that steer themselves keep theirs.
+ */
+const LIVEN = {
+  rush: 2.4,
+  rushSpan: 110,
+  every: 170,
+  reach: 30,
+  ease: 0.09,
+  range: 130,
+}
+const RUSHING = new Set([
+  'picket',
+  'spiral',
+  'urchin',
+  'diver',
+  'lantern',
+  'relay',
+  'skimmer',
+  'pistol',
+  'angler',
+  'skate',
+  'cutter',
+  'mirror',
+  'squid',
+])
+const DARTING = new Set([
+  'picket',
+  'spiral',
+  'lantern',
+  'relay',
+  'skimmer',
+  'pistol',
+  'angler',
+  'skate',
+  'squid',
+])
 
 /**
  * A pistol bubble bursts into an eight-pellet ring; an angler lure into a four-way cross; a split pellet
  * into three along its heading.
  */
 function burstShots(bullet: EnemyShot): EnemyShot[] {
+  if (bullet.burst === 'cluster')
+    // A mortar shell: bomblets that burst again into rings.
+    return Array.from({ length: MORTAR.bomblets }, (_, i) => {
+      const theta = (i / MORTAR.bomblets) * Math.PI * 2 + Math.PI / 2
+      return {
+        x: bullet.x,
+        y: bullet.y,
+        vx: Math.cos(theta) * MORTAR.bombletSpeed,
+        vy: Math.sin(theta) * MORTAR.bombletSpeed,
+        grazed: 0,
+        fuse: MORTAR.bombletFuse,
+        burst: 'split' as const,
+      }
+    })
   if (bullet.burst === 'split') {
     const heading = Math.atan2(bullet.vy, bullet.vx)
     return [-0.5, 0, 0.5].map((spread) => ({
@@ -604,6 +680,8 @@ type Reef = {
   fromTop?: boolean
   /** The Act whose terrain a spire is (Act I's coral when absent), for its colours. */
   terrain?: ActBeatAct
+  /** The lane a darting craft is sliding to. */
+  dartY?: number
   wave: number | null
 }
 type EnemyShot = {
@@ -614,7 +692,12 @@ type EnemyShot = {
   grazed: number
   /** Frames until a pistol bubble or angler lure bursts. */
   fuse?: number
-  burst?: 'ring' | 'cross' | 'split'
+  burst?: 'ring' | 'cross' | 'split' | 'cluster'
+  /** A lobbed mortar shell falls under this gravity (and ignores the bullet-speed scale, so it lands on its mark). */
+  ay?: number
+  /** Where a mortar shell will burst, ringed while it flies. */
+  tx?: number
+  ty?: number
   /** Wall glances left for a glassfin skate pellet. */
   bounces?: number
   /** A phantom pellet (mirror eel, Mirror guardian, Glass Eel afterimage): only light, it never hits. */
@@ -1715,6 +1798,74 @@ export function createRainbowPrincessPreview(
     return reef.fromTop ? y < reef.y + pad : y > reef.y - pad
   }
 
+  /** A mortar glides to its post, lobs its cluster shells at the nearest pilot, then drifts away. */
+  function stepMortar(reef: Reef) {
+    reef.x -= reef.x > MORTAR.holdX ? MORTAR.glide : MORTAR.drift
+    reef.y += Math.sin(tick / 30 + reef.phase) * 0.3
+    if ((reef.volleys ?? 0) >= MORTAR.shells) {
+      reef.x -= MORTAR.glide - MORTAR.drift
+      return
+    }
+    if (reef.x > W - 30) return
+    reef.reload ??= MORTAR.first
+    if (--reef.reload > 0) return
+    reef.reload = Math.round(MORTAR.every / level.bulletSpeed)
+    const living = availableCoopTargets(ships, activePlayers)
+    if (!living.length) return
+    const target = living.reduce(
+      (best, ship) =>
+        Math.hypot(ship.x - reef.x, ship.y - reef.y) <
+        Math.hypot(best.x - reef.x, best.y - reef.y)
+          ? ship
+          : best,
+      living[0]!,
+    )
+    const t = MORTAR.flight
+    const tx = Math.max(20, Math.min(W - 20, target.x))
+    const ty = Math.max(WALL_TOP + 10, Math.min(WALL_BOTTOM - 10, target.y))
+    reef.volleys = (reef.volleys ?? 0) + 1
+    enemyShots.push({
+      x: reef.x - 10,
+      y: reef.y - 6,
+      vx: (tx - (reef.x - 10)) / t,
+      vy: (ty - (reef.y - 6)) / t - (MORTAR.gravity * t) / 2,
+      ay: MORTAR.gravity,
+      grazed: 0,
+      fuse: t,
+      burst: 'cluster',
+      tx,
+      ty,
+    })
+    options.sound.play('shoot')
+  }
+
+  /** Plain craft rush in and brake, and the lighter ones slide toward a pilot's lane now and then. */
+  function liven(reef: Reef) {
+    if (!RUSHING.has(reef.kind)) return
+    const rush = (reef.x - (W - LIVEN.rushSpan)) / LIVEN.rushSpan
+    if (rush > 0) reef.x -= LIVEN.rush * Math.min(1, rush)
+    if (!DARTING.has(reef.kind) || reef.x > W - 40) return
+    if ((tick + Math.round(reef.phase * 47)) % LIVEN.every === 0) {
+      const living = livingShips()
+      if (living.length) {
+        const nearest = living.reduce((best, ship) =>
+          Math.abs(ship.y - reef.y) < Math.abs(best.y - reef.y) ? ship : best,
+        )
+        // Close in on a lane from range, never by swerving into a pilot's face.
+        if (reef.x - nearest.x < LIVEN.range) return
+        const step = Math.max(
+          -LIVEN.reach,
+          Math.min(LIVEN.reach, nearest.y - reef.y),
+        )
+        reef.dartY = Math.max(52, Math.min(218, reef.y + step))
+      }
+    }
+    if (reef.dartY !== undefined) {
+      reef.y += (reef.dartY - reef.y) * LIVEN.ease
+      if (Math.abs(reef.dartY - reef.y) < 0.5) reef.dartY = undefined
+    }
+  }
+
   /** A diver cruises in, locks the nearest pilot's lane with an aimed pellet, then swoops along it. */
   function stepDiver(reef: Reef) {
     if (reef.dive === undefined) {
@@ -2648,7 +2799,8 @@ export function createRainbowPrincessPreview(
       reef.kind === 'pylon' ||
       reef.kind === 'brood' ||
       reef.kind === 'captive' ||
-      reef.kind === 'spire'
+      reef.kind === 'spire' ||
+      reef.kind === 'mortar'
     )
       return
     if (reef.kind === 'mirror') {
@@ -3592,6 +3744,11 @@ export function createRainbowPrincessPreview(
       }
     }
     for (const reef of reefs) {
+      liven(reef)
+      if (reef.kind === 'mortar') {
+        stepMortar(reef)
+        continue
+      }
       if (
         reef.kind === 'dolphin' ||
         reef.kind === 'courier' ||
@@ -3900,8 +4057,14 @@ export function createRainbowPrincessPreview(
     }
     for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
       const bullet = enemyShots[bi]!
-      bullet.x += bullet.vx * level.bulletSpeed
-      bullet.y += bullet.vy * level.bulletSpeed
+      if (bullet.ay !== undefined) {
+        bullet.x += bullet.vx
+        bullet.y += bullet.vy
+        bullet.vy += bullet.ay
+      } else {
+        bullet.x += bullet.vx * level.bulletSpeed
+        bullet.y += bullet.vy * level.bulletSpeed
+      }
       if (bullet.bounces && (bullet.y < WALL_TOP || bullet.y > WALL_BOTTOM)) {
         bullet.vy = -bullet.vy
         bullet.y = Math.max(WALL_TOP, Math.min(WALL_BOTTOM, bullet.y))
@@ -5239,6 +5402,38 @@ export function createRainbowPrincessPreview(
         g.stroke()
         g.restore()
       }
+      // Mortars: a squat coral turret, its barrel raised, the muzzle glowing as the next shell readies.
+      for (const reef of reefs) {
+        if (reef.kind !== 'mortar') continue
+        const ready = reef.reload !== undefined && reef.reload < 24
+        g.save()
+        g.translate(reef.x, reef.y)
+        if (reef.flash) g.filter = 'brightness(2.2)'
+        g.shadowColor = '#ff7a59'
+        g.shadowBlur = ready ? 16 : 8
+        g.fillStyle = '#5a2346'
+        g.strokeStyle = '#ffb38a'
+        g.lineWidth = 2
+        g.beginPath()
+        g.ellipse(0, 4, 17, 10, 0, 0, Math.PI * 2)
+        g.fill()
+        g.stroke()
+        g.save()
+        g.rotate(-0.7)
+        g.fillStyle = '#c94f7c'
+        g.fillRect(-20, -4, 18, 8)
+        g.strokeRect(-20, -4, 18, 8)
+        g.fillStyle = ready ? '#fff2a8' : '#ff9f6a'
+        g.beginPath()
+        g.arc(-20, 0, ready ? 4 : 2.5, 0, Math.PI * 2)
+        g.fill()
+        g.restore()
+        g.fillStyle = '#ffd38a'
+        g.beginPath()
+        g.arc(4, 2, 4, 0, Math.PI * 2)
+        g.fill()
+        g.restore()
+      }
       for (const reef of reefs) {
         if (
           reef.kind === 'scrap' ||
@@ -5246,7 +5441,8 @@ export function createRainbowPrincessPreview(
           reef.kind === 'pylon' ||
           reef.kind === 'prism' ||
           reef.kind === 'captive' ||
-          reef.kind === 'spire'
+          reef.kind === 'spire' ||
+          reef.kind === 'mortar'
         )
           continue
         if (
@@ -6446,6 +6642,34 @@ export function createRainbowPrincessPreview(
             0,
             Math.PI * 2,
           )
+          g.stroke()
+          continue
+        }
+        if (bullet.burst === 'cluster' && bullet.fuse !== undefined) {
+          // A mortar shell, and the ring where it will burst, closing as it falls.
+          if (bullet.tx !== undefined && bullet.ty !== undefined) {
+            g.save()
+            g.strokeStyle = '#ff9f6a'
+            g.globalAlpha = 0.65
+            g.lineWidth = 1.5
+            g.setLineDash([4, 4])
+            g.beginPath()
+            g.arc(
+              bullet.tx,
+              bullet.ty,
+              8 + (bullet.fuse / MORTAR.flight) * 22,
+              0,
+              Math.PI * 2,
+            )
+            g.stroke()
+            g.restore()
+          }
+          g.fillStyle = bullet.fuse % 10 < 5 ? '#fff2a8' : '#ff9f6a'
+          g.beginPath()
+          g.arc(bullet.x, bullet.y, 7, 0, Math.PI * 2)
+          g.fill()
+          g.strokeStyle = '#5a2346'
+          g.lineWidth = 2
           g.stroke()
           continue
         }

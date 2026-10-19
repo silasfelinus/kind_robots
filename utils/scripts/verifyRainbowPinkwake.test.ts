@@ -41,7 +41,7 @@ assert.equal(pinkwakeSpawns(342).length, 2, 'the vee opens out in pairs')
 assert.equal(pinkwakeSpawns(496).length, 1, 'line members enter in file')
 assert.equal(pinkwakeSpawns(1560)[0]?.kind, 'spiral')
 assert.equal(pinkwakeSpawns(3960)[0]?.kind, 'urchin')
-assert.equal(pinkwakeSpawns(6660)[0]?.kind, 'diver')
+assert.equal(pinkwakeSpawns(PINKWAKE_GUARDIAN.to + 60)[0]?.kind, 'diver')
 assert.deepEqual(
   pinkwakeSpawns(PINKWAKE.turnStarts),
   [],
@@ -111,7 +111,12 @@ for (const spire of PINKWAKE_SPIRES) {
   assert.deepEqual(pinkwakeSpires(spire.at).length >= 1, true)
 }
 // In the chicane the spires alternate, so no straight line runs past them all: weave.
-const chicane = PINKWAKE_SPIRES.filter((s) => s.at >= 7800 && s.at < 9300)
+const chicaneSection = PINKWAKE_SECTIONS.find(
+  (s) => s.name === 'Coral chicane',
+)!
+const chicane = PINKWAKE_SPIRES.filter(
+  (s) => s.at >= chicaneSection.from && s.at < chicaneSection.to,
+)
 assert.ok(chicane.length >= 8)
 for (let i = 1; i < chicane.length; i++) {
   const [prev, next] = [chicane[i - 1]!, chicane[i]!]

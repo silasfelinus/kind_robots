@@ -17,9 +17,10 @@ import {
   type RainbowWave,
 } from './rainbowFormations'
 import type { RainbowGuardianSection } from './rainbowGuardian'
+import { recutTimeline } from './rainbowPacing'
 
 export type PinkwakeEnemy =
-  'picket' | 'spiral' | 'anchor' | 'urchin' | 'diver' | 'spire'
+  'picket' | 'spiral' | 'anchor' | 'urchin' | 'diver' | 'spire' | 'mortar'
 export type PinkwakeSceneId =
   'A01.OPEN' | 'A01.TURN' | 'A01.AFTER' | PinkwakeCalloutId
 /** Lilt's short callouts as a section begins, so no stretch of the Act goes quiet. */
@@ -36,7 +37,7 @@ export type PinkwakeStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type PinkwakeWave = RainbowWave<PinkwakeEnemy>
 export type PinkwakeSpawn = RainbowSpawn<PinkwakeEnemy>
 
-export const PINKWAKE = {
+const AUTHORED_PINKWAKE = {
   openingEnds: 300,
   stationAppears: 2280,
   turnStarts: 12300,
@@ -45,7 +46,7 @@ export const PINKWAKE = {
   aftermathFrames: 390,
 } as const
 
-export const PINKWAKE_SECTIONS = [
+const AUTHORED_PINKWAKE_SECTIONS = [
   { name: 'Picket school', from: 300, to: 1500 },
   { name: 'Spiral eddies', from: 1500, to: 2700 },
   { name: 'Mine corridors', from: 2700, to: 3900 },
@@ -58,14 +59,14 @@ export const PINKWAKE_SECTIONS = [
 ] as const
 
 /** The Urchin guardian holds the Act between the urchin escort and the diving shoal; no waves fly in its section. */
-export const PINKWAKE_GUARDIAN: RainbowGuardianSection = {
+const AUTHORED_PINKWAKE_GUARDIAN: RainbowGuardianSection = {
   name: 'Urchin guardian',
   from: 5100,
   to: 6600,
   kind: 'urchin',
 }
 
-export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
+const AUTHORED_PINKWAKE_WAVES: readonly PinkwakeWave[] = [
   // Picket school: twin schools and stairs from the first breath.
   wave(330, 'picket', 'vee', 5, 0.5),
   wave(480, 'picket', 'line', 4, 0.25),
@@ -162,6 +163,14 @@ export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
   wave(11940, 'diver', 'pair', 4, 0.2),
   wave(12060, 'picket', 'stair', 5, 0.9, { step: -1 }),
   wave(12180, 'spiral', 'vee', 3, 0.5),
+  // Mortars (Silas's second playtest, 2026-10-19: "something that launches something else that explodes"): each
+  // anchors in the right third and lobs shells that burst into bomblets, which burst again into fans.
+  wave(4140, 'mortar', 'single', 1, 0.8),
+  wave(7080, 'mortar', 'single', 1, 0.2),
+  wave(9420, 'mortar', 'single', 1, 0.8),
+  wave(10080, 'mortar', 'single', 1, 0.2),
+  wave(11040, 'mortar', 'single', 1, 0.2),
+  wave(11700, 'mortar', 'single', 1, 0.8),
 ]
 
 /**
@@ -169,7 +178,7 @@ export const PINKWAKE_WAVES: readonly PinkwakeWave[] = [
  * with the current, soaks every shot and hurts a pilot who touches it, so the crew flies around it.
  */
 export type PinkwakeSpire = { at: number; top: boolean; tip: number }
-export const PINKWAKE_SPIRES: readonly PinkwakeSpire[] = [
+const AUTHORED_PINKWAKE_SPIRES: readonly PinkwakeSpire[] = [
   { at: 4080, top: false, tip: 0.62 },
   { at: 4440, top: true, tip: 0.38 },
   { at: 4740, top: false, tip: 0.62 },
@@ -187,6 +196,32 @@ export const PINKWAKE_SPIRES: readonly PinkwakeSpire[] = [
   { at: 11400, top: true, tip: 0.38 },
   { at: 11760, top: false, tip: 0.62 },
 ]
+
+/**
+ * Silas's second playtest (2026-10-19): "The miniboss died too quick, really quick." The Urchin guardian is
+ * tougher now (rainbowGuardian), so its section runs 22 seconds longer and everything after it moves back;
+ * beaten early, it still hands the Act on at once.
+ */
+const CUT = recutTimeline(AUTHORED_PINKWAKE_SECTIONS, [], {
+  'Urchin guardian': 1320,
+})
+export const PINKWAKE = {
+  ...AUTHORED_PINKWAKE,
+  stationAppears: CUT.at(AUTHORED_PINKWAKE.stationAppears),
+  turnStarts: CUT.at(AUTHORED_PINKWAKE.turnStarts),
+  bossStarts: CUT.at(AUTHORED_PINKWAKE.bossStarts),
+} as const
+export const PINKWAKE_SECTIONS = CUT.sections
+export const PINKWAKE_GUARDIAN: RainbowGuardianSection = {
+  ...AUTHORED_PINKWAKE_GUARDIAN,
+  from: CUT.at(AUTHORED_PINKWAKE_GUARDIAN.from),
+  to: CUT.at(AUTHORED_PINKWAKE_GUARDIAN.to),
+}
+export const PINKWAKE_WAVES: readonly PinkwakeWave[] = CUT.waves(
+  AUTHORED_PINKWAKE_WAVES,
+).sort((a, b) => a.at - b.at)
+export const PINKWAKE_SPIRES: readonly PinkwakeSpire[] =
+  AUTHORED_PINKWAKE_SPIRES.map((spire) => ({ ...spire, at: CUT.at(spire.at) }))
 export const SPIRE = { halfWidth: 12, speed: 0.9 } as const
 
 /** The coral spires that rise on this tick. */
@@ -372,7 +407,7 @@ export function pinkwakeDialogue(
 }
 
 /** Lilt's callouts, at the start of each section after the first. */
-export const PINKWAKE_CALLOUTS: ReadonlyArray<
+const AUTHORED_PINKWAKE_CALLOUTS: ReadonlyArray<
   readonly [number, PinkwakeCalloutId]
 > = [
   [1500, 'A01.EDDIES'],
@@ -384,6 +419,11 @@ export const PINKWAKE_CALLOUTS: ReadonlyArray<
   [9300, 'A01.STORM'],
   [10800, 'A01.WAKE'],
 ]
+export const PINKWAKE_CALLOUTS: ReadonlyArray<
+  readonly [number, PinkwakeCalloutId]
+> = AUTHORED_PINKWAKE_CALLOUTS.map(
+  ([frame, id]) => [CUT.at(frame), id] as const,
+)
 
 export function pinkwakeScene(
   tick: number,

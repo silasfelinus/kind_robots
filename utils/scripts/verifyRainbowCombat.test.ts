@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
-import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
+import {
+  RAINBOW_SHIP_SPEED,
+  createRainbowPrincessPreview,
+} from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 
 const sound = { play() {} }
@@ -28,7 +31,7 @@ const ship = diagonal.snapshot.ships[0]!
 const dx = ship.x - 65
 const dy = ship.y - 80
 assert.ok(
-  Math.abs(Math.hypot(dx, dy) - 2.6) < 0.001,
+  Math.abs(Math.hypot(dx, dy) - RAINBOW_SHIP_SPEED) < 0.001,
   'diagonal flight has no speed boost',
 )
 
@@ -37,7 +40,10 @@ const slow = emptyInput()
 slow.held.right = true
 slow.held.b = true
 focused.update(slow)
-assert.ok(Math.abs(focused.snapshot.ships[0]!.x - 65 - 2.6 * 0.55) < 0.001)
+assert.ok(
+  Math.abs(focused.snapshot.ships[0]!.x - 65 - RAINBOW_SHIP_SPEED * 0.55) <
+    0.001,
+)
 assert.equal(
   focused.snapshot.ships[0]!.shield,
   3,

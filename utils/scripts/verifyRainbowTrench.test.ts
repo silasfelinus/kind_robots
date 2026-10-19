@@ -11,7 +11,10 @@ import {
 import { formationMembers } from '../arcade/games/rainbowFormations'
 import { RAINBOW_GUARDIAN } from '../arcade/games/rainbowGuardian'
 import { rainbowBossHp } from '../arcade/games/rainbowPinkwakeBoss'
-import { createRainbowPrincessPreview } from '../arcade/games/rainbowPrincessPreview'
+import {
+  MORTAR,
+  createRainbowPrincessPreview,
+} from '../arcade/games/rainbowPrincessPreview'
 import {
   TRENCH,
   TRENCH_ALL_WAVES,
@@ -390,7 +393,24 @@ for (const players of [1, 4]) {
           const pellets = after.enemyShots.filter(
             (s) => Math.hypot(s.x - at.x, s.y - at.y) < 1e-6 && !s.fuse,
           ).length
-          if (shot.burst === 'ring') {
+          if (shot.burst === 'cluster') {
+            // A mortar shell (Silas's second playtest) bursts into bomblets that burst again, unless it
+            // landed on a pilot and was spent on the hit.
+            const bomblets = after.enemyShots.filter(
+              (s) =>
+                Math.hypot(s.x - at.x, s.y - at.y) < 1e-6 &&
+                s.burst === 'split',
+            ).length
+            const struck = before.ships.some(
+              (ship) => Math.hypot(ship.x - at.x, ship.y - at.y) < 20,
+            )
+            if (!struck)
+              assert.equal(
+                bomblets,
+                MORTAR.bomblets,
+                'a shell bursts into bomblets',
+              )
+          } else if (shot.burst === 'ring') {
             assert.ok(pellets >= 7, `a bubble bursts into a ring (${pellets})`)
             seen.ring++
           } else {

@@ -25,7 +25,7 @@ import {
   withReinforcements,
 } from './rainbowPacing'
 
-export type RosefinEnemy = 'dolphin' | 'courier' | 'eel'
+export type RosefinEnemy = 'dolphin' | 'courier' | 'eel' | 'mortar'
 export type RosefinStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type RosefinSceneId =
   'A04.OPEN' | 'A04.ESCORT' | 'A04.TURN' | 'A04.AFTER'
@@ -264,18 +264,22 @@ const AUTHORED_ROSEFIN_WAVES: readonly RosefinWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_ROSEFIN_SECTIONS, [
-  'Convoy merge',
-  'Twin crossings',
-  'Eel weave',
-  'Courier rush',
-  'Aurora surge',
-  'Pod storm',
-  'Rail switch',
-  'Mirror pairs',
-  'Signal yard',
-  'Night freight',
-])
+const CUT = recutTimeline(
+  AUTHORED_ROSEFIN_SECTIONS,
+  [
+    'Convoy merge',
+    'Twin crossings',
+    'Eel weave',
+    'Courier rush',
+    'Aurora surge',
+    'Pod storm',
+    'Rail switch',
+    'Mirror pairs',
+    'Signal yard',
+    'Night freight',
+  ],
+  { [AUTHORED_ROSEFIN_GUARDIAN.name]: 1020 },
+)
 export const ROSEFIN = {
   ...AUTHORED_ROSEFIN,
   turnStarts: CUT.at(AUTHORED_ROSEFIN.turnStarts),
@@ -283,7 +287,10 @@ export const ROSEFIN = {
 } as const
 export const ROSEFIN_ESCORT = {
   ...AUTHORED_ROSEFIN_ESCORT,
-  commsFrom: CUT.at(AUTHORED_ROSEFIN_ESCORT.commsFrom),
+  // The escort comms close the guardian's section, so they keep their distance from its (stretched) end.
+  commsFrom:
+    CUT.at(AUTHORED_ROSEFIN_GUARDIAN.to) -
+    (AUTHORED_ROSEFIN_GUARDIAN.to - AUTHORED_ROSEFIN_ESCORT.commsFrom),
   podAppears: CUT.at(AUTHORED_ROSEFIN_ESCORT.podAppears),
 } as const
 export const ROSEFIN_SECTIONS = CUT.sections
@@ -300,6 +307,7 @@ export const ROSEFIN_REINFORCEMENTS = reinforcements<RosefinWave['kind']>(
   CUT.sections,
   {
     kinds: ['dolphin', 'courier'],
+    launcher: { kind: 'mortar', every: 1500 },
     pairs: true,
     every: {
       'Dolphin pairs': 300,

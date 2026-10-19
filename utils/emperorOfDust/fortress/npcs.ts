@@ -1,4 +1,5 @@
-import type { KingdomFactionId, LocalFactionId } from './types'
+import type { Mood } from './castArt'
+import type { Effects, KingdomFactionId, LocalFactionId } from './types'
 
 // Major NPCs from conductor NPCS-V03.md. They get illustrated moods only, no
 // portraits. No two named characters, NPC or follower, share a species.
@@ -136,3 +137,22 @@ export const NPCS: readonly NpcDef[] = [
 
 export const npcDef = (slug: string): NpcDef | undefined =>
   NPCS.find((entry) => entry.slug === slug)
+
+/**
+ * How a major NPC looks after the throne answers them: their faction's change
+ * in support (kingdom affinity or local standing) from the chosen option.
+ */
+export const reactionMood = (
+  effects: Effects,
+  faction?: KingdomFactionId | LocalFactionId,
+): Mood => {
+  if (!faction) return 'neutral'
+  const change =
+    (effects.affinity?.[faction as KingdomFactionId] ?? 0) +
+    (effects.local?.[faction as LocalFactionId] ?? 0)
+  if (change >= 10) return 'excited'
+  if (change > 0) return 'happy'
+  if (change <= -10) return 'angry'
+  if (change < 0) return 'sad'
+  return 'neutral'
+}

@@ -7,7 +7,9 @@ on:
     paths:
       - 'utils/ecotone/**'
       - 'stores/ecotoneStore.ts'
-      - 'components/ecotone-*.vue'
+      - 'components/ecotone-board.vue'
+      - 'components/ecotone-scene.vue'
+      - 'components/ecotone-emblem.vue'
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
@@ -18,7 +20,9 @@ on:
     paths:
       - 'utils/ecotone/**'
       - 'stores/ecotoneStore.ts'
-      - 'components/ecotone-*.vue'
+      - 'components/ecotone-board.vue'
+      - 'components/ecotone-scene.vue'
+      - 'components/ecotone-emblem.vue'
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'

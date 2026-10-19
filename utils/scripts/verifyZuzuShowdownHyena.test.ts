@@ -115,6 +115,7 @@ check(
       cackle: 'dd+K',
       'scavengers-rush': 'QCB+K',
       'bone-crusher': 'HCB+P',
+      'bone-sweep': 'DP+K',
       'chain-gang': 'QCF QCF+P',
       'last-laugh': 'QCB QCB+HP',
     }
@@ -195,6 +196,16 @@ check("Cackle builds a third of a bar, and she's open throughout", () => {
     hits(log).some((h) => h.attacker === 1),
     'she took the hit',
   )
+})
+
+check('Bone Sweep: a low sweep that knocks a standing target down', () => {
+  const data = HYENA_MATRIARCH.specials.find((m) => m.id === 'bone-sweep')!
+  assert.equal(data.move.guard, 'low')
+  assert.ok(data.move.knockdown)
+  assert.equal(data.motion, 'dp')
+  const log: SimEvent[] = []
+  play(fightAt(50), 50, motion([6, 2, 3], { lk: true }), [], log)
+  assert.ok(hits(log).some((h) => h.move === 'bone-sweep'))
 })
 
 check("Scavenger's Rush: two hits, under a high strike", () => {

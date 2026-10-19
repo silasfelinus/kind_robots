@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { existsSync, statSync } from 'node:fs'
+import path from 'node:path'
 import {
   FINALE,
   FINALE_ENDING_FRAMES,
@@ -15,6 +17,10 @@ import {
   noteName,
   rainbowMusicFor,
 } from '../arcade/games/rainbowScore'
+import {
+  RAINBOW_RECORDED_TRACKS,
+  RAINBOW_SCORE_BRIEFS,
+} from '../arcade/games/rainbowRecordedScore'
 import { parseLoop } from '../arcade/sound'
 import { emptyInput } from '../arcade/types'
 
@@ -79,6 +85,57 @@ assert.equal(
   rainbowMusicFor({ ...moment, failure: true, ending: true }),
   RAINBOW_SCORE.failure,
 )
+
+// Silas's second playtest (2026-10-19): "think space opera, and more than a midi 8 note on repeat". Every loop
+// carries its recorded orchestral rendition, published under public/, looping between its own points.
+{
+  const ids = RAINBOW_SCORE_BRIEFS.map((brief) => brief.id)
+  assert.equal(new Set(ids).size, ids.length)
+  assert.equal(
+    ids.length,
+    21,
+    'nine flights, nine bosses, the guardians, the ending, the failure',
+  )
+  for (const track of RAINBOW_RECORDED_TRACKS) {
+    const file = path.join('public', track.path)
+    assert.ok(existsSync(file), `${track.path} is published`)
+    assert.ok(
+      statSync(file).size > 100_000,
+      `${track.path} is a real recording`,
+    )
+    assert.ok(Math.abs(track.loopEnd - track.loopStart - track.seconds) < 0.01)
+    assert.ok(track.seconds >= 25, `${track.id} is a piece, not a figure`)
+  }
+  for (let act = 1; act <= 9; act++) {
+    const at = {
+      act,
+      boss: false,
+      guardian: false,
+      ending: false,
+      failure: false,
+    }
+    assert.equal(
+      rainbowMusicFor(at).recorded?.src,
+      `/rainbow-princess-audio/act${act}-flight.mp3`,
+    )
+    assert.equal(
+      rainbowMusicFor({ ...at, boss: true }).recorded?.src,
+      `/rainbow-princess-audio/act${act}-boss.mp3`,
+    )
+    assert.equal(
+      rainbowMusicFor({ ...at, guardian: true }).recorded?.src,
+      '/rainbow-princess-audio/guardian.mp3',
+    )
+  }
+  assert.equal(
+    RAINBOW_SCORE.ending.recorded?.src,
+    '/rainbow-princess-audio/ending.mp3',
+  )
+  assert.equal(
+    RAINBOW_SCORE.failure.recorded?.src,
+    '/rainbow-princess-audio/failure.mp3',
+  )
+}
 
 // Lilt's failure lines.
 const lines = failureLines(4, 1, 3)

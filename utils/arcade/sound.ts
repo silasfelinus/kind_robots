@@ -98,6 +98,17 @@ export type MusicLoop = {
   /** Steps per beat (2 = eighth notes). */
   stepsPerBeat?: number
   tracks: LoopTrack[]
+  /**
+   * A recorded rendition of this loop (a static file and the seconds it loops between). The soundtrack mixer
+   * plays it once it has loaded, and falls back to these tracks if it cannot.
+   */
+  recorded?: RecordedLoop
+}
+
+export type RecordedLoop = {
+  src: string
+  loopStart?: number
+  loopEnd?: number
 }
 
 export type LoopNote = {

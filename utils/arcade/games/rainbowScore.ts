@@ -8,6 +8,7 @@
 // failure ending have their own slow loops. Written from scratch: no samples, no borrowed melodies.
 
 import type { LoopTrack, MusicLoop } from '../sound'
+import { rainbowRecordedLoop } from './rainbowRecordedScore'
 
 const NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 /** A MIDI note number as a sequencer token (60 = C4). */
@@ -203,14 +204,29 @@ export function rainbowMusicFor(moment: RainbowMusicMoment): MusicLoop {
       : score.flying
 }
 
+/**
+ * Silas's second playtest (2026-10-19): "we REALLY need better music. think space opera". Each loop carries its
+ * recorded orchestral rendition (rainbowRecordedScore); the cabinet's mixer plays that once it has loaded and
+ * keeps these sequenced tracks as the fallback.
+ */
 export const RAINBOW_SCORE = {
-  acts: RAINBOW_ACT_KEYS.map(actScore),
+  acts: RAINBOW_ACT_KEYS.map((key, i) => {
+    const { flying, guardian, boss } = actScore(key)
+    const act = (i + 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+    return {
+      flying: { ...flying, recorded: rainbowRecordedLoop(`act${act}-flight`) },
+      guardian: { ...guardian, recorded: rainbowRecordedLoop('guardian') },
+      boss: { ...boss, recorded: rainbowRecordedLoop(`act${act}-boss`) },
+    }
+  }),
   ending: {
     bpm: ENDING_KEY.bpm,
     tracks: [pad(ENDING_KEY), lead(ENDING_KEY)],
+    recorded: rainbowRecordedLoop('ending'),
   } as MusicLoop,
   failure: {
     bpm: FAILURE_KEY.bpm,
     tracks: [pad(FAILURE_KEY), bass(FAILURE_KEY, false)],
+    recorded: rainbowRecordedLoop('failure'),
   } as MusicLoop,
 }

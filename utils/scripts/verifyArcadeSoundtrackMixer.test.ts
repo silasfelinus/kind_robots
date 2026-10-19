@@ -74,6 +74,8 @@ class FakeGain extends FakeNode {
 class FakeSource extends FakeNode {
   buffer: unknown = null
   loop = false
+  loopStart = 0
+  loopEnd = 0
   startedAt: number | null = null
   stopAt: number | null = null
   onended: (() => void) | null = null
@@ -523,6 +525,41 @@ for (const broken of [false, true]) {
   assert.equal(
     mixer.theme.duckDepth,
     arcadeAudioTheme('prize-show-panic').duckDepth,
+  )
+  mixer.dispose()
+}
+
+// --- a game's own recording of its loop (Rainbow's score): it plays between its loop points, and a missing
+// file falls back to the loop's own tracks ---------------------------------------
+{
+  const base = fakeBase()
+  const { calls, load } = loader(['/missing.mp3'])
+  const mixer = createArcadeSoundtrack(base, {
+    game: 'rainbow-bullet-hell-space-princess',
+    assets: ASSETS,
+    load,
+  })
+  const own: MusicLoop = {
+    ...LOOP,
+    recorded: { src: '/own.mp3', loopStart: 0.5, loopEnd: 40.5 },
+  }
+  mixer.unlock()
+  mixer.startCabinetMusic('level', own)
+  await flush()
+  assert.deepEqual(calls, ['/own.mp3'])
+  const [track] = base.ctx!.sources
+  assert.ok(track?.playing && track.loop)
+  assert.equal(track.loopStart, 0.5)
+  assert.equal(track.loopEnd, 40.5, 'it loops between its own points')
+  assert.equal(mixer.musicSource, 'recorded')
+  const lost: MusicLoop = { ...BOSS_LOOP, recorded: { src: '/missing.mp3' } }
+  mixer.startCabinetMusic('boss', lost)
+  await flush()
+  assert.equal(mixer.musicSource, 'oscillator')
+  assert.equal(
+    base.oscillatorLoop,
+    lost,
+    'a missing recording plays the tracks',
   )
   mixer.dispose()
 }

@@ -22,6 +22,7 @@ import {
   type ArcadeSound,
   type ArcadeSoundName,
   type MusicLoop,
+  type RecordedLoop,
 } from './sound'
 import {
   arcadeAudioCandidatePath,
@@ -252,7 +253,11 @@ export function createArcadeSoundtrack(
     }
   }
 
-  const playRecorded = (buffer: AudioBuffer, path: string) => {
+  const playRecorded = (
+    buffer: AudioBuffer,
+    path: string,
+    loop?: RecordedLoop,
+  ) => {
     if (!ctx || !recordedBus) return
     base.stopMusic()
     stopRecorded(theme.fadeSeconds)
@@ -264,6 +269,15 @@ export function createArcadeSoundtrack(
     const node = ctx.createBufferSource()
     node.buffer = buffer
     node.loop = true
+    // A game's own recording may loop between two points (past its decoder padding, say).
+    if (
+      loop?.loopEnd !== undefined &&
+      loop.loopEnd > (loop.loopStart ?? 0) &&
+      loop.loopEnd <= buffer.duration
+    ) {
+      node.loopStart = loop.loopStart ?? 0
+      node.loopEnd = loop.loopEnd
+    }
     node.connect(gain)
     node.start(now)
     current = { source: node, gain, path }
@@ -306,10 +320,17 @@ export function createArcadeSoundtrack(
     return null
   }
 
+  /** A game's own recording of its loop, unless it already failed to load. */
+  const recordedOf = (fallback: MusicLoop | null): RecordedLoop | null =>
+    fallback?.recorded && !failed.has(fallback.recorded.src)
+      ? fallback.recorded
+      : null
+
   const resolve = () => {
     if (disposed || !desired) return
     const { scene, fallback } = desired
-    const path = candidateFor(scene)
+    const own = recordedOf(fallback)
+    const path = own?.src ?? candidateFor(scene)
     if (!path) {
       generation += 1
       playOscillator(fallback)
@@ -328,7 +349,7 @@ export function createArcadeSoundtrack(
     if (!current && source !== 'oscillator') source = 'loading'
     void bufferFor(path).then((buffer) => {
       if (disposed || token !== generation) return
-      if (buffer) playRecorded(buffer, path)
+      if (buffer) playRecorded(buffer, path, own ?? undefined)
       else resolve()
     })
   }

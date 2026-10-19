@@ -371,7 +371,7 @@ const box =
 
 // --- the arenas ----------------------------------------------------------------------------------
 {
-  assert.ok(MIDWAY.length >= 7)
+  assert.ok(MIDWAY.length >= 8)
   assert.equal(
     new Set(MIDWAY.map((a) => a.id)).size,
     MIDWAY.length,
@@ -384,6 +384,14 @@ const box =
     T.PILLAR,
     'the crossroads mirror in both axes',
   )
+  const yard = buildArena(MIDWAY.find((a) => a.id === 'switchyard')!)
+  assert.equal(yard.terrain[idx(12, 14)], T.PILLAR)
+  assert.equal(
+    yard.terrain[idx(35, 14)],
+    T.PILLAR,
+    'the switchyard mirrors across x',
+  )
+  assert.equal(yard.gates.length > 0, true, 'the switchyard has a beat gate')
   for (const spec of MIDWAY) {
     const arena = buildArena(spec)
     const spawns = [RIDER_SPAWNS[0]!, ...(spec.rivalSpawns ?? RIVAL_SPAWNS)]

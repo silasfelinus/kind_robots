@@ -668,10 +668,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'd14-archive-funds',
         title: 'Crumbling Maps',
-        speaker: 'The Lamplight Archive',
+        speaker: 'Keeper Abelard Vellum of the Lamplight Archive',
+        npc: 'abelard-vellum',
         faction: 'lamplight',
         lines: [
-          'The old maps are turning to dust in their cases, Majesty. Roads, wells and tunnels no living person remembers. Copying them costs ink, paper and time.',
+          'A sloth in ink-dark robes takes a long, unhurried while to cross the throne room, and does not apologize for it.',
+          '“The old maps are turning to dust in their cases, Majesty. Roads, wells and tunnels no living person remembers. Copying them costs ink, paper and time. Mostly time.”',
         ],
         options: [
           {
@@ -679,7 +681,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Fund the copying.',
             requires: { cost: 20 },
             effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
-            response: 'The scribes cheer, quietly, as scribes do.',
+            response:
+              'The scribes cheer, quietly, as scribes do. Keeper Vellum nods once, which for him is dancing.',
           },
           {
             id: 'decline',
@@ -747,11 +750,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'd15-glass-feathers',
         title: 'Glass Feathers',
-        speaker: 'Pell Quickmarrow of the Rustline',
+        speaker: 'Jinx Coupler of the Rustline',
+        npc: 'jinx-coupler',
         faction: 'rustline',
         lines: [
-          'Old-world glass, Majesty. Shaped like feathers, and it does not break, and it hums when the Bell rings. I have a crate of it, and a price.',
-          'The Ledger wants to buy it. The Archive wants to study it. I want to know which one the crown is.',
+          'A magpie in a coat sewn all over with bottle caps struts in ahead of a rat pushing a crate. “Jinx Coupler, Yardboss of the Rustline. That is Pell. He lifts things.”',
+          '“Old-world glass, Majesty, shaped like feathers. It does not break, and it hums when the Bell rings. The Ledger wants to buy it. The Archive wants to study it. I want to know which one the crown is.”',
         ],
         options: [
           {
@@ -759,7 +763,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Have the Archive study it before anyone sells it.',
             effects: {},
             response:
-              'Pell grins. “The studying kind. Good. Selling is boring.”',
+              'Jinx grins. “The studying kind. Good. Selling is boring.”',
             postsQuests: ['q-d15-study-glass'],
           },
           {
@@ -773,14 +777,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               recruitable: ['F014'],
             },
             response:
-              'Pell counts the brass and throws in a surveyor’s lens for free. “For the next crate,” he says.',
+              'Jinx counts the brass, and Pell Quickmarrow throws in a surveyor’s lens for free. “For the next crate,” he says, and lingers at the gate looking at the barracks.',
           },
           {
             id: 'send-away',
             label: 'Old-world relics bring trouble. Send them away.',
             effects: { affinity: { rustline: -10 }, local: { lamplight: -2 } },
             response:
-              'Pell shrugs and wheels the crate toward the Ledger’s stalls.',
+              'Jinx shrugs, and Pell wheels the crate toward the Ledger’s stalls.',
           },
         ],
       },
@@ -951,10 +955,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'd18-strangers',
         title: 'No Water for Strangers',
-        speaker: 'A Freehold reeve',
+        speaker: 'Hester Plowright, reeve of the Freeholds',
+        npc: 'hester-plowright',
         faction: 'freeholds',
         lines: [
-          'Our wells are low, Majesty, and every refugee on the road wants a cup. The Freeholds will water Freeholders. That is all we can do.',
+          'A broad speckled hen in a mud-hemmed skirt plants herself before the throne like a fence post.',
+          '“Our wells are low, Majesty, and every refugee on the road wants a cup. The Freeholds will water Freeholders. That is all we can do.”',
         ],
         options: [
           {

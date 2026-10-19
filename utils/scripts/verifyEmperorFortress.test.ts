@@ -59,7 +59,11 @@ import {
   encodeRelicVault,
   eyeReveals,
 } from '../emperorOfDust/fortress/relics'
-import { STATS } from '../emperorOfDust/fortress/types'
+import {
+  KINGDOM_FACTIONS,
+  LOCAL_FACTIONS,
+  STATS,
+} from '../emperorOfDust/fortress/types'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
@@ -90,6 +94,16 @@ assert.equal(
 for (const day of DAYS)
   for (const audience of day.audiences)
     if (audience.npc) assert.ok(npcDef(audience.npc), audience.npc)
+for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
+  const reps = NPCS.filter((npc) => npc.faction === faction)
+  assert.ok(reps.length, `${faction} has a named NPC`)
+  assert.ok(
+    reps.some((npc) =>
+      DAYS.some((day) => day.audiences.some((a) => a.npc === npc.slug)),
+    ),
+    `${faction}'s NPC speaks at court by Day ${LAST_DAY}`,
+  )
+}
 const kiyo = followerDef('F003')!
 assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
 assert.ok(kiyo.starter && !kiyo.romanceable)

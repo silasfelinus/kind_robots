@@ -102,6 +102,30 @@ export const NPCS: readonly NpcDef[] = [
     faction: 'moles',
   },
   {
+    slug: 'hester-plowright',
+    name: 'Hester Plowright',
+    species: 'Hen',
+    pronouns: 'she/her',
+    faction: 'freeholds',
+  },
+  {
+    // A magpie beside Elder Corvane's crow: the same family, kept on
+    // purpose because the Rustline are canonically magpie salvagers, and the
+    // two designs share nothing (pied and glittering against grey and old).
+    slug: 'jinx-coupler',
+    name: 'Jinx Coupler',
+    species: 'Magpie',
+    pronouns: 'they/them',
+    faction: 'rustline',
+  },
+  {
+    slug: 'abelard-vellum',
+    name: 'Keeper Abelard Vellum',
+    species: 'Sloth',
+    pronouns: 'he/him',
+    faction: 'lamplight',
+  },
+  {
     slug: 'the-verge-envoy',
     name: 'The Envoy of the Black Verge',
     species: 'Gorilla',

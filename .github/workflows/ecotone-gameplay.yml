@@ -1,0 +1,44 @@
+name: Ecotone Gameplay Contract
+permissions:
+  contents: read
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/ecotone/**'
+      - 'stores/ecotoneStore.ts'
+      - 'components/ecotone-board.vue'
+      - 'components/ecotone-scene.vue'
+      - 'components/ecotone-emblem.vue'
+      - 'pages/play/ecotone.vue'
+      - 'content/channels/arcade/ecotone.md'
+      - 'public/ecotone/**'
+      - 'utils/scripts/verifyEcotone.test.ts'
+      - '.github/workflows/ecotone-gameplay.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'utils/ecotone/**'
+      - 'stores/ecotoneStore.ts'
+      - 'components/ecotone-board.vue'
+      - 'components/ecotone-scene.vue'
+      - 'components/ecotone-emblem.vue'
+      - 'pages/play/ecotone.vue'
+      - 'content/channels/arcade/ecotone.md'
+      - 'public/ecotone/**'
+      - 'utils/scripts/verifyEcotone.test.ts'
+      - '.github/workflows/ecotone-gameplay.yml'
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npm run test:ecotone

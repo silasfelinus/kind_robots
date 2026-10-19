@@ -94,6 +94,12 @@
         </p>
         <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
         <p class="mt-1 text-sm">{{ selected.summary }}</p>
+        <p
+          v-if="selected.mustInclude"
+          class="mt-1 text-xs font-semibold text-warning"
+        >
+          {{ nameOf(selected.mustInclude) }} must go on this quest.
+        </p>
       </div>
 
       <dl class="grid grid-cols-2 gap-2 text-sm @md:grid-cols-4">

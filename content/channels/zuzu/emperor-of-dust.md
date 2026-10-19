@@ -28,9 +28,9 @@ tutorial:
     game saves after every order. In the Chronicle you can save to three
     slots, choose relics for your next reign, or rewind to the dawn of any
     earlier day; a rewound day rolls fresh, so it may not go the same way
-    twice. Act I, Days 1 to 10, is scripted so far; later days bring the
+    twice. Acts I to III, Days 1 to 30, are scripted so far; later days bring the
     wasteland's everyday chores. Portraits are placeholders until the art
     is painted.
 ---
 
-The fortress is waiting. Act I (Days 1 to 10) is scripted; the rest of the fifty are still being written.
+The fortress is waiting. Acts I to III (Days 1 to 30) are scripted; the rest of the fifty are still being written.

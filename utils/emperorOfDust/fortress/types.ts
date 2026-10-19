@@ -151,6 +151,8 @@ export type QuestDef = {
   summary: string
   region: string
   faction?: KingdomFactionId
+  /** A follower who must be in the party (their own story quest). */
+  mustInclude?: string
   durationDays: 1 | 2 | 3
   /** Days the quest stays on the board, counting the day it is posted. */
   boardDays: 1 | 2 | 3
@@ -281,6 +283,8 @@ export type FortressRun = {
   reports: DawnReport[]
   memorials: { followerId: string; questId: string; day: number }[]
   hideout?: string
+  /** Audiences eligible at dawn; they stay at court for the whole day. */
+  dayAudiences?: string[]
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

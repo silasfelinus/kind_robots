@@ -137,13 +137,14 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       success: {
         affinity: { 'storm-crows': 15, 'mire-mothers': -5 },
         flags: ['crow-parcel-delivered'],
+        recruitable: ['F006'],
       },
       failure: { affinity: { 'storm-crows': -10 } },
     },
     expired: { affinity: { 'storm-crows': -10 } },
     outcomes: {
       success:
-        'The parcel was delivered to a witch who did not seem surprised. It ticked, faintly, the whole way.',
+        'The parcel was delivered to a witch who did not seem surprised. It ticked, faintly, the whole way. A Storm Crow who had followed the courier asks to see the emperor about what was inside.',
       partial:
         'The parcel arrived damp. The Crows are not pleased, or not saying.',
       failure:
@@ -254,26 +255,31 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         strength: { freeholds: 2, jackalwire: -2 },
         local: { 'gate-watch': 2 },
         flags: ['thistledown-held'],
+        recruitable: ['F017'],
       },
       success: {
         affinity: { freeholds: 15 },
         strength: { freeholds: 1, jackalwire: -1 },
         flags: ['thistledown-held'],
+        recruitable: ['F017'],
       },
       partial: {
         affinity: { freeholds: 5 },
         strength: { freeholds: -1 },
+        recruitable: ['F017'],
       },
       failure: {
         affinity: { freeholds: -5 },
         strength: { freeholds: -2, jackalwire: 1 },
         flags: ['thistledown-burned'],
+        recruitable: ['F017'],
       },
     },
     expired: {
       affinity: { freeholds: -15 },
       strength: { freeholds: -2, jackalwire: 1 },
       flags: ['thistledown-burned'],
+      recruitable: ['F017'],
     },
     outcomes: {
       triumph:
@@ -404,8 +410,13 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'buy',
             label: 'Buy flour from the Saltroad at their price.',
             requires: { cost: 20 },
-            effects: { local: { yard: 3 }, affinity: { saltroad: 5 } },
-            response: 'The foreman nods once. That is a lot, from him.',
+            effects: {
+              local: { yard: 3 },
+              affinity: { saltroad: 5 },
+              recruitable: ['F008'],
+            },
+            response:
+              'The foreman nods once. That is a lot, from him. The buffalo who drove the flour cart counts every sack twice, and asks whether the crown needs someone who can count.',
           },
           {
             id: 'ration',
@@ -417,9 +428,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'old-houses',
             label: 'Ask the Old Houses to open their private stores.',
             requires: { local: { 'old-houses': 8 } },
-            effects: { local: { yard: 3, 'old-houses': -3 } },
+            effects: {
+              local: { yard: 3, 'old-houses': -3 },
+              recruitable: ['F008'],
+            },
             response:
-              'The Old Houses open their larders, very slowly, as if they are being robbed politely.',
+              'The Old Houses open their larders, very slowly, as if they are being robbed politely. Their quartermaster, a buffalo with a ration abacus, stays behind to ask about work.',
           },
         ],
       },
@@ -536,9 +550,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { freeholds: 5 },
               flags: ['crow-forecast-day10'],
+              recruitable: ['F011'],
             },
             response:
-              'The envoy hands over a sealed parcel wrapped in oilcloth. It is heavier than it looks.',
+              'The envoy hands over a sealed parcel wrapped in oilcloth. It is heavier than it looks. The gecko runner who carried it up the mountain does not leave with him.',
             postsQuests: ['q-d07-crow-favor'],
           },
           {
@@ -657,16 +672,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { yard: 2 },
               affinity: { freeholds: 8, abbey: -3 },
               flags: ['coldbrooks-in-yard'],
+              recruitable: ['F012'],
             },
             response:
-              'Wenna holds the baby very tight. Sister Marrow’s smile does not move, and then she is gone.',
+              'Wenna holds the baby very tight. Sister Marrow’s smile does not move, and then she is gone. A young otter in a novice’s robe stays behind, and asks whether the Yard needs a cook.',
           },
           {
             id: 'escort',
             label: 'Send an escort to see them settled in Hollow Bell.',
-            effects: { affinity: { abbey: -3 } },
+            effects: { affinity: { abbey: -3 }, recruitable: ['F012'] },
             response:
-              '“Of course,” says Sister Marrow. “The road is so dangerous for little ones.”',
+              '“Of course,” says Sister Marrow. “The road is so dangerous for little ones.” Her novice, Brother Teodor, does not follow her out.',
             postsQuests: ['q-d08-escort-to-bell'],
           },
         ],
@@ -769,6 +785,34 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      {
+        id: 'd09-kitchens',
+        title: 'The Kitchens Send Their Cook',
+        speaker: 'Juniper Slate of the Yard',
+        faction: 'yard',
+        requires: { local: { yard: 12 } },
+        lines: [
+          'The Yard is behind the throne, Majesty, which means the kitchens are, which means me. I want to see what the court eats on the road.',
+          'I can cook, I can bandage and I can tell you what the Yard says when you are not listening. Mostly that last one.',
+        ],
+        options: [
+          {
+            id: 'welcome',
+            label: 'Bring Juniper into the barracks.',
+            requires: { cost: 5 },
+            effects: { recruit: ['F020'], local: { yard: 1 } },
+            response:
+              'Juniper salutes with a wooden spoon and is already rearranging the barracks pantry.',
+          },
+          {
+            id: 'kitchens',
+            label: 'The kitchens need you more than the road does.',
+            effects: { local: { yard: 1 }, recruitable: ['F020'] },
+            response:
+              '“Fair,” says Juniper. “Ask again when the soup is better.”',
+          },
+        ],
+      },
     ],
   },
   {
@@ -815,9 +859,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               local: { 'gate-watch': 5, 'old-houses': -1 },
               flags: ['oath-of-care'],
+              recruitable: ['F013'],
             },
             response:
-              'Dunmark looks at you a long time, then nods. “They’ll hold you to that. So will I.”',
+              'Dunmark looks at you a long time, then nods. “They’ll hold you to that. So will I.” A rhino at the end of the line asks to serve the crown closer than the gate.',
           },
           {
             id: 'crown',
@@ -833,7 +878,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'bonus',
             label: 'Words are cheap. Pay every sworn guard a bonus.',
             requires: { cost: 30 },
-            effects: { local: { 'gate-watch': 6, ledger: -1 } },
+            effects: {
+              local: { 'gate-watch': 6, ledger: -1 },
+              recruitable: ['F013'],
+            },
             response:
               'The cheer is real. Whether the loyalty is, time will tell.',
           },

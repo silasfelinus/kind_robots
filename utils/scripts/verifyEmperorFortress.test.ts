@@ -56,7 +56,35 @@ import { STATS } from '../emperorOfDust/fortress/types'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
-assert.equal(FOLLOWERS.length, 10, 'F001-F010 are re-expressed; t-011 adds ten')
+assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')
+assert.deepEqual(
+  FOLLOWERS.map((def) => def.id),
+  Array.from({ length: 20 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
+)
+assert.equal(
+  FOLLOWERS.filter((def) => def.romanceable).length,
+  6,
+  'six romanceable followers',
+)
+const lateKinds = FOLLOWERS.slice(10).map((def) => def.ability.kind)
+assert.equal(new Set(lateKinds).size, 10, 'F011-F020 abilities are distinct')
+for (const kind of lateKinds)
+  assert.equal(
+    FOLLOWERS.filter((def) => def.ability.kind === kind).length,
+    1,
+    `${kind} belongs to one follower`,
+  )
+assert.ok(
+  FOLLOWERS.some((def) =>
+    def.traits.some(
+      (t) =>
+        t.kind === 'allegiance' &&
+        t.amount < 0 &&
+        t.trigger.faction === def.origin,
+    ),
+  ),
+  'someone raised by a faction secretly works against it',
+)
 assert.equal(FOLLOWERS.filter((def) => def.starter).length, 4, 'four starters')
 for (const def of FOLLOWERS) {
   for (const stat of STATS) {
@@ -524,5 +552,188 @@ const seeing = createRun(3, loadout.nextLoadout)
 assert.equal(eyeReveals(seeing, false), true, 'the Eye marks the lie')
 assert.equal(eyeReveals(seeing, true), false)
 assert.equal(eyeReveals(plain, false), false, 'no Eye, no reveal')
+
+// --- the late cast's abilities ---------------------------------------------
+const withCast = (seed: number, day: number, ids: string[]): FortressRun => {
+  const run = onDay(seed, day)
+  return {
+    ...run,
+    roster: ids.map((id) => ({ id, joinedDay: 1, equipment: {} })),
+  }
+}
+// Last Wall: the Day 9 lethal convoy never kills while Mags is along.
+let wardedDeaths = 0
+for (let seed = 1; seed <= 300; seed += 1) {
+  let run = withCast(seed, 9, ['F003', 'F013'])
+  run = assignQuest(run, 'q-d09-iron-convoy', ['F003', 'F013'])
+  run = finishDay(finishDay(run).run).run
+  wardedDeaths += run.memorials.length
+}
+assert.equal(wardedDeaths, 0, 'Last Wall: nobody dies with Mags')
+// Cave-Luck: the preview shows the two-roll odds, and play matches them.
+const luckPreview = previewQuest(withCast(1, 3, ['F011']), 'q-d03-toll-audit', [
+  'F011',
+])
+let luckyWins = 0
+for (let seed = 1; seed <= 400; seed += 1) {
+  const tier = finishDay(
+    assignQuest(withCast(seed, 3, ['F011']), 'q-d03-toll-audit', ['F011']),
+  ).report.quests.find((q) => q.questId === 'q-d03-toll-audit')?.tier
+  if (tier === 'success' || tier === 'triumph') luckyWins += 1
+}
+assert.ok(
+  Math.abs((luckyWins / 400) * 100 - luckPreview.chance) <= 8,
+  `Cave-Luck odds are honest (${luckPreview.chance}% shown, ${luckyWins / 4}% played)`,
+)
+// Heeded Omens: Isolde's quests never end in outright failure.
+for (let seed = 1; seed <= 200; seed += 1) {
+  let run = withCast(seed, 3, ['F015'])
+  run = chooseAudienceOption(run, 'd03-fen-lanterns', 'ambush').run
+  run = assignQuest(
+    {
+      ...run,
+      roster: [...run.roster, { id: 'F017', joinedDay: 1, equipment: {} }],
+    },
+    'q-d03-fen-ambush',
+    ['F015', 'F017'],
+  )
+  const tier = finishDay(run).report.quests.find(
+    (q) => q.questId === 'q-d03-fen-ambush',
+  )?.tier
+  assert.notEqual(tier, 'failure', 'Heeded Omens turns failure into partial')
+}
+// Salvage Rights and Second Helpings pay out on success.
+let pellBrass = 0
+let juniperYard = 0
+for (let seed = 1; seed <= 60; seed += 1) {
+  const base = withCast(seed, 1, ['F014', 'F020'])
+  const pell = finishDay(assignQuest(base, 'q-d01-well-road', ['F014'])).report
+  const won = pell.quests.find((q) => q.questId === 'q-d01-well-road')
+  if (won?.tier === 'success' || won?.tier === 'triumph')
+    pellBrass += won.effects.brass ?? 0
+  const juniper = finishDay(
+    assignQuest(base, 'q-d01-well-road', ['F020']),
+  ).report.quests.find((q) => q.questId === 'q-d01-well-road')
+  if (juniper?.tier === 'success' || juniper?.tier === 'triumph')
+    juniperYard += juniper.effects.local?.yard ?? 0
+}
+assert.ok(pellBrass >= 25 * 10, 'Salvage Rights adds 15 brass per success')
+assert.ok(juniperYard >= 3 * 10, 'Second Helpings warms the Yard by 2')
+// Confessor: a successful quest with Teodor reveals a companion's secret.
+let confessed = false
+for (let seed = 1; seed <= 40 && !confessed; seed += 1) {
+  const run = withCast(seed, 1, ['F012', 'F004'])
+  const report = finishDay(
+    assignQuest(run, 'q-d01-well-road', ['F012', 'F004']),
+  ).report.quests.find((q) => q.questId === 'q-d01-well-road')
+  if (report?.tier === 'success' || report?.tier === 'triumph') {
+    assert.ok(
+      report.revealedTraits.some((id) => id.startsWith('F004')),
+      'Confessor reveals Flint’s secret',
+    )
+    assert.ok(!report.revealedTraits.some((id) => id.startsWith('F012')))
+    confessed = true
+  }
+}
+assert.ok(confessed)
+// Old Maps: after Hollin's quest the board's hidden requirements are known.
+const mapRun = chooseAudienceOption(
+  withCast(2, 1, ['F019', 'F003']),
+  'd01-mirefen',
+  'question',
+).run
+const afterMaps = finishDay(
+  assignQuest(mapRun, 'q-d01-well-road', ['F019']),
+).run
+assert.ok(
+  afterMaps.flags.includes('scouted:q-d01-mirefen-inspect'),
+  'Old Maps scouts the board',
+)
+// Thick Hide: Cobb's own injuries are halved; Immaculate Apology halves losses.
+let cobbDays = 0
+let flintDays = 0
+for (let seed = 1; seed <= 200; seed += 1) {
+  const run = withCast(seed, 3, ['F017', 'F004'])
+  const posted = chooseAudienceOption(run, 'd03-fen-lanterns', 'ambush').run
+  const report = finishDay(
+    assignQuest(posted, 'q-d03-fen-ambush', ['F017', 'F004']),
+  ).report.quests[0]
+  for (const injury of report?.injuries ?? [])
+    if (injury.followerId === 'F017') cobbDays += injury.days
+    else flintDays += injury.days
+}
+assert.ok(
+  cobbDays < flintDays,
+  `Thick Hide heals faster (${cobbDays} vs ${flintDays})`,
+)
+let sableLoss = 0
+let plainLoss = 0
+for (let seed = 1; seed <= 200; seed += 1) {
+  for (const [id, add] of [
+    ['F016', (n: number) => (sableLoss += n)],
+    ['F017', (n: number) => (plainLoss += n)],
+  ] as const) {
+    const run = chooseAudienceOption(
+      withCast(seed, 3, [id]),
+      'd03-fen-lanterns',
+      'hail',
+    ).run
+    const report = finishDay(
+      assignQuest(run, 'q-d03-fen-hail', [id]),
+    ).report.quests.find((q) => q.questId === 'q-d03-fen-hail')
+    if (report?.tier === 'failure')
+      add(-(report.effects.affinity?.['mire-mothers'] ?? 0))
+  }
+}
+assert.ok(sableLoss <= plainLoss, 'Immaculate Apology softens failures')
+
+// --- recruitment routes in Act I ----------------------------------------------
+const recruits = (
+  day: number,
+  audienceId: string,
+  optionId: string,
+  run?: FortressRun,
+) =>
+  chooseAudienceOption(run ?? onDay(1, day), audienceId, optionId).run
+    .recruitable
+assert.ok(
+  recruits(5, 'd05-flour', 'buy').includes('F008'),
+  'Bram after the flour',
+)
+assert.ok(
+  recruits(7, 'd07-crow-warning', 'errand').includes('F011'),
+  'Tamsin with the parcel',
+)
+assert.ok(
+  recruits(8, 'd08-family', 'escort').includes('F012'),
+  'Teodor stays behind',
+)
+assert.ok(
+  !recruits(8, 'd08-family', 'abbey').includes('F012'),
+  'Teodor leaves with the Abbey if the children go',
+)
+assert.ok(
+  recruits(10, 'd10-oath', 'care').includes('F013'),
+  'Mags after the oath',
+)
+const kitchens = audiencesToday({
+  ...onDay(1, 9),
+  local: { ...onDay(1, 9).local, yard: 12 },
+})
+assert.ok(
+  kitchens.some((a) => a.id === 'd09-kitchens'),
+  'Juniper when the Yard is warm',
+)
+assert.ok(
+  !audiencesToday(onDay(1, 9)).some((a) => a.id === 'd09-kitchens'),
+  'Juniper waits for Yard support',
+)
+for (let seed = 1; seed <= 5; seed += 1) {
+  const after = finishDay(onDay(seed, 10)).run
+  assert.ok(
+    after.recruitable.includes('F017'),
+    'Cobb comes whatever befalls Thistledown',
+  )
+}
 
 console.log('Emperor of Dust fortress contract: ok')

@@ -12,6 +12,8 @@ export type SceneKind =
   | 'highway'
   | 'grove'
   | 'dunes'
+  | 'marsh'
+  | 'rivermouth'
 
 export type Skills = Record<SkillId, number>
 
@@ -45,6 +47,13 @@ export type EncounterCard = {
   art?: string
   body: string[]
   lensLines?: Partial<Record<LensId, string>>
+  leadLines?: Partial<Record<CompanionId, string>>
+  presence?: {
+    companion: CompanionId
+    lead: string
+    met: string
+    unmet: string
+  }
   choices: Choice[]
   provenance: string
 }
@@ -542,6 +551,443 @@ export const ENCOUNTERS: EncounterCard[] = [
     provenance:
       'The fundraising plunge and the waterfront are documented. The time anomalies and people are invented.',
   },
+
+  {
+    id: 'WH-122',
+    chapter: 1,
+    place: 'Arcata Marsh',
+    title: 'The Marsh That Eats Its Words',
+    scene: 'marsh',
+    art: 'encounters/arcata-marsh',
+    body: [
+      'The Arcata Marsh is a wildlife sanctuary built out of the town’s own wastewater: ponds, reeds and a thousand birds doing the last of the cleaning. Tonight it is digesting something else. The festival’s radio static has drifted down the hill, and the marsh is breaking it down like everything else.',
+      'A birder in a rain shell lowers her binoculars. “The blackbirds are singing yesterday’s weather,” she says. “On time, for once.” A heron stands in the shallows looking like it has been asked to testify.',
+    ],
+    lensLines: {
+      sober: 'Every bird call arrives a second after its beak opens.',
+      tipsy: 'The ducks are definitely gossiping about you.',
+      stoned:
+        'You can hear the water cleaning itself, and it sounds like applause.',
+      tripping_balls:
+        'The ponds are a circuit board and the herons are the solder.',
+    },
+    leadLines: {
+      cedar:
+        'Cedar crouches by an outflow pipe, grinning. “It’s a sewage plant that grew feathers. That’s the future, right there.”',
+      juniper:
+        'Juniper watches the egrets. “People built this to clean up after themselves, and the birds moved in anyway. Don’t tell them it’s infrastructure.”',
+      mara: 'Mara photographs the ripples on the pond. “Same pattern as my sketch,” she says quietly.',
+      kit: 'Kit is already balancing on the boardwalk rail. “Best stage in Arcata. Free admission, terrible acoustics.”',
+    },
+    choices: [
+      {
+        id: 'count-birds',
+        label: 'Count the birds against the birder’s tally',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'The numbers match yesterday’s count exactly, bird for bird, down to the heron.',
+          effects: { evidence: 'A bird count from yesterday', weird: 1 },
+        },
+        failure: {
+          text: 'You lose count at the forty-third mallard. The birder gently takes over.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'record-static',
+        label: 'Help the birder record the static',
+        check: { skill: 'rizz', target: 7 },
+        success: {
+          text: 'She lets you hold the parabolic microphone. On playback, the static has words in it: somebody reading out a vote count.',
+          effects: {
+            evidence: 'A vote count recorded in the static',
+            flag: 'marsh_recording',
+          },
+        },
+        failure: {
+          text: 'Your elbow knocks the microphone into a pond. The heron gives you a look you will remember for the rest of the weekend.',
+          effects: { flag: 'heron_grudge' },
+        },
+      },
+      {
+        id: 'let-it-work',
+        label: 'Sit on the boardwalk and let the marsh work',
+        success: {
+          text: 'The static thins out and goes quiet. Given time, it turns out, the marsh can digest almost anything.',
+          effects: { nerve: 1, flag: 'marsh_patience' },
+        },
+      },
+    ],
+    provenance:
+      'The Arcata Marsh and Wildlife Sanctuary is real: a wetland that helps treat the city’s wastewater and draws birders from everywhere. The static, the birder and the heron’s testimony are invented.',
+  },
+  {
+    id: 'WH-123',
+    chapter: 1,
+    place: 'Fickle Hill Road, above Arcata',
+    title: 'Bad Reception',
+    scene: 'highway',
+    art: 'encounters/fickle-hill',
+    body: [
+      'Fickle Hill Road climbs out of Arcata into second-growth redwoods and a fog so thick it has opinions. An old pickup idles on the shoulder with its dome light on and its CB turned all the way up. Nobody is in it.',
+      'For the first time all night, the signal is perfectly clear. A calm voice is reading the morning road conditions for a county where the road ahead of you has been paved with something that glows. Then it says your name.',
+    ],
+    lensLines: {
+      sober: 'You check the dial. It’s tuned between stations.',
+      tipsy: 'You want to call in a request.',
+      stoned: 'The fog is moving in time with the voice.',
+      tripping_balls: 'The voice sounds a lot like you, ten years older.',
+    },
+    leadLines: {
+      cedar:
+        'Cedar goes very still. “That’s my truck’s sister,” he says. “Same year, same ribbon. I’d know her anywhere.”',
+      mara: 'Mara writes down the time to the second. “Nobody gets to tell me I imagined this.”',
+      juniper:
+        'Juniper puts a hand on a redwood like she’s checking its pulse. “The trees can hear it too. They don’t like it.”',
+      kit: 'Kit honks the truck’s horn in the rhythm of the broadcast. The broadcast honks back.',
+    },
+    choices: [
+      {
+        id: 'answer',
+        label: 'Answer the broadcast on the CB',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The voice pauses, then thanks you, and gives you one true piece of tomorrow’s news.',
+          effects: {
+            evidence: 'A clear broadcast from tomorrow',
+            weird: 1,
+            flag: 'answered_the_ridge',
+          },
+        },
+        failure: {
+          text: 'You key the mic and the whole county hears you sneeze.',
+          effects: { nerve: -1, flag: 'ridge_sneeze' },
+        },
+      },
+      {
+        id: 'find-driver',
+        label: 'Find out who left the truck running',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'Fresh boot prints lead into the trees and stop at a stump with a thermos on it, still warm.',
+          effects: { evidence: 'A warm thermos on a stump' },
+        },
+        failure: {
+          text: 'You find the thermos but not the prints. The fog closes in behind you, politely.',
+          effects: { weird: 1 },
+        },
+      },
+      {
+        id: 'drive-down',
+        label: 'Switch off the truck and walk back down, slow',
+        check: { skill: 'burly', target: 7 },
+        success: {
+          text: 'You make it down the hill in one piece. The voice keeps reading conditions until the very last switchback.',
+          effects: { nerve: 1 },
+        },
+        failure: {
+          text: 'The fog won’t let you leave until the broadcast ends. You hear all of it.',
+          effects: { nerve: -1, weird: 1, flag: 'heard_it_all' },
+        },
+      },
+    ],
+    provenance:
+      'Fickle Hill Road is a real ridge road above Arcata. The truck, the broadcast and the voice are invented.',
+  },
+  {
+    id: 'WH-121',
+    chapter: 2,
+    place: 'Mad River mouth',
+    title: 'The Latitude Argument',
+    scene: 'rivermouth',
+    art: 'encounters/wh-121-latitude-argument',
+    body: [
+      'At the mouth of the Mad River the fog has a seam in it, and through the seam comes an argument from 1849. A ragged party of explorers stands at the water’s edge, starving and soaked. One of them, a bearded man with a brass sextant, refuses to cross until he has measured the latitude. The others would like to cross, eat, and never hear the word latitude again.',
+      'They notice you at the same moment. “You,” says the man with the sextant. “Settle this.”',
+    ],
+    lensLines: {
+      sober:
+        'Their footprints fill with water a beat before they lift their boots.',
+      tipsy: 'You have strong feelings about latitude, suddenly.',
+      stoned: 'Their argument has exactly the rhythm of the surf.',
+      tripping_balls:
+        'You can see the river’s new name forming in the air above them, letter by letter.',
+    },
+    leadLines: {
+      mara: 'Mara is on the sextant man’s side. “Write it down,” she tells him. “Somebody has to.”',
+      kit: 'Kit is trying very hard not to laugh, and failing beautifully.',
+      cedar:
+        'Cedar sides with the crew. “Buddy, the river ain’t going anywhere.”',
+      juniper:
+        'Juniper says, to nobody in particular, that the river had names long before this argument, and none of these men asked.',
+    },
+    choices: [
+      {
+        id: 'reading',
+        label: 'Help him take the reading',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'You hold the horizon steady and he gets his latitude. It is precise, and a little wrong for this Humboldt, and exactly right for another one.',
+          effects: { evidence: 'A latitude from another county', weird: 1 },
+        },
+        failure: {
+          text: 'The fog takes the horizon. He blames you, at length, with footnotes.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'cross',
+        label: 'Help the crew across',
+        check: { skill: 'burly', target: 7 },
+        success: {
+          text: 'Everyone gets across dry. Behind you, right on schedule, the shouting starts.',
+          effects: { goodwill: 1, flag: 'mad_river_ferried' },
+        },
+        failure: {
+          text: 'You are now as wet as they are, and twice as cross.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'peace',
+        label: 'Try to make peace',
+        check: { skill: 'rizz', target: 11 },
+        success: {
+          text: 'Thirty seconds of calm. Then it starts again, because the river’s name was never yours to change.',
+          effects: { goodwill: 1, flag: 'mad_river_peace' },
+        },
+        failure: {
+          text: 'You are now part of the argument. Historians will not mention you.',
+          effects: { flag: 'mad_river_argued' },
+        },
+      },
+    ],
+    provenance:
+      'The river was named in December 1849 after an argument recorded by L. K. Wood, the Gregg party’s only chronicler; historians treat his account with care. The river had other names first. The fog seam is invented.',
+  },
+  {
+    id: 'WH-124',
+    chapter: 3,
+    place: 'Sequoia Park, Eureka',
+    title: 'The Friends Who Aren’t Here',
+    scene: 'grove',
+    art: 'encounters/friends-who-arent-here',
+    body: [
+      'After the zoo closes, a lantern-lit clearing in Sequoia Park fills with a small, delighted crowd. Physical-theatre performers from Blue Lake have come to play the animals who aren’t here anymore: Bill the chimp, pacing and blowing raspberries; Snerfy the river otter, racing a kid along a fence that isn’t there; and a crowd of prairie dogs popping up from behind hay bales at exactly the wrong moments.',
+      'Nobody sanctioned this. Everybody came anyway.',
+    ],
+    presence: {
+      companion: 'kit',
+      lead: 'Kit squeezes your arm. “I put this together,” she whispers. “Because of Snerfy. I’ll tell you after.”',
+      met: 'Kit spots you from the clearing and waves with an otter paw. She organized all of this.',
+      unmet:
+        'A performer in patched coveralls is directing everything with a juggling club. Someone calls her Kit.',
+    },
+    lensLines: {
+      sober:
+        'The masks are brilliant, and you can see every seam. You love them anyway.',
+      tipsy:
+        'You know they’re actors, mostly. “Bill” blows a raspberry square in your face and you laugh too hard to care.',
+      stoned:
+        'The actors keep slipping away. For long moments it is just an otter and a kid, running.',
+      tripping_balls:
+        'You don’t see actors. You see Bill, Snerfy and the prairie dogs, alive in the dark. Later, when the masks come off, you may not believe it.',
+    },
+    choices: [
+      {
+        id: 'sit-with-bill',
+        label: 'Sit with “Bill” a while',
+        success: {
+          text: 'He paces, blows you a raspberry, then sits down beside you and is very still for a long time. When the scene ends, the actor hands you a finger painting “he” made. It shows a Humboldt that hasn’t happened yet.',
+          effects: {
+            evidence: 'Bill’s finger painting of a future county',
+            flag: 'sat_with_bill',
+          },
+        },
+      },
+      {
+        id: 'run-with-snerfy',
+        label: 'Run the fence with “Snerfy”',
+        check: { skill: 'burly', target: 7 },
+        success: {
+          text: 'You race the otter the length of the clearing, stop at the end, both of you delighted, then race back. Afterwards Kit tells you about a little girl, an old otter pen, and the best friend she ever had who couldn’t talk.',
+          effects: { goodwill: 1, flag: 'ran_with_snerfy' },
+        },
+        failure: {
+          text: 'You trip over a prairie dog, who is outraged in a very small voice.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'hecklers',
+        label: 'Shoo off the hecklers',
+        check: { skill: 'rizz', target: 7 },
+        success: {
+          text: 'Two teenagers rattling the fence decide to join in instead. One of them turns out to be a very good prairie dog.',
+          effects: { goodwill: 1 },
+        },
+        failure: {
+          text: '“Bill” handles it himself, with a very convincing prop and excellent aim.',
+          effects: { weird: 1, flag: 'bill_handled_it' },
+        },
+      },
+    ],
+    provenance:
+      'Sequoia Park Zoo is real. Bill, a chimpanzee retired from the circus, lived there from 1957 until he died in 2007; Snerfy and the prairie dogs are remembered by people who grew up visiting. The troupe and the performance are invented, and the animals appear only as actors.',
+  },
+  {
+    id: 'WH-125',
+    chapter: 3,
+    place: 'Bayshore Mall, Eureka',
+    title: 'Anchor Stores',
+    scene: 'plaza',
+    art: 'encounters/anchor-stores',
+    body: [
+      'The once-great Bayshore Mall closes at nine. At one minute past, the skylights go dark, the fountain stops, and three of the shuttered anchor stores light up from the inside.',
+      'Behind one gate is a forest town with solar roofs and a farmers market in the rain. Behind another, a gleaming warehouse where nobody looks up. Behind the third, a food court in the fog, chairs stacked, one pretzel still turning under a heat lamp. A security guard on a scooter glides past and doesn’t look at any of them. “Not my department,” she says.',
+    ],
+    lensLines: {
+      sober:
+        'The gates reflect the mall behind you, except that in the reflection the mall is full.',
+      tipsy: 'You want to go shopping in all three.',
+      stoned: 'Each gate hums a different chord.',
+      tripping_balls: 'The stores are breathing.',
+    },
+    leadLines: {
+      cedar:
+        'Cedar presses his face to the first gate. “That’s fiber on those poles. Somebody did it right.”',
+      juniper:
+        'Juniper won’t go near the warehouse. “Nothing grows in there,” she says. “Not even mold.”',
+      mara: 'Mara counts the gates, then counts them again. “There were four anchors. Where’s the fourth?”',
+      kit: 'Kit wants to put on a show in the food court. “Somebody should. Look how sad that pretzel is.”',
+    },
+    choices: [
+      {
+        id: 'first-gate',
+        label: 'Step through the first gate',
+        check: { skill: 'psyche', target: 9 },
+        success: {
+          text: 'You walk the forest town for one minute that feels like a year. A kid hands you a flyer for a co-op meeting dated 2036.',
+          effects: {
+            evidence: 'A flyer from 2036',
+            weird: 1,
+            flag: 'saw_hope_future',
+          },
+        },
+        failure: {
+          text: 'The gate lets you look but not enter. Your nose leaves a print on a future.',
+          effects: { weird: 1 },
+        },
+      },
+      {
+        id: 'ask-guard',
+        label: 'Ask the guard what’s behind the warehouse gate',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'She sighs. “Twelve-hour shifts and a lot of robots. My nephew works there. In some of them.”',
+          effects: {
+            evidence: 'The guard’s nephew in the warehouse future',
+            flag: 'saw_dark_future',
+          },
+        },
+        failure: {
+          text: '“Mall’s closed, hon.” She escorts you to the exit with enormous politeness.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'fourth-anchor',
+        label: 'Find the fourth anchor',
+        check: { skill: 'wits', target: 11 },
+        success: {
+          text: 'The fourth gate is dark because nobody has decided what goes there yet. It’s waiting on the county. It’s waiting on you.',
+          effects: {
+            evidence: 'An empty fourth future',
+            flag: 'fourth_anchor',
+          },
+        },
+        failure: {
+          text: 'You find a gate with a sign that says SPACE AVAILABLE. You decide not to think about it.',
+          effects: { weird: 1 },
+        },
+      },
+    ],
+    provenance:
+      'The Bayshore Mall is real and has lost several of its anchor stores over the years. The futures behind the gates are invented; no current tenant or owner is part of the story.',
+  },
+  {
+    id: 'WH-126',
+    chapter: 3,
+    place: 'Behind the Bayshore Mall',
+    title: 'Behind the Mall',
+    scene: 'bay',
+    art: 'encounters/behind-the-mall',
+    body: [
+      'Behind the mall, down by the slough, there’s a stretch of concrete locals call the Devil’s Playground: wall after wall of graffiti, tall reeds and water the color of dusk. A Cal Poly film crew is shooting a horror short here tonight. Their monster is a student in a rubber suit with a very good jaw.',
+      'A man named Ray, who knows this wall better than anyone, is giving the crew advice about the light. He’s right about the light. The problem is the second monster. It wasn’t in the script, it isn’t on the crew, and it keeps getting better takes than the actors.',
+    ],
+    lensLines: {
+      sober: 'The second monster leaves wet footprints. The first one doesn’t.',
+      tipsy: 'You are fairly sure you could direct this better.',
+      stoned:
+        'The graffiti is moving very slowly, like a time-lapse of itself.',
+      tripping_balls: 'Both monsters look at you at the same time.',
+    },
+    leadLines: {
+      kit: 'Kit is already giving the second monster notes on its posture. It seems to appreciate them.',
+      mara: 'Mara studies one of the murals. “Good linework,” she says. “Whoever did this could work in my shop.”',
+      cedar:
+        'Cedar offers the crew his truck battery for the lights. “Don’t tell my mom I was down here.”',
+      juniper:
+        'Juniper sits with her feet in the reeds, unbothered, like she’s seen the second monster before.',
+    },
+    choices: [
+      {
+        id: 'ask-ray',
+        label: 'Ask Ray where the second monster comes from',
+        check: { skill: 'rizz', target: 7 },
+        success: {
+          text: '“It comes out of the reeds when somebody’s filming,” Ray says. “Shy, I think. Wants to be seen.” He would know.',
+          effects: {
+            goodwill: 1,
+            evidence: 'Ray’s account of the reed monster',
+          },
+        },
+        failure: {
+          text: 'Ray isn’t in the mood to be anybody’s local color tonight, and says so. Fair enough.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'footage',
+        label: 'Review the footage',
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'In every take, the second monster mouths a single word at the camera. You are almost sure it’s “vote.”',
+          effects: { evidence: 'The monster’s word on film', weird: 1 },
+        },
+        failure: {
+          text: 'The footage is blank except for a beautifully lit shot of your thumb.',
+          effects: { flag: 'thumb_cameo' },
+        },
+      },
+      {
+        id: 'costar',
+        label: 'Step into the scene and play along',
+        check: { skill: 'psyche', target: 9 },
+        success: {
+          text: 'You and the second monster share one perfect take. It nods to you and wades back into the reeds. The director is weeping.',
+          effects: { goodwill: 1, flag: 'monster_costar' },
+        },
+        failure: {
+          text: 'The second monster upstages you completely. The director keeps your scream.',
+          effects: { weird: 1 },
+        },
+      },
+    ],
+    provenance:
+      'The graffiti spot behind the Bayshore Mall is real, and locals call it the Devil’s Playground. The film crew, Ray and the second monster are invented.',
+  },
 ]
 
 export type Chapter = {
@@ -672,6 +1118,12 @@ export const ECOTONE_ART: string[] = [
   'chapters/the-impossible-festival',
   'encounters/wh-021-bigfoot-picnic',
   'encounters/wh-061-perilous-plunge',
+  'encounters/arcata-marsh',
+  'encounters/fickle-hill',
+  'encounters/wh-121-latitude-argument',
+  'encounters/friends-who-arent-here',
+  'encounters/anchor-stores',
+  'encounters/behind-the-mall',
 ]
 
 export function artUrl(asset?: string): string | null {

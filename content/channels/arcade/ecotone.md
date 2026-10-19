@@ -25,10 +25,10 @@ tutorial:
     Later in the weekend another of the four crosses your path. Stay with your guide or follow the newcomer; whoever you leave keeps chasing their own piece of the mystery.
 
     What's here so far
-    This Play page is a preview: the prologue, three sample encounters, one crossroads, the county map, your journal and the 56-slot Endings gallery. The full six-chapter deck, the other three opening roads and the earned endings are being written. Painted art replaces the drawn scenes as it arrives.
+    This Play page is a preview of the first three chapters. Each weekend deals two cards per chapter from a growing deck: the Minor Theatre trapdoor, the Arcata Marsh, Fickle Hill, the Bigfoot picnic, the 1849 argument that named the Mad River, the Perilous Plunge, a tribute to the zoo's lost friends, the Bayshore Mall after hours and the graffiti behind it. Then comes a crossroads, the county map, your journal and the 56-slot Endings gallery. Chapters four to six, the other three opening roads and the earned endings are being written.
 ---
 
 Ecotone (working title for Weird Humboldt) is a work-in-progress card adventure. This Play
-page carries the prologue, the four companion introductions, three sample encounters with
+page carries the prologue, the four companion introductions, a seeded deck of encounters with
 seeded 2d6 checks, a stay-or-follow crossroads, the six-region county map, a journal and
 the Endings gallery.

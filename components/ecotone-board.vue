@@ -367,6 +367,13 @@
               >
                 {{ stage.lensLine }}
               </p>
+              <p
+                v-for="(aside, index) in stage.asides"
+                :key="`aside-${index}`"
+                class="rounded-xl border-l-4 border-warning bg-warning/10 px-3 py-2 text-sm"
+              >
+                {{ aside }}
+              </p>
             </div>
             <div class="flex shrink-0 flex-col gap-1.5 sm:gap-2">
               <button
@@ -771,6 +778,7 @@ import {
 import {
   LEAD_BONUS,
   MAX_METER,
+  cardAsides,
   chanceToSucceed,
   checkBonus,
   type Roll,
@@ -900,6 +908,7 @@ const stage = computed(() => {
     title: PROLOGUE.title,
     body: PROLOGUE.body,
     lensLine: '',
+    asides: [] as string[],
     portrait: false,
     emblem: null as null | { id: CompanionId; name: string }[],
   }
@@ -957,6 +966,7 @@ const stage = computed(() => {
       lensLine: run.openingState
         ? (card.lensLines?.[run.openingState] ?? '')
         : '',
+      asides: cardAsides(card, run),
       portrait: false,
       emblem: game.lead ? [{ id: game.lead.id, name: game.lead.name }] : null,
     }

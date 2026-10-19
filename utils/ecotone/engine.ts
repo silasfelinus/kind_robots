@@ -7,15 +7,17 @@ import {
   type Check,
   type CompanionId,
   type Effects,
+  type EncounterCard,
   type LensId,
   type Outcome,
   type SkillId,
   type Skills,
 } from './content'
 
-export const ECOTONE_SAVE_VERSION = 1
+export const ECOTONE_SAVE_VERSION = 2
 export const MAX_METER = 8
-export const CROSSROADS_AFTER = 2
+export const CROSSROADS_CHAPTER = 3
+export const CHAPTER_DRAWS: Record<number, number> = { 1: 2, 2: 2, 3: 2 }
 
 export type Phase = 'prologue' | 'intro' | 'encounter' | 'crossroads' | 'end'
 
@@ -193,6 +195,39 @@ export function seededShuffle<T>(items: T[], seed: number): T[] {
   return out
 }
 
+export function buildDeck(seed: number): string[] {
+  return Object.entries(CHAPTER_DRAWS)
+    .map(([chapter, count]) => [Number(chapter), count] as const)
+    .sort((a, b) => a[0] - b[0])
+    .flatMap(([chapter, count]) =>
+      seededShuffle(
+        ENCOUNTERS.filter((card) => card.chapter === chapter).map(
+          (card) => card.id,
+        ),
+        hashSeed(seed, chapter * 7919),
+      ).slice(0, count),
+    )
+}
+
+export function cardAsides(card: EncounterCard, state: RunState): string[] {
+  const asides: string[] = []
+  const presence = card.presence
+  if (presence) {
+    asides.push(
+      state.activeLead === presence.companion
+        ? presence.lead
+        : state.meetingOrder.includes(presence.companion)
+          ? presence.met
+          : presence.unmet,
+    )
+  }
+  const lead = state.activeLead
+  const line =
+    lead && lead !== presence?.companion ? card.leadLines?.[lead] : undefined
+  if (line) asides.push(line)
+  return asides
+}
+
 export function createRun(seed: number, archetypeId: string): RunState {
   const archetype =
     ARCHETYPES.find((a) => a.id === archetypeId) ??
@@ -212,7 +247,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     meetingOrder: [],
     followHistory: [],
     newcomerOrder: [],
-    deck: ENCOUNTERS.map((card) => card.id),
+    deck: buildDeck(seed >>> 0),
     encounterIndex: 0,
     nerve: 5,
     goodwill: 0,
@@ -227,8 +262,10 @@ export function createRun(seed: number, archetypeId: string): RunState {
 export function currentChapter(state: RunState): number {
   if (state.phase === 'prologue' || state.phase === 'intro') return 1
   const card = ENCOUNTERS.find((c) => c.id === state.deck[state.encounterIndex])
-  if (state.phase === 'end')
-    return ENCOUNTERS[ENCOUNTERS.length - 1]?.chapter ?? 1
+  if (state.phase === 'end') {
+    const last = state.deck[state.deck.length - 1]
+    return ENCOUNTERS.find((c) => c.id === last)?.chapter ?? 1
+  }
   return card?.chapter ?? 1
 }
 
@@ -338,10 +375,12 @@ export function chooseEncounter(state: RunState, choiceId: string): RunState {
     rolled = { ...state, rolls: state.rolls + 1 }
   }
   const index = state.encounterIndex + 1
+  const upcoming = ENCOUNTERS.find((c) => c.id === state.deck[index])
   const next: Phase =
     index >= state.deck.length
       ? 'end'
-      : index === CROSSROADS_AFTER
+      : (upcoming?.chapter ?? 0) >= CROSSROADS_CHAPTER &&
+          state.meetingOrder.length < 2
         ? 'crossroads'
         : 'encounter'
   const withEffects = applyEffects(rolled, outcome.effects)

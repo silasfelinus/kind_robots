@@ -553,6 +553,95 @@
           </g>
         </g>
 
+        <g v-else-if="kind === 'marsh'">
+          <rect x="0" y="600" width="1600" height="300" fill="#2c3b2e" />
+          <ellipse
+            v-for="pond in ponds"
+            :key="pond.key"
+            :cx="pond.x"
+            :cy="pond.y"
+            :rx="pond.rx"
+            :ry="pond.ry"
+            :fill="`url(#${uid}-water)`"
+          />
+          <g stroke="#5f7d3a" stroke-width="4" stroke-linecap="round">
+            <line
+              v-for="reed in reeds"
+              :key="reed.key"
+              :x1="reed.x"
+              :y1="reed.y"
+              :x2="reed.x + reed.lean"
+              :y2="reed.y - reed.h"
+            />
+          </g>
+          <rect x="300" y="700" width="1000" height="14" fill="#6b5236" />
+          <rect
+            v-for="post in posts"
+            :key="post.key"
+            :x="post.x - 400"
+            y="712"
+            width="8"
+            height="40"
+            fill="#4d3a26"
+          />
+          <g fill="#f4f1ea">
+            <path d="M1120 690 q 20 -60 30 -110 l 6 0 q -6 50 -20 110 Z" />
+            <ellipse cx="1150" cy="575" rx="14" ry="8" />
+          </g>
+          <g stroke="#1d2a2c" stroke-width="3" fill="none">
+            <path d="M420 240 q 20 -16 40 0 q 20 -16 40 0" />
+            <path d="M560 200 q 14 -12 28 0 q 14 -12 28 0" />
+            <path d="M980 260 q 18 -14 36 0 q 18 -14 36 0" />
+          </g>
+        </g>
+
+        <g v-else-if="kind === 'rivermouth'">
+          <rect
+            x="0"
+            y="560"
+            width="1600"
+            height="340"
+            :fill="`url(#${uid}-water)`"
+          />
+          <g stroke="#cfeee4" stroke-width="2" opacity="0.35" fill="none">
+            <path v-for="wave in waves" :key="wave.key" :d="wave.d" />
+          </g>
+          <path
+            d="M0 700 Q 300 640 620 690 L 760 900 L 0 900 Z"
+            fill="#b9a67e"
+          />
+          <path
+            d="M1600 680 Q 1260 640 980 700 L 860 900 L 1600 900 Z"
+            fill="#b09c72"
+          />
+          <g fill="#6d5a3e">
+            <rect
+              x="220"
+              y="740"
+              width="200"
+              height="18"
+              rx="9"
+              transform="rotate(-8 320 749)"
+            />
+            <rect
+              x="1180"
+              y="760"
+              width="240"
+              height="16"
+              rx="8"
+              transform="rotate(6 1300 768)"
+            />
+          </g>
+          <g fill="#2a2420">
+            <rect x="420" y="620" width="16" height="60" rx="6" />
+            <rect x="460" y="626" width="16" height="54" rx="6" />
+            <rect x="500" y="618" width="16" height="62" rx="6" />
+            <rect x="1060" y="612" width="18" height="70" rx="6" />
+          </g>
+          <circle cx="1069" cy="604" r="12" fill="#2a2420" />
+          <rect x="1078" y="630" width="30" height="6" fill="#c9a24d" />
+        </g>
+
         <g class="ecotone-fog" :filter="`url(#${uid}-blur)`" opacity="0.55">
           <ellipse cx="400" cy="620" rx="520" ry="46" fill="#dfe9e4" />
           <ellipse cx="1200" cy="560" rx="560" ry="40" fill="#dfe9e4" />
@@ -704,6 +793,28 @@ const PALETTES: Record<
     night: false,
     moon: false,
   },
+  marsh: {
+    top: '#3b4f6b',
+    mid: '#c98f5e',
+    low: '#e8c48a',
+    ridgeFar: '#4f6158',
+    ridgeNear: '#3e5048',
+    trees: '#2a3a30',
+    water: '#6f8fa0',
+    night: false,
+    moon: false,
+  },
+  rivermouth: {
+    top: '#8a9a9c',
+    mid: '#b8c2bc',
+    low: '#d9d8cc',
+    ridgeFar: '#748a84',
+    ridgeNear: '#5c726c',
+    trees: '#3a504a',
+    water: '#46666e',
+    night: false,
+    moon: false,
+  },
 }
 
 const palette = computed(() => PALETTES[props.kind])
@@ -723,6 +834,8 @@ const kindIndex = computed(() =>
     'highway',
     'grove',
     'dunes',
+    'marsh',
+    'rivermouth',
   ].indexOf(props.kind),
 )
 
@@ -738,19 +851,19 @@ const stars = computed(() =>
 
 const trees = computed(() => {
   if (props.kind === 'theater' || props.kind === 'grove') return []
-  const count =
-    props.kind === 'beach' || props.kind === 'bay' || props.kind === 'dunes'
-      ? 10
-      : 22
+  const count = ['beach', 'bay', 'dunes', 'marsh', 'rivermouth'].includes(
+    props.kind,
+  )
+    ? 10
+    : 22
   return Array.from({ length: count }, (_, i) => {
     const s = i + kindIndex.value * 50
     const x = Math.round(seeded(s + 11) * 1600)
     const h = 220 + seeded(s + 23) * 260
     const w = 26 + seeded(s + 37) * 30
-    const base =
-      props.kind === 'beach' || props.kind === 'bay'
-        ? 560
-        : 640 + seeded(s + 41) * 60
+    const base = ['beach', 'bay', 'marsh', 'rivermouth'].includes(props.kind)
+      ? 560
+      : 640 + seeded(s + 41) * 60
     const top = base - h
     const points = [
       `${x},${top}`,
@@ -828,6 +941,22 @@ const windows = computed(() => {
   })
   return spots
 })
+
+const ponds = [
+  { key: 1, x: 260, y: 780, rx: 240, ry: 50 },
+  { key: 2, x: 820, y: 820, rx: 300, ry: 46 },
+  { key: 3, x: 1360, y: 770, rx: 220, ry: 44 },
+]
+
+const reeds = computed(() =>
+  Array.from({ length: 60 }, (_, i) => ({
+    key: i,
+    x: Math.round(seeded(i + 601) * 1600),
+    y: 640 + Math.round(seeded(i + 701) * 240),
+    h: 40 + seeded(i + 801) * 70,
+    lean: -10 + seeded(i + 901) * 20,
+  })),
+)
 
 const posts = computed(() =>
   Array.from({ length: 12 }, (_, i) => ({ key: i, x: 720 + i * 74 })),

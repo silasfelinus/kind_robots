@@ -87,13 +87,25 @@
           v-if="over && activeRoom !== 'chronicle'"
           class="kr-panel space-y-3 p-5"
         >
-          <h2 class="font-serif text-3xl font-bold">Fifty days</h2>
-          <p>
-            The reign is over. The endings are still being written, so this run
-            stops here. Rewind to any dawn from the Chronicle, or begin again.
+          <p
+            class="text-xs font-semibold uppercase tracking-widest text-warning"
+          >
+            Fifty days · the ending
           </p>
-          <p v-if="run.hideout" class="text-sm opacity-75">
-            The last days were spent in hiding.
+          <h2 class="font-serif text-3xl font-bold">{{ ending?.title }}</h2>
+          <p class="font-serif text-lg">{{ ending?.text }}</p>
+          <div v-if="run.memorials.length" class="rounded-xl bg-base-200 p-3">
+            <p class="text-sm font-semibold">Remembered by name</p>
+            <ul class="mt-1 text-sm">
+              <li v-for="memorial in run.memorials" :key="memorial.followerId">
+                {{ followerName(memorial.followerId) }}, Day
+                {{ memorial.day }}
+              </li>
+            </ul>
+          </div>
+          <p class="text-sm opacity-75">
+            Rewind to any dawn from the Chronicle to try another road, or begin
+            again.
           </p>
         </section>
         <template v-else>
@@ -149,13 +161,19 @@ import {
   audiencesToday,
   isOver,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { endingOf } from '~/utils/emperorOfDust/fortress/endings'
 import { LOCAL_FACTION_DEFS } from '~/utils/emperorOfDust/fortress/factions'
+import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 
 type RoomId = 'throne' | 'quests' | 'barracks' | 'market' | 'map' | 'chronicle'
 
 const court = useEmperorFortressStore()
 const run = computed(() => court.run)
 const over = computed(() => !!run.value && isOver(run.value))
+const ending = computed(() =>
+  run.value && over.value ? endingOf(run.value) : undefined,
+)
+const followerName = (id: string) => followerDef(id)?.name ?? id
 const activeRoom = ref<RoomId>('throne')
 const showDawn = ref(false)
 const stage = ref<HTMLElement | null>(null)

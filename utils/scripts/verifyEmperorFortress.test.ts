@@ -5,6 +5,8 @@ import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
+import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
+import { ENDINGS, endingOf } from '../emperorOfDust/fortress/endings'
 import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
@@ -158,6 +160,7 @@ for (const quest of [
   ...ACT_TWO_QUESTS,
   ...ACT_THREE_QUESTS,
   ...ACT_FOUR_QUESTS,
+  ...ACT_FIVE_QUESTS,
 ]) {
   assert.ok(quest.durationDays >= 1 && quest.durationDays <= 3, quest.id)
   assert.ok(quest.party.min >= 1 && quest.party.max <= 4, quest.id)
@@ -185,8 +188,8 @@ assert.deepEqual(
 )
 assert.deepEqual(
   DAYS.map((def) => def.day),
-  Array.from({ length: 40 }, (_, i) => i + 1),
-  'Acts I to IV are scripted end to end',
+  Array.from({ length: LAST_DAY }, (_, i) => i + 1),
+  'all fifty days are scripted end to end',
 )
 for (const def of DAYS) {
   assert.ok(
@@ -1069,6 +1072,7 @@ for (const quest of [
   ...ACT_TWO_QUESTS,
   ...ACT_THREE_QUESTS,
   ...ACT_FOUR_QUESTS,
+  ...ACT_FIVE_QUESTS,
 ])
   assert.ok(
     REGIONS.some((region) => region.id === quest.region),
@@ -1124,5 +1128,103 @@ const lastNight = chooseAudienceOption(
   'leave',
 ).run
 assert.ok(finishDay(lastNight).run.flags.includes('komodo-betrayal'))
+
+// --- Act V: the hideout and the endings ------------------------------------
+// Keeper Vellum gives the briefings once Komodo has gone.
+for (const def of DAYS)
+  assert.equal(
+    def.advisor,
+    def.day > 40 ? 'Keeper Vellum' : undefined,
+    `day ${def.day} advisor`,
+  )
+// The betrayal names the hideout as a flag, and Day 42 seats exactly one host.
+const hideouts = [
+  'mole-tunnels',
+  'crow-cave',
+  'bell-cellars',
+  'wagon-circle',
+  'moving-caravan',
+  'freehold-barn',
+  'rail-station',
+  'nameless-cave',
+]
+for (const hideout of hideouts) {
+  const terms = audiencesToday(
+    onDay(1, 42, { hideout, flags: [`hideout:${hideout}`] }),
+  ).filter((a) => a.id.startsWith('d42-terms-'))
+  assert.deepEqual(
+    terms.map((a) => a.id),
+    [`d42-terms-${hideout}`],
+    hideout,
+  )
+  const accepted = chooseAudienceOption(
+    onDay(1, 42, { hideout, flags: [`hideout:${hideout}`] }),
+    terms[0]!.id,
+    'accept',
+  ).run
+  const hostQuest = terms[0]!.options[0]!.postsQuests![0]!
+  assert.ok(
+    accepted.board.some((entry) => entry.questId === hostQuest),
+    `${hideout} posts its host quest`,
+  )
+}
+const betrayed = finishDay(
+  chooseAudienceOption(onDay(1, 40), 'd40-quiet-word', 'leave').run,
+).run
+assert.ok(betrayed.hideout)
+assert.ok(betrayed.flags.includes(`hideout:${betrayed.hideout}`))
+// Day 50: the front door is always posted; the well and the bell are earned.
+const lastDay = onDay(1, 50)
+assert.ok(
+  lastDay.board.some((entry) => entry.questId === 'q-d50-last-dispatch'),
+)
+assert.ok(questDef('q-d50-last-dispatch')!.lethal)
+const roads = DAYS.find((def) => def.day === 50)!.audiences[0]!
+for (const [id, flag] of [
+  ['well', 'crypt-path-found'],
+  ['bell', 'clapper-recovered'],
+] as const) {
+  const option = roads.options.find((entry) => entry.id === id)!
+  assert.ok(optionBlockers(lastDay, option).length, `${id} must be earned`)
+  assert.equal(
+    optionBlockers(onDay(1, 50, { flags: [flag] }), option).length,
+    0,
+  )
+}
+// Every ending family is reachable, and losing the door outranks the peace.
+const ended = (flags: string[], deaths = 0): string =>
+  endingOf({
+    ...createRun(1),
+    day: LAST_DAY + 1,
+    flags,
+    memorials: Array.from({ length: deaths }, (_, i) => ({
+      followerId: `F00${i + 1}`,
+      questId: 'q-d50-last-dispatch',
+      day: 50,
+    })),
+  }).id
+assert.equal(ended(['peace-bell']), 'long-night', 'an open door is the end')
+assert.equal(ended(['horror-sealed']), 'open-roads')
+assert.equal(ended(['horror-sealed', 'peace-roads']), 'open-roads')
+assert.equal(ended(['horror-sealed', 'peace-bell']), 'bell-restored')
+assert.equal(ended(['horror-sealed', 'peace-iron']), 'iron-peace')
+assert.equal(ended(['horror-sealed', 'peace-crows']), 'crows-bargain')
+assert.equal(ended(['horror-sealed', 'peace-witchwater']), 'witchwater-throne')
+assert.equal(ended(['horror-sealed', 'peace-tunnels']), 'tunnels-and-councils')
+assert.equal(ended(['horror-sealed', 'peace-tunnels'], 3), 'hundred-candles')
+assert.equal(ended(['horror-sealed', 'horror-wakes']), 'open-roads')
+assert.equal(Object.keys(ENDINGS).length, 8, 'eight ending families')
+// Each Day 49 peace sets exactly the flag its ending reads.
+const peaceFlags = DAYS.find(
+  (def) => def.day === 49,
+)!.audiences[0]!.options.flatMap((option) => option.effects.flags ?? [])
+assert.deepEqual([...peaceFlags].sort(), [
+  'peace-bell',
+  'peace-crows',
+  'peace-iron',
+  'peace-roads',
+  'peace-tunnels',
+  'peace-witchwater',
+])
 
 console.log('Emperor of Dust fortress contract: ok')

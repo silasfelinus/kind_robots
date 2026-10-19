@@ -42,6 +42,7 @@ export type PalaceEnemy =
   | 'bulwark'
   | 'squid'
   | 'prism'
+  | 'mortar'
 export type PalaceStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type PalaceSceneId = 'A08.OPEN' | 'A08.TURN' | 'A08.CORE' | 'A08.AFTER'
 export type PalaceDialogue = { speaker: string; text: string }
@@ -242,18 +243,22 @@ const AUTHORED_PALACE_WAVES: readonly PalaceWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_PALACE_SECTIONS, [
-  'Convoy of the collared',
-  'Wreck motifs',
-  'Reef motifs',
-  'Glass motifs',
-  'Captive column',
-  'Lower heart spires',
-  'Elite formations',
-  'Second armada',
-  'Upper heart spires',
-  'Corona storm',
-])
+const CUT = recutTimeline(
+  AUTHORED_PALACE_SECTIONS,
+  [
+    'Convoy of the collared',
+    'Wreck motifs',
+    'Reef motifs',
+    'Glass motifs',
+    'Captive column',
+    'Lower heart spires',
+    'Elite formations',
+    'Second armada',
+    'Upper heart spires',
+    'Corona storm',
+  ],
+  { [AUTHORED_PALACE_GUARDIAN.name]: 1020 },
+)
 export const PALACE = {
   ...AUTHORED_PALACE,
   turnStarts: CUT.at(AUTHORED_PALACE.turnStarts),
@@ -271,6 +276,7 @@ export const PALACE_REINFORCEMENTS = reinforcements<PalaceWave['kind']>(
   CUT.sections,
   {
     kinds: ['spiral', 'cutter', 'lantern', 'dolphin', 'skate'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Corona gate': 420,
       'Captive armada': 360,

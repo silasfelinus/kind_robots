@@ -19,8 +19,8 @@ import { emptyInput, type InputFrame } from '../arcade/types'
 // when a continue rewinds to its section.
 
 // The module: hull, charge cue, fair patterns, escape.
-assert.equal(createRainbowGuardian('urchin', 1).maxHp, 60)
-assert.equal(createRainbowGuardian('urchin', 4).maxHp, 348)
+assert.equal(createRainbowGuardian('urchin', 1).maxHp, 125)
+assert.equal(createRainbowGuardian('urchin', 4).maxHp, 725)
 assert.ok(PINKWAKE_SECTIONS.some((s) => s.name === PINKWAKE_GUARDIAN.name))
 for (const kind of ['urchin', 'lantern', 'clawstrike'] as const) {
   const guardian = createRainbowGuardian(kind, 1)
@@ -177,7 +177,13 @@ function flyActOne(mode: Mode, until = PINKWAKE_GUARDIAN.to + 60) {
       game.update(input)
       continue
     }
-    const input = pilot(game, frame, mode)
+    // Once the rewind has shown a fresh guardian, the rammer fights it like anyone else (the tougher
+    // guardian of Silas's second playtest outlasts a pilot who only rams it).
+    const input = pilot(
+      game,
+      frame,
+      mode === 'ram' && watch.spawns.length >= 2 ? 'fight' : mode,
+    )
     game.update(input, [input])
     const after = game.snapshot
     const guardian = after.guardian
@@ -214,7 +220,7 @@ function flyActOne(mode: Mode, until = PINKWAKE_GUARDIAN.to + 60) {
   assert.equal(game.snapshot.guardians[1], 'defeated')
   assert.ok(watch.spawns.length >= 1)
   assert.equal(watch.spawns[0]!.tick, PINKWAKE_GUARDIAN.from)
-  assert.equal(watch.spawns[0]!.maxHp, 60)
+  assert.equal(watch.spawns[0]!.maxHp, 125)
   assert.ok(watch.bonus >= RAINBOW_GUARDIAN.bonus, `bonus ${watch.bonus}`)
   assert.equal(watch.pickupsDropped, 3)
   assert.equal(watch.shotsAfterDefeat, 0, 'its pellets go with it')

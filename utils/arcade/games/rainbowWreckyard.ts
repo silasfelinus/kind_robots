@@ -25,7 +25,8 @@ import {
   withReinforcements,
 } from './rainbowPacing'
 
-export type WreckEnemy = 'cutter' | 'hammerhead' | 'salvager' | 'scrap'
+export type WreckEnemy =
+  'cutter' | 'hammerhead' | 'salvager' | 'scrap' | 'mortar'
 export type WreckStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type WreckSceneId = 'A05.OPEN' | 'A05.FORK' | 'A05.TURN' | 'A05.AFTER'
 export type WreckDialogue = { speaker: string; text: string }
@@ -258,18 +259,22 @@ const AUTHORED_WRECK_ARMORY_WAVES: readonly WreckWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_WRECK_SECTIONS, [
-  'Wreck merge',
-  'Pod crossfire',
-  'Grab yard',
-  'Slab drift',
-  'Jaw parade',
-  'Dock cranes',
-  'Rust tide',
-  'Keel graveyard',
-  'Bloom wreck',
-  'Signal wreck',
-])
+const CUT = recutTimeline(
+  AUTHORED_WRECK_SECTIONS,
+  [
+    'Wreck merge',
+    'Pod crossfire',
+    'Grab yard',
+    'Slab drift',
+    'Jaw parade',
+    'Dock cranes',
+    'Rust tide',
+    'Keel graveyard',
+    'Bloom wreck',
+    'Signal wreck',
+  ],
+  { [AUTHORED_WRECK_GUARDIAN.name]: 1020 },
+)
 export const WRECK = {
   ...AUTHORED_WRECK,
   turnStarts: CUT.at(AUTHORED_WRECK.turnStarts),
@@ -294,6 +299,7 @@ export const WRECK_REINFORCEMENTS = reinforcements<WreckWave['kind']>(
   CUT.sections,
   {
     kinds: ['cutter'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Cutter lanes': 420,
       'Hammerhead pods': 300,

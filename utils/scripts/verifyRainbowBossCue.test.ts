@@ -81,6 +81,24 @@ function pilot(
     const side = seat % 2 === 0 ? -1 : 1
     target = snapshot.boss.y + (due < 30 ? side * 46 : (seat - 1.5) * 8)
   } else target = 70 + ((Math.floor(frame / 240) + seat) % 3) * 70
+  // Read the mortars' telegraphs (Silas's second playtest): leave a shell's landing ring, slip its bomblets.
+  const shell = snapshot.enemyShots.find(
+    (shot) =>
+      shot.burst === 'cluster' &&
+      shot.ty !== undefined &&
+      Math.abs(shot.ty - ship.y) < 50 &&
+      Math.abs((shot.tx ?? 0) - ship.x) < 70,
+  )
+  const bomblet = snapshot.enemyShots.find(
+    (shot) =>
+      shot.burst === 'split' &&
+      shot.fuse !== undefined &&
+      Math.abs(shot.y - ship.y) < 40 &&
+      shot.x > ship.x - 20 &&
+      shot.x < ship.x + 90,
+  )
+  if (shell) target = shell.ty! < 135 ? shell.ty! + 80 : shell.ty! - 80
+  else if (bomblet) target = bomblet.y < ship.y ? ship.y + 50 : ship.y - 50
   input.held.up = ship.y > target + 3
   input.held.down = ship.y < target - 3
   input.held.right = ship.x < 120
@@ -111,7 +129,7 @@ function fight(players: number, seed: number, timed = false) {
   let interrupted = 0
   let before = game.snapshot
   let leftAt: number | null = null
-  for (let frame = 0; frame < 60000; frame++) {
+  for (let frame = 0; frame < 90000; frame++) {
     if (before.continueLeft > 0) {
       const input = emptyInput()
       input.pressed.a = before.continueLeft < 500

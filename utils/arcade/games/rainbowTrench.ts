@@ -27,7 +27,8 @@ import {
   withReinforcements,
 } from './rainbowPacing'
 
-export type TrenchEnemy = 'clawstrike' | 'pistol' | 'angler' | 'skate'
+export type TrenchEnemy =
+  'clawstrike' | 'pistol' | 'angler' | 'skate' | 'mortar'
 export type TrenchStage = 'opening' | 'waves' | 'turn' | 'boss' | 'aftermath'
 export type TrenchSceneId = 'A03.OPEN' | 'A03.FORK' | 'A03.TURN' | 'A03.AFTER'
 /** S03's route: high through the salvage vault gauntlet, or low along the safe passage. */
@@ -328,18 +329,22 @@ const AUTHORED_TRENCH_SAFE_WAVES: readonly TrenchWave[] = [
  * teaching sections, its guardian, every scripted moment and the escalations below; the sections listed
  * are cut out of its clock, and every later wave and event moves up by the time they took.
  */
-const CUT = recutTimeline(AUTHORED_TRENCH_SECTIONS, [
-  'Vault approach',
-  'Mirror vents',
-  'Lure maze',
-  'Pressure drop',
-  'Ember drift',
-  'Sigil wreck',
-  'Echo trench',
-  'Cinder lanes',
-  'Hollow armoury',
-  'Deep vents',
-])
+const CUT = recutTimeline(
+  AUTHORED_TRENCH_SECTIONS,
+  [
+    'Vault approach',
+    'Mirror vents',
+    'Lure maze',
+    'Pressure drop',
+    'Ember drift',
+    'Sigil wreck',
+    'Echo trench',
+    'Cinder lanes',
+    'Hollow armoury',
+    'Deep vents',
+  ],
+  { [AUTHORED_TRENCH_GUARDIAN.name]: 1020 },
+)
 export const TRENCH = {
   ...AUTHORED_TRENCH,
   turnStarts: CUT.at(AUTHORED_TRENCH.turnStarts),
@@ -371,6 +376,7 @@ export const TRENCH_REINFORCEMENTS = reinforcements<TrenchWave['kind']>(
   CUT.sections,
   {
     kinds: ['skate', 'clawstrike'],
+    launcher: { kind: 'mortar', every: 1500 },
     every: {
       'Bubble pockets': 300,
       'Angler lights': 300,

@@ -51,7 +51,8 @@ export type RainbowGuardianShot = {
 }
 
 export const RAINBOW_GUARDIAN = {
-  baseHp: 24,
+  /** 24 before Silas's second playtest (2026-10-19): "The miniboss died too quick, really quick." */
+  baseHp: 50,
   warningFrames: 36,
   firstVolley: 150,
   /** Frames before its section ends that the guardian gives up and escapes. */

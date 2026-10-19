@@ -1044,6 +1044,8 @@ for (const def of FOLLOWERS) {
 for (const def of NPCS)
   assert.ok(castArtUrl(`npcs/${def.slug}/illustrated/neutral`), def.slug)
 assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
+// The full t-012 set: 20 followers x 8 images, 17 NPCs x 5 moods, the betrayal.
+assert.equal(CAST_ART.length, 20 * 8 + 17 * 5 + 1)
 // An NPC's reaction follows their faction's change in support.
 assert.equal(reactionMood({ affinity: { moles: 10 } }, 'moles'), 'excited')
 assert.equal(reactionMood({ local: { lamplight: 2 } }, 'lamplight'), 'happy')

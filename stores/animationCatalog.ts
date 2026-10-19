@@ -852,6 +852,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'misty-mountain-ferry',
+    label: 'Misty Mountain Ferry',
+    reveal: 'A lantern ferry crosses a lake under layered ink-wash mountains',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Layered misty mountains drift while a small lantern ferry crosses the lake ⛰️ hover to thin the mist near you, click to sound the ferry horn',
+    color: '#a9bcc0',
+    releasedAt: '2026-10-18T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

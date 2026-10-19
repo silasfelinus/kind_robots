@@ -11,7 +11,7 @@ import { CH, s } from '../sections'
  * the bell (hang the found `clapper`, the kept revolver, or forge one from the cell chains) and the yard at dawn.
  *
  * Endings authored here: `ending-bell` (Honor ≥ 6, Taint ≤ 1, `clapper`), `ending-hollow-saint` (Taint ≥ 3),
- * `ending-coyote-road` (`ally-coyote`), `ending-bell-keeper` (`children-freed`, from the tower). Shipped endings reached from here: `ending-three`, `ending-four`,
+ * `ending-coyote-road` (`ally-coyote`), `ending-bell-keeper` (`children-freed`, from the tower), `ending-wren-lamp` (`wren-ally`, from the tower). Shipped endings reached from here: `ending-three`, `ending-four`,
  * `ending-seal`, `ending-hunted`.
  *
  * Reads: children-freed, clapper, wren-ally, wren-betrayed, met:wren, met:mags, mob-coming, ally-coyote,
@@ -732,6 +732,14 @@ export const ACT_IX: Act = {
             hint: 'No child is waiting below for you to stay.',
           },
           {
+            id: 'wren-lamp',
+            label:
+              "Hand Wren the lamp and let her teach the tower's watch to the mission children.",
+            to: 'ending-wren-lamp',
+            needs: 'wren-ally',
+            hint: 'No friend of yours is waiting at the foot of the stair.',
+          },
+          {
             id: 'leave',
             label: 'Leave the bell as it has always been, and go down.',
             to: 'a9-dawn-yard',
@@ -944,6 +952,14 @@ export const ACT_IX: Act = {
       "The Coyote's Road",
       'dust-road',
       "It takes nine days. You bury them in rows in the kitchen garden, the small ones nearest the water, and over each one you sing the river song until your voice is gone, and then you go on singing it without one. Nobody comes up the mission road. On the tenth morning you shoulder your pack, close the gate behind you, and follow two sets of small tracks and one set of large ones south, toward the coyote's country. They are old tracks now; the wind has been at them. You do not know whether you will catch them up, or whether, if you do, the sister will still be keeping a place for you by the fire.",
+      { ending: 'bittersweet' },
+    ),
+    s(
+      'ending-wren-lamp',
+      CH.END,
+      "Wren's Lamp",
+      'bell-tower',
+      "You do not ask the bell for anything. You put the lantern into Wren's hands, the one with the cracked horn pane, and you show her where the nail is, high on the post, where a light can be seen from the Dustwater road. She laughs at how seriously you say it, and then she stops laughing and hangs it herself. By the end of the week the mission children are taking turns on the stair, and Wren has a rule for the wick and a rule for the shutters and a rule against anyone climbing alone. You leave on the eighth morning. Behind you, small and steady against the grey, the tower keeps a light that no one will ever mistake for a bell.",
       { ending: 'bittersweet' },
     ),
     s(

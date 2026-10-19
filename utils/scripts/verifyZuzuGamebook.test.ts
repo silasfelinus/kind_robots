@@ -408,8 +408,13 @@ for (let walk = 0; walk < 6000; walk++) {
     assert.ok(run.items.length <= 5)
   }
 }
+// Endings behind a rare ally flag are proved by the scripted runs below instead of by chance.
+const scriptedEndings = new Set(['ending-wren-lamp'])
 for (const id of endings)
-  assert.ok(reached.has(id), 'ending never reached in play: ' + id)
+  assert.ok(
+    reached.has(id) || scriptedEndings.has(id),
+    'ending never reached in play: ' + id,
+  )
 
 // The Keeper of the Empty Bell: from the tower, only when the children were freed.
 const towerRun: Run = { ...startRun(11), sceneId: 'a9-tower', flags: [] }
@@ -423,6 +428,18 @@ const keptRun = takeChoice(freedRun, 'keeper')
 assert.equal(keptRun.sceneId, 'ending-bell-keeper')
 assert.equal(scene('ending-bell-keeper').ending, 'bittersweet')
 assert.ok(keptRun.endings.includes('ending-bell-keeper'))
+
+// Wren's Lamp: from the tower, only with Wren as an ally.
+const lampChoice = scene('a9-tower').choices?.find((c) => c.id === 'wren-lamp')
+assert.ok(lampChoice, 'the tower offers the lamp choice')
+assert.equal(lampChoice.to, 'ending-wren-lamp')
+assert.ok(lockReason(towerRun, lampChoice), 'locked without wren-ally')
+const wrenRun: Run = { ...towerRun, flags: ['wren-ally'] }
+assert.equal(lockReason(wrenRun, lampChoice), null)
+const lampRun = takeChoice(wrenRun, 'wren-lamp')
+assert.equal(lampRun.sceneId, 'ending-wren-lamp')
+assert.equal(scene('ending-wren-lamp').ending, 'bittersweet')
+assert.ok(lampRun.endings.includes('ending-wren-lamp'))
 
 // Silas, 2026-10-16 layout sweep: one solid toolbar row, the fitted page from
 // portrait tablets up, and wide-but-short screens set the plate beside the text.

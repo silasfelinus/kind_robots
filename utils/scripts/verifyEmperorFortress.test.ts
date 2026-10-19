@@ -4,6 +4,7 @@ import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
+import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
@@ -156,6 +157,7 @@ for (const quest of [
   ...ACT_ONE_LATE_QUESTS,
   ...ACT_TWO_QUESTS,
   ...ACT_THREE_QUESTS,
+  ...ACT_FOUR_QUESTS,
 ]) {
   assert.ok(quest.durationDays >= 1 && quest.durationDays <= 3, quest.id)
   assert.ok(quest.party.min >= 1 && quest.party.max <= 4, quest.id)
@@ -183,8 +185,8 @@ assert.deepEqual(
 )
 assert.deepEqual(
   DAYS.map((def) => def.day),
-  Array.from({ length: 30 }, (_, i) => i + 1),
-  'Acts I to III are scripted end to end',
+  Array.from({ length: 40 }, (_, i) => i + 1),
+  'Acts I to IV are scripted end to end',
 )
 for (const def of DAYS) {
   assert.ok(
@@ -937,11 +939,12 @@ assert.ok(
   traitKnown(pipRead, page, []),
   'Pip’s reading reveals the replaced page',
 )
-// Komodo lies four times by the end of Act III, each one his own.
-assert.equal(
-  DAYS.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length,
-  4,
-)
+// Komodo lies four times by the end of Act III, each one his own, and three
+// more in Act IV as the betrayal nears (Days 32, 37 and 40).
+const komodoLies = (days: typeof DAYS) =>
+  days.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length
+assert.equal(komodoLies(DAYS.filter((def) => def.day <= 30)), 4)
+assert.equal(komodoLies(DAYS), 7)
 
 // Under the Wall: Keel's Wits count toward Might requirements.
 const keel = followerDef('F009')!
@@ -1056,5 +1059,68 @@ for (const region of REGIONS) {
     `${region.id} sits on the map`,
   )
 }
+
+// Every quest happens somewhere on the map.
+for (const quest of [
+  ...ACT_ONE_QUESTS,
+  ...ACT_ONE_LATE_QUESTS,
+  ...ACT_TWO_QUESTS,
+  ...ACT_THREE_QUESTS,
+  ...ACT_FOUR_QUESTS,
+])
+  assert.ok(
+    REGIONS.some((region) => region.id === quest.region),
+    `${quest.id} is on the map`,
+  )
+
+// --- Act IV: the long table --------------------------------------------------
+// Day 31's war quest and Day 36's Abbey cellar are lethal.
+assert.ok(questDef('q-d31-iron-rain')!.lethal)
+assert.ok(questDef('q-d36-bell-rehearsal')!.lethal)
+// Wolves at Noon posts both defences at dawn, and both leave the board that day.
+const noon = onDay(1, 33)
+for (const id of ['q-d33-thistledown', 'q-d33-waystation'])
+  assert.ok(
+    noon.board.some((entry) => entry.questId === id && entry.lastDay === 33),
+    id,
+  )
+// Two Bridges: the court holds one route, and Saffron picks hers if present.
+const tunnel = chooseAudienceOption(onDay(1, 35), 'd35-two-bridges', 'tunnel')
+assert.ok(tunnel.run.board.some((entry) => entry.questId === 'q-d35-tunnel'))
+assert.ok(!tunnel.run.board.some((entry) => entry.questId === 'q-d35-trestle'))
+const saffronChoice = DAYS.find(
+  (def) => def.day === 35,
+)!.audiences[0]!.options.find((option) => option.id === 'saffron')!
+assert.ok(
+  optionBlockers(withCast(1, 35, ['F001']), saffronChoice).length,
+  'only Saffron herself can choose for Saffron',
+)
+assert.equal(optionBlockers(withCast(1, 35, ['F002']), saffronChoice).length, 0)
+// Komodo's clues: the prisoner he questions escapes; the ledger page he takes
+// is never seen again; the Archive only asks to evacuate if it kept the page.
+const questioned = chooseAudienceOption(onDay(1, 38), 'd38-pardon', 'komodo')
+assert.ok(questioned.run.flags.includes('prisoner-to-komodo'))
+assert.ok(
+  !audiencesToday(onDay(1, 40)).some((a) => a.id === 'd40-archive'),
+  'no page, no warning',
+)
+assert.ok(
+  audiencesToday(onDay(1, 40, { flags: ['ledger-page-kept'] })).some(
+    (a) => a.id === 'd40-archive',
+  ),
+  'the Keeper who kept the page asks to move the books',
+)
+// Komodo speaks for himself on his last day, and the betrayal still comes at dawn.
+assert.ok(
+  DAYS.find((def) => def.day === 40)!.audiences.some(
+    (a) => a.npc === 'young-komodo',
+  ),
+)
+const lastNight = chooseAudienceOption(
+  onDay(1, 40),
+  'd40-quiet-word',
+  'leave',
+).run
+assert.ok(finishDay(lastNight).run.flags.includes('komodo-betrayal'))
 
 console.log('Emperor of Dust fortress contract: ok')

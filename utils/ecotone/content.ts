@@ -1121,7 +1121,6 @@ export const ECOTONE_ART: string[] = [
   'encounters/arcata-marsh',
   'encounters/fickle-hill',
   'encounters/wh-121-latitude-argument',
-  'encounters/friends-who-arent-here',
   'encounters/anchor-stores',
   'encounters/behind-the-mall',
 ]

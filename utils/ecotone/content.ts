@@ -171,7 +171,7 @@ export const COMPANIONS: Companion[] = [
     role: 'Backroads mechanic',
     lens: 'tripping_balls',
     motif: 'CB radio waves',
-    bio: 'A half-Hispanic country local in his thirties with oil-stained boots and a truck full of tools. One parent grew up logging, the other growing; they fell in love across the Timber Wars and are still together. He jokes about cosmic forces and fixes everything else.',
+    bio: 'A country local in his thirties with oil-stained boots and a truck full of tools. His dad is a Hispanic logger; his mom grew up in a backwoods growing family and volunteered on the ground support for the Luna tree-sit. They met across the timber divide and are still together. He jokes about cosmic forces and fixes everything else.',
     line: '“Everybody in my family remembers the same tree. None of ’em remembers the same argument.”',
     anomaly: 'His CB picks up broadcasts from a Humboldt that hasn’t happened.',
     art: 'companions/cedar',

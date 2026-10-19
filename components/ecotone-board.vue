@@ -120,31 +120,31 @@
             <div class="kr-scroll -mx-1 px-1">
               <div class="grid gap-2 @xl:grid-cols-2">
                 <button
-                  v-for="archetype in ARCHETYPES"
-                  :key="archetype.id"
+                  v-for="background in ARCHETYPES"
+                  :key="background.id"
                   type="button"
                   class="rounded-2xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-success"
                   :class="
-                    picked === archetype.id
+                    picked === background.id
                       ? 'border-success bg-success/20'
                       : 'border-white/15 bg-black/35 hover:border-white/40'
                   "
-                  :aria-pressed="picked === archetype.id"
-                  @click="picked = archetype.id"
+                  :aria-pressed="picked === background.id"
+                  @click="picked = background.id"
                 >
                   <span class="block text-sm font-black">{{
-                    archetype.name
+                    background.name
                   }}</span>
                   <span class="mt-0.5 block text-xs text-white/70">{{
-                    archetype.vantage
+                    background.vantage
                   }}</span>
                   <span class="mt-2 flex flex-wrap gap-1">
                     <span
                       v-for="skill in SKILLS"
                       :key="skill.id"
                       class="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold"
-                      :class="archetype.skills[skill.id] ? '' : 'opacity-40'"
-                      >{{ skill.label }} {{ archetype.skills[skill.id] }}</span
+                      :class="background.skills[skill.id] ? '' : 'opacity-40'"
+                      >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
                   </span>
                 </button>

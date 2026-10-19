@@ -202,6 +202,15 @@ assert.ok(
   'Act I plants at least one of Komodo’s own lies',
 )
 assert.ok(
+  DAYS.find((def) => def.day === 5)!.quests.includes('q-d05-flour-barrels'),
+  'Day 5 posts the flour quest at dawn',
+)
+assert.ok(
+  ACT_ONE_LATE_QUESTS.find((quest) => quest.id === 'q-d05-flour-barrels')!
+    .outcomes.expired,
+  'the flour quest has an expiry outcome',
+)
+assert.ok(
   ACT_ONE_LATE_QUESTS.some((quest) => quest.lethal),
   'Act I teaches the lethal marker',
 )

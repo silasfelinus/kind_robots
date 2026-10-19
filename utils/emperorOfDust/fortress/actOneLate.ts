@@ -6,6 +6,37 @@ import type { DayDef, QuestDef } from './types'
 
 export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
   {
+    id: 'q-d05-flour-barrels',
+    title: 'Flour Before the Wages Fail',
+    summary:
+      'The Yard’s kitchens are three days from empty. Haggle flour barrels out of the Saltroad carts before the foreman’s patience runs out.',
+    region: 'saltroad',
+    faction: 'saltroad',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'heart', band: 'low' },
+      { stat: 'wits', band: 'low' },
+    ],
+    danger: 'low',
+    tags: ['negotiation'],
+    rewards: {
+      success: { brass: -10, affinity: { saltroad: 5 }, local: { yard: 2 } },
+      failure: { local: { yard: -1 } },
+    },
+    expired: { local: { yard: -2 } },
+    outcomes: {
+      success:
+        'The barrels roll in at dusk, cheaper than the foreman feared. The kitchens sing for a full night.',
+      partial: 'Half the barrels arrive. The Yard rations bread by the slice.',
+      failure:
+        'The carts wanted more than the tower could pay. The Yard tightens its belts and its jaws.',
+      expired:
+        'No one went. The foreman served porridge for supper and made sure everyone knew whose fault it was.',
+    },
+  },
+  {
     id: 'q-d05-toll-standoff',
     title: 'Hold the Toll Bridge',
     summary:
@@ -320,7 +351,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'A deserter who sells news by the word has every reason to sell good news. Vane is back, Your Majesty, and Vane has never retired from anything.',
-    quests: [],
+    quests: ['q-d05-flour-barrels'],
     audiences: [
       {
         id: 'd05-toll',

@@ -277,4 +277,18 @@ export const MIDWAY: readonly ArenaSpec[] = [
     shrink: { every: 500, max: 12 },
     crew: ['cutter', 'dasher', 'hugger', 'roamer'],
   },
+  {
+    id: 'switchyard',
+    name: 'THE SWITCHYARD',
+    floor: 'violet',
+    mirror: 'x',
+    features: [
+      { kind: 'pillar', x: 12, y: 14, w: 1, h: 8 },
+      { kind: 'gate', x: 12, y: 22, w: 1, h: 4, every: 10, open: 5 },
+      { kind: 'pillar', x: 12, y: 26, w: 1, h: 8 },
+      { kind: 'pad', x: 18, y: 24, dir: 0 },
+    ],
+    shrink: { every: 510, max: 12 },
+    crew: ['pacer', 'copycat', 'cutter'],
+  },
 ]

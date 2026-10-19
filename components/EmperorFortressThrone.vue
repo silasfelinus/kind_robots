@@ -12,15 +12,24 @@
             :key="report.id"
             class="rounded-xl border p-3"
             :class="
-              eyeReveals(run, report.truth)
+              eyeReveals(run, report.truth) || forecastMark(run, report)
                 ? 'border-warning bg-warning/10'
                 : 'border-base-content/15 bg-base-100'
             "
           >
             <span
               v-if="eyeReveals(run, report.truth)"
-              class="text-xs font-bold text-warning"
+              class="block text-xs font-bold text-warning"
               >The Eye marks this report false</span
+            >
+            <span
+              v-if="forecastMark(run, report)"
+              class="block text-xs font-bold text-warning"
+              >{{
+                forecastMark(run, report) === 'false'
+                  ? 'Nera reads the wind: this report is false'
+                  : 'Nera frowns: this report has no weather in it at all'
+              }}</span
             >
             <p
               class="text-xs font-semibold uppercase tracking-wider opacity-60"
@@ -79,8 +88,11 @@
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
         </div>
+        <p v-if="!heard(selected.id) && npc" class="text-xs opacity-70">
+          {{ npc.name }} · {{ npc.species }}
+        </p>
         <EmperorFortressDialogue
-          v-else
+          v-if="!heard(selected.id)"
           :key="selected.id"
           :speaker="selected.speaker"
           :lines="selected.lines"
@@ -101,8 +113,10 @@ import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { DAYS, dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   audiencesToday,
+  forecastMark,
   optionBlockers,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { npcDef } from '~/utils/emperorOfDust/fortress/npcs'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
@@ -117,6 +131,9 @@ const error = ref('')
 const heard = (id: string) => props.run.audiencesHeard.includes(id)
 const selected = computed(
   () => audiences.value.find((entry) => entry.id === selectedId.value) ?? null,
+)
+const npc = computed(() =>
+  selected.value?.npc ? npcDef(selected.value.npc) : undefined,
 )
 
 watch(

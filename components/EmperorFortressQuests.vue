@@ -150,7 +150,8 @@
 
       <div>
         <p class="text-sm font-bold">
-          Choose followers ({{ party.length }} / {{ selected.party.max }})
+          Choose followers ({{ party.length }} /
+          {{ partyLimit(selected, party) }})
         </p>
         <div class="mt-2 grid grid-cols-2 gap-2 @md:grid-cols-3">
           <button
@@ -253,6 +254,7 @@ import {
   canUseHourglass,
   followerStatus,
   injuryDaysLeft,
+  partyLimit,
 } from '~/utils/emperorOfDust/fortress/engine'
 import {
   KINGDOM_FACTION_DEFS,
@@ -319,7 +321,7 @@ const canSend = computed(
   () =>
     !!selected.value &&
     party.value.length >= selected.value.party.min &&
-    party.value.length <= selected.value.party.max,
+    party.value.length <= partyLimit(selected.value, party.value),
 )
 
 function select(id: string) {
@@ -334,7 +336,10 @@ function select(id: string) {
 function toggle(id: string) {
   if (party.value.includes(id)) {
     party.value = party.value.filter((entry) => entry !== id)
-  } else if (selected.value && party.value.length < selected.value.party.max) {
+  } else if (
+    selected.value &&
+    party.value.length < partyLimit(selected.value, [...party.value, id])
+  ) {
     party.value = [...party.value, id]
   }
 }

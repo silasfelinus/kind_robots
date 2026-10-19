@@ -20,6 +20,7 @@ import type {
   AudienceDef,
   AudienceOption,
   Band,
+  Briefing,
   DawnReport,
   Effects,
   FollowerDef,
@@ -196,6 +197,32 @@ export const followerStatus = (
   if (run.active.some((quest) => quest.party.includes(id))) return 'on-quest'
   if ((state.injuredUntilDay ?? 0) > run.day) return 'injured'
   return 'ready'
+}
+
+/** The follower at the fortress tonight (not away, not dead) with this ability. */
+export const homeAbility = (
+  run: FortressRun,
+  kind: AbilityKind,
+): FollowerDef | undefined =>
+  run.roster
+    .map((state) => followerDef(state.id))
+    .find((def): def is FollowerDef => {
+      if (def?.ability.kind !== kind) return false
+      const status = followerStatus(run, def.id)
+      return status === 'ready' || status === 'injured'
+    })
+
+/**
+ * Reads the Wind: with Nera at home, false briefings are marked, and Komodo's
+ * own lies cannot be read at all.
+ */
+export const forecastMark = (
+  run: FortressRun,
+  briefing: Briefing,
+): 'false' | 'unreadable' | null => {
+  if (!homeAbility(run, 'forecast')) return null
+  if (briefing.komodoLie) return 'unreadable'
+  return briefing.truth ? null : 'false'
 }
 
 export const injuryDaysLeft = (run: FortressRun, id: string): number => {
@@ -459,12 +486,12 @@ const evaluate = (
       (sum, member) => sum + contribution(run, member, req.stat, quest, known),
       0,
     )
-    const rally = abilities
-      .filter(
-        (ability) => ability.kind === 'rally' && ability.stat === req.stat,
-      )
-      .reduce((sum, ability) => sum + ability.amount * members.length, 0)
-    return base + rally
+    if (req.stat !== 'might') return base
+    // Under the Wall: Keel's Wits count toward Might requirements too.
+    const undermine = members
+      .filter(({ def }) => def.ability.kind === 'undermine')
+      .reduce((sum, { def }) => sum + def.stats.wits, 0)
+    return base + undermine
   })
   return { abilities, juryRig, totals }
 }
@@ -533,6 +560,11 @@ export const canUseHourglass = (run: FortressRun): boolean =>
   run.equippedRelics.includes(HOURGLASS) &&
   run.relicUses[HOURGLASS] !== actOf(run.day)
 
+/** Many Hands: Lumen never takes a party place. */
+export const partyLimit = (quest: QuestDef, party: string[]): number =>
+  quest.party.max +
+  (party.some((id) => followerDef(id)?.ability.kind === 'many-hands') ? 1 : 0)
+
 export const assignQuest = (
   run: FortressRun,
   questId: string,
@@ -550,7 +582,7 @@ export const assignQuest = (
     throw new Error(
       `${followerDef(quest.mustInclude)?.name ?? quest.mustInclude} must go on this quest`,
     )
-  if (party.length < quest.party.min || party.length > quest.party.max)
+  if (party.length < quest.party.min || party.length > partyLimit(quest, party))
     throw new Error(
       `this quest needs ${quest.party.min}-${quest.party.max} followers`,
     )
@@ -715,13 +747,6 @@ const resolveQuest = (
         : quest.rewards[tier]
   const effects: Effects = JSON.parse(JSON.stringify(rewards)) as Effects
   const succeeded = tier === 'success' || tier === 'triumph'
-  const envoy = abilityTotal(abilities, 'envoy')
-  if (envoy && quest.faction && succeeded) {
-    effects.affinity = {
-      ...effects.affinity,
-      [quest.faction]: (effects.affinity?.[quest.faction] ?? 0) + envoy,
-    }
-  }
   if (succeeded) {
     effects.brass = (effects.brass ?? 0) + abilityTotal(abilities, 'bounty')
     for (const ability of abilities) {
@@ -894,9 +919,43 @@ export const finishDay = (
 ): { run: FortressRun; report: DawnReport } => {
   if (isOver(run)) throw new Error('the campaign is over')
   const next = cloneRun(run)
+  const events: string[] = []
+  // Hot Meals First: the wounded resting at home tonight heal a day sooner.
+  const cook = homeAbility(run, 'quartermaster')
+  if (cook) {
+    const resting = next.roster.filter(
+      (state) => !state.dead && (state.injuredUntilDay ?? 0) > run.day,
+    )
+    for (const state of resting)
+      state.injuredUntilDay = (state.injuredUntilDay ?? 1) - 1
+    if (resting.length)
+      events.push(
+        `${cook.name}’s kitchen fed ${resting.length} wounded, and they will heal a day sooner.`,
+      )
+  }
+  // Stalling Letters: one quest expiring tonight gets one more day, once.
+  const forger = homeAbility(run, 'stall')
+  if (forger) {
+    const expiring = next.board.filter((entry) => {
+      const def = questDef(entry.questId)
+      return (
+        entry.lastDay === run.day &&
+        !!def &&
+        entry.lastDay - entry.postedDay + 1 <= def.boardDays
+      )
+    })
+    const stalled =
+      expiring.find((entry) => !isTemplateInstance(entry.questId)) ??
+      expiring[0]
+    if (stalled) {
+      stalled.lastDay += 1
+      events.push(
+        `${forger.name}’s letter bought “${questDef(stalled.questId)?.title}” one more day.`,
+      )
+    }
+  }
   next.day += 1
   next.audiencesHeard = []
-  const events: string[] = []
   const quests: QuestReport[] = []
   const knownNow = [...known]
   for (const active of next.active.filter(

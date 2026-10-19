@@ -87,10 +87,8 @@ export type TraitDef = {
 export type AbilityKind =
   | 'field-surgery'
   | 'jury-rig'
-  | 'rally'
   | 'swift'
   | 'scout'
-  | 'envoy'
   | 'guardian'
   | 'lucky'
   | 'confessor'
@@ -102,6 +100,11 @@ export type AbilityKind =
   | 'encore'
   | 'chronicle'
   | 'beloved'
+  | 'forecast'
+  | 'stall'
+  | 'quartermaster'
+  | 'undermine'
+  | 'many-hands'
 
 export type AbilityDef = {
   kind: AbilityKind
@@ -126,6 +129,8 @@ export type FollowerDef = {
   ability: AbilityDef
   /** Public, always-known modifiers per kingdom faction. */
   factionModifiers: Partial<Record<KingdomFactionId, number>>
+  /** Barracks chatter, one line shown per day. */
+  talk?: string[]
   romanceable: boolean
   starter: boolean
   recruitFee: number

@@ -867,7 +867,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         faction: 'black-verge',
         lines: [
           'The Court has heard of your rot, Majesty. We have charms against it. A gift, between neighbours.',
-          'There is one small thing. A courtier of ours has wandered from home, a gorilla in a plum coat. If they come to your gate, we would like them back.',
+          'There is one small thing. A courtier of ours has wandered from home, a black leopard with lovely manners. If they come to your gate, we would like them back.',
         ],
         options: [
           {

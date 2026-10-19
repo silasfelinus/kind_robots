@@ -7,6 +7,13 @@
     :aria-label="label"
   >
     <span aria-hidden="true">{{ initials }}</span>
+    <img
+      v-if="src"
+      :src="src"
+      alt=""
+      class="absolute inset-0 h-full w-full object-cover object-top"
+      loading="lazy"
+    />
     <span
       v-if="state === 'injured'"
       class="absolute bottom-0 right-0 rounded-tl-md bg-error px-1 text-[9px] font-bold text-error-content"
@@ -24,10 +31,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { followerPortrait } from '~/utils/emperorOfDust/fortress/castArt'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 
-// Portrait mode (neutral / injured / dead). No portraits are rendered yet,
-// so this draws a labeled placeholder instead of a broken image.
+// Portrait mode (neutral / injured / dead). Until a follower's art is
+// rendered, their initials stand in.
 const props = withDefaults(
   defineProps<{
     followerId: string
@@ -39,6 +47,16 @@ const props = withDefaults(
 )
 
 const def = computed(() => followerDef(props.followerId))
+const src = computed(() =>
+  followerPortrait(
+    props.followerId,
+    props.state === 'dead'
+      ? 'dead'
+      : props.state === 'injured'
+        ? 'injured'
+        : 'neutral',
+  ),
+)
 const initials = computed(() =>
   (def.value?.name ?? props.followerId)
     .split(' ')

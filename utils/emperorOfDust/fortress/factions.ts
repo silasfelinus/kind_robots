@@ -54,7 +54,7 @@ export const KINGDOM_FACTION_DEFS: readonly KingdomFactionDef[] = [
   {
     id: 'hollow-bell',
     name: 'Hollow Bell',
-    home: 'Border town under the bell tower',
+    home: 'A small southern town around its chapel bell',
     revealedOnDay: 1,
     startAffinity: 10,
     startStrength: 6,
@@ -158,16 +158,16 @@ export const REGIONS: readonly RegionDef[] = [
     name: 'Hollow Bell',
     controller: 'hollow-bell',
     tax: 6,
-    x: 84,
-    y: 39,
+    x: 74,
+    y: 67,
   },
   {
     id: 'mission-road',
     name: 'The Mission Road',
     controller: 'abbey',
     tax: 3,
-    x: 70,
-    y: 21,
+    x: 77,
+    y: 49,
   },
   {
     id: 'storm-crow-heights',
@@ -237,7 +237,7 @@ export const MAP_FOG: Partial<
     { left: number; top: number; width: number; height: number }
   >
 > = {
-  rustline: { left: 51, top: 67, width: 44, height: 26 },
+  rustline: { left: 63, top: 70, width: 33, height: 24 },
   'black-verge': { left: 87, top: 9, width: 10, height: 52 },
 }
 

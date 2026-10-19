@@ -210,7 +210,7 @@ const tierClass = (tier: AffinityTier) =>
 const HIDEOUTS: Record<string, string> = {
   'mole-tunnels': 'the Mole tunnels beneath the badlands',
   'crow-cave': 'a Storm Crow cave',
-  'bell-cellars': 'the cellars under Hollow Bell’s tower',
+  'bell-cellars': 'the cellars under Hollow Bell’s chapel',
   'wagon-circle': 'a circle of painted wagons in the rail canyon',
   'moving-caravan': 'a Saltroad caravan that never stops moving',
   'freehold-barn': 'a Freehold barn and its root cellar',

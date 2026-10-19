@@ -160,6 +160,23 @@ const lastLaugh: MoveData = {
   invuln: { from: 1, to: 10, strike: true, projectile: true, throw: true },
 }
 
+// She drops and sweeps a low kick at the ankles that sends a standing foe down.
+const boneSweep: MoveData = {
+  startup: 9,
+  active: 4,
+  recovery: 24,
+  hitbox: { x: 6, y: 0, w: 36, h: 10 },
+  damage: 55,
+  chip: 5,
+  hitstun: 18,
+  blockstun: 11,
+  hitstop: 7,
+  pushback: 5,
+  guard: 'low',
+  knockdown: true,
+  hurtbox: { x: -18, y: 0, w: WIDTH + 2, h: 64 },
+}
+
 const specials: SpecialMove[] = [
   {
     id: 'hook-lash',
@@ -190,6 +207,13 @@ const specials: SpecialMove[] = [
     button: 'K',
     level: 'special',
     move: scavengersRush,
+  },
+  {
+    id: 'bone-sweep',
+    motion: 'dp',
+    button: 'K',
+    level: 'special',
+    move: boneSweep,
   },
   {
     id: 'bone-crusher',

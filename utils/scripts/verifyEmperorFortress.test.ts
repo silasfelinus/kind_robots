@@ -38,7 +38,7 @@ import {
   followerDef,
 } from '../emperorOfDust/fortress/followers'
 import { REGIONS } from '../emperorOfDust/fortress/factions'
-import { NPCS, npcDef } from '../emperorOfDust/fortress/npcs'
+import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
   decodeBook,
@@ -1033,6 +1033,21 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
+// Every cast member has their neutral art; followers have a neutral portrait too.
+for (const def of FOLLOWERS) {
+  assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
+  assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
+}
+for (const def of NPCS)
+  assert.ok(castArtUrl(`npcs/${def.slug}/illustrated/neutral`), def.slug)
+assert.ok(castArtUrl('npcs/young-komodo/illustrated/betrayal'))
+// An NPC's reaction follows their faction's change in support.
+assert.equal(reactionMood({ affinity: { moles: 10 } }, 'moles'), 'excited')
+assert.equal(reactionMood({ local: { lamplight: 2 } }, 'lamplight'), 'happy')
+assert.equal(reactionMood({ affinity: { moles: -3 } }, 'moles'), 'sad')
+assert.equal(reactionMood({ affinity: { moles: -15 } }, 'moles'), 'angry')
+assert.equal(reactionMood({ affinity: { saltroad: 20 } }, 'moles'), 'neutral')
+assert.equal(reactionMood({ brass: 50 }), 'neutral')
 // The map room's illustrated base map and every region's marker on it.
 assert.ok(existsSync('public/emperor-of-dust/map/wasteland.webp'))
 for (const region of REGIONS) {

@@ -66,6 +66,12 @@
             </li>
           </ul>
         </article>
+        <img
+          v-if="betrayalArt"
+          :src="betrayalArt"
+          alt="Young Komodo in an abbey robe, holding up the imperial seal"
+          class="mx-auto block max-h-80 w-auto rounded-xl bg-base-200 object-contain"
+        />
         <ul v-if="report.events.length" class="space-y-1 text-sm">
           <li v-for="(event, i) in report.events" :key="i">{{ event }}</li>
         </ul>
@@ -87,6 +93,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { castArtUrl } from '~/utils/emperorOfDust/fortress/castArt'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   FOLLOWERS,
@@ -97,8 +105,15 @@ import type {
   QuestReport,
 } from '~/utils/emperorOfDust/fortress/types'
 
-defineProps<{ report: DawnReport }>()
+const props = defineProps<{ report: DawnReport }>()
 const emit = defineEmits<{ close: [] }>()
+
+/** Day 41 is the dawn Young Komodo betrays the throne (engine actEnd). */
+const betrayalArt = computed(() =>
+  props.report.day === 41
+    ? castArtUrl('npcs/young-komodo/illustrated/betrayal')
+    : undefined,
+)
 
 const nameOf = (id: string) => followerDef(id)?.name ?? id
 const title = (id: string) => questDef(id)?.title ?? id

@@ -84,6 +84,12 @@
           <p class="text-xs font-semibold uppercase tracking-widest opacity-60">
             {{ selected.speaker }}
           </p>
+          <img
+            v-if="reactionArt"
+            :src="reactionArt"
+            :alt="`${npc?.name}, ${reactions[selected.id]}`"
+            class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
+          />
           <p class="font-serif text-lg italic">
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
@@ -118,7 +124,8 @@ import {
   optionBlockers,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
-import { npcDef } from '~/utils/emperorOfDust/fortress/npcs'
+import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
+import { npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
@@ -128,6 +135,8 @@ const today = computed(() => dayDef(props.run.day))
 const audiences = computed(() => audiencesToday(props.run))
 const selectedId = ref<string | null>(null)
 const responses = ref<Record<string, string>>({})
+/** Each answered NPC's reaction, from their faction's change in support. */
+const reactions = ref<Record<string, Mood>>({})
 const error = ref('')
 
 const heard = (id: string) => props.run.audiencesHeard.includes(id)
@@ -137,11 +146,18 @@ const selected = computed(
 const npc = computed(() =>
   selected.value?.npc ? npcDef(selected.value.npc) : undefined,
 )
+const reactionArt = computed(() => {
+  const mood = selected.value ? reactions.value[selected.value.id] : undefined
+  return npc.value && mood
+    ? illustration('npcs', npc.value.slug, mood)
+    : undefined
+})
 
 watch(
   () => props.run.day,
   () => {
     responses.value = {}
+    reactions.value = {}
     selectedId.value =
       audiences.value.find((entry) => !heard(entry.id))?.id ?? null
   },
@@ -167,9 +183,16 @@ function choose(optionId: string) {
   if (!selected.value) return
   error.value = ''
   const id = selected.value.id
+  const option = selected.value.options.find((entry) => entry.id === optionId)
+  const faction = selected.value.faction ?? npc.value?.faction
   try {
     court.answer(id, optionId)
     responses.value = { ...responses.value, [id]: court.lastResponse }
+    if (option)
+      reactions.value = {
+        ...reactions.value,
+        [id]: reactionMood(option.effects, faction),
+      }
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'That did not work.'
   }

@@ -371,7 +371,19 @@ const box =
 
 // --- the arenas ----------------------------------------------------------------------------------
 {
-  assert.ok(MIDWAY.length >= 6)
+  assert.ok(MIDWAY.length >= 7)
+  assert.equal(
+    new Set(MIDWAY.map((a) => a.id)).size,
+    MIDWAY.length,
+    'every arena is distinct',
+  )
+  const cross = buildArena(MIDWAY.find((a) => a.id === 'crossroads')!)
+  assert.equal(cross.terrain[idx(10, 20)], T.PILLAR)
+  assert.equal(
+    cross.terrain[idx(37, 27)],
+    T.PILLAR,
+    'the crossroads mirror in both axes',
+  )
   for (const spec of MIDWAY) {
     const arena = buildArena(spec)
     const spawns = [RIDER_SPAWNS[0]!, ...(spec.rivalSpawns ?? RIVAL_SPAWNS)]

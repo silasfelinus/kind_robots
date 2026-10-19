@@ -264,4 +264,17 @@ export const MIDWAY: readonly ArenaSpec[] = [
     shrink: null,
     crew: ['roamer', 'pacer', 'dasher', 'copycat'],
   },
+  {
+    id: 'crossroads',
+    name: 'THE CROSSROADS',
+    floor: 'gold',
+    mirror: 'xy',
+    features: [
+      { kind: 'pillar', x: 10, y: 20, w: 6, h: 1 },
+      { kind: 'pillar', x: 20, y: 10, w: 1, h: 6 },
+      { kind: 'pad', x: 16, y: 16, dir: 2 },
+    ],
+    shrink: { every: 500, max: 12 },
+    crew: ['cutter', 'dasher', 'hugger', 'roamer'],
+  },
 ]

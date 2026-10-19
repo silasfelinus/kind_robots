@@ -105,6 +105,16 @@ export const HOMESTEAD_CARDS: HomesteadCard[] = [
     reward: 'Warm stew and a few hours of rest restore one health.',
     penalty: 'A restless night and a stolen blanket cost Zuzu one health.',
   },
+  {
+    id: 'rim',
+    title: 'The Canyon Rim',
+    art: '/zuzu-gamebook/scenes/canyon.webp',
+    teaser: 'Wind hums across a split in the red stone.',
+    narrative:
+      'A narrow ledge crosses the canyon, and a lone cairn marks where others turned back. Zuzu may study the ledge before he trusts his weight to it.',
+    reward: 'A steady crossing and a spring in the rock restore one health.',
+    penalty: 'Loose gravel and a hard slide cost Zuzu one health.',
+  },
 ]
 export const BOSS_CARD: HomesteadCard = {
   id: 'abbess',

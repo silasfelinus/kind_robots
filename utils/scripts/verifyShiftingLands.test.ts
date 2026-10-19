@@ -17,13 +17,14 @@ import {
 const a = createHomestead(99)
 const b = createHomestead(99)
 assert.deepEqual(a, b, 'seeded deck order must be reproducible')
-assert.equal(a.deck.length, 5)
-assert.equal(new Set(a.deck).size, 5)
+assert.equal(a.deck.length, 6)
+assert.equal(new Set(a.deck).size, 6)
 assert.equal(a.version, 2)
-assert.equal(HOMESTEAD_CARDS.length, 5)
+assert.equal(HOMESTEAD_CARDS.length, 6)
 assert.equal(BOSS_CARD.id, 'abbess')
 assert.ok(HOMESTEAD_CARDS.some((card) => card.id === 'wagon'))
 assert.ok(HOMESTEAD_CARDS.some((card) => card.id === 'camp'))
+assert.ok(HOMESTEAD_CARDS.some((card) => card.id === 'rim'))
 assert.ok(
   HOMESTEAD_CARDS.every((card) =>
     card.art.startsWith('/zuzu-gamebook/scenes/'),
@@ -73,8 +74,8 @@ for (let i = 0; i < HOMESTEAD_CARDS.length; i++) {
   )
 }
 assert.equal(state.deck.length, 0)
-assert.equal(state.discard.length, 5)
-assert.equal(state.revealed.length, 5)
+assert.equal(state.discard.length, 6)
+assert.equal(state.revealed.length, 6)
 assert.ok(isHomesteadState(JSON.parse(JSON.stringify(state))))
 assert.equal(drawHomestead(state), state)
 const finish = confrontAbbess(state, 'confront')

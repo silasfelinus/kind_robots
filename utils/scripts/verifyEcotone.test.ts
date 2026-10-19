@@ -14,7 +14,10 @@ import {
   artUrl,
 } from '../ecotone/content'
 import {
-  CROSSROADS_AFTER,
+  CHAPTER_DRAWS,
+  CROSSROADS_CHAPTER,
+  buildDeck,
+  cardAsides,
   LEAD_BONUS,
   advance,
   chanceToSucceed,
@@ -118,9 +121,13 @@ function play(
   assert.equal(state.phase, 'intro')
   state = advance(chooseIntro(state, accept))
   assert.equal(state.phase, 'encounter')
-  for (let i = 0; i < CROSSROADS_AFTER; i += 1) {
+  while (state.phase === 'encounter') {
     const card = ENCOUNTERS.find(
       (c) => c.id === state.deck[state.encounterIndex],
+    )
+    assert.ok(
+      (card?.chapter ?? 0) < CROSSROADS_CHAPTER,
+      'the crossroads comes before the first chapter-3 card',
     )
     state = advance(chooseEncounter(state, card?.choices[0]?.id ?? ''))
   }
@@ -149,7 +156,84 @@ assert.notEqual(
   'following the newcomer changes the guide',
 )
 assert.equal(first.followHistory.length, 2)
-assert.ok(first.log.length >= 6)
+assert.equal(
+  first.log.length,
+  2 + Object.values(CHAPTER_DRAWS).reduce((sum, n) => sum + n, 0) + 1,
+  'prologue, meeting, every drawn card and the crossroads are logged',
+)
+
+const seen = new Set<string>()
+for (let seed = 1; seed < 200; seed += 1) {
+  const deck = buildDeck(seed)
+  assert.deepEqual(deck, buildDeck(seed), 'decks are seeded')
+  assert.equal(new Set(deck).size, deck.length, 'no card repeats in a run')
+  const chapters = deck.map(
+    (id) => ENCOUNTERS.find((card) => card.id === id)?.chapter ?? 0,
+  )
+  assert.deepEqual(
+    chapters,
+    [...chapters].sort((a, b) => a - b),
+    'cards run in chapter order',
+  )
+  for (const [chapter, count] of Object.entries(CHAPTER_DRAWS)) {
+    assert.equal(
+      chapters.filter((c) => c === Number(chapter)).length,
+      count,
+      `chapter ${chapter} draws ${count}`,
+    )
+  }
+  deck.forEach((id) => seen.add(id))
+}
+assert.equal(seen.size, ENCOUNTERS.length, 'every card turns up across seeds')
+
+for (const id of ['WH-121', 'WH-122', 'WH-123', 'WH-124', 'WH-125', 'WH-126']) {
+  assert.ok(
+    ENCOUNTERS.some((card) => card.id === id),
+    `${id} is in the deck`,
+  )
+}
+const friends = ENCOUNTERS.find((card) => card.id === 'WH-124')
+assert.ok(friends?.presence, 'the zoo tribute knows whether you have met Kit')
+assert.match(
+  friends?.provenance ?? '',
+  /appear only as actors/,
+  'past zoo animals appear only as performance',
+)
+for (const lens of ['sober', 'tipsy', 'stoned', 'tripping_balls'] as const) {
+  assert.ok(friends?.lensLines?.[lens], `the tribute reads differently ${lens}`)
+}
+const base = createRun(9, 'reporter')
+if (friends) {
+  assert.match(cardAsides(friends, base)[0] ?? '', /Someone calls her Kit/)
+  assert.match(
+    cardAsides(friends, {
+      ...base,
+      activeLead: 'kit',
+      meetingOrder: ['kit'],
+    })[0] ?? '',
+    /I put this together/,
+  )
+  assert.match(
+    cardAsides(friends, {
+      ...base,
+      activeLead: 'mara',
+      meetingOrder: ['mara', 'kit'],
+    })[0] ?? '',
+    /waves with an otter paw/,
+  )
+}
+const marsh = ENCOUNTERS.find((card) => card.id === 'WH-122')
+if (marsh) {
+  assert.match(
+    cardAsides(marsh, {
+      ...base,
+      activeLead: 'cedar',
+      meetingOrder: ['cedar'],
+    })[0] ?? '',
+    /grew feathers/,
+  )
+  assert.equal(cardAsides(marsh, base).length, 0, 'no guide, no aside')
+}
 
 const alone = play(2026, 'tripping_balls', false, false)
 assert.equal(

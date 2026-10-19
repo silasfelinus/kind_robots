@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
+import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
@@ -120,6 +121,7 @@ for (const quest of [
   ...ACT_ONE_QUESTS,
   ...ACT_ONE_LATE_QUESTS,
   ...ACT_TWO_QUESTS,
+  ...ACT_THREE_QUESTS,
 ]) {
   assert.ok(quest.durationDays >= 1 && quest.durationDays <= 3, quest.id)
   assert.ok(quest.party.min >= 1 && quest.party.max <= 4, quest.id)
@@ -147,8 +149,8 @@ assert.deepEqual(
 )
 assert.deepEqual(
   DAYS.map((def) => def.day),
-  Array.from({ length: 20 }, (_, i) => i + 1),
-  'Acts I and II are scripted end to end',
+  Array.from({ length: 30 }, (_, i) => i + 1),
+  'Acts I to III are scripted end to end',
 )
 for (const def of DAYS) {
   assert.ok(
@@ -834,6 +836,68 @@ const colderYard = { ...flourDay, local: { ...flourDay.local, yard: 3 } }
 assert.ok(
   audiencesToday(colderYard).some((a) => a.id === 'd09-kitchens'),
   'Juniper stays for the day even if the Yard cools',
+)
+
+// --- Act III -----------------------------------------------------------------
+// Keel comes only after genuine talks with the Moles.
+assert.ok(
+  !audiencesToday(onDay(1, 26)).some((a) => a.id === 'd26-mole-truce'),
+  'no truce without talks',
+)
+const truceDay = onDay(1, 26, {
+  flags: ['mole-talks-opened'],
+  affinity: { ...createRun(1).affinity, moles: 0 },
+})
+assert.ok(
+  chooseAudienceOption(
+    truceDay,
+    'd26-mole-truce',
+    'truce',
+  ).run.recruitable.includes('F009'),
+  'Keel joins after the truce',
+)
+// Sable asks for sanctuary on Day 28, beside the envoy who wants them back.
+const verge = onDay(1, 28)
+assert.ok(
+  chooseAudienceOption(
+    verge,
+    'd28-defector',
+    'sanctuary',
+  ).run.recruitable.includes('F016'),
+)
+assert.ok(
+  !chooseAudienceOption(
+    verge,
+    'd28-defector',
+    'return',
+  ).run.recruitable.includes('F016'),
+)
+// Giving the Coldbrook children away on Day 8 comes back on Day 24.
+assert.ok(!audiencesToday(onDay(1, 24)).some((a) => a.id === 'd24-coldbrook'))
+assert.ok(
+  audiencesToday(
+    onDay(1, 24, { flags: ['abbey-took-coldbrook-children'] }),
+  ).some((a) => a.id === 'd24-coldbrook'),
+  'Wenna comes back for her children',
+)
+// Flint's trial needs Flint; Pip's reading reveals Pip's allegiance.
+assert.ok(
+  !audiencesToday(withCast(1, 27, ['F001'])).some((a) => a.id === 'd27-trial'),
+)
+const pipRead = chooseAudienceOption(
+  withCast(1, 29, ['F001', 'F005']),
+  'd29-mayors-secret',
+  'pip',
+).run
+const page = followerDef('F005')!.traits.find((t) => t.kind === 'allegiance')!
+assert.ok(
+  traitKnown(pipRead, page, []),
+  'Pip’s reading reveals the replaced page',
+)
+// Komodo lies four times by the end of Act III, each one his own.
+assert.equal(
+  DAYS.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length,
+  4,
 )
 
 console.log('Emperor of Dust fortress contract: ok')

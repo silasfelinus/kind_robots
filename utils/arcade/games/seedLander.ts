@@ -161,6 +161,18 @@ import {
 } from '../seedLander/islands'
 import { H, HAZARD_NAMES, HUD_H, W, freeHill } from '../seedLander/missions'
 import type { MissionSpec, VentSpec } from '../seedLander/missions'
+import {
+  clock,
+  dailyHill,
+  TRIAL_MAX_TICKS,
+  dailyHillNumber,
+  dateKey,
+  masteryPoints,
+  masteryRank,
+  trialMedal,
+  trialMissions,
+} from '../seedLander/modes'
+import type { DailyBest } from '../seedLander/modes'
 import { pilotInput } from '../seedLander/pilot'
 import type { PilotGoal } from '../seedLander/pilot'
 import {
@@ -241,9 +253,9 @@ type Bloom = {
   dx?: number
 }
 type Phase = 'fly' | 'bonk' | 'dry' | 'clear'
-type Mode = 'free' | 'campaign'
+type Mode = 'free' | 'campaign' | 'daily' | 'trial'
 type Screen = 'map' | 'shed' | 'soon'
-type MenuId = 'continue' | 'campaign' | 'free' | 'tier'
+type MenuId = 'continue' | 'campaign' | 'free' | 'daily' | 'trial' | 'tier'
 
 class SeedLander implements ArcadeGameInstance {
   score = 0
@@ -316,6 +328,11 @@ class SeedLander implements ArcadeGameInstance {
   private medals: Record<string, number> = {}
   private cleared = new Set<number>()
   private bestHill = 0
+  /** Time Trial bests (ticks) by mission id, the best Daily Hill, and the trial being picked. */
+  private trials: Record<string, number> = {}
+  private daily: DailyBest | undefined
+  private trialPick = 0
+  private today = dateKey(new Date())
   private resumeScore = 0
   private resumeLives = START_PODS
   private campaignTier: TierId = 'standard'
@@ -405,6 +422,8 @@ class SeedLander implements ArcadeGameInstance {
     this.medals = { ...s.medals }
     this.cleared = new Set(s.cleared)
     this.bestHill = s.bestHill
+    this.trials = { ...(s.trials ?? {}) }
+    this.daily = s.daily
     this.island = s.island
     this.missionIndex = s.mission
     this.resumeScore = s.score
@@ -432,6 +451,8 @@ class SeedLander implements ArcadeGameInstance {
       cleared: [...this.cleared],
       bestHill: this.bestHill,
       gale: this.gale,
+      trials: { ...this.trials },
+      daily: this.daily,
     }
   }
 
@@ -462,6 +483,27 @@ class SeedLander implements ArcadeGameInstance {
         ? `ENDLESS HILLS  BEST: HILL ${this.bestHill}`
         : 'ENDLESS HILLS, NEW HAZARDS',
     })
+    const dayBest = this.daily?.date === this.today ? this.daily.score : 0
+    rows.push({
+      id: 'daily',
+      name: 'DAILY HILL',
+      about: dayBest
+        ? `TODAY'S ISLAND  BEST: ${dayBest}`
+        : 'ONE ISLAND, THE SAME FOR ALL TODAY',
+    })
+    const races = trialMissions(this.medals)
+    if (races.length) {
+      const m = races[this.trialPick % races.length]!
+      const best = this.trials[m.id]
+      rows.push({
+        id: 'trial',
+        name: `TRIAL: ${m.name}`,
+        about: best
+          ? `BEST ${clock(best)}  ${trialMedal(best, m.par.ticks).toUpperCase()}  PAR ${clock(m.par.ticks)}`
+          : `NO TIME YET  PAR ${clock(m.par.ticks)}`,
+        picker: true,
+      })
+    }
     rows.push({
       id: 'tier',
       name: `FLIGHT: ${t.name}`,
@@ -481,6 +523,12 @@ class SeedLander implements ArcadeGameInstance {
     }
     const row = rows[m.pick]!
     const turn = input.pressed.left ? -1 : input.pressed.right ? 1 : 0
+    if (row.id === 'trial' && turn) {
+      const n = trialMissions(this.medals).length
+      this.trialPick = (this.trialPick + turn + n) % n
+      this.sound.play('blip')
+      return
+    }
     if (row.id === 'tier' && (turn || input.pressed.a)) {
       const i = TIER_ORDER.indexOf(this.tier)
       const n = TIER_ORDER.length
@@ -493,10 +541,79 @@ class SeedLander implements ArcadeGameInstance {
     this.sound.play('start')
     if (row.id === 'continue') this.continueCampaign()
     else if (row.id === 'campaign') this.newCampaign()
+    else if (row.id === 'daily') this.startDaily()
+    else if (row.id === 'trial') this.startTrial()
     else {
       this.mode = 'free'
       this.startHill(1)
     }
+  }
+
+  // --- the side modes ----------------------------------------------------------------------
+
+  /** The Daily Hill: today's island, one set of pods, one clear. */
+  private startDaily() {
+    this.mode = 'daily'
+    this.today = dateKey(new Date())
+    this.score = 0
+    this.lives = START_PODS
+    this.hillsCleared = 0
+    this.streak = 0
+    const spec = dailyHill(this.today)
+    this.level = dailyHillNumber(this.today)
+    this.missionLabel = spec.name.toUpperCase()
+    this.startMission(spec)
+  }
+
+  /** A Time Trial: a cleared mission again against the clock, with every retry free. */
+  private startTrial() {
+    const races = trialMissions(this.medals)
+    const spec = races[this.trialPick % races.length]!
+    this.mode = 'trial'
+    this.score = 0
+    this.lives = START_PODS
+    this.streak = 0
+    this.missionLabel = 'TRIAL'
+    this.startMission(spec)
+  }
+
+  /** A Time Trial clear: the time against the best, then back to the mode card. */
+  private finishTrial() {
+    const id = this.mission.id
+    const ticks = this.missionTicks
+    const best = this.trials[id]
+    const fresh = !best || ticks < best
+    if (fresh && !this.demo) {
+      this.trials[id] = Math.min(ticks, TRIAL_MAX_TICKS)
+      this.keep()
+    }
+    this.tally.push({ label: 'TIME', value: clock(ticks) })
+    this.tally.push({
+      label: trialMedal(ticks, this.mission.par.ticks).toUpperCase(),
+      value: fresh ? 'NEW BEST' : `BEST ${clock(best!)}`,
+    })
+  }
+
+  /** Back from a side mode to the mode card, on a quiet Free Flight hill behind it. */
+  private toMenu(pick: number) {
+    this.mode = 'free'
+    this.menu = { pick }
+    this.score = 0
+    this.lives = START_PODS
+    this.startHill(1)
+  }
+
+  /** Today's mastery points and rank. */
+  private mastery() {
+    return masteryRank(
+      masteryPoints({
+        medals: this.medals,
+        acorns: this.acorns.size,
+        cleared: this.cleared.size,
+        bestHill: this.bestHill,
+        trials: this.trials,
+      }),
+    )
   }
 
   // --- the campaign ------------------------------------------------------------------------
@@ -1196,7 +1313,7 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private crash(pod: Pod, why: string) {
-    this.lives--
+    if (this.mode !== 'trial') this.lives--
     this.streak = 0
     this.lastRank = 'bonk'
     this.allFeather = false
@@ -1247,7 +1364,7 @@ class SeedLander implements ArcadeGameInstance {
   /** The leaf-cap parachute has set down (or time ran out): try again with a spare pod. */
   private updateDry() {
     if (++this.phaseTicks < DRY_TICKS) return
-    this.lives--
+    if (this.mode !== 'trial') this.lives--
     if (this.lives <= 0) {
       this.endRun()
       return
@@ -1259,9 +1376,19 @@ class SeedLander implements ArcadeGameInstance {
     )
   }
 
+  /** The day's best Daily Hill score, kept when this run beats it. */
+  private keepDaily() {
+    if (this.demo) return
+    if (this.daily?.date === this.today && this.daily.score >= this.score)
+      return
+    this.daily = { date: this.today, score: this.score }
+    this.keep()
+  }
+
   private endRun() {
     this.over = true
     this.banner = { text: 'OUT OF PODS', sub: 'GAME OVER', ticks: 9999 }
+    if (this.mode === 'daily') this.keepDaily()
     if (this.mode === 'campaign' && !this.demo) {
       // The campaign's place is kept; a new run from it starts its score afresh.
       this.resumeScore = 0
@@ -1338,6 +1465,7 @@ class SeedLander implements ArcadeGameInstance {
       this.lives++
       this.tally.push({ label: 'SPARE POD', value: '+1' })
     }
+    if (this.mode === 'trial') this.finishTrial()
     this.sound.play(this.islandWon ? 'extra' : 'level')
     this.banner = null
   }
@@ -1348,6 +1476,20 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private afterClear() {
+    if (this.mode === 'trial') {
+      this.toMenu(this.menuRows().findIndex((r) => r.id === 'trial'))
+      return
+    }
+    if (this.mode === 'daily') {
+      this.keepDaily()
+      this.over = true
+      this.banner = {
+        text: 'DAILY HILL CLEARED',
+        sub: `SCORE ${this.score}`,
+        ticks: 9999,
+      }
+      return
+    }
     if (this.mode === 'free') {
       this.startHill(this.level + 1)
       return
@@ -1679,7 +1821,7 @@ class SeedLander implements ArcadeGameInstance {
   // --- scoring and effects ---------------------------------------------------------------
 
   private addScore(points: number, x: number, y: number, color: string) {
-    if (this.demo || points <= 0) return
+    if (this.demo || points <= 0 || this.mode === 'trial') return
     this.score += points
     this.floaters.push({ x, y, text: String(points), life: 50, color })
   }
@@ -2119,7 +2261,7 @@ class SeedLander implements ArcadeGameInstance {
     if (this.menu)
       drawMenu(g, {
         title: 'SEED LANDER',
-        subtitle: 'THE GREAT REPLANTING',
+        subtitle: `${this.mastery().rank.name}${this.mastery().next === null ? '' : `  ${this.mastery().next} TO RANK UP`}`,
         rows: this.menuRows(),
         pick: this.menu.pick,
         tick: this.tick,
@@ -2180,7 +2322,10 @@ class SeedLander implements ArcadeGameInstance {
 
   private renderHud(g: CanvasRenderingContext2D) {
     const pod = this.pod
-    const label = this.missionLabel
+    const label =
+      this.mode === 'trial'
+        ? `TRIAL ${clock(this.missionTicks)}`
+        : this.missionLabel
     drawHud(g, {
       score: this.score,
       hi: Math.max(this.hiScore, this.score),

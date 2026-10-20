@@ -9,6 +9,8 @@
 import type { TierId } from './flight'
 import { TIER_ORDER } from './flight'
 import type { MissionSpec } from './missions'
+import { readDaily, readTrials } from './modes'
+import type { DailyBest } from './modes'
 
 /** The Pod Shed's upgrades. */
 export type UpgradeId = 'tank' | 'legs' | 'gyros' | 'lamp' | 'winch'
@@ -74,6 +76,9 @@ export type LanderSave = {
   bestHill: number
   /** Gale Season rounds begun (New Game+ after the true ending); 0 on the first run. */
   gale?: number
+  /** Time Trial best times (ticks) by mission id, and the best Daily Hill score on its day. */
+  trials?: Record<string, number>
+  daily?: DailyBest
 }
 
 export const GALE_MAX = 9
@@ -109,6 +114,7 @@ export function freshSave(tier: TierId = 'standard'): LanderSave {
     cleared: [],
     bestHill: 0,
     gale: 0,
+    trials: {},
   }
 }
 
@@ -182,6 +188,8 @@ export function readLanderSave(
     cleared,
     bestHill: (r.bestHill as number | undefined) ?? 0,
     gale: count(r.gale, GALE_MAX) ? (r.gale as number) : 0,
+    trials: readTrials(r.trials),
+    daily: readDaily(r.daily),
   }
 }
 

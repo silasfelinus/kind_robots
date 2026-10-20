@@ -20,18 +20,23 @@ const filtered = computed(() => {
       filter.value === 'ACTIVE' &&
       row.status !== 'PENDING' &&
       row.status !== 'CLAIMED'
-    ) return false
+    )
+      return false
     if (
       filter.value !== 'ALL' &&
       filter.value !== 'ACTIVE' &&
       row.status !== filter.value
-    ) return false
-    return !query || [
-      row.label,
-      row.fileName,
-      row.resourceType,
-      String(row.id),
-    ].some((value) => String(value ?? '').toLowerCase().includes(query))
+    )
+      return false
+    return (
+      !query ||
+      [row.label, row.fileName, row.resourceType, String(row.id)].some(
+        (value) =>
+          String(value ?? '')
+            .toLowerCase()
+            .includes(query),
+      )
+    )
   })
 })
 
@@ -48,19 +53,27 @@ const historicalRows = computed(() =>
 
 function statusLabel(status: ModelDownloadStatus): string {
   switch (status) {
-    case 'PENDING': return 'Queued'
-    case 'CLAIMED': return 'Claimed by downloader'
-    case 'DONE': return 'Completed'
-    case 'FAILED': return 'Failed'
+    case 'PENDING':
+      return 'Queued'
+    case 'CLAIMED':
+      return 'Claimed by downloader'
+    case 'DONE':
+      return 'Completed'
+    case 'FAILED':
+      return 'Failed'
   }
 }
 
 function statusBadge(status: ModelDownloadStatus): string {
   switch (status) {
-    case 'PENDING': return 'badge-warning'
-    case 'CLAIMED': return 'badge-info'
-    case 'DONE': return 'badge-success'
-    case 'FAILED': return 'badge-error'
+    case 'PENDING':
+      return 'badge-warning'
+    case 'CLAIMED':
+      return 'badge-info'
+    case 'DONE':
+      return 'badge-success'
+    case 'FAILED':
+      return 'badge-error'
   }
 }
 
@@ -112,19 +125,27 @@ onUnmounted(() => {
     <div class="grid shrink-0 grid-cols-4 gap-1 sm:gap-2">
       <div class="rounded-xl bg-base-200 px-2 py-2 text-center">
         <p class="kr-text-dim-xs">Queued</p>
-        <p class="text-lg font-bold tabular-nums">{{ downloads.counts.PENDING }}</p>
+        <p class="text-lg font-bold tabular-nums">
+          {{ downloads.counts.PENDING }}
+        </p>
       </div>
       <div class="rounded-xl bg-base-200 px-2 py-2 text-center">
         <p class="kr-text-dim-xs">Claimed</p>
-        <p class="text-lg font-bold tabular-nums">{{ downloads.counts.CLAIMED }}</p>
+        <p class="text-lg font-bold tabular-nums">
+          {{ downloads.counts.CLAIMED }}
+        </p>
       </div>
       <div class="rounded-xl bg-base-200 px-2 py-2 text-center">
         <p class="kr-text-dim-xs">Done</p>
-        <p class="text-lg font-bold tabular-nums">{{ downloads.counts.DONE }}</p>
+        <p class="text-lg font-bold tabular-nums">
+          {{ downloads.counts.DONE }}
+        </p>
       </div>
       <div class="rounded-xl bg-base-200 px-2 py-2 text-center">
         <p class="kr-text-dim-xs">Failed</p>
-        <p class="text-lg font-bold tabular-nums">{{ downloads.counts.FAILED }}</p>
+        <p class="text-lg font-bold tabular-nums">
+          {{ downloads.counts.FAILED }}
+        </p>
       </div>
     </div>
 
@@ -151,7 +172,11 @@ onUnmounted(() => {
     <p v-if="downloads.error" role="alert" class="kr-note kr-note-error p-2">
       {{ downloads.error }}
     </p>
-    <p v-if="downloads.notice" role="status" class="kr-note kr-note-success p-2">
+    <p
+      v-if="downloads.notice"
+      role="status"
+      class="kr-note kr-note-success p-2"
+    >
       {{ downloads.notice }}
     </p>
     <p v-if="downloads.activeLimited" class="kr-note kr-note-warning p-2">
@@ -159,13 +184,13 @@ onUnmounted(() => {
     </p>
 
     <div class="kr-scroll min-h-0 flex-1 space-y-3 pr-1" data-kr-gallery>
-      <div v-if="downloads.loading && !downloads.updatedAt" class="kr-panel-muted-sm">
+      <div
+        v-if="downloads.loading && !downloads.updatedAt"
+        class="kr-panel-muted-sm"
+      >
         Loading downloads…
       </div>
-      <div
-        v-else-if="!filtered.length"
-        class="kr-panel-muted-sm text-center"
-      >
+      <div v-else-if="!filtered.length" class="kr-panel-muted-sm text-center">
         <p class="font-semibold">No matching downloads</p>
         <p class="kr-text-dim-xs">
           Queue a checkpoint or LoRA in Discover, or adjust your filters.
@@ -185,10 +210,14 @@ onUnmounted(() => {
               #{{ item.id }} · {{ item.resourceType }} · {{ item.source }}
             </p>
             <p class="kr-text-dim-xs">
-              Queued {{ displayTime(item.createdAt) }} · Attempt {{ item.attempts }}
+              Queued {{ displayTime(item.createdAt) }} · Attempt
+              {{ item.attempts }}
             </p>
           </div>
-          <span class="badge badge-sm shrink-0" :class="statusBadge(item.status)">
+          <span
+            class="badge badge-sm shrink-0"
+            :class="statusBadge(item.status)"
+          >
             {{ statusLabel(item.status) }}
           </span>
         </article>
@@ -207,8 +236,8 @@ onUnmounted(() => {
               #{{ item.id }} · {{ item.resourceType }} · {{ item.source }}
             </p>
             <p class="kr-text-dim-xs">
-              Requested {{ displayTime(item.createdAt) }} ·
-              Updated {{ displayTime(item.updatedAt) }}
+              Requested {{ displayTime(item.createdAt) }} · Updated
+              {{ displayTime(item.updatedAt) }}
             </p>
             <p v-if="item.error" class="mt-1 break-words text-sm text-error">
               {{ item.error }}
@@ -242,7 +271,10 @@ onUnmounted(() => {
         </article>
       </section>
 
-      <div v-if="downloads.nextBefore !== null" class="flex justify-center pb-2">
+      <div
+        v-if="downloads.nextBefore !== null"
+        class="flex justify-center pb-2"
+      >
         <button
           type="button"
           class="btn btn-sm btn-outline rounded-xl"

@@ -63,7 +63,9 @@
               v-if="title.trim() !== store.selected.title"
               type="button"
               class="kr-btn-xs btn-primary shrink-0"
-              :disabled="store.busy || isRendering(store.selected) || !title.trim()"
+              :disabled="
+                store.busy || isRendering(store.selected) || !title.trim()
+              "
               @click="saveProjectTitle"
             >
               Save title
@@ -687,7 +689,8 @@
               class="min-w-0 flex-1 rounded-xl border border-base-300 bg-base-200/50 px-2 py-1"
             >
               <summary class="cursor-pointer font-semibold">
-                Render settings · {{ quality }} · {{ overwriteStrength }}% restyle ·
+                Render settings · {{ quality }} · {{ overwriteStrength }}%
+                restyle ·
                 {{ renderSpeed === 'fast' ? 'Fast draft ·' : '' }}
                 {{ isPrivate ? 'Private' : 'Release candidate'
                 }}{{ isMature ? ' · Mature' : '' }}
@@ -738,7 +741,9 @@
                     :aria-valuetext="`${overwriteStrength}% restyle`"
                     aria-label="Overwrite strength"
                   />
-                  <output class="w-9 shrink-0 text-right tabular-nums">{{ overwriteStrength }}%</output>
+                  <output class="w-9 shrink-0 text-right tabular-nums"
+                    >{{ overwriteStrength }}%</output
+                  >
                 </label>
                 <label class="flex cursor-pointer items-center gap-1">
                   <input
@@ -757,15 +762,15 @@
                   Mature content
                 </label>
                 <p class="kr-text-faded-xs w-full">
-                  Lower overwrite strength mixes more of the original frames back into the
-                  rendered video; 0% is original, 100% is the existing full restyle.
-                  This controls visual replacement, not prompt accuracy.
-                  Prompt-guided Wan VACE looks; 1080p is upscaled after
-                  assembly. Fast draft uses the CausVid LoRA (8 steps instead of
-                  20) for roughly five times the speed, with some loss of
-                  detail; it waits until KR Relay has that LoRA installed.
-                  Sources and pilots stay access-controlled even when marked as
-                  release candidates.
+                  Lower overwrite strength mixes more of the original frames
+                  back into the rendered video; 0% is original, 100% is the
+                  existing full restyle. This controls visual replacement, not
+                  prompt accuracy. Prompt-guided Wan VACE looks; 1080p is
+                  upscaled after assembly. Fast draft uses the CausVid LoRA (8
+                  steps instead of 20) for roughly five times the speed, with
+                  some loss of detail; it waits until KR Relay has that LoRA
+                  installed. Sources and pilots stay access-controlled even when
+                  marked as release candidates.
                 </p>
               </div>
             </details>
@@ -1272,7 +1277,11 @@ function chooseFile(event: Event) {
   sourceFile.value = input.files?.[0] || null
   durationSec.value = 0
   if (sourceFile.value) {
-    title.value = sourceFile.value.name.replace(/\.(mp4|mov|webm)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Untitled video'
+    title.value =
+      sourceFile.value.name
+        .replace(/\.(mp4|mov|webm)$/i, '')
+        .replace(/[_-]+/g, ' ')
+        .trim() || 'Untitled video'
     store.preview(sourceFile.value)
     // Showing the upload mounts the player, which reads its duration.
     playing.value = 'upload'

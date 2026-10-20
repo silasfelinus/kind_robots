@@ -618,6 +618,40 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'The host’s lookouts',
         text: 'Plum riders are searching the roads around the tower.',
         truth: true,
+        variants: [
+          {
+            flags: ['hideout:mole-tunnels'],
+            source: 'Mole sappers at the listening holes',
+          },
+          {
+            flags: ['hideout:crow-cave'],
+            source: 'Crow sentries on the cave lip',
+          },
+          {
+            flags: ['hideout:bell-cellars'],
+            source: 'The bell-ringer’s boy, from the chapel loft',
+          },
+          {
+            flags: ['hideout:wagon-circle'],
+            source: 'Pack outriders',
+          },
+          {
+            flags: ['hideout:moving-caravan'],
+            source: 'The caravan’s rear guard',
+          },
+          {
+            flags: ['hideout:freehold-barn'],
+            source: 'A Freehold girl in the hayloft',
+          },
+          {
+            flags: ['hideout:rail-station'],
+            source: 'Rustline lookouts on the water tower',
+          },
+          {
+            flags: ['hideout:nameless-cave'],
+            source: 'The one revolutionary still awake',
+          },
+        ],
       },
     ],
     komodo:
@@ -1015,6 +1049,48 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'Your host',
         text: 'The people sheltering the court want to talk terms.',
         truth: true,
+        variants: [
+          {
+            flags: ['hideout:mole-tunnels'],
+            source: 'Granny Umber',
+            text: 'The assembly sheltering the court wants to talk terms. It voted on you last night.',
+          },
+          {
+            flags: ['hideout:crow-cave'],
+            source: 'Elder Corvane',
+            text: 'The Conclave sheltering the court wants to talk terms. Crows put everything in writing.',
+          },
+          {
+            flags: ['hideout:bell-cellars'],
+            source: 'Mayor Mara Reedbell',
+            text: 'Hollow Bell is hiding the court under its chapel. The mayor wants to talk terms.',
+          },
+          {
+            flags: ['hideout:wagon-circle'],
+            source: 'Captain Gristle Vane',
+            text: 'The Pack sheltering the court wants to talk terms. Vane has already counted the spoons.',
+          },
+          {
+            flags: ['hideout:moving-caravan'],
+            source: 'Oriel Saltmarsh',
+            text: 'The caravan carrying the court wants to talk terms before the next stop.',
+          },
+          {
+            flags: ['hideout:freehold-barn'],
+            source: 'Hester Plowright',
+            text: 'The Freeholders hiding the court want to talk terms before the harvest comes in.',
+          },
+          {
+            flags: ['hideout:rail-station'],
+            source: 'Jinx Coupler',
+            text: 'The salvagers sheltering the court want to talk terms. Everything here has a price chalked on it.',
+          },
+          {
+            flags: ['hideout:nameless-cave'],
+            source: 'The revolutionaries',
+            text: 'The handful of rebels sharing their cave want to talk terms. There are not many terms to talk.',
+          },
+        ],
       },
       {
         id: 'income-gone',
@@ -1861,6 +1937,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'The host’s lookouts',
         text: 'Some of the Gate Watch rode out with Young Komodo on the last night.',
         truth: true,
+        variants: [
+          {
+            flags: ['komodo-escorted'],
+            text: 'Some of the Gate Watch rode out with Young Komodo on the last night. The crown sent them with him.',
+          },
+        ],
       },
       {
         id: 'dunmark-dead',
@@ -2688,6 +2770,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'A hopeful guard',
         text: 'Young Komodo has asked to come back.',
         truth: false,
+        variants: [
+          {
+            flags: ['d40-komodo-called-friend'],
+            text: 'Young Komodo has asked to come back. He says you called him a friend, and meant it.',
+          },
+        ],
       },
       {
         id: 'fires-lit',

@@ -81,6 +81,11 @@ import {
   eyeReveals,
 } from '../emperorOfDust/fortress/relics'
 import {
+  BETRAYAL_FLAG,
+  dayBriefings,
+  komodoLiesInHindsight,
+} from '../emperorOfDust/fortress/briefings'
+import {
   KINGDOM_FACTIONS,
   LOCAL_FACTIONS,
   STATS,
@@ -1262,12 +1267,12 @@ assert.ok(
   traitKnown(pipRead, page, []),
   'Pip’s reading reveals the replaced page',
 )
-// Komodo lies four times by the end of Act III, each one his own, and three
-// more in Act IV as the betrayal nears (Days 32, 37 and 40).
+// Komodo lies four times by the end of Act III, each one his own, and four
+// more in Act IV as the betrayal nears (Days 32, 37, 38 and 40).
 const komodoLies = (days: typeof DAYS) =>
   days.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length
 assert.equal(komodoLies(DAYS.filter((def) => def.day <= 30)), 4)
-assert.equal(komodoLies(DAYS), 7)
+assert.equal(komodoLies(DAYS), 8)
 
 // Under the Wall: Keel's Wits count toward Might requirements.
 const keel = followerDef('F009')!
@@ -1335,6 +1340,286 @@ const marks = (day: number, ids: string[]) =>
 assert.deepEqual(marks(1, ['F006']), [null, 'false', null])
 assert.deepEqual(marks(7, ['F006']), [null, 'unreadable', null])
 assert.deepEqual(marks(1, ['F001']), [null, null, null])
+
+{
+  // --- The fifty briefings (t-013) ---------------------------------------------
+  // The lie moves: every slot carries it on at least ten days, never four days
+  // running, and Act I already uses all three.
+  const lieSlots = DAYS.map((def) => def.briefings.findIndex((b) => !b.truth))
+  for (const slot of [0, 1, 2])
+    assert.ok(
+      lieSlots.filter((entry) => entry === slot).length >= 10,
+      `slot ${slot + 1} holds the lie often enough`,
+    )
+  for (let i = 3; i < lieSlots.length; i += 1)
+    assert.ok(
+      new Set(lieSlots.slice(i - 3, i + 1)).size > 1,
+      `days ${i - 2}–${i + 1} keep the lie in one slot`,
+    )
+  assert.equal(new Set(lieSlots.slice(0, 10)).size, 3, 'Act I rotates the lie')
+  // Stark reports: no soft words in what the runners say or what hindsight shows.
+  const SOFT_WORDS =
+    /\b(eerie|sinister|lovely|gentle|gently|very|seems to|something like|a little too)\b/i
+  for (const def of DAYS) {
+    assert.equal(new Set(def.briefings.map((b) => b.id)).size, 3, `${def.day}`)
+    for (const report of def.briefings) {
+      const texts = [
+        report.text,
+        report.hindsight ?? '',
+        ...(report.variants ?? []).map((v) => v.text ?? ''),
+      ]
+      for (const text of texts)
+        assert.ok(!SOFT_WORDS.test(text), `${report.id}: stark prose`)
+      if (report.komodoLie) {
+        assert.ok(def.day <= 40, `${report.id}: he lies only while at court`)
+        assert.ok(/Komodo’s/.test(report.source), `${report.id}: his runner`)
+        assert.ok(
+          (report.hindsight?.length ?? 0) >= 40,
+          `${report.id}: what was true instead`,
+        )
+      } else assert.equal(report.hindsight, undefined, report.id)
+    }
+  }
+  // Every [K] day of the anchor calendar before the betrayal carries his lie.
+  for (const day of [7, 17, 25, 32, 38])
+    assert.ok(
+      DAYS.find((def) => def.day === day)!.briefings.some((b) => b.komodoLie),
+      `day ${day} is a Komodo day`,
+    )
+  // Early lies are flavor: a briefing has no effects, and the first lie he tells
+  // himself comes only after the court has had a week to learn the reports.
+  assert.ok(
+    DAYS.filter((def) => def.day < 7).every((def) =>
+      def.briefings.every((b) => !b.komodoLie),
+    ),
+  )
+
+  // Conditional variants read only story flags that earlier days settle, so a
+  // report says the same thing all day, after a reload and after a rewind.
+  type FlagSource = {
+    audienceDays: number[]
+    laterDays: number[]
+    talk: boolean
+    cleared: boolean
+  }
+  const flagSources = new Map<string, FlagSource>()
+  const flagSource = (flag: string): FlagSource => {
+    let entry = flagSources.get(flag)
+    if (!entry) {
+      entry = { audienceDays: [], laterDays: [], talk: false, cleared: false }
+      flagSources.set(flag, entry)
+    }
+    return entry
+  }
+  const noteEffects = (
+    effects: { flags?: string[]; clearFlags?: string[] } | undefined,
+    mark: (entry: FlagSource) => void,
+  ) => {
+    for (const flag of effects?.flags ?? []) mark(flagSource(flag))
+    for (const flag of effects?.clearFlags ?? [])
+      flagSource(flag).cleared = true
+  }
+  // Quest results land at a later dawn, never in the middle of a day.
+  const noteQuest = (id: string, day: number) => {
+    const quest = questDef(id)
+    if (!quest) return
+    for (const effects of [
+      quest.rewards.triumph,
+      quest.rewards.success,
+      quest.rewards.partial,
+      quest.rewards.failure,
+      quest.expired,
+    ])
+      noteEffects(effects, (entry) => entry.laterDays.push(day + 1))
+  }
+  const sceneOptions = (scene: {
+    options: AudienceOption[]
+    beats?: { options: AudienceOption[] }[]
+  }) => [...scene.options, ...(scene.beats ?? []).flatMap((b) => b.options)]
+  for (const def of DAYS) {
+    for (const id of def.quests) noteQuest(id, def.day)
+    for (const audience of def.audiences)
+      for (const option of sceneOptions(audience)) {
+        flagSource(`chose:${audience.id}:${option.id}`).audienceDays.push(
+          def.day,
+        )
+        noteEffects(option.effects, (entry) => entry.audienceDays.push(def.day))
+        for (const id of option.postsQuests ?? []) noteQuest(id, def.day)
+      }
+  }
+  for (const quest of QUEST_TEMPLATES) noteQuest(quest.id, 1)
+  for (const talk of TALKS) {
+    flagSource(`heard:${talk.id}`).talk = true
+    for (const option of sceneOptions(talk)) {
+      flagSource(`talk:${talk.id}:${option.id}`).talk = true
+      noteEffects(option.effects, (entry) => {
+        entry.talk = true
+      })
+    }
+  }
+  // The Day 41 dawn sets the betrayal and the host.
+  const HIDEOUT_IDS = [
+    'mole-tunnels',
+    'crow-cave',
+    'bell-cellars',
+    'wagon-circle',
+    'moving-caravan',
+    'freehold-barn',
+    'rail-station',
+    'nameless-cave',
+  ]
+  for (const flag of [BETRAYAL_FLAG, ...HIDEOUT_IDS.map((h) => `hideout:${h}`)])
+    flagSource(flag).laterDays.push(41)
+
+  let variantCount = 0
+  const variantFlags = new Set<string>()
+  for (const def of DAYS)
+    for (const report of def.briefings)
+      for (const variant of report.variants ?? []) {
+        variantCount += 1
+        const keys = [...(variant.flags ?? []), ...(variant.notFlags ?? [])]
+        assert.ok(keys.length > 0, `${report.id}: a variant is keyed`)
+        assert.ok(variant.source || variant.text, `${report.id}: it changes`)
+        assert.notEqual(variant.text, report.text, report.id)
+        for (const flag of variant.flags ?? []) variantFlags.add(flag)
+        for (const flag of keys) {
+          const entry = flagSources.get(flag)
+          assert.ok(entry, `${report.id}: ${flag} is set somewhere`)
+          assert.ok(
+            entry.audienceDays.every((day) => day < def.day),
+            `${report.id}: ${flag} cannot change on Day ${def.day} or later`,
+          )
+          assert.ok(!entry.talk, `${report.id}: ${flag} is not a barracks flag`)
+          assert.ok(!entry.cleared, `${report.id}: ${flag} is never cleared`)
+          assert.ok(
+            entry.audienceDays.some((day) => day < def.day) ||
+              entry.laterDays.some((day) => day <= def.day),
+            `${report.id}: ${flag} can be earned before Day ${def.day}`,
+          )
+        }
+      }
+  assert.ok(variantCount >= 30, `${variantCount} conditional briefings`)
+  assert.ok(
+    DAYS.filter((def) => def.briefings.some((b) => b.variants?.length))
+      .length >= 15,
+    'variants spread across the campaign',
+  )
+
+  // The first matching variant wins, and the lie stays where it was.
+  const briefed = (day: number, flags: string[], relics: string[] = []) =>
+    dayBriefings({ ...onDay(1, day, { flags }), equippedRelics: relics })!
+  assert.equal(
+    briefed(26, [])[2]!.source,
+    'Granny Umber’s cell',
+    'no flag, no variant',
+  )
+  assert.equal(
+    briefed(26, ['mole-messenger-arrested', 'moles-blamed'])[2]!.source,
+    'Chalk on the postern gate',
+  )
+  assert.match(briefed(26, ['moles-blamed'])[2]!.text, /the Ford/)
+  assert.match(
+    briefed(12, ['mire-road-closed', 'mire-quiet-count'])[2]!.text,
+    /the road the crown closed/,
+  )
+  assert.match(
+    briefed(12, ['mire-road-closed', 'd03-mire-road-reopened'])[2]!.text,
+    /^Lanterns move through the empty fen again\. In step\.$/,
+    'notFlags: a reopened road reads as plain',
+  )
+  // The Eye still finds exactly one lie, whichever variant a run reads.
+  const eyeRun = (day: number) => ({
+    ...onDay(1, day, { flags: [...variantFlags] }),
+    equippedRelics: ['eye-of-elder-crow'],
+  })
+  for (const def of DAYS) {
+    const run = eyeRun(def.day)
+    const reports = dayBriefings(run)!
+    assert.equal(
+      reports.filter((b) => eyeReveals(run, b.truth)).length,
+      1,
+      `day ${def.day}: the Eye marks one report`,
+    )
+    assert.deepEqual(
+      reports.map((b) => [b.id, b.truth, b.komodoLie]),
+      def.briefings.map((b) => [b.id, b.truth, b.komodoLie]),
+    )
+  }
+  assert.match(
+    dayBriefings(eyeRun(22))!.find((b) => eyeReveals(eyeRun(22), b.truth))!
+      .text,
+    /whole choir/,
+    'the Eye marks the variant text of a lie',
+  )
+  // Act V names the host who briefs you.
+  const hostSources = HIDEOUT_IDS.map(
+    (h) => briefed(42, [BETRAYAL_FLAG, `hideout:${h}`])[1]!.source,
+  )
+  assert.equal(new Set(hostSources).size, HIDEOUT_IDS.length)
+  assert.ok(!hostSources.includes('Your host'))
+  assert.equal(
+    briefed(41, [BETRAYAL_FLAG, 'hideout:mole-tunnels'])[2]!.source,
+    'Mole sappers at the listening holes',
+  )
+
+  // A real run: arrest Granny Umber on Day 17 and the Day 26 truce report reads
+  // differently, the same after an audience, a reload and a rewind. Rewinding to
+  // Day 17 and opening talks instead changes it back.
+  let briefBook = newBook(createRun(5))
+  while (briefBook.current.day < 26) {
+    let run = briefBook.current
+    if (run.day === 17)
+      run = chooseAudienceOption(run, 'd17-manifesto', 'arrest').run
+    briefBook = recordDawn(briefBook, finishDay(run).run)
+  }
+  const truceReport = (run: FortressRun) => dayBriefings(run)![2]!
+  assert.equal(
+    truceReport(briefBook.current).source,
+    'Chalk on the postern gate',
+  )
+  const afterAudience = chooseAudienceOption(
+    briefBook.current,
+    'd26-friendly-raid',
+    'decline',
+  ).run
+  assert.deepEqual(dayBriefings(afterAudience), dayBriefings(briefBook.current))
+  assert.deepEqual(
+    dayBriefings(decodeBook(encodeBook(briefBook))!.current),
+    dayBriefings(briefBook.current),
+    'a reload reads the same reports',
+  )
+  assert.deepEqual(
+    dayBriefings(rewindTo(briefBook, 26).current),
+    dayBriefings(briefBook.current),
+    'a rewound dawn reads the same reports',
+  )
+  let talksBook = rewindTo(briefBook, 17)
+  talksBook = updateCurrent(
+    talksBook,
+    chooseAudienceOption(talksBook.current, 'd17-manifesto', 'meet').run,
+  )
+  while (talksBook.current.day < 26)
+    talksBook = recordDawn(talksBook, finishDay(talksBook.current).run)
+  assert.equal(truceReport(talksBook.current).source, 'Granny Umber’s cell')
+
+  // Hindsight: once Komodo has gone, the Archive reads his lies back.
+  assert.deepEqual(komodoLiesInHindsight(onDay(1, 40)), [], 'not before')
+  const betrayed = finishDay(
+    onDay(1, 40, { flags: ['d38-rosters-changed'] }),
+  ).run
+  assert.ok(betrayed.flags.includes(BETRAYAL_FLAG))
+  const hindsight = komodoLiesInHindsight(betrayed)
+  assert.deepEqual(
+    hindsight.map((entry) => entry.day),
+    [7, 17, 25, 29, 32, 37, 38, 40],
+  )
+  assert.ok(hindsight.every((entry) => entry.briefing.komodoLie))
+  assert.match(
+    hindsight.at(-1)!.briefing.text,
+    /new rosters/,
+    'hindsight shows the report as this run heard it',
+  )
+}
 
 // Cast art: every listed image exists and names a real character and slot.
 for (const asset of CAST_ART) {

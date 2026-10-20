@@ -26,6 +26,7 @@ import {
 const DEFAULT_PAGE_SIZE = 48
 const MAX_PAGE_SIZE = 96
 const MAX_SEARCH_LENGTH = 120
+const RECENT_WINDOW_DAYS = 7
 
 function readPositiveInt(value: QueryValue): number | null {
   const raw = Array.isArray(value) ? value[0] : value
@@ -60,6 +61,13 @@ export default defineEventHandler(async (event) => {
         readGalleryMaturityFilter(query.maturity),
       ),
     ]
+    if (query.range === 'recent') {
+      clauses.push({
+        createdAt: {
+          gte: new Date(Date.now() - RECENT_WINDOW_DAYS * 24 * 60 * 60 * 1000),
+        },
+      })
+    }
     if (cursor) clauses.push({ id: { lt: cursor } })
     if (collectionId) {
       clauses.push({ ArtCollections: { some: { id: collectionId } } })

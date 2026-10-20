@@ -24,7 +24,7 @@ import {
   ROUTES,
   type RouteStep,
 } from './story'
-import { QUEST_CARDS, type GatedEncounter } from './questExpansion'
+import type { GatedEncounter } from './questExpansion'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import {
   NEW_SIGNATURES,
@@ -316,7 +316,7 @@ export function currentStep(state: RunState): RouteStep | null {
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const eligible: GatedEncounter[] = [...ENCOUNTERS, ...QUEST_CARDS]
+  const eligible: GatedEncounter[] = ENCOUNTERS
   const open = eligible.filter(
     (card) =>
       !state.played.includes(card.id) &&

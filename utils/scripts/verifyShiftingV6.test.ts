@@ -74,6 +74,55 @@ assert.match(
   'the Three Cups prose names its visible, countable props',
 )
 
+const dustwater = JOURNEY_WORLD.lands.find((land) => land.id === 'dustwater')!
+const dustwaterIds = new Set(dustwater.locations.map((location) => location.id))
+const dustwaterCards = V6_CARDS.filter((card) =>
+  dustwaterIds.has(card.locationId),
+)
+assert.equal(
+  dustwaterCards.length,
+  24,
+  'Dustwater has eight cards per location',
+)
+for (const card of dustwaterCards) {
+  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
+    assert.ok(
+      choice.success.text.length >= 80,
+      `${card.id}: keep the consequence authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 80,
+        `${card.id}: keep the failure consequential`,
+      )
+  }
+}
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'one-too-many-aboard')!
+    .choices.find((choice) => choice.id === 'question-the-pilots-count')!
+    .success.text,
+  /eleventh seat the hull can carry/,
+  'the pilot reveal must explain why eleven can safely cross',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'a-dam-of-broken-wagons')!
+    .choices.find((choice) => choice.id === 'break-the-dam-open')!.success.text,
+  /squatters' children/,
+  'returning water downstream must acknowledge who loses their pond',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'the-smugglers-mirror')!
+    .choices.find((choice) => choice.id === 'sell-the-plan-to-the-toll-men')!
+    .success.text,
+  /landing's ovens stay cold/,
+  'the betrayal must acknowledge the hungry people at the landing',
+)
+
 const choices = V6_CARDS.flatMap((card) => card.choices)
 const certainCards = V6_CARDS.filter((card) =>
   card.choices.some((choice) => !choice.roll),

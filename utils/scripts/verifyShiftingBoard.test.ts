@@ -16,7 +16,7 @@ const page = read('../../pages/play/zuzu-shifting-lands.vue')
 const board = read('../../components/shifting-lands-journey-board.vue')
 const store = read('../../stores/shiftingLandsJourneyStore.ts')
 const legacy = read('../../stores/shiftingLandsStore.ts')
-const channel = read('../../content/channels/zuzu/zuzu-shifting-lands.md')
+const channel = read('../../content/channels/arcade/zuzu-shifting-lands.md')
 
 assert.doesNotMatch(channel, /requiredRole: ADMIN/)
 assert.match(channel, /route: \/play\/zuzu-shifting-lands/)

@@ -7,7 +7,7 @@ on:
       - 'content/channels/home/**'
       - 'content/channels/admin/**'
       - 'content/channels/arcade/**'
-      - 'content/channels/zuzu/**'
+      - 'content/channels/arcade/**'
       - 'content/channels/projects/**'
       - 'components/home/home-page.vue'
       - 'components/home/home-visitor-directory.vue'

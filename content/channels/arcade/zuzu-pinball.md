@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: zuzu
+channelKey: arcade
 tabKey: zuzu-pinball
 label: Zuzu Pinball
 title: Zuzu · The Last Bell
@@ -28,7 +28,7 @@ tutorial:
     This is an evolving playable table, not yet the finished FX3-grade release.
 ---
 
-The Last Bell is a new Zuzu pinball table. The Zuzu channel's work-in-progress table is distinct
+The Last Bell is a new Zuzu pinball table. The Play channel's work-in-progress table is distinct
 from the Arcade's AMI Village Rescue. The full game design,
 including mechanical shot routes and the River Croc animated ball-capture
 toy, is documented in Conductor under `projects/zuzu-pinball/`.

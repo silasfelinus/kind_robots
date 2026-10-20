@@ -56,6 +56,7 @@ export const SYSTEM_ROUTES: Record<string, string> = {
     'legacy URL, 301-redirects to /play/save-the-plumber',
   '/admin/sliding-tile-gallery':
     'legacy URL, 301-redirects to /play/sliding-tile-gallery',
+  '/play/zuzu': 'legacy world hub URL, 301-redirects to /play/arcade',
   '/admin/zuzu-pinball': 'legacy URL, 301-redirects to /play/zuzu-pinball',
   '/admin/zuzu-shifting-lands':
     'legacy URL, 301-redirects to /play/zuzu-shifting-lands',

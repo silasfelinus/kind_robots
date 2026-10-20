@@ -208,8 +208,7 @@ assert.match(
   'Initial SSR client navigation must defer localStorage-backed access enforcement until app:mounted.',
 )
 
-// Storybook and its ingredient subtabs now live under Play; Arcade and Zuzu
-// have dedicated channels, while Home is kept only for route/tutorial resolution.
+// Play includes Arcade and Zuzu games; Home remains for route/tutorial resolution.
 const artPageSource = readFileSync('content/art.md', 'utf8')
 assert.match(
   artPageSource,
@@ -377,7 +376,7 @@ const navigationMoves = [
   {
     slug: 'zuzu-lair',
     from: 'admin',
-    to: 'zuzu',
+    to: 'arcade',
     route: '/admin/zuzu-lair',
     admin: true,
   },
@@ -405,28 +404,28 @@ const navigationMoves = [
   {
     slug: 'zuzu-shifting-lands',
     from: 'projects',
-    to: 'zuzu',
+    to: 'arcade',
     route: '/play/zuzu-shifting-lands',
     admin: false,
   },
   {
     slug: 'zuzu-pinball',
     from: 'projects',
-    to: 'zuzu',
+    to: 'arcade',
     route: '/play/zuzu-pinball',
     admin: false,
   },
   {
     slug: 'zuzu-showdown',
     from: 'projects',
-    to: 'zuzu',
+    to: 'arcade',
     route: '/play/zuzu-showdown',
     admin: false,
   },
   {
     slug: 'zuzu-gamebook',
     from: 'projects',
-    to: 'zuzu',
+    to: 'arcade',
     route: '/play/zuzu-gamebook',
     admin: false,
   },
@@ -456,7 +455,7 @@ for (const { slug, from, to, route, admin } of navigationMoves) {
   }
 }
 
-for (const key of ['arcade', 'zuzu', 'projects', 'admin', 'home']) {
+for (const key of ['arcade', 'projects', 'admin', 'home']) {
   const index = readFileSync(`content/channels/${key}/index.md`, 'utf8')
   assert.match(index, /\ntutorial:\s*\n[\s\S]*?overview:/)
 }
@@ -467,7 +466,7 @@ const channelSort = (key: string) =>
     )?.[1],
   )
 assert.ok(
-  ['arcade', 'zuzu', 'projects', 'admin'].every(
+  ['arcade', 'projects', 'admin'].every(
     (key) => channelSort(key) < channelSort('home'),
   ),
 )
@@ -532,7 +531,7 @@ const routePath = (route: string) => route.split('?')[0] ?? ''
 
 assert.deepEqual(
   contentChannels.map((channel) => channel.channelKey).sort(),
-  ['admin', 'arcade', 'home', 'projects', 'zuzu'],
+  ['admin', 'arcade', 'home', 'projects'],
   'The tutorial contract must cover every current channel.',
 )
 

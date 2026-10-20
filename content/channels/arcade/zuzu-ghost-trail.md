@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: zuzu
+channelKey: arcade
 tabKey: zuzu-ghost-trail
 label: Zuzu Ghost Trail
 title: Zuzu · Ghost Trail
@@ -19,4 +19,4 @@ tutorial:
     scores and other original games live.
 ---
 
-Take the ghost trail directly from Zuzu's world.
+Take the ghost trail directly from Play.

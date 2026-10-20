@@ -124,7 +124,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/save-the-plumber',
   },
   'emperor-of-dust': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'emperor-of-dust',
     route: '/play/emperor-of-dust',
   },
@@ -139,29 +139,29 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/ecotone',
   },
   'zuzu-shifting-lands': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-shifting-lands',
     route: '/play/zuzu-shifting-lands',
   },
   'zuzu-pinball': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-pinball',
     route: '/play/zuzu-pinball',
   },
   'zuzu-gamebook': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-gamebook',
     route: '/play/zuzu-gamebook',
   },
   'zuzu-lair': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-lair',
     route: '/admin/zuzu-lair',
   },
   // Out of Admin on 2026-10-11 (Silas: "If it's ready for prime time, it can
   // move to the Play and out of admin"), after the t-024 balance pass.
   'zuzu-showdown': {
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-showdown',
     route: '/play/zuzu-showdown',
   },

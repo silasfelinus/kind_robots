@@ -315,12 +315,48 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
-    title: 'The World of Zuzu',
-    tag: 'Adventure collection',
+    title: 'Emperor of Dust',
+    tag: 'Fortress adventure',
     category: 'play',
-    route: '/play/zuzu',
-    image: '/zuzu-showdown-portraits/zuzu-vs-hd.webp',
-    description: 'A koala ronin crosses the strange Shifting Lands.',
+    route: '/play/emperor-of-dust',
+    image: '/emperor-of-dust/intro/fortress.webp',
+    description: 'Rule the wasteland, command followers and make hard choices.',
+  },
+  {
+    title: 'Zuzu Pinball',
+    tag: 'Haunted pinball',
+    category: 'play',
+    route: '/play/zuzu-pinball',
+    image: '/zuzu-pinball/river-croc.webp',
+    description:
+      'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
+  },
+  {
+    title: 'Zuzu: Shifting Lands',
+    tag: 'Board adventure',
+    category: 'play',
+    route: '/play/zuzu-shifting-lands',
+    image: '/shifting-lands/cards/the-map-in-ashes.webp',
+    description:
+      'Explore changing lands, encounter strangers and test your luck.',
+  },
+  {
+    title: 'Zuzu Gamebook',
+    tag: 'Illustrated gamebook',
+    category: 'play',
+    route: '/play/zuzu-gamebook',
+    image: '/zuzu-gamebook/scenes/waterhole.webp',
+    description:
+      'Choose the koala ronin’s road through dice, danger and branching stories.',
+  },
+  {
+    title: 'Ecotone: Weird Humboldt',
+    tag: 'Comedy-horror adventure',
+    category: 'play',
+    route: '/play/ecotone',
+    image: '/ecotone/title/key-art.webp',
+    description:
+      'A strange Humboldt festival weekend where your choices shape the county.',
   },
   {
     title: 'Shifting Desks',

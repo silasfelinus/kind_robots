@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: zuzu
+channelKey: arcade
 tabKey: zuzu-shifting-lands
 label: Shifting Lands
 title: Zuzu · Shifting Lands

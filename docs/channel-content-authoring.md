@@ -6,13 +6,12 @@ The navigation UI, workspace cards, tutorial flyer, tab artwork, and legacy dash
 ## Current channel layout
 
 The old four-channel Home / Storybook / Play / Admin framing is historical.
-The front-facing channel selector now shows **Arcade, Zuzu, Projects and
+The front-facing channel selector now shows **Play, Projects and
 Admin** (Admin only to administrators):
 
-- **Arcade** (`/play/arcade`) — the cabinet hall, its generated per-game
-  subtabs, Memory Dungeon, Shifting Desks and Cthulhuquarium.
-- **Zuzu** (`/play/zuzu-gamebook`) — Zuzu's gamebook, Shifting Lands,
-  Showdown, Ghost Trail and pinball, plus admin-only Zuzu previews.
+- **Play** (`/play/arcade`) — the cabinet hall, Memory Dungeon, Shifting
+  Desks, Cthulhuquarium, Ecotone, Emperor of Dust and Zuzu adventures, including
+  the admin-only Zuzu's Lair preview.
 - **Projects** (`/storybook`) — Storybook is its default, routed tab and a
   submenu holding the ingredient galleries (Dreams, Bots, Characters, Rewards,
   Scenarios, Facets, Models); Art, Video Gen, Music Video, Mandarin, Daily
@@ -32,7 +31,6 @@ help and permissions. Keep unreleased admin tools under `/admin/...` with
 ```text
 content/channels/
 ├── arcade/
-├── zuzu/
 ├── projects/
 ├── admin/
 └── home/
@@ -204,7 +202,7 @@ quality or factual correctness of the art and copy.
 ### The tutorial-completeness contract
 
 `utils/scripts/verifyNavigationRouteAccess.ts` holds every current channel —
-Arcade, Zuzu, Projects, Admin and Home — to the same help contract (it began as
+Play, Projects, Admin and Home — to the same help contract (it began as
 an Admin-only rule):
 
 - the channel tutorial is **authored** (`sectionsSource: authored`), with an

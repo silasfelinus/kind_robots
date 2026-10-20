@@ -81,18 +81,28 @@
       @click="advance"
     >
       <span aria-live="polite">{{ shown }}</span>
-      <span
-        v-if="!streaming && !lastLine"
-        class="ml-2 text-warning"
-        aria-hidden="true"
-        >▸</span
-      >
     </button>
+    <div v-if="!showLog && (streaming || !lastLine)" class="px-3 pb-3">
+      <button
+        type="button"
+        class="eod-finish flex w-full items-center justify-center gap-2 px-5 py-2 text-sm"
+        @click="advance"
+      >
+        {{ streaming ? 'Show all' : 'Continue' }}
+        <span aria-hidden="true">▸</span>
+      </button>
+    </div>
 
     <div
-      v-if="!streaming && lastLine && choices.length"
-      class="grid gap-1.5 border-t border-warning/20 p-3"
+      v-if="showChoices"
+      ref="choicesEl"
+      class="grid scroll-mb-3 gap-1.5 border-t border-warning/20 p-3"
     >
+      <p
+        class="text-[10px] font-semibold uppercase tracking-[0.25em] text-warning"
+      >
+        Your answer
+      </p>
       <button
         v-for="choice in choices"
         :key="choice.id"
@@ -106,11 +116,10 @@
         :disabled="choice.blockers.length > 0"
         @click="emit('choose', choice.id)"
       >
-        <Icon
-          :name="
-            choice.blockers.length ? 'kind-icon:lock' : 'kind-icon:diamond'
-          "
-          class="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning"
+        <span
+          class="mt-1.5 h-2 w-2 shrink-0 rotate-45 border border-warning"
+          :class="choice.blockers.length ? '' : 'bg-warning'"
+          aria-hidden="true"
         />
         <span class="min-w-0">
           <strong class="block">{{ choice.label }}</strong>
@@ -127,7 +136,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import type { TextSpeed } from '~/stores/emperorFortressStore'
 
@@ -153,6 +162,24 @@ const line = computed(() => props.lines[index.value] ?? '')
 const shown = computed(() => line.value.slice(0, visible.value))
 const streaming = computed(() => visible.value < line.value.length)
 const lastLine = computed(() => index.value >= props.lines.length - 1)
+const showChoices = computed(
+  () => !streaming.value && lastLine.value && props.choices.length > 0,
+)
+const choicesEl = ref<HTMLElement | null>(null)
+
+// The answers appear under the line; on a phone that is below the fold, so
+// bring them into view the moment they arrive.
+watch(showChoices, async (shown) => {
+  if (!shown) return
+  await nextTick()
+  const reduced = window.matchMedia?.(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
+  choicesEl.value?.scrollIntoView({
+    behavior: reduced ? 'auto' : 'smooth',
+    block: 'nearest',
+  })
+})
 
 function stop() {
   if (timer) clearInterval(timer)

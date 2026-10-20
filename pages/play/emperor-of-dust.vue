@@ -210,6 +210,7 @@
             <EmperorFortressThrone
               v-else-if="activeRoom === 'throne'"
               :run="run"
+              @next="enter('quests')"
             />
             <EmperorFortressQuests
               v-else-if="activeRoom === 'quests'"

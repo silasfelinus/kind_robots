@@ -6,13 +6,6 @@ on:
       - 'components/storybook/storybook-collection.vue'
       - 'utils/scripts/verifyStorybookCollection.mjs'
       - '.github/workflows/storybook-collection-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/storybook/storybook-collection.vue'
-      - 'utils/scripts/verifyStorybookCollection.mjs'
-      - '.github/workflows/storybook-collection-contract.yml'
-
 permissions:
   contents: read
 

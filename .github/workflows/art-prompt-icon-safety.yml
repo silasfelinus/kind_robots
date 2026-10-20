@@ -15,18 +15,6 @@ on:
       - 'stores/**'
       - 'content/**'
       - '.github/workflows/art-prompt-icon-safety.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/utils/artJobNormalization.ts'
-      - 'utils/scripts/verifyArtPromptRepair.ts'
-      - 'utils/scripts/auditIcons.ts'
-      - 'assets/icons/**'
-      - 'components/**'
-      - 'pages/**'
-      - 'stores/**'
-      - 'content/**'
-      - '.github/workflows/art-prompt-icon-safety.yml'
   workflow_dispatch:
 
 concurrency:

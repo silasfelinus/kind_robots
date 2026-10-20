@@ -1,20 +1,6 @@
 name: ArtJob Provenance Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/art/queue/**'
-      - 'server/api/comfy/sdxl/utils/workflow.ts'
-      - 'server/utils/artJobProvenance.ts'
-      - 'server/utils/artImageSeed.ts'
-      - 'server/utils/artJobResourceRefresh.ts'
-      - 'server/utils/artJobRetry.ts'
-      - 'utils/scripts/verifyArtJobProvenance.ts'
-      - 'utils/scripts/verifyArtJobLoraOverride.ts'
-      - 'utils/scripts/verifyArtJobCheckpointRefresh.ts'
-      - 'utils/scripts/repairTrainerCheckpointFailures.ts'
-      - '.github/workflows/artjob-provenance-contract.yml'
   pull_request:
     branches: [main]
     paths:

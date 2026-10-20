@@ -7,12 +7,6 @@ on:
       - 'utils/scripts/registerAnimationEffect.mjs'
       - 'utils/scripts/registerAnimationEffect.test.mjs'
       - '.github/workflows/animation-catalog-registration-helper.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/scripts/registerAnimationEffect.mjs'
-      - 'utils/scripts/registerAnimationEffect.test.mjs'
-      - '.github/workflows/animation-catalog-registration-helper.yml'
   workflow_dispatch:
 
 jobs:

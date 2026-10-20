@@ -10,15 +10,6 @@ on:
       - 'utils/agentCredentialScopes.ts'
       - 'tests/contracts/verifyForumUpvotes.ts'
       - '.github/workflows/forum-upvote-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/forum/threads/**'
-      - 'server/api/v1/forum/threads/**'
-      - 'server/utils/forumUpvotes.ts'
-      - 'utils/agentCredentialScopes.ts'
-      - 'tests/contracts/verifyForumUpvotes.ts'
-      - '.github/workflows/forum-upvote-contract.yml'
   workflow_dispatch:
 
 permissions:

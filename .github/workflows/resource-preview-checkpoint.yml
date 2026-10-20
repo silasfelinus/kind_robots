@@ -8,15 +8,6 @@ on:
       - 'utils/scripts/verifyResourcePreviewCheckpoint.test.ts'
       - 'utils/scripts/verifyLoraProbePlan.test.ts'
       - '.github/workflows/resource-preview-checkpoint.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/resources/**/generate-preview.post.ts'
-      - 'utils/loraProbe.ts'
-      - 'utils/scripts/verifyResourcePreviewCheckpoint.test.ts'
-      - 'utils/scripts/verifyLoraProbePlan.test.ts'
-      - '.github/workflows/resource-preview-checkpoint.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-latest

@@ -8,13 +8,6 @@ on:
       - 'server/utils/authAttemptLimit.ts'
       - 'tests/contracts/verifyLoginThrottle.ts'
       - '.github/workflows/login-throttle-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/auth/login.post.ts'
-      - 'server/utils/authAttemptLimit.ts'
-      - 'tests/contracts/verifyLoginThrottle.ts'
-      - '.github/workflows/login-throttle-contract.yml'
   workflow_dispatch:
 
 permissions:

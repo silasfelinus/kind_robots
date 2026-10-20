@@ -11,17 +11,6 @@ on:
       - 'artifacts/comment-census.json'
       - 'docs/architecture/**'
       - '.github/workflows/comment-migration-contract.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'utils/comments/**'
-      - 'utils/scripts/**'
-      - 'config/**'
-      - 'artifacts/comment-census.json'
-      - 'docs/architecture/**'
-      - '.github/workflows/comment-migration-contract.yml'
-
 jobs:
   comment-contract:
     runs-on: ubuntu-latest

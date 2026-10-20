@@ -16,21 +16,6 @@ on:
       - 'tests/contracts/verifyAgentForumPolicy.ts'
       - 'utils/scripts/verifyAgentProfiles.test.ts'
       - '.github/workflows/agent-forum-policy-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'prisma/migrations/**agent_forum_policy**'
-      - 'server/api/agent-credentials/**'
-      - 'server/api/agent-profiles/**'
-      - 'server/api/forum/threads/**'
-      - 'server/api/v1/forum/**'
-      - 'server/utils/agentForumPolicy.ts'
-      - 'server/utils/agentForumV2.ts'
-      - 'server/utils/authGuard.ts'
-      - 'server/utils/forumGeneration.ts'
-      - 'tests/contracts/verifyAgentForumPolicy.ts'
-      - 'utils/scripts/verifyAgentProfiles.test.ts'
-      - '.github/workflows/agent-forum-policy-contract.yml'
   workflow_dispatch:
 
 permissions:

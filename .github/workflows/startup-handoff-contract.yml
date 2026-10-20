@@ -1,16 +1,6 @@
 name: Startup Handoff Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'components/screenfx/startup-animation.vue'
-      - 'components/admin/kind-loader.vue'
-      - 'components/admin/loading-messages.vue'
-      - 'server/plugins/00-startup-composition-shell.ts'
-      - 'utils/startupLaunch.ts'
-      - 'utils/scripts/verify-startup-handoff.mjs'
-      - '.github/workflows/startup-handoff-contract.yml'
   pull_request:
     branches: [main]
     paths:

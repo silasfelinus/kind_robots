@@ -1,16 +1,6 @@
 name: Open Issue Repair Contracts
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'components/characters/add-character.vue'
-      - 'stores/superkateReceiptStore.ts'
-      - 'server/api/stylist/receipt-email.post.ts'
-      - 'server/api/art/queue/**'
-      - 'server/utils/artImageSeed.ts'
-      - 'utils/scripts/verifyOpenIssueRepairs.ts'
-      - '.github/workflows/open-issue-repairs-contract.yml'
   pull_request:
     branches: [main]
     paths:

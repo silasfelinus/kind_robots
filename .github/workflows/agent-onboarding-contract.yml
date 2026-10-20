@@ -10,15 +10,6 @@ on:
       - 'server/api/agent-credentials/**'
       - 'utils/scripts/verifyAgentOnboarding.test.ts'
       - '.github/workflows/agent-onboarding-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/user/agent-credentials-panel.vue'
-      - 'stores/agentCredentialStore.ts'
-      - 'server/api/v1/profile.get.ts'
-      - 'server/api/agent-credentials/**'
-      - 'utils/scripts/verifyAgentOnboarding.test.ts'
-      - '.github/workflows/agent-onboarding-contract.yml'
   workflow_dispatch:
 
 permissions:

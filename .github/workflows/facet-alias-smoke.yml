@@ -16,21 +16,6 @@ on:
       - package.json
       - package-lock.json
       - .github/workflows/facet-alias-smoke.yml
-  push:
-    branches: [main]
-    paths:
-      - prisma.config.ts
-      - prisma/facet-alias.prisma
-      - prisma/migrations/00000000000000_squashed/migration.sql
-      - .github/workflows/fixtures/facet-alias-schema.sql
-      - utils/facetAliases.ts
-      - utils/scripts/setFacetAliases.ts
-      - utils/scripts/verifyFacetAliases.ts
-      - server/utils/facetAliases.ts
-      - server/api/facets/**
-      - package.json
-      - package-lock.json
-      - .github/workflows/facet-alias-smoke.yml
   workflow_dispatch:
 
 concurrency:

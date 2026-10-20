@@ -17,24 +17,6 @@ on:
       - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
       - 'utils/scripts/verifyComponentSchemaRetirement.ts'
       - '.github/workflows/component-runtime-retirement-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/animation/animation-manager.vue'
-      - 'components/wonderlab/**'
-      - 'content/play/memory.md'
-      - 'content/play/screenfx.md'
-      - 'content/build/animation-manager.md'
-      - 'server/api/**'
-      - 'prisma/schema.prisma'
-      - 'prisma/migrations/**'
-      - 'config/**'
-      - 'stores/animationManagerStore.ts'
-      - 'stores/index.ts'
-      - 'utils/scripts/verifyComponentRuntimeRetirement.ts'
-      - 'utils/scripts/verifyComponentSchemaRetirement.ts'
-      - '.github/workflows/component-runtime-retirement-contract.yml'
-
 jobs:
   contract:
     runs-on: ubuntu-latest

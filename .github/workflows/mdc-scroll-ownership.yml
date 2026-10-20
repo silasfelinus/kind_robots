@@ -8,16 +8,6 @@ on:
       - 'pages/**/*.vue'
       - 'utils/scripts/verifyMdcScrollOwnership.ts'
       - '.github/workflows/mdc-scroll-ownership.yml'
-  push:
-    branches:
-      - main
-    paths:
-      - 'components/**/*.vue'
-      - 'content/**/*.md'
-      - 'pages/**/*.vue'
-      - 'utils/scripts/verifyMdcScrollOwnership.ts'
-      - '.github/workflows/mdc-scroll-ownership.yml'
-
 permissions:
   contents: read
 

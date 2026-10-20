@@ -225,6 +225,21 @@
     "helpOutcome": "A seamstress sews in a new opening while the bear politely looks away."
   },
   {
+    "id": "WH-058",
+    "title": "A Peacock with a Search Warrant",
+    "premise": "An extremely official bird investigates missing color.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3,
+    "pressure": "An official-looking peacock investigates stolen pigments at the zoo. His search warrant describes a color no human visitor can see, and several painted signs have gone white.",
+    "investigate": "Read the warrant and inspect the stripped murals",
+    "success": "The missing pigment glitters on a dated transfer slip for a future conservation exhibit; the peacock's case is real to him.",
+    "failure": "The bird confiscates your pencil, but a keeper confirms the paint vanished before the search began.",
+    "help": "Help the keepers restore the public signs without frightening animals",
+    "helpOutcome": "Visitors work from remembered colors; the peacock leaves his badge with the staff as a thank-you."
+  },
+  {
     "id": "WH-059",
     "title": "The Picnic That Never Ends",
     "premise": "One family has been packing up the same picnic for decades.",

@@ -357,6 +357,39 @@ assert.equal(
   'Resources must expose LoRA Triage from both toolbar states',
 )
 
+const loraTriage = source('pages/admin/lora-triage.vue')
+assert.match(
+  loraTriage,
+  /<main class="kr-surface flex h-full min-h-0 flex-col overflow-hidden">/,
+  'LoRA Triage must bound its gallery scroll owner inside a flex column',
+)
+assert.match(
+  loraTriage,
+  /<div class="kr-scroll kr-container-wide w-full space-y-4 p-4 md:p-6">/,
+  'LoRA Triage must retain the gallery scroll owner',
+)
+assert.match(
+  loraTriage,
+  /<header class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3">/,
+  'LoRA Triage toolbar actions must sit on a readable opaque panel',
+)
+assert.match(
+  loraTriage,
+  /to="\\/resources"/,
+  'LoRA Triage must link to the installed model library',
+)
+assert.match(
+  loraTriage,
+  /to="\\/resources\\?tab=discover"/,
+  'LoRA Triage must link to model discovery and downloads',
+)
+assert.match(
+  loraTriage,
+  /class="grid grid-cols-3 gap-2 lg:grid-cols-6"/,
+  'LoRA Triage mobile counts must use two rows instead of three',
+)
+
+
 for (const path of [
   'content/channels/admin/appmaker.md',
   'content/channels/admin/conductor-app.md',

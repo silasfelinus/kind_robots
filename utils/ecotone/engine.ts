@@ -328,12 +328,20 @@ export function drawFork(state: RunState, index: number): string[] {
       (!card.requiresLead || card.requiresLead === state.activeLead) &&
       (!card.requiresLens || card.requiresLens === state.openingState),
   )
-  const picked: string[] = []
-  step.pools.forEach((pool, n) => {
+  const decks = step.pools.map((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)
-    picked.push(...seededShuffle(ids, hashSeed(state.seed, index * 131 + n)))
+    return seededShuffle(ids, hashSeed(state.seed, index * 131 + n))
   })
-  // Every fork is at least a binary choice: top up from the rest of the county if a pool runs dry.
+  const picked: string[] = []
+  while (picked.length < FORK_SIZE && decks.some((deck) => deck.length)) {
+    for (const deck of decks) {
+      const next = deck.shift()
+      if (next) picked.push(next)
+      if (picked.length >= FORK_SIZE) break
+    }
+  }
+  // Interleave distinct geographic pools so a large chapter cannot starve another.
+  // Every fork remains a seeded, saveable decision with at least two real cards.
   if (picked.length < 2) {
     const rest = open.map((c) => c.id).filter((id) => !picked.includes(id))
     picked.push(...seededShuffle(rest, hashSeed(state.seed, index * 977)))

@@ -9,14 +9,14 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
   {
     id: 'FR-MARA-01',
     kind: 'encounter',
-    chapter: 3,
+    chapter: 5,
     requiresFormerGuide: 'mara',
-    place: 'Old Town Eureka',
+    place: 'Garberville',
     title: 'A Tattoo Studio with Two Front Doors',
     scene: 'bay',
     body: [
-      'Mara is carrying the studio sign through a doorway you have never seen before. Apparently the business has expanded into a second room without consulting fate, you, or the city marketing office.',
-      'She sees you and waves with the end of the sign. A festival promoter has offered free advertising if she shares private client sketches. She has already said no. The only unresolved question is how to pay for the new room.',
+      'Mara is hanging a temporary studio sign in a borrowed Garberville storefront. Her Old Town studio has arranged a three-day workshop without consulting fate, you, or the county marketing office.',
+      'She sees you and waves with the end of the sign. A festival promoter has offered free advertising if she shares private client sketches. She has already said no. The only unresolved question is how to pay for the workshop space.',
     ],
     choices: [
       {
@@ -59,11 +59,11 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
   {
     id: 'FR-KIT-01',
     kind: 'encounter',
-    chapter: 4,
+    chapter: 3,
     requiresFormerGuide: 'kit',
-    place: 'Arcata Plaza',
+    place: 'Eureka waterfront',
     title: 'The Unclaimed Shadow Parade',
-    scene: 'plaza',
+    scene: 'bay',
     body: [
       'Kit has put together a parade of sculptures made from other people’s mistakes. A bent wheel becomes an elephant. A broken umbrella becomes a jellyfish. One arrangement remains stubbornly a broken umbrella.',
       'She spots you across the square, grins, and keeps working. Nobody is waiting for you to choose between friendship and departure; she has a deadline either way. The parade needs volunteers and a plan for giving each maker credit.',
@@ -104,14 +104,14 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'Arcata Plaza is real; the parade, maker agreements, characters and floats are invented. Kit is Hmong American, but she is not a stand-in for Hmong cultural tradition.',
+    provenance: 'Eureka waterfront is real; the parade, maker agreements, characters and floats are invented. Kit is Hmong American, but she is not a stand-in for Hmong cultural tradition.',
   },
   {
     id: 'FR-JUNIPER-01',
     kind: 'encounter',
-    chapter: 5,
+    chapter: 3,
     requiresFormerGuide: 'juniper',
-    place: 'Arcata Community Forest',
+    place: 'Sequoia Park, Eureka',
     title: 'The Forest’s Comment Period',
     scene: 'grove',
     body: [
@@ -154,7 +154,7 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'Arcata Community Forest is real. This meeting, characters, accessibility project and supernatural nymph are invented; no real public land decision is implied.',
+    provenance: 'Sequoia Park is real. This meeting, characters, accessibility project and supernatural nymph are invented; no real public land decision is implied.',
   },
   {
     id: 'FR-CEDAR-01',
@@ -209,7 +209,7 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
   {
     id: 'FR-ASSEMBLY-01',
     kind: 'encounter',
-    chapter: 6,
+    chapter: 3,
     requiresMeetCount: 2,
     place: 'Eureka waterfront',
     title: 'The Potluck That Refuses to Become a Council',

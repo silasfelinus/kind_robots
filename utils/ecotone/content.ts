@@ -2,6 +2,8 @@ export type SkillId = 'rizz' | 'burly' | 'wits' | 'lore' | 'psyche'
 export type LensId =
   'sober' | 'tipsy' | 'stoned' | 'tripping_balls' | 'cocaine' | 'meth' | 'mdma'
 export type CompanionId = 'mara' | 'kit' | 'juniper' | 'cedar'
+export type LeadId = CompanionId | 'alone'
+export type EventId = 'green-ribbon' | 'kinetic'
 export type Fate = 'hope' | 'dark'
 export type SceneKind =
   | 'meadow'
@@ -36,10 +38,22 @@ export type Choice = {
   cost?: string
   success: Outcome
   failure?: Outcome
+  /** Opening beats: the companion this area leads to. */
+  prospect?: CompanionId
+  /** Offer beats: the voluntary opening lens this choice takes. */
+  lens?: LensId
+  /** Meeting beats: travel with the prospect (true) or go alone (false). */
+  meet?: boolean
+  /** Shown but not playable yet, e.g. 'Being written'. */
+  locked?: string
 }
 
 export type EncounterCard = {
   id: string
+  /** 'spine' beats are fixed route story; 'encounter' cards are dealt into the daily white-rabbit forks. */
+  kind?: 'spine' | 'encounter'
+  event?: EventId
+  day?: number
   chapter: number
   place: string
   title: string
@@ -48,6 +62,11 @@ export type EncounterCard = {
   body: string[]
   lensLines?: Partial<Record<LensId, string>>
   leadLines?: Partial<Record<CompanionId, string>>
+  /** Shown instead of a lead line when nobody is traveling with you. */
+  aloneLine?: string
+  /** Replaces body for the companion this beat is keyed on: the prospect (opening beats) or the lead. */
+  variantBy?: 'prospect' | 'lead'
+  variants?: Partial<Record<LeadId, string[]>>
   presence?: {
     companion: CompanionId
     lead: string
@@ -131,7 +150,8 @@ export type Companion = {
   id: CompanionId
   name: string
   role: string
-  lens: LensId
+  event: EventId
+  meetAt: string
   motif: string
   bio: string
   line: string
@@ -144,7 +164,8 @@ export const COMPANIONS: Companion[] = [
     id: 'mara',
     name: 'Mara',
     role: 'Tattoo artist',
-    lens: 'sober',
+    event: 'kinetic',
+    meetAt: 'the tattoo table at the Kinetic race',
     motif: 'six-winged bird',
     bio: 'Raised on her family’s reservation, meticulous and dryly funny. A tribal small-business grant helped her open a busy studio. She skips cannabis when she works: she likes her lines where she left them.',
     line: '“I don’t need to be high to know that tree just moved.”',
@@ -155,8 +176,9 @@ export const COMPANIONS: Companion[] = [
   {
     id: 'kit',
     name: 'Kit',
-    role: 'Kinetic sculptor and juggler',
-    lens: 'tipsy',
+    role: 'Acrobat, juggler and kinetic sculptor',
+    event: 'green-ribbon',
+    meetAt: 'the acro lawn at the Green Ribbon Fair',
     motif: 'juggling clubs and a gear',
     bio: 'An Arcata-raised Hmong American physical-theatre performer. Her grandparents came from Laos after the war and settled in Minnesota, where she was born; her parents brought the family west when she was small. Makes spectacle out of a broken bike, a ladder and a bad idea.',
     line: '“Every machine wants to be a parade. Most of them just need permission.”',
@@ -167,7 +189,8 @@ export const COMPANIONS: Companion[] = [
     id: 'juniper',
     name: 'Juniper',
     role: 'Forest guide, possibly a nymph',
-    lens: 'stoned',
+    event: 'green-ribbon',
+    meetAt: 'the drum circle in the woods at the Green Ribbon Fair',
     motif: 'fern and green ribbon',
     bio: 'A warm, teasing hippie in thrift-store layers who seems at home among redwoods in a way people aren’t. Her reflection has branches. Her own goals come first.',
     line: '“The woods remember you. That’s not always a compliment.”',
@@ -178,7 +201,8 @@ export const COMPANIONS: Companion[] = [
     id: 'cedar',
     name: 'Cedar',
     role: 'Backroads mechanic',
-    lens: 'tripping_balls',
+    event: 'kinetic',
+    meetAt: 'pit row at the Kinetic race',
     motif: 'CB radio waves',
     bio: 'A country local in his thirties with oil-stained boots and a truck full of tools. His dad is a Hispanic logger; his mom grew up in a backwoods growing family and volunteered on the ground support for the Luna tree-sit. They met across the timber divide and are still together. He jokes about cosmic forces and fixes everything else.',
     line: '“Everybody in my family remembers the same tree. None of ’em remembers the same argument.”',
@@ -194,8 +218,6 @@ export type Lens = {
   offer: string
   question: string
   clarity: number
-  companion: CompanionId | null
-  check?: Check
   open: boolean
 }
 
@@ -207,8 +229,6 @@ export const LENSES: Lens[] = [
     offer: 'Water and a sandwich.',
     question: 'What is the evidence?',
     clarity: 3,
-    companion: 'mara',
-    check: { skill: 'wits', target: 7 },
     open: true,
   },
   {
@@ -218,8 +238,6 @@ export const LENSES: Lens[] = [
     offer: 'A social drink and the dance circle.',
     question: 'Who belongs here?',
     clarity: 2,
-    companion: 'kit',
-    check: { skill: 'rizz', target: 7 },
     open: true,
   },
   {
@@ -229,8 +247,6 @@ export const LENSES: Lens[] = [
     offer: 'A voluntary smoke and a quiet place to listen.',
     question: 'What is connected to what?',
     clarity: 2,
-    companion: 'juniper',
-    check: { skill: 'psyche', target: 9 },
     open: true,
   },
   {
@@ -240,8 +256,6 @@ export const LENSES: Lens[] = [
     offer: 'A clearly labeled, entirely fictional enchanted brownie.',
     question: 'Is any of this already decided?',
     clarity: 1,
-    companion: 'cedar',
-    check: { skill: 'psyche', target: 9 },
     open: true,
   },
   {
@@ -251,7 +265,6 @@ export const LENSES: Lens[] = [
     offer: 'Being written.',
     question: '',
     clarity: 2,
-    companion: null,
     open: false,
   },
   {
@@ -261,7 +274,6 @@ export const LENSES: Lens[] = [
     offer: 'Being written.',
     question: '',
     clarity: 1,
-    companion: null,
     open: false,
   },
   {
@@ -271,94 +283,9 @@ export const LENSES: Lens[] = [
     offer: 'Being written.',
     question: '',
     clarity: 2,
-    companion: null,
     open: false,
   },
 ]
-
-export const PROLOGUE_OUTCOMES: Record<
-  'sober' | 'tipsy' | 'stoned' | 'tripping_balls',
-  { success: Outcome; failure: Outcome }
-> = {
-  sober: {
-    success: {
-      text: 'The puddle’s reflected branches sway against the wind. Not with it. Against it. You write that down.',
-      effects: {
-        evidence: 'Reflection moving against the wind',
-        flag: 'nymph_seen_clearly',
-      },
-    },
-    failure: {
-      text: 'The young woman hands you a perfectly ordinary trail map. It has one trail on it that is not on any other map.',
-      effects: { evidence: 'A map with an unmarked trail', weird: 1 },
-    },
-  },
-  tipsy: {
-    success: {
-      text: 'You talk your way into the drum circle. The drum lands a split second before the drummer’s hand does. Nobody else notices. You do.',
-      effects: { goodwill: 1, flag: 'drum_echo_heard' },
-    },
-    failure: {
-      text: 'You are adopted by the drum circle, given a tambourine and promoted to unreliable witness.',
-      effects: { goodwill: 1, nerve: -1 },
-    },
-  },
-  stoned: {
-    success: {
-      text: 'Under the music there is a forest polyrhythm nobody composed. You could hum it back. You decide not to, yet.',
-      effects: { evidence: 'An uncomposed forest rhythm', weird: 1 },
-    },
-    failure: {
-      text: 'You lose the rhythm in the bass line. Somebody else at this festival heard it too; you will find them later.',
-      effects: { weird: 1 },
-    },
-  },
-  tripping_balls: {
-    success: {
-      text: 'The forest has acquired a painted moon, and the paint is still wet. Behind it, a trail. Nobody else is looking up.',
-      effects: {
-        evidence: 'A painted moon over the trail',
-        weird: 1,
-        flag: 'moon_route',
-      },
-    },
-    failure: {
-      text: 'You follow a very convincing false lead to the porta-potties. It is, at least, a memorable false lead.',
-      effects: { weird: 1, nerve: -1 },
-    },
-  },
-}
-
-export const PROLOGUE = {
-  title: 'The Woman Who Knows the Trail',
-  place: 'An unnamed festival at the forest edge',
-  scene: 'meadow' as SceneKind,
-  art: 'scenes/prologue-meadow',
-  body: [
-    'The music shakes moss off a huge wooden puppet. Across the meadow a man juggles five clubs with what appear to be six hands. A handmade sign at the tree line reads THE WOODS ARE NOT RESPONSIBLE FOR WHAT YOU REMEMBER.',
-    'A young woman with a green ribbon in her hair asks if you need directions to the stage, or to the path behind it. Her reflection in a puddle has branches growing from its head. She notices you noticing.',
-    'You are an adult, it is your weekend, and the choice of how to meet it is yours.',
-  ],
-}
-
-export const COMPANION_INTROS: Record<CompanionId, string[]> = {
-  mara: [
-    'Past the food trucks, an artist sits behind a table of tattoo flash, ink winding down both forearms. She is drawing a bird with six wings. You are fairly sure it had four a second ago, and you say so.',
-    '“There’s a reason I don’t smoke when I’m working,” she says, tapping her pencil. Then she compares the drawing to an older page, and her humor vanishes. The extra wings are on both pages. The older sketch is dated next week.',
-  ],
-  kit: [
-    'The dance circle opens around a pedal-powered sea serpent with a broken axle and a woman in patched coveralls juggling the parts. She catches a bolt behind her back and bows to it.',
-    '“It’s got a gear I didn’t put in,” Kit tells you, tipsy-bright and dead serious. “It ticks in a rhythm I didn’t teach it. Want to help me figure out who did?”',
-  ],
-  juniper: [
-    'The woman with the green ribbon finds you on a hay bale, listening. She sits without asking and offers half a sandwich, and the redwoods lean in like old friends eavesdropping.',
-    '“You heard it too,” Juniper says. “The forest is repeating itself. It doesn’t do that.” She smiles like she knows exactly how strange she is.',
-  ],
-  cedar: [
-    'Behind the stage a man in an oil-stained jacket is elbow-deep in a generator. A CB handset on his truck’s dash crackles, and a calm voice reads a weather report for a Humboldt that has a bullet train.',
-    '“That ain’t a station,” says Cedar, wiping his hands. “I been listening to every station in this county since I was six.” He looks at you, then at the painted moon. “You seeing that too?”',
-  ],
-}
 
 export const CROSSROADS: Record<CompanionId, string[]> = {
   mara: [
@@ -382,6 +309,7 @@ export const CROSSROADS: Record<CompanionId, string[]> = {
 export const ENCOUNTERS: EncounterCard[] = [
   {
     id: 'WH-006',
+    kind: 'encounter',
     chapter: 1,
     place: 'Minor Theatre, Arcata',
     title: 'The Last Houdini Exit',
@@ -433,6 +361,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-021',
+    kind: 'encounter',
     chapter: 2,
     place: 'Moonstone Beach',
     title: 'Bigfoot Family Picnic',
@@ -495,6 +424,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-061',
+    kind: 'encounter',
     chapter: 3,
     place: 'F Street waterfront, Eureka',
     title: 'The Perilous Plunge into Monday',
@@ -554,6 +484,7 @@ export const ENCOUNTERS: EncounterCard[] = [
 
   {
     id: 'WH-122',
+    kind: 'encounter',
     chapter: 1,
     place: 'Arcata Marsh',
     title: 'The Marsh That Eats Its Words',
@@ -623,6 +554,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-123',
+    kind: 'encounter',
     chapter: 1,
     place: 'Fickle Hill Road, above Arcata',
     title: 'Bad Reception',
@@ -696,6 +628,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-121',
+    kind: 'encounter',
     chapter: 2,
     place: 'Mad River mouth',
     title: 'The Latitude Argument',
@@ -767,6 +700,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-124',
+    kind: 'encounter',
     chapter: 3,
     place: 'Sequoia Park, Eureka',
     title: 'The Friends Who Aren’t Here',
@@ -837,6 +771,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-125',
+    kind: 'encounter',
     chapter: 3,
     place: 'Bayshore Mall, Eureka',
     title: 'Anchor Stores',
@@ -917,6 +852,7 @@ export const ENCOUNTERS: EncounterCard[] = [
   },
   {
     id: 'WH-126',
+    kind: 'encounter',
     chapter: 3,
     place: 'Behind the Bayshore Mall',
     title: 'Behind the Mall',
@@ -1091,11 +1027,14 @@ export const ENDING_LENSES: LensId[] = [
   'mdma',
 ]
 
-export const ENDING_IDS: string[] = COMPANIONS.flatMap((companion) =>
+export const ENDING_LEADS: LeadId[] = [
+  ...COMPANIONS.map((companion) => companion.id),
+  'alone',
+]
+
+export const ENDING_IDS: string[] = ENDING_LEADS.flatMap((lead) =>
   ENDING_LENSES.flatMap((lens) =>
-    (['hope', 'dark'] as Fate[]).map(
-      (fate) => `${companion.id}.${lens}.${fate}`,
-    ),
+    (['hope', 'dark'] as Fate[]).map((fate) => `${lead}.${lens}.${fate}`),
   ),
 )
 

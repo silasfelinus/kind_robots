@@ -346,6 +346,7 @@ export default defineEventHandler(async (event) => {
             supportsVideoRestyle,
             supportsVideoRestyleGrabBag,
             supportsVideoRestyleFast,
+            supportsVideoRestyleStrength,
           }),
         )
 

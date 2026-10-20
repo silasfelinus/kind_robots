@@ -20,10 +20,14 @@ ENV NUXT_TELEMETRY_DISABLED=1 \
 COPY . .
 
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci --include=optional
-# Nuxt Image/IPX uses Sharp at runtime. Ask npm explicitly for the Linux x64
-# glibc platform pair so both the native Sharp binding and its matching libvips
-# package are guaranteed to exist even when the lockfile was produced elsewhere.
-RUN npm install --no-save --package-lock=false --os=linux --cpu=x64 --libc=glibc sharp@0.34.5
+# Nuxt Image/IPX uses Sharp at runtime. The lockfile already carries the Linux x64
+# glibc platform pair, so `npm ci` normally installs both the native Sharp binding
+# and its matching libvips. Only if it did not (a lockfile produced elsewhere) ask
+# npm explicitly for them. The fallback re-resolves the whole tree against
+# package.json ranges and cost ~98s on every build while being a no-op
+# (2026-10-20), so it runs only when the libvips package is actually missing.
+RUN test -d /app/node_modules/@img/sharp-libvips-linux-x64/lib \
+  || npm install --no-save --package-lock=false --os=linux --cpu=x64 --libc=glibc sharp@0.34.5
 RUN test -d /app/node_modules/@img/sharp-libvips-linux-x64/lib
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm run build
 

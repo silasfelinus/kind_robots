@@ -55,7 +55,9 @@ jobs:
     # kind_robots PR #1882, 2026-08-14: every required check on #1882 was green by
     # 06:04:19Z but this job was still running past its typical duration when the
     # merge fired at 06:04:54Z). Tightened so a hang surfaces as a clear CI failure
-    # instead of dangling -- still generous headroom over the ~9-minute norm.
+    # instead of dangling. The norm had crept to 11-14 minutes by 2026-10-20; with
+    # the dead layer-cache export and the redundant Sharp reinstall gone it should
+    # be roughly 5-6, so 15 is now generous headroom.
     timeout-minutes: 15
     permissions:
       contents: read
@@ -105,5 +107,8 @@ jobs:
           # the explicit COMMIT_SHA build argument.
           build-args: |
             COMMIT_SHA=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # No GitHub Actions layer cache. The build stage copies the whole source
+          # tree before installing dependencies, so every commit invalidated every
+          # cached layer and no build ever hit it (zero CACHED steps on 2026-10-20),
+          # while `cache-to: type=gha,mode=max` spent ~4.3 minutes per build
+          # uploading those layers -- about 40% of the job's wall time.

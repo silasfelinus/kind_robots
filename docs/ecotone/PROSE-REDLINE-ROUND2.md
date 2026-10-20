@@ -4,14 +4,14 @@
 
 ## What changed
 
-| Chapter | Revised cards | Story-specific consequences |
-| --- | --- | --- |
-| Arcata | WH-005, WH-007, WH-010 | Misplaced civic time interrupts deliveries; a ghost screening threatens an usher's job; bad film subtitles do not own the protagonist's motives |
-| Coast | WH-028, WH-029, WH-031 | Confidential salmon source; dangerous low-tide harbor; shorebird nesting area protected from camera crowds |
-| Eureka | WH-045, WH-047, WH-049 | Mars postcard archive custody; octopus judging with fair rules; paradox parade yields to a crossing guard |
-| Backroads | WH-065, WH-067, WH-071 | Photographic consent at a cryptid potluck; safe UFO recovery; Sasquatch co-parenting centers a child's requested routine |
-| Southern Humboldt | WH-084, WH-086, WH-091 | Pie contest rejects compulsory confessions; hotel fire-exit headcount; redwood receptionist protects the grove and visitor privacy |
-| Festival | WH-104, WH-107, WH-111 | Six-person shared control; sandcastle politics meets real habitat protection; a sculpture that insists art still needs flotation |
+| Chapter           | Revised cards          | Story-specific consequences                                                                                                                     |
+| ----------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arcata            | WH-005, WH-007, WH-010 | Misplaced civic time interrupts deliveries; a ghost screening threatens an usher's job; bad film subtitles do not own the protagonist's motives |
+| Coast             | WH-028, WH-029, WH-031 | Confidential salmon source; dangerous low-tide harbor; shorebird nesting area protected from camera crowds                                      |
+| Eureka            | WH-045, WH-047, WH-049 | Mars postcard archive custody; octopus judging with fair rules; paradox parade yields to a crossing guard                                       |
+| Backroads         | WH-065, WH-067, WH-071 | Photographic consent at a cryptid potluck; safe UFO recovery; Sasquatch co-parenting centers a child's requested routine                        |
+| Southern Humboldt | WH-084, WH-086, WH-091 | Pie contest rejects compulsory confessions; hotel fire-exit headcount; redwood receptionist protects the grove and visitor privacy              |
+| Festival          | WH-104, WH-107, WH-111 | Six-person shared control; sandcastle politics meets real habitat protection; a sculpture that insists art still needs flotation                |
 
 Each card retains its existing canonical ID, two base choices, dice target, effects and flags. The scene escalation, each choice label and every outcome are revised. Six editor-facing chapter manuscripts now mirror these exact playable strings, including scene/outcome illustration descriptions.
 

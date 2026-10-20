@@ -12,6 +12,7 @@ import type { CrystalSpec, LanternSpec, SporeSpec } from './cavern'
 import type {
   CrowSpec,
   DripSpec,
+  StormCloudSpec,
   FallSpec,
   FluffSpec,
   LaneSpec,
@@ -135,6 +136,9 @@ export type MissionSpec = {
   falls?: readonly FallSpec[]
   drips?: readonly DripSpec[]
   pebbles?: readonly PebbleSpec[]
+  /** Storm Shelf: lightning clouds, and rain that wets the pod and weighs it down. */
+  clouds?: readonly StormCloudSpec[]
+  rain?: boolean
   /** Firefly Caverns: a dark cave, crystal bumpers, spore puffballs and lanterns to relight. */
   dark?: boolean
   crystals?: readonly CrystalSpec[]

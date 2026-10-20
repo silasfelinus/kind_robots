@@ -113,6 +113,7 @@ import {
   FALL,
   FLUFF,
   PEBBLE,
+  STORM,
   crowHits,
   dripAt,
   driftFluff,
@@ -122,6 +123,9 @@ import {
   inFall,
   lanePush,
   pebbleAt,
+  stormCloudAt,
+  boltHits,
+  soakStep,
   newCrow,
   newWindmill,
   rise,
@@ -143,6 +147,7 @@ import {
   drawGrowsMark,
   drawGrowth,
   drawPebble,
+  drawStormCloud,
   drawPodFluff,
   drawRings,
   drawWindmill,
@@ -252,6 +257,8 @@ class SeedLander implements ArcadeGameInstance {
   private hiScore: number
 
   private tick = 0
+  /** Rain wetness 0..1: a wet pod weighs more until it dries on a pad. */
+  private wet = 0
   private menu: { pick: number } | null = null
   private mode: Mode = 'free'
   private screen: Screen | null = null
@@ -380,7 +387,9 @@ class SeedLander implements ArcadeGameInstance {
   }
 
   private gravityFor(pod: Pod): number {
-    return this.gravity * (1 + FLUFF.weight * pod.fluff)
+    return (
+      this.gravity * (1 + FLUFF.weight * pod.fluff + STORM.weight * this.wet)
+    )
   }
 
   private get gravity() {
@@ -628,6 +637,7 @@ class SeedLander implements ArcadeGameInstance {
     this.lit.clear()
     this.sporeWait = (spec.spores ?? []).map(() => 0)
     this.blur = 0
+    this.wet = 0
     ;(spec.cargo ?? []).forEach((c, i) => {
       const id = c.id ?? `cargo${i}`
       const crate = newCargo(id, c.kind, c.x, 0, c.seedlings ?? 3)
@@ -1480,6 +1490,8 @@ class SeedLander implements ArcadeGameInstance {
         this.sound.play('pop')
       })
     }
+    if (this.mission.rain && this.phase === 'fly')
+      this.wet = soakStep(this.wet, !pod.restOn)
     // Stalactite drips and pebble rollers knock a flying pod about, and bonk a resting one.
     if (this.phase === 'fly' && !pod.chute) {
       for (const d of this.mission.drips ?? []) {
@@ -1497,6 +1509,17 @@ class SeedLander implements ArcadeGameInstance {
           continue
         if (pod.restOn) continue
         this.knockPod(pod, v.x < pod.x ? 1 : -1, DRIP.knock, 'DRIP!')
+      }
+      for (const c of this.mission.clouds ?? []) {
+        const v = stormCloudAt(c, this.tick)
+        if (
+          v.state === 'charge' &&
+          this.tick % 12 === 0 &&
+          c.x > this.camera.x - 20
+        )
+          this.sound.play('blip')
+        if (!pod.restOn && boltHits(c, this.tick, pod.x, pod.y))
+          this.knockPod(pod, c.x < pod.x ? 1 : -1, STORM.knock, 'ZAP!')
       }
       for (const p of this.mission.pebbles ?? []) {
         const v = pebbleAt(p, this.tick, (x) => this.terrain.groundAt(x))
@@ -1988,6 +2011,8 @@ class SeedLander implements ArcadeGameInstance {
     for (const m of this.windmills) drawWindmill(g, m, ground(m.x), this.tick)
     for (const d of this.mission.drips ?? [])
       drawDrip(g, d, ground(d.x), this.tick)
+    for (const c of this.mission.clouds ?? [])
+      drawStormCloud(g, c, ground(c.x), this.tick)
     for (const p of this.mission.pebbles ?? [])
       drawPebble(g, p, ground, this.tick)
     if (this.boss) drawBoss(g, this.boss, ground, this.tick)

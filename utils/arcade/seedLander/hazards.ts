@@ -12,6 +12,9 @@
 //   - waterfalls (Waterfall Gorge): white water that pushes the pod down, its spray slowing it;
 //   - drip stalactites: a drop swells (the tell), waits one beat, then falls and knocks the pod;
 //   - pebble rollers: pebbles wobble on a slope, then roll down it and bump what is in the way.
+//   - lightning clouds (Storm Shelf): a cloud crackles and glows for 1.5 s (the tell), then a bolt
+//     strikes the column under it and knocks the pod's lean; and rain, which wets the pod and makes
+//     it heavier the longer it flies (landing on a pad to dry off).
 // Updraft vents live with the mission format (missions.ts). Gameplay dice come from the game's rng.
 
 /** A band of steady wind across part of the island. */
@@ -379,4 +382,65 @@ export function pebbleAt(
   const x = spec.x0 + dir * (t - PEBBLE.wobble) * PEBBLE.speed
   if ((x - spec.x1) * dir > 0) return null
   return { x, y: groundAt(x) - 3, rolling: true }
+}
+
+/** A lightning cloud at (x, y): it rests, crackles (the tell), then strikes the column below it. */
+export type StormCloudSpec = {
+  x: number
+  y: number
+  every: number
+  offset?: number
+}
+
+export const STORM = {
+  /** The crackle and glow before a strike: 1.5 s. */
+  charge: 90,
+  /** How long the bolt lasts. */
+  strike: 12,
+  /** Half-width of the struck column. */
+  reach: 7,
+  knock: 0.55,
+  /** Rain: the pod gets this much wetter each tick it flies, to a full 1, and dries on a pad. */
+  soak: 1 / 420,
+  dry: 1 / 90,
+  /** A fully wet pod weighs this much more. */
+  weight: 0.14,
+} as const
+
+export type StormCloudView = {
+  state: 'rest' | 'charge' | 'strike'
+  /** 0..1 how charged. */
+  charge: number
+}
+
+/** A lightning cloud at `tick`: deterministic from the tick. */
+export function stormCloudAt(
+  spec: StormCloudSpec,
+  tick: number,
+): StormCloudView {
+  const t = (tick + (spec.offset ?? 0)) % spec.every
+  const rest = spec.every - STORM.charge - STORM.strike
+  if (t < rest) return { state: 'rest', charge: 0 }
+  if (t < rest + STORM.charge)
+    return { state: 'charge', charge: (t - rest) / STORM.charge }
+  return { state: 'strike', charge: 1 }
+}
+
+/** Is a point in the bolt of a striking cloud? */
+export function boltHits(
+  spec: StormCloudSpec,
+  tick: number,
+  x: number,
+  y: number,
+): boolean {
+  return (
+    stormCloudAt(spec, tick).state === 'strike' &&
+    y > spec.y &&
+    Math.abs(x - spec.x) <= STORM.reach
+  )
+}
+
+/** Wetness 0..1 after a tick of flying (or resting on a pad) in the rain. */
+export function soakStep(wet: number, flying: boolean): number {
+  return Math.min(1, Math.max(0, wet + (flying ? STORM.soak : -STORM.dry)))
 }

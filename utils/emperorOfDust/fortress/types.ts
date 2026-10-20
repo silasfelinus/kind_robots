@@ -299,6 +299,34 @@ export type QuestReport = {
   effects: Effects
 }
 
+/**
+ * A change the map room announces at an act-end dawn (Days 11, 21, 31, 41):
+ * a banner revealed, a faction wiped out, land taken, a faction that held,
+ * or a warning about the next act end.
+ */
+export type MapEventKind =
+  'revealed' | 'wiped' | 'taken' | 'held' | 'warned-wipe' | 'warned-raid'
+
+export type MapEvent = {
+  /** The dawn it was announced. */
+  day: number
+  kind: MapEventKind
+  faction: KingdomFactionId
+  /** The rival that took, or threatens to take, the land. */
+  by?: KingdomFactionId
+  region?: string
+}
+
+/** A map change warned one act ahead; it can only happen on `dueDay`. */
+export type MapThreat = {
+  kind: 'wipe' | 'raid'
+  faction: KingdomFactionId
+  by?: KingdomFactionId
+  region?: string
+  issuedDay: number
+  dueDay: number
+}
+
 export type DawnReport = {
   day: number
   quests: QuestReport[]
@@ -306,6 +334,8 @@ export type DawnReport = {
   wages: number
   loanTaken: boolean
   events: string[]
+  /** Act-end map changes announced this dawn. */
+  map?: MapEvent[]
 }
 
 export type FortressRun = {
@@ -321,6 +351,12 @@ export type FortressRun = {
   strength: Record<KingdomFactionId, number>
   revealedFactions: KingdomFactionId[]
   wipedOut: KingdomFactionId[]
+  /** Regions taken at an act end: region id -> new holder. */
+  controllers?: Partial<Record<string, KingdomFactionId>>
+  /** Map changes warned for the next act end. */
+  mapWatch?: MapThreat[]
+  /** Every act-end map change so far, for the map room's history. */
+  mapLog?: MapEvent[]
   beds: 6 | 9 | 12
   roster: FollowerState[]
   recruitable: string[]

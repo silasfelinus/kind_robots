@@ -299,7 +299,8 @@ export function currentStep(state: RunState): RouteStep | null {
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const open: GatedEncounter[] = [...ENCOUNTERS, ...QUEST_CARDS].filter(
+  const eligible: GatedEncounter[] = [...ENCOUNTERS, ...QUEST_CARDS]
+  const open = eligible.filter(
     (card) =>
       !state.played.includes(card.id) &&
       (!card.requiresLead || card.requiresLead === state.activeLead) &&

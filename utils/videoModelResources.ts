@@ -74,12 +74,12 @@ export function videoModelSlot(
 // diffusion_models/file); Comfy's checkpoint/UNET loaders already start INSIDE
 // their respective model folder. Do not hand them the catalog root prefix.
 export function videoComfyModelPath(resource: VideoModelResource): string {
-  const path = String(resource.localPath || '').replace(/\\\\/g, '/')
+  const path = String(resource.localPath || '').replace(/\\/g, '/')
   const slot = videoModelSlot(resource)
   if (!slot) throw new Error('Incompatible or unsafe video model path.')
   return slot === 'ltx'
-    ? path.replace(/^checkpoints\\//i, '')
-    : path.replace(/^(?:diffusion_models|unet)\\//i, '')
+    ? path.replace(/^checkpoints\//i, '')
+    : path.replace(/^(?:diffusion_models|unet)\//i, '')
 }
 
 // Explicit tags can be set in Resource.description by a human curator.

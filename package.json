@@ -34,6 +34,7 @@
     "test:music-video-timeline": "tsx utils/scripts/verifyMusicVideoTimeline.test.ts",
     "test:music-video-compositor": "tsx utils/scripts/verifyMusicVideoCompositor.test.ts",
     "test:music-video-final": "tsx utils/scripts/verifyMusicVideoFinal.test.ts",
+    "test:art-image-upload-limit": "tsx utils/scripts/verifyArtImageUploadLimit.test.ts",
     "test:music-video-audio-upload": "tsx utils/scripts/verifyMusicVideoAudioUpload.test.ts",
     "test:music-video-specs": "tsx utils/scripts/verifyMusicVideoSpecs.test.ts",
     "test:music-video-recover": "tsx utils/scripts/verifyMusicVideoRecover.test.ts",

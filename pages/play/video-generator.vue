@@ -519,6 +519,7 @@ import {
 } from '@/utils/loraSelection'
 import {
   estimateVideoRuntimeTier,
+  generatorOutputFormat,
   getDefaultVideoPreset,
   getVideoPreset,
   getVideoPresetsForEngine,
@@ -555,7 +556,7 @@ const outputFormats = [
   {
     value: 'webp' as const,
     label: 'WebP',
-    hint: 'Animated image, loops natively — smallest file and best default for short web clips.',
+    hint: 'Animated image, loops natively — fine for small, short clips; at 1280×720 it is several times the size of an MP4.',
   },
   {
     value: 'mp4' as const,
@@ -572,7 +573,9 @@ const outputFormats = [
 const initialPreset = getDefaultVideoPreset('ltx')
 const engine = ref<VideoEngine>('ltx')
 const videoPresetId = ref<VideoPresetId | ''>(initialPreset.id)
-const outputFormat = ref<VideoOutputFormat>(initialPreset.outputFormat)
+const outputFormat = ref<VideoOutputFormat>(
+  generatorOutputFormat(initialPreset),
+)
 const firstImage = ref('')
 const route = useRoute()
 const firstImageArtId = ref<number | null>(null)
@@ -679,7 +682,7 @@ function applyPreset(preset: NonNullable<ReturnType<typeof getVideoPreset>>): vo
   durationSeconds.value = preset.durationSeconds
   fps.value = preset.fps
   loop.value = preset.loop
-  outputFormat.value = preset.outputFormat
+  outputFormat.value = generatorOutputFormat(preset)
   renderScale.value = preset.renderScale
   latentUpscaleModel.value = preset.latentUpscaleModel
   refineSampler.value = preset.refineSampler
@@ -687,6 +690,9 @@ function applyPreset(preset: NonNullable<ReturnType<typeof getVideoPreset>>): vo
 }
 
 function selectEngine(nextEngine: VideoEngine): void {
+  // Re-clicking the engine already selected used to re-apply its default
+  // preset, silently swapping a chosen 12 GB Quick back to Balanced.
+  if (nextEngine === engine.value) return
   engine.value = nextEngine
   applyPreset(getDefaultVideoPreset(nextEngine))
 }

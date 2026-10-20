@@ -78,7 +78,7 @@
         </span>
       </label>
 
-      <div v-if="chosen.length" class="grid gap-2 sm:grid-cols-2">
+      <div v-if="chosen.length" class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2">
         <div
           v-for="resource in chosen"
           :key="resource.id"

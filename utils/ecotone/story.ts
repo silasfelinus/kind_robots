@@ -276,6 +276,9 @@ export const BEATS: EncounterCard[] = [
         '“You heard it too,” Juniper says. “The forest is repeating itself. It doesn’t do that.” She smiles like she knows exactly how strange she is. “I’m going to find out why. Company’s welcome, if it can keep a secret.”',
       ],
     },
+    lensLines: {
+      meth: 'The volunteer radio operator changes shifts as you reach the clearing. Juniper and Kit are both watching the handoff, not making judgments about how you began the night.',
+    },
     choices: MEET_CHOICES,
     provenance: 'Invented characters.',
   },
@@ -301,6 +304,7 @@ export const BEATS: EncounterCard[] = [
         'The repeat has a rhythm: three beats and a rest, like the drums last night.',
       tripping_balls:
         'The ribbons are glowing softly and the redwoods are breathing in time with you. This was never going to be over by morning.',
+      meth: 'The loop has not slept, but several people responsible for the trail have. You write down the repetitions and ask a rested hiker to verify one before making a claim.',
     },
     leadLines: {
       kit: 'Kit pulls the ticking gear from her pocket. It is ticking in threes.',
@@ -377,6 +381,7 @@ export const BEATS: EncounterCard[] = [
         'The fire crackles in threes and a rest. The forest is still talking.',
       tripping_balls:
         'The smoke is not a picture of the county. It is the county, small and close and alive, and it can see you too.',
+      meth: 'You recognize the exhausted radio volunteer across the fire. Her replacement is listening to the signal now; sharing the watch made the warning more reliable.',
     },
     leadLines: {
       kit: 'Kit is juggling burning clubs for the crowd, which is either the best or worst idea anyone has had all weekend.',
@@ -884,6 +889,10 @@ export const BEATS: EncounterCard[] = [
         '“I’m going to find out who,” she says. “I could use someone who writes things down.”',
       ],
     },
+    lensLines: {
+      cocaine: 'The party\'s accelerated noise fades enough for the person you approached to ask a practical question: which strange event can another witness confirm?',
+      mdma: 'The feeling of being welcomed is vivid; the person you meet wants to know what you will still help fix tomorrow.',
+    },
     choices: MEET_CHOICES,
     provenance: 'Invented characters.',
   },
@@ -900,6 +909,10 @@ export const BEATS: EncounterCard[] = [
       'The Banana Slug Express, a twelve-foot yellow slug on bicycle wheels, is missing its pilot. Dot sprained her ankle on last night’s dance floor and is sitting on a cooler with a bag of frozen peas, pointing a crutch at you. “You,” she says. “You’ve got legs. The whistle blows at noon.”',
       'The crew captain hands you a helmet with antennae on it. Ahead are the road out of town, the Manila dunes, Humboldt Bay and the Eel River. A sculpture keeps racing as long as somebody keeps it moving, and somebody, apparently, is you.',
     ],
+    lensLines: {
+      cocaine: 'Every team shouts at once and the starting whistle seems late. A marshal points out the actual order: helmet, brakes, shared signal, then go.',
+      mdma: 'You recognize people from the warehouse and greet them warmly. Dot still needs a competent pilot and a crew who can hear a clear safety instruction.',
+    },
     leadLines: {
       cedar:
         'Cedar is already under the slug with a wrench. “Her drive chain’s held on with prayer,” he says. “I’ll ride along and keep it that way.”',
@@ -979,6 +992,8 @@ export const BEATS: EncounterCard[] = [
         'The water is full of slow green light, like the bay is thinking.',
       tripping_balls:
         'The fog parts like a stage curtain, and for a moment the far shore is a Eureka with a glass tower and a train across the water.',
+      cocaine: 'The bay crossing compresses to a series of urgent calls. You ask a second skipper to repeat the buoy reading before acting.',
+      mdma: 'The boats look for a moment like one delighted flotilla; their skippers still have to agree where the safe channel is.',
     },
     leadLines: {
       cedar:
@@ -1064,6 +1079,8 @@ export const BEATS: EncounterCard[] = [
         'The gingerbread trim on the houses is moving very slowly, like ferns.',
       tripping_balls:
         'The headstones on the hill are lined up like a crowd at a finish line. They are all wearing tiny party hats.',
+      cocaine: 'The finish line is crowded with quick solutions. You choose to listen to the volunteer who actually witnessed the strange clock.',
+      mdma: 'There are embraces at the finish and more promises than places to write them. A crew chief starts taking names for tomorrow\'s repairs.',
     },
     leadLines: {
       cedar:
@@ -1136,6 +1153,8 @@ export const BEATS: EncounterCard[] = [
         'From the top you can see the whole course: the Samoa Bridge, Eureka, the bay you cross tomorrow, and a second, fainter bridge beside the first that is gone when you blink.',
       tipsy:
         'The crowd on the dune is doing the wave. The dune is doing it too, a little.',
+      cocaine: 'The dune makes every second feel expensive, but Cedar or the closest race mechanic asks you to test the rope before anybody moves.',
+      mdma: 'Every crew is cheering for the others. A borrowed belay rope still needs knots that someone can inspect.',
     },
     leadLines: {
       cedar:
@@ -1214,6 +1233,10 @@ export const BEATS: EncounterCard[] = [
         alone:
           'The crew has started calling you Captain Glug. Dot had shirts printed at the lunch stop. You are wearing one.',
       },
+    },
+    lensLines: {
+      cocaine: 'You stop racing the future for long enough to check the grade and share your measurements with the tired riders.',
+      mdma: 'People call encouragement from the hill. You see who needs an actual push, a safe rest, or an honest warning.',
     },
     choices: [
       {

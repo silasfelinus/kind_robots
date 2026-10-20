@@ -516,7 +516,7 @@ assert.doesNotMatch(
 assert.doesNotMatch(
   visitorDirectorySource,
   /feature\.related/,
-  'Zuzu world hub replaces the extra five individual game links on its tile',
+  'featured cards must link directly to destinations without nested related-link lists',
 )
 assert.ok(
   visitorDirectorySource.includes("route: '/?view=dashboard'"),
@@ -538,7 +538,11 @@ for (const route of [
   '/?view=dashboard',
   '/play/music-video',
   '/play/mandarin',
-  '/play/zuzu',
+  '/play/emperor-of-dust',
+  '/play/zuzu-pinball',
+  '/play/zuzu-shifting-lands',
+  '/play/zuzu-gamebook',
+  '/play/ecotone',
   '/play/arcade?game=kind-pinball',
 ]) {
   assert.ok(
@@ -560,19 +564,16 @@ for (const internal of [
   )
 }
 assert.ok(visitorDirectorySource.includes("title: 'Kind Robots Pinball'"))
-assert.ok(visitorDirectorySource.includes("title: 'The World of Zuzu'"))
-const zuzuHubSource = source('pages/play/zuzu.vue')
-for (const route of [
-  '/play/zuzu-gamebook',
-  '/play/zuzu-showdown',
-  '/play/zuzu-shifting-lands',
-  '/play/zuzu-ghost-trail',
-  '/play/zuzu-pinball',
+assert.doesNotMatch(visitorDirectorySource, /title: 'The World of Zuzu'/)
+assert.doesNotMatch(visitorDirectorySource, /route: '\/play\/zuzu'/)
+for (const title of [
+  'Emperor of Dust',
+  'Zuzu Pinball',
+  'Zuzu: Shifting Lands',
+  'Zuzu Gamebook',
+  'Ecotone: Weird Humboldt',
 ]) {
-  assert.ok(
-    zuzuHubSource.includes("route: '" + route + "'"),
-    'individual Zuzu games belong in the world hub, not homepage chips',
-  )
+  assert.ok(visitorDirectorySource.includes("title: '" + title + "'"))
 }
 assert.equal(
   visitorDirectorySource.includes("title: 'Rebel Button'"),

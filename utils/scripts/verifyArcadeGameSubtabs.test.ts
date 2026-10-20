@@ -45,22 +45,8 @@ const items: ChannelContentItem[] = [
     route: '/play/shifting-desks',
   },
   {
-    contentType: 'channel',
-    channelKey: 'zuzu',
-    label: 'Zuzu',
-    route: '/play/zuzu',
-    defaultTab: 'overview',
-  },
-  {
     contentType: 'tab',
-    channelKey: 'zuzu',
-    tabKey: 'overview',
-    label: 'World Hub',
-    route: '/play/zuzu',
-  },
-  {
-    contentType: 'tab',
-    channelKey: 'zuzu',
+    channelKey: 'arcade',
     tabKey: 'zuzu-showdown',
     label: 'Zuzu Showdown',
     route: '/play/zuzu-showdown',
@@ -73,7 +59,7 @@ assert.ok(arcade, 'the arcade channel resolves')
 
 assert.deepEqual(
   navigationTabs(arcade).map((tab) => tab.tabKey),
-  ['arcade', 'aquarium', 'experiments', 'shifting-desks'],
+  ['arcade', 'aquarium', 'experiments', 'shifting-desks', 'zuzu-showdown'],
   'Play must expose the Arcade hall, Cthulhuquarium, Memory Dungeon and Shifting Desks tabs',
 )
 assert.equal(
@@ -96,13 +82,12 @@ assert.equal(
 assert.equal(
   resolveChannelLocation(channels, { path: '/play/zuzu-showdown' })?.channel
     .channelKey,
-  'zuzu',
+  'arcade',
 )
-
 assert.equal(
-  resolveChannelLocation(channels, { path: '/play/zuzu' })?.tab?.tabKey,
-  'overview',
-  'the Zuzu channel must resolve to its dedicated world hub',
+  channels.some((channel) => channel.channelKey === 'zuzu'),
+  false,
+  'the separate Zuzu channel must no longer resolve',
 )
 
 const store = readFileSync('stores/channelContentStore.ts', 'utf8')
@@ -158,20 +143,18 @@ for (const path of [
 ]) {
   assert.match(readFileSync(path, 'utf8'), /\nchannelKey: arcade\n/)
 }
-const hub = readFileSync('pages/play/zuzu.vue', 'utf8')
-const hubTab = readFileSync('content/channels/zuzu/overview.md', 'utf8')
-assert.match(hubTab, /\nroute: \/play\/zuzu\n/)
-assert.match(hubTab, /\ntabKey: overview\n/)
-for (const route of [
-  '/play/zuzu-gamebook',
-  '/play/zuzu-shifting-lands',
-  '/play/zuzu-showdown',
-  '/play/zuzu-ghost-trail',
-  '/play/zuzu-pinball',
+for (const game of [
+  'emperor-of-dust',
+  'zuzu-gamebook',
+  'zuzu-shifting-lands',
+  'zuzu-showdown',
+  'zuzu-ghost-trail',
+  'zuzu-pinball',
+  'zuzu-lair',
 ]) {
-  assert.ok(hub.includes(`route: '${route}'`), 'Zuzu hub must link ' + route)
+  const tab = readFileSync(`content/channels/arcade/${game}.md`, 'utf8')
+  assert.match(tab, /\\nchannelKey: arcade\\n/)
 }
-assert.doesNotMatch(hub, /\/admin\//, 'public hub must not reveal admin routes')
 
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
 assert.match(

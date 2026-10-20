@@ -8,6 +8,7 @@ const channel = nav('projects/index')
 assert.match(channel, /\nlabel: Projects\n/)
 assert.match(channel, /\ndefaultTab: storybook\n/)
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
+assert.equal(existsSync('content/channels/zuzu/index.md'), false)
 assert.match(nav('projects/story-storybook'), /\ntabKey: storybook\n/)
 
 for (const key of [
@@ -32,15 +33,15 @@ for (const key of [
   'emperor-of-dust',
   'zuzu-ghost-trail',
 ]) {
-  assert.match(nav(`zuzu/${key}`), /\nchannelKey: zuzu\n/)
+  assert.match(nav(`arcade/${key}`), /\nchannelKey: arcade\n/)
 }
 for (const key of ['zuzu-lair']) {
-  assert.match(nav(`zuzu/${key}`), /\nrequiredRole: ADMIN\n/)
+  assert.match(nav(`arcade/${key}`), /\nrequiredRole: ADMIN\n/)
   assert.equal(existsSync(`content/channels/admin/${key}.md`), false)
 }
 
-assert.match(nav('zuzu/emperor-of-dust'), /\nroute: \/play\/emperor-of-dust\n/)
-assert.doesNotMatch(nav('zuzu/emperor-of-dust'), /requiredRole: ADMIN/)
+assert.match(nav('arcade/emperor-of-dust'), /\nroute: \/play\/emperor-of-dust\n/)
+assert.doesNotMatch(nav('arcade/emperor-of-dust'), /requiredRole: ADMIN/)
 for (const key of [
   'sliding-tile-gallery',
   'save-the-plumber',
@@ -55,11 +56,11 @@ for (const key of [
 }
 
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
-assert.match(nav('zuzu/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
+assert.match(nav('arcade/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
 assert.equal(existsSync('pages/play/zuzu-lair.vue'), false)
 assert.equal(existsSync('pages/admin/zuzu-lair.vue'), true)
 assert.match(
-  nav('zuzu/zuzu-ghost-trail'),
+  nav('arcade/zuzu-ghost-trail'),
   /\nroute: \/play\/zuzu-ghost-trail\n/,
 )
 assert.match(
@@ -81,7 +82,7 @@ const showdown = read('pages/play/zuzu-showdown.vue')
 assert.match(showdown, /<details class="kr-panel/)
 assert.match(showdown, /Match setup &amp; training/)
 assert.doesNotMatch(showdown, /<h2 class="mb-2 font-bold">Controls<\/h2>/)
-assert.match(nav('zuzu/zuzu-showdown'), /Gamepad|gamepad/i)
+assert.match(nav('arcade/zuzu-showdown'), /Gamepad|gamepad/i)
 const sitewideAudit = read('utils/scripts/auditResponsiveLayout.mjs')
 assert.match(sitewideAudit, /clippedGalleries/)
 assert.match(sitewideAudit, /viewportReadings/)

@@ -704,6 +704,19 @@ assert.ok(
 
 // Second-draft campaign audit: 8,400 deterministic end-to-end campaigns using
 // all seven voluntary lenses, all events, all companions and changing forks.
+const eventLensOptions = new Map<EventId, LensId[]>(
+  (['green-ribbon', 'kinetic', 'quiet'] as EventId[]).map((event) => {
+    const opening = ROUTES[event]
+      .filter((step) => step.kind === 'beat')
+      .map((step) => findCard(step.id))
+      .find((card) => card?.choices.some((choice) => choice.lens))
+    const choices = opening?.choices
+      .filter((choice) => choice.lens && !choice.locked)
+      .map((choice) => choice.lens!) ?? []
+    assert.ok(choices.length > 0, `${event} must offer an opening`)
+    return [event, choices]
+  }),
+)
 const auditEndingIds = new Set<string>()
 const auditLensFates = new Set<string>()
 const auditGuideFates = new Set<string>()
@@ -717,8 +730,9 @@ let maxDecisions = 0
 for (let index = 0; index < 8400; index += 1) {
   const seed = 50000 + index
   const rng = mulberry32(seed * 17)
-  const lens = openLenses[Math.floor(index / 3) % openLenses.length]!
   const event = (['green-ribbon', 'kinetic', 'quiet'] as EventId[])[index % 3]!
+  const availableLenses = eventLensOptions.get(event)!
+  const lens = availableLenses[Math.floor(index / 3) % availableLenses.length]!
   const plan: Plan = {
     event,
     lens,
@@ -791,6 +805,15 @@ for (let index = 0; index < 8400; index += 1) {
   auditCounts.set(event, (auditCounts.get(event) ?? 0) + 1)
 }
 assert.equal(auditCounts.size, 3)
+assert.deepEqual(
+  new Set([...eventLensOptions.values()].flat()),
+  new Set(openLenses),
+  'all seven lenses can begin at least one regional route',
+)
+assert.ok(
+  eventLensOptions.get('quiet')!.length < openLenses.length,
+  'catalogue gap: quiet route cannot currently earn every Wild Way lens',
+)
 assert.equal(auditChapters.size, 6, 'all six regional chapters appear in runs')
 assert.equal(auditLensFates.size, 14, 'each opening can earn hope or darkness')
 for (const lead of ['mara', 'kit', 'juniper', 'cedar', 'alone'])

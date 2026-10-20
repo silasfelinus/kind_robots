@@ -134,24 +134,24 @@
 
 **Opening narration:** A salmon gives an exclusive interview in exchange for discretion.
 
-**Escalation:** A salmon with a press badge demands an off-record interview. It knows the migration route of a fish species not yet named.
+**Escalation:** A salmon wearing a press badge asks for an off-record interview, then describes a migration passage no published map acknowledges. The fish has two conditions: no photographs and no identifying details that would send sightseers into the spawning water.
 
-**Option A, investigate (visible 7 check):** Ask for a source that can be checked without betraying the fish
+**Option A, investigate (visible 7 check):** Verify the culvert and public permit without recording the salmon's route
 
-- **Pass:** Its route corresponds to a blocked stream culvert whose public permit is due next month.
-- **Miss:** The recorder fills with bubbling; the salmon leaves you a drawing scratched into wet sand.
+- **Pass:** The public works notice confirms a blocked culvert scheduled for inspection next month. The fish's forecast may be impossible; the obstruction is documented and needs attention.
+- **Miss:** Your recorder captures only water. The salmon scratches a location in wet sand, then rubs it out when tourists approach; you note the public permit number instead.
 
-**Option B, assist without a check:** Protect the informant's route instead of publishing a spectacle
+**Option B, assist without a check:** Help the stream volunteers protect habitat without turning the informant into a mascot
 
-- **Result:** Volunteers clear litter from a tributary, and the fish returns without a headline.
+- **Result:** Volunteers remove litter above the stream and report the obstruction to the right crew. The salmon swims away with its source confidentiality intact.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-028`: A salmon gives an exclusive interview in exchange for discretion. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-028/2`: A salmon with a press badge demands an off-record interview. It knows the migration route of a fish species not yet named. The people and location must match the opening.
-- `outcomes/wh-028/investigate-success`: Its route corresponds to a blocked stream culvert whose public permit is due next month. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-028/investigate-failure`: The recorder fills with bubbling; the salmon leaves you a drawing scratched into wet sand. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-028/care-success`: Volunteers clear litter from a tributary, and the fish returns without a headline. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-028/2`: A salmon wearing a press badge asks for an off-record interview, then describes a migration passage no published map acknowledges. The fish has two conditions: no photographs and no identifying details that would send sightseers into the spawning water. The people and location must match the opening.
+- `outcomes/wh-028/investigate-success`: The public works notice confirms a blocked culvert scheduled for inspection next month. The fish's forecast may be impossible; the obstruction is documented and needs attention. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-028/investigate-failure`: Your recorder captures only water. The salmon scratches a location in wet sand, then rubs it out when tourists approach; you note the public permit number instead. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-028/care-success`: Volunteers remove litter above the stream and report the obstruction to the right crew. The salmon swims away with its source confidentiality intact. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_028_verified`, `wh_028_partial`, `wh_028_care` (mutually exclusive results of this card).
 
@@ -165,24 +165,24 @@
 
 **Opening narration:** A low tide exposes a dock that appears on no navigational chart.
 
-**Escalation:** At extreme low tide a second harbor opens beneath the familiar docks. Every post carries a shipping label stamped NOT YET.
+**Escalation:** An extreme low tide exposes a second harbor beneath the pilings. Its mooring tags say NOT YET and the gangway has no handrail. A visitor has climbed down for a souvenir and is now waiting for the water to rise.
 
-**Option A, investigate (visible 7 check):** Map the lower pilings against the modern waterfront
+**Option A, investigate (visible 7 check):** Compare the lower dock's numbering with approved shoreline plans from a safe vantage
 
-- **Pass:** They match a proposed breakwater that has not passed its public hearing.
-- **Miss:** The water rises before you finish; you remember an unmistakable brass mooring cleat.
+- **Pass:** The new pilings match a breakwater still awaiting a public hearing. You record their position with a current landmark and label the drawing unverified.
+- **Miss:** The returning water hides your last measurement. A peculiar brass cleat remains visible long enough for the harbor worker to verify the first ones.
 
-**Option B, assist without a check:** Help a stranded visitor back to the upper dock
+**Option B, assist without a check:** Get the visitor back onto the marked upper dock before the tide decides for you
 
-- **Result:** The stranger makes it to shore with dry shoes and a warning not to buy future land on credit.
+- **Result:** The visitor returns with dry feet and one fewer souvenir. The harbormaster ropes off the unsafe steps until a crew can inspect them.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-029`: A low tide exposes a dock that appears on no navigational chart. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-029/2`: At extreme low tide a second harbor opens beneath the familiar docks. Every post carries a shipping label stamped NOT YET. The people and location must match the opening.
-- `outcomes/wh-029/investigate-success`: They match a proposed breakwater that has not passed its public hearing. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-029/investigate-failure`: The water rises before you finish; you remember an unmistakable brass mooring cleat. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-029/care-success`: The stranger makes it to shore with dry shoes and a warning not to buy future land on credit. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-029/2`: An extreme low tide exposes a second harbor beneath the pilings. Its mooring tags say NOT YET and the gangway has no handrail. A visitor has climbed down for a souvenir and is now waiting for the water to rise. The people and location must match the opening.
+- `outcomes/wh-029/investigate-success`: The new pilings match a breakwater still awaiting a public hearing. You record their position with a current landmark and label the drawing unverified. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-029/investigate-failure`: The returning water hides your last measurement. A peculiar brass cleat remains visible long enough for the harbor worker to verify the first ones. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-029/care-success`: The visitor returns with dry feet and one fewer souvenir. The harbormaster ropes off the unsafe steps until a crew can inspect them. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_029_verified`, `wh_029_partial`, `wh_029_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** Wet tracks walk uphill before the waves arrive.
 
-**Escalation:** Wet footprints climb from a calm sea long before the surf can have made them. They avoid every sleeping shorebird.
+**Escalation:** A string of wet footprints climbs the beach before the first wave arrives. Every track bends around the shorebirds' nests. The camera club wants a close-up; a volunteer has only two lengths of rope and a formidable stare.
 
-**Option A, investigate (visible 7 check):** Measure the track spacing before the incoming wave
+**Option A, investigate (visible 7 check):** Measure the prints from the safe edge and check whether they cross ordinary tracks
 
-- **Pass:** The steps are the same distance apart across dry rock and wet sand, as if their owner is weightless.
-- **Miss:** You lose the pattern at the bluff; a child keeps a sketch of the final print.
+- **Pass:** The steps stay exactly the same distance apart across soft sand and hard rock, and never disturb a nest. You mark the measurements without pretending you know who walked here.
+- **Miss:** The tide erases half the line. A child sketches the final print from behind the rope, adding a small bird that the adults somehow missed.
 
-**Option B, assist without a check:** Guide curious hikers away from nesting birds
+**Option B, assist without a check:** Help protect the nesting area while the curious crowd stays behind the rope
 
-- **Result:** You cordon off the fragile sand while the mysterious walker continues without an audience.
+- **Result:** The beachgoers give the birds room. The footprints continue up the bluff without a single photograph proving whether their maker had feet.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-031`: Wet tracks walk uphill before the waves arrive. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-031/2`: Wet footprints climb from a calm sea long before the surf can have made them. They avoid every sleeping shorebird. The people and location must match the opening.
-- `outcomes/wh-031/investigate-success`: The steps are the same distance apart across dry rock and wet sand, as if their owner is weightless. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-031/investigate-failure`: You lose the pattern at the bluff; a child keeps a sketch of the final print. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-031/care-success`: You cordon off the fragile sand while the mysterious walker continues without an audience. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-031/2`: A string of wet footprints climbs the beach before the first wave arrives. Every track bends around the shorebirds' nests. The camera club wants a close-up; a volunteer has only two lengths of rope and a formidable stare. The people and location must match the opening.
+- `outcomes/wh-031/investigate-success`: The steps stay exactly the same distance apart across soft sand and hard rock, and never disturb a nest. You mark the measurements without pretending you know who walked here. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-031/investigate-failure`: The tide erases half the line. A child sketches the final print from behind the rope, adding a small bird that the adults somehow missed. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-031/care-success`: The beachgoers give the birds room. The footprints continue up the bluff without a single photograph proving whether their maker had feet. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_031_verified`, `wh_031_partial`, `wh_031_care` (mutually exclusive results of this card).
 

@@ -285,7 +285,10 @@ export async function stageRestyleVideo(input: {
     ...lookFields(look),
     quality: input.quality,
     renderSpeed: restyleSpeed(input.renderSpeed, 'standard'),
-    overwriteStrength: restyleOverwriteStrength(input.overwriteStrength, RESTYLE_DEFAULT_OVERWRITE_STRENGTH),
+    overwriteStrength: restyleOverwriteStrength(
+      input.overwriteStrength,
+      RESTYLE_DEFAULT_OVERWRITE_STRENGTH,
+    ),
     isPrivate: restyleFlag(input.isPrivate, true),
     isMature: restyleFlag(input.isMature, false),
     status: 'STAGED',
@@ -319,11 +322,18 @@ export async function stageRestyleVideo(input: {
   return job
 }
 
-export function restyleOverwriteStrength(value: unknown, fallback: number): number {
+export function restyleOverwriteStrength(
+  value: unknown,
+  fallback: number,
+): number {
   if (value === undefined || value === null || value === '') return fallback
-  const numeric = typeof value === 'string' && value.trim() !== '' ? Number(value) : value
+  const numeric =
+    typeof value === 'string' && value.trim() !== '' ? Number(value) : value
   if (isRestyleOverwriteStrength(numeric)) return numeric
-  throw createError({ statusCode: 400, message: 'Overwrite strength must be a whole number from 0 to 100.' })
+  throw createError({
+    statusCode: 400,
+    message: 'Overwrite strength must be a whole number from 0 to 100.',
+  })
 }
 
 /** Projects saved before Fast draft existed render at standard speed. */
@@ -616,13 +626,23 @@ export async function renameRestyleProject(
   title: unknown,
 ): Promise<VideoRestyleJob> {
   if (typeof title !== 'string' || !title.trim() || title.trim().length > 120) {
-    throw createError({ statusCode: 400, message: 'Enter a project title (1–120 characters).' })
+    throw createError({
+      statusCode: 400,
+      message: 'Enter a project title (1–120 characters).',
+    })
   }
   const job = await loadRestyleJob(userId, id)
   if (job.status === 'PILOT_RUNNING' || job.status === 'FULL_RUNNING') {
-    throw createError({ statusCode: 409, message: 'Rename this project after its current render finishes.' })
+    throw createError({
+      statusCode: 409,
+      message: 'Rename this project after its current render finishes.',
+    })
   }
-  const updated = { ...job, title: title.trim(), updatedAt: new Date().toISOString() }
+  const updated = {
+    ...job,
+    title: title.trim(),
+    updatedAt: new Date().toISOString(),
+  }
   const target = path.join(root(userId), id, 'job.json')
   const temporary = `${target}.${randomUUID()}.tmp`
   await writeFile(temporary, JSON.stringify(updated, null, 2), {

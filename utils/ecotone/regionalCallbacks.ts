@@ -20,7 +20,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_014_fungus_hearing',
     priority: 5,
     text: 'The fungal neighborhood association still attends water board meetings. Its first petition helped people notice an unmarked pipe; the association has since become insufferable about meeting minutes.',
-    artMoment: 'Meeting table with human water workers and small mushroom seats, publicly posted drainage records',
+    artMoment:
+      'Meeting table with human water workers and small mushroom seats, publicly posted drainage records',
   },
   {
     id: 'WH-052',
@@ -28,7 +29,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_052_buoy_contract',
     priority: 5,
     text: 'The harbor kept the one-tide bargain. Years later its labor agreements still list navigational charts as things that workers, even buoy-shaped workers, can dispute.',
-    artMoment: 'Laminated signed harbor contract beside accurate navigation charts and a safely moored buoy',
+    artMoment:
+      'Laminated signed harbor contract beside accurate navigation charts and a safely moored buoy',
   },
   {
     id: 'WH-074',
@@ -36,7 +38,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_074_witness_consent',
     priority: 5,
     text: 'The bridge warning survived without the river witness becoming a public exhibit. Their name was not a prize someone could earn by solving a mystery.',
-    artMoment: 'Publicly displayed flood-stage note with the witness name visibly redacted at their request',
+    artMoment:
+      'Publicly displayed flood-stage note with the witness name visibly redacted at their request',
   },
   {
     id: 'WH-094',
@@ -44,7 +47,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_094_open_ring_record',
     priority: 6,
     text: 'The strange redwood measurements remained in an open archive, uncertainty notes included. Future students argued over the record instead of paying for admission to a prophecy.',
-    artMoment: 'Public research table displaying open tree-ring data, provenance notes and a corrected measurement',
+    artMoment:
+      'Public research table displaying open tree-ring data, provenance notes and a corrected measurement',
   },
   {
     id: 'WH-110',
@@ -52,7 +56,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_110_credited_anonymity',
     priority: 5,
     text: 'The anonymous rescue crew got credit under its own chosen name without surrendering a single face to the sponsor. Other workshops adopted the same simple agreement.',
-    artMoment: 'Racers thanking a pseudonymous repair crew with food and tools, no portraits or sponsor branding',
+    artMoment:
+      'Racers thanking a pseudonymous repair crew with food and tools, no portraits or sponsor branding',
   },
   {
     id: 'WH-114',
@@ -60,7 +65,8 @@ export const REGIONAL_CALLBACKS: RegionalCallback[] = [
     flag: 'wh_114_waterline_warning',
     priority: 6,
     text: 'Another crew found your bright waterline warning and stayed on shore. Their letter mentions no heroic rescue, only the quiet relief of being warned in time.',
-    artMoment: 'New bay crew reading bright waterline tape at the safe bank while equipment remains underwater',
+    artMoment:
+      'New bay crew reading bright waterline tape at the safe bank while equipment remains underwater',
   },
   {
     id: 'WH-014',

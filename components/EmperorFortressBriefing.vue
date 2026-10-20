@@ -1,21 +1,24 @@
 <template>
   <div
-    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,30rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(26rem,36rem)]"
+    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,30rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(26rem,36rem)]"
   >
     <figure
       v-if="advisorArt"
-      class="pointer-events-none relative flex min-h-56 items-end justify-center @4xl:min-h-0"
+      class="eod-figure-box pointer-events-none relative min-h-0 flex-1 basis-0"
     >
       <img
         :key="advisorArt"
         :src="advisorArt"
         :alt="`${advisorName}, with the morning dispatches`"
-        class="eod-figure block max-h-64 w-auto object-contain @4xl:absolute @4xl:inset-y-0 @4xl:h-full @4xl:max-h-none"
+        class="eod-figure absolute inset-x-0 bottom-0 mx-auto block h-full w-auto max-w-full object-contain object-bottom"
       />
     </figure>
     <div v-else class="hidden @4xl:block" />
 
-    <section class="kr-panel flex flex-col gap-3 p-4" aria-live="polite">
+    <section
+      class="kr-panel flex shrink-0 flex-col gap-3 p-4"
+      aria-live="polite"
+    >
       <div>
         <p
           class="text-[10px] font-semibold uppercase tracking-[0.25em] text-warning"

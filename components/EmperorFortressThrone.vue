@@ -1,20 +1,20 @@
 <template>
   <div
-    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(24rem,32rem)]"
+    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(24rem,32rem)]"
   >
     <section
-      class="relative flex min-h-48 flex-col justify-end @4xl:min-h-0"
+      class="eod-figure-box relative flex min-h-0 flex-1 basis-0 flex-col justify-end"
       aria-label="The court"
     >
       <figure
         v-if="sceneArt"
-        class="pointer-events-none mt-auto flex justify-center @4xl:absolute @4xl:inset-0"
+        class="pointer-events-none absolute inset-0 flex items-end justify-center"
       >
         <img
           :key="sceneArt"
           :src="sceneArt"
           :alt="sceneAlt"
-          class="eod-figure block max-h-52 w-auto object-contain @4xl:h-full @4xl:max-h-none"
+          class="eod-figure block h-full w-auto max-w-full object-contain object-bottom"
         />
       </figure>
       <p
@@ -25,7 +25,7 @@
       </p>
     </section>
 
-    <section class="flex min-h-0 flex-col gap-2">
+    <section class="flex shrink-0 flex-col gap-2 @4xl:min-h-0">
       <Teleport v-if="audiences.length" to="#eod-room-tools" defer>
         <div class="flex min-w-0 items-center gap-1.5">
           <span

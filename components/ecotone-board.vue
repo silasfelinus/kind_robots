@@ -1,86 +1,100 @@
 <template>
   <div
-    class="ecotone-board mx-auto flex min-h-0 w-full max-w-[1650px] flex-1 flex-col gap-2 px-2 pb-2 pt-1 sm:px-4"
+    class="ecotone-board @container flex min-h-0 w-full flex-1 flex-col bg-[#09141c] text-[#f3e6c8]"
   >
     <header
-      class="kr-toolbar flex-nowrap justify-between gap-2 rounded-2xl border border-base-content/10 bg-base-100/95 px-2 py-1 shadow-md backdrop-blur sm:px-3"
+      class="kr-toolbar flex-nowrap gap-3 border-b border-[#c9a96e]/20 bg-[#070f15] px-3 py-2 @2xl:px-6 @2xl:py-3"
     >
-      <p
-        class="flex min-w-0 flex-1 items-baseline gap-1.5 font-serif text-sm font-black max-sm:hidden sm:text-base"
-      >
-        <span class="shrink-0 text-success">Ecotone</span>
-        <span
-          v-if="game.run"
-          class="truncate text-base-content/70 max-md:sr-only"
-          >· {{ dayLabel }}</span
+      <span class="flex min-w-0 shrink-0 items-center gap-2.5">
+        <svg
+          viewBox="0 0 40 40"
+          class="size-8 shrink-0 text-[#d9b877] @2xl:size-9"
+          aria-hidden="true"
         >
-        <span v-else class="truncate text-base-content/60 max-md:sr-only"
-          >· Work in progress</span
-        >
-      </p>
-      <nav
-        class="flex shrink-0 gap-1 rounded-xl bg-base-200/80 p-1"
-        role="tablist"
-        aria-label="Ecotone views"
-      >
-        <button
-          v-for="item in tabs"
-          :key="item.value"
-          type="button"
-          role="tab"
-          class="flex items-center justify-center gap-1 rounded-xl px-1.5 py-1 text-sm font-bold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary sm:px-3"
-          :class="
-            tab === item.value
-              ? 'bg-primary text-primary-content shadow'
-              : 'opacity-75 hover:bg-base-200'
-          "
-          :aria-selected="tab === item.value"
-          :aria-label="item.label"
-          @click="tab = item.value"
-        >
-          <Icon :name="item.icon" class="size-4" />
-          <span class="max-lg:sr-only">{{ item.label }}</span>
+          <circle
+            cx="20"
+            cy="20"
+            r="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+          />
+          <path
+            d="M20 6 L23 17 L34 20 L23 23 L20 34 L17 23 L6 20 L17 17 Z"
+            fill="currentColor"
+          />
+        </svg>
+        <span class="leading-none">
           <span
-            v-if="item.value === 'endings'"
-            class="text-xs font-black opacity-80"
-            >{{ game.unlockedCount }}/{{ game.endingTotal }}</span
+            class="block font-serif text-xl font-black tracking-[.14em] @2xl:text-2xl"
+            >ECOTONE</span
           >
-        </button>
-      </nav>
-      <div class="flex shrink-0 items-center gap-1.5">
+          <span
+            class="mt-1 block text-[9px] font-bold tracking-[.32em] text-[#d9b877]/85 @2xl:text-[10px]"
+            >WEIRD HUMBOLDT</span
+          >
+        </span>
+      </span>
+      <p
+        class="mx-auto hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] @3xl:block"
+      >
+        {{ chapterLine }}
+      </p>
+      <p
+        v-if="placeLine"
+        class="hidden min-w-0 truncate text-xs font-bold uppercase tracking-[.18em] text-[#8fb8b0] @6xl:block"
+      >
+        {{ placeLine }}
+      </p>
+      <div class="ml-auto flex shrink-0 items-center gap-1.5">
         <template v-if="game.run">
           <span
-            class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black"
+            class="eco-pill hidden @xl:inline-flex"
             :title="`Nerve ${game.run.nerve} of ${MAX_METER}`"
-            :aria-label="`Nerve ${game.run.nerve} of ${MAX_METER}`"
+            >Nerve {{ game.run.nerve }}</span
           >
-            <Icon name="kind-icon:heart" class="size-3.5 text-error" />
-            {{ game.run.nerve }}
-          </span>
           <span
-            class="inline-flex h-8 items-center gap-1 rounded-full border border-base-content/15 bg-base-200 px-2 text-xs font-black max-sm:hidden"
+            class="eco-pill hidden @md:inline-flex"
             :title="`Clarity ${game.run.clarity}`"
-            :aria-label="`Clarity ${game.run.clarity}`"
+            >Clarity {{ game.run.clarity }}</span
           >
-            <Icon name="kind-icon:eye" class="size-3.5 text-info" />
-            {{ game.run.clarity }}
-          </span>
-          <button
-            type="button"
-            class="btn btn-ghost btn-sm btn-circle"
-            aria-label="Start a new weekend"
-            title="Start a new weekend"
-            @click="restart"
-          >
-            <Icon name="kind-icon:refresh" class="size-4" />
-          </button>
         </template>
+        <button
+          type="button"
+          class="inline-flex eco-pill hover:border-[#d9b877]"
+          :title="`Endings found: ${game.unlockedCount} of ${game.endingTotal}`"
+          @click="tab = 'endings'"
+        >
+          <span class="@xl:hidden"
+            >{{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
+          >
+          <span class="hidden @xl:inline"
+            >Endings {{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
+          >
+        </button>
+        <button
+          type="button"
+          class="inline-flex eco-pill eco-pill-icon hover:border-[#d9b877]"
+          :aria-label="`Art style: ${currentStyle.label}`"
+          :title="`Art style: ${currentStyle.label}`"
+          @click="openStylePicker"
+        >
+          <Icon name="kind-icon:palette" class="size-4" />
+        </button>
+        <button
+          v-if="game.run"
+          type="button"
+          class="inline-flex eco-pill eco-pill-icon hover:border-[#d9b877]"
+          aria-label="Start a new weekend"
+          title="Start a new weekend"
+          @click="restart"
+        >
+          <Icon name="kind-icon:refresh" class="size-4" />
+        </button>
       </div>
     </header>
 
-    <section
-      class="@container relative min-h-0 flex-1 overflow-hidden rounded-3xl border border-base-content/10 bg-[#0b1d1f] text-[#eef3ec] shadow-xl"
-    >
+    <section class="@container relative min-h-0 flex-1 overflow-hidden">
       <div
         v-if="tab === 'road' && !game.run"
         class="ecotone-title relative h-full"
@@ -92,21 +106,25 @@
           class="absolute inset-0"
         />
         <div
-          class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10 lg:bg-gradient-to-r lg:from-black/90 lg:via-black/60 lg:to-transparent"
+          class="absolute inset-0 bg-gradient-to-t from-[#09141c] via-[#09141c]/60 to-[#09141c]/10 @4xl:bg-gradient-to-r @4xl:from-[#09141c] @4xl:via-[#09141c]/70 @4xl:to-transparent"
         />
         <div
-          class="relative flex h-full min-h-0 flex-col gap-3 p-4 sm:p-6 lg:w-[min(640px,56%)] lg:p-8"
+          class="relative flex h-full min-h-0 flex-col gap-4 p-4 @xl:p-6 @4xl:w-[min(680px,58%)] @4xl:p-10"
         >
           <div class="shrink-0">
-            <p class="text-xs font-bold uppercase tracking-[.3em] text-success">
+            <p
+              class="text-xs font-bold uppercase tracking-[.3em] text-[#d9b877]"
+            >
               Weird Humboldt · Work in progress
             </p>
             <h2
-              class="mt-1 font-serif text-4xl font-black leading-none drop-shadow sm:text-6xl"
+              class="mt-2 font-serif text-5xl font-black uppercase leading-[.92] drop-shadow @xl:text-7xl"
             >
               Ecotone
             </h2>
-            <p class="mt-2 max-w-md text-sm text-white/85 sm:text-base">
+            <p
+              class="mt-3 max-w-md border-t border-[#d9b877]/60 pt-3 font-serif text-base text-[#f3e6c8]/90 @xl:text-lg"
+            >
               A festival, a race and the strange days after in Humboldt County.
               Four strangers worth following, or nobody at all. Futures for the
               county bleeding through the fog.
@@ -114,7 +132,7 @@
           </div>
           <div class="flex min-h-0 flex-1 flex-col gap-2">
             <p
-              class="shrink-0 text-xs font-bold uppercase tracking-widest text-white/70"
+              class="shrink-0 text-xs font-bold uppercase tracking-[.25em] text-[#8fb8b0]"
             >
               Who are you this weekend?
             </p>
@@ -124,11 +142,11 @@
                   v-for="background in ARCHETYPES"
                   :key="background.id"
                   type="button"
-                  class="rounded-2xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-success"
+                  class="rounded-xl border p-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877]"
                   :class="
                     picked === background.id
-                      ? 'border-success bg-success/20'
-                      : 'border-white/15 bg-black/35 hover:border-white/40'
+                      ? 'border-[#d9b877] bg-[#d9b877]/15'
+                      : 'border-[#c9a96e]/25 bg-[#0c1a24]/80 hover:border-[#c9a96e]/60'
                   "
                   :aria-pressed="picked === background.id"
                   @click="picked = background.id"
@@ -136,14 +154,14 @@
                   <span class="block text-sm font-black">{{
                     background.name
                   }}</span>
-                  <span class="mt-0.5 block text-xs text-white/70">{{
+                  <span class="mt-0.5 block text-xs text-[#f3e6c8]/70">{{
                     background.vantage
                   }}</span>
                   <span class="mt-2 flex flex-wrap gap-1">
                     <span
                       v-for="skill in SKILLS"
                       :key="skill.id"
-                      class="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] font-bold"
+                      class="rounded-full bg-[#f3e6c8]/10 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
                       :class="background.skills[skill.id] ? '' : 'opacity-40'"
                       >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
@@ -154,264 +172,320 @@
           </div>
           <button
             type="button"
-            class="btn btn-success shrink-0 sm:btn-lg"
+            class="eco-gold-button shrink-0"
             :disabled="!picked || !game.loaded"
             @click="start"
           >
-            <Icon name="kind-icon:pine" class="size-5" />
-            Begin
+            Begin the weekend
           </button>
         </div>
       </div>
 
       <div
         v-else-if="tab === 'road' && game.run"
-        class="grid h-full min-h-0 grid-rows-[minmax(120px,32%)_minmax(0,1fr)] sm:grid-rows-[minmax(150px,40%)_minmax(0,1fr)] @4xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,1fr)] @4xl:grid-rows-1"
+        ref="playScroll"
+        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
       >
-        <div class="relative min-h-0 overflow-hidden">
-          <EcotoneScene
-            :kind="stage.scene"
-            :art="stage.art"
-            :label="stage.alt"
-            :portrait="stage.portrait"
-            class="absolute inset-0"
-          />
+        <div class="relative min-h-full @4xl:h-full">
           <div
-            class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 sm:p-5"
+            class="absolute inset-x-0 top-0 h-[30rem] overflow-hidden @4xl:inset-0 @4xl:h-auto"
           >
-            <p
-              class="text-[11px] font-bold uppercase tracking-[.25em] text-success"
-            >
-              {{ stage.eyebrow }}
-            </p>
-            <h2
-              class="font-serif text-2xl font-black leading-tight sm:text-4xl"
-            >
-              {{ stage.title }}
-            </h2>
-          </div>
-          <div
-            v-if="stage.emblem"
-            class="absolute right-3 top-3 flex items-center gap-2"
-          >
-            <EcotoneEmblem
-              v-for="emblem in stage.emblem"
-              :id="emblem.id"
-              :key="emblem.id"
-              :name="emblem.name"
-              class="size-12 drop-shadow-lg sm:size-16"
+            <EcotoneScene
+              :kind="stage.scene"
+              :art="portraitSrc ? undefined : stage.art"
+              :label="stage.alt"
+              class="absolute inset-0"
             />
-          </div>
-        </div>
-
-        <div
-          class="flex min-h-0 flex-col gap-2 border-t border-white/10 bg-[#0f2426]/95 p-3 sm:p-4 @4xl:border-l @4xl:border-t-0"
-        >
-          <div
-            v-if="pending"
-            class="kr-scroll flex flex-col gap-3"
-            aria-live="polite"
-          >
-            <p
-              class="text-xs font-bold uppercase tracking-widest text-white/60"
-            >
-              {{ pending.choice }}
-            </p>
+            <img
+              v-if="portraitSrc"
+              :key="portraitSrc"
+              :src="portraitSrc"
+              :alt="stage.alt"
+              class="eco-portrait absolute inset-y-0 right-0 h-full w-full object-cover object-[50%_15%] @4xl:w-[48%]"
+            />
             <div
-              v-if="pending.roll"
-              class="flex flex-wrap items-center gap-3 rounded-2xl border p-3"
-              :class="
-                pending.roll.success
-                  ? 'border-success/60 bg-success/10'
-                  : 'border-warning/60 bg-warning/10'
-              "
+              class="absolute inset-0 bg-gradient-to-b from-[#09141c]/35 via-[#09141c]/30 to-[#09141c] @4xl:bg-gradient-to-r @4xl:from-[#09141c]/95 @4xl:via-[#09141c]/45 @4xl:to-transparent"
+            />
+            <div
+              class="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-[#09141c] via-[#09141c]/50 to-transparent @4xl:block"
+            />
+            <div
+              v-if="stage.emblem && !portraitSrc"
+              class="absolute right-4 top-4 flex items-center gap-2 @4xl:right-10 @4xl:top-8"
             >
-              <div class="flex gap-2" aria-hidden="true">
-                <span
-                  v-for="(die, index) in pending.roll.dice"
-                  :key="index"
-                  class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
+              <EcotoneEmblem
+                v-for="emblem in stage.emblem"
+                :id="emblem.id"
+                :key="emblem.id"
+                :name="emblem.name"
+                class="size-12 drop-shadow-lg @4xl:size-20"
+              />
+            </div>
+          </div>
+
+          <div
+            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(300px,27rem)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:content-stretch @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
+          >
+            <div
+              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[46rem] @4xl:justify-start @4xl:overflow-hidden"
+            >
+              <span class="eco-kicker self-start">{{ stage.kicker }}</span>
+              <h2
+                class="font-serif text-4xl font-black uppercase leading-[.95] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-5xl @6xl:text-6xl @[100rem]:text-7xl"
+              >
+                {{ stage.title }}
+              </h2>
+              <p
+                v-if="stage.subtitle"
+                class="font-serif text-lg text-[#f3e6c8]/85 @4xl:text-xl"
+                :class="stage.meet ? '@4xl:hidden' : ''"
+              >
+                {{ stage.subtitle }}
+              </p>
+              <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
+                <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
+                <p
+                  class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
+                >
+                  {{ stage.meet.name }}
+                </p>
+                <p
+                  class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
+                >
+                  {{ stage.meet.role }}
+                </p>
+                <p
+                  class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
+                >
+                  {{ stage.meet.line }}
+                </p>
+              </div>
+            </div>
+
+            <div
+              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(20rem,36dvh)]"
+              aria-live="polite"
+            >
+              <template v-if="pending">
+                <p class="eco-label">{{ pending.choice }}</p>
+                <div
+                  v-if="pending.roll"
+                  class="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+                  :class="
+                    pending.roll.success
+                      ? 'border-[#8fb8b0]/60 bg-[#8fb8b0]/10'
+                      : 'border-[#e08a5a]/60 bg-[#e08a5a]/10'
+                  "
+                >
+                  <div class="flex gap-2" aria-hidden="true">
+                    <span
+                      v-for="(die, index) in pending.roll.dice"
+                      :key="index"
+                      class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
+                    >
+                      <span
+                        v-for="cell in 9"
+                        :key="cell"
+                        class="rounded-full"
+                        :class="PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''"
+                      />
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="text-lg font-black">
+                      {{ pending.roll.dice[0] + pending.roll.dice[1] }}
+                      <span v-if="pending.roll.bonus" class="text-[#f3e6c8]/70"
+                        >{{ pending.roll.bonus > 0 ? '+' : '−'
+                        }}{{ Math.abs(pending.roll.bonus) }}</span
+                      >
+                      = {{ pending.roll.total }}
+                      <span class="text-[#f3e6c8]/70"
+                        >vs {{ pending.roll.target }}</span
+                      >
+                    </p>
+                    <p class="text-xs text-[#f3e6c8]/70">
+                      {{ rollParts(pending.roll) }}
+                    </p>
+                  </div>
+                  <span
+                    class="rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider"
+                    :class="
+                      pending.roll.success
+                        ? 'bg-[#8fb8b0] text-[#09141c]'
+                        : 'bg-[#e08a5a] text-[#09141c]'
+                    "
+                  >
+                    {{
+                      pending.roll.natural === 'boxcars'
+                        ? 'Boxcars!'
+                        : pending.roll.natural === 'snake-eyes'
+                          ? 'Snake eyes'
+                          : pending.roll.success
+                            ? 'Success'
+                            : 'Complication'
+                    }}
+                  </span>
+                </div>
+                <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
+                  <p class="font-serif text-lg leading-relaxed @4xl:text-xl">
+                    {{ pending.text }}
+                  </p>
+                </div>
+                <div
+                  v-if="effectChips(pending.effects).length"
+                  class="flex flex-wrap gap-1.5"
                 >
                   <span
-                    v-for="cell in 9"
-                    :key="cell"
-                    class="rounded-full"
-                    :class="PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''"
+                    v-for="chip in effectChips(pending.effects)"
+                    :key="chip"
+                    class="rounded-full border border-[#c9a96e]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+                    >{{ chip }}</span
+                  >
+                </div>
+              </template>
+
+              <template v-else-if="game.run.phase === 'end' && game.ending">
+                <p class="eco-label flex items-center gap-2">
+                  <span
+                    class="size-3 shrink-0 rounded-full"
+                    :class="
+                      game.ending.fate === 'hope'
+                        ? 'ecotone-fate-hope'
+                        : 'ecotone-fate-dark'
+                    "
                   />
-                </span>
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-lg font-black">
-                  {{ pending.roll.dice[0] + pending.roll.dice[1] }}
-                  <span v-if="pending.roll.bonus" class="text-white/70"
-                    >{{ pending.roll.bonus > 0 ? '+' : '−'
-                    }}{{ Math.abs(pending.roll.bonus) }}</span
-                  >
-                  = {{ pending.roll.total }}
-                  <span class="text-white/70"
-                    >vs {{ pending.roll.target }}</span
-                  >
+                  {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }} future
+                  · {{ leadName(game.ending.lead) }} ·
+                  {{ lensLabel(game.ending.lens) }}
                 </p>
-                <p class="text-xs text-white/70">
-                  {{ rollParts(pending.roll) }}
+                <div
+                  class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
+                >
+                  <p
+                    v-if="signature"
+                    class="font-serif text-base italic text-[#f3e6c8]/80"
+                  >
+                    {{ signature.line }}
+                  </p>
+                  <p
+                    v-for="(paragraph, index) in FUTURES[game.ending.lead][
+                      game.ending.fate
+                    ]"
+                    :key="index"
+                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                  >
+                    {{ paragraph }}
+                  </p>
+                  <p
+                    v-if="LENS_CODAS[game.ending.lens]"
+                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                  >
+                    {{ LENS_CODAS[game.ending.lens] }}
+                  </p>
+                  <div class="rounded-xl bg-black/30 p-3">
+                    <p class="eco-label">
+                      What decided it: {{ game.ending.score }} of
+                      {{ game.ending.target }} needed
+                    </p>
+                    <p class="mt-1 text-sm text-[#f3e6c8]/85">
+                      {{
+                        game.ending.parts
+                          .map(
+                            (part) =>
+                              `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
+                          )
+                          .join(' · ')
+                      }}
+                    </p>
+                  </div>
+                  <p class="text-xs text-[#f3e6c8]/60">
+                    Ending earned and added to your gallery. These finales are
+                    first drafts; the full one-, ten- and thirty-year epilogues
+                    are still being written.
+                  </p>
+                </div>
+              </template>
+
+              <template v-else>
+                <p class="eco-label">{{ stage.panelKicker }}</p>
+                <div
+                  class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
+                >
+                  <p
+                    v-for="(paragraph, index) in stage.body"
+                    :key="index"
+                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                  >
+                    {{ paragraph }}
+                  </p>
+                  <p
+                    v-if="stage.lensLine"
+                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                  >
+                    {{ stage.lensLine }}
+                  </p>
+                  <p
+                    v-for="(aside, index) in stage.asides"
+                    :key="`aside-${index}`"
+                    class="border-l-2 border-[#e08a5a] pl-3 text-sm"
+                  >
+                    {{ aside }}
+                  </p>
+                </div>
+                <p
+                  v-if="stage.panelFooter"
+                  class="text-[11px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                >
+                  {{ stage.panelFooter }}
                 </p>
-              </div>
-              <span
-                class="badge font-black"
-                :class="
-                  pending.roll.success ? 'badge-success' : 'badge-warning'
-                "
-              >
-                {{
-                  pending.roll.natural === 'boxcars'
-                    ? 'Boxcars!'
-                    : pending.roll.natural === 'snake-eyes'
-                      ? 'Snake eyes'
-                      : pending.roll.success
-                        ? 'Success'
-                        : 'Complication'
-                }}
-              </span>
+              </template>
             </div>
-            <p class="font-serif text-base leading-relaxed sm:text-lg">
-              {{ pending.text }}
-            </p>
-            <div class="flex flex-wrap gap-1.5">
-              <span
-                v-for="chip in effectChips(pending.effects)"
-                :key="chip"
-                class="badge badge-outline border-white/25 text-white/85"
-                >{{ chip }}</span
-              >
-            </div>
-            <button
-              ref="continueButton"
-              type="button"
-              class="btn btn-success mt-auto"
-              @click="game.proceed()"
-            >
-              Continue
-              <Icon name="kind-icon:arrow-right" class="size-4" />
-            </button>
-          </div>
 
-          <div
-            v-else-if="game.run.phase === 'end' && game.ending"
-            class="kr-scroll flex flex-col gap-3"
-          >
-            <div class="flex items-center gap-2">
-              <span
-                class="size-4 shrink-0 rounded-full"
-                :class="
-                  game.ending.fate === 'hope'
-                    ? 'ecotone-fate-hope'
-                    : 'ecotone-fate-dark'
-                "
-              />
-              <p
-                class="text-xs font-bold uppercase tracking-widest text-white/70"
-              >
-                {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }} future ·
-                {{ leadName(game.ending.lead) }} ·
-                {{ lensLabel(game.ending.lens) }}
-              </p>
-            </div>
-            <p v-if="signature" class="text-sm italic text-white/80">
-              {{ signature.line }}
-            </p>
-            <p
-              v-for="(paragraph, index) in FUTURES[game.ending.lead][
-                game.ending.fate
-              ]"
-              :key="index"
-              class="font-serif text-base leading-relaxed sm:text-lg"
+            <div
+              class="eco-choices flex min-h-0 flex-col gap-2 self-end @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
             >
-              {{ paragraph }}
-            </p>
-            <p
-              v-if="LENS_CODAS[game.ending.lens]"
-              class="rounded-xl border-l-4 border-success bg-success/10 px-3 py-2 text-sm italic"
-            >
-              {{ LENS_CODAS[game.ending.lens] }}
-            </p>
-            <div class="rounded-2xl bg-black/30 p-3">
-              <p
-                class="text-xs font-bold uppercase tracking-widest text-white/60"
-              >
-                What decided it: {{ game.ending.score }} of
-                {{ game.ending.target }} needed
-              </p>
-              <p class="mt-1 text-sm text-white/85">
-                {{
-                  game.ending.parts
-                    .map(
-                      (part) =>
-                        `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
-                    )
-                    .join(' · ')
-                }}
-              </p>
-            </div>
-            <p class="text-xs text-white/60">
-              Ending earned and added to your gallery. These finales are first
-              drafts; the full one-, ten- and thirty-year epilogues are still
-              being written.
-            </p>
-            <div class="mt-auto flex flex-wrap gap-2">
-              <button
-                type="button"
-                class="btn btn-success flex-1"
-                @click="restart"
-              >
-                Start another weekend
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline flex-1 border-white/30 text-white"
-                @click="tab = 'endings'"
-              >
-                See your endings
-              </button>
-            </div>
-          </div>
-
-          <div v-else class="flex min-h-0 flex-1 flex-col gap-2">
-            <div class="kr-scroll flex min-h-16 flex-col gap-3">
-              <p
-                v-for="(paragraph, index) in stage.body"
-                :key="index"
-                class="font-serif text-[15px] leading-relaxed sm:text-base"
-              >
-                {{ paragraph }}
-              </p>
-              <p
-                v-if="stage.lensLine"
-                class="rounded-xl border-l-4 border-success bg-success/10 px-3 py-2 text-sm italic"
-              >
-                {{ stage.lensLine }}
-              </p>
-              <p
-                v-for="(aside, index) in stage.asides"
-                :key="`aside-${index}`"
-                class="rounded-xl border-l-4 border-warning bg-warning/10 px-3 py-2 text-sm"
-              >
-                {{ aside }}
-              </p>
-            </div>
-            <div class="flex shrink-0 flex-col gap-1.5 sm:gap-2">
-              <button
-                v-for="option in options"
-                :key="option.id"
-                type="button"
-                class="ecotone-choice group rounded-2xl border border-white/15 bg-black/30 px-3 py-2 text-left sm:py-2.5 transition hover:border-success hover:bg-success/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-success disabled:opacity-40"
-                :disabled="option.disabled"
-                @click="option.act()"
-              >
-                <span class="flex items-start justify-between gap-2">
-                  <span class="flex min-w-0 items-center gap-2">
+              <template v-if="pending">
+                <button
+                  ref="continueButton"
+                  type="button"
+                  class="eco-gold-button"
+                  @click="game.proceed()"
+                >
+                  Continue
+                  <Icon name="kind-icon:chevron-right" class="size-4" />
+                </button>
+              </template>
+              <template v-else-if="game.run.phase === 'end' && game.ending">
+                <p class="eco-label px-1">What now?</p>
+                <button type="button" class="eco-gold-button" @click="restart">
+                  Start another weekend
+                </button>
+                <button
+                  type="button"
+                  class="eco-choice justify-center"
+                  @click="tab = 'endings'"
+                >
+                  See your endings
+                </button>
+              </template>
+              <template v-else>
+                <p class="eco-label px-1">{{ stage.question }}</p>
+                <div
+                  class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
+                >
+                  <button
+                    v-for="(option, index) in options"
+                    :key="option.id"
+                    type="button"
+                    class="eco-choice group"
+                    :class="index === 0 && !option.disabled ? 'is-lead' : ''"
+                    :disabled="option.disabled"
+                    :title="option.chipTitle"
+                    @click="option.act()"
+                  >
                     <span
                       v-if="option.thumb"
-                      class="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg max-sm:hidden"
+                      class="relative h-11 w-16 shrink-0 overflow-hidden rounded-md"
                     >
                       <EcotoneScene
                         :kind="option.thumb.scene"
@@ -420,23 +494,25 @@
                         class="absolute inset-0"
                       />
                     </span>
-                    <span class="text-sm font-black sm:text-base">{{
-                      option.label
-                    }}</span>
-                  </span>
-                  <span
-                    v-if="option.chip"
-                    class="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-black"
-                    :title="option.chipTitle"
-                    >{{ option.chip }}</span
-                  >
-                </span>
-                <span
-                  v-if="option.hint"
-                  class="mt-0.5 block text-xs text-white/65 max-sm:hidden"
-                  >{{ option.hint }}</span
-                >
-              </button>
+                    <span class="min-w-0 flex-1">
+                      <span class="block text-base font-bold leading-snug">{{
+                        option.label
+                      }}</span>
+                      <span
+                        v-if="option.chip || option.hint"
+                        class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
+                        >{{
+                          [option.chip, option.hint].filter(Boolean).join(' · ')
+                        }}</span
+                      >
+                    </span>
+                    <Icon
+                      name="kind-icon:chevron-right"
+                      class="size-4 shrink-0 text-[#d9b877] transition group-hover:translate-x-0.5"
+                    />
+                  </button>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -450,7 +526,7 @@
             class="flex flex-col gap-2 rounded-3xl border p-3 sm:p-4"
             :class="
               game.lead?.id === companion.id
-                ? 'border-success bg-success/10'
+                ? 'border-[#d9b877] bg-[#d9b877]/10'
                 : 'border-white/10 bg-black/25'
             "
           >
@@ -475,7 +551,7 @@
                 </h3>
                 <p class="text-xs text-white/70">{{ companion.role }}</p>
                 <p
-                  class="text-[11px] font-bold uppercase tracking-wider text-success"
+                  class="text-[11px] font-bold uppercase tracking-wider text-[#d9b877]"
                 >
                   {{ guideStatus(companion.id) }}
                 </p>
@@ -593,7 +669,7 @@
             class="flex gap-3 rounded-2xl border p-2"
             :class="
               chapterState(ch.number) === 'current'
-                ? 'border-success bg-success/10'
+                ? 'border-[#d9b877] bg-[#d9b877]/10'
                 : 'border-white/10 bg-black/25'
             "
           >
@@ -631,7 +707,7 @@
                 class="rounded-2xl border border-white/10 bg-black/25 p-3"
               >
                 <p
-                  class="text-[11px] font-bold uppercase tracking-wider text-success"
+                  class="text-[11px] font-bold uppercase tracking-wider text-[#d9b877]"
                 >
                   Day {{ entry.day }} · {{ entry.source }} ·
                   {{ entry.title }}
@@ -770,7 +846,7 @@
                 class="flex aspect-[2/3] flex-col items-center justify-center rounded-lg border bg-cover bg-center text-center"
                 :class="
                   slot.unlocked
-                    ? 'border-success bg-success/20'
+                    ? 'border-[#d9b877] bg-[#d9b877]/20'
                     : 'border-white/10 bg-white/5'
                 "
                 :style="slotBack"
@@ -794,11 +870,109 @@
         </div>
       </div>
     </section>
+
+    <nav
+      class="flex shrink-0 flex-wrap justify-center gap-x-1 gap-y-1 border-t border-[#c9a96e]/20 bg-[#070f15] px-2 py-2"
+      role="tablist"
+      aria-label="Ecotone views"
+    >
+      <button
+        v-for="item in tabs"
+        :key="item.value"
+        type="button"
+        role="tab"
+        class="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[.2em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @xl:px-4 @xl:text-xs"
+        :class="
+          tab === item.value
+            ? 'bg-[#d9b877]/15 text-[#d9b877]'
+            : 'text-[#f3e6c8]/60 hover:text-[#f3e6c8]'
+        "
+        :aria-selected="tab === item.value"
+        @click="tab = item.value"
+      >
+        {{ item.label }}
+      </button>
+    </nav>
+
+    <dialog
+      ref="stylePicker"
+      class="modal"
+      aria-labelledby="ecotone-style-heading"
+    >
+      <div
+        class="modal-box max-w-2xl border border-[#c9a96e]/40 bg-[#0c1a24] text-[#f3e6c8]"
+      >
+        <p id="ecotone-style-heading" class="eco-label">
+          Choose your art style
+        </p>
+        <p class="mt-1 text-sm text-[#f3e6c8]/70">
+          Only changes how the county looks. Your weekend plays the same.
+        </p>
+        <div
+          class="mt-3 grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3"
+          role="radiogroup"
+          aria-label="Art style"
+        >
+          <button
+            v-for="option in ECOTONE_ART_STYLES"
+            :key="option.id"
+            type="button"
+            role="radio"
+            :aria-checked="artStyle === option.id"
+            class="overflow-hidden rounded-xl border-2 text-left transition"
+            :class="
+              artStyle === option.id
+                ? 'border-[#d9b877]'
+                : 'border-[#c9a96e]/25 hover:border-[#c9a96e]/60'
+            "
+            @click="artStyle = option.id"
+          >
+            <span class="relative block aspect-[16/10]">
+              <EcotoneScene
+                kind="meadow"
+                :art="ECOTONE_STYLE_SAMPLE"
+                :art-style="option.id"
+                :label="`${option.label} example: the festival meadow`"
+                class="absolute inset-0"
+              />
+              <span
+                v-if="option.id === DEFAULT_ECOTONE_ART_STYLE"
+                class="absolute left-2 top-2 rounded-full bg-[#09141c]/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider"
+                >Default</span
+              >
+            </span>
+            <span class="block p-3">
+              <span
+                class="flex items-center gap-1.5 font-serif text-lg font-black uppercase tracking-wider"
+              >
+                <Icon
+                  v-if="artStyle === option.id"
+                  name="kind-icon:check"
+                  class="size-4 text-[#d9b877]"
+                />
+                {{ option.label }}
+              </span>
+              <span class="block text-xs text-[#f3e6c8]/70">{{
+                option.blurb
+              }}</span>
+            </span>
+          </button>
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button type="submit" class="eco-gold-button">Done</button>
+          </form>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button type="submit">close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
 import { useEcotoneStore } from '~/stores/ecotoneStore'
 import {
   ARCHETYPES,
@@ -808,7 +982,6 @@ import {
   ENDING_LENSES,
   LENSES,
   SKILLS,
-  artUrl,
   type Check,
   type CompanionId,
   type Effects,
@@ -837,6 +1010,16 @@ import {
   LENS_CODAS,
   SIGNATURES,
 } from '~/utils/ecotone/story'
+import {
+  DEFAULT_ECOTONE_ART_STYLE,
+  ECOTONE_ART_STYLES,
+  ECOTONE_ART_STYLE_INJECTION,
+  ECOTONE_STYLE_SAMPLE,
+  ecotoneArtSrc,
+  loadEcotoneArtStyle,
+  saveEcotoneArtStyle,
+  type EcotoneArtStyle,
+} from '~/utils/ecotone/artStyles'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -845,13 +1028,29 @@ const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
 const continueButton = ref<HTMLButtonElement | null>(null)
 
-const tabs: { value: Tab; label: string; icon: string }[] = [
-  { value: 'road', label: 'Road', icon: 'kind-icon:map-pin' },
-  { value: 'guides', label: 'Guides', icon: 'kind-icon:users' },
-  { value: 'county', label: 'County', icon: 'kind-icon:map' },
-  { value: 'journal', label: 'Journal', icon: 'kind-icon:book-open' },
-  { value: 'endings', label: 'Endings', icon: 'kind-icon:trophy' },
+const tabs: { value: Tab; label: string }[] = [
+  { value: 'road', label: 'Journey' },
+  { value: 'guides', label: 'Guides' },
+  { value: 'county', label: 'Map' },
+  { value: 'journal', label: 'Journal' },
+  { value: 'endings', label: 'Endings' },
 ]
+
+// Art style (conductor weird-humboldt t-039): view-only, shared with every
+// scene through provide/inject, remembered per browser by the helpers.
+const artStyle = ref<EcotoneArtStyle>(DEFAULT_ECOTONE_ART_STYLE)
+provide(ECOTONE_ART_STYLE_INJECTION, artStyle)
+watch(artStyle, saveEcotoneArtStyle)
+const currentStyle = computed(
+  () =>
+    ECOTONE_ART_STYLES.find((s) => s.id === artStyle.value) ??
+    ECOTONE_ART_STYLES[0],
+)
+const stylePicker = ref<HTMLDialogElement | null>(null)
+
+function openStylePicker() {
+  stylePicker.value?.showModal()
+}
 
 const PIPS: Record<number, number[]> = {
   1: [5],
@@ -862,9 +1061,23 @@ const PIPS: Record<number, number[]> = {
   6: [1, 3, 4, 6, 7, 9],
 }
 
-onMounted(() => game.initialize())
+onMounted(() => {
+  artStyle.value = loadEcotoneArtStyle()
+  game.initialize()
+})
 
 const pending = computed(() => game.run?.pending?.entry ?? null)
+
+// Each new beat starts at the top of the stage (the Continue focus may
+// have scrolled it on a phone).
+const playScroll = ref<HTMLElement | null>(null)
+watch(
+  () =>
+    pending.value ? null : `${game.run?.phase}:${game.run?.log.length ?? 0}`,
+  (key) => {
+    if (key) playScroll.value?.scrollTo({ top: 0 })
+  },
+)
 
 watch(pending, async (value) => {
   if (!value) return
@@ -873,10 +1086,20 @@ watch(pending, async (value) => {
 })
 
 const eventInfo = computed(() => EVENTS.find((e) => e.id === game.run?.event))
-const dayLabel = computed(() => {
+function pad(n: number) {
+  return String(n).padStart(2, '0')
+}
+
+const chapterLine = computed(() => {
   const run = game.run
-  if (!run || !eventInfo.value) return 'Choosing a road'
-  return `Day ${run.day}, ${dayName(run)} · ${eventInfo.value.name}`
+  if (!run) return 'A weekend in Weird Humboldt'
+  if (!eventInfo.value) return 'Day 00 / Choosing a weekend'
+  return `Day ${pad(run.day)} / ${eventInfo.value.name}`
+})
+const placeLine = computed(() => {
+  const run = game.run
+  if (!run || !stage.value.place) return ''
+  return `${stage.value.place} · ${dayName(run)}`
 })
 const signature = computed(() => {
   const ending = game.ending
@@ -968,8 +1191,19 @@ type Stage = {
   scene: SceneKind
   art?: string
   alt: string
-  eyebrow: string
+  /** The kind pill above the title. */
+  kicker: string
   title: string
+  subtitle: string
+  /** Where the beat happens, for the top bar. */
+  place: string
+  /** Name, role and line of a companion met here. */
+  meet: null | { name: string; role: string; line: string }
+  /** The dialogue panel's gold label, and an optional closing line. */
+  panelKicker: string
+  panelFooter: string
+  /** The choices panel's heading. */
+  question: string
   body: string[]
   lensLine: string
   asides: string[]
@@ -986,8 +1220,14 @@ const stage = computed<Stage>(() => {
     scene: EVENT_CHOICE.scene,
     art: EVENT_CHOICE.art,
     alt: 'Two flyers on a telephone pole on the Arcata Plaza',
-    eyebrow: EVENT_CHOICE.place,
+    kicker: 'Opening',
     title: EVENT_CHOICE.title,
+    subtitle: EVENT_CHOICE.place,
+    place: EVENT_CHOICE.place.split(',')[0] ?? '',
+    meet: null,
+    panelKicker: 'The weekend begins',
+    panelFooter: '',
+    question: 'Choose your weekend',
     body: EVENT_CHOICE.body,
     lensLine: '',
     asides: [],
@@ -1005,8 +1245,14 @@ const stage = computed<Stage>(() => {
       art: n.art,
       alt: `${n.name}, ${n.role}`,
       portrait: true,
-      eyebrow: `Crossroads · ${dayName(run)}`,
-      title: `${n.name} crosses your path`,
+      kicker: 'Companion encounter',
+      title: 'Someone worth following',
+      subtitle: `${n.name} crosses your path`,
+      place: eventInfo.value?.name ?? '',
+      meet: { name: n.name, role: n.role, line: n.line },
+      panelKicker: 'A crossroads, not a character select',
+      panelFooter: 'The others will still be out there.',
+      question: 'Who walks with you?',
       body: CROSSROADS[n.id],
       emblem,
     }
@@ -1018,8 +1264,12 @@ const stage = computed<Stage>(() => {
       scene: step?.kind === 'fork' ? step.scene : 'plaza',
       art: undefined,
       alt: 'A foggy crossroads with several paths',
-      eyebrow: `Day ${run.day}, ${dayName(run)} · Where to?`,
+      kicker: `Day ${pad(run.day)} · The road splits`,
       title: step?.kind === 'fork' ? step.title : 'Where to?',
+      subtitle: `${dayName(run)}, ${eventInfo.value?.name ?? 'Humboldt'}`,
+      place: eventInfo.value?.name ?? '',
+      panelKicker: 'Where to next?',
+      question: 'Where to?',
       body: [FORK_PROMPT],
       emblem: leadEmblem,
     }
@@ -1033,8 +1283,12 @@ const stage = computed<Stage>(() => {
           ? 'encounters/arcata-marsh'
           : (eventInfo.value?.art ?? 'chapters/the-impossible-festival'),
       alt: eventInfo.value?.name ?? 'The Humboldt of your future',
-      eyebrow: 'The Humboldt of your future',
+      kicker: 'The Humboldt of your future',
       title: signature.value?.title ?? 'What comes next',
+      subtitle: game.ending
+        ? `${leadName(game.ending.lead)} · ${lensLabel(game.ending.lens)}`
+        : '',
+      place: eventInfo.value?.name ?? '',
       body: [],
       emblem: leadEmblem,
     }
@@ -1050,11 +1304,21 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? `${prospect.name}, ${prospect.role}`
           : card.title,
-      eyebrow:
-        card.kind === 'spine'
-          ? `Day ${run.day}, ${dayName(run)} · ${card.place}`
-          : `${card.id} · ${card.place}`,
+      kicker: portrait
+        ? 'Companion encounter'
+        : card.kind === 'spine'
+          ? `Story beat · ${card.id}`
+          : `Encounter · ${card.id}`,
       title: card.title,
+      subtitle: card.place,
+      place: card.place.split(',')[0] ?? card.place,
+      meet:
+        portrait && prospect
+          ? { name: prospect.name, role: prospect.role, line: prospect.line }
+          : null,
+      panelKicker: `Day ${pad(run.day)} · ${dayName(run)}`,
+      panelFooter: '',
+      question: 'How do you answer?',
       body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
       lensLine: run.openingState
         ? (card.lensLines?.[run.openingState] ?? '')
@@ -1069,6 +1333,10 @@ const stage = computed<Stage>(() => {
   }
   return fallback
 })
+
+const portraitSrc = computed(() =>
+  stage.value.portrait ? ecotoneArtSrc(stage.value.art, artStyle.value) : null,
+)
 
 type Option = {
   id: string
@@ -1198,7 +1466,7 @@ function slotsFor(id: EndingLine) {
 }
 
 const slotBack = computed(() => {
-  const url = artUrl('ui/card-back')
+  const url = ecotoneArtSrc('ui/card-back', artStyle.value)
   return url
     ? {
         backgroundImage: `linear-gradient(rgb(11 29 31 / 0.55), rgb(11 29 31 / 0.55)), url(${url})`,
@@ -1212,6 +1480,134 @@ function endingsFor(id: EndingLine) {
 </script>
 
 <style scoped>
+.eco-pill {
+  height: 2rem;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(201 169 110 / 0.4);
+  background: rgb(18 36 44 / 0.85);
+  padding: 0 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: border-color 0.15s;
+}
+.eco-pill-icon {
+  width: 2rem;
+  justify-content: center;
+  padding: 0;
+}
+.eco-kicker {
+  border-radius: 9999px;
+  border: 1px solid rgb(143 184 176 / 0.55);
+  background: rgb(18 40 44 / 0.75);
+  padding: 0.3rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+.eco-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #d9b877;
+}
+.eco-panel {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid rgb(201 169 110 / 0.45);
+  background: rgb(10 22 31 / 0.92);
+  padding: 1.1rem 1.25rem 1.1rem 1.6rem;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(6px);
+}
+.eco-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0.85rem auto 0.85rem 0;
+  width: 4px;
+  border-radius: 9999px;
+  background: #d9b877;
+}
+.eco-choices {
+  border-radius: 1rem;
+  border: 1px solid rgb(201 169 110 / 0.45);
+  background: rgb(10 22 31 / 0.92);
+  padding: 1rem;
+  box-shadow: 0 18px 40px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(6px);
+}
+.eco-choice {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgb(201 169 110 / 0.3);
+  background: rgb(20 38 48 / 0.85);
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+.eco-choice.is-lead,
+.eco-choice:hover:not(:disabled),
+.eco-choice:focus-visible {
+  border-color: #d9b877;
+  outline: none;
+}
+.eco-choice.is-lead::before,
+.eco-choice:hover:not(:disabled)::before {
+  content: '';
+  position: absolute;
+  inset: 0.45rem auto 0.45rem 0.25rem;
+  width: 3px;
+  border-radius: 9999px;
+  background: #d9b877;
+}
+.eco-choice:disabled {
+  opacity: 0.4;
+}
+.eco-gold-button {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.6rem;
+  background: #d9b877;
+  padding: 0.6rem 1.4rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0b1820;
+  transition: filter 0.15s;
+}
+.eco-gold-button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.eco-gold-button:disabled {
+  opacity: 0.5;
+}
+.eco-portrait {
+  mask-image: linear-gradient(to bottom, black 70%, transparent);
+}
+@container (min-width: 56rem) {
+  .eco-portrait {
+    mask-image:
+      linear-gradient(to right, transparent, black 28%),
+      linear-gradient(to bottom, black 72%, transparent);
+    mask-composite: intersect;
+  }
+}
 .ecotone-fate-hope {
   background: radial-gradient(circle at 35% 35%, #fff3c4, #e0a93a);
   box-shadow: 0 0 6px rgb(224 169 58 / 0.6);

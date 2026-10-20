@@ -1,7 +1,11 @@
 # Coat Dance full-video restyle: staged upload contract
 
 The admin-only `/admin/coat-dance` route is linked from Video Gen. It accepts
-MP4/MOV/WebM files up to 128 MiB, including the 35.5 MB / 5:32 reference.
+MP4/MOV/WebM, MPEG program-stream (`.mpg`/`.mpeg`) and animated GIF files up
+to 128 MiB, including the 35.5 MB / 5:32 reference. Browsers cannot read MPEG or
+GIF length from a `<video>` element, so `utils/videoRestyleSource.ts` reads it
+from the file bytes (MPEG PTS range, GIF frame delays); the relay's ffmpeg
+re-verifies it. GIFs preview as an image and MPEG shows a no-preview card.
 The source is stored under `PRIVATE_PATH/video-restyle/<owner-id>/<uuid>/source.<ext>`;
 a `job.json` manifest beside it survives browser navigation and application
 restarts on the mounted Unraid volume. Never place sources in public/images or

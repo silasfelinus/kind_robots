@@ -15,7 +15,7 @@ requiredRole: ADMIN
 tutorial:
   title: Full-length animation restyling
   body: >-
-    Upload the full performance as MP4, MOV or WebM (128 MiB maximum, fifteen
+    Upload the full performance as MP4, MOV, WebM, MPEG or GIF (128 MiB maximum, fifteen
     minutes maximum), select a look, and save the source privately. Your file,
     segment manifest and preferences persist under PRIVATE_PATH/video-restyle.
     The 24-second pilot (2:38–3:02 in the original) queues a native WAN VACE\n    1.3B control-video worker job on the private mounted directory.\n    This stage prepares the motion-preserving WAN VACE rendering recipe,

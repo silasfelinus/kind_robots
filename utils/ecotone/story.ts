@@ -890,7 +890,8 @@ export const BEATS: EncounterCard[] = [
       ],
     },
     lensLines: {
-      cocaine: 'The party\'s accelerated noise fades enough for the person you approached to ask a practical question: which strange event can another witness confirm?',
+      cocaine:
+        "The party's accelerated noise fades enough for the person you approached to ask a practical question: which strange event can another witness confirm?",
       mdma: 'The feeling of being welcomed is vivid; the person you meet wants to know what you will still help fix tomorrow.',
     },
     choices: MEET_CHOICES,
@@ -910,7 +911,8 @@ export const BEATS: EncounterCard[] = [
       'The crew captain hands you a helmet with antennae on it. Ahead are the road out of town, the Manila dunes, Humboldt Bay and the Eel River. A sculpture keeps racing as long as somebody keeps it moving, and somebody, apparently, is you.',
     ],
     lensLines: {
-      cocaine: 'Every team shouts at once and the starting whistle seems late. A marshal points out the actual order: helmet, brakes, shared signal, then go.',
+      cocaine:
+        'Every team shouts at once and the starting whistle seems late. A marshal points out the actual order: helmet, brakes, shared signal, then go.',
       mdma: 'You recognize people from the warehouse and greet them warmly. Dot still needs a competent pilot and a crew who can hear a clear safety instruction.',
     },
     leadLines: {
@@ -992,7 +994,8 @@ export const BEATS: EncounterCard[] = [
         'The water is full of slow green light, like the bay is thinking.',
       tripping_balls:
         'The fog parts like a stage curtain, and for a moment the far shore is a Eureka with a glass tower and a train across the water.',
-      cocaine: 'The bay crossing compresses to a series of urgent calls. You ask a second skipper to repeat the buoy reading before acting.',
+      cocaine:
+        'The bay crossing compresses to a series of urgent calls. You ask a second skipper to repeat the buoy reading before acting.',
       mdma: 'The boats look for a moment like one delighted flotilla; their skippers still have to agree where the safe channel is.',
     },
     leadLines: {
@@ -1079,8 +1082,9 @@ export const BEATS: EncounterCard[] = [
         'The gingerbread trim on the houses is moving very slowly, like ferns.',
       tripping_balls:
         'The headstones on the hill are lined up like a crowd at a finish line. They are all wearing tiny party hats.',
-      cocaine: 'The finish line is crowded with quick solutions. You choose to listen to the volunteer who actually witnessed the strange clock.',
-      mdma: 'There are embraces at the finish and more promises than places to write them. A crew chief starts taking names for tomorrow\'s repairs.',
+      cocaine:
+        'The finish line is crowded with quick solutions. You choose to listen to the volunteer who actually witnessed the strange clock.',
+      mdma: "There are embraces at the finish and more promises than places to write them. A crew chief starts taking names for tomorrow's repairs.",
     },
     leadLines: {
       cedar:
@@ -1153,7 +1157,8 @@ export const BEATS: EncounterCard[] = [
         'From the top you can see the whole course: the Samoa Bridge, Eureka, the bay you cross tomorrow, and a second, fainter bridge beside the first that is gone when you blink.',
       tipsy:
         'The crowd on the dune is doing the wave. The dune is doing it too, a little.',
-      cocaine: 'The dune makes every second feel expensive, but Cedar or the closest race mechanic asks you to test the rope before anybody moves.',
+      cocaine:
+        'The dune makes every second feel expensive, but Cedar or the closest race mechanic asks you to test the rope before anybody moves.',
       mdma: 'Every crew is cheering for the others. A borrowed belay rope still needs knots that someone can inspect.',
     },
     leadLines: {
@@ -1235,7 +1240,8 @@ export const BEATS: EncounterCard[] = [
       },
     },
     lensLines: {
-      cocaine: 'You stop racing the future for long enough to check the grade and share your measurements with the tired riders.',
+      cocaine:
+        'You stop racing the future for long enough to check the grade and share your measurements with the tired riders.',
       mdma: 'People call encouragement from the hill. You see who needs an actual push, a safe rest, or an honest warning.',
     },
     choices: [

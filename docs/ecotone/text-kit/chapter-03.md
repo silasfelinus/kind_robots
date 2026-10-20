@@ -10,24 +10,24 @@
 
 **Opening narration:** A building adds one window whenever a secret is spoken nearby.
 
-**Escalation:** An Old Town Victorian grows an extra window whenever a pedestrian admits a secret. Its owner is selling tickets to the confession tour.
+**Escalation:** A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom.
 
-**Option A, investigate (visible 9 check):** Count windows while asking about the building's permits
+**Option A, investigate (visible 9 check):** Count the added windows against permits, without asking anyone for a confession
 
-- **Pass:** The newly grown sash frames a room whose wallpaper shows the harbor ten years from now.
-- **Miss:** The window disappears before the camera focuses; its reflection stays in a shop across the street.
+- **Pass:** A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot.
+- **Miss:** The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address.
 
-**Option B, assist without a check:** Help a resident stop the invasive tours
+**Option B, assist without a check:** Help the tenant end the invasive tours and reclaim her front steps
 
-- **Result:** The building closes its last extra window and the neighbor can sleep without being watched.
+- **Result:** The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-041`: A building adds one window whenever a secret is spoken nearby. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-041/2`: An Old Town Victorian grows an extra window whenever a pedestrian admits a secret. Its owner is selling tickets to the confession tour. The people and location must match the opening.
-- `outcomes/wh-041/investigate-success`: The newly grown sash frames a room whose wallpaper shows the harbor ten years from now. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-041/investigate-failure`: The window disappears before the camera focuses; its reflection stays in a shop across the street. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-041/care-success`: The building closes its last extra window and the neighbor can sleep without being watched. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-041/2`: A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom. The people and location must match the opening.
+- `outcomes/wh-041/investigate-success`: A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-041/investigate-failure`: The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-041/care-success`: The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_041_verified`, `wh_041_partial`, `wh_041_care` (mutually exclusive results of this card).
 
@@ -72,24 +72,24 @@
 
 **Opening narration:** An Edwardian apparition refuses to haunt without reimbursed meter fees.
 
-**Escalation:** An Edwardian ghost refuses to haunt until his parking meter is validated. The council wants to tow the only car anyone can see through.
+**Escalation:** An Edwardian ghost has found a parking ticket under his spectral windshield and refuses to haunt until the meter is validated. The council wants to tow the invisible car, although nobody can agree where to attach the hook.
 
-**Option A, investigate (visible 9 check):** Check the ghost's citation against archived street maps
+**Option A, investigate (visible 9 check):** Compare the citation with historic street maps and an actual meter record
 
-- **Pass:** His ticket names a vanished lane and a courthouse hearing scheduled tomorrow.
-- **Miss:** The ticket crumbles, but the ghost remembers the clerk who issued it.
+- **Pass:** His citation names a lane the city paved over decades ago. The hearing date is tomorrow, which bothers the ghost less than the late fee.
+- **Miss:** The ticket turns to lint. An elderly clerk remembers the old lane and offers to check the archive, without promising an appeal will win.
 
-**Option B, assist without a check:** Advocate for accessible public parking, living and otherwise
+**Option B, assist without a check:** Help the people who use the street propose an accessible parking rule
 
-- **Result:** The meter attendant offers a sensible pass and the apparition finally moves his cart.
+- **Result:** The attendant issues a practical temporary pass. The ghost moves his vehicle and everybody else finally gets somewhere to park.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-044`: An Edwardian apparition refuses to haunt without reimbursed meter fees. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-044/2`: An Edwardian ghost refuses to haunt until his parking meter is validated. The council wants to tow the only car anyone can see through. The people and location must match the opening.
-- `outcomes/wh-044/investigate-success`: His ticket names a vanished lane and a courthouse hearing scheduled tomorrow. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-044/investigate-failure`: The ticket crumbles, but the ghost remembers the clerk who issued it. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-044/care-success`: The meter attendant offers a sensible pass and the apparition finally moves his cart. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-044/2`: An Edwardian ghost has found a parking ticket under his spectral windshield and refuses to haunt until the meter is validated. The council wants to tow the invisible car, although nobody can agree where to attach the hook. The people and location must match the opening.
+- `outcomes/wh-044/investigate-success`: His citation names a lane the city paved over decades ago. The hearing date is tomorrow, which bothers the ghost less than the late fee. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-044/investigate-failure`: The ticket turns to lint. An elderly clerk remembers the old lane and offers to check the archive, without promising an appeal will win. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-044/care-success`: The attendant issues a practical temporary pass. The ghost moves his vehicle and everybody else finally gets somewhere to park. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_044_verified`, `wh_044_partial`, `wh_044_care` (mutually exclusive results of this card).
 

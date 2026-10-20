@@ -6,6 +6,7 @@ label: Checkpoint Review
 title: Checkpoint Review
 subtitle: Every Ecotone render side by side, with generation times
 description: Compare the Ecotone checkpoint bake-off and art rounds side by side, with render and queue times per image and per checkpoint, and shortlist the checkpoints that become Ecotone art styles. Temporary.
+summary: Compare checkpoints and render times.
 icon: kind-icon:image
 route: /admin/art-review
 sort: 77

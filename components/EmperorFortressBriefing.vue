@@ -35,7 +35,7 @@
         </p>
         <ul class="grid gap-2">
           <li
-            v-for="report in today.briefings"
+            v-for="report in reports"
             :key="report.id"
             class="rounded-md border p-3"
             :class="
@@ -72,6 +72,37 @@
         >
           {{ today.whisper.source }}: “{{ today.whisper.text }}”
         </p>
+        <details
+          v-if="hindsight.length"
+          class="rounded-md border border-error/40 bg-error/5 p-3"
+        >
+          <summary
+            class="cursor-pointer text-xs font-bold uppercase tracking-wider text-error"
+          >
+            His own reports, read again · {{ hindsight.length }}
+          </summary>
+          <p class="mt-2 text-xs italic opacity-75">
+            The Archive went back through every morning dispatch. These came
+            from Young Komodo’s runner.
+          </p>
+          <ul class="kr-scroll mt-2 grid max-h-72 gap-2 pr-1">
+            <li
+              v-for="entry in hindsight"
+              :key="entry.briefing.id"
+              class="border-l-2 border-error/50 pl-3"
+            >
+              <p
+                class="text-[10px] font-semibold uppercase tracking-wider opacity-60"
+              >
+                Day {{ entry.day }} · {{ entry.title }}
+              </p>
+              <p class="text-sm leading-snug line-through opacity-60">
+                {{ entry.briefing.text }}
+              </p>
+              <p class="text-sm leading-snug">{{ entry.hindsight }}</p>
+            </li>
+          </ul>
+        </details>
       </template>
       <p v-else class="text-sm opacity-75">
         No dispatches came up the road for Day {{ run.day }}. The wasteland’s
@@ -91,6 +122,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import {
+  dayBriefings,
+  komodoLiesInHindsight,
+} from '~/utils/emperorOfDust/fortress/briefings'
 import { dayDef } from '~/utils/emperorOfDust/fortress/content'
 import { forecastMark } from '~/utils/emperorOfDust/fortress/engine'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
@@ -101,6 +136,10 @@ const props = defineProps<{ run: FortressRun }>()
 const emit = defineEmits<{ next: [] }>()
 
 const today = computed(() => dayDef(props.run.day))
+/** Today's reports as this run reads them (flag-keyed variants applied). */
+const reports = computed(() => dayBriefings(props.run, today.value) ?? [])
+/** After the betrayal: every report that was Komodo's own lie. */
+const hindsight = computed(() => komodoLiesInHindsight(props.run))
 const advisorName = computed(() => today.value?.advisor?.name ?? 'Young Komodo')
 /** The advisor's portrait; Komodo is sad on his last morning at court. */
 const advisorArt = computed(() =>

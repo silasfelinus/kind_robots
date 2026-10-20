@@ -130,6 +130,14 @@
         >
           Start a new reign…
         </button>
+        <button
+          v-if="!confirmNew"
+          type="button"
+          class="btn btn-sm btn-ghost"
+          @click="court.openIntro()"
+        >
+          Replay the introduction
+        </button>
         <span v-else class="flex flex-wrap items-center gap-2 text-sm">
           The current run will be replaced (slots are kept).
           <button type="button" class="btn btn-sm btn-error" @click="startOver">

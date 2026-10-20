@@ -59,6 +59,7 @@ const KIND_ORDERS = [
 const AUTO_KEY = 'kr-emperor-of-dust-fortress-auto-v3'
 const CODEX_KEY = 'kr-emperor-of-dust-codex-v1'
 const RELIC_KEY = 'kr-emperor-of-dust-relic-vault-v1'
+const INTRO_KEY = 'kr-emperor-of-dust-intro-seen-v1'
 const slotKey = (slot: number) => `kr-emperor-of-dust-fortress-slot-${slot}-v3`
 const newSeed = (): number => Date.now() >>> 0 || 1
 
@@ -76,6 +77,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const codex = ref<Codex>(emptyCodex())
   const slots = ref<(SlotRecord | null)[]>(Array(SLOT_COUNT).fill(null))
   const loaded = ref(false)
+  /** The introduction is showing: on a first visit with no save, or replayed from the Chronicle. */
+  const introOpen = ref(false)
   const storageWarning = ref('')
   const lastResponse = ref('')
   const lastReport = ref<DawnReport | null>(null)
@@ -206,8 +209,24 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       decodeSlot(read(slotKey(i))),
     )
     book.value = saved ?? newBook(createRun(newSeed(), equippedRelics()))
+    const untouched =
+      !saved ||
+      (saved.current.day === 1 &&
+        !saved.current.audiencesHeard.length &&
+        !saved.current.active.length)
+    introOpen.value =
+      read(INTRO_KEY) !== '1' && untouched && slots.value.every((slot) => !slot)
     loaded.value = true
     if (!raw) persist()
+  }
+
+  function openIntro() {
+    introOpen.value = true
+  }
+
+  function closeIntro() {
+    introOpen.value = false
+    write(INTRO_KEY, '1')
   }
 
   function current(): FortressRun {
@@ -348,6 +367,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     codex,
     slots,
     loaded,
+    introOpen,
     storageWarning,
     lastResponse,
     lastReport,
@@ -376,5 +396,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     claimRelic,
     setNextRelics,
     setTextSpeed,
+    openIntro,
+    closeIntro,
   }
 })

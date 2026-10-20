@@ -1,14 +1,16 @@
 <template>
   <main
-    class="kr-surface eod bg-base-200 text-base-content"
+    class="kr-surface eod relative bg-base-200 text-base-content"
     data-theme="emperor"
   >
-    <div v-if="!court.loaded || !run" class="grid min-h-96 place-items-center">
-      <span class="kr-spinner-lg-primary" />
-    </div>
+    <div
+      v-if="!court.loaded || !run"
+      class="grid min-h-96 place-items-center"
+      aria-hidden="true"
+    />
     <div
       v-else
-      class="mx-auto flex h-full min-h-0 w-full max-w-7xl flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
+      class="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
     >
       <p
         v-if="court.storageWarning"
@@ -218,6 +220,15 @@
       </footer>
     </div>
 
+    <EmperorFortressIntro
+      v-if="!splashing && court.loaded && court.introOpen"
+      @done="court.closeIntro()"
+    />
+    <EmperorFortressSplash
+      v-if="splashing"
+      :ready="court.loaded"
+      @done="splashing = false"
+    />
     <EmperorFortressDawn
       v-if="showDawn && court.lastReport"
       :report="court.lastReport"
@@ -258,6 +269,7 @@ const ending = computed(() =>
 const followerName = (id: string) => followerDef(id)?.name ?? id
 const activeRoom = ref<RoomId>('throne')
 const showDawn = ref(false)
+const splashing = ref(true)
 const stage = ref<HTMLElement | null>(null)
 
 const unheard = computed(() =>

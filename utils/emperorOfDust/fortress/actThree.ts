@@ -71,7 +71,11 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         affinity: { rustline: 10 },
         flags: ['blue-lantern-route'],
       },
-      success: { brass: 20, flags: ['blue-lantern-route'] },
+      success: {
+        brass: 20,
+        affinity: { rustline: 5 },
+        flags: ['blue-lantern-route'],
+      },
       failure: { affinity: { rustline: -5 } },
     },
     expired: {},

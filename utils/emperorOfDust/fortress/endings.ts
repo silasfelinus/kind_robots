@@ -71,7 +71,7 @@ const PEACES: [flag: string, ending: EndingId][] = [
 ]
 
 /** Followers lost this run that make the peace "A Hundred Candles". */
-export const HEAVY_LOSSES = 3
+export const HEAVY_LOSSES = 2
 
 /** The ending a finished run earns. Any party that sealed the crypt counts. */
 export const endingOf = (run: FortressRun): EndingDef => {

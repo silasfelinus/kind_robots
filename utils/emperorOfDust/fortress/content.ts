@@ -26,7 +26,7 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
     danger: 'mid',
     tags: ['defense'],
     rewards: {
-      success: { brass: 15, affinity: { saltroad: 5 } },
+      success: { brass: 15, affinity: { saltroad: 3 } },
       failure: { affinity: { saltroad: -3 } },
     },
     expired: { affinity: { saltroad: -3 } },
@@ -55,7 +55,7 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
     danger: 'low',
     tags: ['medicine'],
     rewards: {
-      success: { brass: 10, affinity: { freeholds: 8 }, local: { yard: 1 } },
+      success: { brass: 10, affinity: { freeholds: 3 }, local: { yard: 1 } },
       failure: { affinity: { freeholds: -3 } },
     },
     expired: { affinity: { freeholds: -5 } },
@@ -83,8 +83,8 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
     danger: 'mid',
     tags: ['tracking'],
     rewards: {
-      triumph: { brass: 25, affinity: { saltroad: 10 } },
-      success: { brass: 15, affinity: { saltroad: 8 } },
+      triumph: { brass: 25, affinity: { saltroad: 5 } },
+      success: { brass: 15, affinity: { saltroad: 3 } },
       failure: { affinity: { saltroad: -5 } },
     },
     expired: { affinity: { saltroad: -5 } },
@@ -113,7 +113,7 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
     rewards: {
       success: {
         brass: 5,
-        affinity: { 'hollow-bell': 6 },
+        affinity: { 'hollow-bell': 3 },
         local: { 'old-houses': 1 },
       },
       failure: { affinity: { 'hollow-bell': -3 } },
@@ -152,6 +152,154 @@ export const QUEST_TEMPLATES: readonly QuestDef[] = [
       partial: 'The glass is catalogued, roughly.',
       failure: 'The salvagers sold it before anyone arrived.',
       expired: 'The salvagers sold it.',
+    },
+  },
+  {
+    id: 'r-roost-storm',
+    title: 'A Roost in the Storm',
+    summary:
+      'Lightning split a Storm Crow roost on the Heights, and the fledglings are on the ledge below it. The Crows will not ask for help. Go anyway.',
+    region: 'storm-crow-heights',
+    faction: 'storm-crows',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'might', band: 'low' },
+      { stat: 'heart', band: 'mid' },
+    ],
+    danger: 'low',
+    tags: ['weather'],
+    rewards: {
+      success: { brass: 5, affinity: { 'storm-crows': 3 } },
+      failure: { affinity: { 'storm-crows': -2 } },
+    },
+    expired: { affinity: { 'storm-crows': -2 } },
+    outcomes: {
+      success:
+        'Every fledgling is back in a dry nest. An old crow watched the whole climb and said nothing, which from a Crow is thanks.',
+      partial: 'Most of the fledglings were brought up. The ledge kept one.',
+      failure:
+        'The ledge was slicker than it looked. The Crows took it from there.',
+      expired: 'The Crows managed alone, and noted who did not come.',
+    },
+  },
+  {
+    id: 'r-fen-lantern',
+    title: 'A Lantern Gone Out',
+    summary:
+      'One of the green lanterns on the Mirefen causeway has gone dark, and travellers are walking off the path. Relight it before someone drowns.',
+    region: 'mirefen',
+    faction: 'mire-mothers',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'lore', band: 'mid' },
+      { stat: 'wits', band: 'low' },
+    ],
+    danger: 'low',
+    tags: ['tracking'],
+    rewards: {
+      success: { affinity: { 'mire-mothers': 3 }, local: { lamplight: 1 } },
+      failure: { affinity: { 'mire-mothers': -2 } },
+    },
+    expired: { affinity: { 'mire-mothers': -2 } },
+    outcomes: {
+      success:
+        'The lantern burns green again. Nobody saw who filled it, but the reeds bent toward the tower all evening.',
+      partial: 'The lantern flickers. It will last a few nights.',
+      failure: 'The wick would not take. The causeway stays dark.',
+      expired:
+        'Someone walked off the path that night. The fen did not give them back.',
+    },
+  },
+  {
+    id: 'r-wagon-escort',
+    title: 'An Escort for the Painted Wagons',
+    summary:
+      'A Jackalwire wagon wants to cross Freehold land to sell scrap at the Ford, and nobody will let it pass without a crown escort.',
+    region: 'jackalwire',
+    faction: 'jackalwire',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'guile', band: 'mid' },
+      { stat: 'might', band: 'low' },
+    ],
+    danger: 'low',
+    tags: ['negotiation'],
+    rewards: {
+      success: { brass: 10, affinity: { jackalwire: 3 } },
+      failure: { affinity: { jackalwire: -2, freeholds: -2 } },
+    },
+    expired: { affinity: { jackalwire: -2 } },
+    outcomes: {
+      success:
+        'The wagon reached the Ford, sold everything, and left before anyone could change their mind. The Pack sends a painted hubcap by way of thanks.',
+      partial: 'The wagon got through, minus a wheel and most of its temper.',
+      failure: 'A Freehold farmer and a Pack driver came to blows at the gate.',
+      expired: 'The wagon turned back, and the Pack blamed the crown.',
+    },
+  },
+  {
+    id: 'r-tunnel-rescue',
+    title: 'A Tunnel Caved In',
+    summary:
+      'A side tunnel under the badlands came down in the night with two Mole diggers behind it. The Moles are digging. They need more hands.',
+    region: 'mole-tunnels',
+    faction: 'moles',
+    durationDays: 1,
+    boardDays: 1,
+    party: { min: 1, max: 3 },
+    requirements: [
+      { stat: 'might', band: 'mid' },
+      { stat: 'wits', band: 'low' },
+    ],
+    danger: 'mid',
+    tags: ['tunnels', 'urgent'],
+    rewards: {
+      success: { affinity: { moles: 3 }, local: { yard: 1 } },
+      failure: { affinity: { moles: -2 } },
+    },
+    expired: { affinity: { moles: -3 } },
+    outcomes: {
+      success:
+        'Both diggers came out blinking and furious about the delay. Granny Umber sent a jar of honey up to the tower.',
+      partial:
+        'One digger came out. The Moles are still digging for the other.',
+      failure: 'The roof came down again before anyone reached them.',
+      expired: 'The Moles dug alone, all night.',
+    },
+  },
+  {
+    id: 'r-salvage-claim',
+    title: 'A Disputed Salvage Claim',
+    summary:
+      'Two Rustline crews both say they found the same derailed engine first. Settle it before they settle it with crowbars.',
+    region: 'rail-yards',
+    faction: 'rustline',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'wits', band: 'mid' },
+      { stat: 'heart', band: 'low' },
+    ],
+    danger: 'none',
+    tags: ['negotiation', 'records'],
+    rewards: {
+      success: { brass: 5, affinity: { rustline: 3 } },
+      failure: { affinity: { rustline: -2 } },
+    },
+    expired: { affinity: { rustline: -2 } },
+    outcomes: {
+      success:
+        'The engine was split down the middle, exactly, with a chalk line. Both crews say they were cheated, which means it was fair.',
+      partial: 'The crews agreed to share it, for now.',
+      failure: 'The crowbars came out anyway.',
+      expired: 'The crowbars decided it.',
     },
   },
 ]

@@ -2,10 +2,18 @@
   <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
     <section class="kr-panel space-y-3 p-4">
       <p class="text-xs font-semibold uppercase tracking-widest text-warning">
-        {{ today?.advisor ?? 'Young Komodo' }} · morning briefing
+        {{ today?.advisor?.name ?? 'Young Komodo' }} · morning briefing
       </p>
       <template v-if="today">
-        <p class="font-serif text-lg italic">“{{ today.komodo }}”</p>
+        <div class="flex items-start gap-3">
+          <img
+            v-if="advisorArt"
+            :src="advisorArt"
+            :alt="today.advisor?.name ?? 'Young Komodo'"
+            class="h-24 w-16 shrink-0 rounded-lg bg-base-200 object-cover object-top"
+          />
+          <p class="font-serif text-lg italic">“{{ today.komodo }}”</p>
+        </div>
         <ul class="grid gap-2">
           <li
             v-for="report in today.briefings"
@@ -132,6 +140,16 @@ import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
 const today = computed(() => dayDef(props.run.day))
+/** The advisor's portrait; Komodo is sad on his last morning at court. */
+const advisorArt = computed(() =>
+  today.value
+    ? illustration(
+        'npcs',
+        today.value.advisor?.npc ?? 'young-komodo',
+        !today.value.advisor && today.value.day === 40 ? 'sad' : 'neutral',
+      )
+    : undefined,
+)
 const audiences = computed(() => audiencesToday(props.run))
 const selectedId = ref<string | null>(null)
 const responses = ref<Record<string, string>>({})

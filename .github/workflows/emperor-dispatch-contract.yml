@@ -9,6 +9,8 @@ on:
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
+      - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
+      - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
       - 'components/EmperorFortressBarracks.vue'
       - 'components/EmperorFortressChronicle.vue'
@@ -26,6 +28,8 @@ on:
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
+      - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
+      - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
       - 'components/EmperorFortressBarracks.vue'
       - 'components/EmperorFortressChronicle.vue'
@@ -54,3 +58,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts

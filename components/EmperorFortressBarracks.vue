@@ -191,6 +191,7 @@ import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import {
   bedsUsed,
+  followerMood,
   followerStatus,
   injuryDaysLeft,
   traitKnown,
@@ -240,15 +241,13 @@ const modifiers = computed(() =>
       }`,
   ),
 )
-/** The follower's illustration; a wounded follower shows their sad mood. */
+/** The follower's illustration, in the mood of their last homecoming. */
 const art = computed(() =>
   def.value
     ? illustration(
         'followers',
         def.value.id,
-        followerStatus(props.run, def.value.id) === 'injured'
-          ? 'sad'
-          : 'neutral',
+        followerMood(props.run, def.value.id),
       )
     : undefined,
 )

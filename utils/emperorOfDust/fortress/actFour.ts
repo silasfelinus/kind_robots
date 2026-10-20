@@ -354,6 +354,18 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             response:
               'The Pack rides out whooping. The Freeholds will be grateful and appalled in roughly equal parts.',
           },
+          {
+            id: 'rustline',
+            label: 'Pay the Rustline to barricade the Ford with scrap.',
+            requires: { cost: 20, affinity: { rustline: 'neutral' } },
+            effects: {
+              affinity: { rustline: 10 },
+              strength: { freeholds: 1 },
+              flags: ['rustline-barricades'],
+            },
+            response:
+              'By noon the Ford is walled with rusted boxcars. The magpies charge by the boxcar, and they are worth it.',
+          },
         ],
       },
     ],
@@ -814,6 +826,18 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             },
             response:
               'Tallow’s whiskers twitch. “Now that,” she says, “is worth more than brass.” Somewhere on the Saltroad, a pelican will be very angry by supper.',
+          },
+          {
+            id: 'rustline',
+            label: 'Buy from the Rustline salvagers instead.',
+            requires: { affinity: { rustline: 'neutral' } },
+            effects: {
+              local: { ledger: -3 },
+              affinity: { rustline: 15 },
+              flags: ['rustline-market'],
+            },
+            response:
+              'Tallow laughs out loud. By evening the empty stalls are full of magpies selling bolts, glass and engine parts at prices nobody can follow.',
           },
           {
             id: 'refuse',

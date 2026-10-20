@@ -214,7 +214,7 @@ export type DayDef = {
   title: string
   briefings: [Briefing, Briefing, Briefing]
   /** Who gives the morning briefing; Young Komodo until he betrays the throne. */
-  advisor?: string
+  advisor?: { name: string; npc: string }
   /** The advisor's own line on the day's reports. */
   komodo: string
   audiences: AudienceDef[]

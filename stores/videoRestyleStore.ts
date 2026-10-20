@@ -104,6 +104,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       style: RestyleLookId
       quality: RestyleQuality
       renderSpeed: RestyleRenderSpeed
+      overwriteStrength: number
       isPrivate: boolean
       isMature: boolean
     } & GrabBagChoice,
@@ -133,6 +134,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       }
       form.append('quality', input.quality)
       form.append('renderSpeed', input.renderSpeed)
+      form.append('overwriteStrength', String(input.overwriteStrength))
       form.append('isPrivate', String(input.isPrivate))
       form.append('isMature', String(input.isMature))
       const response = await performFetch<VideoRestyleJob>(
@@ -207,6 +209,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       style: RestyleLookId
       quality: RestyleQuality
       renderSpeed: RestyleRenderSpeed
+      overwriteStrength: number
       isPrivate: boolean
       isMature: boolean
     } & GrabBagChoice,
@@ -413,6 +416,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     isMature: boolean,
     grabBag: GrabBagChoice = {},
     renderSpeed: RestyleRenderSpeed = 'standard',
+    overwriteStrength = 100,
   ): Promise<boolean> {
     busy.value = true
     error.value = ''
@@ -428,6 +432,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
             isPrivate,
             isMature,
             renderSpeed,
+            overwriteStrength,
             ...grabBag,
           }),
         },
@@ -440,6 +445,29 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         job.id === id ? response.data! : job,
       )
       notice.value = 'Animation look and output target saved to this project.'
+      return true
+    } finally {
+      busy.value = false
+    }
+  }
+
+  async function renameProject(id: string, title: string): Promise<boolean> {
+    if (busy.value) return false
+    busy.value = true
+    error.value = ''
+    try {
+      const response = await performFetch<VideoRestyleJob>(
+        `/api/video-restyle/${encodeURIComponent(id)}/title`,
+        { method: 'PATCH', body: JSON.stringify({ title }) },
+      )
+      if (!response.success || !response.data) {
+        error.value = response.message || 'Could not rename this project.'
+        return false
+      }
+      jobs.value = jobs.value.map((job) =>
+        job.id === id ? response.data! : job,
+      )
+      notice.value = 'Project title saved.'
       return true
     } finally {
       busy.value = false
@@ -524,6 +552,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     stage,
     createVariant,
     saveSettings,
+    renameProject,
     queuePilot,
     deleteProject,
     queueFull,

@@ -103,24 +103,24 @@
 
 **Opening narration:** An unseen panel awards prizes based on regrets, not flavor.
 
-**Escalation:** An unseen jury tastes pies and awards prizes for regrets they claim the baker should confess. The public judges want to disqualify the invisible votes.
+**Escalation:** A second, invisible jury is tasting pies at the Ferndale fair. Its scores are based on whether the baker has confessed a regret, not whether the crust can support its own weight. One competitor is thirteen, and the ghostly judges are demanding a deeply personal statement.
 
-**Option A, investigate (visible 9 check):** Ask the second jury to explain its scoring
+**Option A, investigate (visible 9 check):** Ask the invisible judges to reveal their rules and who authorized them
 
-- **Pass:** The regrets describe a town event that will not occur until next year's fair.
-- **Miss:** The pie tin rings like a bell and the unseen panel withdraws without a verdict.
+- **Pass:** The secret scorecards describe a fair that will take place next year. A living organizer confirms nobody has approved those categories and moves the sheets to the lost-and-found.
+- **Miss:** A pie tin rings loudly and the unseen judges walk out without legs. The bakers retain their entry numbers and enough witnesses to demand another tasting.
 
-**Option B, assist without a check:** Let bakers choose what stories they tell
+**Option B, assist without a check:** Let the bakers withdraw personal stories while keeping their pies in the contest
 
-- **Result:** The town awards the pie for flavor and keeps confessions voluntary.
+- **Result:** The living panel awards prizes for flavor and a crust that survives the journey. Nobody has to turn private grief into an ingredient.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-084`: An unseen panel awards prizes based on regrets, not flavor. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-084/2`: An unseen jury tastes pies and awards prizes for regrets they claim the baker should confess. The public judges want to disqualify the invisible votes. The people and location must match the opening.
-- `outcomes/wh-084/investigate-success`: The regrets describe a town event that will not occur until next year's fair. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-084/investigate-failure`: The pie tin rings like a bell and the unseen panel withdraws without a verdict. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-084/care-success`: The town awards the pie for flavor and keeps confessions voluntary. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-084/2`: A second, invisible jury is tasting pies at the Ferndale fair. Its scores are based on whether the baker has confessed a regret, not whether the crust can support its own weight. One competitor is thirteen, and the ghostly judges are demanding a deeply personal statement. The people and location must match the opening.
+- `outcomes/wh-084/investigate-success`: The secret scorecards describe a fair that will take place next year. A living organizer confirms nobody has approved those categories and moves the sheets to the lost-and-found. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-084/investigate-failure`: A pie tin rings loudly and the unseen judges walk out without legs. The bakers retain their entry numbers and enough witnesses to demand another tasting. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-084/care-success`: The living panel awards prizes for flavor and a crust that survives the journey. Nobody has to turn private grief into an ingredient. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_084_verified`, `wh_084_partial`, `wh_084_care` (mutually exclusive results of this card).
 
@@ -165,24 +165,24 @@
 
 **Opening narration:** A conference room exits into every other conference room at once.
 
-**Escalation:** A conference room at a Fortuna lodge opens into another identical room no matter which door you take. A staffer is delivering coffee in a loop.
+**Escalation:** At a Fortuna lodge, every conference-room door opens into the same conference room. A server carrying cold coffee has passed the same EXIT sign six times, and the hotel manager keeps insisting the floor plan has always been adequate.
 
-**Option A, investigate (visible 9 check):** Trace the fire-exit plan and the door numbers
+**Option A, investigate (visible 9 check):** Check the posted evacuation plan against the doors and the headcount
 
-- **Pass:** One door opens onto a meeting held fifteen years from now about restoring the Eel River.
-- **Miss:** You return to the lobby empty-handed but discover a keycard from a room never built.
+- **Pass:** Behind one door is a meeting about river restoration dated fifteen years from now. You note what the sign says and return to the present guests, who have more immediate questions.
+- **Miss:** The corridor folds back to the lobby while your pencil is still drawing it. A keycard for an unbuilt room remains in your pocket, but everybody can account for where they are.
 
-**Option B, assist without a check:** Help everyone leave together and check the exits
+**Option B, assist without a check:** Stop the meeting and guide everyone toward one confirmed exit together
 
-- **Result:** The staff organize a slow headcount, and the impossible corridor reluctantly releases them.
+- **Result:** The staff lead the guests out by the service hall and count them twice. The manager agrees to replace the fire plan before advertising a conference on miracles.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-086`: A conference room exits into every other conference room at once. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-086/2`: A conference room at a Fortuna lodge opens into another identical room no matter which door you take. A staffer is delivering coffee in a loop. The people and location must match the opening.
-- `outcomes/wh-086/investigate-success`: One door opens onto a meeting held fifteen years from now about restoring the Eel River. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-086/investigate-failure`: You return to the lobby empty-handed but discover a keycard from a room never built. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-086/care-success`: The staff organize a slow headcount, and the impossible corridor reluctantly releases them. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-086/2`: At a Fortuna lodge, every conference-room door opens into the same conference room. A server carrying cold coffee has passed the same EXIT sign six times, and the hotel manager keeps insisting the floor plan has always been adequate. The people and location must match the opening.
+- `outcomes/wh-086/investigate-success`: Behind one door is a meeting about river restoration dated fifteen years from now. You note what the sign says and return to the present guests, who have more immediate questions. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-086/investigate-failure`: The corridor folds back to the lobby while your pencil is still drawing it. A keycard for an unbuilt room remains in your pocket, but everybody can account for where they are. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-086/care-success`: The staff lead the guests out by the service hall and count them twice. The manager agrees to replace the fire plan before advertising a conference on miracles. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_086_verified`, `wh_086_partial`, `wh_086_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** A hollow redwood hosts a receptionist for the forest's impossible visitors.
 
-**Escalation:** A receptionist sits inside an immense redwood, registering visitors whose species and century are both optional fields.
+**Escalation:** An enormous redwood has acquired a tiny reception desk, complete with number tickets and a brass bell. The receptionist welcomes visitors from several centuries but asks every tourist to stay on the public path. A developer wants to sell guided access to the tree's hollow.
 
-**Option A, investigate (visible 9 check):** Inspect the check-in ledger with consent
+**Option A, investigate (visible 9 check):** Request permission to read the visitor ledger without copying private names
 
-- **Pass:** The next arrival is listed as a future park ranger seeking an unbuilt public path.
-- **Miss:** The ledger closes when you ask too much; the receptionist still offers a trail map.
+- **Pass:** The ledger lists a park ranger from a future year, arriving to inspect an unbuilt path. The receptionist lets you copy the path sketch, with its uncertainties left intact.
+- **Miss:** The ledger politely closes on your hand when you ask for a name. You leave with a public trail map and a reminder that evidence is not the same as permission.
 
-**Option B, assist without a check:** Support a welcome policy that protects the grove
+**Option B, assist without a check:** Support a visitor plan that protects the grove and keeps ordinary hikers welcome
 
-- **Result:** The strange visitors keep a quiet route and ordinary hikers get clear signs.
+- **Result:** The queue moves onto the marked trail, the developer takes down the sales sign, and the receptionist resumes stamping tickets for visitors who know which century they are in.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-091`: A hollow redwood hosts a receptionist for the forest's impossible visitors. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-091/2`: A receptionist sits inside an immense redwood, registering visitors whose species and century are both optional fields. The people and location must match the opening.
-- `outcomes/wh-091/investigate-success`: The next arrival is listed as a future park ranger seeking an unbuilt public path. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-091/investigate-failure`: The ledger closes when you ask too much; the receptionist still offers a trail map. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-091/care-success`: The strange visitors keep a quiet route and ordinary hikers get clear signs. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-091/2`: An enormous redwood has acquired a tiny reception desk, complete with number tickets and a brass bell. The receptionist welcomes visitors from several centuries but asks every tourist to stay on the public path. A developer wants to sell guided access to the tree's hollow. The people and location must match the opening.
+- `outcomes/wh-091/investigate-success`: The ledger lists a park ranger from a future year, arriving to inspect an unbuilt path. The receptionist lets you copy the path sketch, with its uncertainties left intact. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-091/investigate-failure`: The ledger politely closes on your hand when you ask for a name. You leave with a public trail map and a reminder that evidence is not the same as permission. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-091/care-success`: The queue moves onto the marked trail, the developer takes down the sales sign, and the receptionist resumes stamping tickets for visitors who know which century they are in. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_091_verified`, `wh_091_partial`, `wh_091_care` (mutually exclusive results of this card).
 

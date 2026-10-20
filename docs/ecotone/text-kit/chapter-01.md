@@ -103,24 +103,24 @@
 
 **Opening narration:** The clock strikes thirteen; everyone else insists it always has.
 
-**Escalation:** On the thirteenth chime, shops hang CLOSED FOR THE OTHER COUNTY signs. A delivery driver is stranded between maps that disagree on the street.
+**Escalation:** Arcata's plaza clock strikes thirteen. Half the shops hang CLOSED FOR THE OTHER COUNTY signs, and a delivery driver discovers that both his address and his lunch break have been reassigned. The vegetables are real. So is the ticket he will get for parking nowhere.
 
-**Option A, investigate (visible 7 check):** Compare the clock against bus and store records
+**Option A, investigate (visible 7 check):** Compare the clock with the bus schedule and three independent shop receipts
 
-- **Pass:** Four independent clocks lost the same minute. A detour points to a street beneath the bay.
-- **Miss:** Your watch stops and restarts; you still record which shop changed first.
+- **Pass:** Four clocks skipped the same minute. The bus route prints a detour to a street under the bay, while the driver's receipts prove this delivery happened.
+- **Miss:** Your own watch briefly runs backward, then has the decency to stop. A shopkeeper signs a statement recording exactly when the street signs changed.
 
-**Option B, assist without a check:** Help the driver save the food
+**Option B, assist without a check:** Find the driver a safe place to unload before his entire route expires
 
-- **Result:** Neighbors improvise a shared refrigerator rather than leave the vegetables to time.
+- **Result:** A grocer opens cold storage for the stranded produce and the driver phones every customer. The county may have split in two; the lettuce does not have to suffer.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-005`: The clock strikes thirteen; everyone else insists it always has. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-005/2`: On the thirteenth chime, shops hang CLOSED FOR THE OTHER COUNTY signs. A delivery driver is stranded between maps that disagree on the street. The people and location must match the opening.
-- `outcomes/wh-005/investigate-success`: Four independent clocks lost the same minute. A detour points to a street beneath the bay. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-005/investigate-failure`: Your watch stops and restarts; you still record which shop changed first. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-005/care-success`: Neighbors improvise a shared refrigerator rather than leave the vegetables to time. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-005/2`: Arcata's plaza clock strikes thirteen. Half the shops hang CLOSED FOR THE OTHER COUNTY signs, and a delivery driver discovers that both his address and his lunch break have been reassigned. The vegetables are real. So is the ticket he will get for parking nowhere. The people and location must match the opening.
+- `outcomes/wh-005/investigate-success`: Four clocks skipped the same minute. The bus route prints a detour to a street under the bay, while the driver's receipts prove this delivery happened. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-005/investigate-failure`: Your own watch briefly runs backward, then has the decency to stop. A shopkeeper signs a statement recording exactly when the street signs changed. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-005/care-success`: A grocer opens cold storage for the stranded produce and the driver phones every customer. The county may have split in two; the lettuce does not have to suffer. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_005_verified`, `wh_005_partial`, `wh_005_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** A midnight screening has one more shadow than ticket holders.
 
-**Escalation:** Every ticket is accounted for, but one silhouette keeps arriving late and taking a different seat. It carries a coat none of the patrons remembers.
+**Escalation:** The midnight screening has sold one hundred tickets, but an extra shadow keeps changing seats. It wears a coat that none of the patrons brought, and the usher fears management will blame her for overselling a ghost.
 
-**Option A, investigate (visible 7 check):** Trace the shadow through the aisle lights
+**Option A, investigate (visible 7 check):** Compare the ticket stubs against the moving shadow's seat numbers
 
-- **Pass:** The phantom's reserved seat appears on a ticket dated next week.
-- **Miss:** The lights flicker and you lose it, but the usher agrees to witness another screening.
+- **Pass:** One seat is reserved on a ticket dated next Friday. The name is smudged, but the price is exactly what a ticket will cost after the announced increase.
+- **Miss:** The emergency lights come on and every shadow looks entirely respectable. Two patrons independently remember the same empty coat, and the usher keeps their descriptions.
 
-**Option B, assist without a check:** Offer the uncounted guest its own seat
+**Option B, assist without a check:** Give the usher permission to stop the film and ask the audience what they actually saw
 
-- **Result:** It sits beside the exit and applauds the film everyone else forgets to watch.
+- **Result:** The screening pauses, the usher gets a second witness, and the uncounted guest settles into the last row. Nobody is asked to buy another ticket on its behalf.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-007`: A midnight screening has one more shadow than ticket holders. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-007/2`: Every ticket is accounted for, but one silhouette keeps arriving late and taking a different seat. It carries a coat none of the patrons remembers. The people and location must match the opening.
-- `outcomes/wh-007/investigate-success`: The phantom's reserved seat appears on a ticket dated next week. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-007/investigate-failure`: The lights flicker and you lose it, but the usher agrees to witness another screening. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-007/care-success`: It sits beside the exit and applauds the film everyone else forgets to watch. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-007/2`: The midnight screening has sold one hundred tickets, but an extra shadow keeps changing seats. It wears a coat that none of the patrons brought, and the usher fears management will blame her for overselling a ghost. The people and location must match the opening.
+- `outcomes/wh-007/investigate-success`: One seat is reserved on a ticket dated next Friday. The name is smudged, but the price is exactly what a ticket will cost after the announced increase. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-007/investigate-failure`: The emergency lights come on and every shadow looks entirely respectable. Two patrons independently remember the same empty coat, and the usher keeps their descriptions. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-007/care-success`: The screening pauses, the usher gets a second witness, and the uncounted guest settles into the last row. Nobody is asked to buy another ticket on its behalf. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_007_verified`, `wh_007_partial`, `wh_007_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** A lost reel depicts the player's next choice, badly subtitled.
 
-**Escalation:** A lost film plays the choice you are about to make, accompanied by subtitles that misrepresent your motives. The actor on screen looks ashamed.
+**Escalation:** A lost reel shows your next decision before you make it. The subtitles accuse you of cowardice whatever you choose, and the actor playing you looks tired of a script that knows nothing about your motives.
 
-**Option A, investigate (visible 7 check):** Inspect individual frames before making your decision
+**Option A, investigate (visible 7 check):** Stop the projector and inspect the scene frame by frame before trusting a subtitle
 
-- **Pass:** Three frames show a compassionate third choice and a sign pointing to Trinidad.
-- **Miss:** The reel snaps at its most useful moment; you retain a strip showing an impossible street.
+- **Pass:** Three consecutive frames describe a third answer the scene never offered. Its backdrop has the wrong road sign for Trinidad, and the film keeps that mistake when you rewind.
+- **Miss:** The reel snaps before your supposed betrayal. You save the damaged strip and ask the projectionist whether another copy exists.
 
-**Option B, assist without a check:** Ask the audience to invent another ending
+**Option B, assist without a check:** Ask the audience to write an ending that does not assume they know anyone's heart
 
-- **Result:** The debate is messy and kind. When the film resumes, the actor finally looks relieved.
+- **Result:** The room disagrees about what a decent ending would look like. The projectionist splices the film while the actor on screen, for once, gets to stand quietly.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-010`: A lost reel depicts the player's next choice, badly subtitled. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-010/2`: A lost film plays the choice you are about to make, accompanied by subtitles that misrepresent your motives. The actor on screen looks ashamed. The people and location must match the opening.
-- `outcomes/wh-010/investigate-success`: Three frames show a compassionate third choice and a sign pointing to Trinidad. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-010/investigate-failure`: The reel snaps at its most useful moment; you retain a strip showing an impossible street. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-010/care-success`: The debate is messy and kind. When the film resumes, the actor finally looks relieved. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-010/2`: A lost reel shows your next decision before you make it. The subtitles accuse you of cowardice whatever you choose, and the actor playing you looks tired of a script that knows nothing about your motives. The people and location must match the opening.
+- `outcomes/wh-010/investigate-success`: Three consecutive frames describe a third answer the scene never offered. Its backdrop has the wrong road sign for Trinidad, and the film keeps that mistake when you rewind. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-010/investigate-failure`: The reel snaps before your supposed betrayal. You save the damaged strip and ask the projectionist whether another copy exists. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-010/care-success`: The room disagrees about what a decent ending would look like. The projectionist splices the film while the actor on screen, for once, gets to stand quietly. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_010_verified`, `wh_010_partial`, `wh_010_care` (mutually exclusive results of this card).
 

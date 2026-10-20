@@ -103,24 +103,24 @@
 
 **Opening narration:** A potluck has a strict no-photography policy and suspiciously good pie.
 
-**Escalation:** The cryptid potluck sign says NO PHOTOS; a neighbor with a camera says that policy proves criminal activity. The pies smell magnificent.
+**Escalation:** The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie.
 
-**Option A, investigate (visible 9 check):** Ask the hosts to explain the rule in their own words
+**Option A, investigate (visible 9 check):** Ask the hosts why they refuse photographs, without barging into their gathering
 
-- **Pass:** The seating chart is a map of secret wildlife corridors across the hills.
-- **Miss:** A flash goes off and several guests vanish. The apology arrives on a napkin.
+- **Pass:** The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload.
+- **Miss:** The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner.
 
-**Option B, assist without a check:** Respect the house rule and bring a dish
+**Option B, assist without a check:** Put away your phone, label your dish and respect the invitation's boundaries
 
-- **Result:** The guests invite the suspicious neighbor to eat. They agree to keep names off the internet.
+- **Result:** Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-065`: A potluck has a strict no-photography policy and suspiciously good pie. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-065/2`: The cryptid potluck sign says NO PHOTOS; a neighbor with a camera says that policy proves criminal activity. The pies smell magnificent. The people and location must match the opening.
-- `outcomes/wh-065/investigate-success`: The seating chart is a map of secret wildlife corridors across the hills. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-065/investigate-failure`: A flash goes off and several guests vanish. The apology arrives on a napkin. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-065/care-success`: The guests invite the suspicious neighbor to eat. They agree to keep names off the internet. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-065/2`: The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie. The people and location must match the opening.
+- `outcomes/wh-065/investigate-success`: The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-065/investigate-failure`: The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-065/care-success`: Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_065_verified`, `wh_065_partial`, `wh_065_care` (mutually exclusive results of this card).
 
@@ -165,24 +165,24 @@
 
 **Opening narration:** Two neighbors offer roadside service for saucers stuck in mud.
 
-**Escalation:** Two neighbors advertise a tow truck for UFOs bogged down in Kneeland mud. Their client is smaller than the roadside warning sign.
+**Escalation:** Two neighbors operate a UFO tow service from a pickup older than most of its parts. Their latest customer has buried a saucer in Kneeland mud. The pilot barely reaches the warning triangle; the tow operator is already promising to pull it out before the cable is rated.
 
-**Option A, investigate (visible 9 check):** Inspect the tow cable and claimed landing marks
+**Option A, investigate (visible 9 check):** Check the recovery points and load before anyone stands near the tow line
 
-- **Pass:** You find a trail of unfamiliar metal shavings leading toward the county antenna.
-- **Miss:** The cable snaps, proving only that the craft is heavier than it looks.
+- **Pass:** The metal shavings lead toward a relay antenna the county says is not yet installed. You bag a sample and leave the vehicle alone until the crew declares the scene safe.
+- **Miss:** The first line snaps under a test load, far from the onlookers. The pilot provides a better drawing of the craft and admits it has no approved tow hook.
 
-**Option B, assist without a check:** Organize a careful extraction without a spectacle
+**Option B, assist without a check:** Organize a slower extraction with boards, a spotter and room for the pilot to refuse
 
-- **Result:** The neighbors use planks and common sense. The driver departs after thanking the crew with a weather report.
+- **Result:** The crew builds a stable path and eases the craft free without a heroic jerk on the cable. The grateful pilot offers tomorrow's weather and no explanation for the saucer.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-067`: Two neighbors offer roadside service for saucers stuck in mud. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-067/2`: Two neighbors advertise a tow truck for UFOs bogged down in Kneeland mud. Their client is smaller than the roadside warning sign. The people and location must match the opening.
-- `outcomes/wh-067/investigate-success`: You find a trail of unfamiliar metal shavings leading toward the county antenna. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-067/investigate-failure`: The cable snaps, proving only that the craft is heavier than it looks. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-067/care-success`: The neighbors use planks and common sense. The driver departs after thanking the crew with a weather report. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-067/2`: Two neighbors operate a UFO tow service from a pickup older than most of its parts. Their latest customer has buried a saucer in Kneeland mud. The pilot barely reaches the warning triangle; the tow operator is already promising to pull it out before the cable is rated. The people and location must match the opening.
+- `outcomes/wh-067/investigate-success`: The metal shavings lead toward a relay antenna the county says is not yet installed. You bag a sample and leave the vehicle alone until the crew declares the scene safe. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-067/investigate-failure`: The first line snaps under a test load, far from the onlookers. The pilot provides a better drawing of the craft and admits it has no approved tow hook. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-067/care-success`: The crew builds a stable path and eases the craft free without a heroic jerk on the cable. The grateful pilot offers tomorrow's weather and no explanation for the saucer. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_067_verified`, `wh_067_partial`, `wh_067_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** Two Sasquatch parents ask the player to mediate a family logistics argument.
 
-**Escalation:** Two Sasquatch parents dispute custody of a muddy little backpack. The child is missing neither parent, only a schedule everyone understands.
+**Escalation:** Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special.
 
-**Option A, investigate (visible 9 check):** Ask each parent what the child actually wants
+**Option A, investigate (visible 9 check):** Ask the child which arrangements work and let the adults check the details
 
-- **Pass:** A crayon map shows the safest trail between their separate homes.
-- **Miss:** A shouted argument frightens the child into hiding, but the adults finally listen.
+- **Pass:** The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was.
+- **Miss:** The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help.
 
-**Option B, assist without a check:** Help write a predictable handoff plan
+**Option B, assist without a check:** Help the parents write a handoff plan the child can actually follow
 
-- **Result:** They agree on a familiar tree and both promise to show up without photographers.
+- **Result:** The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-071`: Two Sasquatch parents ask the player to mediate a family logistics argument. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-071/2`: Two Sasquatch parents dispute custody of a muddy little backpack. The child is missing neither parent, only a schedule everyone understands. The people and location must match the opening.
-- `outcomes/wh-071/investigate-success`: A crayon map shows the safest trail between their separate homes. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-071/investigate-failure`: A shouted argument frightens the child into hiding, but the adults finally listen. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-071/care-success`: They agree on a familiar tree and both promise to show up without photographers. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-071/2`: Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special. The people and location must match the opening.
+- `outcomes/wh-071/investigate-success`: The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-071/investigate-failure`: The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-071/care-success`: The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_071_verified`, `wh_071_partial`, `wh_071_care` (mutually exclusive results of this card).
 

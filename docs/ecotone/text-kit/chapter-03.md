@@ -103,24 +103,24 @@
 
 **Opening narration:** A tourist card shows an accurate street scene under two suns.
 
-**Escalation:** A postcard under two suns depicts Eureka's same waterfront with a transit line that doesn't exist. The tourist says the souvenir was cheap on Mars.
+**Escalation:** A cheap postcard claims to show Eureka on Mars. There are two suns over the waterfront, a tram line no one has built and a corner store with the correct name but a door on the wrong side. The archivist would like to see the original, preferably before the tourist tries to sell it.
 
-**Option A, investigate (visible 9 check):** Follow the postcard's shadow directions
+**Option A, investigate (visible 9 check):** Compare the postcard's storefront shadows with today's street layout
 
-- **Pass:** The shadows point to a building that is present today but absent on every printed map.
-- **Miss:** Rain blurs the address; the second sun remains a clean bright ring on the varnish.
+- **Pass:** The card's double shadows converge on a building missing from both city maps, though its front steps are plainly there. The archivist records the discrepancy without assigning a planet.
+- **Miss:** Rain smears the return address, but leaves two clean circles where the suns should be. A conservator offers to stabilize the card before anyone scrapes at it.
 
-**Option B, assist without a check:** Share the impossible card with a local archive
+**Option B, assist without a check:** Ask the owner before donating or publishing somebody else's impossible souvenir
 
-- **Result:** A conservator protects the paper and allows residents to annotate what looks wrong.
+- **Result:** The owner loans the postcard under a clear agreement. Neighbors annotate a copy, arguing about the trolley line and a vanished bakery instead of being told what they remember.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-045`: A tourist card shows an accurate street scene under two suns. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-045/2`: A postcard under two suns depicts Eureka's same waterfront with a transit line that doesn't exist. The tourist says the souvenir was cheap on Mars. The people and location must match the opening.
-- `outcomes/wh-045/investigate-success`: The shadows point to a building that is present today but absent on every printed map. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-045/investigate-failure`: Rain blurs the address; the second sun remains a clean bright ring on the varnish. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-045/care-success`: A conservator protects the paper and allows residents to annotate what looks wrong. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-045/2`: A cheap postcard claims to show Eureka on Mars. There are two suns over the waterfront, a tram line no one has built and a corner store with the correct name but a door on the wrong side. The archivist would like to see the original, preferably before the tourist tries to sell it. The people and location must match the opening.
+- `outcomes/wh-045/investigate-success`: The card's double shadows converge on a building missing from both city maps, though its front steps are plainly there. The archivist records the discrepancy without assigning a planet. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-045/investigate-failure`: Rain smears the return address, but leaves two clean circles where the suns should be. A conservator offers to stabilize the card before anyone scrapes at it. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-045/care-success`: The owner loans the postcard under a clear agreement. Neighbors annotate a copy, arguing about the trolley line and a vanished bakery instead of being told what they remember. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_045_verified`, `wh_045_partial`, `wh_045_care` (mutually exclusive results of this card).
 
@@ -165,24 +165,24 @@
 
 **Opening narration:** A fundraiser award panel has an unusually flexible member.
 
-**Escalation:** The award judge is an octopus in borrowed robes. Every arm holds a different scorecard and none agrees about the rules.
+**Escalation:** An octopus in borrowed judicial robes sits on the fundraiser's prize panel. Every arm holds a different scorecard; one scores craftsmanship, one scores charm, and one is giving sixes to everyone it likes. The competing crews have seen this sort of thing from human judges.
 
-**Option A, investigate (visible 9 check):** Request a transparent scoring rubric
+**Option A, investigate (visible 9 check):** Ask the panel to publish one rule that even an octopus must follow
 
-- **Pass:** Four arms point to four versions of the same entry that cannot all have been built.
-- **Miss:** Ink covers the table, but a volunteer saves one perfectly legible dissent.
+- **Pass:** Four arms point to four versions of the same sculpture, each apparently entered under a different year. The fifth holds up a dated ticket from the next fundraiser.
+- **Miss:** The ink cloud makes the votes illegible. A volunteer saves one dissent in a plastic sleeve, proving at least that the disagreement was real.
 
-**Option B, assist without a check:** Let the teams argue for fair criteria
+**Option B, assist without a check:** Invite the competing teams to help set a fair judging process
 
-- **Result:** The octopus awards a shared prize for ingenuity and lets the losers keep their pride.
+- **Result:** The teams settle on visible criteria and agree to share a repair grant instead of declaring the losers defective. The octopus signs with a damp flourish.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-047`: A fundraiser award panel has an unusually flexible member. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-047/2`: The award judge is an octopus in borrowed robes. Every arm holds a different scorecard and none agrees about the rules. The people and location must match the opening.
-- `outcomes/wh-047/investigate-success`: Four arms point to four versions of the same entry that cannot all have been built. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-047/investigate-failure`: Ink covers the table, but a volunteer saves one perfectly legible dissent. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-047/care-success`: The octopus awards a shared prize for ingenuity and lets the losers keep their pride. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-047/2`: An octopus in borrowed judicial robes sits on the fundraiser's prize panel. Every arm holds a different scorecard; one scores craftsmanship, one scores charm, and one is giving sixes to everyone it likes. The competing crews have seen this sort of thing from human judges. The people and location must match the opening.
+- `outcomes/wh-047/investigate-success`: Four arms point to four versions of the same sculpture, each apparently entered under a different year. The fifth holds up a dated ticket from the next fundraiser. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-047/investigate-failure`: The ink cloud makes the votes illegible. A volunteer saves one dissent in a plastic sleeve, proving at least that the disagreement was real. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-047/care-success`: The teams settle on visible criteria and agree to share a repair grant instead of declaring the losers defective. The octopus signs with a damp flourish. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_047_verified`, `wh_047_partial`, `wh_047_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** A drumbeat repeats yesterday's parade in reverse.
 
-**Escalation:** A drumline passes backward along F Street while everyone else walks forward. The tune remembers a parade that has not happened yet.
+**Escalation:** A drumline marches backward along an Old Town block while the rest of the parade insists on going forward. No one is being deliberately rude. One drummer says the tune is tomorrow's; the crossing guard says a collision would be very much today.
 
-**Option A, investigate (visible 9 check):** Record the cadence and map each backward step
+**Option A, investigate (visible 9 check):** Record the cadence while marking where the two parades physically meet
 
-- **Pass:** The drumbeat encodes a street closure required by tomorrow's impossible tide.
-- **Miss:** Your recorder catches only applause; the drummer writes the odd rhythm on your hand.
+- **Pass:** The missing beat spells a street closure scheduled for tomorrow's tide. The crossing guard confirms the street exists and declines to accept instructions from a snare drum.
+- **Miss:** Your recording catches only applause. A drummer writes the count on the back of your hand and asks you to return the marker when time resumes.
 
-**Option B, assist without a check:** Guide the crowd away from the collision
+**Option B, assist without a check:** Move spectators out of the crossing and give both groups a safe route
 
-- **Result:** Marchers make space for pedestrians and the lost minute passes without injury.
+- **Result:** Both marching groups pass safely, and the spectators find somewhere to stand without having to believe in reversible Tuesdays.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-049`: A drumbeat repeats yesterday's parade in reverse. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-049/2`: A drumline passes backward along F Street while everyone else walks forward. The tune remembers a parade that has not happened yet. The people and location must match the opening.
-- `outcomes/wh-049/investigate-success`: The drumbeat encodes a street closure required by tomorrow's impossible tide. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-049/investigate-failure`: Your recorder catches only applause; the drummer writes the odd rhythm on your hand. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-049/care-success`: Marchers make space for pedestrians and the lost minute passes without injury. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-049/2`: A drumline marches backward along an Old Town block while the rest of the parade insists on going forward. No one is being deliberately rude. One drummer says the tune is tomorrow's; the crossing guard says a collision would be very much today. The people and location must match the opening.
+- `outcomes/wh-049/investigate-success`: The missing beat spells a street closure scheduled for tomorrow's tide. The crossing guard confirms the street exists and declines to accept instructions from a snare drum. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-049/investigate-failure`: Your recording catches only applause. A drummer writes the count on the back of your hand and asks you to return the marker when time resumes. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-049/care-success`: Both marching groups pass safely, and the spectators find somewhere to stand without having to believe in reversible Tuesdays. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_049_verified`, `wh_049_partial`, `wh_049_care` (mutually exclusive results of this card).
 

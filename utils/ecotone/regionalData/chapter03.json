@@ -52,12 +52,12 @@
     "place": "Old Town Eureka",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A postcard under two suns depicts Eureka's same waterfront with a transit line that doesn't exist. The tourist says the souvenir was cheap on Mars.",
-    "investigate": "Follow the postcard's shadow directions",
-    "success": "The shadows point to a building that is present today but absent on every printed map.",
-    "failure": "Rain blurs the address; the second sun remains a clean bright ring on the varnish.",
-    "help": "Share the impossible card with a local archive",
-    "helpOutcome": "A conservator protects the paper and allows residents to annotate what looks wrong."
+    "pressure": "A cheap postcard claims to show Eureka on Mars. There are two suns over the waterfront, a tram line no one has built and a corner store with the correct name but a door on the wrong side. The archivist would like to see the original, preferably before the tourist tries to sell it.",
+    "investigate": "Compare the postcard's storefront shadows with today's street layout",
+    "success": "The card's double shadows converge on a building missing from both city maps, though its front steps are plainly there. The archivist records the discrepancy without assigning a planet.",
+    "failure": "Rain smears the return address, but leaves two clean circles where the suns should be. A conservator offers to stabilize the card before anyone scrapes at it.",
+    "help": "Ask the owner before donating or publishing somebody else's impossible souvenir",
+    "helpOutcome": "The owner loans the postcard under a clear agreement. Neighbors annotate a copy, arguing about the trolley line and a vanished bakery instead of being told what they remember."
   },
   {
     "id": "WH-046",
@@ -82,12 +82,12 @@
     "place": "Eureka F Street waterfront / Perilous Plunge",
     "scene": "bay",
     "pool": 1,
-    "pressure": "The award judge is an octopus in borrowed robes. Every arm holds a different scorecard and none agrees about the rules.",
-    "investigate": "Request a transparent scoring rubric",
-    "success": "Four arms point to four versions of the same entry that cannot all have been built.",
-    "failure": "Ink covers the table, but a volunteer saves one perfectly legible dissent.",
-    "help": "Let the teams argue for fair criteria",
-    "helpOutcome": "The octopus awards a shared prize for ingenuity and lets the losers keep their pride."
+    "pressure": "An octopus in borrowed judicial robes sits on the fundraiser's prize panel. Every arm holds a different scorecard; one scores craftsmanship, one scores charm, and one is giving sixes to everyone it likes. The competing crews have seen this sort of thing from human judges.",
+    "investigate": "Ask the panel to publish one rule that even an octopus must follow",
+    "success": "Four arms point to four versions of the same sculpture, each apparently entered under a different year. The fifth holds up a dated ticket from the next fundraiser.",
+    "failure": "The ink cloud makes the votes illegible. A volunteer saves one dissent in a plastic sleeve, proving at least that the disagreement was real.",
+    "help": "Invite the competing teams to help set a fair judging process",
+    "helpOutcome": "The teams settle on visible criteria and agree to share a repair grant instead of declaring the losers defective. The octopus signs with a damp flourish."
   },
   {
     "id": "WH-048",
@@ -112,12 +112,12 @@
     "place": "Eureka F Street waterfront / Perilous Plunge",
     "scene": "bay",
     "pool": 1,
-    "pressure": "A drumline passes backward along F Street while everyone else walks forward. The tune remembers a parade that has not happened yet.",
-    "investigate": "Record the cadence and map each backward step",
-    "success": "The drumbeat encodes a street closure required by tomorrow's impossible tide.",
-    "failure": "Your recorder catches only applause; the drummer writes the odd rhythm on your hand.",
-    "help": "Guide the crowd away from the collision",
-    "helpOutcome": "Marchers make space for pedestrians and the lost minute passes without injury."
+    "pressure": "A drumline marches backward along an Old Town block while the rest of the parade insists on going forward. No one is being deliberately rude. One drummer says the tune is tomorrow's; the crossing guard says a collision would be very much today.",
+    "investigate": "Record the cadence while marking where the two parades physically meet",
+    "success": "The missing beat spells a street closure scheduled for tomorrow's tide. The crossing guard confirms the street exists and declines to accept instructions from a snare drum.",
+    "failure": "Your recording catches only applause. A drummer writes the count on the back of your hand and asks you to return the marker when time resumes.",
+    "help": "Move spectators out of the crossing and give both groups a safe route",
+    "helpOutcome": "Both marching groups pass safely, and the spectators find somewhere to stand without having to believe in reversible Tuesdays."
   },
   {
     "id": "WH-050",

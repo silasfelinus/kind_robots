@@ -52,12 +52,12 @@
     "place": "Blue Lake",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The cryptid potluck sign says NO PHOTOS; a neighbor with a camera says that policy proves criminal activity. The pies smell magnificent.",
-    "investigate": "Ask the hosts to explain the rule in their own words",
-    "success": "The seating chart is a map of secret wildlife corridors across the hills.",
-    "failure": "A flash goes off and several guests vanish. The apology arrives on a napkin.",
-    "help": "Respect the house rule and bring a dish",
-    "helpOutcome": "The guests invite the suspicious neighbor to eat. They agree to keep names off the internet."
+    "pressure": "The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie.",
+    "investigate": "Ask the hosts why they refuse photographs, without barging into their gathering",
+    "success": "The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload.",
+    "failure": "The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner.",
+    "help": "Put away your phone, label your dish and respect the invitation's boundaries",
+    "helpOutcome": "Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession."
   },
   {
     "id": "WH-066",
@@ -82,12 +82,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "Two neighbors advertise a tow truck for UFOs bogged down in Kneeland mud. Their client is smaller than the roadside warning sign.",
-    "investigate": "Inspect the tow cable and claimed landing marks",
-    "success": "You find a trail of unfamiliar metal shavings leading toward the county antenna.",
-    "failure": "The cable snaps, proving only that the craft is heavier than it looks.",
-    "help": "Organize a careful extraction without a spectacle",
-    "helpOutcome": "The neighbors use planks and common sense. The driver departs after thanking the crew with a weather report."
+    "pressure": "Two neighbors operate a UFO tow service from a pickup older than most of its parts. Their latest customer has buried a saucer in Kneeland mud. The pilot barely reaches the warning triangle; the tow operator is already promising to pull it out before the cable is rated.",
+    "investigate": "Check the recovery points and load before anyone stands near the tow line",
+    "success": "The metal shavings lead toward a relay antenna the county says is not yet installed. You bag a sample and leave the vehicle alone until the crew declares the scene safe.",
+    "failure": "The first line snaps under a test load, far from the onlookers. The pilot provides a better drawing of the craft and admits it has no approved tow hook.",
+    "help": "Organize a slower extraction with boards, a spotter and room for the pilot to refuse",
+    "helpOutcome": "The crew builds a stable path and eases the craft free without a heroic jerk on the cable. The grateful pilot offers tomorrow's weather and no explanation for the saucer."
   },
   {
     "id": "WH-068",
@@ -142,12 +142,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "Two Sasquatch parents dispute custody of a muddy little backpack. The child is missing neither parent, only a schedule everyone understands.",
-    "investigate": "Ask each parent what the child actually wants",
-    "success": "A crayon map shows the safest trail between their separate homes.",
-    "failure": "A shouted argument frightens the child into hiding, but the adults finally listen.",
-    "help": "Help write a predictable handoff plan",
-    "helpOutcome": "They agree on a familiar tree and both promise to show up without photographers."
+    "pressure": "Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special.",
+    "investigate": "Ask the child which arrangements work and let the adults check the details",
+    "success": "The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was.",
+    "failure": "The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help.",
+    "help": "Help the parents write a handoff plan the child can actually follow",
+    "helpOutcome": "The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive."
   },
   {
     "id": "WH-072",

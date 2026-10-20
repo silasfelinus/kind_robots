@@ -1,8 +1,26 @@
 <!-- /components/art/artjob-queue-browser.vue -->
 <template>
   <section class="kr-surface gap-0">
+    <!--
+      Hold the admin gate until after hydration. The server cannot see the
+      localStorage login, so it always renders the "admin-only" notice; when
+      the client restores an admin before hydrating, Vue reuses that notice's
+      <div> for the dashboard (same tag) and, in production, never patches
+      its class. The dashboard then lived inside a centered, warning-tinted,
+      non-scrolling flex row -- the "sideways queue" bug. Rendering the same
+      neutral placeholder on both sides makes hydration agree, and the swap
+      to the real branch happens as an ordinary client patch.
+    -->
     <div
-      v-if="!userStore.isAdmin"
+      v-if="!hasMounted"
+      class="flex min-h-0 flex-1 items-center justify-center p-6"
+      aria-busy="true"
+    >
+      <span class="kr-loading-primary-md" />
+    </div>
+
+    <div
+      v-else-if="!userStore.isAdmin"
       class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center text-warning"
     >
       The ArtJob dashboard is admin-only.
@@ -13,9 +31,6 @@
       and h-full pins the child to the parent's full height on top of that.
 
       Keep the toolbar, cards and pager in one explicit grid column.
-      The scoped rule wins over competing utility classes, including a
-      transient flex-row override, while the regular grid class remains a
-      fallback if the component-specific CSS has not arrived yet.
     -->
     <div v-else class="grid kr-scroll content-start gap-2 p-2">
       <div
@@ -417,6 +432,7 @@ const pageInput = ref('1')
 const queueLoadMessage = ref(loadStore.randomLoadMessage())
 const editorJob = ref<ArtJobRecord | null>(null)
 const slideshowOpen = ref(false)
+const hasMounted = ref(false)
 const editorAction = ref<EditorAction>('EDIT')
 const refreshingServerIds = ref<number[]>([])
 const removingServerIds = ref<number[]>([])
@@ -633,6 +649,7 @@ async function loadInitialJobs(): Promise<void> {
 }
 
 onMounted(async () => {
+  hasMounted.value = true
   if (!userStore.isAdmin) return
   selectedWindow.value = artJobStore.windowHours
   pageSizeInput.value = String(artJobStore.jobPageSize || 20)

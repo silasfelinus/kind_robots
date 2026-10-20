@@ -1,151 +1,73 @@
 <template>
-  <main class="kr-surface gap-2 p-2 sm:p-3">
+  <main class="playbook-studio kr-surface gap-0">
     <header
-      class="kr-toolbar flex-wrap items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100 px-2 py-1.5 shadow-sm"
+      class="kr-toolbar flex-nowrap gap-3 border-b border-base-content/15 bg-[#070f15] px-4 py-3 sm:px-8"
     >
-      <div
-        class="flex w-full min-w-0 gap-1.5 overflow-x-auto pb-0.5"
-        role="radiogroup"
-        aria-label="Game"
-      >
-        <button
-          v-for="game in store.games"
-          :key="game.id"
-          type="button"
-          role="radio"
-          class="group relative h-14 w-36 shrink-0 overflow-hidden rounded-xl border-2 text-left shadow-sm transition sm:h-16 sm:w-44"
-          :class="
-            store.game === game.id
-              ? 'border-primary shadow-md'
-              : 'border-transparent opacity-75 hover:opacity-100'
-          "
-          :aria-checked="store.game === game.id"
-          @click="pickGame(game.id)"
+      <span class="flex min-w-0 items-center gap-3">
+        <svg
+          viewBox="0 0 40 40"
+          class="size-9 shrink-0 text-primary"
+          aria-hidden="true"
         >
-          <img
-            :src="game.cover"
-            alt=""
-            class="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"
+          <circle
+            cx="20"
+            cy="20"
+            r="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
           />
-          <span
-            class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
+          <path
+            d="M20 6 L23 17 L34 20 L23 23 L20 34 L17 23 L6 20 L17 17 Z"
+            fill="currentColor"
           />
+        </svg>
+        <span class="min-w-0 leading-tight">
           <span
-            class="absolute inset-x-2 bottom-1.5 font-serif text-sm font-black leading-tight text-white drop-shadow"
-            >{{ game.title }}</span
+            class="block text-sm font-black uppercase tracking-[.2em] text-primary sm:text-base"
+            >Kind Robots</span
           >
-        </button>
-      </div>
-      <div
-        v-if="routeOptions.length > 1"
-        class="flex flex-wrap gap-1 rounded-xl bg-base-200 p-1"
-        role="tablist"
-        aria-label="Route"
-      >
+          <span
+            class="block text-xs font-bold uppercase tracking-[.24em] text-base-content/85"
+            >Playbook Studio</span
+          >
+        </span>
+      </span>
+      <div class="ml-auto flex shrink-0 items-center gap-2">
         <button
-          v-for="option in routeOptions"
-          :key="option.value"
           type="button"
-          role="tab"
-          class="rounded-lg px-2.5 py-1 text-xs font-black"
-          :class="
-            store.route === option.value
-              ? 'bg-primary text-primary-content'
-              : 'hover:bg-base-100'
-          "
-          :aria-selected="store.route === option.value"
-          @click="setRoute(option.value)"
+          class="inline-flex studio-pill-button"
+          title="Download every edit and open note as JSON for an agent to fold into the source"
+          :disabled="!store.loaded"
+          @click="download"
         >
-          {{ option.label }}
+          <Icon name="kind-icon:download" class="size-4" />
+          <span class="max-sm:sr-only">Export</span>
         </button>
-      </div>
-      <div
-        class="flex gap-1 rounded-xl bg-base-200 p-1"
-        role="tablist"
-        aria-label="View"
-      >
         <button
-          v-for="option in viewOptions"
-          :key="option.value"
           type="button"
-          role="tab"
-          class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-black"
-          :class="
-            store.view === option.value
-              ? 'bg-secondary text-secondary-content'
-              : 'hover:bg-base-100'
-          "
-          :aria-selected="store.view === option.value"
-          @click="store.view = option.value"
+          class="inline-flex studio-pill-button"
+          aria-label="Reload edits and notes"
+          :disabled="store.loading"
+          @click="store.load()"
         >
-          <Icon :name="option.icon" class="size-3.5" />{{ option.label }}
-        </button>
-      </div>
-      <label
-        class="flex min-w-40 flex-1 items-center gap-1.5 rounded-xl border border-base-content/15 bg-base-100 px-2"
-      >
-        <Icon name="kind-icon:search" class="size-4 text-base-content/50" />
-        <input
-          v-model="store.search"
-          type="search"
-          class="w-full bg-transparent py-1 text-sm outline-none"
-          placeholder="Search beats, choices and lines"
-          aria-label="Search the playbook"
-        />
-      </label>
-      <p class="text-xs text-base-content/70 max-md:hidden">
-        {{ store.counts.nodes }} beats · {{ store.counts.needsArt }} need art ·
-        {{ store.counts.edited }} edited ({{ store.counts.live }} live) ·
-        {{ store.counts.open }} open notes
-      </p>
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm"
-        title="Download every edit and open note as JSON for an agent to fold into the source"
-        :disabled="!store.loaded"
-        @click="download"
-      >
-        <Icon name="kind-icon:download" class="size-4" />
-        <span class="max-sm:sr-only">Export</span>
-      </button>
-      <button
-        type="button"
-        class="btn btn-ghost btn-sm btn-square"
-        aria-label="Reload edits and notes"
-        :disabled="store.loading"
-        @click="store.load()"
-      >
-        <span v-if="store.loading" class="loading loading-spinner loading-xs" />
-        <Icon v-else name="kind-icon:refresh" class="size-4" />
-      </button>
-      <div
-        class="flex w-full gap-1 rounded-xl bg-base-200 p-1 lg:hidden"
-        role="tablist"
-        aria-label="Pane"
-      >
-        <button
-          v-for="option in paneOptions"
-          :key="option.value"
-          type="button"
-          role="tab"
-          class="flex-1 rounded-lg px-2 py-1 text-xs font-black"
-          :class="
-            pane === option.value
-              ? 'bg-base-100 shadow'
-              : 'text-base-content/70'
-          "
-          :aria-selected="pane === option.value"
-          @click="pane = option.value"
-        >
-          {{ option.label }}
+          <span
+            v-if="store.loading"
+            class="loading loading-spinner loading-xs"
+          />
+          <Icon v-else name="kind-icon:refresh" class="size-4" />
         </button>
       </div>
     </header>
 
     <p
       v-if="store.message"
-      class="rounded-xl px-3 py-1.5 text-sm"
-      :class="store.failed ? 'bg-error/15 text-error' : 'bg-success/15'"
+      class="mx-4 mt-3 rounded-xl border px-3 py-1.5 text-sm sm:mx-8"
+      :class="
+        store.failed
+          ? 'border-error/50 text-error'
+          : 'border-success/40 text-success'
+      "
       role="status"
     >
       {{ store.message }}
@@ -157,291 +79,446 @@
 
     <div
       v-else-if="!userStore.isAdmin"
-      class="kr-note kr-note-error p-8 text-center"
+      class="m-6 rounded-2xl border border-error/50 p-8 text-center"
     >
       <p class="text-lg font-black">Administrator access required</p>
       <p class="text-sm">
-        The Playbook Manager is for the people writing the game.
+        The Playbook Studio is for the people writing the games.
       </p>
     </div>
 
-    <div
-      v-else
-      class="kr-panes gap-3 lg:grid-cols-[220px_minmax(0,1fr)_minmax(340px,440px)] 2xl:grid-cols-[240px_minmax(0,1fr)_minmax(420px,520px)]"
-    >
-      <aside
-        class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-100 p-3"
-        :class="pane === 'filters' ? '' : 'max-lg:hidden'"
-        aria-label="Filters"
+    <template v-else>
+      <div
+        v-show="!sceneOpen"
+        class="kr-panes gap-6 p-4 sm:p-6 lg:grid-cols-[17rem_minmax(0,1fr)] lg:px-8"
       >
-        <div class="flex items-center justify-between">
-          <h2 class="text-sm font-black">Sort and filter</h2>
-          <button
-            v-if="store.filtersActive"
-            type="button"
-            class="btn btn-ghost btn-xs"
-            @click="store.clearFilters()"
-          >
-            Clear
-          </button>
-        </div>
-
-        <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          Kind of beat
-        </h3>
-        <div class="mt-1 flex flex-col gap-1">
-          <button
-            v-for="kind in presentKinds"
-            :key="kind"
-            type="button"
-            class="flex items-center gap-2 rounded-lg px-2 py-1 text-left text-xs font-bold"
-            :class="
-              store.kinds.includes(kind)
-                ? 'bg-primary/15 text-primary'
-                : 'hover:bg-base-200'
-            "
-            :aria-pressed="store.kinds.includes(kind)"
-            @click="toggleKind(kind)"
-          >
-            <span class="size-2.5 rounded-full" :class="KIND_DOT[kind]" />
-            {{ store.kindLabel(kind) }}
-            <span class="ml-auto text-base-content/50">{{
-              kindCount(kind)
-            }}</span>
-          </button>
-        </div>
-
-        <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          {{ store.playbook.dayLabel }}
-        </h3>
-        <div class="mt-1 flex flex-wrap gap-1">
+        <aside
+          class="kr-pane-scroll studio-rail"
+          :class="pane === 'stories' ? '' : 'max-lg:hidden'"
+          aria-label="Your stories"
+        >
           <button
             type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.day === null
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.day = null"
+            class="inline-flex studio-pill-button mb-4 lg:hidden"
+            @click="pane = 'atlas'"
           >
-            Any
+            <Icon name="kind-icon:chevron-left" class="size-4" /> Back to the
+            atlas
           </button>
-          <button
-            v-for="day in store.days"
-            :key="day"
-            type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.day === day
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.day = day"
-          >
-            {{ day }}
-          </button>
-        </div>
-
-        <template v-if="store.playbook.people.length">
-          <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-            {{ store.playbook.peopleLabel }}
-          </h3>
-          <div class="mt-1 flex flex-wrap gap-1">
+          <h2 class="studio-heading px-2">Your stories</h2>
+          <div class="mt-3 flex flex-col gap-1.5">
             <button
+              v-for="game in gameRows"
+              :key="game.id"
               type="button"
-              class="rounded-full px-2 py-0.5 text-xs font-bold"
+              class="rounded-xl border px-4 py-2.5 text-left transition"
               :class="
-                store.companion === null
-                  ? 'bg-primary text-primary-content'
-                  : 'bg-base-200'
+                store.game === game.id
+                  ? 'border-primary/80 bg-[#1c3b33]'
+                  : 'border-transparent hover:bg-base-200'
               "
-              @click="store.companion = null"
+              :aria-pressed="store.game === game.id"
+              @click="pickGame(game.id)"
             >
-              Anyone
-            </button>
-            <button
-              v-for="person in store.playbook.people"
-              :key="person.id"
-              type="button"
-              class="rounded-full px-2 py-0.5 text-xs font-bold"
-              :class="
-                store.companion === person.id
-                  ? 'bg-primary text-primary-content'
-                  : 'bg-base-200'
-              "
-              @click="store.companion = person.id"
-            >
-              {{ person.label }}
+              <span class="block font-bold">{{ game.title }}</span>
+              <span
+                class="block text-[11px] font-bold uppercase tracking-[.16em] text-base-content/65"
+                >{{ game.count }}</span
+              >
             </button>
           </div>
-        </template>
 
-        <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          {{ store.playbook.variationLabel }}
-        </h3>
-        <div class="mt-1 flex flex-wrap gap-1">
-          <button
-            type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.lens === null
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.lens = null"
-          >
-            Any
-          </button>
-          <button
-            v-for="variation in store.playbook.variations"
-            :key="variation.id"
-            type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.lens === variation.id
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.lens = variation.id"
-          >
-            {{ variation.label }}
-          </button>
-        </div>
-
-        <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          Status
-        </h3>
-        <div class="mt-1 flex flex-col gap-1">
-          <button
-            v-for="option in statusOptions"
-            :key="option.value"
-            type="button"
-            class="rounded-lg px-2 py-1 text-left text-xs font-bold"
-            :class="
-              store.status === option.value
-                ? 'bg-primary/15 text-primary'
-                : 'hover:bg-base-200'
-            "
-            @click="store.status = option.value"
-          >
-            {{ option.label }}
-          </button>
-        </div>
-
-        <template v-if="store.view === 'list'">
-          <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-            Sort list by
-          </h3>
-          <select
-            v-model="store.sort"
-            class="select select-bordered select-sm mt-1 w-full"
-            aria-label="Sort list by"
-          >
-            <option value="story">Story order</option>
-            <option value="day">Day</option>
-            <option value="kind">Kind of beat</option>
-            <option value="companion">Most specific companion first</option>
-            <option value="title">Title</option>
-          </select>
-        </template>
-      </aside>
-
-      <section
-        class="kr-pane-scroll @container rounded-2xl bg-base-200/60 p-3"
-        :class="pane === 'playbook' ? '' : 'max-lg:hidden'"
-        aria-label="Playbook"
-      >
-        <template v-if="store.view === 'chain'">
-          <div
-            class="grid gap-4"
-            :class="store.routes.length > 1 ? '@5xl:grid-cols-2' : ''"
-          >
-            <div
-              v-for="route in store.routes"
-              :key="route.id"
-              class="flex min-w-0 flex-col gap-2"
+          <hr class="my-5 border-base-content/15" />
+          <h2 class="studio-heading px-2">Collection</h2>
+          <div class="mt-2 flex flex-col">
+            <button
+              v-for="(item, index) in collection"
+              :key="item.id"
+              type="button"
+              class="rounded-lg px-2 py-2 text-left text-[15px] transition hover:text-primary"
+              :class="
+                item.active
+                  ? 'font-bold text-base-content'
+                  : 'text-base-content/75'
+              "
+              @click="pickCollection(item.pick)"
             >
-              <h2 class="font-serif text-xl font-black">{{ route.name }}</h2>
-              <p class="-mt-2 text-xs text-base-content/60">{{ route.kind }}</p>
-              <template v-for="(key, index) in route.steps" :key="key">
-                <p
-                  v-if="route.headings[index]"
-                  class="mt-1 flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-base-content/55"
-                >
-                  <span class="h-px flex-1 bg-base-content/15" />
-                  {{ route.headings[index] }}
-                  <span class="h-px flex-1 bg-base-content/15" />
-                </p>
-                <div class="relative pl-5">
-                  <span
-                    class="absolute bottom-[-0.5rem] left-[7px] top-0 w-0.5 bg-base-content/15"
-                    :class="index === route.steps.length - 1 ? 'hidden' : ''"
-                  />
-                  <span
-                    class="absolute left-0 top-5 size-4 rounded-full border-2 border-base-100"
-                    :class="
-                      KIND_DOT[store.playbook.nodes[key]?.kind ?? 'spine']
-                    "
-                  />
-                  <PlaybookNode :node-key="key" @select="pane = 'beat'" />
+              {{ String(index + 1).padStart(2, '0') }} {{ item.label }}
+            </button>
+          </div>
+
+          <details
+            class="mt-4 rounded-xl border border-base-content/15 px-3 py-2"
+          >
+            <summary
+              class="cursor-pointer text-xs font-bold uppercase tracking-[.16em] text-base-content/80"
+            >
+              Refine
+              <span v-if="store.filtersActive" class="text-primary"> · on</span>
+            </summary>
+            <div class="mt-3 flex flex-col gap-3 pb-1">
+              <div>
+                <p class="studio-subhead">Kind of beat</p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <button
+                    v-for="kind in presentKinds"
+                    :key="kind"
+                    type="button"
+                    class="studio-chip"
+                    :class="store.kinds.includes(kind) ? 'is-on' : ''"
+                    :aria-pressed="store.kinds.includes(kind)"
+                    @click="toggleKind(kind)"
+                  >
+                    {{ store.kindLabel(kind) }} {{ kindCount(kind) }}
+                  </button>
                 </div>
-              </template>
+              </div>
+              <div v-if="store.days.length">
+                <p class="studio-subhead">{{ store.playbook.dayLabel }}</p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <button
+                    type="button"
+                    class="studio-chip"
+                    :class="store.day === null ? 'is-on' : ''"
+                    @click="store.day = null"
+                  >
+                    Any
+                  </button>
+                  <button
+                    v-for="day in store.days"
+                    :key="day"
+                    type="button"
+                    class="studio-chip"
+                    :class="store.day === day ? 'is-on' : ''"
+                    @click="store.day = day"
+                  >
+                    {{ day }}
+                  </button>
+                </div>
+              </div>
+              <div v-if="store.playbook.people.length">
+                <p class="studio-subhead">{{ store.playbook.peopleLabel }}</p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <button
+                    type="button"
+                    class="studio-chip"
+                    :class="store.companion === null ? 'is-on' : ''"
+                    @click="store.companion = null"
+                  >
+                    Anyone
+                  </button>
+                  <button
+                    v-for="person in store.playbook.people"
+                    :key="person.id"
+                    type="button"
+                    class="studio-chip"
+                    :class="store.companion === person.id ? 'is-on' : ''"
+                    @click="store.companion = person.id"
+                  >
+                    {{ person.label }}
+                  </button>
+                </div>
+              </div>
+              <div v-if="store.playbook.variations.length">
+                <p class="studio-subhead">
+                  {{ store.playbook.variationLabel }}
+                </p>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <button
+                    type="button"
+                    class="studio-chip"
+                    :class="store.lens === null ? 'is-on' : ''"
+                    @click="store.lens = null"
+                  >
+                    Any
+                  </button>
+                  <button
+                    v-for="variation in store.playbook.variations"
+                    :key="variation.id"
+                    type="button"
+                    class="studio-chip"
+                    :class="store.lens === variation.id ? 'is-on' : ''"
+                    @click="store.lens = variation.id"
+                  >
+                    {{ variation.label }}
+                  </button>
+                </div>
+              </div>
+              <div v-if="store.view === 'list'">
+                <p class="studio-subhead">Sort</p>
+                <select
+                  v-model="store.sort"
+                  class="select select-sm mt-1 w-full"
+                  aria-label="Sort the atlas by"
+                >
+                  <option value="story">Story order</option>
+                  <option value="day">Day</option>
+                  <option value="kind">Kind of beat</option>
+                  <option value="companion">Most specific first</option>
+                  <option value="title">Title</option>
+                </select>
+              </div>
+              <button
+                v-if="store.filtersActive"
+                type="button"
+                class="studio-chip self-start"
+                @click="store.clearFilters()"
+              >
+                Clear everything
+              </button>
+            </div>
+          </details>
+
+          <div
+            class="mt-6 rounded-2xl border border-secondary/40 bg-[#123029] p-4"
+          >
+            <p
+              class="text-[11px] font-bold uppercase tracking-[.18em] text-base-content/80"
+            >
+              Live story health
+            </p>
+            <p class="mt-1 flex items-baseline gap-2">
+              <span class="font-serif text-3xl font-black">{{
+                store.counts.requests
+              }}</span>
+              <span
+                class="text-[11px] font-bold uppercase tracking-[.14em] text-base-content/80"
+                >Art requests</span
+              >
+            </p>
+            <p class="mt-1 text-xs text-base-content/70">
+              {{ store.counts.needsArt }} need art ·
+              {{ store.counts.open }} open notes · {{ store.counts.live }} live
+              edits
+            </p>
+          </div>
+        </aside>
+
+        <section
+          class="kr-pane-scroll @container"
+          :class="pane === 'atlas' ? '' : 'max-lg:hidden'"
+          aria-label="Playbook"
+        >
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div class="min-w-0">
+              <h2
+                class="font-serif text-4xl font-black uppercase leading-none tracking-wide @3xl:text-6xl"
+              >
+                {{ store.view === 'list' ? 'Story Atlas' : 'Story Chain' }}
+              </h2>
+              <p class="mt-2 text-base text-base-content/80 @3xl:text-lg">
+                Every beat. Every branch. Every beautiful, strange possibility.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <select
+                class="studio-select"
+                aria-label="Game"
+                :value="store.game"
+                @change="pickGame(($event.target as HTMLSelectElement).value)"
+              >
+                <option
+                  v-for="game in store.games"
+                  :key="game.id"
+                  :value="game.id"
+                >
+                  {{ game.title }}
+                </option>
+              </select>
+              <select
+                v-if="store.playbook.routes.length > 1"
+                class="studio-select"
+                aria-label="Route"
+                :value="store.route"
+                @change="setRoute(($event.target as HTMLSelectElement).value)"
+              >
+                <option value="all">All routes</option>
+                <option
+                  v-for="route in store.playbook.routes"
+                  :key="route.id"
+                  :value="route.id"
+                >
+                  {{ route.name.replace(/^The /, '') }}
+                </option>
+              </select>
+              <select
+                v-model="store.status"
+                class="studio-select"
+                aria-label="Status"
+              >
+                <option
+                  v-for="option in statusOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.label }}
+                </option>
+              </select>
+              <div
+                class="flex rounded-full border border-base-content/25 p-0.5"
+                role="tablist"
+                aria-label="View"
+              >
+                <button
+                  v-for="option in viewOptions"
+                  :key="option.value"
+                  type="button"
+                  role="tab"
+                  class="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[.14em]"
+                  :class="
+                    store.view === option.value
+                      ? 'bg-primary text-primary-content'
+                      : 'text-base-content/75 hover:text-base-content'
+                  "
+                  :aria-selected="store.view === option.value"
+                  @click="store.view = option.value"
+                >
+                  {{ option.label }}
+                </button>
+              </div>
             </div>
           </div>
-          <template
-            v-for="section in store.playbook.sections"
-            :key="section.title"
-          >
-            <h2 class="mt-6 font-serif text-xl font-black">
-              {{ section.title }}
-            </h2>
-            <p class="text-xs text-base-content/60">{{ section.blurb }}</p>
-            <div
-              class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))] gap-3"
+
+          <div class="mt-4 flex flex-wrap items-center gap-2">
+            <label
+              class="flex min-w-48 flex-1 items-center gap-2 rounded-full border border-base-content/25 bg-base-200/60 px-4"
             >
-              <PlaybookNode
-                v-for="key in section.keys"
+              <Icon
+                name="kind-icon:search"
+                class="size-4 text-base-content/60"
+              />
+              <input
+                v-model="store.search"
+                type="search"
+                class="w-full bg-transparent py-2 text-sm outline-none"
+                placeholder="Search beats, choices and lines"
+                aria-label="Search the playbook"
+              />
+            </label>
+            <button
+              type="button"
+              class="inline-flex studio-pill-button lg:hidden"
+              @click="pane = 'stories'"
+            >
+              Stories &amp; filters
+            </button>
+          </div>
+
+          <template v-if="store.view === 'list'">
+            <div
+              class="mt-6 grid grid-cols-[repeat(auto-fill,minmax(min(100%,17rem),1fr))] gap-5"
+            >
+              <PlaybookAtlasCard
+                v-for="key in store.listKeys"
                 :key="key"
                 :node-key="key"
-                tile
-                @select="pane = 'beat'"
+                :index="store.playbook.order.indexOf(key)"
+                @open="openScene"
               />
             </div>
+            <p
+              v-if="!store.listKeys.length"
+              class="mt-6 rounded-2xl border border-base-content/15 p-6 text-center"
+            >
+              Nothing matches those filters.
+            </p>
           </template>
-        </template>
-        <template v-else>
-          <p class="mb-2 text-xs font-bold text-base-content/60">
+
+          <template v-else>
+            <div
+              class="mt-6 grid gap-6"
+              :class="store.routes.length > 1 ? '@5xl:grid-cols-2' : ''"
+            >
+              <div
+                v-for="route in store.routes"
+                :key="route.id"
+                class="flex min-w-0 flex-col gap-2"
+              >
+                <h3 class="font-serif text-2xl font-black uppercase">
+                  {{ route.name }}
+                </h3>
+                <p class="-mt-2 text-xs text-base-content/65">
+                  {{ route.kind }}
+                </p>
+                <template v-for="(key, index) in route.steps" :key="key">
+                  <p
+                    v-if="route.headings[index]"
+                    class="mt-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.2em] text-primary/85"
+                  >
+                    <span class="h-px flex-1 bg-primary/30" />
+                    {{ route.headings[index] }}
+                    <span class="h-px flex-1 bg-primary/30" />
+                  </p>
+                  <div class="relative pl-5">
+                    <span
+                      class="absolute bottom-[-0.5rem] left-[7px] top-0 w-0.5 bg-base-content/15"
+                      :class="index === route.steps.length - 1 ? 'hidden' : ''"
+                    />
+                    <span
+                      class="absolute left-0 top-5 size-4 rounded-full border-2 border-base-100"
+                      :class="
+                        KIND_DOT[store.playbook.nodes[key]?.kind ?? 'spine']
+                      "
+                    />
+                    <PlaybookNode :node-key="key" @select="openScene" />
+                  </div>
+                </template>
+              </div>
+            </div>
+            <template
+              v-for="section in store.playbook.sections"
+              :key="section.title"
+            >
+              <h3 class="mt-8 font-serif text-2xl font-black uppercase">
+                {{ section.title }}
+              </h3>
+              <p class="text-xs text-base-content/65">{{ section.blurb }}</p>
+              <div
+                class="mt-3 grid grid-cols-[repeat(auto-fill,minmax(min(100%,15rem),1fr))] gap-4"
+              >
+                <PlaybookAtlasCard
+                  v-for="key in section.keys"
+                  :key="key"
+                  :node-key="key"
+                  :index="store.playbook.order.indexOf(key)"
+                  @open="openScene"
+                />
+              </div>
+            </template>
+          </template>
+
+          <p
+            class="mt-8 text-[11px] font-bold uppercase tracking-[.2em] text-base-content/55"
+          >
+            Playbook / {{ store.view === 'list' ? 'Atlas' : 'Chain' }} ·
             {{ store.listKeys.length }} of {{ store.counts.nodes }} beats
           </p>
-          <div
-            class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3"
-          >
-            <PlaybookNode
-              v-for="key in store.listKeys"
-              :key="key"
-              :node-key="key"
-              tile
-              @select="pane = 'beat'"
-            />
-          </div>
-          <p
-            v-if="!store.listKeys.length"
-            class="rounded-xl bg-base-100 p-4 text-center text-sm"
-          >
-            Nothing matches those filters.
-          </p>
-        </template>
-      </section>
+        </section>
+      </div>
 
-      <aside
-        class="kr-pane-scroll @container rounded-2xl border border-base-content/10 bg-base-100"
-        :class="pane === 'beat' ? '' : 'max-lg:hidden'"
-        aria-label="Selected beat"
+      <div
+        v-if="sceneOpen"
+        class="kr-panes gap-6 p-4 sm:p-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(24rem,30rem)] lg:px-8"
       >
-        <PlaybookDetail />
-      </aside>
-    </div>
+        <section
+          class="kr-pane-scroll @container max-lg:hidden"
+          aria-label="Scene"
+        >
+          <PlaybookScene @back="closeScene" @art="showArt" />
+        </section>
+        <aside
+          class="kr-pane-scroll @container flex flex-col gap-5"
+          aria-label="Selected beat"
+        >
+          <div class="lg:hidden">
+            <PlaybookScene @back="closeScene" @art="showArt" />
+          </div>
+          <div class="studio-panel @container flex min-h-full flex-col">
+            <PlaybookDetail ref="detail" />
+          </div>
+        </aside>
+      </div>
+    </template>
   </main>
 </template>
 
@@ -453,33 +530,79 @@ import {
   usePlaybookStore,
   type PlaybookStatus,
 } from '~/stores/playbookStore'
-import { isPlaybookGame } from '~/utils/playbook/games'
+import { buildPlaybook, isPlaybookGame } from '~/utils/playbook/games'
 import type { NodeKind } from '~/utils/playbook/types'
 
 const userStore = useUserStore()
 const store = usePlaybookStore()
 const ready = ref(false)
-const pane = ref<'filters' | 'playbook' | 'beat'>('playbook')
+// Playbook Studio (conductor weird-humboldt t-040): the Story Atlas, and a
+// focused scene editor that opens over it. Phones switch the Atlas between
+// its cards and the stories rail; the scene stacks its art over the editor.
+const pane = ref<'stories' | 'atlas'>('atlas')
+const sceneOpen = ref(false)
+const detail = ref<{ showTab: (tab: 'art') => void } | null>(null)
 
-const routeOptions = computed(() =>
-  store.playbook.routes.length > 1
-    ? [
-        { value: 'all', label: 'All routes' },
-        ...store.playbook.routes.map((route) => ({
-          value: route.id,
-          label: route.name.replace(/^The /, ''),
-        })),
-      ]
-    : [],
+const gameRows = computed(() =>
+  store.games.map((game) => ({
+    ...game,
+    count: `${Object.keys(buildPlaybook(game.id).nodes).length} beats`,
+  })),
 )
+
+const collection = computed(() => [
+  {
+    id: 'all',
+    label: 'All beats',
+    active: store.route === 'all' && store.section === null,
+    pick: () => {
+      setRoute('all')
+      store.section = null
+    },
+  },
+  ...(store.playbook.routes.length > 1 ? store.playbook.routes : []).map(
+    (route) => ({
+      id: `route:${route.id}`,
+      label: route.name,
+      active: store.route === route.id && store.section === null,
+      pick: () => {
+        setRoute(route.id)
+        store.section = null
+      },
+    }),
+  ),
+  ...store.playbook.sections.map((section) => ({
+    id: `section:${section.title}`,
+    label: section.title,
+    active: store.section === section.title,
+    pick: () => {
+      setRoute('all')
+      store.section = section.title
+    },
+  })),
+])
+
+function pickCollection(pick: () => void) {
+  pick()
+  pane.value = 'atlas'
+}
+
+function openScene(key: string) {
+  store.selectedKey = key
+  sceneOpen.value = true
+}
+
+function closeScene() {
+  sceneOpen.value = false
+}
+
+function showArt() {
+  detail.value?.showTab('art')
+}
+
 const viewOptions = [
-  { value: 'chain' as const, label: 'Chain', icon: 'kind-icon:git-branch' },
-  { value: 'list' as const, label: 'Gallery', icon: 'kind-icon:image' },
-]
-const paneOptions = [
-  { value: 'filters' as const, label: 'Filters' },
-  { value: 'playbook' as const, label: 'Playbook' },
-  { value: 'beat' as const, label: 'Beat' },
+  { value: 'list' as const, label: 'Atlas' },
+  { value: 'chain' as const, label: 'Chain' },
 ]
 const statusOptions: { value: PlaybookStatus; label: string }[] = [
   { value: 'all', label: 'Everything' },
@@ -525,7 +648,8 @@ function setRoute(value: string) {
 
 function pickGame(value: string) {
   if (isPlaybookGame(value)) void store.setGame(value)
-  pane.value = 'playbook'
+  pane.value = 'atlas'
+  sceneOpen.value = false
 }
 
 function download() {
@@ -544,3 +668,156 @@ onMounted(async () => {
   if (userStore.isAdmin) await store.load()
 })
 </script>
+
+<style>
+/* The Studio's own palette (navy, gold, cream), set through daisyUI's color
+   variables so every panel inside it follows. */
+.playbook-studio {
+  --color-base-100: #102129;
+  --color-base-200: #0c1a22;
+  --color-base-300: #1a2f3a;
+  --color-base-content: #f1e6cf;
+  --color-primary: #d4b074;
+  --color-primary-content: #0b1820;
+  --color-secondary: #8fb8b0;
+  --color-secondary-content: #0b1820;
+  --color-neutral: #070f15;
+  --color-neutral-content: #f1e6cf;
+  color-scheme: dark;
+  background-color: #0a161e;
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.018) 0 2px,
+    transparent 2px 24px
+  );
+  color: var(--color-base-content);
+}
+.playbook-studio .studio-heading {
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.playbook-studio .studio-subhead,
+.playbook-studio .studio-field {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(241 230 207 / 0.75);
+}
+.playbook-studio .studio-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.playbook-studio .studio-field :is(input, textarea, select) {
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-base-content);
+}
+.playbook-studio .studio-rail {
+  border-radius: 1.4rem;
+  border: 1px solid rgb(241 230 207 / 0.14);
+  background: rgb(12 26 34 / 0.85);
+  padding: 1.4rem 1rem;
+}
+.playbook-studio .studio-panel {
+  border-radius: 1.4rem;
+  border: 1px solid rgb(241 230 207 / 0.16);
+  background: rgb(16 33 41 / 0.92);
+  box-shadow: 0 24px 50px rgb(0 0 0 / 0.35);
+}
+/* No display here: page CSS outranks Tailwind's layered utilities, so the
+   markup sets inline-flex and responsive hidden itself. */
+.playbook-studio .studio-pill,
+.playbook-studio .studio-pill-button,
+.playbook-studio .studio-select {
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(241 230 207 / 0.3);
+  background: rgb(16 33 41 / 0.85);
+  padding: 0.35rem 0.95rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-base-content);
+  backdrop-filter: blur(4px);
+}
+.playbook-studio .studio-pill-button,
+.playbook-studio .studio-select {
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.playbook-studio .studio-pill-button:hover:not(:disabled),
+.playbook-studio .studio-select:hover {
+  border-color: var(--color-primary);
+}
+.playbook-studio .studio-pill-button:disabled {
+  opacity: 0.5;
+}
+.playbook-studio .studio-select {
+  appearance: none;
+  padding-right: 1.6rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 0.95rem) 55%,
+    calc(100% - 0.65rem) 55%;
+  background-size: 0.3rem 0.3rem;
+  background-repeat: no-repeat;
+}
+.playbook-studio .studio-select option {
+  background: #0c1a22;
+  text-transform: none;
+}
+.playbook-studio .studio-chip {
+  border-radius: 9999px;
+  border: 1px solid rgb(241 230 207 / 0.22);
+  padding: 0.15rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  transition: border-color 0.15s;
+}
+.playbook-studio .studio-chip:hover {
+  border-color: var(--color-primary);
+}
+.playbook-studio .studio-chip.is-on {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-content);
+}
+.playbook-studio .studio-gold-button {
+  display: inline-flex;
+  min-height: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  padding: 0.5rem 1.2rem;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary-content);
+  transition: filter 0.15s;
+}
+.playbook-studio .studio-gold-button.is-outline {
+  background: transparent;
+  color: var(--color-primary);
+}
+.playbook-studio .studio-gold-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+.playbook-studio .studio-gold-button:disabled {
+  opacity: 0.45;
+}
+</style>

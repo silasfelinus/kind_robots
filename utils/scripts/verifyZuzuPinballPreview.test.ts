@@ -29,7 +29,7 @@ assert.equal(findArcadeGame('zuzu-pinball')?.renderMode, 'webgl')
 assert.equal(isPlausibleScore('zuzu-pinball', 5000), false)
 assert.equal(isPlausibleScore('kind-pinball', 5000), true)
 
-const tab = read('../../content/channels/zuzu/zuzu-pinball.md')
+const tab = read('../../content/channels/arcade/zuzu-pinball.md')
 assert.doesNotMatch(tab, /requiredRole: ADMIN/)
 assert.match(tab, /route: \/play\/zuzu-pinball/)
 const publicPlay = read('../../pages/play/zuzu-pinball.vue')

@@ -31,7 +31,7 @@ for (const rating of [0, 6, 2.5, '5', null])
   assert.ok(!validArcadeReview({ rating }), 'invalid rating must reject')
 assert.ok(!validArcadeReview({ rating: 5, comment: 'x'.repeat(2001) }))
 assert.ok(
-  readFileSync('content/channels/zuzu/zuzu-lair.md', 'utf8').includes(
+  readFileSync('content/channels/arcade/zuzu-lair.md', 'utf8').includes(
     'route: /admin/zuzu-lair',
   ),
 )

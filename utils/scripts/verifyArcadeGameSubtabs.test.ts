@@ -153,7 +153,7 @@ for (const game of [
   'zuzu-lair',
 ]) {
   const tab = readFileSync(`content/channels/arcade/${game}.md`, 'utf8')
-  assert.match(tab, /\\nchannelKey: arcade\\n/)
+  assert.match(tab, /\nchannelKey: arcade\n/)
 }
 
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')

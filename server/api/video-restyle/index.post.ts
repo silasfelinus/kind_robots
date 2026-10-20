@@ -41,6 +41,7 @@ export default defineEventHandler(async (event) => {
       variantStyleIds: field('variantStyleIds'),
       variantMode: field('variantMode'),
       renderSpeed: field('renderSpeed'),
+      overwriteStrength: field('overwriteStrength'),
       isPrivate: field('isPrivate'),
       isMature: field('isMature'),
     })

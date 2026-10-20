@@ -2,7 +2,7 @@
   <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
     <section class="@container kr-panel p-4">
       <div class="flex flex-wrap items-center justify-between gap-2">
-        <h2 class="font-serif text-2xl font-bold">The map room</h2>
+        <h2 class="sr-only">The map room</h2>
         <span class="text-sm font-bold text-warning">
           {{ dailyTaxes(run) }} brass a day in taxes
         </span>
@@ -39,51 +39,75 @@
           />
         </button>
       </figure>
-      <ul class="mt-3 grid gap-2 @md:grid-cols-2">
-        <li
-          v-for="region in regions"
-          :key="region.id"
-          class="rounded-xl border p-3 text-sm"
-          :class="[
-            region.fogged
-              ? 'border-dashed border-base-content/20 bg-base-200/50 opacity-60'
-              : region.wiped
-                ? 'border-error/40 bg-error/5'
-                : 'border-base-content/15 bg-base-100',
-            focused === region.id ? 'ring-2 ring-warning' : '',
-          ]"
-        >
-          <template v-if="region.fogged">
-            <strong class="font-serif">Unmapped land</strong>
-            <span class="block text-xs">Fog lies over this region.</span>
-          </template>
-          <template v-else>
-            <strong class="font-serif text-lg">{{ region.name }}</strong>
-            <span class="block text-xs opacity-70">{{
-              region.factionName
-            }}</span>
-            <span class="mt-1 block text-xs">
-              <template v-if="region.wiped">Gone from the map</template>
-              <template v-else>
-                <span
-                  :class="tierClass(region.tier)"
-                  class="font-bold capitalize"
-                  >{{ region.tier }}</span
-                >
-                ·
-                {{
-                  region.paying
-                    ? `pays ${region.tax} brass a day`
-                    : `withholds ${region.tax} brass`
-                }}
-              </template>
-            </span>
-          </template>
-        </li>
-      </ul>
     </section>
 
     <section class="space-y-3">
+      <div class="kr-panel p-3">
+        <h3 class="font-serif text-xl font-bold">The kingdom</h3>
+        <ul
+          class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(4.75rem,1fr))] gap-2"
+          aria-label="Kingdom banners"
+        >
+          <li
+            v-for="region in regions"
+            :key="region.id"
+            class="flex flex-col items-center gap-1 text-center"
+            :class="focused === region.id ? 'eod-banner-focused' : ''"
+          >
+            <span
+              class="eod-banner grid h-20 w-14 place-items-center pb-3 font-serif text-xl font-bold"
+              :class="
+                region.fogged
+                  ? 'eod-banner-fog'
+                  : region.wiped
+                    ? 'eod-banner-gone'
+                    : bannerClass(region.tier)
+              "
+              aria-hidden="true"
+              >{{ region.fogged ? '?' : region.name.charAt(0) }}</span
+            >
+            <template v-if="region.fogged">
+              <strong class="text-[11px] leading-tight">Unmapped</strong>
+              <span class="text-[10px] uppercase tracking-wider opacity-60"
+                >Fog</span
+              >
+            </template>
+            <template v-else>
+              <strong class="text-[11px] leading-tight">{{
+                region.name
+              }}</strong>
+              <span
+                class="text-[10px] font-bold uppercase tracking-wider"
+                :class="region.wiped ? 'opacity-60' : tierClass(region.tier)"
+                >{{ region.wiped ? 'Gone' : region.tier }}</span
+              >
+              <span v-if="!region.wiped" class="text-[10px] opacity-70">
+                {{ region.paying ? '+' : '−' }}{{ region.tax }} brass
+              </span>
+            </template>
+          </li>
+        </ul>
+      </div>
+      <div class="kr-panel p-4 text-sm">
+        <h3 class="font-serif text-xl font-bold">Kingdom ledgers</h3>
+        <p class="text-xs italic opacity-75">
+          Each border is a promise made to someone.
+        </p>
+        <ul class="mt-2 space-y-1 text-xs">
+          <li
+            v-for="entry in LEGEND"
+            :key="entry.tier"
+            class="flex items-center gap-2"
+          >
+            <span
+              class="h-2.5 w-2.5 shrink-0 rounded-full"
+              :class="tierDot(entry.tier, false)"
+            />
+            <span class="font-semibold capitalize">{{ entry.tier }}</span>
+            <span class="opacity-70">{{ entry.text }}</span>
+          </li>
+        </ul>
+      </div>
       <div class="kr-panel p-4">
         <h3 class="font-serif text-xl font-bold">The fortress</h3>
         <ul class="mt-2 space-y-2">
@@ -166,6 +190,23 @@ const tierDot = (tier: AffinityTier, wiped: boolean) =>
         friendly: 'bg-success',
         allied: 'bg-success ring-2 ring-success/40',
       }[tier]
+
+const LEGEND: { tier: AffinityTier; text: string }[] = [
+  { tier: 'allied', text: 'pays taxes and sends help' },
+  { tier: 'friendly', text: 'pays taxes' },
+  { tier: 'neutral', text: 'pays, and watches' },
+  { tier: 'wary', text: 'withholds taxes' },
+  { tier: 'hostile', text: 'withholds, and may move against you' },
+]
+
+const bannerClass = (tier: AffinityTier) =>
+  ({
+    hostile: 'eod-banner-hostile',
+    wary: 'eod-banner-wary',
+    neutral: 'eod-banner-neutral',
+    friendly: 'eod-banner-friendly',
+    allied: 'eod-banner-allied',
+  })[tier]
 
 const tierClass = (tier: AffinityTier) =>
   ({

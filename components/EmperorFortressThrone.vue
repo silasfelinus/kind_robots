@@ -13,7 +13,7 @@
           :aria-expanded="showBriefing"
           @click="showBriefing = !showBriefing"
         >
-          {{ today?.advisor ?? 'Young Komodo' }} · morning briefing
+          {{ today?.advisor?.name ?? 'Young Komodo' }} · morning briefing
           <Icon
             :name="
               showBriefing ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
@@ -23,7 +23,15 @@
         </button>
         <div v-if="showBriefing" class="kr-panel mt-2 space-y-2 p-3">
           <template v-if="today">
-            <p class="font-serif text-base italic">“{{ today.komodo }}”</p>
+            <div class="flex items-start gap-2">
+              <img
+                v-if="advisorArt"
+                :src="advisorArt"
+                :alt="today.advisor?.name ?? 'Young Komodo'"
+                class="h-20 w-14 shrink-0 rounded-md bg-base-200 object-cover object-top"
+              />
+              <p class="font-serif text-base italic">“{{ today.komodo }}”</p>
+            </div>
             <ul class="grid gap-1.5">
               <li
                 v-for="report in today.briefings"
@@ -173,6 +181,16 @@ import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
 const today = computed(() => dayDef(props.run.day))
+/** The advisor's portrait; Komodo is sad on his last morning at court. */
+const advisorArt = computed(() =>
+  today.value
+    ? illustration(
+        'npcs',
+        today.value.advisor?.npc ?? 'young-komodo',
+        !today.value.advisor && today.value.day === 40 ? 'sad' : 'neutral',
+      )
+    : undefined,
+)
 const audiences = computed(() => audiencesToday(props.run))
 const selectedId = ref<string | null>(null)
 const responses = ref<Record<string, string>>({})

@@ -7,9 +7,15 @@ import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
 import { ENDINGS, endingOf } from '../emperorOfDust/fortress/endings'
-import { DAYS, LAST_DAY, questDef } from '../emperorOfDust/fortress/content'
+import {
+  DAYS,
+  LAST_DAY,
+  QUEST_TEMPLATES,
+  questDef,
+} from '../emperorOfDust/fortress/content'
 import {
   BAND_NEED,
+  PLEDGES,
   WAGE,
   applyEffects,
   assignQuest,
@@ -21,6 +27,7 @@ import {
   dailyTaxes,
   equipItem,
   finishDay,
+  followerMood,
   followerStatus,
   forecastMark,
   injuryDaysLeft,
@@ -1133,8 +1140,8 @@ assert.ok(finishDay(lastNight).run.flags.includes('komodo-betrayal'))
 // Keeper Vellum gives the briefings once Komodo has gone.
 for (const def of DAYS)
   assert.equal(
-    def.advisor,
-    def.day > 40 ? 'Keeper Vellum' : undefined,
+    def.advisor?.npc,
+    def.day > 40 ? 'abelard-vellum' : undefined,
     `day ${def.day} advisor`,
   )
 // The betrayal names the hideout as a flag, and Day 42 seats exactly one host.
@@ -1226,5 +1233,129 @@ assert.deepEqual([...peaceFlags].sort(), [
   'peace-tunnels',
   'peace-witchwater',
 ])
+
+// --- t-009 balance mechanics ------------------------------------------------
+// Pledges are real story flags, each set by some choice or quest.
+const setFlags = new Set([
+  ...DAYS.flatMap((def) =>
+    def.audiences.flatMap((a) =>
+      a.options.flatMap((o) => o.effects.flags ?? []),
+    ),
+  ),
+  ...[
+    ...ACT_ONE_QUESTS,
+    ...ACT_ONE_LATE_QUESTS,
+    ...ACT_TWO_QUESTS,
+    ...ACT_THREE_QUESTS,
+    ...ACT_FOUR_QUESTS,
+    ...ACT_FIVE_QUESTS,
+  ].flatMap((q) =>
+    [q.rewards.triumph, q.rewards.success, q.rewards.partial].flatMap(
+      (effects) => effects?.flags ?? [],
+    ),
+  ),
+])
+for (const [faction, flags] of Object.entries(PLEDGES))
+  for (const flag of flags ?? [])
+    assert.ok(setFlags.has(flag), `${faction} pledge ${flag} is earnable`)
+// The coalition the crown chose outweighs the farms next door.
+const courted: FortressRun = {
+  ...createRun(1),
+  day: 41,
+  revealedFactions: [...KINGDOM_FACTIONS],
+  affinity: { ...createRun(1).affinity, freeholds: 100, rustline: 60 },
+  flags: ['blue-lantern-route', 'rustline-barricades', 'rustline-market'],
+}
+assert.equal(selectHideout(courted), 'rail-station')
+assert.equal(
+  selectHideout({ ...courted, flags: [] }),
+  'freehold-barn',
+  'without pledges, the highest affinity hosts',
+)
+// Every kingdom faction with a host or a peace has chores, and a fogged
+// faction's chores wait for its banner.
+for (const faction of [
+  'moles',
+  'storm-crows',
+  'hollow-bell',
+  'jackalwire',
+  'saltroad',
+  'freeholds',
+  'rustline',
+  'mire-mothers',
+])
+  assert.ok(
+    QUEST_TEMPLATES.some((q) => q.faction === faction),
+    `${faction} has a chore`,
+  )
+for (let seed = 1; seed <= 60; seed += 1)
+  assert.ok(
+    !onDay(seed, 5).board.some((entry) =>
+      entry.questId.startsWith('r-salvage-claim@'),
+    ),
+    'no Rustline chores before the fog lifts',
+  )
+assert.ok(
+  Array.from({ length: 60 }, (_, i) =>
+    onDay(i + 1, 12, {
+      revealedFactions: [...createRun(1).revealedFactions, 'rustline'],
+    }),
+  ).some((run) =>
+    run.board.some((entry) => entry.questId.startsWith('r-salvage-claim@')),
+  ),
+  'Rustline chores once its banner is up',
+)
+
+// The barracks wears each follower's last homecoming for a day.
+const homecoming = (tier: 'triumph' | 'success' | 'failure', day: number) =>
+  withCast(1, 12, ['F001']).reports.concat({
+    day,
+    quests: [
+      {
+        questId: 'q-d01-well-road',
+        tier,
+        party: ['F001'],
+        chance: 50,
+        roll: 10,
+        injuries: [],
+        deaths: [],
+        revealedTraits: [],
+        effects: {},
+      },
+    ],
+    taxes: 0,
+    wages: 0,
+    loanTaken: false,
+    events: [],
+  })
+const moodAfter = (tier: 'triumph' | 'success' | 'failure', day = 12) =>
+  followerMood(
+    { ...withCast(1, 12, ['F001']), reports: homecoming(tier, day) },
+    'F001',
+  )
+assert.equal(moodAfter('triumph'), 'excited')
+assert.equal(moodAfter('success'), 'happy')
+assert.equal(moodAfter('failure'), 'angry')
+assert.equal(moodAfter('triumph', 9), 'neutral', 'the glow fades')
+assert.equal(
+  followerMood(
+    {
+      ...withCast(1, 12, ['F001']),
+      roster: [
+        { id: 'F001', joinedDay: 1, injuredUntilDay: 14, equipment: {} },
+      ],
+    },
+    'F001',
+  ),
+  'sad',
+)
+// Every advisor has a face at the briefing.
+for (const def of DAYS)
+  assert.ok(
+    castArtUrl(
+      `npcs/${def.advisor?.npc ?? 'young-komodo'}/illustrated/neutral`,
+    ),
+    `day ${def.day} advisor art`,
+  )
 
 console.log('Emperor of Dust fortress contract: ok')

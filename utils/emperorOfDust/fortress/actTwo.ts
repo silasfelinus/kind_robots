@@ -775,6 +775,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { ledger: 2 },
               items: ['surveyors-glass'],
               recruitable: ['F014'],
+              flags: ['rustline-crate-bought'],
             },
             response:
               'Jinx counts the brass, and Pell Quickmarrow throws in a surveyor’s lens for free. “For the next crate,” he says, and lingers at the gate looking at the barracks.',

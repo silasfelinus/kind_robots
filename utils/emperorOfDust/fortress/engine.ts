@@ -5,6 +5,7 @@ import {
   REGIONS,
   affinityTier,
 } from './factions'
+import type { Mood } from './castArt'
 import { FOLLOWERS, followerDef, itemDef } from './followers'
 import {
   LAST_DAY,
@@ -38,7 +39,7 @@ import type {
 } from './types'
 
 export const START_BRASS = 120
-export const WAGE = 6
+export const WAGE = 4
 export const LOAN = 50
 export const BAND_NEED: Record<Band, number> = {
   low: 5,
@@ -154,10 +155,18 @@ export const postDawnQuests = (run: FortressRun): void => {
     .map((audience) => audience.id)
 }
 
-/** Authored days draw one seeded chore, unscripted days draw two. */
+/**
+ * Authored days draw one seeded chore, unscripted days draw two. A faction's
+ * chores only appear once its banner is on the map, and stop if it is wiped out.
+ */
 const drawTemplates = (run: FortressRun): void => {
   const draws = dayDef(run.day) ? 1 : 2
-  const pool = [...QUEST_TEMPLATES]
+  const pool = QUEST_TEMPLATES.filter(
+    (template) =>
+      !template.faction ||
+      (run.revealedFactions.includes(template.faction) &&
+        !run.wipedOut.includes(template.faction)),
+  )
   for (let i = 0; i < draws && pool.length; i += 1) {
     const index = rollFor(run, `dawn:${run.day}:${i}`) % pool.length
     const [template] = pool.splice(index, 1)
@@ -197,6 +206,24 @@ export const followerStatus = (
   if (run.active.some((quest) => quest.party.includes(id))) return 'on-quest'
   if ((state.injuredUntilDay ?? 0) > run.day) return 'injured'
   return 'ready'
+}
+
+/** How a homecoming felt: the tier of a follower's last quest, for a day after. */
+const HOMECOMING_MOOD: Partial<Record<QuestReport['tier'], Mood>> = {
+  triumph: 'excited',
+  success: 'happy',
+  failure: 'angry',
+}
+
+/** A follower's barracks mood: wounded is sad, else how they last came home. */
+export const followerMood = (run: FortressRun, id: string): Mood => {
+  if (followerStatus(run, id) === 'injured') return 'sad'
+  for (const report of [...run.reports].reverse()) {
+    if (report.day < run.day - 1) break
+    const quest = report.quests.find((entry) => entry.party.includes(id))
+    if (quest) return HOMECOMING_MOOD[quest.tier] ?? 'neutral'
+  }
+  return 'neutral'
 }
 
 /** The follower at the fortress tonight (not away, not dead) with this ability. */
@@ -855,7 +882,57 @@ const HIDEOUTS: [KingdomFactionId, string][] = [
   ['rustline', 'rail-station'],
 ]
 
-/** Act V hideout: the strongest Friendly-or-better ally, else the cave. */
+/**
+ * Pledges: story flags where the crown took a faction's side on purpose.
+ * Chores raise affinity for whoever lives nearest; pledges are the coalition
+ * the player chose, so they weigh heavily in where the court hides.
+ */
+export const PLEDGES: Partial<Record<KingdomFactionId, readonly string[]>> = {
+  moles: [
+    'sheltered-moles',
+    'mole-truce',
+    'mole-talks-opened',
+    'route-tunnel',
+    'prisoner-pardoned',
+    'congress-reseated',
+  ],
+  'storm-crows': [
+    'crow-parcel-delivered',
+    'rain-covenant',
+    'covenant-paid-in-runners',
+    'crow-debt-paid',
+  ],
+  'hollow-bell': [
+    'bell-voted-yes',
+    'bell-under-protection',
+    'mara-protected',
+    'abbess-shamed',
+  ],
+  jackalwire: [
+    'pack-alliance',
+    'pack-truce',
+    'pack-engine-fixed',
+    'pack-hired-ford',
+    'route-trestle',
+  ],
+  saltroad: ['sheltered-saltroad', 'promised-waystation'],
+  freeholds: ['sheltered-freeholds', 'promised-thistledown', 'wells-shared'],
+  rustline: [
+    'rustline-crate-bought',
+    'blue-lantern-route',
+    'rustline-barricades',
+    'rustline-market',
+  ],
+}
+const PLEDGE_WEIGHT = 20
+
+/** How strongly the crown has bound itself to a host: affinity plus pledges. */
+export const hostScore = (run: FortressRun, faction: KingdomFactionId) =>
+  run.affinity[faction] +
+  PLEDGE_WEIGHT *
+    (PLEDGES[faction] ?? []).filter((flag) => run.flags.includes(flag)).length
+
+/** Act V hideout: the most bound Friendly-or-better ally, else the cave. */
 export const selectHideout = (run: FortressRun): string => {
   const candidates = HIDEOUTS.filter(
     ([faction]) =>
@@ -864,7 +941,8 @@ export const selectHideout = (run: FortressRun): string => {
       tierRank(affinityTier(run.affinity[faction])) >= tierRank('friendly'),
   ).sort(
     ([a], [b]) =>
-      run.affinity[b] - run.affinity[a] || run.strength[b] - run.strength[a],
+      hostScore(run, b) - hostScore(run, a) ||
+      run.strength[b] - run.strength[a],
   )
   return candidates[0]?.[1] ?? 'nameless-cave'
 }

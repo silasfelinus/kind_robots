@@ -7,7 +7,7 @@ import type { AudienceDef, DayDef, KingdomFactionId, QuestDef } from './types'
 // decides whether the horror under the Abbey sleeps. endings.ts reads the
 // result. Endings never name who later destroys Hollow Bell (Book One).
 
-const VELLUM = 'Keeper Vellum'
+const VELLUM = { name: 'Keeper Vellum', npc: 'abelard-vellum' }
 
 export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
   {
@@ -341,6 +341,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       { stat: 'wits', band: 'mid' },
     ],
     danger: 'high',
+    lethal: true,
     tags: ['tunnels', 'records'],
     rewards: {
       success: { local: { lamplight: 2 }, flags: ['crypt-path-found'] },
@@ -374,6 +375,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       { stat: 'heart', band: 'mid', hidden: true },
     ],
     danger: 'high',
+    lethal: true,
     tags: ['tracking', 'records'],
     rewards: {
       triumph: {

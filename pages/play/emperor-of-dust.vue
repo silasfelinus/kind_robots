@@ -267,10 +267,10 @@ const unheard = computed(() =>
       ).length
     : 0,
 )
-const expiring = computed(
-  () =>
-    run.value?.board.filter((entry) => entry.lastDay === run.value!.day)
-      .length ?? 0,
+const expiring = computed(() =>
+  run.value && !over.value
+    ? run.value.board.filter((entry) => entry.lastDay === run.value!.day).length
+    : 0,
 )
 const rooms = computed(() =>
   ROOMS.map((room) => ({

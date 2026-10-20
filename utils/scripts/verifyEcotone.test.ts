@@ -160,40 +160,57 @@ assert.equal(
 )
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
-// Editorial round one: keep the image-first chapter kits in exact sync with
-// the playable scripts. These twelve cards carry sharpened consent, labor,
-// uncertainty and imperfect-help beats; old static Markdown must not drift.
+// Every selected prose redline must match its live script and its editor-facing
+// manuscript. A fixed set of 48 cards has now received chapter-level review.
 for (const id of [
   'WH-001',
   'WH-002',
   'WH-005',
   'WH-007',
+  'WH-008',
   'WH-010',
+  'WH-011',
+  'WH-017',
   'WH-023',
   'WH-025',
   'WH-028',
   'WH-029',
   'WH-031',
+  'WH-033',
+  'WH-035',
+  'WH-037',
   'WH-041',
   'WH-044',
   'WH-045',
   'WH-047',
   'WH-049',
+  'WH-053',
+  'WH-057',
+  'WH-058',
   'WH-063',
   'WH-064',
   'WH-065',
   'WH-067',
   'WH-071',
+  'WH-073',
+  'WH-076',
+  'WH-078',
   'WH-081',
   'WH-082',
   'WH-084',
   'WH-086',
   'WH-091',
+  'WH-093',
+  'WH-095',
+  'WH-099',
   'WH-102',
   'WH-103',
   'WH-104',
   'WH-107',
   'WH-111',
+  'WH-113',
+  'WH-115',
+  'WH-117',
 ]) {
   const script = REGIONAL_SCRIPTS.find((card) => card.id === id)!
   const chapter = String(script.chapter).padStart(2, '0')
@@ -227,8 +244,17 @@ const redlineLensCards = [
   'WH-065',
   'WH-086',
   'WH-107',
+  'WH-008',
+  'WH-033',
+  'WH-053',
+  'WH-076',
+  'WH-095',
+  'WH-115',
 ]
-assert.deepEqual(Object.keys(REGIONAL_LENS_VOICES), redlineLensCards)
+assert.deepEqual(
+  new Set(Object.keys(REGIONAL_LENS_VOICES)),
+  new Set(redlineLensCards),
+)
 for (const id of redlineLensCards) {
   const card = findCard(id)!
   const voices = card.lensLines!

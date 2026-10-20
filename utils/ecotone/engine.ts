@@ -294,7 +294,12 @@ export function currentStep(state: RunState): RouteStep | null {
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const open = ENCOUNTERS.filter((card) => !state.played.includes(card.id))
+  const open = ENCOUNTERS.filter(
+    (card) =>
+      !state.played.includes(card.id) &&
+      (!card.requiresLead || card.requiresLead === state.activeLead) &&
+      (!card.requiresLens || card.requiresLens === state.openingState),
+  )
   const picked: string[] = []
   step.pools.forEach((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)

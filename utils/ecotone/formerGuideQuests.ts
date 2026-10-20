@@ -34,7 +34,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'keep-boundaries',
-        label: 'Offer help moving the sign, then let Mara handle her own contracts',
+        label:
+          'Offer help moving the sign, then let Mara handle her own contracts',
         success: {
           text: 'You carry the heavy end. Mara takes the other. At the new door she gives you coffee and a sincere goodbye, which is an excellent relationship to have.',
           effects: { flag: 'mara_independent_studio', nerve: 1 },
@@ -42,7 +43,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'public-exhibition',
-        label: 'Organize an exhibition of work the artists explicitly volunteer',
+        label:
+          'Organize an exhibition of work the artists explicitly volunteer',
         check: { skill: 'rizz', target: 7 },
         success: {
           text: 'The opening draws people who actually buy art. Every artist has a name card and a price of their own choosing. No private client file leaves the cabinet.',
@@ -54,7 +56,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'Old Town Eureka is real. This studio, owner, lease, clients and apprenticeship are fictional. Mara speaks for herself, not for any real tribal authority.',
+    provenance:
+      'Old Town Eureka is real. This studio, owner, lease, clients and apprenticeship are fictional. Mara speaks for herself, not for any real tribal authority.',
   },
   {
     id: 'FR-KIT-01',
@@ -75,7 +78,10 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         check: { skill: 'wits', target: 9 },
         success: {
           text: 'Kit reads the names before the parade starts. Two people correct their spelling, one chooses a pseudonym, and the broken umbrella gets the loudest applause.',
-          effects: { evidence: 'Volunteer-approved parade credits', flag: 'kit_parade_credits' },
+          effects: {
+            evidence: 'Volunteer-approved parade credits',
+            flag: 'kit_parade_credits',
+          },
         },
         failure: {
           text: 'A maker asks you to remove their name. You do. The parade still happens, with better consent and one less name on the sheet.',
@@ -84,7 +90,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'practical-help',
-        label: 'Help reinforce the floats so the whole parade actually finishes',
+        label:
+          'Help reinforce the floats so the whole parade actually finishes',
         check: { skill: 'burly', target: 7 },
         success: {
           text: 'The umbrella-jellyfish survives the square. Kit hugs a wheel, not you, and promises to return the borrowed wrench.',
@@ -104,7 +111,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'Eureka waterfront is real; the parade, maker agreements, characters and floats are invented. Kit is Hmong American, but she is not a stand-in for Hmong cultural tradition.',
+    provenance:
+      'Eureka waterfront is real; the parade, maker agreements, characters and floats are invented. Kit is Hmong American, but she is not a stand-in for Hmong cultural tradition.',
   },
   {
     id: 'FR-JUNIPER-01',
@@ -134,11 +142,15 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'bird-conditions',
-        label: 'Ask Juniper to write what the wildlife needs without claiming to speak for it all',
+        label:
+          'Ask Juniper to write what the wildlife needs without claiming to speak for it all',
         check: { skill: 'psyche', target: 7 },
         success: {
           text: 'She writes down the nesting dates and the uncertainties. The jay adds a complaint about hats. The trail crew agrees to seasonal changes but declines the hat ordinance.',
-          effects: { evidence: 'Seasonal habitat notes with uncertainty', flag: 'juniper_seasonal_habitat' },
+          effects: {
+            evidence: 'Seasonal habitat notes with uncertainty',
+            flag: 'juniper_seasonal_habitat',
+          },
         },
         failure: {
           text: 'The jay repeatedly interrupts. Juniper laughs, then asks a volunteer naturalist to check the dates in the morning.',
@@ -147,14 +159,16 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'step-away',
-        label: 'Leave the meeting with Juniper, but let her decide whether to return',
+        label:
+          'Leave the meeting with Juniper, but let her decide whether to return',
         success: {
           text: 'You walk a little way. Juniper stops, turns back toward the arguing group and says she is not done hearing them. You wish her luck and keep walking.',
           effects: { flag: 'juniper_kept_own_work', nerve: 1 },
         },
       },
     ],
-    provenance: 'Sequoia Park is real. This meeting, characters, accessibility project and supernatural nymph are invented; no real public land decision is implied.',
+    provenance:
+      'Sequoia Park is real. This meeting, characters, accessibility project and supernatural nymph are invented; no real public land decision is implied.',
   },
   {
     id: 'FR-CEDAR-01',
@@ -184,11 +198,15 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'measure-power',
-        label: 'Test the power draw before anyone promises a technological utopia',
+        label:
+          'Test the power draw before anyone promises a technological utopia',
         check: { skill: 'wits', target: 7 },
         success: {
           text: 'The repeater can run on a modest shared solar bank if someone pays attention to winter. Cedar writes the numbers beside the goat’s name in the work log.',
-          effects: { evidence: 'Measured community repeater power budget', flag: 'cedar_repeater_power_plan' },
+          effects: {
+            evidence: 'Measured community repeater power budget',
+            flag: 'cedar_repeater_power_plan',
+          },
         },
         failure: {
           text: 'The battery dies midway through the demonstration. His mother offers a flashlight; his father offers a new terminal. Neither claims that will settle the argument.',
@@ -204,7 +222,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'The Eel River valley is real; Cedar, his intact fictional family, radio system and goat are fictional. This is not a claim about any specific organization, land agreement or real historical participant.',
+    provenance:
+      'The Eel River valley is real; Cedar, his intact fictional family, radio system and goat are fictional. This is not a claim about any specific organization, land agreement or real historical participant.',
   },
   {
     id: 'FR-ASSEMBLY-01',
@@ -219,18 +238,24 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       'Nobody demands a reunion. Some people are still annoyed with one another. Yet tools, food and useful information are moving between tables, which might be the closest thing the county has to a working miracle.',
     ],
     lensLines: {
-      sober: 'You count shared tools and notice who is cleaning up. Good intentions are wonderful; someone still has to wash the bowls.',
-      tipsy: 'The potluck is one long conversational accident. You laugh at a joke, then help an embarrassed stranger find their soup.',
-      stoned: 'A wrench passes between hands, followed by a bowl. The pattern is interesting precisely because nobody appears to own it.',
-      tripping_balls: 'The potluck resembles a tiny parliament of mismatched spoons. Nobody is elected and everyone has to eat.',
-      cocaine: 'There are too many tasks and half a dozen volunteers. You put the urgent jobs on paper and let the rest wait.',
+      sober:
+        'You count shared tools and notice who is cleaning up. Good intentions are wonderful; someone still has to wash the bowls.',
+      tipsy:
+        'The potluck is one long conversational accident. You laugh at a joke, then help an embarrassed stranger find their soup.',
+      stoned:
+        'A wrench passes between hands, followed by a bowl. The pattern is interesting precisely because nobody appears to own it.',
+      tripping_balls:
+        'The potluck resembles a tiny parliament of mismatched spoons. Nobody is elected and everyone has to eat.',
+      cocaine:
+        'There are too many tasks and half a dozen volunteers. You put the urgent jobs on paper and let the rest wait.',
       meth: 'The crowded room is a lot. Somebody offers you a quiet seat and a later shift, and nobody treats that as leaving the team.',
       mdma: 'People seem briefly connected, though not always in agreement. Asking before hugging keeps the room generous for more than one kind of person.',
     },
     choices: [
       {
         id: 'share-skills',
-        label: 'Offer one useful skill without taking charge of the entire gathering',
+        label:
+          'Offer one useful skill without taking charge of the entire gathering',
         check: { skill: 'rizz', target: 9 },
         success: {
           text: 'You help two strangers exchange a repair trick. They improve it before the soup cools. By dusk you are no longer needed, which is a strangely satisfying result.',
@@ -243,7 +268,8 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       },
       {
         id: 'make-space',
-        label: 'Make sure people who have been quiet can join on their own terms',
+        label:
+          'Make sure people who have been quiet can join on their own terms',
         success: {
           text: 'A visitor asks for a chair at the edge and a written schedule, not an inspirational speech. They get both. Another person simply wants to eat and leave.',
           effects: { goodwill: 1, flag: 'assembly_access_without_pressure' },
@@ -258,6 +284,7 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
         },
       },
     ],
-    provenance: 'The Eureka waterfront is real. The gathering, people, project and potluck are entirely fictional. Meeting characters does not imply intimacy, friendship, romance or agreement.',
+    provenance:
+      'The Eureka waterfront is real. The gathering, people, project and potluck are entirely fictional. Meeting characters does not imply intimacy, friendship, romance or agreement.',
   },
 ]

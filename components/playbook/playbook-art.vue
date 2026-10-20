@@ -1,5 +1,5 @@
 <template>
-  <span class="relative block overflow-hidden bg-base-300">
+  <span class="block overflow-hidden bg-base-300">
     <EcotoneScene
       v-if="scene"
       :kind="scene as SceneKind"

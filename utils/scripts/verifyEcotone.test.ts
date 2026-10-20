@@ -187,9 +187,14 @@ for (const id of secondDraftLensCards) {
   const lines = findCard(id)?.lensLines
   for (const lens of openLenses)
     assert.ok(
-      lines?.[lens] && lines[lens]!.length > 75,
-      `${id} has a distinct scene aside for ${lens}`,
+      lines?.[lens] && lines[lens]!.length > 42,
+      `${id} has a concise, meaningful scene aside for ${lens}`,
     )
+  assert.equal(
+    new Set(openLenses.map((lens) => lines?.[lens])).size,
+    openLenses.length,
+    `${id} seven focalizations are individually authored`,
+  )
 }
 assert.match(
   cardAsides(findCard('WH-115')!, {

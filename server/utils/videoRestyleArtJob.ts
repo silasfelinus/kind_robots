@@ -84,6 +84,9 @@ export async function syncRestylePilotArtJob(
       state: job.status,
       executor: 'kr-relay',
       quality: job.quality,
+      ...(job.overwriteStrength !== undefined && job.overwriteStrength !== 100
+        ? { overwriteStrength: job.overwriteStrength }
+        : {}),
       stylePrompt: job.renderRecipe.stylePrompt,
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,
@@ -381,6 +384,9 @@ export async function syncRestyleFullArtJob(
       state: job.status,
       executor: 'kr-relay',
       quality: job.quality,
+      ...(job.overwriteStrength !== undefined && job.overwriteStrength !== 100
+        ? { overwriteStrength: job.overwriteStrength }
+        : {}),
       stylePrompt: job.renderRecipe.stylePrompt,
       isPrivate: job.isPrivate ?? true,
       isMature: job.isMature ?? false,

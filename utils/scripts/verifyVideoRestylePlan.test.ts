@@ -10,6 +10,8 @@ import {
   RESTYLE_GRAB_BAG,
   RESTYLE_PREVIEW_WIDTH,
   RESTYLE_STYLES,
+  RESTYLE_DEFAULT_OVERWRITE_STRENGTH,
+  isRestyleOverwriteStrength,
   isRestyleLook,
   isRestyleStyle,
   normalizeGrabBagStyles,
@@ -22,6 +24,12 @@ import {
   shuffleRestyleStyles,
 } from '../videoRestylePlan'
 
+assert.equal(RESTYLE_DEFAULT_OVERWRITE_STRENGTH, 100)
+for (const value of [0, 25, 50, 100])
+  assert.ok(isRestyleOverwriteStrength(value))
+for (const value of [-1, 101, 0.5, NaN, '50', null]) {
+  assert.ok(!isRestyleOverwriteStrength(value))
+}
 assert.equal(RESTYLE_STYLES.length, 33)
 assert.equal(
   new Set(RESTYLE_STYLES.map((style) => style.id)).size,
@@ -84,6 +92,25 @@ assert.ok(studio.includes('Save look & render full film'))
 assert.ok(source.includes('requireAdminApiUser'))
 assert.ok(source.includes('restyleSourcePath'))
 assert.ok(settings.includes('updateRestyleSettings'))
+assert.ok(settings.includes('body.overwriteStrength'))
+assert.ok(studio.includes('Overwrite strength'))
+assert.ok(studio.includes('v-model.number="overwriteStrength"'))
+assert.match(studio, /title\.value\s*=\s*sourceFile\.value\.name/)
+assert.ok(studio.includes('Save title'))
+const renameRoute = readFileSync(
+  'server/api/video-restyle/[id]/title.patch.ts',
+  'utf8',
+)
+assert.ok(renameRoute.includes('requireAdminApiUser'))
+assert.ok(renameRoute.includes('renameRestyleProject'))
+const jobs = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
+assert.ok(jobs.includes('input.overwriteStrength,'))
+assert.ok(
+  jobs.includes(
+    'source.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH',
+  ),
+)
+assert.ok(jobs.includes('renameRestyleProject('))
 
 const pilot = readFileSync(
   'server/api/video-restyle/[id]/pilot.post.ts',
@@ -132,6 +159,11 @@ assert.ok(pilot.includes('syncRestylePilotArtJob'))
 assert.ok(reconcile.includes('requireAdminApiUser'))
 assert.ok(reconcile.includes('syncRestylePilotArtJob'))
 assert.ok(artjob.includes('attemptFingerprint: fingerprint'))
+assert.equal(
+  artjob.match(/job\.overwriteStrength/g)?.length,
+  6,
+  'pilot and full ArtJobs both serialize a non-default overwrite strength',
+)
 assert.ok(artjob.includes('projectSlug: PROJECT_SLUG'))
 assert.ok(artjob.includes('priority: -100'))
 const vaceReport = readFileSync(

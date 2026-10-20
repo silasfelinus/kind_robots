@@ -22,7 +22,8 @@ tutorial:
     generator's current build, or Delete. Add registers a new Checkpoint or
     LoRA, and Discover searches Civitai or CivArchive by base model so you can
     download models you do not have yet. Downloads shows queued, claimed,
-    completed, and failed imports with retry controls and saved history.
+    completed, and failed imports. Retry individually or in batches, and clear
+    completed/failed history records without deleting installed model files.
     Claims are not byte-level progress; completion is reported by the home
     downloader. The LoRA Triage button opens the maturity review.
   image: /images/art/resources.webp

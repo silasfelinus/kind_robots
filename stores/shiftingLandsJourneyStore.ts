@@ -49,6 +49,7 @@ import {
   SHIFTING_LANDS_LIVE_TEXT,
   type V6Choice,
 } from '~/utils/shiftingLands/deckV6'
+import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { computed, ref } from 'vue'
 import { useAchievementStore } from './achievementStore'
 import { loadPlaybookLiveText } from './utils/playbookLiveText'
@@ -207,6 +208,11 @@ export const useShiftingLandsJourneyStore = defineStore(
         : [],
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
+    const ending = computed(() =>
+      ledger.value.version === 6
+        ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
+        : null,
+    )
     const canTrial = (choiceId: string): boolean => {
       const choice = currentTrial.value?.choices.find(
         (item) => item.id === choiceId,
@@ -389,6 +395,7 @@ export const useShiftingLandsJourneyStore = defineStore(
       findCard,
       lockFor,
       marks,
+      ending,
       state,
       characterSheet,
       loaded,

@@ -209,15 +209,29 @@ for (const id of ENDING_IDS) {
 }
 assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
-assert.equal(REGIONAL_CALLBACKS.length, 20, 'twenty precise optional regional payoffs')
+assert.equal(
+  REGIONAL_CALLBACKS.length,
+  20,
+  'twenty precise optional regional payoffs',
+)
 for (const callback of REGIONAL_CALLBACKS) {
-  assert.ok(earnedQuestCallbacks([callback.flag], [callback.id]).includes(callback.text),
-    `${callback.id}/${callback.choice} is shown only when earned`)
-  assert.ok(!earnedQuestCallbacks([callback.flag], []).includes(callback.text),
-    `${callback.id}/${callback.choice} cannot be attributed to an unplayed encounter`)
-  const pitch = allPitchByKey.get(`callbacks/${callback.id.toLowerCase()}/${callback.choice}`)
-  assert.ok(pitch?.sourceConditions.includes(`flag:${callback.flag}`),
-    `${callback.id}/${callback.choice} has a source-grounded art brief`)
+  assert.ok(
+    earnedQuestCallbacks([callback.flag], [callback.id]).includes(
+      callback.text,
+    ),
+    `${callback.id}/${callback.choice} is shown only when earned`,
+  )
+  assert.ok(
+    !earnedQuestCallbacks([callback.flag], []).includes(callback.text),
+    `${callback.id}/${callback.choice} cannot be attributed to an unplayed encounter`,
+  )
+  const pitch = allPitchByKey.get(
+    `callbacks/${callback.id.toLowerCase()}/${callback.choice}`,
+  )
+  assert.ok(
+    pitch?.sourceConditions.includes(`flag:${callback.flag}`),
+    `${callback.id}/${callback.choice} has a source-grounded art brief`,
+  )
 }
 assert.ok(allPitchEntries.every((p) => p.status === 'editorial-draft'))
 assert.ok(
@@ -426,7 +440,11 @@ assert.equal(play(3, { ...race, area: 1 }).prospect, 'mara')
 for (const lens of ['cocaine', 'mdma'] as LensId[]) {
   for (const area of [0, 1] as const) {
     const endingRun = play(2100 + area, {
-      event: 'kinetic', area, lens, accept: true, follow: true,
+      event: 'kinetic',
+      area,
+      lens,
+      accept: true,
+      follow: true,
     })
     assert.equal(endingRun.openingState, lens)
     assert.ok(endingRun.ending?.includes(`.${lens}.`))
@@ -434,7 +452,11 @@ for (const lens of ['cocaine', 'mdma'] as LensId[]) {
 }
 for (const area of [0, 1] as const) {
   const endingRun = play(2200 + area, {
-    event: 'green-ribbon', area, lens: 'meth', accept: true, follow: true,
+    event: 'green-ribbon',
+    area,
+    lens: 'meth',
+    accept: true,
+    follow: true,
   })
   assert.equal(endingRun.openingState, 'meth')
   assert.ok(endingRun.ending?.includes('.meth.'))

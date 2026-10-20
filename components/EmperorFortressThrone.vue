@@ -26,36 +26,44 @@
     </section>
 
     <section class="flex min-h-0 flex-col gap-2">
-      <div v-if="audiences.length" class="kr-panel p-2">
-        <p
-          class="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
-        >
-          Audience {{ audienceIndex + 1 }} / {{ audiences.length }}
-        </p>
-        <div class="mt-1 flex flex-wrap gap-1">
-          <button
-            v-for="audience in audiences"
-            :key="audience.id"
-            type="button"
-            class="btn btn-xs"
-            :class="
-              selectedId === audience.id
-                ? 'btn-warning'
-                : heard(audience.id)
-                  ? 'btn-ghost opacity-60'
-                  : 'btn-outline'
-            "
-            @click="selectedId = audience.id"
+      <Teleport v-if="audiences.length" to="#eod-room-tools" defer>
+        <div class="flex min-w-0 items-center gap-1.5">
+          <span
+            class="shrink-0 text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
           >
-            {{ audience.title }}
-            <Icon
-              v-if="heard(audience.id)"
-              name="kind-icon:check"
-              class="h-3 w-3"
-            />
-          </button>
+            <span class="hidden sm:inline">Audience </span
+            >{{ audienceIndex + 1 }} / {{ audiences.length }}
+          </span>
+          <div
+            class="no-scrollbar flex min-w-0 gap-1 overflow-x-auto"
+            role="group"
+            aria-label="Today's petitioners"
+          >
+            <button
+              v-for="audience in audiences"
+              :key="audience.id"
+              type="button"
+              class="btn btn-xs shrink-0 whitespace-nowrap"
+              :class="
+                selectedId === audience.id
+                  ? 'btn-warning'
+                  : heard(audience.id)
+                    ? 'btn-ghost opacity-60'
+                    : 'btn-outline'
+              "
+              :aria-pressed="selectedId === audience.id"
+              @click="selectedId = audience.id"
+            >
+              {{ audience.title }}
+              <Icon
+                v-if="heard(audience.id)"
+                name="kind-icon:check"
+                class="h-3 w-3"
+              />
+            </button>
+          </div>
         </div>
-      </div>
+      </Teleport>
 
       <template v-if="selected">
         <div

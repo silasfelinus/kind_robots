@@ -39,6 +39,7 @@ import {
 import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
 import { applyVideoLoraChain } from '../comfy/utils/videoLoraChain'
 import { effectiveWanMode, validateVideoModelSelection, type VideoModelPaths, type WanVideoMode } from '~/utils/videoModelResources'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 import {
   applyVideoImageFit,
   normalizeVideoImageFit,
@@ -580,6 +581,24 @@ export default defineEventHandler(async (event) => {
           statusCode: 400,
           message: error instanceof Error ? error.message : 'Invalid video checkpoint selection.',
         })
+      }
+      // Account consent and restrictive CHILD roles remain authoritative even
+      // when a caller knows the ID of a mature model Resource.
+      if (selection.isMature) {
+        const consent = await prisma.user.findUnique({
+          where: { id: gate.user.id },
+          select: {
+            showMature: true,
+            Role: true,
+            UserRoles: { select: { role: true } },
+          },
+        })
+        if (!effectiveShowMature(consent)) {
+          throw createError({
+            statusCode: 403,
+            message: 'Mature video checkpoints require mature-content opt-in.',
+          })
+        }
       }
       // Replace caller-supplied workflow model paths with catalog-verified ones,
       // including on default-model jobs. Mature checkpoints force private output.

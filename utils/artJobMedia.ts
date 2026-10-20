@@ -15,6 +15,7 @@ export type ArtJobRelayCapabilities = {
   supportsVideoRestyle?: boolean
   supportsVideoRestyleGrabBag?: boolean
   supportsVideoRestyleFast?: boolean
+  supportsVideoRestyleStrength?: boolean
 }
 
 function payloadObject(payload: unknown): Record<string, unknown> | null {
@@ -45,6 +46,15 @@ export function isGrabBagRestyleArtJobPayload(payload: unknown): boolean {
   return Array.isArray(video?.styleSchedule) && video.styleSchedule.length > 0
 }
 
+/** Non-default source mixing requires an updated relay. */
+export function isStrengthRestyleArtJobPayload(payload: unknown): boolean {
+  const body = payloadObject(payload)
+  if (body?.media !== 'video-restyle-vace') return false
+  const video = body.videoRestyle as Record<string, unknown> | undefined
+  return typeof video?.overwriteStrength === 'number' &&
+    video.overwriteStrength !== 100
+}
+
 /** Coat Dance Fast draft: needs the CausVid LoRA on the relay's ComfyUI. */
 export function isFastRestyleArtJobPayload(payload: unknown): boolean {
   const body = payloadObject(payload)
@@ -69,7 +79,9 @@ export function artJobClaimableBy(
       (!isGrabBagRestyleArtJobPayload(body) ||
         capabilities.supportsVideoRestyleGrabBag === true) &&
       (!isFastRestyleArtJobPayload(body) ||
-        capabilities.supportsVideoRestyleFast === true)
+        capabilities.supportsVideoRestyleFast === true) &&
+      (!isStrengthRestyleArtJobPayload(body) ||
+        capabilities.supportsVideoRestyleStrength === true)
     )
   const needsInputImages =
     Array.isArray(body?.images) && (body?.images as unknown[]).length > 0

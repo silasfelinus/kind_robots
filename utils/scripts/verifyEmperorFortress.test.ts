@@ -1506,8 +1506,8 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
   )
 
   // The first matching variant wins, and the lie stays where it was.
-  const briefed = (day: number, flags: string[], relics: string[] = []) =>
-    dayBriefings({ ...onDay(1, day, { flags }), equippedRelics: relics })!
+  const briefed = (day: number, flags: string[]) =>
+    dayBriefings(onDay(1, day, { flags }))!
   assert.equal(
     briefed(26, [])[2]!.source,
     'Granny Umber’s cell',

@@ -154,12 +154,13 @@
       </div>
     </section>
 
+    <EmperorFortressCodex class="@4xl:col-span-2" />
+
     <section class="@container kr-panel space-y-3 p-4 @4xl:col-span-2">
       <h2 class="font-serif text-2xl font-bold">Items of Power</h2>
       <p class="text-xs opacity-70">
         Relics belong to you, not to a run. Choose up to
-        {{ court.relicVault.slots }} for your next reign. Secrets uncovered:
-        {{ court.codex.revealed.length }}.
+        {{ court.relicVault.slots }} for your next reign.
       </p>
       <div class="grid gap-2 @md:grid-cols-2">
         <article

@@ -324,7 +324,7 @@ const rooms = computed(() =>
       room.id === 'throne' && badge
         ? ` · ${badge} petitioner${badge === 1 ? '' : 's'} waiting`
         : room.id === 'quests' && badge
-          ? ` · ${badge} quest${badge === 1 ? '' : 's'} expire tonight`
+          ? ` · ${badge} quest${badge === 1 ? ' expires' : 's expire'} tonight`
           : room.id === 'quests' && !unheard.value && !over.value
             ? ' · the day can end here'
             : ''

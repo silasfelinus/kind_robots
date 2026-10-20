@@ -1,6 +1,7 @@
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, questDef } from './content'
 import { rerollDawn } from './engine'
+import { isCodexId } from './codex'
 import { KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
 import type { Codex, FortressRun } from './types'
 
@@ -298,14 +299,19 @@ export const decodeCodex = (raw: string | null): Codex | null => {
       !textList(value.revealed, 5000)
     )
       return null
-    return { version: 1, revealed: [...new Set(value.revealed as string[])] }
+    // Only trait ids survive: a Codex never carries items, brass or
+    // relationships, and ids retired from the content drop away.
+    return {
+      version: 1,
+      revealed: [...new Set((value.revealed as string[]).filter(isCodexId))],
+    }
   } catch {
     return null
   }
 }
 
 export const mergeCodex = (codex: Codex, ids: readonly string[]): Codex => {
-  const revealed = [...new Set([...codex.revealed, ...ids])]
+  const revealed = [...new Set([...codex.revealed, ...ids.filter(isCodexId)])]
   return revealed.length === codex.revealed.length
     ? codex
     : { version: 1, revealed }

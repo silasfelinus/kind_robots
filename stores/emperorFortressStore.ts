@@ -15,7 +15,7 @@ import {
   withdrawQuest,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { FORTRESS_LIVE_TEXT } from '~/utils/emperorOfDust/fortress/content'
-import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
+import { allegiancesKnown } from '~/utils/emperorOfDust/fortress/codex'
 import {
   SLOT_COUNT,
   decodeBook,
@@ -85,9 +85,12 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const storageWarning = ref('')
   const lastResponse = ref('')
   const lastReport = ref<DawnReport | null>(null)
+  /** Codex ids learned by the last answer or talk, for the reveal moment. */
+  const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const textSpeed = ref<TextSpeed>('normal')
   let relicVaultUnreadable = false
+  let codexUnreadable = false
 
   const run = computed<FortressRun | null>(() => book.value?.current ?? null)
   const day = computed(() => run.value?.day ?? 1)
@@ -128,8 +131,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     if (write(AUTO_KEY, encodeBook(book.value))) storageWarning.value = ''
   }
 
-  function persistCodex() {
-    write(CODEX_KEY, JSON.stringify(codex.value))
+  /** Adds ids to the persistent Codex; returns the ones that were new. */
+  function remember(ids: readonly string[]): string[] {
+    const merged = mergeCodex(codex.value, ids)
+    if (merged === codex.value) return []
+    const added = merged.revealed.filter(
+      (id) => !codex.value.revealed.includes(id),
+    )
+    codex.value = merged
+    // An unreadable Codex is never overwritten; what is learned stays in play.
+    if (!codexUnreadable) write(CODEX_KEY, JSON.stringify(merged))
+    return added
   }
 
   function equippedRelics(): string[] {
@@ -201,7 +213,12 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     const speed = read(SPEED_KEY)
     textSpeed.value = TEXT_SPEEDS.find((entry) => entry === speed) ?? 'normal'
     const rawCodex = read(CODEX_KEY)
-    codex.value = decodeCodex(rawCodex) ?? emptyCodex()
+    const savedCodex = decodeCodex(rawCodex)
+    codexUnreadable = !!rawCodex && !savedCodex
+    if (codexUnreadable)
+      storageWarning.value =
+        'The Codex could not be read. It was not overwritten.'
+    codex.value = savedCodex ?? emptyCodex()
     const raw = read(AUTO_KEY)
     const saved = decodeBook(raw)
     if (raw && !saved) {
@@ -221,6 +238,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       read(INTRO_KEY) !== '1' && untouched && slots.value.every((slot) => !slot)
     loaded.value = true
     if (!raw) persist()
+    absorbAllegiances()
+    lastLearned.value = []
     void loadPlaybookLiveText('emperor-of-dust', FORTRESS_LIVE_TEXT).then(
       (changed) => {
         if (changed && book.value) book.value = { ...book.value }
@@ -293,14 +312,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function finish() {
     const result = finishDay(current(), codex.value.revealed)
-    const revealed = result.report.quests.flatMap(
-      (quest) => quest.revealedTraits,
-    )
-    const merged = mergeCodex(codex.value, revealed)
-    if (merged !== codex.value) {
-      codex.value = merged
-      persistCodex()
-    }
+    remember(result.report.quests.flatMap((quest) => quest.revealedTraits))
+    lastLearned.value = []
     book.value = recordDawn(book.value!, result.run)
     lastReport.value = result.report
     persist()
@@ -315,18 +328,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
-  /** Conversation flags; reveals any allegiance trait they unlock. */
-  /** Allegiances revealed by a story flag join the persistent Codex. */
+  /**
+   * Allegiances revealed by a story flag join the persistent Codex. The ids
+   * newly learned become the reveal moment the room shows next.
+   */
   function absorbAllegiances() {
-    const flags = current().flags
-    const unlocked = FOLLOWERS.flatMap((def) => def.traits)
-      .filter((trait) => trait.revealFlag && flags.includes(trait.revealFlag))
-      .map((trait) => trait.id)
-    const merged = mergeCodex(codex.value, unlocked)
-    if (merged !== codex.value) {
-      codex.value = merged
-      persistCodex()
-    }
+    const added = remember(allegiancesKnown(current()))
+    if (added.length) lastLearned.value = [...lastLearned.value, ...added]
+  }
+
+  function dismissLearned() {
+    lastLearned.value = []
   }
 
   function learn(flag: string) {
@@ -369,6 +381,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     book.value = record.book
     lastReport.value = null
     persist()
+    absorbAllegiances()
+    lastLearned.value = []
   }
 
   function clearSlot(slot: number) {
@@ -384,6 +398,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   return {
     book,
     codex,
+    lastLearned,
+    dismissLearned,
     slots,
     loaded,
     introOpen,

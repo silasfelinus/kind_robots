@@ -141,6 +141,53 @@ export function videoLoraCompatible(
   return server === engine.toUpperCase() || server === 'GENERIC'
 }
 
+/**
+ * Advisory, architecture-aware ranking for video LoRAs. supportedServer is a
+ * loader hint, not proof that a Wan 2.1/5B LoRA works with Wan 2.2/14B.
+ * Catalogs without version metadata stay compatible but not recommended.
+ */
+export function videoLoraCompatibilityRank(
+  resource: LoraResourceLike,
+  profile: 'ltx-2.3' | 'wan-2.2-5b' | 'wan-2.2-14b',
+): number {
+  const engine = profile.startsWith('ltx') ? 'ltx' : 'wan'
+  if (!videoLoraCompatible(resource, engine)) return 0
+  const generation = normalizedGeneration(resource)
+  if (
+    /SDXL|PONY|ILLUSTRIOUS|NOOBAI|SD[ ._-]*1[ ._-]*5|FLUX|KONTEXT/.test(
+      generation,
+    )
+  )
+    return 0
+  if (engine === 'ltx') {
+    if (/WAN|HUNYUAN|SVD/.test(generation)) return 0
+    if (
+      /LTX[ ._-]*2[ ._-]*[0-9]+/.test(generation) &&
+      !/LTX[ ._-]*2[ ._-]*3/.test(generation)
+    )
+      return 0
+    return /LTX[ ._-]*2[ ._-]*3/.test(generation)
+      ? 40
+      : normalizedServer(resource) === 'LTX'
+        ? 20
+        : 10
+  }
+  if (/LTX|HUNYUAN|SVD/.test(generation)) return 0
+  if (
+    /WAN[ ._-]*2[ ._-]*[0-9]+/.test(generation) &&
+    !/WAN[ ._-]*2[ ._-]*2/.test(generation)
+  )
+    return 0
+  if (profile.endsWith('14b') && /(?:^|[^0-9])5B(?:$|[^0-9])/.test(generation))
+    return 0
+  if (profile.endsWith('5b') && /14B/.test(generation)) return 0
+  const matchingSize = profile.endsWith('14b')
+    ? /14B/.test(generation)
+    : /5B/.test(generation)
+  if (/WAN[ ._-]*2[ ._-]*2/.test(generation)) return matchingSize ? 50 : 35
+  return normalizedServer(resource) === 'WAN' ? 20 : 10
+}
+
 export function artLoraCompatibilityRank(
   resource: LoraResourceLike,
   engine: ArtGeneratorEngine,

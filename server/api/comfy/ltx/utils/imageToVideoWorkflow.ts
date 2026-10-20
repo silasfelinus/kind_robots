@@ -36,6 +36,7 @@ export type LtxImageToVideoInput = {
   temporalOverlap?: number | null
   filenamePrefix?: string | null
   outputFormat?: VideoOutputFormat | string | null
+  checkpoint?: string | null
   renderScale?: number | null
   latentUpscaleModel?: string | null
   refineSampler?: string | null
@@ -107,14 +108,14 @@ export function buildLtxImageToVideoWorkflow(
 
   const workflow: ComfyWorkflow = {
     '317': {
-      inputs: { ckpt_name: LTX_CHECKPOINT },
+      inputs: { ckpt_name: input.checkpoint || LTX_CHECKPOINT },
       class_type: 'CheckpointLoaderSimple',
       _meta: { title: 'Load Checkpoint' },
     },
     '318': {
       inputs: {
         text_encoder: LTX_TEXT_ENCODER,
-        ckpt_name: LTX_CHECKPOINT,
+        ckpt_name: input.checkpoint || LTX_CHECKPOINT,
         device: 'default',
       },
       class_type: 'LTXAVTextEncoderLoader',

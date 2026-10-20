@@ -298,7 +298,19 @@
         </details>
       </section>
 
-      <video-lora-picker v-model="loraPicks" :engine="engine" />
+      <video-model-picker
+        v-model:first-model-id="videoCheckpointResourceId"
+        v-model:low-model-id="videoLowCheckpointResourceId"
+        :engine="engine"
+        :mode="selectedWanMode"
+        :has-end-frame="Boolean(secondImage)"
+        @update:mode="wanMode = $event"
+      />
+      <video-lora-picker
+        v-model="loraPicks"
+        :engine="engine"
+        :profile="selectedLoraProfile"
+      />
 
       <section class="grid items-stretch gap-3 lg:grid-cols-2">
         <content-visibility-controls
@@ -750,6 +762,12 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
+import {
+  effectiveWanMode,
+  videoLoraProfile,
+  videoModelIsMature,
+  type WanVideoMode,
+} from '@/utils/videoModelResources'
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 import { resolveArtImageSource } from '@/utils/artImageSource'
@@ -827,6 +845,9 @@ const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
 const loraPicks = ref<LoraPick[]>([])
+const wanMode = ref<WanVideoMode>('ti2v')
+const videoCheckpointResourceId = ref<number | null>(null)
+const videoLowCheckpointResourceId = ref<number | null>(null)
 const isMature = ref(false)
 const isPublic = ref(true)
 const durationSeconds = ref(initialPreset.durationSeconds)
@@ -839,6 +860,32 @@ const latentUpscaleModel = ref<string | null>(initialPreset.latentUpscaleModel)
 const refineSampler = ref<string | null>(initialPreset.refineSampler)
 const refineSigmas = ref<string | null>(initialPreset.refineSigmas)
 const seedInput = ref<number | string>('')
+
+const selectedWanMode = computed(() =>
+  effectiveWanMode(wanMode.value, Boolean(secondImage.value)),
+)
+const selectedLoraProfile = computed(() =>
+  videoLoraProfile(engine.value, selectedWanMode.value),
+)
+// A mature checkpoint must not be queued as an unmarked public clip. The
+// server repeats this check independently; this reflects it immediately in UI.
+watch(
+  [videoCheckpointResourceId, videoLowCheckpointResourceId, () => resourceStore.resources],
+  () => {
+    const selected = resourceStore.resources.filter((resource) =>
+      resource.id === videoCheckpointResourceId.value ||
+      resource.id === videoLowCheckpointResourceId.value,
+    )
+    if (selected.some(videoModelIsMature)) {
+      isMature.value = true
+      isPublic.value = false
+    }
+  },
+)
+watch([engine, selectedWanMode], () => {
+  videoCheckpointResourceId.value = null
+  videoLowCheckpointResourceId.value = null
+})
 
 const activeEngine = computed(
   () => engines.find((item) => item.value === engine.value) ?? engines[0]!,
@@ -1114,6 +1161,9 @@ async function generate() {
     refineSigmas: shouldUpscale ? refineSigmas.value : null,
     timeoutSeconds: timeoutSeconds.value,
     loras: loraPicks.value,
+    videoWanMode: selectedWanMode.value,
+    videoCheckpointResourceId: videoCheckpointResourceId.value,
+    videoLowCheckpointResourceId: videoLowCheckpointResourceId.value,
     isMature: isMature.value,
     isPublic: isPublic.value,
     projectSlug: 'video-generator',

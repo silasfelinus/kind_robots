@@ -38,6 +38,8 @@ import {
 } from '../comfy/ltx/utils/imageToVideoWorkflow'
 import { normalizeVideoOutputFormat } from '../comfy/utils/videoOutput'
 import { applyVideoLoraChain } from '../comfy/utils/videoLoraChain'
+import { effectiveWanMode, validateVideoModelSelection, type VideoModelPaths, type WanVideoMode } from '~/utils/videoModelResources'
+import { effectiveShowMature } from '~/server/utils/contentAccess'
 import {
   applyVideoImageFit,
   normalizeVideoImageFit,
@@ -134,6 +136,11 @@ type ArtEnqueueRequest = {
     strength?: number | null
   }> | null
   checkpointResourceId?: number | null
+  videoCheckpointResourceId?: number | null
+  videoLowCheckpointResourceId?: number | null
+  videoWanMode?: WanVideoMode | null
+  /** Internal only: server-resolved paths, NEVER trusted from the request. */
+  videoModelPaths?: VideoModelPaths | null
   loraResourceIds?: number[] | null
   // Kontext base-UNet override (coloring-book/t-039). `.gguf` keeps the
   // UnetLoaderGGUF path, `.safetensors` switches to core UNETLoader. Unset
@@ -530,7 +537,80 @@ export default defineEventHandler(async (event) => {
       userId: gate.user.id,
       isAdmin,
     })
-    const resolvedBody = resolvedLora.body as ArtEnqueueRequest
+    let resolvedBody = resolvedLora.body as ArtEnqueueRequest
+    if (VIDEO_ENGINES.has(engine)) {
+      const mode = effectiveWanMode(
+        resolvedBody.videoWanMode,
+        Boolean(resolvedBody.secondImageBase64?.trim()),
+      )
+      const id = resolvedBody.videoCheckpointResourceId
+      const lowId = resolvedBody.videoLowCheckpointResourceId
+      const ids = [id, lowId].filter(
+        (value): value is number => value !== null && value !== undefined,
+      )
+      if (ids.some((value) => !Number.isInteger(value) || value < 1)) {
+        throw createError({ statusCode: 400, message: 'Invalid video model Resource ID.' })
+      }
+      const modelResources = ids.length
+        ? await prisma.resource.findMany({
+            where: {
+              id: { in: ids },
+              isActive: true,
+              OR: isAdmin ? undefined : [{ isPublic: true }, { userId: gate.user.id }],
+            },
+            select: {
+              id: true, name: true, localPath: true, resourceType: true,
+              supportedServer: true, generation: true, description: true,
+              isActive: true, isMature: true,
+            },
+          })
+        : []
+      let selection: ReturnType<typeof validateVideoModelSelection>
+      try {
+        selection = validateVideoModelSelection({
+          engine: engine as 'ltx' | 'wan',
+          mode,
+          ids: {
+            videoCheckpointResourceId: id,
+            videoLowCheckpointResourceId: lowId,
+          },
+          resources: modelResources,
+        })
+      } catch (error) {
+        throw createError({
+          statusCode: 400,
+          message: error instanceof Error ? error.message : 'Invalid video checkpoint selection.',
+        })
+      }
+      // Account consent and restrictive CHILD roles remain authoritative even
+      // when a caller knows the ID of a mature model Resource.
+      if (selection.isMature) {
+        const consent = await prisma.user.findUnique({
+          where: { id: gate.user.id },
+          select: {
+            showMature: true,
+            Role: true,
+            UserRoles: { select: { role: true } },
+          },
+        })
+        if (!effectiveShowMature(consent)) {
+          throw createError({
+            statusCode: 403,
+            message: 'Mature video checkpoints require mature-content opt-in.',
+          })
+        }
+      }
+      // Replace caller-supplied workflow model paths with catalog-verified ones,
+      // including on default-model jobs. Mature checkpoints force private output.
+      const upgradesMaturity = selection.isMature && !resolvedBody.isMature
+      resolvedBody = {
+        ...resolvedBody,
+        videoWanMode: mode,
+        videoModelPaths: selection.paths,
+        ...(upgradesMaturity ? { isMature: true, isPublic: false } : {}),
+        checkpointResourceId: selection.selectedIds[0] ?? null,
+      }
+    }
 
     const requestedFacets = facetRequest(resolvedBody)
     const basePromptString = requestedFacets.basePromptString || requestedPrompt
@@ -694,6 +774,9 @@ export default defineEventHandler(async (event) => {
       loraResourceIds: resolvedLora.resourceIds,
       checkpointName: resolvedBody.checkpoint?.trim() || null,
       loraNames: resolvedLora.resourceNames,
+      ...(VIDEO_ENGINES.has(engine) && resolvedBody.videoLowCheckpointResourceId
+        ? { videoLowCheckpointResourceId: resolvedBody.videoLowCheckpointResourceId }
+        : {}),
     }
     if (
       provenanceResources.checkpointResourceId ||
@@ -1159,6 +1242,10 @@ function buildVideoJobPayload(
         sampler: body.sampler ?? null,
         scheduler: body.scheduler ?? null,
         outputFormat,
+        mode: body.videoWanMode,
+        ti2vUnet: body.videoModelPaths?.wanTi2v,
+        highNoiseUnet: body.videoModelPaths?.wanHigh,
+        lowNoiseUnet: body.videoModelPaths?.wanLow,
       })
     : buildLtxImageToVideoWorkflow({
         prompt: promptString,
@@ -1178,6 +1265,7 @@ function buildVideoJobPayload(
         latentUpscaleModel,
         refineSampler,
         refineSigmas,
+        checkpoint: body.videoModelPaths?.ltxCheckpoint,
       })
 
   applyVideoImageFit(workflow, engine, normalizeVideoImageFit(body.imageFit), {
@@ -1204,6 +1292,9 @@ function buildVideoJobPayload(
       timeoutSeconds,
       video: {
         model: engine,
+        videoWanMode: body.videoWanMode ?? null,
+        videoCheckpointResourceId: body.videoCheckpointResourceId ?? null,
+        videoLowCheckpointResourceId: body.videoLowCheckpointResourceId ?? null,
         presetId,
         loop,
         fps: frameRate,

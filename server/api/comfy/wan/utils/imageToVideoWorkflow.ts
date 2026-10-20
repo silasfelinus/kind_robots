@@ -55,6 +55,9 @@ export type WanImageToVideoInput = {
   // 'ti2v' (default) fits the card; 'a14b' is the slower high-quality pair.
   // Omitted, a last-frame request selects 'a14b' -- see resolveWanMode.
   mode?: WanImageToVideoMode | null
+  ti2vUnet?: string | null
+  highNoiseUnet?: string | null
+  lowNoiseUnet?: string | null
   filenamePrefix?: string | null
   outputFormat?: VideoOutputFormat | string | null
 }
@@ -209,12 +212,18 @@ export function buildWanImageToVideoWorkflow(
     // --- Loaders ------------------------------------------------------------
     // The two experts of the A14B pair.
     unet_high: {
-      inputs: { unet_name: WAN_HIGH_NOISE_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.highNoiseUnet || WAN_HIGH_NOISE_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (High Noise)' },
     },
     unet_low: {
-      inputs: { unet_name: WAN_LOW_NOISE_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.lowNoiseUnet || WAN_LOW_NOISE_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (Low Noise)' },
     },
@@ -414,7 +423,10 @@ function buildWanTi2vWorkflow(
 
   const workflow: ComfyWorkflow = {
     unet: {
-      inputs: { unet_name: WAN_TI2V_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.ti2vUnet || WAN_TI2V_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (TI2V 5B)' },
     },

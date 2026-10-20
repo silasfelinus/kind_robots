@@ -44,6 +44,7 @@ import {
   computeEnding,
   createRun,
   drawFork,
+  encounterEligible,
   fillText,
   findCard,
   mulberry32,
@@ -54,6 +55,7 @@ import {
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
 import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
+import { FORMER_GUIDE_QUESTS } from '../ecotone/formerGuideQuests'
 import { REGIONAL_CALLBACKS } from '../ecotone/regionalCallbacks'
 import { earnedQuestCallbacks } from '../ecotone/finaleExpansion'
 import {
@@ -152,6 +154,61 @@ assert.equal(
 )
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
+assert.equal(FORMER_GUIDE_QUESTS.length, 5)
+const reunionBase = createRun(101, 'reporter')
+for (const card of FORMER_GUIDE_QUESTS) {
+  assert.ok(findCard(card.id), `${card.id} is a live, illustrated encounter`)
+  if (card.requiresFormerGuide) {
+    const guide = card.requiresFormerGuide
+    const nextGuide = COMPANIONS.find((c) => c.id !== guide)!.id
+    assert.equal(
+      encounterEligible(card, reunionBase),
+      false,
+      `${card.id} cannot appear before meeting ${guide}`,
+    )
+    assert.equal(
+      encounterEligible(card, { ...reunionBase, meetingOrder: [guide] }),
+      false,
+      `${card.id} cannot invent a past following relationship`,
+    )
+    const switched = {
+      ...reunionBase,
+      meetingOrder: [guide, nextGuide],
+      activeLead: nextGuide,
+      followHistory: [{ day: 3, from: guide, to: nextGuide, choice: 'follow' }],
+    }
+    assert.ok(
+      encounterEligible(card, switched),
+      `${card.id} reappears after an actual companion change`,
+    )
+    assert.equal(
+      encounterEligible(card, { ...switched, activeLead: guide }),
+      false,
+      `${card.id} is not a former-guide scene while still together`,
+    )
+    assert.equal(
+      encounterEligible(card, { ...switched, played: [card.id] }),
+      false,
+      `${card.id} cannot repeat inside one run`,
+    )
+  } else {
+    assert.equal(card.id, 'FR-ASSEMBLY-01')
+    assert.equal(encounterEligible(card, reunionBase), false)
+    assert.equal(
+      encounterEligible(card, { ...reunionBase, meetingOrder: ['mara'] }),
+      false,
+    )
+    assert.ok(
+      encounterEligible(card, {
+        ...reunionBase,
+        meetingOrder: ['mara', 'kit'],
+      }),
+      'two previously met companions make the nonmandatory potluck possible',
+    )
+    for (const lens of openLenses)
+      assert.ok(card.lensLines?.[lens], `potluck has ${lens} narration`)
+  }
+}
 assert.equal(Object.keys(REGIONAL_REVISIONS).length, 13)
 const secondDraftLensCards = [
   'WH-014',
@@ -273,8 +330,8 @@ assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
 assert.equal(
   REGIONAL_CALLBACKS.length,
-  26,
-  'twenty-six precise optional regional payoffs',
+  32,
+  'thirty-two precise optional regional payoffs',
 )
 for (const callback of REGIONAL_CALLBACKS) {
   assert.ok(

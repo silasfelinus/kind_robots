@@ -128,7 +128,8 @@ export const useResourceDownloadsStore = defineStore(
     }
 
     async function retry(id: number): Promise<boolean> {
-      if (retryingId.value !== null) return false
+      if (retryingId.value !== null || bulkBusy.value || deletingId.value !== null)
+        return false
       retryingId.value = id
       error.value = ''
       notice.value = ''
@@ -155,7 +156,8 @@ export const useResourceDownloadsStore = defineStore(
 
 
     async function deleteRecord(id: number): Promise<boolean> {
-      if (deletingId.value !== null || bulkBusy.value) return false
+      if (deletingId.value !== null || bulkBusy.value || retryingId.value !== null)
+        return false
       deletingId.value = id
       error.value = ''
       notice.value = ''

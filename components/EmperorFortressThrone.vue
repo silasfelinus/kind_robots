@@ -3,7 +3,7 @@
     class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(24rem,32rem)]"
   >
     <section
-      class="relative flex min-h-64 flex-col justify-end @4xl:min-h-0"
+      class="relative flex min-h-48 flex-col justify-end @4xl:min-h-0"
       aria-label="The court"
     >
       <figure
@@ -14,7 +14,7 @@
           :key="sceneArt"
           :src="sceneArt"
           :alt="sceneAlt"
-          class="eod-figure block max-h-72 w-auto object-contain @4xl:h-full @4xl:max-h-none"
+          class="eod-figure block max-h-52 w-auto object-contain @4xl:h-full @4xl:max-h-none"
         />
       </figure>
       <p
@@ -72,6 +72,14 @@
           <p class="font-serif text-base italic">
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
+          <button
+            type="button"
+            class="eod-finish flex w-full items-center justify-center gap-2 px-5 py-2 text-sm"
+            @click="nextUnheard ? (selectedId = nextUnheard.id) : emit('next')"
+          >
+            {{ nextUnheard ? 'Next petitioner' : 'To the quest room' }}
+            <span aria-hidden="true">▸</span>
+          </button>
         </div>
         <EmperorFortressDialogue
           v-else
@@ -106,6 +114,7 @@ import { npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 const props = defineProps<{ run: FortressRun }>()
+const emit = defineEmits<{ next: [] }>()
 const court = useEmperorFortressStore()
 const audiences = computed(() => audiencesToday(props.run))
 const selectedId = ref<string | null>(null)
@@ -115,6 +124,9 @@ const reactions = ref<Record<string, Mood>>({})
 const error = ref('')
 
 const heard = (id: string) => props.run.audiencesHeard.includes(id)
+const nextUnheard = computed(() =>
+  audiences.value.find((entry) => !heard(entry.id)),
+)
 const selected = computed(
   () => audiences.value.find((entry) => entry.id === selectedId.value) ?? null,
 )

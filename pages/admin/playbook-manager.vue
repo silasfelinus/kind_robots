@@ -292,6 +292,13 @@
               edits
             </p>
           </div>
+          <NuxtLink
+            to="/admin/art-review"
+            class="mt-3 flex items-center justify-between rounded-xl border border-base-content/15 px-4 py-2.5 text-sm font-bold transition hover:border-primary"
+          >
+            Checkpoint review
+            <Icon name="kind-icon:external-link" class="size-4 text-primary" />
+          </NuxtLink>
         </aside>
 
         <section
@@ -669,155 +676,4 @@ onMounted(async () => {
 })
 </script>
 
-<style>
-/* The Studio's own palette (navy, gold, cream), set through daisyUI's color
-   variables so every panel inside it follows. */
-.playbook-studio {
-  --color-base-100: #102129;
-  --color-base-200: #0c1a22;
-  --color-base-300: #1a2f3a;
-  --color-base-content: #f1e6cf;
-  --color-primary: #d4b074;
-  --color-primary-content: #0b1820;
-  --color-secondary: #8fb8b0;
-  --color-secondary-content: #0b1820;
-  --color-neutral: #070f15;
-  --color-neutral-content: #f1e6cf;
-  color-scheme: dark;
-  background-color: #0a161e;
-  background-image: repeating-linear-gradient(
-    135deg,
-    rgb(255 255 255 / 0.018) 0 2px,
-    transparent 2px 24px
-  );
-  color: var(--color-base-content);
-}
-.playbook-studio .studio-heading {
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
-.playbook-studio .studio-subhead,
-.playbook-studio .studio-field {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgb(241 230 207 / 0.75);
-}
-.playbook-studio .studio-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-}
-.playbook-studio .studio-field :is(input, textarea, select) {
-  letter-spacing: normal;
-  text-transform: none;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--color-base-content);
-}
-.playbook-studio .studio-rail {
-  border-radius: 1.4rem;
-  border: 1px solid rgb(241 230 207 / 0.14);
-  background: rgb(12 26 34 / 0.85);
-  padding: 1.4rem 1rem;
-}
-.playbook-studio .studio-panel {
-  border-radius: 1.4rem;
-  border: 1px solid rgb(241 230 207 / 0.16);
-  background: rgb(16 33 41 / 0.92);
-  box-shadow: 0 24px 50px rgb(0 0 0 / 0.35);
-}
-/* No display here: page CSS outranks Tailwind's layered utilities, so the
-   markup sets inline-flex and responsive hidden itself. */
-.playbook-studio .studio-pill,
-.playbook-studio .studio-pill-button,
-.playbook-studio .studio-select {
-  align-items: center;
-  gap: 0.4rem;
-  border-radius: 9999px;
-  border: 1px solid rgb(241 230 207 / 0.3);
-  background: rgb(16 33 41 / 0.85);
-  padding: 0.35rem 0.95rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-base-content);
-  backdrop-filter: blur(4px);
-}
-.playbook-studio .studio-pill-button,
-.playbook-studio .studio-select {
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
-.playbook-studio .studio-pill-button:hover:not(:disabled),
-.playbook-studio .studio-select:hover {
-  border-color: var(--color-primary);
-}
-.playbook-studio .studio-pill-button:disabled {
-  opacity: 0.5;
-}
-.playbook-studio .studio-select {
-  appearance: none;
-  padding-right: 1.6rem;
-  background-image:
-    linear-gradient(45deg, transparent 50%, currentColor 50%),
-    linear-gradient(135deg, currentColor 50%, transparent 50%);
-  background-position:
-    calc(100% - 0.95rem) 55%,
-    calc(100% - 0.65rem) 55%;
-  background-size: 0.3rem 0.3rem;
-  background-repeat: no-repeat;
-}
-.playbook-studio .studio-select option {
-  background: #0c1a22;
-  text-transform: none;
-}
-.playbook-studio .studio-chip {
-  border-radius: 9999px;
-  border: 1px solid rgb(241 230 207 / 0.22);
-  padding: 0.15rem 0.6rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  transition: border-color 0.15s;
-}
-.playbook-studio .studio-chip:hover {
-  border-color: var(--color-primary);
-}
-.playbook-studio .studio-chip.is-on {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-  color: var(--color-primary-content);
-}
-.playbook-studio .studio-gold-button {
-  display: inline-flex;
-  min-height: 2.6rem;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  border-radius: 0.6rem;
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary);
-  padding: 0.5rem 1.2rem;
-  font-size: 0.8rem;
-  font-weight: 900;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-primary-content);
-  transition: filter 0.15s;
-}
-.playbook-studio .studio-gold-button.is-outline {
-  background: transparent;
-  color: var(--color-primary);
-}
-.playbook-studio .studio-gold-button:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
-.playbook-studio .studio-gold-button:disabled {
-  opacity: 0.45;
-}
-</style>
+<style src="../../assets/css/playbook-studio.css"></style>

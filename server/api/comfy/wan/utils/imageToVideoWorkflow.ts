@@ -212,12 +212,18 @@ export function buildWanImageToVideoWorkflow(
     // --- Loaders ------------------------------------------------------------
     // The two experts of the A14B pair.
     unet_high: {
-      inputs: { unet_name: input.highNoiseUnet || WAN_HIGH_NOISE_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.highNoiseUnet || WAN_HIGH_NOISE_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (High Noise)' },
     },
     unet_low: {
-      inputs: { unet_name: input.lowNoiseUnet || WAN_LOW_NOISE_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.lowNoiseUnet || WAN_LOW_NOISE_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (Low Noise)' },
     },
@@ -417,7 +423,10 @@ function buildWanTi2vWorkflow(
 
   const workflow: ComfyWorkflow = {
     unet: {
-      inputs: { unet_name: input.ti2vUnet || WAN_TI2V_UNET, weight_dtype: 'default' },
+      inputs: {
+        unet_name: input.ti2vUnet || WAN_TI2V_UNET,
+        weight_dtype: 'default',
+      },
       class_type: 'UNETLoader',
       _meta: { title: 'Load Diffusion Model (TI2V 5B)' },
     },

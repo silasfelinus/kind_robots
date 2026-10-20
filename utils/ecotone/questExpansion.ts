@@ -1,9 +1,14 @@
-import type { EncounterCard } from './content'
+import type { CompanionId, EncounterCard, LensId } from './content'
+
+export type GatedEncounter = EncounterCard & {
+  requiresLead?: CompanionId
+  requiresLens?: LensId
+}
 
 // The first expansion wave uses the existing 2d6, seed, save and Playbook contracts.
 // Requirements are checked before the deterministic fork draw; absent guides and
 // unopened lenses never silently receive somebody else's personal quest.
-export const QUEST_CARDS: EncounterCard[] = [
+export const QUEST_CARDS: GatedEncounter[] = [
   {
     id: 'WH-003', kind: 'encounter', chapter: 1,
     place: 'Arcata Plaza farmers market', title: 'Four Minutes to Farmers Market',

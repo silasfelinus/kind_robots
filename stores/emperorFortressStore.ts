@@ -65,6 +65,13 @@ const RELIC_KEY = 'kr-emperor-of-dust-relic-vault-v1'
 const INTRO_KEY = 'kr-emperor-of-dust-intro-seen-v1'
 const slotKey = (slot: number) => `kr-emperor-of-dust-fortress-slot-${slot}-v3`
 const newSeed = (): number => Date.now() >>> 0 || 1
+const BLOCKED = 'Browser storage is blocked. This run may not persist.'
+const FULL = 'Local save unavailable or full. This session is not backed up.'
+const VAULT_HELD = 'The relic vault could not be read. It was not overwritten.'
+const CODEX_HELD =
+  'The Codex could not be read. It was not overwritten; what you learn now lasts only this visit.'
+const AUTOSAVE_HELD =
+  'The autosave could not be read. It was not overwritten; start a new run or load a slot.'
 
 /** localStorage, or null when it is missing or access itself throws. */
 function storage(): Storage | null {
@@ -82,12 +89,25 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const loaded = ref(false)
   /** The introduction is showing: on a first visit with no save, or replayed from the Chronicle. */
   const introOpen = ref(false)
-  const storageWarning = ref('')
+  /** The last write that failed; cleared once the autosave writes again. */
+  const writeWarning = ref('')
+  /** Stored data that could not be read and is being left untouched. */
+  const heldNotices = ref<string[]>([])
+  const storageWarning = computed(() =>
+    [...heldNotices.value, writeWarning.value].filter(Boolean).join(' '),
+  )
+  /** Slots whose stored text is unreadable: never written over until cleared. */
+  const slotUnreadable = ref<boolean[]>(Array(SLOT_COUNT).fill(false))
   const lastResponse = ref('')
   const lastReport = ref<DawnReport | null>(null)
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const textSpeed = ref<TextSpeed>('normal')
   let relicVaultUnreadable = false
+  // An unreadable autosave or Codex is never overwritten: the autosave waits
+  // until the player starts a new run or loads a slot, the Codex for good.
+  let autosaveHeld = false
+  let codexHeld = false
+  let codexPending = false
 
   const run = computed<FortressRun | null>(() => book.value?.current ?? null)
   const day = computed(() => run.value?.day ?? 1)
@@ -98,38 +118,56 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     run.value ? claimableRelics(run.value, relicVault.value) : [],
   )
 
+  function hold(notice: string) {
+    if (!heldNotices.value.includes(notice))
+      heldNotices.value = [...heldNotices.value, notice]
+  }
+
+  function release(notice: string) {
+    heldNotices.value = heldNotices.value.filter((entry) => entry !== notice)
+  }
+
+  /**
+   * One setItem. A browser that refuses it (blocked, or over quota) leaves
+   * the previous value in place, so a failed autosave never damages the last
+   * good one; the failure is reported, not ignored.
+   */
   function write(key: string, value: string): boolean {
     const store = storage()
     if (!store) {
-      storageWarning.value =
-        'Browser storage is blocked. This run may not persist.'
+      writeWarning.value = BLOCKED
       return false
     }
     try {
       store.setItem(key, value)
       return true
     } catch {
-      storageWarning.value =
-        'Local save unavailable or full. This session is not backed up.'
+      writeWarning.value = FULL
       return false
     }
   }
 
-  function read(key: string): string | null {
+  /** The stored text, null when there is none, undefined when reading threw. */
+  function read(key: string): string | null | undefined {
+    const store = storage()
+    if (!store) return null
     try {
-      return storage()?.getItem(key) ?? null
+      return store.getItem(key)
     } catch {
-      return null
+      return undefined
     }
   }
 
   function persist() {
-    if (!book.value) return
-    if (write(AUTO_KEY, encodeBook(book.value))) storageWarning.value = ''
+    if (!book.value || autosaveHeld) return
+    if (!write(AUTO_KEY, encodeBook(book.value))) return
+    if (codexPending) persistCodex()
+    if (!codexPending) writeWarning.value = ''
   }
 
   function persistCodex() {
-    write(CODEX_KEY, JSON.stringify(codex.value))
+    if (codexHeld) return
+    codexPending = !write(CODEX_KEY, JSON.stringify(codex.value))
   }
 
   function equippedRelics(): string[] {
@@ -188,28 +226,29 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function load() {
     if (loaded.value) return
-    if (!storage())
-      storageWarning.value =
-        'Browser storage is blocked. This run may not persist.'
+    if (!storage()) writeWarning.value = BLOCKED
     const rawRelics = read(RELIC_KEY)
-    const vault = decodeRelicVault(rawRelics)
-    relicVaultUnreadable = !!rawRelics && !vault
-    if (relicVaultUnreadable)
-      storageWarning.value =
-        'The relic vault could not be read. It was not overwritten.'
+    const vault = decodeRelicVault(rawRelics ?? null)
+    relicVaultUnreadable = rawRelics === undefined || (!!rawRelics && !vault)
+    if (relicVaultUnreadable) hold(VAULT_HELD)
     relicVault.value = vault ?? emptyRelicVault()
     const speed = read(SPEED_KEY)
     textSpeed.value = TEXT_SPEEDS.find((entry) => entry === speed) ?? 'normal'
     const rawCodex = read(CODEX_KEY)
-    codex.value = decodeCodex(rawCodex) ?? emptyCodex()
+    const savedCodex = decodeCodex(rawCodex ?? null)
+    codexHeld = rawCodex === undefined || (!!rawCodex && !savedCodex)
+    if (codexHeld) hold(CODEX_HELD)
+    codex.value = savedCodex ?? emptyCodex()
     const raw = read(AUTO_KEY)
-    const saved = decodeBook(raw)
-    if (raw && !saved) {
-      storageWarning.value =
-        'The autosave could not be read. It was not overwritten; start a new run or load a slot.'
-    }
-    slots.value = Array.from({ length: SLOT_COUNT }, (_, i) =>
-      decodeSlot(read(slotKey(i))),
+    const saved = decodeBook(raw ?? null)
+    autosaveHeld = raw === undefined || (!!raw && !saved)
+    if (autosaveHeld) hold(AUTOSAVE_HELD)
+    const rawSlots = Array.from({ length: SLOT_COUNT }, (_, i) =>
+      read(slotKey(i)),
+    )
+    slots.value = rawSlots.map((rawSlot) => decodeSlot(rawSlot ?? null))
+    slotUnreadable.value = rawSlots.map(
+      (rawSlot, i) => rawSlot === undefined || (!!rawSlot && !slots.value[i]),
     )
     book.value = saved ?? newBook(createRun(newSeed(), equippedRelics()))
     const untouched =
@@ -247,11 +286,18 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
+  /** The player chose a run to replace an unreadable autosave with. */
+  function releaseAutosave() {
+    autosaveHeld = false
+    release(AUTOSAVE_HELD)
+  }
+
   function newRun() {
     if (!loaded.value) load()
     book.value = newBook(createRun(newSeed(), equippedRelics()))
     lastReport.value = null
     lastResponse.value = ''
+    releaseAutosave()
     persist()
   }
 
@@ -357,6 +403,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   function saveToSlot(slot: number, label: string) {
     if (!book.value || slot < 0 || slot >= SLOT_COUNT)
       throw new Error('No such slot')
+    if (slotUnreadable.value[slot])
+      throw new Error(
+        'That slot could not be read, so it was not overwritten. Clear it first.',
+      )
     const raw = encodeSlot(label, book.value, new Date())
     if (!write(slotKey(slot), raw))
       throw new Error('The save could not be written')
@@ -364,10 +414,11 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   }
 
   function loadFromSlot(slot: number) {
-    const record = decodeSlot(read(slotKey(slot)))
+    const record = decodeSlot(read(slotKey(slot)) ?? null)
     if (!record) throw new Error('That slot is empty or unreadable')
     book.value = record.book
     lastReport.value = null
+    releaseAutosave()
     persist()
   }
 
@@ -375,16 +426,18 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     try {
       storage()?.removeItem(slotKey(slot))
     } catch {
-      storageWarning.value = 'That slot could not be cleared.'
+      writeWarning.value = 'That slot could not be cleared.'
       return
     }
     slots.value[slot] = null
+    slotUnreadable.value[slot] = false
   }
 
   return {
     book,
     codex,
     slots,
+    slotUnreadable,
     loaded,
     introOpen,
     storageWarning,

@@ -180,9 +180,17 @@ export type CampaignResult = {
   roster: number
 }
 
-/** One whole campaign, Day 1 to the ending, played by a policy. */
-export const playCampaign = (policy: Policy, seed: number): CampaignResult => {
+/**
+ * One whole campaign, Day 1 to the ending, played by a policy. `onDawn` sees
+ * the run at every dawn (Day 1 and after each Finish), as the autosave does.
+ */
+export const playCampaign = (
+  policy: Policy,
+  seed: number,
+  onDawn?: (run: FortressRun) => void,
+): CampaignResult => {
   let run = createRun(seed)
+  onDawn?.(run)
   while (!isOver(run)) {
     // Everyone who offers is taken on, with another bed bought if needed.
     for (const id of [...run.recruitable]) {
@@ -233,6 +241,7 @@ export const playCampaign = (policy: Policy, seed: number): CampaignResult => {
       }
     }
     run = finishDay(run).run
+    onDawn?.(run)
   }
   return {
     ending: endingOf(run).id,

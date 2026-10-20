@@ -26,6 +26,7 @@ import {
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
+  earnFlag,
   dailyTaxes,
   equipItem,
   finishDay,
@@ -71,6 +72,8 @@ import {
   updateCurrent,
   validateRun,
 } from '../emperorOfDust/fortress/saves'
+import type { SaveBook } from '../emperorOfDust/fortress/saves'
+import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import {
   acquireRelic,
   chooseNextLoadout,
@@ -861,7 +864,7 @@ for (const entry of afterwards)
 const encoded = encodeBook(book)
 assert.deepEqual(decodeBook(encoded), book)
 assert.ok(
-  encoded.length < 1_000_000,
+  encoded.length < 250_000,
   `a full campaign save is ${encoded.length} bytes`,
 )
 
@@ -914,6 +917,111 @@ const slot = encodeSlot(
 )
 assert.equal(decodeSlot(slot)?.label, 'Before the feast')
 assert.equal(decodeSlot(slot.replace('"version":3', '"version":2')), null)
+
+// --- compact save books (t-032) ---------------------------------------------
+// Dawns are stored packed against the next snapshot, so a whole campaign's
+// book stays small: an autosave and three full slots sit far under the ~5 MB
+// browser quota. Decoding rebuilds every dawn exactly, so a rewind from a
+// packed book is the same rewind as from the full one.
+{
+  const CAMPAIGNS: [string, number][] = [
+    ['greedy', 3],
+    ['patron:saltroad', 7],
+    ['reckless', 12],
+    ['spurn-all', 5],
+    ['idle', 2],
+  ]
+  for (const [policyId, seed] of CAMPAIGNS) {
+    const policy = POLICIES.find((p) => p.id === policyId)!
+    let full: SaveBook | null = null
+    playCampaign(policy, seed, (run) => {
+      full = full ? recordDawn(full, run) : newBook(run)
+    })
+    const whole = full! as SaveBook
+    const label = `${policyId} seed ${seed}`
+    assert.equal(whole.dawns.length, LAST_DAY, label)
+    const legacy = JSON.stringify(whole)
+    const raw = encodeBook(whole)
+    assert.ok(
+      raw.length < 250_000,
+      `${label}: a full book is ${raw.length} bytes`,
+    )
+    assert.ok(
+      raw.length * 5 < legacy.length,
+      `${label}: packed ${raw.length} vs ${legacy.length} bytes in full`,
+    )
+    const back = decodeBook(raw)!
+    assert.deepEqual(back, whole, `${label}: every dawn comes back exactly`)
+    assert.deepEqual(decodeBook(legacy), whole, `${label}: version 3 loads`)
+    for (const day of [1, 2, 17, 33, LAST_DAY])
+      assert.deepEqual(
+        rewindTo(back, day),
+        rewindTo(whole, day),
+        `${label}: rewinding a packed book to dawn ${day}`,
+      )
+    const rewound = rewindTo(back, 25)
+    assert.deepEqual(decodeBook(encodeBook(rewound)), rewound)
+    const at = new Date('2026-10-20T00:00:00Z')
+    const slotRaw = encodeSlot('Late', whole, at)
+    assert.ok(slotRaw.length < 250_000, `${label}: a full slot`)
+    assert.deepEqual(decodeSlot(slotRaw)?.book, whole)
+    const oldSlot = JSON.stringify({
+      version: 3,
+      label: 'Old',
+      savedAt: at.toISOString(),
+      book: whole,
+    })
+    assert.deepEqual(decodeSlot(oldSlot)?.book, whole, `${label}: old slots`)
+    assert.ok(
+      raw.length * 4 < 5_000_000 / 2,
+      'an autosave and three slots use under half a 5 MB quota',
+    )
+  }
+
+  // A history that drops a flag (a crisis resolved) still packs exactly.
+  let book = newBook(earnFlag(earnFlag(createRun(77), 'crisis:yard'), 'kept'))
+  const next = finishDay(book.current).run
+  next.flags = next.flags.filter((flag) => flag !== 'crisis:yard')
+  book = recordDawn(book, next)
+  const packed = JSON.parse(encodeBook(book))
+  assert.equal(packed.version, 4)
+  assert.deepEqual(decodeBook(JSON.stringify(packed)), book)
+
+  // Tampered packing is unreadable, never half-loaded.
+  type Stored = {
+    version: number
+    dawns: {
+      day: number
+      seed: number
+      flags: unknown
+      reports: { p: unknown; t: unknown; z?: unknown }
+    }[]
+  }
+  const long: Stored = JSON.parse(
+    encodeBook(
+      recordDawn(
+        recordDawn(book, finishDay(book.current).run),
+        finishDay(finishDay(book.current).run).run,
+      ),
+    ),
+  )
+  const reject = (mutate: (stored: Stored) => void, why: string) => {
+    const copy: Stored = JSON.parse(JSON.stringify(long))
+    mutate(copy)
+    assert.equal(decodeBook(JSON.stringify(copy)), null, why)
+  }
+  assert.ok(decodeBook(JSON.stringify(long)), 'the untampered book reads')
+  assert.ok(!Array.isArray(long.dawns[1].reports), 'reports are packed')
+  reject((s) => (s.dawns[1].reports.p = 99), 'a prefix longer than the next')
+  reject((s) => (s.dawns[1].reports.p = 0), 'an empty prefix is never written')
+  reject((s) => (s.dawns[1].reports.t = 'x'), 'a tail that is not a list')
+  reject((s) => (s.dawns[1].reports.z = 1), 'an unknown packing key')
+  reject((s) => (s.dawns[1].flags = { p: 1, t: [7] }), 'a bad flag in a tail')
+  reject((s) => (s.dawns[0].day = 2), 'dawns out of order')
+  reject((s) => s.dawns.push(s.dawns[0]), 'too many dawns')
+  reject((s) => (s.version = 5), 'an unknown version')
+  reject((s) => (s.dawns[1].seed = 1), 'a dawn from another campaign')
+}
 
 // Effects stay bounded.
 const bounded = createRun(1)

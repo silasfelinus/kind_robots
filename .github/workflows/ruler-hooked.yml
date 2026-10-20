@@ -7,14 +7,6 @@ on:
       - 'stores/rulerHookedStore.ts'
       - 'components/ruler-hooked/**'
       - '.github/workflows/ruler-hooked.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/rulerHooked/**'
-      - 'stores/rulerHookedStore.ts'
-      - 'components/ruler-hooked/**'
-      - '.github/workflows/ruler-hooked.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-24.04

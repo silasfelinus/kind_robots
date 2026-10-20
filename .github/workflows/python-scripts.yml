@@ -18,13 +18,6 @@ on:
       - 'scripts/deploy-unraid.sh'
       - 'tests/python/**'
       - '.github/workflows/python-scripts.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/**.py'
-      - 'scripts/deploy-unraid.sh'
-      - 'tests/python/**'
-      - '.github/workflows/python-scripts.yml'
   workflow_dispatch:
 
 permissions:

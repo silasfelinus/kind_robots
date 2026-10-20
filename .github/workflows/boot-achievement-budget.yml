@@ -7,14 +7,6 @@ on:
       - 'stores/achievementStore.ts'
       - 'utils/scripts/verifyBootAchievementBudget.mjs'
       - '.github/workflows/boot-achievement-budget.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/admin/kind-loader.vue'
-      - 'stores/achievementStore.ts'
-      - 'utils/scripts/verifyBootAchievementBudget.mjs'
-      - '.github/workflows/boot-achievement-budget.yml'
-
 permissions:
   contents: read
 

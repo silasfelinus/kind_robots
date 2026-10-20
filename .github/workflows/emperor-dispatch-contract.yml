@@ -23,26 +23,6 @@ on:
       - 'components/EmperorFortressThrone.vue'
       - 'pages/play/emperor-of-dust.vue'
       - '.github/workflows/emperor-dispatch-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/emperorOfDust/**'
-      - 'utils/scripts/verifyEmperorFortress.test.ts'
-      - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
-      - 'utils/scripts/emperorFortressBalanceReport.ts'
-      - 'stores/emperorFortressStore.ts'
-      - 'components/EmperorFortressBarracks.vue'
-      - 'components/EmperorFortressChronicle.vue'
-      - 'components/EmperorFortressDawn.vue'
-      - 'components/EmperorFortressDialogue.vue'
-      - 'components/EmperorFortressMapRoom.vue'
-      - 'components/EmperorFortressMarket.vue'
-      - 'components/EmperorFortressPortrait.vue'
-      - 'components/EmperorFortressQuests.vue'
-      - 'components/EmperorFortressThrone.vue'
-      - 'pages/play/emperor-of-dust.vue'
-      - '.github/workflows/emperor-dispatch-contract.yml'
-
 jobs:
   dispatch:
     name: Seeded dispatch and recovery contract

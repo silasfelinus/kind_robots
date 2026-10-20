@@ -17,22 +17,6 @@ on:
       - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
       - '.github/workflows/agent-checkin-contract.yml'
       - '.github/workflows/rainbow-mcp-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/v1/mcp.post.ts'
-      - 'server/api/v1/mcp.get.ts'
-      - 'server/api/v1/mcp.delete.ts'
-      - 'server/api/v1/agent/check-in.post.ts'
-      - 'server/middleware/rainbow-mcp-origin.ts'
-      - 'server/utils/agentProfileRuntime.ts'
-      - 'server/utils/agentWorkingContext.ts'
-      - 'server/utils/rainbowMcpProtocol.ts'
-      - 'utils/scripts/verifyAgentCheckins.test.ts'
-      - 'utils/scripts/verifyAgentWorkingContext.test.ts'
-      - 'utils/scripts/verifyRainbowMcpProtocol.test.ts'
-      - '.github/workflows/agent-checkin-contract.yml'
-      - '.github/workflows/rainbow-mcp-contract.yml'
   workflow_dispatch:
 
 permissions:

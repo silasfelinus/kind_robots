@@ -1,14 +1,6 @@
 name: Project Creation Surfaces
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'server/**'
-      - 'scripts/**'
-      - 'utils/contracts/project-creation-call-sites.json'
-      - 'utils/scripts/verifyProjectCreationSurfaces.mjs'
-      - '.github/workflows/project-creation-surfaces.yml'
   pull_request:
     branches: [main]
     paths:

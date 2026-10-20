@@ -8,13 +8,6 @@ on:
       - 'server/utils/rainbowDashboard.ts'
       - 'utils/scripts/verifyRainbowDashboard.test.ts'
       - '.github/workflows/rainbow-dashboard-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/api/v1/rainbow/dashboard.get.ts'
-      - 'server/utils/rainbowDashboard.ts'
-      - 'utils/scripts/verifyRainbowDashboard.test.ts'
-      - '.github/workflows/rainbow-dashboard-contract.yml'
   workflow_dispatch:
 
 permissions:

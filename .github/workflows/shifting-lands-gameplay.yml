@@ -30,34 +30,6 @@ on:
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
       - '.github/workflows/shifting-lands-gameplay.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/shiftingLands/**'
-      - 'stores/shiftingLandsStore.ts'
-      - 'stores/shiftingLandsJourneyStore.ts'
-      - 'components/shifting-lands-journey-board.vue'
-      - 'components/shifting-lands-character-rail.vue'
-      - 'components/navigation/flip-card.vue'
-      - 'public/shifting-lands/**'
-      - 'pages/admin/zuzu-shifting-lands.vue'
-      - 'content/channels/zuzu/zuzu-shifting-lands.md'
-      - 'pages/play/zuzu-shifting-lands.vue'
-      - 'utils/scripts/verifyShiftingLands.test.ts'
-      - 'utils/scripts/verifyShiftingJourney.test.ts'
-      - 'utils/scripts/verifyShiftingBoard.test.ts'
-      - 'utils/scripts/verifyShiftingAuthored.test.ts'
-      - 'utils/scripts/verifyShiftingProgression.test.ts'
-      - 'utils/scripts/verifyShiftingSaveLedger.test.ts'
-      - 'utils/scripts/verifyShiftingV4.test.ts'
-      - 'utils/scripts/verifyShiftingTrials.test.ts'
-      - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
-      - 'utils/scripts/verifyShiftingSceneArt.test.ts'
-      - 'utils/scripts/verifyShiftingV6.test.ts'
-      - 'components/shifting-lands-check-chip.vue'
-      - 'components/shifting-lands-scene-image.vue'
-      - 'utils/scripts/importShiftingLandsWorld.mjs'
-      - '.github/workflows/shifting-lands-gameplay.yml'
 jobs:
   contract:
     runs-on: ubuntu-latest

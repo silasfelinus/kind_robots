@@ -9,15 +9,6 @@ on:
       - 'stores/zuzuWorldStore.ts'
       - 'pages/admin/worlds/zuzu.vue'
       - '.github/workflows/zuzu-resource-audit.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/zuzuResourceAudit.ts'
-      - 'utils/scripts/verifyZuzuResourceAudit.test.ts'
-      - 'server/api/worlds/zuzu/resource-audit.get.ts'
-      - 'stores/zuzuWorldStore.ts'
-      - 'pages/admin/worlds/zuzu.vue'
-      - '.github/workflows/zuzu-resource-audit.yml'
 jobs:
   contract:
     runs-on: ubuntu-latest

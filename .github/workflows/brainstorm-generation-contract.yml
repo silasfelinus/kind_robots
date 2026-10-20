@@ -1,18 +1,6 @@
 name: Brainstorm Generation Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/brainstorm-generation-contract.yml'
-      - 'server/api/brainstorm/**'
-      - 'server/utils/brainstorm/**'
-      - 'server/utils/suggest/suggestProviders.ts'
-      - 'server/api/suggest.post.ts'
-      - 'types/brainstorm.ts'
-      - 'utils/scripts/verifyBrainstormGeneration.ts'
-      - 'utils/scripts/verifyBrainstormExampleContract.ts'
-      - 'utils/scripts/verifyBrainstormSourceContext.ts'
   pull_request:
     branches: [main]
     paths:

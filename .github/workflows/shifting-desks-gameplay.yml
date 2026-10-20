@@ -17,23 +17,6 @@ on:
       - 'utils/scripts/shiftingDesksBalanceReport.ts'
       - 'cypress/public/shifting-desks-endings.cy.ts'
       - '.github/workflows/shifting-desks-gameplay.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/shiftingDesks/**'
-      - 'stores/shiftingDesksStore.ts'
-      - 'components/shifting-desks/**'
-      - 'pages/play/shifting-desks.vue'
-      - 'content/channels/arcade/shifting-desks.md'
-      - 'public/shifting-desks/**'
-      - 'utils/scripts/verifyShiftingDesks.test.ts'
-      - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
-      - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
-      - 'utils/scripts/shiftingDesksBalanceReport.ts'
-      - 'cypress/public/shifting-desks-endings.cy.ts'
-      - '.github/workflows/shifting-desks-gameplay.yml'
-  # The browser contract reads a deployed site, so it runs on demand against
-  # the URL given (default production) once a deploy has landed.
   workflow_dispatch:
     inputs:
       base_url:

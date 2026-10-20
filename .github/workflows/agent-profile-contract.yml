@@ -12,18 +12,6 @@ on:
       - 'server/utils/authGuard.ts'
       - 'utils/scripts/verifyAgentProfiles.test.ts'
       - '.github/workflows/agent-profile-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'prisma/agent-profile.prisma'
-      - 'prisma/migrations/20260901063000_add_agent_profile/**'
-      - 'server/api/agent-profiles/**'
-      - 'server/api/agent-credentials/**'
-      - 'server/utils/agentCredentials.ts'
-      - 'server/utils/authGuard.ts'
-      - 'utils/scripts/verifyAgentProfiles.test.ts'
-      - '.github/workflows/agent-profile-contract.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-latest

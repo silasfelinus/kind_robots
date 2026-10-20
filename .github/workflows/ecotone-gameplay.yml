@@ -31,35 +31,6 @@ on:
       - 'prisma/playbook.prisma'
       - 'utils/scripts/verifyPlaybook.test.ts'
       - '.github/workflows/ecotone-gameplay.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'utils/ecotone/**'
-      - 'stores/ecotoneStore.ts'
-      - 'components/ecotone-board.vue'
-      - 'components/ecotone-scene.vue'
-      - 'components/ecotone-emblem.vue'
-      - 'pages/play/ecotone.vue'
-      - 'content/channels/arcade/ecotone.md'
-      - 'public/ecotone/**'
-      - 'utils/scripts/verifyEcotone.test.ts'
-      - 'utils/playbook/**'
-      - 'stores/playbookStore.ts'
-      - 'server/utils/playbook.ts'
-      - 'server/api/admin/playbook/**'
-      - 'server/api/playbook/**'
-      - 'components/playbook/playbook-node.vue'
-      - 'components/playbook/playbook-art.vue'
-      - 'utils/shiftingLands/**'
-      - 'utils/shiftingDesks/**'
-      - 'utils/zuzuGamebook/**'
-      - 'utils/emperorOfDust/**'
-      - 'components/playbook/playbook-detail.vue'
-      - 'pages/admin/playbook-manager.vue'
-      - 'content/channels/admin/playbook-manager.md'
-      - 'prisma/playbook.prisma'
-      - 'utils/scripts/verifyPlaybook.test.ts'
-      - '.github/workflows/ecotone-gameplay.yml'
 jobs:
   contract:
     runs-on: ubuntu-latest

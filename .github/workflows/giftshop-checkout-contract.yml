@@ -16,21 +16,6 @@ on:
       - 'stores/seeds/cartItems.ts'
       - 'utils/scripts/verify-giftshop-checkout.mjs'
       - '.github/workflows/giftshop-checkout-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'components/giftshop/**'
-      - 'components/navigation/cart-button.vue'
-      - 'components/navigation/account-hub.vue'
-      - 'components/pages/giving-page.vue'
-      - 'content/cart.md'
-      - 'content/channels/home/cart.md'
-      - 'content/shop/**'
-      - 'server/api/stripe/checkout.post.ts'
-      - 'server/api/stripe/checkout-status.get.ts'
-      - 'stores/seeds/cartItems.ts'
-      - 'utils/scripts/verify-giftshop-checkout.mjs'
-      - '.github/workflows/giftshop-checkout-contract.yml'
   workflow_dispatch:
 
 concurrency:

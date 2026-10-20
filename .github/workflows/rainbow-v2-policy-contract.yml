@@ -9,16 +9,6 @@ on:
       - 'server/api/v1/forum/threads/index.post.ts'
       - 'utils/scripts/verifyRainbowV2Policy.test.ts'
       - '.github/workflows/rainbow-v2-policy-contract.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/utils/serverApi.ts'
-      - 'server/utils/manaGate.ts'
-      - 'utils/agentCredentialScopes.ts'
-      - 'server/api/v1/forum/threads/index.post.ts'
-      - 'utils/scripts/verifyRainbowV2Policy.test.ts'
-      - '.github/workflows/rainbow-v2-policy-contract.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-latest

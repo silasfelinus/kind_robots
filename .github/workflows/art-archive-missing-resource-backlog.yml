@@ -6,13 +6,6 @@ on:
       - 'server/utils/artArchiveMissingResourceBacklog.ts'
       - 'utils/scripts/verifyArtArchiveMissingResourceBacklog.test.ts'
       - '.github/workflows/art-archive-missing-resource-backlog.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'server/utils/artArchiveMissingResourceBacklog.ts'
-      - 'utils/scripts/verifyArtArchiveMissingResourceBacklog.test.ts'
-      - '.github/workflows/art-archive-missing-resource-backlog.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-latest

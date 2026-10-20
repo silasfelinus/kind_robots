@@ -9,15 +9,6 @@ on:
       - 'scripts/prisma-migrate-deploy.mjs'
       - 'scripts/repair-storybook-ending-deck-migration.mjs'
       - 'utils/scripts/verify-storybook-ending-deck-migration-repair.mjs'
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/storybook-migration-history.yml'
-      - 'prisma/schema.prisma'
-      - 'prisma/migrations/**'
-      - 'scripts/prisma-migrate-deploy.mjs'
-      - 'scripts/repair-storybook-ending-deck-migration.mjs'
-      - 'utils/scripts/verify-storybook-ending-deck-migration-repair.mjs'
   workflow_dispatch:
 
 concurrency:

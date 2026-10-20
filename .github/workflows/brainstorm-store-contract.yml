@@ -1,15 +1,6 @@
 name: Brainstorm Store Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/brainstorm-store-contract.yml'
-      - 'stores/brainstormStore.ts'
-      - 'stores/helpers/brainstormCandidateLifecycle.ts'
-      - 'types/brainstorm.ts'
-      - 'utils/scripts/verifyBrainstormStoreContract.mjs'
-      - 'utils/scripts/verifyBrainstormCandidateLifecycle.test.ts'
   pull_request:
     branches: [main]
     paths:

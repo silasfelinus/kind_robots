@@ -6,13 +6,6 @@ on:
       - 'nuxt.config.ts'
       - 'utils/scripts/verifyPwaPrecacheBudget.ts'
       - '.github/workflows/pwa-precache-budget.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'nuxt.config.ts'
-      - 'utils/scripts/verifyPwaPrecacheBudget.ts'
-      - '.github/workflows/pwa-precache-budget.yml'
-
 jobs:
   verify:
     runs-on: ubuntu-latest

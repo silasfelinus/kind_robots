@@ -1,38 +1,6 @@
 name: Gallery Progressive Rendering Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'components/gallery/**'
-      - 'components/narrative/kr-art-plate.vue'
-      - 'components/facets/facet-gallery.vue'
-      - 'components/art/art-gallery.vue'
-      - 'components/art/art-manager.vue'
-      - 'components/art/image-card.vue'
-      - 'components/art/stylist-client-gallery.vue'
-      - 'components/resources/resource-card.vue'
-      - 'components/servers/checkpoint-card.vue'
-      - 'components/achievements/earned-achievement-card.vue'
-      - 'components/characters/character-gallery.vue'
-      - 'components/characters/character-card.vue'
-      - 'components/conductor/storybook-page.vue'
-      - 'components/stages/stage-slot.vue'
-      - 'server/api/dreams/index.get.ts'
-      - 'server/api/scenarios/index.get.ts'
-      - 'server/api/scenarios/[id].get.ts'
-      - 'server/api/rewards/index.get.ts'
-      - 'server/api/rewards/index.ts'
-      - 'server/api/characters/index.get.ts'
-      - 'server/api/characters/[id].get.ts'
-      - 'server/api/characters/selects.ts'
-      - 'stores/characterStore.ts'
-      - 'stores/artStore.ts'
-      - 'stores/stageStore.ts'
-      - 'utils/viewportHydration.ts'
-      - 'utils/scripts/verifyGalleryProgressiveRendering.ts'
-      - 'utils/scripts/verifyGalleryIndexHydration.ts'
-      - '.github/workflows/gallery-progressive-rendering-contract.yml'
   pull_request:
     branches: [main]
     paths:

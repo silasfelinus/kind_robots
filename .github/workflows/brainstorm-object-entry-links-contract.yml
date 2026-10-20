@@ -1,17 +1,6 @@
 name: Brainstorm Object-Entry Links Contract
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/brainstorm-object-entry-links-contract.yml'
-      - 'components/brainstorm/**'
-      - 'components/characters/character-manager.vue'
-      - 'components/scenarios/scenario-manager.vue'
-      - 'components/rewards/reward-manager.vue'
-      - 'components/bots/bot-manager.vue'
-      - 'components/conductor/project-detail.vue'
-      - 'utils/scripts/verifyBrainstormObjectEntryLinks.mjs'
   pull_request:
     branches: [main]
     paths:

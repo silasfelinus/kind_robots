@@ -9,12 +9,6 @@ on:
       - 'utils/videoRestylePlan.ts'
       - 'pages/admin/coat-dance.vue'
       - '.github/workflows/coat-dance-vace-pilot.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/coat_dance_vace_worker.py'
-      - 'scripts/tests/test_coat_dance_vace_worker.py'
-      - '.github/workflows/coat-dance-vace-pilot.yml'
 permissions:
   contents: read
 jobs:

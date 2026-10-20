@@ -5,7 +5,7 @@ label: Projects
 title: Projects
 room: The Creative Workshop
 subtitle: Stories, projects, creation and learning
-description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Play and Zuzu.
+description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Play.
 icon: kind-icon:blueprint
 image: /images/tutorials/scenario/storybook.webp
 backgroundMobile: /api/art/backdrop/play-mobile
@@ -24,8 +24,7 @@ tutorial:
   overview: >-
     Projects gathers Storybook and its ingredient galleries, Art Studio, Video
     Gen, Music Video, Mandarin, Daily Dream Projects and Rebel Button. Games
-    have their own channels: Play for the Arcade and standalone games, and
-    Zuzu for the connected weird-west adventures. Each destination opens with
+    share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects
     control.
   hero: /images/tutorials/dream/dreams.webp
@@ -61,10 +60,9 @@ tutorial:
     - key: games
       title: Where to find games
       body: >-
-        Games have moved out of Projects. The Play channel holds the
-        cabinets, Memory Dungeon, Shifting Desks and Cthulhuquarium. The Zuzu
-        Zuzu channel holds Zuzu's gamebook, the Shifting Lands board, Showdown,
-        Ghost Trail and the pinball table.
+        Games have moved out of Projects. The Play channel holds the cabinets, Memory Dungeon, Shifting Desks,
+        Cthulhuquarium, Ecotone, Emperor of Dust, Zuzu's gamebook, Shifting
+        Lands, Showdown, Ghost Trail and the pinball table.
       image: /images/arcade/arcade-attract-splash.webp
     - key: toys
       title: New projects and toys

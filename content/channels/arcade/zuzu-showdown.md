@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: zuzu
+channelKey: arcade
 tabKey: zuzu-showdown
 label: Zuzu Showdown
 title: Zuzu Showdown

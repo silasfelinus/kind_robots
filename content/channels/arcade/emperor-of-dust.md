@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: zuzu
+channelKey: arcade
 tabKey: emperor-of-dust
 label: Emperor of Dust
 title: 'Emperor of Dust: Fifty Days'

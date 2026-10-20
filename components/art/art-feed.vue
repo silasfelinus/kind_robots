@@ -35,30 +35,19 @@
         </option>
       </select>
 
-      <div
-        role="group"
+      <select
+        v-model="range"
+        class="select select-bordered select-sm shrink-0 rounded-2xl bg-base-100"
         aria-label="Art generation date range"
-        class="flex shrink-0 items-center gap-1 rounded-xl border border-base-300 bg-base-100 p-1"
       >
-        <button
-          type="button"
-          class="btn btn-xs rounded-lg"
-          :class="range === 'recent' ? 'btn-primary' : 'btn-ghost'"
-          :aria-pressed="range === 'recent'"
-          @click="range = 'recent'"
+        <option
+          v-for="option in ART_FEED_RANGES"
+          :key="option.value"
+          :value="option.value"
         >
-          Recent · 7 days
-        </button>
-        <button
-          type="button"
-          class="btn btn-xs rounded-lg"
-          :class="range === 'all' ? 'btn-primary' : 'btn-ghost'"
-          :aria-pressed="range === 'all'"
-          @click="range = 'all'"
-        >
-          All time
-        </button>
-      </div>
+          {{ option.label }}
+        </option>
+      </select>
 
       <button
         type="button"
@@ -91,13 +80,13 @@
         <p class="kr-text-black-lg mt-2 text-base-content">No images here.</p>
         <p class="text-sm">
           {{
-            range === 'recent'
-              ? 'No images from the last seven days match these filters.'
-              : 'No art matches the current filters.'
+            range === 'all'
+              ? 'No art matches the current filters.'
+              : `No images from the ${artFeedRangeLabel(range).toLowerCase()} match these filters.`
           }}
         </p>
         <button
-          v-if="range === 'recent'"
+          v-if="range !== 'all'"
           type="button"
           class="btn btn-primary btn-sm mt-3 rounded-xl"
           @click="range = 'all'"
@@ -229,6 +218,11 @@ import {
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+import {
+  ART_FEED_RANGES,
+  DEFAULT_ART_FEED_RANGE,
+  artFeedRangeLabel,
+} from '~/utils/artFeedRange'
 
 const SEARCH_DEBOUNCE_MS = 350
 
@@ -239,7 +233,7 @@ const errorStore = useErrorStore()
 const feedStore = useArtFeedStore()
 const userStore = useUserStore()
 
-const range = ref<ArtFeedFilters['range']>('recent')
+const range = ref<ArtFeedFilters['range']>(DEFAULT_ART_FEED_RANGE)
 const searchInput = ref(feedStore.filters.search)
 const collectionId = ref<number | null>(feedStore.filters.collectionId)
 const failedImageIds = ref(new Set<number>())

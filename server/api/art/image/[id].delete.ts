@@ -1,9 +1,12 @@
 // server/api/art/image/[id].delete.ts
+//
+// "Delete" moves the image into the Gallery's Recycle Bin (isActive = false,
+// archive files quarantined). Erasing it for good is POST
+// /api/art/recycle-bin/purge, which only accepts what is already in the bin.
 import { defineEventHandler, createError, type H3Event } from 'h3'
-import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
-import { quarantineArchiveEntry } from '../../../utils/artArchiveQuarantine'
+import { recycleArtImage } from '../../../utils/artRecycleBin'
 
 type DeleteUser = {
   id: number
@@ -36,79 +39,14 @@ export default defineEventHandler(async (event) => {
 
     const user = await requireDeleteUser(event)
 
-    const artImage = await prisma.artImage.findUnique({
-      where: {
-        id: imageId,
-      },
-      select: {
-        userId: true,
-      },
-    })
-
-    if (!artImage) {
-      throw createError({
-        statusCode: 404,
-        message: `Art image with ID ${imageId} does not exist.`,
-      })
-    }
-
-    if (!user.isAdmin && artImage.userId !== user.id) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to delete this art image.',
-      })
-    }
-
-    const archiveEntry = await prisma.archiveEntry.findFirst({
-      where: {
-        artImageId: imageId,
-        isActive: true,
-      },
-      select: {
-        id: true,
-        relativePath: true,
-        artImageId: true,
-        isActive: true,
-        processState: true,
-      },
-    })
-
-    if (archiveEntry) {
-      if (!user.isAdmin) {
-        throw createError({
-          statusCode: 403,
-          message: 'Only an admin can delete an imported archive image.',
-        })
-      }
-
-      const result = await quarantineArchiveEntry(archiveEntry)
-      event.node.res.statusCode = 200
-
-      return {
-        success: true,
-        message: `Art image ${imageId} moved to recoverable archive trash.`,
-        data: {
-          archiveEntryId: archiveEntry.id,
-          ...result,
-        },
-        statusCode: 200,
-      }
-    }
-
-    await prisma.artImage.delete({
-      where: {
-        id: imageId,
-      },
-    })
+    const result = await recycleArtImage(imageId, user)
 
     event.node.res.statusCode = 200
 
     return {
       success: true,
-      message: user.isAdmin
-        ? `Art Image with ID ${imageId} deleted successfully by admin.`
-        : `Art image ${imageId} deleted successfully.`,
-      data: null,
+      message: result.message,
+      data: { id: imageId, recycled: true },
       statusCode: 200,
     }
   } catch (error: unknown) {

@@ -53,7 +53,7 @@
           </button>
 
           <button
-            v-if="activeGroup"
+            v-if="activeGroup && !isRecycleBinOpen"
             class="kr-btn-xs-lg"
             :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
             type="button"
@@ -214,6 +214,13 @@
           </template>
         </template>
       </kr-gallery>
+
+      <art-recycle-bin
+        v-else-if="isRecycleBinOpen"
+        :reveal-mature="maturityFilter !== 'safe'"
+        @close="clearActiveGroup"
+        @changed="handleRecycleBinChanged"
+      />
 
       <div v-else class="flex min-h-0 flex-col gap-2">
         <div class="flex items-center gap-2 kr-panel-compact-row">
@@ -583,6 +590,7 @@ import {
 } from '@/stores/artCollectionBrowseStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
+import { useRecycleBinStore } from '@/stores/recycleBinStore'
 import { useUserStore } from '@/stores/userStore'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
@@ -632,7 +640,10 @@ const artStore = useArtStore()
 const browseStore = useArtCollectionBrowseStore()
 const collectionStore = useCollectionStore()
 const errorStore = useErrorStore()
+const recycleBinStore = useRecycleBinStore()
 const userStore = useUserStore()
+
+const RECYCLE_BIN_KEY = 'collection-recycle-bin'
 
 const bulkSelectEnabled = ref(false)
 const selectedImageIds = ref<number[]>([])
@@ -684,7 +695,42 @@ const selectedBatchCollectionId = computed(() => {
   return Number.isFinite(id) && id > 0 ? id : null
 })
 
+const recycleBinGroup = computed<GalleryGroup | null>(() => {
+  if (props.dropdownMode || !currentUserId.value) return null
+  const description = 'Deleted images and folders, waiting to be restored.'
+  return {
+    key: RECYCLE_BIN_KEY,
+    id: -2,
+    title: 'Recycle Bin',
+    description,
+    userId: currentUserId.value ?? null,
+    isPublic: false,
+    isMature: false,
+    isVirtual: true,
+    imageCount: recycleBinStore.itemCount,
+    previewArtImage: null,
+    images: [],
+    collection: makePseudoCollection({
+      id: -2,
+      title: 'Recycle Bin',
+      description,
+      images: [],
+      imageCount: recycleBinStore.itemCount,
+      previewArtImage: null,
+    }),
+  }
+})
+
+const isRecycleBinOpen = computed(
+  () => activeGroupKey.value === RECYCLE_BIN_KEY,
+)
+
 const collectionGroups = computed<GalleryGroup[]>(() => {
+  const groups = baseCollectionGroups.value
+  return recycleBinGroup.value ? [...groups, recycleBinGroup.value] : groups
+})
+
+const baseCollectionGroups = computed<GalleryGroup[]>(() => {
   const groups = collectionStore.collections
     .map(normalizeCollectionGroup)
     .sort((a, b) => a.title.localeCompare(b.title))
@@ -782,6 +828,9 @@ const activeGroup = computed(() => {
 })
 
 const headerSummary = computed(() => {
+  if (isRecycleBinOpen.value) {
+    return `${recycleBinStore.itemCount} items in the Recycle Bin`
+  }
   if (activeGroup.value) {
     return `${filteredActiveImages.value.length} images — click to open`
   }
@@ -1114,6 +1163,11 @@ async function initializeGallery(force = false) {
 function hydrateCollectionTile(group: GalleryGroup | undefined): void {
   if (!group) return
 
+  if (group.key === RECYCLE_BIN_KEY) {
+    void recycleBinStore.fetchBin()
+    return
+  }
+
   if (group.isVirtual && group.key === 'collection-unsorted') {
     void browseStore.fetchUnsortedSummary(
       false,
@@ -1152,6 +1206,11 @@ async function fetchCollectionSummaries(force = false) {
 }
 
 async function loadGroupData(key: string, force = false): Promise<void> {
+  if (key === RECYCLE_BIN_KEY) {
+    await recycleBinStore.fetchBin(force)
+    return
+  }
+
   if (key === 'collection-unsorted') {
     await browseStore.fetchUnsortedImages(
       force,
@@ -1170,6 +1229,10 @@ async function loadGroupData(key: string, force = false): Promise<void> {
 async function refreshBrowseData(): Promise<void> {
   const activeKey = activeGroupKey.value
   browseStore.invalidateAll()
+  recycleBinStore.invalidate()
+  if (currentUserId.value && activeKey !== RECYCLE_BIN_KEY) {
+    void recycleBinStore.fetchBin(true)
+  }
   await fetchCollectionSummaries(true)
   if (activeKey) await loadGroupData(activeKey, true)
 }
@@ -1446,7 +1509,7 @@ async function deleteSelectedImages() {
   if (!canBatchModifyImages.value) return
   const ids = [...selectedImageIds.value]
   const confirmed = window.confirm(
-    `Delete ${ids.length} selected image${ids.length === 1 ? '' : 's'}? This cannot be undone.`,
+    `Move ${ids.length} selected image${ids.length === 1 ? '' : 's'} to the Recycle Bin? You can restore them from there.`,
   )
   if (!confirmed) return
 
@@ -1469,7 +1532,7 @@ async function deleteSelectedImages() {
       selectedImageForOverlay.value = null
     }
     selectedImageIds.value = []
-    successMessage.value = `Deleted ${ids.length} image${ids.length === 1 ? '' : 's'}.`
+    successMessage.value = `Moved ${ids.length} image${ids.length === 1 ? '' : 's'} to the Recycle Bin.`
     await refreshBrowseData()
   } catch (error) {
     const message = getErrorMessage(error, 'Failed to delete selected images.')
@@ -1505,9 +1568,16 @@ async function handleCollectionCreated() {
 }
 
 async function handleCollectionDeleted(id: number) {
-  successMessage.value = `Collection #${id} deleted.`
+  successMessage.value = `Collection #${id} moved to the Recycle Bin.`
   if (activeGroup.value?.id === id) clearActiveGroup()
   await refreshBrowseData()
+}
+
+async function handleRecycleBinChanged(message: string, success: boolean) {
+  errorMessage.value = success ? '' : message
+  successMessage.value = success ? message : ''
+  browseStore.invalidateAll()
+  await fetchCollectionSummaries(true)
 }
 
 async function handleImageDeleted(imageId: number) {
@@ -1528,7 +1598,7 @@ async function handleImageDeleted(imageId: number) {
       const next = { ...hydratedImages.value }
       delete next[imageId]
       hydratedImages.value = next
-      successMessage.value = `Image #${imageId} deleted.`
+      successMessage.value = `Image #${imageId} moved to the Recycle Bin.`
       await refreshBrowseData()
     } else {
       errorMessage.value = `Failed to delete image #${imageId}.`

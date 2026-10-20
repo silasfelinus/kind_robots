@@ -422,11 +422,15 @@ const artImageDeleteRoute = readFileSync(
   'server/api/art/image/[id].delete.ts',
   'utf8',
 )
-assert.ok(artImageDeleteRoute.includes('prisma.archiveEntry.findFirst'))
-assert.ok(artImageDeleteRoute.includes('quarantineArchiveEntry(archiveEntry)'))
+assert.ok(artImageDeleteRoute.includes('recycleArtImage(imageId, user)'))
+assert.ok(!artImageDeleteRoute.includes('prisma.artImage.delete('))
+const artRecycleBin = readFileSync('server/utils/artRecycleBin.ts', 'utf8')
+assert.ok(artRecycleBin.includes('prisma.archiveEntry.findFirst'))
+assert.ok(artRecycleBin.includes('quarantineArchiveEntry(archiveEntry)'))
+assert.ok(artRecycleBin.includes('archiveOnlyForAdmin(actor)'))
 assert.ok(
-  artImageDeleteRoute.includes(
-    'Art image ${imageId} moved to recoverable archive trash.',
+  artRecycleBin.includes(
+    'must be in the Recycle Bin before it can be deleted forever',
   ),
 )
 

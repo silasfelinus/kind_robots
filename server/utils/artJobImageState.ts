@@ -37,14 +37,16 @@ export async function applyCurrentArtImageState<T extends ListedArtJob>(
 
   const images = await prisma.artImage.findMany({
     where: { id: { in: ids } },
-    select: { id: true, isMature: true, isPublic: true },
+    select: { id: true, isMature: true, isPublic: true, isActive: true },
   })
   const imageById = new Map(images.map((image) => [image.id, image]))
 
   return jobs.map((job) => {
     if (typeof job.artImageId !== 'number') return job
     const image = imageById.get(job.artImageId)
-    if (!image) {
+    // A binned image (isActive = false) is gone as far as the queue is
+    // concerned: its routes refuse it until it is restored.
+    if (!image || !image.isActive) {
       return {
         ...job,
         artImageId: null,

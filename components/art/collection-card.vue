@@ -31,7 +31,7 @@
         "
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
-        title="Delete Collection"
+        title="Move collection to the Recycle Bin"
         @click.stop="deleteCollection"
       >
         <Icon name="kind-icon:trash" class="kr-icon-4" />

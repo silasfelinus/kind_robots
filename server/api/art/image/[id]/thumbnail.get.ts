@@ -22,7 +22,10 @@ import {
   buildArtImageWhere,
   getArtImageAccessContext,
 } from '~/server/utils/artImageAccess'
-import { verifyGalleryThumbnail } from '~/server/utils/artGalleryArchiveMedia'
+import {
+  verifyGalleryThumbnail,
+  verifyRecycledThumbnail,
+} from '~/server/utils/artGalleryArchiveMedia'
 import { resolveArtImageThumbnail } from '~/server/utils/artImageThumbnail'
 import { getArtArchiveRoot } from '~/server/utils/artArchiveRoot'
 import { ensureArchiveThumbnail } from '~/server/utils/artArchiveThumbnails'
@@ -37,9 +40,12 @@ const SOURCE_SELECT = {
   imageData: true,
 } as const
 
-async function archiveThumbnail(artImageId: number): Promise<Buffer> {
+async function archiveThumbnail(
+  artImageId: number,
+  recycled: boolean,
+): Promise<Buffer> {
   const entry = await prisma.archiveEntry.findFirst({
-    where: { artImageId, isActive: true },
+    where: { artImageId, isActive: !recycled },
     select: { id: true, relativePath: true, fileMtime: true },
   })
   if (!entry) {
@@ -67,14 +73,20 @@ export default defineEventHandler(async (event) => {
       query.sig,
     )
 
+    const recycled =
+      !hasCapability &&
+      verifyRecycledThumbnail(artImageId, query.exp, query.sig)
+
     const where = hasCapability
       ? { id: artImageId, isActive: true }
-      : {
-          AND: [
-            { id: artImageId },
-            buildArtImageWhere(await getArtImageAccessContext(event)),
-          ],
-        }
+      : recycled
+        ? { id: artImageId, isActive: false }
+        : {
+            AND: [
+              { id: artImageId },
+              buildArtImageWhere(await getArtImageAccessContext(event)),
+            ],
+          }
     const row = await prisma.artImage.findFirst({
       where,
       select: SOURCE_SELECT,
@@ -85,7 +97,10 @@ export default defineEventHandler(async (event) => {
 
     const thumbnail =
       row.designer === 'art-archive'
-        ? { kind: 'bytes' as const, buffer: await archiveThumbnail(row.id) }
+        ? {
+            kind: 'bytes' as const,
+            buffer: await archiveThumbnail(row.id, recycled),
+          }
         : await resolveArtImageThumbnail(row)
     if (thumbnail.kind === 'redirect') {
       return sendRedirect(event, thumbnail.url, 302)

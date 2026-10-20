@@ -68,6 +68,7 @@
     "test:art-archive-reconciler": "tsx utils/scripts/verifyArtArchiveReconciler.test.ts",
     "test:art-archive-reconcile-cli": "node utils/scripts/verifyReconcileArtArchiveCli.mjs",
     "test:art-archive-fileops": "tsx utils/scripts/verifyArtArchiveFileOps.test.ts",
+    "test:art-recycle-bin": "tsx utils/scripts/verifyArtRecycleBin.test.ts",
     "test:art-archive-thumbnails": "tsx utils/scripts/verifyArtArchiveThumbnails.test.ts",
     "test:art-image-thumbnail": "tsx utils/scripts/verifyArtImageThumbnail.test.ts",
     "test:latest-first-queue": "tsx utils/scripts/verifyLatestFirstQueue.test.ts",

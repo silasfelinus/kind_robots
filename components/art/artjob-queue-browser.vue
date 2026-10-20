@@ -243,6 +243,13 @@
             }}</span>
           </button>
 
+          <maturity-filter-toggle
+            :model-value="artJobStore.jobMaturityFilter"
+            aria-label="ArtJob maturity filter"
+            :disabled="artJobStore.loadingJobs"
+            @update:model-value="artJobStore.setJobMaturityFilter"
+          />
+
           <button
             type="button"
             class="btn btn-secondary btn-xs h-6 min-h-6 rounded-full px-2 text-[10px]"

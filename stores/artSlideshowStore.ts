@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, toRefs } from 'vue'
 import { performFetch } from '@/stores/utils'
 import { useArtJobStore, type ArtJobRecord } from '@/stores/artJobStore'
+import type { GalleryMaturityFilter } from '@/stores/artCollectionBrowseStore'
 import {
   mergeSlideshowPool,
   pickRandomJobId,
@@ -20,6 +21,7 @@ export type SlideshowSettings = {
   intervalSeconds: number
   fitMode: SlideshowFitMode
   interruptOnArrival: boolean
+  maturity: GalleryMaturityFilter
   overlay: Record<SlideshowOverlayField, boolean>
 }
 
@@ -51,6 +53,7 @@ const DEFAULT_SETTINGS: SlideshowSettings = {
   intervalSeconds: 8,
   fitMode: 'contain',
   interruptOnArrival: true,
+  maturity: 'all',
   overlay: {
     title: true,
     fileName: true,
@@ -118,6 +121,10 @@ function sanitizeSettings(value: unknown): SlideshowSettings {
       typeof source.interruptOnArrival === 'boolean'
         ? source.interruptOnArrival
         : DEFAULT_SETTINGS.interruptOnArrival,
+    maturity:
+      source.maturity === 'mature' || source.maturity === 'safe'
+        ? source.maturity
+        : DEFAULT_SETTINGS.maturity,
     overlay,
   }
 }
@@ -197,6 +204,9 @@ export const useArtSlideshowStore = defineStore('artSlideshowStore', () => {
       page: '1',
       pageSize: String(pageSize),
     })
+    if (state.settings.maturity !== 'all') {
+      params.set('maturity', state.settings.maturity)
+    }
     const res = await performFetch<{ jobs: ArtJobRecord[] }>(
       `/api/art/queue?${params.toString()}`,
     )
@@ -276,6 +286,14 @@ export const useArtSlideshowStore = defineStore('artSlideshowStore', () => {
     await refreshPool()
   }
 
+  async function setMaturity(maturity: GalleryMaturityFilter): Promise<void> {
+    if (maturity === state.settings.maturity) return
+    state.settings.maturity = maturity
+    persist()
+    reset()
+    await refreshPool()
+  }
+
   function setIntervalSeconds(seconds: number): void {
     state.settings.intervalSeconds = clampInteger(
       seconds,
@@ -329,6 +347,7 @@ export const useArtSlideshowStore = defineStore('artSlideshowStore', () => {
     stepBack,
     show,
     setDepth,
+    setMaturity,
     setIntervalSeconds,
     setFitMode,
     setInterruptOnArrival,

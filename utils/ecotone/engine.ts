@@ -331,8 +331,12 @@ export function encounterEligible(
 ): boolean {
   if (state.played.includes(card.id)) return false
   if (card.requiresLead && card.requiresLead !== state.activeLead) return false
-  if (card.requiresLens && card.requiresLens !== state.openingState) return false
-  if (card.requiresMeetCount && state.meetingOrder.length < card.requiresMeetCount)
+  if (card.requiresLens && card.requiresLens !== state.openingState)
+    return false
+  if (
+    card.requiresMeetCount &&
+    state.meetingOrder.length < card.requiresMeetCount
+  )
     return false
   if (card.requiresFormerGuide) {
     const guide = card.requiresFormerGuide

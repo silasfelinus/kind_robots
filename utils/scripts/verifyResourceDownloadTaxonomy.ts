@@ -125,4 +125,60 @@ const enqueue = readFileSync(
 assert.ok(enqueue.includes('DOWNLOADABLE_RESOURCE_TYPES'))
 assert.equal(enqueue.includes("const RESOURCE_TYPES = ["), false)
 
+const statusRoute = readFileSync(
+  'server/api/lora/download/index.get.ts',
+  'utf8',
+)
+const retryRoute = readFileSync(
+  'server/api/lora/download/[id]/retry.post.ts',
+  'utf8',
+)
+const downloadStore = readFileSync(
+  'stores/resourceDownloadsStore.ts',
+  'utf8',
+)
+const downloadView = readFileSync(
+  'components/resources/resource-downloads.vue',
+  'utf8',
+)
+const resourceManager = readFileSync(
+  'components/resources/resource-manager.vue',
+  'utf8',
+)
+
+assert.ok(statusRoute.includes('requireAdminApiUser(event)'))
+assert.ok(retryRoute.includes('requireAdminApiUser(event)'))
+assert.ok(statusRoute.includes("setResponseHeader(event, 'Cache-Control', 'private, no-store')"))
+assert.ok(statusRoute.includes("where: { status: { in: ['PENDING', 'CLAIMED'] } }"))
+assert.ok(statusRoute.includes("status: { in: ['DONE', 'FAILED'] }"))
+assert.ok(statusRoute.includes('take: HISTORY_PAGE_SIZE + 1'))
+assert.ok(statusRoute.includes('nextBefore: hasMore'))
+assert.ok(statusRoute.includes("groupBy({"))
+assert.ok(statusRoute.includes('select: fields'))
+assert.equal(statusRoute.includes('downloadUrl: true'), false)
+assert.equal(statusRoute.includes('claimedBy: true'), false)
+assert.ok(retryRoute.includes("existing.status !== 'FAILED'"))
+assert.ok(retryRoute.includes('if (existing.resourceId)'))
+assert.ok(retryRoute.includes("status: { in: ['PENDING', 'CLAIMED'] }"))
+assert.ok(retryRoute.includes("where: { id, status: 'FAILED' }"))
+assert.ok(retryRoute.includes("status: 'PENDING'"))
+assert.ok(retryRoute.includes('attempts: 0'))
+assert.ok(retryRoute.includes('claimedAt: null'))
+assert.ok(retryRoute.includes('claimedBy: null'))
+assert.ok(retryRoute.includes('error: null'))
+assert.ok(retryRoute.includes('updated.count !== 1'))
+assert.equal(retryRoute.includes('downloadRequest.update({'), false)
+assert.ok(resourceManager.includes("'library' | 'discover' | 'downloads'"))
+assert.ok(resourceManager.includes("key: 'downloads'"))
+assert.ok(resourceManager.includes("<resource-downloads v-else"))
+assert.ok(downloadStore.includes('/api/lora/download'))
+assert.ok(downloadStore.includes('/retry'))
+assert.ok(downloadStore.includes('hasLoadedOlder'))
+assert.ok(downloadView.includes('clearInterval(refreshTimer)'))
+assert.ok(downloadView.includes('if (!document.hidden)'))
+assert.ok(downloadView.includes('downloads.loadMore()'))
+assert.ok(downloadView.includes('downloads.retry(item.id)'))
+assert.ok(downloadView.includes('class="kr-scroll min-h-0 flex-1'))
+assert.equal(downloadView.includes('percent complete'), false)
+
 console.log('Model download taxonomy contract: all checks passed')

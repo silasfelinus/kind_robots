@@ -1,7 +1,7 @@
 <!-- /components/resources/resource-manager.vue -->
 <!--
-  The /resources route owner: Library (browse the catalog) or Discover (pull
-  new LoRAs from Civitai).
+  The /resources route owner: Library, Discover, and Downloads (the durable
+  model import queue).
 
   WHY THIS EXISTS RATHER THAN pages/resources.vue
   -----------------------------------------------
@@ -29,20 +29,23 @@
   <section class="flex h-full min-h-0 w-full flex-col gap-2">
     <resource-gallery v-if="activeTab === 'library'" class="min-h-0 flex-1">
       <template #tabs>
-        <div role="tablist" class="flex items-center gap-1">
+        <div
+          role="tablist"
+          class="flex max-w-full items-center gap-1 overflow-x-auto"
+        >
           <button
             v-for="tab in tabs"
             :key="tab.key"
             role="tab"
             type="button"
-            class="btn btn-xs gap-1 rounded-2xl"
+            class="btn btn-xs shrink-0 gap-1 rounded-2xl"
             :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
             :aria-selected="activeTab === tab.key"
             :title="tab.label"
             @click="selectTab(tab.key)"
           >
             <Icon :name="tab.icon" class="kr-icon-3-5" />
-            <span class="hidden sm:inline">{{ tab.label }}</span>
+            <span class="whitespace-nowrap">{{ tab.label }}</span>
           </button>
           <NuxtLink
             to="/admin/lora-triage"
@@ -59,20 +62,23 @@
     <template v-else>
       <!-- Discover has no header of its own to host the switch, so it gets one
            compact row. Still inside the page surface rather than above it. -->
-      <div role="tablist" class="flex shrink-0 items-center gap-1">
+      <div
+        role="tablist"
+        class="flex max-w-full shrink-0 items-center gap-1 overflow-x-auto"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.key"
           role="tab"
           type="button"
-          class="btn btn-xs gap-1 rounded-2xl"
+          class="btn btn-xs shrink-0 gap-1 rounded-2xl"
           :class="activeTab === tab.key ? 'btn-primary' : 'btn-ghost'"
           :aria-selected="activeTab === tab.key"
           :title="tab.label"
           @click="selectTab(tab.key)"
         >
           <Icon :name="tab.icon" class="kr-icon-3-5" />
-          <span class="hidden sm:inline">{{ tab.label }}</span>
+          <span class="whitespace-nowrap">{{ tab.label }}</span>
         </button>
         <NuxtLink
           to="/admin/lora-triage"
@@ -84,7 +90,8 @@
         </NuxtLink>
       </div>
 
-      <lora-discover class="min-h-0 flex-1" />
+      <lora-discover v-if="activeTab === 'discover'" class="min-h-0 flex-1" />
+      <resource-downloads v-else class="min-h-0 flex-1" />
     </template>
   </section>
 </template>
@@ -93,11 +100,12 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-type TabKey = 'library' | 'discover'
+type TabKey = 'library' | 'discover' | 'downloads'
 
 const tabs: { key: TabKey; label: string; icon: string }[] = [
   { key: 'library', label: 'Library', icon: 'kind-icon:database' },
   { key: 'discover', label: 'Discover', icon: 'kind-icon:search' },
+  { key: 'downloads', label: 'Downloads', icon: 'kind-icon:download' },
 ]
 
 const route = useRoute()

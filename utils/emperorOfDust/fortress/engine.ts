@@ -14,7 +14,12 @@ import {
   isTemplateInstance,
   questDef,
 } from './content'
-import { AFFINITY_TIERS, KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
+import {
+  AFFINITY_TIERS,
+  KINGDOM_FACTIONS,
+  LOCAL_FACTIONS,
+  standingHeld,
+} from './types'
 import type {
   AbilityKind,
   ActiveQuest,
@@ -298,6 +303,8 @@ export const unmetRequirements = (
     if (!run.flags.includes(flag)) reasons.push('Not yet possible')
   for (const flag of requires?.notFlags ?? [])
     if (run.flags.includes(flag)) reasons.push('No longer possible')
+  if (!standingHeld(run.flags, requires?.standing))
+    reasons.push('Not yet possible')
   if (bedsUsed(run) + recruits.length > run.beds)
     reasons.push('The barracks are full')
   return reasons
@@ -372,6 +379,7 @@ export const optionVisible = (
     return false
   if ((requires.notFlags ?? []).some((flag) => run.flags.includes(flag)))
     return false
+  if (!standingHeld(run.flags, requires.standing)) return false
   if (requires.follower) {
     const status = followerStatus(run, requires.follower)
     if (!status || status === 'dead') return false

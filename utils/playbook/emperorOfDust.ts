@@ -79,6 +79,9 @@ function requirementTags(req: Requirement | undefined): string[] {
     ...(req.follower ? [`Needs ${followerName(req.follower)}`] : []),
     ...(req.flags ?? []).map((f) => `Needs ${f}`),
     ...(req.notFlags ?? []).map((f) => `Not after ${f}`),
+    ...(req.standing
+      ? [`${req.standing.min}+ of ${req.standing.flags.length} standing flags`]
+      : []),
     ...Object.entries(req.affinity ?? {}).map(
       ([id, tier]) => `${factionName(id)} ${tier}`,
     ),

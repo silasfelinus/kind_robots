@@ -538,6 +538,161 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      {
+        id: 'd21-fen-weir',
+        title: 'The Weir at Mirefen',
+        speaker: 'Coal Harrow, captain of the Mole sappers',
+        faction: 'moles',
+        lines: [
+          'A mole comes up the hall with a powder keg on his shoulder. “Empty,” he says, before the Watch can draw. He sets it on the step anyway. His paws are black to the elbow.',
+          'Behind him two sappers carry a door between them. On the door: wet bedding, a kettle, a child’s shoe. Everything that came out of the north galleries before the water did.',
+          'Coal Harrow. Captain of sappers. Granny Umber didn’t send me. She’d say it was rude to come. She’s right.',
+          'The Mire Mothers built a weir across the fen outflow after the raiders came. Their water has to go somewhere. It went into our north galleries. Eleven families sleep on the stairs now.',
+          'One keg opens that weir. I want the crown to look the other way while I light it. Or lend me the Watch’s powder and look straight at it. Your choice how brave you are.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'A weir is property, Your Majesty. A keg is a declaration. The Mothers will remember who held the match. So will the Moles, if you take it from them.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-weir',
+            label: 'Ask why the Mothers raised a weir at all.',
+            effects: {},
+            response:
+              'Coal Harrow wipes his paws on his trousers. It does not help.',
+            next: 'weir',
+          },
+          {
+            id: 'blow-weir',
+            label: 'Lend him the powder. Open the weir tonight.',
+            effects: {
+              affinity: { moles: 10, 'mire-mothers': -15 },
+              local: { 'gate-watch': -1 },
+              flags: ['d21-weir-blown'],
+            },
+            response:
+              'The bang comes after midnight and rattles the cups in the Yard. By morning the north galleries drain. A long brown tongue of fen water lies across the Freehold road. Coal Harrow sends back the empty keg. Somebody has chalked a crown on it.',
+          },
+          {
+            id: 'forbid',
+            label: 'Forbid it. Nobody blows a weir in the crown’s country.',
+            effects: {
+              affinity: { moles: -10 },
+              local: { 'gate-watch': 1 },
+              flags: ['d21-weir-forbidden'],
+            },
+            response:
+              '“Then the crown can come sleep on our stairs,” Coal says. He picks up his keg. The sappers carry the door back out. Nobody picks up the shoe.',
+          },
+          {
+            id: 'pumps',
+            label:
+              'Pay for hand pumps in the north galleries. Leave the weir alone.',
+            requires: { cost: 25 },
+            effects: {
+              affinity: { moles: 5 },
+              local: { yard: -1 },
+              flags: ['d21-pumps-paid'],
+            },
+            response:
+              'Twelve hand pumps go north on a cart. The sappers work them in shifts, day and night. Coal Harrow calls it the crown’s answer to a flood: buckets. He takes them.',
+          },
+          {
+            id: 'free-umber',
+            label:
+              'Release Granny Umber tonight. Ask Coal to wait for her word on the weir.',
+            requires: {
+              flags: ['mole-messenger-arrested'],
+              notFlags: ['d21-umber-released'],
+            },
+            effects: {
+              affinity: { moles: 15 },
+              local: { 'gate-watch': -2 },
+              flags: ['d21-umber-released'],
+            },
+            response:
+              'Granny Umber comes up out of the cells on her own feet and thanks nobody. She looks at the keg. Then at Coal. He carries it home full.',
+          },
+        ],
+        beats: [
+          {
+            id: 'weir',
+            lines: [
+              '“Raiders burned two lantern-houses at the fen edge. The Mothers raised the weir the next week. Deep water, they said. Raiders don’t swim.”',
+              '“That’s their story. Ask the reed-cutters, they’ll tell you different. They say the Mothers raised the water to keep something under it.” He shrugs. “They say that about everything.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Fens keep secrets the way ledgers do, Your Majesty. Drain one and you find out what it owed.',
+              },
+            ],
+            options: [
+              {
+                id: 'share-water',
+                label:
+                  'Ask the Mothers to open the weir one night in seven, with the Watch on the bank.',
+                effects: {
+                  affinity: { moles: 5, 'mire-mothers': -5 },
+                  local: { 'gate-watch': -1 },
+                  flags: ['d21-weir-shared'],
+                },
+                response:
+                  'The Mothers agree in a letter written on reed paper. One night in seven the water goes down the old channel and the galleries breathe. The Watch on the bank hears singing under the water. Nobody writes that down.',
+              },
+              {
+                id: 'order-open',
+                label:
+                  'The crown stopped the Old Houses’ wheels for the burrows. It opens the weir the same way: by order, in daylight.',
+                requires: { flags: ['d17-race-closed'] },
+                effects: {
+                  affinity: { moles: 10, 'mire-mothers': -10 },
+                  local: { lamplight: 1 },
+                  flags: ['d21-weir-ordered-open'],
+                },
+                response:
+                  'The order goes up on the gate at noon. The Mothers lift the weir themselves, slowly, so everyone can watch them do it. Coal Harrow leaves his keg in the Yard. He says the crown can keep it. He does not say thank you.',
+              },
+              {
+                id: 'blow-weir',
+                label: 'Lend him the powder. Whatever is down there can swim.',
+                effects: {
+                  affinity: { moles: 10, 'mire-mothers': -15 },
+                  local: { 'gate-watch': -1 },
+                  flags: ['d21-weir-blown'],
+                },
+                response:
+                  'The bang comes after midnight. By morning the north galleries drain and the fen is a foot lower. The reed-cutters stay home that night. Coal Harrow sends back the empty keg with a chalk crown on it.',
+              },
+              {
+                id: 'forbid',
+                label:
+                  'Forbid it. If the fen keeps something down, the weir stays.',
+                effects: {
+                  affinity: { moles: -10 },
+                  local: { 'gate-watch': 1 },
+                  flags: ['d21-weir-forbidden'],
+                },
+                response:
+                  '“Something,” Coal says. “We’ve got eleven somethings on the stairs.” He takes the keg and goes. Nobody picks up the shoe.',
+              },
+              {
+                id: 'pumps',
+                label: 'Buy pumps for the galleries. Nobody touches the weir.',
+                requires: { cost: 25 },
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { yard: -1 },
+                  flags: ['d21-pumps-paid'],
+                },
+                response:
+                  'Twelve hand pumps go north on a cart. The sappers work them in shifts. Coal Harrow calls it the crown’s answer to a flood: buckets. He takes them.',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -1913,6 +2068,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         variants: [
           {
             flags: ['mole-messenger-arrested'],
+            notFlags: ['d21-umber-released'],
             source: 'Chalk on the postern gate',
             text: 'No truce while the crown holds the old woman it took at the gate.',
           },

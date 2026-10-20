@@ -1,13 +1,19 @@
 <template>
   <section
-    class="overflow-hidden rounded-2xl border border-warning/30 bg-base-100 shadow-lg"
+    class="kr-panel overflow-hidden p-0"
     :aria-label="'Audience with ' + speaker"
   >
     <div
-      class="flex items-center justify-between gap-2 border-b border-base-content/10 bg-base-200 px-3 py-2"
+      class="flex items-center justify-between gap-2 border-b border-warning/25 px-3 py-2"
     >
-      <strong class="font-serif text-lg">{{ speaker }}</strong>
-      <div class="flex items-center gap-1">
+      <h2
+        v-if="title"
+        class="min-w-0 font-serif text-base font-bold leading-tight text-warning sm:text-lg"
+      >
+        {{ title }}
+      </h2>
+      <strong v-else class="font-serif text-lg">{{ speaker }}</strong>
+      <div class="flex shrink-0 items-center gap-1">
         <label class="sr-only" for="emperor-text-speed">Text speed</label>
         <select
           id="emperor-text-speed"
@@ -34,8 +40,26 @@
       </div>
     </div>
 
+    <div v-if="title" class="flex items-center gap-3 px-3 pt-3">
+      <span
+        class="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-warning/50 bg-base-200"
+      >
+        <img
+          v-if="art"
+          :src="art"
+          alt=""
+          class="h-full w-full object-cover object-top"
+        />
+      </span>
+      <span class="min-w-0">
+        <strong class="block font-serif text-base">{{ speaker }}</strong>
+        <span v-if="subtitle" class="block text-xs opacity-65">{{
+          subtitle
+        }}</span>
+      </span>
+    </div>
     <img
-      v-if="art"
+      v-else-if="art"
       :src="art"
       :alt="speaker"
       class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
@@ -52,7 +76,7 @@
     <button
       v-else
       type="button"
-      class="block min-h-28 w-full p-4 text-left font-serif text-base italic sm:text-lg"
+      class="block min-h-24 w-full px-4 py-3 text-left font-serif text-base italic"
       :aria-label="streaming ? 'Show the whole line' : 'Next line'"
       @click="advance"
     >
@@ -67,27 +91,35 @@
 
     <div
       v-if="!streaming && lastLine && choices.length"
-      class="grid gap-2 border-t border-base-content/10 p-3"
+      class="grid gap-1.5 border-t border-warning/20 p-3"
     >
       <button
         v-for="choice in choices"
         :key="choice.id"
         type="button"
-        class="rounded-xl border px-3 py-2 text-left text-sm transition-colors"
+        class="flex items-start gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors"
         :class="
           choice.blockers.length
             ? 'cursor-not-allowed border-base-content/10 opacity-55'
-            : 'border-warning/40 bg-base-200 hover:bg-warning/15'
+            : 'border-warning/40 bg-base-200/80 hover:border-warning hover:bg-warning/15'
         "
         :disabled="choice.blockers.length > 0"
         @click="emit('choose', choice.id)"
       >
-        <strong class="block">{{ choice.label }}</strong>
-        <span v-if="choice.note" class="block text-xs text-warning">{{
-          choice.note
-        }}</span>
-        <span v-if="choice.blockers.length" class="block text-xs">
-          {{ choice.blockers.join(' · ') }}
+        <Icon
+          :name="
+            choice.blockers.length ? 'kind-icon:lock' : 'kind-icon:diamond'
+          "
+          class="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning"
+        />
+        <span class="min-w-0">
+          <strong class="block">{{ choice.label }}</strong>
+          <span v-if="choice.note" class="block text-xs text-warning">{{
+            choice.note
+          }}</span>
+          <span v-if="choice.blockers.length" class="block text-xs">
+            {{ choice.blockers.join(' · ') }}
+          </span>
         </span>
       </button>
     </div>
@@ -101,6 +133,9 @@ import type { TextSpeed } from '~/stores/emperorFortressStore'
 
 const props = defineProps<{
   speaker: string
+  /** The petition's title, which turns the box into the throne room's petition card. */
+  title?: string
+  subtitle?: string
   /** Illustrated image of the speaker, when one has been rendered. */
   art?: string
   lines: string[]

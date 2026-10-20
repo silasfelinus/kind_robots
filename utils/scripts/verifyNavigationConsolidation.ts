@@ -373,14 +373,12 @@ assert.match(
   /<header class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3">/,
   'LoRA Triage toolbar actions must sit on a readable opaque panel',
 )
-assert.match(
-  loraTriage,
-  /to="\\/resources"/,
+assert.ok(
+  loraTriage.includes('to="/resources"'),
   'LoRA Triage must link to the installed model library',
 )
-assert.match(
-  loraTriage,
-  /to="\\/resources\\?tab=discover"/,
+assert.ok(
+  loraTriage.includes('to="/resources?tab=discover"'),
   'LoRA Triage must link to model discovery and downloads',
 )
 assert.match(
@@ -388,7 +386,6 @@ assert.match(
   /class="grid grid-cols-3 gap-2 lg:grid-cols-6"/,
   'LoRA Triage mobile counts must use two rows instead of three',
 )
-
 
 for (const path of [
   'content/channels/admin/appmaker.md',

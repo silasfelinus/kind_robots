@@ -864,6 +864,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'pinwheel-gust-field',
+    label: 'Pinwheel Gust Field',
+    reveal: 'A gust of wind rolls across a meadow of spinning pinwheels',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Rows of paper pinwheels spin up as a gust sweeps the meadow 🌬️ hover to spin the ones near you, click to blow a puff',
+    color: '#4cc9f0',
+    releasedAt: '2026-10-20T08:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

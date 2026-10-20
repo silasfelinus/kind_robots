@@ -188,7 +188,9 @@ export function endingKindForMarks(marks: Readonly<Marks>): EndingKind {
   const leading = MARKS.reduce((best, mark) =>
     marks[mark] > marks[best] ? mark : best,
   )
-  return marks[leading] >= 2 ? SINGLE[leading] : 'unnamed-road'
+  if (marks[leading] < 2) return 'unnamed-road'
+  const equalLeaders = MARKS.filter((mark) => marks[mark] === marks[leading])
+  return equalLeaders.length === 1 ? SINGLE[leading] : 'unnamed-road'
 }
 
 const DEEDS: ReadonlyArray<[string, string]> = [

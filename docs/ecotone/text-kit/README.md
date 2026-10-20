@@ -2,7 +2,7 @@
 
 **Scope:** All 120 Conductor regional seed IDs have an authored playable EncounterCard, an opening dilemma, an independent investigation with written pass/miss text, and a separate care/community choice. All seven opening lenses have selectable choices; the 56 primary companion×lens×fate signature slots are text-backed, with the existing additional solo and Wild Way endings maintained in the 84-slot gallery.
 
-**Review gate:** This is a full **first manuscript**, not the director-approved artistic vision. Nothing here authorizes ArtJobs, image rendering, publication, new unverified historical claims or mandatory outcomes tied to substances. Additional cultural/historical review, line editing, saved-ID migration checks and final seeded play testing remain needed.
+**Iterative release:** This is a full **first manuscript**, not final artistic canon. On 2026-10-20 PT, Silas explicitly approved publishing the authored text now and revising individual scenes through subsequent review. That approval does not authorize this PR to enqueue images, invent historical claims, bypass required cultural consultation, or turn substance selection into a predetermined moral outcome. Art generation has a separately approved workstream. Line editing, saved-ID migration checks and further seeded playtests remain follow-up work.
 
 ## Six regional volumes
 

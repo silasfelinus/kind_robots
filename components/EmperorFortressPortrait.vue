@@ -26,6 +26,12 @@
       aria-hidden="true"
       >away</span
     >
+    <span
+      v-else-if="state === 'departed'"
+      class="absolute inset-x-0 bottom-0 bg-error/80 text-center text-[8px] font-bold uppercase text-error-content"
+      aria-hidden="true"
+      >gone</span
+    >
   </span>
 </template>
 
@@ -39,7 +45,7 @@ import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 const props = withDefaults(
   defineProps<{
     followerId: string
-    state?: 'ready' | 'on-quest' | 'injured' | 'dead'
+    state?: 'ready' | 'on-quest' | 'injured' | 'dead' | 'departed'
     days?: number
     size?: 'sm' | 'md' | 'lg'
   }>(),
@@ -77,6 +83,8 @@ const stateClass = computed(() => {
     return 'border-base-content/30 bg-base-300 text-base-content/40 grayscale'
   if (props.state === 'injured')
     return 'border-error/70 bg-error/10 text-base-content'
+  if (props.state === 'departed')
+    return 'border-error/50 bg-base-300 text-base-content/60 grayscale-[70%]'
   return 'border-warning/60 bg-gradient-to-br from-amber-700/40 to-slate-700/30 text-base-content'
 })
 const label = computed(() => {
@@ -85,6 +93,7 @@ const label = computed(() => {
   if (props.state === 'injured')
     return `${name}, injured for ${props.days} more day(s)`
   if (props.state === 'on-quest') return `${name}, away on a quest`
+  if (props.state === 'departed') return `${name}, gone with Young Komodo`
   return name
 })
 </script>

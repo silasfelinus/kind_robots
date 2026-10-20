@@ -4,12 +4,17 @@
   >
     <div class="eod-chip p-2 text-xs">
       <p class="eod-display text-sm text-warning">{{ dayLine }}</p>
-      <p class="mt-1 opacity-80">
+      <p v-if="run.hideout" class="mt-1 opacity-80">
+        {{ run.brass }} brass in the treasury. In hiding no region pays the
+        crown. {{ hostShareLine(run, factionName) }}
+      </p>
+      <p v-else class="mt-1 opacity-80">
         {{ run.brass }} brass in the treasury. Taxes come in at dawn and wages
         go out; the map room shows who pays.
       </p>
       <p class="mt-1 font-semibold">
-        Taxes +{{ dailyTaxes(run) }} · wages −{{ WAGE * bedsUsed(run) }} a day
+        {{ run.hideout ? 'Host share' : 'Taxes' }} +{{ dailyIncome(run) }} ·
+        {{ run.hideout ? 'half wages' : 'wages' }} −{{ dailyWages(run) }} a day
       </p>
     </div>
     <div
@@ -53,10 +58,11 @@ import {
 } from '~/utils/emperorOfDust/fortress/factions'
 import { LOCAL_FACTION_ICONS } from '~/utils/emperorOfDust/fortress/rooms'
 import {
-  WAGE,
-  bedsUsed,
-  dailyTaxes,
+  dailyIncome,
+  dailyWages,
+  factionName,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { hostShareLine } from '~/utils/emperorOfDust/fortress/betrayal'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 // The court ledger the header toggle opens: the day, the treasury and every

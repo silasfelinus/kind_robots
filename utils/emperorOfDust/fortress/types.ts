@@ -230,6 +230,18 @@ export type AudienceBeat = {
   npc?: string
   lines: SceneLine[]
   options: AudienceOption[]
+  variants?: SceneVariant[]
+}
+
+/**
+ * A scene's opening lines as they read in runs that hold (or lack) certain
+ * story flags, such as who bought the tower. The first match replaces the
+ * lines; answers and their effects never change.
+ */
+export type SceneVariant = {
+  flags?: string[]
+  notFlags?: string[]
+  lines: SceneLine[]
 }
 
 export type AudienceDef = {
@@ -245,6 +257,7 @@ export type AudienceDef = {
   beats?: AudienceBeat[]
   /** Audiences only appear when these hold. */
   requires?: Requirement
+  variants?: SceneVariant[]
 }
 
 /**
@@ -310,8 +323,19 @@ export type FollowerState = {
   injuredUntilDay?: number
   dead?: boolean
   deathDay?: number
+  /** Left with Young Komodo at the betrayal (t-028): alive, gone, not at court. */
+  departed?: { day: number; why: DepartureWhy }
   equipment: Partial<Record<ItemSlot, string>>
 }
+
+/**
+ * Why a follower left with Komodo: a hidden allegiance to his buyer, or forty
+ * days in which nobody at court sat with them while their people were crossed.
+ */
+export type DepartureWhy = 'allegiance' | 'neglect'
+
+/** Who Komodo sold the tower to. The Abbess is always his patron. */
+export type BuyerId = 'abbey' | 'black-verge' | 'old-houses'
 
 export type BoardQuest = { questId: string; postedDay: number; lastDay: number }
 
@@ -374,6 +398,14 @@ export type DawnReport = {
   events: string[]
   /** Act-end map changes announced this dawn. */
   map?: MapEvent[]
+  /** Act V: `taxes` is what the host shared, not the regions' taxes. */
+  income?: 'host'
+  /** The Day 41 dawn: who took the tower and who went with Komodo. */
+  betrayal?: {
+    buyer: BuyerId
+    hideout: string
+    departed: { followerId: string; why: DepartureWhy }[]
+  }
 }
 
 export type FortressRun = {

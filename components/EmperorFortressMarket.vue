@@ -355,7 +355,9 @@ const storeroom = computed(() => {
     .map(([id, count]) => ({ item: itemDef(id), count }))
     .filter((entry): entry is { item: ItemDef; count: number } => !!entry.item)
 })
-const atCourt = computed(() => props.run.roster.filter((state) => !state.dead))
+const atCourt = computed(() =>
+  props.run.roster.filter((state) => !state.dead && !state.departed),
+)
 const wounded = computed(() =>
   props.run.roster.filter(
     (state) => followerStatus(props.run, state.id) === 'injured',

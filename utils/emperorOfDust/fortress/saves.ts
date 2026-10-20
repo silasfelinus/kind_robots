@@ -1,6 +1,7 @@
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, questDef } from './content'
 import { rerollDawn, validMapState } from './engine'
+import { BUYER_IDS } from './betrayal'
 import { KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
 import type { Codex, FortressRun } from './types'
 
@@ -54,6 +55,31 @@ const factionList = (value: unknown): boolean =>
   Array.isArray(value) &&
   value.every((id) => (KINGDOM_FACTIONS as readonly unknown[]).includes(id)) &&
   new Set(value).size === value.length
+
+const DEPARTURE_WHYS: readonly unknown[] = ['allegiance', 'neglect']
+
+/** Left with Komodo (t-028): optional, so saves from before it still load. */
+const validDeparted = (value: unknown): boolean =>
+  value === undefined ||
+  (object(value) &&
+    int(value.day, 1, LAST_DAY + 1) &&
+    DEPARTURE_WHYS.includes(value.why))
+
+/** The Day 41 dawn's record of the betrayal (t-028), when present. */
+const validBetrayal = (value: unknown): boolean =>
+  value === undefined ||
+  (object(value) &&
+    (BUYER_IDS as readonly unknown[]).includes(value.buyer) &&
+    text(value.hideout, 60) &&
+    Array.isArray(value.departed) &&
+    value.departed.length <= 20 &&
+    value.departed.every(
+      (entry: unknown) =>
+        object(entry) &&
+        text(entry.followerId, 10) &&
+        !!followerDef(entry.followerId) &&
+        DEPARTURE_WHYS.includes(entry.why),
+    ))
 
 /** Market state (t-024): optional, so saves from before the market still load. */
 const validMarket = (value: unknown): boolean =>
@@ -127,6 +153,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
         (state.dead === undefined || typeof state.dead === 'boolean') &&
         (state.deathDay === undefined ||
           int(state.deathDay, 1, LAST_DAY + 1)) &&
+        validDeparted(state.departed) &&
         object(state.equipment) &&
         Object.entries(state.equipment).every(
           ([slot, id]) =>
@@ -139,6 +166,11 @@ export const validateRun = (value: unknown): value is FortressRun => {
     return false
   const rosterIds = new Set(
     (run.roster as { id: string }[]).map((state) => state.id),
+  )
+  const goneIds = new Set(
+    (run.roster as { id: string; departed?: unknown }[])
+      .filter((state) => state.departed)
+      .map((state) => state.id),
   )
   if (
     !Array.isArray(run.board) ||
@@ -163,7 +195,10 @@ export const validateRun = (value: unknown): value is FortressRun => {
         !!questDef(entry.questId) &&
         entry.party.length >= 1 &&
         entry.party.length <= 5 &&
-        entry.party.every((id: unknown) => text(id, 10) && rosterIds.has(id)) &&
+        entry.party.every(
+          (id: unknown) =>
+            text(id, 10) && rosterIds.has(id) && !goneIds.has(id),
+        ) &&
         int(entry.departedDay, 1, day) &&
         int(entry.returnsDay, day, LAST_DAY + 4) &&
         int(entry.postedDay, 1, LAST_DAY) &&
@@ -185,7 +220,9 @@ export const validateRun = (value: unknown): value is FortressRun => {
         int(report.taxes, 0, 10_000) &&
         int(report.wages, 0, 10_000) &&
         typeof report.loanTaken === 'boolean' &&
-        textList(report.events, 200),
+        textList(report.events, 200) &&
+        (report.income === undefined || report.income === 'host') &&
+        validBetrayal(report.betrayal),
     ) &&
     Array.isArray(run.memorials) &&
     run.memorials.every(

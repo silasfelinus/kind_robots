@@ -354,7 +354,7 @@ const selected = computed(() =>
 )
 const roster = computed(() =>
   props.run.roster
-    .filter((state) => !state.dead)
+    .filter((state) => !state.dead && !state.departed)
     .map((state) => ({
       id: state.id,
       status: followerStatus(props.run, state.id) ?? 'ready',

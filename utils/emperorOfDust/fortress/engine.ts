@@ -1417,7 +1417,7 @@ const resolveThreats = (run: FortressRun): MapEvent[] => {
   return happened
 }
 
-const actEnd = (run: FortressRun, events: string[]): MapEvent[] => {
+const actEnd = (run: FortressRun): MapEvent[] => {
   const map: MapEvent[] = []
   for (const def of KINGDOM_FACTION_DEFS) {
     if (
@@ -1769,7 +1769,7 @@ export const finishDay = (
   // From the Day 41 dawn the court is in hiding: the tower falls before the
   // purse is counted, and the host pays instead of the regions.
   const hiding = next.day >= BETRAYAL_DAY
-  const lateMap = hiding ? actEnd(next, events) : []
+  const lateMap = hiding ? actEnd(next) : []
   const betrayal = hiding ? betray(next, events) : undefined
   const taxes = dailyIncome(next)
   const wages = dailyWages(next)
@@ -1786,7 +1786,7 @@ export const finishDay = (
       events.push('The Ledger is calling in its loans.')
     }
   }
-  const map = hiding ? lateMap : actEnd(next, events)
+  const map = hiding ? lateMap : actEnd(next)
   postDawnQuests(next)
   const report: DawnReport = {
     day: next.day,

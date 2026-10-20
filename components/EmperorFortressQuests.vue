@@ -16,7 +16,7 @@
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex flex-col p-3 pt-4 text-left"
+            class="eod-notice flex flex-col p-2 pt-3 text-left"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -24,7 +24,13 @@
             :aria-pressed="selectedId === entry.questId"
             @click="select(entry.questId)"
           >
-            <span class="eod-pin" aria-hidden="true" />
+            <span class="eod-pin z-10" aria-hidden="true" />
+            <EmperorFortressQuestImage
+              :quest-id="entry.questId"
+              :region="entry.quest.region"
+              :label="entry.quest.title"
+              class="-mx-1 -mt-1 mb-2 aspect-[16/9] rounded-sm"
+            />
             <strong class="eod-display text-sm leading-tight">{{
               entry.quest.title
             }}</strong>
@@ -90,6 +96,12 @@
       ref="detail"
       class="@container kr-panel space-y-3 p-4"
     >
+      <EmperorFortressQuestImage
+        :quest-id="selected.id"
+        :region="selected.region"
+        :label="selected.title"
+        class="-mx-4 -mt-4 aspect-[21/8] rounded-t-lg"
+      />
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-warning">
           {{ regionName(selected.region) }}
@@ -256,7 +268,7 @@
         </p>
       </div>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
           class="btn btn-warning"
@@ -267,16 +279,28 @@
             party.length === 1 ? '' : 's'
           }}
         </button>
-        <p v-if="error" class="kr-note kr-note-error p-2 text-sm" role="alert">
+        <EmperorFortressFinish :run="run" class="ml-auto" />
+        <p
+          v-if="error"
+          class="kr-note kr-note-error w-full p-2 text-sm"
+          role="alert"
+        >
           {{ error }}
         </p>
       </div>
     </section>
     <section
       v-else
-      class="kr-panel grid place-items-center p-6 text-sm opacity-75"
+      class="kr-panel flex flex-col items-center justify-center gap-3 p-6 text-sm"
     >
-      Choose a quest from the board.
+      <p class="opacity-75">
+        {{
+          run.board.length
+            ? 'Choose a quest from the board.'
+            : 'No quests wait on the board today.'
+        }}
+      </p>
+      <EmperorFortressFinish :run="run" />
     </section>
   </div>
 </template>

@@ -217,6 +217,8 @@ export type DayDef = {
   advisor?: { name: string; npc: string }
   /** The advisor's own line on the day's reports. */
   komodo: string
+  /** Something overheard at court that morning, shown under the reports. */
+  whisper?: { source: string; text: string }
   audiences: AudienceDef[]
   /** Quests posted at dawn regardless of audiences. */
   quests: string[]

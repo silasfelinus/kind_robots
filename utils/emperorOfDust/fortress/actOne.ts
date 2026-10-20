@@ -865,6 +865,10 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
   {
     day: 3,
     title: 'Three Wells',
+    whisper: {
+      source: 'A junior clerk of the Lamplight Archive, sorting dispatches',
+      text: 'Our sources come good about two times in three, Your Majesty. The trick is knowing which third.',
+    },
     briefings: [
       {
         id: 'bell-without-hand',

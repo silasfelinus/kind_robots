@@ -6,7 +6,7 @@
 import type { LocalFactionId } from './types'
 
 export type RoomId =
-  'throne' | 'quests' | 'barracks' | 'market' | 'map' | 'chronicle'
+  'briefing' | 'throne' | 'quests' | 'barracks' | 'market' | 'map' | 'chronicle'
 
 export type RoomDef = {
   id: RoomId
@@ -17,6 +17,13 @@ export type RoomDef = {
 }
 
 export const ROOMS: readonly RoomDef[] = [
+  {
+    id: 'briefing',
+    label: 'Briefing',
+    title: 'Morning Briefing',
+    tagline: 'Dispatches from the roads, read before the doors open.',
+    icon: 'kind-icon:book-open',
+  },
   {
     id: 'throne',
     label: 'Throne room',

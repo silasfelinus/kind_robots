@@ -1,91 +1,210 @@
 <template>
   <div
-    class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/70 p-3"
+    class="absolute inset-0 z-40 grid place-items-center bg-black/75 p-2 sm:p-4"
     role="dialog"
     aria-modal="true"
     :aria-label="`Dawn of Day ${report.day}`"
   >
     <div
-      class="w-full max-w-2xl overflow-hidden rounded-3xl border border-warning/30 bg-base-100 shadow-2xl"
+      class="kr-panel @container flex max-h-full w-full max-w-5xl flex-col overflow-hidden p-0"
     >
-      <div class="emperor-sky relative h-28 sm:h-36" aria-hidden="true">
+      <div
+        class="emperor-sky relative h-16 shrink-0 sm:h-24"
+        aria-hidden="true"
+      >
         <span class="emperor-sun" />
         <span
-          class="absolute inset-x-0 bottom-3 text-center font-serif text-3xl font-bold text-amber-50 drop-shadow"
-          >Day {{ report.day }}</span
+          class="eod-display absolute inset-x-0 bottom-2 z-10 text-center text-2xl text-amber-50 drop-shadow sm:text-3xl"
+          >Dawn of Day {{ report.day }}</span
         >
       </div>
-      <div class="max-h-[60vh] space-y-3 overflow-y-auto p-4">
-        <p
-          v-if="!report.quests.length && !report.events.length"
-          class="text-sm opacity-75"
-        >
-          A quiet night. Nobody came home, and nothing went wrong.
-        </p>
+
+      <ol
+        v-if="pages > 1"
+        class="flex shrink-0 justify-center gap-1.5 pt-2"
+        aria-label="Reports"
+      >
+        <li
+          v-for="i in pages"
+          :key="i"
+          class="h-1.5 w-6 rounded-full"
+          :class="i - 1 <= page ? 'bg-warning' : 'bg-base-content/25'"
+          :aria-current="i - 1 === page ? 'step' : undefined"
+        />
+      </ol>
+
+      <div class="kr-scroll min-h-0 flex-1 p-3 sm:p-4">
         <article
-          v-for="quest in report.quests"
-          :key="quest.questId"
-          class="rounded-xl border p-3"
-          :class="tierClass(quest.tier)"
+          v-if="current"
+          :key="current.questId"
+          class="grid gap-3 @3xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
         >
-          <div class="flex flex-wrap items-baseline justify-between gap-2">
-            <strong class="font-serif text-lg">{{
-              title(quest.questId)
-            }}</strong>
-            <span class="text-xs font-bold uppercase">{{
-              tierLabel(quest.tier)
-            }}</span>
+          <div class="relative">
+            <EmperorFortressQuestImage
+              :quest-id="current.questId"
+              :region="questDef(current.questId)?.region ?? ''"
+              :label="`${title(current.questId)}: ${tierLabel(current.tier)}`"
+              :variant="outcomeVariant(current.tier)"
+              :faded="current.tier === 'expired'"
+              class="aspect-[16/10] w-full rounded-lg"
+            />
+            <span
+              class="eod-display absolute left-2 top-2 rounded px-2 py-0.5 text-sm"
+              :class="ribbonClass(current.tier)"
+              >{{ tierLabel(current.tier) }}</span
+            >
           </div>
-          <p class="mt-1 text-sm">{{ outcome(quest.questId, quest.tier) }}</p>
-          <p v-if="quest.party.length" class="mt-1 text-xs opacity-70">
-            {{ quest.party.map(nameOf).join(', ') }} · {{ quest.chance }}%
-            chance
+          <div class="flex min-h-0 flex-col gap-2">
+            <h2 class="font-serif text-2xl font-bold text-warning">
+              {{ title(current.questId) }}
+            </h2>
+            <p class="font-serif text-base italic leading-relaxed sm:text-lg">
+              {{ outcome(current.questId, current.tier) }}
+            </p>
+            <ul v-if="current.party.length" class="flex flex-wrap gap-2">
+              <li
+                v-for="id in current.party"
+                :key="id"
+                class="flex w-20 flex-col items-center gap-1 text-center"
+              >
+                <span
+                  class="block h-24 w-20 overflow-hidden rounded-md border bg-base-200"
+                  :class="
+                    current.deaths.includes(id)
+                      ? 'border-base-content/30 grayscale'
+                      : injuryOf(id)
+                        ? 'border-error/70'
+                        : 'border-warning/50'
+                  "
+                >
+                  <img
+                    v-if="partyArt(id)"
+                    :src="partyArt(id)"
+                    :alt="`${nameOf(id)}, ${moodLine(id)}`"
+                    class="h-full w-full object-cover object-top"
+                  />
+                </span>
+                <span class="w-full truncate text-xs font-semibold">{{
+                  nameOf(id)
+                }}</span>
+                <span
+                  class="text-[10px]"
+                  :class="
+                    current.deaths.includes(id) || injuryOf(id)
+                      ? 'text-error'
+                      : 'opacity-70'
+                  "
+                  >{{ moodLine(id) }}</span
+                >
+              </li>
+            </ul>
+            <p v-if="current.party.length" class="text-xs opacity-70">
+              {{ current.chance }}% chance of success
+            </p>
+            <ul
+              v-if="current.revealedTraits.length"
+              class="space-y-0.5 text-xs"
+            >
+              <li
+                v-for="id in current.revealedTraits"
+                :key="id"
+                class="text-warning"
+              >
+                Revealed: {{ traitLine(id) }}
+              </li>
+            </ul>
+          </div>
+        </article>
+
+        <section v-else class="space-y-3">
+          <p
+            v-if="!report.quests.length && !report.events.length"
+            class="font-serif italic opacity-80"
+          >
+            A quiet night. Nobody came home, and nothing went wrong.
           </p>
-          <ul class="mt-1 space-y-0.5 text-xs">
+          <img
+            v-if="betrayalArt"
+            :src="betrayalArt"
+            alt="Young Komodo in an abbey robe, holding up the imperial seal"
+            class="mx-auto block max-h-80 w-auto rounded-lg bg-base-200 object-contain"
+          />
+          <ul v-if="report.events.length" class="space-y-1.5 text-sm">
             <li
-              v-for="injury in quest.injuries"
-              :key="injury.followerId"
-              class="text-error"
+              v-for="(event, i) in report.events"
+              :key="i"
+              class="border-l-2 border-warning/60 pl-3"
             >
-              {{ nameOf(injury.followerId) }} is injured for
-              {{ injury.days }} day(s).
-            </li>
-            <li
-              v-for="id in quest.deaths"
-              :key="id"
-              class="font-bold text-error"
-            >
-              {{ nameOf(id) }} did not come home.
-            </li>
-            <li
-              v-for="id in quest.revealedTraits"
-              :key="id"
-              class="text-warning"
-            >
-              Revealed: {{ traitLine(id) }}
+              {{ event }}
             </li>
           </ul>
-        </article>
-        <img
-          v-if="betrayalArt"
-          :src="betrayalArt"
-          alt="Young Komodo in an abbey robe, holding up the imperial seal"
-          class="mx-auto block max-h-80 w-auto rounded-xl bg-base-200 object-contain"
-        />
-        <ul v-if="report.events.length" class="space-y-1 text-sm">
-          <li v-for="(event, i) in report.events" :key="i">{{ event }}</li>
-        </ul>
-        <p class="rounded-xl bg-base-200 p-3 text-sm">
-          Taxes +{{ report.taxes }} brass · wages −{{ report.wages }} brass<span
-            v-if="report.loanTaken"
+          <ul
+            v-if="report.quests.length"
+            class="grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2"
+            aria-label="Last night's quests"
           >
-            · the Ledger covered the shortfall</span
-          >
-        </p>
+            <li v-for="(quest, i) in report.quests" :key="quest.questId">
+              <button
+                type="button"
+                class="block w-full overflow-hidden rounded-md border border-warning/25 text-left"
+                @click="page = i"
+              >
+                <EmperorFortressQuestImage
+                  :quest-id="quest.questId"
+                  :region="questDef(quest.questId)?.region ?? ''"
+                  :label="title(quest.questId)"
+                  :variant="outcomeVariant(quest.tier)"
+                  :faded="quest.tier === 'expired'"
+                  class="aspect-[16/9]"
+                />
+                <span class="block truncate px-2 pt-1 text-xs font-semibold">{{
+                  title(quest.questId)
+                }}</span>
+                <span
+                  class="block px-2 pb-1 text-[10px] font-bold uppercase"
+                  :class="tierText(quest.tier)"
+                  >{{ tierLabel(quest.tier) }}</span
+                >
+              </button>
+            </li>
+          </ul>
+          <p class="eod-chip p-3 text-sm">
+            Taxes +{{ report.taxes }} brass · wages −{{
+              report.wages
+            }}
+            brass<span v-if="report.loanTaken">
+              · the Ledger covered the shortfall</span
+            >
+          </p>
+        </section>
       </div>
-      <div class="border-t border-base-content/10 p-3 text-right">
-        <button type="button" class="btn btn-warning" @click="emit('close')">
-          To the throne room
+
+      <div
+        class="flex shrink-0 items-center justify-between gap-2 border-t border-warning/20 p-3"
+      >
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm"
+          :disabled="page === 0"
+          @click="page -= 1"
+        >
+          Back
+        </button>
+        <button
+          v-if="page < pages - 1"
+          type="button"
+          class="eod-finish px-5 py-1.5 text-sm"
+          @click="page += 1"
+        >
+          {{ page === report.quests.length - 1 ? 'The ledger' : 'Next report' }}
+        </button>
+        <button
+          v-else
+          type="button"
+          class="eod-finish px-5 py-1.5 text-sm"
+          @click="emit('close')"
+        >
+          To the morning briefing
         </button>
       </div>
     </div>
@@ -93,8 +212,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { castArtUrl } from '~/utils/emperorOfDust/fortress/castArt'
+import { computed, ref } from 'vue'
+import {
+  castArtUrl,
+  followerPortrait,
+  illustration,
+} from '~/utils/emperorOfDust/fortress/castArt'
+import { outcomeVariant } from '~/utils/emperorOfDust/fortress/questArt'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   FOLLOWERS,
@@ -115,6 +239,37 @@ const betrayalArt = computed(() =>
     : undefined,
 )
 
+// One page per quest that came home or expired, then the ledger.
+const page = ref(0)
+const pages = computed(() => props.report.quests.length + 1)
+const current = computed(() => props.report.quests[page.value])
+
+const injuryOf = (id: string) =>
+  current.value?.injuries.find((injury) => injury.followerId === id)
+/** The party as they came home: the tier's mood, or their wound. */
+const partyArt = (id: string) => {
+  const quest = current.value
+  if (!quest) return undefined
+  if (quest.deaths.includes(id)) return followerPortrait(id, 'dead')
+  if (injuryOf(id)) return followerPortrait(id, 'injured')
+  const mood =
+    quest.tier === 'triumph'
+      ? 'excited'
+      : quest.tier === 'success'
+        ? 'happy'
+        : quest.tier === 'failure'
+          ? 'sad'
+          : 'neutral'
+  return illustration('followers', id, mood) ?? followerPortrait(id)
+}
+const moodLine = (id: string) => {
+  if (current.value?.deaths.includes(id)) return 'did not come home'
+  const injury = injuryOf(id)
+  if (injury)
+    return `injured, ${injury.days} day${injury.days === 1 ? '' : 's'}`
+  return 'home safe'
+}
+
 const nameOf = (id: string) => followerDef(id)?.name ?? id
 const title = (id: string) => questDef(id)?.title ?? id
 const outcome = (id: string, tier: QuestReport['tier']) => {
@@ -133,13 +288,21 @@ const tierLabel = (tier: QuestReport['tier']) =>
     failure: 'Failure',
     expired: 'Expired',
   })[tier]
-const tierClass = (tier: QuestReport['tier']) =>
+const ribbonClass = (tier: QuestReport['tier']) =>
   ({
-    triumph: 'border-success bg-success/10',
-    success: 'border-success/50 bg-success/5',
-    partial: 'border-warning/50 bg-warning/5',
-    failure: 'border-error/50 bg-error/5',
-    expired: 'border-base-content/20 bg-base-200/60',
+    triumph: 'bg-success text-success-content',
+    success: 'bg-success/85 text-success-content',
+    partial: 'bg-warning text-warning-content',
+    failure: 'bg-error text-error-content',
+    expired: 'bg-base-300 text-base-content',
+  })[tier]
+const tierText = (tier: QuestReport['tier']) =>
+  ({
+    triumph: 'text-success',
+    success: 'text-success',
+    partial: 'text-warning',
+    failure: 'text-error',
+    expired: 'opacity-60',
   })[tier]
 const traitLine = (id: string) => {
   const trait = FOLLOWERS.flatMap((def) => def.traits).find((t) => t.id === id)
@@ -156,7 +319,7 @@ const traitLine = (id: string) => {
 }
 .emperor-sun {
   position: absolute;
-  left: 50%;
+  left: 82%;
   bottom: -2.5rem;
   width: 5rem;
   height: 5rem;

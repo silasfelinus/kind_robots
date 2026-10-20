@@ -6,80 +6,9 @@
       class="relative flex min-h-64 flex-col justify-end @4xl:min-h-0"
       aria-label="The court"
     >
-      <div class="relative z-10 self-start @4xl:max-w-md">
-        <button
-          type="button"
-          class="kr-panel flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-warning"
-          :aria-expanded="showBriefing"
-          @click="showBriefing = !showBriefing"
-        >
-          {{ today?.advisor?.name ?? 'Young Komodo' }} · morning briefing
-          <Icon
-            :name="
-              showBriefing ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-            "
-            class="h-3.5 w-3.5"
-          />
-        </button>
-        <div v-if="showBriefing" class="kr-panel mt-2 space-y-2 p-3">
-          <template v-if="today">
-            <div class="flex items-start gap-2">
-              <img
-                v-if="advisorArt"
-                :src="advisorArt"
-                :alt="today.advisor?.name ?? 'Young Komodo'"
-                class="h-20 w-14 shrink-0 rounded-md bg-base-200 object-cover object-top"
-              />
-              <p class="font-serif text-base italic">“{{ today.komodo }}”</p>
-            </div>
-            <ul class="grid gap-1.5">
-              <li
-                v-for="report in today.briefings"
-                :key="report.id"
-                class="rounded-md border p-2"
-                :class="
-                  eyeReveals(run, report.truth) || forecastMark(run, report)
-                    ? 'border-warning bg-warning/10'
-                    : 'border-base-content/15 bg-base-200/70'
-                "
-              >
-                <span
-                  v-if="eyeReveals(run, report.truth)"
-                  class="block text-xs font-bold text-warning"
-                  >The Eye marks this report false</span
-                >
-                <span
-                  v-if="forecastMark(run, report)"
-                  class="block text-xs font-bold text-warning"
-                  >{{
-                    forecastMark(run, report) === 'false'
-                      ? 'Nera reads the wind: this report is false'
-                      : 'Nera frowns: this report has no weather in it at all'
-                  }}</span
-                >
-                <p
-                  class="text-[10px] font-semibold uppercase tracking-wider opacity-60"
-                >
-                  {{ report.source }}
-                </p>
-                <p class="text-sm leading-snug">{{ report.text }}</p>
-              </li>
-            </ul>
-            <p class="text-xs italic opacity-70">
-              Two of these are true. One is not.
-            </p>
-          </template>
-          <p v-else class="text-sm opacity-75">
-            Komodo has no written briefing for Day {{ run.day }} yet. Only the
-            first {{ DAYS.length }} days are scripted so far; the wasteland’s
-            daily chores still reach the quest room.
-          </p>
-        </div>
-      </div>
-
       <figure
         v-if="sceneArt"
-        class="pointer-events-none mt-auto flex justify-center @4xl:absolute @4xl:inset-y-0 @4xl:left-[38%] @4xl:right-0"
+        class="pointer-events-none mt-auto flex justify-center @4xl:absolute @4xl:inset-0"
       >
         <img
           :key="sceneArt"
@@ -164,33 +93,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
-import { DAYS, dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
+import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   audiencesToday,
-  forecastMark,
   optionBlockers,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
-import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
-const today = computed(() => dayDef(props.run.day))
-/** The advisor's portrait; Komodo is sad on his last morning at court. */
-const advisorArt = computed(() =>
-  today.value
-    ? illustration(
-        'npcs',
-        today.value.advisor?.npc ?? 'young-komodo',
-        !today.value.advisor && today.value.day === 40 ? 'sad' : 'neutral',
-      )
-    : undefined,
-)
 const audiences = computed(() => audiencesToday(props.run))
 const selectedId = ref<string | null>(null)
 const responses = ref<Record<string, string>>({})
@@ -205,12 +121,6 @@ const selected = computed(
 const npc = computed(() =>
   selected.value?.npc ? npcDef(selected.value.npc) : undefined,
 )
-const wide = ref(true)
-const showBriefing = ref(true)
-onMounted(() => {
-  wide.value = window.matchMedia?.('(min-width: 768px)').matches ?? true
-  showBriefing.value = wide.value
-})
 const audienceIndex = computed(() =>
   Math.max(
     0,
@@ -234,7 +144,6 @@ watch(
   () => {
     responses.value = {}
     reactions.value = {}
-    showBriefing.value = wide.value
     selectedId.value =
       audiences.value.find((entry) => !heard(entry.id))?.id ?? null
   },

@@ -21,125 +21,146 @@
       </p>
 
       <header
-        class="eod-frame flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
-        aria-label="Reign status"
+        class="eod-frame @container relative z-20 shrink-0 px-1.5 py-1.5 sm:px-2"
+        aria-label="Fortress"
       >
-        <div class="flex min-w-0 items-center gap-2">
-          <Icon name="kind-icon:crown" class="h-7 w-7 shrink-0 text-warning" />
-          <div class="min-w-0">
-            <p
-              class="eod-display truncate text-base leading-tight text-warning sm:text-lg"
-            >
-              Emperor of Dust
-            </p>
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
-            >
-              {{
-                over
-                  ? 'The reign is over'
-                  : `Act ${actName(actOf(Math.min(run.day, LAST_DAY)))} · Day ${run.day} / ${LAST_DAY}`
-              }}
-            </p>
-          </div>
-        </div>
-        <ul
-          class="order-last grid w-full grid-cols-5 gap-1 sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-end"
-          aria-label="Fortress support"
-        >
-          <li
-            v-for="faction in LOCAL_FACTION_DEFS"
-            :key="faction.id"
-            class="eod-chip min-w-0 px-1.5 py-1 sm:w-28 sm:px-2"
-            :title="faction.name + ': ' + faction.wants"
+        <div class="flex items-center gap-1.5">
+          <button
+            type="button"
+            class="eod-chip tooltip-bottom tooltip-warning flex shrink-0 items-center gap-1.5 px-2 py-1"
+            :class="ledgerOpen ? '' : 'tooltip'"
+            :data-tip="
+              ledgerOpen
+                ? 'Hide the court ledger'
+                : 'The court ledger: day, brass and the five fortress factions'
+            "
+            :aria-expanded="ledgerOpen"
+            aria-controls="eod-ledger"
+            @click="ledgerOpen = !ledgerOpen"
           >
-            <span class="flex items-center justify-between gap-1">
-              <span
-                class="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider opacity-80"
+            <Icon
+              name="kind-icon:crown"
+              class="hidden h-6 w-6 shrink-0 @md:block"
+            />
+            <span class="hidden text-left @4xl:block">
+              <span class="eod-display block text-sm leading-tight text-warning"
+                >Emperor of Dust</span
               >
-                <Icon
-                  :name="LOCAL_FACTION_ICONS[faction.id]"
-                  class="h-3 w-3 text-warning"
-                />
-                <span class="hidden sm:inline">{{
-                  shortName(faction.name)
-                }}</span>
-                <span class="sr-only sm:hidden">{{ faction.name }}</span>
-              </span>
-              <strong
-                class="text-xs"
-                :class="run.local[faction.id] <= 3 ? 'text-error' : ''"
-                >{{ run.local[faction.id] }}</strong
+              <span
+                class="block text-[10px] font-semibold uppercase tracking-[0.18em] opacity-75"
+                >{{ dayLine }}</span
               >
             </span>
             <span
-              class="mt-1 block h-1 overflow-hidden rounded-full bg-base-content/15"
+              class="text-[11px] font-bold uppercase tracking-wider @4xl:hidden"
+              >{{ over ? 'Ended' : `Day ${run.day}` }}</span
+            >
+            <span
+              class="ml-1 grid h-4 w-4 place-items-center rounded-full border-2 border-warning"
               aria-hidden="true"
             >
-              <span
-                class="block h-full rounded-full"
-                :class="run.local[faction.id] <= 3 ? 'bg-error' : 'bg-warning'"
-                :style="{
-                  width: (100 * run.local[faction.id]) / LOCAL_MAX + '%',
-                }"
-              />
+              <span class="h-1 w-1 rounded-full bg-warning" />
             </span>
-          </li>
-        </ul>
-        <div
-          class="eod-chip ml-auto flex items-center gap-2 px-3 py-1 sm:ml-0"
-          :title="run.brass + ' brass'"
-        >
-          <span
-            class="grid h-6 w-6 place-items-center rounded-full border-2 border-warning text-warning"
-            aria-hidden="true"
-          >
-            <span class="h-2 w-2 rounded-full border border-warning" />
-          </span>
-          <strong class="eod-display text-xl leading-none">{{
-            run.brass
-          }}</strong>
-          <span class="sr-only">brass</span>
-        </div>
-      </header>
+            <strong class="eod-display text-base leading-none">{{
+              run.brass
+            }}</strong>
+            <span class="sr-only">brass</span>
+            <Icon
+              :name="
+                ledgerOpen ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+              "
+              class="h-3.5 w-3.5 opacity-70"
+            />
+          </button>
 
-      <nav
-        class="eod-frame flex shrink-0 gap-1 overflow-x-auto p-1"
-        aria-label="Fortress rooms"
-      >
-        <button
-          v-for="room in rooms"
-          :key="room.id"
-          type="button"
-          class="eod-tab flex min-w-fit flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
-          :aria-current="activeRoom === room.id ? 'page' : undefined"
-          @click="enter(room.id)"
-        >
-          <Icon :name="room.icon" class="h-3.5 w-3.5" />
-          {{ room.label }}
-          <span
-            v-if="room.badge"
-            class="badge badge-error badge-xs"
-            :aria-label="room.badge + ' waiting'"
-            >{{ room.badge }}</span
+          <nav class="flex min-w-0 flex-1 gap-1" aria-label="Fortress rooms">
+            <button
+              v-for="room in rooms"
+              :key="room.id"
+              type="button"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center @6xl:min-w-fit @6xl:flex-auto justify-center gap-1.5 whitespace-nowrap px-1.5 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-3"
+              :data-tip="room.hint"
+              :aria-label="
+                room.label + (room.badge ? `, ${room.badge} waiting` : '')
+              "
+              :aria-current="activeRoom === room.id ? 'page' : undefined"
+              @click="enter(room.id)"
+            >
+              <Icon :name="room.icon" class="h-4 w-4 shrink-0" />
+              <span class="hidden truncate @6xl:inline">{{ room.label }}</span>
+              <span
+                v-if="room.badge"
+                class="badge badge-error badge-xs absolute -right-0.5 -top-1 @6xl:static"
+                aria-hidden="true"
+                >{{ room.badge }}</span
+              >
+            </button>
+          </nav>
+
+          <ul
+            class="hidden shrink-0 gap-1 @[110rem]:flex"
+            aria-label="Fortress support"
           >
-        </button>
-      </nav>
+            <li v-for="faction in LOCAL_FACTION_DEFS" :key="faction.id">
+              <button
+                type="button"
+                class="eod-chip tooltip tooltip-bottom w-20 px-1.5 py-1"
+                :data-tip="`${faction.name}: ${run.local[faction.id]} of ${LOCAL_MAX}. Wants ${faction.wants.toLowerCase()}`"
+                @click="ledgerOpen = true"
+              >
+                <span class="flex items-center justify-between gap-1">
+                  <Icon
+                    :name="LOCAL_FACTION_ICONS[faction.id]"
+                    class="h-3.5 w-3.5 text-warning"
+                  />
+                  <span class="sr-only">{{ faction.name }}</span>
+                  <strong
+                    class="text-xs"
+                    :class="run.local[faction.id] <= 3 ? 'text-error' : ''"
+                    >{{ run.local[faction.id] }}</strong
+                  >
+                </span>
+                <span
+                  class="mt-1 block h-1 overflow-hidden rounded-full bg-base-content/15"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="block h-full rounded-full"
+                    :class="
+                      run.local[faction.id] <= 3 ? 'bg-error' : 'bg-warning'
+                    "
+                    :style="{
+                      width: (100 * run.local[faction.id]) / LOCAL_MAX + '%',
+                    }"
+                  />
+                </span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <EmperorFortressLedger
+          v-if="ledgerOpen"
+          id="eod-ledger"
+          :run="run"
+          :day-line="dayLine"
+        />
+      </header>
 
       <div
         class="eod-frame eod-stage relative isolate flex min-h-0 flex-1 flex-col overflow-hidden"
         :style="stageStyle"
       >
-        <div class="flex shrink-0 items-start gap-3 px-3 pt-3 sm:px-4">
+        <div class="flex shrink-0 items-start gap-3 px-2 pt-2 sm:px-4 sm:pt-3">
           <span
-            class="eod-medallion grid h-11 w-11 shrink-0 place-items-center rounded-full"
+            class="eod-medallion hidden h-11 w-11 shrink-0 place-items-center rounded-full sm:grid"
             aria-hidden="true"
           >
             <Icon :name="currentRoom.icon" class="h-5 w-5 text-warning" />
           </span>
           <div class="min-w-0">
             <h2
-              class="eod-plate eod-display inline-block px-3 py-0.5 text-lg sm:text-xl"
+              class="eod-plate eod-display inline-block px-2 py-0.5 text-sm sm:px-3 sm:text-xl"
             >
               {{ currentRoom.title }}
             </h2>
@@ -181,7 +202,15 @@
             </p>
           </section>
           <template v-else>
-            <EmperorFortressThrone v-if="activeRoom === 'throne'" :run="run" />
+            <EmperorFortressBriefing
+              v-if="activeRoom === 'briefing'"
+              :run="run"
+              @next="enter('throne')"
+            />
+            <EmperorFortressThrone
+              v-else-if="activeRoom === 'throne'"
+              :run="run"
+            />
             <EmperorFortressQuests
               v-else-if="activeRoom === 'quests'"
               :run="run"
@@ -206,18 +235,6 @@
           />
         </div>
       </div>
-
-      <footer
-        v-if="!over"
-        class="eod-frame flex shrink-0 flex-wrap items-center justify-end gap-2 px-3 py-2"
-      >
-        <p v-if="warnings.length" class="mr-auto text-xs italic text-warning">
-          {{ warnings.join(' · ') }}
-        </p>
-        <button type="button" class="eod-finish px-6 py-2" @click="finish">
-          Finish Day {{ run.day }}
-        </button>
-      </footer>
     </div>
 
     <EmperorFortressIntro
@@ -238,7 +255,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { LAST_DAY } from '~/utils/emperorOfDust/fortress/content'
 import {
@@ -267,7 +284,7 @@ const ending = computed(() =>
   run.value && over.value ? endingOf(run.value) : undefined,
 )
 const followerName = (id: string) => followerDef(id)?.name ?? id
-const activeRoom = ref<RoomId>('throne')
+const activeRoom = ref<RoomId>('briefing')
 const showDawn = ref(false)
 const splashing = ref(true)
 const stage = ref<HTMLElement | null>(null)
@@ -285,15 +302,23 @@ const expiring = computed(() =>
     : 0,
 )
 const rooms = computed(() =>
-  ROOMS.map((room) => ({
-    ...room,
-    badge:
+  ROOMS.map((room) => {
+    const badge =
       (room.id === 'throne'
         ? unheard.value
         : room.id === 'quests'
           ? expiring.value
-          : 0) || undefined,
-  })),
+          : 0) || undefined
+    const waiting =
+      room.id === 'throne' && badge
+        ? ` · ${badge} petitioner${badge === 1 ? '' : 's'} waiting`
+        : room.id === 'quests' && badge
+          ? ` · ${badge} quest${badge === 1 ? '' : 's'} expire tonight`
+          : room.id === 'quests' && !unheard.value && !over.value
+            ? ' · the day can end here'
+            : ''
+    return { ...room, badge, hint: room.label + waiting }
+  }),
 )
 const currentRoom = computed(() => roomDef(activeRoom.value))
 const stageStyle = computed(() => {
@@ -302,29 +327,26 @@ const stageStyle = computed(() => {
 })
 const ACT_NAMES = ['I', 'II', 'III', 'IV', 'V']
 const actName = (act: number) => ACT_NAMES[act - 1] ?? String(act)
-const warnings = computed(() => [
-  ...(unheard.value
-    ? [`${unheard.value} petitioner${unheard.value === 1 ? '' : 's'} unheard`]
-    : []),
-  ...(expiring.value
-    ? [
-        `${expiring.value} quest${expiring.value === 1 ? '' : 's'} expire tonight`,
-      ]
-    : []),
-])
-
-const shortName = (name: string) => name.replace(/^The /, '').split(' ')[0]
+const dayLine = computed(() =>
+  !run.value || over.value
+    ? 'The reign is over'
+    : `Act ${actName(actOf(Math.min(run.value.day, LAST_DAY)))} · Day ${run.value.day} / ${LAST_DAY}`,
+)
+const ledgerOpen = ref(false)
 
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
 }
 
-function finish() {
-  court.finish()
-  showDawn.value = true
-  activeRoom.value = 'throne'
-}
+watch(
+  () => court.lastReport,
+  (report) => {
+    if (!report) return
+    showDawn.value = true
+    activeRoom.value = 'briefing'
+  },
+)
 
 onMounted(() => {
   court.load()

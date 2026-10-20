@@ -24,6 +24,7 @@ import {
   ROUTES,
   type RouteStep,
 } from './story'
+import { QUEST_CARDS, type GatedEncounter } from './questExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 export const ECOTONE_SAVE_VERSION = 4
@@ -96,7 +97,7 @@ export type RunState = {
   ending: string | null
 }
 
-export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
+export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS, ...QUEST_CARDS]
 
 // Playbook Manager edits an admin marked live (conductor weird-humboldt t-033).
 // They rewrite text and may add choices; card ids and authored mechanics stay.
@@ -294,7 +295,7 @@ export function currentStep(state: RunState): RouteStep | null {
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const open = ENCOUNTERS.filter(
+  const open: GatedEncounter[] = [...ENCOUNTERS, ...QUEST_CARDS].filter(
     (card) =>
       !state.played.includes(card.id) &&
       (!card.requiresLead || card.requiresLead === state.activeLead) &&

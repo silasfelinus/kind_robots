@@ -9444,7 +9444,7 @@
         "id": "pay-the-familys-passage",
         "label": "Pay the family's passage",
         "intent": "Hold up a day's food as fare so the ferryman will bring the raft in for the family.",
-        "risk": "He may take the fare and keep on circling.",
+        "risk": "You pay a family's fare with your last meal; the ferryman may still leave you waiting.",
         "requires": null,
         "cost": {
           "provisions": -1
@@ -9506,7 +9506,7 @@
         "id": "give-a-false-name",
         "label": "Give a false name",
         "intent": "Give the registrar a name that is not yours, and watch what she writes beside it.",
-        "risk": "Some ledgers remember faces better than names.",
+        "risk": "A false name may pass the gate, but the ledger will assign someone else's debt to it.",
         "requires": null,
         "cost": null,
         "roll": {
@@ -9616,7 +9616,7 @@
         },
         "roll": null,
         "success": {
-          "text": "The boatwright watches you do it and says nothing, but he walks you to the ferry and tells the pilot to let you ride. You never learn whether anyone came back for the boat.",
+          "text": "You leave the wrapped food beneath the empty seat. The boatwright watches without a word, then walks you to the next ferry and asks the pilot to take you across. Nobody can tell you whether the skiff's owner ever came back to claim his supper.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["the-boat-that-waits-left-food", "deed-shared-bread"],
@@ -9633,7 +9633,7 @@
         "id": "share-your-salt-down-the-line",
         "label": "Share your salt down the line",
         "intent": "Pour your own salt into the hands of the people at the back of the queue.",
-        "risk": "The merchant will notice someone with salt to spare.",
+        "risk": "Every pinch feeds a stranger and leaves you less; the merchant may raise prices again.",
         "requires": null,
         "cost": {
           "provisions": -1
@@ -9709,7 +9709,7 @@
           }
         },
         "failure": {
-          "text": "Your memory and her drafts quarrel all afternoon, and the map you draw together is worse than either. She thanks you kindly, and you leave tired, with the light nearly gone.",
+          "text": "You and the cartographer argue over each washed-out bend until the afternoon light is gone. The seventh chart is no truer than the sixth, and she thanks you with a tired politeness that hurts worse than blame. You walk away without a reliable route.",
           "hp_delta": -1,
           "provisions_delta": 0,
           "add_flags": ["the-mended-compass-bad-draft"],
@@ -9725,7 +9725,7 @@
         "id": "drink-the-cup-of-no-questions",
         "label": "Drink the quiet cup",
         "intent": "Lift the cup for whoever asks no questions, drink it down, and keep your eyes on the bowl.",
-        "risk": "Silence is also an answer here.",
+        "risk": "The quiet cup buys a warm meal only if you leave the lost traveler unnamed.",
         "requires": null,
         "cost": null,
         "roll": null,
@@ -9754,7 +9754,7 @@
           "target": 9
         },
         "success": {
-          "text": "The patrons stiffen, and then one of them lowers his eyes. At the door the cook tells you the lost traveler was her son, and that he asked too many questions about the checkpoint downriver.",
+          "text": "You lift the cup laid for the traveler who never returned. One of the armed patrons lowers his eyes. At the door the cook catches your sleeve and tells you the missing traveler was her son; he had asked about the checkpoint downriver. She takes his cup back to the stove, still full.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["three-cups-on-the-table-toast"],
@@ -9780,7 +9780,7 @@
         "id": "walk-him-to-high-ground",
         "label": "Walk him to high ground",
         "intent": "Tell the surveyor the fresh mud means water tonight, and insist he climb out with you.",
-        "risk": "He will lose his line, and he may never forgive it.",
+        "risk": "Saving the surveyor means abandoning his stakes before they record the new flood line.",
         "requires": null,
         "cost": null,
         "roll": null,
@@ -9814,7 +9814,7 @@
           "target": 9
         },
         "success": {
-          "text": "Her own people laid it, three generations back, to carry their dead to burial islands the river has since abandoned. Out of respect for the asking, she shows you the timbers that still bear weight and an old burial path that reshapes your road ahead.",
+          "text": "Her grandparents carried their dead across these timbers to burial islands the river has since abandoned. She shows you the beams that will still bear weight and the old mourning road through the reeds. You follow it quietly, knowing the path belonged to someone long before it became a shortcut.",
           "hp_delta": 0,
           "provisions_delta": 0,
           "add_flags": ["a-road-of-bones-history", "deed-knows-old-roads"],
@@ -9840,14 +9840,14 @@
         "id": "salve-his-salt-burned-feet",
         "label": "Salve his salt-burned feet",
         "intent": "Kneel with your medicine and look at the feet he never lifts from the dry ground.",
-        "risk": "Salt sores can go deeper than any salve.",
+        "risk": "The reed player needs help walking, and your time may be worth more than his music.",
         "requires": {
           "anyFlags": ["deed-carries-medicine"]
         },
         "cost": null,
         "roll": null,
         "success": {
-          "text": "His feet are cracked raw from the salt, and he has not walked in a week; the music was the only way to call anyone. You salve and wrap them, and by evening he can stand and share his dried fish with you.",
+          "text": "His feet are cracked raw from the salt. He has been unable to walk in a week, playing music to call someone near enough to help. You clean and wrap the sores until he can stand. He shares dried fish from his bundle and plays one last phrase to guide you toward safer ground.",
           "hp_delta": 0,
           "provisions_delta": 1,
           "add_flags": ["the-reed-music-salved", "deed-owed-favor"],

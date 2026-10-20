@@ -26,7 +26,11 @@ import {
 } from './story'
 import { QUEST_CARDS, type GatedEncounter } from './questExpansion'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
-import { NEW_SIGNATURES, FUTURE_BOOKENDS, NEW_LENS_CODAS } from './finaleExpansion'
+import {
+  NEW_SIGNATURES,
+  FUTURE_BOOKENDS,
+  NEW_LENS_CODAS,
+} from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)

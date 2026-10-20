@@ -25,6 +25,8 @@ import {
   type RouteStep,
 } from './story'
 import { QUEST_CARDS, type GatedEncounter } from './questExpansion'
+import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
+import { NEW_SIGNATURES, FUTURE_BOOKENDS, NEW_LENS_CODAS } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 export const ECOTONE_SAVE_VERSION = 4

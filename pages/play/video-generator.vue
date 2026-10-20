@@ -299,11 +299,11 @@
       </section>
 
       <video-model-picker
+        v-model:first-model-id="videoCheckpointResourceId"
+        v-model:low-model-id="videoLowCheckpointResourceId"
         :engine="engine"
         :mode="selectedWanMode"
         :has-end-frame="Boolean(secondImage)"
-        v-model:first-model-id="videoCheckpointResourceId"
-        v-model:low-model-id="videoLowCheckpointResourceId"
         @update:mode="wanMode = $event"
       />
       <video-lora-picker

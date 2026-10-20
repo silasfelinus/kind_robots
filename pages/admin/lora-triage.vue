@@ -1,8 +1,20 @@
 <template>
-  <main class="kr-surface h-full min-h-0 overflow-hidden">
-    <div class="kr-scroll kr-container-wide space-y-4 p-4 md:p-6">
-      <header class="kr-toolbar flex flex-wrap items-start justify-end gap-4">
-
+  <main class="kr-surface flex h-full min-h-0 flex-col overflow-hidden">
+    <div class="kr-scroll kr-container-wide w-full space-y-4 p-4 md:p-6">
+      <header class="kr-panel flex flex-wrap items-center justify-between gap-3 p-3">
+        <div class="flex min-w-0 flex-wrap items-center gap-2">
+          <NuxtLink to="/resources" class="btn btn-sm btn-outline rounded-xl">
+            <Icon name="kind-icon:database" class="kr-icon-4" />
+            Library
+          </NuxtLink>
+          <NuxtLink
+            to="/resources?tab=discover"
+            class="btn btn-sm btn-outline rounded-xl"
+          >
+            <Icon name="kind-icon:download" class="kr-icon-4" />
+            Discover &amp; download
+          </NuxtLink>
+        </div>
         <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -69,7 +81,7 @@
       </div>
 
       <template v-else>
-        <section class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+        <section class="grid grid-cols-3 gap-2 lg:grid-cols-6">
           <div class="kr-panel p-3">
             <p class="kr-text-eyebrow kr-text-dim-xs-45">LoRAs</p>
             <p class="kr-text-black-2xl mt-1">

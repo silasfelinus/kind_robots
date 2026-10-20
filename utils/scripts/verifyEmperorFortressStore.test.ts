@@ -7,10 +7,12 @@
 // over, blocked or full storage is reported, and the relic vault and Codex
 // outlive new runs, rewinds and reloads.
 import assert from 'node:assert/strict'
-import { register } from 'node:module'
+import { registerHooks } from 'node:module'
 
 // The store's achievement and Playbook live-text imports need the Nuxt app;
-// swap them for inert stand-ins so the store itself runs unchanged.
+// swap them for inert stand-ins so the store itself runs unchanged. The hook
+// runs in-thread ahead of tsx's own resolver and ignores any query string tsx
+// adds to the importing file's URL.
 const stub = (src: string) => `data:text/javascript,${encodeURIComponent(src)}`
 const STUBS: Record<string, string> = {
   './achievementStore': stub(
@@ -20,14 +22,15 @@ const STUBS: Record<string, string> = {
     'export const loadPlaybookLiveText = async () => false',
   ),
 }
-register(
-  stub(`const STUBS = ${JSON.stringify(STUBS)}
-export async function resolve(specifier, context, next) {
-  if (context.parentURL?.endsWith('/stores/emperorFortressStore.ts') && STUBS[specifier])
-    return { url: STUBS[specifier], shortCircuit: true }
-  return next(specifier, context)
-}`),
-)
+registerHooks({
+  resolve(specifier, context, nextResolve) {
+    const parent = context.parentURL?.split('?')[0] ?? ''
+    const url = parent.endsWith('/stores/emperorFortressStore.ts')
+      ? STUBS[specifier]
+      : undefined
+    return url ? { url, shortCircuit: true } : nextResolve(specifier, context)
+  },
+})
 
 const { createPinia, setActivePinia } = await import('pinia')
 const { useEmperorFortressStore } =

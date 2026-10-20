@@ -15,6 +15,60 @@ export type RegionalCallback = {
 
 export const REGIONAL_CALLBACKS: RegionalCallback[] = [
   {
+    id: 'FR-MARA-01',
+    choice: 'transparent-lease',
+    flag: 'mara_second_studio_agreement',
+    priority: 6,
+    text: 'Mara’s second studio stayed hers. Its apprenticeship budget survived the first rent increase because the people who worked there were given a say in its future.',
+    artMoment:
+      'Two independent studio rooms with artist-authored name cards, lease and paid apprenticeship agreement',
+  },
+  {
+    id: 'FR-KIT-01',
+    choice: 'maker-credits',
+    flag: 'kit_parade_credits',
+    priority: 6,
+    text: 'Kit’s parade roster kept the names of makers who wanted them listed and protected those who did not. The annual event grew stranger without becoming anybody’s exclusive brand.',
+    artMoment:
+      'Kinetic sculpture parade board with verified artist credits and chosen pseudonyms',
+  },
+  {
+    id: 'FR-JUNIPER-01',
+    choice: 'accessible-crossing',
+    flag: 'juniper_accessible_path',
+    priority: 6,
+    text: 'Juniper learned to measure stewardship in people who could actually use the trail, as well as in the roots beneath it. The accessible path remains in the public plan.',
+    artMoment:
+      'Accessible forest path curving around living roots with workers and a walker using mobility support',
+  },
+  {
+    id: 'FR-CEDAR-01',
+    choice: 'community-license',
+    flag: 'cedar_repeater_coop',
+    priority: 6,
+    text: 'Cedar’s little repeater became a locally governed network. His parents still argue cheerfully at the maintenance meetings, which is not a problem the co-op intends to fix.',
+    artMoment:
+      'Community radio co-op repair crew beside a modest repeater and transparent privacy charter',
+  },
+  {
+    id: 'FR-ASSEMBLY-01',
+    choice: 'share-skills',
+    flag: 'assembly_shared_skills',
+    priority: 7,
+    text: 'The potluck became a modest exchange of practical skills, not a government or a club anyone had to join. You helped start one conversation that others carried on without you.',
+    artMoment:
+      'Public repair-and-soup table with neighbors teaching one another a mechanical trick',
+  },
+  {
+    id: 'FR-ASSEMBLY-01',
+    choice: 'make-space',
+    flag: 'assembly_access_without_pressure',
+    priority: 7,
+    text: 'The potluck kept a quiet table and an accessible schedule. Some people stayed all day; others came for food and left. The door worked both ways.',
+    artMoment:
+      'A quiet accessible seating area and written schedule beside an optional community gathering',
+  },
+  {
     id: 'WH-014',
     choice: 'fungus-hearing',
     flag: 'wh_014_fungus_hearing',

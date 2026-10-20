@@ -1,9 +1,6 @@
 // /stores/helpers/earnedKarmaHelper.ts
 import { computed, ref, watch, type Ref } from 'vue'
-import {
-  KARMA_EARNED_BATCH_LIMIT,
-  type KarmaRefType,
-} from '@/utils/karmaRefTypes'
+import { KARMA_EARNED_BATCH_LIMIT, type KarmaRefType } from '@/utils/karmaRefTypes'
 
 export type KarmaEarnedRow = {
   refType: string

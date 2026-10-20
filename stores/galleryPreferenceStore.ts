@@ -69,10 +69,7 @@ export const useGalleryPreferenceStore = defineStore(
     function hydrate(): void {
       if (hydrated) return
       hydrated = true
-      Object.assign(
-        preferences,
-        parsePreferences(safeGetLocalStorage(storageKey)),
-      )
+      Object.assign(preferences, parsePreferences(safeGetLocalStorage(storageKey)))
     }
 
     function persist(): void {

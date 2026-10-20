@@ -79,7 +79,9 @@ export function clientFromDesigner(designer?: string | null): string {
   if (designer === 'stylist') return ''
   if (!designer.startsWith(STYLIST_DESIGNER_PREFIX)) return ''
 
-  return designer.slice(STYLIST_DESIGNER_PREFIX.length).replace(/#\d+$/, '')
+  return designer
+    .slice(STYLIST_DESIGNER_PREFIX.length)
+    .replace(/#\d+$/, '')
 }
 
 /** The StylistClient id encoded in a designer tag, or null (legacy tags). */
@@ -116,11 +118,7 @@ export function friendlyError(raw: string): string {
   ) {
     return 'No art server is responding right now. Check that a Comfy/Kontext server is active, then retry.'
   }
-  if (
-    message.includes('sign') ||
-    message.includes('account') ||
-    message.includes('auth')
-  ) {
+  if (message.includes('sign') || message.includes('account') || message.includes('auth')) {
     return 'Please sign in to use Hair Studio, then try again.'
   }
   return raw || 'Styling failed. Please try again.'
@@ -156,10 +154,7 @@ export const useStylistStore = defineStore('stylistStore', () => {
     )
   }
 
-  function historyForClient(
-    client: string,
-    clientId?: number | null,
-  ): ArtImage[] {
+  function historyForClient(client: string, clientId?: number | null): ArtImage[] {
     const target = client.trim().toLowerCase()
     if (!target && !clientId) return history.value
 
@@ -266,13 +261,9 @@ export const useStylistStore = defineStore('stylistStore', () => {
             ...(input.originalWeight !== undefined
               ? { originalWeight: input.originalWeight }
               : {}),
-            ...(input.negativePrompt
-              ? { negativePrompt: input.negativePrompt }
-              : {}),
+            ...(input.negativePrompt ? { negativePrompt: input.negativePrompt } : {}),
             ...(input.cfg !== undefined ? { cfg: input.cfg } : {}),
-            ...(input.guidance !== undefined
-              ? { guidance: input.guidance }
-              : {}),
+            ...(input.guidance !== undefined ? { guidance: input.guidance } : {}),
             ...(input.steps !== undefined ? { steps: input.steps } : {}),
             ...(input.seed !== undefined ? { seed: input.seed } : {}),
             ...(input.maskData ? { maskData: input.maskData } : {}),

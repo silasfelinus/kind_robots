@@ -149,9 +149,9 @@ export const useRandomStore = defineStore('randomStore', () => {
 
   const supportedKeys = computed(() =>
     Object.keys(RANDOM_KEY_TAXONOMIES).filter((key) =>
-      facetCatalog
-        .facetsForTaxonomies(RANDOM_KEY_TAXONOMIES[key] ?? [])
-        .some((entry) => entry.isRandomizable),
+      facetCatalog.facetsForTaxonomies(RANDOM_KEY_TAXONOMIES[key] ?? []).some(
+        (entry) => entry.isRandomizable,
+      ),
     ),
   )
 
@@ -233,7 +233,9 @@ export const useRandomStore = defineStore('randomStore', () => {
     if (!result) return
 
     if (randomSelections.value[key] === result) {
-      const alternatives = getRandom(key, 2).filter((value) => value !== result)
+      const alternatives = getRandom(key, 2).filter(
+        (value) => value !== result,
+      )
       const next = alternatives[0]
       if (next) randomSelections.value[key] = next
       return
@@ -258,10 +260,7 @@ export const useRandomStore = defineStore('randomStore', () => {
     if (initialized.value && !force) return
 
     if (!facetCatalog.loaded || force) {
-      await facetCatalog.fetchCatalog(
-        { includeMature: true, take: 1000 },
-        force,
-      )
+      await facetCatalog.fetchCatalog({ includeMature: true, take: 1000 }, force)
     }
 
     if (isClient) {
@@ -270,10 +269,7 @@ export const useRandomStore = defineStore('randomStore', () => {
         try {
           randomSelections.value = JSON.parse(stored) as Record<string, string>
         } catch (error) {
-          handleError(
-            error,
-            'Failed to parse random selections from localStorage',
-          )
+          handleError(error, 'Failed to parse random selections from localStorage')
         }
       }
 
@@ -306,9 +302,7 @@ export const useRandomStore = defineStore('randomStore', () => {
   }
 
   function applyMakePretty(): void {
-    const pretty = catalogPresets.value.find(
-      (entry) => entry.id === '__pretty__',
-    )
+    const pretty = catalogPresets.value.find((entry) => entry.id === '__pretty__')
     const negative = catalogPresets.value.find(
       (entry) => entry.id === '__negative__',
     )
@@ -331,10 +325,7 @@ export const useRandomStore = defineStore('randomStore', () => {
     for (const entry of catalogPresets.value) {
       if (!entry.content.length) continue
       const count = entry.allowMultiple
-        ? Math.max(
-            1,
-            Math.ceil(Math.random() * Math.min(entry.content.length, 6)),
-          )
+        ? Math.max(1, Math.ceil(Math.random() * Math.min(entry.content.length, 6)))
         : 1
       artStore.updateArtListSelection(
         entry.id,

@@ -2,7 +2,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { handleError, performFetch } from '@/stores/utils'
-import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
+import {
+  useFacetStore,
+  type FacetWithAliases,
+} from '@/stores/facetStore'
 
 export type RewardFacetResult = {
   success: boolean
@@ -30,9 +33,7 @@ export const useRewardFacetStore = defineStore('rewardFacetStore', () => {
 
   function mergeFacets(facets: FacetWithAliases[]): void {
     for (const facet of facets) {
-      const index = facetStore.facets.findIndex(
-        (entry) => entry.id === facet.id,
-      )
+      const index = facetStore.facets.findIndex((entry) => entry.id === facet.id)
       if (index >= 0) facetStore.facets[index] = facet
       else facetStore.facets.push(facet)
     }
@@ -53,9 +54,7 @@ export const useRewardFacetStore = defineStore('rewardFacetStore', () => {
     return id ? errorsByRewardId.value[id] || '' : ''
   }
 
-  async function fetchRewardFacets(
-    rewardId: number,
-  ): Promise<RewardFacetResult> {
+  async function fetchRewardFacets(rewardId: number): Promise<RewardFacetResult> {
     const id = normalizeRewardId(rewardId)
     if (!id) return { success: false, message: 'Invalid Reward ID.' }
 
@@ -68,9 +67,7 @@ export const useRewardFacetStore = defineStore('rewardFacetStore', () => {
       )
 
       if (!response.success || !response.data) {
-        throw new Error(
-          response.message || 'Reward Facets could not be loaded.',
-        )
+        throw new Error(response.message || 'Reward Facets could not be loaded.')
       }
 
       mergeFacets(response.data)
@@ -83,9 +80,7 @@ export const useRewardFacetStore = defineStore('rewardFacetStore', () => {
       }
     } catch (cause) {
       const message =
-        cause instanceof Error
-          ? cause.message
-          : 'Reward Facets could not be loaded.'
+        cause instanceof Error ? cause.message : 'Reward Facets could not be loaded.'
       errorsByRewardId.value[id] = message
       handleError(cause, `loading Facets for Reward ${id}`)
       return { success: false, message }
@@ -128,9 +123,7 @@ export const useRewardFacetStore = defineStore('rewardFacetStore', () => {
       }
     } catch (cause) {
       const message =
-        cause instanceof Error
-          ? cause.message
-          : 'Reward Facets could not be saved.'
+        cause instanceof Error ? cause.message : 'Reward Facets could not be saved.'
       errorsByRewardId.value[id] = message
       handleError(cause, `saving Facets for Reward ${id}`)
       return { success: false, message }

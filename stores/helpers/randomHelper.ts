@@ -49,6 +49,4 @@ export function getRandom(key: string, count = 1): string[] {
     .slice(0, Math.min(Math.max(1, count), values.length))
 }
 
-export const supportedKeys: string[] = basicSinglePools.map(
-  (entry) => entry.key,
-)
+export const supportedKeys: string[] = basicSinglePools.map((entry) => entry.key)

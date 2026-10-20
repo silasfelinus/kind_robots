@@ -7,7 +7,10 @@
 // describe what a run may contain so the UI can drive it.
 
 export type BuildStageKey =
-  'PITCH' | 'FIELDS_AND_PROMPTS' | 'GENERATE_ASSETS' | 'COMMIT'
+  | 'PITCH'
+  | 'FIELDS_AND_PROMPTS'
+  | 'GENERATE_ASSETS'
+  | 'COMMIT'
 
 export interface BuildStageConfig {
   key: BuildStageKey
@@ -24,38 +27,40 @@ export const BUILD_STAGES: BuildStageConfig[] = [
     key: 'PITCH',
     label: 'Pitch',
     short: 'Pitch',
-    description:
-      'Review the idea and intent for this output before any fields or assets exist.',
+    description: 'Review the idea and intent for this output before any fields or assets exist.',
     icon: 'kind-icon:lightbulb',
   },
   {
     key: 'FIELDS_AND_PROMPTS',
     label: 'Fields & Prompts',
     short: 'Fields',
-    description:
-      'Review proposed schema fields, relationships, and generation prompts.',
+    description: 'Review proposed schema fields, relationships, and generation prompts.',
     icon: 'kind-icon:list',
   },
   {
     key: 'GENERATE_ASSETS',
     label: 'Generate Assets',
     short: 'Assets',
-    description:
-      'Generate candidate images or media and pick the ones to keep.',
+    description: 'Generate candidate images or media and pick the ones to keep.',
     icon: 'kind-icon:sparkles',
   },
   {
     key: 'COMMIT',
     label: 'Commit',
     short: 'Commit',
-    description:
-      'Review the final diff and create, update, link, or promote only approved work.',
+    description: 'Review the final diff and create, update, link, or promote only approved work.',
     icon: 'kind-icon:check',
   },
 ]
 
 export type SourceTypeKey =
-  'Project' | 'Character' | 'Bot' | 'Facet' | 'Dream' | 'Reward' | 'Scenario'
+  | 'Project'
+  | 'Character'
+  | 'Bot'
+  | 'Facet'
+  | 'Dream'
+  | 'Reward'
+  | 'Scenario'
 
 export interface SourceTypeConfig {
   key: SourceTypeKey
@@ -143,8 +148,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'class',
     defaultRecipe: 'character-deck',
     recipes: ['character-deck', 'art-upgrade', 'relationship-expansion'],
-    blurb:
-      'Full character deck, signature rewards, scenarios, or an art upgrade.',
+    blurb: 'Full character deck, signature rewards, scenarios, or an art upgrade.',
   },
   {
     key: 'Bot',
@@ -184,8 +188,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'taxonomy',
     defaultRecipe: 'art-upgrade',
     recipes: ['art-upgrade'],
-    blurb:
-      'Art upgrade only — Facets are reusable tags/attributes, not a relationship-expansion source.',
+    blurb: 'Art upgrade only — Facets are reusable tags/attributes, not a relationship-expansion source.',
   },
   {
     key: 'Dream',
@@ -197,8 +200,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'dreamType',
     defaultRecipe: 'art-upgrade',
     recipes: ['art-upgrade', 'relationship-expansion'],
-    blurb:
-      'Art upgrade, or expand into characters, rewards, scenarios, or a narrator bot.',
+    blurb: 'Art upgrade, or expand into characters, rewards, scenarios, or a narrator bot.',
   },
   {
     key: 'Reward',
@@ -210,8 +212,7 @@ export const SOURCE_TYPES: SourceTypeConfig[] = [
     subtitleField: 'rewardType',
     defaultRecipe: 'reward-deck',
     recipes: ['reward-deck', 'art-upgrade', 'relationship-expansion'],
-    blurb:
-      'Reward deck with type-aware art, optional 3D reference, or expand into characters.',
+    blurb: 'Reward deck with type-aware art, optional 3D reference, or expand into characters.',
   },
   {
     key: 'Scenario',
@@ -237,48 +238,35 @@ export const RECIPES: RecipeConfig[] = [
     key: 'marketing-deck',
     label: 'Marketing Deck',
     icon: 'kind-icon:megaphone',
-    summary:
-      'A launch package for a project — cards, signage, mockups, ads, and a plan.',
+    summary: 'A launch package for a project — cards, signage, mockups, ads, and a plan.',
     sourceTypes: ['Project'],
   },
   {
     key: 'character-deck',
     label: 'Character Deck',
     icon: 'kind-icon:user',
-    summary:
-      'Identity, canonical portrait, icon/card/hero, and an expression subset.',
+    summary: 'Identity, canonical portrait, icon/card/hero, and an expression subset.',
     sourceTypes: ['Character', 'Bot'],
   },
   {
     key: 'reward-deck',
     label: 'Reward Deck',
     icon: 'kind-icon:trophy',
-    summary:
-      'Reward fields, art, collection placement, and optional 3D reference.',
+    summary: 'Reward fields, art, collection placement, and optional 3D reference.',
     sourceTypes: ['Reward'],
   },
   {
     key: 'art-upgrade',
     label: 'Art Upgrade',
     icon: 'kind-icon:palette-color',
-    summary:
-      'Only the assets valid for this model: primary image, icon, card, hero, and repair.',
-    sourceTypes: [
-      'Project',
-      'Character',
-      'Bot',
-      'Facet',
-      'Dream',
-      'Reward',
-      'Scenario',
-    ],
+    summary: 'Only the assets valid for this model: primary image, icon, card, hero, and repair.',
+    sourceTypes: ['Project', 'Character', 'Bot', 'Facet', 'Dream', 'Reward', 'Scenario'],
   },
   {
     key: 'relationship-expansion',
     label: 'Relationship Expansion',
     icon: 'kind-icon:link',
-    summary:
-      'Create related records — each child is an independently gated build item.',
+    summary: 'Create related records — each child is an independently gated build item.',
     sourceTypes: ['Project', 'Character', 'Dream', 'Scenario', 'Reward'],
   },
 ]
@@ -290,334 +278,49 @@ export const RECIPES: RecipeConfig[] = [
 
 export const OUTPUT_CATALOG: BuildOutputConfig[] = [
   // Marketing Deck (Project) --------------------------------------------------
-  {
-    key: 'business-card',
-    label: 'Business card',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Front/back business card concept.',
-    defaultOn: true,
-  },
-  {
-    key: 'logo-application',
-    label: 'Logo application sheet',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Existing logo applied across surfaces.',
-  },
-  {
-    key: 'lawn-sign',
-    label: 'Lawn sign',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Yard/lawn sign concept.',
-  },
-  {
-    key: 'banner',
-    label: 'Banner',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '1280×720',
-    description: 'Wide banner concept.',
-  },
-  {
-    key: 'flyer',
-    label: 'Flyer',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Single-page promotional flyer.',
-  },
-  {
-    key: 'website-mockup',
-    label: 'Website mockup board',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Landing page mockup board.',
-    defaultOn: true,
-  },
-  {
-    key: 'app-mockup',
-    label: 'App mockup board',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'App screen mockup board.',
-  },
-  {
-    key: 'photo-shoot-plan',
-    label: 'Photo-shoot plan',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'plan',
-    description: 'Shot list and plan for a photo shoot.',
-  },
-  {
-    key: 'video-shot-list',
-    label: 'Video shot list',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'plan',
-    description: 'Shot list for a video shoot.',
-  },
-  {
-    key: 'static-ads',
-    label: 'Static ad concepts',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Static ad posters and concepts.',
-  },
-  {
-    key: 'commercial-treatment',
-    label: 'Video commercial treatment',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'plan',
-    description: 'Treatment for a video commercial.',
-  },
-  {
-    key: 'storyboard',
-    label: 'Storyboard',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Panel storyboard for the commercial.',
-  },
-  {
-    key: 'launch-plan',
-    label: 'Week-by-week launch plan',
-    recipe: 'marketing-deck',
-    action: 'ASSET_ONLY',
-    generation: 'plan',
-    description: 'Weekly launch schedule.',
-    defaultOn: true,
-  },
+  { key: 'business-card', label: 'Business card', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Front/back business card concept.', defaultOn: true },
+  { key: 'logo-application', label: 'Logo application sheet', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Existing logo applied across surfaces.' },
+  { key: 'lawn-sign', label: 'Lawn sign', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Yard/lawn sign concept.' },
+  { key: 'banner', label: 'Banner', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', size: '1280×720', description: 'Wide banner concept.' },
+  { key: 'flyer', label: 'Flyer', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Single-page promotional flyer.' },
+  { key: 'website-mockup', label: 'Website mockup board', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Landing page mockup board.', defaultOn: true },
+  { key: 'app-mockup', label: 'App mockup board', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'App screen mockup board.' },
+  { key: 'photo-shoot-plan', label: 'Photo-shoot plan', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'plan', description: 'Shot list and plan for a photo shoot.' },
+  { key: 'video-shot-list', label: 'Video shot list', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'plan', description: 'Shot list for a video shoot.' },
+  { key: 'static-ads', label: 'Static ad concepts', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Static ad posters and concepts.' },
+  { key: 'commercial-treatment', label: 'Video commercial treatment', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'plan', description: 'Treatment for a video commercial.' },
+  { key: 'storyboard', label: 'Storyboard', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Panel storyboard for the commercial.' },
+  { key: 'launch-plan', label: 'Week-by-week launch plan', recipe: 'marketing-deck', action: 'ASSET_ONLY', generation: 'plan', description: 'Weekly launch schedule.', defaultOn: true },
 
   // Character Deck (Character / Bot) -----------------------------------------
-  {
-    key: 'identity-pitch',
-    label: 'Identity pitch',
-    recipe: 'character-deck',
-    action: 'UPDATE',
-    generation: 'text',
-    description: 'Identity and field pitch for the character.',
-    defaultOn: true,
-  },
-  {
-    key: 'field-proposal',
-    label: 'Schema field proposal',
-    recipe: 'character-deck',
-    action: 'UPDATE',
-    generation: 'text',
-    description: 'Proposed schema fields to fill or refine.',
-    defaultOn: true,
-  },
-  {
-    key: 'canonical-avatar',
-    label: 'Canonical avatar (NEUTRAL)',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: 'square',
-    description: 'Promoted neutral avatar — canonical identity anchor.',
-    defaultOn: true,
-  },
-  {
-    key: 'portrait-candidates',
-    label: 'Portrait candidates',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: 'square',
-    description: 'Candidate portraits to pick a canonical from.',
-  },
-  {
-    key: 'icon',
-    label: 'Icon',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '256×256',
-    description: 'Square icon.',
-  },
-  {
-    key: 'card',
-    label: 'Card',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '512×768',
-    description: 'Portrait card.',
-  },
-  {
-    key: 'hero',
-    label: 'Hero shot',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '1280×720',
-    description: 'Wide hero action shot.',
-  },
-  {
-    key: 'expression-subset',
-    label: 'Expression subset',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: 'square',
-    quantity: true,
-    description:
-      'A small ExpressionMedia emotion/action subset — proven on a subset before the full set.',
-  },
-  {
-    key: 'model-sheet',
-    label: 'Cutout / model-sheet reference',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Transparent cutout or model-sheet reference.',
-  },
-  {
-    key: 'three-d-reference',
-    label: '3D reference / model',
-    recipe: 'character-deck',
-    action: 'ASSET_ONLY',
-    generation: 'three-d',
-    description: 'Optional 3D reference output (Hunyuan3D).',
-  },
+  { key: 'identity-pitch', label: 'Identity pitch', recipe: 'character-deck', action: 'UPDATE', generation: 'text', description: 'Identity and field pitch for the character.', defaultOn: true },
+  { key: 'field-proposal', label: 'Schema field proposal', recipe: 'character-deck', action: 'UPDATE', generation: 'text', description: 'Proposed schema fields to fill or refine.', defaultOn: true },
+  { key: 'canonical-avatar', label: 'Canonical avatar (NEUTRAL)', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: 'square', description: 'Promoted neutral avatar — canonical identity anchor.', defaultOn: true },
+  { key: 'portrait-candidates', label: 'Portrait candidates', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: 'square', description: 'Candidate portraits to pick a canonical from.' },
+  { key: 'icon', label: 'Icon', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: '256×256', description: 'Square icon.' },
+  { key: 'card', label: 'Card', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: '512×768', description: 'Portrait card.' },
+  { key: 'hero', label: 'Hero shot', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: '1280×720', description: 'Wide hero action shot.' },
+  { key: 'expression-subset', label: 'Expression subset', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', size: 'square', quantity: true, description: 'A small ExpressionMedia emotion/action subset — proven on a subset before the full set.' },
+  { key: 'model-sheet', label: 'Cutout / model-sheet reference', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'image', description: 'Transparent cutout or model-sheet reference.' },
+  { key: 'three-d-reference', label: '3D reference / model', recipe: 'character-deck', action: 'ASSET_ONLY', generation: 'three-d', description: 'Optional 3D reference output (Hunyuan3D).' },
 
   // Reward Deck (Reward) ------------------------------------------------------
-  {
-    key: 'reward-fields',
-    label: 'Reward fields',
-    recipe: 'reward-deck',
-    action: 'UPDATE',
-    generation: 'text',
-    description: 'Reward field proposal.',
-    defaultOn: true,
-  },
-  {
-    key: 'reward-icon',
-    label: 'Icon',
-    recipe: 'reward-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '256×256',
-    description: 'Reward icon.',
-    defaultOn: true,
-  },
-  {
-    key: 'reward-card',
-    label: 'Card',
-    recipe: 'reward-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '512×768',
-    description: 'Reward card.',
-  },
-  {
-    key: 'reward-hero',
-    label: 'Hero / use scene',
-    recipe: 'reward-deck',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '1280×720',
-    description: 'Hero or in-use scene.',
-  },
-  {
-    key: 'collection-placement',
-    label: 'Collection placement',
-    recipe: 'reward-deck',
-    action: 'UPDATE',
-    generation: 'text',
-    description: 'Suggested ArtCollection placement.',
-  },
-  {
-    key: 'reward-relationships',
-    label: 'Relationship proposals',
-    recipe: 'reward-deck',
-    action: 'UPDATE',
-    generation: 'text',
-    description: 'Owner-character or scenario-use pitches.',
-  },
-  {
-    key: 'reward-3d',
-    label: '3D reference / print path',
-    recipe: 'reward-deck',
-    action: 'ASSET_ONLY',
-    generation: 'three-d',
-    description:
-      'ITEM: 3D reference and printable-model path (separate STL stages).',
-  },
+  { key: 'reward-fields', label: 'Reward fields', recipe: 'reward-deck', action: 'UPDATE', generation: 'text', description: 'Reward field proposal.', defaultOn: true },
+  { key: 'reward-icon', label: 'Icon', recipe: 'reward-deck', action: 'ASSET_ONLY', generation: 'image', size: '256×256', description: 'Reward icon.', defaultOn: true },
+  { key: 'reward-card', label: 'Card', recipe: 'reward-deck', action: 'ASSET_ONLY', generation: 'image', size: '512×768', description: 'Reward card.' },
+  { key: 'reward-hero', label: 'Hero / use scene', recipe: 'reward-deck', action: 'ASSET_ONLY', generation: 'image', size: '1280×720', description: 'Hero or in-use scene.' },
+  { key: 'collection-placement', label: 'Collection placement', recipe: 'reward-deck', action: 'UPDATE', generation: 'text', description: 'Suggested ArtCollection placement.' },
+  { key: 'reward-relationships', label: 'Relationship proposals', recipe: 'reward-deck', action: 'UPDATE', generation: 'text', description: 'Owner-character or scenario-use pitches.' },
+  { key: 'reward-3d', label: '3D reference / print path', recipe: 'reward-deck', action: 'ASSET_ONLY', generation: 'three-d', description: 'ITEM: 3D reference and printable-model path (separate STL stages).' },
 
   // Art Upgrade (any) ---------------------------------------------------------
-  {
-    key: 'primary-image',
-    label: 'Primary image',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Primary image for the model.',
-    defaultOn: true,
-  },
-  {
-    key: 'upgrade-icon',
-    label: 'Icon',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '256×256',
-    description: 'Square icon.',
-  },
-  {
-    key: 'upgrade-card',
-    label: 'Card',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '512×768',
-    description: 'Portrait card.',
-  },
-  {
-    key: 'upgrade-hero',
-    label: 'Hero',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    size: '1280×720',
-    description: 'Wide hero banner.',
-  },
-  {
-    key: 'key-scene',
-    label: 'Key scene',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'A signature scene image.',
-  },
-  {
-    key: 'inspiration-set',
-    label: 'Inspiration set / ArtCollection',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    quantity: true,
-    description: 'A set of inspiration candidates for the collection.',
-  },
-  {
-    key: 'missing-asset-repair',
-    label: 'Missing-asset repair',
-    recipe: 'art-upgrade',
-    action: 'ASSET_ONLY',
-    generation: 'image',
-    description: 'Fill only the assets this model is missing.',
-  },
+  { key: 'primary-image', label: 'Primary image', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', description: 'Primary image for the model.', defaultOn: true },
+  { key: 'upgrade-icon', label: 'Icon', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', size: '256×256', description: 'Square icon.' },
+  { key: 'upgrade-card', label: 'Card', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', size: '512×768', description: 'Portrait card.' },
+  { key: 'upgrade-hero', label: 'Hero', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', size: '1280×720', description: 'Wide hero banner.' },
+  { key: 'key-scene', label: 'Key scene', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', description: 'A signature scene image.' },
+  { key: 'inspiration-set', label: 'Inspiration set / ArtCollection', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', quantity: true, description: 'A set of inspiration candidates for the collection.' },
+  { key: 'missing-asset-repair', label: 'Missing-asset repair', recipe: 'art-upgrade', action: 'ASSET_ONLY', generation: 'image', description: 'Fill only the assets this model is missing.' },
 
   // Relationship Expansion ----------------------------------------------------
   // sourceTypes below mirror the real (sourceType, targetType) relation pairs
@@ -629,73 +332,19 @@ export const OUTPUT_CATALOG: BuildOutputConfig[] = [
   // through different fields (Project.managerBotId vs Dream.narratorId), so
   // each keeps only the source type its field actually applies to; expand-
   // rewards / expand-signature-rewards are the same split for Reward.
-  {
-    key: 'expand-characters',
-    label: 'Characters',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    quantity: true,
-    description: 'Create X fitting characters, each an independent build item.',
-    sourceTypes: ['Dream', 'Reward', 'Scenario'],
-  },
-  {
-    key: 'expand-rewards',
-    label: 'Rewards',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    quantity: true,
-    description: 'Create X fitting rewards.',
-    sourceTypes: ['Dream', 'Character'],
-  },
-  {
-    key: 'expand-scenarios',
-    label: 'Scenarios',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    quantity: true,
-    description: 'Create X fitting scenarios.',
-    sourceTypes: ['Dream', 'Character'],
-  },
-  {
-    key: 'expand-narrator-bot',
-    label: 'Narrator bot',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    description: 'Optional narrator bot for a dream.',
-    sourceTypes: ['Dream'],
-  },
-  {
-    key: 'expand-manager-bot',
-    label: 'Manager bot',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    description: 'Optional manager bot for a project.',
-    sourceTypes: ['Project'],
-  },
-  {
-    key: 'expand-signature-rewards',
-    label: 'Signature rewards',
-    recipe: 'relationship-expansion',
-    action: 'CREATE',
-    generation: 'text',
-    quantity: true,
-    description: 'Signature rewards for a character.',
-    sourceTypes: ['Character'],
-  },
+  { key: 'expand-characters', label: 'Characters', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting characters, each an independent build item.', sourceTypes: ['Dream', 'Reward', 'Scenario'] },
+  { key: 'expand-rewards', label: 'Rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting rewards.', sourceTypes: ['Dream', 'Character'] },
+  { key: 'expand-scenarios', label: 'Scenarios', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Create X fitting scenarios.', sourceTypes: ['Dream', 'Character'] },
+  { key: 'expand-narrator-bot', label: 'Narrator bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional narrator bot for a dream.', sourceTypes: ['Dream'] },
+  { key: 'expand-manager-bot', label: 'Manager bot', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', description: 'Optional manager bot for a project.', sourceTypes: ['Project'] },
+  { key: 'expand-signature-rewards', label: 'Signature rewards', recipe: 'relationship-expansion', action: 'CREATE', generation: 'text', quantity: true, description: 'Signature rewards for a character.', sourceTypes: ['Character'] },
 ]
 
 // ---------------------------------------------------------------------------
 // Lookups
 // ---------------------------------------------------------------------------
 
-export function getSourceType(
-  key: SourceTypeKey,
-): SourceTypeConfig | undefined {
+export function getSourceType(key: SourceTypeKey): SourceTypeConfig | undefined {
   return SOURCE_TYPES.find((source) => source.key === key)
 }
 

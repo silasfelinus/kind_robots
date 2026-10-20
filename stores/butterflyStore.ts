@@ -104,10 +104,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
     clearLoaderStates,
   } = effects
 
-  function logLoaderEffect(
-    event: string,
-    details: Record<string, unknown> = {},
-  ) {
+  function logLoaderEffect(event: string, details: Record<string, unknown> = {}) {
     if (import.meta.server || !loaderDebug.value) return
     console.info('[butterfly-loader]', event, {
       effect: loaderEffectName.value,
@@ -178,8 +175,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function clearRandomButterfly() {
-    const butterfly =
-      butterflies.value[Math.floor(Math.random() * butterflies.value.length)]
+    const butterfly = butterflies.value[Math.floor(Math.random() * butterflies.value.length)]
     if (butterfly) removeButterflyById(butterfly.id)
   }
 
@@ -195,9 +191,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function removeButterflyById(id: string) {
-    const index = butterflies.value.findIndex(
-      (butterfly) => butterfly.id === id,
-    )
+    const index = butterflies.value.findIndex((butterfly) => butterfly.id === id)
     if (index === -1) return
     butterflies.value.splice(index, 1)
 
@@ -279,10 +273,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         initialized.value = true
       } catch (error) {
         initialized.value = false
-        lastError.value =
-          error instanceof Error
-            ? error.message
-            : 'Failed to initialize butterflies'
+        lastError.value = error instanceof Error ? error.message : 'Failed to initialize butterflies'
         addError(ErrorType.STORE_ERROR, error)
       } finally {
         initializing.value = false
@@ -322,10 +313,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         animateButterflies()
         markAllButterfliesForExit()
       } catch (error) {
-        lastError.value =
-          error instanceof Error
-            ? error.message
-            : 'Failed to spawn startup swarm'
+        lastError.value = error instanceof Error ? error.message : 'Failed to spawn startup swarm'
         addError(ErrorType.STORE_ERROR, error)
       } finally {
         startupSwarmPromise.value = null
@@ -491,10 +479,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         gameInitialized.value = true
       } catch (error) {
         gameInitialized.value = false
-        lastError.value =
-          error instanceof Error
-            ? error.message
-            : 'Failed to initialize butterfly interactibles'
+        lastError.value = error instanceof Error ? error.message : 'Failed to initialize butterfly interactibles'
         addError(ErrorType.STORE_ERROR, error)
       } finally {
         gameLoading.value = false
@@ -548,8 +533,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
   }
 
   function toggleStartupButterflyMode() {
-    startupButterflyMode.value =
-      startupButterflyMode.value === 'legacy' ? 'dynamic' : 'legacy'
+    startupButterflyMode.value = startupButterflyMode.value === 'legacy' ? 'dynamic' : 'legacy'
   }
 
   function setInspected(butterfly: Butterfly) {
@@ -568,9 +552,7 @@ export const useButterflyStore = defineStore('butterflyStore', () => {
         : 'stopped',
   )
   const getSelectedButterfly = computed(() =>
-    butterflies.value.find(
-      (butterfly) => butterfly.id === selectedButterflyId.value,
-    ),
+    butterflies.value.find((butterfly) => butterfly.id === selectedButterflyId.value),
   )
   const getButterfliesByStatus = (status: Butterfly['status']) =>
     butterflies.value.filter((butterfly) => butterfly.status === status)

@@ -1,7 +1,10 @@
 // /stores/animationPreferenceStore.ts
 import { defineStore } from 'pinia'
 import { computed, reactive, ref } from 'vue'
-import { isAnimationEffectId, type AnimationEffectId } from './animationCatalog'
+import {
+  isAnimationEffectId,
+  type AnimationEffectId,
+} from './animationCatalog'
 
 export type StartupAnimationChoice = AnimationEffectId | 'random' | 'none'
 
@@ -35,16 +38,11 @@ export const DEFAULT_PREFERENCES: AnimationPreferences = {
     size: 0.82,
     fadeCycleMs: 7200,
     minOpacity: 0.04,
-    maxOpacity: 0.82,
-  },
+    maxOpacity: 0.82
+  }
 }
 
-function clamp(
-  value: unknown,
-  min: number,
-  max: number,
-  fallback: number,
-): number {
+function clamp(value: unknown, min: number, max: number, fallback: number): number {
   const parsed = Number(value)
   if (!Number.isFinite(parsed)) return fallback
   return Math.min(max, Math.max(min, parsed))
@@ -76,52 +74,57 @@ function sanitizePreferences(value: unknown): AnimationPreferences {
           ? butterflies.adaptive
           : DEFAULT_PREFERENCES.butterflies.adaptive,
       count: Math.round(
-        clamp(butterflies.count, 0, 140, DEFAULT_PREFERENCES.butterflies.count),
+        clamp(
+          butterflies.count,
+          0,
+          140,
+          DEFAULT_PREFERENCES.butterflies.count
+        )
       ),
       fps: Math.round(
-        clamp(butterflies.fps, 15, 120, DEFAULT_PREFERENCES.butterflies.fps),
+        clamp(butterflies.fps, 15, 120, DEFAULT_PREFERENCES.butterflies.fps)
       ),
       flapSpeedMs: Math.round(
         clamp(
           butterflies.flapSpeedMs,
           160,
           1000,
-          DEFAULT_PREFERENCES.butterflies.flapSpeedMs,
-        ),
+          DEFAULT_PREFERENCES.butterflies.flapSpeedMs
+        )
       ),
       movementSpeed: clamp(
         butterflies.movementSpeed,
         0.4,
         2,
-        DEFAULT_PREFERENCES.butterflies.movementSpeed,
+        DEFAULT_PREFERENCES.butterflies.movementSpeed
       ),
       size: clamp(
         butterflies.size,
         0.45,
         1.4,
-        DEFAULT_PREFERENCES.butterflies.size,
+        DEFAULT_PREFERENCES.butterflies.size
       ),
       fadeCycleMs: Math.round(
         clamp(
           butterflies.fadeCycleMs,
           2500,
           18000,
-          DEFAULT_PREFERENCES.butterflies.fadeCycleMs,
-        ),
+          DEFAULT_PREFERENCES.butterflies.fadeCycleMs
+        )
       ),
       minOpacity: clamp(
         butterflies.minOpacity,
         0,
         0.5,
-        DEFAULT_PREFERENCES.butterflies.minOpacity,
+        DEFAULT_PREFERENCES.butterflies.minOpacity
       ),
       maxOpacity: clamp(
         butterflies.maxOpacity,
         0.35,
         1,
-        DEFAULT_PREFERENCES.butterflies.maxOpacity,
-      ),
-    },
+        DEFAULT_PREFERENCES.butterflies.maxOpacity
+      )
+    }
   }
 }
 
@@ -129,7 +132,7 @@ export const useAnimationPreferenceStore = defineStore(
   'animationPreferenceStore',
   () => {
     const preferences = reactive<AnimationPreferences>(
-      structuredClone(DEFAULT_PREFERENCES),
+      structuredClone(DEFAULT_PREFERENCES)
     )
     const initialized = ref(false)
 
@@ -157,7 +160,7 @@ export const useAnimationPreferenceStore = defineStore(
       try {
         const stored = localStorage.getItem(STORAGE_KEY)
         applyPreferences(
-          sanitizePreferences(stored ? JSON.parse(stored) : null),
+          sanitizePreferences(stored ? JSON.parse(stored) : null)
         )
       } catch {
         applyPreferences(structuredClone(DEFAULT_PREFERENCES))
@@ -173,14 +176,14 @@ export const useAnimationPreferenceStore = defineStore(
     }
 
     function updateButterflies(
-      patch: Partial<ButterflyAnimationPreferences>,
+      patch: Partial<ButterflyAnimationPreferences>
     ): void {
       const next = sanitizePreferences({
         ...preferences,
         butterflies: {
           ...preferences.butterflies,
-          ...patch,
-        },
+          ...patch
+        }
       })
 
       Object.assign(preferences.butterflies, next.butterflies)
@@ -194,7 +197,7 @@ export const useAnimationPreferenceStore = defineStore(
     }
 
     function resolveStartupEffect(
-      availableEffectIds: AnimationEffectId[],
+      availableEffectIds: AnimationEffectId[]
     ): AnimationEffectId | null {
       if (preferences.startupEffect === 'none') return null
 
@@ -220,7 +223,7 @@ export const useAnimationPreferenceStore = defineStore(
       setStartupEffect,
       updateButterflies,
       reset,
-      resolveStartupEffect,
+      resolveStartupEffect
     }
-  },
+  }
 )

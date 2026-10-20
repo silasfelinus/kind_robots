@@ -43,9 +43,7 @@ export const useArtTrainerStore = defineStore('artTrainerStore', () => {
 
     const blob = await response.blob()
     if (!blob.type.startsWith('image/')) {
-      throw new Error(
-        'This finished ArtJob is not an image and cannot use img2img.',
-      )
+      throw new Error('This finished ArtJob is not an image and cannot use img2img.')
     }
     return blobToDataUri(blob)
   }
@@ -70,13 +68,8 @@ export const useArtTrainerStore = defineStore('artTrainerStore', () => {
       if (promptString.length < 3) {
         throw new Error('Add a usable revised prompt before queuing the redo.')
       }
-      if (
-        input.mode === 'IMG2IMG' &&
-        (!job.artImageId || job.artImageId <= 0)
-      ) {
-        throw new Error(
-          'This finished job has no ArtImage to use as img2img input.',
-        )
+      if (input.mode === 'IMG2IMG' && (!job.artImageId || job.artImageId <= 0)) {
+        throw new Error('This finished job has no ArtImage to use as img2img input.')
       }
 
       const sourceImageBase64 =
@@ -102,28 +95,21 @@ export const useArtTrainerStore = defineStore('artTrainerStore', () => {
 
       const jobId = Number(response.data?.job?.id)
       if (!response.success || !Number.isInteger(jobId) || jobId <= 0) {
-        throw new Error(
-          response.message || 'Trainer revision could not be queued.',
-        )
+        throw new Error(response.message || 'Trainer revision could not be queued.')
       }
 
       return {
         success: true,
-        message:
-          response.message || `Queued trainer revision as ArtJob ${jobId}.`,
+        message: response.message || `Queued trainer revision as ArtJob ${jobId}.`,
         jobId,
       }
     } catch (cause) {
       const message =
-        cause instanceof Error
-          ? cause.message
-          : 'Trainer revision could not be queued.'
+        cause instanceof Error ? cause.message : 'Trainer revision could not be queued.'
       error.value = message
       return { success: false, message, jobId: null }
     } finally {
-      submittingJobIds.value = submittingJobIds.value.filter(
-        (id) => id !== job.id,
-      )
+      submittingJobIds.value = submittingJobIds.value.filter((id) => id !== job.id)
     }
   }
 

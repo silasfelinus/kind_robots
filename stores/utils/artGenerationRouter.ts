@@ -2,7 +2,11 @@
 import type { Server } from '~/prisma/generated/prisma/client'
 
 export type ArtGenerationEngine =
-  'a1111' | 'comfy' | 'flux' | 'kontext' | 'openai'
+  | 'a1111'
+  | 'comfy'
+  | 'flux'
+  | 'kontext'
+  | 'openai'
 
 export type ArtGenerationTransport = 'browser' | 'backend'
 

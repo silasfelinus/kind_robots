@@ -15,100 +15,87 @@ import {
   type FxRegion,
 } from '@/stores/animationCatalog'
 
-export const useAnimationManagerStore = defineStore(
-  'animationManagerStore',
-  () => {
-    const animationStore = useAnimationStore()
-    const selectedSlug = ref<AnimationEffectId | null>(null)
+export const useAnimationManagerStore = defineStore('animationManagerStore', () => {
+  const animationStore = useAnimationStore()
+  const selectedSlug = ref<AnimationEffectId | null>(null)
 
-    const galleryItems = computed<readonly AnimationEffect[]>(
-      () => animationEffects,
-    )
-    const selectedItem = computed<AnimationEffect | null>(() => {
-      if (!selectedSlug.value) return null
-      return (
-        galleryItems.value.find((effect) => effect.id === selectedSlug.value) ??
-        null
-      )
-    })
+  const galleryItems = computed<readonly AnimationEffect[]>(() => animationEffects)
+  const selectedItem = computed<AnimationEffect | null>(() => {
+    if (!selectedSlug.value) return null
+    return galleryItems.value.find((effect) => effect.id === selectedSlug.value) ?? null
+  })
 
-    const layeredEffectIds = computed(
-      () => new Set(animationStore.screenEffectIds),
-    )
-    const layeredEffectCount = computed(() => animationStore.screenEffectCount)
+  const layeredEffectIds = computed(() => new Set(animationStore.screenEffectIds))
+  const layeredEffectCount = computed(() => animationStore.screenEffectCount)
 
-    function selectSlug(slug: AnimationEffectId | null) {
-      selectedSlug.value = slug
-    }
+  function selectSlug(slug: AnimationEffectId | null) {
+    selectedSlug.value = slug
+  }
 
-    function previewEffect(effectId: AnimationEffectId) {
-      if (
-        animationStore.isActive &&
-        animationStore.activeEffectId === effectId &&
-        animationStore.showBackdrop
-      ) {
-        animationStore.stop()
-        return
-      }
-
-      const effect = galleryItems.value.find((item) => item.id === effectId)
-      animationStore.start({
-        effectId,
-        message: `${effect?.label ?? 'Animation'} preview`,
-        durationMs: null,
-        showBackdrop: true,
-      })
-    }
-
-    function isPreviewing(effectId: AnimationEffectId): boolean {
-      return (
-        animationStore.isActive &&
-        animationStore.activeEffectId === effectId &&
-        animationStore.showBackdrop
-      )
-    }
-
-    function toggleLayer(effectId: AnimationEffectId) {
-      animationStore.toggleScreenEffect(effectId)
-    }
-
-    function isLayerActive(effectId: AnimationEffectId): boolean {
-      return layeredEffectIds.value.has(effectId)
-    }
-
-    function clearLayers() {
-      animationStore.clearScreenEffects()
-    }
-
-    function getSurfacePlacement(region: FxRegion): FxPlacementState {
-      return animationStore.getSurfacePlacement(region)
-    }
-
-    function setSurfacePlacement(
-      region: FxRegion,
-      placement: FxPlacementState,
+  function previewEffect(effectId: AnimationEffectId) {
+    if (
+      animationStore.isActive &&
+      animationStore.activeEffectId === effectId &&
+      animationStore.showBackdrop
     ) {
-      animationStore.setSurfacePlacement(region, placement)
+      animationStore.stop()
+      return
     }
 
-    function resetSurfaces() {
-      animationStore.resetSurfaces()
-    }
+    const effect = galleryItems.value.find((item) => item.id === effectId)
+    animationStore.start({
+      effectId,
+      message: `${effect?.label ?? 'Animation'} preview`,
+      durationMs: null,
+      showBackdrop: true,
+    })
+  }
 
-    return {
-      selectedSlug,
-      galleryItems,
-      selectedItem,
-      layeredEffectCount,
-      selectSlug,
-      previewEffect,
-      isPreviewing,
-      toggleLayer,
-      isLayerActive,
-      clearLayers,
-      getSurfacePlacement,
-      setSurfacePlacement,
-      resetSurfaces,
-    }
-  },
-)
+  function isPreviewing(effectId: AnimationEffectId): boolean {
+    return (
+      animationStore.isActive &&
+      animationStore.activeEffectId === effectId &&
+      animationStore.showBackdrop
+    )
+  }
+
+  function toggleLayer(effectId: AnimationEffectId) {
+    animationStore.toggleScreenEffect(effectId)
+  }
+
+  function isLayerActive(effectId: AnimationEffectId): boolean {
+    return layeredEffectIds.value.has(effectId)
+  }
+
+  function clearLayers() {
+    animationStore.clearScreenEffects()
+  }
+
+  function getSurfacePlacement(region: FxRegion): FxPlacementState {
+    return animationStore.getSurfacePlacement(region)
+  }
+
+  function setSurfacePlacement(region: FxRegion, placement: FxPlacementState) {
+    animationStore.setSurfacePlacement(region, placement)
+  }
+
+  function resetSurfaces() {
+    animationStore.resetSurfaces()
+  }
+
+  return {
+    selectedSlug,
+    galleryItems,
+    selectedItem,
+    layeredEffectCount,
+    selectSlug,
+    previewEffect,
+    isPreviewing,
+    toggleLayer,
+    isLayerActive,
+    clearLayers,
+    getSurfacePlacement,
+    setSurfacePlacement,
+    resetSurfaces,
+  }
+})

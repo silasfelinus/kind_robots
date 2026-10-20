@@ -112,10 +112,7 @@ export const useLoadStore = defineStore('loadStore', () => {
   ]
 
   function rememberLoadMessage(message: string) {
-    recentLoadMessages.value = [message, ...recentLoadMessages.value].slice(
-      0,
-      4,
-    )
+    recentLoadMessages.value = [message, ...recentLoadMessages.value].slice(0, 4)
   }
 
   function refillLoadMessageDeck() {
@@ -149,8 +146,7 @@ export const useLoadStore = defineStore('loadStore', () => {
       refillLoadMessageDeck()
     }
 
-    const message =
-      remainingLoadMessages.pop() ?? 'Loading failed successfully...'
+    const message = remainingLoadMessages.pop() ?? 'Loading failed successfully...'
 
     rememberLoadMessage(message)
     return message

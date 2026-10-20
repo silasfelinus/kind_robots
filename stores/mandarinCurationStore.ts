@@ -8,7 +8,11 @@ import type {
 } from '@/types/mandarinCuration'
 
 export type MandarinCurationSort =
-  'hanzi' | 'pinyin' | 'meaning' | 'hsk' | 'category'
+  | 'hanzi'
+  | 'pinyin'
+  | 'meaning'
+  | 'hsk'
+  | 'category'
 
 export type MandarinCurationDraft = {
   traditional: string
@@ -107,10 +111,7 @@ export const useMandarinCurationStore = defineStore(
       const row = selectedRow.value
       const currentDraft = draft.value
       if (!row || !currentDraft) return false
-      return (
-        JSON.stringify(comparableDraft(currentDraft)) !==
-        JSON.stringify(comparableRow(row))
-      )
+      return JSON.stringify(comparableDraft(currentDraft)) !== JSON.stringify(comparableRow(row))
     })
 
     const canSave = computed(() => draftDirty.value && !saving.value)
@@ -169,10 +170,8 @@ export const useMandarinCurationStore = defineStore(
         const levelA = a.effective.hskLevel ?? 99
         const levelB = b.effective.hskLevel ?? 99
         if (levelA !== levelB) return levelA - levelB
-        return (
-          (a.effective.frequency ?? 1_000_000) -
+        return (a.effective.frequency ?? 1_000_000) -
           (b.effective.frequency ?? 1_000_000)
-        )
       })
     })
 
@@ -188,9 +187,7 @@ export const useMandarinCurationStore = defineStore(
           45_000,
         )
         if (!response.success || !response.data) {
-          throw new Error(
-            response.message || 'Failed to load Mandarin curation.',
-          )
+          throw new Error(response.message || 'Failed to load Mandarin curation.')
         }
         payload.value = response.data
         if (
@@ -214,8 +211,7 @@ export const useMandarinCurationStore = defineStore(
 
     function guardUnsavedDraft(): boolean {
       if (!draftDirty.value) return true
-      error.value =
-        'This entry has unsaved changes. Save them or discard the draft before leaving it.'
+      error.value = 'This entry has unsaved changes. Save them or discard the draft before leaving it.'
       notice.value = ''
       return false
     }
@@ -267,8 +263,7 @@ export const useMandarinCurationStore = defineStore(
     async function saveSelected(): Promise<boolean> {
       const row = selectedRow.value
       const currentDraft = draft.value
-      if (!row || !currentDraft || saving.value || !draftDirty.value)
-        return false
+      if (!row || !currentDraft || saving.value || !draftDirty.value) return false
       saving.value = true
       error.value = ''
       notice.value = ''
@@ -293,9 +288,7 @@ export const useMandarinCurationStore = defineStore(
           30_000,
         )
         if (!response.success || !response.data) {
-          throw new Error(
-            response.message || 'Failed to save Mandarin curation.',
-          )
+          throw new Error(response.message || 'Failed to save Mandarin curation.')
         }
 
         if (payload.value) {

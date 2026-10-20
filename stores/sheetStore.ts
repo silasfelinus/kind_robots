@@ -16,7 +16,8 @@ export type SheetWithDream = PitchSheet & {
   ArtImage?: Partial<ArtImage> | null
 }
 
-export type SheetCreatePayload = Partial<PitchSheet> & Pick<PitchSheet, 'title'>
+export type SheetCreatePayload = Partial<PitchSheet> &
+  Pick<PitchSheet, 'title'>
 
 export type WorkspaceSheetOverride = {
   source?: string
@@ -93,9 +94,9 @@ export const useSheetStore = defineStore('sheetStore', () => {
   const fetchSheetByDreamPromises = ref<
     Record<number, Promise<SheetWithDream | null>>
   >({})
-  const ensureSheetPromises = ref<Record<number, Promise<EnsureSheetResult>>>(
-    {},
-  )
+  const ensureSheetPromises = ref<
+    Record<number, Promise<EnsureSheetResult>>
+  >({})
 
   const sheetsById = computed(() => {
     const map = new Map<number, SheetWithDream>()

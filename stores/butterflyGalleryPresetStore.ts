@@ -41,8 +41,7 @@ export const useButterflyGalleryPresetStore = defineStore(
       if (initialized.value) return
       if (typeof window !== 'undefined') {
         try {
-          bins.value =
-            loadButterflyBinPresets(window.localStorage) ?? defaultPresets()
+          bins.value = loadButterflyBinPresets(window.localStorage) ?? defaultPresets()
           persistenceAvailable.value = true
         } catch {
           bins.value = defaultPresets()
@@ -57,9 +56,7 @@ export const useButterflyGalleryPresetStore = defineStore(
       actions: ButterflyGenerationAction[] = [],
     ): void {
       const preset = toCustomBinPreset(bin, actions)
-      const index = bins.value.findIndex(
-        (existing) => existing.id === preset.id,
-      )
+      const index = bins.value.findIndex((existing) => existing.id === preset.id)
       bins.value =
         index === -1
           ? [...bins.value, preset]

@@ -33,122 +33,119 @@ type CredentialCreateResponse = {
   token?: string
 }
 
-export const useAgentCredentialStore = defineStore(
-  'agentCredentialStore',
-  () => {
-    const credentials = ref<AgentCredentialRow[]>([])
-    const isLoading = ref(false)
-    const isCreating = ref(false)
-    const revokingId = ref<number | null>(null)
-    const errorMessage = ref('')
-    const justCreatedToken = ref<string | null>(null)
-    const replacementSourceId = ref<number | null>(null)
+export const useAgentCredentialStore = defineStore('agentCredentialStore', () => {
+  const credentials = ref<AgentCredentialRow[]>([])
+  const isLoading = ref(false)
+  const isCreating = ref(false)
+  const revokingId = ref<number | null>(null)
+  const errorMessage = ref('')
+  const justCreatedToken = ref<string | null>(null)
+  const replacementSourceId = ref<number | null>(null)
 
-    const activeCredentials = computed(() =>
-      credentials.value.filter((credential) => !credential.revokedAt),
-    )
+  const activeCredentials = computed(() =>
+    credentials.value.filter((credential) => !credential.revokedAt),
+  )
 
-    function clearError(): void {
-      errorMessage.value = ''
-    }
+  function clearError(): void {
+    errorMessage.value = ''
+  }
 
-    function clearCreatedToken(): void {
-      justCreatedToken.value = null
-      replacementSourceId.value = null
-    }
+  function clearCreatedToken(): void {
+    justCreatedToken.value = null
+    replacementSourceId.value = null
+  }
 
-    async function load(): Promise<void> {
-      isLoading.value = true
-      clearError()
+  async function load(): Promise<void> {
+    isLoading.value = true
+    clearError()
 
-      try {
-        const response = await performFetch<CredentialListResponse>(
-          '/api/agent-credentials',
-        )
+    try {
+      const response = await performFetch<CredentialListResponse>(
+        '/api/agent-credentials',
+      )
 
-        if (!response.success) {
-          credentials.value = []
-          errorMessage.value =
-            response.message || 'Failed to load agent credentials.'
-          return
-        }
-
-        credentials.value = Array.isArray(response.data?.credentials)
-          ? response.data.credentials
-          : []
-      } finally {
-        isLoading.value = false
+      if (!response.success) {
+        credentials.value = []
+        errorMessage.value =
+          response.message || 'Failed to load agent credentials.'
+        return
       }
+
+      credentials.value = Array.isArray(response.data?.credentials)
+        ? response.data.credentials
+        : []
+    } finally {
+      isLoading.value = false
     }
+  }
 
-    async function create(
-      payload: CreateAgentCredentialPayload,
-      replacingId: number | null = null,
-    ): Promise<boolean> {
-      isCreating.value = true
-      clearError()
-      clearCreatedToken()
+  async function create(
+    payload: CreateAgentCredentialPayload,
+    replacingId: number | null = null,
+  ): Promise<boolean> {
+    isCreating.value = true
+    clearError()
+    clearCreatedToken()
 
-      try {
-        const response = await performFetch<CredentialCreateResponse>(
-          '/api/agent-credentials',
-          {
-            method: 'POST',
-            body: JSON.stringify(payload),
-          },
-        )
+    try {
+      const response = await performFetch<CredentialCreateResponse>(
+        '/api/agent-credentials',
+        {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        },
+      )
 
-        if (!response.success || !response.data?.token) {
-          errorMessage.value =
-            response.message || 'Failed to create agent credential.'
-          return false
-        }
-
-        justCreatedToken.value = response.data.token
-        replacementSourceId.value = replacingId
-        await load()
-        return true
-      } finally {
-        isCreating.value = false
+      if (!response.success || !response.data?.token) {
+        errorMessage.value =
+          response.message || 'Failed to create agent credential.'
+        return false
       }
+
+      justCreatedToken.value = response.data.token
+      replacementSourceId.value = replacingId
+      await load()
+      return true
+    } finally {
+      isCreating.value = false
     }
+  }
 
-    async function revoke(id: number): Promise<boolean> {
-      revokingId.value = id
-      clearError()
+  async function revoke(id: number): Promise<boolean> {
+    revokingId.value = id
+    clearError()
 
-      try {
-        const response = await performFetch(`/api/agent-credentials/${id}`, {
-          method: 'DELETE',
-        })
+    try {
+      const response = await performFetch(`/api/agent-credentials/${id}`, {
+        method: 'DELETE',
+      })
 
-        if (!response.success) {
-          errorMessage.value =
-            response.message || 'Failed to revoke agent credential.'
-          return false
-        }
-
-        await load()
-        return true
-      } finally {
-        revokingId.value = null
+      if (!response.success) {
+        errorMessage.value =
+          response.message || 'Failed to revoke agent credential.'
+        return false
       }
-    }
 
-    return {
-      credentials,
-      activeCredentials,
-      isLoading,
-      isCreating,
-      revokingId,
-      errorMessage,
-      justCreatedToken,
-      replacementSourceId,
-      load,
-      create,
-      revoke,
-      clearError,
-      clearCreatedToken,
+      await load()
+      return true
+    } finally {
+      revokingId.value = null
     }
-  },
-)
+  }
+
+  return {
+    credentials,
+    activeCredentials,
+    isLoading,
+    isCreating,
+    revokingId,
+    errorMessage,
+    justCreatedToken,
+    replacementSourceId,
+    load,
+    create,
+    revoke,
+    clearError,
+    clearCreatedToken,
+  }
+})

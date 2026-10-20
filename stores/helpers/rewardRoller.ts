@@ -124,7 +124,9 @@ function rollForTypes({
 }): RolledReward[] {
   for (let attempt = 0; attempt < 8; attempt++) {
     const rarity =
-      attempt === 0 ? baseRarity : chooseRarity(baseRarity, rarityUpgradeChance)
+      attempt === 0
+        ? baseRarity
+        : chooseRarity(baseRarity, rarityUpgradeChance)
 
     const rolled = rollFromGenerator({
       baseRarity: rarity,
@@ -190,7 +192,7 @@ export function rollRewardOptionsForSlot({
     const preferredType = randomFrom(requiredTypes) ?? 'ITEM'
     const rewardType =
       Math.random() < typeDriftChance
-        ? (randomFrom(bonusTypes) ?? preferredType)
+        ? randomFrom(bonusTypes) ?? preferredType
         : preferredType
 
     const rarity = chooseRarity(baseRarity, rarityUpgradeChance)

@@ -45,9 +45,7 @@ export const useSuperkateReceiptStore = defineStore(
         )
 
         if (!response.success) {
-          throw new Error(
-            response.message || 'Could not send the receipt email.',
-          )
+          throw new Error(response.message || 'Could not send the receipt email.')
         }
 
         lastMessage.value = response.message || 'Receipt email sent.'

@@ -2,8 +2,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-export type WorkspaceModel =
-  'dream' | 'scenario' | 'character' | 'reward' | 'art'
+export type WorkspaceModel = 'dream' | 'scenario' | 'character' | 'reward' | 'art'
 
 export type DreamWorkspacePanel =
   | 'asset-sheet'
@@ -15,18 +14,15 @@ export type DreamWorkspacePanel =
   | 'chat'
 
 export type ScenarioWorkspacePanel =
-  'overview' | 'dreams' | 'characters' | 'rewards'
+  | 'overview'
+  | 'dreams'
+  | 'characters'
+  | 'rewards'
 
 const workspaceStorageKey = 'organicWorkspaceContext'
 const isClient = typeof window !== 'undefined'
 
-const workspaceModels = [
-  'dream',
-  'scenario',
-  'character',
-  'reward',
-  'art',
-] as const
+const workspaceModels = ['dream', 'scenario', 'character', 'reward', 'art'] as const
 const dreamWorkspacePanels = [
   'asset-sheet',
   'connected-dreams',
@@ -36,12 +32,7 @@ const dreamWorkspacePanels = [
   'art',
   'chat',
 ] as const
-const scenarioWorkspacePanels = [
-  'overview',
-  'dreams',
-  'characters',
-  'rewards',
-] as const
+const scenarioWorkspacePanels = ['overview', 'dreams', 'characters', 'rewards'] as const
 
 type StoredWorkspace = {
   activeModel?: WorkspaceModel
@@ -102,9 +93,7 @@ function isDreamWorkspacePanel(value: unknown): value is DreamWorkspacePanel {
   return dreamWorkspacePanels.includes(value as DreamWorkspacePanel)
 }
 
-function isScenarioWorkspacePanel(
-  value: unknown,
-): value is ScenarioWorkspacePanel {
+function isScenarioWorkspacePanel(value: unknown): value is ScenarioWorkspacePanel {
   return scenarioWorkspacePanels.includes(value as ScenarioWorkspacePanel)
 }
 
@@ -174,10 +163,7 @@ export const useWorkspaceStore = defineStore('workspaceStore', () => {
     hydrated.value = true
   }
 
-  function openDream(
-    id: number,
-    panel: DreamWorkspacePanel = 'asset-sheet',
-  ): void {
+  function openDream(id: number, panel: DreamWorkspacePanel = 'asset-sheet'): void {
     const nextId = cleanId(id)
     if (!nextId) return
 

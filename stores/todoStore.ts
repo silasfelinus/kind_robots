@@ -71,9 +71,7 @@ export const useTodoStore = defineStore('todoStore', () => {
   )
 
   const agentTodos = computed(() =>
-    openTodos.value.filter(
-      (todo) => !todo.category || todo.category === 'AGENT',
-    ),
+    openTodos.value.filter((todo) => !todo.category || todo.category === 'AGENT'),
   )
 
   function isSerendipityAgentTodo(todo: Todo): boolean {
@@ -193,9 +191,7 @@ export const useTodoStore = defineStore('todoStore', () => {
         if (!response.success || !response.data) {
           throw new Error(response.message || 'Failed to fetch Project todos')
         }
-        const others = todos.value.filter(
-          (todo) => todo.projectId !== projectId,
-        )
+        const others = todos.value.filter((todo) => todo.projectId !== projectId)
         todos.value = [...others, ...response.data]
       } catch (error) {
         handleError(error, 'fetchProjectTodos')

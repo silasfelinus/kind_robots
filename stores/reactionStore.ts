@@ -298,9 +298,7 @@ export const useReactionStore = defineStore('reactionStore', () => {
         // mergeReactions used to iterate the object, throw, and have the error
         // swallowed below -- which is one of the reasons reviews never appeared.
         const payload = res.data
-        const incoming = Array.isArray(payload)
-          ? payload
-          : payload?.reactions || []
+        const incoming = Array.isArray(payload) ? payload : payload?.reactions || []
         mergeReactions(incoming)
         loadedKeys.value.add(key)
 

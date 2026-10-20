@@ -43,10 +43,7 @@ export const useConsoleStore = defineStore('consoleStore', () => {
       timestamp: Date.now(),
     })
 
-    console.log(
-      `%c[Kind Robots] ${text}`,
-      'color: limegreen; font-weight: bold',
-    )
+    console.log(`%c[Kind Robots] ${text}`, 'color: limegreen; font-weight: bold')
   }
 
   function logRandomMessage(): void {

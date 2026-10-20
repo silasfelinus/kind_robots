@@ -26,7 +26,11 @@ export interface GalleryImage {
 }
 
 export type MemoryCardSourceType =
-  'all' | 'generated' | 'collection' | 'collections' | 'manual'
+  | 'all'
+  | 'generated'
+  | 'collection'
+  | 'collections'
+  | 'manual'
 
 export interface MemoryCardSourceConfig {
   type: MemoryCardSourceType

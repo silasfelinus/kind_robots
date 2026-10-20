@@ -130,9 +130,7 @@ export function createNarrativeArtJobsController() {
     let next = applyQueuedArtJobToNarrativeState(state, job)
 
     if (job.status === 'DONE' && job.artImageId) {
-      const image = await artStore.getArtImageById(job.artImageId, {
-        force: true,
-      })
+      const image = await artStore.getArtImageById(job.artImageId, { force: true })
       if (epoch !== currentEpoch(state.dedupeKey)) return
       const imagePath =
         image?.imagePath ||
@@ -235,10 +233,7 @@ export function createNarrativeArtJobsController() {
       const recovered = await recoverExistingJob(state)
       if (epoch !== currentEpoch(state.dedupeKey)) return
       if (recovered) {
-        const recoveredState = applyQueuedArtJobToNarrativeState(
-          state,
-          recovered,
-        )
+        const recoveredState = applyQueuedArtJobToNarrativeState(state, recovered)
         update(recoveredState)
         void poll(recoveredState, update, 0, epoch)
         return

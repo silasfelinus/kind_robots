@@ -25,7 +25,13 @@ export interface ChoiceEntry {
 }
 
 type SupportedModel =
-  'Character' | 'Bot' | 'Scenario' | 'Dream' | 'Reward' | 'Chat' | 'Blueprint'
+  | 'Character'
+  | 'Bot'
+  | 'Scenario'
+  | 'Dream'
+  | 'Reward'
+  | 'Chat'
+  | 'Blueprint'
 
 type ChoiceKey = `${SupportedModel}:${string}`
 

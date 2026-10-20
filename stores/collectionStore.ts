@@ -622,10 +622,7 @@ export const useCollectionStore = defineStore('collectionStore', () => {
           throw new Error(response.message || 'Failed to load project artwork')
         }
         for (const collection of normalizeCollections(response.data)) {
-          state.collections = replaceCollectionLocal(
-            state.collections,
-            collection,
-          )
+          state.collections = replaceCollectionLocal(state.collections, collection)
         }
       } catch (error) {
         handleError(error, 'fetching project collection')

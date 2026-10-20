@@ -144,9 +144,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     () =>
       new Set(
         achievements.value
-          .filter((achievement) =>
-            earnedAchievementIds.value.has(achievement.id),
-          )
+          .filter((achievement) => earnedAchievementIds.value.has(achievement.id))
           .map((achievement) => slugify(achievement.triggerCode ?? ''))
           .filter(Boolean),
       ),
@@ -173,10 +171,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   function persist() {
-    safeSetLocalStorage(
-      achievementsStorageKey,
-      JSON.stringify(achievements.value),
-    )
+    safeSetLocalStorage(achievementsStorageKey, JSON.stringify(achievements.value))
     safeSetLocalStorage(
       achievementRecordsStorageKey,
       JSON.stringify(achievementRecords.value),
@@ -306,8 +301,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     force = false,
   ): Promise<AchievementRecord[]> {
     if (fetchRecordsPromise.value) return fetchRecordsPromise.value
-    if (!force && achievementRecords.value.length)
-      return achievementRecords.value
+    if (!force && achievementRecords.value.length) return achievementRecords.value
 
     fetchRecordsPromise.value = (async () => {
       try {
@@ -433,8 +427,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
 
       return {
         success: true,
-        message:
-          'Achievement dismissed locally. No record was found to confirm.',
+        message: 'Achievement dismissed locally. No record was found to confirm.',
       }
     }
 
@@ -457,8 +450,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
         return {
           success: false,
           message:
-            result.message ??
-            'Achievement dismissed locally but failed to sync.',
+            result.message ?? 'Achievement dismissed locally but failed to sync.',
         }
       }
 
@@ -541,8 +533,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   async function fetchHighClickScores(force = false): Promise<UserScore[]> {
-    if (fetchHighClickScoresPromise.value)
-      return fetchHighClickScoresPromise.value
+    if (fetchHighClickScoresPromise.value) return fetchHighClickScoresPromise.value
     if (!force && highClickScores.value.length) return highClickScores.value
 
     fetchHighClickScoresPromise.value = (async () => {
@@ -550,6 +541,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       loadingScores.value = true
 
       try {
+
         const response = await performFetch<UserScore[]>(
           '/api/achievements/highClickScores',
         )
@@ -570,8 +562,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   }
 
   async function fetchHighMatchScores(force = false): Promise<UserScore[]> {
-    if (fetchHighMatchScoresPromise.value)
-      return fetchHighMatchScoresPromise.value
+    if (fetchHighMatchScoresPromise.value) return fetchHighMatchScoresPromise.value
     if (!force && highMatchScores.value.length) return highMatchScores.value
 
     fetchHighMatchScoresPromise.value = (async () => {
@@ -579,6 +570,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       loadingScores.value = true
 
       try {
+
         const response = await performFetch<UserScore[]>(
           '/api/achievements/highMatchScores',
         )
@@ -602,13 +594,10 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     if (userStore.isGuest) return 'Guest'
 
     try {
-      const response = await performFetch(
-        '/api/achievements/updateClickRecord',
-        {
-          method: 'PUT',
-          body: JSON.stringify({ newScore }),
-        },
-      )
+      const response = await performFetch('/api/achievements/updateClickRecord', {
+        method: 'PUT',
+        body: JSON.stringify({ newScore }),
+      })
 
       return response.success ? 'Updated' : 'Failed'
     } catch (error) {
@@ -649,9 +638,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
       )
 
       if (!response.success || !response.data) {
-        throw new Error(
-          response.message || 'Failed to update achievement record',
-        )
+        throw new Error(response.message || 'Failed to update achievement record')
       }
 
       upsertAchievementRecord(response.data)
@@ -671,9 +658,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
   async function fetchAchievementById(
     achievementId: number,
   ): Promise<ApiResponse<Achievement>> {
-    const existing = achievements.value.find(
-      (entry) => entry.id === achievementId,
-    )
+    const existing = achievements.value.find((entry) => entry.id === achievementId)
 
     if (existing) {
       return {
@@ -788,9 +773,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
 
       if (!shouldRun() || !userId) return
 
-      let achievement = achievements.value.find(
-        (entry) => entry.id === achievementId,
-      )
+      let achievement = achievements.value.find((entry) => entry.id === achievementId)
 
       if (!achievement) {
         const fetched = await fetchAchievementById(achievementId)
@@ -849,9 +832,7 @@ export const useAchievementStore = defineStore('achievementStore', () => {
     const achievement = achievementByCode(target)
 
     if (!achievement) {
-      console.warn(
-        `[achievementStore] No achievement with triggerCode "${target}"`,
-      )
+      console.warn(`[achievementStore] No achievement with triggerCode "${target}"`)
       return
     }
 

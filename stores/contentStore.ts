@@ -42,7 +42,8 @@ export const useContentStore = defineStore('contentStore', () => {
   const sidebarOrientation = ref<'vertical' | 'horizontal'>(
     typeof window !== 'undefined' && localStorage.getItem('sidebarOrientation')
       ? (localStorage.getItem('sidebarOrientation') as
-          'vertical' | 'horizontal')
+          | 'vertical'
+          | 'horizontal')
       : 'vertical',
   )
 

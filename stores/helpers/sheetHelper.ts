@@ -19,7 +19,11 @@ export type PitchSheetDefaultLabels = {
 }
 
 export type DreamTypeLike =
-  PitchSheetDisplayType | 'BRAINSTORM' | string | null | undefined
+  | PitchSheetDisplayType
+  | 'BRAINSTORM'
+  | string
+  | null
+  | undefined
 
 export const pitchSheetDefaults = {
   ART: {

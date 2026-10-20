@@ -106,9 +106,7 @@ type StorybookLibraryBridge = {
   authenticatedUserId: () => number | null
 }
 
-export function createStorybookLibraryController(
-  bridge: StorybookLibraryBridge,
-) {
+export function createStorybookLibraryController(bridge: StorybookLibraryBridge) {
   const library = ref<StorybookSession[]>([])
   const initialized = ref(false)
 
@@ -161,9 +159,7 @@ export function createStorybookLibraryController(
         library.value = Array.isArray(parsed)
           ? parsed
               .map(cloneSession)
-              .sort((left, right) =>
-                right.updatedAt.localeCompare(left.updatedAt),
-              )
+              .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
               .slice(0, MAX_LIBRARY_SESSIONS)
           : []
       }
@@ -262,12 +258,7 @@ export function createStorybookLibraryController(
               ...beat.art,
               sessionId,
               beatId,
-              dedupeKey: [
-                beat.art.product,
-                sessionId,
-                beatId,
-                beat.art.moment,
-              ].join(':'),
+              dedupeKey: [beat.art.product, sessionId, beatId, beat.art.moment].join(':'),
               jobId: beat.art.status === 'done' ? undefined : beat.art.jobId,
               updatedAt: createdAt,
             }
@@ -387,10 +378,7 @@ export function createStorybookLibraryController(
     copy.beats.forEach((beat, index) => {
       lines.push(`### Scene ${index + 1}`, '', beat.narrative, '')
       if (beat.art?.status === 'done' && beat.art.imagePath) {
-        lines.push(
-          `![Scene ${index + 1} illustration](${beat.art.imagePath})`,
-          '',
-        )
+        lines.push(`![Scene ${index + 1} illustration](${beat.art.imagePath})`, '')
       }
       if (beat.answer?.text) {
         lines.push(`**Reader choice:** ${beat.answer.text}`, '')

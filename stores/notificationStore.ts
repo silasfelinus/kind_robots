@@ -16,7 +16,11 @@ import { useConductorStore } from '@/stores/conductorStore'
 import { useUserStore } from '@/stores/userStore'
 
 export type NotificationType =
-  'MESSAGE' | 'FRIEND_REQUEST' | 'FRIEND_ACCEPT' | 'ADMIN' | 'SYSTEM'
+  | 'MESSAGE'
+  | 'FRIEND_REQUEST'
+  | 'FRIEND_ACCEPT'
+  | 'ADMIN'
+  | 'SYSTEM'
 
 export type AppNotification = {
   id: number
@@ -81,8 +85,12 @@ export const useNotificationStore = defineStore('notificationStore', () => {
     const gateCount = conductorStore.humanGates.length
     const pitchCount = conductorStore.pendingPitches.length
     const parts = [
-      gateCount ? `${gateCount} human gate${gateCount === 1 ? '' : 's'}` : '',
-      pitchCount ? `${pitchCount} pitch${pitchCount === 1 ? '' : 'es'}` : '',
+      gateCount
+        ? `${gateCount} human gate${gateCount === 1 ? '' : 's'}`
+        : '',
+      pitchCount
+        ? `${pitchCount} pitch${pitchCount === 1 ? '' : 'es'}`
+        : '',
     ].filter(Boolean)
 
     return {

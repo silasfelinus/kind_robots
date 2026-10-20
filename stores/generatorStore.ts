@@ -272,9 +272,7 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
     emergencyField: FacetEmergencyField,
   ): string {
     const entry = facetCatalog.randomFacetForField(fieldKey)
-    return (
-      entry?.canonicalValue || entry?.title || emergencyValue(emergencyField)
-    )
+    return entry?.canonicalValue || entry?.title || emergencyValue(emergencyField)
   }
 
   function facetValues(
@@ -312,7 +310,9 @@ export const useGeneratorStore = defineStore('generatorStore', () => {
       if (selected) picked.push(selected)
     }
 
-    return picked.map((entry) => entry.canonicalValue || entry.title).join(', ')
+    return picked
+      .map((entry) => entry.canonicalValue || entry.title)
+      .join(', ')
   }
 
   async function fetchRewards(force = false): Promise<void> {

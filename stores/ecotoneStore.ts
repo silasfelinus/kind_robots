@@ -2,20 +2,21 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
   COMPANIONS,
-  ENCOUNTERS,
   ENDING_IDS,
   type CompanionId,
-  type LensId,
+  type EventId,
 } from '~/utils/ecotone/content'
 import {
   advance,
+  chooseBeat,
   chooseCrossroads,
-  chooseEncounter,
-  chooseIntro,
-  chooseLens,
+  chooseEvent,
+  chooseFork,
+  computeEnding,
   createRun,
   crossroadsNewcomer,
   currentChapter,
+  findCard,
   restoreRun,
   type RunState,
 } from '~/utils/ecotone/engine'
@@ -30,22 +31,26 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   const chapter = computed(() => (run.value ? currentChapter(run.value) : 1))
   const card = computed(() =>
-    run.value && run.value.phase === 'encounter'
-      ? (ENCOUNTERS.find(
-          (c) => c.id === run.value?.deck[run.value.encounterIndex],
-        ) ?? null)
-      : null,
+    run.value && run.value.phase === 'beat' ? findCard(run.value.card) : null,
+  )
+  const offered = computed(() =>
+    run.value && run.value.phase === 'fork'
+      ? run.value.offered.flatMap((id) => findCard(id) ?? [])
+      : [],
   )
   const lead = computed(
     () => COMPANIONS.find((c) => c.id === run.value?.activeLead) ?? null,
   )
-  const introCompanion = computed(
-    () => COMPANIONS.find((c) => c.id === run.value?.introCompanion) ?? null,
+  const prospect = computed(
+    () => COMPANIONS.find((c) => c.id === run.value?.prospect) ?? null,
   )
   const newcomer = computed(() => {
     const id = run.value ? crossroadsNewcomer(run.value) : null
     return COMPANIONS.find((c) => c.id === id) ?? null
   })
+  const ending = computed(() =>
+    run.value?.phase === 'end' ? computeEnding(run.value) : null,
+  )
   const unlockedCount = computed(
     () => endings.value.filter((id) => ENDING_IDS.includes(id)).length,
   )
@@ -56,6 +61,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       if (run.value)
         window.localStorage.setItem(RUN_KEY, JSON.stringify(run.value))
       else window.localStorage.removeItem(RUN_KEY)
+      window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -86,6 +92,13 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   function update(next: RunState) {
     if (next === run.value) return
     run.value = next
+    if (
+      next.phase === 'end' &&
+      next.ending &&
+      ENDING_IDS.includes(next.ending) &&
+      !endings.value.includes(next.ending)
+    )
+      endings.value = [...endings.value, next.ending]
     persist()
   }
 
@@ -93,16 +106,16 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     update(createRun(Date.now() % 2147483647, archetypeId))
   }
 
-  function pickLens(lens: LensId) {
-    if (run.value) update(chooseLens(run.value, lens))
+  function pickEvent(event: EventId) {
+    if (run.value) update(chooseEvent(run.value, event))
   }
 
-  function meet(accept: boolean) {
-    if (run.value) update(chooseIntro(run.value, accept))
+  function pickFork(cardId: string) {
+    if (run.value) update(chooseFork(run.value, cardId))
   }
 
   function choose(choiceId: string) {
-    if (run.value) update(chooseEncounter(run.value, choiceId))
+    if (run.value) update(chooseBeat(run.value, choiceId))
   }
 
   function crossroads(follow: boolean) {
@@ -128,15 +141,17 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     loaded,
     chapter,
     card,
+    offered,
     lead,
-    introCompanion,
+    prospect,
     newcomer,
+    ending,
     unlockedCount,
     endingTotal: ENDING_IDS.length,
     initialize,
     begin,
-    pickLens,
-    meet,
+    pickEvent,
+    pickFork,
     choose,
     crossroads,
     proceed,

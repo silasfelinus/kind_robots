@@ -24,12 +24,16 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
     },
     {
       id: 'fair-cocaine',
-      label: 'Cocaine: slow the festival rush long enough to verify the schedule',
+      label:
+        'Cocaine: slow the festival rush long enough to verify the schedule',
       lens: 'cocaine',
       check: { skill: 'wits', target: 9 },
       success: {
         text: 'Three urgent deadlines turn out to be one poster printed three times. A stage manager checks your amended schedule. There is room for everyone after all, even the puppet nobody remembers hiring.',
-        effects: { evidence: 'The independently checked fair timetable', flag: 'fair_schedule_verified' },
+        effects: {
+          evidence: 'The independently checked fair timetable',
+          flag: 'fair_schedule_verified',
+        },
       },
       failure: {
         text: 'You announce a solution a minute too early. The sound engineer spots the problem, and you let her correct it in public. The festival survives the embarrassment.',
@@ -59,7 +63,10 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
       check: { skill: 'psyche', target: 9 },
       success: {
         text: 'The dancing shrimp has exactly the same little hesitation as the generator by the door. Cedar checks the motor before anyone declares it supernatural. It is still quite strange.',
-        effects: { evidence: 'A shared rhythm between the shrimp and generator', flag: 'race_pattern_checked' },
+        effects: {
+          evidence: 'A shared rhythm between the shrimp and generator',
+          flag: 'race_pattern_checked',
+        },
       },
       failure: {
         text: 'You spend a while puzzling over a loose propeller on the floor. A mechanic shows you where it belongs. The best discovery tonight is that someone labeled the parts.',
@@ -73,7 +80,10 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
       check: { skill: 'psyche', target: 9 },
       success: {
         text: 'The painted fish on the warehouse wall swims against its own shadow. A sober photographer captures the same frame. Nobody can agree what it means, which feels unusually democratic.',
-        effects: { evidence: 'A photographed fish moving against its shadow', weird: 1 },
+        effects: {
+          evidence: 'A photographed fish moving against its shadow',
+          weird: 1,
+        },
       },
       failure: {
         text: 'For one dizzy minute the warehouse has a second ceiling. You sit down, drink water, and let the tuba player point out the actual exit. The night remains gloriously unfinished.',
@@ -87,7 +97,10 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
       check: { skill: 'lore', target: 9 },
       success: {
         text: 'The radio keeps predicting tomorrow twice. You write down both reports and ask a rested marshal to verify the frequency. The marshal insists you take a break and does not make it a judgment.',
-        effects: { evidence: 'Two independently compared race radio forecasts', flag: 'race_night_watch' },
+        effects: {
+          evidence: 'Two independently compared race radio forecasts',
+          flag: 'race_night_watch',
+        },
       },
       failure: {
         text: 'The same weather announcement comes around until every word seems urgent. You hand the radio to the next shift. They find a broken playback switch and another unexplained voice.',
@@ -117,7 +130,10 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
       check: { skill: 'wits', target: 9 },
       success: {
         text: 'The tide marker is exactly forty minutes ahead of the posted chart. You double-check against a second gauge and leave a note for the next visitor, who will have fewer reasons to hurry.',
-        effects: { evidence: 'Cross-checked tide marker discrepancy', flag: 'quiet_tide_recorded' },
+        effects: {
+          evidence: 'Cross-checked tide marker discrepancy',
+          flag: 'quiet_tide_recorded',
+        },
       },
       failure: {
         text: 'Your first reading is off by a notch. A passing birdwatcher corrects you and shows where the gauge is repaired each spring. You write down her name instead of defending the mistake.',
@@ -126,12 +142,16 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
     },
     {
       id: 'quiet-meth',
-      label: 'Meth: sit out the noise and let a rested neighbor verify the signs',
+      label:
+        'Meth: sit out the noise and let a rested neighbor verify the signs',
       lens: 'meth',
       check: { skill: 'lore', target: 9 },
       success: {
         text: 'You note that the posted trail hours disagree with the maintenance notice. A rested ranger verifies both with the district office. The marsh was not trying to trick you; the printer was.',
-        effects: { evidence: 'Verified marsh notice discrepancy', flag: 'quiet_signs_verified' },
+        effects: {
+          evidence: 'Verified marsh notice discrepancy',
+          flag: 'quiet_signs_verified',
+        },
       },
       failure: {
         text: 'The letters on the sign refuse to stay put. You choose a quiet bench and ask someone else to read them. The answer is ordinary, the relief entirely real.',
@@ -140,7 +160,8 @@ export const OPENING_LENS_ADDITIONS: Record<string, Choice[]> = {
     },
     {
       id: 'quiet-mdma',
-      label: 'MDMA: share the bench without asking the stranger to share a life',
+      label:
+        'MDMA: share the bench without asking the stranger to share a life',
       lens: 'mdma',
       check: { skill: 'rizz', target: 9 },
       success: {

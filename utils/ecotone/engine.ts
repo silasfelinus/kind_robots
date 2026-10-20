@@ -336,6 +336,7 @@ export function encounterEligible(
     return false
   if (card.requiresFormerGuide) {
     const guide = card.requiresFormerGuide
+    if (!state.meetingOrder.includes(guide)) return false
     if (guide === state.activeLead) return false
     if (
       !state.followHistory.some(

@@ -13,6 +13,11 @@ import {
 import { BEATS, ROUTES } from '../ecotone/story'
 import { buildEcotonePlaybook } from '../playbook/ecotone'
 import {
+  PLAYBOOK_GAMES,
+  buildPlaybook,
+  isPlaybookGame,
+} from '../playbook/games'
+import {
   MAX_ADDED_CHOICES,
   applyCardEdit,
   isEmptyEdit,
@@ -81,6 +86,83 @@ assert.equal(
   playbook.order.length,
   'story order lists each beat once',
 )
+
+// Every story game loads as a chain (conductor weird-humboldt t-036).
+for (const { id } of PLAYBOOK_GAMES) {
+  const book = buildPlaybook(id)
+  assert.equal(book.game, id)
+  assert.ok(book.routes.length > 0, `${id} has a route`)
+  assert.equal(
+    new Set(book.order).size,
+    book.order.length,
+    `${id} lists each node once`,
+  )
+  for (const route of book.routes)
+    for (const key of route.steps)
+      assert.ok(book.nodes[key], `${id}: ${route.id} step ${key} exists`)
+  for (const node of Object.values(book.nodes)) {
+    for (const choice of node.choices)
+      if (choice.leadsTo)
+        assert.ok(
+          book.nodes[choice.leadsTo],
+          `${id}: ${node.key}/${choice.id} leads somewhere real`,
+        )
+    for (const person of node.companions)
+      assert.ok(
+        book.people.some((p) => p.id === person),
+        `${id}: ${node.key} names a known ${book.peopleLabel}`,
+      )
+  }
+  for (const section of book.sections)
+    for (const key of section.keys)
+      assert.ok(book.nodes[key], `${id}: section ${section.title} ${key}`)
+  assert.equal(
+    book.editable,
+    id === 'ecotone',
+    'only Ecotone reads live overlays',
+  )
+  assert.ok(book.artProject && book.artLanes.length, `${id} tags its art`)
+}
+assert.ok(isPlaybookGame('emperor-of-dust'))
+assert.ok(!isPlaybookGame('pinball'))
+const lands = buildPlaybook('shifting-lands')
+assert.equal(
+  lands.routes[0]?.steps.filter((k) => k.startsWith('trial:')).length,
+  5,
+  'five lands, five trials',
+)
+assert.equal(
+  Object.values(lands.nodes).filter((n) => n.kind === 'encounter').length,
+  120,
+  'all 120 Shifting Lands cards',
+)
+const desks = buildPlaybook('shifting-desks')
+assert.equal(
+  desks.routes[0]?.steps.filter((k) => k.startsWith('boss:')).length,
+  5,
+  'five departments, five bosses',
+)
+assert.equal(desks.sections[0]?.keys.length, 10, 'ten Shifting Desks endings')
+const book = buildPlaybook('zuzu-gamebook')
+assert.equal(book.nodes['the-crossing']?.key, 'the-crossing', 'the book opens')
+assert.ok((book.sections[0]?.keys.length ?? 0) >= 10, 'the gamebook endings')
+const dust = buildPlaybook('emperor-of-dust')
+assert.equal(dust.routes[0]?.steps.length, 50, 'fifty days')
+const lines = dust.sections.find((s) => s.title === 'Follower lines')
+assert.equal(lines?.keys.length, 20, 'twenty follower lines')
+assert.ok(
+  lines?.keys.some((key) => (dust.nodes[key]?.choices.length ?? 0) > 1),
+  'follower lines gather where followers join',
+)
+const threads = dust.sections.find((s) => s.title === 'Quest lines')
+assert.ok((threads?.keys.length ?? 0) > 0, 'flag-gated quest lines')
+for (const key of threads?.keys ?? [])
+  assert.ok(
+    dust.nodes[key]?.choices.some((c) =>
+      c.tags.some((t) => t.startsWith('Needs it')),
+    ),
+    `${key} gates something`,
+  )
 
 // Overlays: sanitized, bounded, and they never touch mechanics.
 const raw = {
@@ -180,12 +262,19 @@ assert.equal(
 
 // Art requests are private, tagged to the project, and sized by shape.
 for (const lane of PLAYBOOK_ART_LANES) {
-  const body = playbookArtRequest(lane, 'a slug on the bay', 'portrait', 3)
+  const body = playbookArtRequest(lane, 'a slug on the bay', 'portrait', 3, {
+    projectSlug: 'weird-humboldt',
+    designer: 'Ecotone',
+    negative: 'anthro, furry',
+  })
   assert.equal(body.isPublic, false)
   assert.equal(body.projectSlug, 'weird-humboldt')
   assert.equal(body.height, 1216)
   assert.match(String(body.promptString), /a slug on the bay/)
-  if (lane.engine === 'comfy') assert.ok(body.checkpoint && body.negativePrompt)
+  if (lane.engine === 'comfy') {
+    assert.ok(body.checkpoint)
+    assert.match(String(body.negativePrompt), /anthro, furry/)
+  }
 }
 
 // The admin route, its tab and the schema.
@@ -198,6 +287,7 @@ const schema = readFileSync('prisma/playbook.prisma', 'utf8')
 assert.match(schema, /model PlaybookEdit/)
 assert.match(schema, /model PlaybookNote/)
 for (const file of [
+  'components/playbook/playbook-art.vue',
   'components/playbook/playbook-node.vue',
   'components/playbook/playbook-detail.vue',
   'pages/admin/playbook-manager.vue',

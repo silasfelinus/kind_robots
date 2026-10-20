@@ -5,7 +5,7 @@ tabKey: playbook-manager
 label: Playbook Manager
 title: Playbook Manager
 subtitle: Every story beat as a chain of choices
-description: See a game's story as chained choices, from the opening to the endings. Edit the text, add choices, comment, flag or submit images and request art for beats that have none.
+description: See each story game as chained choices, from the opening to the endings. Ecotone, Emperor of Dust, Shifting Lands, Shifting Desks and the Zuzu gamebook. Edit Ecotone's text, comment, flag or submit images and request art anywhere.
 summary: Edit story beats and their art.
 icon: kind-icon:git-branch
 route: /admin/playbook-manager
@@ -14,28 +14,30 @@ requiredRole: ADMIN
 tutorial:
   title: Playbook Manager
   body: >-
-    The Playbook Manager shows Ecotone's story as chains of choices: the
-    opening event choice, each route's fixed story-spine beats, the daily
-    white-rabbit forks with every card in their pools, the crossroads, the
-    finale and the five ending storylines. Colors mark the kind of beat:
-    violet opening, green story spine, blue white-rabbit fork, amber random
-    encounter, orange crossroads, rose ending. Each card lists its choices
-    (sub-choices) and where each one leads; click any of them to follow the
-    chain. Filter by route, day, the companion a beat is written for, the
-    lens variations it has (Sober, Tipsy, Stoned, Tripping and the roads
-    still being written), or status: needs art, art requested, flagged,
-    commented or edited. List view sorts the same beats by story order, day,
-    kind, companion or title. Select a beat to open it on the right: edit its
-    story text, its choices and its lens and companion lines, or add up to
-    three new choices. Save draft keeps an edit here; Save and go live puts
-    it into the game for every player, over the authored text, and Revert
-    returns the beat to its authored text. Choice ids and mechanics (rolls,
-    lenses, who a choice leads to) stay as authored. The Art tab queues
-    private art on any beat or any single choice, flags the current image,
-    or submits an existing ArtImage by id, and shows each request's status
-    and render. Notes are kept even when resolved. Export downloads every
-    edit and open note as JSON so an agent can fold them into the source.
+    Pick a game at the top left. The Playbook Manager reads each game's
+    authored source and shows it as chains of choices. Ecotone: three routes
+    from the opening event choice through story-spine beats, white-rabbit
+    forks, the crossroads and the finale, plus the ending storylines and the
+    Wild Way. Emperor of Dust: the fifty days with their briefings,
+    audiences and quests, plus follower lines (where each follower joins, is
+    needed or has a quest of their own) and quest lines (each story flag,
+    from the choices that set it to the beats that wait on it). Shifting
+    Lands: five lands of location draws and trials. Shifting Desks: five
+    departments of desk draws, window shifts, bosses and endings. The Zuzu
+    gamebook: Book One scene by scene, each choice naming the scene it
+    turns to. Colors mark the kind of beat, and each card lists its choices
+    and where they lead; click to follow the chain. Filter by route, day,
+    kind, who a beat is written for, its variations (lenses, marks, factions
+    or ending tone) and status. List view sorts the same beats. Select a beat
+    to open it on the right. Ecotone beats can be edited: Save draft keeps an
+    edit here, Save and go live puts it into the game for every player, and
+    Revert returns the authored text; choice ids and mechanics stay as
+    authored. The other games are read-only here (their engines don't read
+    overlays yet), but comments, image flags, submitted images and art
+    requests work everywhere, tagged to each game's project and its preferred
+    art lane. Export downloads the game's edits and open notes as JSON for
+    an agent to fold into the source.
   image: /images/art/resources.webp
 ---
 
-Edit Ecotone's story beats, choices, variations and art from one chained view.
+Browse and annotate every story game as chained choices; edit Ecotone in place.

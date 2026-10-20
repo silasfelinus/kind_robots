@@ -3,8 +3,19 @@
     <header
       class="kr-toolbar flex-wrap items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100 px-2 py-1.5 shadow-sm"
     >
+      <select
+        class="select select-bordered select-sm font-black"
+        aria-label="Game"
+        :value="store.game"
+        @change="pickGame(($event.target as HTMLSelectElement).value)"
+      >
+        <option v-for="game in store.games" :key="game.id" :value="game.id">
+          {{ game.title }}
+        </option>
+      </select>
       <div
-        class="flex gap-1 rounded-xl bg-base-200 p-1"
+        v-if="routeOptions.length > 1"
+        class="flex flex-wrap gap-1 rounded-xl bg-base-200 p-1"
         role="tablist"
         aria-label="Route"
       >
@@ -157,7 +168,7 @@
         </h3>
         <div class="mt-1 flex flex-col gap-1">
           <button
-            v-for="kind in KIND_ORDER"
+            v-for="kind in presentKinds"
             :key="kind"
             type="button"
             class="flex items-center gap-2 rounded-lg px-2 py-1 text-left text-xs font-bold"
@@ -170,7 +181,7 @@
             @click="toggleKind(kind)"
           >
             <span class="size-2.5 rounded-full" :class="KIND_DOT[kind]" />
-            {{ KIND_NAME[kind] }}
+            {{ store.kindLabel(kind) }}
             <span class="ml-auto text-base-content/50">{{
               kindCount(kind)
             }}</span>
@@ -178,7 +189,7 @@
         </div>
 
         <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          Day
+          {{ store.playbook.dayLabel }}
         </h3>
         <div class="mt-1 flex flex-wrap gap-1">
           <button
@@ -209,40 +220,42 @@
           </button>
         </div>
 
-        <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          Written for
-        </h3>
-        <div class="mt-1 flex flex-wrap gap-1">
-          <button
-            type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.companion === null
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.companion = null"
-          >
-            Anyone
-          </button>
-          <button
-            v-for="lead in ENDING_LEADS"
-            :key="lead"
-            type="button"
-            class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="
-              store.companion === lead
-                ? 'bg-primary text-primary-content'
-                : 'bg-base-200'
-            "
-            @click="store.companion = lead"
-          >
-            {{ leadLabel(lead) }}
-          </button>
-        </div>
+        <template v-if="store.playbook.people.length">
+          <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
+            {{ store.playbook.peopleLabel }}
+          </h3>
+          <div class="mt-1 flex flex-wrap gap-1">
+            <button
+              type="button"
+              class="rounded-full px-2 py-0.5 text-xs font-bold"
+              :class="
+                store.companion === null
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-200'
+              "
+              @click="store.companion = null"
+            >
+              Anyone
+            </button>
+            <button
+              v-for="person in store.playbook.people"
+              :key="person.id"
+              type="button"
+              class="rounded-full px-2 py-0.5 text-xs font-bold"
+              :class="
+                store.companion === person.id
+                  ? 'bg-primary text-primary-content'
+                  : 'bg-base-200'
+              "
+              @click="store.companion = person.id"
+            >
+              {{ person.label }}
+            </button>
+          </div>
+        </template>
 
         <h3 class="mt-3 text-[11px] font-black uppercase tracking-wider">
-          Has a variation for
+          {{ store.playbook.variationLabel }}
         </h3>
         <div class="mt-1 flex flex-wrap gap-1">
           <button
@@ -255,22 +268,21 @@
             "
             @click="store.lens = null"
           >
-            Any lens
+            Any
           </button>
           <button
-            v-for="lens in LENSES"
-            :key="lens.id"
+            v-for="variation in store.playbook.variations"
+            :key="variation.id"
             type="button"
             class="rounded-full px-2 py-0.5 text-xs font-bold"
-            :class="[
-              store.lens === lens.id
+            :class="
+              store.lens === variation.id
                 ? 'bg-primary text-primary-content'
-                : 'bg-base-200',
-              lens.open ? '' : 'opacity-60',
-            ]"
-            @click="store.lens = lens.id"
+                : 'bg-base-200'
+            "
+            @click="store.lens = variation.id"
           >
-            {{ lens.short }}
+            {{ variation.label }}
           </button>
         </div>
 
@@ -318,7 +330,10 @@
         aria-label="Playbook"
       >
         <template v-if="store.view === 'chain'">
-          <div class="grid gap-4 @5xl:grid-cols-2">
+          <div
+            class="grid gap-4"
+            :class="store.routes.length > 1 ? '@5xl:grid-cols-2' : ''"
+          >
             <div
               v-for="route in store.routes"
               :key="route.id"
@@ -328,11 +343,11 @@
               <p class="-mt-2 text-xs text-base-content/60">{{ route.kind }}</p>
               <template v-for="(key, index) in route.steps" :key="key">
                 <p
-                  v-if="dayHeading(route.id, index)"
+                  v-if="route.headings[index]"
                   class="mt-1 flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-base-content/55"
                 >
                   <span class="h-px flex-1 bg-base-content/15" />
-                  {{ dayHeading(route.id, index) }}
+                  {{ route.headings[index] }}
                   <span class="h-px flex-1 bg-base-content/15" />
                 </p>
                 <div class="relative pl-5">
@@ -351,18 +366,23 @@
               </template>
             </div>
           </div>
-          <h2 class="mt-6 font-serif text-xl font-black">Ending storylines</h2>
-          <p class="text-xs text-base-content/60">
-            Who you finish with (or nobody) × opening lens × hopeful or dark.
-          </p>
-          <div class="mt-2 grid gap-2 @3xl:grid-cols-2">
-            <PlaybookNode
-              v-for="key in endingKeys"
-              :key="key"
-              :node-key="key"
-              @select="pane = 'beat'"
-            />
-          </div>
+          <template
+            v-for="section in store.playbook.sections"
+            :key="section.title"
+          >
+            <h2 class="mt-6 font-serif text-xl font-black">
+              {{ section.title }}
+            </h2>
+            <p class="text-xs text-base-content/60">{{ section.blurb }}</p>
+            <div class="mt-2 grid gap-2 @3xl:grid-cols-2">
+              <PlaybookNode
+                v-for="key in section.keys"
+                :key="key"
+                :node-key="key"
+                @select="pane = 'beat'"
+              />
+            </div>
+          </template>
         </template>
         <template v-else>
           <p class="mb-2 text-xs font-bold text-base-content/60">
@@ -404,22 +424,25 @@ import {
   usePlaybookStore,
   type PlaybookStatus,
 } from '~/stores/playbookStore'
-import { ENDING_LEADS, LENSES } from '~/utils/ecotone/content'
-import { EVENTS, ROUTES } from '~/utils/ecotone/story'
-import { leadLabel, type NodeKind } from '~/utils/playbook/ecotone'
+import { isPlaybookGame } from '~/utils/playbook/games'
+import type { NodeKind } from '~/utils/playbook/types'
 
 const userStore = useUserStore()
 const store = usePlaybookStore()
 const ready = ref(false)
 const pane = ref<'filters' | 'playbook' | 'beat'>('playbook')
 
-const routeOptions = [
-  { value: 'all', label: 'Both routes' },
-  ...EVENTS.map((event) => ({
-    value: event.id as string,
-    label: event.id === 'kinetic' ? 'Kinetic race' : 'Green Ribbon Fair',
-  })),
-]
+const routeOptions = computed(() =>
+  store.playbook.routes.length > 1
+    ? [
+        { value: 'all', label: 'All routes' },
+        ...store.playbook.routes.map((route) => ({
+          value: route.id,
+          label: route.name.replace(/^The /, ''),
+        })),
+      ]
+    : [],
+)
 const viewOptions = [
   { value: 'chain' as const, label: 'Chain', icon: 'kind-icon:git-branch' },
   { value: 'list' as const, label: 'List', icon: 'kind-icon:list' },
@@ -438,24 +461,22 @@ const statusOptions: { value: PlaybookStatus; label: string }[] = [
   { value: 'edited', label: 'Edited' },
 ]
 
-const KIND_NAME: Record<NodeKind, string> = {
-  opening: 'Opening',
-  spine: 'Story spine',
-  fork: 'White rabbit',
-  encounter: 'Random encounter',
-  crossroads: 'Crossroads',
-  ending: 'Ending storyline',
-}
 const KIND_DOT: Record<NodeKind, string> = {
   opening: 'bg-violet-500',
   spine: 'bg-emerald-600',
   fork: 'bg-sky-600',
   encounter: 'bg-amber-500',
   crossroads: 'bg-orange-500',
+  boss: 'bg-red-700',
+  quest: 'bg-teal-600',
+  follower: 'bg-fuchsia-600',
+  thread: 'bg-indigo-600',
   ending: 'bg-rose-600',
 }
 
-const endingKeys = computed(() => ENDING_LEADS.map((lead) => `ending:${lead}`))
+const presentKinds = computed(() =>
+  KIND_ORDER.filter((kind) => kindCount(kind) > 0),
+)
 
 function kindCount(kind: NodeKind) {
   return Object.values(store.playbook.nodes).filter((n) => n.kind === kind)
@@ -473,16 +494,9 @@ function setRoute(value: string) {
   store.day = null
 }
 
-/** A divider whenever the route moves to a new day. Step 0 is the shared opening. */
-function dayHeading(routeId: string, index: number): string {
-  const steps = ROUTES[routeId as keyof typeof ROUTES]
-  const event = EVENTS.find((e) => e.id === routeId)
-  if (!steps || !event) return ''
-  if (index === 0) return 'Before it begins'
-  const day = steps[index - 1]?.day
-  const previous = index > 1 ? steps[index - 2]?.day : null
-  if (!day || day === previous) return ''
-  return `Day ${day} · ${event.days[day - 1] ?? ''}`
+function pickGame(value: string) {
+  if (isPlaybookGame(value)) void store.setGame(value)
+  pane.value = 'playbook'
 }
 
 function download() {
@@ -490,7 +504,7 @@ function download() {
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
-  link.download = `ecotone-playbook-${new Date().toISOString().slice(0, 10)}.json`
+  link.download = `${store.game}-playbook-${new Date().toISOString().slice(0, 10)}.json`
   link.click()
   URL.revokeObjectURL(url)
 }

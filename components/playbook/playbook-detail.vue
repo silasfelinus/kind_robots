@@ -1,13 +1,12 @@
 <template>
   <div v-if="node" class="flex flex-col gap-3 p-3">
     <header class="flex flex-col gap-2">
-      <div
-        class="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-base-300"
-      >
-        <EcotoneScene
-          :kind="node.scene"
-          :art="node.art ?? undefined"
-          :label="node.title"
+      <div class="relative aspect-[16/9] w-full overflow-hidden rounded-2xl">
+        <PlaybookArt
+          :title="node.title"
+          :scene="node.scene"
+          :art="node.art"
+          :art-url="node.artUrl"
           class="absolute inset-0"
         />
         <span
@@ -18,7 +17,7 @@
       </div>
       <div>
         <p class="font-mono text-xs text-base-content/55">
-          {{ node.key }} · {{ KIND_LABEL[node.kind] }}
+          {{ node.key }} · {{ store.kindLabel(node.kind) }}
         </p>
         <h2 class="font-serif text-2xl font-black leading-tight">
           {{ node.title }}
@@ -122,9 +121,9 @@
             >{{ tag }}</span
           >
           <span
-            v-if="choice.success && effectText(choice.success.effects)"
+            v-if="choice.effect"
             class="rounded bg-success/15 px-1 font-bold"
-            >{{ effectText(choice.success.effects) }}</span
+            >{{ choice.effect }}</span
           >
           <button
             v-if="choice.leadsTo && store.playbook.nodes[choice.leadsTo]"
@@ -413,11 +412,7 @@
             class="select select-bordered select-sm"
             aria-label="Art lane"
           >
-            <option
-              v-for="lane in PLAYBOOK_ART_LANES"
-              :key="lane.key"
-              :value="lane.key"
-            >
+            <option v-for="lane in lanes" :key="lane.key" :value="lane.key">
               {{ lane.label }}
             </option>
           </select>
@@ -439,9 +434,9 @@
           </button>
         </div>
         <p class="mt-1 text-[11px] text-base-content/55">
-          Private renders, tagged to the Weird Humboldt project. The prompt
-          checker refuses negations such as “no people”; describe what should be
-          there instead.
+          Private renders, tagged to this game’s project. The prompt checker
+          refuses negations such as “no people”; describe what should be there
+          instead.
         </p>
       </div>
 
@@ -651,7 +646,7 @@ import {
   type LensId,
   type SkillId,
 } from '~/utils/ecotone/content'
-import { leadLabel, type NodeKind } from '~/utils/playbook/ecotone'
+import { leadLabel } from '~/utils/playbook/ecotone'
 import {
   MAX_ADDED_CHOICES,
   applyCardEdit,
@@ -665,12 +660,22 @@ type Meter = 'nerve' | 'goodwill' | 'weird'
 
 const store = usePlaybookStore()
 const node = computed(() => store.selected)
+// Only games whose engine reads live overlays (Ecotone) get the text editor.
 const base = computed<EncounterCard | null>(
   () =>
-    (node.value?.editable &&
+    (store.playbook.editable &&
+      node.value?.editable &&
       ALL_CARDS.find((card) => card.id === node.value?.key)) ||
     null,
 )
+const lanes = computed(() =>
+  [...PLAYBOOK_ART_LANES].sort((a, b) => rank(a.key) - rank(b.key)),
+)
+
+function rank(key: string) {
+  const index = store.playbook.artLanes.indexOf(key)
+  return index < 0 ? 99 : index
+}
 const edit = computed(() =>
   node.value ? store.edits[node.value.key] : undefined,
 )
@@ -678,14 +683,6 @@ const tab = ref<Tab>('story')
 const maxAdded = MAX_ADDED_CHOICES
 const METERS: Meter[] = ['nerve', 'goodwill', 'weird']
 
-const KIND_LABEL: Record<NodeKind, string> = {
-  opening: 'Opening choice',
-  spine: 'Story spine',
-  fork: 'White-rabbit fork',
-  encounter: 'Random encounter',
-  crossroads: 'Crossroads',
-  ending: 'Ending storyline',
-}
 const NOTE_LABEL: Record<string, string> = {
   comment: 'Comment',
   flag: 'Image flagged',
@@ -890,21 +887,10 @@ async function revert() {
   if (await store.saveEdit(node.value.key, {}, false)) resetForm()
 }
 
-function effectText(effects: Effects) {
-  const parts: string[] = []
-  for (const meter of METERS) {
-    const value = effects[meter]
-    if (value) parts.push(`${meter} ${value > 0 ? '+' : ''}${value}`)
-  }
-  if (effects.evidence) parts.push('evidence')
-  if (effects.flag) parts.push(`flag ${effects.flag}`)
-  return parts.join(' · ')
-}
-
 // Art.
 const art = reactive({
   prompt: '',
-  lane: PLAYBOOK_ART_LANES[0]?.key ?? '',
+  lane: '',
   shape: 'scene' as 'scene' | 'portrait',
 })
 const artChoice = ref<{ id: string; label: string } | null>(null)
@@ -986,11 +972,15 @@ async function addComment() {
 }
 
 watch(
-  () => [node.value?.key, edit.value?.updatedAt],
+  () => [store.game, node.value?.key, edit.value?.updatedAt],
   () => {
     resetForm()
     art.prompt = defaultPrompt()
-    art.shape = node.value?.kind === 'ending' ? 'portrait' : 'scene'
+    art.shape = ['ending', 'follower'].includes(node.value?.kind ?? '')
+      ? 'portrait'
+      : 'scene'
+    if (!lanes.value.some((lane) => lane.key === art.lane))
+      art.lane = lanes.value[0]?.key ?? ''
     artChoice.value = null
     if (node.value) {
       for (const note of store.notesFor(node.value.key))

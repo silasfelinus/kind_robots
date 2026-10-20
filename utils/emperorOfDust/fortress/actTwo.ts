@@ -613,22 +613,34 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
     title: 'Lanterns at Mirefen',
     briefings: [
       {
-        id: 'mirefen-raiders',
-        source: 'Mirefen reed-cutters',
-        text: 'Raiders camp at the edge of the Mirefen, close to the lantern-houses.',
-        truth: true,
-      },
-      {
         id: 'mothers-ask-moles',
         source: 'A Saltroad peddler',
         text: 'The Mire Mothers have asked the Moles for help against the raiders.',
         truth: false,
       },
       {
+        id: 'mirefen-raiders',
+        source: 'Mirefen reed-cutters',
+        text: 'Raiders camp at the edge of the Mirefen, close to the lantern-houses.',
+        truth: true,
+      },
+      {
         id: 'lanterns-again',
         source: 'Hollow Bell night watch',
         text: 'Lanterns move through the empty fen again. In step.',
         truth: true,
+        variants: [
+          {
+            flags: ['mire-road-closed'],
+            notFlags: ['d03-mire-road-reopened'],
+            text: 'Lanterns move through the empty fen again. In step. They stop at the road the crown closed, and wait there.',
+          },
+          {
+            flags: ['mire-quiet-count'],
+            source: 'The sergeant who counted the Mirefen road',
+            text: 'Lanterns move through the empty fen again, in step. The sergeant counted them from the wall. Fewer than the first night.',
+          },
+        ],
       },
     ],
     komodo:
@@ -1053,6 +1065,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
     title: 'A Sick Courier',
     briefings: [
       {
+        id: 'fever-plague',
+        source: 'A frightened stablehand',
+        text: 'The courier’s fever is a plague. Half the ford has it.',
+        truth: false,
+      },
+      {
         id: 'courier-down',
         source: 'Eastern Ford ferrymen',
         text: 'A Saltroad courier collapsed at the ford with a fever and a sealed satchel.',
@@ -1063,12 +1081,6 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         source: 'The Lamplight Archive',
         text: 'The Archive’s old maps are crumbling faster than they can be copied.',
         truth: true,
-      },
-      {
-        id: 'fever-plague',
-        source: 'A frightened stablehand',
-        text: 'The courier’s fever is a plague. Half the ford has it.',
-        truth: false,
       },
     ],
     komodo:
@@ -1404,6 +1416,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         source: 'A Freehold carter',
         text: 'Three haystacks on the Freehold road are too heavy for hay.',
         truth: true,
+        variants: [
+          {
+            flags: ['d05-granary-seized'],
+            text: 'Three haystacks on the Freehold road are too heavy for hay. The Old Houses started hiding grain the week the Watch opened their granary.',
+          },
+        ],
       },
     ],
     komodo:
@@ -1678,6 +1696,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         text: 'The manifesto is a Jackalwire forgery meant to turn the crown against the Moles.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The manifesto was Granny Umber’s, every word. He broke the seal before you woke and handed you a forger instead.',
       },
       {
         id: 'reports-wrong',
@@ -1907,6 +1927,18 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
     title: 'No Water for Strangers',
     briefings: [
       {
+        id: 'abbey-wells',
+        source: 'A sister of the Abbey',
+        text: 'The Abbey has a deep well and turns no stranger away.',
+        truth: false,
+        variants: [
+          {
+            flags: ['abbey-took-coldbrook-children'],
+            text: 'The Abbey has a deep well and turns no stranger away. The Coldbrook children drink from it every morning.',
+          },
+        ],
+      },
+      {
         id: 'wells-closed',
         source: 'Freehold reeves',
         text: 'The Freeholds have closed their wells to anyone without a Freehold token.',
@@ -1917,12 +1949,6 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         source: 'Saltroad drovers',
         text: 'A Saltroad fair is camped outside the gate, with fire-jugglers.',
         truth: true,
-      },
-      {
-        id: 'abbey-wells',
-        source: 'A sister of the Abbey',
-        text: 'The Abbey has a deep well and turns no stranger away.',
-        truth: false,
       },
     ],
     komodo:
@@ -2484,6 +2510,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
     title: 'The Levy',
     briefings: [
       {
+        id: 'pack-disbanded',
+        source: 'A Saltroad drover',
+        text: 'The Jackalwire Pack has disbanded and gone east.',
+        truth: false,
+      },
+      {
         id: 'rains-coming',
         source: 'Storm Crow Heights',
         text: 'The rains will break over the Eastern Ford within two days.',
@@ -2494,12 +2526,6 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         source: 'Far-border scouts',
         text: 'Riders in plum coats at the far border, where the map ends.',
         truth: true,
-      },
-      {
-        id: 'pack-disbanded',
-        source: 'A Saltroad drover',
-        text: 'The Jackalwire Pack has disbanded and gone east.',
-        truth: false,
       },
     ],
     komodo:

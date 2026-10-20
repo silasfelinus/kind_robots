@@ -494,6 +494,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The crown’s accounts were checked last month and every page is in order.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'Nobody checked the crown’s accounts last month. He kept them himself. The page that did not add up was in his hand.',
       },
       {
         id: 'oil-shortage',
@@ -669,6 +671,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'Thistledown',
         text: 'Plum riders are watching the Thistledown fields from the ridge.',
         truth: true,
+        variants: [
+          {
+            flags: ['d10-thistledown-told-to-pay'],
+            text: 'Plum riders are watching the Thistledown fields from the ridge. Thistledown has stopped asking the crown for anything.',
+          },
+        ],
       },
       {
         id: 'riders-waystation',
@@ -1149,6 +1157,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'The map room',
         text: 'The war has cut every road south except two: the canyon trestle and the Mole tunnel.',
         truth: true,
+        variants: [
+          {
+            flags: ['d26-brick-tunnel-mapped'],
+            text: 'The war has cut every road south except two: the canyon trestle and the Mole tunnel. Keel’s survey of the brick tunnel is pinned beside the map.',
+          },
+        ],
       },
       {
         id: 'riders-moving',
@@ -1164,7 +1178,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Two roads, Your Majesty, and the court can hold one. Whichever survives is the road you will use later. Choose as if your life depended on it.',
+      'Two roads, Your Majesty, and the court can hold one. Whichever survives is the road you will use later. Hold the one you would want to run down in the dark.',
     quests: [],
     audiences: [
       {
@@ -1313,6 +1327,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'Brother Teodor’s old letters',
         text: 'There is a cellar under the chapel that the sisters never mention.',
         truth: true,
+        variants: [
+          {
+            flags: ['d22-token-stamp-copied'],
+            text: 'There is a cellar under the chapel that the sisters never mention. Its door is burned with the mark Ash copied from the Ford tokens.',
+          },
+        ],
       },
     ],
     komodo:
@@ -1529,6 +1549,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The Ledger has never lent a single coin to the Abbey.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The Ledger had lent to the Abbey all year. Every note crossed his desk first.',
       },
       {
         id: 'loans-called',
@@ -1752,15 +1774,24 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
     briefings: [
       {
         id: 'satchel-grain',
-        source: 'A Yard porter',
-        text: 'The satchel was full of stolen grain.',
+        source: 'Young Komodo’s runner',
+        text: 'The satchel was full of stolen grain. A Yard matter. Nothing for the throne.',
         truth: false,
+        komodoLie: true,
+        hindsight:
+          'There was no grain. The letters were his, going up the mission road twice a week. He wanted the boy alone before the boy said a name.',
       },
       {
         id: 'mole-caught',
         source: 'The Gate Watch',
         text: 'A young Mole was caught leaving the tower before dawn with a satchel.',
         truth: true,
+        variants: [
+          {
+            flags: ['mole-messenger-arrested'],
+            text: 'A young Mole was caught leaving the tower before dawn with a satchel. He has Granny Umber’s squint.',
+          },
+        ],
       },
       {
         id: 'satchel-letters',
@@ -1770,7 +1801,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'A thief with letters, Your Majesty. Thieves always carry for somebody important. Let me talk to him. I am very good with frightened people.',
+      'My runner says grain, Your Majesty. The Captain says letters. Either way, thieves carry for somebody important. Let me talk to him. I am very good with frightened people.',
     quests: [],
     audiences: [
       {
@@ -2251,6 +2282,14 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The roads to the Abbey are quiet tonight.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The roads to the Abbey were full that night. Half your watch marched them, under a seal he pressed himself.',
+        variants: [
+          {
+            flags: ['d38-rosters-changed'],
+            text: 'The roads to the Abbey are quiet tonight. Every post on the new rosters is manned.',
+          },
+        ],
       },
       {
         id: 'chairs-empty',

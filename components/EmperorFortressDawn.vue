@@ -204,7 +204,7 @@
           class="eod-finish px-5 py-1.5 text-sm"
           @click="emit('close')"
         >
-          To the throne room
+          To the morning briefing
         </button>
       </div>
     </div>

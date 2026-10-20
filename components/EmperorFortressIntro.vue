@@ -103,7 +103,9 @@
           class="grid grid-cols-1 gap-1 text-sm @xl:grid-cols-2"
         >
           <li
-            v-for="room in ROOMS.filter((entry) => entry.id !== 'chronicle')"
+            v-for="room in ROOMS.filter(
+              (entry) => entry.id !== 'chronicle' && entry.id !== 'briefing',
+            )"
             :key="room.id"
             class="flex items-start gap-2"
           >
@@ -203,7 +205,7 @@ const SCENES: Scene[] = [
   {
     kicker: 'A day at court',
     title: 'Every Morning',
-    text: 'Each dawn I bring you three reports. Two are true; one is not, and you will have to decide which. Then the petitioners come: mayors, merchants, priests, raiders with manners. Whatever you promise them, they remember.',
+    text: 'Each dawn I bring you the reports that came up the roads overnight. Read them closely; the roads are full of talk. Then the petitioners come: mayors, merchants, priests, raiders with manners. Whatever you promise them, they remember.',
     backdrop: FORTRESS,
     figure: illustration('npcs', 'mara-reedbell'),
     figureAlt: 'Mara Reedbell, Mayor of Hollow Bell, waiting to be heard',

@@ -78,7 +78,7 @@
               v-for="room in rooms"
               :key="room.id"
               type="button"
-              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-1.5 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-3"
+              class="eod-tab tooltip tooltip-bottom relative flex min-w-0 flex-1 items-center @6xl:min-w-fit @6xl:flex-auto justify-center gap-1.5 whitespace-nowrap px-1.5 py-1.5 text-xs font-semibold uppercase tracking-wider @6xl:px-3"
               :data-tip="room.hint"
               :aria-label="
                 room.label + (room.badge ? `, ${room.badge} waiting` : '')
@@ -202,7 +202,15 @@
             </p>
           </section>
           <template v-else>
-            <EmperorFortressThrone v-if="activeRoom === 'throne'" :run="run" />
+            <EmperorFortressBriefing
+              v-if="activeRoom === 'briefing'"
+              :run="run"
+              @next="enter('throne')"
+            />
+            <EmperorFortressThrone
+              v-else-if="activeRoom === 'throne'"
+              :run="run"
+            />
             <EmperorFortressQuests
               v-else-if="activeRoom === 'quests'"
               :run="run"
@@ -276,7 +284,7 @@ const ending = computed(() =>
   run.value && over.value ? endingOf(run.value) : undefined,
 )
 const followerName = (id: string) => followerDef(id)?.name ?? id
-const activeRoom = ref<RoomId>('throne')
+const activeRoom = ref<RoomId>('briefing')
 const showDawn = ref(false)
 const splashing = ref(true)
 const stage = ref<HTMLElement | null>(null)
@@ -336,7 +344,7 @@ watch(
   (report) => {
     if (!report) return
     showDawn.value = true
-    activeRoom.value = 'throne'
+    activeRoom.value = 'briefing'
   },
 )
 

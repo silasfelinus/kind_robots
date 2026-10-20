@@ -95,7 +95,7 @@ assert.ok(settings.includes('updateRestyleSettings'))
 assert.ok(settings.includes('body.overwriteStrength'))
 assert.ok(studio.includes('Overwrite strength'))
 assert.ok(studio.includes('v-model.number="overwriteStrength"'))
-assert.ok(studio.includes('title.value = sourceFile.value.name'))
+assert.match(studio, /title\.value\s*=\s*sourceFile\.value\.name/)
 assert.ok(studio.includes('Save title'))
 const renameRoute = readFileSync(
   'server/api/video-restyle/[id]/title.patch.ts',

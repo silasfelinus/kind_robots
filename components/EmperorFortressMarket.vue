@@ -3,7 +3,7 @@
     class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)]"
   >
     <div class="flex flex-col justify-end gap-2 @max-4xl:hidden">
-      <div class="kr-panel max-w-md space-y-1.5 p-3">
+      <div class="kr-panel sticky bottom-0 max-w-md space-y-1.5 p-3">
         <p
           class="text-[10px] font-semibold uppercase tracking-[0.2em] text-warning"
         >
@@ -40,6 +40,9 @@
           {{ entry.label }}
         </button>
       </div>
+      <p v-if="message" class="kr-note p-2 text-sm" role="status">
+        {{ message }}
+      </p>
       <div
         v-if="tab === 'buy' || tab === 'all'"
         class="flex gap-1"
@@ -162,7 +165,7 @@
               :days="injuryDaysLeft(run, member.id)"
               size="sm"
             />
-            <span class="min-w-0 flex-1">
+            <span class="min-w-[8rem] flex-1">
               <strong class="block truncate font-serif text-sm">{{
                 nameOf(member.id)
               }}</strong>
@@ -202,7 +205,7 @@
             class="eod-medallion grid h-11 w-11 shrink-0 place-items-center rounded-md"
             aria-hidden="true"
           >
-            <Icon name="kind-icon:hammer" class="h-5 w-5 text-warning" />
+            <Icon name="kind-icon:blueprint" class="h-5 w-5 text-warning" />
           </span>
           <span class="min-w-0 flex-1">
             <strong class="block font-serif text-sm">The carpenters</strong>
@@ -238,10 +241,6 @@
           @act="buy(item)"
         />
       </ul>
-
-      <p v-if="message" class="kr-note p-2 text-sm" role="status">
-        {{ message }}
-      </p>
     </section>
   </div>
 </template>

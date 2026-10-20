@@ -1721,6 +1721,15 @@ for (const def of DAYS)
       iconFiles.has(itemIcon(item).replace('kind-icon:', '')),
       `${item.id}: ${itemIcon(item)} exists`,
     )
+    assert.ok(
+      !/(fill|stroke)="#/.test(
+        readFileSync(
+          `assets/icons/${itemIcon(item).replace('kind-icon:', '')}.svg`,
+          'utf8',
+        ),
+      ),
+      `${item.id}: a single-colour glyph the seller tint can colour`,
+    )
     if (item.ability)
       assert.ok(
         ![

@@ -345,39 +345,42 @@ export const itemDef = (id: string): ItemDef | undefined =>
  */
 export const ITEM_ART: ReadonlySet<string> = new Set<string>()
 
-/** Placeholder glyphs (kind-icon names) shown in the medallion until art lands. */
+/**
+ * Placeholder glyphs (single-colour kind-icons, tinted by seller) shown in the
+ * medallion until art lands.
+ */
 export const ITEM_ICONS: Readonly<Record<string, string>> = {
-  'old-road-crowbar': 'wrench',
-  'lockpick-roll': 'key',
-  'surveyors-glass': 'magnify',
-  'storm-glass-vial': 'flask',
+  'old-road-crowbar': 'gearhammer',
+  'lockpick-roll': 'wand',
+  'surveyors-glass': 'easel',
+  'storm-glass-vial': 'storm',
   'field-kit': 'health-potion',
   'courier-spurs': 'fast-forward',
-  'bell-clapper': 'hammer',
+  'bell-clapper': 'rock',
   'brass-bell-charm': 'volume-high',
-  'saltroad-waybill': 'document',
+  'saltroad-waybill': 'scroll',
   'caravan-salve': 'heart-pulse',
-  'road-lantern': 'lamp',
+  'road-lantern': 'earth',
   'rustline-cutters': 'scissors',
   'signal-coil': 'resonance',
-  'magpie-scales': 'scale',
-  'lost-human-gauntlet': 'glove',
+  'magpie-scales': 'coin',
+  'lost-human-gauntlet': 'hand',
   'crow-glass-eye': 'eye',
-  'rain-feather': 'feather',
-  'reed-poppet': 'mask',
+  'rain-feather': 'lightning',
+  'reed-poppet': 'hand-heart',
   'witchwater-phial': 'raindrop',
-  'abbey-candle': 'flame',
-  'silent-bell-rosary': 'gem',
-  'snare-kit': 'link',
-  'hyena-tooth': 'target',
-  'freehold-spade': 'toolbox',
-  'carbide-lamp': 'lightbulb',
-  'verge-signet': 'ring',
-  'night-draught': 'moon',
-  'watch-buckler': 'shield',
-  'ledger-abacus': 'money',
+  'abbey-candle': 'fire',
+  'silent-bell-rosary': 'orbit',
+  'snare-kit': 'net',
+  'hyena-tooth': 'angry',
+  'freehold-spade': 'construction',
+  'carbide-lamp': 'crystal-ball',
+  'verge-signet': 'dominion',
+  'night-draught': 'mana-potion',
+  'watch-buckler': 'castle',
+  'ledger-abacus': 'triple-row',
   'lamplight-folio': 'book',
 }
 
 export const itemIcon = (item: ItemDef): string =>
-  `kind-icon:${ITEM_ICONS[item.id] ?? (item.slot === 'tool' ? 'wrench' : 'gem')}`
+  `kind-icon:${ITEM_ICONS[item.id] ?? (item.slot === 'tool' ? 'gearhammer' : 'orbit')}`

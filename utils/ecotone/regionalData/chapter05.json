@@ -187,12 +187,12 @@
     "place": "Avenue of the Giants",
     "scene": "grove",
     "pool": 2,
-    "pressure": "Invisible tourists queue at an abandoned roadside attraction and pay for tickets with neatly folded blank paper.",
-    "investigate": "Read the guestbook for evidence of their route",
-    "success": "Every guest signed the same future date and named a bridge removed years ago.",
-    "failure": "A gust tears out the page, but the empty ticket machine prints one more stub.",
-    "help": "Help a neighbor turn the site into a safe rest area",
-    "helpOutcome": "The old booth becomes a free map-and-water stop for travelers nobody can quite see."
+    "pressure": "Invisible tourists queue in perfect order at an abandoned roadside attraction on the Avenue of the Giants. They pay with folded blank paper. The neighboring shopkeeper is worried about traffic on a narrow shoulder, and somebody has reopened a crumbling ticket booth without asking.",
+    "investigate": "Read the guestbook and inspect the receipts without stepping into traffic",
+    "success": "Every signature names tomorrow's date and a bridge dismantled years ago. The paper feels new. The shopkeeper can confirm the booth was locked yesterday.",
+    "failure": "A gust tears the page away before you copy all the names. An empty ticket machine prints a fresh stub and deposits it neatly beside your shoe.",
+    "help": "Turn the unsafe turnout into a free, marked place to pause and find directions",
+    "helpOutcome": "The shopkeeper lends a water jug and volunteers place clear warning cones. Visible and invisible travelers take turns without making the road an exhibit."
   },
   {
     "id": "WH-094",
@@ -217,12 +217,12 @@
     "place": "Avenue of the Giants",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A redwood scar resembles a family you met earlier, including a child they have not introduced. The faces change whenever the light changes.",
-    "investigate": "Sketch the marks from two directions",
-    "success": "A new figure appears beside the family at a future reunion, carrying an unfamiliar tool.",
-    "failure": "Your pencil snaps and the light shifts. The family portrait is gone but the scar is still there.",
-    "help": "Ask before showing the strange likeness",
-    "helpOutcome": "The family chooses to view the sketch privately and leaves their own memory of the grove."
+    "pressure": "In the bark of a redwood, a scar resembles a family you spoke with earlier, including a child they never mentioned. The likeness shifts when the canopy moves. A stranger with a camera wants to send it to the family before asking whether they want it.",
+    "investigate": "Sketch the bark from the boardwalk at two different angles",
+    "success": "A new figure appears in the shadow of the sketch, carrying a strange pruning tool. You label what changed and avoid naming a relative who may not exist.",
+    "failure": "The sun moves and the faces dissolve into an ordinary scar. You keep both sketches, marked with their positions, rather than declaring the forest a family historian.",
+    "help": "Ask the family whether they want to hear about the resemblance before showing images",
+    "helpOutcome": "The family chooses to see the sketches privately and asks you not to post them. The tree retains its shape, and the family retains the right to tell its own story."
   },
   {
     "id": "WH-096",
@@ -277,12 +277,12 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A family insists a river stone has inherited a ranch. The county clerk has never handled probate for a rock and is trying hard to be polite.",
-    "investigate": "Inspect the will and the stone's markings",
-    "success": "The marks are a flood-high-water record predicting the ranch's most vulnerable field.",
-    "failure": "The ink smudges on the old envelope. The family still explains why the stone mattered.",
-    "help": "Help the heirs make a fair shared-use plan",
-    "helpOutcome": "They protect the riverbank and keep the stone on the mantel instead of using it as a weapon."
+    "pressure": "An Eel River family arrives at the county clerk's desk with a will naming a river stone as heir to a ranch. The clerk has handled disputes over cattle and fences, but not probate involving an object that cannot sign. Two relatives are already arguing over the riverbank.",
+    "investigate": "Examine the will and the stone's marks with the family and clerk present",
+    "success": "A line of scratches records flood levels that match old field notes and suggest one vulnerable pasture. The stone may be an odd heir, but the risk is practical and needs a plan.",
+    "failure": "The envelope's ink smears before you can read the signature. The relatives still remember the stone's history and the clerk offers a proper way to preserve their testimony.",
+    "help": "Help the heirs agree on access and bank protection while probate is reviewed",
+    "helpOutcome": "The family keeps the stone on the mantel and drafts a shared-use agreement for the riverbank. Nobody wins the ranch by throwing its heir."
   },
   {
     "id": "WH-100",

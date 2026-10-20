@@ -1,6 +1,17 @@
 // Contract test for the two WAN image-to-video graphs and the shared video
 // LoRA adapter layered on top of them.
 import assert from 'node:assert/strict'
+import { buildLtxImageToVideoWorkflow, LTX_CHECKPOINT } from '../../server/api/comfy/ltx/utils/imageToVideoWorkflow'
+import {
+  effectiveWanMode,
+  validateVideoModelSelection,
+  videoModelMaturity,
+  videoModelSlot,
+  type VideoModelResource,
+} from '../videoModelResources'
+import { videoLoraCompatibilityRank } from '../loraSelection'
+import { readFileSync } from 'node:fs'
+
 import type {
   ComfyWorkflow,
   ComfyWorkflowNode,
@@ -261,6 +272,95 @@ assert.equal(
   'A robot, cinematic camera orbit',
   'trigger decoration is idempotent',
 )
+
+// --- catalog-backed checkpoint selection and maturity -----------------------
+const catalog: VideoModelResource[] = [
+  { id: 10, name: 'LTX', resourceType: 'CHECKPOINT', localPath: 'ltx/ltx-2.3-22b-dev-fp8.safetensors', isMature: false },
+  { id: 11, name: 'WAN 5B', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_ti2v_5B_fp16.safetensors', isMature: true },
+  { id: 12, name: 'WAN high', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', isMature: false },
+  { id: 13, name: 'WAN low', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors', isMature: true,
+    description: '[maturity:adult-focused] Curator-reviewed adult-oriented model' },
+  { id: 14, name: 'SDXL', resourceType: 'CHECKPOINT', localPath: 'sdxl/turbo.safetensors' },
+]
+assert.deepEqual(catalog.map(videoModelSlot), ['ltx', 'wan-ti2v', 'wan-high', 'wan-low', null])
+assert.equal(videoModelMaturity(catalog[0]!), 'unreviewed')
+assert.equal(videoModelMaturity(catalog[3]!), 'adult-focused')
+assert.equal(videoModelMaturity({ isMature: false, description: '[maturity:general]' }), 'general')
+assert.equal(effectiveWanMode('ti2v', true), 'a14b', 'end-frame forces the paired architecture')
+assert.deepEqual(
+  validateVideoModelSelection({ engine: 'wan', mode: 'ti2v', ids: {}, resources: [] }).paths,
+  {}, 'default models need no catalog records',
+)
+const pickedWan = validateVideoModelSelection({
+  engine: 'wan', mode: 'ti2v',
+  ids: { videoCheckpointResourceId: 11 }, resources: catalog,
+})
+assert.deepEqual(pickedWan.selectedIds, [11])
+assert.equal(pickedWan.isMature, true)
+assert.equal(nodeById(buildWanImageToVideoWorkflow({
+  ...base, ti2vUnet: pickedWan.paths.wanTi2v,
+}), 'unet').inputs.unet_name, catalog[1]!.localPath)
+const pickedPair = validateVideoModelSelection({
+  engine: 'wan', mode: 'a14b',
+  ids: { videoCheckpointResourceId: 12, videoLowCheckpointResourceId: 13 },
+  resources: catalog,
+})
+assert.deepEqual(pickedPair.selectedIds, [12, 13])
+assert.equal(pickedPair.isMature, true, 'either expert upgrades output maturity')
+const pairGraph = buildWanImageToVideoWorkflow({
+  ...base, mode: 'a14b',
+  highNoiseUnet: pickedPair.paths.wanHigh,
+  lowNoiseUnet: pickedPair.paths.wanLow,
+})
+assert.equal(nodeById(pairGraph, 'unet_high').inputs.unet_name, catalog[2]!.localPath)
+assert.equal(nodeById(pairGraph, 'unet_low').inputs.unet_name, catalog[3]!.localPath)
+assert.throws(
+  () => validateVideoModelSelection({
+    engine: 'wan', mode: 'a14b',
+    ids: { videoCheckpointResourceId: 12 },
+    resources: catalog,
+  }), /both high- and low-noise/,
+)
+assert.throws(
+  () => validateVideoModelSelection({
+    engine: 'wan', mode: 'ti2v',
+    ids: { videoCheckpointResourceId: 14 },
+    resources: catalog,
+  }), /incompatible/,
+)
+assert.throws(
+  () => validateVideoModelSelection({
+    engine: 'wan', mode: 'ti2v',
+    ids: { videoCheckpointResourceId: 11 },
+    resources: [],
+  }), /inaccessible/,
+)
+const pickedLtx = validateVideoModelSelection({
+  engine: 'ltx', mode: 'ti2v',
+  ids: { videoCheckpointResourceId: 10 }, resources: catalog,
+})
+assert.equal(pickedLtx.paths.ltxCheckpoint, catalog[0]!.localPath)
+const ltxArgs = { prompt: 'a cat', negativePrompt: '', firstImageName: 'a.png',
+  width: 768, height: 432, duration: 3, frameRate: 16 }
+const defaultLtxGraph = buildLtxImageToVideoWorkflow(ltxArgs)
+assert.equal(nodeById(defaultLtxGraph, '317').inputs.ckpt_name, LTX_CHECKPOINT)
+const altLtxGraph = buildLtxImageToVideoWorkflow({
+  ...ltxArgs, checkpoint: pickedLtx.paths.ltxCheckpoint,
+})
+assert.equal(nodeById(altLtxGraph, '317').inputs.ckpt_name, catalog[0]!.localPath)
+assert.equal(nodeById(altLtxGraph, '318').inputs.ckpt_name, catalog[0]!.localPath)
+
+assert.equal(videoLoraCompatibilityRank({ id: 30, supportedServer: 'WAN', generation: 'Wan 2.1' }, 'wan-2.2-5b'), 0)
+assert.equal(videoLoraCompatibilityRank({ id: 31, supportedServer: 'WAN', generation: 'Wan 2.2 14B' }, 'wan-2.2-5b'), 0)
+assert.ok(videoLoraCompatibilityRank({ id: 32, supportedServer: 'WAN', generation: 'Wan 2.2 14B' }, 'wan-2.2-14b') >= 40)
+assert.equal(videoLoraCompatibilityRank({ id: 33, supportedServer: 'GENERIC', generation: 'SDXL' }, 'wan-2.2-14b'), 0)
+// Check the security-critical server connection, not merely this pure validator.
+const enqueueSource = readFileSync('server/api/art/enqueue.post.ts', 'utf8')
+assert.match(enqueueSource, /validateVideoModelSelection\(/)
+assert.match(enqueueSource, /videoModelPaths: selection\.paths/)
+assert.match(enqueueSource, /upgradesMaturity \? \{ isMature: true, isPublic: false \}/)
+assert.match(enqueueSource, /ti2vUnet: body\.videoModelPaths\?\.wanTi2v/)
+assert.match(enqueueSource, /highNoiseUnet: body\.videoModelPaths\?\.wanHigh/)
 
 console.log(
   'WAN/video LoRA contract OK: TI2V and A14B retain their graph shapes, ' +

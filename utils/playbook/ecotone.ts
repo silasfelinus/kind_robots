@@ -112,6 +112,14 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
       label: 'Alone',
       text: card.aloneLine,
     })
+  for (const [flag, lines] of Object.entries(card.flagLines ?? {}))
+    for (const [who, text] of Object.entries(lines))
+      variations.push({
+        axis: 'flag',
+        key: `${flag}.${who}`,
+        label: `After ${flag.replaceAll('_', ' ')}${who === 'all' ? '' : `, with ${leadLabel(who as LeadId)}`}`,
+        text,
+      })
   for (const [key, text] of Object.entries(card.variants ?? {}))
     variations.push({
       axis: card.variantBy === 'lead' ? 'lead' : 'prospect',

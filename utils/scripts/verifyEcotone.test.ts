@@ -179,9 +179,33 @@ for (const event of EVENTS) {
 }
 assert.deepEqual(
   ROUTES.kinetic.flatMap((s) => (s.kind === 'beat' ? [s.id] : [])).slice(3),
-  ['KN-4', 'KN-5', 'KN-6'],
-  'the race conscripts you, crosses the bay and finishes in Ferndale',
+  ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'],
+  'the race conscripts you at the noon whistle, then road, dunes, bay, Table Bluff and the Eel River to Ferndale',
 )
+assert.deepEqual(
+  ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'].map((id) => findCard(id)?.scene),
+  ['plaza', 'dunes', 'bay', 'highway', 'rivermouth'],
+  'over road, over dunes and across water, like the real race',
+)
+// Sinking is a story, not a punishment: every failed bay crossing sinks the slug and bonds the crew.
+for (const choice of findCard('KN-5')?.choices ?? []) {
+  assert.equal(choice.failure?.effects.flag, 'slug_sank', choice.id)
+  assert.ok((choice.failure?.effects.goodwill ?? 0) >= 1, choice.id)
+}
+// The race's own sculptures come back all weekend.
+for (const float of [
+  'Rainbow Shrimp',
+  'Fogbreather',
+  'Loan Shark',
+  'Snerfmobile',
+])
+  assert.ok(
+    BEATS.filter(
+      (beat) =>
+        beat.event === 'kinetic' && JSON.stringify(beat).includes(float),
+    ).length >= 3,
+    `${float} returns`,
+  )
 
 assert.deepEqual(rollDice(42, 0), rollDice(42, 0), 'dice are seeded')
 for (let i = 0; i < 200; i += 1) {
@@ -278,7 +302,7 @@ const race: Plan = {
 }
 const racer = play(3, race)
 assert.equal(racer.prospect, 'cedar', 'pit row leads to Cedar')
-for (const id of ['KN-4', 'KN-5', 'KN-6'])
+for (const id of ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'])
   assert.ok(racer.played.includes(id), `every race run reaches ${id}`)
 assert.notEqual(racer.activeLead, 'cedar', 'following changes the guide')
 assert.equal(racer.followHistory.length, 2)
@@ -451,6 +475,22 @@ assert.equal(cardAsides(marsh, base).length, 0, 'no guide, no aside')
 const conscripted = findCard('KN-4')
 assert.ok(conscripted)
 assert.match(cardAsides(conscripted, base)[0] ?? '', /strangers adopts you/)
+const bluff = findCard('KN-8')
+assert.ok(bluff)
+assert.equal(cardAsides(bluff, base).length, 0, 'still afloat, nothing to say')
+const sunk = { ...base, flags: ['slug_sank'] }
+const sunkAsides = cardAsides(bluff, sunk)
+assert.match(sunkAsides[0] ?? '', /bailed it with buckets/)
+assert.match(sunkAsides[1] ?? '', /Captain Glug/, 'the crew remembers')
+assert.match(
+  cardAsides(bluff, {
+    ...sunk,
+    activeLead: 'mara',
+    meetingOrder: ['mara'],
+  })[1] ?? '',
+  /grease pencil/,
+  'your guide remembers going under with you',
+)
 
 const saved = JSON.parse(JSON.stringify(first))
 assert.deepEqual(restoreRun(saved), first, 'saves round-trip')

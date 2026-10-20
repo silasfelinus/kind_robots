@@ -274,6 +274,12 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
     )
   }
   const lead = state.activeLead
+  for (const [flag, lines] of Object.entries(card.flagLines ?? {})) {
+    if (!state.flags.includes(flag)) continue
+    if (lines.all) asides.push(lines.all)
+    const own = lines[lead ?? 'alone']
+    if (own) asides.push(own)
+  }
   if (!lead) {
     if (card.aloneLine) asides.push(card.aloneLine)
     return asides

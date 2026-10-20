@@ -56,16 +56,16 @@ export const EVENTS: EventInfo[] = [
     name: 'The Kinetic Grand Championship',
     kind: 'The real three-day human-powered art race, with an invented afterparty',
     blurb:
-      'Pedal-powered sculptures race from the Arcata Plaza over sand, mud and Humboldt Bay to Ferndale. Where Cedar and Mara are, a drink or a clear head, and a seat in the race.',
-    pick: 'You stay on the Plaza. By morning it will be full of sculptures, costumes and people who trained all year to be ridiculous.',
+      'Pedal-powered sculptures race from the Arcata Plaza over road, the Manila dunes, Humboldt Bay and the Eel River to Ferndale. Where Cedar and Mara are, a drink or a clear head, a seat in the race, and a rainbow shrimp, a dragon, a shark and a raft of sea otters to race against.',
+    pick: 'You stay on the Plaza. The race starts at noon tomorrow, and the sculptures are already rolling in, with costumes and people who trained all year to be ridiculous.',
     scene: 'plaza',
     art: 'chapters/the-impossible-festival',
     companions: ['cedar', 'mara'],
     lenses: ['sober', 'tipsy', 'cocaine', 'mdma'],
-    days: ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
+    days: ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday'],
     futureTarget: 7,
     provenance:
-      'The Kinetic Grand Championship is real: a three-day race of human-powered art sculptures from Arcata to Ferndale over Memorial Day weekend. The afterparty, teams, injury and anomalies are invented.',
+      'The Kinetic Grand Championship is real: a three-day race of human-powered art sculptures from Arcata to Ferndale over Memorial Day weekend, over road, the Manila dunes and Dead Man’s Drop, Humboldt Bay, Table Bluff and the Eel River. The pre-race party, teams, sculptures, injury and anomalies are invented.',
   },
   {
     id: 'quiet',
@@ -725,12 +725,12 @@ export const BEATS: EncounterCard[] = [
     event: 'kinetic',
     day: 1,
     chapter: 1,
-    place: 'Arcata Plaza, race morning',
-    title: 'Race Morning on the Plaza',
+    place: 'Arcata Plaza, the night before the race',
+    title: 'The Night Before on the Plaza',
     scene: 'plaza',
     art: 'chapters/arcata-after-hours',
     body: [
-      'By eight in the morning the Plaza is a parade that hasn’t decided to move: a pedal-powered dragon, a giant banana slug on bicycle wheels, a rolling teacup crewed by people in pith helmets. Every machine has to cross sand, mud and Humboldt Bay under human power, and every racer is in costume.',
+      'The race starts at the noon whistle tomorrow, but the sculptures are already parked around the Plaza to be admired. A twenty-foot Rainbow Shrimp dyed every color a salon can mix. Fogbreather, a green dragon that exhales real fog. The Loan Shark, a great white in a pinstripe suit. And the Snerfmobile, a raft of pedal-powered sea otters holding paws so they don’t drift apart. Every one of them has to cross road, sand dunes and open water under human power.',
       'Behind the sculptures there is a pit row of trucks and tools, where someone is welding something urgent. Across the square, a tattoo artist has set up a folding table of flash and is painting team sigils on racers’ arms.',
     ],
     choices: [
@@ -754,7 +754,7 @@ export const BEATS: EncounterCard[] = [
       },
     ],
     provenance:
-      'The race really starts on the Arcata Plaza. The teams, the mechanic, the artist and the early race report are invented.',
+      'The race really starts at noon on the Arcata Plaza and really crosses road, the Manila dunes, Humboldt Bay and the Eel River. The sculptures, teams, mechanic, artist and early race report are invented.',
   },
   {
     id: 'KN-2',
@@ -762,20 +762,20 @@ export const BEATS: EncounterCard[] = [
     event: 'kinetic',
     day: 1,
     chapter: 3,
-    place: 'A warehouse on the Eureka waterfront',
-    title: 'The Afterparty',
-    scene: 'bay',
+    place: 'A warehouse at the edge of Arcata',
+    title: 'The Pre-Race Party',
+    scene: 'theater',
     variantBy: 'prospect',
     body: [
-      'The first day ends in Eureka, muddy and triumphant. The afterparty fills an old warehouse on the waterfront: a brass band, a costume contest, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+      'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
     ],
     variants: {
       cedar: [
-        'The first day ends in Eureka, muddy and triumphant. The afterparty fills an old warehouse on the waterfront: a brass band, a costume contest, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
         'The mechanic from pit row is out in the lot with his tailgate down, a cooler of beer and the CB on low. “Help yourself,” he says. “Or don’t. I’m on the clock with this radio.”',
       ],
       mara: [
-        'The first day ends in Eureka, muddy and triumphant. The afterparty fills an old warehouse on the waterfront: a brass band, a costume contest, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
         'The tattoo artist has set up her flash by the door and is drinking sparkling water. She looks at the bird on your arm, then at you. “It’s got more wings than I painted,” she says.',
       ],
     },
@@ -807,7 +807,7 @@ export const BEATS: EncounterCard[] = [
           effects: { goodwill: 1, flag: 'second_line_echo' },
         },
         failure: {
-          text: 'You are adopted by a racing team called the Mudflat Mermaids, handed a tambourine and promoted to unreliable witness.',
+          text: 'You are adopted by the Snerfmobile’s crew, handed an otter hood and a tambourine, and promoted to unreliable witness.',
           effects: { goodwill: 1, nerve: -1 },
         },
       },
@@ -827,7 +827,7 @@ export const BEATS: EncounterCard[] = [
       },
     ],
     provenance:
-      'The afterparty and its warehouse are invented. A voluntary adult choice; no dosages, sources or real products.',
+      'The pre-race party and its warehouse are invented. A voluntary adult choice; no dosages, sources or real products.',
   },
   {
     id: 'KN-3',
@@ -835,9 +835,9 @@ export const BEATS: EncounterCard[] = [
     event: 'kinetic',
     day: 1,
     chapter: 3,
-    place: 'The afterparty',
+    place: 'The pre-race party',
     title: 'Someone Worth Following',
-    scene: 'bay',
+    scene: 'theater',
     variantBy: 'prospect',
     body: [
       'Someone at the race has noticed the same strange things you have, and would like company.',
@@ -848,7 +848,7 @@ export const BEATS: EncounterCard[] = [
         '“That ain’t a station,” says Cedar, wiping his hands. “I been listening to every station in this county since I was six. Tomorrow I’m going to find out where it’s coming from.” He looks at you. “You seeing the weird stuff too?”',
       ],
       mara: [
-        'The tattoo artist turns your arm toward the light. The bird she painted this morning has grown a seventh wing, in her style, in her ink. “I didn’t draw that,” says Mara, very calmly. “Somebody keeps finishing my work before I do.”',
+        'The tattoo artist turns your arm toward the light. The bird she painted this afternoon has grown a seventh wing, in her style, in her ink. “I didn’t draw that,” says Mara, very calmly. “Somebody keeps finishing my work before I do.”',
         '“I’m going to find out who,” she says. “I could use someone who writes things down.”',
       ],
     },
@@ -860,13 +860,13 @@ export const BEATS: EncounterCard[] = [
     kind: 'spine',
     event: 'kinetic',
     day: 2,
-    chapter: 3,
-    place: 'Eureka waterfront, Sunday morning',
+    chapter: 1,
+    place: 'Arcata Plaza, an hour before the noon whistle',
     title: 'Conscripted',
-    scene: 'bay',
+    scene: 'plaza',
     body: [
-      'The Banana Slug Express, a twelve-foot yellow slug on bicycle wheels, is missing its pilot. Dot sprained her ankle on the afterparty dance floor and is sitting on a cooler with a bag of frozen peas, pointing a crutch at you. “You,” she says. “You’ve got legs. The bay crossing is in an hour.”',
-      'The crew captain hands you a helmet with antennae on it. A sculpture keeps racing as long as somebody keeps it moving, and somebody, apparently, is you.',
+      'The Banana Slug Express, a twelve-foot yellow slug on bicycle wheels, is missing its pilot. Dot sprained her ankle on last night’s dance floor and is sitting on a cooler with a bag of frozen peas, pointing a crutch at you. “You,” she says. “You’ve got legs. The whistle blows at noon.”',
+      'The crew captain hands you a helmet with antennae on it. Ahead are the road out of town, the Manila dunes, Humboldt Bay and the Eel River. A sculpture keeps racing as long as somebody keeps it moving, and somebody, apparently, is you.',
     ],
     leadLines: {
       cedar:
@@ -884,11 +884,11 @@ export const BEATS: EncounterCard[] = [
         label: 'Take the pilot’s seat',
         check: { skill: 'burly', target: 7 },
         success: {
-          text: 'You find the rhythm on the second block. The slug surges down the waterfront and the crowd starts chanting a name, which turns out to be the slug’s.',
+          text: 'You find the rhythm on the second block. The slug surges off the Plaza at the whistle and the crowd starts chanting a name, which turns out to be the slug’s.',
           effects: { nerve: 1, flag: 'slug_pilot' },
         },
         failure: {
-          text: 'You steer the slug into a planter in front of a cheering crowd. The judges award points for style.',
+          text: 'You steer the slug into the Loan Shark at the start line, in front of a cheering crowd. The shark’s crew bills you for the damages in play money. The judges award points for style.',
           effects: { nerve: -1, flag: 'slug_pilot' },
         },
       },
@@ -923,24 +923,24 @@ export const BEATS: EncounterCard[] = [
       },
     ],
     provenance:
-      'The bay crossing is part of the real race. The Banana Slug Express, Dot and her ankle are invented.',
+      'The noon start on the Arcata Plaza is real. The Banana Slug Express, Dot and her ankle are invented.',
   },
   {
     id: 'KN-5',
     kind: 'spine',
     event: 'kinetic',
-    day: 2,
+    day: 3,
     chapter: 3,
-    place: 'Humboldt Bay',
+    place: 'Humboldt Bay, from the Eureka waterfront',
     title: 'The Bay Crossing',
     scene: 'bay',
     body: [
-      'The slug floats. That is the first miracle. The second is that it moves: a yellow lump paddle-wheeling across Humboldt Bay between a pedal-powered octopus and a crew dressed as a city council. Spectator boats honk. Seals take a professional interest.',
-      'Halfway across, the fog comes down and the other sculptures go quiet. In the gray a bell buoy is ringing, and the slug’s ticking gear is keeping time with it.',
+      'Sunday’s water entry is at a boat ramp on the Eureka waterfront when the tide turns, and the whole waterfront comes to watch. The sculptures go down the ramp one at a time. The slug floats, which is the first miracle. The second is that it moves: a yellow lump paddle-wheeling across Humboldt Bay between the Snerfmobile, its otters rafted paw to paw, and Fogbreather, steaming. Spectator boats honk. Real seals take a professional interest in the fake otters.',
+      'Halfway across, the fog comes down and the other sculptures go quiet. In the gray a bell buoy is ringing. Somewhere in the slug’s hull, something has started, very gently, to gurgle.',
     ],
     lensLines: {
       sober:
-        'You count the rings. They match the gear’s ticks exactly, which is not a thing buoys do.',
+        'You count the rings. They come exactly four seconds apart, which is not a thing buoys do.',
       tipsy:
         'Somebody on the octopus is singing a sea shanty, and the fog is singing the harmony.',
       stoned:
@@ -963,12 +963,12 @@ export const BEATS: EncounterCard[] = [
         label: 'Pedal hard for the far shore',
         check: { skill: 'burly', target: 9 },
         success: {
-          text: 'You come out of the fog in third place with your legs on fire, to a roar from the dock. Behind you the fog closes like a door.',
+          text: 'You come out of the fog in third place with your legs on fire, just behind the Rainbow Shrimp, to a roar from the dock. Behind you the fog closes like a door.',
           effects: { nerve: 1, goodwill: 1 },
         },
         failure: {
-          text: 'The slug turns slow circles in the fog for ten minutes. You come out last, but you come out.',
-          effects: { nerve: -1 },
+          text: 'The gurgle becomes a glug. Two hundred yards from shore, after a year of somebody’s welding and a weekend of your legs, the Banana Slug Express sinks: slowly, nose first, with enormous dignity. You and the crew bob in the bay in your life jackets while the whole waterfront cheers like you won. The Snerfmobile circles back, its otters holding out their paws, and tows you all ashore in a soggy conga line. Nobody who was in that water will ever be a stranger to you again.',
+          effects: { goodwill: 2, flag: 'slug_sank' },
         },
       },
       {
@@ -976,12 +976,12 @@ export const BEATS: EncounterCard[] = [
         label: 'Read the tide and ride the current',
         check: { skill: 'lore', target: 7 },
         success: {
-          text: 'You know this bay. You ride the ebb along the channel edge and arrive early enough to help the octopus ashore.',
-          effects: { goodwill: 1, flag: 'helped_octopus' },
+          text: 'You know this bay. You ride the ebb along the channel edge and arrive early enough to help haul the Snerfmobile up the ramp, otter by otter.',
+          effects: { goodwill: 1, flag: 'helped_snerfmobile' },
         },
         failure: {
-          text: 'The current knows this bay better than you do. You land on a mudflat with some very interested seals.',
-          effects: { nerve: -1, weird: 1 },
+          text: 'The current knows this bay better than you do. It sets the slug down on a mudflat, where it settles, sighs and fills up like a bathtub. You spend the next hour knee-deep in mud, shoving a sunken slug toward a crowd that is filming everything, while a harbor seal watches without blinking. By the time the tide floats you off you are all wearing the same mud and laughing at the same jokes.',
+          effects: { goodwill: 2, weird: 1, flag: 'slug_sank' },
         },
       },
       {
@@ -996,28 +996,33 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'You chase the bell into a fog bank and come out an hour later with no memory of the hour.',
-          effects: { weird: 2, nerve: -1 },
+          text: 'You chase the bell into the fog, and the slug follows the bell straight down. One moment the deck is wet, the next the bay is up to your chest and the bell is ringing underwater. You come up sputtering beside the crew, missing an hour nobody can account for, and swim the slug’s antennae ashore like a trophy. On the dock the Loan Shark’s crew hands you a towel and an invoice.',
+          effects: { weird: 2, goodwill: 1, flag: 'slug_sank' },
         },
       },
     ],
     provenance:
-      'Sculptures really do cross Humboldt Bay on the race’s second day. The buoy, the fog and the octopus’s politics are invented.',
+      'Sculptures really do enter Humboldt Bay from the Eureka waterfront on the race’s second day, and some really do sink. The buoy, the fog and the gurgle are invented.',
   },
   {
     id: 'KN-6',
     kind: 'spine',
     event: 'kinetic',
-    day: 3,
+    day: 4,
     chapter: 5,
     place: 'The Eel River and Ferndale',
     title: 'The Ferndale Finish',
-    scene: 'grove',
+    scene: 'rivermouth',
     art: 'chapters/southern-humboldt-older-roads',
     body: [
-      'Day three. The slug fords the Eel River with the crew pushing and Dot steering, then rolls into Ferndale: Victorian gingerbread houses and a Main Street full of cheering people. The finish line is in sight.',
-      'On the hill above town the old cemetery is very quiet. Someone in a black frock coat stands among the headstones, waving a racing flag. And just behind you, the pedal-powered octopus has lost a wheel in the river.',
+      'Day three starts at Crab Park, at the mouth of the Eel River. The sculptures go into the water one last time and paddle up the river to Fernbridge, then roll down the road into Ferndale: Victorian gingerbread houses and a Main Street full of cheering people. The finish line is in sight.',
+      'On the hill above town the old cemetery is very quiet. Someone in a black frock coat stands among the headstones, waving a racing flag. And just behind you, the Snerfmobile has lost a wheel in the river, and its otters are rafted up in the shallows, waving.',
     ],
+    flagLines: {
+      slug_sank: {
+        all: 'Main Street has heard about the bay. When the slug rolls in, still sloshing, the crowd starts chanting “SUNK! SUNK! SUNK!” with enormous affection.',
+      },
+    },
     lensLines: {
       sober:
         'The man in the frock coat has no reflection in the bakery window. You check twice.',
@@ -1053,12 +1058,12 @@ export const BEATS: EncounterCard[] = [
         },
       },
       {
-        id: 'octopus',
-        label: 'Go back and help the octopus out of the river',
+        id: 'otters',
+        label: 'Go back and help the Snerfmobile out of the river',
         cost: 'You finish last',
         success: {
-          text: 'You lose the race and find the octopus crew’s wheel in the reeds. Their captain swears you a lifelong debt, which in Humboldt means a standing invitation to dinner.',
-          effects: { goodwill: 2, flag: 'saved_octopus' },
+          text: 'You lose the race and find the otters’ wheel in the reeds. Their captain swears you a lifelong debt, which in Humboldt means a standing invitation to dinner, and the whole crew floats on their backs in the shallows to applaud you, otter style.',
+          effects: { goodwill: 2, flag: 'saved_snerfmobile' },
         },
       },
       {
@@ -1079,7 +1084,146 @@ export const BEATS: EncounterCard[] = [
       },
     ],
     provenance:
-      'The race really fords the Eel River and finishes in Ferndale, whose Victorian Main Street and hillside cemetery are real. The man in the frock coat and everyone else buried in this card are invented.',
+      'The race’s last day really starts at Crab Park, crosses the mouth of the Eel River up to Fernbridge and finishes in Ferndale, whose Victorian Main Street and hillside cemetery are real. The man in the frock coat and everyone else buried in this card are invented.',
+  },
+  {
+    id: 'KN-7',
+    kind: 'spine',
+    event: 'kinetic',
+    day: 2,
+    chapter: 2,
+    place: 'The Manila dunes, Dead Man’s Drop',
+    title: 'Dead Man’s Drop',
+    scene: 'dunes',
+    body: [
+      'The road out of Arcata is the easy part: flat pavement, cheering porches, the Rainbow Shrimp shedding glitter at every pedal stroke. Then the course leaves the road for the Manila dunes, and the slug’s wheels sink to the hubs in sand.',
+      'The crews push, drag and swear their sculptures up to the top of Dead Man’s Drop, a sand slope so steep the crowd sits along it like bleachers. Fogbreather goes over first, roaring fog. The Snerfmobile follows, its otters sliding the whole way down on their backs. The Loan Shark noses in and buries itself to the dorsal fin.',
+    ],
+    lensLines: {
+      sober:
+        'From the top you can see the whole course: the Samoa Bridge, Eureka, the bay you cross tomorrow, and a second, fainter bridge beside the first that is gone when you blink.',
+      tipsy:
+        'The crowd on the dune is doing the wave. The dune is doing it too, a little.',
+    },
+    leadLines: {
+      cedar:
+        'Cedar walks the drop before you ride it, kicking at the sand. “Lean back,” he says. “Way back. Further than that.”',
+      mara: 'Mara is already sketching the Loan Shark, fin-deep in the sand. “I’m calling it Lunch,” she says.',
+      kit: 'Kit takes one look at the drop and whoops. “This is the best part. This is the only part.”',
+      juniper:
+        'Juniper pats the dune like a large, patient animal. “It doesn’t mind,” she says. “Go on.”',
+    },
+    aloneLine:
+      'Dot shouts up from the bottom of the drop, frozen peas held aloft like a torch: “Don’t brake! Braking is how you die!”',
+    choices: [
+      {
+        id: 'ride',
+        label: 'Point the slug straight down the drop',
+        check: { skill: 'burly', target: 9 },
+        success: {
+          text: 'The slug goes over the lip and down in one long yellow scream. You hit the bottom upright, to a roar, and the dune crowd votes it the cleanest run of the day.',
+          effects: { nerve: 1, goodwill: 1 },
+        },
+        failure: {
+          text: 'Halfway down the slug turns sideways, then over, then over again, and arrives at the bottom as a sand-crusted yellow burrito with you inside it. The crowd gives it a standing ovation. It is the best thing they have seen all year.',
+          effects: { goodwill: 1, nerve: -1, flag: 'slug_rolled' },
+        },
+      },
+      {
+        id: 'rope',
+        label: 'Lower the slug down on ropes, the safe way',
+        check: { skill: 'wits', target: 7 },
+        success: {
+          text: 'You rig a belay from a fence post and the crew lowers the slug like a piano. It takes forever and nothing breaks. Halfway down you find a brass plaque in the sand stamped with the race’s name and a year that hasn’t happened.',
+          effects: {
+            evidence: 'A race plaque from a year that hasn’t happened',
+          },
+        },
+        failure: {
+          text: 'The rope holds. The fence post does not. The slug, the post and two of the crew arrive at the bottom together, laughing.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'shark',
+        label: 'Stop and help dig out the Loan Shark',
+        cost: 'You lose your place',
+        success: {
+          text: 'You dig the Loan Shark out of the dune with your hands and a borrowed frisbee. Its crew forgives a debt you did not know you had, and pays you in play money they swear is good in Eureka tonight.',
+          effects: { goodwill: 2, flag: 'helped_shark' },
+        },
+      },
+    ],
+    provenance:
+      'The road out of Arcata, the Manila dunes and Dead Man’s Drop are real parts of the race’s first day, which ends over the Samoa Bridge in Eureka. The sculptures, the plaque and the crowd’s votes are invented.',
+  },
+  {
+    id: 'KN-8',
+    kind: 'spine',
+    event: 'kinetic',
+    day: 3,
+    chapter: 4,
+    place: 'Table Bluff, on the road south',
+    title: 'Melvin’s Mile',
+    scene: 'highway',
+    body: [
+      'After a lunch stop in Eureka the course heads south on the bay trail toward the Eel River Valley, and then it climbs Table Bluff, a long, cruel grade the racers call Melvin’s Mile. Fogbreather is being pushed by its own crew. The Rainbow Shrimp has stopped glittering and started sweating.',
+      'At the top the whole valley is laid out green and gold, and the road drops down the other side so steeply that a hand-painted sign on the shoulder just says PRAY.',
+    ],
+    flagLines: {
+      slug_sank: {
+        all: 'The crew hauled the Banana Slug Express out at the boat ramp, tipped it upside down, bailed it with buckets and put it back on the road. It still sloshes on the turns.',
+        cedar:
+          'Cedar is still wringing bay water out of his radio. “Thirty years I’ve listened to boats go down on that channel,” he says. “Never figured I’d be one of the voices.” He laughs until he has to sit on the guardrail. You sit with him.',
+        mara: 'Mara has drawn the sinking on her forearm in grease pencil: the slug going under, the two of you bobbing beside it. “I’m never washing this off,” she says. “Neither are you. It’s on you too, somewhere.”',
+        kit: 'Kit has told the story of the sinking four times since lunch, and in every version you saved her life. “You did,” she insists. “Emotionally.”',
+        juniper:
+          'Juniper hasn’t stopped smiling since the bay. “The water held us,” she says. “It wanted to know us.” You are both still damp, and it is the closest you have felt to anyone all year.',
+        alone:
+          'The crew has started calling you Captain Glug. Dot had shirts printed at the lunch stop. You are wearing one.',
+      },
+    },
+    choices: [
+      {
+        id: 'climb',
+        label: 'Stand on the pedals and take the hill',
+        check: { skill: 'burly', target: 9 },
+        success: {
+          text: 'You stand on the pedals the whole mile and crest Table Bluff ahead of the dragon. Its crew salutes you with a puff of fog.',
+          effects: { nerve: 1 },
+        },
+        failure: {
+          text: 'Halfway up, your legs file a formal complaint. The crew gets out and pushes, singing, and nobody pretends this is anything but a group effort.',
+          effects: { goodwill: 1, nerve: -1 },
+        },
+      },
+      {
+        id: 'brakes',
+        label: 'Take the descent on the brakes, as the sign suggests',
+        check: { skill: 'wits', target: 7 },
+        success: {
+          text: 'You feather the brakes all the way down and arrive with the slug intact and a smell of hot rubber. In the ditch at the bottom is a mile marker for a road that doesn’t exist yet.',
+          effects: {
+            evidence: 'A mile marker for a road that doesn’t exist yet',
+          },
+        },
+        failure: {
+          text: 'The brakes give up a third of the way down. The slug takes the rest of the hill at a speed it was never designed for, and you finish in a ditch full of cow parsnip, whooping.',
+          effects: { nerve: -1 },
+        },
+      },
+      {
+        id: 'shrimp',
+        label: 'Help push the Rainbow Shrimp up the hill',
+        cost: 'Your slug waits',
+        success: {
+          text: 'The Rainbow Shrimp’s crew are hairstylists, it turns out, every one of them dyed to match their sculpture. At the top they give you a streak of electric blue as a thank-you, right there on the bluff, and it is honestly a great look.',
+          effects: { goodwill: 2, flag: 'shrimp_streak' },
+        },
+      },
+    ],
+    provenance:
+      'Table Bluff and its long climb, known to racers as Melvin’s Mile, are real parts of the course toward the Eel River Valley, where the second day ends at Crab Park. The crews, the sign and the mile marker are invented.',
   },
 ]
 
@@ -1159,36 +1303,41 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
     { kind: 'beat', id: 'QW-5', day: 3 },
     { kind: 'finale', day: 3 },
   ],
+  // The real course (Silas, 2026-10-20 PT: "over road, over dunes, and across water"): the noon
+  // whistle on the Plaza, road and Dead Man's Drop to Eureka on Saturday, the bay and Table Bluff on
+  // Sunday, the Eel River to Ferndale on Monday. The party is the night before.
   kinetic: [
     { kind: 'beat', id: 'KN-1', day: 1 },
     { kind: 'beat', id: 'KN-2', day: 1 },
     { kind: 'beat', id: 'KN-3', day: 1 },
     { kind: 'beat', id: 'KN-4', day: 2 },
-    { kind: 'beat', id: 'KN-5', day: 2 },
+    { kind: 'beat', id: 'KN-7', day: 2 },
     {
       kind: 'fork',
       day: 2,
-      title: 'Sunday night in Eureka',
+      title: 'Saturday night in Eureka',
       pools: [3],
       scene: 'bay',
     },
-    { kind: 'beat', id: 'KN-6', day: 3 },
-    { kind: 'crossroads', day: 4 },
+    { kind: 'beat', id: 'KN-5', day: 3 },
+    { kind: 'beat', id: 'KN-8', day: 3 },
+    { kind: 'beat', id: 'KN-6', day: 4 },
+    { kind: 'crossroads', day: 5 },
     {
       kind: 'fork',
-      day: 4,
+      day: 5,
       title: 'Tuesday on the coast',
       pools: [2],
       scene: 'beach',
     },
     {
       kind: 'fork',
-      day: 5,
+      day: 6,
       title: 'Back in Arcata',
       pools: [1],
       scene: 'plaza',
     },
-    { kind: 'finale', day: 5 },
+    { kind: 'finale', day: 6 },
   ],
 }
 

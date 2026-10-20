@@ -20,14 +20,17 @@ ENV NUXT_TELEMETRY_DISABLED=1 \
 COPY . .
 
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci --include=optional
-# Nuxt Image/IPX uses Sharp at runtime. The lockfile already carries the Linux x64
-# glibc platform pair, so `npm ci` normally installs both the native Sharp binding
-# and its matching libvips. Only if it did not (a lockfile produced elsewhere) ask
-# npm explicitly for them. The fallback re-resolves the whole tree against
-# package.json ranges and cost ~98s on every build while being a no-op
-# (2026-10-20), so it runs only when the libvips package is actually missing.
-RUN test -d /app/node_modules/@img/sharp-libvips-linux-x64/lib \
-  || npm install --no-save --package-lock=false --os=linux --cpu=x64 --libc=glibc sharp@0.34.5
+# Nuxt Image/IPX uses Sharp at runtime. Ask npm explicitly for the Linux x64
+# glibc platform pair so both the native Sharp binding and its matching libvips
+# package are guaranteed to exist even when the lockfile was produced elsewhere.
+#
+# Not a no-op, even though the lockfile already carries these packages: with
+# --package-lock=false npm re-resolves the whole tree against package.json ranges
+# and moves ~300 packages past the lockfile (2026-10-20: Prisma 7.9.1 -> 7.10.1,
+# Nitro 2.13.4 -> 2.13.5, Vite 7.3.6 -> 7.3.7). Production has shipped that tree,
+# and skipping this step to save its ~98s made the Nitro build run out of heap at
+# 8 GB on the lockfile versions. Refresh the lockfile before removing it.
+RUN npm install --no-save --package-lock=false --os=linux --cpu=x64 --libc=glibc sharp@0.34.5
 RUN test -d /app/node_modules/@img/sharp-libvips-linux-x64/lib
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm run build
 

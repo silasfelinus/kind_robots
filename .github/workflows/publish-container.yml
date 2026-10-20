@@ -56,8 +56,8 @@ jobs:
     # 06:04:19Z but this job was still running past its typical duration when the
     # merge fired at 06:04:54Z). Tightened so a hang surfaces as a clear CI failure
     # instead of dangling. The norm had crept to 11-14 minutes by 2026-10-20; with
-    # the dead layer-cache export and the redundant Sharp reinstall gone it should
-    # be roughly 5-6, so 15 is now generous headroom.
+    # the dead layer-cache upload gone it should be roughly 7, so 15 is generous
+    # headroom.
     timeout-minutes: 15
     permissions:
       contents: read

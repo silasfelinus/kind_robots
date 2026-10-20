@@ -21,12 +21,12 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci --ignore-scripts --no-audit --no-fund
-      - run: npx prettier --write utils/ecotone/engine.ts utils/ecotone/questExpansion.ts utils/ecotone/finaleExpansion.ts
+      - run: npx prettier --write utils/ecotone/engine.ts utils/ecotone/questExpansion.ts utils/ecotone/finaleExpansion.ts components/ecotone-board.vue utils/scripts/verifyEcotone.test.ts
       - name: Commit formatted files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add utils/ecotone/engine.ts utils/ecotone/questExpansion.ts utils/ecotone/finaleExpansion.ts
+          git add utils/ecotone/engine.ts utils/ecotone/questExpansion.ts utils/ecotone/finaleExpansion.ts components/ecotone-board.vue utils/scripts/verifyEcotone.test.ts
           if ! git diff --cached --quiet; then
             git commit -m "style(ecotone): format authored expansion and engine"
             git push origin HEAD:worker/weird-humboldt-t-019-quest-signatures-20261020-q8e6g

@@ -1,0 +1,39 @@
+// Playbook Manager (conductor weird-humboldt t-033): admin overlays and notes on
+// a game's authored story beats. The authored source in utils/ stays the source
+// of truth; an edit is an overlay keyed by the beat's stable node key, applied
+// in play only once marked live. Ids are scalars (no User/ArtJob relations) so
+// the large shared models stay untouched.
+
+/// One editable overlay per game beat. content is a sanitized JSON PlaybookCardEdit.
+model PlaybookEdit {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  gameSlug    String   @db.VarChar(64)
+  nodeKey     String   @db.VarChar(128)
+  content     String   @db.LongText
+  live        Boolean  @default(false)
+  updatedById Int?
+
+  @@unique([gameSlug, nodeKey])
+  @@index([gameSlug, live])
+}
+
+/// Comments, image flags, image submissions and art requests on a game beat.
+model PlaybookNote {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+  gameSlug   String   @db.VarChar(64)
+  nodeKey    String   @db.VarChar(128)
+  kind       String   @db.VarChar(32)
+  body       String   @db.Text
+  choiceId   String?  @db.VarChar(64)
+  artJobId   Int?
+  artImageId Int?
+  authorId   Int
+  resolved   Boolean  @default(false)
+
+  @@index([gameSlug, nodeKey])
+  @@index([gameSlug, kind, resolved])
+}

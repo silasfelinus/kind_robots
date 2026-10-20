@@ -1,0 +1,211 @@
+import assert from 'node:assert/strict'
+import { existsSync, readFileSync } from 'node:fs'
+import { ENCOUNTERS, ENDING_LEADS } from '../ecotone/content'
+import {
+  ALL_CARDS,
+  advance,
+  chooseBeat,
+  chooseEvent,
+  createRun,
+  findCard,
+  setLiveEdits,
+} from '../ecotone/engine'
+import { BEATS, ROUTES } from '../ecotone/story'
+import { buildEcotonePlaybook } from '../playbook/ecotone'
+import {
+  MAX_ADDED_CHOICES,
+  applyCardEdit,
+  isEmptyEdit,
+  sanitizeCardEdit,
+} from '../playbook/edits'
+import { PLAYBOOK_ART_LANES, playbookArtRequest } from '../playbook/artLanes'
+import {
+  normalizePlaybookNote,
+  resolvePlaybookGame,
+  resolvePlaybookNode,
+} from '../../server/utils/playbook'
+
+// The playbook graph: every beat, chained in route order.
+const playbook = buildEcotonePlaybook()
+for (const card of ALL_CARDS) {
+  const node = playbook.nodes[card.id]
+  assert.ok(node, `${card.id} is in the playbook`)
+  assert.equal(node.editable, true)
+  assert.equal(node.kind, card.kind === 'spine' ? 'spine' : 'encounter')
+  assert.ok(node.placements.length > 0, `${card.id} is placed on some day`)
+}
+assert.equal(playbook.nodes.event?.kind, 'opening')
+assert.equal(playbook.routes.length, 2)
+for (const route of playbook.routes) {
+  assert.equal(
+    route.steps[0],
+    'event',
+    'every chain starts at the event choice',
+  )
+  assert.equal(route.steps.length, ROUTES[route.id as 'kinetic'].length + 1)
+  for (const key of route.steps)
+    assert.ok(playbook.nodes[key], `${route.id} step ${key} exists`)
+  assert.equal(playbook.nodes[route.steps.at(-1) ?? '']?.kind, 'ending')
+}
+for (const node of Object.values(playbook.nodes)) {
+  for (const choice of node.choices)
+    if (choice.leadsTo)
+      assert.ok(
+        playbook.nodes[choice.leadsTo],
+        `${node.key}/${choice.id} leads somewhere real`,
+      )
+  if (node.kind === 'fork') {
+    assert.ok(node.pool.length >= 2, `${node.key} pool offers a real choice`)
+    assert.deepEqual(
+      node.choices.map((c) => c.leadsTo),
+      node.pool,
+      'fork sub-choices are its pool cards',
+    )
+  }
+}
+for (const beat of BEATS)
+  for (const choice of playbook.nodes[beat.id]?.choices ?? [])
+    assert.ok(choice.leadsTo, `${beat.id}/${choice.id} chains onward`)
+for (const lead of ENDING_LEADS) {
+  const ending = playbook.nodes[`ending:${lead}`]
+  assert.equal(ending?.kind, 'ending')
+  assert.equal(ending?.choices.length, 8, `${lead}: four lenses x two fates`)
+}
+assert.ok(playbook.nodes['GR-2']?.lenses.includes('stoned'))
+assert.ok(playbook.nodes['GR-2']?.companions.includes('kit'))
+assert.ok(playbook.nodes['KN-4']?.companions.includes('alone'))
+assert.ok(playbook.nodes['WH-124']?.companions.includes('kit'))
+assert.ok(playbook.nodes['KN-4']?.needsArt, 'new beats show they need art')
+assert.equal(
+  new Set(playbook.order).size,
+  playbook.order.length,
+  'story order lists each beat once',
+)
+
+// Overlays: sanitized, bounded, and they never touch mechanics.
+const raw = {
+  title: '  A New Title  ',
+  body: ['One.', '', 'Two.'],
+  hack: 'ignored',
+  lensLines: { stoned: 'Slow green light.', glenn: 'nope' },
+  choices: {
+    pilot: { label: 'Fly it', success: 'You fly it.' },
+    'BAD ID': { label: 'x' },
+  },
+  added: [
+    {
+      label: 'Call Dot’s mom',
+      check: { skill: 'rizz', target: 8 },
+      success: { text: 'She is delighted.', effects: { goodwill: 9 } },
+    },
+    {
+      label: 'Roll the dice',
+      check: { skill: 'wits', target: 9 },
+      success: { text: 'It works.', effects: { nerve: -7, flag: 'Big Win!' } },
+    },
+    { label: 'No text' },
+    { label: 'Third', success: { text: 'ok' } },
+    { label: 'Fourth', success: { text: 'ok' } },
+  ],
+}
+const edit = sanitizeCardEdit(raw)
+assert.equal(edit.title, 'A New Title')
+assert.deepEqual(edit.body, ['One.', 'Two.'])
+assert.ok(!('hack' in edit))
+assert.deepEqual(edit.lensLines, { stoned: 'Slow green light.' })
+assert.deepEqual(Object.keys(edit.choices ?? {}), ['pilot'])
+assert.ok((edit.added?.length ?? 0) <= MAX_ADDED_CHOICES)
+const [call, dice] = edit.added ?? []
+assert.equal(call?.check, undefined, 'only 7, 9 and 11 are real targets')
+assert.equal(call?.success.effects.goodwill, 2, 'effects are bounded')
+assert.equal(dice?.check?.target, 9)
+assert.ok(dice?.failure, 'a rolled choice always has a complication')
+assert.equal(dice?.success.effects.nerve, -2)
+assert.equal(dice?.success.effects.flag, 'big_win_')
+assert.ok(isEmptyEdit(sanitizeCardEdit({ title: '   ', body: [] })))
+assert.ok(isEmptyEdit(sanitizeCardEdit('nonsense')))
+
+const kn4 = findCard('KN-4')
+assert.ok(kn4)
+const edited = applyCardEdit(kn4, edit)
+assert.equal(edited.title, 'A New Title')
+assert.equal(edited.lensLines?.stoned, 'Slow green light.')
+assert.equal(edited.choices.find((c) => c.id === 'pilot')?.label, 'Fly it')
+assert.deepEqual(
+  edited.choices.find((c) => c.id === 'pilot')?.check,
+  kn4.choices.find((c) => c.id === 'pilot')?.check,
+  'mechanics stay authored',
+)
+assert.equal(edited.choices.length, 4, 'a card never grows past four choices')
+assert.equal(kn4.title, 'Conscripted', 'the authored card is untouched')
+
+// Live edits reach play and can be withdrawn.
+setLiveEdits({ 'KN-1': { title: 'Race Day', added: edit.added } })
+assert.equal(findCard('KN-1')?.title, 'Race Day')
+let run = advance(chooseEvent(createRun(4, 'rower'), 'kinetic'))
+assert.equal(run.card, 'KN-1')
+const added = findCard('KN-1')?.choices.find((c) => c.id.startsWith('added'))
+assert.ok(added)
+run = chooseBeat(run, added.id)
+assert.ok(run.pending, 'an added choice plays like any other')
+setLiveEdits({})
+assert.equal(findCard('KN-1')?.title, 'Race Morning on the Plaza')
+
+// Server validation.
+assert.equal(resolvePlaybookGame('ecotone'), 'ecotone')
+assert.throws(() => resolvePlaybookGame('pinball'))
+assert.equal(resolvePlaybookNode('ecotone', 'fork:kinetic:5'), 'fork:kinetic:5')
+assert.throws(() => resolvePlaybookNode('ecotone', 'WH-999'))
+assert.throws(
+  () =>
+    resolvePlaybookNode('ecotone', 'crossroads:kinetic', { editable: true }),
+  'assembled beats are not edited directly',
+)
+assert.equal(resolvePlaybookNode('ecotone', 'GR-1', { editable: true }), 'GR-1')
+assert.deepEqual(normalizePlaybookNote({ kind: 'comment', body: ' Hi ' }), {
+  kind: 'comment',
+  body: 'Hi',
+  choiceId: null,
+  artJobId: null,
+  artImageId: null,
+})
+assert.throws(() => normalizePlaybookNote({ kind: 'shout', body: 'x' }))
+assert.throws(() => normalizePlaybookNote({ kind: 'image', body: 'x' }))
+assert.throws(() => normalizePlaybookNote({ kind: 'art-request', body: 'x' }))
+assert.throws(() => normalizePlaybookNote({ kind: 'comment', body: '' }))
+assert.equal(
+  normalizePlaybookNote({ kind: 'image', body: '', artImageId: 12 }).artImageId,
+  12,
+)
+
+// Art requests are private, tagged to the project, and sized by shape.
+for (const lane of PLAYBOOK_ART_LANES) {
+  const body = playbookArtRequest(lane, 'a slug on the bay', 'portrait', 3)
+  assert.equal(body.isPublic, false)
+  assert.equal(body.projectSlug, 'weird-humboldt')
+  assert.equal(body.height, 1216)
+  assert.match(String(body.promptString), /a slug on the bay/)
+  if (lane.engine === 'comfy') assert.ok(body.checkpoint && body.negativePrompt)
+}
+
+// The admin route, its tab and the schema.
+assert.ok(existsSync('pages/admin/playbook-manager.vue'))
+const tab = readFileSync('content/channels/admin/playbook-manager.md', 'utf8')
+assert.match(tab, /\nchannelKey: admin\n/)
+assert.match(tab, /\nroute: \/admin\/playbook-manager\n/)
+assert.match(tab, /\nrequiredRole: ADMIN\n/)
+const schema = readFileSync('prisma/playbook.prisma', 'utf8')
+assert.match(schema, /model PlaybookEdit/)
+assert.match(schema, /model PlaybookNote/)
+for (const file of [
+  'components/playbook/playbook-node.vue',
+  'components/playbook/playbook-detail.vue',
+  'pages/admin/playbook-manager.vue',
+])
+  assert.ok(
+    !/localStorage|\$fetch/.test(readFileSync(file, 'utf8')),
+    `${file} leaves storage and fetching to the store`,
+  )
+assert.equal(ENCOUNTERS.length > 0, true)
+
+console.log('Playbook contract passed')

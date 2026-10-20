@@ -1,0 +1,251 @@
+import type {
+  Check,
+  Choice,
+  CompanionId,
+  Effects,
+  EncounterCard,
+  LeadId,
+  LensId,
+  Outcome,
+  SkillId,
+} from '../ecotone/content'
+
+// A Playbook Manager edit is an overlay on one authored card: text fields that
+// replace the source, per-choice text rewrites, and extra choices an admin adds.
+// The same sanitizer runs on the server before saving and in the client before a
+// live edit touches play, so a bad row can never break a run.
+
+export type ChoiceEdit = {
+  label?: string
+  cost?: string
+  success?: string
+  failure?: string
+}
+
+export type AddedChoice = {
+  id: string
+  label: string
+  cost?: string
+  check?: Check
+  success: Outcome
+  failure?: Outcome
+}
+
+export type CardEdit = {
+  title?: string
+  place?: string
+  body?: string[]
+  provenance?: string
+  lensLines?: Partial<Record<LensId, string>>
+  leadLines?: Partial<Record<CompanionId, string>>
+  aloneLine?: string
+  variants?: Partial<Record<LeadId, string[]>>
+  choices?: Record<string, ChoiceEdit>
+  added?: AddedChoice[]
+}
+
+const SKILLS: SkillId[] = ['rizz', 'burly', 'wits', 'lore', 'psyche']
+const TARGETS = [7, 9, 11]
+const LENS_IDS: LensId[] = [
+  'sober',
+  'tipsy',
+  'stoned',
+  'tripping_balls',
+  'cocaine',
+  'meth',
+  'mdma',
+]
+const COMPANION_IDS: CompanionId[] = ['mara', 'kit', 'juniper', 'cedar']
+const LEAD_IDS: LeadId[] = [...COMPANION_IDS, 'alone']
+export const MAX_ADDED_CHOICES = 3
+const TEXT_LIMIT = 2000
+const SHORT_LIMIT = 200
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null
+}
+
+function text(value: unknown, limit = TEXT_LIMIT): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed ? trimmed.slice(0, limit) : undefined
+}
+
+function paragraphs(value: unknown): string[] | undefined {
+  if (!Array.isArray(value)) return undefined
+  const out = value.flatMap((p) => text(p) ?? []).slice(0, 8)
+  return out.length ? out : undefined
+}
+
+function keyed<K extends string, V>(
+  value: unknown,
+  keys: K[],
+  read: (v: unknown) => V | undefined,
+): Partial<Record<K, V>> | undefined {
+  const source = record(value)
+  if (!source) return undefined
+  const out: Partial<Record<K, V>> = {}
+  for (const key of keys) {
+    const v = read(source[key])
+    if (v !== undefined) out[key] = v
+  }
+  return Object.keys(out).length ? out : undefined
+}
+
+function step(value: unknown): number | undefined {
+  const n = Number(value)
+  if (!Number.isFinite(n) || n === 0) return undefined
+  return Math.max(-2, Math.min(2, Math.round(n)))
+}
+
+export function sanitizeEffects(value: unknown): Effects {
+  const source = record(value) ?? {}
+  const effects: Effects = {}
+  const nerve = step(source.nerve)
+  const goodwill = step(source.goodwill)
+  const weird = step(source.weird)
+  if (nerve) effects.nerve = nerve
+  if (goodwill) effects.goodwill = Math.max(0, goodwill)
+  if (weird) effects.weird = Math.max(0, weird)
+  const evidence = text(source.evidence, SHORT_LIMIT)
+  if (evidence) effects.evidence = evidence
+  const flag = text(source.flag, 64)
+    ?.toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '_')
+  if (flag) effects.flag = flag
+  return effects
+}
+
+function outcome(value: unknown): Outcome | undefined {
+  const source = record(value)
+  const body = text(source?.text)
+  if (!source || !body) return undefined
+  return { text: body, effects: sanitizeEffects(source.effects) }
+}
+
+function addedChoice(value: unknown, index: number): AddedChoice | null {
+  const source = record(value)
+  const label = text(source?.label, SHORT_LIMIT)
+  const success = outcome(source?.success)
+  if (!source || !label || !success) return null
+  const check = record(source.check)
+  const skill = check?.skill as SkillId | undefined
+  const target = Number(check?.target)
+  const choice: AddedChoice = {
+    id: `added-${index + 1}`,
+    label,
+    success,
+  }
+  const cost = text(source.cost, SHORT_LIMIT)
+  if (cost) choice.cost = cost
+  if (skill && SKILLS.includes(skill) && TARGETS.includes(target)) {
+    choice.check = { skill, target }
+    const failure = outcome(source.failure)
+    // A rolled choice always authors its complication.
+    choice.failure = failure ?? {
+      text: 'It doesn’t go the way you hoped.',
+      effects: { nerve: -1 },
+    }
+  }
+  return choice
+}
+
+/** Keeps only fields an overlay may change, trimmed and bounded. */
+export function sanitizeCardEdit(raw: unknown): CardEdit {
+  const source = record(raw) ?? {}
+  const edit: CardEdit = {}
+  const title = text(source.title, SHORT_LIMIT)
+  const place = text(source.place, SHORT_LIMIT)
+  const provenance = text(source.provenance)
+  const aloneLine = text(source.aloneLine)
+  const body = paragraphs(source.body)
+  if (title) edit.title = title
+  if (place) edit.place = place
+  if (provenance) edit.provenance = provenance
+  if (aloneLine) edit.aloneLine = aloneLine
+  if (body) edit.body = body
+  const lensLines = keyed(source.lensLines, LENS_IDS, (v) => text(v))
+  const leadLines = keyed(source.leadLines, COMPANION_IDS, (v) => text(v))
+  const variants = keyed(source.variants, LEAD_IDS, paragraphs)
+  if (lensLines) edit.lensLines = lensLines
+  if (leadLines) edit.leadLines = leadLines
+  if (variants) edit.variants = variants
+  const choices = record(source.choices)
+  if (choices) {
+    const out: Record<string, ChoiceEdit> = {}
+    for (const [id, value] of Object.entries(choices).slice(0, 8)) {
+      const c = record(value)
+      if (!c || !/^[a-z0-9-]{1,64}$/.test(id)) continue
+      const choiceEdit: ChoiceEdit = {}
+      const label = text(c.label, SHORT_LIMIT)
+      const cost = text(c.cost, SHORT_LIMIT)
+      const success = text(c.success)
+      const failure = text(c.failure)
+      if (label) choiceEdit.label = label
+      if (cost) choiceEdit.cost = cost
+      if (success) choiceEdit.success = success
+      if (failure) choiceEdit.failure = failure
+      if (Object.keys(choiceEdit).length) out[id] = choiceEdit
+    }
+    if (Object.keys(out).length) edit.choices = out
+  }
+  if (Array.isArray(source.added)) {
+    const added = source.added
+      .slice(0, MAX_ADDED_CHOICES)
+      .flatMap((value, index) => addedChoice(value, index) ?? [])
+    if (added.length) edit.added = added
+  }
+  return edit
+}
+
+export function isEmptyEdit(edit: CardEdit): boolean {
+  return Object.keys(edit).length === 0
+}
+
+function mergeChoice(choice: Choice, edit?: ChoiceEdit): Choice {
+  if (!edit) return choice
+  return {
+    ...choice,
+    label: edit.label ?? choice.label,
+    cost: edit.cost ?? choice.cost,
+    success: { ...choice.success, text: edit.success ?? choice.success.text },
+    failure: choice.failure
+      ? { ...choice.failure, text: edit.failure ?? choice.failure.text }
+      : choice.failure,
+  }
+}
+
+/** The card as play sees it with an overlay applied. Choice ids and mechanics stay put. */
+export function applyCardEdit(
+  card: EncounterCard,
+  raw: CardEdit,
+): EncounterCard {
+  const edit = sanitizeCardEdit(raw)
+  const choices = card.choices.map((choice) =>
+    mergeChoice(choice, edit.choices?.[choice.id]),
+  )
+  const room = Math.max(0, 4 - choices.length)
+  const added = (edit.added ?? [])
+    .slice(0, room)
+    .map((choice): Choice => ({ ...choice }))
+  return {
+    ...card,
+    title: edit.title ?? card.title,
+    place: edit.place ?? card.place,
+    body: edit.body ?? card.body,
+    provenance: edit.provenance ?? card.provenance,
+    aloneLine: edit.aloneLine ?? card.aloneLine,
+    lensLines: edit.lensLines
+      ? { ...card.lensLines, ...edit.lensLines }
+      : card.lensLines,
+    leadLines: edit.leadLines
+      ? { ...card.leadLines, ...edit.leadLines }
+      : card.leadLines,
+    variants: edit.variants
+      ? { ...card.variants, ...edit.variants }
+      : card.variants,
+    choices: [...choices, ...added],
+  }
+}

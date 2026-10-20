@@ -328,7 +328,8 @@ const features = [
     category: 'play',
     route: '/play/zuzu-pinball',
     image: '/zuzu-pinball/river-croc.webp',
-    description: 'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
+    description:
+      'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
   },
   {
     title: 'Zuzu: Shifting Lands',
@@ -336,7 +337,8 @@ const features = [
     category: 'play',
     route: '/play/zuzu-shifting-lands',
     image: '/shifting-lands/cards/the-map-in-ashes.webp',
-    description: 'Explore changing lands, encounter strangers and test your luck.',
+    description:
+      'Explore changing lands, encounter strangers and test your luck.',
   },
   {
     title: 'Zuzu Gamebook',
@@ -344,7 +346,8 @@ const features = [
     category: 'play',
     route: '/play/zuzu-gamebook',
     image: '/zuzu-gamebook/scenes/waterhole.webp',
-    description: 'Choose the koala ronin’s road through dice, danger and branching stories.',
+    description:
+      'Choose the koala ronin’s road through dice, danger and branching stories.',
   },
   {
     title: 'Ecotone: Weird Humboldt',
@@ -352,7 +355,8 @@ const features = [
     category: 'play',
     route: '/play/ecotone',
     image: '/ecotone/title/key-art.webp',
-    description: 'A strange Humboldt festival weekend where your choices shape the county.',
+    description:
+      'A strange Humboldt festival weekend where your choices shape the county.',
   },
   {
     title: 'Shifting Desks',

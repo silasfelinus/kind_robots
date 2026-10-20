@@ -353,7 +353,7 @@ type Street = {
   stars: number
 }
 
-/** Five night streets, one per level in turn: midnight, harbour, ember, meadow and frost. */
+/** Six night streets, one per level in turn: midnight, harbour, ember, meadow, frost and violet. */
 export const STREETS: readonly Street[] = [
   {
     sky: [RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
@@ -389,6 +389,13 @@ export const STREETS: readonly Street[] = [
     window: RAMPS.sky[4],
     girder: RAMPS.steel,
     stars: 67,
+  },
+  {
+    sky: [RAMPS.purple[1], RAMPS.pink[0], RAMPS.night[1]],
+    towers: mix(RAMPS.purple[1], RAMPS.night[2], 0.5),
+    window: RAMPS.gold[4],
+    girder: RAMPS.purple,
+    stars: 53,
   },
 ]
 

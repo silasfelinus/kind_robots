@@ -10,6 +10,7 @@ import { FUTURE_BOOKENDS, NEW_SIGNATURES } from './finaleExpansion'
 import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { REGIONAL_CALLBACKS } from './regionalCallbacks'
 import { cardArtKey, endingArtKey, outcomeArtKey } from './artSlots'
+import { openingLensChoices } from './openingLensChoices'
 
 /**
  * These are text-only scene requirements, not prompts with a prescribed style.
@@ -115,7 +116,7 @@ export function encounterArtPitches(): ConceptArtPitch[] {
   return [...BEATS, ...ENCOUNTERS].flatMap((card) => [
     presentation(card),
     ...card.body.slice(1).map((_, i) => paragraphPitch(card, i + 1)),
-    ...card.choices
+    ...openingLensChoices(card)
       .filter((choice) => !choice.locked)
       .flatMap((choice) => [
         outcomePitch(card, choice, 'success'),

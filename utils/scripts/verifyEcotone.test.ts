@@ -56,6 +56,11 @@ import { QUEST_CARDS } from '../ecotone/questExpansion'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
 import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
 import { FORMER_GUIDE_QUESTS } from '../ecotone/formerGuideQuests'
+import {
+  OPENING_LENS_ADDITIONS,
+  availableOpeningLenses,
+  openingLensChoices,
+} from '../ecotone/openingLensChoices'
 import { REGIONAL_CALLBACKS } from '../ecotone/regionalCallbacks'
 import { earnedQuestCallbacks } from '../ecotone/finaleExpansion'
 import {
@@ -525,7 +530,7 @@ function play(seed: number, plan: Plan) {
     assert.ok(card, 'a beat is in play')
     const choice =
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
-      card.choices.find((c) => c.lens === plan.lens) ??
+      openingLensChoices(card).find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
       card.choices.filter((c) => !c.locked)[
         pick(card.choices.filter((c) => !c.locked).length)
@@ -535,6 +540,33 @@ function play(seed: number, plan: Plan) {
   return state
 }
 
+for (const event of ['GR-2', 'KN-2', 'QW-2']) {
+  const opening = findCard(event)!
+  assert.equal(
+    openingLensChoices(opening).length,
+    7,
+    `${event} visibly offers exactly seven lenses`,
+  )
+  assert.deepEqual(availableOpeningLenses(opening), openLenses)
+  for (const extra of OPENING_LENS_ADDITIONS[event]!) {
+    assert.ok(extra.success.text.length >= 80)
+    assert.ok(extra.failure?.text.length)
+    assert.ok(
+      ecotoneArtSlots().outcomes.includes(
+        outcomeArtKey(event, extra.id, 'failure'),
+      ),
+      `${event}/${extra.id} has a unique failure picture slot`,
+    )
+    assert.ok(
+      allPitchByKey.has(outcomeArtKey(event, extra.id, 'success')),
+      `${event}/${extra.id} has a proposed success picture`,
+    )
+    assert.ok(
+      allPitchByKey.has(outcomeArtKey(event, extra.id, 'failure')),
+      `${event}/${extra.id} has a proposed failure picture`,
+    )
+  }
+}
 const fair: Plan = {
   event: 'green-ribbon',
   area: 0,
@@ -702,6 +734,151 @@ assert.ok(
   `written endings are reachable; missed ${missing}`,
 )
 
+// Second-draft campaign audit: 8,400 deterministic end-to-end campaigns using
+// all seven voluntary lenses, all events, all companions and changing forks.
+const eventLensOptions = new Map<EventId, LensId[]>(
+  (['green-ribbon', 'kinetic', 'quiet'] as EventId[]).map((event) => {
+    const opening = ROUTES[event]
+      .filter((step) => step.kind === 'beat')
+      .map((step) => findCard(step.id))
+      .find((card) => card?.choices.some((choice) => choice.lens))
+    const choices = opening ? availableOpeningLenses(opening) : []
+    assert.ok(choices.length > 0, `${event} must offer an opening`)
+    return [event, choices]
+  }),
+)
+const auditEndingIds = new Set<string>()
+const auditLensFates = new Set<string>()
+const auditGuideFates = new Set<string>()
+const auditChapters = new Set<number>()
+const auditChoices = new Set<string>()
+const auditCounts = new Map<string, number>()
+let auditedFailureArt = 0
+let auditedCallbacks = 0
+let minDecisions = Infinity
+let maxDecisions = 0
+for (let index = 0; index < 8400; index += 1) {
+  const seed = 50000 + index
+  const rng = mulberry32(seed * 17)
+  const event = (['green-ribbon', 'kinetic', 'quiet'] as EventId[])[index % 3]!
+  const availableLenses = eventLensOptions.get(event)!
+  const lens = availableLenses[Math.floor(index / 3) % availableLenses.length]!
+  const plan: Plan = {
+    event,
+    lens,
+    area: Math.floor(rng() * (event === 'quiet' ? 3 : 2)) as Plan['area'],
+    accept: rng() > 0.36,
+    follow: rng() > 0.48,
+    pick: (n) => Math.floor(rng() * n),
+  }
+  const run = play(seed, plan)
+  const ending = computeEnding(run)
+  assert.equal(run.ending, ending.id, `seed ${seed} ending is reproducible`)
+  assert.ok(
+    ENDING_IDS.includes(ending.id),
+    `seed ${seed} has a collectible slot`,
+  )
+  assert.equal(run.openingState, lens, `seed ${seed} keeps its chosen lens`)
+  assert.equal(new Set(run.played).size, run.played.length)
+  assert.equal(new Set(run.meetingOrder).size, run.meetingOrder.length)
+  assert.ok(run.meetingOrder.every((id) => COMPANIONS.some((c) => c.id === id)))
+  assert.ok(run.log.length >= 6 && run.log.length <= 22, 'bounded narrative')
+  minDecisions = Math.min(minDecisions, run.log.length)
+  maxDecisions = Math.max(maxDecisions, run.log.length)
+  for (const entry of run.log) {
+    if (!entry.art) continue
+    const card = findCard(entry.source)
+    assert.ok(card, `seed ${seed} logged a real card`)
+    assert.ok(
+      openingLensChoices(card).some(
+        (choice) =>
+          entry.art === outcomeArtKey(card.id, choice.id, 'success') ||
+          (choice.failure &&
+            entry.art === outcomeArtKey(card.id, choice.id, 'failure')),
+      ),
+      `seed ${seed} cannot show an unearned outcome image: ${entry.art}`,
+    )
+    if (entry.roll?.success === false) {
+      auditedFailureArt += 1
+      assert.match(entry.art, /-failure$/, 'a failed check uses failure art')
+    }
+    if (entry.effects.flag)
+      assert.ok(
+        run.flags.includes(entry.effects.flag),
+        'choice effects persist',
+      )
+    if (entry.effects.evidence)
+      assert.ok(
+        run.evidence.includes(entry.effects.evidence),
+        'recorded evidence persists',
+      )
+    auditChapters.add(card.chapter)
+    auditChoices.add(`${card.id}/${entry.art}`)
+  }
+  for (const log of run.followHistory) {
+    assert.ok(
+      log.from === null || run.meetingOrder.includes(log.from),
+      'former companions must first have been met',
+    )
+    assert.ok(
+      log.to === null || run.meetingOrder.includes(log.to),
+      'new companions must first have been met',
+    )
+  }
+  const callbacks = earnedQuestCallbacks(run.flags, run.played)
+  assert.ok(
+    callbacks.length <= 2,
+    'the montage uses no more than two callbacks',
+  )
+  auditedCallbacks += callbacks.length
+  for (const callback of REGIONAL_CALLBACKS) {
+    if (!callbacks.includes(callback.text)) continue
+    assert.ok(
+      run.flags.includes(callback.flag),
+      'regional memory needs its flag',
+    )
+    assert.ok(
+      run.played.includes(callback.id),
+      'regional memory needs its scene',
+    )
+  }
+  const restored = restoreRun(JSON.parse(JSON.stringify(run)))
+  assert.deepEqual(restored, run, `seed ${seed} survives a save round-trip`)
+  auditEndingIds.add(ending.id)
+  auditLensFates.add(`${ending.lens}.${ending.fate}`)
+  auditGuideFates.add(`${ending.lead}.${ending.fate}`)
+  auditCounts.set(event, (auditCounts.get(event) ?? 0) + 1)
+}
+assert.equal(auditCounts.size, 3)
+assert.deepEqual(
+  new Set([...eventLensOptions.values()].flat()),
+  new Set(openLenses),
+  'all seven lenses can begin at least one regional route',
+)
+for (const [event, lenses] of eventLensOptions)
+  assert.deepEqual(
+    lenses,
+    openLenses,
+    `${event} offers all seven voluntary lenses`,
+  )
+assert.equal(auditChapters.size, 6, 'all six regional chapters appear in runs')
+assert.equal(auditLensFates.size, 14, 'each opening can earn hope or darkness')
+for (const lead of ['mara', 'kit', 'juniper', 'cedar', 'alone'])
+  for (const fate of ['hope', 'dark'])
+    assert.ok(
+      auditGuideFates.has(`${lead}.${fate}`),
+      `${lead} has a reachable ${fate} ending`,
+    )
+assert.ok(
+  auditChoices.size >= 130,
+  'campaigns vary their story and outcome art',
+)
+assert.ok(auditedFailureArt > 100, 'failure and recovery paths were exercised')
+assert.ok(auditedCallbacks > 0, 'earned callbacks reach played runs')
+console.info(
+  `Ecotone audit: 8,400 seeded campaigns; ${auditEndingIds.size}/${ENDING_IDS.length} ending slots observed; ${auditChoices.size} distinct card/outcome images; ${auditedFailureArt} failed checks; ${auditedCallbacks} callbacks; ${minDecisions}-${maxDecisions} recorded decisions`,
+)
+
 // The Quiet Way: a third, contemplative opening, with the solo path right away.
 const trail = play(21, {
   event: 'quiet',
@@ -745,7 +922,7 @@ for (let seed = 1; seed < 40; seed += 1) {
 }
 
 // Keep choosing the animals and the Wild Way is paradise; drift and it is the hermit.
-function wildRun(seed: number, wild: boolean) {
+function wildRun(seed: number, wild: boolean, lens: LensId = 'sober') {
   let state = advance(chooseEvent(createRun(seed, 'gardener'), 'quiet'))
   while (state.phase !== 'end') {
     if (state.pending) state = advance(state)
@@ -761,9 +938,9 @@ function wildRun(seed: number, wild: boolean) {
       state = chooseCrossroads(state, false)
     else {
       const card = findCard(state.card)!
-      const open = card.choices.filter((c) => !c.locked)
+      const open = openingLensChoices(card).filter((c) => !c.locked)
       const pickChoice =
-        open.find((c) => c.lens === 'sober') ??
+        open.find((c) => c.lens === lens) ??
         open.find((c) => c.meet === false) ??
         (wild
           ? open.find((c) => c.wild)
@@ -781,6 +958,21 @@ for (let seed = 1; seed < 40; seed += 1) {
   const drifting = wildRun(seed, false)
   assert.equal(drifting.ending, 'ecotopia.sober.dark', 'drifting is the hermit')
 }
+for (const lens of openLenses) {
+  const optimistic = wildRun(200 + openLenses.indexOf(lens), true, lens)
+  const bittersweet = wildRun(300 + openLenses.indexOf(lens), false, lens)
+  assert.equal(optimistic.ending, `ecotopia.${lens}.hope`)
+  assert.equal(bittersweet.ending, `ecotopia.${lens}.dark`)
+  assert.equal(optimistic.openingState, lens)
+  assert.equal(bittersweet.openingState, lens)
+  auditEndingIds.add(optimistic.ending!)
+  auditEndingIds.add(bittersweet.ending!)
+}
+assert.deepEqual(
+  auditEndingIds,
+  new Set(ENDING_IDS),
+  'all 84 endings have real fully played deterministic witnesses',
+)
 assert.match(FUTURES.ecotopia.dark.join(' '), /retire to a cabin/)
 
 // Asides know who you are traveling with.
@@ -837,6 +1029,74 @@ assert.match(
 const saved = JSON.parse(JSON.stringify(first))
 assert.deepEqual(restoreRun(saved), first, 'saves round-trip')
 assert.equal(restoreRun({ ...saved, version: 2 }), null, 'old saves restart')
+// Version 4 predates the 120-card atlas. Old chemical quest IDs collided with
+// newly canonical WH-004, WH-037 and WH-058. Titles in completed logs are
+// trustworthy discriminators; bare offered/current IDs are NOT.
+for (const { oldId, title, replacement } of [
+  {
+    oldId: 'WH-004',
+    title: 'A Fast Hour in a Bottle',
+    replacement: 'LX-FAST-01',
+  },
+  {
+    oldId: 'WH-037',
+    title: 'The River Does Not Sleep',
+    replacement: 'LX-NIGHT-01',
+  },
+  {
+    oldId: 'WH-058',
+    title: 'The Peacock Has a Warrant',
+    replacement: 'LX-HEART-01',
+  },
+]) {
+  const oldEntry = {
+    ...first.log.find((entry) => entry.art)!,
+    source: oldId,
+    title,
+    art: outcomeArtKey(oldId, 'terms', 'success'),
+  }
+  const historical = {
+    ...saved,
+    played: [...saved.played, oldId],
+    log: [...saved.log, oldEntry],
+    pending: { entry: oldEntry, nextStep: 3 },
+    card: oldId,
+  }
+  const migrated = restoreRun(historical)!
+  assert.ok(migrated.played.includes(replacement), `${oldId} remains played`)
+  assert.equal(migrated.card, replacement)
+  assert.equal(migrated.log.at(-1)?.source, replacement)
+  assert.equal(migrated.pending?.entry.source, replacement)
+  assert.equal(
+    migrated.log.at(-1)?.art,
+    outcomeArtKey(replacement, 'terms', 'success'),
+    'historical outcome art follows the migrated card ID',
+  )
+  assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(migrated))), migrated)
+  const newCanonical = {
+    ...historical,
+    log: [...saved.log, { ...oldEntry, title: findCard(oldId)!.title }],
+    pending: null,
+  }
+  const preserved = restoreRun(newCanonical)!
+  assert.ok(preserved.played.includes(oldId), 'modern WH ID stays canonical')
+  assert.equal(
+    preserved.card,
+    oldId,
+    'ambiguous active card is never rewritten',
+  )
+  const uncertain = restoreRun({
+    ...historical,
+    log: saved.log,
+    pending: null,
+    offered: [oldId],
+  })!
+  assert.equal(uncertain.card, oldId, 'no log means no inferred migration')
+  assert.ok(
+    uncertain.offered.includes(oldId),
+    'ambiguous offers are not aliased',
+  )
+}
 assert.equal(restoreRun({ ...saved, played: ['WH-999'] }), null)
 assert.equal(restoreRun({ ...saved, activeLead: 'glenn' }), null)
 assert.equal(restoreRun({ ...saved, event: 'burning-man' }), null)

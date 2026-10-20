@@ -329,22 +329,28 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     title: 'Raider’s Toll',
     briefings: [
       {
+        id: 'vane-retired',
+        source: 'A Jackalwire deserter, for a fee',
+        text: 'Gristle Vane has retired. The Pack is choosing a new captain by song.',
+        truth: false,
+      },
+      {
         id: 'vane-back',
         source: 'Saltroad cart-drivers',
         text: 'Gristle Vane’s painted wagons are back at the southern bridge. Twice as many.',
         truth: true,
+        variants: [
+          {
+            flags: ['pack-medicine'],
+            text: 'Gristle Vane’s painted wagons are back at the southern bridge. Twice as many. The pups the crown dosed ride in the front cart.',
+          },
+        ],
       },
       {
         id: 'yard-wages',
         source: 'The Yard’s foreman',
         text: 'Three days of flour left at current wages.',
         truth: true,
-      },
-      {
-        id: 'vane-retired',
-        source: 'A Jackalwire deserter, for a fee',
-        text: 'Gristle Vane has retired. The Pack is choosing a new captain by song.',
-        truth: false,
       },
     ],
     komodo:
@@ -797,7 +803,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'There is no ghost, Your Majesty. There is a latch. Send someone who notices things, and watch what they notice. A day like this tells you who people are.',
+      'There is no ghost, Your Majesty. There is a latch. Send someone who notices things, and watch what they notice.',
     quests: ['q-d06-empty-stable'],
     audiences: [
       {
@@ -1033,6 +1039,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         text: 'The old Mole tunnels under the Eastern Ford collapsed years ago. Empty.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The galleries under the Ford were never empty. Forty Mole families slept in them. He wanted no party from the tower down there.',
       },
       {
         id: 'freehold-harvest',
@@ -1795,6 +1803,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     title: 'Iron on the Road',
     briefings: [
       {
+        id: 'iron-cursed',
+        source: 'A Saltroad fortune-teller',
+        text: 'The iron was dug from a grave. Whoever guards it dies within the year.',
+        truth: false,
+      },
+      {
         id: 'iron-convoy',
         source: 'Oriel Saltmarsh, caravan master',
         text: 'A convoy of salvaged iron will try the rail canyon tonight.',
@@ -1805,12 +1819,6 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         source: 'Rail canyon scouts',
         text: 'Three separate raider bands are camped above the canyon road.',
         truth: true,
-      },
-      {
-        id: 'iron-cursed',
-        source: 'A Saltroad fortune-teller',
-        text: 'The iron was dug from a grave. Whoever guards it dies within the year.',
-        truth: false,
       },
     ],
     komodo:

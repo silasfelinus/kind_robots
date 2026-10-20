@@ -79,6 +79,9 @@ function requirementTags(req: Requirement | undefined): string[] {
     ...(req.follower ? [`Needs ${followerName(req.follower)}`] : []),
     ...(req.flags ?? []).map((f) => `Needs ${f}`),
     ...(req.notFlags ?? []).map((f) => `Not after ${f}`),
+    ...(req.standing
+      ? [`${req.standing.min}+ of ${req.standing.flags.length} standing flags`]
+      : []),
     ...Object.entries(req.affinity ?? {}).map(
       ([id, tier]) => `${factionName(id)} ${tier}`,
     ),
@@ -295,8 +298,20 @@ export function buildEmperorOfDustPlaybook(): Playbook {
         axis: 'briefing',
         key: b.id,
         label: `Briefing ${i + 1}: ${b.source}`,
-        text: `${b.truth ? 'True' : 'False'}${b.komodoLie ? ', and Komodo backs the lie' : ''}.`,
+        text: `${b.truth ? 'True' : 'False'}${b.komodoLie ? ', and Komodo backs the lie' : ''}.${b.hindsight ? ` After the betrayal: ${b.hindsight}` : ''}`,
       })),
+      // Flag-keyed variants of a report (t-013); the first match wins.
+      ...day.briefings.flatMap((b, i) =>
+        (b.variants ?? []).map((variant, n) => ({
+          axis: 'briefing',
+          key: `${b.id}:variant-${n + 1}`,
+          label: `Briefing ${i + 1} when ${[
+            ...(variant.flags ?? []),
+            ...(variant.notFlags ?? []).map((flag) => `not ${flag}`),
+          ].join(', ')}`,
+          text: `${variant.source ? `${variant.source}: ` : ''}${variant.text ?? b.text}`,
+        })),
+      ),
       {
         axis: 'briefing',
         key: 'komodo',

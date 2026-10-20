@@ -22,6 +22,11 @@ import { trialForLand, canChooseTrial } from '../shiftingLands/authoredBosses'
 import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
 import { AUTHORED_PACK } from '../shiftingLands/authoredJourney'
 import { LATER_LAND_PACK } from '../shiftingLands/authoredFiveLands'
+import {
+  authoredEndingV6,
+  endingKindForMarks,
+  type EndingKind,
+} from '../shiftingLands/endingsV6'
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value))
 
@@ -72,6 +77,55 @@ assert.match(
   )!.flavor,
   /three cups of broth/,
   'the Three Cups prose names its visible, countable props',
+)
+
+const dustwater = JOURNEY_WORLD.lands.find((land) => land.id === 'dustwater')!
+const dustwaterIds = new Set(dustwater.locations.map((location) => location.id))
+const dustwaterCards = V6_CARDS.filter((card) =>
+  dustwaterIds.has(card.locationId),
+)
+assert.equal(
+  dustwaterCards.length,
+  24,
+  'Dustwater has eight cards per location',
+)
+for (const card of dustwaterCards) {
+  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
+    assert.ok(
+      choice.success.text.length >= 80,
+      `${card.id}: keep the consequence authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 80,
+        `${card.id}: keep the failure consequential`,
+      )
+  }
+}
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'one-too-many-aboard')!
+    .choices.find((choice) => choice.id === 'question-the-pilots-count')!
+    .success.text,
+  /eleventh seat the hull can carry/,
+  'the pilot reveal must explain why eleven can safely cross',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'a-dam-of-broken-wagons')!
+    .choices.find((choice) => choice.id === 'break-the-dam-open')!.success.text,
+  /squatters' children/,
+  'returning water downstream must acknowledge who loses their pond',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'the-smugglers-mirror')!
+    .choices.find((choice) => choice.id === 'sell-the-plan-to-the-toll-men')!
+    .success.text,
+  /landing's ovens stay cold/,
+  'the betrayal must acknowledge the hungry people at the landing',
 )
 
 const choices = V6_CARDS.flatMap((card) => card.choices)
@@ -162,6 +216,116 @@ assert.match(
     costly,
   ) ?? '',
   /^Costs /,
+)
+
+const endingCases: Array<{
+  kind: EndingKind
+  marks: Partial<ReturnType<typeof newJourneyV6>['marks']>
+}> = [
+  { kind: 'shared-well', marks: { mercy: 3, honesty: 3 } },
+  { kind: 'open-door', marks: { mercy: 3, courage: 3 } },
+  { kind: 'masked-rule', marks: { cunning: 3, ruthlessness: 3 } },
+  { kind: 'scarred-witness', marks: { honesty: 3, ruthlessness: 3 } },
+  { kind: 'last-loaf', marks: { mercy: 4 } },
+  { kind: 'unsealed-book', marks: { honesty: 4 } },
+  { kind: 'bell-again', marks: { courage: 4 } },
+  { kind: 'unmarked-ford', marks: { cunning: 4 } },
+  { kind: 'salt-crown', marks: { ruthlessness: 4 } },
+  { kind: 'unnamed-road', marks: {} },
+]
+const endingSeed = newJourneyV6(5656)
+const endingsSeen = new Set<EndingKind>()
+for (const example of endingCases) {
+  const marks = { ...endingSeed.marks, ...example.marks }
+  assert.equal(endingKindForMarks(marks), example.kind)
+  const headings = new Set<string>()
+  for (const phase of ['complete', 'fallen', 'retired'] as const) {
+    const candidate = {
+      ...endingSeed,
+      marks,
+      journey: { ...endingSeed.journey, phase },
+    }
+    const untouched = JSON.stringify(candidate)
+    const ending = authoredEndingV6(candidate, [])
+    assert.equal(ending?.kind, example.kind)
+    assert.ok(ending && ending.paragraphs.length >= 2)
+    assert.ok(ending.paragraphs[1]!.length >= 90)
+    headings.add(ending.paragraphs[1]!)
+    assert.equal(JSON.stringify(candidate), untouched, 'ending is a pure read')
+    endingsSeen.add(ending.kind)
+  }
+  assert.equal(headings.size, 3, 'survival, loss and retreat read differently')
+}
+assert.equal(endingsSeen.size, 10, 'ten distinct ledger ending narratives')
+assert.equal(
+  endingKindForMarks({
+    mercy: 3,
+    honesty: 3,
+    courage: 3,
+    cunning: 3,
+    ruthlessness: 3,
+  }),
+  'unnamed-road',
+  'five tied moral marks do not imply a uniquely merciful journey',
+)
+assert.equal(authoredEndingV6(endingSeed, []), null, 'no premature ending')
+const finalState = {
+  ...endingSeed,
+  flags: ['deed-shared-bread'],
+  marks: { ...endingSeed.marks, mercy: 4 },
+  journey: { ...endingSeed.journey, phase: 'complete' as const },
+}
+const trialMemory = {
+  landId: 'homestead',
+  bossId: 'abbess-gate',
+  choiceId: 'evidence',
+  turn: 4,
+  roll: {
+    landId: 'homestead',
+    locationId: 'abbess-gate',
+    dice: [5, 6] as [number, number],
+    skill: 'insight' as const,
+    modifier: 2,
+    difficulty: 8,
+    total: 13,
+    success: true,
+  },
+  resultText: 'The locked door opens.',
+  hpChange: 0,
+  provisionChange: 0,
+}
+const rememberedEnding = authoredEndingV6(finalState, [trialMemory])
+assert.ok(
+  rememberedEnding?.paragraphs.some((line) => line.includes('bread was eaten')),
+)
+assert.ok(
+  rememberedEnding?.paragraphs.some((line) => line.includes('Abbess')),
+  'the ending recalls the actual successful trial approach',
+)
+assert.ok(
+  !authoredEndingV6(finalState, [])?.paragraphs.some((line) =>
+    line.includes('Abbess'),
+  ),
+  'a trial that was not completed is never invented',
+)
+
+const failedTrial = {
+  ...trialMemory,
+  choiceId: 'confront',
+  roll: { ...trialMemory.roll, success: false },
+}
+const fallenAfterTrial = {
+  ...finalState,
+  journey: { ...finalState.journey, phase: 'fallen' as const },
+}
+assert.ok(
+  authoredEndingV6(fallenAfterTrial, [
+    trialMemory,
+    failedTrial,
+  ])?.paragraphs.some((line) =>
+    line.includes('last trial still holds its gate'),
+  ),
+  'a fatal failed trial takes precedence over an earlier evidence victory',
 )
 
 type Policy = 'first' | 'certain' | 'bold' | 'random'

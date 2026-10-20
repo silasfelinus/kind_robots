@@ -1044,6 +1044,7 @@ import {
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
+import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -1360,8 +1361,12 @@ const stage = computed<Stage>(() => {
           ? { name: prospect.name, role: prospect.role, line: prospect.line }
           : null,
       panelKicker: `Day ${pad(run.day)} · ${dayName(run)}`,
-      panelFooter: '',
-      question: 'How do you answer?',
+      panelFooter: card.choices.some((choice) => choice.lens)
+        ? 'Your first perspective stays with you. Every future remains possible.'
+        : '',
+      question: card.choices.some((choice) => choice.lens)
+        ? 'How do you enter the weekend?'
+        : 'How do you answer?',
       body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
       lensLine: run.openingState
         ? (card.lensLines?.[run.openingState] ?? '')
@@ -1443,7 +1448,7 @@ const options = computed<Option[]>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
-    return card.choices.map((choice) => {
+    return openingLensChoices(card).map((choice) => {
       const lens = choice.lens
         ? LENSES.find((l) => l.id === choice.lens)
         : undefined

@@ -249,16 +249,123 @@ export const rewindTo = (book: SaveBook, day: number): SaveBook => {
   }
 }
 
+/**
+ * On disk, a book is version 4: the current run in full, and each dawn with
+ * its accumulated lists (dispatches, flags, talks, the dead) stored as the
+ * length of the prefix it shares with the next snapshot plus whatever follows
+ * that prefix. Every dawn repeating the whole history made a finished
+ * campaign's book nearly a megabyte; packed, it stays a small fraction of
+ * that. Decoding rebuilds each dawn exactly, from the newest back to Day 1,
+ * then validates the result like any other save. Version 3 books (every dawn
+ * in full) still load and are written back packed.
+ */
+type StoredBook = {
+  version: 4
+  current: FortressRun
+  dawns: Record<string, unknown>[]
+}
+
+type PackedList = { p: number; t: unknown[] }
+
+const PACKED_LISTS = [
+  'reports',
+  'flags',
+  'audiencesHeard',
+  'talksHeard',
+  'memorials',
+] as const
+
+const sharedPrefix = (list: unknown[], ref: unknown[]): number => {
+  let i = 0
+  while (
+    i < list.length &&
+    i < ref.length &&
+    JSON.stringify(list[i]) === JSON.stringify(ref[i])
+  )
+    i += 1
+  return i
+}
+
+const packDawn = (
+  dawn: FortressRun,
+  next: FortressRun,
+): Record<string, unknown> => {
+  const packed: Record<string, unknown> = { ...dawn }
+  for (const key of PACKED_LISTS) {
+    const list = dawn[key]
+    const ref = next[key]
+    if (!Array.isArray(list) || !Array.isArray(ref)) continue
+    const p = sharedPrefix(list, ref)
+    if (p > 0) packed[key] = { p, t: list.slice(p) } satisfies PackedList
+  }
+  return packed
+}
+
+/** The dawn as it was, or null when a packed list does not fit its successor. */
+const unpackDawn = (
+  stored: unknown,
+  next: FortressRun,
+): Record<string, unknown> | null => {
+  if (!object(stored)) return null
+  const dawn: Record<string, unknown> = { ...stored }
+  for (const key of PACKED_LISTS) {
+    const value = dawn[key]
+    if (!object(value)) continue
+    const ref: unknown = next[key]
+    if (
+      Object.keys(value).length !== 2 ||
+      !Array.isArray(ref) ||
+      !int(value.p, 1, ref.length) ||
+      !Array.isArray(value.t)
+    )
+      return null
+    dawn[key] = [...ref.slice(0, value.p), ...value.t]
+  }
+  return dawn
+}
+
+const packBook = (book: SaveBook): StoredBook => {
+  const dawns: Record<string, unknown>[] = []
+  for (let i = book.dawns.length - 1; i >= 0; i -= 1)
+    dawns[i] = packDawn(book.dawns[i]!, book.dawns[i + 1] ?? book.current)
+  return { version: 4, current: book.current, dawns }
+}
+
+/** A stored book of either version, rebuilt and validated; null if unreadable. */
+const readBook = (value: unknown): SaveBook | null => {
+  if (!object(value)) return null
+  if (value.version === 3) return validateBook(value) ? value : null
+  if (
+    value.version !== 4 ||
+    !validateRun(value.current) ||
+    !Array.isArray(value.dawns) ||
+    value.dawns.length > LAST_DAY
+  )
+    return null
+  const dawns: unknown[] = []
+  let next: FortressRun = value.current
+  for (let i = value.dawns.length - 1; i >= 0; i -= 1) {
+    const dawn = unpackDawn(value.dawns[i], next)
+    if (!validateRun(dawn)) return null
+    dawns[i] = dawn
+    next = dawn
+  }
+  // A clean copy, so rebuilt dawns never share objects with each other.
+  const book: unknown = JSON.parse(
+    JSON.stringify({ version: 3, current: value.current, dawns }),
+  )
+  return validateBook(book) ? book : null
+}
+
 export const encodeBook = (book: SaveBook): string => {
   if (!validateBook(book)) throw new Error('refusing to save an invalid run')
-  return JSON.stringify(book)
+  return JSON.stringify(packBook(book))
 }
 
 export const decodeBook = (raw: string | null): SaveBook | null => {
   if (!raw || raw.length > MAX_RAW) return null
   try {
-    const value: unknown = JSON.parse(raw)
-    return validateBook(value) ? value : null
+    return readBook(JSON.parse(raw))
   } catch {
     return null
   }
@@ -269,14 +376,13 @@ export const encodeSlot = (
   book: SaveBook,
   savedAt: Date,
 ): string => {
-  const record: SlotRecord = {
+  if (!validateBook(book)) throw new Error('refusing to save an invalid run')
+  return JSON.stringify({
     version: 3,
     label: label.trim().slice(0, 60) || `Day ${book.current.day}`,
     savedAt: savedAt.toISOString(),
-    book,
-  }
-  if (!validateBook(book)) throw new Error('refusing to save an invalid run')
-  return JSON.stringify(record)
+    book: packBook(book),
+  })
 }
 
 export const decodeSlot = (raw: string | null): SlotRecord | null => {
@@ -288,11 +394,13 @@ export const decodeSlot = (raw: string | null): SlotRecord | null => {
       value.version !== 3 ||
       !text(value.label, 60) ||
       !text(value.savedAt, 40) ||
-      Number.isNaN(Date.parse(value.savedAt)) ||
-      !validateBook(value.book)
+      Number.isNaN(Date.parse(value.savedAt))
     )
       return null
-    return value as SlotRecord
+    const book = readBook(value.book)
+    return book
+      ? { version: 3, label: value.label, savedAt: value.savedAt, book }
+      : null
   } catch {
     return null
   }

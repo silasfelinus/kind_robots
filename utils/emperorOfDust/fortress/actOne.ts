@@ -1445,16 +1445,16 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
     },
     briefings: [
       {
-        id: 'bell-without-hand',
-        source: 'Hollow Bell pilgrims',
-        text: 'The bell at the old chapel rang all night and nobody was near the rope.',
-        truth: true,
-      },
-      {
         id: 'jackal-toll-lifted',
         source: 'A cheerful toll-clerk',
         text: 'Jackalwire has abolished its road toll out of loyalty to the tower.',
         truth: false,
+      },
+      {
+        id: 'bell-without-hand',
+        source: 'Hollow Bell pilgrims',
+        text: 'The bell at the old chapel rang all night and nobody was near the rope.',
+        truth: true,
       },
       {
         id: 'mire-lights',

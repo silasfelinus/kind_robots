@@ -6,7 +6,18 @@ import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
-import { ENDINGS, endingOf } from '../emperorOfDust/fortress/endings'
+import {
+  ENDINGS,
+  type EndingId,
+  endingOf,
+} from '../emperorOfDust/fortress/endings'
+import {
+  MOLE_CONCESSIONS,
+  MOLE_GRIEVANCES,
+  MOLE_LEADERS,
+  MOLE_REFORMS_OPEN,
+  moleAccord,
+} from '../emperorOfDust/fortress/moles'
 import {
   DAYS,
   LAST_DAY,
@@ -25,6 +36,7 @@ import {
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
+  earnFlag,
   dailyTaxes,
   equipItem,
   finishDay,
@@ -44,6 +56,7 @@ import {
   talkScene,
   talkedToday,
   traitKnown,
+  unmetRequirements,
   upgradeBeds,
   withdrawQuest,
 } from '../emperorOfDust/fortress/engine'
@@ -94,6 +107,8 @@ import {
   updateCurrent,
   validateRun,
 } from '../emperorOfDust/fortress/saves'
+import type { SaveBook } from '../emperorOfDust/fortress/saves'
+import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import {
   acquireRelic,
   chooseNextLoadout,
@@ -103,6 +118,11 @@ import {
   encodeRelicVault,
   eyeReveals,
 } from '../emperorOfDust/fortress/relics'
+import {
+  BETRAYAL_FLAG,
+  dayBriefings,
+  komodoLiesInHindsight,
+} from '../emperorOfDust/fortress/briefings'
 import {
   KINGDOM_FACTIONS,
   LOCAL_FACTIONS,
@@ -886,7 +906,7 @@ for (const entry of afterwards)
 const encoded = encodeBook(book)
 assert.deepEqual(decodeBook(encoded), book)
 assert.ok(
-  encoded.length < 1_000_000,
+  encoded.length < 250_000,
   `a full campaign save is ${encoded.length} bytes`,
 )
 
@@ -939,6 +959,111 @@ const slot = encodeSlot(
 )
 assert.equal(decodeSlot(slot)?.label, 'Before the feast')
 assert.equal(decodeSlot(slot.replace('"version":3', '"version":2')), null)
+
+// --- compact save books (t-032) ---------------------------------------------
+// Dawns are stored packed against the next snapshot, so a whole campaign's
+// book stays small: an autosave and three full slots sit far under the ~5 MB
+// browser quota. Decoding rebuilds every dawn exactly, so a rewind from a
+// packed book is the same rewind as from the full one.
+{
+  const CAMPAIGNS: [string, number][] = [
+    ['greedy', 3],
+    ['patron:saltroad', 7],
+    ['reckless', 12],
+    ['spurn-all', 5],
+    ['idle', 2],
+  ]
+  for (const [policyId, seed] of CAMPAIGNS) {
+    const policy = POLICIES.find((p) => p.id === policyId)!
+    let full: SaveBook | null = null
+    playCampaign(policy, seed, (run) => {
+      full = full ? recordDawn(full, run) : newBook(run)
+    })
+    const whole = full! as SaveBook
+    const label = `${policyId} seed ${seed}`
+    assert.equal(whole.dawns.length, LAST_DAY, label)
+    const legacy = JSON.stringify(whole)
+    const raw = encodeBook(whole)
+    assert.ok(
+      raw.length < 250_000,
+      `${label}: a full book is ${raw.length} bytes`,
+    )
+    assert.ok(
+      raw.length * 5 < legacy.length,
+      `${label}: packed ${raw.length} vs ${legacy.length} bytes in full`,
+    )
+    const back = decodeBook(raw)!
+    assert.deepEqual(back, whole, `${label}: every dawn comes back exactly`)
+    assert.deepEqual(decodeBook(legacy), whole, `${label}: version 3 loads`)
+    for (const day of [1, 2, 17, 33, LAST_DAY])
+      assert.deepEqual(
+        rewindTo(back, day),
+        rewindTo(whole, day),
+        `${label}: rewinding a packed book to dawn ${day}`,
+      )
+    const rewound = rewindTo(back, 25)
+    assert.deepEqual(decodeBook(encodeBook(rewound)), rewound)
+    const at = new Date('2026-10-20T00:00:00Z')
+    const slotRaw = encodeSlot('Late', whole, at)
+    assert.ok(slotRaw.length < 250_000, `${label}: a full slot`)
+    assert.deepEqual(decodeSlot(slotRaw)?.book, whole)
+    const oldSlot = JSON.stringify({
+      version: 3,
+      label: 'Old',
+      savedAt: at.toISOString(),
+      book: whole,
+    })
+    assert.deepEqual(decodeSlot(oldSlot)?.book, whole, `${label}: old slots`)
+    assert.ok(
+      raw.length * 4 < 5_000_000 / 2,
+      'an autosave and three slots use under half a 5 MB quota',
+    )
+  }
+
+  // A history that drops a flag (a crisis resolved) still packs exactly.
+  let book = newBook(earnFlag(earnFlag(createRun(77), 'crisis:yard'), 'kept'))
+  const next = finishDay(book.current).run
+  next.flags = next.flags.filter((flag) => flag !== 'crisis:yard')
+  book = recordDawn(book, next)
+  const packed = JSON.parse(encodeBook(book))
+  assert.equal(packed.version, 4)
+  assert.deepEqual(decodeBook(JSON.stringify(packed)), book)
+
+  // Tampered packing is unreadable, never half-loaded.
+  type Stored = {
+    version: number
+    dawns: {
+      day: number
+      seed: number
+      flags: unknown
+      reports: { p: unknown; t: unknown; z?: unknown }
+    }[]
+  }
+  const long: Stored = JSON.parse(
+    encodeBook(
+      recordDawn(
+        recordDawn(book, finishDay(book.current).run),
+        finishDay(finishDay(book.current).run).run,
+      ),
+    ),
+  )
+  const reject = (mutate: (stored: Stored) => void, why: string) => {
+    const copy: Stored = JSON.parse(JSON.stringify(long))
+    mutate(copy)
+    assert.equal(decodeBook(JSON.stringify(copy)), null, why)
+  }
+  assert.ok(decodeBook(JSON.stringify(long)), 'the untampered book reads')
+  assert.ok(!Array.isArray(long.dawns[1]!.reports), 'reports are packed')
+  reject((s) => (s.dawns[1]!.reports.p = 99), 'a prefix longer than the next')
+  reject((s) => (s.dawns[1]!.reports.p = 0), 'an empty prefix is never written')
+  reject((s) => (s.dawns[1]!.reports.t = 'x'), 'a tail that is not a list')
+  reject((s) => (s.dawns[1]!.reports.z = 1), 'an unknown packing key')
+  reject((s) => (s.dawns[1]!.flags = { p: 1, t: [7] }), 'a bad flag in a tail')
+  reject((s) => (s.dawns[0]!.day = 2), 'dawns out of order')
+  reject((s) => s.dawns.push(s.dawns[0]!), 'too many dawns')
+  reject((s) => (s.version = 5), 'an unknown version')
+  reject((s) => (s.dawns[1]!.seed = 1), 'a dawn from another campaign')
+}
 
 // Effects stay bounded.
 const bounded = createRun(1)
@@ -1287,12 +1412,12 @@ assert.ok(
   traitKnown(pipRead, page, []),
   'Pip’s reading reveals the replaced page',
 )
-// Komodo lies four times by the end of Act III, each one his own, and three
-// more in Act IV as the betrayal nears (Days 32, 37 and 40).
+// Komodo lies four times by the end of Act III, each one his own, and four
+// more in Act IV as the betrayal nears (Days 32, 37, 38 and 40).
 const komodoLies = (days: typeof DAYS) =>
   days.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length
 assert.equal(komodoLies(DAYS.filter((def) => def.day <= 30)), 4)
-assert.equal(komodoLies(DAYS), 7)
+assert.equal(komodoLies(DAYS), 8)
 
 // Under the Wall: Keel's Wits count toward Might requirements.
 const keel = followerDef('F009')!
@@ -1360,6 +1485,467 @@ const marks = (day: number, ids: string[]) =>
 assert.deepEqual(marks(1, ['F006']), [null, 'false', null])
 assert.deepEqual(marks(7, ['F006']), [null, 'unreadable', null])
 assert.deepEqual(marks(1, ['F001']), [null, null, null])
+
+{
+  // --- The fifty briefings (t-013) ---------------------------------------------
+  // The lie moves: every slot carries it on at least ten days, never four days
+  // running, and Act I already uses all three.
+  const lieSlots = DAYS.map((def) => def.briefings.findIndex((b) => !b.truth))
+  for (const slot of [0, 1, 2])
+    assert.ok(
+      lieSlots.filter((entry) => entry === slot).length >= 10,
+      `slot ${slot + 1} holds the lie often enough`,
+    )
+  for (let i = 3; i < lieSlots.length; i += 1)
+    assert.ok(
+      new Set(lieSlots.slice(i - 3, i + 1)).size > 1,
+      `days ${i - 2}–${i + 1} keep the lie in one slot`,
+    )
+  assert.equal(new Set(lieSlots.slice(0, 10)).size, 3, 'Act I rotates the lie')
+  // Stark reports: no soft words in what the runners say or what hindsight shows.
+  const SOFT_WORDS =
+    /\b(eerie|sinister|lovely|gentle|gently|very|seems to|something like|a little too)\b/i
+  for (const def of DAYS) {
+    assert.equal(new Set(def.briefings.map((b) => b.id)).size, 3, `${def.day}`)
+    for (const report of def.briefings) {
+      const texts = [
+        report.text,
+        report.hindsight ?? '',
+        ...(report.variants ?? []).map((v) => v.text ?? ''),
+      ]
+      for (const text of texts)
+        assert.ok(!SOFT_WORDS.test(text), `${report.id}: stark prose`)
+      if (report.komodoLie) {
+        assert.ok(def.day <= 40, `${report.id}: he lies only while at court`)
+        assert.ok(/Komodo’s/.test(report.source), `${report.id}: his runner`)
+        assert.ok(
+          (report.hindsight?.length ?? 0) >= 40,
+          `${report.id}: what was true instead`,
+        )
+      } else assert.equal(report.hindsight, undefined, report.id)
+    }
+  }
+  // Every [K] day of the anchor calendar before the betrayal carries his lie.
+  for (const day of [7, 17, 25, 32, 38])
+    assert.ok(
+      DAYS.find((def) => def.day === day)!.briefings.some((b) => b.komodoLie),
+      `day ${day} is a Komodo day`,
+    )
+  // Early lies are flavor: a briefing has no effects, and the first lie he tells
+  // himself comes only after the court has had a week to learn the reports.
+  assert.ok(
+    DAYS.filter((def) => def.day < 7).every((def) =>
+      def.briefings.every((b) => !b.komodoLie),
+    ),
+  )
+
+  // Conditional variants read only story flags that earlier days settle, so a
+  // report says the same thing all day, after a reload and after a rewind.
+  type FlagSource = {
+    audienceDays: number[]
+    laterDays: number[]
+    talk: boolean
+    cleared: boolean
+  }
+  const flagSources = new Map<string, FlagSource>()
+  const flagSource = (flag: string): FlagSource => {
+    let entry = flagSources.get(flag)
+    if (!entry) {
+      entry = { audienceDays: [], laterDays: [], talk: false, cleared: false }
+      flagSources.set(flag, entry)
+    }
+    return entry
+  }
+  const noteEffects = (
+    effects: { flags?: string[]; clearFlags?: string[] } | undefined,
+    mark: (entry: FlagSource) => void,
+  ) => {
+    for (const flag of effects?.flags ?? []) mark(flagSource(flag))
+    for (const flag of effects?.clearFlags ?? [])
+      flagSource(flag).cleared = true
+  }
+  // Quest results land at a later dawn, never in the middle of a day.
+  const noteQuest = (id: string, day: number) => {
+    const quest = questDef(id)
+    if (!quest) return
+    for (const effects of [
+      quest.rewards.triumph,
+      quest.rewards.success,
+      quest.rewards.partial,
+      quest.rewards.failure,
+      quest.expired,
+    ])
+      noteEffects(effects, (entry) => entry.laterDays.push(day + 1))
+  }
+  const sceneOptions = (scene: {
+    options: AudienceOption[]
+    beats?: { options: AudienceOption[] }[]
+  }) => [...scene.options, ...(scene.beats ?? []).flatMap((b) => b.options)]
+  for (const def of DAYS) {
+    for (const id of def.quests) noteQuest(id, def.day)
+    for (const audience of def.audiences)
+      for (const option of sceneOptions(audience)) {
+        flagSource(`chose:${audience.id}:${option.id}`).audienceDays.push(
+          def.day,
+        )
+        noteEffects(option.effects, (entry) => entry.audienceDays.push(def.day))
+        for (const id of option.postsQuests ?? []) noteQuest(id, def.day)
+      }
+  }
+  for (const quest of QUEST_TEMPLATES) noteQuest(quest.id, 1)
+  for (const talk of TALKS) {
+    flagSource(`heard:${talk.id}`).talk = true
+    for (const option of sceneOptions(talk)) {
+      flagSource(`talk:${talk.id}:${option.id}`).talk = true
+      noteEffects(option.effects, (entry) => {
+        entry.talk = true
+      })
+    }
+  }
+  // The Day 41 dawn sets the betrayal and the host.
+  const HIDEOUT_IDS = [
+    'mole-tunnels',
+    'crow-cave',
+    'bell-cellars',
+    'wagon-circle',
+    'moving-caravan',
+    'freehold-barn',
+    'rail-station',
+    'nameless-cave',
+  ]
+  for (const flag of [BETRAYAL_FLAG, ...HIDEOUT_IDS.map((h) => `hideout:${h}`)])
+    flagSource(flag).laterDays.push(41)
+
+  let variantCount = 0
+  const variantFlags = new Set<string>()
+  for (const def of DAYS)
+    for (const report of def.briefings)
+      for (const variant of report.variants ?? []) {
+        variantCount += 1
+        const keys = [...(variant.flags ?? []), ...(variant.notFlags ?? [])]
+        assert.ok(keys.length > 0, `${report.id}: a variant is keyed`)
+        assert.ok(variant.source || variant.text, `${report.id}: it changes`)
+        assert.notEqual(variant.text, report.text, report.id)
+        for (const flag of variant.flags ?? []) variantFlags.add(flag)
+        for (const flag of keys) {
+          const entry = flagSources.get(flag)
+          assert.ok(entry, `${report.id}: ${flag} is set somewhere`)
+          assert.ok(
+            entry.audienceDays.every((day) => day < def.day),
+            `${report.id}: ${flag} cannot change on Day ${def.day} or later`,
+          )
+          assert.ok(!entry.talk, `${report.id}: ${flag} is not a barracks flag`)
+          assert.ok(!entry.cleared, `${report.id}: ${flag} is never cleared`)
+          assert.ok(
+            entry.audienceDays.some((day) => day < def.day) ||
+              entry.laterDays.some((day) => day <= def.day),
+            `${report.id}: ${flag} can be earned before Day ${def.day}`,
+          )
+        }
+      }
+  assert.ok(variantCount >= 30, `${variantCount} conditional briefings`)
+  assert.ok(
+    DAYS.filter((def) => def.briefings.some((b) => b.variants?.length))
+      .length >= 15,
+    'variants spread across the campaign',
+  )
+
+  // The first matching variant wins, and the lie stays where it was.
+  const briefed = (day: number, flags: string[]) =>
+    dayBriefings(onDay(1, day, { flags }))!
+  assert.equal(
+    briefed(26, [])[2]!.source,
+    'Granny Umber’s cell',
+    'no flag, no variant',
+  )
+  assert.equal(
+    briefed(26, ['mole-messenger-arrested', 'moles-blamed'])[2]!.source,
+    'Chalk on the postern gate',
+  )
+  assert.match(briefed(26, ['moles-blamed'])[2]!.text, /the Ford/)
+  assert.match(
+    briefed(12, ['mire-road-closed', 'mire-quiet-count'])[2]!.text,
+    /the road the crown closed/,
+  )
+  assert.match(
+    briefed(12, ['mire-road-closed', 'd03-mire-road-reopened'])[2]!.text,
+    /^Lanterns move through the empty fen again\. In step\.$/,
+    'notFlags: a reopened road reads as plain',
+  )
+  // The Eye still finds exactly one lie, whichever variant a run reads.
+  const eyeRun = (day: number) => ({
+    ...onDay(1, day, { flags: [...variantFlags] }),
+    equippedRelics: ['eye-of-elder-crow'],
+  })
+  for (const def of DAYS) {
+    const run = eyeRun(def.day)
+    const reports = dayBriefings(run)!
+    assert.equal(
+      reports.filter((b) => eyeReveals(run, b.truth)).length,
+      1,
+      `day ${def.day}: the Eye marks one report`,
+    )
+    assert.deepEqual(
+      reports.map((b) => [b.id, b.truth, b.komodoLie]),
+      def.briefings.map((b) => [b.id, b.truth, b.komodoLie]),
+    )
+  }
+  assert.match(
+    dayBriefings(eyeRun(22))!.find((b) => eyeReveals(eyeRun(22), b.truth))!
+      .text,
+    /whole choir/,
+    'the Eye marks the variant text of a lie',
+  )
+  // Act V names the host who briefs you.
+  const hostSources = HIDEOUT_IDS.map(
+    (h) => briefed(42, [BETRAYAL_FLAG, `hideout:${h}`])[1]!.source,
+  )
+  assert.equal(new Set(hostSources).size, HIDEOUT_IDS.length)
+  assert.ok(!hostSources.includes('Your host'))
+  assert.equal(
+    briefed(41, [BETRAYAL_FLAG, 'hideout:mole-tunnels'])[2]!.source,
+    'Mole sappers at the listening holes',
+  )
+
+  // A real run: arrest Granny Umber on Day 17 and the Day 26 truce report reads
+  // differently, the same after an audience, a reload and a rewind. Rewinding to
+  // Day 17 and opening talks instead changes it back.
+  let briefBook = newBook(createRun(5))
+  while (briefBook.current.day < 26) {
+    let run = briefBook.current
+    if (run.day === 17)
+      run = chooseAudienceOption(run, 'd17-manifesto', 'arrest').run
+    briefBook = recordDawn(briefBook, finishDay(run).run)
+  }
+  const truceReport = (run: FortressRun) => dayBriefings(run)![2]!
+  assert.equal(
+    truceReport(briefBook.current).source,
+    'Chalk on the postern gate',
+  )
+  const afterAudience = chooseAudienceOption(
+    briefBook.current,
+    'd26-friendly-raid',
+    'decline',
+  ).run
+  assert.deepEqual(dayBriefings(afterAudience), dayBriefings(briefBook.current))
+  assert.deepEqual(
+    dayBriefings(decodeBook(encodeBook(briefBook))!.current),
+    dayBriefings(briefBook.current),
+    'a reload reads the same reports',
+  )
+  assert.deepEqual(
+    dayBriefings(rewindTo(briefBook, 26).current),
+    dayBriefings(briefBook.current),
+    'a rewound dawn reads the same reports',
+  )
+  let talksBook = rewindTo(briefBook, 17)
+  talksBook = updateCurrent(
+    talksBook,
+    chooseAudienceOption(talksBook.current, 'd17-manifesto', 'meet').run,
+  )
+  while (talksBook.current.day < 26)
+    talksBook = recordDawn(talksBook, finishDay(talksBook.current).run)
+  assert.equal(truceReport(talksBook.current).source, 'Granny Umber’s cell')
+
+  // Hindsight: once Komodo has gone, the Archive reads his lies back.
+  assert.deepEqual(komodoLiesInHindsight(onDay(1, 40)), [], 'not before')
+  const betrayed = finishDay(
+    onDay(1, 40, { flags: ['d38-rosters-changed'] }),
+  ).run
+  assert.ok(betrayed.flags.includes(BETRAYAL_FLAG))
+  const hindsight = komodoLiesInHindsight(betrayed)
+  assert.deepEqual(
+    hindsight.map((entry) => entry.day),
+    [7, 17, 25, 29, 32, 37, 38, 40],
+  )
+  assert.ok(hindsight.every((entry) => entry.briefing.komodoLie))
+  assert.match(
+    hindsight.at(-1)!.briefing.text,
+    /new rosters/,
+    'hindsight shows the report as this run heard it',
+  )
+}
+
+// --- The Mole Revolutionaries (t-016) ----------------------------------------
+{
+  const dayOf = (day: number) => DAYS.find((def) => def.day === day)!
+  const audienceOn = (day: number, id: string) =>
+    dayOf(day).audiences.find((audience) => audience.id === id)!
+  const MOLE_AUDIENCES: [number, string][] = [
+    [21, 'd21-fen-weir'],
+    [32, 'd32-reform-list'],
+    [33, 'd33-sappers'],
+    [44, 'd44-coal-powder'],
+    [50, 'd50-burrows'],
+  ]
+  // New audiences come after the day's existing ones, and no day holds more
+  // than four.
+  for (const [day, id] of MOLE_AUDIENCES) {
+    assert.equal(dayOf(day).audiences.at(-1)!.id, id, `${id} comes last`)
+    assert.ok(dayOf(day).audiences.length <= 4, `day ${day} audiences`)
+  }
+  const allOptions = (audience: AudienceDef) => [
+    ...audience.options,
+    ...(audience.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  // Every flag on the reconciliation track is earned somewhere in the story.
+  const earned = new Set<string>()
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const option of allOptions(audience))
+        for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const flag of [...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES])
+    assert.ok(earned.has(flag), `${flag} can be earned`)
+  assert.equal(
+    new Set([...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES]).size,
+    MOLE_CONCESSIONS.length + MOLE_GRIEVANCES.length,
+    'a flag is a concession or a grievance, never both',
+  )
+  // Named leaders, each on stage somewhere.
+  const spoken = DAYS.flatMap((def) =>
+    def.audiences.flatMap((audience) => [
+      audience.speaker,
+      ...[audience.lines, ...(audience.beats ?? []).map((b) => b.lines)]
+        .flat()
+        .map((line) => (typeof line === 'string' ? line : line.who)),
+    ]),
+  ).join('\n')
+  assert.ok(MOLE_LEADERS.length >= 5)
+  for (const leader of MOLE_LEADERS) {
+    const surname = leader.name.split(' ').at(-1)!
+    assert.ok(spoken.includes(surname), `${leader.name} appears`)
+    if (leader.npc) assert.ok(npcDef(leader.npc), leader.npc)
+    if (leader.follower)
+      assert.equal(followerDef(leader.follower)?.origin, 'moles')
+  }
+  // Anti-witch dilemmas teeter: the burrows' gain is the fen's loss and the
+  // other way round, and there is a third road that costs something else.
+  for (const id of ['d33-sappers', 'd44-coal-powder']) {
+    const [day] = MOLE_AUDIENCES.find(([, aud]) => aud === id)!
+    const options = allOptions(audienceOn(day, id))
+    const moles = (o: AudienceOption) => o.effects.affinity?.moles ?? 0
+    const fen = (o: AudienceOption) => o.effects.affinity?.['mire-mothers'] ?? 0
+    assert.ok(
+      options.some((o) => moles(o) > 0 && fen(o) < 0),
+      `${id} burrows`,
+    )
+    assert.ok(
+      options.some((o) => fen(o) > 0 && moles(o) < 0),
+      `${id} fen`,
+    )
+    assert.ok(
+      options.some(
+        (o) => moles(o) >= 0 && fen(o) >= 0 && moles(o) + fen(o) > 0,
+      ),
+      `${id} has a road between`,
+    )
+  }
+  assert.ok(
+    allOptions(audienceOn(21, 'd21-fen-weir')).some(
+      (o) =>
+        (o.effects.affinity?.moles ?? 0) > 0 &&
+        (o.effects.affinity?.['mire-mothers'] ?? 0) < 0,
+    ),
+    'blowing the weir costs the fen',
+  )
+
+  // The standing gate: Lumen's reform list waits for two real concessions,
+  // and the whole assembly turns out on Day 50 only for five.
+  const reformDay = (flags: string[]) =>
+    audiencesToday(onDay(1, 32, { flags })).some(
+      (audience) => audience.id === 'd32-reform-list',
+    )
+  assert.ok(!reformDay([]))
+  assert.ok(!reformDay(['mole-talks-opened', 'moles-blamed']))
+  assert.ok(reformDay(['mole-talks-opened', 'mole-truce']))
+  assert.deepEqual(
+    unmetRequirements(onDay(1, 32), { standing: MOLE_REFORMS_OPEN }),
+    ['Not yet possible'],
+  )
+  const burrowsDay = (count: number) =>
+    audiencesToday(
+      onDay(1, 50, { flags: MOLE_CONCESSIONS.slice(0, count) }),
+    ).some((audience) => audience.id === 'd50-burrows')
+  assert.ok(!burrowsDay(4))
+  assert.ok(burrowsDay(5))
+  // Two reforms bring Lumen Shale to the barracks; the second offers only
+  // reforms not yet granted.
+  let reforms = onDay(1, 32, { flags: ['mole-talks-opened', 'mole-truce'] })
+  reforms = chooseAudienceOption(reforms, 'd32-reform-list', 'councils').run
+  const second = audienceScene(
+    reforms,
+    audienceOn(32, 'd32-reform-list'),
+  ).options.filter((o) => optionVisible(reforms, o))
+  assert.deepEqual(
+    second.map((o) => o.id),
+    ['second-ledger', 'second-sedition', 'one'],
+  )
+  reforms = chooseAudienceOption(
+    reforms,
+    'd32-reform-list',
+    'second-sedition',
+  ).run
+  assert.ok(reforms.recruitable.includes('F010'), 'Lumen will join')
+  assert.ok(
+    ['d32-reform-councils', 'd32-reform-sedition'].every((f) =>
+      reforms.flags.includes(f),
+    ),
+  )
+  // A crown that frees Granny Umber on Day 21 is not blamed for her on Day 26.
+  const freed = chooseAudienceOption(
+    onDay(1, 21, { flags: ['mole-messenger-arrested'] }),
+    'd21-fen-weir',
+    'free-umber',
+  ).run
+  assert.notEqual(
+    dayBriefings({ ...freed, day: 26 })![2]!.source,
+    'Chalk on the postern gate',
+  )
+  // The accord reads the whole track.
+  assert.equal(moleAccord(onDay(1, 30)).standing, 'wary')
+  assert.equal(
+    moleAccord({ flags: ['mole-messenger-arrested', 'moles-blamed'] }).standing,
+    'enemies',
+  )
+  assert.equal(
+    moleAccord({ flags: MOLE_CONCESSIONS.slice(0, 7) }).standing,
+    'reconciled',
+  )
+  assert.equal(
+    moleAccord({
+      flags: [...MOLE_CONCESSIONS.slice(0, 7), ...MOLE_GRIEVANCES.slice(0, 4)],
+    }).standing,
+    'talking',
+    'wrongs weigh against deeds',
+  )
+
+  // Day 50 endings remember the burrows.
+  const moleEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'moles',
+    )?.variant.text ?? ''
+  const coalEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'coal-harrow',
+    )?.variant.text ?? ''
+  assert.match(moleEnding(['d44-dike-blown'], 'witchwater-throne'), /lake/)
+  assert.match(moleEnding([], 'witchwater-throne'), /underground/)
+  assert.match(moleEnding(['d50-moles-dig'], 'open-roads'), /two hundred/)
+  assert.match(
+    moleEnding(MOLE_CONCESSIONS.slice(0, 7), 'bell-restored'),
+    /ceasefire/,
+  )
+  assert.match(moleEnding([], 'iron-peace'), /burrow mouth/)
+  assert.match(coalEnding(['d33-coal-disowned'], 'open-roads'), /east/)
+  assert.match(coalEnding([], 'open-roads'), /powder/)
+  assert.match(coalEnding([], 'long-night'), /fuse/)
+}
 
 // Cast art: every listed image exists and names a real character and slot.
 for (const asset of CAST_ART) {

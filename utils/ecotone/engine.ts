@@ -34,6 +34,7 @@ import {
   NEW_LENS_CODAS,
 } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
+import { openingLensChoices } from './openingLensChoices'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -632,7 +633,7 @@ function meet(state: RunState, accept: boolean): RunState {
 export function chooseBeat(state: RunState, choiceId: string): RunState {
   if (state.phase !== 'beat' || state.pending) return state
   const card = findCard(state.card)
-  const choice = card?.choices.find((c) => c.id === choiceId)
+  const choice = card && openingLensChoices(card).find((c) => c.id === choiceId)
   if (!card || !choice || choice.locked) return state
   let next: RunState = state
   if (choice.lens) {
@@ -740,6 +741,67 @@ function isCardList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((id) => Boolean(findCard(id)))
 }
 
+const LEGACY_LENS_QUESTS: Record<
+  string,
+  { title: string; replacement: string }
+> = {
+  'WH-004': {
+    title: 'A Fast Hour in a Bottle',
+    replacement: 'LX-FAST-01',
+  },
+  'WH-037': {
+    title: 'The River Does Not Sleep',
+    replacement: 'LX-NIGHT-01',
+  },
+  'WH-058': {
+    title: 'The Peacock Has a Warrant',
+    replacement: 'LX-HEART-01',
+  },
+}
+
+/**
+ * The old and new quest decks both used save version 4. A bare WH-004,
+ * WH-037 or WH-058 ID is therefore ambiguous: modern runs use these IDs
+ * for completely different canonical encounters. Only the historical
+ * source AND exact saved title prove that a log entry came from the older
+ * substance quest. Never rewrite an undecidable offered/current card.
+ */
+function migrateRecordedLensQuests(state: RunState): RunState {
+  const proven = new Map<string, string>()
+  for (const entry of state.log) {
+    const old = LEGACY_LENS_QUESTS[entry.source]
+    if (old && entry.title === old.title)
+      proven.set(entry.source, old.replacement)
+  }
+  if (proven.size === 0) return state
+  const migrateEntry = (entry: LogEntry): LogEntry => {
+    const replacement = proven.get(entry.source)
+    const oldId = entry.source
+    if (!replacement || entry.title !== LEGACY_LENS_QUESTS[oldId]?.title)
+      return entry
+    const oldPrefix = `outcomes/${oldId.toLowerCase()}/`
+    return {
+      ...entry,
+      source: replacement,
+      art: entry.art?.startsWith(oldPrefix)
+        ? `outcomes/${replacement.toLowerCase()}/${entry.art.slice(oldPrefix.length)}`
+        : entry.art,
+    }
+  }
+  return {
+    ...state,
+    played: state.played.map((id) => proven.get(id) ?? id),
+    card:
+      state.card && proven.has(state.card) && state.pending
+        ? proven.get(state.card)!
+        : state.card,
+    log: state.log.map(migrateEntry),
+    pending: state.pending
+      ? { ...state.pending, entry: migrateEntry(state.pending.entry) }
+      : null,
+  }
+}
+
 export function restoreRun(raw: unknown): RunState | null {
   if (!raw || typeof raw !== 'object') return null
   const s = raw as Partial<RunState>
@@ -763,6 +825,13 @@ export function restoreRun(raw: unknown): RunState | null {
   if (s.activeLead !== null && !isCompanion(s.activeLead)) return null
   if (
     !Array.isArray(s.log) ||
+    !s.log.every(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        typeof entry.source === 'string' &&
+        typeof entry.title === 'string',
+    ) ||
     !Array.isArray(s.evidence) ||
     !Array.isArray(s.flags) ||
     !Array.isArray(s.followHistory)
@@ -770,5 +839,5 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   if (!s.skills || typeof s.skills !== 'object') return null
   if (typeof s.wild !== 'number') return null
-  return s as RunState
+  return migrateRecordedLensQuests(s as RunState)
 }

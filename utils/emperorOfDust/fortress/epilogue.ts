@@ -1,6 +1,7 @@
 import type { Mood } from './castArt'
 import type { EndingId } from './endings'
-import type { FortressRun } from './types'
+import { MOLES_RECONCILED } from './moles'
+import { type FortressRun, type Standing, standingHeld } from './types'
 
 // "Afterwards": the consequences epilogue after Day 50 (conductor GAME-BIBLE
 // "Day 100 resolves an ending and a consequences epilogue"). Each subject is
@@ -22,6 +23,8 @@ export type EpilogueCondition = {
   alive?: string[]
   /** These followers died. */
   dead?: string[]
+  /** At least this many of a track of flags, such as Mole concessions. */
+  standing?: Standing
 }
 
 export type EpilogueVariant = {
@@ -63,7 +66,8 @@ export const conditionHolds = (
     !(when.notFlags ?? []).some(has) &&
     (!when.endings?.length || when.endings.includes(ending)) &&
     (when.alive ?? []).every((id) => joined(run, id) && !diedIn(run, id)) &&
-    (when.dead ?? []).every((id) => diedIn(run, id))
+    (when.dead ?? []).every((id) => diedIn(run, id)) &&
+    standingHeld(run.flags, when.standing)
   )
 }
 
@@ -720,6 +724,30 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The Moles hold their assemblies in daylight now, in every village, about everything. Granny Umber chairs the ones about water. She bangs her cane three times when a motion carries. She has worn through two floors.',
       },
       {
+        when: { flags: ['d50-moles-dig'] },
+        mood: 'excited',
+        text: 'The burrows dug the crown its door under the Abbey wall. The tunnel is bricked up now. On the near side Granny Umber had them cut the vote into the stone: two hundred and six to forty. Children put their paws in the numbers.',
+      },
+      {
+        when: { endings: ['witchwater-throne'], flags: ['d44-dike-blown'] },
+        mood: 'angry',
+        text: 'The green lanterns burn on the tower. The north reed beds are still a lake. The Moles went underground the week the Mothers took their seat and filled the stairs behind them. Granny Umber writes the crown one line a year. Nobody at court reads it aloud.',
+      },
+      {
+        when: { endings: ['witchwater-throne'] },
+        mood: 'angry',
+        text: 'The green lanterns burn on the tower now. The Moles went back underground the week the Mothers took their seat, and filled the stairs behind them. Granny Umber still sends a letter every spring. The seal is mud.',
+      },
+      {
+        when: { endings: ['iron-peace'], notFlags: ['d32-reform-sedition'] },
+        text: 'The Watch stands at every burrow mouth. Nobody digs without a permit. Some nights the Moles sing under the walls again, low, the old songs. The Watch has learned the words.',
+      },
+      {
+        when: { standing: MOLES_RECONCILED },
+        mood: 'happy',
+        text: 'The Moles never got the throne gone. They got a seat beside it, a ledger on the gate and the right to sing. Granny Umber calls it a ceasefire. She comes to every council anyway, early, for the chair by the stove.',
+      },
+      {
         when: { flags: ['mole-messenger-arrested'] },
         text: 'Granny Umber walked out of the crown’s cells the way she walked in: slowly, smiling. She has never once mentioned the cell. She does not need to. Every Mole child tells the story, and does her squint.',
       },
@@ -731,6 +759,44 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       {
         when: { flags: ['mole-truce'] },
         text: 'The burrows kept their water rights, cistern and all. Every morning Granny Umber walks to the sluice and puts her paw in the water. Up to the wrist. Not one hair more.',
+      },
+    ],
+  },
+  {
+    id: 'coal-harrow',
+    name: 'Coal Harrow and the sappers',
+    variants: [
+      {
+        when: { endings: ['long-night'] },
+        text: 'Coal Harrow blew every stair behind the last of the burrows and stayed on the wrong side to light the fuse. The Moles cut his name into the rock at the bottom. Nobody argues about him anymore.',
+      },
+      {
+        when: { flags: ['d44-dike-blown'] },
+        text: 'Coal Harrow got his flood. The reed beds are a lake, and the lake has his name, though nobody says it near the water. He drinks alone at the burrow mouth. The fen children row past and look at him.',
+      },
+      {
+        when: { flags: ['d33-sappers-to-fen'] },
+        mood: 'sad',
+        text: 'The fen gave the three sappers back after one night, as Reedlight said. They are quiet now. They do not dig. Coal Harrow went to see them once, and never again.',
+      },
+      {
+        when: { flags: ['d33-coal-disowned'] },
+        text: 'Coal Harrow went east when the burrows disowned him. The Rustline pays sappers by the keg. He sends his aunt nothing. Granny Umber keeps a lamp lit at the east stair anyway.',
+      },
+      {
+        when: { flags: ['d32-coal-seated'] },
+        text: 'Coal Harrow took the council seat, and the powder came inside the tent with him. He votes no on everything. Twice he has been right. He reminds them.',
+      },
+      {
+        when: { flags: ['d44-powder-seized'] },
+        text: 'The crown kept Coal Harrow’s kegs until the war ended. One went missing the first night. Nobody has found where it went off. Nobody has stopped listening for it.',
+      },
+      {
+        when: { flags: ['d21-weir-blown'] },
+        text: 'Coal Harrow keeps the empty keg from the weir on a shelf in the sapper hall, the chalk crown still on it. He tells the young ones the crown lent him a match once.',
+      },
+      {
+        text: 'Coal Harrow still has his powder. He has not decided what it is for.',
       },
     ],
   },
@@ -1216,6 +1282,10 @@ const BARRACKS: EpilogueSubject[] = [
       {
         when: { flags: ['lumen-councils-promised'] },
         text: 'The crown promised councils. There are councils now, of a kind. Lumen calls them a start, out loud, at every one.',
+      },
+      {
+        when: { flags: ['d32-reform-sedition'] },
+        text: 'The sedition law burned in four pages on the day Lumen came to court. She kept the ash in a jar with a label. Singers come to see it. It is a small jar.',
       },
       {
         text: 'Lumen Shale wants a world where nobody begs a tower to build a hospital. The hospital in the burrows has no name over its door. She would not allow one.',

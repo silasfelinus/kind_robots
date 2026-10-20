@@ -1,4 +1,5 @@
 import type { DayDef, QuestDef } from './types'
+import { MOLE_REFORMS_OPEN } from './moles'
 
 // Act IV, Days 31-40, "The Long Table" (conductor DAY-PLAN.md): open faction
 // war, the coalition that will decide the Act V hideout, and Young Komodo's
@@ -494,6 +495,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The crown’s accounts were checked last month and every page is in order.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'Nobody checked the crown’s accounts last month. He kept them himself. The page that did not add up was in his hand.',
       },
       {
         id: 'oil-shortage',
@@ -658,6 +661,206 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      {
+        id: 'd32-reform-list',
+        title: 'The Reform List',
+        speaker: 'Lumen Shale, organizer of the Mole assembly',
+        faction: 'moles',
+        requires: { standing: MOLE_REFORMS_OPEN },
+        lines: [
+          'A prairie dog climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
+          'Lumen Shale. I organize for the assembly. Granny Umber says the crown has done two honest things. The assembly says two is luck. Three is a habit.',
+          'This is the list. Three reforms. A council seat for the burrows in this hall. The crown’s tax ledger nailed to the gate where anyone can read it. And the sedition law burned. The one you can hang a singer with.',
+          'Grant one and we keep talking. Grant two and I work for you. Grant none and I go home and tell them the truth. That’s worse.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'Councils, by all means, Your Majesty. Burn the law if you like. But a ledger on the gate is an open drawer. Thieves can read too.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-split',
+            label: 'Ask whether every Mole wants this list.',
+            effects: {},
+            response:
+              'Lumen looks at the trumpet in her paw for a moment. Then she puts it down.',
+            next: 'split',
+          },
+          {
+            id: 'councils',
+            label: 'Grant the council seat. A Mole sits in this hall.',
+            effects: {
+              affinity: { moles: 10 },
+              local: { 'old-houses': -3 },
+              flags: ['d32-reform-councils'],
+            },
+            response:
+              'Lumen writes it on the list in front of everyone. Lady Vask’s chair scrapes. Lumen looks up and waits.',
+            next: 'second',
+          },
+          {
+            id: 'ledger',
+            label: 'Nail the crown’s ledger to the gate.',
+            effects: {
+              affinity: { moles: 5 },
+              local: { ledger: -2, lamplight: 2 },
+              flags: ['d32-reform-ledger'],
+            },
+            response:
+              'Lumen writes it down. Young Komodo closes his own ledger. Gently. He holds it against his chest.',
+            next: 'second',
+          },
+          {
+            id: 'sedition',
+            label: 'Burn the sedition law. Today.',
+            effects: {
+              affinity: { moles: 5 },
+              local: { 'gate-watch': -2, yard: 1 },
+              flags: ['d32-reform-sedition'],
+            },
+            response:
+              'A clerk brings the law up from the Archive. It is four pages. It burns fast. Captain Dunmark watches it go and says nothing.',
+            next: 'second',
+          },
+          {
+            id: 'refuse',
+            label: 'Grant nothing. The crown does not govern by list.',
+            effects: {
+              affinity: { moles: -10 },
+              local: { 'old-houses': 2 },
+              flags: ['d32-reforms-refused'],
+            },
+            response:
+              'Lumen folds the list into her sash. “Then I’ll read them your answer,” she says. “Word for word. They’ll like that you were clear.”',
+          },
+        ],
+        beats: [
+          {
+            id: 'split',
+            lines: [
+              '“No. Coal Harrow’s sappers think a list is what cowards bring instead of powder. Half the young ones listen to him. They’re not wrong that powder is faster.”',
+              '“If you say no to me, you say yes to him. I want you to know that before you choose. I’m not threatening. I’m counting.”',
+            ],
+            options: [
+              {
+                id: 'councils',
+                label: 'Grant the council seat. Give the young ones a chair.',
+                effects: {
+                  affinity: { moles: 10 },
+                  local: { 'old-houses': -3 },
+                  flags: ['d32-reform-councils'],
+                },
+                response:
+                  'Lumen writes it on the list. Lady Vask’s chair scrapes. Lumen waits.',
+                next: 'second',
+              },
+              {
+                id: 'ledger',
+                label: 'Nail the crown’s ledger to the gate.',
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { ledger: -2, lamplight: 2 },
+                  flags: ['d32-reform-ledger'],
+                },
+                response:
+                  'Lumen writes it down. Young Komodo closes his own ledger and holds it against his chest.',
+                next: 'second',
+              },
+              {
+                id: 'sedition',
+                label: 'Burn the sedition law.',
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { 'gate-watch': -2, yard: 1 },
+                  flags: ['d32-reform-sedition'],
+                },
+                response:
+                  'The law is four pages. It burns fast. Captain Dunmark watches it go.',
+                next: 'second',
+              },
+              {
+                id: 'seat-coal',
+                label:
+                  'Give the council seat to Coal Harrow, not to her. Bring the powder inside the tent.',
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { 'gate-watch': -1, 'old-houses': -2 },
+                  flags: ['d32-reform-councils', 'd32-coal-seated'],
+                },
+                response:
+                  'Lumen is quiet for a long time. “Smart,” she says at last. “I hate it.” She writes his name on the list herself, in a neat hand, and leaves without asking for anything else.',
+              },
+              {
+                id: 'refuse',
+                label: 'Grant nothing. Let Coal Harrow do his counting too.',
+                effects: {
+                  affinity: { moles: -10 },
+                  local: { 'old-houses': 2 },
+                  flags: ['d32-reforms-refused'],
+                },
+                response:
+                  'Lumen folds the list into her sash. That night a keg goes off in an empty Old House granary. Nobody is hurt. Nobody is meant to be, yet.',
+              },
+            ],
+          },
+          {
+            id: 'second',
+            lines: [
+              'Lumen holds up the list. One line is written in. Two are not.',
+              '“One is a start. Two is a promise. I said what two gets you.”',
+            ],
+            options: [
+              {
+                id: 'second-councils',
+                label: 'The council seat as well.',
+                requires: { notFlags: ['d32-reform-councils'] },
+                effects: {
+                  affinity: { moles: 10 },
+                  local: { 'old-houses': -3 },
+                  flags: ['d32-reform-councils', 'd32-reforms-two'],
+                  recruitable: ['F010'],
+                },
+                response:
+                  'Two lines. Lumen rolls up the list and ties it with a thread from her sash. “I’ll need a bunk,” she says. “Near the door. I get up early.”',
+              },
+              {
+                id: 'second-ledger',
+                label: 'The ledger on the gate as well.',
+                requires: { notFlags: ['d32-reform-ledger'] },
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { ledger: -2, lamplight: 2 },
+                  flags: ['d32-reform-ledger', 'd32-reforms-two'],
+                  recruitable: ['F010'],
+                },
+                response:
+                  'Two lines. Lumen ties the list with a thread from her sash. “I’ll need a bunk near the door,” she says. Young Komodo is already writing a note to the Ledger.',
+              },
+              {
+                id: 'second-sedition',
+                label: 'Burn the sedition law as well.',
+                requires: { notFlags: ['d32-reform-sedition'] },
+                effects: {
+                  affinity: { moles: 5 },
+                  local: { 'gate-watch': -2, yard: 1 },
+                  flags: ['d32-reform-sedition', 'd32-reforms-two'],
+                  recruitable: ['F010'],
+                },
+                response:
+                  'The law burns in four pages. Lumen ties the list with a thread from her sash. “I’ll need a bunk near the door,” she says. “I get up early.”',
+              },
+              {
+                id: 'one',
+                label: 'One. That is what the crown can carry today.',
+                effects: { flags: ['d32-one-reform'] },
+                response:
+                  'Lumen folds the list. “One is a start,” she says. “I’ll tell them it was a start.” She does not say what two would have been.',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -669,6 +872,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'Thistledown',
         text: 'Plum riders are watching the Thistledown fields from the ridge.',
         truth: true,
+        variants: [
+          {
+            flags: ['d10-thistledown-told-to-pay'],
+            text: 'Plum riders are watching the Thistledown fields from the ridge. Thistledown has stopped asking the crown for anything.',
+          },
+        ],
       },
       {
         id: 'riders-waystation',
@@ -836,6 +1045,204 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'Hester stares at you. “By night. With what lamps? Your Yard can’t find a drop of oil.” Thistledown brings in its harvest by starlight, and by the riders’ fires on the ridge.',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'd33-sappers',
+        title: 'Three Sappers in the Fen',
+        speaker: 'Sister Reedlight of the Mire Mothers',
+        npc: 'sister-reedlight',
+        faction: 'mire-mothers',
+        lines: [
+          'Sister Reedlight comes in with fen mud to the hem and a lantern that burns without oil. Three young moles walk ahead of her, tied wrist to wrist with green reed. Nobody at court has seen reed hold a knot like that.',
+          'Your war is loud, so I will be quick. These three were under the Mirefen last night with picks and a keg. Digging a drain. Coal Harrow’s orders, they say. They say it proudly.',
+          'The fen has its own law for people who come to empty it. I came to ask if the crown would rather judge them first. I am being polite.',
+          {
+            who: 'Granny Umber',
+            npc: 'granny-umber',
+            text: 'The assembly never voted for this. Coal digs where he likes. That’s the trouble with teaching people to dig.',
+          },
+          'Granny Umber has come in behind them on her cane. She does not look at the three. The youngest keeps looking at her.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'The fen’s law has no appeal, Your Majesty. Take them. The crown’s cells at least have a door.',
+          },
+        ],
+        options: [
+          {
+            id: 'ask-fen',
+            label:
+              'Ask what the fen’s law does to people who come to empty it.',
+            effects: {},
+            response:
+              'Reedlight lifts the lantern a little, so you can see her face.',
+            next: 'fen-law',
+          },
+          {
+            id: 'to-fen',
+            label: 'Give them to the fen. They came to drown it.',
+            effects: {
+              affinity: { 'mire-mothers': 15, moles: -15 },
+              flags: ['d33-sappers-to-fen'],
+            },
+            response:
+              'Reedlight bows. The three go out with her, still tied. The youngest looks back at Granny Umber. She does not look up. That night the fen lanterns burn late.',
+          },
+          {
+            id: 'cells',
+            label: 'The crown’s cells. A trial when the war allows.',
+            effects: {
+              affinity: { 'mire-mothers': 5, moles: -5 },
+              local: { 'gate-watch': 1 },
+              flags: ['d33-sappers-jailed'],
+            },
+            response:
+              'The Watch cuts the reed and puts on iron. The iron is easier to see. Reedlight nods as if the crown has paid half a debt, and goes.',
+          },
+          {
+            id: 'free',
+            label: 'Cut them loose. The fen is not the crown’s to defend.',
+            effects: {
+              affinity: { moles: 10, 'mire-mothers': -15 },
+              flags: ['d33-sappers-freed'],
+            },
+            response:
+              'You cut the reed yourself. It is harder than it looks. Reedlight watches the knife the whole time. “Then the fen will defend itself,” she says. She says it like weather.',
+          },
+          {
+            id: 'ask-umber',
+            label: 'Ask Granny Umber what the burrows will give for them.',
+            effects: {},
+            response:
+              'Granny Umber leans on the cane with both paws. For a while that is her whole answer.',
+            next: 'umber',
+          },
+          {
+            id: 'weir-repaid',
+            label:
+              'Admit the crown lent Coal powder for her weir. Pay the fen for it, and send the three home.',
+            requires: { cost: 30, flags: ['d21-weir-blown'] },
+            effects: {
+              affinity: { 'mire-mothers': 10 },
+              local: { ledger: -1 },
+              flags: ['d33-weir-repaid', 'd33-sappers-freed'],
+            },
+            response:
+              'Reedlight counts the brass twice. Then she cuts the reed with one finger. “The crown taught them,” she says. “Now the crown pays tuition.” The three go home with Granny Umber, in step.',
+          },
+          {
+            id: 'name-in-book',
+            label:
+              'Remind her whose name is in the fen’s book. Ask for the three as a favour to that name.',
+            requires: { flags: ['d27-name-in-fen-book'] },
+            effects: {
+              affinity: { moles: 10, 'mire-mothers': -5 },
+              flags: ['d33-name-called-in', 'd33-sappers-freed'],
+            },
+            response:
+              'Reedlight smiles for the first time. “The book remembers you,” she says. “It will remember this.” The reed falls off the three on its own. Nobody saw her touch it.',
+          },
+        ],
+        beats: [
+          {
+            id: 'fen-law',
+            speaker: 'Sister Reedlight of the Mire Mothers',
+            npc: 'sister-reedlight',
+            lines: [
+              'Nothing you would call cruel. We give them to the water for a night. Most come up in the morning. They are quieter after. They do not dig again.',
+              {
+                who: 'Granny Umber',
+                npc: 'granny-umber',
+                text: 'Most.',
+              },
+              'Reedlight does not answer that. The lantern does not flicker.',
+            ],
+            options: [
+              {
+                id: 'cells',
+                label: 'Not the water. The crown’s cells, and a trial.',
+                effects: {
+                  affinity: { 'mire-mothers': 5, moles: -5 },
+                  local: { 'gate-watch': 1 },
+                  flags: ['d33-sappers-jailed'],
+                },
+                response:
+                  'The Watch cuts the reed and puts on iron. Reedlight looks at the iron a long time. “Yours is slower,” she says.',
+              },
+              {
+                id: 'to-fen',
+                label: 'Most is enough. Give them to the fen.',
+                effects: {
+                  affinity: { 'mire-mothers': 15, moles: -15 },
+                  flags: ['d33-sappers-to-fen'],
+                },
+                response:
+                  'The three go out tied. Granny Umber stays on the step until the hall is empty. Then she goes home the long way, past the fen.',
+              },
+              {
+                id: 'free',
+                label: 'Cut them loose. Nobody goes in the water tonight.',
+                effects: {
+                  affinity: { moles: 10, 'mire-mothers': -15 },
+                  flags: ['d33-sappers-freed'],
+                },
+                response:
+                  'You cut the reed yourself. “Then the fen will defend itself,” Reedlight says. She says it like weather.',
+              },
+              {
+                id: 'ask-umber',
+                label: 'Turn to Granny Umber. Ask what the burrows will give.',
+                effects: {},
+                response: 'Granny Umber has been waiting for someone to ask.',
+                next: 'umber',
+              },
+            ],
+          },
+          {
+            id: 'umber',
+            speaker: 'Granny Umber of the Mole Revolutionaries',
+            npc: 'granny-umber',
+            lines: [
+              'I hated the Mothers before your grandmother was born, young ruler. I hate them now. That isn’t the question.',
+              'Send the three home and I’ll stand up in the assembly tonight and say Coal Harrow does not speak for the burrows. Out loud. He’ll hear it by morning.',
+              'He’s my sister’s boy. Write that down somewhere. Then forget it.',
+            ],
+            options: [
+              {
+                id: 'disown',
+                label:
+                  'Send the three home. The burrows disown Coal Harrow, out loud.',
+                effects: {
+                  affinity: { moles: 5, 'mire-mothers': 5 },
+                  flags: ['d33-coal-disowned', 'd33-sappers-freed'],
+                },
+                response:
+                  'She says it in the assembly that night. Her voice does not shake. Her paw on the cane does. In the morning Reedlight’s reed is found on the gate step, cut, in a neat coil.',
+              },
+              {
+                id: 'to-fen',
+                label: 'No. The fen’s law. Coal can hear about that instead.',
+                effects: {
+                  affinity: { 'mire-mothers': 15, moles: -15 },
+                  flags: ['d33-sappers-to-fen'],
+                },
+                response:
+                  'Granny Umber says nothing at all. She walks out ahead of the three so she does not have to watch them tied.',
+              },
+              {
+                id: 'cells',
+                label: 'Neither her nephew nor the fen. The crown’s cells.',
+                effects: {
+                  affinity: { 'mire-mothers': 5, moles: -5 },
+                  local: { 'gate-watch': 1 },
+                  flags: ['d33-sappers-jailed'],
+                },
+                response:
+                  'Iron instead of reed. Granny Umber nods once. “Slower,” she says. “I’ll take slower.”',
               },
             ],
           },
@@ -1149,6 +1556,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'The map room',
         text: 'The war has cut every road south except two: the canyon trestle and the Mole tunnel.',
         truth: true,
+        variants: [
+          {
+            flags: ['d26-brick-tunnel-mapped'],
+            text: 'The war has cut every road south except two: the canyon trestle and the Mole tunnel. Keel’s survey of the brick tunnel is pinned beside the map.',
+          },
+        ],
       },
       {
         id: 'riders-moving',
@@ -1164,7 +1577,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Two roads, Your Majesty, and the court can hold one. Whichever survives is the road you will use later. Choose as if your life depended on it.',
+      'Two roads, Your Majesty, and the court can hold one. Whichever survives is the road you will use later. Hold the one you would want to run down in the dark.',
     quests: [],
     audiences: [
       {
@@ -1313,6 +1726,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'Brother Teodor’s old letters',
         text: 'There is a cellar under the chapel that the sisters never mention.',
         truth: true,
+        variants: [
+          {
+            flags: ['d22-token-stamp-copied'],
+            text: 'There is a cellar under the chapel that the sisters never mention. Its door is burned with the mark Ash copied from the Ford tokens.',
+          },
+        ],
       },
     ],
     komodo:
@@ -1529,6 +1948,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The Ledger has never lent a single coin to the Abbey.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The Ledger had lent to the Abbey all year. Every note crossed his desk first.',
       },
       {
         id: 'loans-called',
@@ -1752,15 +2173,24 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
     briefings: [
       {
         id: 'satchel-grain',
-        source: 'A Yard porter',
-        text: 'The satchel was full of stolen grain.',
+        source: 'Young Komodo’s runner',
+        text: 'The satchel was full of stolen grain. A Yard matter. Nothing for the throne.',
         truth: false,
+        komodoLie: true,
+        hindsight:
+          'There was no grain. The letters were his, going up the mission road twice a week. He wanted the boy alone before the boy said a name.',
       },
       {
         id: 'mole-caught',
         source: 'The Gate Watch',
         text: 'A young Mole was caught leaving the tower before dawn with a satchel.',
         truth: true,
+        variants: [
+          {
+            flags: ['mole-messenger-arrested'],
+            text: 'A young Mole was caught leaving the tower before dawn with a satchel. He has Granny Umber’s squint.',
+          },
+        ],
       },
       {
         id: 'satchel-letters',
@@ -1770,7 +2200,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'A thief with letters, Your Majesty. Thieves always carry for somebody important. Let me talk to him. I am very good with frightened people.',
+      'My runner says grain, Your Majesty. The Captain says letters. Either way, thieves carry for somebody important. Let me talk to him. I am very good with frightened people.',
     quests: [],
     audiences: [
       {
@@ -2251,6 +2681,14 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         text: 'The roads to the Abbey are quiet tonight.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'The roads to the Abbey were full that night. Half your watch marched them, under a seal he pressed himself.',
+        variants: [
+          {
+            flags: ['d38-rosters-changed'],
+            text: 'The roads to the Abbey are quiet tonight. Every post on the new rosters is manned.',
+          },
+        ],
       },
       {
         id: 'chairs-empty',

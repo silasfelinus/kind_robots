@@ -70,7 +70,7 @@ assert.ok(lanternTicks(3) < lanternTicks(1))
 assert.ok(ballSpeed(99) <= 1.9 && ballGap(99) >= 55 && lanternTicks(99) >= 1800)
 assert.equal(streetFor(1), 0)
 assert.equal(streetFor(STREETS.length + 1), 0)
-assert.equal(new Set([1, 2, 3, 4, 5].map(streetFor)).size, 5)
+assert.equal(new Set([1, 2, 3, 4, 5, 6].map(streetFor)).size, 6)
 assert.equal(timerBonus(600), 100)
 assert.equal(timerBonus(-5), 0)
 

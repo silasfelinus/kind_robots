@@ -7,12 +7,12 @@
     "place": "Arcata Plaza",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The busker's shoes have not moved, but his shadow has completed a full revolution. The crowd thinks the trick is magnificent; the performer looks ill.",
-    "investigate": "Ask him to step outside the painted circle",
-    "success": "His shadow bows alone and a chalk map beneath the paint reveals tomorrow's missing hour.",
-    "failure": "He gets out, but his shadow remains under the crowd. The photographer saves a blurred image as evidence.",
-    "help": "Offer the exhausted busker a chair and a break",
-    "helpOutcome": "A stranger brings water. For once the applause is for the person, not the trick."
+    "pressure": "Every time the crowd says Arcata, the busker freezes. His shadow keeps turning, patiently, as though somebody paid it for a longer set. The busker is pale and asking for a break; the phones are still pointed at him.",
+    "investigate": "Step into the chalk circle and ask who drew its boundary",
+    "success": "Beneath the chalk is a municipal map stamped NEXT THURSDAY. The shadow bows, takes no questions, and points to a bus stop that has not been built.",
+    "failure": "You misjudge the edge and the chalk follows your shoe. The busker finally steps clear. A tourist has a blurred photograph of two shadows and only one person.",
+    "help": "Get him offstage and stop the crowd filming without permission",
+    "helpOutcome": "The crowd makes room. Somebody brings a chair and water. The shadow circles once more, then rests when he does."
   },
   {
     "id": "WH-002",
@@ -22,12 +22,12 @@
     "place": "Arcata Plaza",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The oyster's manifesto proposes free shoreline access and quieter motors. The losing candidate wants the machine unplugged before anyone reads the fine print.",
-    "investigate": "Get the defeated candidate to translate the shellfish platform",
-    "success": "The supposed manifesto is a tidal forecast in legal language, including tomorrow's impossible low tide.",
-    "failure": "The ballots blow into the fountain. The candidate admits the mollusk may understand the bay better than he does.",
-    "help": "Invite the neighbors to an open debate",
-    "helpOutcome": "Fishers and residents negotiate real access while the oyster listens in dignified silence."
+    "pressure": "An oyster has won a town election despite having no address, pulse or apparent interest in public office. The defeated candidate insists the voting machine is broken; the fishers would prefer to read the platform first.",
+    "investigate": "Ask for a translation and compare it with the actual ballot language",
+    "success": "The manifesto turns out to be a tide forecast written in the language of municipal ordinances. Next week's low water is on it. Next week's low water has not been scheduled.",
+    "failure": "The translator admits they guessed at half the clauses. The oyster closes its shell and the defeated candidate reluctantly agrees the vote needs an audit.",
+    "help": "Hold an open meeting where the affected shoreline users speak first",
+    "helpOutcome": "A wheelchair user, two fishers and the harbormaster agree on real access hours. The oyster abstains, quite possibly for tax reasons."
   },
   {
     "id": "WH-004",

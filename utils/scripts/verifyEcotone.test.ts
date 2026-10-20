@@ -159,6 +159,48 @@ assert.equal(
 )
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
+// Editorial round one: keep the image-first chapter kits in exact sync with
+// the playable scripts. These twelve cards carry sharpened consent, labor,
+// uncertainty and imperfect-help beats; old static Markdown must not drift.
+for (const id of [
+  'WH-001',
+  'WH-002',
+  'WH-023',
+  'WH-025',
+  'WH-041',
+  'WH-044',
+  'WH-063',
+  'WH-064',
+  'WH-081',
+  'WH-082',
+  'WH-102',
+  'WH-103',
+]) {
+  const script = REGIONAL_SCRIPTS.find((card) => card.id === id)!
+  const chapter = String(script.chapter).padStart(2, '0')
+  const manuscript = readFileSync(
+    `docs/ecotone/text-kit/chapter-${chapter}.md`,
+    'utf8',
+  )
+  const playable = findCard(id)!
+  assert.deepEqual(
+    playable.body,
+    [script.premise, script.pressure],
+    `${id} still has the two authored beats after editing`,
+  )
+  for (const line of [
+    script.pressure,
+    script.investigate,
+    script.help,
+    script.success,
+    script.failure,
+    script.helpOutcome,
+  ])
+    assert.ok(
+      manuscript.includes(line),
+      `${id} playable choice/outcome text is mirrored in the editor's reading kit`,
+    )
+}
 assert.equal(FORMER_GUIDE_QUESTS.length, 5)
 const reunionBase = createRun(101, 'reporter')
 for (const card of FORMER_GUIDE_QUESTS) {

@@ -10,24 +10,24 @@
 
 **Opening narration:** A busker freezes every time someone says the town's name, even when nobody is watching.
 
-**Escalation:** The busker's shoes have not moved, but his shadow has completed a full revolution. The crowd thinks the trick is magnificent; the performer looks ill.
+**Escalation:** Every time the crowd says Arcata, the busker freezes. His shadow keeps turning, patiently, as though somebody paid it for a longer set. The busker is pale and asking for a break; the phones are still pointed at him.
 
-**Option A, investigate (visible 7 check):** Ask him to step outside the painted circle
+**Option A, investigate (visible 7 check):** Step into the chalk circle and ask who drew its boundary
 
-- **Pass:** His shadow bows alone and a chalk map beneath the paint reveals tomorrow's missing hour.
-- **Miss:** He gets out, but his shadow remains under the crowd. The photographer saves a blurred image as evidence.
+- **Pass:** Beneath the chalk is a municipal map stamped NEXT THURSDAY. The shadow bows, takes no questions, and points to a bus stop that has not been built.
+- **Miss:** You misjudge the edge and the chalk follows your shoe. The busker finally steps clear. A tourist has a blurred photograph of two shadows and only one person.
 
-**Option B, assist without a check:** Offer the exhausted busker a chair and a break
+**Option B, assist without a check:** Get him offstage and stop the crowd filming without permission
 
-- **Result:** A stranger brings water. For once the applause is for the person, not the trick.
+- **Result:** The crowd makes room. Somebody brings a chair and water. The shadow circles once more, then rests when he does.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-001`: A busker freezes every time someone says the town's name, even when nobody is watching. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-001/2`: The busker's shoes have not moved, but his shadow has completed a full revolution. The crowd thinks the trick is magnificent; the performer looks ill. The people and location must match the opening.
-- `outcomes/wh-001/investigate-success`: His shadow bows alone and a chalk map beneath the paint reveals tomorrow's missing hour. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-001/investigate-failure`: He gets out, but his shadow remains under the crowd. The photographer saves a blurred image as evidence. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-001/care-success`: A stranger brings water. For once the applause is for the person, not the trick. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-001/2`: Every time the crowd says Arcata, the busker freezes. His shadow keeps turning, patiently, as though somebody paid it for a longer set. The busker is pale and asking for a break; the phones are still pointed at him. The people and location must match the opening.
+- `outcomes/wh-001/investigate-success`: Beneath the chalk is a municipal map stamped NEXT THURSDAY. The shadow bows, takes no questions, and points to a bus stop that has not been built. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-001/investigate-failure`: You misjudge the edge and the chalk follows your shoe. The busker finally steps clear. A tourist has a blurred photograph of two shadows and only one person. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-001/care-success`: The crowd makes room. Somebody brings a chair and water. The shadow circles once more, then rests when he does. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_001_verified`, `wh_001_partial`, `wh_001_care` (mutually exclusive results of this card).
 
@@ -41,24 +41,24 @@
 
 **Opening narration:** A ballot kiosk announces an unopposed mollusk; only the losing candidate can hear its platform.
 
-**Escalation:** The oyster's manifesto proposes free shoreline access and quieter motors. The losing candidate wants the machine unplugged before anyone reads the fine print.
+**Escalation:** An oyster has won a town election despite having no address, pulse or apparent interest in public office. The defeated candidate insists the voting machine is broken; the fishers would prefer to read the platform first.
 
-**Option A, investigate (visible 7 check):** Get the defeated candidate to translate the shellfish platform
+**Option A, investigate (visible 7 check):** Ask for a translation and compare it with the actual ballot language
 
-- **Pass:** The supposed manifesto is a tidal forecast in legal language, including tomorrow's impossible low tide.
-- **Miss:** The ballots blow into the fountain. The candidate admits the mollusk may understand the bay better than he does.
+- **Pass:** The manifesto turns out to be a tide forecast written in the language of municipal ordinances. Next week's low water is on it. Next week's low water has not been scheduled.
+- **Miss:** The translator admits they guessed at half the clauses. The oyster closes its shell and the defeated candidate reluctantly agrees the vote needs an audit.
 
-**Option B, assist without a check:** Invite the neighbors to an open debate
+**Option B, assist without a check:** Hold an open meeting where the affected shoreline users speak first
 
-- **Result:** Fishers and residents negotiate real access while the oyster listens in dignified silence.
+- **Result:** A wheelchair user, two fishers and the harbormaster agree on real access hours. The oyster abstains, quite possibly for tax reasons.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-002`: A ballot kiosk announces an unopposed mollusk; only the losing candidate can hear its platform. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-002/2`: The oyster's manifesto proposes free shoreline access and quieter motors. The losing candidate wants the machine unplugged before anyone reads the fine print. The people and location must match the opening.
-- `outcomes/wh-002/investigate-success`: The supposed manifesto is a tidal forecast in legal language, including tomorrow's impossible low tide. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-002/investigate-failure`: The ballots blow into the fountain. The candidate admits the mollusk may understand the bay better than he does. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-002/care-success`: Fishers and residents negotiate real access while the oyster listens in dignified silence. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-002/2`: An oyster has won a town election despite having no address, pulse or apparent interest in public office. The defeated candidate insists the voting machine is broken; the fishers would prefer to read the platform first. The people and location must match the opening.
+- `outcomes/wh-002/investigate-success`: The manifesto turns out to be a tide forecast written in the language of municipal ordinances. Next week's low water is on it. Next week's low water has not been scheduled. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-002/investigate-failure`: The translator admits they guessed at half the clauses. The oyster closes its shell and the defeated candidate reluctantly agrees the vote needs an audit. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-002/care-success`: A wheelchair user, two fishers and the harbormaster agree on real access hours. The oyster abstains, quite possibly for tax reasons. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_002_verified`, `wh_002_partial`, `wh_002_care` (mutually exclusive results of this card).
 

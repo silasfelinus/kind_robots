@@ -22,12 +22,12 @@
     "place": "Blue Lake",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A traveler recalls crossing a demolished bridge in childhood though the bridge fell before he was born. His photograph shows a vehicle with no driver.",
-    "investigate": "Reconstruct the route from his photograph",
-    "success": "The far bank holds fresh tool marks from a bridge that only exists at certain tides.",
-    "failure": "The image fogs, but the traveler remembers the exact river bend.",
-    "help": "Escort him across by the bridge people use today",
-    "helpOutcome": "He reaches home without having to prove his impossible childhood to anyone."
+    "pressure": "A traveler describes crossing a bridge that collapsed before he was born. His photograph shows its decking, a driverless car and a handwritten sign reading SLOW. He knows which family member took the picture, but not why she never mentioned the bridge.",
+    "investigate": "Reconstruct the route from his account without treating memory as a crime",
+    "success": "Fresh tool marks appear on the far bank where no bridge has stood for years. You photograph them beside a current survey marker, without naming their maker.",
+    "failure": "The photograph fogs. He remembers the river bend and his aunt's laugh. You write down both rather than invent a date.",
+    "help": "Walk with him across the present-day crossing and let him keep his story",
+    "helpOutcome": "He reaches home safely. His impossible childhood can remain his, even if the bridge turns out to belong to nobody's map."
   },
   {
     "id": "WH-064",
@@ -37,12 +37,12 @@
     "place": "Blue Lake",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A banjo player's bluegrass solos predict thunderstorms with unnerving precision. A passing storm is missing from the county forecast.",
-    "investigate": "Write down the notes and compare pressure readings",
-    "success": "The tune names the exact road that will flood, note by note.",
-    "failure": "A broken string ends the forecast early; the crowd still hears the warning cadence.",
-    "help": "Help the musician alert neighbors without frightening them",
-    "helpOutcome": "The little town makes practical storm preparations while the band keeps playing."
+    "pressure": "A bluegrass musician can forecast storms by picking a banjo solo, but the county weather report has no rain in it. The fiddler wants to keep playing; an elderly neighbor wants someone to check the culvert before dark.",
+    "investigate": "Record the melody, then cross-check the road and pressure readings",
+    "success": "The refrain repeats the name of a low road, note for letter, as water starts pooling under the bridge. The crew blocks the crossing before the rain arrives.",
+    "failure": "A string breaks halfway through. The musician can't remember the last bar, but the neighbor remembers which road flooded last winter.",
+    "help": "Organize practical warnings without announcing the banjo as an oracle",
+    "helpOutcome": "A volunteer closes the vulnerable road. The band moves indoors. Nobody asks the banjo to sign the incident report."
   },
   {
     "id": "WH-065",

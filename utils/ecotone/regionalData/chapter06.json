@@ -22,12 +22,12 @@
     "place": "Arcata Plaza · kinetic starting line",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "An entrant numbered minus one appears in race photos from years before its maker was born. Officials are deciding whether to erase the old pictures.",
-    "investigate": "Compare registration books with the photographs",
-    "success": "Every vanished year contains the same tiny repair crew in the background.",
-    "failure": "The numbers run when copied, but a retired volunteer recognizes the paint scheme.",
-    "help": "Let the maker tell the story in public",
-    "helpOutcome": "The crowd makes room for a competitor whose origins remain unproven."
+    "pressure": "A sculpture numbered minus one appears in race photographs taken years before its maker was born. Officials want to erase the pictures to fix the record. The volunteer archivist would rather label what nobody understands.",
+    "investigate": "Compare negatives, registration books and paint details without adding a convenient inventor",
+    "success": "Across three decades the same tiny repair crew stands behind the vehicle. Their faces are indistinct; their tools and homemade badge are not.",
+    "failure": "The copied registration numbers run together in the scanner. A retired mechanic still recognizes the paint, and asks you to preserve the original print.",
+    "help": "Invite the maker and retired volunteers to describe only what they actually know",
+    "helpOutcome": "The competitor gets a place to start, not a fabricated biography. The archive adds a small card reading ORIGIN UNVERIFIED."
   },
   {
     "id": "WH-103",
@@ -37,12 +37,12 @@
     "place": "Arcata Plaza · kinetic starting line",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A judge awards perfect scores to sculptures that fail basic physics. Ordinary builders protest that the rules used to require touching the road.",
-    "investigate": "Ask the judge to demonstrate a measurable criterion",
-    "success": "Its score sheet predicts which vehicle will lose a wheel near the bay.",
-    "failure": "The demonstration leaves no trace except the judge's uncanny certainty.",
-    "help": "Defend transparent rules for all teams",
-    "helpOutcome": "The judges publish a revised rubric that prizes care and ingenuity over spectacle alone."
+    "pressure": "A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it.",
+    "investigate": "Ask for one measurable criterion and insist it applies to every entrant",
+    "success": "The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster.",
+    "failure": "The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt.",
+    "help": "Help the competitors draft fair judging rules that can survive an absurd race",
+    "helpOutcome": "The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves."
   },
   {
     "id": "WH-104",

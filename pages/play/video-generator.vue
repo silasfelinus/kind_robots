@@ -571,7 +571,7 @@
           <div v-else-if="!videoStore.history.jobs.length" class="kr-text-faded-sm">
             No saved video jobs yet. Generate a clip to start your history.
           </div>
-          <div v-else class="kr-scroll max-h-[min(62vh,39rem)] space-y-2 overflow-y-auto pr-1">
+          <div v-else class="max-h-[min(62vh,39rem)] space-y-2 overflow-y-auto pr-1">
             <button
               v-for="job in videoStore.history.jobs"
               :key="job.id"

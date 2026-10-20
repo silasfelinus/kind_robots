@@ -1,3 +1,5 @@
+import { QUEST_CARDS } from './questExpansion'
+
 export type SkillId = 'rizz' | 'burly' | 'wits' | 'lore' | 'psyche'
 export type LensId =
   'sober' | 'tipsy' | 'stoned' | 'tripping_balls' | 'cocaine' | 'meth' | 'mdma'
@@ -311,6 +313,7 @@ export const CROSSROADS: Record<CompanionId, string[]> = {
 }
 
 export const ENCOUNTERS: EncounterCard[] = [
+  ...QUEST_CARDS,
   {
     id: 'WH-006',
     kind: 'encounter',

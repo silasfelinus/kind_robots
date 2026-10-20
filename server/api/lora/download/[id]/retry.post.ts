@@ -1,4 +1,9 @@
-import { createError, defineEventHandler, getRouterParam, setResponseHeader } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getRouterParam,
+  setResponseHeader,
+} from 'h3'
 import prisma from '../../../../utils/prisma'
 import { errorHandler } from '../../../../utils/error'
 import { requireAdminApiUser } from '../../../../utils/authGuard'

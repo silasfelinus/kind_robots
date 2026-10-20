@@ -1,4 +1,11 @@
 import assert from 'node:assert/strict'
+import {
+  DEFAULT_ECOTONE_ART_STYLE,
+  ECOTONE_ART_STYLES,
+  STYLE_RENDERS,
+  ecotoneArtSrc,
+  normalizeEcotoneArtStyle,
+} from '../ecotone/artStyles'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   ARCHETYPES,
@@ -477,5 +484,39 @@ assert.ok(
   !/localStorage|\$fetch/.test(board),
   'the board leaves storage to the store',
 )
+
+// Art styles (t-039): view-only, the Shifting Desks way.
+assert.deepEqual(
+  ECOTONE_ART_STYLES.map((style) => style.id),
+  ['painted', 'storybook'],
+)
+assert.equal(DEFAULT_ECOTONE_ART_STYLE, 'painted')
+assert.equal(normalizeEcotoneArtStyle('nonsense'), 'painted')
+assert.equal(normalizeEcotoneArtStyle(null), 'painted')
+assert.equal(
+  ecotoneArtSrc('companions/kit', 'painted'),
+  '/ecotone/companions/kit.webp',
+  'Painted shows the shipped painting',
+)
+assert.equal(
+  ecotoneArtSrc('companions/kit', 'storybook'),
+  null,
+  'Storybook shows the drawn scene',
+)
+assert.equal(ecotoneArtSrc('chapters/missing', 'painted'), null)
+assert.equal(ecotoneArtSrc(undefined, 'painted'), null)
+for (const [style, renders] of Object.entries(STYLE_RENDERS))
+  for (const asset of renders ?? [])
+    assert.ok(
+      existsSync(`public/ecotone/styles/${style}/${asset}.webp`),
+      `${style} ships ${asset}`,
+    )
+assert.match(board, /provide\(ECOTONE_ART_STYLE_INJECTION, artStyle\)/)
+assert.match(board, /watch\(artStyle, saveEcotoneArtStyle\)/)
+assert.match(board, /role="radiogroup"/)
+const sceneFile = readFileSync('components/ecotone-scene.vue', 'utf8')
+assert.match(sceneFile, /inject<Ref<EcotoneArtStyle>>/)
+const playStore = readFileSync('stores/ecotoneStore.ts', 'utf8')
+assert.ok(!/artStyle/.test(playStore), 'the style never enters the run')
 
 console.log('Ecotone contract passed')

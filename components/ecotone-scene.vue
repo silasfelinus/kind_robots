@@ -671,20 +671,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useId, watch } from 'vue'
-import { artUrl, type SceneKind } from '~/utils/ecotone/content'
+import { computed, inject, ref, useId, watch, type Ref } from 'vue'
+import type { SceneKind } from '~/utils/ecotone/content'
+import {
+  DEFAULT_ECOTONE_ART_STYLE,
+  ECOTONE_ART_STYLE_INJECTION,
+  ecotoneArtSrc,
+  type EcotoneArtStyle,
+} from '~/utils/ecotone/artStyles'
 
 const props = defineProps<{
   kind: SceneKind
   art?: string
   label: string
   portrait?: boolean
+  /** Overrides the board's chosen style (the style picker previews each one). */
+  artStyle?: EcotoneArtStyle
 }>()
 
 const uid = `eco${(useId() ?? 'scene').replace(/[^a-zA-Z0-9]/g, '')}`
 const failed = ref(false)
 const loadedArt = ref(false)
-const src = computed(() => artUrl(props.art))
+// The player's art style comes from the board; outside it, Painted.
+const chosenStyle = inject<Ref<EcotoneArtStyle>>(
+  ECOTONE_ART_STYLE_INJECTION,
+  ref(DEFAULT_ECOTONE_ART_STYLE),
+)
+const src = computed(() =>
+  ecotoneArtSrc(props.art, props.artStyle ?? chosenStyle.value),
+)
 
 watch(src, () => {
   failed.value = false

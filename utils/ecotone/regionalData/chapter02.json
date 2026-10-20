@@ -142,12 +142,12 @@
     "place": "Luffenholtz Beach",
     "scene": "beach",
     "pool": 2,
-    "pressure": "A familiar voice calls from a cliff face angled away from the beach. The person it imitates is safe at home.",
-    "investigate": "Find an echo path without approaching unstable rock",
-    "success": "The voice comes from a narrow dry fissure containing a map in an unfamiliar coastal script.",
-    "failure": "The gravel shifts and you retreat before learning the words, alive and with a reliable recording.",
-    "help": "Keep other visitors back from the edge",
-    "helpOutcome": "A volunteer hangs a temporary warning; nobody is lured into the drop by a voice they love."
+    "pressure": "A voice you recognize calls from a cliff angled away from the beach. The real person is safe at home and answers your phone. Two visitors have already stepped toward loose gravel, each certain the voice was calling their name.",
+    "investigate": "Record the echo from solid ground and compare it with the real caller's voice",
+    "success": "The sound comes through a dry fissure carrying a paper map. Its coastline is unfamiliar; the rock above it is visibly unstable, so you leave the paper where it is.",
+    "failure": "Pebbles shift below the overhang. You retreat with a clear recording and no map, which is an excellent exchange under the circumstances.",
+    "help": "Keep the curious visitors on the marked path and tell them the edge is unsafe",
+    "helpOutcome": "A beach volunteer posts a temporary warning and helps the visitors call the people they heard. Whatever is speaking from the cliff gets no more followers tonight."
   },
   {
     "id": "WH-034",
@@ -172,12 +172,12 @@
     "place": "Luffenholtz Beach",
     "scene": "beach",
     "pool": 2,
-    "pressure": "The last staircase step arrives at the porch of a tidy submerged house. A doormat says WELCOME BACK and the porch light still works.",
-    "investigate": "Test the water depth from a safe landing",
-    "success": "The porch has a house number belonging to an unbuilt subdivision on a planning map.",
-    "failure": "The light goes out before you can read the name; a dry leaf floats upward past your hand.",
-    "help": "Leave a note without entering a stranger's home",
-    "helpOutcome": "Someone sends the note back on a clean tide with a penciled THANK YOU."
+    "pressure": "The beach staircase ends at a porch submerged in clear green water. A doormat reads WELCOME BACK; a porch lamp shines without a cable. A couple behind you argues that crossing the threshold would make a good photograph.",
+    "investigate": "Measure the depth from the secure landing and check the house number against public plans",
+    "success": "The house number matches an unbuilt subdivision in an archived planning sketch. You note the contradiction without taking a single step into the water.",
+    "failure": "The porch light flickers before you read the plaque. A dry leaf rises through the water and settles by your shoe, where a second visitor sees it too.",
+    "help": "Leave a note from the safe steps rather than enter somebody else's house",
+    "helpOutcome": "The next wave returns your note with a penciled THANK YOU. You let the underwater resident have the last word and guide the couple back up the stairs."
   },
   {
     "id": "WH-036",
@@ -202,12 +202,12 @@
     "place": "Mad River / Hammond Trail",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A river god three inches high announces a toll on the Mad River bridge. His official desk is an overturned shell, and his first customer is a very worried dog.",
-    "investigate": "Audit the pebbles and the water crossing",
-    "success": "The toll is paying for a miniature levee that protects a real nesting bank farther downstream.",
-    "failure": "The clerk refuses the audit and disappears under his desk; you still see the levee line.",
-    "help": "Negotiate a free crossing for ordinary travelers",
-    "helpOutcome": "The god accepts a communal bowl of pebbles and posts a new sign: NO ONE STRANDED."
+    "pressure": "At the Mad River crossing, a river official three inches tall demands a toll in smooth pebbles. His desk is an overturned shell. The first traveler in line is a dog whose person has no pockets, and the tiny official is already threatening to issue a citation.",
+    "investigate": "Ask what the toll funds and inspect the small construction downstream",
+    "success": "The pebbles support a miniature flood wall around a real nesting bank. The official's accounts are eccentric but the bank is plainly safer; you note the arrangement without declaring him sovereign.",
+    "failure": "The official shuts the shell on his ledger. A careful look downstream still reveals the new wall, and the dog has sensibly found another way across.",
+    "help": "Suggest a shared voluntary pebble bowl so crossing stays free for everybody",
+    "helpOutcome": "The tiny official approves a sign reading NO ONE STRANDED. The dog crosses first, having contributed one pebble by accident."
   },
   {
     "id": "WH-038",

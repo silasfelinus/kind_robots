@@ -114,11 +114,7 @@ export type RunState = {
   ending: string | null
 }
 
-export const ALL_CARDS: EncounterCard[] = [
-  ...BEATS,
-  ...ENCOUNTERS,
-  ...QUEST_CARDS,
-]
+export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
 
 // Playbook Manager edits an admin marked live (conductor weird-humboldt t-033).
 // They rewrite text and may add choices; card ids and authored mechanics stay.

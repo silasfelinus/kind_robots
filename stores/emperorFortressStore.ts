@@ -13,6 +13,7 @@ import {
   upgradeBeds,
   withdrawQuest,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { FORTRESS_LIVE_TEXT } from '~/utils/emperorOfDust/fortress/content'
 import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
 import {
   SLOT_COUNT,
@@ -44,6 +45,7 @@ import {
 } from '~/utils/emperorOfDust/fortress/relics'
 import type { RelicId, RelicVault } from '~/utils/emperorOfDust/fortress/relics'
 import { useAchievementStore } from './achievementStore'
+import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 // Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
 export type TextSpeed = 'normal' | 'fast' | 'instant'
@@ -218,6 +220,11 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       read(INTRO_KEY) !== '1' && untouched && slots.value.every((slot) => !slot)
     loaded.value = true
     if (!raw) persist()
+    void loadPlaybookLiveText('emperor-of-dust', FORTRESS_LIVE_TEXT).then(
+      (changed) => {
+        if (changed && book.value) book.value = { ...book.value }
+      },
+    )
   }
 
   function openIntro() {

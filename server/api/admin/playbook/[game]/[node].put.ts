@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
       { editable: true },
     )
     const body = await readBody<PlaybookEditBody>(event)
-    const { content, serialized } = normalizePlaybookEdit(body?.content)
+    const { content, serialized } = normalizePlaybookEdit(game, body?.content)
     const live = body?.live === true
 
     if (isEmptyEdit(content)) {

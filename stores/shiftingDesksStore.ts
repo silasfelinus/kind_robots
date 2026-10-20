@@ -1,11 +1,13 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useAchievementStore } from './achievementStore'
+import { loadPlaybookLiveText } from './utils/playbookLiveText'
 import {
   advance as advanceRun,
   descend as descendRun,
   choose as chooseInRun,
   currentCard,
+  SHIFTING_DESKS_LIVE_TEXT,
   newRun,
   outcomeById,
   upgradeRun,
@@ -84,6 +86,11 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       discovered.value = []
     }
     loaded.value = true
+    void loadPlaybookLiveText('shifting-desks', SHIFTING_DESKS_LIVE_TEXT).then(
+      (changed) => {
+        if (changed && run.value) run.value = { ...run.value }
+      },
+    )
   }
 
   // `daily` deals today's Daily Memo seed, the same run for everyone.

@@ -1,7 +1,7 @@
 import {
   DAYS,
   QUEST_TEMPLATES,
-  questDef,
+  authoredQuestDef as questDef,
 } from '../emperorOfDust/fortress/content'
 import { FOLLOWERS } from '../emperorOfDust/fortress/followers'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
@@ -142,14 +142,14 @@ export function buildEmperorOfDustPlaybook(): Playbook {
   function buildQuest(quest: QuestDef, key: string): PlaybookNode {
     const node = blankNode(key, 'quest', quest.title)
     node.place = humanize(quest.region)
-    node.body = [
-      quest.summary,
-      `Needs ${quest.requirements
-        .map((r) => `${r.stat} ${r.band}${r.hidden ? ' (hidden)' : ''}`)
-        .join(
-          ', ',
-        )}. Party ${quest.party.min}–${quest.party.max}, ${quest.durationDays} day(s), danger ${quest.danger}${quest.lethal ? ', lethal' : ''}.`,
-    ]
+    node.body = [quest.summary]
+    node.editable = true
+    node.editFields = { body: true, outcomes: true, labels: false }
+    node.provenance = `Needs ${quest.requirements
+      .map((r) => `${r.stat} ${r.band}${r.hidden ? ' (hidden)' : ''}`)
+      .join(
+        ', ',
+      )}. Party ${quest.party.min}–${quest.party.max}, ${quest.durationDays} day(s), danger ${quest.danger}${quest.lethal ? ', lethal' : ''}.`
     node.choices = [
       ...TIERS.flatMap((tier) => {
         const rewards = quest.rewards[tier]
@@ -204,7 +204,7 @@ export function buildEmperorOfDustPlaybook(): Playbook {
           via: humanize(tier),
         })
     }
-    node.provenance = `Tags: ${(quest.tags ?? []).join(', ') || 'none'}.`
+    node.provenance += ` Tags: ${(quest.tags ?? []).join(', ') || 'none'}.`
     return node
   }
 
@@ -213,6 +213,8 @@ export function buildEmperorOfDustPlaybook(): Playbook {
     const node = blankNode(key, 'encounter', aud.title)
     node.place = aud.speaker
     node.body = aud.lines
+    node.editable = true
+    node.editFields = { body: true, outcomes: true }
     node.placements.push(placement(day, step))
     node.artUrl = aud.npc ? (illustration('npcs', aud.npc) ?? null) : null
     node.needsArt = Boolean(aud.npc) && !node.artUrl
@@ -280,15 +282,26 @@ export function buildEmperorOfDustPlaybook(): Playbook {
       headings[step] =
         `Act ${ROMAN[Math.ceil(day.day / 10)]} · days ${day.day}–${day.day + 9}`
     const key = `day:${day.day}`
-    const node = blankNode(key, 'spine', `Day ${day.day}: ${day.title}`)
-    node.place = day.advisor ? `Advisor: ${day.advisor}` : ''
-    node.body = [
-      ...day.briefings.map(
-        (b) =>
-          `${b.source}: ${b.text}${b.truth ? '' : ' (false)'}${b.komodoLie ? ' (Komodo lie)' : ''}`,
-      ),
-      `Komodo: ${day.komodo}`,
+    const node = blankNode(key, 'spine', day.title)
+    node.place = `Day ${day.day}${day.advisor ? ` · advisor ${day.advisor}` : ''}`
+    // Three briefings then Komodo, in order, so a text edit maps straight back.
+    node.body = [...day.briefings.map((b) => b.text), day.komodo]
+    node.variations = [
+      ...day.briefings.map((b, i) => ({
+        axis: 'briefing',
+        key: b.id,
+        label: `Briefing ${i + 1}: ${b.source}`,
+        text: `${b.truth ? 'True' : 'False'}${b.komodoLie ? ', and Komodo backs the lie' : ''}.`,
+      })),
+      {
+        axis: 'briefing',
+        key: 'komodo',
+        label: 'Paragraph 4: Komodo',
+        text: 'The vizier’s read on the day.',
+      },
     ]
+    node.editable = true
+    node.editFields = { body: true, outcomes: false, labels: false }
     node.placements.push(placement(day.day, step))
     const audienceChoices: PlaybookChoice[] = day.audiences.map((aud) => ({
       id: aud.id,
@@ -451,7 +464,7 @@ export function buildEmperorOfDustPlaybook(): Playbook {
       thread: 'Quest line',
       ending: 'Ending',
     },
-    editable: false,
+    editable: true,
     artProject: 'emperor-of-dust',
     artLanes: ['arthemy', 'zimage', 'krea2', 'flux2'],
   }

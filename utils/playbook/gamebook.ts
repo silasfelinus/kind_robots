@@ -18,10 +18,6 @@ import {
 
 const TONES = ['hope', 'bittersweet', 'dark']
 
-function plain(text: string): string {
-  return text.replace(/\*/g, '')
-}
-
 function choiceView(choice: Choice): PlaybookChoice {
   const tags: string[] = []
   if (choice.requires) tags.push(`Needs ${choice.requires}`)
@@ -73,7 +69,9 @@ export function buildGamebookPlaybook(): Playbook {
     if (scene.chapter !== previous?.chapter) headings[index] = scene.chapter
     const node = blankNode(id, kindOf(scene), scene.title)
     node.place = scene.chapter
-    node.body = plain(scene.text).split(/\n\s*\n/)
+    node.body = scene.text.split(/\n\s*\n/)
+    node.editable = true
+    node.editFields = { body: true, outcomes: false }
     node.choices = (scene.choices ?? []).map(choiceView)
     if (scene.battle)
       node.choices.push(
@@ -144,7 +142,7 @@ export function buildGamebookPlaybook(): Playbook {
       boss: 'Battle',
       ending: 'Ending',
     },
-    editable: false,
+    editable: true,
     artProject: 'zuzu-gamebook',
     artLanes: ['arthemy', 'zimage', 'krea2', 'flux2'],
   }

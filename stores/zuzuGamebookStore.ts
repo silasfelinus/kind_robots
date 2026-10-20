@@ -6,10 +6,12 @@ import {
   fight,
   isSavedRun,
   scene,
+  GAMEBOOK_LIVE_TEXT,
   type Run,
   type BattleAction,
 } from '~/utils/zuzuGamebook/adventure'
 import { useAchievementStore } from './achievementStore'
+import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 const SAVE_KEY = 'kr-zuzu-gamebook-v1'
 const ENDINGS_KEY = 'kr-zuzu-gamebook-endings-v1'
@@ -55,6 +57,12 @@ export const useZuzuGamebookStore = defineStore('zuzuGamebook', () => {
     }
     loaded.value = true
     save()
+    void loadPlaybookLiveText('zuzu-gamebook', GAMEBOOK_LIVE_TEXT).then(
+      (changed) => {
+        // A fresh object makes the scene computeds re-read the edited text.
+        if (changed) run.value = { ...run.value }
+      },
+    )
   }
 
   function awardDeeds(before: Run, after: Run) {

@@ -2,14 +2,11 @@ import { createError } from 'h3'
 import {
   buildPlaybook,
   isPlaybookGame,
+  sanitizePlaybookEdit,
   type PlaybookGame,
 } from '../../utils/playbook/games'
 import type { Playbook } from '../../utils/playbook/types'
-import {
-  isEmptyEdit,
-  sanitizeCardEdit,
-  type CardEdit,
-} from '../../utils/playbook/edits'
+import { isEmptyEdit, type CardEdit } from '../../utils/playbook/edits'
 
 // Playbook Manager server helpers (conductor weird-humboldt t-033, t-036). Node keys
 // come from the authored playbook, so a row can only ever point at a real beat.
@@ -50,17 +47,20 @@ export function resolvePlaybookNode(
   return key
 }
 
-export function normalizePlaybookEdit(raw: unknown): {
+export function normalizePlaybookEdit(
+  game: PlaybookGame,
+  raw: unknown,
+): {
   content: CardEdit
   serialized: string
 } {
-  const content = sanitizeCardEdit(raw)
+  const content = sanitizePlaybookEdit(game, raw)
   return { content, serialized: JSON.stringify(content) }
 }
 
-export function parseStoredEdit(content: string): CardEdit {
+export function parseStoredEdit(game: PlaybookGame, content: string): CardEdit {
   try {
-    return sanitizeCardEdit(JSON.parse(content))
+    return sanitizePlaybookEdit(game, JSON.parse(content))
   } catch {
     return {}
   }
@@ -118,6 +118,7 @@ export function normalizePlaybookNote(raw: unknown): {
 }
 
 type EditRow = {
+  gameSlug: string
   nodeKey: string
   content: string
   live: boolean
@@ -141,7 +142,9 @@ type NoteRow = {
 export function serializePlaybookEdit(row: EditRow) {
   return {
     nodeKey: row.nodeKey,
-    content: parseStoredEdit(row.content),
+    content: isPlaybookGame(row.gameSlug)
+      ? parseStoredEdit(row.gameSlug, row.content)
+      : {},
     live: row.live,
     updatedAt: row.updatedAt.toISOString(),
     updatedById: row.updatedById,

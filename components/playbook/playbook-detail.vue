@@ -85,6 +85,31 @@
           />
         </label>
       </template>
+      <template v-else-if="textNode">
+        <label class="flex flex-col gap-1 text-xs font-bold">
+          Title
+          <input v-model="text.title" class="kr-input" type="text" />
+        </label>
+        <template v-if="textNode.editFields?.body !== false">
+          <label
+            v-for="(paragraph, index) in textNode.body"
+            :key="index"
+            class="flex flex-col gap-1 text-xs font-bold"
+          >
+            {{ paragraphLabel(index) }}
+            <textarea
+              v-model="text.body[index]"
+              class="textarea textarea-bordered min-h-24 font-serif text-sm leading-relaxed"
+              :placeholder="paragraph"
+            />
+          </label>
+        </template>
+        <p class="rounded-xl bg-base-200 p-2 text-xs text-base-content/70">
+          Words only: rolls, effects and where each choice leads stay as
+          authored, so seeded play is unchanged. A blank box keeps the authored
+          text.
+        </p>
+      </template>
       <template v-else>
         <p
           v-for="(paragraph, index) in node.body"
@@ -166,6 +191,41 @@
               class="textarea textarea-bordered min-h-14 text-xs"
             />
           </label>
+        </template>
+        <template v-else-if="textNode && text.choices[choice.id]">
+          <input
+            v-if="textNode.editFields?.labels !== false"
+            v-model="text.choices[choice.id]!.label"
+            class="kr-input mt-1.5 w-full font-bold"
+            type="text"
+            :aria-label="`${choice.id} label`"
+          />
+          <p v-else class="mt-1 text-sm font-black">{{ choice.label }}</p>
+          <template v-if="textNode.editFields?.outcomes">
+            <label
+              v-if="authoredChoice(choice.id)?.success"
+              class="mt-1 flex flex-col gap-0.5 text-[11px] font-bold"
+            >
+              {{ choice.check ? 'On success' : 'Result' }}
+              <textarea
+                v-model="text.choices[choice.id]!.success"
+                class="textarea textarea-bordered min-h-14 text-xs"
+              />
+            </label>
+            <label
+              v-if="authoredChoice(choice.id)?.failure"
+              class="mt-1 flex flex-col gap-0.5 text-[11px] font-bold"
+            >
+              On a complication
+              <textarea
+                v-model="text.choices[choice.id]!.failure"
+                class="textarea textarea-bordered min-h-14 text-xs"
+              />
+            </label>
+          </template>
+          <p v-else-if="choice.success" class="text-xs text-base-content/75">
+            {{ choice.success.text }}
+          </p>
         </template>
         <template v-else>
           <p class="mt-1 text-sm font-black">{{ choice.label }}</p>
@@ -589,7 +649,7 @@
     </section>
 
     <footer
-      v-if="base"
+      v-if="base || textNode"
       class="sticky bottom-0 -mx-3 mt-auto flex flex-wrap items-center gap-2 border-t border-base-content/10 bg-base-100/95 px-3 py-2 backdrop-blur"
     >
       <span class="w-full text-[11px] text-base-content/60">
@@ -654,20 +714,30 @@ import {
   type CardEdit,
 } from '~/utils/playbook/edits'
 import { PLAYBOOK_ART_LANES } from '~/utils/playbook/artLanes'
+import type { TextEdit } from '~/utils/playbook/textOverlay'
+import type { PlaybookNode } from '~/utils/playbook/types'
 
 type Tab = 'story' | 'choices' | 'variations' | 'art' | 'notes'
 type Meter = 'nerve' | 'goodwill' | 'weird'
 
 const store = usePlaybookStore()
 const node = computed(() => store.selected)
-// Only games whose engine reads live overlays (Ecotone) get the text editor.
+// Ecotone beats get the full card editor; every other game's editable beats
+// get the text overlay editor (utils/playbook/textOverlay.ts).
 const base = computed<EncounterCard | null>(
   () =>
-    (store.playbook.editable &&
+    (store.game === 'ecotone' &&
+      store.playbook.editable &&
       node.value?.editable &&
       ALL_CARDS.find((card) => card.id === node.value?.key)) ||
     null,
 )
+/** The authored beat the text overlay is measured against. */
+const textNode = computed<PlaybookNode | null>(() => {
+  if (store.game === 'ecotone' || !store.playbook.editable) return null
+  const authored = node.value ? store.playbook.nodes[node.value.key] : null
+  return authored?.editable ? authored : null
+})
 const lanes = computed(() =>
   [...PLAYBOOK_ART_LANES].sort((a, b) => rank(a.key) - rank(b.key)),
 )
@@ -747,13 +817,99 @@ function splitParagraphs(text: string) {
     .filter(Boolean)
 }
 
+const text = reactive({
+  title: '',
+  body: [] as string[],
+  choices: {} as Record<
+    string,
+    { label: string; success: string; failure: string }
+  >,
+})
+
+function authoredChoice(id: string) {
+  return textNode.value?.choices.find((c) => c.id === id)
+}
+
+function paragraphLabel(index: number) {
+  const variation = textNode.value?.variations[index]
+  if (
+    store.game === 'emperor-of-dust' &&
+    textNode.value?.key.startsWith('day:')
+  )
+    return variation?.label ?? `Paragraph ${index + 1}`
+  if (
+    store.game === 'shifting-desks' &&
+    textNode.value?.key.startsWith('applicant:')
+  )
+    return index === 0 ? 'Request' : 'Plea'
+  return index === 0 ? 'Story text' : `Paragraph ${index + 1}`
+}
+
+function resetText() {
+  const authored = textNode.value
+  const current = node.value
+  if (!authored || !current) return
+  text.title = current.title
+  text.body = authored.body.map((p, i) => current.body[i] ?? p)
+  text.choices = Object.fromEntries(
+    authored.choices.map((choice) => {
+      const live = current.choices.find((c) => c.id === choice.id) ?? choice
+      return [
+        choice.id,
+        {
+          label: live.label,
+          success: live.success?.text ?? '',
+          failure: live.failure?.text ?? '',
+        },
+      ]
+    }),
+  )
+}
+
+function buildTextEdit(): TextEdit {
+  const authored = textNode.value
+  if (!authored) return {}
+  const out: TextEdit = {}
+  if (text.title.trim() && text.title.trim() !== authored.title)
+    out.title = text.title
+  // Paragraphs map back by position, so a blank box keeps the authored one.
+  const body = authored.body.map((p, i) => text.body[i]?.trim() || p)
+  if (body.some((p, i) => p !== authored.body[i])) out.body = body
+  for (const choice of authored.choices) {
+    const f = text.choices[choice.id]
+    if (!f) continue
+    const changes: NonNullable<TextEdit['choices']>[string] = {}
+    if (f.label.trim() && f.label.trim() !== choice.label)
+      changes.label = f.label
+    if (
+      choice.success &&
+      f.success.trim() &&
+      f.success.trim() !== choice.success.text
+    )
+      changes.success = f.success
+    if (
+      choice.failure &&
+      f.failure.trim() &&
+      f.failure.trim() !== choice.failure.text
+    )
+      changes.failure = f.failure
+    if (Object.keys(changes).length) (out.choices ??= {})[choice.id] = changes
+  }
+  return out
+}
+
 function snapshot() {
-  return JSON.stringify(buildEdit())
+  return JSON.stringify(textNode.value ? buildTextEdit() : buildEdit())
 }
 
 const saved = ref('{}')
 
 function resetForm() {
+  if (textNode.value) {
+    resetText()
+    saved.value = snapshot()
+    return
+  }
   const card = base.value
   if (!card) return
   const current = applyCardEdit(card, edit.value?.content ?? {})
@@ -879,7 +1035,8 @@ function addChoice() {
 
 async function save(live: boolean) {
   if (!node.value) return
-  if (await store.saveEdit(node.value.key, buildEdit(), live)) resetForm()
+  const content = textNode.value ? buildTextEdit() : buildEdit()
+  if (await store.saveEdit(node.value.key, content, live)) resetForm()
 }
 
 async function revert() {
@@ -992,7 +1149,12 @@ watch(
 watch(
   () => node.value?.key,
   () => {
-    if (!base.value && tab.value === 'choices' && !node.value?.choices.length)
+    if (
+      !base.value &&
+      !textNode.value &&
+      tab.value === 'choices' &&
+      !node.value?.choices.length
+    )
       tab.value = 'story'
   },
 )

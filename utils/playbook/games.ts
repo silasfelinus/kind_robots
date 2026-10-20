@@ -3,11 +3,13 @@ import { buildEmperorOfDustPlaybook } from './emperorOfDust'
 import { buildGamebookPlaybook } from './gamebook'
 import { buildShiftingDesksPlaybook } from './shiftingDesks'
 import { buildShiftingLandsPlaybook } from './shiftingLands'
+import { sanitizeCardEdit, type CardEdit } from './edits'
+import { sanitizeTextEdit } from './textOverlay'
 import type { Playbook } from './types'
 
 // Every story game the Playbook Manager can open. Each builder reads that
-// game's authored source; only games whose engines read live overlays are
-// editable (see Playbook.editable).
+// game's authored source. Ecotone takes full card edits; every other game
+// takes the text overlay (utils/playbook/textOverlay.ts).
 
 export const PLAYBOOK_GAMES = [
   { id: 'ecotone', title: 'Ecotone', build: buildEcotonePlaybook },
@@ -35,6 +37,14 @@ const cache = new Map<string, Playbook>()
 
 export function isPlaybookGame(id: unknown): id is PlaybookGame {
   return PLAYBOOK_GAMES.some((game) => game.id === id)
+}
+
+/** One beat's edit, cleaned for its game. A text edit is a CardEdit subset. */
+export function sanitizePlaybookEdit(
+  game: PlaybookGame,
+  raw: unknown,
+): CardEdit {
+  return game === 'ecotone' ? sanitizeCardEdit(raw) : sanitizeTextEdit(raw)
 }
 
 export function buildPlaybook(game: PlaybookGame): Playbook {

@@ -1,42 +1,56 @@
 <template>
-  <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-    <section class="@container space-y-3">
-      <div class="kr-panel p-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h2 class="font-serif text-2xl font-bold">The barracks</h2>
-          <span class="text-sm font-bold text-warning">
-            {{ bedsUsed(run) }} / {{ run.beds }} beds
-          </span>
-        </div>
-        <div class="mt-3 grid grid-cols-3 gap-2 @md:grid-cols-4">
-          <button
-            v-for="member in living"
-            :key="member.id"
-            type="button"
-            class="flex flex-col items-center gap-1 rounded-xl border p-2 text-center text-xs"
-            :class="
-              selectedId === member.id
-                ? 'border-warning bg-warning/10'
-                : 'border-base-content/15 bg-base-100'
-            "
-            :aria-pressed="selectedId === member.id"
-            @click="selectedId = member.id"
+  <div
+    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(13rem,15rem)_minmax(0,1fr)_minmax(19rem,24rem)]"
+  >
+    <section class="flex min-h-0 flex-col gap-3">
+      <div class="kr-panel p-2">
+        <p
+          class="flex items-center justify-between px-1 text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
+        >
+          <span>Followers</span>
+          <span class="text-warning"
+            >{{ bedsUsed(run) }} / {{ run.beds }} beds</span
           >
-            <EmperorFortressPortrait
-              :follower-id="member.id"
-              :state="followerStatus(run, member.id) ?? 'ready'"
-              :days="injuryDaysLeft(run, member.id)"
-            />
-            <span class="w-full truncate font-semibold">{{
-              nameOf(member.id)
-            }}</span>
-          </button>
-        </div>
-        <div v-if="fallen.length" class="mt-4">
-          <p class="text-xs font-semibold uppercase tracking-widest opacity-60">
+        </p>
+        <ul
+          class="mt-1 flex gap-1 overflow-x-auto pb-1 @4xl:flex-col @4xl:overflow-visible"
+        >
+          <li v-for="member in living" :key="member.id" class="shrink-0">
+            <button
+              type="button"
+              class="flex w-full items-center gap-2 rounded-md border px-1.5 py-1 text-left text-xs transition-colors"
+              :class="
+                selectedId === member.id
+                  ? 'border-warning bg-warning/15'
+                  : 'border-transparent hover:border-warning/40'
+              "
+              :aria-pressed="selectedId === member.id"
+              @click="selectedId = member.id"
+            >
+              <EmperorFortressPortrait
+                :follower-id="member.id"
+                :state="followerStatus(run, member.id) ?? 'ready'"
+                :days="injuryDaysLeft(run, member.id)"
+                size="sm"
+              />
+              <span class="min-w-0 pr-1">
+                <strong class="block truncate font-serif text-sm">{{
+                  nameOf(member.id)
+                }}</strong>
+                <span class="block truncate opacity-65">{{
+                  shortStatus(member.id)
+                }}</span>
+              </span>
+            </button>
+          </li>
+        </ul>
+        <div v-if="fallen.length" class="mt-2 px-1">
+          <p
+            class="text-[10px] font-semibold uppercase tracking-widest opacity-60"
+          >
             Remembered
           </p>
-          <div class="mt-2 flex flex-wrap gap-2">
+          <div class="mt-1 flex flex-wrap gap-1">
             <EmperorFortressPortrait
               v-for="member in fallen"
               :key="member.id"
@@ -49,7 +63,7 @@
         <button
           v-if="run.beds < 12"
           type="button"
-          class="btn btn-outline btn-sm mt-4"
+          class="btn btn-outline btn-xs mt-2 w-full"
           @click="act(() => court.expandBarracks())"
         >
           Add beds ({{
@@ -60,40 +74,63 @@
         </button>
       </div>
 
-      <div v-if="run.recruitable.length" class="kr-panel p-4">
-        <h3 class="font-serif text-xl font-bold">Waiting at the gate</h3>
-        <ul class="mt-2 space-y-2">
+      <div v-if="run.recruitable.length" class="kr-panel p-2">
+        <p
+          class="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
+        >
+          Waiting at the gate
+        </p>
+        <ul class="mt-1 space-y-1">
           <li
             v-for="id in run.recruitable"
             :key="id"
-            class="flex items-center justify-between gap-2 rounded-xl border border-base-content/15 bg-base-100 p-2 text-sm"
+            class="flex items-center justify-between gap-2 px-1 text-xs"
           >
-            <span class="flex items-center gap-2">
+            <span class="flex min-w-0 items-center gap-2">
               <EmperorFortressPortrait :follower-id="id" size="sm" />
-              {{ nameOf(id) }}
+              <span class="truncate">{{ nameOf(id) }}</span>
             </span>
             <button
               type="button"
-              class="btn btn-warning btn-xs"
+              class="btn btn-warning btn-xs shrink-0"
               @click="act(() => court.hire(id))"
             >
-              Hire · {{ followerDef(id)?.recruitFee ?? 0 }} brass
+              Hire · {{ followerDef(id)?.recruitFee ?? 0 }}
             </button>
           </li>
         </ul>
       </div>
     </section>
 
+    <figure
+      v-if="art && def"
+      class="pointer-events-none relative hidden min-h-0 items-end justify-center @4xl:flex"
+    >
+      <img
+        :key="art"
+        :src="art"
+        :alt="def.name + ' in the barracks'"
+        class="eod-figure absolute inset-x-0 bottom-0 mx-auto block h-full w-auto object-contain"
+      />
+    </figure>
+    <div v-else class="hidden @4xl:block" />
+
     <section v-if="def && state" class="@container kr-panel space-y-3 p-4">
       <div class="flex items-start gap-3">
-        <EmperorFortressPortrait
-          :follower-id="def.id"
-          :state="followerStatus(run, def.id) ?? 'ready'"
-          :days="injuryDaysLeft(run, def.id)"
-          size="lg"
-        />
+        <span
+          class="h-20 w-16 shrink-0 overflow-hidden rounded-md border border-warning/50 bg-base-200"
+        >
+          <img
+            v-if="art"
+            :src="art"
+            alt=""
+            class="h-full w-full object-cover object-top"
+          />
+        </span>
         <div class="min-w-0">
-          <h3 class="font-serif text-2xl font-bold">{{ def.name }}</h3>
+          <h2 class="font-serif text-2xl font-bold text-warning">
+            {{ def.name }}
+          </h2>
           <p class="text-xs opacity-70">
             {{ def.species }} · {{ def.pronouns }} · from
             {{ originName(def.origin) }}
@@ -104,50 +141,71 @@
           </p>
         </div>
       </div>
-      <img
-        v-if="art"
-        :src="art"
-        :alt="def.name"
-        class="mx-auto block max-h-96 w-auto rounded-xl object-contain"
-      />
-      <p class="text-sm">{{ def.biography }}</p>
       <p
         v-if="talkLine"
         class="border-l-2 border-warning/60 pl-3 font-serif text-sm italic"
       >
         “{{ talkLine }}”
       </p>
+      <p class="text-sm opacity-85">{{ def.biography }}</p>
 
-      <ul class="grid grid-cols-5 gap-1 text-center text-xs">
+      <ul class="space-y-1 text-xs">
         <li
           v-for="stat in STATS"
           :key="stat"
-          class="rounded-lg bg-base-200 p-2"
+          class="flex items-center justify-between gap-2"
         >
-          <span class="block uppercase opacity-60">{{ stat }}</span>
-          <strong class="font-serif text-xl">{{ def.stats[stat] }}</strong>
+          <span
+            class="w-14 font-semibold uppercase tracking-wider opacity-70"
+            >{{ stat }}</span
+          >
+          <span
+            class="flex flex-1 justify-end gap-0.5"
+            role="img"
+            :aria-label="`${stat} ${def.stats[stat]} of ${PIPS}`"
+          >
+            <span
+              v-for="pip in PIPS"
+              :key="pip"
+              class="h-2 w-2 rounded-full border border-warning/60"
+              :class="pip <= def.stats[stat] ? 'bg-warning' : ''"
+            />
+          </span>
+          <strong class="w-5 text-right">{{ def.stats[stat] }}</strong>
         </li>
       </ul>
 
-      <div class="rounded-xl border border-warning/30 bg-warning/5 p-3 text-sm">
-        <strong>{{ def.ability.name }}</strong>
+      <div class="rounded-md border border-warning/30 bg-warning/5 p-2 text-sm">
+        <strong class="text-warning">{{ def.ability.name }}</strong>
         <p class="text-xs opacity-80">{{ def.ability.text }}</p>
       </div>
 
       <div>
-        <p class="text-sm font-bold">What the court knows</p>
-        <ul class="mt-1 space-y-1 text-sm">
-          <li v-for="trait in knownTraits" :key="trait.id">
-            <span
-              class="font-semibold"
-              :class="trait.amount < 0 ? 'text-error' : 'text-success'"
-              >{{ trait.name }}</span
-            >
-            <span class="text-xs opacity-75"> · {{ trait.text }}</span>
+        <p
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
+        >
+          Traits
+        </p>
+        <ul class="mt-1 flex flex-wrap gap-1">
+          <li
+            v-for="trait in knownTraits"
+            :key="trait.id"
+            class="rounded border px-2 py-0.5 text-xs"
+            :class="
+              trait.amount < 0
+                ? 'border-error/50 text-error'
+                : 'border-success/50 text-success'
+            "
+            :title="trait.text"
+          >
+            {{ trait.name }}
           </li>
-          <li v-if="hiddenCount" class="text-xs opacity-60">
-            {{ hiddenCount }} secret{{ hiddenCount === 1 ? '' : 's' }} not yet
-            revealed. They show themselves when they matter.
+          <li
+            v-if="hiddenCount"
+            class="rounded border border-dashed border-base-content/30 px-2 py-0.5 text-xs opacity-70"
+            :title="`${hiddenCount} secret${hiddenCount === 1 ? '' : 's'} not yet revealed. They show themselves when they matter.`"
+          >
+            {{ hiddenCount }} unknown
           </li>
         </ul>
         <p v-if="modifiers.length" class="mt-1 text-xs opacity-75">
@@ -155,11 +213,12 @@
         </p>
       </div>
 
-      <div class="grid gap-2 @md:grid-cols-2">
+      <div class="grid gap-2 @xs:grid-cols-2">
         <label v-for="slot in SLOTS" :key="slot" class="text-sm">
-          <span class="block text-xs font-bold uppercase opacity-60">{{
-            slot
-          }}</span>
+          <span
+            class="block text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
+            >{{ slot }}</span
+          >
           <select
             class="select select-bordered select-sm w-full"
             :value="state.equipment[slot] ?? ''"
@@ -210,6 +269,7 @@ import type {
 } from '~/utils/emperorOfDust/fortress/types'
 
 const SLOTS: ItemSlot[] = ['tool', 'charm']
+const PIPS = 10
 const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
 const selectedId = ref<string | null>(props.run.roster[0]?.id ?? null)
@@ -266,6 +326,12 @@ const statusLine = computed(() => {
 })
 
 const nameOf = (id: string) => followerDef(id)?.name ?? id
+const shortStatus = (id: string) => {
+  const status = followerStatus(props.run, id)
+  if (status === 'injured') return `Injured · ${injuryDaysLeft(props.run, id)}d`
+  if (status === 'on-quest') return 'Away'
+  return followerDef(id)?.species ?? 'Ready'
+}
 const originName = (id: string) =>
   KINGDOM_FACTION_DEFS.find((faction) => faction.id === id)?.name ??
   LOCAL_FACTION_DEFS.find((faction) => faction.id === id)?.name ??

@@ -129,6 +129,55 @@
 }
 
 /*
+ * ── EMPEROR — the fortress of Emperor of Dust ─────────────────────────
+ *
+ * Scoped by `data-theme="emperor"` on /play/emperor-of-dust only, never offered
+ * as a reader theme. Silas's painted drafts (conductor
+ * projects/emperor-of-dust/art/concepts/painted-screens.webp) frame every room
+ * in night-ink panels with tarnished gilt edges over candlelit art, so the
+ * tokens are ink, parchment cream and brass. `warning` is the gilt because the
+ * fortress components already use it for every highlight.
+ */
+@plugin "daisyui/theme" {
+  name: 'emperor';
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: oklch(24% 0.026 255); /* ink panel */
+  --color-base-200: oklch(19% 0.022 255); /* the night ground */
+  --color-base-300: oklch(31% 0.03 255); /* wells and dividers */
+  --color-base-content: oklch(90% 0.035 85); /* parchment cream */
+
+  --color-primary: oklch(76% 0.11 80); /* gilt */
+  --color-primary-content: oklch(19% 0.022 255);
+  --color-secondary: oklch(48% 0.15 27); /* banner crimson */
+  --color-secondary-content: oklch(93% 0.03 85);
+  --color-accent: oklch(66% 0.07 200); /* verdigris */
+  --color-accent-content: oklch(19% 0.022 255);
+  --color-neutral: oklch(28% 0.03 255);
+  --color-neutral-content: oklch(90% 0.035 85);
+
+  --color-info: oklch(72% 0.08 235);
+  --color-info-content: oklch(19% 0.022 255);
+  --color-success: oklch(72% 0.11 145);
+  --color-success-content: oklch(19% 0.022 255);
+  --color-warning: oklch(79% 0.12 80);
+  --color-warning-content: oklch(19% 0.022 255);
+  --color-error: oklch(60% 0.18 27);
+  --color-error-content: oklch(95% 0.02 85);
+
+  --radius-selector: 0.375rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+
+/*
  * ── SURFACE TOKENS ────────────────────────────────────────────────────
  *
  * One indirection between the shared kit and the theme's base colours, so a

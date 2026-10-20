@@ -3,23 +3,31 @@ import {
   COMPANIONS,
   ENCOUNTERS,
   LENSES,
-  PROLOGUE_OUTCOMES,
   type Check,
   type CompanionId,
   type Effects,
   type EncounterCard,
+  type EventId,
+  type Fate,
+  type LeadId,
   type LensId,
   type Outcome,
   type SkillId,
   type Skills,
 } from './content'
+import {
+  BEATS,
+  EVENTS,
+  EVENT_CHOICE,
+  FORK_SIZE,
+  ROUTES,
+  type RouteStep,
+} from './story'
 
-export const ECOTONE_SAVE_VERSION = 2
+export const ECOTONE_SAVE_VERSION = 3
 export const MAX_METER = 8
-export const CROSSROADS_CHAPTER = 3
-export const CHAPTER_DRAWS: Record<number, number> = { 1: 2, 2: 2, 3: 2 }
 
-export type Phase = 'prologue' | 'intro' | 'encounter' | 'crossroads' | 'end'
+export type Phase = 'event' | 'beat' | 'fork' | 'crossroads' | 'end'
 
 export type Roll = {
   dice: [number, number]
@@ -33,7 +41,7 @@ export type Roll = {
 
 export type LogEntry = {
   step: number
-  chapter: number
+  day: number
   source: string
   title: string
   choice: string
@@ -43,7 +51,7 @@ export type LogEntry = {
 }
 
 export type FollowEntry = {
-  chapter: number
+  day: number
   from: CompanionId | null
   to: CompanionId | null
   choice: string
@@ -56,23 +64,38 @@ export type RunState = {
   skills: Skills
   phase: Phase
   rolls: number
+  event: EventId | null
+  /** Index into ROUTES[event]. */
+  step: number
+  day: number
+  /** The companion the opening area led you toward, met or not. */
+  prospect: CompanionId | null
   openingState: LensId | null
   currentState: LensId | null
   clarity: number
-  introCompanion: CompanionId | null
   activeLead: CompanionId | null
   meetingOrder: CompanionId[]
   followHistory: FollowEntry[]
   newcomerOrder: CompanionId[]
-  deck: string[]
-  encounterIndex: number
+  /** The beat or encounter card being played. */
+  card: string | null
+  /** Face-up white-rabbit cards on offer at a fork. */
+  offered: string[]
+  played: string[]
   nerve: number
   goodwill: number
   weird: number
   evidence: string[]
   flags: string[]
   log: LogEntry[]
-  pending: { entry: LogEntry; next: Phase } | null
+  pending: { entry: LogEntry; nextStep: number } | null
+  ending: string | null
+}
+
+export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
+
+export function findCard(id: string | null | undefined): EncounterCard | null {
+  return ALL_CARDS.find((card) => card.id === id) ?? null
 }
 
 export const LEAD_BONUS: Record<CompanionId, SkillId> = {
@@ -195,18 +218,30 @@ export function seededShuffle<T>(items: T[], seed: number): T[] {
   return out
 }
 
-export function buildDeck(seed: number): string[] {
-  return Object.entries(CHAPTER_DRAWS)
-    .map(([chapter, count]) => [Number(chapter), count] as const)
-    .sort((a, b) => a[0] - b[0])
-    .flatMap(([chapter, count]) =>
-      seededShuffle(
-        ENCOUNTERS.filter((card) => card.chapter === chapter).map(
-          (card) => card.id,
-        ),
-        hashSeed(seed, chapter * 7919),
-      ).slice(0, count),
-    )
+function companionName(id: CompanionId | null | undefined): string {
+  return COMPANIONS.find((c) => c.id === id)?.name ?? 'your guide'
+}
+
+/** Fills {companion} with the companion the beat is about: the prospect, else the lead. */
+export function fillText(text: string, state: RunState): string {
+  return text.replaceAll(
+    '{companion}',
+    companionName(state.prospect ?? state.activeLead),
+  )
+}
+
+export function variantKey(
+  card: EncounterCard,
+  state: RunState,
+): LeadId | null {
+  if (card.variantBy === 'prospect') return state.prospect
+  if (card.variantBy === 'lead') return state.activeLead ?? 'alone'
+  return null
+}
+
+export function cardBody(card: EncounterCard, state: RunState): string[] {
+  const key = variantKey(card, state)
+  return (key ? card.variants?.[key] : undefined) ?? card.body
 }
 
 export function cardAsides(card: EncounterCard, state: RunState): string[] {
@@ -222,10 +257,85 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
     )
   }
   const lead = state.activeLead
-  const line =
-    lead && lead !== presence?.companion ? card.leadLines?.[lead] : undefined
+  if (!lead) {
+    if (card.aloneLine) asides.push(card.aloneLine)
+    return asides
+  }
+  const line = lead !== presence?.companion ? card.leadLines?.[lead] : undefined
   if (line) asides.push(line)
   return asides
+}
+
+export function routeFor(state: RunState): RouteStep[] {
+  return state.event ? ROUTES[state.event] : []
+}
+
+export function currentStep(state: RunState): RouteStep | null {
+  return routeFor(state)[state.step] ?? null
+}
+
+export function drawFork(state: RunState, index: number): string[] {
+  const step = routeFor(state)[index]
+  if (!step || step.kind !== 'fork') return []
+  const open = ENCOUNTERS.filter((card) => !state.played.includes(card.id))
+  const picked: string[] = []
+  step.pools.forEach((pool, n) => {
+    const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)
+    picked.push(...seededShuffle(ids, hashSeed(state.seed, index * 131 + n)))
+  })
+  // Every fork is at least a binary choice: top up from the rest of the county if a pool runs dry.
+  if (picked.length < 2) {
+    const rest = open.map((c) => c.id).filter((id) => !picked.includes(id))
+    picked.push(...seededShuffle(rest, hashSeed(state.seed, index * 977)))
+  }
+  return picked.slice(0, FORK_SIZE)
+}
+
+export function crossroadsNewcomer(state: RunState): CompanionId | null {
+  return (
+    state.newcomerOrder.find((id) => !state.meetingOrder.includes(id)) ?? null
+  )
+}
+
+export type Ending = {
+  id: string
+  lead: LeadId
+  lens: LensId
+  fate: Fate
+  score: number
+  target: number
+  parts: { label: string; value: number }[]
+}
+
+export function futureParts(
+  state: RunState,
+): { label: string; value: number }[] {
+  return [
+    { label: 'Goodwill', value: state.goodwill },
+    { label: 'Evidence', value: state.evidence.length },
+    {
+      label: state.nerve >= 5 ? 'Steady nerve' : 'Frayed nerve',
+      value: state.nerve >= 5 ? 1 : state.nerve <= 1 ? -1 : 0,
+    },
+  ]
+}
+
+export function computeEnding(state: RunState): Ending {
+  const lead: LeadId = state.activeLead ?? 'alone'
+  const lens: LensId = state.openingState ?? 'sober'
+  const parts = futureParts(state)
+  const score = parts.reduce((sum, part) => sum + part.value, 0)
+  const target = EVENTS.find((e) => e.id === state.event)?.futureTarget ?? 6
+  const fate: Fate = score >= target ? 'hope' : 'dark'
+  return {
+    id: `${lead}.${lens}.${fate}`,
+    lead,
+    lens,
+    fate,
+    score,
+    target,
+    parts,
+  }
 }
 
 export function createRun(seed: number, archetypeId: string): RunState {
@@ -237,18 +347,22 @@ export function createRun(seed: number, archetypeId: string): RunState {
     seed: seed >>> 0,
     archetype: archetype.id,
     skills: { ...archetype.skills },
-    phase: 'prologue',
+    phase: 'event',
     rolls: 0,
+    event: null,
+    step: 0,
+    day: 1,
+    prospect: null,
     openingState: null,
     currentState: null,
     clarity: 3,
-    introCompanion: null,
     activeLead: null,
     meetingOrder: [],
     followHistory: [],
     newcomerOrder: [],
-    deck: buildDeck(seed >>> 0),
-    encounterIndex: 0,
+    card: null,
+    offered: [],
+    played: [],
     nerve: 5,
     goodwill: 0,
     weird: 0,
@@ -256,151 +370,161 @@ export function createRun(seed: number, archetypeId: string): RunState {
     flags: [],
     log: [],
     pending: null,
+    ending: null,
   }
 }
 
+/** The county chapter the run is standing in, for the map. */
 export function currentChapter(state: RunState): number {
-  if (state.phase === 'prologue' || state.phase === 'intro') return 1
-  const card = ENCOUNTERS.find((c) => c.id === state.deck[state.encounterIndex])
-  if (state.phase === 'end') {
-    const last = state.deck[state.deck.length - 1]
-    return ENCOUNTERS.find((c) => c.id === last)?.chapter ?? 1
-  }
-  return card?.chapter ?? 1
+  const card = findCard(state.card)
+  if (card) return card.chapter
+  const step = currentStep(state)
+  if (step?.kind === 'fork') return step.pools[0] ?? 1
+  if (state.phase === 'crossroads') return 3
+  const last = findCard(state.played[state.played.length - 1])
+  return last?.chapter ?? 1
+}
+
+export function dayName(state: RunState): string {
+  const event = EVENTS.find((e) => e.id === state.event)
+  return event?.days[state.day - 1] ?? `Day ${state.day}`
 }
 
 function record(
   state: RunState,
-  entry: Omit<LogEntry, 'step' | 'chapter'>,
-  next: Phase,
+  entry: Omit<LogEntry, 'step' | 'day'>,
+  nextStep: number,
 ): RunState {
   const full: LogEntry = {
     ...entry,
     step: state.log.length + 1,
-    chapter: currentChapter(state),
+    day: state.day,
   }
-  return { ...state, log: [...state.log, full], pending: { entry: full, next } }
+  return {
+    ...state,
+    log: [...state.log, full],
+    pending: { entry: full, nextStep },
+  }
 }
 
-export function chooseLens(state: RunState, lensId: LensId): RunState {
-  const lens = LENSES.find((l) => l.id === lensId)
-  if (state.phase !== 'prologue' || state.pending || !lens?.open || !lens.check)
-    return state
-  const outcomes = PROLOGUE_OUTCOMES[lensId as keyof typeof PROLOGUE_OUTCOMES]
-  if (!outcomes) return state
-  const lensed: RunState = {
-    ...state,
-    openingState: lens.id,
-    currentState: lens.id,
-    clarity: lens.clarity,
-    introCompanion: lens.companion,
-    meetingOrder: lens.companion ? [lens.companion] : [],
+/** Walks the route from `index`, skipping forks with nothing left and crossroads with nobody left to meet. */
+export function enterStep(state: RunState, index: number): RunState {
+  const route = routeFor(state)
+  for (let i = index; i < route.length; i += 1) {
+    const step = route[i] as RouteStep
+    const base = { ...state, step: i, day: step.day, card: null, offered: [] }
+    if (step.kind === 'beat') return { ...base, phase: 'beat', card: step.id }
+    if (step.kind === 'fork') {
+      const offered = drawFork(base, i)
+      if (offered.length) return { ...base, phase: 'fork', offered }
+      continue
+    }
+    if (step.kind === 'crossroads') {
+      if (crossroadsNewcomer(base)) return { ...base, phase: 'crossroads' }
+      continue
+    }
+    const ended: RunState = { ...base, phase: 'end' }
+    return { ...ended, ending: computeEnding(ended).id }
   }
-  const roll = resolveCheck(lensed, lens.check)
-  const outcome = roll.success ? outcomes.success : outcomes.failure
-  const remaining = COMPANIONS.map((c) => c.id).filter(
-    (id) => id !== lens.companion,
-  )
-  const withEffects = applyEffects(
-    {
-      ...lensed,
-      rolls: state.rolls + 1,
-      newcomerOrder: seededShuffle(remaining, state.seed),
-    },
-    outcome.effects,
-  )
+  const ended: RunState = { ...state, phase: 'end', card: null, offered: [] }
+  return { ...ended, ending: computeEnding(ended).id }
+}
+
+export function chooseEvent(state: RunState, eventId: EventId): RunState {
+  const event = EVENTS.find((e) => e.id === eventId)
+  if (state.phase !== 'event' || state.pending || !event) return state
   return record(
-    withEffects,
+    { ...state, event: event.id },
     {
-      source: 'PROLOGUE',
-      title: 'The Woman Who Knows the Trail',
-      choice: `${lens.label}: ${lens.offer}`,
-      roll,
-      text: outcome.text,
-      effects: outcome.effects,
+      source: 'EVENT',
+      title: EVENT_CHOICE.title,
+      choice: event.name,
+      roll: null,
+      text: event.pick,
+      effects: {},
     },
-    'intro',
+    0,
   )
 }
 
-export function chooseIntro(state: RunState, accept: boolean): RunState {
-  if (state.phase !== 'intro' || state.pending || !state.introCompanion)
-    return state
-  const companion = COMPANIONS.find((c) => c.id === state.introCompanion)
-  const name = companion?.name ?? 'your guide'
-  const next: RunState = {
+export function chooseFork(state: RunState, cardId: string): RunState {
+  if (state.phase !== 'fork' || state.pending) return state
+  if (!state.offered.includes(cardId)) return state
+  return {
     ...state,
-    activeLead: accept ? state.introCompanion : null,
+    phase: 'beat',
+    card: cardId,
+    offered: [],
+    played: [...state.played, cardId],
+  }
+}
+
+function meet(state: RunState, accept: boolean): RunState {
+  const prospect = state.prospect
+  if (!prospect) return state
+  const others = COMPANIONS.map((c) => c.id).filter((id) => id !== prospect)
+  return {
+    ...state,
+    activeLead: accept ? prospect : null,
+    meetingOrder: state.meetingOrder.includes(prospect)
+      ? state.meetingOrder
+      : [...state.meetingOrder, prospect],
+    newcomerOrder: seededShuffle(others, state.seed),
     followHistory: [
       ...state.followHistory,
       {
-        chapter: 1,
+        day: state.day,
         from: null,
-        to: accept ? state.introCompanion : null,
+        to: accept ? prospect : null,
         choice: accept ? 'travel-together' : 'go-alone',
       },
     ],
     flags: [
       ...state.flags,
-      accept ? `${state.introCompanion}_first_guide` : 'started_alone',
+      accept ? `${prospect}_first_guide` : 'started_alone',
     ],
   }
-  return record(
-    next,
-    {
-      source: 'MEETING',
-      title: `Meeting ${name}`,
-      choice: accept ? `Travel with ${name}` : 'Go it alone for now',
-      roll: null,
-      text: accept
-        ? `${name} shoulders a bag and falls into step beside you. The weekend has a guide.`
-        : `${name} shrugs, unoffended, and goes after the mystery on their own. You will cross paths again.`,
-      effects: {},
-    },
-    'encounter',
-  )
 }
 
-export function chooseEncounter(state: RunState, choiceId: string): RunState {
-  if (state.phase !== 'encounter' || state.pending) return state
-  const card = ENCOUNTERS.find((c) => c.id === state.deck[state.encounterIndex])
+export function chooseBeat(state: RunState, choiceId: string): RunState {
+  if (state.phase !== 'beat' || state.pending) return state
+  const card = findCard(state.card)
   const choice = card?.choices.find((c) => c.id === choiceId)
-  if (!card || !choice) return state
+  if (!card || !choice || choice.locked) return state
+  let next: RunState = state
+  if (choice.lens) {
+    const lens = LENSES.find((l) => l.id === choice.lens)
+    if (!lens?.open) return state
+    next = {
+      ...next,
+      openingState: next.openingState ?? lens.id,
+      currentState: lens.id,
+      clarity: lens.clarity,
+    }
+  }
   let roll: Roll | null = null
   let outcome: Outcome = choice.success
-  let rolled = state
   if (choice.check) {
-    roll = resolveCheck(state, choice.check)
+    roll = resolveCheck(next, choice.check)
     outcome = roll.success ? choice.success : (choice.failure ?? choice.success)
-    rolled = { ...state, rolls: state.rolls + 1 }
+    next = { ...next, rolls: next.rolls + 1 }
   }
-  const index = state.encounterIndex + 1
-  const upcoming = ENCOUNTERS.find((c) => c.id === state.deck[index])
-  const next: Phase =
-    index >= state.deck.length
-      ? 'end'
-      : (upcoming?.chapter ?? 0) >= CROSSROADS_CHAPTER &&
-          state.meetingOrder.length < 2
-        ? 'crossroads'
-        : 'encounter'
-  const withEffects = applyEffects(rolled, outcome.effects)
+  if (choice.prospect) next = { ...next, prospect: choice.prospect }
+  if (choice.meet !== undefined) next = meet(next, choice.meet)
+  next = applyEffects(next, outcome.effects)
+  if (!next.played.includes(card.id))
+    next = { ...next, played: [...next.played, card.id] }
   return record(
-    withEffects,
+    next,
     {
       source: card.id,
       title: card.title,
-      choice: choice.label,
+      choice: fillText(choice.label, state),
       roll,
-      text: outcome.text,
+      text: fillText(outcome.text, next),
       effects: outcome.effects,
     },
-    next,
-  )
-}
-
-export function crossroadsNewcomer(state: RunState): CompanionId | null {
-  return (
-    state.newcomerOrder.find((id) => !state.meetingOrder.includes(id)) ?? null
+    state.step + 1,
   )
 }
 
@@ -410,7 +534,6 @@ export function chooseCrossroads(state: RunState, follow: boolean): RunState {
   const companion = COMPANIONS.find((c) => c.id === newcomer)
   const previous = COMPANIONS.find((c) => c.id === state.activeLead)
   const name = companion?.name ?? 'the newcomer'
-  const chapter = currentChapter(state)
   const met: RunState = {
     ...state,
     meetingOrder: [...state.meetingOrder, newcomer],
@@ -421,7 +544,12 @@ export function chooseCrossroads(state: RunState, follow: boolean): RunState {
         activeLead: newcomer,
         followHistory: [
           ...met.followHistory,
-          { chapter, from: state.activeLead, to: newcomer, choice: 'follow' },
+          {
+            day: state.day,
+            from: state.activeLead,
+            to: newcomer,
+            choice: 'follow',
+          },
         ],
         flags: [...met.flags, `followed_${newcomer}`],
       }
@@ -435,7 +563,7 @@ export function chooseCrossroads(state: RunState, follow: boolean): RunState {
     ? previous
       ? `${previous.name} nods, a little stung, and heads off after their own piece of the mystery. ${name} is already walking.`
       : `${name} grins like they knew you would. You have a guide now.`
-    : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before the weekend is out.`
+    : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before this is over.`
   return record(
     next,
     {
@@ -446,28 +574,21 @@ export function chooseCrossroads(state: RunState, follow: boolean): RunState {
       text,
       effects: {},
     },
-    'encounter',
+    state.step + 1,
   )
 }
 
 export function advance(state: RunState): RunState {
   if (!state.pending) return state
-  const next = state.pending.next
-  const leavingEncounter =
-    state.phase === 'encounter' &&
-    (next === 'encounter' || next === 'crossroads' || next === 'end')
-  return {
-    ...state,
-    phase: next,
-    encounterIndex: leavingEncounter
-      ? state.encounterIndex + 1
-      : state.encounterIndex,
-    pending: null,
-  }
+  return enterStep({ ...state, pending: null }, state.pending.nextStep)
 }
 
 function isCompanion(value: unknown): value is CompanionId {
   return COMPANIONS.some((c) => c.id === value)
+}
+
+function isCardList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((id) => Boolean(findCard(id)))
 }
 
 export function restoreRun(raw: unknown): RunState | null {
@@ -476,19 +597,16 @@ export function restoreRun(raw: unknown): RunState | null {
   if (s.version !== ECOTONE_SAVE_VERSION) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
-  if (
-    !['prologue', 'intro', 'encounter', 'crossroads', 'end'].includes(
-      String(s.phase),
-    )
-  )
+  if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))
     return null
-  if (
-    !Array.isArray(s.deck) ||
-    s.deck.some((id) => !ENCOUNTERS.some((c) => c.id === id))
-  )
-    return null
-  if (typeof s.encounterIndex !== 'number' || s.encounterIndex < 0) return null
-  if (s.encounterIndex > s.deck.length) return null
+  if (s.event !== null && !EVENTS.some((e) => e.id === s.event)) return null
+  if (s.phase !== 'event' && !s.event) return null
+  if (typeof s.step !== 'number' || s.step < 0) return null
+  if (s.event && s.step > ROUTES[s.event].length) return null
+  if (s.card !== null && !findCard(s.card)) return null
+  if (s.phase === 'beat' && !s.card) return null
+  if (!isCardList(s.offered) || !isCardList(s.played)) return null
+  if (s.prospect !== null && !isCompanion(s.prospect)) return null
   if (!Array.isArray(s.meetingOrder) || !s.meetingOrder.every(isCompanion))
     return null
   if (!Array.isArray(s.newcomerOrder) || !s.newcomerOrder.every(isCompanion))
@@ -497,7 +615,8 @@ export function restoreRun(raw: unknown): RunState | null {
   if (
     !Array.isArray(s.log) ||
     !Array.isArray(s.evidence) ||
-    !Array.isArray(s.flags)
+    !Array.isArray(s.flags) ||
+    !Array.isArray(s.followHistory)
   )
     return null
   if (!s.skills || typeof s.skills !== 'object') return null

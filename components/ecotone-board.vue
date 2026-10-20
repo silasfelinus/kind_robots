@@ -12,7 +12,7 @@
         <span
           v-if="game.run"
           class="truncate text-base-content/70 max-md:sr-only"
-          >· {{ game.chapter }}/6 {{ chapterInfo?.name }}</span
+          >· {{ dayLabel }}</span
         >
         <span v-else class="truncate text-base-content/60 max-md:sr-only"
           >· Work in progress</span
@@ -107,8 +107,9 @@
               Ecotone
             </h2>
             <p class="mt-2 max-w-md text-sm text-white/85 sm:text-base">
-              One impossible festival weekend in Humboldt County. Four strangers
-              worth following. Futures for the county bleeding through the fog.
+              A festival, a race and the strange days after in Humboldt County.
+              Four strangers worth following, or nobody at all. Futures for the
+              county bleeding through the fog.
             </p>
           </div>
           <div class="flex min-h-0 flex-1 flex-col gap-2">
@@ -158,7 +159,7 @@
             @click="start"
           >
             <Icon name="kind-icon:pine" class="size-5" />
-            Begin the weekend
+            Begin
           </button>
         </div>
       </div>
@@ -295,44 +296,66 @@
           </div>
 
           <div
-            v-else-if="game.run.phase === 'end'"
+            v-else-if="game.run.phase === 'end' && game.ending"
             class="kr-scroll flex flex-col gap-3"
           >
-            <p class="font-serif text-base leading-relaxed sm:text-lg">
-              Saturday night settles over the bay. You have
-              {{ game.run.evidence.length }} pieces of evidence,
-              {{ game.run.goodwill }} goodwill and
-              {{
-                game.lead
-                  ? `${game.lead.name} at your side`
-                  : 'nobody at your side'
-              }}. Somewhere a CB radio is reading tomorrow’s weather for a
-              county that hasn’t decided what it will be.
-            </p>
-            <div class="grid grid-cols-3 gap-2 text-center">
-              <div class="rounded-2xl bg-black/30 p-2">
-                <p class="text-2xl font-black">{{ game.run.nerve }}</p>
-                <p class="text-[11px] uppercase tracking-wider text-white/60">
-                  Nerve
-                </p>
-              </div>
-              <div class="rounded-2xl bg-black/30 p-2">
-                <p class="text-2xl font-black">{{ game.run.goodwill }}</p>
-                <p class="text-[11px] uppercase tracking-wider text-white/60">
-                  Goodwill
-                </p>
-              </div>
-              <div class="rounded-2xl bg-black/30 p-2">
-                <p class="text-2xl font-black">{{ game.run.weird }}</p>
-                <p class="text-[11px] uppercase tracking-wider text-white/60">
-                  Weird
-                </p>
-              </div>
+            <div class="flex items-center gap-2">
+              <span
+                class="size-4 shrink-0 rounded-full"
+                :class="
+                  game.ending.fate === 'hope'
+                    ? 'ecotone-fate-hope'
+                    : 'ecotone-fate-dark'
+                "
+              />
+              <p
+                class="text-xs font-bold uppercase tracking-widest text-white/70"
+              >
+                {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }} future ·
+                {{ leadName(game.ending.lead) }} ·
+                {{ lensLabel(game.ending.lens) }}
+              </p>
             </div>
-            <p class="text-sm text-white/75">
-              This is as far as the road is paved. Chapters four to six, the
-              rest of the encounter deck and the 56 earned endings are being
-              written now; nothing here counts toward Endings yet.
+            <p v-if="signature" class="text-sm italic text-white/80">
+              {{ signature.line }}
+            </p>
+            <p
+              v-for="(paragraph, index) in FUTURES[game.ending.lead][
+                game.ending.fate
+              ]"
+              :key="index"
+              class="font-serif text-base leading-relaxed sm:text-lg"
+            >
+              {{ paragraph }}
+            </p>
+            <p
+              v-if="LENS_CODAS[game.ending.lens]"
+              class="rounded-xl border-l-4 border-success bg-success/10 px-3 py-2 text-sm italic"
+            >
+              {{ LENS_CODAS[game.ending.lens] }}
+            </p>
+            <div class="rounded-2xl bg-black/30 p-3">
+              <p
+                class="text-xs font-bold uppercase tracking-widest text-white/60"
+              >
+                What decided it: {{ game.ending.score }} of
+                {{ game.ending.target }} needed
+              </p>
+              <p class="mt-1 text-sm text-white/85">
+                {{
+                  game.ending.parts
+                    .map(
+                      (part) =>
+                        `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
+                    )
+                    .join(' · ')
+                }}
+              </p>
+            </div>
+            <p class="text-xs text-white/60">
+              Ending earned and added to your gallery. These finales are first
+              drafts; the full one-, ten- and thirty-year epilogues are still
+              being written.
             </p>
             <div class="mt-auto flex flex-wrap gap-2">
               <button
@@ -340,14 +363,14 @@
                 class="btn btn-success flex-1"
                 @click="restart"
               >
-                Begin another weekend
+                Start another weekend
               </button>
               <button
                 type="button"
                 class="btn btn-outline flex-1 border-white/30 text-white"
-                @click="tab = 'journal'"
+                @click="tab = 'endings'"
               >
-                Read the journal
+                See your endings
               </button>
             </div>
           </div>
@@ -385,9 +408,22 @@
                 @click="option.act()"
               >
                 <span class="flex items-start justify-between gap-2">
-                  <span class="text-sm font-black sm:text-base">{{
-                    option.label
-                  }}</span>
+                  <span class="flex min-w-0 items-center gap-2">
+                    <span
+                      v-if="option.thumb"
+                      class="relative h-10 w-16 shrink-0 overflow-hidden rounded-lg max-sm:hidden"
+                    >
+                      <EcotoneScene
+                        :kind="option.thumb.scene"
+                        :art="option.thumb.art"
+                        :label="option.label"
+                        class="absolute inset-0"
+                      />
+                    </span>
+                    <span class="text-sm font-black sm:text-base">{{
+                      option.label
+                    }}</span>
+                  </span>
                   <span
                     v-if="option.chip"
                     class="shrink-0 rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-black"
@@ -401,13 +437,6 @@
                   >{{ option.hint }}</span
                 >
               </button>
-              <p
-                v-if="game.run.phase === 'prologue'"
-                class="text-[11px] text-white/55 max-sm:hidden"
-              >
-                Three more roads are being written:
-                {{ lockedLenses.map((lens) => lens.label).join(', ') }}.
-              </p>
             </div>
           </div>
         </div>
@@ -457,7 +486,7 @@
               {{ companion.line }}
             </p>
             <p class="mt-auto text-xs text-white/60">
-              First met by choosing {{ lensLabel(companion.lens) }}. Helps with
+              First met at {{ companion.meetAt }}. Helps with
               {{ skillLabel(LEAD_BONUS[companion.id]) }} (+1).
             </p>
           </article>
@@ -589,7 +618,7 @@
 
       <div v-else-if="tab === 'journal'" class="kr-scroll h-full p-3 sm:p-5">
         <p v-if="!game.run" class="text-sm text-white/70">
-          Your journal fills in as the weekend happens. Begin a run on the Road.
+          Your journal fills in as the days happen. Begin a run on the Road.
         </p>
         <template v-else>
           <div
@@ -604,7 +633,7 @@
                 <p
                   class="text-[11px] font-bold uppercase tracking-wider text-success"
                 >
-                  Ch {{ entry.chapter }} · {{ entry.source }} ·
+                  Day {{ entry.day }} · {{ entry.source }} ·
                   {{ entry.title }}
                 </p>
                 <p class="text-sm font-black">{{ entry.choice }}</p>
@@ -651,7 +680,7 @@
                     v-for="(step, index) in game.run.followHistory"
                     :key="index"
                   >
-                    Ch {{ step.chapter }}:
+                    Day {{ step.day }}:
                     {{
                       step.to
                         ? `followed ${companionName(step.to)}`
@@ -686,9 +715,9 @@
               Endings {{ game.unlockedCount }}/{{ game.endingTotal }}
             </h2>
             <p class="text-sm text-white/70">
-              Your last followed guide × your opening lens × the future you
-              earned: 28 hopeful, 28 dark. Finales unlock once they are written
-              and earned in play.
+              Who you finish with (or nobody) × your opening lens × the future
+              your stats earned: 35 hopeful, 35 dark. Each unlocks when you earn
+              it in play.
             </p>
           </div>
           <div class="flex gap-3 text-xs text-white/70">
@@ -703,26 +732,33 @@
         </div>
         <div class="mt-3 grid gap-3 @4xl:grid-cols-2">
           <section
-            v-for="companion in COMPANIONS"
-            :key="companion.id"
+            v-for="row in endingRows"
+            :key="row.id"
             class="rounded-3xl border border-white/10 bg-black/25 p-3"
           >
             <div class="flex items-center gap-2">
               <EcotoneEmblem
-                :id="companion.id"
-                :name="companion.name"
+                v-if="row.id !== 'alone'"
+                :id="row.id"
+                :name="row.name"
                 class="size-9"
               />
+              <span
+                v-else
+                class="grid size-9 place-items-center rounded-full border border-white/20 bg-black/40"
+              >
+                <Icon name="kind-icon:user" class="size-5 text-white/70" />
+              </span>
               <h3 class="font-serif text-lg font-black">
-                {{ companion.name }}
+                {{ row.name }}
               </h3>
               <span class="ml-auto text-xs text-white/60"
-                >{{ endingsFor(companion.id) }}/14</span
+                >{{ endingsFor(row.id) }}/14</span
               >
             </div>
             <div class="mt-2 grid grid-cols-7 gap-1.5">
               <div
-                v-for="slot in slotsFor(companion.id)"
+                v-for="slot in slotsFor(row.id)"
                 :key="slot.id"
                 class="flex aspect-[2/3] flex-col items-center justify-center rounded-lg border bg-cover bg-center text-center"
                 :class="
@@ -731,7 +767,7 @@
                     : 'border-white/10 bg-white/5'
                 "
                 :style="slotBack"
-                :title="`${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
+                :title="`${slot.unlocked && slot.title ? `${slot.title}: ` : ''}${slot.lens} · ${slot.fate === 'hope' ? 'hopeful' : 'dark'} · ${slot.unlocked ? 'earned' : 'locked'}`"
               >
                 <span
                   class="size-3 rounded-full"
@@ -761,16 +797,15 @@ import {
   ARCHETYPES,
   CHAPTERS,
   COMPANIONS,
-  COMPANION_INTROS,
   CROSSROADS,
   ENDING_LENSES,
   LENSES,
-  PROLOGUE,
   SKILLS,
   artUrl,
   type Check,
   type CompanionId,
   type Effects,
+  type LeadId,
   type LensId,
   type SceneKind,
   type SkillId,
@@ -779,10 +814,22 @@ import {
   LEAD_BONUS,
   MAX_METER,
   cardAsides,
+  cardBody,
   chanceToSucceed,
   checkBonus,
+  currentStep,
+  dayName,
+  fillText,
   type Roll,
 } from '~/utils/ecotone/engine'
+import {
+  EVENTS,
+  EVENT_CHOICE,
+  FORK_PROMPT,
+  FUTURES,
+  LENS_CODAS,
+  SIGNATURES,
+} from '~/utils/ecotone/story'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -808,8 +855,6 @@ const PIPS: Record<number, number[]> = {
   6: [1, 3, 4, 6, 7, 9],
 }
 
-const lockedLenses = LENSES.filter((lens) => !lens.open)
-
 onMounted(() => game.initialize())
 
 const pending = computed(() => game.run?.pending?.entry ?? null)
@@ -820,9 +865,18 @@ watch(pending, async (value) => {
   continueButton.value?.focus()
 })
 
-const chapterInfo = computed(() =>
-  CHAPTERS.find((c) => c.number === game.chapter),
-)
+const eventInfo = computed(() => EVENTS.find((e) => e.id === game.run?.event))
+const dayLabel = computed(() => {
+  const run = game.run
+  if (!run || !eventInfo.value) return 'Choosing a road'
+  return `Day ${run.day}, ${dayName(run)} · ${eventInfo.value.name}`
+})
+const signature = computed(() => {
+  const ending = game.ending
+  return ending
+    ? (SIGNATURES[`${ending.lead}.${ending.lens}`]?.[ending.fate] ?? null)
+    : null
+})
 const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),
 )
@@ -840,6 +894,10 @@ function restart() {
 
 function companionName(id: CompanionId) {
   return COMPANIONS.find((c) => c.id === id)?.name ?? id
+}
+
+function leadName(id: LeadId) {
+  return id === 'alone' ? 'Alone' : companionName(id)
 }
 
 function lensLabel(id: LensId) {
@@ -884,7 +942,7 @@ function effectChips(effects: Effects) {
 }
 
 function guideStatus(id: CompanionId) {
-  if (!game.run) return 'Waiting at the festival'
+  if (!game.run) return 'Somewhere in the county'
   if (game.lead?.id === id) return 'Your guide'
   if (game.companionMet(id)) return 'Met · on their own path'
   return 'Not met yet'
@@ -898,77 +956,104 @@ function chapterState(n: number) {
   return 'ahead'
 }
 
-const stage = computed(() => {
+type Stage = {
+  scene: SceneKind
+  art?: string
+  alt: string
+  eyebrow: string
+  title: string
+  body: string[]
+  lensLine: string
+  asides: string[]
+  portrait: boolean
+  emblem: null | { id: CompanionId; name: string }[]
+}
+
+const stage = computed<Stage>(() => {
   const run = game.run
-  const fallback = {
-    scene: 'meadow' as SceneKind,
-    art: PROLOGUE.art as string | undefined,
-    alt: 'A forest-edge festival meadow at night',
-    eyebrow: PROLOGUE.place,
-    title: PROLOGUE.title,
-    body: PROLOGUE.body,
+  const leadEmblem = game.lead
+    ? [{ id: game.lead.id, name: game.lead.name }]
+    : null
+  const fallback: Stage = {
+    scene: EVENT_CHOICE.scene,
+    art: EVENT_CHOICE.art,
+    alt: 'Two flyers on a telephone pole on the Arcata Plaza',
+    eyebrow: EVENT_CHOICE.place,
+    title: EVENT_CHOICE.title,
+    body: EVENT_CHOICE.body,
     lensLine: '',
-    asides: [] as string[],
+    asides: [],
     portrait: false,
-    emblem: null as null | { id: CompanionId; name: string }[],
+    emblem: null,
   }
-  if (!run) return fallback
-  if (run.phase === 'intro' && game.introCompanion) {
-    const c = game.introCompanion
-    return {
-      ...fallback,
-      eyebrow: `Prologue · ${lensLabel(c.lens)}`,
-      title: `Meeting ${c.name}`,
-      art: c.art,
-      alt: `${c.name}, ${c.role}`,
-      portrait: true,
-      body: COMPANION_INTROS[c.id],
-      emblem: [{ id: c.id, name: c.name }],
-    }
-  }
+  if (!run || run.phase === 'event') return fallback
   if (run.phase === 'crossroads' && game.newcomer) {
     const n = game.newcomer
     const emblem = [{ id: n.id, name: n.name }]
     if (game.lead) emblem.unshift({ id: game.lead.id, name: game.lead.name })
     return {
       ...fallback,
-      scene: 'bay' as SceneKind,
+      scene: 'bay',
       art: n.art,
       alt: `${n.name}, ${n.role}`,
       portrait: true,
-      eyebrow: 'Crossroads · Eureka',
+      eyebrow: `Crossroads · ${dayName(run)}`,
       title: `${n.name} crosses your path`,
       body: CROSSROADS[n.id],
       emblem,
     }
   }
+  if (run.phase === 'fork') {
+    const step = currentStep(run)
+    return {
+      ...fallback,
+      scene: step?.kind === 'fork' ? step.scene : 'plaza',
+      art: undefined,
+      alt: 'A foggy crossroads with several paths',
+      eyebrow: `Day ${run.day}, ${dayName(run)} · Where to?`,
+      title: step?.kind === 'fork' ? step.title : 'Where to?',
+      body: [FORK_PROMPT],
+      emblem: leadEmblem,
+    }
+  }
   if (run.phase === 'end') {
     return {
       ...fallback,
-      scene: 'dunes' as SceneKind,
+      scene: 'dunes',
       art: 'chapters/the-impossible-festival',
       alt: 'Kinetic sculptures racing across the dunes under two skies',
-      eyebrow: 'End of the preview',
-      title: 'The weekend isn’t over',
+      eyebrow: 'The Humboldt of your future',
+      title: signature.value?.title ?? 'What comes next',
       body: [],
-      emblem: game.lead ? [{ id: game.lead.id, name: game.lead.name }] : null,
+      emblem: leadEmblem,
     }
   }
   const card = game.card
-  if (run.phase === 'encounter' && card) {
+  if (run.phase === 'beat' && card) {
+    const portrait = card.choices.some((choice) => choice.meet !== undefined)
+    const prospect = game.prospect
     return {
       scene: card.scene,
-      art: card.art,
-      alt: card.title,
-      eyebrow: `${card.id} · ${card.place}`,
+      art: portrait && prospect ? prospect.art : card.art,
+      alt:
+        portrait && prospect
+          ? `${prospect.name}, ${prospect.role}`
+          : card.title,
+      eyebrow:
+        card.kind === 'spine'
+          ? `Day ${run.day}, ${dayName(run)} · ${card.place}`
+          : `${card.id} · ${card.place}`,
       title: card.title,
-      body: card.body,
+      body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
       lensLine: run.openingState
         ? (card.lensLines?.[run.openingState] ?? '')
         : '',
       asides: cardAsides(card, run),
-      portrait: false,
-      emblem: game.lead ? [{ id: game.lead.id, name: game.lead.name }] : null,
+      portrait,
+      emblem:
+        portrait && prospect
+          ? [{ id: prospect.id, name: prospect.name }]
+          : leadEmblem,
     }
   }
   return fallback
@@ -981,42 +1066,34 @@ type Option = {
   chip?: string
   chipTitle?: string
   disabled?: boolean
+  thumb?: { scene: SceneKind; art?: string }
   act: () => void
 }
 
 const options = computed<Option[]>(() => {
   const run = game.run
   if (!run) return []
-  if (run.phase === 'prologue') {
-    return LENSES.filter((lens) => lens.open && lens.check).map((lens) => {
-      const companion = COMPANIONS.find((c) => c.id === lens.companion)
-      const chip = checkChip(lens.check as Check)
-      return {
-        id: lens.id,
-        label: `${lens.label}: ${lens.offer}`,
-        hint: `${lens.question} You’ll meet ${companion?.name ?? 'a guide'}.`,
-        chip: chip.chip,
-        chipTitle: chip.title,
-        act: () => game.pickLens(lens.id),
-      }
-    })
+  if (run.phase === 'event') {
+    return EVENTS.map((event) => ({
+      id: event.id,
+      label: event.name,
+      hint: `${event.kind}. ${event.blurb}`,
+      chip: `${event.days.length} days`,
+      chipTitle: `Meet ${event.companions.map(companionName).join(' or ')}`,
+      thumb: { scene: event.scene, art: event.art },
+      act: () => game.pickEvent(event.id),
+    }))
   }
-  if (run.phase === 'intro' && game.introCompanion) {
-    const c = game.introCompanion
-    return [
-      {
-        id: 'accept',
-        label: `Travel with ${c.name}`,
-        hint: `${c.name} helps with ${skillLabel(LEAD_BONUS[c.id])} checks.`,
-        act: () => game.meet(true),
-      },
-      {
-        id: 'decline',
-        label: 'Thank them and go it alone for now',
-        hint: 'They keep chasing the mystery on their own. You can still follow someone later.',
-        act: () => game.meet(false),
-      },
-    ]
+  if (run.phase === 'fork') {
+    return game.offered.map((card) => ({
+      id: card.id,
+      label: card.title,
+      hint: `${card.place}. ${card.body[0]?.split('. ')[0] ?? ''}.`,
+      chip: `Ch ${card.chapter}`,
+      chipTitle: CHAPTERS.find((c) => c.number === card.chapter)?.name,
+      thumb: { scene: card.scene, art: card.art },
+      act: () => game.pickFork(card.id),
+    }))
   }
   if (run.phase === 'crossroads' && game.newcomer) {
     const n = game.newcomer
@@ -1038,15 +1115,39 @@ const options = computed<Option[]>(() => {
     ]
   }
   const card = game.card
-  if (run.phase === 'encounter' && card) {
+  if (run.phase === 'beat' && card) {
     return card.choices.map((choice) => {
+      const lens = choice.lens
+        ? LENSES.find((l) => l.id === choice.lens)
+        : undefined
+      if (choice.locked)
+        return {
+          id: choice.id,
+          label: choice.label,
+          hint: 'This road is still being written.',
+          chip: choice.locked,
+          disabled: true,
+          act: () => undefined,
+        }
       const chip = choice.check
         ? checkChip(choice.check)
-        : { chip: 'No roll', title: 'A sure thing, at a cost' }
+        : { chip: 'No roll', title: 'A sure thing' }
+      const prospect = choice.prospect
+        ? COMPANIONS.find((c) => c.id === choice.prospect)
+        : undefined
+      const hint =
+        choice.cost ??
+        (lens?.question
+          ? `The question it asks: ${lens.question}`
+          : choice.meet === true && game.prospect
+            ? `${game.prospect.name} helps with ${skillLabel(LEAD_BONUS[game.prospect.id])} checks.`
+            : prospect
+              ? `Someone over there is worth meeting.`
+              : undefined)
       return {
         id: choice.id,
-        label: choice.label,
-        hint: choice.cost,
+        label: fillText(choice.label, run),
+        hint,
         chip: chip.chip,
         chipTitle: chip.title,
         act: () => game.choose(choice.id),
@@ -1056,7 +1157,12 @@ const options = computed<Option[]>(() => {
   return []
 })
 
-function slotsFor(id: CompanionId) {
+const endingRows = computed(() => [
+  ...COMPANIONS.map((c) => ({ id: c.id as LeadId, name: c.name })),
+  { id: 'alone' as LeadId, name: 'Alone' },
+])
+
+function slotsFor(id: LeadId) {
   return ENDING_LENSES.flatMap((lens) =>
     (['hope', 'dark'] as const).map((fate) => {
       const key = `${id}.${lens}.${fate}`
@@ -1065,6 +1171,7 @@ function slotsFor(id: CompanionId) {
         id: key,
         fate,
         lens: label,
+        title: SIGNATURES[`${id}.${lens}`]?.[fate]?.title ?? '',
         short: LENSES.find((l) => l.id === lens)?.short ?? label,
         unlocked: game.endings.includes(key),
       }
@@ -1081,7 +1188,7 @@ const slotBack = computed(() => {
     : undefined
 })
 
-function endingsFor(id: CompanionId) {
+function endingsFor(id: LeadId) {
   return game.endings.filter((key) => key.startsWith(`${id}.`)).length
 }
 </script>

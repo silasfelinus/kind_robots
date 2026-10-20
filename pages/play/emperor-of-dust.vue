@@ -447,6 +447,18 @@ useHead({ title: 'Emperor of Dust' })
   background-position: center;
 }
 
+/* A scene figure fills whatever height the room's card leaves; with too
+   little room for a readable figure it steps aside instead of a sliver. */
+.eod .eod-figure-box {
+  container-type: size;
+}
+
+@container (max-height: 6rem) {
+  .eod .eod-figure-box .eod-figure {
+    visibility: hidden;
+  }
+}
+
 .eod .eod-figure {
   filter: drop-shadow(0 10px 18px oklch(0% 0 0 / 0.6));
   mask-image:

@@ -247,7 +247,10 @@ export function drawMenu(
   g.fillStyle = rgba(INK, 0.66)
   g.fillRect(0, 0, W, H)
   const rows = view.rows.length
-  const height = 86 + rows * 36
+  // Past four rows the card goes compact: one line a row, and the picked row's note beneath.
+  const tight = rows > 4
+  const pitch = tight ? 20 : 36
+  const height = (tight ? 84 : 86) + rows * pitch
   const top = Math.round((H - height) / 2)
   hudPanel(g, 30, top, W - 60, height)
   drawText(g, view.title, W / 2, top + 10, {
@@ -263,27 +266,40 @@ export function drawMenu(
     outline: INK,
   })
   view.rows.forEach((row, i) => {
-    const y = top + 56 + i * 36
+    const y = top + 56 + i * pitch
     const on = i === view.pick
-    if (on) hudPanel(g, 46, y - 5, W - 92, 32, RAMPS.leaf)
+    if (on) hudPanel(g, 46, y - 4, W - 92, tight ? 18 : 32, RAMPS.leaf)
     const name = row.picker && on ? `< ${row.name} >` : row.name
     drawText(g, name, W / 2, y, {
-      scale: 2,
+      scale: tight ? 1 : 2,
       align: 'center',
       color: on ? '#ffffff' : RAMPS.steel[3],
       outline: INK,
     })
-    drawText(g, row.about, W / 2, y + 17, {
+    if (!tight)
+      drawText(g, row.about, W / 2, y + 17, {
+        align: 'center',
+        color: on ? RAMPS.gold[4] : RAMPS.steel[2],
+        outline: INK,
+      })
+  })
+  if (tight)
+    drawText(g, view.rows[view.pick]?.about ?? '', W / 2, top + height - 26, {
       align: 'center',
-      color: on ? RAMPS.gold[4] : RAMPS.steel[2],
+      color: RAMPS.gold[4],
       outline: INK,
     })
-  })
-  drawText(g, 'UP/DOWN PICK  LEFT/RIGHT TIER  A GO', W / 2, top + height - 14, {
-    align: 'center',
-    color: RAMPS.gold[3],
-    outline: INK,
-  })
+  drawText(
+    g,
+    'UP/DOWN PICK  LEFT/RIGHT CHANGE  A GO',
+    W / 2,
+    top + height - 14,
+    {
+      align: 'center',
+      color: RAMPS.gold[3],
+      outline: INK,
+    },
+  )
 }
 
 /** A mission's title card as it opens (fading out as play starts). */

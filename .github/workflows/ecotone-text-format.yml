@@ -28,10 +28,13 @@ jobs:
             utils/ecotone/regionalData/*.json \
             utils/ecotone/regionalQuestFactory.ts \
             utils/ecotone/conceptArtPitches.ts \
+            utils/ecotone/journeySignatures.ts \
+            utils/ecotone/regionalCallbacks.ts \
             utils/ecotone/content.ts \
             utils/ecotone/questExpansion.ts \
             utils/ecotone/story.ts \
             utils/scripts/verifyEcotone.test.ts
+          npx prettier --write docs/ecotone/text-kit/*.md
       - name: Commit formatting
         run: |
           git config user.name "github-actions[bot]"

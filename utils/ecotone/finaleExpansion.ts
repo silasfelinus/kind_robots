@@ -1,4 +1,5 @@
 import type { EndingLine, Fate, LensId } from './content'
+import { chosenRegionalCallbacks } from './regionalCallbacks'
 
 // Each new opening/last-guide/fate intersection is handwritten. These describe
 // the lens and the ending, never a particular fork the run may not have seen.
@@ -317,5 +318,8 @@ export function earnedQuestCallbacks(
   ]
   for (const [flag, line] of branches)
     if (has(flag) && callbacks.length < 2) callbacks.push(line)
+  for (const callback of chosenRegionalCallbacks(flags))
+    if (played.includes(callback.id) && callbacks.length < 2)
+      callbacks.push(callback.text)
   return callbacks
 }

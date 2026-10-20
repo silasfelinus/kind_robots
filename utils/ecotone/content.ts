@@ -270,28 +270,31 @@ export const LENSES: Lens[] = [
     id: 'cocaine',
     label: 'The Fast Track',
     short: 'Fast Track',
-    offer: 'Being written.',
-    question: '',
+    offer:
+      'An offered stimulant at the invented pre-race party, freely accepted or refused.',
+    question: 'How does urgency change what I think deserves attention?',
     clarity: 2,
-    open: false,
+    open: true,
   },
   {
     id: 'meth',
     label: 'The Signal That Never Sleeps',
     short: 'No Sleep',
-    offer: 'Being written.',
-    question: '',
+    offer:
+      'A voluntary stimulant choice in the invented warehouse, with no instructions or dosage.',
+    question: 'Who will share the long watch when this night is over?',
     clarity: 1,
-    open: false,
+    open: true,
   },
   {
     id: 'mdma',
     label: 'Everybody Loves Everybody',
     short: 'Loves All',
-    offer: 'Being written.',
-    question: '',
+    offer:
+      'A voluntary empathogen choice at the invented party, not a promise of trust.',
+    question: 'Which promises will survive when the feeling fades?',
     clarity: 2,
-    open: false,
+    open: true,
   },
 ]
 
@@ -738,6 +741,10 @@ export const ENCOUNTERS: EncounterCard[] = [
         'The actors keep slipping away. For long moments it is just an otter and a kid, running.',
       tripping_balls:
         'You don’t see actors. You see Bill, Snerfy and the prairie dogs, alive in the dark. Later, when the masks come off, you may not believe it.',
+      cocaine:
+        'The crowd is moving fast, but the performers leave room to linger. You stop to read their credits and the names of the animals they remember.',
+      meth: 'The lanterns are gentle on tired eyes. A volunteer offers a place to sit, and you stay long enough to see each performer take off their mask.',
+      mdma: 'The audience feels briefly like one enormous family. The performers keep their own stories, and you ask permission before sharing a photograph.',
     },
     choices: [
       {

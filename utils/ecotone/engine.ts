@@ -26,6 +26,7 @@ import {
   type RouteStep,
 } from './story'
 import type { GatedEncounter } from './questExpansion'
+import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import {
   NEW_SIGNATURES,
@@ -35,6 +36,12 @@ import {
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
+for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
+  const written = SIGNATURES[key]
+  if (!written) continue
+  written.hope.line = fates.hope
+  written.dark.line = fates.dark
+}
 Object.assign(LENS_CODAS, NEW_LENS_CODAS)
 for (const lead of Object.keys(FUTURE_BOOKENDS) as EndingLine[]) {
   for (const fate of ['hope', 'dark'] as Fate[]) {
@@ -328,17 +335,48 @@ export function drawFork(state: RunState, index: number): string[] {
       (!card.requiresLead || card.requiresLead === state.activeLead) &&
       (!card.requiresLens || card.requiresLens === state.openingState),
   )
-  const picked: string[] = []
-  step.pools.forEach((pool, n) => {
+  const decks = step.pools.map((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)
-    picked.push(...seededShuffle(ids, hashSeed(state.seed, index * 131 + n)))
+    return seededShuffle(ids, hashSeed(state.seed, index * 131 + n))
   })
-  // Every fork is at least a binary choice: top up from the rest of the county if a pool runs dry.
+  const picked: string[] = []
+  while (picked.length < FORK_SIZE && decks.some((deck) => deck.length)) {
+    for (const deck of decks) {
+      const next = deck.shift()
+      if (next) picked.push(next)
+      if (picked.length >= FORK_SIZE) break
+    }
+  }
+  // Interleave distinct geographic pools so a large chapter cannot starve another.
+  // Every fork remains a seeded, saveable decision with at least two real cards.
   if (picked.length < 2) {
     const rest = open.map((c) => c.id).filter((id) => !picked.includes(id))
     picked.push(...seededShuffle(rest, hashSeed(state.seed, index * 977)))
   }
-  return picked.slice(0, FORK_SIZE)
+  const offered = picked.slice(0, FORK_SIZE)
+  if (state.event === 'quiet') {
+    const wildCards = open.filter(
+      (card) =>
+        step.pools.includes(card.chapter) &&
+        card.choices.some((choice) => choice.wild),
+    )
+    if (
+      wildCards.length > 0 &&
+      offered.length > 0 &&
+      !offered.some((id) =>
+        open
+          .find((card) => card.id === id)
+          ?.choices.some((choice) => choice.wild),
+      )
+    ) {
+      const wildCard = seededShuffle(
+        wildCards,
+        hashSeed(state.seed, index * 557),
+      )[0]!
+      offered[offered.length - 1] = wildCard.id
+    }
+  }
+  return offered
 }
 
 export function crossroadsNewcomer(state: RunState): CompanionId | null {

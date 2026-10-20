@@ -1,0 +1,1082 @@
+[
+  {
+    "id": "WH-001",
+    "title": "The Human Statue Who Keeps Turning",
+    "premise": "A busker freezes every time someone says the town's name, even when nobody is watching.",
+    "chapter": 1,
+    "place": "Arcata Plaza",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-002",
+    "title": "The Oyster That Won the Election",
+    "premise": "A ballot kiosk announces an unopposed mollusk; only the losing candidate can hear its platform.",
+    "chapter": 1,
+    "place": "Arcata Plaza",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-003",
+    "title": "Four Minutes to Farmers Market",
+    "premise": "A vendor offers peaches that remember years which never happened.",
+    "chapter": 1,
+    "place": "Arcata Plaza",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-004",
+    "title": "The Man Selling Used Fog",
+    "premise": "A persuasive stranger can bottle exactly one memory in a mason jar.",
+    "chapter": 1,
+    "place": "Arcata Plaza",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-005",
+    "title": "Plaza Clock, Wrong County",
+    "premise": "The clock strikes thirteen; everyone else insists it always has.",
+    "chapter": 1,
+    "place": "Arcata Plaza",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-006",
+    "title": "The Last Houdini Exit",
+    "premise": "A trapdoor opens onto an impossible dressing room whose occupant hates being called a ghost.",
+    "chapter": 1,
+    "place": "Minor Theatre",
+    "scene": "theater",
+    "pool": 1
+  },
+  {
+    "id": "WH-007",
+    "title": "Audience of One Hundred and One",
+    "premise": "A midnight screening has one more shadow than ticket holders.",
+    "chapter": 1,
+    "place": "Minor Theatre",
+    "scene": "theater",
+    "pool": 1
+  },
+  {
+    "id": "WH-008",
+    "title": "Rocky Horror, Actual Horror",
+    "premise": "A shadow-cast prop gains agency and demands better stage directions.",
+    "chapter": 1,
+    "place": "Minor Theatre",
+    "scene": "theater",
+    "pool": 1
+  },
+  {
+    "id": "WH-009",
+    "title": "Simplex's Encore",
+    "premise": "A phantom theater cat walks through the projection beam and selects tomorrow's film.",
+    "chapter": 1,
+    "place": "Minor Theatre",
+    "scene": "theater",
+    "pool": 1
+  },
+  {
+    "id": "WH-010",
+    "title": "The Film That Watches Back",
+    "premise": "A lost reel depicts the player's next choice, badly subtitled.",
+    "chapter": 1,
+    "place": "Minor Theatre",
+    "scene": "theater",
+    "pool": 1
+  },
+  {
+    "id": "WH-011",
+    "title": "The Trail with Two Trailheads",
+    "premise": "A jogger repeatedly emerges at the trailhead they have not reached.",
+    "chapter": 1,
+    "place": "Arcata Community Forest / Redwood Park",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-012",
+    "title": "Volunteer Tree Census",
+    "premise": "Every counted redwood has one more ring the following morning.",
+    "chapter": 1,
+    "place": "Arcata Community Forest / Redwood Park",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-013",
+    "title": "The Deer in the Reflective Vest",
+    "premise": "A park volunteer gives safety instructions for events scheduled in 1897.",
+    "chapter": 1,
+    "place": "Arcata Community Forest / Redwood Park",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-014",
+    "title": "Mushroom Neighborhood Watch",
+    "premise": "A fungus network files very specific complaints about the living.",
+    "chapter": 1,
+    "place": "Arcata Community Forest / Redwood Park",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-015",
+    "title": "Campfire Without a Camp",
+    "premise": "Invisible campers gossip about the player's future over cold ash.",
+    "chapter": 1,
+    "place": "Arcata Community Forest / Redwood Park",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-016",
+    "title": "Office Hours with a Visiting Moon",
+    "premise": "A lecturer's guest speaker insists it is the actual moon on sabbatical.",
+    "chapter": 1,
+    "place": "Cal Poly Humboldt campus",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-017",
+    "title": "Dorm Room 404",
+    "premise": "A missing dorm room has a remarkably active meal plan.",
+    "chapter": 1,
+    "place": "Cal Poly Humboldt campus",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-018",
+    "title": "The Thesis Defense of the Dead",
+    "premise": "An academic committee includes someone who never graduated and never died.",
+    "chapter": 1,
+    "place": "Cal Poly Humboldt campus",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-019",
+    "title": "The Mascot Disputes Biology",
+    "premise": "The campus mascot begins providing accurate but unwanted zoological advice.",
+    "chapter": 1,
+    "place": "Cal Poly Humboldt campus",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-020",
+    "title": "Finals Week from Another Timeline",
+    "premise": "Exams arrive before classes and the university refuses refunds.",
+    "chapter": 1,
+    "place": "Cal Poly Humboldt campus",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-021",
+    "title": "Bigfoot Family Picnic",
+    "premise": "Bigfoot's relatives want help choosing a family photo without Uncle Glenn.",
+    "chapter": 2,
+    "place": "Moonstone Beach",
+    "scene": "beach",
+    "pool": 0
+  },
+  {
+    "id": "WH-022",
+    "title": "The Tide-Pool Tenant",
+    "premise": "A tiny landlord charges rent to every crab and makes the player mediator.",
+    "chapter": 2,
+    "place": "Moonstone Beach",
+    "scene": "beach",
+    "pool": 0
+  },
+  {
+    "id": "WH-023",
+    "title": "Message in a Glass Kombucha",
+    "premise": "A bottle washes ashore with the player's own handwriting and tomorrow's date.",
+    "chapter": 2,
+    "place": "Moonstone Beach",
+    "scene": "beach",
+    "pool": 0
+  },
+  {
+    "id": "WH-024",
+    "title": "Beachcomber's Other Shadow",
+    "premise": "A companion's shadow gets left at low tide and starts its own adventure.",
+    "chapter": 2,
+    "place": "Moonstone Beach",
+    "scene": "beach",
+    "pool": 0
+  },
+  {
+    "id": "WH-025",
+    "title": "The Last Sea Glass",
+    "premise": "One piece of glass contains a miniature working lighthouse.",
+    "chapter": 2,
+    "place": "Moonstone Beach",
+    "scene": "beach",
+    "pool": 0
+  },
+  {
+    "id": "WH-026",
+    "title": "The Lighthouse Keeper's Second Light",
+    "premise": "A phantom light warns of things not visible to boats.",
+    "chapter": 2,
+    "place": "Trinidad Harbor / Head",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-027",
+    "title": "The Seagull Union Bargain",
+    "premise": "A flock demands fair compensation for years of stealing unattended lunches.",
+    "chapter": 2,
+    "place": "Trinidad Harbor / Head",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-028",
+    "title": "Fish with a Press Credential",
+    "premise": "A salmon gives an exclusive interview in exchange for discretion.",
+    "chapter": 2,
+    "place": "Trinidad Harbor / Head",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-029",
+    "title": "The Harbor Below the Harbor",
+    "premise": "A low tide exposes a dock that appears on no navigational chart.",
+    "chapter": 2,
+    "place": "Trinidad Harbor / Head",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-030",
+    "title": "Fog Bank Number Seventeen",
+    "premise": "A weather clerk stamps fog permits and rejects the player's identity.",
+    "chapter": 2,
+    "place": "Trinidad Harbor / Head",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-031",
+    "title": "Footprints Arriving from the Sea",
+    "premise": "Wet tracks walk uphill before the waves arrive.",
+    "chapter": 2,
+    "place": "Luffenholtz Beach",
+    "scene": "beach",
+    "pool": 2
+  },
+  {
+    "id": "WH-032",
+    "title": "The Borrowed Sunset",
+    "premise": "A photographer discovers the horizon belongs to next Tuesday.",
+    "chapter": 2,
+    "place": "Luffenholtz Beach",
+    "scene": "beach",
+    "pool": 2
+  },
+  {
+    "id": "WH-033",
+    "title": "The Listening Cliffs",
+    "premise": "A familiar voice calls from an impossible angle of rock.",
+    "chapter": 2,
+    "place": "Luffenholtz Beach",
+    "scene": "beach",
+    "pool": 2
+  },
+  {
+    "id": "WH-034",
+    "title": "Underwater Open Mic",
+    "premise": "Sea creatures perform comedy whose punch lines cause harmless tremors.",
+    "chapter": 2,
+    "place": "Luffenholtz Beach",
+    "scene": "beach",
+    "pool": 2
+  },
+  {
+    "id": "WH-035",
+    "title": "One Step Past the Stairs",
+    "premise": "The final stair opens onto a submerged suburban porch.",
+    "chapter": 2,
+    "place": "Luffenholtz Beach",
+    "scene": "beach",
+    "pool": 2
+  },
+  {
+    "id": "WH-036",
+    "title": "The Rower Who Came Back Dry",
+    "premise": "A boat returns upstream without moving the water.",
+    "chapter": 2,
+    "place": "Mad River / Hammond Trail",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-037",
+    "title": "A Very Small River God",
+    "premise": "A three-inch official demands bridge tolls in river pebbles.",
+    "chapter": 2,
+    "place": "Mad River / Hammond Trail",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-038",
+    "title": "Trail Detour to Yesterday",
+    "premise": "An orange detour sign leads to the same path twenty years earlier.",
+    "chapter": 2,
+    "place": "Mad River / Hammond Trail",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-039",
+    "title": "The Secret Tide Committee",
+    "premise": "Locals with clipboards are trying to vote the moon out of office.",
+    "chapter": 2,
+    "place": "Mad River / Hammond Trail",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-040",
+    "title": "The Kayak in the Tree",
+    "premise": "An upside-down kayak drips saltwater and asks for directions home.",
+    "chapter": 2,
+    "place": "Mad River / Hammond Trail",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-041",
+    "title": "The Victorian with Too Many Windows",
+    "premise": "A building adds one window whenever a secret is spoken nearby.",
+    "chapter": 3,
+    "place": "Old Town Eureka",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-042",
+    "title": "Antique Shop of Almost-Famous Objects",
+    "premise": "The shop sells history's second-best cursed relics at honest prices.",
+    "chapter": 3,
+    "place": "Old Town Eureka",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-043",
+    "title": "The Fog Machine Union",
+    "premise": "Stagehands claim the citywide fog is a labor dispute.",
+    "chapter": 3,
+    "place": "Old Town Eureka",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-044",
+    "title": "A Ghost Demands Parking Validation",
+    "premise": "An Edwardian apparition refuses to haunt without reimbursed meter fees.",
+    "chapter": 3,
+    "place": "Old Town Eureka",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-045",
+    "title": "The Postcard from Eureka, Mars",
+    "premise": "A tourist card shows an accurate street scene under two suns.",
+    "chapter": 3,
+    "place": "Old Town Eureka",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-046",
+    "title": "The Perilous Plunge into Monday",
+    "premise": "A costumed jumper emerges from Humboldt Bay on a different day.",
+    "chapter": 3,
+    "place": "Eureka F Street waterfront / Perilous Plunge",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-047",
+    "title": "The Judge Who Is Also an Octopus",
+    "premise": "A fundraiser award panel has an unusually flexible member.",
+    "chapter": 3,
+    "place": "Eureka F Street waterfront / Perilous Plunge",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-048",
+    "title": "Best Costume: Unidentified Object",
+    "premise": "Someone registers as a weather balloon with very convincing paperwork.",
+    "chapter": 3,
+    "place": "Eureka F Street waterfront / Perilous Plunge",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-049",
+    "title": "The Marching Lumberjack Paradox",
+    "premise": "A drumbeat repeats yesterday's parade in reverse.",
+    "chapter": 3,
+    "place": "Eureka F Street waterfront / Perilous Plunge",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-050",
+    "title": "The Hot Tub Oracle",
+    "premise": "A post-plunge hot tub provides dubious prophecies in bubbles.",
+    "chapter": 3,
+    "place": "Eureka F Street waterfront / Perilous Plunge",
+    "scene": "bay",
+    "pool": 1
+  },
+  {
+    "id": "WH-051",
+    "title": "The Oyster Council Convenes",
+    "premise": "A floating shellfish parliament has issued a subpoena for a gull.",
+    "chapter": 3,
+    "place": "Humboldt Bay",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-052",
+    "title": "The Missing Channel Marker",
+    "premise": "A navigational buoy goes on strike because the sea keeps lying.",
+    "chapter": 3,
+    "place": "Humboldt Bay",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-053",
+    "title": "Submarine with Bicycle Pedals",
+    "premise": "A homemade contraption claims to be a federally funded research craft.",
+    "chapter": 3,
+    "place": "Humboldt Bay",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-054",
+    "title": "The Tide Returns a Bicycle",
+    "premise": "A rustless bike carries evidence of a trip nobody remembers.",
+    "chapter": 3,
+    "place": "Humboldt Bay",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-055",
+    "title": "Radio Static from Underwater",
+    "premise": "A call-in show answers questions before callers ask them.",
+    "chapter": 3,
+    "place": "Humboldt Bay",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-056",
+    "title": "The Redwood's Lost-and-Found",
+    "premise": "A park bench collects small things that people forgot as children.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3
+  },
+  {
+    "id": "WH-057",
+    "title": "The Volunteer in the Bear Costume",
+    "premise": "The person giving animal talks cannot take off their costume.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3
+  },
+  {
+    "id": "WH-058",
+    "title": "A Peacock with a Search Warrant",
+    "premise": "An extremely official bird investigates missing color.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3
+  },
+  {
+    "id": "WH-059",
+    "title": "The Picnic That Never Ends",
+    "premise": "One family has been packing up the same picnic for decades.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3
+  },
+  {
+    "id": "WH-060",
+    "title": "The Tree That Grows Entrances",
+    "premise": "A hollow trunk offers three doors, none requiring a key.",
+    "chapter": 3,
+    "place": "Sequoia Park / Zoo",
+    "scene": "grove",
+    "pool": 3
+  },
+  {
+    "id": "WH-061",
+    "title": "Town Council of Stray Radios",
+    "premise": "Walkie-talkies vote on a municipal emergency nobody can identify.",
+    "chapter": 4,
+    "place": "Blue Lake",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-062",
+    "title": "The Casino of Lost Tuesdays",
+    "premise": "A slot machine pays out in memories of work shifts never worked.",
+    "chapter": 4,
+    "place": "Blue Lake",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-063",
+    "title": "The Bridge from the Other Side",
+    "premise": "A stranger remembers crossing a bridge that was demolished before their birth.",
+    "chapter": 4,
+    "place": "Blue Lake",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-064",
+    "title": "The Banjo that Predicts Lightning",
+    "premise": "A musician plays weather forecasts as bluegrass solos.",
+    "chapter": 4,
+    "place": "Blue Lake",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-065",
+    "title": "A Community Potluck for Cryptids",
+    "premise": "A potluck has a strict no-photography policy and suspiciously good pie.",
+    "chapter": 4,
+    "place": "Blue Lake",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-066",
+    "title": "The Airport of Unscheduled Arrivals",
+    "premise": "An aircraft lands with no engine noise and excellent snacks.",
+    "chapter": 4,
+    "place": "Kneeland / hills",
+    "scene": "highway",
+    "pool": 1
+  },
+  {
+    "id": "WH-067",
+    "title": "The Amateur UFO Tow Truck",
+    "premise": "Two neighbors offer roadside service for saucers stuck in mud.",
+    "chapter": 4,
+    "place": "Kneeland / hills",
+    "scene": "highway",
+    "pool": 1
+  },
+  {
+    "id": "WH-068",
+    "title": "The Fog That Followed You Home",
+    "premise": "A personal patch of fog is politely but relentlessly attached.",
+    "chapter": 4,
+    "place": "Kneeland / hills",
+    "scene": "highway",
+    "pool": 1
+  },
+  {
+    "id": "WH-069",
+    "title": "The Midnight Cattle Crossing",
+    "premise": "Cows follow invisible traffic signals with military precision.",
+    "chapter": 4,
+    "place": "Kneeland / hills",
+    "scene": "highway",
+    "pool": 1
+  },
+  {
+    "id": "WH-070",
+    "title": "Antenna for the Wrong Stars",
+    "premise": "A ham-radio operator catches weather reports from an unfamiliar constellation.",
+    "chapter": 4,
+    "place": "Kneeland / hills",
+    "scene": "highway",
+    "pool": 1
+  },
+  {
+    "id": "WH-071",
+    "title": "Bigfoot's Custody Weekend",
+    "premise": "Two Sasquatch parents ask the player to mediate a family logistics argument.",
+    "chapter": 4,
+    "place": "Willow Creek",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-072",
+    "title": "The Museum's Escaped Footprint",
+    "premise": "A plaster cast takes a midnight walk and leaves fresh tracks.",
+    "chapter": 4,
+    "place": "Willow Creek",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-073",
+    "title": "The Other Bigfoot Research Society",
+    "premise": "Researchers have conclusive proof of tinyfeet and are furious nobody cares.",
+    "chapter": 4,
+    "place": "Willow Creek",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-074",
+    "title": "The River Claims a Witness",
+    "premise": "A message in driftwood names a witness who was never present.",
+    "chapter": 4,
+    "place": "Willow Creek",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-075",
+    "title": "A Cryptid's Online Dating Profile",
+    "premise": "A woodland resident wants help writing a bio with less obvious fur-related clues.",
+    "chapter": 4,
+    "place": "Willow Creek",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-076",
+    "title": "Mile Marker Zero and a Half",
+    "premise": "A roadside sign changes distance whenever somebody lies.",
+    "chapter": 4,
+    "place": "Highway 299 roadside",
+    "scene": "highway",
+    "pool": 3
+  },
+  {
+    "id": "WH-077",
+    "title": "The Hitchhiker Who Hitches Time",
+    "premise": "A polite rider pays in gas receipts dated ten years ahead.",
+    "chapter": 4,
+    "place": "Highway 299 roadside",
+    "scene": "highway",
+    "pool": 3
+  },
+  {
+    "id": "WH-078",
+    "title": "The Last Working Pay Phone",
+    "premise": "An empty booth rings with calls from missing county offices.",
+    "chapter": 4,
+    "place": "Highway 299 roadside",
+    "scene": "highway",
+    "pool": 3
+  },
+  {
+    "id": "WH-079",
+    "title": "The Alien Rest Area Review",
+    "premise": "Visitors from elsewhere leave harsh customer-service ratings for Earth.",
+    "chapter": 4,
+    "place": "Highway 299 roadside",
+    "scene": "highway",
+    "pool": 3
+  },
+  {
+    "id": "WH-080",
+    "title": "The Logging Road to the Backroom",
+    "premise": "A dirt road branches into a warehouse storing abandoned dreams.",
+    "chapter": 4,
+    "place": "Highway 299 roadside",
+    "scene": "highway",
+    "pool": 3
+  },
+  {
+    "id": "WH-081",
+    "title": "The Shop Window Bride",
+    "premise": "A display mannequin asks the player to stop a wedding scheduled in 1912.",
+    "chapter": 5,
+    "place": "Ferndale Main Street",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-082",
+    "title": "The Cow Who Owns the Theater",
+    "premise": "An elegantly dressed cow has inherited a very specific deed.",
+    "chapter": 5,
+    "place": "Ferndale Main Street",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-083",
+    "title": "Victorian House of Cards",
+    "premise": "A tourist attraction's floor plan is rearranged by drawing cards.",
+    "chapter": 5,
+    "place": "Ferndale Main Street",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-084",
+    "title": "The Pie Contest with a Second Jury",
+    "premise": "An unseen panel awards prizes based on regrets, not flavor.",
+    "chapter": 5,
+    "place": "Ferndale Main Street",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-085",
+    "title": "Parade Float of Future Regrets",
+    "premise": "A float features the player's decisions with embarrassing accuracy.",
+    "chapter": 5,
+    "place": "Ferndale Main Street",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-086",
+    "title": "The River Lodge Has No Exit",
+    "premise": "A conference room exits into every other conference room at once.",
+    "chapter": 5,
+    "place": "Fortuna",
+    "scene": "plaza",
+    "pool": 1
+  },
+  {
+    "id": "WH-087",
+    "title": "An Extremely Civilized Were-Bear",
+    "premise": "A genial local asks for help with noise complaints during full moons.",
+    "chapter": 5,
+    "place": "Fortuna",
+    "scene": "plaza",
+    "pool": 1
+  },
+  {
+    "id": "WH-088",
+    "title": "The Hardware Store Crop Circle",
+    "premise": "A perfect circle appears in the aisle of extension cords.",
+    "chapter": 5,
+    "place": "Fortuna",
+    "scene": "plaza",
+    "pool": 1
+  },
+  {
+    "id": "WH-089",
+    "title": "The Lost Receipt of Destiny",
+    "premise": "A cashier recognizes a receipt for an object that has not been invented.",
+    "chapter": 5,
+    "place": "Fortuna",
+    "scene": "plaza",
+    "pool": 1
+  },
+  {
+    "id": "WH-090",
+    "title": "The Eel River Forecast Desk",
+    "premise": "A volunteer weather station forecasts emotional conditions alongside rainfall.",
+    "chapter": 5,
+    "place": "Fortuna",
+    "scene": "plaza",
+    "pool": 1
+  },
+  {
+    "id": "WH-091",
+    "title": "The Tree with a Reception Desk",
+    "premise": "A hollow redwood hosts a receptionist for the forest's impossible visitors.",
+    "chapter": 5,
+    "place": "Avenue of the Giants",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-092",
+    "title": "The Giant's Smaller Older Brother",
+    "premise": "An enormous silhouette insists the real giant is just off-trail.",
+    "chapter": 5,
+    "place": "Avenue of the Giants",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-093",
+    "title": "A Roadside Attraction for Ghost Cars",
+    "premise": "Invisible tourists keep buying tickets to an abandoned exhibit.",
+    "chapter": 5,
+    "place": "Avenue of the Giants",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-094",
+    "title": "The Redwood Rings of Tomorrow",
+    "premise": "A fallen log records two more summers than have occurred.",
+    "chapter": 5,
+    "place": "Avenue of the Giants",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-095",
+    "title": "The Family Portrait in the Bark",
+    "premise": "A tree's scars resemble a family the player has just met.",
+    "chapter": 5,
+    "place": "Avenue of the Giants",
+    "scene": "grove",
+    "pool": 2
+  },
+  {
+    "id": "WH-096",
+    "title": "The Backwoods Crop that Talks Back",
+    "premise": "A remote garden's sentient scarecrow wants employment protections.",
+    "chapter": 5,
+    "place": "Eel River Valley",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-097",
+    "title": "The Moonshine of Mixed Timelines",
+    "premise": "A homebrewed drink makes two contradictory memories equally convincing.",
+    "chapter": 5,
+    "place": "Eel River Valley",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-098",
+    "title": "The Farmer's Unmarked Helicopter",
+    "premise": "A low-flying craft is piloted by something that understands zoning rules.",
+    "chapter": 5,
+    "place": "Eel River Valley",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-099",
+    "title": "The River Stone Adoption Agency",
+    "premise": "A family insists their pet rock is the rightful heir to a ranch.",
+    "chapter": 5,
+    "place": "Eel River Valley",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-100",
+    "title": "A Small Pagan Book Club",
+    "premise": "A fictional occult reading group accidentally summons its own literary critic.",
+    "chapter": 5,
+    "place": "Eel River Valley",
+    "scene": "rivermouth",
+    "pool": 3
+  },
+  {
+    "id": "WH-101",
+    "title": "The Bicycle Powered by Applause",
+    "premise": "A kinetic team needs the audience to clap in an exact impossible rhythm.",
+    "chapter": 6,
+    "place": "Arcata Plaza · kinetic starting line",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-102",
+    "title": "Glorious Competitor Number Minus One",
+    "premise": "An unregistered sculpture was in every historic starting photo.",
+    "chapter": 6,
+    "place": "Arcata Plaza · kinetic starting line",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-103",
+    "title": "The Engineering Judge from Elsewhere",
+    "premise": "A judge gives perfect scores for violating Earth's physics.",
+    "chapter": 6,
+    "place": "Arcata Plaza · kinetic starting line",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-104",
+    "title": "The Racer Who Is a Whole Committee",
+    "premise": "Six people insist they are one entrant, and somehow all are correct.",
+    "chapter": 6,
+    "place": "Arcata Plaza · kinetic starting line",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-105",
+    "title": "The Noon Siren at Midnight",
+    "premise": "The race launches at noon, midnight and both at once.",
+    "chapter": 6,
+    "place": "Arcata Plaza · kinetic starting line",
+    "scene": "plaza",
+    "pool": 0
+  },
+  {
+    "id": "WH-106",
+    "title": "Deadman's Drop, Then Up Again",
+    "premise": "A kinetic sculpture rolls downhill so vigorously it reaches yesterday.",
+    "chapter": 6,
+    "place": "Manila dunes · kinetic course",
+    "scene": "dunes",
+    "pool": 1
+  },
+  {
+    "id": "WH-107",
+    "title": "Sand Castle with a Mayor",
+    "premise": "A miniature government attempts to reroute the race.",
+    "chapter": 6,
+    "place": "Manila dunes · kinetic course",
+    "scene": "dunes",
+    "pool": 1
+  },
+  {
+    "id": "WH-108",
+    "title": "The Dune that Swallowed the Map",
+    "premise": "A traveling dune relocates three of the player's remembered destinations.",
+    "chapter": 6,
+    "place": "Manila dunes · kinetic course",
+    "scene": "dunes",
+    "pool": 1
+  },
+  {
+    "id": "WH-109",
+    "title": "The Bribe That Bribes Itself",
+    "premise": "A customary race bribe becomes sentient and offers a better deal.",
+    "chapter": 6,
+    "place": "Manila dunes · kinetic course",
+    "scene": "dunes",
+    "pool": 1
+  },
+  {
+    "id": "WH-110",
+    "title": "The Official Unofficial Rescue Team",
+    "premise": "A crew of cryptids performs cheerful and competent roadside repairs.",
+    "chapter": 6,
+    "place": "Manila dunes · kinetic course",
+    "scene": "dunes",
+    "pool": 1
+  },
+  {
+    "id": "WH-111",
+    "title": "A Floating Sculpture with Opinions",
+    "premise": "The craft refuses to float until its design philosophy is heard.",
+    "chapter": 6,
+    "place": "Humboldt Bay · kinetic water crossing",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-112",
+    "title": "The Second Water Crossing",
+    "premise": "A mirror bay exists briefly just beneath the first.",
+    "chapter": 6,
+    "place": "Humboldt Bay · kinetic water crossing",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-113",
+    "title": "The Cosmic Coast Guard",
+    "premise": "A rescue boat has paperwork from a galaxy that no longer exists.",
+    "chapter": 6,
+    "place": "Humboldt Bay · kinetic water crossing",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-114",
+    "title": "The Tide Swaps Places with Time",
+    "premise": "The protagonist can save equipment or rescue a stranger's memory.",
+    "chapter": 6,
+    "place": "Humboldt Bay · kinetic water crossing",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-115",
+    "title": "The Race Officials' Secret Ballot",
+    "premise": "Judges quietly decide which version of the county survives.",
+    "chapter": 6,
+    "place": "Humboldt Bay · kinetic water crossing",
+    "scene": "bay",
+    "pool": 2
+  },
+  {
+    "id": "WH-116",
+    "title": "The Trophy with a Pulse",
+    "premise": "A trophy congratulates winners and whispers the county's original name.",
+    "chapter": 6,
+    "place": "Ferndale finish / awards",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-117",
+    "title": "The Finish Line Moves",
+    "premise": "A finish banner vanishes whenever someone claims to have solved the mystery.",
+    "chapter": 6,
+    "place": "Ferndale finish / awards",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-118",
+    "title": "The Ghost of Hobart's Contraption",
+    "premise": "A legendary mechanical inspiration requests one final impossible modification.",
+    "chapter": 6,
+    "place": "Ferndale finish / awards",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-119",
+    "title": "Every Version of the Winner",
+    "premise": "Five parallel champions arrive, all insisting they already met the player.",
+    "chapter": 6,
+    "place": "Ferndale finish / awards",
+    "scene": "plaza",
+    "pool": 3
+  },
+  {
+    "id": "WH-120",
+    "title": "The County Finally Votes",
+    "premise": "The player's relationships, evidence and choices determine the surviving ending.",
+    "chapter": 6,
+    "place": "Ferndale finish / awards",
+    "scene": "plaza",
+    "pool": 3
+  }
+]

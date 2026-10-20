@@ -585,6 +585,25 @@ const marshRun = play(22, {
 assert.equal(marshRun.prospect, 'juniper', 'the marsh leads to Juniper')
 assert.match(marshRun.ending ?? '', /^juniper\.stoned\./)
 assert.equal(play(23, { ...fair, event: 'quiet', area: 1 }).prospect, 'kit')
+// With a much bigger regional deck, the quiet route still offers the animal-first
+// choices needed for its earned Wild Way ending.
+for (let seed = 1; seed < 40; seed += 1) {
+  const state: RunState = { ...createRun(seed, 'gardener'), event: 'quiet' }
+  for (const [index, step] of ROUTES.quiet.entries()) {
+    if (
+      step.kind !== 'fork' ||
+      !step.pools.some((pool) => pool === 1 || pool === 2)
+    )
+      continue
+    assert.ok(
+      drawFork(state, index).some((id) =>
+        findCard(id)?.choices.some((choice) => choice.wild),
+      ),
+      `seed ${seed}, quiet fork ${index} offers a wild choice`,
+    )
+  }
+}
+
 // Keep choosing the animals and the Wild Way is paradise; drift and it is the hermit.
 function wildRun(seed: number, wild: boolean) {
   let state = advance(chooseEvent(createRun(seed, 'gardener'), 'quiet'))

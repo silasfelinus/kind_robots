@@ -1,77 +1,36 @@
 <template>
-  <div v-if="node" class="flex flex-col gap-3 p-3">
-    <header class="flex flex-col gap-2">
-      <div
-        class="relative -mx-3 -mt-3 overflow-hidden shadow-lg @md:mx-0 @md:mt-0 @md:rounded-2xl"
+  <div v-if="node" class="flex min-h-full flex-col gap-4 p-4 @lg:p-6">
+    <header class="flex items-center justify-between gap-2">
+      <h2 class="studio-heading">Edit scene</h2>
+      <span
+        class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[.14em]"
         :class="
-          ['follower', 'ending', 'boss'].includes(node.kind)
-            ? 'aspect-[4/5] max-h-[28rem]'
-            : 'aspect-[4/3]'
+          dirty
+            ? 'border-primary/60 bg-primary/10 text-primary'
+            : edit?.live
+              ? 'border-success/60 text-success'
+              : edit
+                ? 'border-pink-300/60 text-pink-200'
+                : 'border-base-content/25 text-base-content/70'
         "
       >
-        <PlaybookArt
-          :title="node.title"
-          :scene="node.scene"
-          :art="node.art"
-          :art-url="node.artUrl"
-          :kind="node.kind"
-          :focus="
-            ['follower', 'ending', 'boss'].includes(node.kind)
-              ? 'center 20%'
-              : undefined
-          "
-          class="absolute inset-0"
-        />
-        <span
-          class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/20"
-        />
-        <span class="absolute inset-x-3 top-3 flex flex-wrap gap-1">
-          <span
-            class="rounded-full bg-black/50 px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-white backdrop-blur"
-            >{{ store.kindLabel(node.kind) }}</span
-          >
-          <span
-            v-if="node.needsArt"
-            class="rounded-full bg-warning px-2 py-0.5 text-[11px] font-black uppercase text-warning-content shadow"
-            >Needs art</span
-          >
-          <button
-            v-if="node.needsArt || node.artUrl"
-            type="button"
-            class="ml-auto inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-black text-secondary-content shadow"
-            @click="tab = 'art'"
-          >
-            <Icon name="kind-icon:sparkles" class="size-3" />
-            {{ node.needsArt ? 'Request art' : 'Art' }}
-          </button>
-        </span>
-        <div class="absolute inset-x-0 bottom-0 p-4 text-white">
-          <p class="font-mono text-[11px] text-white/60">{{ node.key }}</p>
-          <h2
-            class="font-serif text-3xl font-black leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]"
-          >
-            {{ node.title }}
-          </h2>
-          <p v-if="node.place" class="text-sm text-white/80 drop-shadow">
-            {{ node.place }}
-          </p>
-        </div>
-      </div>
-      <div>
-        <div class="flex flex-wrap gap-1">
-          <span
-            v-for="(placement, index) in node.placements"
-            :key="index"
-            class="rounded-full bg-base-200 px-2 py-0.5 text-[11px] font-bold"
-            >{{ placement.routeName }} · Day {{ placement.day }},
-            {{ placement.dayName }}</span
-          >
-        </div>
-      </div>
+        <span class="size-1.5 rounded-full bg-current" />
+        {{
+          dirty
+            ? 'Unsaved draft'
+            : edit?.live
+              ? 'Live in play'
+              : edit
+                ? 'Saved draft'
+                : base || textNode
+                  ? 'Authored text'
+                  : 'Assembled beat'
+        }}
+      </span>
     </header>
 
     <nav
-      class="flex flex-wrap gap-1 rounded-xl bg-base-200 p-1"
+      class="-mt-1 flex flex-wrap gap-x-5 gap-y-1 border-b border-base-content/15"
       role="tablist"
       aria-label="Beat details"
     >
@@ -80,11 +39,11 @@
         :key="item.value"
         type="button"
         role="tab"
-        class="rounded-lg px-2.5 py-1 text-xs font-black transition"
+        class="-mb-px border-b-2 px-0.5 pb-2 pt-1 text-xs font-bold uppercase tracking-[.14em] transition"
         :class="
           tab === item.value
-            ? 'bg-primary text-primary-content shadow'
-            : 'hover:bg-base-100'
+            ? 'border-primary text-primary'
+            : 'border-transparent text-base-content/70 hover:text-base-content'
         "
         :aria-selected="tab === item.value"
         @click="tab = item.value"
@@ -95,22 +54,22 @@
 
     <section v-if="tab === 'story'" class="flex flex-col gap-2">
       <template v-if="base">
-        <label class="flex flex-col gap-1 text-xs font-bold">
+        <label class="studio-field">
           Title
           <input v-model="form.title" class="kr-input" type="text" />
         </label>
-        <label class="flex flex-col gap-1 text-xs font-bold">
+        <label class="studio-field">
           Place
           <input v-model="form.place" class="kr-input" type="text" />
         </label>
-        <label class="flex flex-col gap-1 text-xs font-bold">
+        <label class="studio-field">
           Story text (blank line between paragraphs)
           <textarea
             v-model="form.body"
             class="textarea textarea-bordered w-full min-h-40 font-serif text-sm leading-relaxed"
           />
         </label>
-        <label class="flex flex-col gap-1 text-xs font-bold">
+        <label class="studio-field">
           Provenance (what is real, what is invented)
           <textarea
             v-model="form.provenance"
@@ -119,7 +78,7 @@
         </label>
       </template>
       <template v-else-if="textNode">
-        <label class="flex flex-col gap-1 text-xs font-bold">
+        <label class="studio-field">
           Title
           <input v-model="text.title" class="kr-input" type="text" />
         </label>
@@ -127,7 +86,7 @@
           <label
             v-for="(paragraph, index) in textNode.body"
             :key="index"
-            class="flex flex-col gap-1 text-xs font-bold"
+            class="studio-field"
           >
             {{ paragraphLabel(index) }}
             <textarea
@@ -157,6 +116,35 @@
           art requests still work here.
         </p>
       </template>
+      <div v-if="node.choices.length" class="mt-2 flex flex-col gap-1.5">
+        <p class="studio-field">Player choices {{ node.choices.length }}</p>
+        <button
+          v-for="choice in node.choices"
+          :key="choice.id"
+          type="button"
+          class="flex items-center gap-3 rounded-xl border border-base-content/15 bg-base-200/70 px-3 py-2.5 text-left transition hover:border-primary/60"
+          @click="tab = 'choices'"
+        >
+          <span class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-bold">{{
+              choice.label
+            }}</span>
+            <span
+              v-if="choice.effect"
+              class="block truncate text-[11px] text-base-content/60"
+              >{{ choice.effect }}</span
+            >
+          </span>
+          <span
+            class="shrink-0 rounded-md bg-base-300 px-2 py-1 text-[10px] font-bold uppercase tracking-wider"
+            >{{
+              choice.check
+                ? `${choice.check.skill} ${choice.check.target}`
+                : 'No roll'
+            }}</span
+          >
+        </button>
+      </div>
     </section>
 
     <section v-else-if="tab === 'choices'" class="flex flex-col gap-2">
@@ -688,17 +676,10 @@
 
     <footer
       v-if="base || textNode"
-      class="sticky bottom-0 -mx-3 mt-auto flex flex-wrap items-center gap-2 border-t border-base-content/10 bg-base-100/95 px-3 py-2 backdrop-blur"
+      class="-mx-4 mt-auto @md:sticky @md:bottom-0 flex flex-wrap items-center gap-2 border-t border-base-content/15 bg-base-100/95 px-4 py-3 backdrop-blur @lg:-mx-6 @lg:px-6"
     >
-      <span class="w-full text-[11px] text-base-content/60">
-        {{
-          edit
-            ? edit.live
-              ? 'Live in play'
-              : 'Draft, not in play yet'
-            : 'Authored text'
-        }}
-        <template v-if="dirty"> · unsaved changes</template>
+      <span class="w-full text-xs font-bold text-base-content/70">
+        {{ summary }}
       </span>
       <button
         v-if="edit"
@@ -711,7 +692,7 @@
       </button>
       <button
         type="button"
-        class="kr-btn btn-outline btn-sm"
+        class="studio-gold-button"
         :disabled="store.saving || (!dirty && !edit?.live)"
         @click="save(false)"
       >
@@ -719,7 +700,7 @@
       </button>
       <button
         type="button"
-        class="kr-btn-primary btn-sm"
+        class="studio-gold-button is-outline"
         :disabled="store.saving || (!dirty && Boolean(edit?.live))"
         @click="save(true)"
       >
@@ -788,6 +769,22 @@ const edit = computed(() =>
   node.value ? store.edits[node.value.key] : undefined,
 )
 const tab = ref<Tab>('story')
+defineExpose({ showTab: (next: Tab) => (tab.value = next) })
+
+const summary = computed(() => {
+  const n = node.value
+  if (!n) return ''
+  const plural = (count: number, word: string) =>
+    `${count} ${word}${count === 1 ? '' : 's'}`
+  const requests = store
+    .notesFor(n.key)
+    .filter((note) => !note.resolved && note.kind === 'art-request').length
+  return [
+    plural(n.choices.length, 'choice'),
+    plural(n.variations.length, 'variant'),
+    plural(requests, 'art request'),
+  ].join(' · ')
+})
 const maxAdded = MAX_ADDED_CHOICES
 const METERS: Meter[] = ['nerve', 'goodwill', 'weird']
 
@@ -810,7 +807,7 @@ const tabs = computed(() => {
     },
     {
       value: 'variations' as Tab,
-      label: `Variations ${node.value?.variations.length ?? 0}`,
+      label: `Variants ${node.value?.variations.length ?? 0}`,
     },
     {
       value: 'art' as Tab,

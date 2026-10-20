@@ -100,6 +100,8 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const failed = ref(false)
 
   const route = ref<string>('all')
+  /** A Collection in the Studio rail: one of the playbook's sections. */
+  const section = ref<string | null>(null)
   const kinds = ref<NodeKind[]>([])
   const day = ref<number | null>(null)
   const companion = ref<string | null>(null)
@@ -107,7 +109,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const status = ref<PlaybookStatus>('all')
   const search = ref('')
   const sort = ref<PlaybookSort>('story')
-  const view = ref<'chain' | 'list'>('chain')
+  const view = ref<'chain' | 'list'>('list')
   const selectedKey = ref<string>('event')
   const jobs = ref<
     Record<number, { status: string; artImageId: number | null }>
@@ -179,6 +181,13 @@ export const usePlaybookStore = defineStore('playbook', () => {
     const node = nodeFor(key)
     if (!node) return false
     if (
+      section.value !== null &&
+      !playbook.value.sections
+        .find((s) => s.title === section.value)
+        ?.keys.includes(key)
+    )
+      return false
+    if (
       route.value !== 'all' &&
       node.placements.length &&
       !node.placements.some((p) => p.route === route.value)
@@ -223,6 +232,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const filtersActive = computed(
     () =>
       kinds.value.length > 0 ||
+      section.value !== null ||
       day.value !== null ||
       companion.value !== null ||
       lens.value !== null ||
@@ -270,11 +280,13 @@ export const usePlaybookStore = defineStore('playbook', () => {
       edited: Object.keys(edits.value).length,
       live: Object.values(edits.value).filter((e) => e.live).length,
       open: openNotes.value.length,
+      requests: openNotes.value.filter((n) => n.kind === 'art-request').length,
     }
   })
 
   function clearFilters() {
     kinds.value = []
+    section.value = null
     day.value = null
     companion.value = null
     lens.value = null
@@ -475,6 +487,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
     message,
     failed,
     route,
+    section,
     kinds,
     day,
     companion,

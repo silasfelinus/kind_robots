@@ -311,6 +311,8 @@ for (const file of [
   'components/playbook/playbook-art.vue',
   'components/playbook/playbook-node.vue',
   'components/playbook/playbook-detail.vue',
+  'components/playbook/playbook-atlas-card.vue',
+  'components/playbook/playbook-scene.vue',
   'pages/admin/playbook-manager.vue',
 ])
   assert.ok(

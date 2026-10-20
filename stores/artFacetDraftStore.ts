@@ -45,7 +45,9 @@ export const useArtFacetDraftStore = defineStore('artFacetDraftStore', () => {
     data: T,
     basePrompt: string,
   ): T & { promptString: string; workflow: WorkflowRecord } {
-    const cleanBase = String(basePrompt || '').replace(/\s+/g, ' ').trim()
+    const cleanBase = String(basePrompt || '')
+      .replace(/\s+/g, ' ')
+      .trim()
     const workflow = asWorkflow(data.workflow)
     workflow[ART_FACET_WORKFLOW_KEY] = {
       facetIds: [...selectedIds.value],

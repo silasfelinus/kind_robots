@@ -53,11 +53,14 @@ export const useDailyDreamStore = defineStore('dailyDreamStore', () => {
     error.value = null
 
     try {
-      const response = await performFetch<DailyDreamResponse>('/api/dreams/daily', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
-      })
+      const response = await performFetch<DailyDreamResponse>(
+        '/api/dreams/daily',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request),
+        },
+      )
 
       if (!response.success || !response.data) {
         throw new Error(response.message || 'Daily Dream could not be created.')
@@ -74,7 +77,9 @@ export const useDailyDreamStore = defineStore('dailyDreamStore', () => {
       }
     } catch (cause) {
       const message =
-        cause instanceof Error ? cause.message : 'Daily Dream could not be created.'
+        cause instanceof Error
+          ? cause.message
+          : 'Daily Dream could not be created.'
       error.value = message
       handleError(cause, 'creating daily Facet Dream')
       return { success: false, message }

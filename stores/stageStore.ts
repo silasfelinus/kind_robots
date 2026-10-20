@@ -184,9 +184,7 @@ export const useStageStore = defineStore('stageStore', () => {
 
     if (!ids.length) return
 
-    await Promise.all(
-      ids.map((id) => characterStore.fetchCharacterById(id)),
-    )
+    await Promise.all(ids.map((id) => characterStore.fetchCharacterById(id)))
   }
 
   function getUtilityCard(id: string): StageUtilityCard | undefined {

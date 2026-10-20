@@ -64,6 +64,7 @@ assert.deepEqual(
   [
     ['green-ribbon', ['kit', 'juniper']],
     ['kinetic', ['cedar', 'mara']],
+    ['quiet', ['juniper', 'kit']],
   ],
   'the fair leads to Kit and Juniper, the race to Cedar and Mara',
 )
@@ -83,10 +84,17 @@ const openLenses = LENSES.filter((lens) => lens.open).map((lens) => lens.id)
 assert.deepEqual(openLenses, ['sober', 'tipsy', 'stoned', 'tripping_balls'])
 
 // Endings: four companions plus going alone, seven lenses, two fates.
-assert.deepEqual(ENDING_LEADS, ['mara', 'kit', 'juniper', 'cedar', 'alone'])
-assert.equal(ENDING_IDS.length, 70)
-assert.equal(new Set(ENDING_IDS).size, 70)
-assert.equal(ENDING_IDS.filter((id) => id.endsWith('.hope')).length, 35)
+assert.deepEqual(ENDING_LEADS, [
+  'mara',
+  'kit',
+  'juniper',
+  'cedar',
+  'alone',
+  'ecotopia',
+])
+assert.equal(ENDING_IDS.length, 84)
+assert.equal(new Set(ENDING_IDS).size, 84)
+assert.equal(ENDING_IDS.filter((id) => id.endsWith('.hope')).length, 42)
 for (const lead of ENDING_LEADS) {
   assert.equal(ENDING_IDS.filter((id) => id.startsWith(`${lead}.`)).length, 14)
   assert.ok(FUTURES[lead].hope.length && FUTURES[lead].dark.length)
@@ -139,8 +147,12 @@ for (const event of EVENTS) {
     event.id,
   )
   const [area, offer, meeting] = beats
+  assert.ok(
+    (area?.choices.length ?? 0) >= 2,
+    `${event.id}: the first choice is at least binary`,
+  )
   assert.deepEqual(
-    area?.choices.map((c) => c.prospect),
+    area?.choices.flatMap((c) => (c.prospect ? [c.prospect] : [])),
     event.companions,
     `${event.id}: the area choice comes first and picks the companion`,
   )
@@ -183,7 +195,7 @@ assert.equal(
 
 type Plan = {
   event: EventId
-  area: 0 | 1
+  area: 0 | 1 | 2
   lens: LensId
   accept: boolean
   follow: boolean
@@ -213,7 +225,7 @@ function play(seed: number, plan: Plan) {
     const card = findCard(state.card)
     assert.ok(card, 'a beat is in play')
     const choice =
-      card.choices.find((c) => c.prospect && c === card.choices[plan.area]) ??
+      (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
       card.choices.find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
       card.choices.filter((c) => !c.locked)[
@@ -290,24 +302,29 @@ const fates = new Set<string>()
 for (let seed = 1; seed < 1500; seed += 1) {
   const next = mulberry32(seed)
   const plan: Plan = {
-    event: seed % 2 ? 'kinetic' : 'green-ribbon',
-    area: seed % 4 < 2 ? 0 : 1,
-    lens: (seed % 2
+    event: (['kinetic', 'green-ribbon', 'quiet'] as const)[seed % 3]!,
+    area: (seed % 3 === 2
+      ? Math.floor(next() * 3)
+      : seed % 4 < 2
+        ? 0
+        : 1) as Plan['area'],
+    lens: (seed % 3 === 0
       ? ['sober', 'tipsy']
       : ['sober', 'stoned', 'tripping_balls'])[
-      (seed % 3) % (seed % 2 ? 2 : 3)
+      Math.floor(next() * (seed % 3 === 0 ? 2 : 3))
     ] as LensId,
     accept: next() < 0.6,
     follow: next() < 0.5,
     pick: (n) => Math.floor(next() * n),
   }
   const run = play(seed, plan)
-  assert.ok(run.prospect && !run.newcomerOrder.includes(run.prospect))
+  assert.ok(!run.prospect || !run.newcomerOrder.includes(run.prospect))
   newcomers.add(run.meetingOrder[1] ?? '')
   run.played.forEach((id) => reached.add(id))
   reached.add(run.ending ?? '')
   fates.add(`${run.event}.${run.ending?.split('.')[2]}`)
 }
+newcomers.delete('')
 assert.equal(newcomers.size, 4, 'different seeds bring different newcomers')
 for (const card of ALL_CARDS)
   assert.ok(reached.has(card.id), `${card.id} turns up in play`)
@@ -316,19 +333,82 @@ for (const fate of [
   'green-ribbon.dark',
   'kinetic.hope',
   'kinetic.dark',
+  'quiet.hope',
+  'quiet.dark',
 ])
   assert.ok(fates.has(fate), `${fate} is reachable`)
 const written = ENDING_LEADS.flatMap((lead) =>
-  openLenses.flatMap((lens) => [
-    `${lead}.${lens}.hope`,
-    `${lead}.${lens}.dark`,
-  ]),
+  openLenses
+    .filter((lens) => lead !== 'ecotopia' || lens !== 'tipsy')
+    .flatMap((lens) => [`${lead}.${lens}.hope`, `${lead}.${lens}.dark`]),
 )
 const missing = written.filter((id) => !reached.has(id))
 assert.ok(
   missing.length <= 4,
   `written endings are reachable; missed ${missing}`,
 )
+
+// The Quiet Way: a third, contemplative opening, with the solo path right away.
+const trail = play(21, {
+  event: 'quiet',
+  area: 2,
+  lens: 'sober',
+  accept: false,
+  follow: false,
+})
+assert.equal(trail.prospect, null, 'the deer trail leads to nobody')
+assert.ok(!trail.played.includes('QW-3'), 'no one to meet, so no meeting')
+assert.ok(trail.played.includes('QW-4') && trail.played.includes('QW-5'))
+assert.match(trail.ending ?? '', /^ecotopia\.sober\.(hope|dark)$/)
+assert.ok(trail.meetingOrder.length === 1, 'a loner still meets a newcomer')
+const marshRun = play(22, {
+  event: 'quiet',
+  area: 0,
+  lens: 'stoned',
+  accept: true,
+  follow: false,
+})
+assert.equal(marshRun.prospect, 'juniper', 'the marsh leads to Juniper')
+assert.match(marshRun.ending ?? '', /^juniper\.stoned\./)
+assert.equal(play(23, { ...fair, event: 'quiet', area: 1 }).prospect, 'kit')
+// Keep choosing the animals and the Wild Way is paradise; drift and it is the hermit.
+function wildRun(seed: number, wild: boolean) {
+  let state = advance(chooseEvent(createRun(seed, 'gardener'), 'quiet'))
+  while (state.phase !== 'end') {
+    if (state.pending) state = advance(state)
+    else if (state.phase === 'fork') {
+      const animal = state.offered.find((id) =>
+        findCard(id)?.choices.some((c) => c.wild),
+      )
+      state = chooseFork(
+        state,
+        wild ? (animal ?? state.offered[0]!) : state.offered[0]!,
+      )
+    } else if (state.phase === 'crossroads')
+      state = chooseCrossroads(state, false)
+    else {
+      const card = findCard(state.card)!
+      const open = card.choices.filter((c) => !c.locked)
+      const pickChoice =
+        open.find((c) => c.lens === 'sober') ??
+        open.find((c) => c.meet === false) ??
+        (wild
+          ? open.find((c) => c.wild)
+          : open.find((c) => !c.wild && !c.prospect)) ??
+        open[0]!
+      state = chooseBeat(state, pickChoice.id)
+    }
+  }
+  return state
+}
+for (let seed = 1; seed < 40; seed += 1) {
+  const keen = wildRun(seed, true)
+  assert.ok(keen.wild >= 4, 'an animal-first run can always reach the target')
+  assert.equal(keen.ending, 'ecotopia.sober.hope', 'consistency earns paradise')
+  const drifting = wildRun(seed, false)
+  assert.equal(drifting.ending, 'ecotopia.sober.dark', 'drifting is the hermit')
+}
+assert.match(FUTURES.ecotopia.dark.join(' '), /retire to a cabin/)
 
 // Asides know who you are traveling with.
 const base = createRun(9, 'reporter')

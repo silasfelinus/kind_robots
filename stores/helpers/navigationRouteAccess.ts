@@ -34,26 +34,21 @@ export function evaluateNavigationRouteAccess(
     (channel) => channel.channelKey === requested.channel.channelKey,
   )
   const visibleTab = requested.tab
-    ? visibleChannel?.tabs.find(
-        (tab) => tab.tabKey === requested.tab?.tabKey,
-      )
+    ? visibleChannel?.tabs.find((tab) => tab.tabKey === requested.tab?.tabKey)
     : null
   const explicitlyPublicTab = Boolean(
     requested.tab?.requiredRole === 'GUEST' &&
-      !requested.tab.requiredPermission,
+    !requested.tab.requiredPermission,
   )
 
   return {
     matched: true,
     allowed: Boolean(
-      explicitlyPublicTab ||
-        (visibleChannel && (!requested.tab || visibleTab)),
+      explicitlyPublicTab || (visibleChannel && (!requested.tab || visibleTab)),
     ),
     requested,
-    requiredRole:
-      requested.tab?.requiredRole || requested.channel.requiredRole,
+    requiredRole: requested.tab?.requiredRole || requested.channel.requiredRole,
     requiredPermission:
-      requested.tab?.requiredPermission ||
-      requested.channel.requiredPermission,
+      requested.tab?.requiredPermission || requested.channel.requiredPermission,
   }
 }

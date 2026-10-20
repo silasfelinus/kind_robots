@@ -109,6 +109,6 @@ export const honorificList = [
 ]
 
 export function randomHonorific(): string {
-  const index = Math.floor(Math.random() * honorificList.length);
-  return honorificList[index] as string;
+  const index = Math.floor(Math.random() * honorificList.length)
+  return honorificList[index] as string
 }

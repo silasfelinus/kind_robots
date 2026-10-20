@@ -176,12 +176,17 @@ export const useNavStore = defineStore('navStore', () => {
   const dashboardList = computed(() =>
     dashboardKeys.value.map((key) => dashboardConfigs[key]),
   )
-  const dashboardTitle = computed(() => dashboardShell.value.title || 'Dashboard')
+  const dashboardTitle = computed(
+    () => dashboardShell.value.title || 'Dashboard',
+  )
   const dashboardSummary = computed(() => dashboardShell.value.summary || '')
 
   function syncDashboardTabsToLocalStorage(reason = 'unknown'): void {
     void reason
-    safeSetLocalStorage(dashboardTabsStorageKey, JSON.stringify(dashboardTabs.value))
+    safeSetLocalStorage(
+      dashboardTabsStorageKey,
+      JSON.stringify(dashboardTabs.value),
+    )
   }
 
   function syncDashboardTabs(reason = 'manual syncDashboardTabs'): void {
@@ -264,7 +269,9 @@ export const useNavStore = defineStore('navStore', () => {
         isInitialized.value = true
       } catch (error) {
         lastError.value =
-          error instanceof Error ? error.message : 'Failed to initialize nav store'
+          error instanceof Error
+            ? error.message
+            : 'Failed to initialize nav store'
         isInitialized.value = false
       } finally {
         loading.value = false

@@ -37,7 +37,11 @@ export type ArchiveEntryDetail = {
     sampler: string | null
     steps: number | null
   }
-  folderCollection: null | { id: number; label: string | null; parentFolder: string | null }
+  folderCollection: null | {
+    id: number
+    label: string | null
+    parentFolder: string | null
+  }
 }
 
 export type ArchiveActionPresetSummary = {
@@ -48,8 +52,19 @@ export type ArchiveActionPresetSummary = {
   isActive: boolean
 }
 
-export type ArchiveIngestionPlan = { new: number; unchanged: number; changed: number; moved: number; copied: number; missing: number }
-export type ArchiveResourceConfidenceCounts = { hash: number; exact: number; suggested: number }
+export type ArchiveIngestionPlan = {
+  new: number
+  unchanged: number
+  changed: number
+  moved: number
+  copied: number
+  missing: number
+}
+export type ArchiveResourceConfidenceCounts = {
+  hash: number
+  exact: number
+  suggested: number
+}
 
 export type ArchiveDryRunReport = {
   root: string
@@ -75,11 +90,34 @@ export type ArchiveImportReport = {
   unmatchedModels: number
 }
 
-type ArchiveFilters = { search: string; folderCollectionId: string; processState: string; matchState: string; rating: string; includeInactive: boolean }
-type ListPayload = { entries: ArchiveEntrySummary[]; page: number; pageSize: number; total: number }
+type ArchiveFilters = {
+  search: string
+  folderCollectionId: string
+  processState: string
+  matchState: string
+  rating: string
+  includeInactive: boolean
+}
+type ListPayload = {
+  entries: ArchiveEntrySummary[]
+  page: number
+  pageSize: number
+  total: number
+}
 type ActionPayload = { alreadyQuarantined?: boolean; alreadyActive?: boolean }
-type BatchResult = { attempted: number; succeeded: number; failed: Array<{ id: number; message: string }> }
-export type ArchiveEntryJobStatus = { jobId: number; status: string; archivePresetId: number | null; actionType: string | null; updatedAt: string | null; error: string | null }
+type BatchResult = {
+  attempted: number
+  succeeded: number
+  failed: Array<{ id: number; message: string }>
+}
+export type ArchiveEntryJobStatus = {
+  jobId: number
+  status: string
+  archivePresetId: number | null
+  actionType: string | null
+  updatedAt: string | null
+  error: string | null
+}
 const POLLABLE_JOB_STATUSES = new Set(['PENDING', 'RUNNING'])
 
 /* performFetch defaults to a 10s timeout, which is right for every other call
@@ -110,25 +148,43 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   const total = ref(0)
   const page = ref(1)
   const pageSize = ref(60)
-  const filters = ref<ArchiveFilters>({ search: '', folderCollectionId: '', processState: '', matchState: '', rating: '', includeInactive: false })
+  const filters = ref<ArchiveFilters>({
+    search: '',
+    folderCollectionId: '',
+    processState: '',
+    matchState: '',
+    rating: '',
+    includeInactive: false,
+  })
 
   const folders = computed(() => {
     const byId = new Map<number, string>()
     for (const entry of entries.value) {
-      if (entry.folderCollectionId && entry.parentFolder) byId.set(entry.folderCollectionId, entry.parentFolder)
+      if (entry.folderCollectionId && entry.parentFolder)
+        byId.set(entry.folderCollectionId, entry.parentFolder)
     }
-    return [...byId.entries()].map(([id, label]) => ({ id, label })).sort((a, b) => a.label.localeCompare(b.label))
+    return [...byId.entries()]
+      .map(([id, label]) => ({ id, label }))
+      .sort((a, b) => a.label.localeCompare(b.label))
   })
-  const pageCount = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
+  const pageCount = computed(() =>
+    Math.max(1, Math.ceil(total.value / pageSize.value)),
+  )
   const selectedCount = computed(() => selectedIds.value.length)
 
   async function fetchEntries(resetPage = false) {
     if (resetPage) page.value = 1
     loading.value = true
     error.value = ''
-    const params = new URLSearchParams({ page: String(page.value), pageSize: String(pageSize.value) })
-    for (const [key, value] of Object.entries(filters.value)) if (value) params.set(key, String(value))
-    const response = await performFetch<ListPayload>(`/api/admin/art-archive/entries?${params}`)
+    const params = new URLSearchParams({
+      page: String(page.value),
+      pageSize: String(pageSize.value),
+    })
+    for (const [key, value] of Object.entries(filters.value))
+      if (value) params.set(key, String(value))
+    const response = await performFetch<ListPayload>(
+      `/api/admin/art-archive/entries?${params}`,
+    )
     if (response.success && response.data) {
       entries.value = response.data.entries
       total.value = response.data.total
@@ -145,14 +201,17 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
    * given entries (e.g. after a page load or a refresh), keyed by
    * archiveEntryId as tagged in buildArchiveEnqueuePayload.ts. */
   async function fetchEntryJobs(ids: number[]) {
-    const uniqueIds = [...new Set(ids)].filter((id) => Number.isInteger(id) && id > 0)
-    if (!uniqueIds.length) return
-    const response = await performFetch<{ jobs: Record<string, ArchiveEntryJobStatus> }>(
-      `/api/admin/art-archive/entries/jobs?ids=${uniqueIds.join(',')}`,
+    const uniqueIds = [...new Set(ids)].filter(
+      (id) => Number.isInteger(id) && id > 0,
     )
+    if (!uniqueIds.length) return
+    const response = await performFetch<{
+      jobs: Record<string, ArchiveEntryJobStatus>
+    }>(`/api/admin/art-archive/entries/jobs?ids=${uniqueIds.join(',')}`)
     if (response.success && response.data) {
       const next = { ...entryJobs.value }
-      for (const [idKey, status] of Object.entries(response.data.jobs)) next[Number(idKey)] = status
+      for (const [idKey, status] of Object.entries(response.data.jobs))
+        next[Number(idKey)] = status
       entryJobs.value = next
     }
   }
@@ -168,47 +227,72 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   }
 
   async function fetchPresets() {
-    const response = await performFetch<ArchiveActionPresetSummary[]>('/api/admin/art-archive/presets')
+    const response = await performFetch<ArchiveActionPresetSummary[]>(
+      '/api/admin/art-archive/presets',
+    )
     if (response.success && response.data) presets.value = response.data
-    else error.value = response.message || 'Could not load archive action presets.'
+    else
+      error.value = response.message || 'Could not load archive action presets.'
   }
 
   async function selectEntry(id: number) {
     detailLoading.value = true
     error.value = ''
-    const response = await performFetch<ArchiveEntryDetail>(`/api/admin/art-archive/entries/${id}`)
+    const response = await performFetch<ArchiveEntryDetail>(
+      `/api/admin/art-archive/entries/${id}`,
+    )
     if (response.success && response.data) detail.value = response.data
-    else error.value = response.message || 'Could not load archive entry details.'
+    else
+      error.value = response.message || 'Could not load archive entry details.'
     detailLoading.value = false
   }
 
-  function clearSelection() { detail.value = null }
+  function clearSelection() {
+    detail.value = null
+  }
   function toggleBatchSelection(id: number) {
     selectedIds.value = selectedIds.value.includes(id)
       ? selectedIds.value.filter((selectedId) => selectedId !== id)
       : [...selectedIds.value, id]
     batchResult.value = null
   }
-  function clearBatchSelection() { selectedIds.value = []; batchResult.value = null }
+  function clearBatchSelection() {
+    selectedIds.value = []
+    batchResult.value = null
+  }
 
-  async function runEntryAction(id: number, path: 'quarantine' | 'restore'): Promise<boolean> {
+  async function runEntryAction(
+    id: number,
+    path: 'quarantine' | 'restore',
+  ): Promise<boolean> {
     actionPending.value = true
     error.value = ''
-    const response = await performFetch<ActionPayload>(`/api/admin/art-archive/entries/${id}/${path}`, { method: 'POST' })
+    const response = await performFetch<ActionPayload>(
+      `/api/admin/art-archive/entries/${id}/${path}`,
+      { method: 'POST' },
+    )
     if (response.success) {
       if (detail.value?.entry.id === id) clearSelection()
       await fetchEntries()
     } else {
-      error.value = response.message || `Could not ${path} archive entry #${id}.`
+      error.value =
+        response.message || `Could not ${path} archive entry #${id}.`
     }
     actionPending.value = false
     return response.success
   }
 
-  function quarantineEntry(id: number) { return runEntryAction(id, 'quarantine') }
-  function restoreEntry(id: number) { return runEntryAction(id, 'restore') }
+  function quarantineEntry(id: number) {
+    return runEntryAction(id, 'quarantine')
+  }
+  function restoreEntry(id: number) {
+    return runEntryAction(id, 'restore')
+  }
 
-  async function rateEntry(id: number, rating: number | null): Promise<boolean> {
+  async function rateEntry(
+    id: number,
+    rating: number | null,
+  ): Promise<boolean> {
     actionPending.value = true
     error.value = ''
     const response = await performFetch<{ id: number; rating: number | null }>(
@@ -218,7 +302,8 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     if (response.success && response.data) {
       const row = entries.value.find((entry) => entry.id === id)
       if (row) row.rating = response.data.rating
-      if (detail.value?.entry.id === id) detail.value.entry.rating = response.data.rating
+      if (detail.value?.entry.id === id)
+        detail.value.entry.rating = response.data.rating
     } else {
       error.value = response.message || `Could not rate archive entry #${id}.`
     }
@@ -226,7 +311,11 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return response.success
   }
 
-  async function runBatch(ids: number[], action: (id: number) => Promise<boolean>, failureMessage: string): Promise<BatchResult> {
+  async function runBatch(
+    ids: number[],
+    action: (id: number) => Promise<boolean>,
+    failureMessage: string,
+  ): Promise<BatchResult> {
     const failed: BatchResult['failed'] = []
     let succeeded = 0
     for (const id of [...new Set(ids)]) {
@@ -241,20 +330,31 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
   }
 
   function rateSelected(rating: number) {
-    return runBatch(selectedIds.value, (id) => rateEntry(id, rating), 'Rating failed.')
+    return runBatch(
+      selectedIds.value,
+      (id) => rateEntry(id, rating),
+      'Rating failed.',
+    )
   }
 
   /** art-archive/t-016: queues a durable ArtJob per selected entry from its
    * imported ArtImage plus the chosen preset. Never touches the entry's file
    * or isActive state -- only the existing quarantine action does that, once
    * an admin has reviewed the resulting render. */
-  async function applyPresetEntry(id: number, presetId: number): Promise<boolean> {
+  async function applyPresetEntry(
+    id: number,
+    presetId: number,
+  ): Promise<boolean> {
     actionPending.value = true
     error.value = ''
-    const response = await performFetch<{ jobId: number; status: string; actionType: string }>(
-      `/api/admin/art-archive/entries/${id}/enqueue`,
-      { method: 'POST', body: JSON.stringify({ presetId }) },
-    )
+    const response = await performFetch<{
+      jobId: number
+      status: string
+      actionType: string
+    }>(`/api/admin/art-archive/entries/${id}/enqueue`, {
+      method: 'POST',
+      body: JSON.stringify({ presetId }),
+    })
     if (response.success && response.data) {
       entryJobs.value = {
         ...entryJobs.value,
@@ -268,14 +368,19 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
         },
       }
     } else {
-      error.value = response.message || `Could not queue a job for archive entry #${id}.`
+      error.value =
+        response.message || `Could not queue a job for archive entry #${id}.`
     }
     actionPending.value = false
     return response.success
   }
 
   function applyPresetToSelected(presetId: number) {
-    return runBatch(selectedIds.value, (id) => applyPresetEntry(id, presetId), 'Queueing failed.')
+    return runBatch(
+      selectedIds.value,
+      (id) => applyPresetEntry(id, presetId),
+      'Queueing failed.',
+    )
   }
 
   async function quarantineSelected() {
@@ -285,7 +390,10 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     actionPending.value = true
     error.value = ''
     for (const id of ids) {
-      const response = await performFetch<ActionPayload>(`/api/admin/art-archive/entries/${id}/quarantine`, { method: 'POST' })
+      const response = await performFetch<ActionPayload>(
+        `/api/admin/art-archive/entries/${id}/quarantine`,
+        { method: 'POST' },
+      )
       if (response.success) succeeded += 1
       else failed.push({ id, message: response.message || 'Delete failed.' })
     }
@@ -312,7 +420,8 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
       ARCHIVE_SCAN_TIMEOUT_MS,
     )
     if (response.success && response.data) dryRunReport.value = response.data
-    else error.value = response.message || 'Could not preview the archive import.'
+    else
+      error.value = response.message || 'Could not preview the archive import.'
     ingestionPending.value = false
     return response.success
   }
@@ -341,7 +450,48 @@ export const useArtArchiveStore = defineStore('artArchiveStore', () => {
     return response.success
   }
 
-  function clearIngestionReports() { dryRunReport.value = null; importReport.value = null }
+  function clearIngestionReports() {
+    dryRunReport.value = null
+    importReport.value = null
+  }
 
-  return { entries, detail, presets, selectedIds, selectedCount, batchResult, entryJobs, loading, detailLoading, actionPending, dryRunReport, importReport, ingestionPending, error, total, page, pageSize, pageCount, filters, folders, fetchEntries, fetchPresets, selectEntry, clearSelection, toggleBatchSelection, clearBatchSelection, quarantineEntry, restoreEntry, rateEntry, rateSelected, quarantineSelected, applyPresetToSelected, fetchEntryJobs, refreshPendingEntryJobs, runDryRun, runImport, clearIngestionReports }
+  return {
+    entries,
+    detail,
+    presets,
+    selectedIds,
+    selectedCount,
+    batchResult,
+    entryJobs,
+    loading,
+    detailLoading,
+    actionPending,
+    dryRunReport,
+    importReport,
+    ingestionPending,
+    error,
+    total,
+    page,
+    pageSize,
+    pageCount,
+    filters,
+    folders,
+    fetchEntries,
+    fetchPresets,
+    selectEntry,
+    clearSelection,
+    toggleBatchSelection,
+    clearBatchSelection,
+    quarantineEntry,
+    restoreEntry,
+    rateEntry,
+    rateSelected,
+    quarantineSelected,
+    applyPresetToSelected,
+    fetchEntryJobs,
+    refreshPendingEntryJobs,
+    runDryRun,
+    runImport,
+    clearIngestionReports,
+  }
 })

@@ -13,10 +13,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { handleError, performFetch } from '@/stores/utils'
-import {
-  useFacetStore,
-  type FacetWithAliases,
-} from '@/stores/facetStore'
+import { useFacetStore, type FacetWithAliases } from '@/stores/facetStore'
 
 export type CharacterFacetLink = {
   facetId: number
@@ -59,7 +56,9 @@ export const useCharacterFacetStore = defineStore('characterFacetStore', () => {
 
   function mergeFacets(facets: FacetWithAliases[]): void {
     for (const facet of facets) {
-      const index = facetStore.facets.findIndex((entry) => entry.id === facet.id)
+      const index = facetStore.facets.findIndex(
+        (entry) => entry.id === facet.id,
+      )
       if (index >= 0) facetStore.facets[index] = facet
       else facetStore.facets.push(facet)
     }

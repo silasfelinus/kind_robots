@@ -11,16 +11,10 @@ import {
 } from './butterflyHelper'
 
 export type ToggleButterflyKey =
-  | 'header'
-  | 'footer'
-  | 'left-sidebar'
-  | 'right-sidebar'
+  'header' | 'footer' | 'left-sidebar' | 'right-sidebar'
 
 export type ToggleButterflyMode =
-  | 'approaching'
-  | 'hover'
-  | 'fleeing'
-  | 'returning'
+  'approaching' | 'hover' | 'fleeing' | 'returning'
 
 export type ToggleAnchor = {
   x: number
@@ -53,19 +47,12 @@ export type ToggleButterflyState = {
 export type LoaderRouteMode = 'drift' | 'orbit'
 export type LoaderGoalSpread = 'tight' | 'wide'
 export type LoaderSwarmPreset =
-  | 'random'
-  | 'inside-drift'
-  | 'edge-cross'
-  | 'corner-sweep'
-  | 'orbit-release'
+  'random' | 'inside-drift' | 'edge-cross' | 'corner-sweep' | 'orbit-release'
 
 type LoaderPhase = 'entering' | 'orbiting' | 'holding' | 'released'
 
 export type LoaderExitMode =
-  | 'random-exit'
-  | 'nearest-exit'
-  | 'shared-exit'
-  | 'mixed-exit'
+  'random-exit' | 'nearest-exit' | 'shared-exit' | 'mixed-exit'
 
 type LoaderButterflyState = {
   id: string

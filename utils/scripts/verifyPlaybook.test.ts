@@ -35,7 +35,7 @@ for (const card of ALL_CARDS) {
   assert.ok(node.placements.length > 0, `${card.id} is placed on some day`)
 }
 assert.equal(playbook.nodes.event?.kind, 'opening')
-assert.equal(playbook.routes.length, 2)
+assert.equal(playbook.routes.length, 3)
 for (const route of playbook.routes) {
   assert.equal(
     route.steps[0],

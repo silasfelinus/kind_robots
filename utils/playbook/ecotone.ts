@@ -9,6 +9,7 @@ import {
   type Check,
   type EncounterCard,
   type Fate,
+  type EndingLine,
   type LeadId,
   type LensId,
   type Outcome,
@@ -72,7 +73,7 @@ export type PlaybookNode = {
   place: string
   placements: PlaybookPlacement[]
   chapter: number | null
-  companions: LeadId[]
+  companions: EndingLine[]
   lenses: LensId[]
   body: string[]
   variations: PlaybookVariation[]
@@ -109,7 +110,8 @@ function lensLabel(id: LensId): string {
   return LENSES.find((lens) => lens.id === id)?.label ?? id
 }
 
-export function leadLabel(id: LeadId): string {
+export function leadLabel(id: EndingLine): string {
+  if (id === 'ecotopia') return 'The Wild Way'
   return id === 'alone'
     ? 'Alone'
     : (COMPANIONS.find((c) => c.id === id)?.name ?? id)
@@ -191,6 +193,7 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     if (choice.meet === true) tags.push('Travel together')
     if (choice.meet === false) tags.push('Go alone')
     if (choice.locked) tags.push(choice.locked)
+    if (choice.wild) tags.push('Animal-first')
     return {
       id: choice.id,
       label: choice.label,
@@ -265,7 +268,7 @@ function blankNode(
   }
 }
 
-function endingNode(lead: LeadId): PlaybookNode {
+function endingNode(lead: EndingLine): PlaybookNode {
   const node = blankNode(
     `ending:${lead}`,
     'ending',
@@ -403,6 +406,11 @@ export function buildEcotonePlaybook(): Playbook {
         node.place = event.name
         node.body = [
           `Hopeful if goodwill + evidence + a nerve modifier reaches ${event.futureTarget}; dark otherwise. The ending is who you finish with (or nobody) × the lens you opened with × that fate.`,
+          ...(event.wildTarget
+            ? [
+                `Finish alone on this route and it is the Wild Way instead: ${event.wildTarget} or more animal-first choices earns the ecological paradise; fewer, the hermit's bittersweet retirement.`,
+              ]
+            : []),
         ]
         node.companions = [...ENDING_LEADS]
         node.choices = ENDING_LEADS.map((lead) => ({

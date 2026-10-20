@@ -215,7 +215,7 @@ export const useFlipStore = defineStore('flipStore', () => {
 
     const idx = cells.value.findIndex((c) => c.id === cellId)
     if (idx === -1) return
-    
+
     const cell = cells.value[idx]
     if (!cell || cell.done) return
 

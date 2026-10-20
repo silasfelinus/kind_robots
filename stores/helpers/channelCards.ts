@@ -57,9 +57,7 @@ export function channelTabsToCards(channel: ResolvedChannel): BuilderCard[] {
     .map(channelTabToCard)
 }
 
-export function navigationCardToBuilderCard(
-  card: NavigationCard,
-): BuilderCard {
+export function navigationCardToBuilderCard(card: NavigationCard): BuilderCard {
   const narrative = card.description || card.label
   const payload: Record<string, unknown> = {
     path: card.route || '',

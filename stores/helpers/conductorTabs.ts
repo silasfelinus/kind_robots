@@ -1,6 +1,9 @@
 // /stores/helpers/conductorTabs.ts
 
-import type { DashboardConfig, DashboardTabConfig } from '@/stores/helpers/dashboardHelper'
+import type {
+  DashboardConfig,
+  DashboardTabConfig,
+} from '@/stores/helpers/dashboardHelper'
 
 export const CONDUCTOR_DASHBOARD_KEY = 'conductor'
 export const CONDUCTOR_DEFAULT_TAB = 'conductor'
@@ -25,7 +28,8 @@ export const conductorTabs = [
     label: 'Portos',
     icon: 'kind-icon:server',
     title: 'Portos Servers',
-    summary: 'Add a Porto server address and save the user/server pairing cleanly.',
+    summary:
+      'Add a Porto server address and save the user/server pairing cleanly.',
     image: '/images/dashboard-tabs/conductor/portos.webp',
     flourish: '◌',
     tagline: 'Connect Portos without burying server state in component goo.',

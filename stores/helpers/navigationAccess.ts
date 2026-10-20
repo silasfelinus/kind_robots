@@ -4,12 +4,7 @@ import type {
 } from '@/stores/helpers/channelContent'
 
 export type NavigationPermission =
-  | 'authenticated'
-  | 'member'
-  | 'family'
-  | 'mature'
-  | 'admin'
-  | string
+  'authenticated' | 'member' | 'family' | 'mature' | 'admin' | string
 
 export type NavigationAccessContext = {
   /** Primary/display role. For labels, not for deciding what a viewer may see. */
@@ -50,16 +45,12 @@ export function filterChannelsByPermission(
   context: NavigationAccessContext,
 ): ResolvedChannel[] {
   return channels
-    .filter((channel) =>
-      permissionAllows(channel.requiredPermission, context),
-    )
+    .filter((channel) => permissionAllows(channel.requiredPermission, context))
     .map((channel) => {
       const tabs = channel.tabs.filter((tab) =>
         permissionAllows(tab.requiredPermission, context),
       )
-      const defaultTab = tabs.some(
-        (tab) => tab.tabKey === channel.defaultTab,
-      )
+      const defaultTab = tabs.some((tab) => tab.tabKey === channel.defaultTab)
         ? channel.defaultTab
         : tabs[0]?.tabKey || ''
 

@@ -25,7 +25,9 @@ export const useColoringBookStudioStore = defineStore(
   'coloringBookStudioStore',
   () => {
     const books = ref<ColoringBookStudioBook[]>([])
-    const productionStates = ref<Record<string, ColoringBookProductionState>>({})
+    const productionStates = ref<Record<string, ColoringBookProductionState>>(
+      {},
+    )
     const coverStates = ref<Record<string, ColoringBookCoverState>>({})
     const packageData = ref<ColoringBookPackageData | null>(null)
     const selectedBookSlug = ref('monster-recast')
@@ -57,12 +59,13 @@ export const useColoringBookStudioStore = defineStore(
       )
     })
 
-    const selectedProductionState = computed<ColoringBookProductionState | null>(() => {
-      const book = selectedBook.value
-      const proposal = selectedProposal.value
-      if (!book || !proposal) return null
-      return productionStates.value[`${book.slug}:${proposal.id}`] ?? null
-    })
+    const selectedProductionState =
+      computed<ColoringBookProductionState | null>(() => {
+        const book = selectedBook.value
+        const proposal = selectedProposal.value
+        if (!book || !proposal) return null
+        return productionStates.value[`${book.slug}:${proposal.id}`] ?? null
+      })
 
     const selectedCover = computed<ColoringBookCoverState | null>(() =>
       selectedBook.value
@@ -70,10 +73,11 @@ export const useColoringBookStudioStore = defineStore(
         : null,
     )
 
-    const selectedPackage = computed(() =>
-      packageData.value?.books.find(
-        (book) => book.slug === selectedBookSlug.value,
-      ) ?? null,
+    const selectedPackage = computed(
+      () =>
+        packageData.value?.books.find(
+          (book) => book.slug === selectedBookSlug.value,
+        ) ?? null,
     )
 
     const requestingRender = computed(() => requestingAction.value)
@@ -82,12 +86,13 @@ export const useColoringBookStudioStore = defineStore(
       books.value.flatMap((book) =>
         book.proposals
           .filter((proposal) => {
-            const production = productionStates.value[`${book.slug}:${proposal.id}`]
+            const production =
+              productionStates.value[`${book.slug}:${proposal.id}`]
             return Boolean(
               proposal.queue.semanticGateError ||
-                proposal.queue.status === 'needs_review' ||
-                production?.bwStatus === 'needs_review' ||
-                production?.pairStatus === 'needs_review',
+              proposal.queue.status === 'needs_review' ||
+              production?.bwStatus === 'needs_review' ||
+              production?.pairStatus === 'needs_review',
             )
           })
           .map((proposal) => ({
@@ -117,15 +122,18 @@ export const useColoringBookStudioStore = defineStore(
       loading.value = true
       error.value = null
       try {
-        const [studioResponse, productionResponse, packageResponse] = await Promise.all([
-          performFetch<ColoringBookStudioData>('/api/conductor/coloring-books'),
-          performFetch<ColoringBookProductionData>(
-            '/api/conductor/coloring-books/production',
-          ),
-          performFetch<ColoringBookPackageData>(
-            '/api/conductor/coloring-books/package',
-          ),
-        ])
+        const [studioResponse, productionResponse, packageResponse] =
+          await Promise.all([
+            performFetch<ColoringBookStudioData>(
+              '/api/conductor/coloring-books',
+            ),
+            performFetch<ColoringBookProductionData>(
+              '/api/conductor/coloring-books/production',
+            ),
+            performFetch<ColoringBookPackageData>(
+              '/api/conductor/coloring-books/package',
+            ),
+          ])
         if (!studioResponse.success || !studioResponse.data) {
           error.value =
             studioResponse.message || 'Failed to load the Coloring Book Studio.'
@@ -150,9 +158,7 @@ export const useColoringBookStudioStore = defineStore(
               )
             : null
         fetchedAt.value = studioResponse.data.fetchedAt
-        if (
-          !books.value.some((book) => book.slug === selectedBookSlug.value)
-        ) {
+        if (!books.value.some((book) => book.slug === selectedBookSlug.value)) {
           selectedBookSlug.value = books.value[0]?.slug ?? ''
         }
         keepSelectionValid()
@@ -240,7 +246,8 @@ export const useColoringBookStudioStore = defineStore(
       const book = selectedBook.value
       const proposal = selectedProposal.value
       const coverOperation = COVER_OPERATIONS.has(operation)
-      if (!book || (!coverOperation && !proposal) || requestingAction.value) return false
+      if (!book || (!coverOperation && !proposal) || requestingAction.value)
+        return false
 
       requestingAction.value = true
       error.value = null
@@ -259,7 +266,8 @@ export const useColoringBookStudioStore = defineStore(
           { method: 'POST', body: JSON.stringify(body) },
         )
         if (!response.success) {
-          error.value = response.message || 'Failed to request the production action.'
+          error.value =
+            response.message || 'Failed to request the production action.'
           return false
         }
         message.value =
@@ -273,7 +281,10 @@ export const useColoringBookStudioStore = defineStore(
     }
 
     function requestColorRender(force = false, note = ''): Promise<boolean> {
-      return requestProductionAction('generate-color-proposals', { force, note })
+      return requestProductionAction('generate-color-proposals', {
+        force,
+        note,
+      })
     }
 
     function acceptColor(note = '', sourcePath = ''): Promise<boolean> {

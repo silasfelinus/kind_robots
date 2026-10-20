@@ -139,12 +139,7 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
   // Which suite view is open on /stylist. Store-level so it survives
   // leaving and returning to the page, matching the dashboard-tab fix.
   const activeView = ref<
-    | 'studio'
-    | 'calculator'
-    | 'clients'
-    | 'history'
-    | 'settings'
-    | 'diagnostics'
+    'studio' | 'calculator' | 'clients' | 'history' | 'settings' | 'diagnostics'
   >('studio')
 
   const isClient = typeof window !== 'undefined'
@@ -273,7 +268,9 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
       persist()
     } catch (error) {
       syncError.value =
-        error instanceof Error ? error.message : 'Could not load the studio book.'
+        error instanceof Error
+          ? error.message
+          : 'Could not load the studio book.'
     } finally {
       isSyncing.value = false
     }
@@ -375,7 +372,11 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     const existing = customerByName(name)
 
     if (existing) {
-      return saveCustomer({ id: existing.id, name, email: email || existing.email })
+      return saveCustomer({
+        id: existing.id,
+        name,
+        email: email || existing.email,
+      })
     }
 
     const customer: SuperkateCustomer = {
@@ -498,7 +499,8 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
       )
 
       if (!response.success) {
-        syncError.value = response.message || 'Could not delete the appointment.'
+        syncError.value =
+          response.message || 'Could not delete the appointment.'
         return
       }
     }
@@ -515,7 +517,10 @@ export const useSuperkateStore = defineStore('superkateStore', () => {
     )
   }
 
-  function searchAppointments(query: string, date: string): SuperkateAppointment[] {
+  function searchAppointments(
+    query: string,
+    date: string,
+  ): SuperkateAppointment[] {
     const target = query.trim().toLowerCase()
 
     return sortedAppointments.value.filter((appointment) => {

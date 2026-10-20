@@ -195,7 +195,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePlaybookStore } from '~/stores/playbookStore'
-import { LENSES, type LeadId, type LensId } from '~/utils/ecotone/content'
+import { LENSES, type EndingLine, type LensId } from '~/utils/ecotone/content'
 import { leadLabel, type NodeKind } from '~/utils/playbook/ecotone'
 
 const props = defineProps<{ nodeKey: string; compact?: boolean }>()
@@ -267,11 +267,12 @@ const KIND_STYLE: Record<
   },
 }
 
-const LEAD_STYLE: Record<LeadId, string> = {
+const LEAD_STYLE: Record<EndingLine, string> = {
   mara: 'bg-fuchsia-500/15 text-fuchsia-700',
   kit: 'bg-amber-500/20 text-amber-800',
   juniper: 'bg-emerald-500/15 text-emerald-700',
   cedar: 'bg-sky-500/15 text-sky-700',
   alone: 'bg-base-300 text-base-content/70',
+  ecotopia: 'bg-lime-500/20 text-lime-800',
 }
 </script>

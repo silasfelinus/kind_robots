@@ -11,12 +11,7 @@ import {
 } from '@/utils/videoPresets'
 
 export type SceneAnimatorSourceStatus =
-  | 'missing'
-  | 'queued'
-  | 'rendering'
-  | 'done'
-  | 'failed'
-  | 'cancelled'
+  'missing' | 'queued' | 'rendering' | 'done' | 'failed' | 'cancelled'
 
 export type SceneAnimatorFolder = {
   name: string
@@ -96,7 +91,9 @@ function errorMessage(value: unknown, fallback: string): string {
 }
 
 function mimeFromFileType(fileType: string | null | undefined): string {
-  const normalized = String(fileType ?? '').toLowerCase().replace(/^\./, '')
+  const normalized = String(fileType ?? '')
+    .toLowerCase()
+    .replace(/^\./, '')
   if (normalized.includes('/')) return normalized
   if (normalized === 'mp4') return 'video/mp4'
   if (normalized === 'webm') return 'video/webm'
@@ -107,7 +104,9 @@ function mimeFromFileType(fileType: string | null | undefined): string {
 }
 
 function asDataUrl(data: string, fileType: string | null | undefined): string {
-  return data.startsWith('data:') ? data : `data:${mimeFromFileType(fileType)};base64,${data}`
+  return data.startsWith('data:')
+    ? data
+    : `data:${mimeFromFileType(fileType)};base64,${data}`
 }
 
 export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
@@ -132,7 +131,9 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   const error = ref<string | null>(null)
   const lastEnqueue = ref<SceneAnimatorEnqueueData | null>(null)
 
-  const presets = computed(() => VIDEO_PRESETS.filter((preset) => preset.engine === engine.value))
+  const presets = computed(() =>
+    VIDEO_PRESETS.filter((preset) => preset.engine === engine.value),
+  )
   const selectedPreset = computed(
     () => getVideoPreset(presetId.value) ?? getDefaultVideoPreset(engine.value),
   )
@@ -156,7 +157,9 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
       ).length,
   )
   const completionPercent = computed(() =>
-    totalCount.value ? Math.round((doneCount.value / totalCount.value) * 100) : 0,
+    totalCount.value
+      ? Math.round((doneCount.value / totalCount.value) * 100)
+      : 0,
   )
 
   function clearError() {
@@ -165,7 +168,8 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
 
   function clearSourcePreviews() {
     if (import.meta.client) {
-      for (const url of Object.values(sourcePreviewUrls.value)) URL.revokeObjectURL(url)
+      for (const url of Object.values(sourcePreviewUrls.value))
+        URL.revokeObjectURL(url)
     }
     sourcePreviewUrls.value = {}
   }
@@ -185,7 +189,10 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
   async function hydrateSourcePreviews() {
     clearSourcePreviews()
     const pairs = await Promise.all(
-      sources.value.map(async (source) => [source.name, await fetchProtectedBlob(source.sourceUrl)] as const),
+      sources.value.map(
+        async (source) =>
+          [source.name, await fetchProtectedBlob(source.sourceUrl)] as const,
+      ),
     )
     const next: Record<string, string> = {}
     for (const [name, url] of pairs) {
@@ -273,7 +280,8 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
       durationSeconds.value = response.data.config.durationSeconds
       isMature.value = response.data.config.isMature
 
-      const firstFolder = response.data.selectedFolder === null ? response.data.folders[0] : null
+      const firstFolder =
+        response.data.selectedFolder === null ? response.data.folders[0] : null
       if (firstFolder) {
         selectedFolder.value = firstFolder.name
         loading.value = false
@@ -292,7 +300,9 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
     }
   }
 
-  async function enqueue(retryFailed = false): Promise<SceneAnimatorEnqueueData | null> {
+  async function enqueue(
+    retryFailed = false,
+  ): Promise<SceneAnimatorEnqueueData | null> {
     queueing.value = true
     clearError()
     try {
@@ -313,7 +323,9 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
         120_000,
       )
       if (!response.success || !response.data) {
-        throw new Error(response.message || 'Failed to enqueue Scene Animator batch.')
+        throw new Error(
+          response.message || 'Failed to enqueue Scene Animator batch.',
+        )
       }
       lastEnqueue.value = response.data
       if (response.data.errors.length) {
@@ -324,7 +336,10 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
       await load()
       return response.data
     } catch (cause) {
-      error.value = errorMessage(cause, 'Failed to enqueue Scene Animator batch.')
+      error.value = errorMessage(
+        cause,
+        'Failed to enqueue Scene Animator batch.',
+      )
       return null
     } finally {
       queueing.value = false
@@ -340,7 +355,10 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
    * that is wrong -- see the 2026-09-11 flattened-clip bug. It never overrides
    * a queued or rendering job; that is the server's call, not this one's.
    */
-  async function retrySource(sourceFile: string, force = false): Promise<boolean> {
+  async function retrySource(
+    sourceFile: string,
+    force = false,
+  ): Promise<boolean> {
     const label = force ? 're-render this scene' : 'retry this scene'
     queueing.value = true
     retryingSource.value = sourceFile
@@ -413,7 +431,10 @@ export const useSceneAnimatorStore = defineStore('sceneAnimatorStore', () => {
    * what they meant. Passing an empty string clears the override and returns
    * the source to the shared default.
    */
-  async function savePrompt(sourceFile: string, prompt: string): Promise<boolean> {
+  async function savePrompt(
+    sourceFile: string,
+    prompt: string,
+  ): Promise<boolean> {
     savingPrompt.value = sourceFile
     clearError()
     try {

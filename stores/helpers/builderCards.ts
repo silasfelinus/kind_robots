@@ -20,10 +20,7 @@ export type BuilderInputType =
   | 'classification' // scenario: tier/group/difficulty classifier
 
 export type BuilderUnlockCondition =
-  | 'always'
-  | 'coreComplete'
-  | 'allComplete'
-  | string
+  'always' | 'coreComplete' | 'allComplete' | string
 
 export type BuilderFieldValue =
   | string
@@ -78,12 +75,7 @@ export type BuilderStep = {
 }
 
 export type BuilderArtPurpose =
-  | 'user'
-  | 'dream'
-  | 'character'
-  | 'reward'
-  | 'scenario'
-  | 'builder'
+  'user' | 'dream' | 'character' | 'reward' | 'scenario' | 'builder'
 
 export type BuilderCard = {
   key: string

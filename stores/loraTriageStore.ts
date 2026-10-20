@@ -104,10 +104,14 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
   )
 
   const confirmedCount = computed(
-    () => loras.value.filter((resource) => Boolean(decisions.value[resource.id])).length,
+    () =>
+      loras.value.filter((resource) => Boolean(decisions.value[resource.id]))
+        .length,
   )
 
-  const remainingCount = computed(() => loras.value.length - confirmedCount.value)
+  const remainingCount = computed(
+    () => loras.value.length - confirmedCount.value,
+  )
 
   const pendingChanges = computed(() =>
     loras.value
@@ -175,7 +179,10 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     const stored: StoredLoraTriageProgress = {
       version: 1,
       decisions: Object.fromEntries(
-        Object.entries(decisions.value).map(([id, decision]) => [String(id), decision]),
+        Object.entries(decisions.value).map(([id, decision]) => [
+          String(id),
+          decision,
+        ]),
       ),
       categories: Object.fromEntries(
         Object.entries(categoryEdits.value).map(([id, category]) => [
@@ -196,7 +203,11 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     if (raw) {
       try {
         const parsed = JSON.parse(raw) as Partial<StoredLoraTriageProgress>
-        if (parsed.version === 1 && parsed.decisions && typeof parsed.decisions === 'object') {
+        if (
+          parsed.version === 1 &&
+          parsed.decisions &&
+          typeof parsed.decisions === 'object'
+        ) {
           const restored: Record<number, LoraTriageDecision> = {}
 
           for (const [rawId, decision] of Object.entries(parsed.decisions)) {
@@ -263,7 +274,10 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
     return normalizeLoraCategory(resource?.loraCategory)
   }
 
-  function setCategory(resourceId: number, category: LoraCategory | null): void {
+  function setCategory(
+    resourceId: number,
+    category: LoraCategory | null,
+  ): void {
     const next = Object.fromEntries(
       Object.entries(categoryEdits.value).filter(
         ([id]) => Number(id) !== resourceId,
@@ -418,7 +432,9 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
           // No loraCategorySource here on purpose. The PATCH route stamps HUMAN
           // for an edit that names a category without naming a source, and that
           // stamp is what stops the next catalog scan reverting this decision.
-          ...(change.category !== null ? { loraCategory: change.category } : {}),
+          ...(change.category !== null
+            ? { loraCategory: change.category }
+            : {}),
         })
 
         if (updated) saved += 1
@@ -520,8 +536,9 @@ export const useLoraTriageStore = defineStore('loraTriageStore', () => {
       }
 
       await Promise.all(
-        Array.from({ length: Math.min(ENQUEUE_CONCURRENCY, plans.length) }, () =>
-          worker(),
+        Array.from(
+          { length: Math.min(ENQUEUE_CONCURRENCY, plans.length) },
+          () => worker(),
         ),
       )
 

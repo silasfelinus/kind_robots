@@ -65,7 +65,7 @@ function normalizeCardsKey(value?: string | null): BuilderCardsKey | null {
 
 export function getModelCards(value?: string | null): BuilderCard[] {
   const key = normalizeCardsKey(value)
-  return key ? modelCards[key] ?? [] : []
+  return key ? (modelCards[key] ?? []) : []
 }
 
 export async function preloadModelCards(

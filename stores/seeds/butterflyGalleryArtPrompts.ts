@@ -19,11 +19,7 @@
 // below keeps to that: structure, material, and light, nothing that acts
 // or moves.
 export type ButterflyGalleryAssetKey =
-  | 'room'
-  | 'window'
-  | 'frame'
-  | 'bins'
-  | 'pile'
+  'room' | 'window' | 'frame' | 'bins' | 'pile'
 
 export type ButterflyGalleryArtPrompt = {
   requestId: string

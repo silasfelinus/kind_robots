@@ -33,7 +33,8 @@ type ProjectPageContentResponse = {
 
 export const MERMAIDS_PAGE_DEFAULTS: Readonly<MermaidsPageDraft> = {
   heroTitle: 'Mermaids of Venice',
-  heroSubtitle: 'A subversive tale of gods and street performers — by Silas Knight',
+  heroSubtitle:
+    'A subversive tale of gods and street performers — by Silas Knight',
   bookHeading: 'The Book',
   bookDescription:
     "In the canals and campos of Venice, old gods get by the way anyone does — busking, bargaining, and performing for a crowd that no longer believes in them. Six years in the writing, edited by the author's own hand.",

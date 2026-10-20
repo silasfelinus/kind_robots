@@ -50,17 +50,10 @@ export function expressionKindOf(
 export type NarratorScreen = 'narrator' | 'scenarios' | 'lore'
 
 export type NarratorCreatableType =
-  | 'character'
-  | 'reward'
-  | 'scenario'
-  | 'dream'
+  'character' | 'reward' | 'scenario' | 'dream'
 
 export type NarratorAnimationIntent =
-  | 'start'
-  | 'stop'
-  | 'random'
-  | 'next'
-  | 'prev'
+  'start' | 'stop' | 'random' | 'next' | 'prev'
 
 export type NarratorAnimationEffectId = string
 

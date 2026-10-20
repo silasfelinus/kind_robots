@@ -34,86 +34,93 @@ function facetPromptContext(facet: FacetCatalogEntry): string {
     .join(' · ')
 }
 
-export const useFacetArtRequestStore = defineStore('facetArtRequestStore', () => {
-  const requesting = reactive<Record<number, boolean>>({})
-  const requested = reactive<Record<number, string>>({})
-  const errors = reactive<Record<number, string>>({})
+export const useFacetArtRequestStore = defineStore(
+  'facetArtRequestStore',
+  () => {
+    const requesting = reactive<Record<number, boolean>>({})
+    const requested = reactive<Record<number, string>>({})
+    const errors = reactive<Record<number, string>>({})
 
-  async function requestPrimaryArtwork(
-    facet: FacetCatalogEntry,
-  ): Promise<string | null> {
-    if (requesting[facet.id]) return null
-    requesting[facet.id] = true
-    errors[facet.id] = ''
-    const src = facet.imagePath || defaultFacetArtworkPath(facet)
-    const pageUrl =
-      typeof window !== 'undefined' ? window.location.href : '/facets'
+    async function requestPrimaryArtwork(
+      facet: FacetCatalogEntry,
+    ): Promise<string | null> {
+      if (requesting[facet.id]) return null
+      requesting[facet.id] = true
+      errors[facet.id] = ''
+      const src = facet.imagePath || defaultFacetArtworkPath(facet)
+      const pageUrl =
+        typeof window !== 'undefined' ? window.location.href : '/facets'
 
-    try {
-      const suggestedPrompt = await suggestArtAssetPrompt({
-        current: facet.artPrompt || '',
-        subject: facet.title,
-        purpose:
-          'Primary square gallery artwork that makes this canonical Facet visually recognizable across Kind Robots',
-        entityRef: {
-          modelType: 'facet',
-          id: facet.id,
-          ...(facet.slug ? { slug: facet.slug } : {}),
-        },
-        asset: {
-          source: src,
-          role: 'imagePath',
-          variant: 'image',
-          size: '1024x1024',
-        },
-        page: {
-          url: pageUrl,
-          title: 'Facets',
-          description:
-            'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
-          heading: facet.title,
-          localText: facetPromptContext(facet),
-        },
-      }).catch(() => '')
-
-      const response = await performFetch<{ targetPath?: string }>(
-        '/api/conductor/art-request',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            src,
-            pageUrl,
-            label: `${facet.title} ${facet.taxonomy.toLowerCase()} facet`,
-            alt: `${facet.title} canonical Facet artwork`,
+      try {
+        const suggestedPrompt = await suggestArtAssetPrompt({
+          current: facet.artPrompt || '',
+          subject: facet.title,
+          purpose:
+            'Primary square gallery artwork that makes this canonical Facet visually recognizable across Kind Robots',
+          entityRef: {
+            modelType: 'facet',
+            id: facet.id,
+            ...(facet.slug ? { slug: facet.slug } : {}),
+          },
+          asset: {
+            source: src,
+            role: 'imagePath',
             variant: 'image',
             size: '1024x1024',
-            prompt: suggestedPrompt || facet.artPrompt || undefined,
-            pageTitle: 'Facets',
-            pageDescription:
+          },
+          page: {
+            url: pageUrl,
+            title: 'Facets',
+            description:
               'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
-            nearestHeading: facet.title,
-            nearbyText: facetPromptContext(facet),
-            modelType: 'facet',
-            modelId: facet.id,
-            modelSlug: facet.slug || undefined,
-            modelField: 'imagePath',
-          }),
-        },
-      )
+            heading: facet.title,
+            localText: facetPromptContext(facet),
+          },
+        }).catch(() => '')
 
-      if (!response.success) {
-        throw new Error(response.message || 'Art request could not be queued.')
+        const response = await performFetch<{ targetPath?: string }>(
+          '/api/conductor/art-request',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              src,
+              pageUrl,
+              label: `${facet.title} ${facet.taxonomy.toLowerCase()} facet`,
+              alt: `${facet.title} canonical Facet artwork`,
+              variant: 'image',
+              size: '1024x1024',
+              prompt: suggestedPrompt || facet.artPrompt || undefined,
+              pageTitle: 'Facets',
+              pageDescription:
+                'Browse the canonical creative building blocks shared across Characters, Bots, Dreams, Scenarios, and Art.',
+              nearestHeading: facet.title,
+              nearbyText: facetPromptContext(facet),
+              modelType: 'facet',
+              modelId: facet.id,
+              modelSlug: facet.slug || undefined,
+              modelField: 'imagePath',
+            }),
+          },
+        )
+
+        if (!response.success) {
+          throw new Error(
+            response.message || 'Art request could not be queued.',
+          )
+        }
+        requested[facet.id] = src
+        return src
+      } catch (error) {
+        errors[facet.id] =
+          error instanceof Error
+            ? error.message
+            : 'Art request could not be queued.'
+        return null
+      } finally {
+        requesting[facet.id] = false
       }
-      requested[facet.id] = src
-      return src
-    } catch (error) {
-      errors[facet.id] =
-        error instanceof Error ? error.message : 'Art request could not be queued.'
-      return null
-    } finally {
-      requesting[facet.id] = false
     }
-  }
 
-  return { requesting, requested, errors, requestPrimaryArtwork }
-})
+    return { requesting, requested, errors, requestPrimaryArtwork }
+  },
+)

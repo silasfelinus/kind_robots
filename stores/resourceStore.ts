@@ -112,13 +112,7 @@ export const useResourceStore = defineStore('resourceStore', () => {
   }
 
   type RuntimeResourceKind =
-    | 'checkpoint'
-    | 'sampler'
-    | 'lora'
-    | 'embedding'
-    | 'vae'
-    | 'unet'
-    | 'unknown'
+    'checkpoint' | 'sampler' | 'lora' | 'embedding' | 'vae' | 'unet' | 'unknown'
 
   type RuntimeResourcePayload = Partial<Resource> & {
     resourceKind?: RuntimeResourceKind

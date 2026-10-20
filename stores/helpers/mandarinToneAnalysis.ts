@@ -5,12 +5,7 @@ import {
 } from '@/utils/mandarinPronunciation'
 
 export type ObservedToneShape =
-  | 'level'
-  | 'rising'
-  | 'falling'
-  | 'dipping'
-  | 'mixed'
-  | 'unvoiced'
+  'level' | 'rising' | 'falling' | 'dipping' | 'mixed' | 'unvoiced'
 
 export type MandarinToneObservation = {
   syllable: string
@@ -55,7 +50,9 @@ async function decodeMono(file: File): Promise<{
 
   const context = new Ctx()
   try {
-    const decoded = await context.decodeAudioData((await file.arrayBuffer()).slice(0))
+    const decoded = await context.decodeAudioData(
+      (await file.arrayBuffer()).slice(0),
+    )
     const samples = new Float32Array(decoded.length)
 
     for (let channel = 0; channel < decoded.numberOfChannels; channel++) {
@@ -72,7 +69,9 @@ async function decodeMono(file: File): Promise<{
       durationSec: decoded.duration,
     }
   } catch {
-    throw new Error('The recording could not be decoded for local tone analysis.')
+    throw new Error(
+      'The recording could not be decoded for local tone analysis.',
+    )
   } finally {
     await context.close()
   }
@@ -97,7 +96,11 @@ function percentile(values: number[], fraction: number): number | null {
   return sorted[index] ?? null
 }
 
-function medianSlice(values: number[], from: number, to: number): number | null {
+function medianSlice(
+  values: number[],
+  from: number,
+  to: number,
+): number | null {
   if (!values.length) return null
   const start = Math.floor(values.length * from)
   const end = Math.max(start + 1, Math.ceil(values.length * to))
@@ -143,14 +146,16 @@ function feedbackForTone(
   if (shape === 'unvoiced') {
     return {
       verdict: 'uncertain',
-      feedback: 'Not enough stable voiced pitch was detected for this syllable. Try a clean, natural repetition a little closer to the microphone.',
+      feedback:
+        'Not enough stable voiced pitch was detected for this syllable. Try a clean, natural repetition a little closer to the microphone.',
     }
   }
 
   if (tone === 5) {
     return {
       verdict: 'uncertain',
-      feedback: 'Neutral tone is mainly about being short and light. This pitch-only check intentionally does not pretend to grade it.',
+      feedback:
+        'Neutral tone is mainly about being short and light. This pitch-only check intentionally does not pretend to grade it.',
     }
   }
 
@@ -158,11 +163,13 @@ function feedbackForTone(
     return shape === 'level'
       ? {
           verdict: 'good',
-          feedback: 'The pitch stayed broadly level, which matches the first-tone target.',
+          feedback:
+            'The pitch stayed broadly level, which matches the first-tone target.',
         }
       : {
           verdict: 'practice',
-          feedback: 'Aim for a steadier high pitch without a noticeable rise or drop.',
+          feedback:
+            'Aim for a steadier high pitch without a noticeable rise or drop.',
         }
   }
 
@@ -170,11 +177,13 @@ function feedbackForTone(
     return shape === 'rising'
       ? {
           verdict: 'good',
-          feedback: 'A clear rise was detected, matching the second-tone target.',
+          feedback:
+            'A clear rise was detected, matching the second-tone target.',
         }
       : {
           verdict: 'practice',
-          feedback: 'Start comfortably low-to-mid and let the pitch climb through the syllable.',
+          feedback:
+            'Start comfortably low-to-mid and let the pitch climb through the syllable.',
         }
   }
 
@@ -182,11 +191,13 @@ function feedbackForTone(
     return shape === 'falling'
       ? {
           verdict: 'good',
-          feedback: 'A clear fall was detected, matching the fourth-tone target.',
+          feedback:
+            'A clear fall was detected, matching the fourth-tone target.',
         }
       : {
           verdict: 'practice',
-          feedback: 'Start higher and make the drop decisive rather than level or rising.',
+          feedback:
+            'Start higher and make the drop decisive rather than level or rising.',
         }
   }
 
@@ -197,13 +208,15 @@ function feedbackForTone(
   if (shape === 'dipping') {
     return {
       verdict: 'good',
-      feedback: 'A low dip was detected, which is a good isolated third-tone shape.',
+      feedback:
+        'A low dip was detected, which is a good isolated third-tone shape.',
     }
   }
 
   return {
     verdict: 'uncertain',
-    feedback: 'Third tone often stays low in connected speech. Aim for a distinctly low center; a full rise is not always required.',
+    feedback:
+      'Third tone often stays low in connected speech. Aim for a distinctly low center; a full rise is not always required.',
   }
 }
 
@@ -264,7 +277,9 @@ export async function analyzeMandarinToneShapes(
   const observations = targets.map((target, index) => {
     const start = firstTime + (voicedSpan * index) / targets.length
     const end = firstTime + (voicedSpan * (index + 1)) / targets.length
-    const segment = points.filter((point) => point.timeSec >= start && point.timeSec <= end)
+    const segment = points.filter(
+      (point) => point.timeSec >= start && point.timeSec <= end,
+    )
     const observedShape = classifyShape(segment)
     const assessment = feedbackForTone(target.spokenTone, observedShape)
 

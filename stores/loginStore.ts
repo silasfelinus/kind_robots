@@ -11,13 +11,7 @@ import {
 } from '@/stores/helpers/userHelper'
 
 export type LoginRelationship =
-  | 'main'
-  | 'alt'
-  | 'child'
-  | 'parent'
-  | 'friend'
-  | 'blocked'
-  | 'testing'
+  'main' | 'alt' | 'child' | 'parent' | 'friend' | 'blocked' | 'testing'
 
 export type ManagedLogin = {
   userId: number

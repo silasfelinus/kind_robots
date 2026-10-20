@@ -27,21 +27,14 @@ import {
  * rather than two products behind two routes.
  */
 export type StorybookStructure =
-  | 'short-story'
-  | 'chaptered'
-  | 'episodic'
-  | 'life'
+  'short-story' | 'chaptered' | 'episodic' | 'life'
 
 /** True for the shapes the client-side beat loop below actually runs. */
 export function isBeatStructure(structure: StorybookStructure): boolean {
   return structure !== 'life'
 }
 export type StorybookNarratorStyle =
-  | 'cinematic'
-  | 'playful'
-  | 'storybook'
-  | 'mysterious'
-  | 'intimate'
+  'cinematic' | 'playful' | 'storybook' | 'mysterious' | 'intimate'
 
 export type StorybookSetupDraft = {
   title: string

@@ -165,9 +165,15 @@ export const useMandarinTutorStore = defineStore('mandarinTutorStore', () => {
   // mandarin-tutor/t-023. Deliberately server-owned and NOT mirrored into the
   // localStorage snapshot below: a points balance a learner can edit in devtools is not
   // a points balance. An unauthenticated visitor simply sees zero.
-  const pointTotals = ref<MandarinPointTotals>({ ...EMPTY_MANDARIN_POINT_TOTALS })
+  const pointTotals = ref<MandarinPointTotals>({
+    ...EMPTY_MANDARIN_POINT_TOTALS,
+  })
   const completedLessonKeys = ref<Set<string>>(new Set())
-  const lastAward = ref<{ cardKey: string; points: number; reason: string } | null>(null)
+  const lastAward = ref<{
+    cardKey: string
+    points: number
+    reason: string
+  } | null>(null)
   /**
    * True only once GET /api/mandarin/points has answered successfully, which requires a
    * session. The soft gate's "Learn this first" prompt reads this rather than inferring

@@ -7,6 +7,7 @@ import {
   type CompanionId,
   type Effects,
   type EncounterCard,
+  type EndingLine,
   type EventId,
   type Fate,
   type LeadId,
@@ -25,7 +26,7 @@ import {
 } from './story'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
-export const ECOTONE_SAVE_VERSION = 3
+export const ECOTONE_SAVE_VERSION = 4
 export const MAX_METER = 8
 
 export type Phase = 'event' | 'beat' | 'fork' | 'crossroads' | 'end'
@@ -86,6 +87,8 @@ export type RunState = {
   nerve: number
   goodwill: number
   weird: number
+  /** Animal-first choices made this run; the Wild Way counts them. */
+  wild: number
   evidence: string[]
   flags: string[]
   log: LogEntry[]
@@ -313,7 +316,7 @@ export function crossroadsNewcomer(state: RunState): CompanionId | null {
 
 export type Ending = {
   id: string
-  lead: LeadId
+  lead: EndingLine
   lens: LensId
   fate: Fate
   score: number
@@ -335,11 +338,28 @@ export function futureParts(
 }
 
 export function computeEnding(state: RunState): Ending {
-  const lead: LeadId = state.activeLead ?? 'alone'
+  const event = EVENTS.find((e) => e.id === state.event)
   const lens: LensId = state.openingState ?? 'sober'
+  // Finishing alone on the quiet route is the Wild Way: it turns on whether you kept choosing the
+  // animals, not on stats. Fall short and it is the hermit's bittersweet ending.
+  if (!state.activeLead && event?.wildTarget) {
+    const target = event.wildTarget
+    const parts = [{ label: 'Animal-first choices', value: state.wild }]
+    const fate: Fate = state.wild >= target ? 'hope' : 'dark'
+    return {
+      id: `ecotopia.${lens}.${fate}`,
+      lead: 'ecotopia',
+      lens,
+      fate,
+      score: state.wild,
+      target,
+      parts,
+    }
+  }
+  const lead: LeadId = state.activeLead ?? 'alone'
   const parts = futureParts(state)
   const score = parts.reduce((sum, part) => sum + part.value, 0)
-  const target = EVENTS.find((e) => e.id === state.event)?.futureTarget ?? 6
+  const target = event?.futureTarget ?? 6
   const fate: Fate = score >= target ? 'hope' : 'dark'
   return {
     id: `${lead}.${lens}.${fate}`,
@@ -380,6 +400,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     nerve: 5,
     goodwill: 0,
     weird: 0,
+    wild: 0,
     evidence: [],
     flags: [],
     log: [],
@@ -427,14 +448,29 @@ export function enterStep(state: RunState, index: number): RunState {
   for (let i = index; i < route.length; i += 1) {
     const step = route[i] as RouteStep
     const base = { ...state, step: i, day: step.day, card: null, offered: [] }
-    if (step.kind === 'beat') return { ...base, phase: 'beat', card: step.id }
+    if (step.kind === 'beat') {
+      if (step.ifProspect && !base.prospect) continue
+      return { ...base, phase: 'beat', card: step.id }
+    }
     if (step.kind === 'fork') {
       const offered = drawFork(base, i)
       if (offered.length) return { ...base, phase: 'fork', offered }
       continue
     }
     if (step.kind === 'crossroads') {
-      if (crossroadsNewcomer(base)) return { ...base, phase: 'crossroads' }
+      // A loner who met nobody at the opening still gets a seeded newcomer here.
+      const seeded = base.newcomerOrder.length
+        ? base
+        : {
+            ...base,
+            newcomerOrder: seededShuffle(
+              COMPANIONS.map((c) => c.id).filter(
+                (id) => !base.meetingOrder.includes(id),
+              ),
+              base.seed,
+            ),
+          }
+      if (crossroadsNewcomer(seeded)) return { ...seeded, phase: 'crossroads' }
       continue
     }
     const ended: RunState = { ...base, phase: 'end' }
@@ -524,6 +560,7 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
     next = { ...next, rolls: next.rolls + 1 }
   }
   if (choice.prospect) next = { ...next, prospect: choice.prospect }
+  if (choice.wild) next = { ...next, wild: next.wild + 1 }
   if (choice.meet !== undefined) next = meet(next, choice.meet)
   next = applyEffects(next, outcome.effects)
   if (!next.played.includes(card.id))
@@ -634,5 +671,6 @@ export function restoreRun(raw: unknown): RunState | null {
   )
     return null
   if (!s.skills || typeof s.skills !== 'object') return null
+  if (typeof s.wild !== 'number') return null
   return s as RunState
 }

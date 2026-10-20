@@ -23,12 +23,7 @@ export type ImageUploadModel =
   | 'User'
 
 export type ConnectableModel =
-  | 'ArtCollection'
-  | 'Bot'
-  | 'Character'
-  | 'Dream'
-  | 'Reward'
-  | 'Scenario'
+  'ArtCollection' | 'Bot' | 'Character' | 'Dream' | 'Reward' | 'Scenario'
 
 export interface UploadMetadata {
   promptString?: string | null

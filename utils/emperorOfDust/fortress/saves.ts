@@ -55,6 +55,17 @@ const factionList = (value: unknown): boolean =>
   value.every((id) => (KINGDOM_FACTIONS as readonly unknown[]).includes(id)) &&
   new Set(value).size === value.length
 
+/** Market state (t-024): optional, so saves from before the market still load. */
+const validMarket = (value: unknown): boolean =>
+  object(value) &&
+  int(value.window, 0, 14) &&
+  textList(value.bought, 40) &&
+  (value.bought as string[]).every((id) => !!itemDef(id)) &&
+  int(value.day, 1, LAST_DAY + 1) &&
+  textList(value.treated, 20) &&
+  (value.treated as string[]).every((id) => !!followerDef(id)) &&
+  new Set(value.treated as string[]).size === (value.treated as string[]).length
+
 export const validateRun = (value: unknown): value is FortressRun => {
   if (!object(value)) return false
   const run = value
@@ -90,6 +101,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
       (!object(run.talkOpen) ||
         !text(run.talkOpen.id, 80) ||
         (run.talkOpen.beat !== undefined && !text(run.talkOpen.beat, 80)))) ||
+    (run.market !== undefined && !validMarket(run.market)) ||
     !validMapState(run)
   )
     return false

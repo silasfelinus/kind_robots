@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
@@ -34,7 +34,6 @@ import {
   audiencesToday,
   bedsUsed,
   briefingMapLine,
-  buyItem,
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
@@ -71,6 +70,30 @@ import {
   ITEMS,
   followerDef,
 } from '../emperorOfDust/fortress/followers'
+import { ITEM_ICONS, itemDef, itemIcon } from '../emperorOfDust/fortress/items'
+import {
+  MIN_STOCK,
+  POULTICE_PRICE,
+  SURGEON_BASE,
+  SURGEON_PER_DAY,
+  boughtThisWindow,
+  buyItem,
+  effectReactions,
+  isPeddler,
+  itemEffects,
+  marketStock,
+  marketWindow,
+  nextRestockDay,
+  poulticeOffered,
+  saltroadMedicine,
+  sellItem,
+  sellPrice,
+  stallLines,
+  stockBlocker,
+  surgeonPrice,
+  treatFollower,
+  treatmentBlocker,
+} from '../emperorOfDust/fortress/market'
 import { ACT_END_DAWNS, REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { TALKS } from '../emperorOfDust/fortress/talks'
@@ -500,6 +523,8 @@ assert.equal(bigger.beds, 9)
 assert.equal(recruit(bigger, 'F005').roster.length, 7)
 assert.throws(() => upgradeBeds(bigger), /gate-watch support 12/)
 
+// Seed 1234 lays out the Surveyor's Glass on Day 1 (the market owns buying).
+assert.ok(marketStock(start).includes('surveyors-glass'))
 const shopped = buyItem(start, 'surveyors-glass')
 assert.equal(
   shopped.brass,
@@ -2546,5 +2571,361 @@ for (const def of DAYS)
     ),
     `day ${def.day} advisor art`,
   )
+
+// --- market (t-024) ---------------------------------------------------------
+{
+  // The catalog: 20-30 tools and charms, one stark line each, art-ready.
+  assert.ok(ITEMS.length >= 20 && ITEMS.length <= 34, `${ITEMS.length} items`)
+  assert.equal(new Set(ITEMS.map((item) => item.id)).size, ITEMS.length)
+  const iconFiles = new Set(
+    readdirSync('assets/icons').map((file) => file.replace(/\.svg$/, '')),
+  )
+  for (const item of ITEMS) {
+    assert.ok(item.slot === 'tool' || item.slot === 'charm', item.id)
+    assert.ok(item.price > 0 && item.price <= 80, `${item.id} price`)
+    assert.ok(itemEffects(item).length > 0, `${item.id} does something`)
+    assert.ok(
+      item.text.length <= 72 && !item.text.includes('\n'),
+      `${item.id}: one short line`,
+    )
+    assert.ok(
+      !/\b(very|lovely|gentle|eerie|sinister|seems to)\b/i.test(item.text),
+      `${item.id}: stark prose`,
+    )
+    assert.ok(ITEM_ICONS[item.id], `${item.id} has a placeholder glyph`)
+    assert.ok(
+      iconFiles.has(itemIcon(item).replace('kind-icon:', '')),
+      `${item.id}: ${itemIcon(item)} exists`,
+    )
+    assert.ok(
+      !/(fill|stroke)="#/.test(
+        readFileSync(
+          `assets/icons/${itemIcon(item).replace('kind-icon:', '')}.svg`,
+          'utf8',
+        ),
+      ),
+      `${item.id}: a single-colour glyph the seller tint can colour`,
+    )
+    if (item.ability)
+      assert.ok(
+        ![
+          'forecast',
+          'stall',
+          'quartermaster',
+          'thick-hide',
+          'undermine',
+          'many-hands',
+        ].includes(item.ability.kind),
+        `${item.id}: its power works from a slot`,
+      )
+  }
+  assert.ok(ITEMS.filter((item) => item.slot === 'tool').length >= 10)
+  assert.ok(ITEMS.filter((item) => item.slot === 'charm').length >= 10)
+  assert.ok(
+    ITEMS.filter((item) => item.onBuy).length >= 6,
+    'some goods carry a price beyond brass',
+  )
+  assert.deepEqual(
+    effectReactions(itemDef('reed-poppet')!.onBuy),
+    ['The Abbey −3'],
+    'the Abbey hears about Mire charms',
+  )
+
+  // Stalls turn over three times an act: days 1-3, 4-6, 7-10.
+  assert.deepEqual(
+    [1, 3, 4, 6, 7, 10, 11, 14, 17, 20, 41, 50].map(marketWindow),
+    [0, 0, 1, 1, 2, 2, 3, 4, 5, 5, 12, 14],
+  )
+  assert.equal(nextRestockDay(1), 4)
+  assert.equal(nextRestockDay(7), 11)
+  assert.equal(nextRestockDay(50), 51)
+
+  // Deterministic within a branch: same run, same stalls, all window long.
+  const fair = createRun(4321)
+  const stockOf = (run: FortressRun) => marketStock(run).join(',')
+  assert.equal(stockOf(fair), stockOf(createRun(4321)))
+  assert.equal(stockOf(fair), stockOf({ ...fair, day: 3 }))
+  assert.ok(marketStock(fair).length >= MIN_STOCK)
+  assert.ok(
+    marketStock(fair).every((id) => !stockBlocker(fair, itemDef(id)!)),
+    'only eligible goods are laid out',
+  )
+  // The stock rotates, and a rewind's new branch lays out fresh stalls.
+  const windows = new Set(
+    [1, 4, 7, 11, 14, 17, 21].map((day) => stockOf({ ...fair, day })),
+  )
+  assert.ok(windows.size >= 5, `stalls rotate (${windows.size} layouts)`)
+  const branches = new Set(
+    [0, 1, 2, 3, 4].map((branch) => stockOf({ ...fair, branch })),
+  )
+  assert.ok(branches.size >= 3, 'random stays random on a new branch')
+  // A rewind through the save book rerolls the replayed window too.
+  const twoDays = recordDawn(newBook(fair), finishDay(fair).run)
+  const rewound = rewindTo(twoDays, 2).current
+  assert.equal(rewound.branch, 1)
+  assert.equal(stockOf(rewound), stockOf({ ...finishDay(fair).run, branch: 1 }))
+
+  // The roads decide the stock: trust, reveals, wipe-outs, local support.
+  const crowItems = ITEMS.filter((item) => item.faction === 'storm-crows')
+  assert.ok(crowItems.length >= 2)
+  for (const item of crowItems)
+    assert.match(stockBlocker(fair, item) ?? '', /Storm Crow Conclave Friendly/)
+  const crowFriends: FortressRun = {
+    ...fair,
+    affinity: { ...fair.affinity, 'storm-crows': 40 },
+  }
+  for (const item of crowItems)
+    assert.equal(stockBlocker(crowFriends, item), null)
+  // Each item rolls on its own: warming a faction only adds to the stalls
+  // (beyond the MIN_STOCK top-up).
+  let checked = 0
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const cold = marketStock({ ...fair, seed })
+    if (cold.length <= MIN_STOCK) continue
+    const warm = new Set(marketStock({ ...crowFriends, seed }))
+    for (const id of cold)
+      assert.ok(warm.has(id), `${id} stays laid out when the Crows warm`)
+    checked += 1
+  }
+  assert.ok(checked >= 5)
+  const rustItems = ITEMS.filter((item) => item.faction === 'rustline')
+  for (const item of rustItems)
+    assert.match(stockBlocker(fair, item) ?? '', /Nobody on the map/)
+  const actTwo = finishDay({ ...fair, day: 10, board: [], reports: [] }).run
+  assert.equal(stockBlocker(actTwo, itemDef('rustline-cutters')!), null)
+  const mireGone: FortressRun = { ...fair, wipedOut: ['mire-mothers'] }
+  assert.match(
+    stockBlocker(mireGone, itemDef('reed-poppet')!) ?? '',
+    /gone from the map/,
+  )
+  for (let day = 1; day <= 40; day += 3)
+    assert.ok(
+      !marketStock({ ...mireGone, day }).some(
+        (id) => itemDef(id)?.faction === 'mire-mothers',
+      ),
+      'a wiped-out faction sells nothing',
+    )
+  assert.match(
+    stockBlocker(fair, itemDef('watch-buckler')!) ?? '',
+    /Gate Watch 14/,
+  )
+  assert.equal(
+    stockBlocker(
+      { ...fair, local: { ...fair.local, 'gate-watch': 14 } },
+      itemDef('watch-buckler')!,
+    ),
+    null,
+  )
+  assert.ok(stallLines(fair).length >= 1)
+
+  // Act V: the court buys from its host's peddler.
+  const hiding: FortressRun = {
+    ...crowFriends,
+    day: 43,
+    hideout: 'crow-cave',
+  }
+  assert.ok(isPeddler(hiding) && !isPeddler(fair))
+  assert.match(stallLines(hiding)[0] ?? '', /peddler/)
+  let hostShare = 0
+  let exileShare = 0
+  for (let seed = 1; seed <= 30; seed += 1) {
+    const stalls = marketStock({ ...hiding, seed })
+    hostShare += stalls.filter(
+      (id) => itemDef(id)?.faction === 'storm-crows',
+    ).length
+    exileShare += stalls.filter(
+      (id) => itemDef(id)?.faction === 'jackalwire',
+    ).length
+  }
+  assert.ok(
+    hostShare > exileShare,
+    `the host's goods travel with the court (${hostShare} vs ${exileShare})`,
+  )
+
+  // Buying: only what is laid out, once a window, and word gets out.
+  const findSeedWith = (id: string, base: FortressRun): FortressRun => {
+    for (let seed = 1; seed < 500; seed += 1) {
+      const run = { ...base, seed }
+      if (marketStock(run).includes(id)) return run
+    }
+    throw new Error(`no seed lays out ${id}`)
+  }
+  const poppetDay = findSeedWith('reed-poppet', fair)
+  const poppet = buyItem(poppetDay, 'reed-poppet')
+  assert.equal(poppet.brass, poppetDay.brass - itemDef('reed-poppet')!.price)
+  assert.deepEqual(poppet.inventory, ['reed-poppet'])
+  assert.equal(poppet.affinity.abbey, poppetDay.affinity.abbey - 3)
+  assert.deepEqual(boughtThisWindow(poppet), ['reed-poppet'])
+  assert.throws(() => buyItem(poppet, 'reed-poppet'), /no other/)
+  assert.ok(validateRun(poppet), 'a run with market state saves')
+  // The next window restocks the stall.
+  assert.deepEqual(boughtThisWindow({ ...poppet, day: 4 }), [])
+  const notLaid = ITEMS.find((item) => !marketStock(fair).includes(item.id))!
+  assert.throws(() => buyItem(fair, notLaid.id), /not on the stalls/)
+  assert.throws(
+    () => buyItem({ ...poppetDay, brass: 3 }, 'reed-poppet'),
+    /Needs 35 brass/,
+  )
+  assert.throws(() => buyItem(fair, 'no-such-thing'), /unknown item/)
+  const draughtDay = findSeedWith('night-draught', {
+    ...fair,
+    day: 22,
+    revealedFactions: [...fair.revealedFactions, 'rustline', 'black-verge'],
+    affinity: { ...fair.affinity, 'black-verge': 0 },
+  })
+  const drank = buyItem(draughtDay, 'night-draught')
+  assert.ok(drank.flags.includes('bought:night-draught'))
+  assert.equal(drank.local.yard, draughtDay.local.yard - 2)
+
+  // Selling: half the price, storeroom only.
+  const sold = sellItem(poppet, 'reed-poppet')
+  assert.equal(sold.brass, poppet.brass + sellPrice(itemDef('reed-poppet')!))
+  assert.equal(sellPrice(itemDef('reed-poppet')!), 17)
+  assert.deepEqual(sold.inventory, [])
+  assert.throws(() => sellItem(sold, 'reed-poppet'), /does not hold/)
+  const worn = equipItem(poppet, 'F001', 'charm', 'reed-poppet')
+  assert.throws(() => sellItem(worn, 'reed-poppet'), /does not hold/)
+  assert.throws(() => buyItem(sold, 'reed-poppet'), /no other/)
+
+  // Item edges: a waybill knows the Saltroad's roads and nobody else's.
+  const saltQuest = QUEST_TEMPLATES.find(
+    (quest) => quest.faction === 'saltroad',
+  )
+  const otherQuest = QUEST_TEMPLATES.find(
+    (quest) => quest.faction && quest.faction !== 'saltroad',
+  )
+  assert.ok(saltQuest && otherQuest)
+  const onBoard = (run: FortressRun, id: string): FortressRun => ({
+    ...run,
+    board: [{ questId: `${id}@1`, postedDay: 1, lastDay: 3 }],
+  })
+  const carrying: FortressRun = {
+    ...fair,
+    roster: fair.roster.map((state) =>
+      state.id === 'F001'
+        ? { ...state, equipment: { tool: 'saltroad-waybill' } }
+        : state,
+    ),
+  }
+  const total = (run: FortressRun, id: string) =>
+    previewQuest(onBoard(run, id), `${id}@1`, ['F001'], []).perRequirement[0]!
+      .total
+  assert.equal(
+    total(carrying, saltQuest.id) - total(fair, saltQuest.id),
+    2 +
+      (itemDef('saltroad-waybill')!.stats?.[saltQuest.requirements[0]!.stat] ??
+        0),
+    'the waybill adds its edge on Saltroad quests',
+  )
+  assert.equal(
+    total(carrying, otherQuest.id) - total(fair, otherQuest.id),
+    itemDef('saltroad-waybill')!.stats?.[otherQuest.requirements[0]!.stat] ?? 0,
+    'and nothing extra elsewhere',
+  )
+
+  // Treatments: the wounded at court, once a day, priced by the wound.
+  const hurt: FortressRun = {
+    ...fair,
+    brass: 100,
+    roster: fair.roster.map((state) =>
+      state.id === 'F001' ? { ...state, injuredUntilDay: 5 } : state,
+    ),
+  }
+  assert.equal(surgeonPrice(hurt, 'F001'), SURGEON_BASE + SURGEON_PER_DAY * 4)
+  const stitched = treatFollower(hurt, 'F001', 'surgeon')
+  assert.equal(stitched.healed, 1)
+  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 3)
+  assert.equal(stitched.run.brass, 100 - surgeonPrice(hurt, 'F001'))
+  assert.match(
+    treatmentBlocker(stitched.run, 'F001', 'surgeon') ?? '',
+    /Seen today/,
+  )
+  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Seen/)
+  assert.ok(validateRun(stitched.run), 'a treated run saves')
+  // Tomorrow the surgeon will see them again.
+  assert.equal(
+    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon'),
+    null,
+  )
+  assert.match(
+    treatmentBlocker(hurt, 'F002', 'surgeon') ?? '',
+    /Only the wounded/,
+  )
+  assert.match(
+    treatmentBlocker({ ...hurt, brass: 2 }, 'F001', 'surgeon') ?? '',
+    /Needs 16 brass/,
+  )
+  // A last day of a wound closed means the follower can ride today.
+  const nearly: FortressRun = {
+    ...hurt,
+    roster: hurt.roster.map((state) =>
+      state.id === 'F001' ? { ...state, injuredUntilDay: 2 } : state,
+    ),
+  }
+  assert.equal(
+    followerStatus(treatFollower(nearly, 'F001', 'surgeon').run, 'F001'),
+    'ready',
+  )
+  // Saltroad medicine: a quarter off while they are Friendly.
+  const caravans: FortressRun = {
+    ...hurt,
+    affinity: { ...hurt.affinity, saltroad: 30 },
+  }
+  assert.ok(saltroadMedicine(caravans) && !saltroadMedicine(hurt))
+  assert.equal(surgeonPrice(caravans, 'F001'), 12)
+  // The Mire poultice: cheap, seeded, sometimes worse; the Abbey hears.
+  assert.ok(poulticeOffered(hurt))
+  const outcomes = new Set<number>()
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const run = { ...hurt, seed }
+    const result = treatFollower(run, 'F001', 'poultice')
+    assert.deepEqual(
+      result,
+      treatFollower(run, 'F001', 'poultice'),
+      'the poultice is seeded',
+    )
+    assert.ok([2, 0, -1].includes(result.healed))
+    assert.equal(
+      injuryDaysLeft(result.run, 'F001'),
+      4 - result.healed,
+      'the wound moves by what the poultice did',
+    )
+    assert.equal(result.run.brass, 100 - POULTICE_PRICE)
+    assert.equal(result.run.affinity.abbey, hurt.affinity.abbey - 1)
+    outcomes.add(result.healed)
+  }
+  assert.equal(outcomes.size, 3, 'the poultice can take, fail or go bad')
+  assert.ok(!poulticeOffered({ ...hurt, wipedOut: ['mire-mothers'] }))
+  assert.match(
+    treatmentBlocker(
+      { ...hurt, affinity: { ...hurt.affinity, 'mire-mothers': -80 } },
+      'F001',
+      'poultice',
+    ) ?? '',
+    /No Mire woman/,
+  )
+
+  // Saves: market state is optional and validated.
+  const noMarket: FortressRun = JSON.parse(JSON.stringify(poppet))
+  delete noMarket.market
+  assert.ok(validateRun(noMarket), 'a run from before the market still loads')
+  assert.ok(
+    !validateRun({ ...poppet, market: { ...poppet.market!, bought: ['x'] } }),
+    'unknown bought items are refused',
+  )
+  assert.ok(
+    !validateRun({
+      ...poppet,
+      market: { ...poppet.market!, treated: ['F001', 'F001'] },
+    }),
+    'a follower is treated once',
+  )
+  assert.ok(
+    !validateRun({
+      ...poppet,
+      market: { window: 99 } as unknown as FortressRun['market'],
+    }),
+  )
+}
 
 console.log('Emperor of Dust fortress contract: ok')

@@ -1,5 +1,5 @@
 import { LATE_FOLLOWERS } from './followersLate'
-import type { FollowerDef, ItemDef } from './types'
+import type { FollowerDef } from './types'
 
 // F001-F010 from conductor FOLLOWERS-PILOT-01.md, re-expressed in the v0.3
 // schema; F011-F020 live in followersLate.ts (conductor FOLLOWERS-V03.md).
@@ -430,67 +430,8 @@ export const FOLLOWERS: readonly FollowerDef[] = [
   ...LATE_FOLLOWERS,
 ]
 
-export const ITEMS: readonly ItemDef[] = [
-  {
-    id: 'old-road-crowbar',
-    name: 'Old-road Crowbar',
-    slot: 'tool',
-    price: 20,
-    text: 'Salvaged steel that does not bend.',
-    stats: { might: 2 },
-  },
-  {
-    id: 'lockpick-roll',
-    name: 'Lockpick Roll',
-    slot: 'tool',
-    price: 20,
-    text: 'Twelve picks and a patient hand.',
-    stats: { guile: 2 },
-  },
-  {
-    id: 'surveyors-glass',
-    name: 'Surveyor’s Glass',
-    slot: 'tool',
-    price: 25,
-    text: 'A lens that does not break.',
-    stats: { wits: 2 },
-  },
-  {
-    id: 'brass-bell-charm',
-    name: 'Brass Bell Charm',
-    slot: 'charm',
-    price: 20,
-    text: 'A little bell that opens doors.',
-    stats: { heart: 2 },
-  },
-  {
-    id: 'storm-glass-vial',
-    name: 'Storm-glass Vial',
-    slot: 'charm',
-    price: 30,
-    text: 'Clouds move inside it.',
-    stats: { lore: 2 },
-  },
-  {
-    id: 'field-kit',
-    name: 'Field Kit',
-    slot: 'charm',
-    price: 25,
-    text: 'Bandages, needle, a bitter tincture.',
-    ability: { kind: 'field-surgery', amount: 1 },
-  },
-  {
-    id: 'courier-spurs',
-    name: 'Courier’s Spurs',
-    slot: 'charm',
-    price: 35,
-    text: 'Every road is shorter in these.',
-    ability: { kind: 'swift', amount: 1 },
-  },
-]
+// The item catalog lives in items.ts with the market (t-024).
+export { ITEMS, itemDef } from './items'
 
 export const followerDef = (id: string): FollowerDef | undefined =>
   FOLLOWERS.find((entry) => entry.id === id)
-
-export const itemDef = (id: string): ItemDef | undefined =>
-  ITEMS.find((entry) => entry.id === id)

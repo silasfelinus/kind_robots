@@ -70,6 +70,18 @@ export function videoModelSlot(
   return null
 }
 
+// The imported catalog uses target_rel (checkpoints/Video/LTX/file or
+// diffusion_models/file); Comfy's checkpoint/UNET loaders already start INSIDE
+// their respective model folder. Do not hand them the catalog root prefix.
+export function videoComfyModelPath(resource: VideoModelResource): string {
+  const path = String(resource.localPath || '').replace(/\\\\/g, '/')
+  const slot = videoModelSlot(resource)
+  if (!slot) throw new Error('Incompatible or unsafe video model path.')
+  return slot === 'ltx'
+    ? path.replace(/^checkpoints\\//i, '')
+    : path.replace(/^(?:diffusion_models|unet)\\//i, '')
+}
+
 // Explicit tags can be set in Resource.description by a human curator.
 // Unreviewed is intentionally distinct from SFW: isMature=false alone is
 // NOT evidence that a checkpoint will consistently produce safe content.
@@ -116,7 +128,7 @@ export function validateVideoModelSelection(input: {
     if (second != null) throw new Error('LTX does not use WAN low-noise experts.')
     const resource = requireSlot(first, 'ltx')
     return {
-      paths: { ltxCheckpoint: resource.localPath! },
+      paths: { ltxCheckpoint: videoComfyModelPath(resource) },
       selectedIds: [resource.id],
       isMature: videoModelIsMature(resource),
     }
@@ -125,7 +137,7 @@ export function validateVideoModelSelection(input: {
     if (second != null) throw new Error('WAN 5B does not use a low-noise expert.')
     const resource = requireSlot(first, 'wan-ti2v')
     return {
-      paths: { wanTi2v: resource.localPath! },
+      paths: { wanTi2v: videoComfyModelPath(resource) },
       selectedIds: [resource.id],
       isMature: videoModelIsMature(resource),
     }
@@ -137,7 +149,7 @@ export function validateVideoModelSelection(input: {
   const high = requireSlot(first, 'wan-high')
   const low = requireSlot(second, 'wan-low')
   return {
-    paths: { wanHigh: high.localPath!, wanLow: low.localPath! },
+    paths: { wanHigh: videoComfyModelPath(high), wanLow: videoComfyModelPath(low) },
     selectedIds: [high.id, low.id],
     isMature: videoModelIsMature(high) || videoModelIsMature(low),
   }

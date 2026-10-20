@@ -716,8 +716,10 @@
             </h2>
             <p class="text-sm text-white/70">
               Who you finish with (or nobody) × your opening lens × the future
-              your stats earned: 35 hopeful, 35 dark. Each unlocks when you earn
-              it in play.
+              your stats earned, plus the Wild Way for finishing the quiet route
+              alone: {{ game.endingTotal / 2 }} hopeful,
+              {{ game.endingTotal / 2 }}
+              dark. Each unlocks when you earn it in play.
             </p>
           </div>
           <div class="flex gap-3 text-xs text-white/70">
@@ -738,8 +740,8 @@
           >
             <div class="flex items-center gap-2">
               <EcotoneEmblem
-                v-if="row.id !== 'alone'"
-                :id="row.id"
+                v-if="row.companion"
+                :id="row.companion"
                 :name="row.name"
                 class="size-9"
               />
@@ -747,7 +749,12 @@
                 v-else
                 class="grid size-9 place-items-center rounded-full border border-white/20 bg-black/40"
               >
-                <Icon name="kind-icon:user" class="size-5 text-white/70" />
+                <Icon
+                  :name="
+                    row.id === 'ecotopia' ? 'kind-icon:tree' : 'kind-icon:user'
+                  "
+                  class="size-5 text-white/70"
+                />
               </span>
               <h3 class="font-serif text-lg font-black">
                 {{ row.name }}
@@ -805,7 +812,7 @@ import {
   type Check,
   type CompanionId,
   type Effects,
-  type LeadId,
+  type EndingLine,
   type LensId,
   type SceneKind,
   type SkillId,
@@ -896,7 +903,8 @@ function companionName(id: CompanionId) {
   return COMPANIONS.find((c) => c.id === id)?.name ?? id
 }
 
-function leadName(id: LeadId) {
+function leadName(id: EndingLine) {
+  if (id === 'ecotopia') return 'The Wild Way'
   return id === 'alone' ? 'Alone' : companionName(id)
 }
 
@@ -1019,9 +1027,12 @@ const stage = computed<Stage>(() => {
   if (run.phase === 'end') {
     return {
       ...fallback,
-      scene: 'dunes',
-      art: 'chapters/the-impossible-festival',
-      alt: 'Kinetic sculptures racing across the dunes under two skies',
+      scene: eventInfo.value?.scene ?? 'dunes',
+      art:
+        game.ending?.lead === 'ecotopia'
+          ? 'encounters/arcata-marsh'
+          : (eventInfo.value?.art ?? 'chapters/the-impossible-festival'),
+      alt: eventInfo.value?.name ?? 'The Humboldt of your future',
       eyebrow: 'The Humboldt of your future',
       title: signature.value?.title ?? 'What comes next',
       body: [],
@@ -1079,7 +1090,7 @@ const options = computed<Option[]>(() => {
       label: event.name,
       hint: `${event.kind}. ${event.blurb}`,
       chip: `${event.days.length} days`,
-      chipTitle: `Meet ${event.companions.map(companionName).join(' or ')}`,
+      chipTitle: `Meet ${event.companions.map(companionName).join(' or ')}${event.wildTarget ? ', or nobody' : ''}`,
       thumb: { scene: event.scene, art: event.art },
       act: () => game.pickEvent(event.id),
     }))
@@ -1147,7 +1158,9 @@ const options = computed<Option[]>(() => {
       return {
         id: choice.id,
         label: fillText(choice.label, run),
-        hint,
+        hint: choice.wild
+          ? [hint, 'Animal-first'].filter(Boolean).join(' · ')
+          : hint,
         chip: chip.chip,
         chipTitle: chip.title,
         act: () => game.choose(choice.id),
@@ -1158,11 +1171,16 @@ const options = computed<Option[]>(() => {
 })
 
 const endingRows = computed(() => [
-  ...COMPANIONS.map((c) => ({ id: c.id as LeadId, name: c.name })),
-  { id: 'alone' as LeadId, name: 'Alone' },
+  ...COMPANIONS.map((c) => ({
+    id: c.id as EndingLine,
+    name: c.name,
+    companion: c.id as CompanionId | null,
+  })),
+  { id: 'alone' as EndingLine, name: 'Alone', companion: null },
+  { id: 'ecotopia' as EndingLine, name: 'The Wild Way', companion: null },
 ])
 
-function slotsFor(id: LeadId) {
+function slotsFor(id: EndingLine) {
   return ENDING_LENSES.flatMap((lens) =>
     (['hope', 'dark'] as const).map((fate) => {
       const key = `${id}.${lens}.${fate}`
@@ -1188,7 +1206,7 @@ const slotBack = computed(() => {
     : undefined
 })
 
-function endingsFor(id: LeadId) {
+function endingsFor(id: EndingLine) {
   return game.endings.filter((key) => key.startsWith(`${id}.`)).length
 }
 </script>

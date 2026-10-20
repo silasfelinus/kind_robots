@@ -3,7 +3,9 @@ export type LensId =
   'sober' | 'tipsy' | 'stoned' | 'tripping_balls' | 'cocaine' | 'meth' | 'mdma'
 export type CompanionId = 'mara' | 'kit' | 'juniper' | 'cedar'
 export type LeadId = CompanionId | 'alone'
-export type EventId = 'green-ribbon' | 'kinetic'
+/** Ending families: who you finish with, going alone, or the Wild Way (alone on the quiet route). */
+export type EndingLine = LeadId | 'ecotopia'
+export type EventId = 'green-ribbon' | 'kinetic' | 'quiet'
 export type Fate = 'hope' | 'dark'
 export type SceneKind =
   | 'meadow'
@@ -46,6 +48,8 @@ export type Choice = {
   meet?: boolean
   /** Shown but not playable yet, e.g. 'Being written'. */
   locked?: string
+  /** An animal-first choice; enough of them on the quiet route earns the Wild Way. */
+  wild?: boolean
 }
 
 export type EncounterCard = {
@@ -399,6 +403,7 @@ export const ENCOUNTERS: EncounterCard[] = [
       },
       {
         id: 'backwards-tide',
+        wild: true,
         label: 'Follow the backwards tide',
         check: { skill: 'psyche', target: 9 },
         success: {
@@ -513,6 +518,7 @@ export const ENCOUNTERS: EncounterCard[] = [
     choices: [
       {
         id: 'count-birds',
+        wild: true,
         label: 'Count the birds against the birder’s tally',
         check: { skill: 'wits', target: 9 },
         success: {
@@ -542,6 +548,7 @@ export const ENCOUNTERS: EncounterCard[] = [
       },
       {
         id: 'let-it-work',
+        wild: true,
         label: 'Sit on the boardwalk and let the marsh work',
         success: {
           text: 'The static thins out and goes quiet. Given time, it turns out, the marsh can digest almost anything.',
@@ -730,6 +737,7 @@ export const ENCOUNTERS: EncounterCard[] = [
     choices: [
       {
         id: 'sit-with-bill',
+        wild: true,
         label: 'Sit with “Bill” a while',
         success: {
           text: 'He paces, blows you a raspberry, then sits down beside you and is very still for a long time. When the scene ends, the actor hands you a finger painting “he” made. It shows a Humboldt that hasn’t happened yet.',
@@ -741,6 +749,7 @@ export const ENCOUNTERS: EncounterCard[] = [
       },
       {
         id: 'run-with-snerfy',
+        wild: true,
         label: 'Run the fence with “Snerfy”',
         check: { skill: 'burly', target: 7 },
         success: {
@@ -1027,9 +1036,10 @@ export const ENDING_LENSES: LensId[] = [
   'mdma',
 ]
 
-export const ENDING_LEADS: LeadId[] = [
+export const ENDING_LEADS: EndingLine[] = [
   ...COMPANIONS.map((companion) => companion.id),
   'alone',
+  'ecotopia',
 ]
 
 export const ENDING_IDS: string[] = ENDING_LEADS.flatMap((lead) =>

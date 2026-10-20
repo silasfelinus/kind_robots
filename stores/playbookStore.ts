@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { ALL_CARDS } from '~/utils/ecotone/engine'
-import type { LeadId, LensId } from '~/utils/ecotone/content'
+import type { EndingLine, LensId } from '~/utils/ecotone/content'
 import {
   buildEcotonePlaybook,
   playbookCardNode,
@@ -77,7 +77,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const route = ref<string>('all')
   const kinds = ref<NodeKind[]>([])
   const day = ref<number | null>(null)
-  const companion = ref<LeadId | null>(null)
+  const companion = ref<EndingLine | null>(null)
   const lens = ref<LensId | null>(null)
   const status = ref<PlaybookStatus>('all')
   const search = ref('')

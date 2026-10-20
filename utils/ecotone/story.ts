@@ -3,8 +3,8 @@ import type {
   CompanionId,
   EncounterCard,
   EventId,
+  EndingLine,
   Fate,
-  LeadId,
   LensId,
   SceneKind,
 } from './content'
@@ -13,6 +13,8 @@ import type {
 // and the fixed story beats each route walks through between the daily white-rabbit forks.
 // Silas, 2026-10-20 PT: area first, then the offer, then the companion (or nobody);
 // the Kinetic route conscripts you into the race. Recorded in conductor weird-humboldt t-032.
+// Silas, 2026-10-20 PT later: a third, contemplative opening (the marsh, the zoo) that can lead to a
+// companion another way or straight onto the solo path, with an animal-first Wild Way ending line.
 
 export type EventInfo = {
   id: EventId
@@ -27,6 +29,8 @@ export type EventInfo = {
   days: string[]
   /** Future score needed for the hopeful ending; the longer race asks more of you. */
   futureTarget: number
+  /** Quiet route only: animal-first choices needed for the Wild Way's paradise when you finish alone. */
+  wildTarget?: number
   provenance: string
 }
 
@@ -63,6 +67,23 @@ export const EVENTS: EventInfo[] = [
     provenance:
       'The Kinetic Grand Championship is real: a three-day race of human-powered art sculptures from Arcata to Ferndale over Memorial Day weekend. The afterparty, teams, injury and anomalies are invented.',
   },
+  {
+    id: 'quiet',
+    name: 'The Quiet Way',
+    kind: 'No festival at all: the marsh, the zoo, or a trail nobody else knows',
+    blurb:
+      'Skip both flyers for a contemplative day on your own. The marsh may lead to Juniper and the zoo to Kit, or you can keep the whole county to yourself. Choose the animals often enough and finish alone, and the Wild Way opens.',
+    pick: 'You leave both flyers on the pole and walk the other way, toward the water and the birds.',
+    scene: 'marsh',
+    art: 'encounters/arcata-marsh',
+    companions: ['juniper', 'kit'],
+    lenses: ['sober', 'stoned', 'tripping_balls'],
+    days: ['Saturday', 'Sunday', 'Monday'],
+    futureTarget: 5,
+    wildTarget: 4,
+    provenance:
+      'The Arcata Marsh and Wildlife Sanctuary, the Sequoia Park Zoo, Elk Prairie and the Mad River are real places. Past zoo animals appear only as memory, performance or vision. Everyone you meet is invented.',
+  },
 ]
 
 export const EVENT_CHOICE = {
@@ -73,6 +94,7 @@ export const EVENT_CHOICE = {
   body: [
     'Two flyers are stapled to the same telephone pole on the Arcata Plaza. One is green, hand-printed, and smells faintly of the forest. The other is a photocopy of a giant pedal-powered banana slug.',
     'A white rabbit in a tiny racing helmet hops past both, checks a pocket watch and says, to nobody, “Late, late, the fog won’t wait.” Then it is gone, and the choice of which one to chase is yours.',
+    'Or chase neither. The marsh is a ten-minute walk, the zoo opens at ten, and nobody is expecting you anywhere.',
   ],
 }
 
@@ -390,6 +412,312 @@ export const BEATS: EncounterCard[] = [
     ],
     provenance:
       'An invented fair’s closing night. The forest, the petition and the buyer are invented.',
+  },
+  {
+    id: 'QW-1',
+    kind: 'spine',
+    event: 'quiet',
+    day: 1,
+    chapter: 1,
+    place: 'Arcata, early',
+    title: 'A Day to Yourself',
+    scene: 'marsh',
+    art: 'encounters/arcata-marsh',
+    body: [
+      'The Plaza is filling up with costumes and pedal-powered beasts, and somewhere out by the forest a fair is warming up, and you do not want any of it. You want quiet.',
+      'Humboldt has plenty. The marsh is a ten-minute walk. The zoo opens at ten. And behind the community forest there is a deer trail that, as far as you know, nobody else has ever found.',
+    ],
+    choices: [
+      {
+        id: 'marsh',
+        label: 'Walk out to the Arcata Marsh',
+        prospect: 'juniper',
+        wild: true,
+        success: {
+          text: 'Egrets lift off the ponds as you pass, unbothered. On the far boardwalk a young woman with a green ribbon in her hair is talking to a heron, and the heron appears to be answering.',
+          effects: { weird: 1 },
+        },
+      },
+      {
+        id: 'zoo',
+        label: 'Visit the Sequoia Park Zoo',
+        prospect: 'kit',
+        wild: true,
+        success: {
+          text: 'You walk the Redwood Sky Walk through the canopy, then stop by the entrance where the prairie dogs used to pop up. A woman in patched coveralls is standing there too, very still, juggling nothing at all.',
+          effects: { flag: 'zoo_morning' },
+        },
+      },
+      {
+        id: 'trail',
+        label: 'Take the deer trail nobody else knows',
+        wild: true,
+        cost: 'Nobody to meet today, and that is the point',
+        success: {
+          text: 'The trail leaves the last house behind in a hundred steps. A doe watches you go by, then follows at a polite distance for a mile, as if seeing you off.',
+          effects: { nerve: 1 },
+        },
+      },
+    ],
+    provenance:
+      'The Arcata Marsh and Wildlife Sanctuary and the Sequoia Park Zoo, with its Redwood Sky Walk, are real. The prairie dogs are a memory, not current residents. The deer trail is invented.',
+  },
+  {
+    id: 'QW-2',
+    kind: 'spine',
+    event: 'quiet',
+    day: 1,
+    chapter: 1,
+    place: 'A bench above the water',
+    title: 'The Bench by the Water',
+    scene: 'marsh',
+    variantBy: 'prospect',
+    body: [
+      'The trail ends at a bench above a slough with the whole bay in view. Someone has left a thermos of coffee there with a note: FOR WHOEVER NEEDS IT. Beside it sits a tidy little tin of the serious brownies with its own note: ONLY IF YOU MEANT TO COME HERE.',
+      'There is also, in your pocket, the joint a neighbor gave you last week. Nobody is watching. That is the point.',
+    ],
+    variants: {
+      juniper: [
+        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. In her other hand there is a joint, and on the bench between you a small labeled tin of the serious brownies.',
+        '“Nobody has to,” she says. “The marsh is plenty either way.”',
+      ],
+      kit: [
+        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, and holds out half a sandwich, then a joint, then, more carefully, a little labeled tin of the serious brownies.',
+        '“Nobody has to. I just don’t like eating alone.”',
+      ],
+    },
+    choices: [
+      {
+        id: 'sober',
+        label: 'Sober: coffee and binoculars',
+        lens: 'sober',
+        check: { skill: 'wits', target: 7 },
+        success: {
+          text: 'Through the binoculars a heron stands on one leg in exactly the spot it occupies in the photo on the interpretive sign. Exactly. You write that down.',
+          effects: {
+            evidence: 'A heron standing in the sign photo’s exact spot',
+          },
+        },
+        failure: {
+          text: 'You count ducks for an hour and lose count twice. It is the best hour of your month.',
+          effects: { nerve: 1 },
+        },
+      },
+      {
+        id: 'stoned',
+        label: 'Stoned: a quiet smoke and the long view',
+        lens: 'stoned',
+        check: { skill: 'psyche', target: 9 },
+        success: {
+          text: 'The tide comes in with a sound like breathing, and for a while you breathe with it. Under the water something enormous and patient turns over in its sleep.',
+          effects: { evidence: 'The bay breathing in its sleep', weird: 1 },
+        },
+        failure: {
+          text: 'You lose an hour to a single cloud. The cloud seemed to enjoy it.',
+          effects: { weird: 1 },
+        },
+      },
+      {
+        id: 'tripping',
+        label:
+          'Tripping: a clearly labeled, entirely fictional enchanted brownie',
+        lens: 'tripping_balls',
+        check: { skill: 'psyche', target: 9 },
+        success: {
+          text: 'The birds begin to speak in a language you almost know. By sunset you can make out one word, repeated by every heron on the marsh: stay.',
+          effects: {
+            evidence: 'Every heron saying the same word',
+            weird: 1,
+            flag: 'heron_word',
+          },
+        },
+        failure: {
+          text: 'The reeds lean in to tell you something and you giggle at the wrong moment. They take it well. The colors stay with you anyway.',
+          effects: { weird: 1, nerve: -1 },
+        },
+      },
+    ],
+    provenance:
+      'A voluntary adult choice in a quiet place. No dosages, sources or real products.',
+  },
+  {
+    id: 'QW-3',
+    kind: 'spine',
+    event: 'quiet',
+    day: 1,
+    chapter: 1,
+    place: 'The marsh or the zoo',
+    title: 'Someone Worth Following',
+    scene: 'marsh',
+    variantBy: 'prospect',
+    body: [
+      'Someone else came here for the quiet, and noticed the same strange things you did.',
+    ],
+    variants: {
+      juniper: [
+        'The woman with the ribbon says her name is Juniper and that the marsh is new, which is a strange thing to say about a place full of birds. “People built it out of a dump,” she says. “I like things that started as a dump.”',
+        'Tomorrow she is walking north to see what else is repeating. “You can come. Or you can keep your quiet. Both are good answers.”',
+      ],
+      kit: [
+        '“Kit,” she says. “When I was a kid I used to race the otter along his fence. Snerfy. He always won.” She points at a fence that isn’t there anymore. “I miss the ones who aren’t here.”',
+        '“My troupe is doing a thing for them. Come with me till then, or don’t. You look like somebody who needs a quiet day, and I respect that.”',
+      ],
+    },
+    choices: MEET_CHOICES,
+    provenance:
+      'Invented characters. Snerfy is a remembered zoo otter, not a current resident.',
+  },
+  {
+    id: 'QW-4',
+    kind: 'spine',
+    event: 'quiet',
+    day: 2,
+    chapter: 4,
+    place: 'Elk Prairie, Prairie Creek Redwoods',
+    title: 'The Elk Meadow',
+    scene: 'grove',
+    body: [
+      'An hour north, where the redwoods open onto a long green prairie, a herd of Roosevelt elk grazes in the mist. There are signs everywhere telling you to keep your distance, and you do.',
+      'The bull lifts his head and looks at you for a long time. Then the whole herd, all at once, turns to face the same direction: not toward you, but toward the coast, as if they are waiting for something to come up the road.',
+    ],
+    lensLines: {
+      sober:
+        'You time it: the herd turned at 9:41 exactly, every head at once, with no sound you could hear.',
+      tipsy:
+        'Somebody’s cousin is at the visitor center telling elk stories, and every one of them is true.',
+      stoned:
+        'The prairie is breathing the same slow breath as the bay was. The elk are breathing it too.',
+      tripping_balls:
+        'The elk are not looking at the road. They are looking at a year, and you can almost see it too: green, and crowded with animals.',
+    },
+    leadLines: {
+      juniper:
+        'Juniper sits down in the wet grass, very still. “They know something,” she whispers. “They always know first.”',
+      kit: 'Kit is watching the elk with her hands in her pockets, for once not juggling anything.',
+      cedar:
+        'Cedar’s handheld radio hisses. “Herd’s turned west,” says the calm voice, as if it were a weather report.',
+      mara: 'Mara is sketching the bull’s antlers, fast. On her page they branch into a seventh tine that isn’t there.',
+    },
+    aloneLine: 'Nobody here knows your name. The elk don’t need it.',
+    choices: [
+      {
+        id: 'wait',
+        label: 'Sit at a respectful distance and wait with the herd',
+        wild: true,
+        cost: 'It takes the whole day',
+        success: {
+          text: 'Near sunset a single fox trots up the road the elk were watching, carrying something in its mouth, and the herd goes back to grazing as if a question has been answered. You will never know what. You don’t mind.',
+          effects: { nerve: 1, goodwill: 1 },
+        },
+      },
+      {
+        id: 'ranger',
+        label: 'Find the ranger and ask what the herd is waiting for',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The ranger has noticed too. She keeps a whole notebook of the days the herd turns west, and she lets you copy the last page.',
+          effects: {
+            evidence: 'A ranger’s log of the days the herd turns west',
+          },
+        },
+        failure: {
+          text: 'The ranger is very busy and very polite. You get a pamphlet and a reminder about the distance rules.',
+          effects: {},
+        },
+      },
+      {
+        id: 'road',
+        label: 'Follow their gaze down to the coast road',
+        check: { skill: 'psyche', target: 9 },
+        success: {
+          text: 'On the road there is nothing, except a line of elk tracks that stops in the middle of the asphalt, as if the elk who made it stepped into another year.',
+          effects: {
+            evidence: 'Elk tracks that stop in the middle of the road',
+            weird: 1,
+          },
+        },
+        failure: {
+          text: 'You walk the road for an hour and find an excellent sandwich shop, which is its own kind of answer.',
+          effects: {},
+        },
+      },
+    ],
+    provenance:
+      'Elk Prairie in Prairie Creek Redwoods State Park is real, and so are its Roosevelt elk and its keep-your-distance rules. The herd’s timing, the ranger and her notebook are invented.',
+  },
+  {
+    id: 'QW-5',
+    kind: 'spine',
+    event: 'quiet',
+    day: 3,
+    chapter: 4,
+    place: 'Up the Mad River',
+    title: 'The Long Quiet',
+    scene: 'grove',
+    body: [
+      'On the last morning you drive up the Mad River until the road turns to gravel and the gravel to a footpath. There is a cabin up here, empty, with a for-sale sign so old the phone number has five digits.',
+      'From the porch you can see an osprey nest, a gravel bar where the salmon used to run thick, and a hillside replanted in rows of young redwoods. Somebody started something here and didn’t finish it. The quiet is waiting to see whether you will.',
+    ],
+    lensLines: {
+      sober:
+        'The redwood rows are exactly six feet apart, planted by someone who measured. The newest ones are not more than ten years old.',
+      tipsy:
+        'You raise your thermos to the osprey. It does not raise anything back, but it does stay.',
+      stoned:
+        'The river is saying the same thing over and over, patiently, the way rivers do.',
+      tripping_balls:
+        'For a moment the hillside is a forest a hundred years old, and the gravel bar is silver with salmon, and then it is now again. Both are true.',
+    },
+    leadLines: {
+      juniper:
+        'Juniper puts her palm flat on the porch rail. “Somebody loved this place,” she says. “It’s still deciding whether to forgive them for leaving.”',
+      kit: 'Kit wanders down to the gravel bar and starts stacking stones into a little sculpture that the river immediately improves.',
+      cedar:
+        'Cedar reads the for-sale sign twice. “That number’s been disconnected since before I was born,” he says. “Try it anyway.”',
+      mara: 'Mara sits on the steps drawing the osprey. For once the drawing has exactly as many wings as the bird.',
+    },
+    aloneLine:
+      'It is the quietest place you have ever been, and you came here on your own. You could stay.',
+    choices: [
+      {
+        id: 'restore',
+        label:
+          'Spend the day hauling brush out of the creek so the salmon can come back',
+        wild: true,
+        check: { skill: 'burly', target: 9 },
+        success: {
+          text: 'By dark the creek runs clear past the gravel bar, and in the last light a single salmon noses up into it, the first in years, or the first you have ever seen. You decide to keep doing this.',
+          effects: { goodwill: 1, flag: 'creek_restored' },
+        },
+        failure: {
+          text: 'The brush wins today. But you cleared enough that the creek sounds different, and you know you will be back.',
+          effects: { flag: 'creek_started' },
+        },
+      },
+      {
+        id: 'call',
+        label: 'Call the five-digit number on the sign',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The number connects, impossibly, to the person who planted the redwoods forty years ago. She tells you what she meant to do with the place. It is a long call.',
+          effects: { evidence: 'The plan for the cabin on the Mad River' },
+        },
+        failure: {
+          text: 'The number rings and rings, somewhere in another decade.',
+          effects: { weird: 1 },
+        },
+      },
+      {
+        id: 'porch',
+        label: 'Just sit on the porch until it gets dark',
+        success: {
+          text: 'You sit. The osprey comes and goes. It is perfect, and at the end of it you have decided nothing at all.',
+          effects: { nerve: 1 },
+        },
+      },
+    ],
+    provenance:
+      'The Mad River is real. The cabin, the replanted hillside, the five-digit number and the person who planted the trees are invented.',
   },
   {
     id: 'KN-1',
@@ -756,7 +1084,8 @@ export const BEATS: EncounterCard[] = [
 ]
 
 export type RouteStep =
-  | { kind: 'beat'; id: string; day: number }
+  /** ifProspect: skipped when the opening led you to nobody (straight onto the solo path). */
+  | { kind: 'beat'; id: string; day: number; ifProspect?: boolean }
   | {
       kind: 'fork'
       day: number
@@ -798,6 +1127,36 @@ export const ROUTES: Record<EventId, RouteStep[]> = {
       scene: 'bay',
     },
     { kind: 'beat', id: 'GR-5', day: 3 },
+    { kind: 'finale', day: 3 },
+  ],
+  quiet: [
+    { kind: 'beat', id: 'QW-1', day: 1 },
+    { kind: 'beat', id: 'QW-2', day: 1 },
+    { kind: 'beat', id: 'QW-3', day: 1, ifProspect: true },
+    {
+      kind: 'fork',
+      day: 1,
+      title: 'Saturday afternoon, close to home',
+      pools: [1],
+      scene: 'marsh',
+    },
+    { kind: 'beat', id: 'QW-4', day: 2 },
+    {
+      kind: 'fork',
+      day: 2,
+      title: 'Sunday on the coast',
+      pools: [2],
+      scene: 'beach',
+    },
+    { kind: 'crossroads', day: 2 },
+    {
+      kind: 'fork',
+      day: 3,
+      title: 'Monday in Eureka',
+      pools: [3],
+      scene: 'bay',
+    },
+    { kind: 'beat', id: 'QW-5', day: 3 },
     { kind: 'finale', day: 3 },
   ],
   kinetic: [
@@ -843,6 +1202,46 @@ export const FORK_PROMPT =
 export type Signature = { title: string; line: string }
 
 export const SIGNATURES: Record<string, Record<Fate, Signature>> = {
+  'ecotopia.sober': {
+    hope: {
+      title: 'The Census of Everything',
+      line: 'Your counts become the baseline the whole county restores toward.',
+    },
+    dark: {
+      title: 'Field Notes for No One',
+      line: 'Every bird is in your notebook, and the notebook stays on your shelf.',
+    },
+  },
+  'ecotopia.tipsy': {
+    hope: {
+      title: 'The Long Toast',
+      line: 'Every town meeting about the river ends with a raised glass and a vote for the fish.',
+    },
+    dark: {
+      title: 'The Bar Stool Naturalist',
+      line: 'You tell the best elk stories in the county, to the same three people, every night.',
+    },
+  },
+  'ecotopia.stoned': {
+    hope: {
+      title: 'The Slow Green Country',
+      line: 'The county learns to move at the speed of the marsh, and it grows.',
+    },
+    dark: {
+      title: 'Smoke Over the Water',
+      line: 'You watched the tide breathe for thirty years and never once breathed out.',
+    },
+  },
+  'ecotopia.tripping_balls': {
+    hope: {
+      title: 'The Animals’ Parliament',
+      line: 'The herons said stay, and the county stayed, and so did the animals.',
+    },
+    dark: {
+      title: 'The Door Left Open',
+      line: 'You saw the green future clearly, and left it for someone else to walk through.',
+    },
+  },
   'juniper.sober': {
     hope: {
       title: 'Patient Canopy',
@@ -1045,7 +1444,17 @@ export const SIGNATURES: Record<string, Record<Fate, Signature>> = {
   },
 }
 
-export const FUTURES: Record<LeadId, Record<Fate, string[]>> = {
+export const FUTURES: Record<EndingLine, Record<Fate, string[]>> = {
+  ecotopia: {
+    hope: [
+      'Thirty years on, Humboldt is where other places send their people to learn how it was done: the marsh twice its size, elk grazing on the old mill sites, salmon back in creeks that had forgotten them, and towns that grew up around the animals instead of over them.',
+      'Nobody remembers it starting with one person who kept choosing the animals, again and again, when nobody was watching. You remember. The herons do too.',
+    ],
+    dark: [
+      'You never quite chose. You loved the herons and the elk and the fog, and you kept loving them from a little distance. Things didn’t get worse, exactly. They just never got better.',
+      'You retire to a cabin up the Mad River with a woodstove, a good pair of binoculars and a notebook of every bird that ever came to your feeder. Some mornings the elk come down to the meadow and you wave. It is a small, kind, quiet life, and the county went on deciding without you.',
+    ],
+  },
   mara: {
     hope: [
       'Ten years on, Mara’s studio on the Plaza has three paid apprentices and a waiting list, and the six-winged bird is hers again, credited on every wall it appears on. Whatever kept finishing her work was a future that wanted her to stop waiting for permission. She stopped.',

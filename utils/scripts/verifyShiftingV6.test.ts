@@ -257,6 +257,17 @@ for (const example of endingCases) {
   assert.equal(headings.size, 3, 'survival, loss and retreat read differently')
 }
 assert.equal(endingsSeen.size, 10, 'ten distinct ledger ending narratives')
+assert.equal(
+  endingKindForMarks({
+    mercy: 3,
+    honesty: 3,
+    courage: 3,
+    cunning: 3,
+    ruthlessness: 3,
+  }),
+  'unnamed-road',
+  'five tied moral marks do not imply a uniquely merciful journey',
+)
 assert.equal(authoredEndingV6(endingSeed, []), null, 'no premature ending')
 const finalState = {
   ...endingSeed,

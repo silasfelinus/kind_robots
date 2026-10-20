@@ -14,7 +14,19 @@ assert.match(
   engine,
   /const commsTop = 33 \+ Math\.max\(0, activePlayers - 1\) \* 10/,
 )
-assert.match(engine, /g\.fillRect\(15, commsTop, W - 30, 51\)/)
+// Silas, 2026-10-20: "the messages just need to show up and replace the header." A comms line takes the
+// HUD bar's slot at the top edge, and the HUD (act, controls, scores, seat status) steps aside while it plays.
+assert.match(engine, /const COMMS_HEIGHT = 51\n/)
+assert.match(
+  engine,
+  /if \(!dialogue\) \{\n\s+g\.fillStyle = '#180d38e8'\n\s+g\.fillRect\(0, 0, W, 29\)/,
+)
+assert.match(engine, /g\.fillRect\(0, 0, W, COMMS_HEIGHT\)/)
+assert.doesNotMatch(
+  engine,
+  /fillRect\(15, commsTop, W - 30, 51\)/,
+  'the comms box no longer stacks under the HUD',
+)
 assert.doesNotMatch(
   engine,
   /H - (63|47|33|28|17)\b/,

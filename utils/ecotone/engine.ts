@@ -740,21 +740,23 @@ function isCardList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((id) => Boolean(findCard(id)))
 }
 
-const LEGACY_LENS_QUESTS: Record<string, { title: string; replacement: string }> =
-  {
-    'WH-004': {
-      title: 'A Fast Hour in a Bottle',
-      replacement: 'LX-FAST-01',
-    },
-    'WH-037': {
-      title: 'The River Does Not Sleep',
-      replacement: 'LX-NIGHT-01',
-    },
-    'WH-058': {
-      title: 'The Peacock Has a Warrant',
-      replacement: 'LX-HEART-01',
-    },
-  }
+const LEGACY_LENS_QUESTS: Record<
+  string,
+  { title: string; replacement: string }
+> = {
+  'WH-004': {
+    title: 'A Fast Hour in a Bottle',
+    replacement: 'LX-FAST-01',
+  },
+  'WH-037': {
+    title: 'The River Does Not Sleep',
+    replacement: 'LX-NIGHT-01',
+  },
+  'WH-058': {
+    title: 'The Peacock Has a Warrant',
+    replacement: 'LX-HEART-01',
+  },
+}
 
 /**
  * The old and new quest decks both used save version 4. A bare WH-004,
@@ -767,7 +769,8 @@ function migrateRecordedLensQuests(state: RunState): RunState {
   const proven = new Map<string, string>()
   for (const entry of state.log) {
     const old = LEGACY_LENS_QUESTS[entry.source]
-    if (old && entry.title === old.title) proven.set(entry.source, old.replacement)
+    if (old && entry.title === old.title)
+      proven.set(entry.source, old.replacement)
   }
   if (proven.size === 0) return state
   const migrateEntry = (entry: LogEntry): LogEntry => {

@@ -126,7 +126,7 @@ for (const lead of ENDING_LEADS) {
 for (const lens of openLenses) assert.ok(LENS_CODAS[lens], `${lens} coda`)
 
 // Full regional manuscript: 120 canonical seed IDs, every choice and result written.
-const canonical = ENCOUNTERS.filter((c) => /^WH-\\d{3}$/.test(c.id) && Number(c.id.slice(3)) <= 120)
+const canonical = ENCOUNTERS.filter((c) => /^WH-\d{3}$/.test(c.id) && Number(c.id.slice(3)) <= 120)
 assert.equal(canonical.length, 120, 'all 120 canonical regional quests exist as cards')
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')

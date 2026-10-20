@@ -11,6 +11,8 @@ import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { decodeArtJobPayload } from '../../../utils/artJobPayload'
 import { applyCurrentArtImageState } from '../../../utils/artJobImageState'
+import { readGalleryMaturityFilter } from '../../../utils/artImageAccess'
+import { buildArtJobMaturityWhere } from '../../../utils/artJobMaturityFilter'
 
 const STATUSES = new Set(['PENDING', 'RUNNING', 'DONE', 'FAILED', 'CANCELLED'])
 const DEFAULT_PAGE_SIZE = 20
@@ -26,7 +28,9 @@ export default defineEventHandler(async (event) => {
     const auth = await requireMachineUser(event)
     const query = getQuery(event)
 
-    const where: Prisma.ArtJobWhereInput = {}
+    const where: Prisma.ArtJobWhereInput = buildArtJobMaturityWhere(
+      readGalleryMaturityFilter(query.maturity as string | undefined),
+    )
 
     if (!auth.isAdmin && !auth.isServerKey) {
       where.userId = auth.user.id

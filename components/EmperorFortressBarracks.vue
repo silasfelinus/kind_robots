@@ -221,6 +221,7 @@
       <p v-if="talk && talkedToday(run) && !talking" class="text-xs opacity-70">
         You have already sat with someone today. {{ def.name }} will keep.
       </p>
+      <EmperorFortressCodexNote />
       <p class="text-sm opacity-85">{{ def.biography }}</p>
 
       <ul class="space-y-1 text-xs">
@@ -260,23 +261,38 @@
         >
           Traits
         </p>
-        <ul class="mt-1 flex flex-wrap gap-1">
+        <ul class="mt-1 space-y-1">
           <li
             v-for="trait in knownTraits"
             :key="trait.id"
-            class="rounded border px-2 py-0.5 text-xs"
+            class="border-l-2 pl-2 text-xs"
             :class="
-              trait.amount < 0
-                ? 'border-error/50 text-error'
-                : 'border-success/50 text-success'
+              trait.kind === 'allegiance'
+                ? 'border-info'
+                : trait.amount < 0
+                  ? 'border-error'
+                  : 'border-success'
             "
-            :title="trait.text"
           >
-            {{ trait.name }}
+            <strong
+              :class="
+                trait.kind === 'allegiance'
+                  ? 'text-info'
+                  : trait.amount < 0
+                    ? 'text-error'
+                    : 'text-success'
+              "
+              >{{ trait.name }}</strong
+            >
+            <span class="opacity-70"> · {{ traitTag(trait) }}</span>
+            <span class="block opacity-85">{{ trait.text }}</span>
+            <span class="block italic opacity-60">{{
+              howLearned(run, trait.id)
+            }}</span>
           </li>
           <li
             v-if="hiddenCount"
-            class="rounded border border-dashed border-base-content/30 px-2 py-0.5 text-xs opacity-70"
+            class="inline-block rounded border border-dashed border-base-content/30 px-2 py-0.5 text-xs opacity-70"
             :title="`${hiddenCount} secret${hiddenCount === 1 ? '' : 's'} not yet revealed. They show themselves when they matter.`"
           >
             {{ hiddenCount }} unknown
@@ -341,12 +357,14 @@ import {
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import { departedFollowers } from '~/utils/emperorOfDust/fortress/betrayal'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
+import { howLearned } from '~/utils/emperorOfDust/fortress/codex'
 import { STATS } from '~/utils/emperorOfDust/fortress/types'
 import type {
   FortressRun,
   ItemDef,
   ItemSlot,
   SceneLine,
+  TraitDef,
 } from '~/utils/emperorOfDust/fortress/types'
 
 const SLOTS: ItemSlot[] = ['tool', 'charm']
@@ -434,6 +452,7 @@ watch(
   () => {
     talkReply.value = ''
     talking.value = props.run.talkOpen?.id === talk.value?.id && !!talk.value
+    court.dismissLearned()
   },
   { immediate: true },
 )
@@ -463,6 +482,18 @@ const statusLine = computed(() => {
 })
 
 const nameOf = (id: string) => followerDef(id)?.name ?? id
+/** "+3 on tracking", "−2 with Jackalwire Pack", "+2 Wits". */
+const traitTag = (trait: TraitDef) => {
+  const amount = `${trait.amount > 0 ? '+' : '−'}${Math.abs(trait.amount)}`
+  if (trait.trigger.faction)
+    return `${trait.kind === 'allegiance' ? 'true allegiance, ' : ''}${amount} on ${
+      KINGDOM_FACTION_DEFS.find((f) => f.id === trait.trigger.faction)?.name ??
+      trait.trigger.faction
+    } quests`
+  if (trait.trigger.stat)
+    return `${amount} when ${trait.trigger.stat} is needed`
+  return `${amount} on ${trait.trigger.tag ?? 'some'} work`
+}
 const shortStatus = (id: string) => {
   const status = followerStatus(props.run, id)
   if (status === 'injured') return `Injured · ${injuryDaysLeft(props.run, id)}d`

@@ -121,16 +121,46 @@ function feedThumbnailExpiry(now: number): number {
   return bucketStart + GALLERY_ARCHIVE_MEDIA_TTL_MS
 }
 
-export function galleryThumbnailUrl(
+// Recycle Bin tiles show images that are no longer active, which the feed
+// capability deliberately refuses. They get their own prefix so a feed
+// signature can never reach a recycled image, nor a recycled one an active.
+const RECYCLED_THUMBNAIL_PREFIX = 'recycled-thumbnail'
+
+function signedThumbnailUrl(
+  prefix: string,
   artImageId: number,
-  now: number = Date.now(),
+  now: number,
 ): string {
   const expiresAt = feedThumbnailExpiry(now)
   const signature = signMediaCapability(
     signingKey(),
-    `${artImageId}:${FEED_THUMBNAIL_PREFIX}:${expiresAt}`,
+    `${artImageId}:${prefix}:${expiresAt}`,
   )
   return `/api/art/image/${artImageId}/thumbnail?exp=${expiresAt}&sig=${signature}`
+}
+
+function verifySignedThumbnail(
+  prefix: string,
+  artImageId: number,
+  expiresAt: unknown,
+  signature: unknown,
+  now: number,
+): boolean {
+  return verifyMediaCapability(
+    signingKey(),
+    `${artImageId}:${prefix}:${Number(expiresAt)}`,
+    expiresAt,
+    signature,
+    now,
+    GALLERY_ARCHIVE_MEDIA_TTL_MS,
+  )
+}
+
+export function galleryThumbnailUrl(
+  artImageId: number,
+  now: number = Date.now(),
+): string {
+  return signedThumbnailUrl(FEED_THUMBNAIL_PREFIX, artImageId, now)
 }
 
 export function verifyGalleryThumbnail(
@@ -139,12 +169,33 @@ export function verifyGalleryThumbnail(
   signature: unknown,
   now: number = Date.now(),
 ): boolean {
-  return verifyMediaCapability(
-    signingKey(),
-    `${artImageId}:${FEED_THUMBNAIL_PREFIX}:${Number(expiresAt)}`,
+  return verifySignedThumbnail(
+    FEED_THUMBNAIL_PREFIX,
+    artImageId,
     expiresAt,
     signature,
     now,
-    GALLERY_ARCHIVE_MEDIA_TTL_MS,
+  )
+}
+
+export function recycledThumbnailUrl(
+  artImageId: number,
+  now: number = Date.now(),
+): string {
+  return signedThumbnailUrl(RECYCLED_THUMBNAIL_PREFIX, artImageId, now)
+}
+
+export function verifyRecycledThumbnail(
+  artImageId: number,
+  expiresAt: unknown,
+  signature: unknown,
+  now: number = Date.now(),
+): boolean {
+  return verifySignedThumbnail(
+    RECYCLED_THUMBNAIL_PREFIX,
+    artImageId,
+    expiresAt,
+    signature,
+    now,
   )
 }

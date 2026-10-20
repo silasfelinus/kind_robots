@@ -11,9 +11,7 @@ import { createError, defineEventHandler, getRouterParam } from 'h3'
 import prisma from '~/server/utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireAdminApiUser } from '~/server/utils/authGuard'
-import { getArtArchiveRoot } from '~/server/utils/artArchiveRoot'
-import { restoreConfinedArchiveFile } from '~/server/utils/artArchiveFileOps'
-import { realpath } from 'node:fs/promises'
+import { restoreArchiveEntry } from '~/server/utils/artArchiveQuarantine'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -41,7 +39,8 @@ export default defineEventHandler(async (event) => {
         statusCode: 404,
         message: `Archive entry #${id} not found.`,
       })
-    if (entry.isActive) {
+    const result = await restoreArchiveEntry(entry)
+    if (result.alreadyActive) {
       return {
         success: true,
         message: `Archive entry #${id} was not quarantined.`,
@@ -49,38 +48,7 @@ export default defineEventHandler(async (event) => {
         statusCode: 200,
       }
     }
-
-    let restoredRelativePath: string | null = null
-    if (entry.preQuarantineRelativePath) {
-      const resolvedRoot = await realpath(getArtArchiveRoot())
-      await restoreConfinedArchiveFile(
-        resolvedRoot,
-        entry.relativePath,
-        entry.preQuarantineRelativePath,
-      )
-      restoredRelativePath = entry.preQuarantineRelativePath
-    }
-
-    await prisma.$transaction(async (tx) => {
-      await tx.archiveEntry.update({
-        where: { id },
-        data: {
-          isActive: true,
-          ...(restoredRelativePath
-            ? {
-                relativePath: restoredRelativePath,
-                preQuarantineRelativePath: null,
-              }
-            : {}),
-        },
-      })
-      if (entry.artImageId) {
-        await tx.artImage.update({
-          where: { id: entry.artImageId },
-          data: { isActive: true },
-        })
-      }
-    })
+    const { restoredRelativePath } = result
 
     return {
       success: true,

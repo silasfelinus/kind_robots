@@ -12,11 +12,12 @@ import type {
   GalleryPrivacyFilter,
 } from '@/stores/artCollectionBrowseStore'
 import { handleError, performFetch } from '@/stores/utils'
+import { DEFAULT_ART_FEED_RANGE, type ArtFeedRange } from '~/utils/artFeedRange'
 
 export type ArtFeedImage = ArtImage & { thumbnailUrl: string }
 
 export type ArtFeedFilters = {
-  range: 'recent' | 'all'
+  range: ArtFeedRange
   privacy: GalleryPrivacyFilter
   maturity: GalleryMaturityFilter
   collectionId: number | null
@@ -54,7 +55,7 @@ export const useArtFeedStore = defineStore('artFeedStore', () => {
   const isLoading = ref(false)
   const errorMessage = ref('')
   const filters = ref<ArtFeedFilters>({
-    range: 'recent',
+    range: DEFAULT_ART_FEED_RANGE,
     privacy: 'public',
     maturity: 'safe',
     collectionId: null,

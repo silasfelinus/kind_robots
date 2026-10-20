@@ -187,6 +187,7 @@ export async function validateAndLoadArtCollectionId(
     where: {
       label,
       userId,
+      isActive: true,
     },
   })
 

@@ -20,7 +20,7 @@ import {
 } from '~/utils/emperorOfDust/fortress/market'
 import type { TreatmentKind } from '~/utils/emperorOfDust/fortress/market'
 import { FORTRESS_LIVE_TEXT } from '~/utils/emperorOfDust/fortress/content'
-import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
+import { allegiancesKnown } from '~/utils/emperorOfDust/fortress/codex'
 import {
   SLOT_COUNT,
   decodeBook,
@@ -105,6 +105,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const slotUnreadable = ref<boolean[]>(Array(SLOT_COUNT).fill(false))
   const lastResponse = ref('')
   const lastReport = ref<DawnReport | null>(null)
+  /** Codex ids learned by the last answer or talk, for the reveal moment. */
+  const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const textSpeed = ref<TextSpeed>('normal')
   let relicVaultUnreadable = false
@@ -168,6 +170,18 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     if (!write(AUTO_KEY, encodeBook(book.value))) return
     if (codexPending) persistCodex()
     if (!codexPending) writeWarning.value = ''
+  }
+
+  /** Adds ids to the persistent Codex; returns the ones that were new. */
+  function remember(ids: readonly string[]): string[] {
+    const merged = mergeCodex(codex.value, ids)
+    if (merged === codex.value) return []
+    const added = merged.revealed.filter(
+      (id) => !codex.value.revealed.includes(id),
+    )
+    codex.value = merged
+    persistCodex()
+    return added
   }
 
   function persistCodex() {
@@ -265,6 +279,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
       read(INTRO_KEY) !== '1' && untouched && slots.value.every((slot) => !slot)
     loaded.value = true
     if (!raw) persist()
+    absorbAllegiances()
+    lastLearned.value = []
     void loadPlaybookLiveText('emperor-of-dust', FORTRESS_LIVE_TEXT).then(
       (changed) => {
         if (changed && book.value) book.value = { ...book.value }
@@ -344,14 +360,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function finish() {
     const result = finishDay(current(), codex.value.revealed)
-    const revealed = result.report.quests.flatMap(
-      (quest) => quest.revealedTraits,
-    )
-    const merged = mergeCodex(codex.value, revealed)
-    if (merged !== codex.value) {
-      codex.value = merged
-      persistCodex()
-    }
+    remember(result.report.quests.flatMap((quest) => quest.revealedTraits))
+    lastLearned.value = []
     book.value = recordDawn(book.value!, result.run)
     lastReport.value = result.report
     persist()
@@ -366,18 +376,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
-  /** Conversation flags; reveals any allegiance trait they unlock. */
-  /** Allegiances revealed by a story flag join the persistent Codex. */
+  /**
+   * Allegiances revealed by a story flag join the persistent Codex. The ids
+   * newly learned become the reveal moment the room shows next.
+   */
   function absorbAllegiances() {
-    const flags = current().flags
-    const unlocked = FOLLOWERS.flatMap((def) => def.traits)
-      .filter((trait) => trait.revealFlag && flags.includes(trait.revealFlag))
-      .map((trait) => trait.id)
-    const merged = mergeCodex(codex.value, unlocked)
-    if (merged !== codex.value) {
-      codex.value = merged
-      persistCodex()
-    }
+    const added = remember(allegiancesKnown(current()))
+    if (added.length) lastLearned.value = [...lastLearned.value, ...added]
+  }
+
+  function dismissLearned() {
+    lastLearned.value = []
   }
 
   function learn(flag: string) {
@@ -436,6 +445,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     lastReport.value = null
     releaseAutosave()
     persist()
+    absorbAllegiances()
+    lastLearned.value = []
   }
 
   function clearSlot(slot: number) {
@@ -452,6 +463,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   return {
     book,
     codex,
+    lastLearned,
+    dismissLearned,
     slots,
     slotUnreadable,
     loaded,

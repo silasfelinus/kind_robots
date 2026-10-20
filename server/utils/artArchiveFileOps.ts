@@ -14,7 +14,7 @@
 // artArchiveReconcilerPlan.ts's split documents.
 import path from 'node:path'
 import { createError } from 'h3'
-import { mkdir, realpath, rename } from 'node:fs/promises'
+import { mkdir, realpath, rename, unlink } from 'node:fs/promises'
 
 /** Quarantine folder name, relative to the archive root. Never auto-scanned: not a supported image extension holder in the usual sense, but kept out of band from real content by living at the root's own reserved subtree. */
 export const ARCHIVE_TRASH_FOLDER = '_archive_trash'
@@ -189,6 +189,46 @@ export async function restoreConfinedArchiveFile(
     trashRelativePath,
     originalRelativePath,
   )
+}
+
+/**
+ * Permanently erases a file that quarantine already moved into the trash
+ * subtree -- the Recycle Bin's "Delete forever". Refuses any path outside
+ * that subtree, so a live archive file can never be erased by this call.
+ * Returns false when the file is already gone.
+ */
+export async function purgeQuarantinedArchiveFile(
+  resolvedRoot: string,
+  trashRelativePath: string,
+): Promise<boolean> {
+  const normalized = path.posix.normalize(trashRelativePath.replace(/\\/g, '/'))
+  if (!normalized.startsWith(`${ARCHIVE_TRASH_FOLDER}/`)) {
+    throw createError({
+      statusCode: 400,
+      message: `Only quarantined files can be purged: ${trashRelativePath}`,
+    })
+  }
+  const trashRoot = await resolveConfinedExistingPath(
+    resolvedRoot,
+    ARCHIVE_TRASH_FOLDER,
+  ).catch(() => null)
+  if (!trashRoot) return false
+
+  let target: string
+  try {
+    target = await resolveConfinedExistingPath(resolvedRoot, normalized)
+  } catch (error) {
+    if (isRootEscapeGuardError(error) && error.statusCode === 404) return false
+    throw error
+  }
+  if (!target.startsWith(`${trashRoot}${path.sep}`)) {
+    throw createError({
+      statusCode: 400,
+      message: `Only quarantined files can be purged: ${trashRelativePath}`,
+    })
+  }
+  await unlink(target)
+  return true
 }
 
 /**

@@ -429,27 +429,38 @@ requireText(
   'requestGeneration !== generation',
   'a feed page for filters that have since changed must be dropped',
 )
-for (const token of ["range: 'recent'", "params.set('range', filters.range)"]) {
+for (const token of [
+  'range: DEFAULT_ART_FEED_RANGE',
+  "params.set('range', filters.range)",
+]) {
   requireText(
     artFeedStore,
     token,
     `the gallery feed must pass its recent/all scope to the API: ${token}`,
   )
 }
-for (const token of [
-  "query.range === 'recent'",
-  'createdAt:',
-  'RECENT_WINDOW_DAYS = 7',
-]) {
+for (const token of ['artFeedRangeDays(query.range)', 'createdAt:']) {
   requireText(
     feedRoute,
     token,
     `recent art must be filtered server-side by creation date: ${token}`,
   )
 }
+const artFeedRange = read('utils/artFeedRange.ts')
+for (const token of [
+  "{ value: 'recent', label: 'Last 7 days', days: 7 }",
+  "{ value: 'all', label: 'All time', days: null }",
+  "DEFAULT_ART_FEED_RANGE: ArtFeedRange = 'recent'",
+]) {
+  requireText(
+    artFeedRange,
+    token,
+    `the feed must offer windows beyond seven days and keep seven as the default: ${token}`,
+  )
+}
 for (const token of [
   'Art generation date range',
-  "range === 'recent'",
+  'ART_FEED_RANGES',
   "range === 'all'",
   'View all images',
   'watch(range,',

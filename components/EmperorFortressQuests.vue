@@ -38,22 +38,37 @@
               {{ regionName(entry.quest.region) }}
             </span>
             <span
+              class="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold uppercase"
+              :aria-label="`Needs ${bandSummary(entry.questId)}`"
+            >
+              <span
+                v-for="req in boardBands(entry.questId)"
+                :key="req.stat"
+                class="rounded-sm border border-current/40 px-1"
+                >{{ req.stat.slice(0, 3) }} {{ req.label }}</span
+              >
+            </span>
+            <span
               class="mt-auto flex items-center justify-between gap-2 pt-2 text-[11px] font-semibold"
             >
               <span>
                 {{ entry.quest.durationDays }}
-                {{ entry.quest.durationDays === 1 ? 'day' : 'days' }} ·
-                {{ dangerLabel(entry.quest) }}
+                {{ entry.quest.durationDays === 1 ? 'day' : 'days' }}
+                <span
+                  v-if="entry.quest.lethal"
+                  class="ml-0.5 rounded-sm bg-error px-1 text-error-content"
+                  >Lethal</span
+                >
               </span>
               <span
                 class="shrink-0 rounded-sm px-1"
                 :class="
-                  entry.daysLeft === 1
+                  entry.expiry.daysLeft <= 1
                     ? 'bg-error text-error-content'
                     : 'border border-current'
                 "
               >
-                {{ entry.daysLeft === 1 ? 'Last day' : `${entry.daysLeft}d` }}
+                {{ entry.expiry.countdown }}
               </span>
             </span>
           </button>
@@ -71,20 +86,26 @@
             :key="active.questId"
             class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-base-content/15 bg-base-100 p-3 text-sm"
           >
-            <span>
+            <span class="min-w-0">
               <strong>{{ questDef(active.questId)?.title }}</strong>
               <span class="block text-xs opacity-70">
                 {{ active.party.map(nameOf).join(', ') }} · home at dawn of Day
                 {{ active.returnsDay }}
               </span>
+              <span
+                v-if="active.departedDay === run.day"
+                class="block text-xs italic opacity-70"
+              >
+                Still saddling up. You can call them back until the day ends.
+              </span>
             </span>
             <button
               v-if="active.departedDay === run.day"
               type="button"
-              class="btn btn-ghost btn-xs"
+              class="btn btn-outline btn-warning btn-xs"
               @click="withdraw(active.questId)"
             >
-              Withdraw
+              Call back
             </button>
           </li>
         </ul>
@@ -92,7 +113,7 @@
     </section>
 
     <section
-      v-if="selected"
+      v-if="selected && selectedEntry"
       ref="detail"
       class="@container kr-panel space-y-3 p-4"
     >
@@ -127,7 +148,7 @@
         <div class="rounded-lg bg-base-200 p-2">
           <dt class="text-[10px] uppercase opacity-60">Takes</dt>
           <dd class="font-bold">
-            {{ odds?.durationDays ?? selected.durationDays }} day(s)
+            {{ days(odds?.durationDays ?? selected.durationDays) }}
           </dd>
         </div>
         <div class="rounded-lg bg-base-200 p-2">
@@ -137,37 +158,86 @@
         <div class="rounded-lg bg-base-200 p-2">
           <dt class="text-[10px] uppercase opacity-60">Danger</dt>
           <dd class="font-bold" :class="selected.lethal ? 'text-error' : ''">
-            {{ dangerLabel(selected) }}
+            {{ dangerLine(selected) }}
           </dd>
         </div>
-        <div class="rounded-lg bg-base-200 p-2">
-          <dt class="text-[10px] uppercase opacity-60">Reward</dt>
-          <dd class="font-bold">{{ rewardLabel(selected) }}</dd>
+        <div
+          class="rounded-lg p-2"
+          :class="
+            selectedEntry.expiry.daysLeft <= 1
+              ? 'bg-error/15 text-error'
+              : 'bg-base-200'
+          "
+        >
+          <dt class="text-[10px] uppercase opacity-60">On the board</dt>
+          <dd class="font-bold">{{ selectedEntry.expiry.countdown }}</dd>
         </div>
       </dl>
+
+      <div class="space-y-1 text-sm">
+        <p>
+          <span
+            class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
+            >Promised</span
+          >
+          {{ rewardLines(run, selected).join(', ') }}.
+        </p>
+        <p :class="selectedEntry.expiry.punishes ? 'text-error' : 'opacity-75'">
+          {{ selectedEntry.expiry.when }}
+          {{ selectedEntry.expiry.consequence }}
+        </p>
+      </div>
 
       <div>
         <p
           class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
         >
-          Requirements
+          Needs <span class="normal-case tracking-normal">(party / need)</span>
         </p>
         <ul class="mt-1 grid gap-1">
           <li
-            v-for="(req, i) in selected.requirements"
+            v-for="req in bands"
             :key="req.stat"
-            class="flex items-center justify-between rounded-lg border border-base-content/10 px-2 py-1 text-sm"
+            class="rounded-lg border border-base-content/10 px-2 py-1 text-sm"
           >
-            <span class="capitalize">{{ req.stat }}</span>
-            <span class="text-xs">
-              <template v-if="odds?.perRequirement[i]?.hidden">
-                party {{ odds.perRequirement[i]?.total }} · need ?
-              </template>
-              <template v-else-if="odds">
-                party {{ odds.perRequirement[i]?.total }} · need
-                {{ odds.perRequirement[i]?.needed }} ({{ req.band }})
-              </template>
-              <template v-else>{{ req.hidden ? '?' : req.band }}</template>
+            <span class="flex items-center justify-between gap-2">
+              <span class="capitalize">
+                {{ req.stat }}
+                <span
+                  class="ml-1 text-[10px] font-semibold uppercase tracking-wider opacity-70"
+                  >{{ req.hidden ? 'unknown' : req.band }}</span
+                >
+              </span>
+              <span
+                class="text-xs font-semibold"
+                :class="
+                  req.hidden
+                    ? 'opacity-75'
+                    : req.total >= req.needed
+                      ? 'text-success'
+                      : party.length
+                        ? 'text-error'
+                        : 'opacity-75'
+                "
+              >
+                {{ req.total }} / {{ req.hidden ? '?' : req.needed }}
+              </span>
+            </span>
+            <span
+              class="mt-1 block h-1.5 overflow-hidden rounded-full bg-base-content/10"
+              aria-hidden="true"
+            >
+              <span
+                class="block h-full rounded-full"
+                :class="
+                  req.hidden
+                    ? 'bg-base-content/40'
+                    : req.total >= req.needed
+                      ? 'bg-success'
+                      : 'bg-warning'
+                "
+                :style="{ width: barWidth(req) }"
+              />
             </span>
           </li>
         </ul>
@@ -179,17 +249,35 @@
         >
           Assign party {{ party.length }} /
           {{ partyLimit(selected, party) }}
-        </p>
-        <div class="mt-2 flex flex-wrap gap-2" aria-hidden="true">
           <span
+            v-if="selected.party.min > 1"
+            class="normal-case tracking-normal"
+          >
+            · at least {{ selected.party.min }}</span
+          >
+        </p>
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button
             v-for="slot in partyLimit(selected, party)"
             :key="slot"
-            class="grid h-16 w-14 place-items-center overflow-hidden rounded-md border"
+            type="button"
+            class="relative grid h-16 w-14 place-items-center overflow-hidden rounded-md border"
             :class="
               party[slot - 1]
                 ? 'border-warning'
-                : 'border-dashed border-base-content/30 text-base-content/40'
+                : slot <= selected.party.min
+                  ? 'border-dashed border-warning/60 text-warning/70'
+                  : 'border-dashed border-base-content/30 text-base-content/40'
             "
+            :disabled="!party[slot - 1]"
+            :aria-label="
+              party[slot - 1]
+                ? `Take ${nameOf(party[slot - 1]!)} off the quest`
+                : slot <= selected.party.min
+                  ? 'Empty slot, needed'
+                  : 'Empty slot, optional'
+            "
+            @click="party[slot - 1] && toggle(party[slot - 1]!)"
           >
             <img
               v-if="party[slot - 1] && slotArt(party[slot - 1]!)"
@@ -197,8 +285,11 @@
               alt=""
               class="h-full w-full object-cover object-top"
             />
+            <span v-else-if="party[slot - 1]" class="text-[10px]">{{
+              nameOf(party[slot - 1]!)
+            }}</span>
             <span v-else class="text-xl">+</span>
-          </span>
+          </button>
         </div>
         <div class="mt-2 grid grid-cols-2 gap-2 @md:grid-cols-3">
           <button
@@ -224,6 +315,11 @@
             <span class="min-w-0">
               <strong class="block truncate">{{ nameOf(state.id) }}</strong>
               <span class="block opacity-70">{{ statusLabel(state) }}</span>
+              <span
+                v-if="state.status === 'ready' && contributions[state.id]"
+                class="block truncate font-semibold text-warning"
+                >{{ contributions[state.id] }}</span
+              >
             </span>
           </button>
         </div>
@@ -246,7 +342,7 @@
       </label>
 
       <div
-        v-if="odds"
+        v-if="odds && party.length"
         class="rounded-xl border border-warning/40 bg-warning/10 p-3"
         aria-live="polite"
       >
@@ -257,16 +353,45 @@
           <template v-else>{{ odds.chance }}% chance of success</template>
         </p>
         <p class="text-xs">
-          Home at dawn of Day {{ run.day + odds.durationDays }} · injury risk on
-          failure {{ odds.injuryChance }}%<span v-if="selected.lethal">
-            · a failure here can kill</span
+          Home at dawn of Day {{ run.day + odds.durationDays }}
+          <template v-if="odds.injuryRisk">
+            · {{ odds.injuryRisk }}% each comes home wounded ({{
+              odds.injuryDays[0] || 1
+            }}–{{ odds.injuryDays[1] }} days)
+          </template>
+          <template v-else> · nobody comes home wounded</template>
+          <span v-if="selected.lethal" class="font-semibold text-error">
+            · {{ odds.deathChance }}% someone dies</span
           >
         </p>
         <p v-if="odds.estimate" class="mt-1 text-xs opacity-75">
-          Some requirements are hidden. A scout, or a follower who knows the
-          ground, would reveal them.
+          Some needs are hidden. A scout, a follower who knows the ground, or
+          the Lamplight Archive at {{ LAMPLIGHT_SIGHT }} would read them.
         </p>
+        <ul v-if="modifiers.length" class="mt-2 space-y-0.5 text-xs">
+          <li v-for="(mod, i) in modifiers" :key="i">
+            <strong>{{ nameOf(mod.followerId) }}</strong
+            >: {{ mod.label }}
+            <span :class="mod.amount < 0 ? 'text-error' : 'text-success'"
+              >{{ mod.amount > 0 ? '+' : '−' }}{{ Math.abs(mod.amount) }}</span
+            >
+          </li>
+        </ul>
       </div>
+
+      <ul
+        v-if="warnings.length"
+        class="space-y-1 text-xs"
+        aria-label="Before you send them"
+      >
+        <li
+          v-for="(warning, i) in warnings"
+          :key="i"
+          class="border-l-2 border-error/70 pl-2"
+        >
+          {{ warning }}
+        </li>
+      </ul>
 
       <div class="flex flex-wrap items-center gap-2">
         <button
@@ -300,6 +425,9 @@
             : 'No quests wait on the board today.'
         }}
       </p>
+      <p v-if="error" class="kr-note kr-note-error p-2 text-sm" role="alert">
+        {{ error }}
+      </p>
       <EmperorFortressFinish :run="run" />
     </section>
   </div>
@@ -311,11 +439,19 @@ import { followerPortrait } from '~/utils/emperorOfDust/fortress/castArt'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
+  LAMPLIGHT_SIGHT,
   canUseHourglass,
   followerStatus,
   injuryDaysLeft,
   partyLimit,
 } from '~/utils/emperorOfDust/fortress/engine'
+import {
+  dangerLine,
+  expiryInfo,
+  partyModifiers,
+  rewardLines,
+  sendWarnings,
+} from '~/utils/emperorOfDust/fortress/board'
 import {
   KINGDOM_FACTION_DEFS,
   REGIONS,
@@ -339,19 +475,23 @@ const detail = ref<HTMLElement | null>(null)
 
 const board = computed(() =>
   props.run.board
-    .map((entry) => ({
-      ...entry,
-      quest: questDef(entry.questId)!,
-      daysLeft: entry.lastDay - props.run.day + 1,
-    }))
-    .filter((entry) => entry.quest)
-    .sort((a, b) => a.daysLeft - b.daysLeft),
+    .map((entry) => {
+      const quest = questDef(entry.questId)
+      return quest
+        ? {
+            ...entry,
+            quest,
+            expiry: expiryInfo(props.run, quest, entry.lastDay),
+          }
+        : null
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => !!entry)
+    .sort((a, b) => a.expiry.daysLeft - b.expiry.daysLeft),
 )
-const selected = computed(() =>
-  selectedId.value && board.value.some((e) => e.questId === selectedId.value)
-    ? (questDef(selectedId.value) ?? null)
-    : null,
+const selectedEntry = computed(() =>
+  board.value.find((entry) => entry.questId === selectedId.value),
 )
+const selected = computed(() => selectedEntry.value?.quest ?? null)
 const roster = computed(() =>
   props.run.roster
     .filter((state) => !state.dead && !state.departed)
@@ -370,17 +510,69 @@ watch(
   { immediate: true },
 )
 
-const odds = computed<OddsPreview | null>(() => {
-  if (!selectedId.value || !party.value.length) return null
+const previewOf = (questId: string, members: string[]): OddsPreview | null => {
   try {
-    return court.preview(selectedId.value, party.value, hourglass.value)
+    return court.preview(questId, members, hourglass.value)
   } catch {
     return null
   }
+}
+const odds = computed(() =>
+  selectedId.value ? previewOf(selectedId.value, party.value) : null,
+)
+/** Requirement bands for the chosen party, or for nobody yet. */
+const bands = computed(() => odds.value?.perRequirement ?? [])
+/** Band chips for a board notice: "?" until a requirement is revealed. */
+const boardBands = (questId: string) =>
+  (previewOf(questId, [])?.perRequirement ?? []).map((req) => ({
+    stat: req.stat,
+    label: req.hidden ? '?' : req.band,
+  }))
+const bandSummary = (questId: string) =>
+  boardBands(questId)
+    .map((req) => `${req.stat} ${req.label === '?' ? 'unknown' : req.label}`)
+    .join(', ')
+/** What each ready follower would add to this quest's needs, known only. */
+const contributions = computed<Record<string, string>>(() => {
+  const quest = selected.value
+  if (!quest) return {}
+  return Object.fromEntries(
+    roster.value
+      .filter((state) => state.status === 'ready')
+      .map((state) => {
+        const solo = previewOf(quest.id, [state.id])
+        return [
+          state.id,
+          (solo?.perRequirement ?? [])
+            .map(
+              (req) =>
+                `${req.stat[0]!.toUpperCase()}${req.stat.slice(1)} ${req.total}`,
+            )
+            .join(' · '),
+        ]
+      }),
+  )
 })
+const modifiers = computed(() =>
+  selected.value
+    ? partyModifiers(
+        props.run,
+        selected.value,
+        party.value,
+        court.codex.revealed,
+      )
+    : [],
+)
+const warnings = computed(() =>
+  selected.value && odds.value && party.value.length
+    ? sendWarnings(props.run, selected.value, odds.value, modifiers.value)
+    : [],
+)
 const canSend = computed(
   () =>
     !!selected.value &&
+    (!selected.value.mustInclude ||
+      party.value.includes(selected.value.mustInclude)) &&
     party.value.length >= selected.value.party.min &&
     party.value.length <= partyLimit(selected.value, party.value),
 )
@@ -419,13 +611,21 @@ function send() {
 }
 
 function withdraw(questId: string) {
+  error.value = ''
   try {
     court.withdraw(questId)
+    selectedId.value = questId
+    party.value = []
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'That did not work.'
   }
 }
 
+const barWidth = (req: { total: number; needed: number; hidden: boolean }) =>
+  req.hidden
+    ? `${Math.min(100, (req.total / 22) * 100)}%`
+    : `${Math.min(100, (req.total / Math.max(1, req.needed)) * 100)}%`
+const days = (n: number) => `${n} day${n === 1 ? '' : 's'}`
 const nameOf = (id: string) => followerDef(id)?.name ?? id
 const regionName = (id: string) =>
   REGIONS.find((region) => region.id === id)?.name ?? id
@@ -435,25 +635,6 @@ const partyLabel = (quest: QuestDef) =>
   quest.party.min === quest.party.max
     ? `${quest.party.min} follower${quest.party.min === 1 ? '' : 's'}`
     : `${quest.party.min}–${quest.party.max} followers`
-const dangerLabel = (quest: QuestDef) =>
-  quest.lethal
-    ? 'Lethal'
-    : {
-        none: 'Safe',
-        low: 'Low danger',
-        mid: 'Dangerous',
-        high: 'Very dangerous',
-      }[quest.danger]
-const rewardLabel = (quest: QuestDef) => {
-  const brass = quest.rewards.success.brass
-  const parts = brass ? [`${brass} brass`] : []
-  if (Object.keys(quest.rewards.success.affinity ?? {}).length)
-    parts.push('goodwill')
-  if (Object.keys(quest.rewards.success.local ?? {}).length)
-    parts.push('support')
-  if (quest.rewards.success.flags?.length) parts.push('secrets')
-  return parts.join(', ') || 'Thanks'
-}
 const statusLabel = (state: { status: string; days: number }) =>
   ({
     ready: 'Ready',

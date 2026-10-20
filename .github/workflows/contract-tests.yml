@@ -1472,6 +1472,9 @@ jobs:
       - name: Art Archive filesystem-safety contract
         run: npm run test:art-archive-fileops
 
+      - name: Art Recycle Bin contract
+        run: npm run test:art-recycle-bin
+
       - name: Art Archive thumbnail cache contract
         run: npm run test:art-archive-thumbnails
 

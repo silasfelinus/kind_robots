@@ -39,7 +39,7 @@ const ROUTES: { file: string; mutations: RegExp[] }[] = [
   },
   {
     file: 'restore.post.ts',
-    mutations: [/tx\.archiveEntry\.update\(/, /prisma\.\$transaction\(/],
+    mutations: [/restoreArchiveEntry\(/],
   },
   { file: 'collections.patch.ts', mutations: [/prisma\.artImage\.update\(/] },
   { file: 'needs-review.post.ts', mutations: [/prisma\.archiveEntry\.update\(/] },
@@ -54,6 +54,8 @@ const quarantineHelper = stripComments(
 )
 for (const token of [
   'quarantineConfinedArchiveFile',
+  'restoreConfinedArchiveFile',
+  'prisma.$transaction(',
   'tx.archiveEntry.update(',
   'tx.artImage.update(',
   'preQuarantineRelativePath',

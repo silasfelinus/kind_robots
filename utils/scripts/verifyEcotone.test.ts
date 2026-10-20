@@ -158,6 +158,17 @@ assert.equal(FORMER_GUIDE_QUESTS.length, 5)
 const reunionBase = createRun(101, 'reporter')
 for (const card of FORMER_GUIDE_QUESTS) {
   assert.ok(findCard(card.id), `${card.id} is a live, illustrated encounter`)
+  assert.ok(
+    Object.values(ROUTES).some((route) =>
+      route.some(
+        (step, index) =>
+          step.kind === 'fork' &&
+          step.pools.includes(card.chapter) &&
+          route.slice(0, index).some((earlier) => earlier.kind === 'crossroads'),
+      ),
+    ),
+    `${card.id} can be drawn after a crossroads, not only before its gate unlocks`,
+  )
   if (card.requiresFormerGuide) {
     const guide = card.requiresFormerGuide
     const nextGuide = COMPANIONS.find((c) => c.id !== guide)!.id

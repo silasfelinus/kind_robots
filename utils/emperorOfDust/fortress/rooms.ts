@@ -75,7 +75,14 @@ export const roomDef = (id: RoomId): RoomDef =>
 // Rooms whose painted backdrop is at public/emperor-of-dust/rooms/<room>.webp
 // (ledger: conductor projects/emperor-of-dust/art/ROOMS-ROUND-1.yaml). A room
 // not listed here shows its candlelit gradient until its art is exported.
-export const ROOM_ART: readonly RoomId[] = []
+export const ROOM_ART: readonly RoomId[] = [
+  'throne',
+  'quests',
+  'barracks',
+  'market',
+  'map',
+  'chronicle',
+]
 
 export const roomArtUrl = (id: RoomId): string | undefined =>
   ROOM_ART.includes(id) ? `/emperor-of-dust/rooms/${id}.webp` : undefined

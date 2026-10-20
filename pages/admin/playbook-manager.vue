@@ -3,16 +3,39 @@
     <header
       class="kr-toolbar flex-wrap items-center gap-2 rounded-2xl border border-base-content/10 bg-base-100 px-2 py-1.5 shadow-sm"
     >
-      <select
-        class="select select-bordered select-sm font-black"
+      <div
+        class="flex w-full min-w-0 gap-1.5 overflow-x-auto pb-0.5"
+        role="radiogroup"
         aria-label="Game"
-        :value="store.game"
-        @change="pickGame(($event.target as HTMLSelectElement).value)"
       >
-        <option v-for="game in store.games" :key="game.id" :value="game.id">
-          {{ game.title }}
-        </option>
-      </select>
+        <button
+          v-for="game in store.games"
+          :key="game.id"
+          type="button"
+          role="radio"
+          class="group relative h-14 w-36 shrink-0 overflow-hidden rounded-xl border-2 text-left shadow-sm transition sm:h-16 sm:w-44"
+          :class="
+            store.game === game.id
+              ? 'border-primary shadow-md'
+              : 'border-transparent opacity-75 hover:opacity-100'
+          "
+          :aria-checked="store.game === game.id"
+          @click="pickGame(game.id)"
+        >
+          <img
+            :src="game.cover"
+            alt=""
+            class="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"
+          />
+          <span
+            class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"
+          />
+          <span
+            class="absolute inset-x-2 bottom-1.5 font-serif text-sm font-black leading-tight text-white drop-shadow"
+            >{{ game.title }}</span
+          >
+        </button>
+      </div>
       <div
         v-if="routeOptions.length > 1"
         class="flex flex-wrap gap-1 rounded-xl bg-base-200 p-1"
@@ -144,7 +167,7 @@
 
     <div
       v-else
-      class="kr-panes gap-3 lg:grid-cols-[220px_minmax(0,1fr)_minmax(340px,440px)]"
+      class="kr-panes gap-3 lg:grid-cols-[220px_minmax(0,1fr)_minmax(340px,440px)] 2xl:grid-cols-[240px_minmax(0,1fr)_minmax(420px,520px)]"
     >
       <aside
         class="kr-pane-scroll rounded-2xl border border-base-content/10 bg-base-100 p-3"
@@ -374,11 +397,14 @@
               {{ section.title }}
             </h2>
             <p class="text-xs text-base-content/60">{{ section.blurb }}</p>
-            <div class="mt-2 grid gap-2 @3xl:grid-cols-2">
+            <div
+              class="mt-2 grid grid-cols-[repeat(auto-fill,minmax(min(100%,12rem),1fr))] gap-3"
+            >
               <PlaybookNode
                 v-for="key in section.keys"
                 :key="key"
                 :node-key="key"
+                tile
                 @select="pane = 'beat'"
               />
             </div>
@@ -388,11 +414,14 @@
           <p class="mb-2 text-xs font-bold text-base-content/60">
             {{ store.listKeys.length }} of {{ store.counts.nodes }} beats
           </p>
-          <div class="grid gap-2 @4xl:grid-cols-2">
+          <div
+            class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3"
+          >
             <PlaybookNode
               v-for="key in store.listKeys"
               :key="key"
               :node-key="key"
+              tile
               @select="pane = 'beat'"
             />
           </div>
@@ -445,7 +474,7 @@ const routeOptions = computed(() =>
 )
 const viewOptions = [
   { value: 'chain' as const, label: 'Chain', icon: 'kind-icon:git-branch' },
-  { value: 'list' as const, label: 'List', icon: 'kind-icon:list' },
+  { value: 'list' as const, label: 'Gallery', icon: 'kind-icon:image' },
 ]
 const paneOptions = [
   { value: 'filters' as const, label: 'Filters' },

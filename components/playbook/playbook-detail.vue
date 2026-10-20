@@ -1,31 +1,64 @@
 <template>
   <div v-if="node" class="flex flex-col gap-3 p-3">
     <header class="flex flex-col gap-2">
-      <div class="relative aspect-[16/9] w-full overflow-hidden rounded-2xl">
+      <div
+        class="relative -mx-3 -mt-3 overflow-hidden shadow-lg @md:mx-0 @md:mt-0 @md:rounded-2xl"
+        :class="
+          ['follower', 'ending', 'boss'].includes(node.kind)
+            ? 'aspect-[4/5] max-h-[28rem]'
+            : 'aspect-[4/3]'
+        "
+      >
         <PlaybookArt
           :title="node.title"
           :scene="node.scene"
           :art="node.art"
           :art-url="node.artUrl"
+          :kind="node.kind"
+          :focus="
+            ['follower', 'ending', 'boss'].includes(node.kind)
+              ? 'center 20%'
+              : undefined
+          "
           class="absolute inset-0"
         />
         <span
-          v-if="node.needsArt"
-          class="absolute left-2 top-2 rounded-full bg-warning px-2 py-0.5 text-xs font-black text-warning-content"
-          >Needs art</span
-        >
+          class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/20"
+        />
+        <span class="absolute inset-x-3 top-3 flex flex-wrap gap-1">
+          <span
+            class="rounded-full bg-black/50 px-2 py-0.5 text-[11px] font-black uppercase tracking-wider text-white backdrop-blur"
+            >{{ store.kindLabel(node.kind) }}</span
+          >
+          <span
+            v-if="node.needsArt"
+            class="rounded-full bg-warning px-2 py-0.5 text-[11px] font-black uppercase text-warning-content shadow"
+            >Needs art</span
+          >
+          <button
+            v-if="node.needsArt || node.artUrl"
+            type="button"
+            class="ml-auto inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[11px] font-black text-secondary-content shadow"
+            @click="tab = 'art'"
+          >
+            <Icon name="kind-icon:sparkles" class="size-3" />
+            {{ node.needsArt ? 'Request art' : 'Art' }}
+          </button>
+        </span>
+        <div class="absolute inset-x-0 bottom-0 p-4 text-white">
+          <p class="font-mono text-[11px] text-white/60">{{ node.key }}</p>
+          <h2
+            class="font-serif text-3xl font-black leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,.85)]"
+          >
+            {{ node.title }}
+          </h2>
+          <p v-if="node.place" class="text-sm text-white/80 drop-shadow">
+            {{ node.place }}
+          </p>
+        </div>
       </div>
       <div>
-        <p class="font-mono text-xs text-base-content/55">
-          {{ node.key }} · {{ store.kindLabel(node.kind) }}
-        </p>
-        <h2 class="font-serif text-2xl font-black leading-tight">
-          {{ node.title }}
-        </h2>
-        <p v-if="node.place" class="text-sm text-base-content/65">
-          {{ node.place }}
-        </p>
-        <div class="mt-1 flex flex-wrap gap-1">
+        <div class="flex flex-wrap gap-1">
           <span
             v-for="(placement, index) in node.placements"
             :key="index"
@@ -74,14 +107,14 @@
           Story text (blank line between paragraphs)
           <textarea
             v-model="form.body"
-            class="textarea textarea-bordered min-h-40 font-serif text-sm leading-relaxed"
+            class="textarea textarea-bordered w-full min-h-40 font-serif text-sm leading-relaxed"
           />
         </label>
         <label class="flex flex-col gap-1 text-xs font-bold">
           Provenance (what is real, what is invented)
           <textarea
             v-model="form.provenance"
-            class="textarea textarea-bordered min-h-16 text-xs"
+            class="textarea textarea-bordered w-full min-h-16 text-xs"
           />
         </label>
       </template>
@@ -99,7 +132,7 @@
             {{ paragraphLabel(index) }}
             <textarea
               v-model="text.body[index]"
-              class="textarea textarea-bordered min-h-24 font-serif text-sm leading-relaxed"
+              class="textarea textarea-bordered w-full min-h-24 font-serif text-sm leading-relaxed"
               :placeholder="paragraph"
             />
           </label>
@@ -178,7 +211,7 @@
             {{ choice.check ? 'On success' : 'Result' }}
             <textarea
               v-model="form.choices[choice.id]!.success"
-              class="textarea textarea-bordered min-h-14 text-xs"
+              class="textarea textarea-bordered w-full min-h-14 text-xs"
             />
           </label>
           <label
@@ -188,7 +221,7 @@
             On a complication
             <textarea
               v-model="form.choices[choice.id]!.failure"
-              class="textarea textarea-bordered min-h-14 text-xs"
+              class="textarea textarea-bordered w-full min-h-14 text-xs"
             />
           </label>
         </template>
@@ -209,7 +242,7 @@
               {{ choice.check ? 'On success' : 'Result' }}
               <textarea
                 v-model="text.choices[choice.id]!.success"
-                class="textarea textarea-bordered min-h-14 text-xs"
+                class="textarea textarea-bordered w-full min-h-14 text-xs"
               />
             </label>
             <label
@@ -219,7 +252,7 @@
               On a complication
               <textarea
                 v-model="text.choices[choice.id]!.failure"
-                class="textarea textarea-bordered min-h-14 text-xs"
+                class="textarea textarea-bordered w-full min-h-14 text-xs"
               />
             </label>
           </template>
@@ -326,14 +359,14 @@
           </div>
           <textarea
             v-model="draft.success"
-            class="textarea textarea-bordered min-h-14 text-xs"
+            class="textarea textarea-bordered w-full min-h-14 text-xs"
             :placeholder="draft.skill ? 'On success…' : 'What happens…'"
             aria-label="New choice result"
           />
           <textarea
             v-if="draft.skill"
             v-model="draft.failure"
-            class="textarea textarea-bordered min-h-14 text-xs"
+            class="textarea textarea-bordered w-full min-h-14 text-xs"
             placeholder="On a complication…"
             aria-label="New choice complication"
           />
@@ -376,7 +409,7 @@
             >
             <textarea
               v-model="form.lensLines[lens.id]"
-              class="textarea textarea-bordered min-h-12 text-xs"
+              class="textarea textarea-bordered w-full min-h-12 text-xs"
               :class="form.lensLines[lens.id] ? '' : 'border-dashed'"
             />
           </label>
@@ -396,7 +429,7 @@
             {{ companion.name }}
             <textarea
               v-model="form.leadLines[companion.id]"
-              class="textarea textarea-bordered min-h-12 text-xs"
+              class="textarea textarea-bordered w-full min-h-12 text-xs"
               :class="form.leadLines[companion.id] ? '' : 'border-dashed'"
             />
           </label>
@@ -404,7 +437,7 @@
             Alone
             <textarea
               v-model="form.aloneLine"
-              class="textarea textarea-bordered min-h-12 text-xs"
+              class="textarea textarea-bordered w-full min-h-12 text-xs"
               :class="form.aloneLine ? '' : 'border-dashed'"
             />
           </label>
@@ -426,7 +459,7 @@
             {{ leadLabel(key) }}
             <textarea
               v-model="form.variants[key]"
-              class="textarea textarea-bordered min-h-28 font-serif text-xs"
+              class="textarea textarea-bordered w-full min-h-28 font-serif text-xs"
             />
           </label>
         </div>
@@ -463,7 +496,7 @@
         </p>
         <textarea
           v-model="art.prompt"
-          class="textarea textarea-bordered mt-1 min-h-24 w-full text-xs"
+          class="textarea textarea-bordered w-full mt-1 min-h-24 w-full text-xs"
           aria-label="Art prompt"
         />
         <div class="mt-1.5 flex flex-wrap gap-1.5">
@@ -507,7 +540,7 @@
           </h3>
           <textarea
             v-model="flagReason"
-            class="textarea textarea-bordered mt-1 min-h-14 w-full text-xs"
+            class="textarea textarea-bordered w-full mt-1 min-h-14 w-full text-xs"
             placeholder="What’s wrong with it?"
             aria-label="Flag reason"
           />
@@ -560,53 +593,58 @@
           <Icon name="kind-icon:refresh" class="size-3.5" /> Check status
         </button>
       </div>
-      <article
-        v-for="note in artNotes"
-        :key="note.id"
-        class="flex gap-2 rounded-xl bg-base-200/60 p-2 text-xs"
-        :class="note.resolved ? 'opacity-50' : ''"
+      <div
+        v-if="artNotes.length"
+        class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,10rem),1fr))] gap-2"
       >
-        <span
-          class="relative size-16 shrink-0 overflow-hidden rounded-lg bg-base-300"
+        <article
+          v-for="note in artNotes"
+          :key="note.id"
+          class="flex flex-col overflow-hidden rounded-xl bg-base-200/60 text-xs"
+          :class="note.resolved ? 'opacity-50' : ''"
         >
-          <img
-            v-if="imageFor(note)"
-            :src="imageFor(note)"
-            :alt="`Art for ${node.title}`"
-            class="size-full object-cover"
-          />
-          <Icon
-            v-else
-            :name="
-              note.kind === 'flag' ? 'kind-icon:flag' : 'kind-icon:sparkles'
-            "
-            class="absolute inset-0 m-auto size-6 text-base-content/40"
-          />
-        </span>
-        <span class="min-w-0 flex-1">
-          <span class="font-black">{{ NOTE_LABEL[note.kind] }}</span>
-          <span v-if="note.artJobId" class="ml-1 font-mono"
-            >Job {{ note.artJobId }}
-            <span v-if="store.jobs[note.artJobId]"
-              >· {{ store.jobs[note.artJobId]?.status }}</span
-            ></span
+          <span
+            class="relative block aspect-[4/3] w-full overflow-hidden bg-base-300"
           >
-          <span v-if="note.artImageId" class="ml-1 font-mono"
-            >Image {{ note.artImageId }}</span
+            <img
+              v-if="imageFor(note)"
+              :src="imageFor(note)"
+              :alt="`Art for ${node.title}`"
+              class="size-full object-cover"
+            />
+            <Icon
+              v-else
+              :name="
+                note.kind === 'flag' ? 'kind-icon:flag' : 'kind-icon:sparkles'
+              "
+              class="absolute inset-0 m-auto size-8 text-base-content/40"
+            />
+          </span>
+          <span class="min-w-0 flex-1 p-2">
+            <span class="font-black">{{ NOTE_LABEL[note.kind] }}</span>
+            <span v-if="note.artJobId" class="ml-1 font-mono"
+              >Job {{ note.artJobId }}
+              <span v-if="store.jobs[note.artJobId]"
+                >· {{ store.jobs[note.artJobId]?.status }}</span
+              ></span
+            >
+            <span v-if="note.artImageId" class="ml-1 font-mono"
+              >Image {{ note.artImageId }}</span
+            >
+            <span v-if="note.choiceId" class="ml-1 text-base-content/60"
+              >· choice {{ note.choiceId }}</span
+            >
+            <span class="block text-base-content/75">{{ note.body }}</span>
+          </span>
+          <button
+            type="button"
+            class="btn btn-ghost btn-xs m-1 mt-0 self-end"
+            @click="store.resolveNote(note.id, !note.resolved)"
           >
-          <span v-if="note.choiceId" class="ml-1 text-base-content/60"
-            >· choice {{ note.choiceId }}</span
-          >
-          <span class="block text-base-content/75">{{ note.body }}</span>
-        </span>
-        <button
-          type="button"
-          class="btn btn-ghost btn-xs self-start"
-          @click="store.resolveNote(note.id, !note.resolved)"
-        >
-          {{ note.resolved ? 'Reopen' : 'Done' }}
-        </button>
-      </article>
+            {{ note.resolved ? 'Reopen' : 'Done' }}
+          </button>
+        </article>
+      </div>
       <p v-if="!artNotes.length" class="text-xs text-base-content/60">
         No art requests, flags or submissions yet.
       </p>
@@ -615,7 +653,7 @@
     <section v-else class="flex flex-col gap-2">
       <textarea
         v-model="comment"
-        class="textarea textarea-bordered min-h-20 text-sm"
+        class="textarea textarea-bordered w-full min-h-20 text-sm"
         placeholder="A note for the writers (and for future you)…"
         aria-label="New comment"
       />
@@ -685,7 +723,7 @@
         :disabled="store.saving || (!dirty && Boolean(edit?.live))"
         @click="save(true)"
       >
-        <Icon name="kind-icon:save" class="size-4" /> Save and go live
+        <Icon name="kind-icon:rocket" class="size-4" /> Save and go live
       </button>
     </footer>
   </div>

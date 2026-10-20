@@ -710,9 +710,10 @@ const eventLensOptions = new Map<EventId, LensId[]>(
       .filter((step) => step.kind === 'beat')
       .map((step) => findCard(step.id))
       .find((card) => card?.choices.some((choice) => choice.lens))
-    const choices = opening?.choices
-      .filter((choice) => choice.lens && !choice.locked)
-      .map((choice) => choice.lens!) ?? []
+    const choices =
+      opening?.choices
+        .filter((choice) => choice.lens && !choice.locked)
+        .map((choice) => choice.lens!) ?? []
     assert.ok(choices.length > 0, `${event} must offer an opening`)
     return [event, choices]
   }),
@@ -744,7 +745,10 @@ for (let index = 0; index < 8400; index += 1) {
   const run = play(seed, plan)
   const ending = computeEnding(run)
   assert.equal(run.ending, ending.id, `seed ${seed} ending is reproducible`)
-  assert.ok(ENDING_IDS.includes(ending.id), `seed ${seed} has a collectible slot`)
+  assert.ok(
+    ENDING_IDS.includes(ending.id),
+    `seed ${seed} has a collectible slot`,
+  )
   assert.equal(run.openingState, lens, `seed ${seed} keeps its chosen lens`)
   assert.equal(new Set(run.played).size, run.played.length)
   assert.equal(new Set(run.meetingOrder).size, run.meetingOrder.length)
@@ -770,7 +774,10 @@ for (let index = 0; index < 8400; index += 1) {
       assert.match(entry.art, /-failure$/, 'a failed check uses failure art')
     }
     if (entry.effects.flag)
-      assert.ok(run.flags.includes(entry.effects.flag), 'choice effects persist')
+      assert.ok(
+        run.flags.includes(entry.effects.flag),
+        'choice effects persist',
+      )
     if (entry.effects.evidence)
       assert.ok(
         run.evidence.includes(entry.effects.evidence),
@@ -790,12 +797,21 @@ for (let index = 0; index < 8400; index += 1) {
     )
   }
   const callbacks = earnedQuestCallbacks(run.flags, run.played)
-  assert.ok(callbacks.length <= 2, 'the montage uses no more than two callbacks')
+  assert.ok(
+    callbacks.length <= 2,
+    'the montage uses no more than two callbacks',
+  )
   auditedCallbacks += callbacks.length
   for (const callback of REGIONAL_CALLBACKS) {
     if (!callbacks.includes(callback.text)) continue
-    assert.ok(run.flags.includes(callback.flag), 'regional memory needs its flag')
-    assert.ok(run.played.includes(callback.id), 'regional memory needs its scene')
+    assert.ok(
+      run.flags.includes(callback.flag),
+      'regional memory needs its flag',
+    )
+    assert.ok(
+      run.played.includes(callback.id),
+      'regional memory needs its scene',
+    )
   }
   const restored = restoreRun(JSON.parse(JSON.stringify(run)))
   assert.deepEqual(restored, run, `seed ${seed} survives a save round-trip`)
@@ -822,7 +838,10 @@ for (const lead of ['mara', 'kit', 'juniper', 'cedar', 'alone'])
       auditGuideFates.has(`${lead}.${fate}`),
       `${lead} has a reachable ${fate} ending`,
     )
-assert.ok(auditChoices.size >= 130, 'campaigns vary their story and outcome art')
+assert.ok(
+  auditChoices.size >= 130,
+  'campaigns vary their story and outcome art',
+)
 assert.ok(auditedFailureArt > 100, 'failure and recovery paths were exercised')
 assert.ok(auditedCallbacks > 0, 'earned callbacks reach played runs')
 console.info(
@@ -968,9 +987,21 @@ assert.equal(restoreRun({ ...saved, version: 2 }), null, 'old saves restart')
 // newly canonical WH-004, WH-037 and WH-058. Titles in completed logs are
 // trustworthy discriminators; bare offered/current IDs are NOT.
 for (const { oldId, title, replacement } of [
-  { oldId: 'WH-004', title: 'A Fast Hour in a Bottle', replacement: 'LX-FAST-01' },
-  { oldId: 'WH-037', title: 'The River Does Not Sleep', replacement: 'LX-NIGHT-01' },
-  { oldId: 'WH-058', title: 'The Peacock Has a Warrant', replacement: 'LX-HEART-01' },
+  {
+    oldId: 'WH-004',
+    title: 'A Fast Hour in a Bottle',
+    replacement: 'LX-FAST-01',
+  },
+  {
+    oldId: 'WH-037',
+    title: 'The River Does Not Sleep',
+    replacement: 'LX-NIGHT-01',
+  },
+  {
+    oldId: 'WH-058',
+    title: 'The Peacock Has a Warrant',
+    replacement: 'LX-HEART-01',
+  },
 ]) {
   const oldEntry = {
     ...first.log.find((entry) => entry.art)!,
@@ -998,15 +1029,16 @@ for (const { oldId, title, replacement } of [
   assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(migrated))), migrated)
   const newCanonical = {
     ...historical,
-    log: [
-      ...saved.log,
-      { ...oldEntry, title: findCard(oldId)!.title },
-    ],
+    log: [...saved.log, { ...oldEntry, title: findCard(oldId)!.title }],
     pending: null,
   }
   const preserved = restoreRun(newCanonical)!
   assert.ok(preserved.played.includes(oldId), 'modern WH ID stays canonical')
-  assert.equal(preserved.card, oldId, 'ambiguous active card is never rewritten')
+  assert.equal(
+    preserved.card,
+    oldId,
+    'ambiguous active card is never rewritten',
+  )
   const uncertain = restoreRun({
     ...historical,
     log: saved.log,
@@ -1014,7 +1046,10 @@ for (const { oldId, title, replacement } of [
     offered: [oldId],
   })!
   assert.equal(uncertain.card, oldId, 'no log means no inferred migration')
-  assert.ok(uncertain.offered.includes(oldId), 'ambiguous offers are not aliased')
+  assert.ok(
+    uncertain.offered.includes(oldId),
+    'ambiguous offers are not aliased',
+  )
 }
 assert.equal(restoreRun({ ...saved, played: ['WH-999'] }), null)
 assert.equal(restoreRun({ ...saved, activeLead: 'glenn' }), null)

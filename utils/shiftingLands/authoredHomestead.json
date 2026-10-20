@@ -35,7 +35,7 @@
       "id": "family-at-the-fence",
       "locationId": "border-farm",
       "title": "A Family at the Fence",
-      "flavor": "An orchard fence bows under apples too small to pick. Behind it a family stands among stubborn rows of vegetables, hands still, watching you come up the track. The youngest has set a bowl of water outside the gate, and none of the grown-ups will say whether she meant it as a welcome.",
+      "flavor": "The orchard fence bends under apples too small to harvest. A rabbit family waits among stubborn vegetable rows as you approach; not one of the adults lowers their hands. The youngest has set a bowl of water outside the gate. When you glance at it, her father draws her behind his leg. He will neither offer the bowl nor take it away.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -43,7 +43,7 @@
           "id": "honor-guest",
           "label": "Bow and ask for shelter",
           "intent": "Bow at the gate and wait to be invited before you ask for a roof.",
-          "risk": "If they read you wrong, the gate stays shut.",
+          "risk": "If your courtesy sounds like a demand, you sleep outside their fence.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
@@ -68,7 +68,7 @@
           "id": "guard-the-gate",
           "label": "Study the fence first",
           "intent": "Read the posts and latch for signs of a hurried defense before trusting the welcome.",
-          "risk": "Lingering at a stranger's fence can look like a threat.",
+          "risk": "They may see a repairman at the latch, or a thief testing it.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
@@ -103,7 +103,7 @@
           "id": "lift-together",
           "label": "Help lift the barrel",
           "intent": "Put your back under the barrel and heave it aboard before the storm breaks.",
-          "risk": "A slipping barrel can crack ribs.",
+          "risk": "If the barrel falls, the harvest survives but your ribs might not.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
@@ -128,7 +128,7 @@
           "id": "brace-axle",
           "label": "Mend the axle first",
           "intent": "Fix the crooked wheel properly so the lift does not wreck the cart.",
-          "risk": "If the repair fails, the storm arrives first.",
+          "risk": "The storm is close enough that a careful repair may cost the crop.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -142,7 +142,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The pin snaps under the load. You catch the axle before the cart tips and the crop is saved, but the iron opens your palm, and you are still binding it when the first rain comes down.",
+            "text": "The pin snaps under the loaded cart. You catch the axle before it overturns, but a jagged piece of iron cuts your palm. The farmer gets her harvest under cover while you bind the wound in the first hard rain. There is no spare food left to pay you.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["orchard-cart-mended"],
@@ -155,7 +155,7 @@
       "id": "scarecrows-lantern",
       "locationId": "border-farm",
       "title": "The Scarecrow's Lantern",
-      "flavor": "By the grain shed, a lantern swings from the arm of a scarecrow, though the air is dead still. A thin line of footprints runs behind the barn, and across that path someone has strung fishing line at shin height. Whoever lit the lantern wants you looking at it.",
+      "flavor": "A lantern swings from a scarecrow beside the grain shed, though the air is perfectly still. Behind the barn, one set of hurried footprints stops at a fishing line stretched ankle-high across the path. Someone wants you to stare at the lantern while your foot finds the snare. Beyond the shed, a sack of grain lies torn open.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -170,7 +170,7 @@
             "target": 9
           },
           "success": {
-            "text": "The line parts cleanly under your knife. A thin figure bolts from behind the barn and over the fence, dropping a pouch of stolen rations in the dirt. No one comes to claim it, so it goes into your pack.",
+            "text": "Your knife parts the hidden line. The thief bolts from behind the shed, drops a pouch of stolen rations, and clears the fence before you can see more than a narrow back. The grain-shed door is still open. You take the pouch for the road, leaving the farmer to count what else is missing.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["farm-snare-disarmed"],
@@ -188,7 +188,7 @@
           "id": "follow-footsteps",
           "label": "Circle around the grain shed",
           "intent": "Skirt the snare and cut off the intruder at the back fence.",
-          "risk": "The ground behind the barn is soft and undercut.",
+          "risk": "The thief knows the ditch; the ground around it is ready to collapse.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -223,7 +223,7 @@
           "id": "share-water",
           "label": "Offer some of your water",
           "intent": "Pour from your own flask so the shoot can survive the dry week.",
-          "risk": "Water spilled in this dust does not come back.",
+          "risk": "A weak pour costs your flask and may not reach the roots.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
@@ -248,14 +248,14 @@
           "id": "shield-shoot",
           "label": "Build a windbreak for the sprout",
           "intent": "Stack stones around the shoot so the hot wind cannot tear it out.",
-          "risk": "The wind may rise before the wall is finished.",
+          "risk": "A wall built in haste may fall onto the only sprout.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Your little stone wall holds against the first gust. Digging for its footing, you strike a sealed jar of old provisions someone buried long ago, and the gardener insists it is yours by right of finding.",
+            "text": "The stones hold when the wind rises. The gardener fetches two cloth-wrapped portions of dried vegetables from her cellar, food she had saved for planting week, and insists you take them. Her seedlings keep their shelter; her winter store is a little smaller.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["sprout-sheltered"],
@@ -275,7 +275,7 @@
       "id": "rope-at-dawn",
       "locationId": "old-well",
       "title": "Rope at Dawn",
-      "flavor": "At dawn a bucket hangs halfway down the stone well, turning slowly over water black with reflected sky. Its keeper kneels beside a fraying rope and will not let anyone pull alone. Behind you, a second traveler waits with an empty cup, too tired to argue.",
+      "flavor": "At dawn a bucket dangles halfway down the well, turning above water black with reflected sky. The rope sheds pale fibers onto the stone. The keeper refuses to haul again until she can splice it, but the bucket is too heavy for her to hold steady. Behind you a traveler waits with an empty cup, too tired even to complain.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -283,7 +283,7 @@
           "id": "take-the-rope",
           "label": "Take the strain on the rope",
           "intent": "Hold the bucket's weight yourself while the keeper splices the worn rope.",
-          "risk": "If the rope parts, it will take skin with it.",
+          "risk": "The bucket stays up only while your hands can bear the fraying line.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
@@ -308,7 +308,7 @@
           "id": "tie-new-knot",
           "label": "Show the keeper a safer knot",
           "intent": "Retie the rigging so it holds without anyone straining on the line.",
-          "risk": "A bad knot could drop the bucket down the shaft.",
+          "risk": "A knot tied badly leaves the keeper without a bucket or a livelihood.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -335,7 +335,7 @@
       "id": "a-cup-offered",
       "locationId": "old-well",
       "title": "A Cup Offered",
-      "flavor": "A traveler offers you the first drink from a polished tin cup, holding it out in both hands as if it were a ceremony. The water smells faintly of something bitter. She keeps her eyes on your face instead of on the cup.",
+      "flavor": "A traveler offers you the first drink from a polished tin cup, holding it in both hands as though it matters that you accept. The water smells of bitter bark. She watches your face rather than the cup, waiting to see whether you trust the stranger in front of you or the doubt in your nose.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -368,7 +368,7 @@
           "id": "drink-first",
           "label": "Accept the offered cup",
           "intent": "Drink as you are asked, trusting her hospitality over your doubts.",
-          "risk": "If the bitterness is poison, it will be a long night.",
+          "risk": "The dose may soothe you, or leave you helpless beside the well.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
@@ -382,7 +382,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The herbs hit hard on an empty stomach. You make it behind the well before you are sick, and spend the afternoon shaking in the shade while she apologizes from a careful distance.",
+            "text": "The bark is stronger than she thought, especially on an empty stomach. You barely reach the far side of the well before you are sick. She keeps watch from a respectful distance while you shiver through the afternoon, her cup set upside down in the dust.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["well-herbalist-offended"],
@@ -403,7 +403,7 @@
           "id": "measure-stone",
           "label": "Measure the shifted stones",
           "intent": "Check the well's stonework for danger before anyone else draws water.",
-          "risk": "Loose stones may give way under your weight.",
+          "risk": "If you misread the foundation, the next cart could bring the well down.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
@@ -428,7 +428,7 @@
           "id": "sound-depth",
           "label": "Lower a weighted line",
           "intent": "Sound the well's depth from the rim instead of climbing into its unstable throat.",
-          "risk": "The stones below may cut the line.",
+          "risk": "A cut line costs the weight and may pull you over the slippery rim.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -463,7 +463,7 @@
           "id": "carry-buckets",
           "label": "Carry the water for the courier",
           "intent": "Take up both buckets so the absent neighbor's share arrives along with the courier's.",
-          "risk": "The path is steep, and water is heavy.",
+          "risk": "One stumble means choosing whose household goes thirsty.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
@@ -477,7 +477,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "You trip on loose stone and one bucket empties into the dirt. You top it up from your own water skin so the household is not shorted, and walk on with less than you came with.",
+            "text": "A loose stone sends one bucket into the dirt. You could deliver the other and be done, but the waiting family's mark is on the empty one. You refill it from your own skin and walk on carrying less water than you need.",
             "hp_delta": 0,
             "provisions_delta": -1,
             "add_flags": ["well-households-helped"],
@@ -523,7 +523,7 @@
           "id": "accept-stew",
           "label": "Enter with formal thanks",
           "intent": "Thank the sister properly and accept her stew, keeping both your manners and your guard.",
-          "risk": "Charity here may come with strings.",
+          "risk": "The food is real, but the welcome may be a transaction you have not understood.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
@@ -555,7 +555,7 @@
             "target": 9
           },
           "success": {
-            "text": "You wait in the shadow of the wall and read the dust. Small tracks pass in under the arch far more often than they come back out. You say nothing and fix the pattern in your memory.",
+            "text": "You wait until the lantern burns low and study the dust beneath the arch. Small tracks lead into the refuge in groups. Few leave. You mark their direction and the age of the prints in your memory, then step away before the sister notices what you have counted.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["gate-one-way-tracks"],
@@ -583,14 +583,14 @@
           "id": "question-novice",
           "label": "Question the novice gently",
           "intent": "Speak quietly, away from the others, so the novice can talk without being overheard.",
-          "risk": "One wrong word and the novice will say nothing more.",
+          "risk": "The novice risks her place here merely by answering.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The novice glances down the corridor, then whispers that the roster of children has gone missing. A scrap of paper with a room number is pressed into your hand, and the novice hurries off before you can ask more.",
+            "text": "She glances toward the refectory, then whispers that the register of children is missing. She presses a scrap of paper with a room number into your palm, folds your fingers closed around it, and walks away before either of you can be seen together.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["dormitory-room-number"],
@@ -643,14 +643,14 @@
           "id": "thank-with-bow",
           "label": "Accept the bread with a bow",
           "intent": "Take the gift with quiet thanks and ask nothing that could get her in trouble.",
-          "risk": "Even a thank-you may be seen from those windows.",
+          "risk": "A blessing spoken too loudly can put her in the Abbess's sight.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "Your quiet thanks seem to settle her. She tucks a second loaf into the parcel and, beneath it, a folded note in small handwriting: the eastern road is safer than it looks.",
+            "text": "Your low bow seems to steady her. She adds a second loaf to the parcel, then tucks a folded note beneath it. The eastern road is safer than it looks, the note says. She has given you bread meant for someone else, and she hurries inside before you can ask who.",
             "hp_delta": 0,
             "provisions_delta": 2,
             "add_flags": ["kitchen-novice-trust"],
@@ -668,7 +668,7 @@
           "id": "offer-help",
           "label": "Offer to help in the kitchen",
           "intent": "Repay the bread with an evening's work instead of questions.",
-          "risk": "The longer you stay, the more eyes find you.",
+          "risk": "Another hour here means another chance for someone to identify her as your friend.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
@@ -703,7 +703,7 @@
           "id": "ask-about-bell",
           "label": "Ask why the bell never rings",
           "intent": "Ask the caretaker about the bell rather than climbing the tower uninvited.",
-          "risk": "Some silences here are kept on purpose.",
+          "risk": "The caretaker could answer, or decide you have heard too much.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
@@ -728,14 +728,14 @@
           "id": "climb-stairs",
           "label": "Climb up and inspect the bell",
           "intent": "Slip up the stairwell to see the bell's mechanism with your own eyes.",
-          "risk": "The stairs are old, and someone may see you climb.",
+          "risk": "The missing clapper is evidence worth a fall, if the rotten stairs hold.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 11
           },
           "success": {
-            "text": "The bronze bell hangs whole and sound, but its clapper has been unbolted and carried off. Someone silenced it on purpose. You fix the tower in your memory and slip back down unseen.",
+            "text": "The bronze bell is sound. Its clapper is gone, the bolts backed neatly out and stacked on the sill. This was careful work, not decay. As you climb down, you hear the soft clatter of supper dishes below. None of the sisters look toward the tower.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["bell-physical-evidence"],

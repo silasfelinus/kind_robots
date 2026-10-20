@@ -35,6 +35,94 @@ for (const land of JOURNEY_WORLD.lands) {
 }
 assert.equal(V6_CARDS.length, 120)
 
+const homesteadIds = new Set(JOURNEY_WORLD.lands[0]!.locations.map((p) => p.id))
+const homesteadCards = V6_CARDS.filter((card) =>
+  homesteadIds.has(card.locationId),
+)
+assert.equal(homesteadCards.length, 24, 'both Homestead deck generations')
+assert.ok(
+  homesteadCards.filter((card) => /\b(you|your)\b/i.test(card.flavor)).length >=
+    12,
+  'the reader remains directly addressed in the Homestead',
+)
+for (const card of homesteadCards) {
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: risk stays readable`)
+    assert.ok(
+      choice.success.text.length >= 40,
+      `${card.id}: success is authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 40,
+        `${card.id}: failure is authored`,
+      )
+  }
+}
+assert.match(
+  homesteadCards
+    .find((card) => card.id === 'the-last-seed')!
+    .choices.find((choice) => choice.id === 'shield-shoot')!.success.text,
+  /food she had saved for planting week/,
+  'seed sacrifice has a visible cost rather than an arbitrary treasure find',
+)
+assert.match(
+  LATER_LAND_PACK.encounters.find(
+    (card) => card.id === 'three-cups-on-the-table',
+  )!.flavor,
+  /three cups of broth/,
+  'the Three Cups prose names its visible, countable props',
+)
+
+const dustwater = JOURNEY_WORLD.lands.find((land) => land.id === 'dustwater')!
+const dustwaterIds = new Set(dustwater.locations.map((location) => location.id))
+const dustwaterCards = V6_CARDS.filter((card) =>
+  dustwaterIds.has(card.locationId),
+)
+assert.equal(
+  dustwaterCards.length,
+  24,
+  'Dustwater has eight cards per location',
+)
+for (const card of dustwaterCards) {
+  assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: keep the risk legible`)
+    assert.ok(
+      choice.success.text.length >= 80,
+      `${card.id}: keep the consequence authored`,
+    )
+    if (choice.failure)
+      assert.ok(
+        choice.failure.text.length >= 80,
+        `${card.id}: keep the failure consequential`,
+      )
+  }
+}
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'one-too-many-aboard')!
+    .choices.find((choice) => choice.id === 'question-the-pilots-count')!
+    .success.text,
+  /eleventh seat the hull can carry/,
+  'the pilot reveal must explain why eleven can safely cross',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'a-dam-of-broken-wagons')!
+    .choices.find((choice) => choice.id === 'break-the-dam-open')!.success.text,
+  /squatters' children/,
+  'returning water downstream must acknowledge who loses their pond',
+)
+assert.match(
+  dustwaterCards
+    .find((card) => card.id === 'the-smugglers-mirror')!
+    .choices.find((choice) => choice.id === 'sell-the-plan-to-the-toll-men')!
+    .success.text,
+  /landing's ovens stay cold/,
+  'the betrayal must acknowledge the hungry people at the landing',
+)
+
 const choices = V6_CARDS.flatMap((card) => card.choices)
 const certainCards = V6_CARDS.filter((card) =>
   card.choices.some((choice) => !choice.roll),

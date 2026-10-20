@@ -23,6 +23,7 @@ import {
   ROUTES,
   type RouteStep,
 } from './story'
+import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 export const ECOTONE_SAVE_VERSION = 3
 export const MAX_METER = 8
@@ -94,7 +95,20 @@ export type RunState = {
 
 export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
 
+// Playbook Manager edits an admin marked live (conductor weird-humboldt t-033).
+// They rewrite text and may add choices; card ids and authored mechanics stay.
+let liveCards: Record<string, EncounterCard> = {}
+
+export function setLiveEdits(edits: Record<string, CardEdit>): void {
+  liveCards = {}
+  for (const card of ALL_CARDS) {
+    const edit = edits[card.id]
+    if (edit) liveCards[card.id] = applyCardEdit(card, edit)
+  }
+}
+
 export function findCard(id: string | null | undefined): EncounterCard | null {
+  if (id && liveCards[id]) return liveCards[id]
   return ALL_CARDS.find((card) => card.id === id) ?? null
 }
 

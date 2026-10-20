@@ -88,6 +88,8 @@ export const ModelName = {
   ModelBuildArtifact: 'ModelBuildArtifact',
   ModelBuildRevision: 'ModelBuildRevision',
   MusicVideo: 'MusicVideo',
+  PlaybookEdit: 'PlaybookEdit',
+  PlaybookNote: 'PlaybookNote',
   ProjectPageContent: 'ProjectPageContent',
   ArtImage: 'ArtImage',
   ArtCollection: 'ArtCollection',
@@ -837,6 +839,38 @@ export const MusicVideoScalarFieldEnum = {
 } as const
 
 export type MusicVideoScalarFieldEnum = (typeof MusicVideoScalarFieldEnum)[keyof typeof MusicVideoScalarFieldEnum]
+
+
+export const PlaybookEditScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  gameSlug: 'gameSlug',
+  nodeKey: 'nodeKey',
+  content: 'content',
+  live: 'live',
+  updatedById: 'updatedById'
+} as const
+
+export type PlaybookEditScalarFieldEnum = (typeof PlaybookEditScalarFieldEnum)[keyof typeof PlaybookEditScalarFieldEnum]
+
+
+export const PlaybookNoteScalarFieldEnum = {
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  gameSlug: 'gameSlug',
+  nodeKey: 'nodeKey',
+  kind: 'kind',
+  body: 'body',
+  choiceId: 'choiceId',
+  artJobId: 'artJobId',
+  artImageId: 'artImageId',
+  authorId: 'authorId',
+  resolved: 'resolved'
+} as const
+
+export type PlaybookNoteScalarFieldEnum = (typeof PlaybookNoteScalarFieldEnum)[keyof typeof PlaybookNoteScalarFieldEnum]
 
 
 export const ProjectPageContentScalarFieldEnum = {
@@ -3118,6 +3152,26 @@ export const MusicVideoOrderByRelevanceFieldEnum = {
 } as const
 
 export type MusicVideoOrderByRelevanceFieldEnum = (typeof MusicVideoOrderByRelevanceFieldEnum)[keyof typeof MusicVideoOrderByRelevanceFieldEnum]
+
+
+export const PlaybookEditOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  nodeKey: 'nodeKey',
+  content: 'content'
+} as const
+
+export type PlaybookEditOrderByRelevanceFieldEnum = (typeof PlaybookEditOrderByRelevanceFieldEnum)[keyof typeof PlaybookEditOrderByRelevanceFieldEnum]
+
+
+export const PlaybookNoteOrderByRelevanceFieldEnum = {
+  gameSlug: 'gameSlug',
+  nodeKey: 'nodeKey',
+  kind: 'kind',
+  body: 'body',
+  choiceId: 'choiceId'
+} as const
+
+export type PlaybookNoteOrderByRelevanceFieldEnum = (typeof PlaybookNoteOrderByRelevanceFieldEnum)[keyof typeof PlaybookNoteOrderByRelevanceFieldEnum]
 
 
 export const ProjectPageContentOrderByRelevanceFieldEnum = {

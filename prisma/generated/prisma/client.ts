@@ -393,6 +393,16 @@ export type ModelBuildRevision = Prisma.ModelBuildRevisionModel
  */
 export type MusicVideo = Prisma.MusicVideoModel
 /**
+ * Model PlaybookEdit
+ * One editable overlay per game beat. content is a sanitized JSON PlaybookCardEdit.
+ */
+export type PlaybookEdit = Prisma.PlaybookEditModel
+/**
+ * Model PlaybookNote
+ * Comments, image flags, image submissions and art requests on a game beat.
+ */
+export type PlaybookNote = Prisma.PlaybookNoteModel
+/**
  * Model ProjectPageContent
  * Durable editable presentation copy for Project-owned pages. `projectId` and
  * `updatedById` intentionally remain ownership/audit scalars rather than adding

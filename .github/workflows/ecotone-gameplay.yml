@@ -14,6 +14,17 @@ on:
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
       - 'utils/scripts/verifyEcotone.test.ts'
+      - 'utils/playbook/**'
+      - 'stores/playbookStore.ts'
+      - 'server/utils/playbook.ts'
+      - 'server/api/admin/playbook/**'
+      - 'server/api/playbook/**'
+      - 'components/playbook/playbook-node.vue'
+      - 'components/playbook/playbook-detail.vue'
+      - 'pages/admin/playbook-manager.vue'
+      - 'content/channels/admin/playbook-manager.md'
+      - 'prisma/playbook.prisma'
+      - 'utils/scripts/verifyPlaybook.test.ts'
       - '.github/workflows/ecotone-gameplay.yml'
   push:
     branches: [main]
@@ -27,6 +38,17 @@ on:
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
       - 'utils/scripts/verifyEcotone.test.ts'
+      - 'utils/playbook/**'
+      - 'stores/playbookStore.ts'
+      - 'server/utils/playbook.ts'
+      - 'server/api/admin/playbook/**'
+      - 'server/api/playbook/**'
+      - 'components/playbook/playbook-node.vue'
+      - 'components/playbook/playbook-detail.vue'
+      - 'pages/admin/playbook-manager.vue'
+      - 'content/channels/admin/playbook-manager.md'
+      - 'prisma/playbook.prisma'
+      - 'utils/scripts/verifyPlaybook.test.ts'
       - '.github/workflows/ecotone-gameplay.yml'
 jobs:
   contract:
@@ -42,3 +64,4 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npm run test:ecotone
+      - run: npm run test:playbook

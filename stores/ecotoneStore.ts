@@ -18,8 +18,11 @@ import {
   currentChapter,
   findCard,
   restoreRun,
+  setLiveEdits,
   type RunState,
 } from '~/utils/ecotone/engine'
+import type { CardEdit } from '~/utils/playbook/edits'
+import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
 const ENDINGS_KEY = 'kr.ecotone.endings.v1'
@@ -28,16 +31,22 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   const run = ref<RunState | null>(null)
   const endings = ref<string[]>([])
   const loaded = ref(false)
+  // Bumped when Playbook Manager live edits arrive, so card text re-reads them.
+  const liveVersion = ref(0)
 
   const chapter = computed(() => (run.value ? currentChapter(run.value) : 1))
-  const card = computed(() =>
-    run.value && run.value.phase === 'beat' ? findCard(run.value.card) : null,
-  )
-  const offered = computed(() =>
-    run.value && run.value.phase === 'fork'
+  const card = computed(() => {
+    void liveVersion.value
+    return run.value && run.value.phase === 'beat'
+      ? findCard(run.value.card)
+      : null
+  })
+  const offered = computed(() => {
+    void liveVersion.value
+    return run.value && run.value.phase === 'fork'
       ? run.value.offered.flatMap((id) => findCard(id) ?? [])
-      : [],
-  )
+      : []
+  })
   const lead = computed(
     () => COMPANIONS.find((c) => c.id === run.value?.activeLead) ?? null,
   )
@@ -87,6 +96,17 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       }
     }
     loaded.value = true
+    void loadLiveEdits()
+  }
+
+  async function loadLiveEdits() {
+    if (!import.meta.client) return
+    const response = await performFetch<Record<string, CardEdit>>(
+      '/api/playbook/ecotone/live',
+    )
+    if (!response.success || !response.data) return
+    setLiveEdits(response.data)
+    liveVersion.value += 1
   }
 
   function update(next: RunState) {

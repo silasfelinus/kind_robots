@@ -20,17 +20,17 @@ ENV NUXT_TELEMETRY_DISABLED=1 \
 COPY . .
 
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm ci --include=optional
-# Nuxt Image/IPX uses Sharp at runtime. Ask npm explicitly for the Linux x64
-# glibc platform pair so both the native Sharp binding and its matching libvips
-# package are guaranteed to exist even when the lockfile was produced elsewhere.
+# Nuxt Image/IPX uses Sharp at runtime. package-lock.json carries the Linux x64
+# glibc pair (@img/sharp-linux-x64 and @img/sharp-libvips-linux-x64), so npm ci
+# installs the native binding and its libvips; the check below fails the build
+# if a lockfile regenerated elsewhere ever drops them.
 #
-# Not a no-op, even though the lockfile already carries these packages: with
-# --package-lock=false npm re-resolves the whole tree against package.json ranges
-# and moves ~300 packages past the lockfile (2026-10-20: Prisma 7.9.1 -> 7.10.1,
-# Nitro 2.13.4 -> 2.13.5, Vite 7.3.6 -> 7.3.7). Production has shipped that tree,
-# and skipping this step to save its ~98s made the Nitro build run out of heap at
-# 8 GB on the lockfile versions. Refresh the lockfile before removing it.
-RUN npm install --no-save --package-lock=false --os=linux --cpu=x64 --libc=glibc sharp@0.34.5
+# Until 2026-10-20 this was followed by `npm install --no-save
+# --package-lock=false ... sharp@0.34.5`, which re-resolved the whole tree
+# against package.json ranges: ~98s per build, and the image shipped ~300
+# packages newer than the lockfile every CI check ran against. The lockfile was
+# refreshed to that tree instead, so the image is now exactly the lockfile. To
+# take newer dependencies, update package-lock.json in a PR.
 RUN test -d /app/node_modules/@img/sharp-libvips-linux-x64/lib
 RUN DATABASE_URL=mysql://kindrobots:build-only@127.0.0.1:3306/kindrobots npm run build
 

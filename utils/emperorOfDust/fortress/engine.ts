@@ -356,6 +356,29 @@ export const audiencesToday = (run: FortressRun): AudienceDef[] =>
       : unmetRequirements(run, audience.requires).length === 0,
   )
 
+/**
+ * Whether an answer is offered at all. Story gates (flags, and a follower who
+ * is not at court) hide an answer rather than lock it, so a player is never
+ * shown the road a different past would have opened. Brass, support and
+ * affinity gates still show, locked, with what they need.
+ */
+export const optionVisible = (
+  run: FortressRun,
+  option: AudienceOption,
+): boolean => {
+  const requires = option.requires
+  if (!requires) return true
+  if ((requires.flags ?? []).some((flag) => !run.flags.includes(flag)))
+    return false
+  if ((requires.notFlags ?? []).some((flag) => run.flags.includes(flag)))
+    return false
+  if (requires.follower) {
+    const status = followerStatus(run, requires.follower)
+    if (!status || status === 'dead') return false
+  }
+  return true
+}
+
 export const optionBlockers = (
   run: FortressRun,
   option: AudienceOption,

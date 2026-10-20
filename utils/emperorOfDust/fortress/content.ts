@@ -4,7 +4,7 @@ import { ACT_TWO_DAYS, ACT_TWO_QUESTS } from './actTwo'
 import { ACT_THREE_DAYS, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_QUESTS } from './actFour'
 import { ACT_FIVE_DAYS, ACT_FIVE_QUESTS } from './actFive'
-import type { AudienceDef, DayDef, QuestDef } from './types'
+import type { AudienceDef, DayDef, QuestDef, SceneLine } from './types'
 import { editChoices, liveTextStore } from '../../playbook/textOverlay'
 
 // Seeded wasteland chores drawn at dawn. Each draw depends on the run's seed
@@ -346,13 +346,37 @@ export const questDef = (id: string): QuestDef | undefined => {
   }
 }
 
+/** A scene line as one paragraph of text: someone else's line is "Who: text". */
+export const editorLine = (line: SceneLine): string =>
+  typeof line === 'string' ? line : `${line.who}: ${line.text}`
+
+/**
+ * Edited paragraphs back onto the authored lines: a paragraph in the place of
+ * someone else's line stays theirs, with the "Who: " it was shown with removed.
+ */
+export const mergeSceneLines = (
+  authored: readonly SceneLine[],
+  edited: readonly string[],
+): SceneLine[] =>
+  edited.map((text, i) => {
+    const line = authored[i]
+    if (line === undefined || typeof line === 'string') return text
+    const prefix = `${line.who}: `
+    return {
+      ...line,
+      text: text.startsWith(prefix) ? text.slice(prefix.length) : text,
+    }
+  })
+
 function liveAudience(audience: AudienceDef): AudienceDef {
   const edit = FORTRESS_LIVE_TEXT.get(`aud:${audience.id}`)
   if (!edit) return audience
   return {
     ...audience,
     title: edit.title ?? audience.title,
-    lines: edit.body?.length ? edit.body : audience.lines,
+    lines: edit.body?.length
+      ? mergeSceneLines(audience.lines, edit.body)
+      : audience.lines,
     options: editChoices(audience.options, edit, (option, change) => ({
       response: change.success ?? option.response,
     })),

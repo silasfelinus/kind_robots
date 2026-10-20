@@ -104,7 +104,7 @@ const renameRoute = readFileSync(
 assert.ok(renameRoute.includes('requireAdminApiUser'))
 assert.ok(renameRoute.includes('renameRestyleProject'))
 const jobs = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
-assert.ok(jobs.includes('restyleOverwriteStrength(input.overwriteStrength'))
+assert.ok(jobs.includes('input.overwriteStrength,'))
 assert.ok(
   jobs.includes(
     'source.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH',

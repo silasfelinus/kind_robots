@@ -69,6 +69,14 @@ import {
 } from '../brickBloom/mites'
 import type { Mite, MiteLine } from '../brickBloom/mites'
 import {
+  crackSnail,
+  snailHit,
+  snailsPatrol,
+  spawnSnail,
+  stepSnail,
+} from '../brickBloom/snails'
+import type { Snail } from '../brickBloom/snails'
+import {
   HOUSES,
   HOUSE_LEGEND,
   TOUR_START,
@@ -712,6 +720,8 @@ class BrickBloom implements ArcadeGameInstance {
   private puffs: Puff[] = []
   /** The Seedling House's pollen mites: a line of three swaying down from the roof vents. */
   private miteLine: MiteLine | null = null
+  /** Vine Hall's snail bot: patrols a lane under the crates; its shell bounces the ball. */
+  private snail: Snail | null = null
   private flowers: Flower[] = []
   private speed = 0
   /** The Grand Tour's place (Seedling House, Vine Hall), or null once the tour is over. */
@@ -785,6 +795,10 @@ class BrickBloom implements ArcadeGameInstance {
     this.miteLine =
       vented && this.tour && mitesHatch(this.tour.house, vented.id)
         ? spawnMiteLine(W / 2 + (this.rng() - 0.5) * 80)
+        : null
+    this.snail =
+      vented && this.tour && snailsPatrol(this.tour.house, vented.id)
+        ? spawnSnail(this.rng() < 0.5)
         : null
     this.puffs = []
     const puffs = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.puffs)))
@@ -888,6 +902,7 @@ class BrickBloom implements ArcadeGameInstance {
     this.updateRush()
     this.updatePuffs()
     this.updateMites()
+    if (this.snail) stepSnail(this.snail)
     for (const b of this.bricks) if (b.flash > 0) b.flash--
     if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
   }
@@ -1170,6 +1185,19 @@ class BrickBloom implements ArcadeGameInstance {
         if (miteHit(mite, ball.x, ball.y)) this.popPollenMite(line, mite)
       }
     }
+    const snail = this.snail
+    if (snail && snail.flash === 0 && snailHit(snail, ball.x, ball.y)) {
+      // The shell turns the ball back up the wall.
+      ball.vy = -Math.abs(ball.vy)
+      ball.y = Math.min(ball.y, snail.y - 8)
+      const score = crackSnail(snail, this.level)
+      this.sound.play('pop')
+      if (score > 0) {
+        this.addScore(score, snail.x, snail.y - 10)
+        this.burst(snail.x, snail.y, 10, '#86efac')
+        this.snail = null
+      }
+    }
   }
 
   private updateMites() {
@@ -1186,6 +1214,23 @@ class BrickBloom implements ArcadeGameInstance {
     this.burst(mite.x, mite.y, 8, '#fde047')
     this.sound.play('pop')
     if (line.popped === line.total) this.miteLine = null
+  }
+
+  private renderSnail(g: CanvasRenderingContext2D, s: Snail) {
+    const x = Math.round(s.x)
+    const y = Math.round(s.y)
+    const lit = s.flash > 0 && Math.floor(s.flash / 2) % 2 === 0
+    glow(g, x, y, 10, '#86efac', 0.25)
+    g.fillStyle = INK
+    g.fillRect(x - 8, y - 2, 16, 8)
+    g.fillRect(x - 5, y - 7, 10, 6)
+    g.fillStyle = lit ? '#ffffff' : '#86efac'
+    g.fillRect(x - 7, y - 1, 14, 6)
+    g.fillStyle = s.hp > 1 ? '#fde68a' : '#fca5a5'
+    g.fillRect(x - 4, y - 6, 8, 5)
+    g.fillStyle = INK
+    g.fillRect(x + s.dir * 6, y - 1, 1, 1)
+    g.fillRect(x + s.dir * 7, y - 6, 1, 3)
   }
 
   private renderMite(g: CanvasRenderingContext2D, m: Mite) {
@@ -1632,6 +1677,7 @@ class BrickBloom implements ArcadeGameInstance {
     for (const p of this.puffs) this.renderPuff(g, p)
     if (this.miteLine)
       for (const m of this.miteLine.mites) this.renderMite(g, m)
+    if (this.snail) this.renderSnail(g, this.snail)
     for (const d of this.drops) this.renderDrop(g, d)
     this.renderPaddle(g)
     for (const ball of this.balls) this.renderBall(g, ball)

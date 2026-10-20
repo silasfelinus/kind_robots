@@ -181,4 +181,42 @@ assert.ok(downloadView.includes('downloads.retry(item.id)'))
 assert.ok(downloadView.includes('class="kr-scroll min-h-0 flex-1'))
 assert.equal(downloadView.includes('percent complete'), false)
 
+const retryGuard = readFileSync(
+  'server/utils/retryDownloadRequest.ts',
+  'utf8',
+)
+const deleteRoute = readFileSync(
+  'server/api/lora/download/[id]/index.delete.ts',
+  'utf8',
+)
+const bulkRoute = readFileSync(
+  'server/api/lora/download/failed.post.ts',
+  'utf8',
+)
+assert.ok(retryGuard.includes("existing.status !== 'FAILED'"))
+assert.ok(retryGuard.includes("status: { in: ['PENDING', 'CLAIMED'] }"))
+assert.ok(retryGuard.includes("where: { id, status: 'FAILED', resourceId: null }"))
+assert.ok(retryGuard.includes('attempts: 0'))
+assert.ok(retryGuard.includes('claimedBy: null'))
+assert.ok(retryGuard.includes('updated.count !== 1'))
+assert.ok(deleteRoute.includes('requireAdminApiUser(event)'))
+assert.ok(deleteRoute.includes("status: { in: ['DONE', 'FAILED'] }"))
+assert.ok(deleteRoute.includes('downloadRequest.deleteMany'))
+assert.equal(deleteRoute.includes('resource.delete'), false)
+assert.ok(bulkRoute.includes('requireAdminApiUser(event)'))
+assert.ok(bulkRoute.includes('const MAX_BATCH = 50'))
+assert.ok(bulkRoute.includes('new Set(ids).size !== ids.length'))
+assert.ok(bulkRoute.includes("status: 'FAILED'"))
+assert.ok(bulkRoute.includes('retryFailedDownloadRequest(id)'))
+assert.ok(bulkRoute.includes('downloadRequest.deleteMany'))
+assert.ok(downloadView.includes('visibleFailedIds'))
+assert.ok(downloadView.includes('Confirm clear'))
+assert.ok(downloadView.includes('Confirm delete'))
+assert.ok(downloadView.includes('downloads.deleteRecord(id)'))
+assert.ok(downloadView.includes('downloads.bulkFailed(operation, visibleFailedIds.value)'))
+assert.ok(downloadStore.includes('async function bulkFailed('))
+assert.ok(downloadStore.includes('async function deleteRecord('))
+assert.equal(deleteRoute.includes('unlink('), false)
+assert.equal(bulkRoute.includes('unlink('), false)
+
 console.log('Model download taxonomy contract: all checks passed')

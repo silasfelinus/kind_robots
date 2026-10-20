@@ -73,7 +73,7 @@ const INJURY_CHANCE: Record<
   mid: { triumph: 0, success: 10, partial: 35, failure: 60 },
   high: { triumph: 5, success: 20, partial: 50, failure: 80 },
 }
-const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
+export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   none: [0, 0],
   low: [1, 2],
   mid: [2, 5],
@@ -84,6 +84,8 @@ export const BED_UPGRADES = {
   12: { cost: 80, gateWatch: 12 },
 } as const
 const HOURGLASS = 'komodo-brass-hourglass'
+/** Lamplight Archive support at which its clerks read every '?' on the board. */
+export const LAMPLIGHT_SIGHT = 20
 
 const clamp = (value: number, low: number, high: number): number =>
   Math.max(low, Math.min(high, value))
@@ -585,13 +587,27 @@ const membersOf = (run: FortressRun, party: string[]): Member[] =>
     return { def, state }
   })
 
-const traitApplies = (trait: TraitDef, quest: QuestDef): boolean =>
+export const traitApplies = (trait: TraitDef, quest: QuestDef): boolean =>
   (trait.trigger.stat !== undefined &&
     quest.requirements.some((req) => req.stat === trait.trigger.stat)) ||
   (trait.trigger.faction !== undefined &&
     trait.trigger.faction === quest.faction) ||
   (trait.trigger.tag !== undefined &&
     (quest.tags ?? []).includes(trait.trigger.tag))
+
+/** Allegiance trait ids whose reveal flag is set in `after` but not `before`. */
+export const allegiancesUnlocked = (
+  before: readonly string[],
+  after: readonly string[],
+): string[] =>
+  FOLLOWERS.flatMap((def) => def.traits)
+    .filter(
+      (trait) =>
+        trait.revealFlag !== undefined &&
+        after.includes(trait.revealFlag) &&
+        !before.includes(trait.revealFlag),
+    )
+    .map((trait) => trait.id)
 
 /** A trait is known if the Codex holds it, or its allegiance flag is set. */
 export const traitKnown = (
@@ -745,7 +761,8 @@ export const previewQuest = (
   const { abilities, juryRig, totals } = evaluate(run, quest, members, known)
   const scouted =
     abilities.some((ability) => ability.kind === 'scout') ||
-    run.flags.includes(`scouted:${questId}`)
+    run.flags.includes(`scouted:${questId}`) ||
+    run.local.lamplight >= LAMPLIGHT_SIGHT
   const hiddenIndexes = quest.requirements
     .map((req, i) => (req.hidden && !scouted ? i : -1))
     .filter((i) => i >= 0)
@@ -772,9 +789,23 @@ export const previewQuest = (
       : chanceWith()
     : 0
   const guardian = abilityTotal(abilities, 'guardian')
-  const luck = hasAbility(abilities, 'lucky') ? luckyChance : (c: number) => c
+  const lucky = hasAbility(abilities, 'lucky')
+  const luck = lucky ? luckyChance : (c: number) => c
+  const baseChance = estimate ? Math.round((low + high) / 2) : low
+  const risk = members.length
+    ? injuryRisk(quest, baseChance, {
+        lucky,
+        encore: hasAbility(abilities, 'encore'),
+        omen: hasAbility(abilities, 'omen'),
+        warden: hasAbility(abilities, 'warden'),
+        guardian,
+        surgery: abilityTotal(abilities, 'field-surgery'),
+        size: members.length,
+      })
+    : { injuryRisk: 0, deathChance: 0, injuryDays: [0, 0] as [number, number] }
   return {
-    chance: luck(estimate ? Math.round((low + high) / 2) : low),
+    ...risk,
+    chance: luck(baseChance),
     estimate,
     low: luck(low),
     high: luck(high),
@@ -787,6 +818,80 @@ export const previewQuest = (
     })),
     durationDays: questDuration(quest, members, hourglass),
     injuryChance: clamp(INJURY_CHANCE[quest.danger].failure - guardian, 0, 100),
+  }
+}
+
+type RiskParty = {
+  lucky: boolean
+  encore: boolean
+  omen: boolean
+  warden: boolean
+  guardian: number
+  surgery: number
+  size: number
+}
+
+/** Chance of each result tier for a success chance, as resolveQuest rolls it. */
+export const tierOdds = (
+  chance: number,
+  party: Pick<RiskParty, 'lucky' | 'encore' | 'omen'>,
+): Record<QuestResultTier, number> => {
+  // P(roll < x) for a 0-99 roll; Cave-Luck keeps the lower of two rolls.
+  const below = (x: number) => {
+    const p = clamp(x, 0, 100) / 100
+    return party.lucky ? 1 - (1 - p) ** 2 : p
+  }
+  const triumph = below(Math.floor(chance * (party.encore ? 0.6 : 0.3)))
+  const success = below(chance)
+  const partial = below(chance + Math.floor((100 - chance) * 0.4))
+  const failure = 1 - partial
+  return {
+    triumph,
+    success: success - triumph,
+    partial: partial - success + (party.omen ? failure : 0),
+    failure: party.omen ? 0 : failure,
+  }
+}
+
+/**
+ * Honest injury and death odds for a party, from the same tables resolveQuest
+ * uses: the chance each follower comes home wounded, the wound length, and the
+ * chance someone does not come home at all.
+ */
+export const injuryRisk = (
+  quest: QuestDef,
+  chance: number,
+  party: RiskParty,
+): Pick<OddsPreview, 'injuryRisk' | 'deathChance' | 'injuryDays'> => {
+  const tiers = tierOdds(chance, party)
+  const odds = (tier: QuestResultTier) =>
+    clamp(INJURY_CHANCE[quest.danger][tier] - party.guardian, 0, 100) / 100
+  const wounded = (Object.keys(tiers) as QuestResultTier[]).reduce(
+    (sum, tier) => sum + tiers[tier] * odds(tier),
+    0,
+  )
+  const [lowDays, highDays] = INJURY_DAYS[quest.danger]
+  const span = highDays - lowDays + 1
+  let deep = 0
+  let lasting = 0
+  for (let roll = 0; roll < 100; roll += 1) {
+    const raw = lowDays + (roll % span)
+    if (raw >= 5) deep += 1
+    // Field Surgery can close a short wound before the party is home.
+    if (raw - party.surgery > 0) lasting += 1
+  }
+  const blow = odds('failure') * (deep / 100) * 0.35
+  const death =
+    quest.lethal && !party.warden
+      ? tiers.failure * (1 - (1 - blow) ** party.size)
+      : 0
+  return {
+    injuryRisk: Math.round(wounded * lasting),
+    deathChance: Math.round(100 * death),
+    injuryDays: [
+      Math.max(0, lowDays - party.surgery),
+      Math.max(0, highDays - party.surgery),
+    ],
   }
 }
 
@@ -1594,7 +1699,14 @@ export const finishDay = (
   for (const active of next.active.filter(
     (item) => item.returnsDay <= next.day,
   )) {
+    const before = [...next.flags]
     const report = resolveQuest(next, active, knownNow, events)
+    // A quest that uncovers someone's true allegiance reveals it here too.
+    report.revealedTraits.push(
+      ...allegiancesUnlocked(before, next.flags).filter(
+        (id) => !knownNow.includes(id) && !report.revealedTraits.includes(id),
+      ),
+    )
     knownNow.push(...report.revealedTraits)
     quests.push(report)
   }

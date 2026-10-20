@@ -64,7 +64,25 @@ import {
   unmetRequirements,
   upgradeBeds,
   withdrawQuest,
+  LAMPLIGHT_SIGHT,
+  tierOdds,
 } from '../emperorOfDust/fortress/engine'
+import {
+  dangerLine,
+  effectLines,
+  expiryInfo,
+  partyModifiers,
+  rewardLines,
+  sendWarnings,
+} from '../emperorOfDust/fortress/board'
+import {
+  CODEX_SIZE,
+  allegiancesKnown,
+  codexPages,
+  howLearned,
+  isCodexId,
+  revealLine,
+} from '../emperorOfDust/fortress/codex'
 import {
   FOLLOWERS,
   ITEMS,
@@ -2571,6 +2589,285 @@ for (const def of DAYS)
     ),
     `day ${def.day} advisor art`,
   )
+
+// --- quest room board (t-022) -------------------------------------------------
+{
+  // Tier odds are a full distribution; Heeded Omens leaves no failure.
+  for (const chance of [5, 37, 60, 95]) {
+    for (const party of [
+      { lucky: false, encore: false, omen: false },
+      { lucky: true, encore: true, omen: false },
+      { lucky: false, encore: false, omen: true },
+    ]) {
+      const odds = tierOdds(chance, party)
+      const total = Object.values(odds).reduce((sum, p) => sum + p, 0)
+      assert.ok(Math.abs(total - 1) < 1e-9, `tiers sum to one at ${chance}%`)
+      assert.ok(Object.values(odds).every((p) => p >= 0))
+      if (party.omen) assert.equal(odds.failure, 0)
+    }
+  }
+  // Danger is printed with its wound range; a lethal mark is explicit.
+  const convoy = questDef('q-d09-iron-convoy')!
+  assert.match(dangerLine(convoy), /wounds 3–8 days · Lethal$/)
+  assert.doesNotMatch(dangerLine(questDef('q-d01-well-road')!), /Lethal/)
+  // Honest odds: the shown wound and death chances match what play does.
+  const weak = previewQuest(onDay(1, 9), 'q-d09-iron-convoy', ['F003', 'F004'])
+  assert.ok(weak.deathChance > 0, 'a lethal quest shows a death chance')
+  let wounded = 0
+  let died = 0
+  for (let seed = 1; seed <= 400; seed += 1) {
+    let run = assignQuest(onDay(seed, 9), 'q-d09-iron-convoy', ['F003', 'F004'])
+    run = finishDay(run).run
+    const report = finishDay(run).report.quests.find(
+      (q) => q.questId === 'q-d09-iron-convoy',
+    )!
+    wounded += report.injuries.length + report.deaths.length
+    if (report.deaths.length) died += 1
+  }
+  assert.ok(
+    Math.abs(wounded / 8 - weak.injuryRisk) <= 8,
+    `wound risk is honest (${weak.injuryRisk}% shown, ${wounded / 8}% played)`,
+  )
+  assert.ok(
+    Math.abs(died / 4 - weak.deathChance) <= 5,
+    `death risk is honest (${weak.deathChance}% shown, ${died / 4}% played)`,
+  )
+  // No lethal marker, no death chance; Last Wall shows nobody dies.
+  const warded = previewQuest(
+    withCast(1, 9, ['F003', 'F013']),
+    'q-d09-iron-convoy',
+    ['F003', 'F013'],
+  )
+  assert.equal(warded.deathChance, 0, 'Last Wall shows a zero death chance')
+  const repairOdds = previewQuest(repaired, 'q-d01-aqueduct-repair', ['F002'])
+  assert.equal(repairOdds.deathChance, 0, 'not lethal, no death chance')
+  assert.ok(repairOdds.injuryRisk >= 0 && repairOdds.injuryRisk <= 100)
+
+  // Requirement bands: hidden needs stay "?" until the Lamplight reads them.
+  const blindBoard = previewQuest(inspecting, 'q-d01-mirefen-inspect', [])
+  assert.equal(blindBoard.perRequirement[1]?.hidden, true, '? on the notice')
+  assert.equal(blindBoard.perRequirement[1]?.needed, 0, 'a ? hides its need')
+  const archive = { ...inspecting, local: { ...inspecting.local } }
+  archive.local.lamplight = LAMPLIGHT_SIGHT
+  const read = previewQuest(archive, 'q-d01-mirefen-inspect', ['F003'])
+  assert.equal(read.estimate, false, 'the Lamplight Archive reads the ?')
+  assert.ok(read.perRequirement.every((req) => !req.hidden && req.needed > 0))
+
+  // Expiry: the countdown, and the consequence stated before it happens.
+  const day1 = createRun(42)
+  const well = day1.board.find((entry) => entry.questId === 'q-d01-well-road')!
+  const wellExpiry = expiryInfo(day1, questDef(well.questId)!, well.lastDay)
+  assert.equal(wellExpiry.daysLeft, 2)
+  assert.equal(wellExpiry.countdown, '2 days left')
+  assert.match(wellExpiry.consequence, /^If nobody goes: The Yard −2\.$/)
+  assert.ok(wellExpiry.punishes)
+  const tonight = expiryInfo(day1, questDef(well.questId)!, day1.day)
+  assert.equal(tonight.countdown, 'Last day')
+  assert.equal(tonight.when, 'Comes down tonight.')
+  const quiet = expiryInfo(
+    day1,
+    { ...questDef(well.questId)!, expired: {} },
+    well.lastDay,
+  )
+  assert.ok(!quiet.punishes, 'not every expiry punishes')
+  assert.match(quiet.consequence, /passes/)
+  // Board lines never print hidden strength or a fogged faction's name.
+  const lines = effectLines(day1, {
+    strength: { 'storm-crows': -2 },
+    affinity: { rustline: 5 },
+  })
+  assert.ok(lines.every((line) => !/\d/.test(line) && !/Rustline/.test(line)))
+  assert.ok(rewardLines(day1, questDef('q-d01-well-road')!).length > 0)
+
+  // What counts: faction modifiers and known traits are listed; unknown
+  // secrets are not, so they can surprise.
+  const engine = withCast(1, 13, ['F002'])
+  engine.board = [{ questId: 'q-d13-water-engine', postedDay: 13, lastDay: 14 }]
+  const engineQuest = questDef('q-d13-water-engine')!
+  const silent = partyModifiers(engine, engineQuest, ['F002'], [])
+  assert.ok(
+    !silent.some((mod) => mod.label === 'The Welded Insignia'),
+    'a hidden allegiance is not listed',
+  )
+  const told = earnFlag(engine, 'talk-saffron-insignia')
+  assert.ok(
+    partyModifiers(told, engineQuest, ['F002'], []).some(
+      (mod) => mod.label === 'The Welded Insignia' && mod.amount === 2,
+    ),
+    'a revealed allegiance is listed',
+  )
+  // Hidden modifiers apply silently: play counts the allegiance the preview
+  // could not show.
+  const shown = previewQuest(engine, 'q-d13-water-engine', ['F002'])
+  const truth = previewQuest(
+    engine,
+    'q-d13-water-engine',
+    ['F002'],
+    ['F002-welded-insignia', 'F002-bridge-builder'],
+  )
+  const played = finishDay(
+    finishDay(assignQuest(engine, 'q-d13-water-engine', ['F002'])).run,
+  ).report.quests.find((q) => q.questId === 'q-d13-water-engine')!
+  assert.ok(truth.chance > shown.chance, 'the secret is worth something')
+  assert.equal(played.chance, truth.chance, 'play counts every secret')
+
+  // Warnings inform and never block: a short, lethal party can still go.
+  const short = previewQuest(onDay(1, 9), 'q-d09-iron-convoy', ['F003', 'F004'])
+  const warnings = sendWarnings(
+    onDay(1, 9),
+    convoy,
+    short,
+    partyModifiers(onDay(1, 9), convoy, ['F003', 'F004'], []),
+  )
+  assert.ok(warnings.some((w) => /^Short on Might/.test(w)))
+  assert.ok(warnings.some((w) => /^Lethal\. About \d+%/.test(w)))
+  assert.ok(
+    assignQuest(onDay(1, 9), 'q-d09-iron-convoy', ['F003', 'F004']),
+    'warnings never block Send',
+  )
+  const late = onDay(1, 50)
+  late.board = [{ questId: 'q-d09-iron-convoy', postedDay: 50, lastDay: 50 }]
+  assert.ok(
+    sendWarnings(
+      late,
+      convoy,
+      previewQuest(late, 'q-d09-iron-convoy', ['F003', 'F004']),
+      [],
+    ).some((w) => /before the reign ends/.test(w)),
+  )
+  // Send and withdraw the same day restores the notice and its countdown.
+  const sentToday = assignQuest(day1, 'q-d01-well-road', ['F001'])
+  const back = withdrawQuest(sentToday, 'q-d01-well-road')
+  assert.deepEqual(
+    back.board.find((entry) => entry.questId === 'q-d01-well-road'),
+    well,
+  )
+  assert.throws(
+    () => withdrawQuest(finishDay(sentToday).run, 'q-d01-well-road'),
+    /only today/,
+  )
+}
+
+// --- Codex (t-023) --------------------------------------------------------------
+{
+  // Only follower trait ids enter the Codex: never items, brass or
+  // relationships, whatever the stored record claims.
+  assert.ok(isCodexId('F002-welded-insignia'))
+  assert.ok(!isCodexId(ITEMS[0]!.id), 'an item id is not a Codex entry')
+  assert.ok(!isCodexId('brass') && !isCodexId('F001'))
+  const smuggled = decodeCodex(
+    JSON.stringify({
+      version: 1,
+      revealed: ['F002-bridge-builder', ITEMS[0]!.id, 'brass', 'romance:F001'],
+      brass: 900,
+      items: [ITEMS[0]!.id],
+      relationships: { F001: 'beloved' },
+    }),
+  )!
+  assert.deepEqual(smuggled, { version: 1, revealed: ['F002-bridge-builder'] })
+  assert.deepEqual(Object.keys(smuggled).sort(), ['revealed', 'version'])
+  const merged = mergeCodex(smuggled, [ITEMS[0]!.id, 'brass'])
+  assert.equal(merged, smuggled, 'merging non-traits changes nothing')
+  assert.equal(CODEX_SIZE, FOLLOWERS.flatMap((def) => def.traits).length)
+
+  // The six talk-revealed allegiances all reach the Codex from their flags.
+  const TALK_FLAGS: Record<string, string> = {
+    'talk-saffron-insignia': 'F002-welded-insignia',
+    'talk-pip-ledger': '',
+    'talk-tamsin-bonds': '',
+    'talk-teodor-letters': '',
+    'talk-isolde-coven': '',
+    'talk-sable-flight': '',
+  }
+  for (const flag of Object.keys(TALK_FLAGS)) {
+    const trait = FOLLOWERS.flatMap((def) => def.traits).find(
+      (t) => t.revealFlag === flag,
+    )
+    assert.ok(trait, `${flag} reveals an allegiance`)
+    assert.equal(trait.kind, 'allegiance')
+    if (TALK_FLAGS[flag]) assert.equal(trait.id, TALK_FLAGS[flag])
+    const run = earnFlag(createRun(5), flag)
+    assert.deepEqual(allegiancesKnown(run), [trait.id])
+    assert.ok(
+      mergeCodex(
+        { version: 1 as const, revealed: [] },
+        allegiancesKnown(run),
+      ).revealed.includes(trait.id),
+    )
+    assert.ok(revealLine(trait.id).includes(trait.name))
+  }
+
+  // A quest whose reward speaks the flag reveals the allegiance at dawn.
+  const pack = withCast(3, 13, ['F002'])
+  pack.board = [{ questId: 'q-d13-water-engine', postedDay: 13, lastDay: 14 }]
+  let revealedAtDawn = 0
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const run = { ...pack, seed }
+    const night = finishDay(
+      finishDay(assignQuest(run, 'q-d13-water-engine', ['F002'])).run,
+    )
+    const report = night.report.quests.find(
+      (q) => q.questId === 'q-d13-water-engine',
+    )!
+    const won = report.tier === 'success' || report.tier === 'triumph'
+    assert.equal(
+      report.revealedTraits.includes('F002-welded-insignia'),
+      won,
+      'the engine tells the Pack’s secret only when it runs',
+    )
+    if (won) {
+      revealedAtDawn += 1
+      assert.match(
+        howLearned(night.run, 'F002-welded-insignia'),
+        /^The Pack’s Water Engine, dawn of Day 15\.$/,
+      )
+    }
+    // Already in the Codex: not revealed twice.
+    const again = finishDay(
+      finishDay(assignQuest(run, 'q-d13-water-engine', ['F002'])).run,
+      ['F002-welded-insignia'],
+    ).report.quests.find((q) => q.questId === 'q-d13-water-engine')!
+    assert.ok(!again.revealedTraits.includes('F002-welded-insignia'))
+  }
+  assert.ok(revealedAtDawn > 0, 'the engine runs on some seeds')
+
+  // The Codex lives outside the run: a new run and a rewind keep it, and no
+  // save book carries it.
+  const codexNow = mergeCodex({ version: 1 as const, revealed: [] }, [
+    'F001-reads-the-ruts',
+    'F002-welded-insignia',
+  ])
+  const raw = JSON.stringify(codexNow)
+  const fresh = createRun(99)
+  const book = recordDawn(newBook(fresh), finishDay(fresh).run)
+  const rewound = rewindTo(book, 1)
+  assert.ok(!JSON.stringify(rewound).includes('"revealed"'))
+  assert.deepEqual(decodeCodex(raw), codexNow, 'the Codex survives as stored')
+  // Known traits show in a new run's preview without being learned again.
+  const knownPreview = previewQuest(
+    chooseAudienceOption(fresh, 'd01-aqueduct', 'repair').run,
+    'q-d01-aqueduct-repair',
+    ['F002'],
+    ['F002-bridge-builder'],
+  )
+  assert.ok(knownPreview.perRequirement[0]!.total >= 12)
+  assert.equal(
+    howLearned(fresh, 'F001-reads-the-ruts'),
+    'Learned in another reign, or on a road you rewound.',
+  )
+  // Pages: one per follower with anything learned, hidden count honest.
+  const pages = codexPages(codexNow, fresh)
+  assert.deepEqual(
+    pages.map((page) => page.follower.id),
+    ['F001', 'F002'],
+  )
+  assert.equal(
+    pages[1]!.unknown,
+    followerDef('F002')!.traits.length - 1,
+    'secrets still hidden are counted, never named',
+  )
+  assert.equal(pages[1]!.entries[0]!.kindLabel, 'True allegiance')
+}
 
 // --- market (t-024) ---------------------------------------------------------
 {

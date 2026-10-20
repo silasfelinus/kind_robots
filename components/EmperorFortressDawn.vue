@@ -149,18 +149,28 @@
             <p v-if="current.party.length" class="text-xs opacity-70">
               {{ current.chance }}% chance of success
             </p>
-            <ul
+            <div
               v-if="current.revealedTraits.length"
-              class="space-y-0.5 text-xs"
+              class="rounded-md border border-warning/50 bg-warning/10 p-2"
             >
-              <li
-                v-for="id in current.revealedTraits"
-                :key="id"
-                class="text-warning"
+              <p
+                class="text-[10px] font-semibold uppercase tracking-[0.2em] text-warning"
               >
-                Revealed: {{ traitLine(id) }}
-              </li>
-            </ul>
+                Learned on the road · into the Codex
+              </p>
+              <ul class="mt-1 space-y-1 text-xs">
+                <li v-for="id in current.revealedTraits" :key="id">
+                  <strong>{{ traitOwner(id) }}</strong>
+                  <span class="opacity-70"> · {{ traitKind(id) }}</span>
+                  <span class="block font-semibold">{{
+                    codexTrait(id)?.trait.name
+                  }}</span>
+                  <span class="block opacity-85">{{
+                    codexTrait(id)?.trait.text
+                  }}</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </article>
 
@@ -277,10 +287,8 @@ import {
 } from '~/utils/emperorOfDust/fortress/engine'
 import { REGIONS } from '~/utils/emperorOfDust/fortress/factions'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
-import {
-  FOLLOWERS,
-  followerDef,
-} from '~/utils/emperorOfDust/fortress/followers'
+import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
+import { codexEntry, codexTrait } from '~/utils/emperorOfDust/fortress/codex'
 import type {
   DawnReport,
   MapEvent,
@@ -444,12 +452,8 @@ const tierText = (tier: QuestReport['tier']) =>
     failure: 'text-error',
     expired: 'opacity-60',
   })[tier]
-const traitLine = (id: string) => {
-  const trait = FOLLOWERS.flatMap((def) => def.traits).find((t) => t.id === id)
-  if (!trait) return id
-  const owner = nameOf(id.split('-')[0] ?? '')
-  return `${owner}: ${trait.name} (${trait.amount > 0 ? 'strength' : 'weakness'})`
-}
+const traitOwner = (id: string) => codexTrait(id)?.follower.name ?? id
+const traitKind = (id: string) => codexEntry(id)?.kindLabel ?? ''
 </script>
 
 <style scoped>

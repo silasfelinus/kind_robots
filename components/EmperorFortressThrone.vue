@@ -80,6 +80,7 @@
           <p class="font-serif text-base italic">
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
+          <EmperorFortressCodexNote />
           <button
             type="button"
             class="eod-finish flex w-full items-center justify-center gap-2 px-5 py-2 text-sm"

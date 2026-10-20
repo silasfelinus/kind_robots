@@ -443,5 +443,12 @@ export type OddsPreview = {
     needed: number
   }[]
   durationDays: number
+  /** Chance each follower is wounded if the quest fails. */
   injuryChance: number
+  /** Chance each follower comes home wounded, across every result. */
+  injuryRisk: number
+  /** Wound length range in days, after Field Surgery. */
+  injuryDays: [number, number]
+  /** Chance someone does not come home; 0 unless the quest is lethal. */
+  deathChance: number
 }

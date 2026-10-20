@@ -41,24 +41,24 @@
 
 **Opening narration:** A bottle washes ashore with the player's own handwriting and tomorrow's date.
 
-**Escalation:** The kombucha bottle bears your handwriting and tomorrow's date. Inside is a sketch of a rockfall that has not happened.
+**Escalation:** A kombucha bottle rolls up between your shoes. The letter inside, signed in your handwriting, describes a rockfall tomorrow at the point where three families are sitting today. The date is right; the explanation is not.
 
-**Option A, investigate (visible 7 check):** Compare the message with tomorrow's tide chart
+**Option A, investigate (visible 7 check):** Compare the sketch with the cliff face and an independently posted warning
 
-- **Pass:** The warning correctly names a tide height missing from the official table.
-- **Miss:** The ink bleeds in the spray; a tourist still recalls the exact location from your reading.
+- **Pass:** The tide chart leaves out an hour that appears in the bottle's margin. A local volunteer confirms the cliff is already shedding grit.
+- **Miss:** The ink runs before you can preserve the time. You still know where the dangerous overhang is, which turns out to be the useful part.
 
-**Option B, assist without a check:** Warn beachgoers and mark the hazardous access
+**Option B, assist without a check:** Move people away from the unstable edge without asking them to believe you
 
-- **Result:** A family moves its picnic before a cliff pebble shower begins, and nobody needs to believe in time travel.
+- **Result:** The picnic moves inland. A few pebbles begin falling where the blanket used to be. The family thanks you for the warning, not the time travel.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-023`: A bottle washes ashore with the player's own handwriting and tomorrow's date. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-023/2`: The kombucha bottle bears your handwriting and tomorrow's date. Inside is a sketch of a rockfall that has not happened. The people and location must match the opening.
-- `outcomes/wh-023/investigate-success`: The warning correctly names a tide height missing from the official table. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-023/investigate-failure`: The ink bleeds in the spray; a tourist still recalls the exact location from your reading. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-023/care-success`: A family moves its picnic before a cliff pebble shower begins, and nobody needs to believe in time travel. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-023/2`: A kombucha bottle rolls up between your shoes. The letter inside, signed in your handwriting, describes a rockfall tomorrow at the point where three families are sitting today. The date is right; the explanation is not. The people and location must match the opening.
+- `outcomes/wh-023/investigate-success`: The tide chart leaves out an hour that appears in the bottle's margin. A local volunteer confirms the cliff is already shedding grit. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-023/investigate-failure`: The ink runs before you can preserve the time. You still know where the dangerous overhang is, which turns out to be the useful part. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-023/care-success`: The picnic moves inland. A few pebbles begin falling where the blanket used to be. The family thanks you for the warning, not the time travel. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_023_verified`, `wh_023_partial`, `wh_023_care` (mutually exclusive results of this card).
 
@@ -72,24 +72,24 @@
 
 **Opening narration:** One piece of glass contains a miniature working lighthouse.
 
-**Escalation:** A green piece of sea glass contains a lighthouse with a working rotating beacon. The tiny light points inland.
+**Escalation:** Inside a piece of green sea glass, a lighthouse rotates with the solemnity of somebody fulfilling a very small contract. Its beam points inland, across the footprints of a collector looking for what she lost.
 
-**Option A, investigate (visible 7 check):** Use a lens to map what the miniature beam touches
+**Option A, investigate (visible 7 check):** Trace the miniature beacon across a real map before moving the glass
 
-- **Pass:** It sweeps a hidden channel on a map of Trinidad that has not yet been published.
-- **Miss:** The glass slips into the sand, but the beam briefly marks a safe walking route.
+- **Pass:** The beam picks out a channel absent from the chart. You record the position and write UNVERIFIED in letters big enough to resist the temptation to announce a discovery.
+- **Miss:** The glass slips beneath the sand. For a second the beam draws a line toward higher ground; you mark the direction, not an invented certainty.
 
-**Option B, assist without a check:** Return the glass to the shoreline collector who lost it
+**Option B, assist without a check:** Return the glass and ask whether the collector wants its secret kept
 
-- **Result:** They recognize their grandmother's lighthouse and agree to show it without selling it.
+- **Result:** The collector recognizes it as a gift from her grandmother. She agrees to show you the light, but not to surrender the glass. That seems a reasonable arrangement.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-025`: One piece of glass contains a miniature working lighthouse. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-025/2`: A green piece of sea glass contains a lighthouse with a working rotating beacon. The tiny light points inland. The people and location must match the opening.
-- `outcomes/wh-025/investigate-success`: It sweeps a hidden channel on a map of Trinidad that has not yet been published. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-025/investigate-failure`: The glass slips into the sand, but the beam briefly marks a safe walking route. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-025/care-success`: They recognize their grandmother's lighthouse and agree to show it without selling it. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-025/2`: Inside a piece of green sea glass, a lighthouse rotates with the solemnity of somebody fulfilling a very small contract. Its beam points inland, across the footprints of a collector looking for what she lost. The people and location must match the opening.
+- `outcomes/wh-025/investigate-success`: The beam picks out a channel absent from the chart. You record the position and write UNVERIFIED in letters big enough to resist the temptation to announce a discovery. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-025/investigate-failure`: The glass slips beneath the sand. For a second the beam draws a line toward higher ground; you mark the direction, not an invented certainty. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-025/care-success`: The collector recognizes it as a gift from her grandmother. She agrees to show you the light, but not to surrender the glass. That seems a reasonable arrangement. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_025_verified`, `wh_025_partial`, `wh_025_care` (mutually exclusive results of this card).
 

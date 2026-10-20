@@ -121,7 +121,7 @@
       "id": "lanterns-on-the-raft",
       "locationId": "ferry-landing",
       "title": "Lanterns on the Raft",
-      "flavor": "Lanterns hang from every post of a flat raft that circles the landing without ever touching shore. The ferryman keeps the largest one lit in broad daylight and watches the current as though it might change its mind. Behind you, a stranded family waits with their bundles, too frightened to call across the water.",
+      "flavor": "The raft keeps circling the landing, every post hung with a lantern burning in daylight. The ferryman raises his largest light whenever the current runs dark beneath the middle pier. Behind you, a family with two bundles waits in the sun. Their youngest has begun to cry quietly, and none of them dares call him closer.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -129,7 +129,7 @@
           "id": "offer-to-steady-the-mooring",
           "label": "Steady the mooring rope",
           "intent": "Wade in and hold the raft against the current so the family can board.",
-          "risk": "The rope is wet, and the river is stronger than it looks.",
+          "risk": "If the line slips, the raft takes the family downstream with nobody to steady it.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
@@ -143,7 +143,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "The rope runs through your grip and burns your hands raw. The family scrambles aboard anyway, but the raft pulls away before you can follow, and you cross alone after dark, hands throbbing.",
+            "text": "The wet rope runs through your palms and tears them open. The family climbs aboard before the raft pulls clear, its youngest looking back at the hand you cannot lift to wave. You cross alone after dark, gripping each rail with bandaged fingers.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["lanterns-on-the-raft-1-failure"],
@@ -154,7 +154,7 @@
           "id": "ask-why-the-lantern-burns",
           "label": "Ask why the lantern burns",
           "intent": "Call across the water and ask the ferryman what the daylight lantern is for.",
-          "risk": "He may hear mockery in the question and push off.",
+          "risk": "The ferryman can take a question as help, or as one more reason to leave them waiting.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
@@ -181,7 +181,7 @@
       "id": "toll-of-two-names",
       "locationId": "ferry-landing",
       "title": "The Toll of Two Names",
-      "flavor": "A registrar at the landing takes a name from every traveler as the only toll for passage. On her open ledger you see the same two names repeated years apart, each time in a different hand. She asks for no coin, and the queue behind you grows quieter with every name she writes.",
+      "flavor": "At the landing a registrar takes no coin, only each traveler's name. The toll book lies open between a lantern and an inkstone, and the same two names appear again and again, years apart, written in different hands. The woman ahead of you whispers hers. When the registrar writes it down, the line behind you falls silent.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -189,14 +189,14 @@
           "id": "demand-an-honest-account",
           "label": "Demand an honest account",
           "intent": "Put your hand on the ledger and ask her plainly what those repeated names mean.",
-          "risk": "Guards stand by the gate, and the crowd is packed tight.",
+          "risk": "The guards are close enough to hear a raised voice; the next person in line will pay for a closed gate.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 10
           },
           "success": {
-            "text": "She turns back the pages and shows you the struck-out entries: travelers lost on the crossing were written down as debts owed by whoever came next. Without a word, she draws a line through your name.",
+            "text": "The registrar turns back the pages. The names of travelers lost in the current have been copied forward as debts owed by those who survived them. She has been recording absence as a toll. She strikes your entry from the book, then puts her hand over the next blank line so the waiting family cannot see it.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["toll-of-two-names-1-success"],
@@ -228,7 +228,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "Your sleeve catches a wax seal, and it cracks loud enough to turn heads. When the guards push in, the crowd scatters, an elbow catches you hard, and your rations are trampled into the mud.",
+            "text": "Your sleeve catches a wax seal on the ledger and tears it loose. The guards push in while the queue scatters. An elbow catches you hard; by the time you reach open ground, the food from your pack lies trampled in the river mud. The altered dates remain in the book.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["toll-of-two-names-2-failure"],
@@ -249,7 +249,7 @@
           "id": "repair-the-rudder",
           "label": "Repair the rudder",
           "intent": "Borrow the boatwright's tools and fit the waiting skiff with a sound rudder.",
-          "risk": "Old timber can hide a crack until the moment it fails.",
+          "risk": "If your repair fails midstream, the waiting skiff will carry somebody toward the snags.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -274,14 +274,14 @@
           "id": "wait-for-its-owner",
           "label": "Wait for its owner",
           "intent": "Sit by the post with the boatwright and see who finally comes for the skiff.",
-          "risk": "You may wait all night, and waiting is not free.",
+          "risk": "You spend a meal and a night waiting for someone who may be dead.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "Near dusk a woman comes down the bank: the owner's sister. She has no fare to offer, only the truth about what happened to the missing river patrol, and she gives it to you plainly.",
+            "text": "Near dusk the owner's sister comes down the bank, coat hem dark with mud. She has no fare and no claim on the skiff, only the truth: her brother went after the missing river patrol and never returned. The boatwright looks toward the broken rudder and says he should have asked sooner.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-boat-that-waits-2-success"],
@@ -309,14 +309,14 @@
           "id": "test-the-counterweights",
           "label": "Test the counterweights",
           "intent": "Ask to hold the brass weights yourself and feel whether they are honest.",
-          "risk": "The merchant pays hired hands to keep questions short.",
+          "risk": "If you expose the merchant, his hired hands can turn a public scale into a private beating.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
             "target": 8
           },
           "success": {
-            "text": "One weight is too light for its size. You pry it open and a hollow stone rolls onto the counter. The merchant restores the fair measure for everyone, and the woman behind you presses a twist of salt and a heel of bread into your hand.",
+            "text": "The brass weight is hollow and light. You split its seam and a pebble drops onto the counter. The merchant measures the salt again under the eyes of everyone in the queue. The woman behind you presses bread and a twist of salt into your palm; he will remember whose hand opened the weight.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["weighed-in-salt-1-success"],
@@ -334,7 +334,7 @@
           "id": "trade-supplies-for-passage",
           "label": "Trade supplies for passage",
           "intent": "Bargain calmly for a crossing voucher instead of fighting over spoonfuls of salt.",
-          "risk": "This merchant knows how to make a bargain cost double.",
+          "risk": "He can take your food and sell you a voucher no ferryman honors.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
@@ -369,7 +369,7 @@
           "id": "compare-the-two-charts",
           "label": "Compare the two charts",
           "intent": "Unfold the old draft beside the neat chart and look for what she erased.",
-          "risk": "If you trust the wrong chart, the river will not forgive it.",
+          "risk": "The erased bend may be the only true one, but choosing it means ignoring every newer map.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
@@ -383,7 +383,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "You trust the neat chart. Its bridge washed out a season ago, and the long detour through the reeds costs you a day of light and most of your strength.",
+            "text": "You follow the neat chart as far as a bridge that washed away last season. From the reeds you can still see the cartographer's old erased line, pointing to a passage you passed hours ago. By the time you reach it, the sun is gone and your strength with it.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["the-mended-compass-1-failure"],
@@ -394,7 +394,7 @@
           "id": "help-reset-the-compass",
           "label": "Help reset the compass",
           "intent": "Help her settle the mended compass so its needle points true again.",
-          "risk": "The needle is skittish, and you cannot see why.",
+          "risk": "A needle that points toward the table instead of north will lead travelers astray.",
           "roll": {
             "skill": "wits",
             "modifier": 0,
@@ -429,14 +429,14 @@
           "id": "share-the-untouched-meal",
           "label": "Share the untouched meal",
           "intent": "Carry the cook's untouched bowl to her and ask her to eat with you.",
-          "risk": "The patrons may take your choice as an insult.",
+          "risk": "If you give the cook her untouched bowl, the armed patrons will see whom you have chosen.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "She sits, and after a few spoonfuls she starts to talk: there is an honest back road that skirts the checkpoint. When you leave, she sends you off with bread wrapped in cloth.",
+            "text": "You carry the cook's untouched bowl from beside the stove and sit with her while the three cups cool on the table. After a few spoonfuls she describes a back road around the false checkpoint. She wraps bread for your journey, but will not say whom she was waiting to feed.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["three-cups-on-the-table-1-success"],
@@ -454,7 +454,7 @@
           "id": "question-the-armed-patrons",
           "label": "Question the armed patrons",
           "intent": "Leave the cups where they stand and ask the patrons about the traveler who never returned.",
-          "risk": "Armed patrons do not like questions, and they are already watching.",
+          "risk": "They are guarding an answer, and the cook is close enough to suffer for your question.",
           "roll": {
             "skill": "insight",
             "modifier": 0,
@@ -489,14 +489,14 @@
           "id": "follow-the-wet-prints",
           "label": "Follow the wet prints",
           "intent": "Follow the wet prints across the channel to learn where the walker went.",
-          "risk": "Salt crust hides soft ground, and the prints are fresh.",
+          "risk": "The trail crosses salt that looks solid until it swallows a boot.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
             "target": 9
           },
           "success": {
-            "text": "The prints lead to a concealed spillway where the buried river surfaces. You mark a line of safe stones across it before the water returns, and the road ahead will run differently for everyone who comes after.",
+            "text": "The footprints end at a concealed spillway where the buried river surfaces. You test each stone before marking a crossing above the silt, and call the surveyor over to see it. When the channel fills again, travelers will have a different road because you stopped to look.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["footprints-in-the-silt-1-success"],
@@ -528,7 +528,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "A sudden surge tears the rope from your hands and carries his tools downstream. You both haul yourselves out soaked and aching, with nothing to show for the work but mud.",
+            "text": "A surge tears the rope away and takes the surveyor's tools. You drag him onto the high bank before the water reaches the last stake. Both of you lie there soaked and aching, watching his new waterline disappear beneath the current.",
             "hp_delta": -1,
             "provisions_delta": 0,
             "add_flags": ["footprints-in-the-silt-2-failure"],
@@ -549,7 +549,7 @@
           "id": "cross-on-the-old-timbers",
           "label": "Cross on the old timbers",
           "intent": "Pick your way across the old timbers yourself, testing each beam before you trust it.",
-          "risk": "Some of these beams have been rotting for a century.",
+          "risk": "The beams span the inlet, but the rot is hidden underneath each step.",
           "roll": {
             "skill": "steel",
             "modifier": 0,
@@ -574,7 +574,7 @@
           "id": "ask-the-guide-to-lead",
           "label": "Ask the guide to lead",
           "intent": "Pay the guide from your pack to lead you across the sections she trusts.",
-          "risk": "You will be trusting a guide who keeps secrets.",
+          "risk": "A guide can save your crossing or strand you midway with less food.",
           "roll": {
             "skill": "bearing",
             "modifier": 0,
@@ -588,7 +588,7 @@
             "map_effect": "none"
           },
           "failure": {
-            "text": "She takes your provisions up front, leads you to the middle of the inlet, and vanishes among the timbers. You find your own way across, slow and hard, and arrive spent.",
+            "text": "She takes her payment before setting foot on the old timbers. Halfway across, she slips between two ribs of driftwood and is gone. You spend the rest of the light finding solid footing for yourself. On the far bank your pack is lighter, and there is no one left to accuse.",
             "hp_delta": -1,
             "provisions_delta": -1,
             "add_flags": ["a-road-of-bones-2-failure"],
@@ -609,7 +609,7 @@
           "id": "listen-between-the-notes",
           "label": "Listen between the notes",
           "intent": "Sit still beside the reed player and listen for the river under the music.",
-          "risk": "The wind is rising, and it could drown the notes.",
+          "risk": "The warning is quieter than the melody; one gust could hide the buried river's approach.",
           "roll": {
             "skill": "awareness",
             "modifier": 0,
@@ -634,14 +634,14 @@
           "id": "offer-an-old-traveling-song",
           "label": "Offer an old traveling song",
           "intent": "Answer his music with an old traveling song you learned on another road.",
-          "risk": "A song carries far in open country, to friendly and unfriendly ears.",
+          "risk": "A song summons listeners you cannot see across the empty delta.",
           "roll": {
             "skill": "resolve",
             "modifier": 0,
             "target": 7
           },
           "success": {
-            "text": "He listens, smiles, and answers with a second melody you have never heard. When it ends, he points out a path that skirts the worst of the crossing.",
+            "text": "You answer with an old road song. For a moment the musician stops playing to hear someone else's voice; then he takes up your tune and threads a new river melody through it. When it ends, he points out a dry path that skirts the dangerous crossing. He asks you to remember the song.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-reed-music-2-success"],

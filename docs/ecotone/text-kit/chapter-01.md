@@ -165,24 +165,24 @@
 
 **Opening narration:** A shadow-cast prop gains agency and demands better stage directions.
 
-**Escalation:** The shadow cast's alien prop refuses to be stabbed on cue and demands a speaking part. The director threatens to cancel the fundraiser.
+**Escalation:** At the Minor Theatre's midnight fundraiser, an alien prop refuses the scheduled stabbing. It has no mouth, but it has apparently found the union handbook. The director threatens to cancel the show; the understudy wants to know why everybody thinks an unsafe stunt is tradition.
 
-**Option A, investigate (visible 7 check):** Rewrite the prop's scene in front of the cast
+**Option A, investigate (visible 7 check):** Ask the prop and cast to rehearse a version everyone can consent to
 
-- **Pass:** Its unscripted speech includes the address of a warehouse that will appear tomorrow.
-- **Miss:** The crowd boos, but a penciled stage direction in the old script was written by nobody present.
+- **Pass:** On the improvised line, the prop gives an address for a warehouse due to open tomorrow. The stage manager writes it on the call sheet and refuses to send anyone there alone.
+- **Miss:** The rehearsal stalls when the prop refuses its cue. You discover a stage direction in the old script signed by nobody in the cast; the director agrees to preserve the page.
 
-**Option B, assist without a check:** Help the troupe replace an unsafe stunt
+**Option B, assist without a check:** Replace the dangerous effect and give the crew an actual say
 
-- **Result:** The actors invent a safer gag; the prop returns to its rack under its own power.
+- **Result:** A paper silhouette gets the laugh, nobody gets stabbed, and the prop rolls itself onto the rack. The fundraiser survives the artistic disagreement.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-008`: A shadow-cast prop gains agency and demands better stage directions. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-008/2`: The shadow cast's alien prop refuses to be stabbed on cue and demands a speaking part. The director threatens to cancel the fundraiser. The people and location must match the opening.
-- `outcomes/wh-008/investigate-success`: Its unscripted speech includes the address of a warehouse that will appear tomorrow. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-008/investigate-failure`: The crowd boos, but a penciled stage direction in the old script was written by nobody present. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-008/care-success`: The actors invent a safer gag; the prop returns to its rack under its own power. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-008/2`: At the Minor Theatre's midnight fundraiser, an alien prop refuses the scheduled stabbing. It has no mouth, but it has apparently found the union handbook. The director threatens to cancel the show; the understudy wants to know why everybody thinks an unsafe stunt is tradition. The people and location must match the opening.
+- `outcomes/wh-008/investigate-success`: On the improvised line, the prop gives an address for a warehouse due to open tomorrow. The stage manager writes it on the call sheet and refuses to send anyone there alone. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-008/investigate-failure`: The rehearsal stalls when the prop refuses its cue. You discover a stage direction in the old script signed by nobody in the cast; the director agrees to preserve the page. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-008/care-success`: A paper silhouette gets the laugh, nobody gets stabbed, and the prop rolls itself onto the rack. The fundraiser survives the artistic disagreement. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_008_verified`, `wh_008_partial`, `wh_008_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A jogger repeatedly emerges at the trailhead they have not reached.
 
-**Escalation:** A jogger emerges at the wrong trailhead twice. His watch records uphill miles while both maps insist he ran downhill.
+**Escalation:** A jogger comes out of the Community Forest at the wrong trailhead, then does it again without crossing the road between them. His watch claims six uphill miles. He keeps asking whether he has been running away from the same tree for an hour.
 
-**Option A, investigate (visible 7 check):** Mark each junction and walk the loop backward
+**Option A, investigate (visible 7 check):** Mark the junctions and compare his watch with a second trail map
 
-- **Pass:** One trail marker ages fifty years between passes. Distance is not the thing being rearranged.
-- **Miss:** You return to the start empty-handed but find a second set of fresh footprints beside yours.
+- **Pass:** A trail marker ages decades between two photographs taken seconds apart. You record both timestamps, then turn back while there is still daylight.
+- **Miss:** The loop deposits you at your starting point. Your map is unchanged but there are fresh footprints beside yours, in a size neither of you wears.
 
-**Option B, assist without a check:** Guide the frightened jogger out before nightfall
+**Option B, assist without a check:** Help the jogger reach a staffed exit instead of testing the loop again
 
-- **Result:** A volunteer search team meets you at the gate, ready to help the next lost walker.
+- **Result:** A volunteer meets you at the gate, checks the jogger is warm and accounted for, and posts a temporary notice. The forest keeps its extra trail to itself.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-011`: A jogger repeatedly emerges at the trailhead they have not reached. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-011/2`: A jogger emerges at the wrong trailhead twice. His watch records uphill miles while both maps insist he ran downhill. The people and location must match the opening.
-- `outcomes/wh-011/investigate-success`: One trail marker ages fifty years between passes. Distance is not the thing being rearranged. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-011/investigate-failure`: You return to the start empty-handed but find a second set of fresh footprints beside yours. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-011/care-success`: A volunteer search team meets you at the gate, ready to help the next lost walker. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-011/2`: A jogger comes out of the Community Forest at the wrong trailhead, then does it again without crossing the road between them. His watch claims six uphill miles. He keeps asking whether he has been running away from the same tree for an hour. The people and location must match the opening.
+- `outcomes/wh-011/investigate-success`: A trail marker ages decades between two photographs taken seconds apart. You record both timestamps, then turn back while there is still daylight. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-011/investigate-failure`: The loop deposits you at your starting point. Your map is unchanged but there are fresh footprints beside yours, in a size neither of you wears. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-011/care-success`: A volunteer meets you at the gate, checks the jogger is warm and accounted for, and posts a temporary notice. The forest keeps its extra trail to itself. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_011_verified`, `wh_011_partial`, `wh_011_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A missing dorm room has a remarkably active meal plan.
 
-**Escalation:** Dorm 404 does not exist, yet someone leaves shoes at the wall and the cafeteria charges three meals a day to its resident.
+**Escalation:** The housing office insists Dorm 404 does not exist. Someone leaves shoes against the blank wall, a meal card is charged three times a day, and a resident adviser has been told to stop asking after the missing student. The shoes are still wet from the rain.
 
-**Option A, investigate (visible 7 check):** Trace the meal-plan account
+**Option A, investigate (visible 7 check):** Check the meal-plan charges with housing staff before guessing who lives there
 
-- **Pass:** The swipe belongs to a student enrolled next autumn. Their listed emergency contact is the building.
-- **Miss:** The registrar closes the card but a hot dinner appears beside the blank wall.
+- **Pass:** The account belongs to a student enrolled next autumn, with an emergency-contact number that rings inside the wall. The registrar logs the anomaly rather than inventing a disciplinary case.
+- **Miss:** The card is deactivated and dinner appears at the wall anyway. A cafeteria worker signs the receipt and asks the housing office to check that somebody is eating.
 
-**Option B, assist without a check:** Organize a careful welfare check
+**Option B, assist without a check:** Arrange a welfare check that gives the unseen resident privacy and a safe way to answer
 
-- **Result:** Housing staff leave a note and a safe way to answer. The response says THANK YOU FOR KNOCKING.
+- **Result:** The resident adviser leaves food, a written question and the number for a real person. By morning the reply says THANK YOU FOR KNOCKING. Nobody tries to tear down the wall.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-017`: A missing dorm room has a remarkably active meal plan. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-017/2`: Dorm 404 does not exist, yet someone leaves shoes at the wall and the cafeteria charges three meals a day to its resident. The people and location must match the opening.
-- `outcomes/wh-017/investigate-success`: The swipe belongs to a student enrolled next autumn. Their listed emergency contact is the building. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-017/investigate-failure`: The registrar closes the card but a hot dinner appears beside the blank wall. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-017/care-success`: Housing staff leave a note and a safe way to answer. The response says THANK YOU FOR KNOCKING. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-017/2`: The housing office insists Dorm 404 does not exist. Someone leaves shoes against the blank wall, a meal card is charged three times a day, and a resident adviser has been told to stop asking after the missing student. The shoes are still wet from the rain. The people and location must match the opening.
+- `outcomes/wh-017/investigate-success`: The account belongs to a student enrolled next autumn, with an emergency-contact number that rings inside the wall. The registrar logs the anomaly rather than inventing a disciplinary case. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-017/investigate-failure`: The card is deactivated and dinner appears at the wall anyway. A cafeteria worker signs the receipt and asks the housing office to check that somebody is eating. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-017/care-success`: The resident adviser leaves food, a written question and the number for a real person. By morning the reply says THANK YOU FOR KNOCKING. Nobody tries to tear down the wall. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_017_verified`, `wh_017_partial`, `wh_017_care` (mutually exclusive results of this card).
 

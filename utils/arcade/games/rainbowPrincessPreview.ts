@@ -592,6 +592,8 @@ export const RAINBOW_DIFFICULTY: Record<
 /** HUD text clears the cabinet's corner chips (close/fullscreen left, pause right). */
 const HUD_LEFT = 44
 const HUD_RIGHT = W - 26
+/** A comms line replaces the HUD bar: this tall, from the top edge, for as long as it plays. */
+const COMMS_HEIGHT = 51
 
 type Ship = {
   x: number
@@ -7061,48 +7063,6 @@ export function createRainbowPrincessPreview(
         )
         g.restore()
       }
-      g.fillStyle = '#180d38e8'
-      g.fillRect(0, 0, W, 29)
-      g.fillStyle = '#ffe7f5'
-      g.font = 'bold 10px monospace'
-      g.fillText(
-        [
-          'ACT I / PINKWAKE',
-          'ACT II / MOONJELLY',
-          'ACT III / TRENCH',
-          'ACT IV / EXPRESS',
-          'ACT V / WRECKYARD',
-          'ACT VI / CROWN REEF',
-          'ACT VII / GLASS CURRENT',
-          'ACT VIII / ECLIPSE PALACE',
-          'FINALE / ECLIPSE CROWN',
-        ][act - 1]!,
-        HUD_LEFT,
-        12,
-      )
-      g.font = '9px monospace'
-      g.fillText(
-        // Short enough to clear P1's status on the right of the same row.
-        'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
-        HUD_LEFT,
-        24,
-      )
-      g.textAlign = 'right'
-      g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
-      if (activePlayers > 1) {
-        g.fillStyle = '#180d38e8'
-        g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
-      }
-      for (let seat = 0; seat < activePlayers; seat++) {
-        const ship = ships[seat]!
-        g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
-        g.fillText(
-          `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
-          HUD_RIGHT,
-          24 + seat * 10,
-        )
-      }
-      g.textAlign = 'left'
       const scene =
         act === 1
           ? pinkwakeScene(tick, defeatedAt)
@@ -7202,31 +7162,76 @@ export function createRainbowPrincessPreview(
       const line = said ?? callout
       const dialogue = line && crewLine(line)
       const commsTop = 33 + Math.max(0, activePlayers - 1) * 10
+      // Silas, 2026-10-20: a comms line takes the HUD bar's place instead of stacking under it, so the
+      // conversation covers no more of the playfield than the header already did. The HUD returns after.
+      if (!dialogue) {
+        g.fillStyle = '#180d38e8'
+        g.fillRect(0, 0, W, 29)
+        g.fillStyle = '#ffe7f5'
+        g.font = 'bold 10px monospace'
+        g.fillText(
+          [
+            'ACT I / PINKWAKE',
+            'ACT II / MOONJELLY',
+            'ACT III / TRENCH',
+            'ACT IV / EXPRESS',
+            'ACT V / WRECKYARD',
+            'ACT VI / CROWN REEF',
+            'ACT VII / GLASS CURRENT',
+            'ACT VIII / ECLIPSE PALACE',
+            'FINALE / ECLIPSE CROWN',
+          ][act - 1]!,
+          HUD_LEFT,
+          12,
+        )
+        g.font = '9px monospace'
+        g.fillText(
+          // Short enough to clear P1's status on the right of the same row.
+          'A FIRE · B FOCUS/SUPER · X SPECIAL · Y EVADE',
+          HUD_LEFT,
+          24,
+        )
+        g.textAlign = 'right'
+        g.fillText(`SHOALS ${clearCount}  ·  NOVAS ${supers}`, HUD_RIGHT, 12)
+        if (activePlayers > 1) {
+          g.fillStyle = '#180d38e8'
+          g.fillRect(HUD_RIGHT - 150, 29, 158, (activePlayers - 1) * 10 + 4)
+        }
+        for (let seat = 0; seat < activePlayers; seat++) {
+          const ship = ships[seat]!
+          g.fillStyle = PILOT_COLORS[pilotOf(seat)]!
+          g.fillText(
+            `${SHIP_NAMES[pilotOf(seat)]} ${ship.lives}♥ ${ship.shield}◇ P${ship.power} ${ship.charge}%${ship.specialCooldown ? '' : ' X'}${ship.evadeCooldown ? '' : ' Y'}`,
+            HUD_RIGHT,
+            24 + seat * 10,
+          )
+        }
+        g.textAlign = 'left'
+      }
       if (dialogue) {
-        g.fillStyle = '#160b34e8'
-        g.fillRect(15, commsTop, W - 30, 51)
-        g.strokeStyle = '#ffe2fa'
-        g.lineWidth = 1
-        g.strokeRect(15, commsTop, W - 30, 51)
+        g.fillStyle = '#160b34f0'
+        g.fillRect(0, 0, W, COMMS_HEIGHT)
+        g.fillStyle = '#ffe2fa'
+        g.fillRect(0, COMMS_HEIGHT - 1, W, 1)
         const portrait = drawRainbowCommsPortrait(
           g,
           dialogue.speaker,
-          19,
-          commsTop + 4,
+          HUD_LEFT,
+          4,
           43,
         )
         if (portrait) {
           g.strokeStyle = '#aef6f0'
-          g.strokeRect(19, commsTop + 4, 43, 43)
+          g.strokeRect(HUD_LEFT, 4, 43, 43)
         }
-        const textX = portrait ? 70 : 24
+        const textX = portrait ? HUD_LEFT + 51 : HUD_LEFT
         const wrap = portrait ? 57 : 65
         g.fillStyle = '#aef6f0'
         g.font = 'bold 10px monospace'
         g.fillText(
           `${scene?.id ?? callout?.id} / ${dialogue.speaker.toUpperCase()}`,
           textX,
-          commsTop + 16,
+          16,
         )
         const words = dialogue.text.split(' ')
         const lines = ['']
@@ -7238,7 +7243,7 @@ export function createRainbowPrincessPreview(
         g.fillStyle = '#fff4fa'
         g.font = '9px monospace'
         for (let line = 0; line < Math.min(lines.length, 2); line++) {
-          g.fillText(lines[line]!, textX, commsTop + 30 + line * 12)
+          g.fillText(lines[line]!, textX, 30 + line * 12)
         }
       } else if (restingFrames() !== null) {
         // ACT-STRUCTURE: Act V ends on a recovery and memorial tableau, the second quiet intermission.

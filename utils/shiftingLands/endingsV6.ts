@@ -274,10 +274,16 @@ export function authoredEndingV6(
   const deed = DEEDS.find(([flag]) => state.flags.includes(flag))
   if (deed) paragraphs.push(deed[1])
   const successes = trials.filter((trial) => trial.roll.success)
+  const lastAttempt = trials.at(-1)
+  const fatalTrial =
+    phase === 'fallen' && lastAttempt && !lastAttempt.roll.success
+      ? lastAttempt
+      : null
   const remembered =
+    fatalTrial ??
     [...successes].reverse().find((trial) => trial.choiceId === 'evidence') ??
     successes.at(-1) ??
-    trials.at(-1)
+    lastAttempt
   if (remembered) {
     if (remembered.roll.success) {
       const echo = TRIALS[remembered.landId]?.[remembered.choiceId]

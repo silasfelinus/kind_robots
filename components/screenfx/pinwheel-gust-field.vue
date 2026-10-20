@@ -147,7 +147,8 @@ function drawField(seconds: number): void {
         const near = Math.max(0, 1 - Math.abs(x - puffX) / (width * 0.4))
         angle += near * puff * 6
       }
-      drawPinwheel(x, y, radius, angle, COLORS[(r + i) % COLORS.length] ?? '#ff6f61')
+      const color = COLORS[(r + i) % COLORS.length] ?? '#ff6f61'
+      drawPinwheel(x, y, radius, angle, color)
     }
   }
 }

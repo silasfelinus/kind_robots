@@ -12,6 +12,7 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '@/utils/artImageSource'
 import type { RecentArtJobImage } from '@/utils/recentArtImages'
+import type { VideoGeneratorJobSummary } from '@/server/utils/videoGeneratorJobs'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type { LoraPick } from '@/utils/loraSelection'
 import type {
@@ -127,6 +128,27 @@ export const useVideoStore = defineStore('videoStore', () => {
     loadingFrameId: null as number | null,
     error: '',
   })
+
+  const history = reactive({
+    jobs: [] as VideoGeneratorJobSummary[],
+    selectedJobId: null as number | null,
+    loading: false,
+    actionId: null as number | null,
+    error: '',
+    notice: '',
+    page: 1,
+    pageCount: 1,
+    totalCount: 0,
+  })
+
+  const selectedJob = computed(
+    () => history.jobs.find((job) => job.id === history.selectedJobId) ?? null,
+  )
+  const hasActiveJobs = computed(() =>
+    history.jobs.some(
+      (job) => job.status === 'PENDING' || job.status === 'RUNNING',
+    ),
+  )
 
   const isBusy = computed(
     () => state.status === 'queued' || state.status === 'rendering',
@@ -285,6 +307,8 @@ export const useVideoStore = defineStore('videoStore', () => {
     try {
       const jobId = await enqueue(params)
       state.jobId = jobId
+      history.selectedJobId = jobId
+      await fetchJobs(1)
 
       const job = await waitForJob(jobId)
 
@@ -301,10 +325,168 @@ export const useVideoStore = defineStore('videoStore', () => {
 
       state.status = 'done'
       state.message = 'Clip ready.'
+      await fetchJobs(1)
     } catch (err) {
       state.status = 'error'
       state.error = err instanceof Error ? err.message : String(err)
       state.message = ''
+      await fetchJobs(1)
+    }
+  }
+
+  async function displaySelectedJob(): Promise<void> {
+    const job = selectedJob.value
+    if (!job) return
+    state.jobId = job.id
+    state.attempts = job.attempts
+    state.attemptError =
+      (job.status === 'PENDING' || job.status === 'RUNNING') && job.attempts > 0
+        ? job.error || ''
+        : ''
+    state.error = job.status === 'FAILED' ? job.error || 'Render failed.' : ''
+    state.status =
+      job.status === 'DONE'
+        ? 'done'
+        : job.status === 'RUNNING'
+          ? 'rendering'
+          : job.status === 'PENDING'
+            ? 'queued'
+            : 'error'
+    state.message =
+      job.status === 'DONE'
+        ? 'Clip ready.'
+        : job.status === 'RUNNING'
+          ? 'Rendering on the studio relay…'
+          : job.status === 'PENDING'
+            ? job.attempts > 0
+              ? 'Waiting for the studio relay to retry…'
+              : 'Waiting in the studio queue…'
+            : job.status === 'CANCELLED'
+              ? 'Render cancelled.'
+              : ''
+    if (job.artImageId && job.status === 'DONE') {
+      if (state.artImageId !== job.artImageId || !state.videoSrc) {
+        state.videoSrc = ''
+        state.artImageId = job.artImageId
+        try {
+          await loadVideo(job.artImageId)
+        } catch (err) {
+          if (history.selectedJobId === job.id) {
+            state.error =
+              err instanceof Error ? err.message : 'Unable to load saved clip.'
+          }
+        }
+      }
+    } else {
+      state.artImageId = null
+      state.videoSrc = ''
+      state.fileType = ''
+    }
+  }
+
+  async function fetchJobs(page = history.page): Promise<void> {
+    if (history.loading) return
+    history.loading = true
+    history.error = ''
+    try {
+      const res = await performFetch<{
+        jobs: VideoGeneratorJobSummary[]
+        page: number
+        pageCount: number
+        totalCount: number
+      }>(
+        `/api/video/jobs?page=${page}`,
+        { method: 'GET' },
+        1,
+        20_000,
+      )
+      if (!res.success || !res.data) {
+        history.error = res.message || 'Cannot load saved video jobs.'
+        return
+      }
+      history.jobs = res.data.jobs
+      history.page = res.data.page
+      history.pageCount = res.data.pageCount
+      history.totalCount = res.data.totalCount
+      if (!history.jobs.some((job) => job.id === history.selectedJobId)) {
+        history.selectedJobId =
+          history.jobs.find(
+            (job) => job.status === 'RUNNING' || job.status === 'PENDING',
+          )?.id ?? history.jobs[0]?.id ?? null
+      }
+      if (history.selectedJobId !== null) {
+        await displaySelectedJob()
+      } else {
+        reset()
+      }
+    } catch (err) {
+      history.error = err instanceof Error ? err.message : String(err)
+    } finally {
+      history.loading = false
+    }
+  }
+
+  async function selectJob(id: number): Promise<void> {
+    if (!history.jobs.some((job) => job.id === id)) return
+    history.selectedJobId = id
+    state.videoSrc = ''
+    state.artImageId = null
+    await displaySelectedJob()
+  }
+
+  async function resubmitJob(id: number): Promise<boolean> {
+    if (history.actionId !== null) return false
+    history.actionId = id
+    history.error = ''
+    history.notice = ''
+    try {
+      const res = await performFetch<{ jobId: number }>(
+        `/api/video/jobs/${id}/resubmit`,
+        { method: 'POST' },
+        1,
+        60_000,
+      )
+      if (!res.success || !res.data?.jobId) {
+        history.error = res.message || 'Could not resubmit the saved render.'
+        return false
+      }
+      history.selectedJobId = res.data.jobId
+      history.notice = `New render #${res.data.jobId} queued using saved images and settings.`
+      await fetchJobs(1)
+      return true
+    } catch (err) {
+      history.error = err instanceof Error ? err.message : String(err)
+      return false
+    } finally {
+      history.actionId = null
+    }
+  }
+
+  async function deleteJob(id: number): Promise<boolean> {
+    if (history.actionId !== null) return false
+    history.actionId = id
+    history.error = ''
+    history.notice = ''
+    try {
+      const res = await performFetch<{ id: number }>(
+        `/api/video/jobs/${id}`,
+        { method: 'DELETE' },
+        1,
+        30_000,
+      )
+      if (!res.success) {
+        history.error = res.message || 'Could not remove the saved job.'
+        return false
+      }
+      if (history.selectedJobId === id) history.selectedJobId = null
+      history.notice = 'History entry removed. Finished artwork remains in your gallery.'
+      await fetchJobs()
+      return true
+    } catch (err) {
+      history.error = err instanceof Error ? err.message : String(err)
+      return false
+    } finally {
+      history.actionId = null
     }
   }
 
@@ -376,10 +558,17 @@ export const useVideoStore = defineStore('videoStore', () => {
   return {
     state,
     recentArt,
+    history,
+    selectedJob,
+    hasActiveJobs,
     isBusy,
     resultIsImage,
     reset,
     generate,
+    fetchJobs,
+    selectJob,
+    resubmitJob,
+    deleteJob,
     fetchRecentArt,
     loadArtImageFrame,
   }

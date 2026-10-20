@@ -67,7 +67,19 @@ export type Requirement = {
   follower?: string
   flags?: string[]
   notFlags?: string[]
+  /** At least `min` of these flags: a standing earned over many days. */
+  standing?: Standing
 }
+
+/** A track of story flags that accumulate, such as the crown's concessions. */
+export type Standing = { flags: readonly string[]; min: number }
+
+export const standingHeld = (
+  flags: readonly string[],
+  standing: Standing | undefined,
+): boolean =>
+  !standing ||
+  standing.flags.filter((flag) => flags.includes(flag)).length >= standing.min
 
 export type TraitKind = 'skill' | 'weakness' | 'allegiance'
 

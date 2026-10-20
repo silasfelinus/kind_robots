@@ -6,7 +6,18 @@ import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
-import { ENDINGS, endingOf } from '../emperorOfDust/fortress/endings'
+import {
+  ENDINGS,
+  type EndingId,
+  endingOf,
+} from '../emperorOfDust/fortress/endings'
+import {
+  MOLE_CONCESSIONS,
+  MOLE_GRIEVANCES,
+  MOLE_LEADERS,
+  MOLE_REFORMS_OPEN,
+  moleAccord,
+} from '../emperorOfDust/fortress/moles'
 import {
   DAYS,
   LAST_DAY,
@@ -45,6 +56,7 @@ import {
   talkScene,
   talkedToday,
   traitKnown,
+  unmetRequirements,
   upgradeBeds,
   withdrawQuest,
 } from '../emperorOfDust/fortress/engine'
@@ -1619,6 +1631,187 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
     /new rosters/,
     'hindsight shows the report as this run heard it',
   )
+}
+
+// --- The Mole Revolutionaries (t-016) ----------------------------------------
+{
+  const dayOf = (day: number) => DAYS.find((def) => def.day === day)!
+  const audienceOn = (day: number, id: string) =>
+    dayOf(day).audiences.find((audience) => audience.id === id)!
+  const MOLE_AUDIENCES: [number, string][] = [
+    [21, 'd21-fen-weir'],
+    [32, 'd32-reform-list'],
+    [33, 'd33-sappers'],
+    [44, 'd44-coal-powder'],
+    [50, 'd50-burrows'],
+  ]
+  // New audiences come after the day's existing ones, and no day holds more
+  // than four.
+  for (const [day, id] of MOLE_AUDIENCES) {
+    assert.equal(dayOf(day).audiences.at(-1)!.id, id, `${id} comes last`)
+    assert.ok(dayOf(day).audiences.length <= 4, `day ${day} audiences`)
+  }
+  const allOptions = (audience: AudienceDef) => [
+    ...audience.options,
+    ...(audience.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  // Every flag on the reconciliation track is earned somewhere in the story.
+  const earned = new Set<string>()
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const option of allOptions(audience))
+        for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const flag of [...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES])
+    assert.ok(earned.has(flag), `${flag} can be earned`)
+  assert.equal(
+    new Set([...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES]).size,
+    MOLE_CONCESSIONS.length + MOLE_GRIEVANCES.length,
+    'a flag is a concession or a grievance, never both',
+  )
+  // Named leaders, each on stage somewhere.
+  const spoken = DAYS.flatMap((def) =>
+    def.audiences.flatMap((audience) => [
+      audience.speaker,
+      ...[audience.lines, ...(audience.beats ?? []).map((b) => b.lines)]
+        .flat()
+        .map((line) => (typeof line === 'string' ? line : line.who)),
+    ]),
+  ).join('\n')
+  assert.ok(MOLE_LEADERS.length >= 5)
+  for (const leader of MOLE_LEADERS) {
+    const surname = leader.name.split(' ').at(-1)!
+    assert.ok(spoken.includes(surname), `${leader.name} appears`)
+    if (leader.npc) assert.ok(npcDef(leader.npc), leader.npc)
+    if (leader.follower)
+      assert.equal(followerDef(leader.follower)?.origin, 'moles')
+  }
+  // Anti-witch dilemmas teeter: the burrows' gain is the fen's loss and the
+  // other way round, and there is a third road that costs something else.
+  for (const id of ['d33-sappers', 'd44-coal-powder']) {
+    const [day] = MOLE_AUDIENCES.find(([, aud]) => aud === id)!
+    const options = allOptions(audienceOn(day, id))
+    const moles = (o: AudienceOption) => o.effects.affinity?.moles ?? 0
+    const fen = (o: AudienceOption) => o.effects.affinity?.['mire-mothers'] ?? 0
+    assert.ok(
+      options.some((o) => moles(o) > 0 && fen(o) < 0),
+      `${id} burrows`,
+    )
+    assert.ok(
+      options.some((o) => fen(o) > 0 && moles(o) < 0),
+      `${id} fen`,
+    )
+    assert.ok(
+      options.some(
+        (o) => moles(o) >= 0 && fen(o) >= 0 && moles(o) + fen(o) > 0,
+      ),
+      `${id} has a road between`,
+    )
+  }
+  assert.ok(
+    allOptions(audienceOn(21, 'd21-fen-weir')).some(
+      (o) =>
+        (o.effects.affinity?.moles ?? 0) > 0 &&
+        (o.effects.affinity?.['mire-mothers'] ?? 0) < 0,
+    ),
+    'blowing the weir costs the fen',
+  )
+
+  // The standing gate: Lumen's reform list waits for two real concessions,
+  // and the whole assembly turns out on Day 50 only for five.
+  const reformDay = (flags: string[]) =>
+    audiencesToday(onDay(1, 32, { flags })).some(
+      (audience) => audience.id === 'd32-reform-list',
+    )
+  assert.ok(!reformDay([]))
+  assert.ok(!reformDay(['mole-talks-opened', 'moles-blamed']))
+  assert.ok(reformDay(['mole-talks-opened', 'mole-truce']))
+  assert.deepEqual(
+    unmetRequirements(onDay(1, 32), { standing: MOLE_REFORMS_OPEN }),
+    ['Not yet possible'],
+  )
+  const burrowsDay = (count: number) =>
+    audiencesToday(
+      onDay(1, 50, { flags: MOLE_CONCESSIONS.slice(0, count) }),
+    ).some((audience) => audience.id === 'd50-burrows')
+  assert.ok(!burrowsDay(4))
+  assert.ok(burrowsDay(5))
+  // Two reforms bring Lumen Shale to the barracks; the second offers only
+  // reforms not yet granted.
+  let reforms = onDay(1, 32, { flags: ['mole-talks-opened', 'mole-truce'] })
+  reforms = chooseAudienceOption(reforms, 'd32-reform-list', 'councils').run
+  const second = audienceScene(
+    reforms,
+    audienceOn(32, 'd32-reform-list'),
+  ).options.filter((o) => optionVisible(reforms, o))
+  assert.deepEqual(
+    second.map((o) => o.id),
+    ['second-ledger', 'second-sedition', 'one'],
+  )
+  reforms = chooseAudienceOption(
+    reforms,
+    'd32-reform-list',
+    'second-sedition',
+  ).run
+  assert.ok(reforms.recruitable.includes('F010'), 'Lumen will join')
+  assert.ok(
+    ['d32-reform-councils', 'd32-reform-sedition'].every((f) =>
+      reforms.flags.includes(f),
+    ),
+  )
+  // A crown that frees Granny Umber on Day 21 is not blamed for her on Day 26.
+  const freed = chooseAudienceOption(
+    onDay(1, 21, { flags: ['mole-messenger-arrested'] }),
+    'd21-fen-weir',
+    'free-umber',
+  ).run
+  assert.notEqual(
+    dayBriefings({ ...freed, day: 26 })![2]!.source,
+    'Chalk on the postern gate',
+  )
+  // The accord reads the whole track.
+  assert.equal(moleAccord(onDay(1, 30)).standing, 'wary')
+  assert.equal(
+    moleAccord({ flags: ['mole-messenger-arrested', 'moles-blamed'] }).standing,
+    'enemies',
+  )
+  assert.equal(
+    moleAccord({ flags: MOLE_CONCESSIONS.slice(0, 7) }).standing,
+    'reconciled',
+  )
+  assert.equal(
+    moleAccord({
+      flags: [...MOLE_CONCESSIONS.slice(0, 7), ...MOLE_GRIEVANCES.slice(0, 4)],
+    }).standing,
+    'talking',
+    'wrongs weigh against deeds',
+  )
+
+  // Day 50 endings remember the burrows.
+  const moleEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'moles',
+    )?.variant.text ?? ''
+  const coalEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'coal-harrow',
+    )?.variant.text ?? ''
+  assert.match(moleEnding(['d44-dike-blown'], 'witchwater-throne'), /lake/)
+  assert.match(moleEnding([], 'witchwater-throne'), /underground/)
+  assert.match(moleEnding(['d50-moles-dig'], 'open-roads'), /two hundred/)
+  assert.match(
+    moleEnding(MOLE_CONCESSIONS.slice(0, 7), 'bell-restored'),
+    /ceasefire/,
+  )
+  assert.match(moleEnding([], 'iron-peace'), /burrow mouth/)
+  assert.match(coalEnding(['d33-coal-disowned'], 'open-roads'), /east/)
+  assert.match(coalEnding([], 'open-roads'), /powder/)
+  assert.match(coalEnding([], 'long-night'), /fuse/)
 }
 
 // Cast art: every listed image exists and names a real character and slot.

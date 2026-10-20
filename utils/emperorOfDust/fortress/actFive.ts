@@ -6,6 +6,7 @@ import type {
   QuestDef,
   SceneLine,
 } from './types'
+import { MOLE_ASSEMBLY_TURNS_OUT } from './moles'
 
 // Act V, Days 41-50, "The Hideout" (conductor DAY-PLAN.md): the court on the
 // run after Young Komodo's betrayal. The hideout (engine selectHideout, flag
@@ -2274,6 +2275,130 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      {
+        id: 'd44-coal-powder',
+        title: 'Two Kegs',
+        speaker: 'Coal Harrow, captain of the Mole sappers',
+        faction: 'moles',
+        requires: { flags: ['hideout:mole-tunnels'] },
+        lines: [
+          'Coal Harrow finds the emperor in the props gallery, where the court sleeps. He has a keg under each arm. Full, this time. Nobody stops him. It is his tunnel.',
+          'You can hear the Abbey singing in the fen water now, if you put your ear to the wall. The Mothers are holding their dikes against it and doing nothing else.',
+          'Two kegs. One opens the north dike and drowns every lantern-house from here to the reed beds. The Mothers stop worrying about the Abbey and start worrying about their beds. Then they’re ours.',
+          'The other keg goes to the surveyors, for the brick tunnel to the crypt. Your choice which. I haven’t got a third.',
+          {
+            who: 'Granny Umber',
+            npc: 'granny-umber',
+            text: 'This is my tunnel too, Coal. Tell the emperor the part about the children in the lantern-houses.',
+          },
+          '“They’ve got boats,” Coal says. He does not look at her.',
+          vellumSays(
+            'Majesty. The Archive has a page for every flood in this country. None of them stayed an accident for long.',
+          ),
+        ],
+        options: [
+          {
+            id: 'ask-umber',
+            label: 'Ask Granny Umber what the assembly would do.',
+            effects: {},
+            response:
+              'Granny Umber sits down on a crate of the court’s papers. Nobody tells her not to.',
+            next: 'umber',
+          },
+          {
+            id: 'dike',
+            label: 'Blow the north dike. The fen pays for the Abbey’s quiet.',
+            effects: {
+              affinity: { moles: 10, 'mire-mothers': -20 },
+              strength: { 'mire-mothers': -1 },
+              flags: ['d44-dike-blown'],
+            },
+            response:
+              'The whole hideout feels it, a cough deep in the rock. By dawn the reed beds are a lake. Coal Harrow sleeps for the first time in a week. Granny Umber does not come to supper.',
+          },
+          {
+            id: 'crypt',
+            label: 'Both kegs go to the surveyors, for the crypt road.',
+            effects: {
+              affinity: { moles: -5, 'mire-mothers': 5 },
+              flags: ['d44-powder-to-crypt'],
+            },
+            response:
+              'The surveyors carry the kegs down the old drain toward the mission road. Coal Harrow watches them go. Then he goes up the stair and out, and does not come back that night.',
+          },
+          {
+            id: 'seize',
+            label:
+              'Take the kegs. Nobody in this tunnel lights anything without the crown.',
+            effects: {
+              affinity: { moles: -10 },
+              local: { 'gate-watch': 2 },
+              flags: ['d44-powder-seized'],
+            },
+            response:
+              'Coal hands them over. Too easily. At supper Granny Umber counts the sappers and comes up one short.',
+          },
+          {
+            id: 'guest',
+            label:
+              'Remind Coal the burrows disowned him. He is a guest here, and so are his kegs.',
+            requires: { flags: ['d33-coal-disowned'] },
+            effects: {
+              affinity: { moles: 5 },
+              flags: ['d44-powder-to-crypt', 'd44-coal-sent-off'],
+            },
+            response:
+              'Coal sets the kegs down carefully, the way you set down something you mean to come back for. Then he goes up the stair. The surveyors take the powder to the crypt road before he can change his mind.',
+          },
+        ],
+        beats: [
+          {
+            id: 'umber',
+            speaker: 'Granny Umber of the Mole Revolutionaries',
+            npc: 'granny-umber',
+            lines: [
+              'The assembly would vote. It would take all night, and the singing would get louder while we argued.',
+              'I hated the Mothers before your grandmother was born. I hate them now. I am not drowning their children to win an argument.',
+              'Give the powder to the crypt road. Then come with me to the fen at dawn and ask the Mothers to hold their dikes for us too. They’ll say no. Ask anyway.',
+            ],
+            options: [
+              {
+                id: 'her-way',
+                label:
+                  'Her way. The powder goes to the crypt, and the crown walks to the fen at dawn.',
+                effects: {
+                  affinity: { moles: 5, 'mire-mothers': 10 },
+                  flags: ['d44-powder-to-crypt', 'd44-fen-asked'],
+                },
+                response:
+                  'At dawn you stand on the dike with an old mole and a lantern-witch. Nobody bows. Reedlight says no, as promised. Then she says she will hold the north dike anyway, for the children. She does not say whose.',
+              },
+              {
+                id: 'dike',
+                label: 'Coal’s way. Blow the north dike.',
+                effects: {
+                  affinity: { moles: 10, 'mire-mothers': -20 },
+                  strength: { 'mire-mothers': -1 },
+                  flags: ['d44-dike-blown'],
+                },
+                response:
+                  'Granny Umber gets up off the crate and walks away down the tunnel. The bang comes an hour later. By dawn the reed beds are a lake.',
+              },
+              {
+                id: 'seize',
+                label: 'Nobody’s way. The crown keeps the kegs.',
+                effects: {
+                  affinity: { moles: -10 },
+                  local: { 'gate-watch': 2 },
+                  flags: ['d44-powder-seized'],
+                },
+                response:
+                  'Coal hands them over. Too easily. At supper Granny Umber counts the sappers and comes up one short.',
+              },
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -3782,6 +3907,84 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             },
             response:
               'Dunmark repeats it twice. Three of the party write it on their sleeves. Nobody asks if you want him alive or dead. After they go, you realise you have not decided.',
+          },
+        ],
+      },
+      {
+        id: 'd50-burrows',
+        title: 'The Burrows Turn Out',
+        speaker: 'Granny Umber of the Mole Revolutionaries',
+        npc: 'granny-umber',
+        faction: 'moles',
+        requires: { standing: MOLE_ASSEMBLY_TURNS_OUT },
+        lines: [
+          'At dusk the ground of the camp starts to move. Then the moles come up through it: forty, sixty, more, with picks and lamps and bread in their aprons. Granny Umber comes up last and sits on a crate to get her breath.',
+          'The assembly voted. It took all night. Two hundred and six to forty.',
+          'We dig under the Abbey wall from the old brick tunnel and come up wherever you need a door. Or we go home and hold the stairs for whoever comes back. Either way the burrows are with you. You earned that the slow way.',
+          vellumSays('Majesty. I have the vote written down. Both numbers.'),
+        ],
+        options: [
+          {
+            id: 'dig',
+            label: 'Dig. Bring the burrows to the Abbey wall.',
+            effects: {
+              affinity: { moles: 10 },
+              flags: ['d50-moles-dig'],
+            },
+            response:
+              'They go down the way they came, lamps last. For an hour you can hear them under your feet. Then you can’t.',
+          },
+          {
+            id: 'stairs',
+            label: 'Hold the stairs. Someone has to be home when this is over.',
+            effects: {
+              affinity: { moles: 5 },
+              flags: ['d50-moles-hold-stairs'],
+            },
+            response:
+              'Granny Umber nods as if you passed something. “Somebody always holds the stairs,” she says. “Mostly it’s grandmothers.”',
+          },
+          {
+            id: 'lumen',
+            label: 'Let Lumen Shale answer the assembly.',
+            requires: { follower: 'F010' },
+            effects: {},
+            response:
+              'Lumen steps up beside the crate. She has the funnel trumpet this time.',
+            next: 'lumen',
+          },
+        ],
+        beats: [
+          {
+            id: 'lumen',
+            speaker: 'Lumen Shale',
+            npc: 'F010',
+            lines: [
+              'Forty said no. I want to hear the forty before anybody picks up a shovel. They might be right. They usually are about one thing.',
+              'Then we vote again, on this, out loud. Two hundred and forty-six people should know what they are digging toward.',
+            ],
+            options: [
+              {
+                id: 'vote-dig',
+                label: 'Hear the forty. Then vote again.',
+                effects: {
+                  affinity: { moles: 5 },
+                  flags: ['d50-moles-voted', 'd50-moles-dig'],
+                },
+                response:
+                  'They vote in the camp by lamplight, paws up. It takes an hour you do not have. Two hundred and thirty to sixteen. Then they go down, lamps last.',
+              },
+              {
+                id: 'stairs',
+                label: 'No vote. Send them home to hold the stairs.',
+                effects: {
+                  affinity: { moles: 5 },
+                  flags: ['d50-moles-hold-stairs'],
+                },
+                response:
+                  'Lumen lowers the trumpet. “Home, then,” she says to the crowd, and they go. Granny Umber is the last one down.',
+              },
+            ],
           },
         ],
       },

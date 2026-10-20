@@ -29,6 +29,17 @@ import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import { NEW_SIGNATURES, FUTURE_BOOKENDS, NEW_LENS_CODAS } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
+Object.assign(SIGNATURES, NEW_SIGNATURES)
+Object.assign(LENS_CODAS, NEW_LENS_CODAS)
+for (const lead of Object.keys(FUTURE_BOOKENDS) as EndingLine[]) {
+  for (const fate of ['hope', 'dark'] as Fate[]) {
+    const [first, last] = FUTURE_BOOKENDS[lead][fate]
+    const paragraphs = FUTURES[lead][fate]
+    if (paragraphs[0] !== first) paragraphs.unshift(first)
+    if (paragraphs[paragraphs.length - 1] !== last) paragraphs.push(last)
+  }
+}
+
 export const ECOTONE_SAVE_VERSION = 4
 export const MAX_METER = 8
 

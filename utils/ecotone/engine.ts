@@ -325,16 +325,33 @@ export function currentStep(state: RunState): RouteStep | null {
   return routeFor(state)[state.step] ?? null
 }
 
+export function encounterEligible(
+  card: GatedEncounter,
+  state: RunState,
+): boolean {
+  if (state.played.includes(card.id)) return false
+  if (card.requiresLead && card.requiresLead !== state.activeLead) return false
+  if (card.requiresLens && card.requiresLens !== state.openingState) return false
+  if (card.requiresMeetCount && state.meetingOrder.length < card.requiresMeetCount)
+    return false
+  if (card.requiresFormerGuide) {
+    const guide = card.requiresFormerGuide
+    if (guide === state.activeLead) return false
+    if (
+      !state.followHistory.some(
+        (entry) => entry.from === guide && entry.to !== guide,
+      )
+    )
+      return false
+  }
+  return true
+}
+
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
   const eligible: GatedEncounter[] = ENCOUNTERS
-  const open = eligible.filter(
-    (card) =>
-      !state.played.includes(card.id) &&
-      (!card.requiresLead || card.requiresLead === state.activeLead) &&
-      (!card.requiresLens || card.requiresLens === state.openingState),
-  )
+  const open = eligible.filter((card) => encounterEligible(card, state))
   const decks = step.pools.map((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)
     return seededShuffle(ids, hashSeed(state.seed, index * 131 + n))

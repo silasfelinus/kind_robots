@@ -1,4 +1,5 @@
 import { BOOK } from './book'
+import { editChoices, joinBody, liveTextStore } from '../playbook/textOverlay'
 import type { Attribute, Choice, Roll, Run, Scene, SceneEffects } from './types'
 
 export type {
@@ -22,10 +23,21 @@ export const ENDING_IDS: string[] = Object.values(BOOK)
   .filter((node) => !!node.ending)
   .map((node) => node.id)
 
+// Playbook Manager live text (conductor weird-humboldt t-037): a scene's title,
+// its text and its choice labels. Where a choice leads stays authored.
+export const GAMEBOOK_LIVE_TEXT = liveTextStore()
+
 export function scene(id: string): Scene {
   const found = BOOK[id]
   if (!found) throw new Error('Unknown gamebook scene: ' + id)
-  return found
+  const edit = GAMEBOOK_LIVE_TEXT.get(id)
+  if (!edit) return found
+  return {
+    ...found,
+    title: edit.title ?? found.title,
+    text: joinBody(edit, found.text),
+    choices: found.choices ? editChoices(found.choices, edit) : found.choices,
+  }
 }
 
 export function startRun(seed: number): Run {

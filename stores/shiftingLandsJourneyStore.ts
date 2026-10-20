@@ -46,10 +46,12 @@ import {
   activeV6Card,
   choiceLock,
   v6Card,
+  SHIFTING_LANDS_LIVE_TEXT,
   type V6Choice,
 } from '~/utils/shiftingLands/deckV6'
 import { computed, ref } from 'vue'
 import { useAchievementStore } from './achievementStore'
+import { loadPlaybookLiveText } from './utils/playbookLiveText'
 import {
   JOURNEY_WORLD,
   reachableLocations,
@@ -240,6 +242,12 @@ export const useShiftingLandsJourneyStore = defineStore(
       if (loaded.value) return
       loaded.value = true
       if (!import.meta.client) return
+      void loadPlaybookLiveText(
+        'shifting-lands',
+        SHIFTING_LANDS_LIVE_TEXT,
+      ).then((changed) => {
+        if (changed) ledger.value = { ...ledger.value }
+      })
       try {
         const saved = window.localStorage.getItem(SAVE_KEY)
         if (saved !== null) {

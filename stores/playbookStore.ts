@@ -6,13 +6,14 @@ import { playbookCardNode } from '~/utils/playbook/ecotone'
 import {
   PLAYBOOK_GAMES,
   buildPlaybook,
+  sanitizePlaybookEdit,
   type PlaybookGame,
 } from '~/utils/playbook/games'
+import { applyTextEditToNode } from '~/utils/playbook/textOverlay'
 import type { NodeKind, PlaybookNode } from '~/utils/playbook/types'
 import {
   applyCardEdit,
   isEmptyEdit,
-  sanitizeCardEdit,
   type CardEdit,
 } from '~/utils/playbook/edits'
 import {
@@ -126,8 +127,9 @@ export const usePlaybookStore = defineStore('playbook', () => {
     const base = playbook.value.nodes[key]
     if (!base) return null
     const edit = edits.value[key]
-    const card =
-      edit && playbook.value.editable && ALL_CARDS.find((c) => c.id === key)
+    if (!edit || !base.editable) return base
+    if (game.value !== 'ecotone') return applyTextEditToNode(base, edit.content)
+    const card = ALL_CARDS.find((c) => c.id === key)
     if (!card) return base
     const edited = playbookCardNode(applyCardEdit(card, edit.content))
     return {
@@ -296,7 +298,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   }
 
   async function saveEdit(key: string, raw: CardEdit, live: boolean) {
-    const content = sanitizeCardEdit(raw)
+    const content = sanitizePlaybookEdit(game.value, raw)
     saving.value = true
     const response = await performFetch<PlaybookEditRow | null>(nodePath(key), {
       method: 'PUT',

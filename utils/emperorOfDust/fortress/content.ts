@@ -4,7 +4,8 @@ import { ACT_TWO_DAYS, ACT_TWO_QUESTS } from './actTwo'
 import { ACT_THREE_DAYS, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_QUESTS } from './actFour'
 import { ACT_FIVE_DAYS, ACT_FIVE_QUESTS } from './actFive'
-import type { DayDef, QuestDef } from './types'
+import type { AudienceDef, DayDef, QuestDef } from './types'
+import { editChoices, liveTextStore } from '../../playbook/textOverlay'
 
 // Seeded wasteland chores drawn at dawn. Each draw depends on the run's seed
 // and branch, so a rewound day can post different ones.
@@ -316,9 +317,65 @@ const QUEST_INDEX = new Map<string, QuestDef>(
   ].map((quest) => [quest.id, quest]),
 )
 
-/** Template instances are `${templateId}@${day}`. */
-export const questDef = (id: string): QuestDef | undefined =>
+// Playbook Manager live text (conductor weird-humboldt t-037): titles, story
+// text, option labels and responses, quest summaries and outcome lines. Costs,
+// gates, effects, rewards and which quests post stay authored.
+export const FORTRESS_LIVE_TEXT = liveTextStore()
+
+const TIERS = ['triumph', 'success', 'partial', 'failure', 'expired'] as const
+
+/** The quest as authored, for tools that must not see live edits. */
+export const authoredQuestDef = (id: string): QuestDef | undefined =>
   QUEST_INDEX.get(id.split('@')[0] ?? id)
+
+/** Template instances are `${templateId}@${day}`. */
+export const questDef = (id: string): QuestDef | undefined => {
+  const quest = authoredQuestDef(id)
+  const edit = quest && FORTRESS_LIVE_TEXT.get(`quest:${quest.id}`)
+  if (!quest || !edit) return quest
+  const outcomes = { ...quest.outcomes }
+  for (const tier of TIERS) {
+    const text = edit.choices?.[tier]?.success
+    if (text) outcomes[tier] = text
+  }
+  return {
+    ...quest,
+    title: edit.title ?? quest.title,
+    summary: edit.body?.[0] ?? quest.summary,
+    outcomes,
+  }
+}
+
+function liveAudience(audience: AudienceDef): AudienceDef {
+  const edit = FORTRESS_LIVE_TEXT.get(`aud:${audience.id}`)
+  if (!edit) return audience
+  return {
+    ...audience,
+    title: edit.title ?? audience.title,
+    lines: edit.body?.length ? edit.body : audience.lines,
+    options: editChoices(audience.options, edit, (option, change) => ({
+      response: change.success ?? option.response,
+    })),
+  }
+}
+
+function liveDay(day: DayDef): DayDef {
+  const edit = FORTRESS_LIVE_TEXT.get(`day:${day.day}`)
+  // Briefing text is only replaced when the edit keeps all three plus Komodo.
+  const body = edit?.body?.length === 4 ? edit.body : null
+  return {
+    ...day,
+    title: edit?.title ?? day.title,
+    briefings: body
+      ? (day.briefings.map((b, i) => ({
+          ...b,
+          text: body[i] ?? b.text,
+        })) as DayDef['briefings'])
+      : day.briefings,
+    komodo: body?.[3] ?? day.komodo,
+    audiences: day.audiences.map(liveAudience),
+  }
+}
 
 export const isTemplateInstance = (id: string): boolean => id.includes('@')
 
@@ -331,7 +388,9 @@ export const DAYS: readonly DayDef[] = [
   ...ACT_FIVE_DAYS,
 ]
 
-export const dayDef = (day: number): DayDef | undefined =>
-  DAYS.find((entry) => entry.day === day)
+export const dayDef = (day: number): DayDef | undefined => {
+  const found = DAYS.find((entry) => entry.day === day)
+  return found && FORTRESS_LIVE_TEXT.version ? liveDay(found) : found
+}
 
 export const LAST_DAY = 50

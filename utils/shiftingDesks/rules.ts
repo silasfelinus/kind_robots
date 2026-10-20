@@ -5,6 +5,60 @@ import wellnessPack from './wellness.json'
 import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
 import endingsData from './endings.json'
+import {
+  editChoices,
+  joinBody,
+  liveTextStore,
+  type TextEdit,
+} from '../playbook/textOverlay'
+
+// Playbook Manager live text (conductor weird-humboldt t-037).
+export const SHIFTING_DESKS_LIVE_TEXT = liveTextStore()
+
+function editOutcomes(choices: Choice[], edit: TextEdit | undefined): Choice[] {
+  return editChoices(choices, edit, (choice, change) => ({
+    success: { ...choice.success, text: change.success ?? choice.success.text },
+    failure: choice.failure
+      ? { ...choice.failure, text: change.failure ?? choice.failure.text }
+      : choice.failure,
+  }))
+}
+
+function liveEncounter(card: Encounter): Encounter {
+  const edit = SHIFTING_DESKS_LIVE_TEXT.get(card.id)
+  if (!edit) return card
+  return {
+    ...card,
+    title: edit.title ?? card.title,
+    flavor_text: joinBody(edit, card.flavor_text),
+    choices: editOutcomes(card.choices, edit),
+  }
+}
+
+/** A department's boss as it plays, with any live text edit applied. */
+export function liveBoss(dept: Pack): Boss {
+  const boss = dept.boss
+  const edit = SHIFTING_DESKS_LIVE_TEXT.get(`boss:${dept.department.id}`)
+  if (!edit) return boss
+  return {
+    ...boss,
+    title: edit.title ?? boss.title,
+    flavor_text: joinBody(edit, boss.flavor_text),
+    choices: editOutcomes(boss.choices, edit),
+  }
+}
+
+function liveApplicant(applicant: WindowApplicant): WindowApplicant {
+  const edit = SHIFTING_DESKS_LIVE_TEXT.get(`applicant:${applicant.id}`)
+  if (!edit) return applicant
+  return {
+    ...applicant,
+    name: edit.title ?? applicant.name,
+    request: edit.body?.[0] ?? applicant.request,
+    plea: edit.body?.[1] ?? applicant.plea,
+    choices: editOutcomes(applicant.choices, edit),
+  }
+}
 
 export const SKILLS = [
   'compliance',
@@ -586,7 +640,12 @@ export function windowApplicant(id: string): WindowView | null {
     const shift = dept.window_shift
     const index = shift?.applicants.findIndex((a) => a.id === aid) ?? -1
     if (shift && index >= 0) {
-      return { dept, shift, applicant: shift.applicants[index]!, index }
+      return {
+        dept,
+        shift,
+        applicant: liveApplicant(shift.applicants[index]!),
+        index,
+      }
     }
   }
   return null
@@ -627,7 +686,7 @@ export function encounterById(id: string): Encounter {
     (e) => e.id === id,
   )
   if (!found) throw new Error(`Unknown Shifting Desks encounter ${id}`)
-  return found
+  return liveEncounter(found)
 }
 
 export function locationById(id: string): Location | undefined {
@@ -875,7 +934,7 @@ export function currentCard(state: RunState): CardView | null {
   const id = currentCardId(state)
   if (!id) return null
   if (id === BOSS_CARD)
-    return { kind: 'boss', card: departmentPack(state.department).boss }
+    return { kind: 'boss', card: liveBoss(departmentPack(state.department)) }
   const atWindow = windowApplicant(id)
   if (atWindow)
     return { kind: 'window', card: applicantFile(atWindow), ...atWindow }

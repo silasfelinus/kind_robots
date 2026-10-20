@@ -7,6 +7,7 @@ import {
   type AuthoredResult,
 } from './authoredJourney'
 import { LATER_LAND_PACK } from './authoredFiveLands'
+import { editChoices, joinBody, liveTextStore } from '../playbook/textOverlay'
 import {
   JOURNEY_WORLD,
   newJourney,
@@ -101,8 +102,29 @@ const pools = new Map<string, V6Card[]>()
 for (const card of V6_CARDS)
   pools.set(card.locationId, [...(pools.get(card.locationId) ?? []), card])
 
+// Playbook Manager live text (conductor weird-humboldt t-037): titles, flavor,
+// choice labels and outcome text only; ids, rolls and effects stay authored.
+export const SHIFTING_LANDS_LIVE_TEXT = liveTextStore()
+
 export function v6Card(id: string): V6Card | null {
-  return cards.get(id) ?? null
+  const card = cards.get(id)
+  if (!card) return null
+  const edit = SHIFTING_LANDS_LIVE_TEXT.get(id)
+  if (!edit) return card
+  return {
+    ...card,
+    title: edit.title ?? card.title,
+    flavor: joinBody(edit, card.flavor),
+    choices: editChoices(card.choices, edit, (choice, change) => ({
+      success: {
+        ...choice.success,
+        text: change.success ?? choice.success.text,
+      },
+      failure: choice.failure
+        ? { ...choice.failure, text: change.failure ?? choice.failure.text }
+        : choice.failure,
+    })),
+  }
 }
 
 export function v6Pool(locationId: string): readonly V6Card[] {

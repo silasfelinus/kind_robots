@@ -73,6 +73,8 @@ function encounterNode(card: Encounter, dept: Pack): PlaybookNode {
   node.place = `${location?.title ?? card.location_id}, ${dept.department.title}`
   node.chapter = dept.department.order
   node.body = [card.flavor_text]
+  node.editable = true
+  node.editFields = { body: true, outcomes: true }
   node.choices = card.choices.map(choiceView)
   node.lenses = [card.polarity]
   node.artUrl = stationArt('cards', card.id, dept.department.id)
@@ -142,14 +144,15 @@ export function buildShiftingDesksPlaybook(): Playbook {
         const appNode = blankNode(appKey, 'encounter', applicant.name)
         appNode.place = `${shift.title}, ${title}`
         appNode.chapter = order
-        appNode.body = [
-          applicant.request,
-          applicant.plea,
-          ...applicant.documents.map(
-            (doc) =>
-              `${doc.label}: ${doc.value}${doc.breaks ? ` (breaks ${doc.breaks})` : ''}`,
-          ),
-        ]
+        appNode.body = [applicant.request, applicant.plea]
+        appNode.variations = applicant.documents.map((doc) => ({
+          axis: 'document',
+          key: doc.label,
+          label: doc.label,
+          text: `${doc.value}${doc.breaks ? ` (breaks ${doc.breaks})` : ''}`,
+        }))
+        appNode.editable = true
+        appNode.editFields = { body: true, outcomes: true }
         appNode.choices = applicant.choices.map(choiceView)
         appNode.artUrl = stationArt('window', applicant.id)
         appNode.placements.push(placement())
@@ -170,6 +173,8 @@ export function buildShiftingDesksPlaybook(): Playbook {
     bossNode.place = title
     bossNode.chapter = order
     bossNode.body = [boss.flavor_text]
+    bossNode.editable = true
+    bossNode.editFields = { body: true, outcomes: true }
     bossNode.choices = boss.choices.map(choiceView)
     bossNode.variations = boss.department_outcomes.map((outcome) => ({
       axis: 'outcome',
@@ -241,7 +246,7 @@ export function buildShiftingDesksPlaybook(): Playbook {
       boss: 'Boss',
       ending: 'Ending',
     },
-    editable: false,
+    editable: true,
     artProject: 'shifting-desks',
     artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
   }

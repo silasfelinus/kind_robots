@@ -62,6 +62,8 @@ function cardNode(card: V6Card, land: Land, location: Location): PlaybookNode {
   node.place = `${location.label}, ${land.name}`
   node.chapter = land.chapter
   node.body = [card.flavor]
+  node.editable = true
+  node.editFields = { body: true, outcomes: true }
   node.choices = card.choices.map((choice): PlaybookChoice => ({
     id: choice.id,
     label: choice.label,
@@ -145,6 +147,8 @@ export function buildShiftingLandsPlaybook(): Playbook {
       node.place = land.boss?.label ?? land.name
       node.chapter = land.chapter
       node.body = [trial.flavor]
+      node.editable = true
+      node.editFields = { body: true, outcomes: true }
       node.choices = trial.choices.map((choice) => ({
         id: choice.id,
         label: choice.label,
@@ -203,7 +207,7 @@ export function buildShiftingLandsPlaybook(): Playbook {
       encounter: 'Card',
       boss: 'Trial',
     },
-    editable: false,
+    editable: true,
     artProject: 'zuzu-shifting-lands',
     artLanes: ['arthemy', 'zimage', 'krea2', 'flux2'],
   }

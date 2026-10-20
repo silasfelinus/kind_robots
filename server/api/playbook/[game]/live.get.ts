@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
       success: true,
       message: 'Live playbook edits fetched.',
       data: Object.fromEntries(
-        rows.map((row) => [row.nodeKey, parseStoredEdit(row.content)]),
+        rows.map((row) => [row.nodeKey, parseStoredEdit(game, row.content)]),
       ),
       statusCode: 200,
     }

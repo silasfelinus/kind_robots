@@ -16,7 +16,28 @@ import {
   PLAYBOOK_GAMES,
   buildPlaybook,
   isPlaybookGame,
+  sanitizePlaybookEdit,
+  type PlaybookGame,
 } from '../playbook/games'
+import { applyTextEditToNode } from '../playbook/textOverlay'
+import type { PlaybookNode } from '../playbook/types'
+import { SHIFTING_LANDS_LIVE_TEXT, v6Card } from '../shiftingLands/deckV6'
+import { trialForLand } from '../shiftingLands/authoredBosses'
+import {
+  SHIFTING_DESKS_LIVE_TEXT,
+  WINDOW_PREFIX,
+  departmentPack,
+  encounterById,
+  liveBoss,
+  windowApplicant,
+} from '../shiftingDesks/rules'
+import { GAMEBOOK_LIVE_TEXT, scene } from '../zuzuGamebook/adventure'
+import {
+  DAYS,
+  FORTRESS_LIVE_TEXT,
+  dayDef,
+  questDef,
+} from '../emperorOfDust/fortress/content'
 import {
   MAX_ADDED_CHOICES,
   applyCardEdit,
@@ -116,11 +137,11 @@ for (const { id } of PLAYBOOK_GAMES) {
   for (const section of book.sections)
     for (const key of section.keys)
       assert.ok(book.nodes[key], `${id}: section ${section.title} ${key}`)
-  assert.equal(
-    book.editable,
-    id === 'ecotone',
-    'only Ecotone reads live overlays',
-  )
+  assert.equal(book.editable, true, `${id} reads live overlays`)
+  if (id !== 'ecotone')
+    for (const node of Object.values(book.nodes))
+      if (node.editable)
+        assert.ok(node.editFields, `${id}: ${node.key} says what it edits`)
   assert.ok(book.artProject && book.artLanes.length, `${id} tags its art`)
 }
 assert.ok(isPlaybookGame('emperor-of-dust'))
@@ -297,5 +318,170 @@ for (const file of [
     `${file} leaves storage and fetching to the store`,
   )
 assert.equal(ENCOUNTERS.length > 0, true)
+
+// The content layer (t-037): every other game reads its text through a live
+// overlay. Each editable beat resolves to the lookup its game plays through.
+type Overlay = { set(next: Record<string, unknown>): void }
+const LOOKUPS: Record<
+  Exclude<PlaybookGame, 'ecotone'>,
+  { overlay: Overlay; read(key: string): unknown }
+> = {
+  'shifting-lands': {
+    overlay: SHIFTING_LANDS_LIVE_TEXT,
+    read: (key) =>
+      key.startsWith('trial:')
+        ? trialForLand(key.slice('trial:'.length))
+        : v6Card(key),
+  },
+  'shifting-desks': {
+    overlay: SHIFTING_DESKS_LIVE_TEXT,
+    read: (key) => {
+      if (key.startsWith('applicant:'))
+        return windowApplicant(WINDOW_PREFIX + key.slice('applicant:'.length))
+          ?.applicant
+      if (key.startsWith('boss:'))
+        return liveBoss(departmentPack(key.slice('boss:'.length)))
+      return encounterById(key)
+    },
+  },
+  'zuzu-gamebook': { overlay: GAMEBOOK_LIVE_TEXT, read: (key) => scene(key) },
+  'emperor-of-dust': {
+    overlay: FORTRESS_LIVE_TEXT,
+    read: (key) => {
+      if (key.startsWith('quest:')) return questDef(key.slice('quest:'.length))
+      if (key.startsWith('day:')) return dayDef(Number(key.slice(4)))
+      const id = key.slice('aud:'.length)
+      return DAYS.map((d) => dayDef(d.day))
+        .flatMap((d) => d?.audiences ?? [])
+        .find((a) => a.id === id)
+    },
+  },
+}
+
+// Every field an overlay may rewrite, blanked so the rest can be compared.
+const WORD_FIELDS = new Set([
+  'title',
+  'name',
+  'flavor',
+  'flavor_text',
+  'text',
+  'summary',
+  'label',
+  'request',
+  'plea',
+  'response',
+  'komodo',
+  'lines',
+  'triumph',
+  'success',
+  'partial',
+  'failure',
+  'expired',
+])
+function wordless(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(wordless)
+  if (!value || typeof value !== 'object') return value
+  return Object.fromEntries(
+    Object.entries(value).map(([key, v]) => [
+      key,
+      WORD_FIELDS.has(key) && (typeof v === 'string' || key === 'lines')
+        ? '·'
+        : wordless(v),
+    ]),
+  )
+}
+
+/** An edit that restates the beat exactly as the manager shows it. */
+function restate(node: PlaybookNode) {
+  const fields = node.editFields!
+  return {
+    title: node.title,
+    body: fields.body ? node.body : undefined,
+    choices: Object.fromEntries(
+      node.choices.map((c) => [
+        c.id,
+        {
+          label: fields.labels === false ? undefined : c.label,
+          success: fields.outcomes ? c.success?.text : undefined,
+          failure: fields.outcomes ? c.failure?.text : undefined,
+        },
+      ]),
+    ),
+  }
+}
+
+for (const [game, lookup] of Object.entries(LOOKUPS) as [
+  keyof typeof LOOKUPS,
+  (typeof LOOKUPS)[keyof typeof LOOKUPS],
+][]) {
+  const nodes = Object.values(buildPlaybook(game).nodes).filter(
+    (n) => n.editable,
+  )
+  assert.ok(nodes.length > 0, `${game} has editable beats`)
+  lookup.overlay.set({})
+  const authored = new Map(
+    nodes.map((n) => [n.key, JSON.stringify(lookup.read(n.key))]),
+  )
+  for (const node of nodes)
+    assert.ok(lookup.read(node.key), `${game}: ${node.key} has a live lookup`)
+  // Restating every beat as written changes nothing the game reads, so the
+  // manager's title, paragraphs and choices map straight back onto the source.
+  lookup.overlay.set(Object.fromEntries(nodes.map((n) => [n.key, restate(n)])))
+  for (const node of nodes)
+    assert.equal(
+      JSON.stringify(lookup.read(node.key)),
+      authored.get(node.key),
+      `${game}: ${node.key} round-trips through the overlay`,
+    )
+  // A real edit lands in play and leaves every non-text field alone.
+  const target = nodes[0]!
+  const choice = target.choices.find((c) => c.success) ?? target.choices[0]
+  lookup.overlay.set({
+    [target.key]: {
+      title: 'Edited title',
+      body: target.body.map((_, i) => `Edited paragraph ${i + 1}.`),
+      choices: choice
+        ? { [choice.id]: { label: 'Edited label', success: 'Edited result.' } }
+        : undefined,
+    },
+  })
+  const edited = JSON.stringify(lookup.read(target.key))
+  assert.notEqual(edited, authored.get(target.key), `${game}: edits apply`)
+  assert.match(edited, /Edited title|Edited paragraph/, `${game}: text shows`)
+  assert.equal(
+    JSON.stringify(wordless(JSON.parse(edited))),
+    JSON.stringify(wordless(JSON.parse(authored.get(target.key)!))),
+    `${game}: only words change`,
+  )
+  lookup.overlay.set({})
+  assert.equal(
+    JSON.stringify(lookup.read(target.key)),
+    authored.get(target.key),
+    `${game}: clearing the overlay restores the authored beat`,
+  )
+}
+
+// The manager previews a text edit the same way.
+const sample = Object.values(buildPlaybook('zuzu-gamebook').nodes).find(
+  (n) => n.editable && n.choices.length,
+)!
+const previewed = applyTextEditToNode(sample, {
+  title: 'T',
+  body: ['B'],
+  choices: { [sample.choices[0]!.id]: { label: 'L' } },
+})
+assert.equal(previewed.title, 'T')
+assert.deepEqual(previewed.body, ['B'])
+assert.equal(previewed.choices[0]?.label, 'L')
+assert.equal(previewed.choices[0]?.leadsTo, sample.choices[0]?.leadsTo)
+assert.deepEqual(
+  sanitizePlaybookEdit('shifting-lands', {
+    title: ' x ',
+    added: [{ id: 'a' }],
+    lensLines: { hope: 'y' },
+  }),
+  { title: 'x' },
+  'non-Ecotone games keep to the text overlay',
+)
 
 console.log('Playbook contract passed')

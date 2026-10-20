@@ -1,4 +1,6 @@
 import pack from './authoredTrials.json'
+import { editChoices, joinBody } from '../playbook/textOverlay'
+import { SHIFTING_LANDS_LIVE_TEXT } from './deckV6'
 import {
   confrontJourneyBoss,
   JOURNEY_WORLD,
@@ -63,7 +65,19 @@ const clamp = (value: number, maximum: number) =>
   Math.max(0, Math.min(maximum, value))
 
 export function trialForLand(landId: string): AuthoredTrial | null {
-  return AUTHORED_TRIALS.find((entry) => entry.landId === landId) ?? null
+  const trial = AUTHORED_TRIALS.find((entry) => entry.landId === landId)
+  if (!trial) return null
+  const edit = SHIFTING_LANDS_LIVE_TEXT.get(`trial:${landId}`)
+  if (!edit) return trial
+  return {
+    ...trial,
+    title: edit.title ?? trial.title,
+    flavor: joinBody(edit, trial.flavor),
+    choices: editChoices(trial.choices, edit, (choice, change) => ({
+      success: change.success ?? choice.success,
+      failure: change.failure ?? choice.failure,
+    })),
+  }
 }
 
 export function canChooseTrial(

@@ -71,6 +71,8 @@ export type PlaybookNode = {
   needsArt: boolean
   provenance: string
   editable: boolean
+  /** Text-overlay games: which parts the overlay can replace (titles always). */
+  editFields?: { body: boolean; outcomes: boolean; labels?: boolean }
 }
 
 export type PlaybookRoute = {
@@ -102,7 +104,7 @@ export type Playbook = {
   variationLabel: string
   dayLabel: string
   kindLabels: Partial<Record<NodeKind, string>>
-  /** Text edits can go live in play (the game reads /api/playbook/<game>/live). */
+  /** Text edits can go live in play (the game reads /api/playbook/<game>/live). Ecotone takes full card edits; the others a text overlay. */
   editable: boolean
   /** Conductor project slug that art requests are tagged to. */
   artProject: string

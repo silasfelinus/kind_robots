@@ -15,6 +15,7 @@ import type { RecentArtJobImage } from '@/utils/recentArtImages'
 import type { VideoGeneratorJobSummary } from '@/server/utils/videoGeneratorJobs'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type { LoraPick } from '@/utils/loraSelection'
+import type { WanVideoMode } from '@/utils/videoModelResources'
 import type {
   VideoEngine,
   VideoOutputFormat,
@@ -37,6 +38,9 @@ export interface GenerateVideoParams {
   height: number
   seed?: number | null
   loras?: LoraPick[]
+  videoWanMode?: WanVideoMode
+  videoCheckpointResourceId?: number | null
+  videoLowCheckpointResourceId?: number | null
   outputFormat: VideoOutputFormat
   renderScale?: number | null
   latentUpscaleModel?: string | null
@@ -188,6 +192,9 @@ export const useVideoStore = defineStore('videoStore', () => {
             strength: lora.strength,
           }))
         : undefined,
+      videoWanMode: params.videoWanMode ?? undefined,
+      videoCheckpointResourceId: params.videoCheckpointResourceId ?? undefined,
+      videoLowCheckpointResourceId: params.videoLowCheckpointResourceId ?? undefined,
       outputFormat: params.outputFormat,
       renderScale: params.renderScale ?? undefined,
       latentUpscaleModel: params.latentUpscaleModel ?? undefined,

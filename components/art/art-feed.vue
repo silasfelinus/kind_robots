@@ -221,7 +221,11 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useArtCollectionBrowseStore } from '@/stores/artCollectionBrowseStore'
-import { useArtFeedStore, type ArtFeedFilters, type ArtFeedImage } from '@/stores/artFeedStore'
+import {
+  useArtFeedStore,
+  type ArtFeedFilters,
+  type ArtFeedImage,
+} from '@/stores/artFeedStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'

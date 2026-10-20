@@ -1,5 +1,6 @@
 import type { EncounterCard, SceneKind, SkillId } from './content'
 import { REGIONAL_REVISIONS } from './regionalSecondDraft'
+import { REGIONAL_LENS_VOICES } from './regionalLensVoices'
 import arcata from './regionalData/chapter01.json'
 import coast from './regionalData/chapter02.json'
 import bay from './regionalData/chapter03.json'
@@ -58,7 +59,9 @@ export const REGIONAL_QUESTS: EncounterCard[] = REGIONAL_SCRIPTS.map(
       title: script.title,
       scene: script.scene,
       body: [script.premise, script.pressure],
-      ...(revision?.lensLines ? { lensLines: revision.lensLines } : {}),
+      ...((revision?.lensLines ?? REGIONAL_LENS_VOICES[script.id])
+        ? { lensLines: revision?.lensLines ?? REGIONAL_LENS_VOICES[script.id] }
+        : {}),
       ...(revision?.flagLines ? { flagLines: revision.flagLines } : {}),
       choices: [
         {

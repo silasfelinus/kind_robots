@@ -197,7 +197,10 @@ onUnmounted(() => {
       />
     </div>
 
-    <div v-if="visibleFailedIds.length" class="flex shrink-0 flex-wrap items-center gap-2">
+    <div
+      v-if="visibleFailedIds.length"
+      class="flex shrink-0 flex-wrap items-center gap-2"
+    >
       <button
         type="button"
         class="btn btn-xs btn-primary rounded-lg"

@@ -25,7 +25,8 @@ import {
 } from '../videoRestylePlan'
 
 assert.equal(RESTYLE_DEFAULT_OVERWRITE_STRENGTH, 100)
-for (const value of [0, 25, 50, 100]) assert.ok(isRestyleOverwriteStrength(value))
+for (const value of [0, 25, 50, 100])
+  assert.ok(isRestyleOverwriteStrength(value))
 for (const value of [-1, 101, 0.5, NaN, '50', null]) {
   assert.ok(!isRestyleOverwriteStrength(value))
 }
@@ -104,7 +105,11 @@ assert.ok(renameRoute.includes('requireAdminApiUser'))
 assert.ok(renameRoute.includes('renameRestyleProject'))
 const jobs = readFileSync('server/utils/videoRestyleJobs.ts', 'utf8')
 assert.ok(jobs.includes('restyleOverwriteStrength(input.overwriteStrength'))
-assert.ok(jobs.includes('source.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH'))
+assert.ok(
+  jobs.includes(
+    'source.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH',
+  ),
+)
 assert.ok(jobs.includes('renameRestyleProject('))
 
 const pilot = readFileSync(

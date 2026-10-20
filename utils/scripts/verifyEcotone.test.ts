@@ -164,7 +164,9 @@ for (const card of FORMER_GUIDE_QUESTS) {
         (step, index) =>
           step.kind === 'fork' &&
           step.pools.includes(card.chapter) &&
-          route.slice(0, index).some((earlier) => earlier.kind === 'crossroads'),
+          route
+            .slice(0, index)
+            .some((earlier) => earlier.kind === 'crossroads'),
       ),
     ),
     `${card.id} can be drawn after a crossroads, not only before its gate unlocks`,

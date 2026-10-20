@@ -16,6 +16,7 @@ import { handleError, performFetch } from '@/stores/utils'
 export type ArtFeedImage = ArtImage & { thumbnailUrl: string }
 
 export type ArtFeedFilters = {
+  range: 'recent' | 'all'
   privacy: GalleryPrivacyFilter
   maturity: GalleryMaturityFilter
   collectionId: number | null
@@ -31,6 +32,7 @@ const PAGE_SIZE = 48
 
 function feedQuery(filters: ArtFeedFilters, cursor: number | null): string {
   const params = new URLSearchParams()
+  params.set('range', filters.range)
   params.set('privacy', filters.privacy)
   params.set('maturity', filters.maturity)
   params.set('showMature', filters.maturity === 'safe' ? 'false' : 'true')
@@ -52,6 +54,7 @@ export const useArtFeedStore = defineStore('artFeedStore', () => {
   const isLoading = ref(false)
   const errorMessage = ref('')
   const filters = ref<ArtFeedFilters>({
+    range: 'recent',
     privacy: 'public',
     maturity: 'safe',
     collectionId: null,

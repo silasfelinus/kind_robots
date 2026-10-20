@@ -53,6 +53,48 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 {
+  // An LTX balanced-preset job carries a latent upscaler whose input is also
+  // `model_name`. A checkpoint refresh must leave it pointing at the upscaler.
+  const refresh = applyResolvedCheckpointResourceToArtJobPayload(
+    {
+      checkpoint: 'ltx/ltx-2.3-22b-dev-fp8.safetensors',
+      workflow: {
+        '317': {
+          class_type: 'CheckpointLoaderSimple',
+          inputs: { ckpt_name: 'ltx/ltx-2.3-22b-dev-fp8.safetensors' },
+        },
+        ltx_upscale_model: {
+          class_type: 'LatentUpscaleModelLoader',
+          inputs: { model_name: 'ltx-2.3-spatial-upscaler-x2-1.1.safetensors' },
+        },
+        pixel_upscale_model: {
+          class_type: 'UpscaleModelLoader',
+          inputs: { model_name: '4x-UltraSharp.pth' },
+        },
+      },
+    },
+    { id: 91, localPath: 'ltx/ltx-2.3-22b-dev-fp8.safetensors' },
+  )
+
+  const workflow = asRecord(refresh.payload.workflow)
+  const inputsOf = (id: string) => asRecord(asRecord(workflow[id]).inputs)
+  assert.equal(
+    inputsOf('317').ckpt_name,
+    'ltx/ltx-2.3-22b-dev-fp8.safetensors',
+  )
+  assert.equal(
+    inputsOf('ltx_upscale_model').model_name,
+    'ltx-2.3-spatial-upscaler-x2-1.1.safetensors',
+    'A checkpoint override must not overwrite the LTX latent upscaler.',
+  )
+  assert.equal(
+    inputsOf('pixel_upscale_model').model_name,
+    '4x-UltraSharp.pth',
+    'A checkpoint override must not overwrite a pixel upscaler.',
+  )
+}
+
+{
   assert.throws(
     () =>
       buildSdxlImg2ImgWorkflow({

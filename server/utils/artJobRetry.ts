@@ -119,6 +119,11 @@ const SAMPLER_NODE_TYPES = new Set([
   'SamplerCustom',
 ])
 const CHECKPOINT_KEYS = ['ckpt_name', 'unet_name', 'model_name']
+// Upscaler loaders also name their file `model_name`, but it is never the
+// checkpoint. LTX's balanced preset carries a LatentUpscaleModelLoader, and a
+// requeue's checkpoint refresh used to write the LTX checkpoint into it, so
+// ComfyUI could not find a file by that name among the latent upscalers.
+const NON_CHECKPOINT_LOADER = /upscale/i
 const LORA_NODE_TYPES = new Set(['LoraLoaderModelOnly', 'LoraLoader'])
 const VIDEO_NODE_TYPES = new Set([
   'LTXVConditioning',
@@ -361,7 +366,7 @@ export function applyArtJobOverrides(
       }
       if (denoise !== null && 'denoise' in inputs) inputs.denoise = denoise
 
-      if (checkpoint) {
+      if (checkpoint && !NON_CHECKPOINT_LOADER.test(classType)) {
         for (const key of CHECKPOINT_KEYS) {
           if (key in inputs) inputs[key] = checkpoint
         }

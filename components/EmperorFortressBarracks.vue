@@ -298,6 +298,7 @@ import {
   followerStatus,
   injuryDaysLeft,
   optionBlockers,
+  optionVisible,
   talkFor,
   talkScene,
   talkedToday,
@@ -381,12 +382,14 @@ const sceneLines = computed<SceneLine[]>(() => {
     : lines
 })
 const talkChoices = computed(() =>
-  (scene.value?.options ?? []).map((option) => ({
-    id: option.id,
-    label: option.label,
-    note: option.requires?.cost ? `Costs ${option.requires.cost} brass` : '',
-    blockers: optionBlockers(props.run, option),
-  })),
+  (scene.value?.options ?? [])
+    .filter((option) => optionVisible(props.run, option))
+    .map((option) => ({
+      id: option.id,
+      label: option.label,
+      note: option.requires?.cost ? `Costs ${option.requires.cost} brass` : '',
+      blockers: optionBlockers(props.run, option),
+    })),
 )
 // A talk left open from earlier in the day reopens where it stopped.
 watch(

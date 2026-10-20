@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
-import { ENCOUNTERS, ENDING_LEADS } from '../ecotone/content'
+import { ENCOUNTERS, ENDING_LEADS, ENDING_LENSES } from '../ecotone/content'
 import {
   ALL_CARDS,
   advance,
@@ -95,7 +95,11 @@ for (const beat of BEATS)
 for (const lead of ENDING_LEADS) {
   const ending = playbook.nodes[`ending:${lead}`]
   assert.equal(ending?.kind, 'ending')
-  assert.equal(ending?.choices.length, 8, `${lead}: four lenses x two fates`)
+  assert.equal(
+    ending?.choices.length,
+    ENDING_LENSES.length * 2,
+    `${lead}: each opening lens earns both fates`,
+  )
 }
 assert.ok(playbook.nodes['GR-2']?.lenses.includes('stoned'))
 assert.ok(playbook.nodes['GR-2']?.companions.includes('kit'))

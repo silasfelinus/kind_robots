@@ -14,12 +14,14 @@ import { createError } from 'h3'
 import { getArtArchiveRoot } from '@/server/utils/artArchiveRoot'
 import {
   RESTYLE_MAX_BYTES,
+  RESTYLE_DEFAULT_OVERWRITE_STRENGTH,
   RESTYLE_GRAB_BAG,
   RESTYLE_GRAB_BAG_MAX_STYLES,
   RESTYLE_GRAB_BAG_MIN_STYLES,
   RESTYLE_MAX_DURATION_SEC,
   RESTYLE_STYLES,
   isRestyleLook,
+  isRestyleOverwriteStrength,
   isRestyleRenderSpeed,
   normalizeGrabBagStyles,
   planRestyleSegments,
@@ -49,6 +51,7 @@ export type VideoRestyleJob = {
   variantMode?: RestyleVariantMode
   quality: RestyleQuality
   renderSpeed?: RestyleRenderSpeed
+  overwriteStrength?: number
   isPrivate?: boolean
   isMature?: boolean
   sourceProjectId?: string
@@ -228,6 +231,7 @@ export async function stageRestyleVideo(input: {
   variantStyleIds?: unknown
   variantMode?: unknown
   renderSpeed?: unknown
+  overwriteStrength?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -281,6 +285,7 @@ export async function stageRestyleVideo(input: {
     ...lookFields(look),
     quality: input.quality,
     renderSpeed: restyleSpeed(input.renderSpeed, 'standard'),
+    overwriteStrength: restyleOverwriteStrength(input.overwriteStrength, RESTYLE_DEFAULT_OVERWRITE_STRENGTH),
     isPrivate: restyleFlag(input.isPrivate, true),
     isMature: restyleFlag(input.isMature, false),
     status: 'STAGED',
@@ -314,6 +319,13 @@ export async function stageRestyleVideo(input: {
   return job
 }
 
+export function restyleOverwriteStrength(value: unknown, fallback: number): number {
+  if (value === undefined || value === null || value === '') return fallback
+  const numeric = typeof value === 'string' && value.trim() !== '' ? Number(value) : value
+  if (isRestyleOverwriteStrength(numeric)) return numeric
+  throw createError({ statusCode: 400, message: 'Overwrite strength must be a whole number from 0 to 100.' })
+}
+
 /** Projects saved before Fast draft existed render at standard speed. */
 function restyleSpeed(
   value: unknown,
@@ -343,6 +355,7 @@ export async function cloneRestyleVideo(input: {
   variantStyleIds?: unknown
   variantMode?: unknown
   renderSpeed?: unknown
+  overwriteStrength?: unknown
   isPrivate?: unknown
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
@@ -377,6 +390,10 @@ export async function cloneRestyleVideo(input: {
     renderSpeed: restyleSpeed(
       input.renderSpeed,
       source.renderSpeed ?? 'standard',
+    ),
+    overwriteStrength: restyleOverwriteStrength(
+      input.overwriteStrength,
+      source.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH,
     ),
     isPrivate: restyleFlag(input.isPrivate, source.isPrivate ?? true),
     isMature: restyleFlag(input.isMature, source.isMature ?? false),
@@ -427,6 +444,7 @@ export async function updateRestyleSettings(
   variantStyleIds?: unknown,
   variantMode?: unknown,
   renderSpeed?: unknown,
+  overwriteStrength?: unknown,
 ): Promise<VideoRestyleJob> {
   const look = resolveRestyleLook(styleId, variantStyleIds, variantMode)
   if (quality !== '720p' && quality !== '1080p') {
@@ -445,6 +463,10 @@ export async function updateRestyleSettings(
     ...lookFields(look),
     quality,
     renderSpeed: restyleSpeed(renderSpeed, job.renderSpeed ?? 'standard'),
+    overwriteStrength: restyleOverwriteStrength(
+      overwriteStrength,
+      job.overwriteStrength ?? RESTYLE_DEFAULT_OVERWRITE_STRENGTH,
+    ),
     isPrivate: restyleFlag(isPrivate, job.isPrivate ?? true),
     isMature: restyleFlag(isMature, job.isMature ?? false),
     updatedAt: new Date().toISOString(),
@@ -584,5 +606,29 @@ export async function queueRestyleFull(
     mode: 0o600,
   })
   await rename(temp, target)
+  return updated
+}
+
+/** Rename saved projects without affecting their render status or settings. */
+export async function renameRestyleProject(
+  userId: number,
+  id: string,
+  title: unknown,
+): Promise<VideoRestyleJob> {
+  if (typeof title !== 'string' || !title.trim() || title.trim().length > 120) {
+    throw createError({ statusCode: 400, message: 'Enter a project title (1–120 characters).' })
+  }
+  const job = await loadRestyleJob(userId, id)
+  if (job.status === 'PILOT_RUNNING' || job.status === 'FULL_RUNNING') {
+    throw createError({ statusCode: 409, message: 'Rename this project after its current render finishes.' })
+  }
+  const updated = { ...job, title: title.trim(), updatedAt: new Date().toISOString() }
+  const target = path.join(root(userId), id, 'job.json')
+  const temporary = `${target}.${randomUUID()}.tmp`
+  await writeFile(temporary, JSON.stringify(updated, null, 2), {
+    flag: 'wx',
+    mode: 0o600,
+  })
+  await rename(temporary, target)
   return updated
 }

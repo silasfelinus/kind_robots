@@ -1,3 +1,5 @@
+import { cardArtKey } from '../ecotone/artSlots'
+import { DEFAULT_ECOTONE_ART_STYLE, ecotoneArtSrc } from '../ecotone/artStyles'
 import {
   CHAPTERS,
   COMPANIONS,
@@ -182,7 +184,9 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     ...(Object.keys(card.lensLines ?? {}) as LensId[]),
     ...card.choices.flatMap((c) => (c.lens ? [c.lens] : [])),
   ])
-  const url = artUrl(card.art)
+  const own = cardArtKey(card.id)
+  const ownUrl = ecotoneArtSrc(own, DEFAULT_ECOTONE_ART_STYLE)
+  const url = ownUrl ?? artUrl(card.art)
   return {
     key: card.id,
     kind: card.kind === 'spine' ? 'spine' : 'encounter',
@@ -197,7 +201,7 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     choices,
     pool: [],
     scene: card.scene,
-    art: url ? (card.art ?? null) : null,
+    art: ownUrl ? own : url ? (card.art ?? null) : null,
     artUrl: url,
     needsArt: !url,
     provenance: card.provenance,

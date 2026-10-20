@@ -1,3 +1,4 @@
+import { ECOTONE_STYLE_ART } from './artManifest'
 import { ECOTONE_ART, ECOTONE_ART_ROOT } from './content'
 
 /**
@@ -62,10 +63,8 @@ export const ECOTONE_ART_STYLE_INJECTION = 'ecotone-art-style'
 /** The same picture in every style, so the picker compares like with like. */
 export const ECOTONE_STYLE_SAMPLE = 'title/key-art'
 
-/** Renders each extra style has shipped, by asset key (e.g. 'companions/kit'). */
-export const STYLE_RENDERS: Partial<
-  Record<EcotoneArtStyle, readonly string[]>
-> = {}
+/** Renders each style has shipped, by asset key (e.g. 'outcomes/kn-5/pedal-failure'). */
+export const STYLE_RENDERS = ECOTONE_STYLE_ART
 
 /** Saved choices from before the checkpoint styles. */
 const LEGACY_STYLES: Record<string, EcotoneArtStyle> = { painted: 'zimage' }
@@ -86,19 +85,32 @@ export function styleHasRender(style: EcotoneArtStyle, asset: string): boolean {
 
 /**
  * The picture to lay over a drawn scene, or null to show the drawn scene.
- * Storybook never paints; a checkpoint style shows its own render, else the
- * shipped set.
+ * Storybook never paints. A checkpoint style shows its own render, else the
+ * default style's while its own is still rendering, else the shipped set.
  */
 export function ecotoneArtSrc(
   asset: string | undefined,
   style: unknown,
 ): string | null {
-  if (!asset || !ECOTONE_ART.includes(asset)) return null
+  if (!asset) return null
   const selected = normalizeEcotoneArtStyle(style)
   if (selected === 'storybook') return null
-  if (styleHasRender(selected, asset))
-    return `${ECOTONE_ART_ROOT}styles/${selected}/${asset}.webp`
-  return `${ECOTONE_ART_ROOT}${asset}.webp`
+  for (const candidate of [selected, DEFAULT_ECOTONE_ART_STYLE])
+    if (styleHasRender(candidate, asset))
+      return `${ECOTONE_ART_ROOT}styles/${candidate}/${asset}.webp`
+  return ECOTONE_ART.includes(asset) ? `${ECOTONE_ART_ROOT}${asset}.webp` : null
+}
+
+/** The first of several pictures (most specific first) that has art, or null. */
+export function ecotoneArtFirst(
+  assets: readonly (string | undefined)[] | string | undefined,
+  style: unknown,
+): string | null {
+  for (const asset of typeof assets === 'string' ? [assets] : (assets ?? [])) {
+    const src = ecotoneArtSrc(asset, style)
+    if (src) return src
+  }
+  return null
 }
 
 export function loadEcotoneArtStyle(): EcotoneArtStyle {

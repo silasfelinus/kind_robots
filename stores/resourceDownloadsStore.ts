@@ -50,6 +50,8 @@ export const useResourceDownloadsStore = defineStore(
     const loading = ref(false)
     const loadingMore = ref(false)
     const retryingId = ref<number | null>(null)
+    const deletingId = ref<number | null>(null)
+    const bulkBusy = ref(false)
     const error = ref('')
     const notice = ref('')
     const updatedAt = ref<Date | null>(null)
@@ -126,7 +128,12 @@ export const useResourceDownloadsStore = defineStore(
     }
 
     async function retry(id: number): Promise<boolean> {
-      if (retryingId.value !== null) return false
+      if (
+        retryingId.value !== null ||
+        bulkBusy.value ||
+        deletingId.value !== null
+      )
+        return false
       retryingId.value = id
       error.value = ''
       notice.value = ''
@@ -151,6 +158,87 @@ export const useResourceDownloadsStore = defineStore(
       }
     }
 
+    async function deleteRecord(id: number): Promise<boolean> {
+      if (
+        deletingId.value !== null ||
+        bulkBusy.value ||
+        retryingId.value !== null
+      )
+        return false
+      deletingId.value = id
+      error.value = ''
+      notice.value = ''
+      try {
+        const response = await performFetch<{ id: number }>(
+          `/api/lora/download/${id}`,
+          { method: 'DELETE' },
+        )
+        if (!response.success) {
+          throw new Error(response.message || 'Could not delete history entry.')
+        }
+        notice.value = `Download #${id} removed from history; model files untouched.`
+        await refresh(true)
+        return true
+      } catch (caught) {
+        error.value =
+          caught instanceof Error ? caught.message : 'Unable to delete entry.'
+        return false
+      } finally {
+        deletingId.value = null
+      }
+    }
+
+    async function bulkFailed(
+      operation: 'retry' | 'delete',
+      ids: number[],
+    ): Promise<boolean> {
+      if (
+        bulkBusy.value ||
+        retryingId.value !== null ||
+        deletingId.value !== null
+      )
+        return false
+      if (ids.length === 0 || ids.length > 50) return false
+      bulkBusy.value = true
+      error.value = ''
+      notice.value = ''
+      try {
+        const response = await performFetch<{
+          changed: number
+          skipped: number
+          failed?: { id: number; reason: string }[]
+        }>('/api/lora/download/failed', {
+          method: 'POST',
+          body: JSON.stringify({ operation, ids }),
+        })
+        if (!response.success || !response.data) {
+          throw new Error(
+            response.message || 'Could not update failed downloads.',
+          )
+        }
+        const { changed, skipped, failed } = response.data
+        const action = operation === 'retry' ? 'requeued' : 'cleared'
+        notice.value = `${changed} failed downloads ${action}.${
+          skipped
+            ? ` ${skipped} skipped because their status changed or a model is already queued.`
+            : ''
+        }`
+        if (failed?.length) {
+          error.value = failed
+            .map((item) => `#${item.id}: ${item.reason}`)
+            .join(' | ')
+        }
+        await refresh(true)
+        return true
+      } catch (caught) {
+        error.value =
+          caught instanceof Error ? caught.message : 'Bulk update failed.'
+        return false
+      } finally {
+        bulkBusy.value = false
+      }
+    }
+
     return {
       active,
       history,
@@ -161,12 +249,16 @@ export const useResourceDownloadsStore = defineStore(
       loading,
       loadingMore,
       retryingId,
+      deletingId,
+      bulkBusy,
       error,
       notice,
       updatedAt,
       refresh,
       loadMore,
       retry,
+      deleteRecord,
+      bulkFailed,
     }
   },
 )

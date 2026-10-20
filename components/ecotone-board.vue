@@ -377,6 +377,13 @@
                     {{ paragraph }}
                   </p>
                   <p
+                    v-for="(callback, index) in questCallbacks"
+                    :key="`quest-callback-${index}`"
+                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                  >
+                    {{ callback }}
+                  </p>
+                  <p
                     v-if="LENS_CODAS[game.ending.lens]"
                     class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
                   >
@@ -400,8 +407,8 @@
                   </div>
                   <p class="text-xs text-[#f3e6c8]/60">
                     Ending earned and added to your gallery. These finales are
-                    first drafts; the full one-, ten- and thirty-year epilogues
-                    are still being written.
+                    authored drafts. Only choices made in this run appear as
+                    callbacks; images and final editorial approval remain open.
                   </p>
                 </div>
               </template>
@@ -1023,6 +1030,7 @@ import {
   LENS_CODAS,
   SIGNATURES,
 } from '~/utils/ecotone/story'
+import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
@@ -1122,6 +1130,10 @@ const signature = computed(() => {
   return ending
     ? (SIGNATURES[`${ending.lead}.${ending.lens}`]?.[ending.fate] ?? null)
     : null
+})
+const questCallbacks = computed(() => {
+  const run = game.run
+  return run ? earnedQuestCallbacks(run.flags, run.played) : []
 })
 const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),

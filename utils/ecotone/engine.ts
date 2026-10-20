@@ -25,7 +25,25 @@ import {
   ROUTES,
   type RouteStep,
 } from './story'
+import type { GatedEncounter } from './questExpansion'
+import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
+import {
+  NEW_SIGNATURES,
+  FUTURE_BOOKENDS,
+  NEW_LENS_CODAS,
+} from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
+
+Object.assign(SIGNATURES, NEW_SIGNATURES)
+Object.assign(LENS_CODAS, NEW_LENS_CODAS)
+for (const lead of Object.keys(FUTURE_BOOKENDS) as EndingLine[]) {
+  for (const fate of ['hope', 'dark'] as Fate[]) {
+    const [first, last] = FUTURE_BOOKENDS[lead][fate]
+    const paragraphs = FUTURES[lead][fate]
+    if (paragraphs[0] !== first) paragraphs.unshift(first)
+    if (paragraphs[paragraphs.length - 1] !== last) paragraphs.push(last)
+  }
+}
 
 export const ECOTONE_SAVE_VERSION = 4
 export const MAX_METER = 8
@@ -303,7 +321,13 @@ export function currentStep(state: RunState): RouteStep | null {
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const open = ENCOUNTERS.filter((card) => !state.played.includes(card.id))
+  const eligible: GatedEncounter[] = ENCOUNTERS
+  const open = eligible.filter(
+    (card) =>
+      !state.played.includes(card.id) &&
+      (!card.requiresLead || card.requiresLead === state.activeLead) &&
+      (!card.requiresLens || card.requiresLens === state.openingState),
+  )
   const picked: string[] = []
   step.pools.forEach((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)

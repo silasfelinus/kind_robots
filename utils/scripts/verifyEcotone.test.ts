@@ -50,6 +50,7 @@ import {
   rollDice,
   type RunState,
 } from '../ecotone/engine'
+import { QUEST_CARDS } from '../ecotone/questExpansion'
 import {
   BEATS,
   EVENTS,
@@ -365,8 +366,11 @@ for (let seed = 1; seed < 1500; seed += 1) {
 }
 newcomers.delete('')
 assert.equal(newcomers.size, 4, 'different seeds bring different newcomers')
-for (const card of ALL_CARDS)
+for (const card of ALL_CARDS) {
+  const quest = QUEST_CARDS.find((candidate) => candidate.id === card.id)
+  if (quest?.requiresLens && !openLenses.includes(quest.requiresLens)) continue
   assert.ok(reached.has(card.id), `${card.id} turns up in play`)
+}
 for (const fate of [
   'green-ribbon.hope',
   'green-ribbon.dark',

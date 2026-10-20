@@ -52,12 +52,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "An unseen jury tastes pies and awards prizes for regrets they claim the baker should confess. The public judges want to disqualify the invisible votes.",
-    "investigate": "Ask the second jury to explain its scoring",
-    "success": "The regrets describe a town event that will not occur until next year's fair.",
-    "failure": "The pie tin rings like a bell and the unseen panel withdraws without a verdict.",
-    "help": "Let bakers choose what stories they tell",
-    "helpOutcome": "The town awards the pie for flavor and keeps confessions voluntary."
+    "pressure": "A second, invisible jury is tasting pies at the Ferndale fair. Its scores are based on whether the baker has confessed a regret, not whether the crust can support its own weight. One competitor is thirteen, and the ghostly judges are demanding a deeply personal statement.",
+    "investigate": "Ask the invisible judges to reveal their rules and who authorized them",
+    "success": "The secret scorecards describe a fair that will take place next year. A living organizer confirms nobody has approved those categories and moves the sheets to the lost-and-found.",
+    "failure": "A pie tin rings loudly and the unseen judges walk out without legs. The bakers retain their entry numbers and enough witnesses to demand another tasting.",
+    "help": "Let the bakers withdraw personal stories while keeping their pies in the contest",
+    "helpOutcome": "The living panel awards prizes for flavor and a crust that survives the journey. Nobody has to turn private grief into an ingredient."
   },
   {
     "id": "WH-085",
@@ -82,12 +82,12 @@
     "place": "Fortuna",
     "scene": "plaza",
     "pool": 1,
-    "pressure": "A conference room at a Fortuna lodge opens into another identical room no matter which door you take. A staffer is delivering coffee in a loop.",
-    "investigate": "Trace the fire-exit plan and the door numbers",
-    "success": "One door opens onto a meeting held fifteen years from now about restoring the Eel River.",
-    "failure": "You return to the lobby empty-handed but discover a keycard from a room never built.",
-    "help": "Help everyone leave together and check the exits",
-    "helpOutcome": "The staff organize a slow headcount, and the impossible corridor reluctantly releases them."
+    "pressure": "At a Fortuna lodge, every conference-room door opens into the same conference room. A server carrying cold coffee has passed the same EXIT sign six times, and the hotel manager keeps insisting the floor plan has always been adequate.",
+    "investigate": "Check the posted evacuation plan against the doors and the headcount",
+    "success": "Behind one door is a meeting about river restoration dated fifteen years from now. You note what the sign says and return to the present guests, who have more immediate questions.",
+    "failure": "The corridor folds back to the lobby while your pencil is still drawing it. A keycard for an unbuilt room remains in your pocket, but everybody can account for where they are.",
+    "help": "Stop the meeting and guide everyone toward one confirmed exit together",
+    "helpOutcome": "The staff lead the guests out by the service hall and count them twice. The manager agrees to replace the fire plan before advertising a conference on miracles."
   },
   {
     "id": "WH-087",
@@ -157,12 +157,12 @@
     "place": "Avenue of the Giants",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A receptionist sits inside an immense redwood, registering visitors whose species and century are both optional fields.",
-    "investigate": "Inspect the check-in ledger with consent",
-    "success": "The next arrival is listed as a future park ranger seeking an unbuilt public path.",
-    "failure": "The ledger closes when you ask too much; the receptionist still offers a trail map.",
-    "help": "Support a welcome policy that protects the grove",
-    "helpOutcome": "The strange visitors keep a quiet route and ordinary hikers get clear signs."
+    "pressure": "An enormous redwood has acquired a tiny reception desk, complete with number tickets and a brass bell. The receptionist welcomes visitors from several centuries but asks every tourist to stay on the public path. A developer wants to sell guided access to the tree's hollow.",
+    "investigate": "Request permission to read the visitor ledger without copying private names",
+    "success": "The ledger lists a park ranger from a future year, arriving to inspect an unbuilt path. The receptionist lets you copy the path sketch, with its uncertainties left intact.",
+    "failure": "The ledger politely closes on your hand when you ask for a name. You leave with a public trail map and a reminder that evidence is not the same as permission.",
+    "help": "Support a visitor plan that protects the grove and keeps ordinary hikers welcome",
+    "helpOutcome": "The queue moves onto the marked trail, the developer takes down the sales sign, and the receptionist resumes stamping tickets for visitors who know which century they are in."
   },
   {
     "id": "WH-092",

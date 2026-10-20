@@ -17,7 +17,8 @@
       <div class="flex flex-wrap items-center justify-between gap-2">
         <p class="kr-text-faded-xs">
           Stack up to {{ MAX_LORAS_PER_JOB }}. Trigger words are added
-          automatically.
+          automatically. Recommended LoRAs match {{ profile }}; unversioned
+          video LoRAs remain available below them.
         </p>
         <div class="flex flex-wrap items-center gap-1">
         <div class="join" aria-label="LoRA browser size">
@@ -234,6 +235,8 @@
                   {{ resourceLabel(resource) }}
                 </span>
                 <span class="flex shrink-0 items-center gap-1">
+                  <span v-if="videoLoraCompatibilityRank(resource, profile) >= 35"
+                    class="kr-badge-accent-sm">Recommended</span>
                   <span
                     v-if="resource.isMature"
                     class="kr-badge-outline-sm badge-error"
@@ -283,10 +286,11 @@ import { useResourceStore } from '@/stores/resourceStore'
 import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 import {
   loraTriggerTerms,
-  videoLoraCompatible,
+  videoLoraCompatibilityRank,
   type LoraPick,
 } from '@/utils/loraSelection'
 import type { VideoEngine } from '@/utils/videoPresets'
+import type { VideoLoraProfile } from '@/utils/videoModelResources'
 import type { Resource } from '~/prisma/generated/prisma/client'
 
 type PreviewArtImage = {
@@ -302,6 +306,7 @@ type VideoLoraResource = Resource & {
 const props = defineProps<{
   modelValue: LoraPick[]
   engine: VideoEngine
+  profile: VideoLoraProfile
 }>()
 
 const emit = defineEmits<{
@@ -313,11 +318,17 @@ const search = ref('')
 const browserSize = ref<'comfortable' | 'expanded'>('comfortable')
 
 const compatibleResources = computed<VideoLoraResource[]>(() =>
-  (resourceStore.visibleLoras as VideoLoraResource[]).filter(
-    (resource) =>
-      Boolean(resource.localPath?.trim()) &&
-      videoLoraCompatible(resource, props.engine),
-  ),
+  (resourceStore.visibleLoras as VideoLoraResource[])
+    .filter(
+      (resource) =>
+        Boolean(resource.localPath?.trim()) &&
+        videoLoraCompatibilityRank(resource, props.profile) > 0,
+    )
+    .sort(
+      (a, b) =>
+        videoLoraCompatibilityRank(b, props.profile) -
+        videoLoraCompatibilityRank(a, props.profile),
+    ),
 )
 
 const byId = computed(
@@ -359,9 +370,9 @@ onMounted(async () => {
   if (!resourceStore.hasLoaded) await resourceStore.getResources()
 })
 
-// Engine/maturity/access changes prune invalid picks immediately. A WAN LoRA
+// Engine/model-family/maturity/access changes prune invalid picks immediately. A WAN LoRA
 // never remains silently attached when the user switches to LTX, and vice versa.
-watch([() => props.engine, compatibleResources], () => {
+watch([() => props.engine, () => props.profile, compatibleResources], () => {
   if (!resourceStore.hasLoaded || !props.modelValue.length) return
   const survivors = props.modelValue.filter((pick) =>
     byId.value.has(pick.resourceId),

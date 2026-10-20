@@ -83,6 +83,29 @@ for (const forbidden of ['flex', 'flex-row', 'flex-col', 'grid-flow-col']) {
   }
 }
 
+// The real "sideways queue" cause: the server cannot see the localStorage
+// login, so it renders the admin-only notice; a client that restores an admin
+// before hydrating reuses that <div> for the dashboard and keeps its centered
+// flex classes. The admin gate must wait for mount so both renders agree.
+// Same gate guards stylist-relay-status.vue, which shares the template shape.
+for (const gatedPath of [
+  componentPath,
+  'components/art/stylist-relay-status.vue',
+]) {
+  const gated = readFileSync(gatedPath, 'utf8')
+  const template = gated.slice(0, gated.indexOf('<script'))
+  const mountGate = template.search(/v-if="!hasMounted"/)
+  const adminGate = template.search(/v-else-if="!userStore\.isAdmin"/)
+  if (mountGate === -1 || adminGate === -1 || mountGate > adminGate) {
+    throw new Error(
+      `${gatedPath} must render a v-if="!hasMounted" placeholder before its v-else-if="!userStore.isAdmin" gate, or SSR hydration leaves the admin view inside the non-admin notice's classes.`,
+    )
+  }
+  if (!/hasMounted\.value = true/.test(gated)) {
+    throw new Error(`${gatedPath} never sets hasMounted in onMounted.`)
+  }
+}
+
 console.log(
-  'ArtJob queue layout verified: scroll owner stacks in grid/block flow with no flex-row fallback.',
+  'ArtJob queue layout verified: scroll owner stacks in grid/block flow with no flex-row fallback, and the admin gate waits for hydration.',
 )

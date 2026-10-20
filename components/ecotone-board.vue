@@ -1010,6 +1010,7 @@ import {
   LENS_CODAS,
   SIGNATURES,
 } from '~/utils/ecotone/story'
+import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
@@ -1106,6 +1107,10 @@ const signature = computed(() => {
   return ending
     ? (SIGNATURES[`${ending.lead}.${ending.lens}`]?.[ending.fate] ?? null)
     : null
+})
+const questCallbacks = computed(() => {
+  const run = game.run
+  return run ? earnedQuestCallbacks(run.flags, run.played) : []
 })
 const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),

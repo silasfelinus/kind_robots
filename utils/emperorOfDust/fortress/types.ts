@@ -177,6 +177,12 @@ export type QuestDef = {
   outcomes: Partial<Record<QuestResultTier | 'expired', string>>
 }
 
+/**
+ * One line of a scene. A plain string is spoken by the scene's speaker (or is
+ * narration); an object hands the line to someone else in the room.
+ */
+export type SceneLine = string | { who: string; npc?: string; text: string }
+
 export type AudienceOption = {
   id: string
   label: string
@@ -185,6 +191,22 @@ export type AudienceOption = {
   response: string
   /** Quest ids posted to the board immediately. */
   postsQuests?: string[]
+  /**
+   * A beat of the same audience that follows this answer. The audience stays
+   * open until an option without `next` closes it; every answer along the way
+   * applies its effects and leaves a `chose:` flag.
+   */
+  next?: string
+}
+
+/** A further exchange inside an audience, reached through an option's `next`. */
+export type AudienceBeat = {
+  id: string
+  /** Who speaks in this beat; the audience's speaker when omitted. */
+  speaker?: string
+  npc?: string
+  lines: SceneLine[]
+  options: AudienceOption[]
 }
 
 export type AudienceDef = {
@@ -194,8 +216,10 @@ export type AudienceDef = {
   /** Major NPC slug for illustrated reactions; omitted for minor petitioners. */
   npc?: string
   faction?: KingdomFactionId | LocalFactionId
-  lines: string[]
+  lines: SceneLine[]
   options: AudienceOption[]
+  /** Later exchanges of the same audience, reached through `next`. */
+  beats?: AudienceBeat[]
   /** Audiences only appear when these hold. */
   requires?: Requirement
 }
@@ -295,6 +319,8 @@ export type FortressRun = {
   hideout?: string
   /** Audiences eligible at dawn; they stay at court for the whole day. */
   dayAudiences?: string[]
+  /** Audience id -> the beat it has reached, while a scene is still open. */
+  audienceBeats?: Record<string, string>
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

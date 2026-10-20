@@ -70,7 +70,10 @@
         :key="i"
         class="opacity-80"
       >
-        {{ entry }}
+        <strong v-if="typeof entry !== 'string'" class="text-warning"
+          >{{ entry.who }}:
+        </strong>
+        {{ lineText(entry) }}
       </p>
     </div>
     <button
@@ -80,6 +83,18 @@
       :aria-label="streaming ? 'Show the whole line' : 'Next line'"
       @click="advance"
     >
+      <span
+        v-if="interjection"
+        class="mb-1 flex items-center gap-2 font-sans text-xs font-semibold not-italic uppercase tracking-widest text-warning"
+      >
+        <img
+          v-if="interjectionArt"
+          :src="interjectionArt"
+          alt=""
+          class="h-8 w-8 rounded-full border border-warning/50 object-cover object-top"
+        />
+        {{ interjection.who }}
+      </span>
       <span aria-live="polite">{{ shown }}</span>
     </button>
     <div v-if="!showLog && (streaming || !lastLine)" class="px-3 pb-3">
@@ -139,6 +154,10 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import type { TextSpeed } from '~/stores/emperorFortressStore'
+import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { lineText } from '~/utils/emperorOfDust/fortress/engine'
+import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
+import type { SceneLine } from '~/utils/emperorOfDust/fortress/types'
 
 const props = defineProps<{
   speaker: string
@@ -147,7 +166,7 @@ const props = defineProps<{
   subtitle?: string
   /** Illustrated image of the speaker, when one has been rendered. */
   art?: string
-  lines: string[]
+  lines: SceneLine[]
   choices: { id: string; label: string; note?: string; blockers: string[] }[]
 }>()
 const emit = defineEmits<{ choose: [id: string] }>()
@@ -158,7 +177,19 @@ const visible = ref(0)
 const showLog = ref(false)
 let timer: ReturnType<typeof setInterval> | null = null
 
-const line = computed(() => props.lines[index.value] ?? '')
+const current = computed<SceneLine>(() => props.lines[index.value] ?? '')
+const line = computed(() => lineText(current.value))
+/** A line handed to someone else in the room, with their nameplate. */
+const interjection = computed(() =>
+  typeof current.value === 'string' ? null : current.value,
+)
+const interjectionArt = computed(() => {
+  const slug = interjection.value?.npc
+  if (!slug) return undefined
+  return followerDef(slug)
+    ? illustration('followers', slug)
+    : illustration('npcs', slug)
+})
 const shown = computed(() => line.value.slice(0, visible.value))
 const streaming = computed(() => visible.value < line.value.length)
 const lastLine = computed(() => index.value >= props.lines.length - 1)

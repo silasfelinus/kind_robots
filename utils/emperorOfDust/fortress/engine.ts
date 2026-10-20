@@ -34,6 +34,7 @@ import type {
   QuestReport,
   QuestResultTier,
   Requirement,
+  SceneLine,
   Stat,
   TraitDef,
 } from './types'
@@ -358,27 +359,78 @@ export const optionBlockers = (
   option: AudienceOption,
 ): string[] => unmetRequirements(run, option.requires, option.effects.recruit)
 
+/** The part of an audience the emperor is in now: its opening, or a later beat. */
+export type AudienceScene = {
+  beatId?: string
+  speaker: string
+  npc?: string
+  lines: SceneLine[]
+  options: AudienceOption[]
+}
+
+export const audienceScene = (
+  run: FortressRun,
+  audience: AudienceDef,
+): AudienceScene => {
+  const beatId = run.audienceBeats?.[audience.id]
+  const beat = beatId
+    ? audience.beats?.find((entry) => entry.id === beatId)
+    : undefined
+  if (!beat)
+    return {
+      speaker: audience.speaker,
+      npc: audience.npc,
+      lines: audience.lines,
+      options: audience.options,
+    }
+  return {
+    beatId: beat.id,
+    speaker: beat.speaker ?? audience.speaker,
+    npc: beat.npc ?? (beat.speaker ? undefined : audience.npc),
+    lines: beat.lines,
+    options: beat.options,
+  }
+}
+
+/** The text of a scene line, whoever speaks it. */
+export const lineText = (line: SceneLine): string =>
+  typeof line === 'string' ? line : line.text
+
 export const chooseAudienceOption = (
   run: FortressRun,
   audienceId: string,
   optionId: string,
-): { run: FortressRun; response: string } => {
+): { run: FortressRun; response: string; next?: string } => {
   if (isOver(run)) throw new Error('the campaign is over')
   const audience = audiencesToday(run).find((entry) => entry.id === audienceId)
   if (!audience) throw new Error('that audience is not at court today')
   if (run.audiencesHeard.includes(audienceId))
     throw new Error('that audience was already answered')
-  const option = audience.options.find((entry) => entry.id === optionId)
+  const option = audienceScene(run, audience).options.find(
+    (entry) => entry.id === optionId,
+  )
   if (!option) throw new Error(`unknown option: ${optionId}`)
   const blockers = optionBlockers(run, option)
   if (blockers.length) throw new Error(blockers.join('; '))
+  const nextBeat = option.next
+    ? audience.beats?.find((entry) => entry.id === option.next)
+    : undefined
+  if (option.next && !nextBeat) throw new Error(`unknown beat: ${option.next}`)
   const next = cloneRun(run)
   next.brass -= option.requires?.cost ?? 0
   applyEffects(next, option.effects)
   for (const questId of option.postsQuests ?? []) postQuest(next, questId)
-  next.audiencesHeard.push(audienceId)
   next.flags.push(`chose:${audienceId}:${optionId}`)
-  return { run: next, response: option.response }
+  const beats = { ...(next.audienceBeats ?? {}) }
+  if (nextBeat) {
+    beats[audienceId] = nextBeat.id
+  } else {
+    delete beats[audienceId]
+    next.audiencesHeard.push(audienceId)
+  }
+  if (Object.keys(beats).length) next.audienceBeats = beats
+  else delete next.audienceBeats
+  return { run: next, response: option.response, next: nextBeat?.id }
 }
 
 // --- quest odds -------------------------------------------------------------
@@ -1036,6 +1088,8 @@ export const finishDay = (
   }
   next.day += 1
   next.audiencesHeard = []
+  // A scene left half-way closes with the day; nothing it chose is undone.
+  delete next.audienceBeats
   const quests: QuestReport[] = []
   const knownNow = [...known]
   for (const active of next.active.filter(

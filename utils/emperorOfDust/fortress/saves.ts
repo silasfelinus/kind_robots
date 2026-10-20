@@ -79,7 +79,11 @@ export const validateRun = (value: unknown): value is FortressRun => {
     !object(run.relicUses) ||
     !Object.values(run.relicUses).every((act) => int(act, 1, 5)) ||
     (run.hideout !== undefined && !text(run.hideout, 60)) ||
-    (run.dayAudiences !== undefined && !textList(run.dayAudiences, 20))
+    (run.dayAudiences !== undefined && !textList(run.dayAudiences, 20)) ||
+    (run.audienceBeats !== undefined &&
+      (!object(run.audienceBeats) ||
+        Object.keys(run.audienceBeats).length > 20 ||
+        !Object.values(run.audienceBeats).every((beat) => text(beat, 80))))
   )
     return false
   const day = run.day as number

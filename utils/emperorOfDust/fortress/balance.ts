@@ -7,6 +7,7 @@ import { questDef } from './content'
 import { type EndingId, endingOf } from './endings'
 import {
   assignQuest,
+  audienceScene,
   audiencesToday,
   chooseAudienceOption,
   createRun,
@@ -196,17 +197,22 @@ export const playCampaign = (policy: Policy, seed: number): CampaignResult => {
       }
     }
     for (const audience of audiencesToday(run)) {
-      const open = audience.options.filter(
-        (option) => optionBlockers(run, option).length === 0,
-      )
-      const pick = open
-        .map((option, i) => ({
-          option,
-          i,
-          score: policy.score(option, run, seed),
-        }))
-        .sort((a, b) => b.score - a.score || a.i - b.i)[0]
-      if (pick) run = chooseAudienceOption(run, audience.id, pick.option.id).run
+      // A scene can run several beats; follow it until it closes or stalls.
+      for (let beat = 0; beat < 8; beat += 1) {
+        if (run.audiencesHeard.includes(audience.id)) break
+        const open = audienceScene(run, audience).options.filter(
+          (option) => optionBlockers(run, option).length === 0,
+        )
+        const pick = open
+          .map((option, i) => ({
+            option,
+            i,
+            score: policy.score(option, run, seed),
+          }))
+          .sort((a, b) => b.score - a.score || a.i - b.i)[0]
+        if (!pick) break
+        run = chooseAudienceOption(run, audience.id, pick.option.id).run
+      }
     }
     const board = [...run.board].sort((a, b) => {
       const qa = questDef(a.questId)!

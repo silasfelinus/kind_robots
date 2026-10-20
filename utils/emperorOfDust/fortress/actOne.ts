@@ -658,10 +658,25 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         npc: 'mara-reedbell',
         faction: 'hollow-bell',
         lines: [
-          'Your Majesty. Congratulations on the crown. Hollow Bell’s aqueduct is leaking into the old roadbed, and my town drinks from that channel.',
+          'The great doors groan open on your first morning as emperor. The hall smells of lamp oil and old dust, and the first petitioner is already halfway up the carpet before the herald has finished announcing her.',
+          'Your Majesty. Congratulations on the crown. It suits you better than it suited the last one, and I say that as someone who sent him a great many polite letters.',
+          'Hollow Bell’s aqueduct is leaking into the old roadbed, and my town drinks from that channel. Every day it leaks, the far wards get a little thirstier and a little louder.',
           'I could raise the money myself, if the crown let me tax my own people for it. Or the crown could send someone who knows what a sluice is.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'A mayor who asks permission to tax her own town, Your Majesty, usually wants someone else’s name on the order.',
+          },
         ],
         options: [
+          {
+            id: 'ask-why',
+            label: 'Ask why she needs the crown’s leave to tax her own people.',
+            effects: {},
+            response:
+              'Mara’s smile holds, but she sets her ledger down on the step of the dais, which Komodo will later tell you she has never once been seen to do.',
+            next: 'millers',
+          },
           {
             id: 'repair',
             label: 'Send engineers to repair the channel.',
@@ -683,6 +698,58 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               'Mara’s smile does not move. “Hollow Bell will pay. Hollow Bell will remember paying.”',
           },
         ],
+        beats: [
+          {
+            id: 'millers',
+            lines: [
+              '“Because the last time Hollow Bell raised a levy, it fell on the people with the least, and I was the one who signed it.”',
+              '“The mill families own the sluice gates. They could pay for the repair out of one season’s flour. They will not, unless an emperor orders it, and if I order it they will make sure the next mayor is someone more reasonable.”',
+              '“So. You can send your engineers and the millers keep their money. You can levy the whole town and the poor wards pay again. Or you can put your name on an order that only the mill families pay, and let me be the reluctant servant of a hard crown.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'There it is. She is offering you the blame, Your Majesty. It is a generous offer. Blame is the only thing in Hollow Bell nobody wants to keep.',
+              },
+            ],
+            options: [
+              {
+                id: 'repair',
+                label:
+                  'Send engineers anyway. The millers can keep their flour.',
+                effects: {},
+                response:
+                  '“Then I’ll expect them,” Mara says, and picks the ledger back up. “And I’ll remember who kept the peace with the millers. It was not me.”',
+                postsQuests: ['q-d01-aqueduct-repair'],
+              },
+              {
+                id: 'levy-millers',
+                label:
+                  'Sign the order. The mill families pay, and the crown takes the blame.',
+                effects: {
+                  brass: 5,
+                  affinity: { 'hollow-bell': 10 },
+                  local: { 'old-houses': -2, yard: 1 },
+                  flags: ['mara-millers-levy'],
+                },
+                response:
+                  'Mara reads the order twice, folds it once, and bows lower than she did when she came in. “They will hate you, Your Majesty. The wards will drink.” Somewhere in the gallery, a member of the Old Houses closes a fan with a snap.',
+                postsQuests: ['q-d01-aqueduct-repair'],
+              },
+              {
+                id: 'levy',
+                label:
+                  'Levy the whole town, as before, and send the crown its share.',
+                effects: {
+                  brass: 25,
+                  affinity: { 'hollow-bell': -10 },
+                  local: { ledger: 2, yard: -3 },
+                },
+                response:
+                  '“As before,” Mara repeats, very softly. “Yes. Hollow Bell is used to as before.” She does not bow on her way out.',
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'd01-toll',
@@ -690,10 +757,24 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         speaker: 'A Jackalwire captain',
         faction: 'jackalwire',
         lines: [
+          'The next petitioner does not wait to be announced. She comes up the carpet with her boots unlaced and a fiddle across her back, a hyena with a painted jaw and a grin like a dropped knife.',
           'Nice tower. The southern toll bridge is ours now, and so are the carts that want to cross it.',
-          'We can talk about that. Or you can pay. Or you can try to move us.',
+          'We can talk about that. Or you can pay. Or you can try to move us. Everybody gets three choices in the wasteland, and the third one is always the loud one.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'Saltroad’s medicine carts cross that bridge, Your Majesty. So does half our grain. She knows it, which is why she is smiling.',
+          },
         ],
         options: [
+          {
+            id: 'ask-toll',
+            label: 'Ask what the Pack wants the toll money for.',
+            effects: {},
+            response:
+              'The captain stops grinning. It is the most unsettling thing she has done so far.',
+            next: 'dust-lung',
+          },
           {
             id: 'parley',
             label: 'Offer safe passage in exchange for an armistice.',
@@ -722,6 +803,65 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               'The captain bites a brass bit, approves, and leaves a painted feather on the arm of your throne.',
           },
         ],
+        beats: [
+          {
+            id: 'dust-lung',
+            lines: [
+              '“Dust lung. Half the pups in our camp cough black by morning. Saltroad sells the tincture at three times what it sold for last year, because who else is going to sell it to hyenas?”',
+              '“So we stand on their bridge, and their carts pay us, and we pay them for the tincture. Round and round the brass goes. Everybody calls us raiders. Nobody calls them anything.”',
+              '“You want the bridge open? Fine. Get my pups their medicine and I will play your coronation march myself. Badly, but with feeling.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'It may even be true, Your Majesty. It is also exactly the story a clever raider would tell a new emperor with a soft face.',
+              },
+            ],
+            options: [
+              {
+                id: 'medicine',
+                label:
+                  'Buy the tincture yourself and hand it over at the bridge, if the toll lifts today.',
+                requires: { cost: 30 },
+                effects: {
+                  affinity: { jackalwire: 15, saltroad: -5 },
+                  local: { yard: 1 },
+                  flags: ['pack-medicine'],
+                },
+                response:
+                  'The captain takes your hand in both of hers, which you were not expecting, and squeezes it hard enough to hurt. By evening the wagons have rolled back and the Saltroad factor is sending you a very cold letter about undercutting the market.',
+              },
+              {
+                id: 'informant',
+                label:
+                  'Thank her. Then quietly pay one of her crew to show you where the Pack’s camp sleeps.',
+                requires: { cost: 10 },
+                effects: {
+                  local: { 'gate-watch': 1 },
+                  flags: ['pack-camp-mapped'],
+                },
+                response:
+                  'She leaves without a deal. That night a young hyena with a bandaged paw takes your brass at the postern gate, draws the camp on the back of a ration card, and will not meet your eyes. The Gate Watch pins the card above their fire.',
+              },
+              {
+                id: 'parley',
+                label: 'Offer safe passage in exchange for an armistice.',
+                effects: {},
+                response:
+                  '“An armistice doesn’t cure a cough,” she says, “but it’s a start. Send someone who can hold a tune.”',
+                postsQuests: ['q-d01-toll-parley'],
+              },
+              {
+                id: 'break-toll',
+                label:
+                  'Tell her sick pups are not the crown’s problem. The bridge will be cleared.',
+                effects: { local: { 'gate-watch': 1 } },
+                response:
+                  'She looks at you for a long moment. Then she spits on your floor, not cheerfully at all. “Bring friends. Bring a lot of them.”',
+                postsQuests: ['q-d01-toll-break'],
+              },
+            ],
+          },
+        ],
       },
       {
         id: 'd01-mirefen',
@@ -730,10 +870,24 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         npc: 'sister-reedlight',
         faction: 'mire-mothers',
         lines: [
+          'The last petitioner of the day brings the smell of the fen with her: wet peat, bog myrtle, something sweeter underneath. Her lantern is lit, though it is noon, and the flame inside it does not move when the doors swing shut.',
           'We are only refugees, Your Majesty. Raider scouts watch the Mirefen road and our people travel by lantern.',
-          'An escort would be a kindness. We would ask nothing else.',
+          'An escort would be a kindness. We would ask nothing else. Not your bread, not your beds. Only that the road be safe for one night.',
+          {
+            who: 'Young Komodo',
+            npc: 'young-komodo',
+            text: 'The Mire Mothers have asked the throne for nothing in eleven years, Your Majesty. That is either very humble or very patient.',
+          },
         ],
         options: [
+          {
+            id: 'ask-lanterns',
+            label: 'Ask why a refugee’s lantern burns without oil.',
+            effects: {},
+            response:
+              'Sister Reedlight looks down at her lantern as if noticing it for the first time, and laughs, and the laugh is lovely.',
+            next: 'lanterns',
+          },
           {
             id: 'escort',
             label: 'Escort the refugees without asking their secrets.',
@@ -748,6 +902,55 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             effects: { local: { lamplight: 1 } },
             response: '“Of course,” says Sister Reedlight, a moment too late.',
             postsQuests: ['q-d01-mirefen-inspect'],
+          },
+        ],
+        beats: [
+          {
+            id: 'lanterns',
+            lines: [
+              '“Marsh gas, Your Majesty. The fen breathes, and we catch its breath in glass. Our grandmothers taught us. It is the only thing the fen has ever given us for free.”',
+              '“There are forty-one of us on the road tonight. Old ones, and children, and a cutter with a broken leg. If you would rather count us than guard us, I understand. A new crown has to know what walks under it.”',
+              '“But I will tell you what the raiders will do while your clerks are counting.”',
+              {
+                who: 'Kiyo',
+                npc: 'F003',
+                text: 'Marsh gas burns blue and smells of eggs, Your Majesty. That flame is gold, and it smells of honey. I do not know what that means. I only know it is not marsh gas.',
+              },
+            ],
+            options: [
+              {
+                id: 'escort',
+                label: 'Guard them tonight. Questions can wait for daylight.',
+                effects: {},
+                response:
+                  'Sister Reedlight bows low. “The fen remembers kindness, Your Majesty.” Kiyo watches her all the way to the doors.',
+                postsQuests: ['q-d01-mirefen-escort'],
+              },
+              {
+                id: 'quiet-count',
+                label:
+                  'Guard them, and have the escort quietly count heads along the way.',
+                effects: {
+                  local: { lamplight: 1 },
+                  flags: ['mire-quiet-count'],
+                },
+                response:
+                  '“You are kind,” says Sister Reedlight, “and careful.” She says careful the way other people say a word in a language they are still learning.',
+                postsQuests: ['q-d01-mirefen-escort'],
+              },
+              {
+                id: 'close-road',
+                label:
+                  'Close the road. The tower cannot protect strangers it does not know.',
+                effects: {
+                  affinity: { 'mire-mothers': -15 },
+                  local: { 'gate-watch': 2 },
+                  flags: ['mire-road-closed'],
+                },
+                response:
+                  'She does not argue. That night, from the tower roof, you watch forty-one gold lights turn back into the fen and go out, one by one. You will never learn whether the raiders found them, or whether they simply chose to stop shining.',
+              },
+            ],
           },
         ],
       },

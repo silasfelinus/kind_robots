@@ -360,6 +360,9 @@ jobs:
       - name: Music video final upload contract
         run: npm run test:music-video-final
 
+      - name: ArtImage upload size limit contract
+        run: npm run test:art-image-upload-limit
+
       - name: Music video song upload contract
         run: npm run test:music-video-audio-upload
 

@@ -947,6 +947,14 @@
                 class="absolute left-2 top-2 rounded-full bg-[#09141c]/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider"
                 >Default</span
               >
+              <span
+                v-if="
+                  option.lane &&
+                  !styleHasRender(option.id, ECOTONE_STYLE_SAMPLE)
+                "
+                class="absolute bottom-2 right-2 rounded-full bg-[#09141c]/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#d9b877]"
+                >Renders in progress</span
+              >
             </span>
             <span class="block p-3">
               <span
@@ -962,6 +970,11 @@
               <span class="block text-xs text-[#f3e6c8]/70">{{
                 option.blurb
               }}</span>
+              <span
+                v-if="option.checkpoint"
+                class="mt-1 block text-[10px] font-bold uppercase tracking-wider text-[#c9a96e]/80"
+                >{{ option.checkpoint }}</span
+              >
             </span>
           </button>
         </div>
@@ -1023,11 +1036,14 @@ import {
   ECOTONE_ART_STYLES,
   ECOTONE_ART_STYLE_INJECTION,
   ECOTONE_STYLE_SAMPLE,
+  ecotoneArtFirst,
   ecotoneArtSrc,
   loadEcotoneArtStyle,
   saveEcotoneArtStyle,
+  styleHasRender,
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
+import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -1201,7 +1217,8 @@ function chapterState(n: number) {
 
 type Stage = {
   scene: SceneKind
-  art?: string
+  /** Pictures to try, most specific first (artSlots.ts). */
+  art?: string | string[]
   alt: string
   /** The kind pill above the title. */
   kicker: string
@@ -1290,10 +1307,12 @@ const stage = computed<Stage>(() => {
     return {
       ...fallback,
       scene: eventInfo.value?.scene ?? 'dunes',
-      art:
+      art: [
+        ...(game.ending ? [endingArtKey(game.ending.id)] : []),
         game.ending?.lead === 'ecotopia'
           ? 'encounters/arcata-marsh'
           : (eventInfo.value?.art ?? 'chapters/the-impossible-festival'),
+      ],
       alt: eventInfo.value?.name ?? 'The Humboldt of your future',
       kicker: 'The Humboldt of your future',
       title: signature.value?.title ?? 'What comes next',
@@ -1307,11 +1326,23 @@ const stage = computed<Stage>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
-    const portrait = card.choices.some((choice) => choice.meet !== undefined)
+    // Once a choice resolves, its outcome's own picture takes the stage.
+    const outcome = pending.value?.art
+    const outcomeShown = Boolean(
+      outcome && ecotoneArtSrc(outcome, artStyle.value),
+    )
+    const portrait =
+      card.choices.some((choice) => choice.meet !== undefined) && !outcomeShown
     const prospect = game.prospect
+    const cardArt = [cardArtKey(card.id), ...(card.art ? [card.art] : [])]
     return {
       scene: card.scene,
-      art: portrait && prospect ? prospect.art : card.art,
+      art:
+        portrait && prospect
+          ? prospect.art
+          : outcome
+            ? [outcome, ...cardArt]
+            : cardArt,
       alt:
         portrait && prospect
           ? `${prospect.name}, ${prospect.role}`
@@ -1347,7 +1378,9 @@ const stage = computed<Stage>(() => {
 })
 
 const portraitSrc = computed(() =>
-  stage.value.portrait ? ecotoneArtSrc(stage.value.art, artStyle.value) : null,
+  stage.value.portrait
+    ? ecotoneArtFirst(stage.value.art, artStyle.value)
+    : null,
 )
 
 type Option = {
@@ -1357,7 +1390,7 @@ type Option = {
   chip?: string
   chipTitle?: string
   disabled?: boolean
-  thumb?: { scene: SceneKind; art?: string }
+  thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
 }
 
@@ -1382,7 +1415,10 @@ const options = computed<Option[]>(() => {
       hint: `${card.place}. ${card.body[0]?.split('. ')[0] ?? ''}.`,
       chip: `Ch ${card.chapter}`,
       chipTitle: CHAPTERS.find((c) => c.number === card.chapter)?.name,
-      thumb: { scene: card.scene, art: card.art },
+      thumb: {
+        scene: card.scene,
+        art: [cardArtKey(card.id), ...(card.art ? [card.art] : [])],
+      },
       act: () => game.pickFork(card.id),
     }))
   }

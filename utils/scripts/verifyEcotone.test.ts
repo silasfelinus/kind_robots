@@ -3,9 +3,17 @@ import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
   STYLE_RENDERS,
+  ecotoneArtFirst,
   ecotoneArtSrc,
   normalizeEcotoneArtStyle,
 } from '../ecotone/artStyles'
+import { PLAYBOOK_ART_LANES } from '../playbook/artLanes'
+import {
+  cardArtKey,
+  ecotoneArtSlots,
+  endingArtKey,
+  outcomeArtKey,
+} from '../ecotone/artSlots'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   ARCHETYPES,
@@ -180,9 +188,33 @@ for (const event of EVENTS) {
 }
 assert.deepEqual(
   ROUTES.kinetic.flatMap((s) => (s.kind === 'beat' ? [s.id] : [])).slice(3),
-  ['KN-4', 'KN-5', 'KN-6'],
-  'the race conscripts you, crosses the bay and finishes in Ferndale',
+  ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'],
+  'the race conscripts you at the noon whistle, then road, dunes, bay, Table Bluff and the Eel River to Ferndale',
 )
+assert.deepEqual(
+  ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'].map((id) => findCard(id)?.scene),
+  ['plaza', 'dunes', 'bay', 'highway', 'rivermouth'],
+  'over road, over dunes and across water, like the real race',
+)
+// Sinking is a story, not a punishment: every failed bay crossing sinks the slug and bonds the crew.
+for (const choice of findCard('KN-5')?.choices ?? []) {
+  assert.equal(choice.failure?.effects.flag, 'slug_sank', choice.id)
+  assert.ok((choice.failure?.effects.goodwill ?? 0) >= 1, choice.id)
+}
+// The race's own sculptures come back all weekend.
+for (const float of [
+  'Rainbow Shrimp',
+  'Fogbreather',
+  'Loan Shark',
+  'Snerfmobile',
+])
+  assert.ok(
+    BEATS.filter(
+      (beat) =>
+        beat.event === 'kinetic' && JSON.stringify(beat).includes(float),
+    ).length >= 3,
+    `${float} returns`,
+  )
 
 assert.deepEqual(rollDice(42, 0), rollDice(42, 0), 'dice are seeded')
 for (let i = 0; i < 200; i += 1) {
@@ -279,7 +311,7 @@ const race: Plan = {
 }
 const racer = play(3, race)
 assert.equal(racer.prospect, 'cedar', 'pit row leads to Cedar')
-for (const id of ['KN-4', 'KN-5', 'KN-6'])
+for (const id of ['KN-4', 'KN-7', 'KN-5', 'KN-8', 'KN-6'])
   assert.ok(racer.played.includes(id), `every race run reaches ${id}`)
 assert.notEqual(racer.activeLead, 'cedar', 'following changes the guide')
 assert.equal(racer.followHistory.length, 2)
@@ -455,6 +487,22 @@ assert.equal(cardAsides(marsh, base).length, 0, 'no guide, no aside')
 const conscripted = findCard('KN-4')
 assert.ok(conscripted)
 assert.match(cardAsides(conscripted, base)[0] ?? '', /strangers adopts you/)
+const bluff = findCard('KN-8')
+assert.ok(bluff)
+assert.equal(cardAsides(bluff, base).length, 0, 'still afloat, nothing to say')
+const sunk = { ...base, flags: ['slug_sank'] }
+const sunkAsides = cardAsides(bluff, sunk)
+assert.match(sunkAsides[0] ?? '', /bailed it with buckets/)
+assert.match(sunkAsides[1] ?? '', /Captain Glug/, 'the crew remembers')
+assert.match(
+  cardAsides(bluff, {
+    ...sunk,
+    activeLead: 'mara',
+    meetingOrder: ['mara'],
+  })[1] ?? '',
+  /grease pencil/,
+  'your guide remembers going under with you',
+)
 
 const saved = JSON.parse(JSON.stringify(first))
 assert.deepEqual(restoreRun(saved), first, 'saves round-trip')
@@ -492,29 +540,67 @@ assert.ok(
 // Art styles (t-039): view-only, the Shifting Desks way.
 assert.deepEqual(
   ECOTONE_ART_STYLES.map((style) => style.id),
-  ['painted', 'storybook'],
+  ['zimage', 'krea2', 'arthemy', 'novacomic', 'storybook'],
+  'the four checkpoints Silas picked, plus the drawn Storybook',
 )
-assert.equal(DEFAULT_ECOTONE_ART_STYLE, 'painted')
-assert.equal(normalizeEcotoneArtStyle('nonsense'), 'painted')
-assert.equal(normalizeEcotoneArtStyle(null), 'painted')
+for (const style of ECOTONE_ART_STYLES)
+  if (style.lane)
+    assert.ok(
+      PLAYBOOK_ART_LANES.some((lane) => lane.key === style.lane),
+      `${style.id} has a generation lane`,
+    )
+assert.equal(DEFAULT_ECOTONE_ART_STYLE, 'zimage')
+assert.equal(normalizeEcotoneArtStyle('nonsense'), 'zimage')
+assert.equal(normalizeEcotoneArtStyle(null), 'zimage')
 assert.equal(
-  ecotoneArtSrc('companions/kit', 'painted'),
+  normalizeEcotoneArtStyle('painted'),
+  'zimage',
+  'a saved Painted choice keeps Z-Image',
+)
+assert.equal(
+  ecotoneArtSrc('companions/kit', 'novacomic'),
   '/ecotone/companions/kit.webp',
-  'Painted shows the shipped painting',
+  'a style falls back to the shipped painting until its render lands',
 )
 assert.equal(
   ecotoneArtSrc('companions/kit', 'storybook'),
   null,
   'Storybook shows the drawn scene',
 )
-assert.equal(ecotoneArtSrc('chapters/missing', 'painted'), null)
-assert.equal(ecotoneArtSrc(undefined, 'painted'), null)
+assert.equal(ecotoneArtSrc('chapters/missing', 'zimage'), null)
+assert.equal(ecotoneArtSrc(undefined, 'zimage'), null)
 for (const [style, renders] of Object.entries(STYLE_RENDERS))
   for (const asset of renders ?? [])
     assert.ok(
       existsSync(`public/ecotone/styles/${style}/${asset}.webp`),
       `${style} ships ${asset}`,
     )
+// The art standard (t-042): every card, every outcome and every ending has a slot.
+const slots = ecotoneArtSlots()
+assert.equal(slots.cards.length, BEATS.length + ENCOUNTERS.length)
+assert.equal(slots.endings.length, ENDING_IDS.length)
+const allSlots = [...slots.cards, ...slots.outcomes, ...slots.endings]
+assert.equal(new Set(allSlots).size, allSlots.length, 'slots are unique')
+assert.ok(slots.outcomes.includes(outcomeArtKey('KN-5', 'pedal', 'failure')))
+assert.ok(slots.cards.includes(cardArtKey('KN-7')))
+assert.equal(endingArtKey('mara.sober.hope'), 'endings/mara-sober-hope')
+for (const [style, renders] of Object.entries(STYLE_RENDERS))
+  for (const asset of renders ?? [])
+    assert.ok(
+      allSlots.includes(asset) || ECOTONE_ART.includes(asset),
+      `${style} ${asset} is a known picture`,
+    )
+for (const entry of racer.log.filter((e) => e.source.startsWith('KN-')))
+  assert.ok(
+    entry.art && slots.outcomes.includes(entry.art),
+    `${entry.source} records its outcome picture`,
+  )
+assert.equal(
+  ecotoneArtFirst([cardArtKey('WH-999'), 'companions/kit'], 'krea2'),
+  '/ecotone/companions/kit.webp',
+  'an unrendered slot falls back to the shared picture',
+)
+assert.equal(ecotoneArtFirst([cardArtKey('WH-999')], 'zimage'), null)
 assert.match(board, /provide\(ECOTONE_ART_STYLE_INJECTION, artStyle\)/)
 assert.match(board, /watch\(artStyle, saveEcotoneArtStyle\)/)
 assert.match(board, /role="radiogroup"/)

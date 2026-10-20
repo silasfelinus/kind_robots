@@ -70,6 +70,8 @@ export type EncounterCard = {
   leadLines?: Partial<Record<CompanionId, string>>
   /** Shown instead of a lead line when nobody is traveling with you. */
   aloneLine?: string
+  /** Asides for a flag you carry: 'all' for everyone, then the line for your lead (or 'alone'). */
+  flagLines?: Record<string, Partial<Record<LeadId | 'all', string>>>
   /** Replaces body for the companion this beat is keyed on: the prospect (opening beats) or the lead. */
   variantBy?: 'prospect' | 'lead'
   variants?: Partial<Record<LeadId, string[]>>

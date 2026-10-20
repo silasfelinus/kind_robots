@@ -158,16 +158,20 @@
           >
             <Icon :name="currentRoom.icon" class="h-5 w-5 text-warning" />
           </span>
-          <div class="min-w-0">
+          <div class="shrink-0">
             <h2
-              class="eod-plate eod-display inline-block px-2 py-0.5 text-sm sm:px-3 sm:text-xl"
+              class="eod-plate eod-display inline-block whitespace-nowrap px-2 py-0.5 text-sm sm:px-3 sm:text-xl"
             >
               {{ currentRoom.title }}
             </h2>
-            <p class="eod-tagline mt-1 hidden text-sm italic sm:block">
+            <p class="eod-tagline mt-1 hidden max-w-md text-sm italic lg:block">
               {{ currentRoom.tagline }}
             </p>
           </div>
+          <div
+            id="eod-room-tools"
+            class="ml-auto flex min-w-0 items-center justify-end self-center"
+          />
         </div>
         <div
           ref="stage"
@@ -441,6 +445,18 @@ useHead({ title: 'Emperor of Dust' })
     linear-gradient(to bottom, oklch(26% 0.04 60), oklch(16% 0.025 255));
   background-size: cover;
   background-position: center;
+}
+
+/* A scene figure fills whatever height the room's card leaves; with too
+   little room for a readable figure it steps aside instead of a sliver. */
+.eod .eod-figure-box {
+  container-type: size;
+}
+
+@container (max-height: 6rem) {
+  .eod .eod-figure-box .eod-figure {
+    visibility: hidden;
+  }
 }
 
 .eod .eod-figure {

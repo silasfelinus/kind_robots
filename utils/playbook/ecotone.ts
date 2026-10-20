@@ -1,3 +1,5 @@
+import { cardArtKey } from '../ecotone/artSlots'
+import { DEFAULT_ECOTONE_ART_STYLE, ecotoneArtSrc } from '../ecotone/artStyles'
 import {
   CHAPTERS,
   COMPANIONS,
@@ -112,6 +114,14 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
       label: 'Alone',
       text: card.aloneLine,
     })
+  for (const [flag, lines] of Object.entries(card.flagLines ?? {}))
+    for (const [who, text] of Object.entries(lines))
+      variations.push({
+        axis: 'flag',
+        key: `${flag}.${who}`,
+        label: `After ${flag.replaceAll('_', ' ')}${who === 'all' ? '' : `, with ${leadLabel(who as LeadId)}`}`,
+        text,
+      })
   for (const [key, text] of Object.entries(card.variants ?? {}))
     variations.push({
       axis: card.variantBy === 'lead' ? 'lead' : 'prospect',
@@ -174,7 +184,9 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     ...(Object.keys(card.lensLines ?? {}) as LensId[]),
     ...card.choices.flatMap((c) => (c.lens ? [c.lens] : [])),
   ])
-  const url = artUrl(card.art)
+  const own = cardArtKey(card.id)
+  const ownUrl = ecotoneArtSrc(own, DEFAULT_ECOTONE_ART_STYLE)
+  const url = ownUrl ?? artUrl(card.art)
   return {
     key: card.id,
     kind: card.kind === 'spine' ? 'spine' : 'encounter',
@@ -189,7 +201,7 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
     choices,
     pool: [],
     scene: card.scene,
-    art: url ? (card.art ?? null) : null,
+    art: ownUrl ? own : url ? (card.art ?? null) : null,
     artUrl: url,
     needsArt: !url,
     provenance: card.provenance,
@@ -433,7 +445,7 @@ export function buildEcotonePlaybook(): Playbook {
     },
     editable: true,
     artProject: 'weird-humboldt',
-    artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
+    artLanes: ['zimage', 'krea2', 'arthemy', 'novacomic'],
     artNegative: 'anthro, furry',
   }
 }

@@ -252,7 +252,7 @@ assert.ok(added)
 run = chooseBeat(run, added.id)
 assert.ok(run.pending, 'an added choice plays like any other')
 setLiveEdits({})
-assert.equal(findCard('KN-1')?.title, 'Race Morning on the Plaza')
+assert.equal(findCard('KN-1')?.title, 'The Night Before on the Plaza')
 
 // Server validation.
 assert.equal(resolvePlaybookGame('ecotone'), 'ecotone')

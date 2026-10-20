@@ -59,6 +59,9 @@ type CompleteRequestBody = {
   artImageId?: number | null
   error?: string | null
   provenance?: ArtJobCompletionProof | null
+  // A failure no retry can fix (the render is too large to store): FAIL now
+  // instead of requeueing it for another full render.
+  final?: boolean | null
 }
 
 type RetryMode = 'NEW_OUTPUT' | 'OVERWRITE'
@@ -557,7 +560,7 @@ export default defineEventHandler(async (event) => {
       }
     } else {
       const message = String(body.error || 'Generation failed.').slice(0, 4000)
-      const exhausted = job.attempts >= MAX_ATTEMPTS
+      const exhausted = body.final === true || job.attempts >= MAX_ATTEMPTS
 
       updated = await prisma.artJob.update({
         where: { id },

@@ -16,6 +16,7 @@ import {
   type SkillId,
   type Skills,
 } from './content'
+import { outcomeArtKey, type OutcomeResult } from './artSlots'
 import {
   BEATS,
   EVENTS,
@@ -68,6 +69,8 @@ export type LogEntry = {
   roll: Roll | null
   text: string
   effects: Effects
+  /** The outcome's picture (artSlots.ts), for a story choice. */
+  art?: string
 }
 
 export type FollowEntry = {
@@ -292,6 +295,12 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
     )
   }
   const lead = state.activeLead
+  for (const [flag, lines] of Object.entries(card.flagLines ?? {})) {
+    if (!state.flags.includes(flag)) continue
+    if (lines.all) asides.push(lines.all)
+    const own = lines[lead ?? 'alone']
+    if (own) asides.push(own)
+  }
   if (!lead) {
     if (card.aloneLine) asides.push(card.aloneLine)
     return asides
@@ -578,9 +587,13 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
   }
   let roll: Roll | null = null
   let outcome: Outcome = choice.success
+  let result: OutcomeResult = 'success'
   if (choice.check) {
     roll = resolveCheck(next, choice.check)
-    outcome = roll.success ? choice.success : (choice.failure ?? choice.success)
+    if (!roll.success && choice.failure) {
+      outcome = choice.failure
+      result = 'failure'
+    }
     next = { ...next, rolls: next.rolls + 1 }
   }
   if (choice.prospect) next = { ...next, prospect: choice.prospect }
@@ -598,6 +611,7 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
       roll,
       text: fillText(outcome.text, next),
       effects: outcome.effects,
+      art: outcomeArtKey(card.id, choice.id, result),
     },
     state.step + 1,
   )

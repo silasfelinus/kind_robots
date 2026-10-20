@@ -13,12 +13,12 @@
           "id": "wake-the-neighbors",
           "label": "Wake the orchard family",
           "intent": "Knock at the neighbor's door and tell them plainly what is happening to their line.",
-          "risk": "Two families who share one road will hate each other.",
+          "risk": "If you tell the truth, his children face another dry week.",
           "requires": null,
           "cost": null,
           "roll": null,
           "success": {
-            "text": "The posts come back out before breakfast, and the spring stays where the old line put it. The man walks his children home without looking at you, and no one offers you anything for the truth.",
+            "text": "You wake the orchard family with the shovel still in the earth. The stolen posts are pulled before breakfast, and the spring stays on the old boundary. The man leads his children home with their buckets empty. Nobody thanks you for telling the truth; nobody disputes that it needed telling.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -36,7 +36,7 @@
           "id": "broker-shared-spring",
           "label": "Broker a share of the spring",
           "intent": "Bring both households to the seep and argue for alternate days of water.",
-          "risk": "Thirsty neighbors may turn their anger on the stranger.",
+          "risk": "One spring, two families, and neither trusts a stranger to divide it.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -142,7 +142,7 @@
       "id": "the-collectors-ledger",
       "locationId": "border-farm",
       "title": "The Collector's Ledger",
-      "flavor": "A land-office collector sits on a farmhouse step with his ledger open on his knees. The note says the family owes three sacks of seed corn by today. He is thin and apologetic, and he tells you that if he rides back empty, his post goes to a harder man. The farmer's wife stands in the doorway beside the sacks.",
+      "flavor": "The collector sits on a farmhouse step with an open ledger across his knees. Three sacks of seed corn stand beside the door: the family's next crop, if the office does not take them today. He is painfully polite. Ride home with fewer than three, he says, and a crueller clerk takes his place. The farmer's wife keeps one hand on the nearest sack.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -150,7 +150,7 @@
           "id": "pay-from-your-pack",
           "label": "Pay part from your pack",
           "intent": "Set your own food down against the debt, so the family keeps enough seed to plant.",
-          "risk": "Your road gets hungrier, and nobody here can repay you.",
+          "risk": "Your food can save one sack of seed corn, but not feed you tomorrow.",
           "requires": null,
           "cost": {
             "provisions": -2
@@ -175,7 +175,7 @@
           "id": "check-the-sums",
           "label": "Check his sums",
           "intent": "Ask to read the ledger and look for the place where the numbers do not hold.",
-          "risk": "Clerks do not like strangers finding fault in public.",
+          "risk": "If the figures are honest, you have spent the family's last chance to bargain.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -194,7 +194,7 @@
             }
           },
           "failure": {
-            "text": "You find nothing but your own suspicion. He shuts the ledger, offended, and loads all three sacks, and the family watches you as if you had made it worse by asking.",
+            "text": "Every sum adds up. The collector closes his ledger with a care that feels like a reprimand, then loads all three sacks. The wife does not blame you aloud. She looks past you at the bare place where next spring's planting stood.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-collectors-ledger-offended"],
@@ -280,7 +280,7 @@
           "id": "speak-for-the-family",
           "label": "Speak for the family",
           "intent": "Ask the farmer for one night in his barn, and stand surety for their honesty.",
-          "risk": "If anything goes missing, it is your name he curses.",
+          "risk": "If the travelers steal one apple, the farmer will come looking for you.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -313,7 +313,7 @@
           "id": "lash-a-skid",
           "label": "Lash a skid to the axle",
           "intent": "Cut a fence rail into a skid so the wagon can drag on before sundown.",
-          "risk": "A rail from his fence will not improve his temper.",
+          "risk": "The only sound fence rail belongs to the man holding the rifle.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -353,7 +353,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The parents divide it among the children before they eat any themselves. The farmer watches it happen and, after a while, goes back inside without a word. You leave with an empty pack and a child's wave.",
+            "text": "You give the parents your last provisions. They count portions for the children before either adult touches a crumb. From the gate the farmer watches, his rifle suddenly an awkward thing to hold. He goes inside without a word. You leave hungry, with a small child's wave following you down the road.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["deed-shared-bread", "the-three-wheeled-wagon-fed"],
@@ -405,7 +405,7 @@
       "id": "a-tithe-basket-at-the-gate",
       "locationId": "border-farm",
       "title": "A Tithe Basket at the Gate",
-      "flavor": "Two road wardens wait at a farm gate with an empty tithe basket between them. They say the road's protection is paid in apples now, since their own wages have not come since spring. The farm's children stand behind the fence, watching their winter food go into someone else's basket. The older warden looks as tired and hungry as they do.",
+      "flavor": "An empty wicker basket sits at the farm gate between two road wardens and three hungry raccoon children. The wardens say protection is payable in apples: their wages stopped in spring. The younger one keeps a club ready. The older woman has not eaten either, if her hollow cheeks tell the truth. Neither looks at the orchard when she says what they will take.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -452,14 +452,14 @@
           "id": "fill-the-basket-yourself",
           "label": "Fill the basket yourself",
           "intent": "Empty your own pack into the basket so the family keeps their winter apples.",
-          "risk": "The wardens may simply come back next week.",
+          "risk": "You can buy the family's winter apples at the cost of your own next meals.",
           "requires": null,
           "cost": {
             "provisions": -2
           },
           "roll": null,
           "success": {
-            "text": "The older warden looks at what you have given, then at you, and says nothing. They ride off with your food. The family keeps their apples, and you keep a hunger that will last to the next town.",
+            "text": "You empty your provisions into the basket. The older warden weighs them with her eyes, then waves her companion back to the road. Behind the fence, the children have kept their apples. You take the next mile with an empty pack; at the gate, nobody is sure whom to thank.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -477,7 +477,7 @@
           "id": "bargain-with-the-warden",
           "label": "Bargain with the older warden",
           "intent": "Ask what her own family needs, and offer a half basket she can defend.",
-          "risk": "If she refuses, she takes everything, and your name.",
+          "risk": "An offer she cannot defend to her captain may cost her the post.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -561,7 +561,7 @@
           "id": "give-the-mother-your-place",
           "label": "Give the mother your place",
           "intent": "Step out of line and send the mother forward to drink in your place.",
-          "risk": "The well may run dry before you reach it again.",
+          "risk": "The last cup may be drawn before you reach the well again.",
           "requires": null,
           "cost": {
             "hp": -1
@@ -583,7 +583,7 @@
           "id": "look-at-the-ox",
           "label": "Look at the ox yourself",
           "intent": "Read the ox and the man, and decide whether he is lying about the dying.",
-          "risk": "Whichever side you take, someone calls you a fool.",
+          "risk": "If you are wrong, the mother or the ox will go without.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -602,7 +602,7 @@
             }
           },
           "failure": {
-            "text": "You call the ox sound, and it falls in the dust an hour later. The man does not shout. He sits beside it with his hand on its neck, and the line moves past both of you.",
+            "text": "You say the ox can wait. An hour later it folds onto its knees and stays there, its tongue black against the dust. The man crouches beside its neck, silent. The mother drinks; the line shuffles forward around the pair of them.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-noon-water-line-ox-lost"],
@@ -684,7 +684,7 @@
       "id": "the-dowsers-hazel-fork",
       "locationId": "old-well",
       "title": "The Dowser's Hazel Fork",
-      "flavor": "A dowser walks the dry ground beyond the well with a hazel fork held out before him, and three farm families follow at a hopeful distance. Each has paid him a coin to find new water. When the fork dips, he marks the spot with a stone and asks for one more coin to dig. His own boots are cracked through at the toes.",
+      "flavor": "A dowser paces dry ground beyond the well, a fork of hazel trembling in his hands. Three families follow him carrying spades, each already a coin poorer. Wherever the fork bends he plants a stone and asks for another coin before anyone digs. The toes of his boots have split open. He watches the children's faces when he names his price.",
       "weight": 2,
       "art": null,
       "choices": [
@@ -692,7 +692,7 @@
           "id": "watch-his-hands",
           "label": "Watch his hands closely",
           "intent": "Follow the fork and his wrists to see whether the wood moves or he does.",
-          "risk": "Families who paid him will not thank you for doubt.",
+          "risk": "If you expose him, the families lose both their water and their last hope.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -761,12 +761,12 @@
           "id": "take-his-coin",
           "label": "Take his coin and keep quiet",
           "intent": "Accept the share he offers you to say nothing about how the fork moves.",
-          "risk": "Three families dig a dry hole with your blessing.",
+          "risk": "Your silence will send three families digging where he knows the earth is dry.",
           "requires": null,
           "cost": null,
           "roll": null,
           "success": {
-            "text": "He presses a coin and a twist of jerky into your hand. Behind you the families begin to dig at his stone, singing a little. You are a mile on before the singing stops carrying.",
+            "text": "He slips you a coin and a twist of jerky while the families gather their tools. Behind you, spades strike dry earth in a hopeful rhythm. At the bend in the road you can still hear them singing. The next mile is quiet enough to count your payment twice.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": ["the-dowsers-hazel-fork-bribe"],
@@ -791,7 +791,7 @@
           "id": "pay-for-two-cups",
           "label": "Pay for two cups",
           "intent": "Pay the son's price for your cup and one more for the waiting family.",
-          "risk": "You feed his lock as much as the family.",
+          "risk": "Your ration buys theirs, while the lock remains on a public well.",
           "requires": null,
           "cost": {
             "provisions": -1
@@ -882,7 +882,7 @@
           "id": "break-the-lid-open",
           "label": "Break the lid open",
           "intent": "Smash the padlock off so no one has to buy water from a public well.",
-          "risk": "The well may truly be failing, and you cannot fix that.",
+          "risk": "You can break a lock, but not fill a well after the rush of buckets.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -891,7 +891,7 @@
             "target": 9
           },
           "success": {
-            "text": "The hasp tears loose with a shriek. The family drinks and fills their cart, and others come running from the road. The son stands back and watches the level drop, and tells you the dry month will be yours.",
+            "text": "The hasp tears away. The waiting family fills its cart and a dozen others come running, cups held out like claims. The keeper's son says nothing as he lowers the measuring line. He lets you see how little wet rope comes back. Everyone has water today. He asks whose name to give the families who arrive tomorrow.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-padlock-on-the-well-lid-broken"],
@@ -926,7 +926,7 @@
           "id": "tell-her-your-suspicion",
           "label": "Tell her what you suspect",
           "intent": "Tell her honestly that the refuge's stories do not match, and that she should ask hard questions.",
-          "risk": "The truth may send her somewhere dangerous alone.",
+          "risk": "She may go looking for her daughter alone, with nothing stronger than your suspicion.",
           "requires": null,
           "cost": null,
           "roll": null,
@@ -949,12 +949,12 @@
           "id": "tell-her-farm-is-real",
           "label": "Tell her the farm is real",
           "intent": "Tell her placements like that are common, so she can sleep tonight.",
-          "risk": "If you are wrong, you sent her home to wait.",
+          "risk": "A reassuring lie may cost her the days she has left to search.",
           "requires": null,
           "cost": null,
           "roll": null,
           "success": {
-            "text": "Her shoulders loosen. She thanks you, leaves the ribbon on the windlass for her daughter to find, and walks home in the last light. You draw your water alone and do not like the taste of it.",
+            "text": "You tell her the east is full of farms taking apprentices. Her shoulders finally loosen. She leaves the ribbon tied for her daughter to find and walks home. At the well you draw a full bucket; halfway through drinking you remember how little you actually know.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["a-ribbon-on-the-windlass-comfort-lie"],
@@ -1038,7 +1038,7 @@
       "id": "bread-under-the-long-table",
       "locationId": "wayside-refuge",
       "title": "Bread Under the Long Table",
-      "flavor": "Supper at the refuge is served at one long table, and the sisters count every loaf onto it. Beside you a boy slips bread under the table and into his shirt for later. A sister sees it. The rule painted above the door is plain: a family that steals from the mission's table sleeps outside its walls.",
+      "flavor": "One long table, twelve counted loaves, and a sister who watches the bread instead of the children. Beside you, a hungry boy hides a crust under the table for later. Her eyes follow his hand. Above the door hangs the mission rule: anyone caught stealing sleeps outside the walls, family included. His mother has already begun folding the blankets at her feet.",
       "weight": 3,
       "art": null,
       "choices": [
@@ -1046,7 +1046,7 @@
           "id": "say-the-bread-was-yours",
           "label": "Say the bread was yours",
           "intent": "Tell the sister you passed the boy your own share, and take the rule on yourself.",
-          "risk": "You sleep outside the walls tonight instead of him.",
+          "risk": "You can keep the boy's family indoors by accepting punishment yourself.",
           "requires": null,
           "cost": {
             "hp": -1
@@ -1104,12 +1104,12 @@
           "id": "point-out-the-boy",
           "label": "Point out the boy",
           "intent": "Tell the sister what you saw, since the rule exists to feed everyone fairly.",
-          "risk": "A family sleeps in the dust because of you.",
+          "risk": "The sisters may praise your honesty while they send his family into the night.",
           "requires": null,
           "cost": null,
           "roll": null,
           "success": {
-            "text": "The sister thanks you and slips you the boy's confiscated bread as a reward for honesty. His family gathers their things in silence. On the way out, his mother does not look at you.",
+            "text": "You point to the boy. The sister takes back the bread, then presses the confiscated crust into your hand as payment for keeping order. The family gathers its blankets and goes outside. The bread is still warm. The boy's mother keeps her eyes on the door rather than on you.",
             "hp_delta": 0,
             "provisions_delta": 1,
             "add_flags": [
@@ -1170,14 +1170,14 @@
           "id": "keep-the-lantern-burning",
           "label": "Keep the lantern burning",
           "intent": "Stay at your post and keep the light alive, as you promised the old sister.",
-          "risk": "Whatever that cart carries goes where it is going.",
+          "risk": "Travelers will find shelter, but the unlit cart will pass without a witness.",
           "requires": null,
           "cost": {
             "hp": -1
           },
           "roll": null,
           "success": {
-            "text": "You trim the wick and feed it oil until dawn, cold and aching. Two travelers find the gate by its light before morning. The cart does not come back, and the old sister thanks you without asking what you saw.",
+            "text": "You trim the wick and spend the last of the oil watching for shapes on the road. Two travelers arrive before dawn, following your light with their hands held out. The covered cart never returns. When the old sister thanks you, she notices the empty oil tin but does not ask where you were looking all night.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": [
@@ -1195,7 +1195,7 @@
           "id": "follow-the-cart",
           "label": "Follow the cart in the dark",
           "intent": "Leave the lantern and trail the cart's tracks as far as the night allows.",
-          "risk": "Without the light, someone on the road may lose the walls.",
+          "risk": "Every minute you follow the cart is a minute the lost cannot see the gate.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -1274,7 +1274,7 @@
           "id": "read-the-earlier-pages",
           "label": "Read the earlier pages",
           "intent": "Turn back through the months while you pretend to search for a friend's name.",
-          "risk": "A secretary paid to be cheerful is also paid to watch.",
+          "risk": "If she catches you reading the missing departures, she will mark your own arrival.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -1307,7 +1307,7 @@
           "id": "tear-out-a-page",
           "label": "Tear out a page",
           "intent": "Wait for the secretary to turn away, then take one page as proof.",
-          "risk": "If you are caught stealing from the book, you are out.",
+          "risk": "A stolen page is proof only if you can carry it out unseen.",
           "requires": null,
           "cost": null,
           "roll": {
@@ -1316,7 +1316,7 @@
             "target": 10
           },
           "success": {
-            "text": "The page comes free with a sound like a breath. It goes flat into your pack between your shirts: a list of children who came in, and a column where none went out.",
+            "text": "The page comes away with a dry whisper. Between your shirts you hide a list of children who entered the refuge and a blank column where their departures should be. You have stolen a record, not rescued a child. For the first time, you know where to start asking.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-guest-book-on-the-lectern-page-taken"],
@@ -1421,7 +1421,7 @@
           "id": "give-your-own-medicine",
           "label": "Give him your own medicine",
           "intent": "Open your pack and spend your herbs on a stranger the house will not treat.",
-          "risk": "Your medicine will be gone when you need it.",
+          "risk": "The drover gets your last medicine. The next fever will be yours to face barehanded.",
           "requires": {
             "anyFlags": ["deed-carries-medicine"]
           },
@@ -1481,14 +1481,14 @@
           "id": "sit-up-with-him",
           "label": "Sit up with him all night",
           "intent": "Cool his face with wet cloths until morning, since there is nothing else to give.",
-          "risk": "A sleepless night, and it may change nothing.",
+          "risk": "You can give him a night's company, but not the willow bark he needs.",
           "requires": null,
           "cost": {
             "hp": -1
           },
           "roll": null,
           "success": {
-            "text": "You wring cloths until your hands ache and the window goes gray. At dawn he is still breathing, no better and no worse, and the sister takes your place without a word. You never learn how it ends.",
+            "text": "You wring wet cloths until your knuckles ache and dawn turns the window grey. The drover is breathing, though the fever has not broken. The nursing sister takes the cloth from you and says she will stay. You never learn whether he lives, only that he was not left alone.",
             "hp_delta": 0,
             "provisions_delta": 0,
             "add_flags": ["the-infirmarys-last-cot-vigil"],

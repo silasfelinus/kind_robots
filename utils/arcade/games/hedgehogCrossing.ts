@@ -12,8 +12,31 @@
 // left, and all five home starts the next level: faster lanes, shorter logs,
 // more diving turtles.
 
-import { levelCurve } from '../curve'
 import { drawText } from '../font'
+import {
+  DASH_COOLDOWN,
+  DASH_ROWS,
+  DASH_TICKS,
+  HALF,
+  HEDGEHOG_CURVES,
+  HOP_TICKS,
+  MAX_PARADE,
+  MEDIAN_ROW,
+  SNAKE_FLICK,
+  SNAKE_LEN,
+  START_ROW,
+  TILE,
+  W,
+  canDash,
+  escalation,
+  landing,
+  newSnake,
+  paradeBonus,
+  paradeMultiplier,
+  snakeBites,
+  stepSnake,
+} from '../hedgehogCrossing/rules'
+import type { Delta, Snake } from '../hedgehogCrossing/rules'
 import {
   INK,
   RAMPS,
@@ -45,18 +68,11 @@ import type {
   InputFrame,
 } from '../types'
 
-const TILE = 20
-const W = 280
 const H = 320
 const TOP = 28
-/** Rows from the hedge (0) down to the start (12). */
-const START_ROW = 12
-const MEDIAN_ROW = 6
-const HOP_TICKS = 8
-const HOP_REPEAT = 4
 const SPAN = W + 140
-const HALF = 7
 const START_LIVES = 4
+const HOP_REPEAT = 4
 const TIME_TICKS = 60 * 30
 const DEATH_TICKS = 60
 const LEVEL_CLEAR_TICKS = 140
@@ -69,13 +85,7 @@ const HOME_POINTS = 50
 const FAMILY_BONUS = 1000
 const LADYBUG_POINTS = 200
 
-export const HEDGEHOG_CURVES = {
-  speed: { start: 1, step: 0.12, limit: 2.2 },
-  /** Tiles shaved off every log, so the gaps grow. */
-  logTrim: { start: 0, step: 0.5, limit: 2 },
-  divingGroups: { start: 1, step: 1, limit: 4 },
-  foxEvery: { start: 0, step: 520, limit: 520 },
-} as const
+export { HEDGEHOG_CURVES }
 
 type LaneKind = 'car' | 'tractor' | 'racer' | 'bus' | 'log' | 'turtles'
 type LaneSpec = {
@@ -95,7 +105,21 @@ type Hop = {
   toX: number
   toRow: number
   t: number
+  ticks: number
+  dash: boolean
 }
+/** A hoglet in the Family Parade: it copies each hop the one ahead made, one hop behind. */
+type Hoglet = {
+  x: number
+  row: number
+  hop: Hop | null
+  wait: number
+  queue: Delta[]
+  /** Where it scurries back to (on the median) when bumped. */
+  home: number
+}
+type Lost = { row: number; thing: number; off: number }
+type Hazard = { kind: 'splash' | 'bonk'; text: string }
 type Particle = {
   x: number
   y: number
@@ -336,6 +360,21 @@ const HOG_SPRITES = Object.fromEntries(
 ) as Record<Facing, readonly [PixelSprite, PixelSprite]>
 
 const HOG_SLEEP = pixelSprite(hedgehogRows('down', 'sleep'), HOG_PALETTE)
+
+/** A hoglet: half a hedgehog's size, face up, big eyes. */
+const HOGLET = pixelSprite(
+  [
+    '...bcb...',
+    '..bcCcb..',
+    '..bkCkb..',
+    '.2323232.',
+    '232323232',
+    '323232323',
+    '.3232323.',
+    '..32323..',
+  ],
+  HOG_PALETTE,
+)
 
 const TURTLE_PALETTE = rampPalette(RAMPS.leaf, {
   s: RAMPS.teal[2],
@@ -728,6 +767,16 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private foxTimer = 0
   private ladybug: { burrow: number; ticks: number } | null = null
   private ladybugTimer = 600
+  private snakes: Snake[] = []
+  private snakeSpeed = 0.5
+  /** Hoglets standing on the median, waiting for a hedgehog to lead them (x of each). */
+  private waiting: number[] = []
+  /** A lost hoglet riding a log, until a hedgehog on that log picks it up. */
+  private lost: Lost | null = null
+  private parade: Hoglet[] = []
+  /** Hoglets already walked home this level (they do not come back). */
+  private saved = 0
+  private dashCool = 0
   private dead = 0
   private deathKind: 'splash' | 'bonk' = 'bonk'
   private levelClear = 0
@@ -752,10 +801,15 @@ class HedgehogCrossing implements ArcadeGameInstance {
   private startLevel(level: number) {
     this.level = level
     this.home = new Array(BURROWS).fill(false)
-    const speed = levelCurve(level, HEDGEHOG_CURVES.speed)
-    const trim = Math.floor(levelCurve(level, HEDGEHOG_CURVES.logTrim))
-    const diving = Math.round(levelCurve(level, HEDGEHOG_CURVES.divingGroups))
-    this.lanes = LANES.map((spec) => {
+    const esc = escalation(level)
+    const speed = esc.speed
+    const trim = esc.logTrim
+    const diving = esc.divingGroups
+    this.lanes = LANES.map((base, index) => {
+      const flip = esc.flipParity !== null && index % 2 === esc.flipParity
+      const spec: LaneSpec = flip
+        ? { ...base, dir: base.dir > 0 ? -1 : 1 }
+        : base
       const len = spec.kind === 'log' ? Math.max(2, spec.len - trim) : spec.len
       const gap = SPAN / spec.count
       const offset = this.rng() * gap
@@ -765,16 +819,42 @@ class HedgehogCrossing implements ArcadeGameInstance {
       }
       if (spec.kind === 'turtles') {
         // Some turtle groups dive, each on its own beat.
-        for (let i = 0; i < Math.min(diving, things.length); i += 2) {
+        for (
+          let i = 0;
+          i < Math.min(diving, things.length);
+          i += esc.diveStride
+        ) {
           things[i]!.dive = Math.floor(this.rng() * DIVE_PERIOD)
         }
       }
       return { ...spec, things, vx: spec.speed * spec.dir * speed }
     })
     this.fox = null
-    this.foxTimer = Math.round(levelCurve(level, HEDGEHOG_CURVES.foxEvery))
+    this.foxTimer = esc.foxEvery
     this.ladybug = null
     this.ladybugTimer = 600
+    this.snakeSpeed = esc.snakeSpeed
+    this.snakes = Array.from({ length: esc.snakes }, () =>
+      newSnake(
+        30 + Math.floor(this.rng() * (W - 60)),
+        this.rng() < 0.5 ? 1 : -1,
+        60 + Math.floor(this.rng() * 100),
+      ),
+    )
+    this.saved = 0
+    this.waiting = []
+    this.parade = []
+    this.lost = null
+    if (esc.lostHoglet) {
+      const logs = this.lanes.filter((lane) => lane.kind === 'log')
+      const lane = logs[Math.floor(this.rng() * logs.length)]!
+      const thing = Math.floor(this.rng() * lane.things.length)
+      this.lost = {
+        row: lane.row,
+        thing,
+        off: (lane.things[thing]!.len * TILE) / 2,
+      }
+    }
     this.resetHedgehog()
     this.banner = { text: `LEVEL ${level}`, sub: 'WALK THEM HOME', ticks: 90 }
   }
@@ -787,6 +867,30 @@ class HedgehogCrossing implements ArcadeGameInstance {
     this.hopWait = 0
     this.best = START_ROW
     this.time = TIME_TICKS
+    this.dashCool = 0
+    this.bumpParade()
+    this.fillWaiting()
+  }
+
+  /** Top the median up so every hoglet this level is either waiting, in line, riding or home. */
+  private fillWaiting() {
+    const esc = escalation(this.level)
+    const total = esc.hoglets + (esc.lostHoglet ? 1 : 0)
+    let have =
+      this.waiting.length +
+      this.parade.length +
+      this.saved +
+      (this.lost ? 1 : 0)
+    while (have < total) {
+      this.waiting.push(10 + TILE * Math.floor(this.rng() * 14))
+      have++
+    }
+  }
+
+  /** Everyone in line scurries back to the median, none the worse (the multiplier drops). */
+  private bumpParade() {
+    for (const h of this.parade) this.waiting.push(h.home)
+    this.parade = []
   }
 
   // --- update ------------------------------------------------------------------
@@ -799,6 +903,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
     const controls = this.demo ? this.demoInput() : input
 
     this.moveLanes()
+    this.updateSnakes()
     this.updateVisitors()
 
     if (this.levelClear > 0) {
@@ -821,14 +926,136 @@ class HedgehogCrossing implements ArcadeGameInstance {
       this.die('bonk', 'OUT OF TIME')
       return
     }
+    if (this.dashCool > 0) this.dashCool--
     if (this.hop) {
       this.advanceHop()
     } else {
       // Riding a log or a turtle carries the hedgehog along.
       if (isCreek(this.row)) this.hx += this.laneAt(this.row)!.vx
       this.readHop(controls)
+      if (!this.hop) this.pickUp()
     }
     if (this.dead === 0) this.checkHazards()
+    if (this.dead === 0 && this.levelClear === 0) this.updateParade()
+  }
+
+  private updateSnakes() {
+    for (const snake of this.snakes) stepSnake(snake, this.snakeSpeed, this.rng)
+  }
+
+  /** The x of the lost hoglet riding its log, or null once it has been picked up. */
+  private lostX(): number | null {
+    if (!this.lost) return null
+    const lane = this.laneAt(this.lost.row)
+    const thing = lane?.things[this.lost.thing]
+    return thing ? thing.x + this.lost.off : null
+  }
+
+  /** Waiting hoglets on the median and the lost hoglet on its log join the line when reached. */
+  private pickUp() {
+    if (this.parade.length >= MAX_PARADE) return
+    if (this.row === MEDIAN_ROW) {
+      const i = this.waiting.findIndex((x) => Math.abs(x - this.hx) < 14)
+      if (i >= 0) {
+        const [x] = this.waiting.splice(i, 1)
+        this.joinParade(x!, MEDIAN_ROW, x!)
+        return
+      }
+    }
+    const lostX = this.lostX()
+    if (
+      this.lost &&
+      lostX !== null &&
+      this.row === this.lost.row &&
+      Math.abs(lostX - this.hx) < 14
+    ) {
+      const home = Math.max(30, Math.min(W - 30, Math.round(lostX)))
+      this.lost = null
+      this.joinParade(lostX, this.row, home)
+    }
+  }
+
+  private joinParade(x: number, row: number, home: number) {
+    this.parade.push({ x, row, hop: null, wait: 0, queue: [], home })
+    this.sound.play('pickup')
+    this.fx.burst(x, rowY(row) + TILE / 2, this.fxRng, {
+      count: 8,
+      colours: [RAMPS.gold[3], RAMPS.cream[4]],
+      speed: 1.6,
+    })
+    this.floaters.push({
+      x,
+      y: rowY(row),
+      text: `PARADE x${paradeMultiplier(this.parade.length)}`,
+      life: 40,
+    })
+  }
+
+  /** Each hoglet makes the hop the one ahead made, a hop behind, and is bumped by hazards. */
+  private updateParade() {
+    for (const h of [...this.parade]) {
+      if (h.hop) {
+        const hop = h.hop
+        hop.t++
+        h.x = hop.fromX + (hop.toX - hop.fromX) * (hop.t / hop.ticks)
+        if (hop.t >= hop.ticks) {
+          h.hop = null
+          h.row = hop.toRow
+          h.x = hop.toX
+          h.wait = HOP_REPEAT
+        }
+      } else {
+        if (isCreek(h.row)) h.x += this.laneAt(h.row)!.vx
+        if (h.wait > 0) h.wait--
+        // Always one hop behind: only move once a newer hop is waiting in the queue.
+        else if (h.queue.length >= 2) {
+          const delta = h.queue.shift()!
+          const at = this.parade.indexOf(h)
+          this.parade[at + 1]?.queue.push(delta)
+          h.hop = this.planHop(h, delta)
+        }
+      }
+      const hazard = this.hazardAt(
+        h.x,
+        h.hop ? this.hopRow(h.hop) : h.row,
+        h.hop !== null,
+      )
+      if (hazard) this.bumpHoglet(h)
+    }
+  }
+
+  private bumpHoglet(h: Hoglet) {
+    const at = this.parade.indexOf(h)
+    if (at < 0) return
+    this.parade.splice(at, 1)
+    this.waiting.push(h.home)
+    this.burst(h.x, rowY(h.row) + TILE / 2, 6, '#fde68a')
+    this.floaters.push({ x: h.x, y: rowY(h.row), text: 'BUMP!', life: 40 })
+    this.sound.play('pop')
+  }
+
+  /** The hop a body at (x, row) makes for a delta: drift carried through the leap, edges clamped. */
+  private planHop(body: { x: number; row: number }, delta: Delta): Hop | null {
+    const ticks = delta.dash ? DASH_TICKS : HOP_TICKS
+    const drift = isCreek(body.row) ? this.laneAt(body.row)!.vx * ticks : 0
+    const { toX, toRow } = landing(body.x, body.row, delta, drift)
+    if (toRow === body.row && Math.abs(toX - body.x) < 1) return null
+    return {
+      fromX: body.x,
+      fromRow: body.row,
+      toX,
+      toRow,
+      t: 0,
+      ticks,
+      dash: delta.dash === true,
+    }
+  }
+
+  /** The row a hop is over right now, or -1 while a dash is in the air between its two rows. */
+  private hopRow(hop: Hop): number {
+    const f = hop.t / hop.ticks
+    if (hop.dash) return f < 0.34 ? hop.fromRow : f > 0.66 ? hop.toRow : -1
+    return Math.round(hop.fromRow + (hop.toRow - hop.fromRow) * f)
   }
 
   private moveLanes() {
@@ -848,9 +1075,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
       .map((done, i) => (done ? -1 : i))
       .filter((i) => i >= 0)
     if (this.foxTimer > 0 && !this.fox && --this.foxTimer === 0) {
-      this.foxTimer = Math.round(
-        levelCurve(this.level, HEDGEHOG_CURVES.foxEvery),
-      )
+      this.foxTimer = escalation(this.level).foxEvery
       const spots = empty.filter((i) => i !== this.ladybug?.burrow)
       if (spots.length > 1) {
         const burrow = spots[Math.floor(this.rng() * spots.length)]!
@@ -873,47 +1098,65 @@ class HedgehogCrossing implements ArcadeGameInstance {
       return
     }
     const up = input.held.up || input.pressed.up || input.pressed.a
-    let dx = 0
-    let drow = 0
-    if (up) {
-      drow = -1
+    let delta: Delta
+    if (input.pressed.b && canDash(this.row, this.dashCool)) {
+      // Bristle Dash: two rows in one leap, over the lane between.
+      delta = { dx: 0, drow: -DASH_ROWS, dash: true }
+      this.facing = 'up'
+    } else if (up) {
+      delta = { dx: 0, drow: -1 }
       this.facing = 'up'
     } else if (input.held.down || input.pressed.down) {
-      drow = 1
+      delta = { dx: 0, drow: 1 }
       this.facing = 'down'
     } else if (input.held.left || input.pressed.left) {
-      dx = -TILE
+      delta = { dx: -TILE, drow: 0 }
       this.facing = 'left'
     } else if (input.held.right || input.pressed.right) {
-      dx = TILE
+      delta = { dx: TILE, drow: 0 }
       this.facing = 'right'
     } else {
       return
     }
-    const toRow = Math.max(0, Math.min(START_ROW, this.row + drow))
-    // Hopping off a log or a turtle keeps its drift through the hop.
-    const drift = isCreek(this.row) ? this.laneAt(this.row)!.vx * HOP_TICKS : 0
-    const toX = Math.max(HALF + 3, Math.min(W - HALF - 3, this.hx + dx + drift))
-    if (toRow === this.row && Math.abs(toX - this.hx) < 1) return
-    this.hop = { fromX: this.hx, fromRow: this.row, toX, toRow, t: 0 }
-    this.sound.play('blip')
+    const hop = this.planHop({ x: this.hx, row: this.row }, delta)
+    if (!hop) return
+    this.hop = hop
+    if (delta.dash) {
+      this.dashCool = DASH_COOLDOWN
+      this.sound.play('shoot')
+      this.fx.burst(this.hx, rowY(this.row) + TILE / 2, this.fxRng, {
+        count: 6,
+        colours: [RAMPS.cream[4], RAMPS.gold[3]],
+        speed: 1.4,
+      })
+    } else {
+      this.sound.play('blip')
+    }
+    this.parade[0]?.queue.push(delta)
   }
 
   private advanceHop() {
     const hop = this.hop!
     hop.t++
-    const f = hop.t / HOP_TICKS
+    const f = hop.t / hop.ticks
     this.hx = hop.fromX + (hop.toX - hop.fromX) * f
-    if (hop.t < HOP_TICKS) return
+    if (hop.t < hop.ticks) return
     this.hop = null
     this.hopWait = HOP_REPEAT
     this.row = hop.toRow
     this.hx = hop.toX
     if (this.row < this.best) {
+      const rows = this.best - this.row
       this.best = this.row
-      this.addScore(STEP_POINTS, this.hx, rowY(this.row))
+      this.addScore(
+        STEP_POINTS * rows,
+        this.hx,
+        rowY(this.row),
+        paradeMultiplier(this.parade.length),
+      )
     }
     if (this.row === 0) this.arriveAtHedge()
+    else this.pickUp()
   }
 
   private arriveAtHedge() {
@@ -930,7 +1173,29 @@ class HedgehogCrossing implements ArcadeGameInstance {
     }
     this.home[burrow] = true
     const timeBonus = 10 * Math.floor(this.time / 30)
-    this.addScore(HOME_POINTS + timeBonus, burrowX(burrow), rowY(0) + 4)
+    const line = this.parade.length
+    this.addScore(
+      HOME_POINTS + timeBonus,
+      burrowX(burrow),
+      rowY(0) + 4,
+      paradeMultiplier(line),
+    )
+    if (line > 0) {
+      // The whole line files into the burrow behind the leader.
+      this.addScore(paradeBonus(line), burrowX(burrow), rowY(2))
+      this.saved += line
+      this.parade = []
+      this.banner = {
+        text: 'PARADE BONUS!',
+        sub: `${line} HOGLET${line > 1 ? 'S' : ''} HOME SAFE`,
+        ticks: 80,
+      }
+      this.fx.burst(burrowX(burrow), rowY(0) + 12, this.fxRng, {
+        count: 8 + line * 6,
+        colours: [RAMPS.gold[3], RAMPS.cream[4], RAMPS.pink[3]],
+        speed: 2,
+      })
+    }
     if (this.ladybug?.burrow === burrow) {
       this.ladybug = null
       this.addScore(LADYBUG_POINTS, burrowX(burrow), rowY(1))
@@ -974,39 +1239,38 @@ class HedgehogCrossing implements ArcadeGameInstance {
     return phase >= DIVE_DOWN && phase < DIVE_UP
   }
 
+  /**
+   * What would catch a body (the leader or a hoglet) at x on this row, or null. `row` is -1 while
+   * a dash is in the air between its rows; the creek only matters once a body has landed.
+   */
+  private hazardAt(x: number, row: number, hopping: boolean): Hazard | null {
+    if (isRoad(row)) {
+      const lane = this.laneAt(row)!
+      const hit = lane.things.some(
+        (t) => x + HALF - 2 > t.x + 2 && x - HALF + 2 < t.x + t.len * TILE - 2,
+      )
+      if (hit) return { kind: 'bonk', text: 'BEEP BEEP! TRY AGAIN' }
+    }
+    if (row === MEDIAN_ROW && this.snakes.some((snake) => snakeBites(snake, x)))
+      return { kind: 'bonk', text: 'HISS! A SNAKE' }
+    if (hopping || !isCreek(row)) return null
+    if (x < 4 || x > W - 4) return { kind: 'splash', text: 'SWEPT DOWNSTREAM' }
+    const lane = this.laneAt(row)!
+    const afloat = lane.things.some(
+      (t) => x > t.x + 2 && x < t.x + t.len * TILE - 2 && !this.submerged(t),
+    )
+    return afloat ? null : { kind: 'splash', text: 'SPLASH!' }
+  }
+
   private checkHazards() {
     // Traffic can catch a hedgehog mid-hop; the creek only matters on landing.
     const hop = this.hop
-    const roadRow = hop
-      ? Math.round(
-          hop.fromRow + (hop.toRow - hop.fromRow) * (hop.t / HOP_TICKS),
-        )
-      : this.row
-    if (isRoad(roadRow)) {
-      const lane = this.laneAt(roadRow)!
-      const hit = lane.things.some(
-        (t) =>
-          this.hx + HALF - 2 > t.x + 2 &&
-          this.hx - HALF + 2 < t.x + t.len * TILE - 2,
-      )
-      if (hit) {
-        this.die('bonk', 'BEEP BEEP! TRY AGAIN')
-        return
-      }
-    }
-    if (hop || !isCreek(this.row)) return
-    if (this.hx < 4 || this.hx > W - 4) {
-      this.die('splash', 'SWEPT DOWNSTREAM')
-      return
-    }
-    const lane = this.laneAt(this.row)!
-    const afloat = lane.things.some(
-      (t) =>
-        this.hx > t.x + 2 &&
-        this.hx < t.x + t.len * TILE - 2 &&
-        !this.submerged(t),
+    const hazard = this.hazardAt(
+      this.hx,
+      hop ? this.hopRow(hop) : this.row,
+      hop !== null,
     )
-    if (!afloat) this.die('splash', 'SPLASH!')
+    if (hazard) this.die(hazard.kind, hazard.text)
   }
 
   private die(kind: 'splash' | 'bonk', text: string) {
@@ -1014,6 +1278,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
     this.dead = DEATH_TICKS
     this.deathKind = kind
     this.hop = null
+    this.bumpParade()
     const y = rowY(this.row) + TILE / 2
     if (kind === 'splash') this.burst(this.hx, y, 14, '#93c5fd')
     else this.burst(this.hx, y, 12, '#fde68a')
@@ -1023,8 +1288,9 @@ class HedgehogCrossing implements ArcadeGameInstance {
 
   // --- scoring and effects ----------------------------------------------------
 
-  private addScore(points: number, x: number, y: number) {
+  private addScore(points: number, x: number, y: number, multiplier = 1) {
     if (this.demo) return
+    points *= multiplier
     this.score += points
     this.floaters.push({ x, y, text: String(points), life: 40 })
     if (this.score >= this.nextExtra) {
@@ -1104,6 +1370,13 @@ class HedgehogCrossing implements ArcadeGameInstance {
     )
   }
 
+  /** Is a snake close enough to reach x within a hop or two? */
+  private snakeNear(x: number): boolean {
+    const reach =
+      SNAKE_LEN / 2 + HALF + this.snakeSpeed * (HOP_TICKS + SNAKE_FLICK) + 6
+    return this.snakes.some((snake) => Math.abs(snake.x - x) < reach)
+  }
+
   private safeLanding(row: number, x: number): boolean {
     if (x < 14 || x > W - 14) return false
     if (row === 0) {
@@ -1112,6 +1385,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
       )
       return burrow >= 0 && !this.home[burrow] && this.fox?.burrow !== burrow
     }
+    if (row === MEDIAN_ROW) return !this.snakeNear(x)
     if (isRoad(row)) return this.roadClear(row, x, 0, HOP_TICKS + 16)
     if (isCreek(row)) return this.creekSafe(row, x, HOP_TICKS)
     return true
@@ -1133,7 +1407,9 @@ class HedgehogCrossing implements ArcadeGameInstance {
     const x = this.hx + drift
     const hereSafe = isRoad(this.row)
       ? this.roadClear(this.row, this.hx, 0, HOP_TICKS + 6)
-      : true
+      : this.row === MEDIAN_ROW
+        ? !this.snakeNear(this.hx)
+        : true
     if (this.safeLanding(this.row - 1, x)) {
       held.up = true
       return frame
@@ -1187,6 +1463,8 @@ class HedgehogCrossing implements ArcadeGameInstance {
     this.renderCreek(g)
     for (const lane of this.lanes) this.renderLane(g, lane)
     this.renderBurrows(g)
+    this.renderSnakes(g)
+    this.renderHoglets(g)
     if (this.dead === 0 && !this.over && this.levelClear === 0) {
       this.renderHedgehog(g)
     } else if (this.dead > 0) {
@@ -1584,6 +1862,110 @@ class HedgehogCrossing implements ArcadeGameInstance {
     }
   }
 
+  /** Grass snakes on the median: a rippling body, and a tongue that flicks before the turn. */
+  private renderSnakes(g: CanvasRenderingContext2D) {
+    const cy = rowY(MEDIAN_ROW) + TILE / 2 + 1
+    const segs = 9
+    for (const snake of this.snakes) {
+      const slither = snake.phase === 'slither'
+      const points: Array<{ x: number; y: number; r: number }> = []
+      for (let i = 0; i < segs; i++) {
+        const u = i / (segs - 1)
+        const wave = slither
+          ? Math.sin(this.tick / 5 + i * 0.9) * 2.2 * (0.4 + u * 0.6)
+          : Math.sin(i * 0.9) * 2
+        points.push({
+          x: snake.x + snake.dir * (-SNAKE_LEN / 2 + u * SNAKE_LEN),
+          y: cy + wave,
+          r: 2 + u * 1.6,
+        })
+      }
+      dropShadow(g, snake.x, cy + 5, SNAKE_LEN / 2, 2, 0.35)
+      for (const p of points) {
+        g.fillStyle = INK
+        g.beginPath()
+        g.arc(Math.round(p.x), Math.round(p.y), p.r + 1, 0, Math.PI * 2)
+        g.fill()
+      }
+      points.forEach((p, i) => {
+        g.fillStyle =
+          i === segs - 1
+            ? RAMPS.gold[3]
+            : i % 3 === 1
+              ? RAMPS.gold[2]
+              : RAMPS.leaf[4]
+        g.beginPath()
+        g.arc(Math.round(p.x), Math.round(p.y), p.r, 0, Math.PI * 2)
+        g.fill()
+        g.fillStyle = rgba(RAMPS.cream[4], 0.5)
+        g.fillRect(Math.round(p.x) - 1, Math.round(p.y) - p.r + 1, 2, 1)
+      })
+      const head = points[segs - 1]!
+      g.fillStyle = INK
+      g.fillRect(
+        Math.round(head.x + snake.dir * 1),
+        Math.round(head.y) - 2,
+        2,
+        2,
+      )
+      g.fillStyle = '#ffffff'
+      g.fillRect(
+        Math.round(head.x + snake.dir * 1),
+        Math.round(head.y) - 2,
+        1,
+        1,
+      )
+      if (snake.phase === 'flick' && Math.floor(this.tick / 4) % 2 === 0) {
+        // The tell: a forked tongue, flicking.
+        const tx = head.x + snake.dir * (head.r + 1)
+        g.fillStyle = RAMPS.ember[3]
+        g.fillRect(
+          Math.round(snake.dir > 0 ? tx : tx - 5),
+          Math.round(head.y),
+          5,
+          1,
+        )
+        g.fillRect(
+          Math.round(snake.dir > 0 ? tx + 4 : tx - 5),
+          Math.round(head.y) - 1,
+          1,
+          3,
+        )
+      }
+    }
+  }
+
+  /** Hoglets waiting on the median, the lost one riding its log, and the line behind the leader. */
+  private renderHoglets(g: CanvasRenderingContext2D) {
+    const hop = (phase: number) => Math.max(0, Math.sin(this.tick / 6 + phase))
+    const medianY = rowY(MEDIAN_ROW) + TILE / 2
+    this.waiting.forEach((x, i) => {
+      dropShadow(g, x + 1, medianY + 5, 4, 1.5, 0.4)
+      drawSprite(g, HOGLET, x, medianY - hop(i * 2) * 2)
+    })
+    const lostX = this.lostX()
+    if (this.lost && lostX !== null) {
+      const y = rowY(this.lost.row) + TILE / 2
+      drawSprite(g, HOGLET, lostX, y - 2 - hop(1) * 2)
+      if (Math.floor(this.tick / 20) % 2 === 0) {
+        drawText(g, '?', lostX + 6, y - 14, {
+          color: RAMPS.gold[3],
+          outline: INK,
+        })
+      }
+    }
+    for (const h of this.parade) {
+      const f = h.hop ? h.hop.t / h.hop.ticks : 0
+      const row = h.hop
+        ? h.hop.fromRow + (h.hop.toRow - h.hop.fromRow) * f
+        : h.row
+      const lift = h.hop ? Math.sin(f * Math.PI) * 3 : 0
+      const y = rowY(row) + TILE / 2
+      dropShadow(g, h.x + 1, y + 5, 4, 1.5, 0.4)
+      drawSprite(g, HOGLET, h.x, y - lift)
+    }
+  }
+
   private renderMishap(g: CanvasRenderingContext2D) {
     const y = rowY(this.row) + TILE / 2
     const t = DEATH_TICKS - this.dead
@@ -1616,7 +1998,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
 
   private renderHedgehog(g: CanvasRenderingContext2D) {
     const hop = this.hop
-    const f = hop ? hop.t / HOP_TICKS : 0
+    const f = hop ? hop.t / hop.ticks : 0
     const lift = hop ? Math.sin(f * Math.PI) * 4 : 0
     const row = hop ? hop.fromRow + (hop.toRow - hop.fromRow) * f : this.row
     const x = this.hx
@@ -1624,6 +2006,19 @@ class HedgehogCrossing implements ArcadeGameInstance {
     dropShadow(g, x + 1, ground + 6, 6 - lift * 0.4, 2, 0.45 - lift * 0.04)
     const frames = HOG_SPRITES[this.facing]
     drawSprite(g, hop ? frames[1] : frames[0], x, ground - lift)
+    if (this.parade.length > 0) {
+      drawText(
+        g,
+        `x${paradeMultiplier(this.parade.length)}`,
+        x,
+        ground - lift - 17,
+        {
+          align: 'center',
+          color: RAMPS.gold[3],
+          outline: INK,
+        },
+      )
+    }
   }
 
   private renderHud(g: CanvasRenderingContext2D) {
@@ -1659,7 +2054,7 @@ class HedgehogCrossing implements ArcadeGameInstance {
       outline: INK,
     })
     const gx = 146
-    const gw = W - 10 - gx
+    const gw = W - 10 - gx - 40
     const ramp =
       frac > 0.33 ? RAMPS.leaf : frac > 0.15 ? RAMPS.gold : RAMPS.ember
     if (frac <= 0.15) {
@@ -1677,6 +2072,23 @@ class HedgehogCrossing implements ArcadeGameInstance {
     for (let i = 1; i < 6; i++) {
       g.fillRect(gx + Math.round((gw * i) / 6), base + 12, 1, 8)
     }
+    // Bristle Dash: B, and a gauge that fills over the cooldown.
+    const dashReady = this.dashCool <= 0
+    const dx = gx + gw + 7
+    drawText(g, 'B', dx, base + 12, {
+      color: dashReady ? RAMPS.gold[3] : RAMPS.steel[3],
+      outline: INK,
+    })
+    if (dashReady) glow(g, dx + 20, base + 16, 14, RAMPS.gold[3], 0.25)
+    gauge(
+      g,
+      dx + 9,
+      base + 12,
+      22,
+      8,
+      1 - this.dashCool / DASH_COOLDOWN,
+      RAMPS.gold,
+    )
     if (this.banner) {
       drawText(g, this.banner.text, W / 2, rowY(MEDIAN_ROW) + 3, {
         scale: 2,

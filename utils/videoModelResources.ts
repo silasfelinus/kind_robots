@@ -6,7 +6,8 @@ import type { VideoEngine } from './videoPresets'
 export type WanVideoMode = 'ti2v' | 'a14b'
 export type VideoModelSlot = 'ltx' | 'wan-ti2v' | 'wan-high' | 'wan-low'
 export type VideoLoraProfile = 'ltx-2.3' | 'wan-2.2-5b' | 'wan-2.2-14b'
-export type VideoMaturity = 'general' | 'mature-capable' | 'adult-focused' | 'unreviewed'
+export type VideoMaturity =
+  'general' | 'mature-capable' | 'adult-focused' | 'unreviewed'
 
 export type VideoModelResource = {
   id: number
@@ -57,13 +58,14 @@ export function videoModelSlot(
 ): VideoModelSlot | null {
   if (resource.isActive === false) return null
   const type = String(resource.resourceType || '').toUpperCase()
-  const path = String(resource.localPath || '').replace(/\\/g, '/').toLowerCase()
+  const path = String(resource.localPath || '')
+    .replace(/\\/g, '/')
+    .toLowerCase()
   if (!path || path.includes('..') || path.startsWith('/')) return null
   if (type === 'CHECKPOINT' && /ltx[._-]?2[._-]?3/.test(path)) {
     return 'ltx'
   }
-  if (type !== 'DIFFUSION_MODEL' || !/wan[._-]?2[._-]?2/.test(path))
-    return null
+  if (type !== 'DIFFUSION_MODEL' || !/wan[._-]?2[._-]?2/.test(path)) return null
   if (/high[._-]?noise/.test(path) && /i2v/.test(path)) return 'wan-high'
   if (/low[._-]?noise/.test(path) && /i2v/.test(path)) return 'wan-low'
   if (/ti2v/.test(path) && /5b/.test(path)) return 'wan-ti2v'
@@ -116,7 +118,9 @@ export function validateVideoModelSelection(input: {
     }
     const resource = byId.get(id)
     if (!resource || videoModelSlot(resource) !== slot) {
-      throw new Error('Video checkpoint is missing, inaccessible, or incompatible with the selected architecture.')
+      throw new Error(
+        'Video checkpoint is missing, inaccessible, or incompatible with the selected architecture.',
+      )
     }
     return resource
   }
@@ -125,7 +129,8 @@ export function validateVideoModelSelection(input: {
     return { paths: {}, selectedIds: [], isMature: false }
   }
   if (input.engine === 'ltx') {
-    if (second != null) throw new Error('LTX does not use WAN low-noise experts.')
+    if (second != null)
+      throw new Error('LTX does not use WAN low-noise experts.')
     const resource = requireSlot(first, 'ltx')
     return {
       paths: { ltxCheckpoint: videoComfyModelPath(resource) },
@@ -134,7 +139,8 @@ export function validateVideoModelSelection(input: {
     }
   }
   if (input.mode === 'ti2v') {
-    if (second != null) throw new Error('WAN 5B does not use a low-noise expert.')
+    if (second != null)
+      throw new Error('WAN 5B does not use a low-noise expert.')
     const resource = requireSlot(first, 'wan-ti2v')
     return {
       paths: { wanTi2v: videoComfyModelPath(resource) },
@@ -149,7 +155,10 @@ export function validateVideoModelSelection(input: {
   const high = requireSlot(first, 'wan-high')
   const low = requireSlot(second, 'wan-low')
   return {
-    paths: { wanHigh: videoComfyModelPath(high), wanLow: videoComfyModelPath(low) },
+    paths: {
+      wanHigh: videoComfyModelPath(high),
+      wanLow: videoComfyModelPath(low),
+    },
     selectedIds: [high.id, low.id],
     isMature: videoModelIsMature(high) || videoModelIsMature(low),
   }

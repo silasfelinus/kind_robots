@@ -351,24 +351,24 @@
 
 **Opening narration:** Researchers have conclusive proof of tinyfeet and are furious nobody cares.
 
-**Escalation:** A research society has measured tiny humanlike footprints for years and resents every inquiry about Bigfoot. Its evidence cabinet is immaculate.
+**Escalation:** The Other Bigfoot Research Society presents decades of careful evidence for tiny humanlike footprints. Their grant was cut after a television crew insisted they change the poster to BIGFOOT, and their youngest researcher has stopped bringing findings to meetings.
 
-**Option A, investigate (visible 9 check):** Examine the sampling method and site records
+**Option A, investigate (visible 9 check):** Check the casts against the field notes without promising a sensational conclusion
 
-- **Pass:** Their smallest footprint has a future date and a pattern matching the missing trail.
-- **Miss:** A specimen cracks under the microscope; the researchers retain their original field notes.
+- **Pass:** One cast's tread pattern matches a trail marker that was installed next year, according to the date on the team's survey. The evidence is intriguing; the researcher wants another independent measurement.
+- **Miss:** A fragile cast breaks under the examination light. The field notebooks survive, and you help the team write down exactly what was damaged.
 
-**Option B, assist without a check:** Give the neglected team a fair audience
+**Option B, assist without a check:** Give the youngest researcher time to explain the work in their own words
 
-- **Result:** They present their findings without demanding anyone believe a spectacular conclusion.
+- **Result:** The society books a modest library presentation with labeled uncertainties and no mascot. The researcher volunteers to speak again.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-073`: Researchers have conclusive proof of tinyfeet and are furious nobody cares. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-073/2`: A research society has measured tiny humanlike footprints for years and resents every inquiry about Bigfoot. Its evidence cabinet is immaculate. The people and location must match the opening.
-- `outcomes/wh-073/investigate-success`: Their smallest footprint has a future date and a pattern matching the missing trail. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-073/investigate-failure`: A specimen cracks under the microscope; the researchers retain their original field notes. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-073/care-success`: They present their findings without demanding anyone believe a spectacular conclusion. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-073/2`: The Other Bigfoot Research Society presents decades of careful evidence for tiny humanlike footprints. Their grant was cut after a television crew insisted they change the poster to BIGFOOT, and their youngest researcher has stopped bringing findings to meetings. The people and location must match the opening.
+- `outcomes/wh-073/investigate-success`: One cast's tread pattern matches a trail marker that was installed next year, according to the date on the team's survey. The evidence is intriguing; the researcher wants another independent measurement. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-073/investigate-failure`: A fragile cast breaks under the examination light. The field notebooks survive, and you help the team write down exactly what was damaged. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-073/care-success`: The society books a modest library presentation with labeled uncertainties and no mascot. The researcher volunteers to speak again. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_073_verified`, `wh_073_partial`, `wh_073_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** A roadside sign changes distance whenever somebody lies.
 
-**Escalation:** A mile marker changes whenever a passenger tells a lie. The bus driver says it has been making the route longer every evening.
+**Escalation:** On Highway 299, a mile marker advances every time somebody on the bus tells a lie. The driver has lost two miles on tonight's route and has a wheelchair passenger who must make a connection. The other riders begin demanding confessions from strangers.
 
-**Option A, investigate (visible 9 check):** Check the sign while asking verifiable questions
+**Option A, investigate (visible 9 check):** Compare the changing sign with odometer readings and fixed landmarks
 
-- **Pass:** A truthful answer restores half a mile and exposes a detour nobody authorized.
-- **Miss:** The number jumps again when someone jokes, leaving a rough map but no explanation.
+- **Pass:** The distance changes only on the roadside sign, not the actual junctions. An unmarked detour appears on the bus map and you note which version was posted first.
+- **Miss:** Someone jokes and the number jumps again. You cannot prove the rule, but the driver records a reliable turnoff beyond the next bend.
 
-**Option B, assist without a check:** Help everyone reach the right stop anyway
+**Option B, assist without a check:** Stop the interrogation and coordinate a route that gets everyone to their stops
 
-- **Result:** Passengers compare landmarks, settle the argument and arrive without making honesty a humiliation ritual.
+- **Result:** Passengers call ahead, the driver uses known landmarks, and the connection is held. Nobody is required to reveal a private lie to earn a ride.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-076`: A roadside sign changes distance whenever somebody lies. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-076/2`: A mile marker changes whenever a passenger tells a lie. The bus driver says it has been making the route longer every evening. The people and location must match the opening.
-- `outcomes/wh-076/investigate-success`: A truthful answer restores half a mile and exposes a detour nobody authorized. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-076/investigate-failure`: The number jumps again when someone jokes, leaving a rough map but no explanation. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-076/care-success`: Passengers compare landmarks, settle the argument and arrive without making honesty a humiliation ritual. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-076/2`: On Highway 299, a mile marker advances every time somebody on the bus tells a lie. The driver has lost two miles on tonight's route and has a wheelchair passenger who must make a connection. The other riders begin demanding confessions from strangers. The people and location must match the opening.
+- `outcomes/wh-076/investigate-success`: The distance changes only on the roadside sign, not the actual junctions. An unmarked detour appears on the bus map and you note which version was posted first. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-076/investigate-failure`: Someone jokes and the number jumps again. You cannot prove the rule, but the driver records a reliable turnoff beyond the next bend. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-076/care-success`: Passengers call ahead, the driver uses known landmarks, and the connection is held. Nobody is required to reveal a private lie to earn a ride. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_076_verified`, `wh_076_partial`, `wh_076_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** An empty booth rings with calls from missing county offices.
 
-**Escalation:** A pay phone outside a shuttered store rings with calls from missing county offices. Each caller knows a different version of the road.
+**Escalation:** The last pay phone on Highway 299 rings outside a shuttered store. Every caller claims to work at a county office that was never built. One wants a document retrieved urgently; another sounds frightened and simply wants somebody to answer.
 
-**Option A, investigate (visible 9 check):** Keep a written log of the calls
+**Option A, investigate (visible 9 check):** Write down the call signs and cross-check them with publicly listed offices
 
-- **Pass:** Three offices describe the same public records room at different points in its future.
-- **Miss:** The line goes dead before you can ask an address, but the number is printed on the handset.
+- **Pass:** Three callers identify the same records room at different future dates. A current clerk confirms the street address exists, but no such room has been approved.
+- **Miss:** The line cuts off before the caller gives an address. The handset displays an incomplete number and a retired clerk recognizes its old exchange.
 
-**Option B, assist without a check:** Connect a caller to a real person who can help
+**Option B, assist without a check:** Help the frightened caller reach a staffed service without promising a miracle
 
-- **Result:** A retired clerk answers and discovers an ordinary records problem beneath the impossible messages.
+- **Result:** A retired clerk helps connect a living caller to the right present-day desk. The phone continues ringing, but at least one person gets an answer.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-078`: An empty booth rings with calls from missing county offices. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-078/2`: A pay phone outside a shuttered store rings with calls from missing county offices. Each caller knows a different version of the road. The people and location must match the opening.
-- `outcomes/wh-078/investigate-success`: Three offices describe the same public records room at different points in its future. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-078/investigate-failure`: The line goes dead before you can ask an address, but the number is printed on the handset. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-078/care-success`: A retired clerk answers and discovers an ordinary records problem beneath the impossible messages. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-078/2`: The last pay phone on Highway 299 rings outside a shuttered store. Every caller claims to work at a county office that was never built. One wants a document retrieved urgently; another sounds frightened and simply wants somebody to answer. The people and location must match the opening.
+- `outcomes/wh-078/investigate-success`: Three callers identify the same records room at different future dates. A current clerk confirms the street address exists, but no such room has been approved. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-078/investigate-failure`: The line cuts off before the caller gives an address. The handset displays an incomplete number and a retired clerk recognizes its old exchange. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-078/care-success`: A retired clerk helps connect a living caller to the right present-day desk. The phone continues ringing, but at least one person gets an answer. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_078_verified`, `wh_078_partial`, `wh_078_care` (mutually exclusive results of this card).
 

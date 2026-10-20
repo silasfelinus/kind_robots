@@ -382,24 +382,24 @@
 
 **Opening narration:** A rescue boat has paperwork from a galaxy that no longer exists.
 
-**Escalation:** A rescue boat flies a coast-guard insignia from a galaxy that no longer exists. Its crew demand forms nobody on Earth can sign.
+**Escalation:** A rescue boat approaches the kinetic water crossing under a coast-guard flag from a galaxy absent from every map. The uniformed crew demand impossible forms before helping a stalled racer. Actual local rescuers are already working, and the tide is not accepting paperwork.
 
-**Option A, investigate (visible 9 check):** Ask to inspect the rescue log before trusting the vessel
+**Option A, investigate (visible 9 check):** Compare the strange vessel's rescue log with the local dispatch record
 
-- **Pass:** It lists a missing boat by a name not yet registered in the county.
-- **Miss:** The crew salute and depart before producing credentials; their wake flows uphill.
+- **Pass:** The log lists a boat whose name has not yet appeared on the race register. The dispatch volunteer writes down the discrepancy, then sends everyone back to the immediate rescue.
+- **Miss:** The crew salute and depart before identifying their authority. Their wake travels against the current; a local skipper witnessed it and stays with the stranded racers.
 
-**Option B, assist without a check:** Coordinate a real rescue with local volunteers
+**Option B, assist without a check:** Coordinate with local rescue volunteers before offering the unknown crew a role
 
-- **Result:** The unknown sailors join the effort without commanding anyone to surrender their judgment.
+- **Result:** The sailors quietly take a line when invited and follow the local rescue lead. The racer reaches shore without signing away anybody's judgment.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-113`: A rescue boat has paperwork from a galaxy that no longer exists. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-113/2`: A rescue boat flies a coast-guard insignia from a galaxy that no longer exists. Its crew demand forms nobody on Earth can sign. The people and location must match the opening.
-- `outcomes/wh-113/investigate-success`: It lists a missing boat by a name not yet registered in the county. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-113/investigate-failure`: The crew salute and depart before producing credentials; their wake flows uphill. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-113/care-success`: The unknown sailors join the effort without commanding anyone to surrender their judgment. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-113/2`: A rescue boat approaches the kinetic water crossing under a coast-guard flag from a galaxy absent from every map. The uniformed crew demand impossible forms before helping a stalled racer. Actual local rescuers are already working, and the tide is not accepting paperwork. The people and location must match the opening.
+- `outcomes/wh-113/investigate-success`: The log lists a boat whose name has not yet appeared on the race register. The dispatch volunteer writes down the discrepancy, then sends everyone back to the immediate rescue. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-113/investigate-failure`: The crew salute and depart before identifying their authority. Their wake travels against the current; a local skipper witnessed it and stays with the stranded racers. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-113/care-success`: The sailors quietly take a line when invited and follow the local rescue lead. The racer reaches shore without signing away anybody's judgment. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_113_verified`, `wh_113_partial`, `wh_113_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** Judges quietly decide which version of the county survives.
 
-**Escalation:** Race officials admit they have ballots for six versions of the county. Each version would make a different crew's sacrifice invisible.
+**Escalation:** Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide.
 
-**Option A, investigate (visible 9 check):** Check who wrote the ballots and which actions are recorded
+**Option A, investigate (visible 9 check):** Compare each ballot with the deeds and people actually recorded during the race
 
-- **Pass:** The tally includes verifiable deeds from your journey rather than a prediction about your beliefs.
-- **Miss:** A sealed box vanishes before counting, but the officials agree the people affected must speak.
+- **Pass:** The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence.
+- **Miss:** The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote.
 
-**Option B, assist without a check:** Demand a public account of costs before any vote
+**Option B, assist without a check:** Demand a public account of what each proposal costs before anyone decides
 
-- **Result:** The judges publish the competing proposals and leave the final choice to those who will live there.
+- **Result:** The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-115`: Judges quietly decide which version of the county survives. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-115/2`: Race officials admit they have ballots for six versions of the county. Each version would make a different crew's sacrifice invisible. The people and location must match the opening.
-- `outcomes/wh-115/investigate-success`: The tally includes verifiable deeds from your journey rather than a prediction about your beliefs. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-115/investigate-failure`: A sealed box vanishes before counting, but the officials agree the people affected must speak. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-115/care-success`: The judges publish the competing proposals and leave the final choice to those who will live there. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-115/2`: Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide. The people and location must match the opening.
+- `outcomes/wh-115/investigate-success`: The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-115/investigate-failure`: The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-115/care-success`: The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_115_verified`, `wh_115_partial`, `wh_115_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** A finish banner vanishes whenever someone claims to have solved the mystery.
 
-**Escalation:** The finish banner moves whenever somebody says the county's mystery is solved. Racers are exhausted and a child has been waiting at the supposed line.
+**Escalation:** The finish banner in Ferndale slides another block away every time a competitor announces that the county's mystery is solved. The exhausted racers keep running toward it, and a child with a homemade medal has been standing in the cold at the supposed finish.
 
-**Option A, investigate (visible 9 check):** Test the banner with a question instead of a declaration
+**Option A, investigate (visible 9 check):** Test whether the banner responds to a question instead of another grand claim
 
-- **Pass:** It stops shifting beside a signpost marking the original road into town.
-- **Miss:** It retreats another block, but you learn which promise makes it move.
+- **Pass:** The banner settles beside an old road sign long enough for the race marshal to record its position. It moves again when somebody shouts the answer, which proves remarkably little.
+- **Miss:** Your test sends the banner retreating past the next corner. You at least learn which announcement triggered the move, and stop using it as the finish line.
 
-**Option B, assist without a check:** Set a safe finish line people can actually reach
+**Option B, assist without a check:** Put up an ordinary safe finish that every tired team can actually reach
 
-- **Result:** A volunteer holds a simple ribbon. Every team finishes, even without an explanation.
+- **Result:** A volunteer stretches a ribbon between two chairs. Every team crosses it, receives water and gets counted, whether or not anyone has decoded the moving banner.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-117`: A finish banner vanishes whenever someone claims to have solved the mystery. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-117/2`: The finish banner moves whenever somebody says the county's mystery is solved. Racers are exhausted and a child has been waiting at the supposed line. The people and location must match the opening.
-- `outcomes/wh-117/investigate-success`: It stops shifting beside a signpost marking the original road into town. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-117/investigate-failure`: It retreats another block, but you learn which promise makes it move. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-117/care-success`: A volunteer holds a simple ribbon. Every team finishes, even without an explanation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-117/2`: The finish banner in Ferndale slides another block away every time a competitor announces that the county's mystery is solved. The exhausted racers keep running toward it, and a child with a homemade medal has been standing in the cold at the supposed finish. The people and location must match the opening.
+- `outcomes/wh-117/investigate-success`: The banner settles beside an old road sign long enough for the race marshal to record its position. It moves again when somebody shouts the answer, which proves remarkably little. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-117/investigate-failure`: Your test sends the banner retreating past the next corner. You at least learn which announcement triggered the move, and stop using it as the finish line. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-117/care-success`: A volunteer stretches a ribbon between two chairs. Every team crosses it, receives water and gets counted, whether or not anyone has decoded the moving banner. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_117_verified`, `wh_117_partial`, `wh_117_care` (mutually exclusive results of this card).
 

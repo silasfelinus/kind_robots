@@ -187,12 +187,12 @@
     "place": "Humboldt Bay · kinetic water crossing",
     "scene": "bay",
     "pool": 2,
-    "pressure": "A rescue boat flies a coast-guard insignia from a galaxy that no longer exists. Its crew demand forms nobody on Earth can sign.",
-    "investigate": "Ask to inspect the rescue log before trusting the vessel",
-    "success": "It lists a missing boat by a name not yet registered in the county.",
-    "failure": "The crew salute and depart before producing credentials; their wake flows uphill.",
-    "help": "Coordinate a real rescue with local volunteers",
-    "helpOutcome": "The unknown sailors join the effort without commanding anyone to surrender their judgment."
+    "pressure": "A rescue boat approaches the kinetic water crossing under a coast-guard flag from a galaxy absent from every map. The uniformed crew demand impossible forms before helping a stalled racer. Actual local rescuers are already working, and the tide is not accepting paperwork.",
+    "investigate": "Compare the strange vessel's rescue log with the local dispatch record",
+    "success": "The log lists a boat whose name has not yet appeared on the race register. The dispatch volunteer writes down the discrepancy, then sends everyone back to the immediate rescue.",
+    "failure": "The crew salute and depart before identifying their authority. Their wake travels against the current; a local skipper witnessed it and stays with the stranded racers.",
+    "help": "Coordinate with local rescue volunteers before offering the unknown crew a role",
+    "helpOutcome": "The sailors quietly take a line when invited and follow the local rescue lead. The racer reaches shore without signing away anybody's judgment."
   },
   {
     "id": "WH-114",
@@ -217,12 +217,12 @@
     "place": "Humboldt Bay · kinetic water crossing",
     "scene": "bay",
     "pool": 2,
-    "pressure": "Race officials admit they have ballots for six versions of the county. Each version would make a different crew's sacrifice invisible.",
-    "investigate": "Check who wrote the ballots and which actions are recorded",
-    "success": "The tally includes verifiable deeds from your journey rather than a prediction about your beliefs.",
-    "failure": "A sealed box vanishes before counting, but the officials agree the people affected must speak.",
-    "help": "Demand a public account of costs before any vote",
-    "helpOutcome": "The judges publish the competing proposals and leave the final choice to those who will live there."
+    "pressure": "Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide.",
+    "investigate": "Compare each ballot with the deeds and people actually recorded during the race",
+    "success": "The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence.",
+    "failure": "The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote.",
+    "help": "Demand a public account of what each proposal costs before anyone decides",
+    "helpOutcome": "The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room."
   },
   {
     "id": "WH-116",
@@ -247,12 +247,12 @@
     "place": "Ferndale finish / awards",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "The finish banner moves whenever somebody says the county's mystery is solved. Racers are exhausted and a child has been waiting at the supposed line.",
-    "investigate": "Test the banner with a question instead of a declaration",
-    "success": "It stops shifting beside a signpost marking the original road into town.",
-    "failure": "It retreats another block, but you learn which promise makes it move.",
-    "help": "Set a safe finish line people can actually reach",
-    "helpOutcome": "A volunteer holds a simple ribbon. Every team finishes, even without an explanation."
+    "pressure": "The finish banner in Ferndale slides another block away every time a competitor announces that the county's mystery is solved. The exhausted racers keep running toward it, and a child with a homemade medal has been standing in the cold at the supposed finish.",
+    "investigate": "Test whether the banner responds to a question instead of another grand claim",
+    "success": "The banner settles beside an old road sign long enough for the race marshal to record its position. It moves again when somebody shouts the answer, which proves remarkably little.",
+    "failure": "Your test sends the banner retreating past the next corner. You at least learn which announcement triggered the move, and stop using it as the finish line.",
+    "help": "Put up an ordinary safe finish that every tired team can actually reach",
+    "helpOutcome": "A volunteer stretches a ribbon between two chairs. Every team crosses it, receives water and gets counted, whether or not anyone has decoded the moving banner."
   },
   {
     "id": "WH-118",

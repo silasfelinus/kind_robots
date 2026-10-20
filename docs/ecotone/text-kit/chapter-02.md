@@ -289,24 +289,24 @@
 
 **Opening narration:** A familiar voice calls from an impossible angle of rock.
 
-**Escalation:** A familiar voice calls from a cliff face angled away from the beach. The person it imitates is safe at home.
+**Escalation:** A voice you recognize calls from a cliff angled away from the beach. The real person is safe at home and answers your phone. Two visitors have already stepped toward loose gravel, each certain the voice was calling their name.
 
-**Option A, investigate (visible 7 check):** Find an echo path without approaching unstable rock
+**Option A, investigate (visible 7 check):** Record the echo from solid ground and compare it with the real caller's voice
 
-- **Pass:** The voice comes from a narrow dry fissure containing a map in an unfamiliar coastal script.
-- **Miss:** The gravel shifts and you retreat before learning the words, alive and with a reliable recording.
+- **Pass:** The sound comes through a dry fissure carrying a paper map. Its coastline is unfamiliar; the rock above it is visibly unstable, so you leave the paper where it is.
+- **Miss:** Pebbles shift below the overhang. You retreat with a clear recording and no map, which is an excellent exchange under the circumstances.
 
-**Option B, assist without a check:** Keep other visitors back from the edge
+**Option B, assist without a check:** Keep the curious visitors on the marked path and tell them the edge is unsafe
 
-- **Result:** A volunteer hangs a temporary warning; nobody is lured into the drop by a voice they love.
+- **Result:** A beach volunteer posts a temporary warning and helps the visitors call the people they heard. Whatever is speaking from the cliff gets no more followers tonight.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-033`: A familiar voice calls from an impossible angle of rock. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-033/2`: A familiar voice calls from a cliff face angled away from the beach. The person it imitates is safe at home. The people and location must match the opening.
-- `outcomes/wh-033/investigate-success`: The voice comes from a narrow dry fissure containing a map in an unfamiliar coastal script. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-033/investigate-failure`: The gravel shifts and you retreat before learning the words, alive and with a reliable recording. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-033/care-success`: A volunteer hangs a temporary warning; nobody is lured into the drop by a voice they love. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-033/2`: A voice you recognize calls from a cliff angled away from the beach. The real person is safe at home and answers your phone. Two visitors have already stepped toward loose gravel, each certain the voice was calling their name. The people and location must match the opening.
+- `outcomes/wh-033/investigate-success`: The sound comes through a dry fissure carrying a paper map. Its coastline is unfamiliar; the rock above it is visibly unstable, so you leave the paper where it is. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-033/investigate-failure`: Pebbles shift below the overhang. You retreat with a clear recording and no map, which is an excellent exchange under the circumstances. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-033/care-success`: A beach volunteer posts a temporary warning and helps the visitors call the people they heard. Whatever is speaking from the cliff gets no more followers tonight. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_033_verified`, `wh_033_partial`, `wh_033_care` (mutually exclusive results of this card).
 
@@ -351,24 +351,24 @@
 
 **Opening narration:** The final stair opens onto a submerged suburban porch.
 
-**Escalation:** The last staircase step arrives at the porch of a tidy submerged house. A doormat says WELCOME BACK and the porch light still works.
+**Escalation:** The beach staircase ends at a porch submerged in clear green water. A doormat reads WELCOME BACK; a porch lamp shines without a cable. A couple behind you argues that crossing the threshold would make a good photograph.
 
-**Option A, investigate (visible 7 check):** Test the water depth from a safe landing
+**Option A, investigate (visible 7 check):** Measure the depth from the secure landing and check the house number against public plans
 
-- **Pass:** The porch has a house number belonging to an unbuilt subdivision on a planning map.
-- **Miss:** The light goes out before you can read the name; a dry leaf floats upward past your hand.
+- **Pass:** The house number matches an unbuilt subdivision in an archived planning sketch. You note the contradiction without taking a single step into the water.
+- **Miss:** The porch light flickers before you read the plaque. A dry leaf rises through the water and settles by your shoe, where a second visitor sees it too.
 
-**Option B, assist without a check:** Leave a note without entering a stranger's home
+**Option B, assist without a check:** Leave a note from the safe steps rather than enter somebody else's house
 
-- **Result:** Someone sends the note back on a clean tide with a penciled THANK YOU.
+- **Result:** The next wave returns your note with a penciled THANK YOU. You let the underwater resident have the last word and guide the couple back up the stairs.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-035`: The final stair opens onto a submerged suburban porch. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-035/2`: The last staircase step arrives at the porch of a tidy submerged house. A doormat says WELCOME BACK and the porch light still works. The people and location must match the opening.
-- `outcomes/wh-035/investigate-success`: The porch has a house number belonging to an unbuilt subdivision on a planning map. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-035/investigate-failure`: The light goes out before you can read the name; a dry leaf floats upward past your hand. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-035/care-success`: Someone sends the note back on a clean tide with a penciled THANK YOU. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-035/2`: The beach staircase ends at a porch submerged in clear green water. A doormat reads WELCOME BACK; a porch lamp shines without a cable. A couple behind you argues that crossing the threshold would make a good photograph. The people and location must match the opening.
+- `outcomes/wh-035/investigate-success`: The house number matches an unbuilt subdivision in an archived planning sketch. You note the contradiction without taking a single step into the water. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-035/investigate-failure`: The porch light flickers before you read the plaque. A dry leaf rises through the water and settles by your shoe, where a second visitor sees it too. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-035/care-success`: The next wave returns your note with a penciled THANK YOU. You let the underwater resident have the last word and guide the couple back up the stairs. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_035_verified`, `wh_035_partial`, `wh_035_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A three-inch official demands bridge tolls in river pebbles.
 
-**Escalation:** A river god three inches high announces a toll on the Mad River bridge. His official desk is an overturned shell, and his first customer is a very worried dog.
+**Escalation:** At the Mad River crossing, a river official three inches tall demands a toll in smooth pebbles. His desk is an overturned shell. The first traveler in line is a dog whose person has no pockets, and the tiny official is already threatening to issue a citation.
 
-**Option A, investigate (visible 7 check):** Audit the pebbles and the water crossing
+**Option A, investigate (visible 7 check):** Ask what the toll funds and inspect the small construction downstream
 
-- **Pass:** The toll is paying for a miniature levee that protects a real nesting bank farther downstream.
-- **Miss:** The clerk refuses the audit and disappears under his desk; you still see the levee line.
+- **Pass:** The pebbles support a miniature flood wall around a real nesting bank. The official's accounts are eccentric but the bank is plainly safer; you note the arrangement without declaring him sovereign.
+- **Miss:** The official shuts the shell on his ledger. A careful look downstream still reveals the new wall, and the dog has sensibly found another way across.
 
-**Option B, assist without a check:** Negotiate a free crossing for ordinary travelers
+**Option B, assist without a check:** Suggest a shared voluntary pebble bowl so crossing stays free for everybody
 
-- **Result:** The god accepts a communal bowl of pebbles and posts a new sign: NO ONE STRANDED.
+- **Result:** The tiny official approves a sign reading NO ONE STRANDED. The dog crosses first, having contributed one pebble by accident.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-037`: A three-inch official demands bridge tolls in river pebbles. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-037/2`: A river god three inches high announces a toll on the Mad River bridge. His official desk is an overturned shell, and his first customer is a very worried dog. The people and location must match the opening.
-- `outcomes/wh-037/investigate-success`: The toll is paying for a miniature levee that protects a real nesting bank farther downstream. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-037/investigate-failure`: The clerk refuses the audit and disappears under his desk; you still see the levee line. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-037/care-success`: The god accepts a communal bowl of pebbles and posts a new sign: NO ONE STRANDED. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-037/2`: At the Mad River crossing, a river official three inches tall demands a toll in smooth pebbles. His desk is an overturned shell. The first traveler in line is a dog whose person has no pockets, and the tiny official is already threatening to issue a citation. The people and location must match the opening.
+- `outcomes/wh-037/investigate-success`: The pebbles support a miniature flood wall around a real nesting bank. The official's accounts are eccentric but the bank is plainly safer; you note the arrangement without declaring him sovereign. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-037/investigate-failure`: The official shuts the shell on his ledger. A careful look downstream still reveals the new wall, and the dog has sensibly found another way across. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-037/care-success`: The tiny official approves a sign reading NO ONE STRANDED. The dog crosses first, having contributed one pebble by accident. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_037_verified`, `wh_037_partial`, `wh_037_care` (mutually exclusive results of this card).
 

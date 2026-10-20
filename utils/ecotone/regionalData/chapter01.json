@@ -82,12 +82,12 @@
     "place": "Minor Theatre",
     "scene": "theater",
     "pool": 1,
-    "pressure": "The shadow cast's alien prop refuses to be stabbed on cue and demands a speaking part. The director threatens to cancel the fundraiser.",
-    "investigate": "Rewrite the prop's scene in front of the cast",
-    "success": "Its unscripted speech includes the address of a warehouse that will appear tomorrow.",
-    "failure": "The crowd boos, but a penciled stage direction in the old script was written by nobody present.",
-    "help": "Help the troupe replace an unsafe stunt",
-    "helpOutcome": "The actors invent a safer gag; the prop returns to its rack under its own power."
+    "pressure": "At the Minor Theatre's midnight fundraiser, an alien prop refuses the scheduled stabbing. It has no mouth, but it has apparently found the union handbook. The director threatens to cancel the show; the understudy wants to know why everybody thinks an unsafe stunt is tradition.",
+    "investigate": "Ask the prop and cast to rehearse a version everyone can consent to",
+    "success": "On the improvised line, the prop gives an address for a warehouse due to open tomorrow. The stage manager writes it on the call sheet and refuses to send anyone there alone.",
+    "failure": "The rehearsal stalls when the prop refuses its cue. You discover a stage direction in the old script signed by nobody in the cast; the director agrees to preserve the page.",
+    "help": "Replace the dangerous effect and give the crew an actual say",
+    "helpOutcome": "A paper silhouette gets the laugh, nobody gets stabbed, and the prop rolls itself onto the rack. The fundraiser survives the artistic disagreement."
   },
   {
     "id": "WH-009",
@@ -127,12 +127,12 @@
     "place": "Arcata Community Forest / Redwood Park",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A jogger emerges at the wrong trailhead twice. His watch records uphill miles while both maps insist he ran downhill.",
-    "investigate": "Mark each junction and walk the loop backward",
-    "success": "One trail marker ages fifty years between passes. Distance is not the thing being rearranged.",
-    "failure": "You return to the start empty-handed but find a second set of fresh footprints beside yours.",
-    "help": "Guide the frightened jogger out before nightfall",
-    "helpOutcome": "A volunteer search team meets you at the gate, ready to help the next lost walker."
+    "pressure": "A jogger comes out of the Community Forest at the wrong trailhead, then does it again without crossing the road between them. His watch claims six uphill miles. He keeps asking whether he has been running away from the same tree for an hour.",
+    "investigate": "Mark the junctions and compare his watch with a second trail map",
+    "success": "A trail marker ages decades between two photographs taken seconds apart. You record both timestamps, then turn back while there is still daylight.",
+    "failure": "The loop deposits you at your starting point. Your map is unchanged but there are fresh footprints beside yours, in a size neither of you wears.",
+    "help": "Help the jogger reach a staffed exit instead of testing the loop again",
+    "helpOutcome": "A volunteer meets you at the gate, checks the jogger is warm and accounted for, and posts a temporary notice. The forest keeps its extra trail to itself."
   },
   {
     "id": "WH-013",
@@ -202,12 +202,12 @@
     "place": "Cal Poly Humboldt campus",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "Dorm 404 does not exist, yet someone leaves shoes at the wall and the cafeteria charges three meals a day to its resident.",
-    "investigate": "Trace the meal-plan account",
-    "success": "The swipe belongs to a student enrolled next autumn. Their listed emergency contact is the building.",
-    "failure": "The registrar closes the card but a hot dinner appears beside the blank wall.",
-    "help": "Organize a careful welfare check",
-    "helpOutcome": "Housing staff leave a note and a safe way to answer. The response says THANK YOU FOR KNOCKING."
+    "pressure": "The housing office insists Dorm 404 does not exist. Someone leaves shoes against the blank wall, a meal card is charged three times a day, and a resident adviser has been told to stop asking after the missing student. The shoes are still wet from the rain.",
+    "investigate": "Check the meal-plan charges with housing staff before guessing who lives there",
+    "success": "The account belongs to a student enrolled next autumn, with an emergency-contact number that rings inside the wall. The registrar logs the anomaly rather than inventing a disciplinary case.",
+    "failure": "The card is deactivated and dinner appears at the wall anyway. A cafeteria worker signs the receipt and asks the housing office to check that somebody is eating.",
+    "help": "Arrange a welfare check that gives the unseen resident privacy and a safe way to answer",
+    "helpOutcome": "The resident adviser leaves food, a written question and the number for a real person. By morning the reply says THANK YOU FOR KNOCKING. Nobody tries to tear down the wall."
   },
   {
     "id": "WH-018",

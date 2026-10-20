@@ -13,8 +13,17 @@
 -->
 <template>
   <section class="kr-surface gap-0">
+    <!-- Admin gate waits for hydration; see artjob-queue-browser.vue. -->
     <div
-      v-if="!userStore.isAdmin"
+      v-if="!hasMounted"
+      class="flex min-h-0 flex-1 items-center justify-center p-6"
+      aria-busy="true"
+    >
+      <span class="kr-loading-primary-md" />
+    </div>
+
+    <div
+      v-else-if="!userStore.isAdmin"
       class="flex h-full min-h-0 flex-1 items-center justify-center rounded-2xl border border-warning/40 bg-warning/10 p-6 text-center text-warning"
     >
       Relay diagnostics are admin-only.
@@ -136,6 +145,7 @@ import type { RelayAgentStatus } from '@/server/utils/relayAgentRegistry'
 const userStore = useUserStore()
 
 const agents = ref<RelayAgentStatus[]>([])
+const hasMounted = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)
 
@@ -188,5 +198,8 @@ async function refresh(): Promise<void> {
   }
 }
 
-onMounted(refresh)
+onMounted(() => {
+  hasMounted.value = true
+  refresh()
+})
 </script>

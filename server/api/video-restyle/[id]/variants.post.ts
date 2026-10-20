@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
         isMature?: unknown
         variantStyleIds?: unknown
         variantMode?: unknown
+        overwriteStrength?: unknown
         renderSpeed?: unknown
       }>(event)) ?? {}
     const cloned = await cloneRestyleVideo({
@@ -26,6 +27,7 @@ export default defineEventHandler(async (event) => {
       variantStyleIds: body.variantStyleIds,
       variantMode: body.variantMode,
       renderSpeed: body.renderSpeed,
+      overwriteStrength: body.overwriteStrength,
       isPrivate: body.isPrivate,
       isMature: body.isMature,
     })

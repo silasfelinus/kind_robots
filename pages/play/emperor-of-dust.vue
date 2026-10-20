@@ -158,16 +158,20 @@
           >
             <Icon :name="currentRoom.icon" class="h-5 w-5 text-warning" />
           </span>
-          <div class="min-w-0">
+          <div class="shrink-0">
             <h2
-              class="eod-plate eod-display inline-block px-2 py-0.5 text-sm sm:px-3 sm:text-xl"
+              class="eod-plate eod-display inline-block whitespace-nowrap px-2 py-0.5 text-sm sm:px-3 sm:text-xl"
             >
               {{ currentRoom.title }}
             </h2>
-            <p class="eod-tagline mt-1 hidden text-sm italic sm:block">
+            <p class="eod-tagline mt-1 hidden max-w-md text-sm italic lg:block">
               {{ currentRoom.tagline }}
             </p>
           </div>
+          <div
+            id="eod-room-tools"
+            class="ml-auto flex min-w-0 items-center justify-end self-center"
+          />
         </div>
         <div
           ref="stage"

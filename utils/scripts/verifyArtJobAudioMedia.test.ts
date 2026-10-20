@@ -14,6 +14,7 @@ import {
   isAudioArtJobPayload,
   isFastRestyleArtJobPayload,
   isGrabBagRestyleArtJobPayload,
+  isStrengthRestyleArtJobPayload,
   isVideoRestyleArtJobPayload,
 } from '../artJobMedia.js'
 
@@ -247,3 +248,32 @@ console.log('✅ Grab bag VACE jobs need a per-window-look relay')
   )
 }
 console.log('✅ Fast draft VACE jobs need a relay with the CausVid LoRA')
+
+{
+  const payload = {
+    media: 'video-restyle-vace',
+    videoRestyle: { overwriteStrength: 35 },
+  }
+  const base = {
+    supportsInputImages: true,
+    supportsAudio: true,
+    supportsVideoRestyle: true,
+  }
+  assert.ok(isStrengthRestyleArtJobPayload(payload))
+  assert.ok(!artJobClaimableBy(payload, base))
+  assert.ok(
+    artJobClaimableBy(payload, {
+      ...base,
+      supportsVideoRestyleStrength: true,
+    }),
+  )
+  assert.ok(
+    artJobClaimableBy(
+      { ...payload, videoRestyle: { overwriteStrength: 100 } },
+      base,
+    ),
+  )
+  assert.ok(
+    artJobClaimableBy({ media: 'video-restyle-vace' }, base),
+  )
+}

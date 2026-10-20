@@ -320,7 +320,10 @@ export const useVideoStore = defineStore('videoStore', () => {
         )
       }
 
-      if (history.selectedJobId === jobId && typeof job.artImageId === 'number') {
+      if (
+        history.selectedJobId === jobId &&
+        typeof job.artImageId === 'number'
+      ) {
         state.artImageId = job.artImageId
         await loadVideo(job.artImageId)
       }
@@ -400,12 +403,7 @@ export const useVideoStore = defineStore('videoStore', () => {
         page: number
         pageCount: number
         totalCount: number
-      }>(
-        `/api/video/jobs?page=${page}`,
-        { method: 'GET' },
-        1,
-        20_000,
-      )
+      }>(`/api/video/jobs?page=${page}`, { method: 'GET' }, 1, 20_000)
       if (!res.success || !res.data) {
         history.error = res.message || 'Cannot load saved video jobs.'
         return
@@ -418,7 +416,9 @@ export const useVideoStore = defineStore('videoStore', () => {
         history.selectedJobId =
           history.jobs.find(
             (job) => job.status === 'RUNNING' || job.status === 'PENDING',
-          )?.id ?? history.jobs[0]?.id ?? null
+          )?.id ??
+          history.jobs[0]?.id ??
+          null
       }
       if (history.selectedJobId !== null) {
         await displaySelectedJob()
@@ -485,7 +485,8 @@ export const useVideoStore = defineStore('videoStore', () => {
         return false
       }
       if (history.selectedJobId === id) history.selectedJobId = null
-      history.notice = 'History entry removed. Finished artwork remains in your gallery.'
+      history.notice =
+        'History entry removed. Finished artwork remains in your gallery.'
       await fetchJobs()
       return true
     } catch (err) {

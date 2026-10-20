@@ -26,6 +26,7 @@ import {
   type RouteStep,
 } from './story'
 import type { GatedEncounter } from './questExpansion'
+import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import {
   NEW_SIGNATURES,
@@ -35,6 +36,12 @@ import {
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
+for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
+  const written = SIGNATURES[key]
+  if (!written) continue
+  written.hope.line = fates.hope
+  written.dark.line = fates.dark
+}
 Object.assign(LENS_CODAS, NEW_LENS_CODAS)
 for (const lead of Object.keys(FUTURE_BOOKENDS) as EndingLine[]) {
   for (const fate of ['hope', 'dark'] as Fate[]) {

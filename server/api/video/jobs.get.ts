@@ -10,7 +10,8 @@ export default defineEventHandler(async (event) => {
   try {
     const auth = await requireMachineUser(event)
     const requested = Number(getQuery(event).page)
-    const page = Number.isSafeInteger(requested) && requested > 0 ? requested : 1
+    const page =
+      Number.isSafeInteger(requested) && requested > 0 ? requested : 1
     const where = {
       userId: auth.user.id,
       OR: [{ projectSlug: 'video-generator' }, { projectSlug: null }],

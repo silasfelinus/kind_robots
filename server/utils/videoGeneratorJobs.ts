@@ -19,14 +19,16 @@ export type VideoGeneratorJobSummary = {
   outputFormat: string | null
 }
 
-export function videoGeneratorMetadata(job: Pick<ArtJob, 'payload' | 'projectSlug'>):
-  | { model: 'ltx' | 'wan'; video: Record<string, unknown> }
-  | null {
+export function videoGeneratorMetadata(
+  job: Pick<ArtJob, 'payload' | 'projectSlug'>,
+): { model: 'ltx' | 'wan'; video: Record<string, unknown> } | null {
   if (job.projectSlug && job.projectSlug !== 'video-generator') return null
   const payload = parseArtJobPayload(job.payload)
   if (payload.media !== 'video') return null
   const video =
-    payload.video && typeof payload.video === 'object' && !Array.isArray(payload.video)
+    payload.video &&
+    typeof payload.video === 'object' &&
+    !Array.isArray(payload.video)
       ? (payload.video as Record<string, unknown>)
       : {}
   if (video.model !== 'ltx' && video.model !== 'wan') return null
@@ -37,7 +39,9 @@ function validNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
-export function summarizeVideoGeneratorJob(job: ArtJob): VideoGeneratorJobSummary | null {
+export function summarizeVideoGeneratorJob(
+  job: ArtJob,
+): VideoGeneratorJobSummary | null {
   const metadata = videoGeneratorMetadata(job)
   if (!metadata) return null
   const payload = parseArtJobPayload(job.payload)

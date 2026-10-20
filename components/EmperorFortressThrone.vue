@@ -90,13 +90,13 @@
           </button>
         </div>
         <EmperorFortressDialogue
-          v-else
-          :key="selected.id"
+          v-else-if="scene"
+          :key="selected.id + ':' + (scene.beatId ?? '')"
           :title="selected.title"
-          :speaker="selected.speaker"
+          :speaker="scene.speaker"
           :subtitle="npc?.species"
           :art="npc ? illustration('npcs', npc.slug) : undefined"
-          :lines="selected.lines"
+          :lines="sceneLines"
           :choices="choices"
           @choose="choose"
         />
@@ -113,13 +113,18 @@ import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
+  audienceScene,
   audiencesToday,
   optionBlockers,
+  optionVisible,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
-import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
+import type {
+  FortressRun,
+  SceneLine,
+} from '~/utils/emperorOfDust/fortress/types'
 
 const props = defineProps<{ run: FortressRun }>()
 const emit = defineEmits<{ next: [] }>()
@@ -138,9 +143,22 @@ const nextUnheard = computed(() =>
 const selected = computed(
   () => audiences.value.find((entry) => entry.id === selectedId.value) ?? null,
 )
-const npc = computed(() =>
-  selected.value?.npc ? npcDef(selected.value.npc) : undefined,
+/** Where the selected audience stands: its opening, or a later beat. */
+const scene = computed(() =>
+  selected.value ? audienceScene(props.run, selected.value) : null,
 )
+const npc = computed(() =>
+  scene.value?.npc ? npcDef(scene.value.npc) : undefined,
+)
+/** The answer that led into a beat opens it, so the scene reads straight on. */
+const sceneLines = computed<SceneLine[]>(() => {
+  const lines = scene.value?.lines ?? []
+  const lead =
+    scene.value?.beatId && selected.value
+      ? responses.value[selected.value.id]
+      : undefined
+  return lead ? [lead, ...lines] : lines
+})
 const audienceIndex = computed(() =>
   Math.max(
     0,
@@ -171,25 +189,28 @@ watch(
 )
 
 const choices = computed(() =>
-  (selected.value?.options ?? []).map((option) => {
-    const notes: string[] = []
-    if (option.requires?.cost) notes.push(`Costs ${option.requires.cost} brass`)
-    for (const id of option.postsQuests ?? [])
-      notes.push(`Posts a quest: ${questDef(id)?.title ?? id}`)
-    return {
-      id: option.id,
-      label: option.label,
-      note: notes.join(' · '),
-      blockers: optionBlockers(props.run, option),
-    }
-  }),
+  (scene.value?.options ?? [])
+    .filter((option) => optionVisible(props.run, option))
+    .map((option) => {
+      const notes: string[] = []
+      if (option.requires?.cost)
+        notes.push(`Costs ${option.requires.cost} brass`)
+      for (const id of option.postsQuests ?? [])
+        notes.push(`Posts a quest: ${questDef(id)?.title ?? id}`)
+      return {
+        id: option.id,
+        label: option.label,
+        note: notes.join(' · '),
+        blockers: optionBlockers(props.run, option),
+      }
+    }),
 )
 
 function choose(optionId: string) {
   if (!selected.value) return
   error.value = ''
   const id = selected.value.id
-  const option = selected.value.options.find((entry) => entry.id === optionId)
+  const option = scene.value?.options.find((entry) => entry.id === optionId)
   const faction = selected.value.faction ?? npc.value?.faction
   try {
     court.answer(id, optionId)

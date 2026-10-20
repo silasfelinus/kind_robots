@@ -254,11 +254,13 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
-  function answer(audienceId: string, optionId: string) {
+  /** Answers the audience; returns the beat it moves on to, if it goes on. */
+  function answer(audienceId: string, optionId: string): string | undefined {
     const result = chooseAudienceOption(current(), audienceId, optionId)
     lastResponse.value = result.response
     commit(result.run)
     absorbAllegiances()
+    return result.next
   }
 
   function preview(questId: string, party: string[], hourglass = false) {

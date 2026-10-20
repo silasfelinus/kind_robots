@@ -19,6 +19,7 @@ import {
   WAGE,
   applyEffects,
   assignQuest,
+  audienceScene,
   audiencesToday,
   bedsUsed,
   buyItem,
@@ -33,6 +34,7 @@ import {
   injuryDaysLeft,
   isOver,
   optionBlockers,
+  optionVisible,
   partyLimit,
   postDawnQuests,
   previewQuest,
@@ -77,7 +79,11 @@ import {
   LOCAL_FACTIONS,
   STATS,
 } from '../emperorOfDust/fortress/types'
-import type { FortressRun } from '../emperorOfDust/fortress/types'
+import type {
+  AudienceDef,
+  AudienceOption,
+  FortressRun,
+} from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
 assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')
@@ -512,6 +518,124 @@ const moleFriends: FortressRun = {
   affinity: { ...day40.affinity, moles: 70, saltroad: 30 },
 }
 assert.equal(selectHideout(moleFriends), 'mole-tunnels')
+
+// --- audience scenes: beats that branch and always close --------------------
+const sceneOptions = (audience: AudienceDef): AudienceOption[] => [
+  ...audience.options,
+  ...(audience.beats ?? []).flatMap((beat) => beat.options),
+]
+let sceneCount = 0
+for (const def of DAYS) {
+  for (const audience of def.audiences) {
+    const beats = audience.beats ?? []
+    if (beats.length) sceneCount += 1
+    const ids = beats.map((beat) => beat.id)
+    assert.equal(new Set(ids).size, ids.length, `${audience.id} beat ids`)
+    const byId = new Map(beats.map((beat) => [beat.id, beat]))
+    for (const group of [audience.options, ...beats.map((b) => b.options)]) {
+      assert.ok(group.length >= 1, `${audience.id} every beat can be answered`)
+      const optionIds = group.map((option) => option.id)
+      assert.equal(new Set(optionIds).size, optionIds.length, audience.id)
+    }
+    for (const option of sceneOptions(audience)) {
+      if (option.next)
+        assert.ok(byId.has(option.next), `${audience.id} -> ${option.next}`)
+      for (const id of option.postsQuests ?? []) assert.ok(questDef(id), id)
+      for (const id of option.effects.recruit ?? [])
+        assert.ok(followerDef(id), id)
+    }
+    // Every beat is reachable, and no path loops back on itself.
+    const reached = new Set<string>()
+    const walk = (options: AudienceOption[], path: string[]) => {
+      for (const option of options) {
+        if (!option.next) continue
+        assert.ok(
+          !path.includes(option.next),
+          `${audience.id} loops at ${option.next}`,
+        )
+        reached.add(option.next)
+        walk(byId.get(option.next)!.options, [...path, option.next])
+      }
+    }
+    walk(audience.options, [])
+    for (const id of ids) assert.ok(reached.has(id), `${audience.id}/${id}`)
+    // Every closing answer has a reply; every line has words in it.
+    for (const option of sceneOptions(audience))
+      assert.ok(option.response.trim(), `${audience.id}/${option.id} reply`)
+    for (const line of [
+      ...audience.lines,
+      ...beats.flatMap((beat) => beat.lines),
+    ])
+      assert.ok(
+        (typeof line === 'string' ? line : line.text).trim(),
+        audience.id,
+      )
+  }
+}
+assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
+{
+  // Story gates hide an answer; brass gates show it locked.
+  const run = createRun(99)
+  const callback = { id: 'x', label: 'x', effects: {}, response: 'x' }
+  assert.ok(!optionVisible(run, { ...callback, requires: { flags: ['nope'] } }))
+  assert.ok(
+    optionVisible(run, { ...callback, requires: { notFlags: ['nope'] } }),
+  )
+  assert.ok(
+    !optionVisible(run, { ...callback, requires: { follower: 'F020' } }),
+  )
+  assert.ok(optionVisible(run, { ...callback, requires: { cost: 99999 } }))
+  // Every beat keeps at least one answer a player can see.
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const beat of audience.beats ?? [])
+        assert.ok(
+          beat.options.some((option) => !option.requires?.flags?.length),
+          `${audience.id}/${beat.id} has an answer without a story gate`,
+        )
+}
+
+{
+  // Walk Day 1's first scene: an answer that leads on keeps the audience
+  // open, applies its effects at once, and the day's end closes any scene.
+  let run = createRun(4242)
+  const audience = audiencesToday(run).find((entry) =>
+    entry.options.some(
+      (option) => option.next && optionBlockers(run, option).length === 0,
+    ),
+  )!
+  assert.ok(audience, 'Day 1 opens with a scene')
+  const lead = audience.options.find(
+    (option) => option.next && optionBlockers(run, option).length === 0,
+  )!
+  const step = chooseAudienceOption(run, audience.id, lead.id)
+  run = step.run
+  assert.equal(step.next, lead.next)
+  assert.ok(!run.audiencesHeard.includes(audience.id), 'scene still open')
+  assert.equal(run.audienceBeats?.[audience.id], lead.next)
+  assert.ok(run.flags.includes(`chose:${audience.id}:${lead.id}`))
+  assert.equal(audienceScene(run, audience).beatId, lead.next)
+  assert.ok(validateRun(run), 'a run mid-scene saves')
+  assert.throws(
+    () => chooseAudienceOption(run, audience.id, lead.id),
+    /unknown option/,
+    'the opening answers are gone once the scene moves on',
+  )
+  // The day can end mid-scene: the scene closes, its choices stand.
+  const ended = finishDay(run).run
+  assert.equal(ended.audienceBeats, undefined)
+  assert.ok(ended.flags.includes(`chose:${audience.id}:${lead.id}`))
+  // Follow the scene to its close.
+  for (let i = 0; i < 10 && !run.audiencesHeard.includes(audience.id); i += 1) {
+    const option = audienceScene(run, audience).options.find(
+      (entry) => optionBlockers(run, entry).length === 0,
+    )
+    assert.ok(option, `${audience.id} has an open answer at every beat`)
+    run = chooseAudienceOption(run, audience.id, option.id).run
+  }
+  assert.ok(run.audiencesHeard.includes(audience.id), 'the scene closes')
+  assert.equal(run.audienceBeats, undefined)
+}
 
 // --- a whole campaign, with saves and rewinds --------------------------------
 let book = newBook(createRun(31337))

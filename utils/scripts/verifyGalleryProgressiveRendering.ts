@@ -429,6 +429,37 @@ requireText(
   'requestGeneration !== generation',
   'a feed page for filters that have since changed must be dropped',
 )
+for (const token of ["range: 'recent'", "params.set('range', filters.range)"]) {
+  requireText(
+    artFeedStore,
+    token,
+    `the gallery feed must pass its recent/all scope to the API: ${token}`,
+  )
+}
+for (const token of [
+  "query.range === 'recent'",
+  'createdAt:',
+  'RECENT_WINDOW_DAYS = 7',
+]) {
+  requireText(
+    feedRoute,
+    token,
+    `recent art must be filtered server-side by creation date: ${token}`,
+  )
+}
+for (const token of [
+  'Art generation date range',
+  "range === 'recent'",
+  "range === 'all'",
+  'View all images',
+  'watch(range,',
+]) {
+  requireText(
+    artFeed,
+    token,
+    `regular and private galleries must expose a navigable recent/all view: ${token}`,
+  )
+}
 
 if (failures.length) {
   for (const failure of failures) console.error(`FAIL - ${failure}`)

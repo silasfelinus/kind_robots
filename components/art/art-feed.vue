@@ -35,6 +35,41 @@
         </option>
       </select>
 
+      <div
+        role="group"
+        aria-label="Art generation date range"
+        class="flex shrink-0 items-center gap-1 rounded-xl border border-base-300 bg-base-100 p-1"
+      >
+        <button
+          type="button"
+          class="btn btn-xs rounded-lg"
+          :class="range === 'recent' ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="range === 'recent'"
+          @click="range = 'recent'"
+        >
+          Recent · 7 days
+        </button>
+        <button
+          type="button"
+          class="btn btn-xs rounded-lg"
+          :class="range === 'all' ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="range === 'all'"
+          @click="range = 'all'"
+        >
+          All time
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-ghost btn-xs rounded-lg"
+        aria-label="Refresh gallery images"
+        :disabled="feedStore.isLoading"
+        @click="restartFeed"
+      >
+        <icon name="kind-icon:refresh" class="kr-icon-3-5" />
+      </button>
+
       <span class="kr-badge-ghost-sm shrink-0">
         {{ visibleImages.length }}{{ feedStore.hasMore ? '+' : '' }} images
       </span>
@@ -54,7 +89,21 @@
       >
         <icon name="kind-icon:image" class="kr-icon-primary-12" />
         <p class="kr-text-black-lg mt-2 text-base-content">No images here.</p>
-        <p class="text-sm">No art matches the current filters.</p>
+        <p class="text-sm">
+          {{
+            range === 'recent'
+              ? 'No images from the last seven days match these filters.'
+              : 'No art matches the current filters.'
+          }}
+        </p>
+        <button
+          v-if="range === 'recent'"
+          type="button"
+          class="btn btn-primary btn-sm mt-3 rounded-xl"
+          @click="range = 'all'"
+        >
+          View all images
+        </button>
       </div>
 
       <div
@@ -172,7 +221,11 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import { useArtCollectionBrowseStore } from '@/stores/artCollectionBrowseStore'
-import { useArtFeedStore, type ArtFeedImage } from '@/stores/artFeedStore'
+import {
+  useArtFeedStore,
+  type ArtFeedFilters,
+  type ArtFeedImage,
+} from '@/stores/artFeedStore'
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
@@ -186,6 +239,7 @@ const errorStore = useErrorStore()
 const feedStore = useArtFeedStore()
 const userStore = useUserStore()
 
+const range = ref<ArtFeedFilters['range']>('recent')
 const searchInput = ref(feedStore.filters.search)
 const collectionId = ref<number | null>(feedStore.filters.collectionId)
 const failedImageIds = ref(new Set<number>())
@@ -231,6 +285,7 @@ function markFailed(imageId: number) {
 async function restartFeed() {
   failedImageIds.value = new Set()
   await feedStore.reset({
+    range: range.value,
     privacy: browseStore.galleryPrivacyFilter,
     maturity: browseStore.galleryMaturityFilter,
     collectionId: collectionId.value,
@@ -291,6 +346,10 @@ watch(searchInput, () => {
   searchTimer = setTimeout(() => {
     if (ready.value) void restartFeed()
   }, SEARCH_DEBOUNCE_MS)
+})
+
+watch(range, () => {
+  if (ready.value) void restartFeed()
 })
 
 watch(collectionId, () => {

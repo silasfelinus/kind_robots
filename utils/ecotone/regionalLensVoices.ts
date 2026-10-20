@@ -104,10 +104,8 @@ export const REGIONAL_LENS_VOICES: Record<
       'The shadow on the curtain seems to have its own applause. The crew still needs an ordinary, reliable way to cut the lights.',
     cocaine:
       'Opening night, one impossible performer and an unsafe cue. You pick the cue that can actually be changed before the doors open.',
-    meth:
-      'The music and arguments are stacking up. You ask the stage manager to repeat the safety plan in the quiet of the wings.',
-    mdma:
-      'The prop wants a voice, the understudy wants to be safe, and the director wants a fundraiser. Listening is not the same as agreeing.',
+    meth: 'The music and arguments are stacking up. You ask the stage manager to repeat the safety plan in the quiet of the wings.',
+    mdma: 'The prop wants a voice, the understudy wants to be safe, and the director wants a fundraiser. Listening is not the same as agreeing.',
   },
   'WH-033': {
     sober:
@@ -120,10 +118,8 @@ export const REGIONAL_LENS_VOICES: Record<
       'The rock appears to open its mouth and say your name. You listen from solid ground, and the mouth becomes a shadow again.',
     cocaine:
       'Someone is moving toward the drop and everybody wants an explanation. Getting them back takes priority over a perfect recording.',
-    meth:
-      'The echo repeats itself until it becomes hard to hear anything else. You ask a companion to watch the edge while you stand back.',
-    mdma:
-      'A loved voice can make a request feel intimate even from a cliff. You can care about the people here without obeying the sound.',
+    meth: 'The echo repeats itself until it becomes hard to hear anything else. You ask a companion to watch the edge while you stand back.',
+    mdma: 'A loved voice can make a request feel intimate even from a cliff. You can care about the people here without obeying the sound.',
   },
   'WH-053': {
     sober:
@@ -136,10 +132,8 @@ export const REGIONAL_LENS_VOICES: Record<
       'The submarine is a small whale dreaming of becoming a bicycle. A pressure test brings the beautiful nonsense back to the dock.',
     cocaine:
       'A demonstration deadline, uncertain funding and a rising tide. You cancel the underwater portion before the checklist can multiply.',
-    meth:
-      'The crew has been awake too long. You invite them to stop the test, eat something and have a rested mechanic inspect the hatch.',
-    mdma:
-      'The makers love the machine, and the child loves being included. Safety can honor both without asking anyone to prove loyalty.',
+    meth: 'The crew has been awake too long. You invite them to stop the test, eat something and have a rested mechanic inspect the hatch.',
+    mdma: 'The makers love the machine, and the child loves being included. Safety can honor both without asking anyone to prove loyalty.',
   },
   'WH-076': {
     sober:
@@ -152,10 +146,8 @@ export const REGIONAL_LENS_VOICES: Record<
       'Each lie makes the sign drift like a thought that cannot find the right word. The bus still has wheels and several destinations.',
     cocaine:
       'Every passenger has a theory and somebody’s connection is closing. You organize the calls instead of racing the mile marker.',
-    meth:
-      'The arguments have gone on for miles. You ask the driver for the next known stop and let the other riders lower their voices.',
-    mdma:
-      'The passengers are frightened of being blamed for the detour. You can help them get home without demanding a confession.',
+    meth: 'The arguments have gone on for miles. You ask the driver for the next known stop and let the other riders lower their voices.',
+    mdma: 'The passengers are frightened of being blamed for the detour. You can help them get home without demanding a confession.',
   },
   'WH-095': {
     sober:
@@ -168,10 +160,8 @@ export const REGIONAL_LENS_VOICES: Record<
       'The bark seems to wear a whole household like a passing expression. The wind moves; the tree has no further statement.',
     cocaine:
       'You could send the photograph before the sun shifts. You hold the phone and decide a deadline is not permission.',
-    meth:
-      'The faces seem clearer each time you look, then suddenly not. You mark where you stood and ask someone else to compare the sketch.',
-    mdma:
-      'The family’s privacy matters more than sharing a beautiful coincidence. You let them choose whether it becomes their story.',
+    meth: 'The faces seem clearer each time you look, then suddenly not. You mark where you stood and ask someone else to compare the sketch.',
+    mdma: 'The family’s privacy matters more than sharing a beautiful coincidence. You let them choose whether it becomes their story.',
   },
   'WH-115': {
     sober:
@@ -184,9 +174,7 @@ export const REGIONAL_LENS_VOICES: Record<
       'The county seems to split into six small paper counties. On the folding table, the sign-in sheet remains stubbornly singular.',
     cocaine:
       'There is pressure to decide now, before anyone asks inconvenient questions. You insist on the witness list before the countdown.',
-    meth:
-      'The votes and names blur together under the lights. You ask the clerk to read the six proposals slowly and keep a written copy.',
-    mdma:
-      'You want every crew to see itself in the future. That cannot happen until they can say what each future costs them.',
+    meth: 'The votes and names blur together under the lights. You ask the clerk to read the six proposals slowly and keep a written copy.',
+    mdma: 'You want every crew to see itself in the future. That cannot happen until they can say what each future costs them.',
   },
 }

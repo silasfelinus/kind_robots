@@ -740,6 +740,64 @@ function isCardList(value: unknown): value is string[] {
   return Array.isArray(value) && value.every((id) => Boolean(findCard(id)))
 }
 
+const LEGACY_LENS_QUESTS: Record<string, { title: string; replacement: string }> =
+  {
+    'WH-004': {
+      title: 'A Fast Hour in a Bottle',
+      replacement: 'LX-FAST-01',
+    },
+    'WH-037': {
+      title: 'The River Does Not Sleep',
+      replacement: 'LX-NIGHT-01',
+    },
+    'WH-058': {
+      title: 'The Peacock Has a Warrant',
+      replacement: 'LX-HEART-01',
+    },
+  }
+
+/**
+ * The old and new quest decks both used save version 4. A bare WH-004,
+ * WH-037 or WH-058 ID is therefore ambiguous: modern runs use these IDs
+ * for completely different canonical encounters. Only the historical
+ * source AND exact saved title prove that a log entry came from the older
+ * substance quest. Never rewrite an undecidable offered/current card.
+ */
+function migrateRecordedLensQuests(state: RunState): RunState {
+  const proven = new Map<string, string>()
+  for (const entry of state.log) {
+    const old = LEGACY_LENS_QUESTS[entry.source]
+    if (old && entry.title === old.title) proven.set(entry.source, old.replacement)
+  }
+  if (proven.size === 0) return state
+  const migrateEntry = (entry: LogEntry): LogEntry => {
+    const replacement = proven.get(entry.source)
+    const oldId = entry.source
+    if (!replacement || entry.title !== LEGACY_LENS_QUESTS[oldId]?.title)
+      return entry
+    const oldPrefix = `outcomes/${oldId.toLowerCase()}/`
+    return {
+      ...entry,
+      source: replacement,
+      art: entry.art?.startsWith(oldPrefix)
+        ? `outcomes/${replacement.toLowerCase()}/${entry.art.slice(oldPrefix.length)}`
+        : entry.art,
+    }
+  }
+  return {
+    ...state,
+    played: state.played.map((id) => proven.get(id) ?? id),
+    card:
+      state.card && proven.has(state.card) && state.pending
+        ? proven.get(state.card)!
+        : state.card,
+    log: state.log.map(migrateEntry),
+    pending: state.pending
+      ? { ...state.pending, entry: migrateEntry(state.pending.entry) }
+      : null,
+  }
+}
+
 export function restoreRun(raw: unknown): RunState | null {
   if (!raw || typeof raw !== 'object') return null
   const s = raw as Partial<RunState>
@@ -770,5 +828,5 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   if (!s.skills || typeof s.skills !== 'object') return null
   if (typeof s.wild !== 'number') return null
-  return s as RunState
+  return migrateRecordedLensQuests(s as RunState)
 }

@@ -130,7 +130,8 @@ export function endingArtPitches(): ConceptArtPitch[] {
     const signature =
       SIGNATURES[`${lead}.${lens}`]?.[fate] ??
       NEW_SIGNATURES[`${lead}.${lens}`]?.[fate]
-    const journeyLine = REVISED_COMPANION_SIGNATURES[`${lead}.${lens}`]?.[fate] ?? signature?.line
+    const journeyLine =
+      REVISED_COMPANION_SIGNATURES[`${lead}.${lens}`]?.[fate] ?? signature?.line
     const base: ConceptArtPitch = {
       key: endingArtKey(id),
       phase: 'ending',
@@ -196,5 +197,9 @@ export function callbackArtPitches(): ConceptArtPitch[] {
 }
 
 export function allConceptArtPitches(): ConceptArtPitch[] {
-  return [...encounterArtPitches(), ...endingArtPitches(), ...callbackArtPitches()]
+  return [
+    ...encounterArtPitches(),
+    ...endingArtPitches(),
+    ...callbackArtPitches(),
+  ]
 }

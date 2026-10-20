@@ -164,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { DAYS, dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
@@ -205,12 +205,7 @@ const selected = computed(
 const npc = computed(() =>
   selected.value?.npc ? npcDef(selected.value.npc) : undefined,
 )
-const wide = ref(true)
 const showBriefing = ref(true)
-onMounted(() => {
-  wide.value = window.matchMedia?.('(min-width: 768px)').matches ?? true
-  showBriefing.value = wide.value
-})
 const audienceIndex = computed(() =>
   Math.max(
     0,
@@ -234,7 +229,7 @@ watch(
   () => {
     responses.value = {}
     reactions.value = {}
-    showBriefing.value = wide.value
+    showBriefing.value = true
     selectedId.value =
       audiences.value.find((entry) => !heard(entry.id))?.id ?? null
   },

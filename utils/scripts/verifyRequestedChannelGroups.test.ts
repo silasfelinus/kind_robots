@@ -40,7 +40,10 @@ for (const key of ['zuzu-lair']) {
   assert.equal(existsSync(`content/channels/admin/${key}.md`), false)
 }
 
-assert.match(nav('arcade/emperor-of-dust'), /\nroute: \/play\/emperor-of-dust\n/)
+assert.match(
+  nav('arcade/emperor-of-dust'),
+  /\nroute: \/play\/emperor-of-dust\n/,
+)
 assert.doesNotMatch(nav('arcade/emperor-of-dust'), /requiredRole: ADMIN/)
 for (const key of [
   'sliding-tile-gallery',

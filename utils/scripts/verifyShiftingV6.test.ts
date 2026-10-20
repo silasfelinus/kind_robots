@@ -79,7 +79,11 @@ const dustwaterIds = new Set(dustwater.locations.map((location) => location.id))
 const dustwaterCards = V6_CARDS.filter((card) =>
   dustwaterIds.has(card.locationId),
 )
-assert.equal(dustwaterCards.length, 24, 'Dustwater has eight cards per location')
+assert.equal(
+  dustwaterCards.length,
+  24,
+  'Dustwater has eight cards per location',
+)
 for (const card of dustwaterCards) {
   assert.ok(card.flavor.length >= 130, `${card.id}: keep the scene specific`)
   for (const choice of card.choices) {
@@ -106,8 +110,7 @@ assert.match(
 assert.match(
   dustwaterCards
     .find((card) => card.id === 'a-dam-of-broken-wagons')!
-    .choices.find((choice) => choice.id === 'break-the-dam-open')!
-    .success.text,
+    .choices.find((choice) => choice.id === 'break-the-dam-open')!.success.text,
   /squatters' children/,
   'returning water downstream must acknowledge who loses their pond',
 )

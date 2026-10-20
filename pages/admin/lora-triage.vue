@@ -14,10 +14,6 @@
             <Icon name="kind-icon:download" class="kr-icon-4" />
             Discover &amp; download
           </NuxtLink>
-          <div class="min-w-0">
-            <h1 class="kr-text-black-lg">LoRA Triage</h1>
-            <p class="kr-text-dim-xs">Classify installed LoRAs</p>
-          </div>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button

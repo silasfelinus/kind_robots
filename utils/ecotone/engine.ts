@@ -353,7 +353,28 @@ export function drawFork(state: RunState, index: number): string[] {
     const rest = open.map((c) => c.id).filter((id) => !picked.includes(id))
     picked.push(...seededShuffle(rest, hashSeed(state.seed, index * 977)))
   }
-  return picked.slice(0, FORK_SIZE)
+  const offered = picked.slice(0, FORK_SIZE)
+  if (state.event === 'quiet') {
+    const wildCards = open.filter(
+      (card) =>
+        step.pools.includes(card.chapter) &&
+        card.choices.some((choice) => choice.wild),
+    )
+    if (
+      wildCards.length > 0 &&
+      offered.length > 0 &&
+      !offered.some((id) =>
+        open.find((card) => card.id === id)?.choices.some((choice) => choice.wild),
+      )
+    ) {
+      const wildCard = seededShuffle(
+        wildCards,
+        hashSeed(state.seed, index * 557),
+      )[0]!
+      offered[offered.length - 1] = wildCard.id
+    }
+  }
+  return offered
 }
 
 export function crossroadsNewcomer(state: RunState): CompanionId | null {

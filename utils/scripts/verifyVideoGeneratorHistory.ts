@@ -42,16 +42,28 @@ assert.equal(summary?.frames, 65)
 assert.equal(summary?.prompt, 'slow orbit of a green robot')
 assert.ok(!JSON.stringify(summary).includes('secret-source-bytes'))
 
-assert.equal(videoGeneratorMetadata({ ...job, projectSlug: 'scene-animator' }), null)
-assert.equal(videoGeneratorMetadata({ ...job, projectSlug: 'music-video' }), null)
-assert.equal(videoGeneratorMetadata({
-  ...job,
-  payload: JSON.stringify({ media: 'audio', video: { model: 'wan' } }),
-}), null)
-assert.equal(videoGeneratorMetadata({
-  ...job,
-  payload: JSON.stringify({ media: 'video', video: { model: 'unknown' } }),
-}), null)
+assert.equal(
+  videoGeneratorMetadata({ ...job, projectSlug: 'scene-animator' }),
+  null,
+)
+assert.equal(
+  videoGeneratorMetadata({ ...job, projectSlug: 'music-video' }),
+  null,
+)
+assert.equal(
+  videoGeneratorMetadata({
+    ...job,
+    payload: JSON.stringify({ media: 'audio', video: { model: 'wan' } }),
+  }),
+  null,
+)
+assert.equal(
+  videoGeneratorMetadata({
+    ...job,
+    payload: JSON.stringify({ media: 'video', video: { model: 'unknown' } }),
+  }),
+  null,
+)
 assert.equal(
   summarizeVideoGeneratorJob({ ...job, projectSlug: 'video-generator' })?.id,
   42,

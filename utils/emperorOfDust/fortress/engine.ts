@@ -27,6 +27,7 @@ import type {
   FollowerDef,
   FollowerState,
   FortressRun,
+  ItemDef,
   KingdomFactionId,
   LocalFactionId,
   OddsPreview,
@@ -634,7 +635,9 @@ const contribution = (
 ): number => {
   let value = member.def.stats[stat]
   for (const id of Object.values(member.state.equipment)) {
-    value += (id ? itemDef(id)?.stats?.[stat] : 0) ?? 0
+    const item = id ? itemDef(id) : undefined
+    value += item?.stats?.[stat] ?? 0
+    value += marketEdge(item, quest)
   }
   if (quest.faction) value += member.def.factionModifiers[quest.faction] ?? 0
   for (const trait of member.def.traits) {
@@ -642,6 +645,21 @@ const contribution = (
     if (known === 'all' || traitKnown(run, trait, known)) value += trait.amount
   }
   return Math.max(0, value)
+}
+
+// --- market edges (t-024) ----------------------------------------------------
+
+/** A tool or charm that knows one faction's roads or one kind of work. */
+export const marketEdge = (
+  item: ItemDef | undefined,
+  quest: QuestDef,
+): number => {
+  const edge = item?.edge
+  if (!edge) return 0
+  const matches =
+    (edge.faction !== undefined && edge.faction === quest.faction) ||
+    (edge.tag !== undefined && (quest.tags ?? []).includes(edge.tag))
+  return matches ? edge.amount : 0
 }
 
 const chanceFrom = (ratios: number[]): number => {
@@ -852,15 +870,7 @@ export const upgradeBeds = (run: FortressRun): FortressRun => {
   return next
 }
 
-export const buyItem = (run: FortressRun, itemId: string): FortressRun => {
-  const item = itemDef(itemId)
-  if (!item) throw new Error(`unknown item: ${itemId}`)
-  if (run.brass < item.price) throw new Error(`Needs ${item.price} brass`)
-  const next = cloneRun(run)
-  next.brass -= item.price
-  next.inventory.push(itemId)
-  return next
-}
+// Buying, selling and treatments live in market.ts (t-024).
 
 /** Equip an owned item (or clear a slot with null). */
 export const equipItem = (

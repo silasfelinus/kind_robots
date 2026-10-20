@@ -146,6 +146,17 @@ export type ItemDef = {
   text: string
   stats?: Partial<StatBlock>
   ability?: Omit<AbilityDef, 'name' | 'text'>
+  /** Market (t-024): the faction whose people sell it; none for fortress staples. */
+  faction?: KingdomFactionId
+  /** Stock gate: the seller's affinity tier, or local support the stall needs. */
+  stock?: {
+    tier?: AffinityTier
+    local?: Partial<Record<LocalFactionId, number>>
+  }
+  /** +amount to every requirement of a quest for this faction or with this tag. */
+  edge?: { faction?: KingdomFactionId; tag?: string; amount: number }
+  /** What buying it costs beyond brass: somebody hears where it came from. */
+  onBuy?: Effects
 }
 
 export type QuestRequirement = { stat: Stat; band: Band; hidden?: boolean }
@@ -345,6 +356,11 @@ export type FortressRun = {
   talkDay?: number
   /** The talk under way today and the beat it has reached. */
   talkOpen?: { id: string; beat?: string }
+  /**
+   * Market (t-024): items bought from this stock window's stalls, and the
+   * followers treated today. Stale windows and days read as empty.
+   */
+  market?: { window: number; bought: string[]; day: number; treated: string[] }
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
   assignQuest,
-  buyItem,
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
@@ -14,6 +13,12 @@ import {
   upgradeBeds,
   withdrawQuest,
 } from '~/utils/emperorOfDust/fortress/engine'
+import {
+  buyItem,
+  sellItem,
+  treatFollower,
+} from '~/utils/emperorOfDust/fortress/market'
+import type { TreatmentKind } from '~/utils/emperorOfDust/fortress/market'
 import { FORTRESS_LIVE_TEXT } from '~/utils/emperorOfDust/fortress/content'
 import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
 import {
@@ -342,6 +347,17 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     commit(buyItem(current(), itemId))
   }
 
+  function sell(itemId: string) {
+    commit(sellItem(current(), itemId))
+  }
+
+  /** Treats a wounded follower; returns what happened, for the market to show. */
+  function treat(followerId: string, kind: TreatmentKind): string {
+    const result = treatFollower(current(), followerId, kind)
+    commit(result.run)
+    return result.text
+  }
+
   function equip(
     followerId: string,
     slot: 'tool' | 'charm',
@@ -408,6 +424,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     learn,
     hire,
     buy,
+    sell,
+    treat,
     equip,
     expandBarracks,
     saveToSlot,

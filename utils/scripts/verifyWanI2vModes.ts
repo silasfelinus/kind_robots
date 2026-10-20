@@ -275,10 +275,10 @@ assert.equal(
 
 // --- catalog-backed checkpoint selection and maturity -----------------------
 const catalog: VideoModelResource[] = [
-  { id: 10, name: 'LTX', resourceType: 'CHECKPOINT', localPath: 'ltx/ltx-2.3-22b-dev-fp8.safetensors', isMature: false },
-  { id: 11, name: 'WAN 5B', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_ti2v_5B_fp16.safetensors', isMature: true },
-  { id: 12, name: 'WAN high', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', isMature: false },
-  { id: 13, name: 'WAN low', resourceType: 'DIFFUSION_MODEL', localPath: 'wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors', isMature: true,
+  { id: 10, name: 'LTX', resourceType: 'CHECKPOINT', localPath: 'checkpoints/Video/LTX/ltx-2.3-22b-dev-fp8.safetensors', isMature: false },
+  { id: 11, name: 'WAN 5B', resourceType: 'DIFFUSION_MODEL', localPath: 'diffusion_models/wan2.2_ti2v_5B_fp16.safetensors', isMature: true },
+  { id: 12, name: 'WAN high', resourceType: 'DIFFUSION_MODEL', localPath: 'diffusion_models/wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors', isMature: false },
+  { id: 13, name: 'WAN low', resourceType: 'DIFFUSION_MODEL', localPath: 'diffusion_models/wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors', isMature: true,
     description: '[maturity:adult-focused] Curator-reviewed adult-oriented model' },
   { id: 14, name: 'SDXL', resourceType: 'CHECKPOINT', localPath: 'sdxl/turbo.safetensors' },
 ]
@@ -299,7 +299,7 @@ assert.deepEqual(pickedWan.selectedIds, [11])
 assert.equal(pickedWan.isMature, true)
 assert.equal(nodeById(buildWanImageToVideoWorkflow({
   ...base, ti2vUnet: pickedWan.paths.wanTi2v,
-}), 'unet').inputs.unet_name, catalog[1]!.localPath)
+}), 'unet').inputs.unet_name, 'wan2.2_ti2v_5B_fp16.safetensors')
 const pickedPair = validateVideoModelSelection({
   engine: 'wan', mode: 'a14b',
   ids: { videoCheckpointResourceId: 12, videoLowCheckpointResourceId: 13 },
@@ -312,8 +312,8 @@ const pairGraph = buildWanImageToVideoWorkflow({
   highNoiseUnet: pickedPair.paths.wanHigh,
   lowNoiseUnet: pickedPair.paths.wanLow,
 })
-assert.equal(nodeById(pairGraph, 'unet_high').inputs.unet_name, catalog[2]!.localPath)
-assert.equal(nodeById(pairGraph, 'unet_low').inputs.unet_name, catalog[3]!.localPath)
+assert.equal(nodeById(pairGraph, 'unet_high').inputs.unet_name, 'wan2.2_i2v_high_noise_14B_fp8_scaled.safetensors')
+assert.equal(nodeById(pairGraph, 'unet_low').inputs.unet_name, 'wan2.2_i2v_low_noise_14B_fp8_scaled.safetensors')
 assert.throws(
   () => validateVideoModelSelection({
     engine: 'wan', mode: 'a14b',
@@ -339,7 +339,7 @@ const pickedLtx = validateVideoModelSelection({
   engine: 'ltx', mode: 'ti2v',
   ids: { videoCheckpointResourceId: 10 }, resources: catalog,
 })
-assert.equal(pickedLtx.paths.ltxCheckpoint, catalog[0]!.localPath)
+assert.equal(pickedLtx.paths.ltxCheckpoint, 'Video/LTX/ltx-2.3-22b-dev-fp8.safetensors')
 const ltxArgs = { prompt: 'a cat', negativePrompt: '', firstImageName: 'a.png',
   width: 768, height: 432, duration: 3, frameRate: 16 }
 const defaultLtxGraph = buildLtxImageToVideoWorkflow(ltxArgs)
@@ -347,8 +347,8 @@ assert.equal(nodeById(defaultLtxGraph, '317').inputs.ckpt_name, LTX_CHECKPOINT)
 const altLtxGraph = buildLtxImageToVideoWorkflow({
   ...ltxArgs, checkpoint: pickedLtx.paths.ltxCheckpoint,
 })
-assert.equal(nodeById(altLtxGraph, '317').inputs.ckpt_name, catalog[0]!.localPath)
-assert.equal(nodeById(altLtxGraph, '318').inputs.ckpt_name, catalog[0]!.localPath)
+assert.equal(nodeById(altLtxGraph, '317').inputs.ckpt_name, pickedLtx.paths.ltxCheckpoint)
+assert.equal(nodeById(altLtxGraph, '318').inputs.ckpt_name, pickedLtx.paths.ltxCheckpoint)
 
 assert.equal(videoLoraCompatibilityRank({ id: 30, supportedServer: 'WAN', generation: 'Wan 2.1' }, 'wan-2.2-5b'), 0)
 assert.equal(videoLoraCompatibilityRank({ id: 31, supportedServer: 'WAN', generation: 'Wan 2.2 14B' }, 'wan-2.2-5b'), 0)

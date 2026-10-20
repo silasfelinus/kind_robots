@@ -555,6 +555,16 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'Lady Vask’s steward',
         text: 'The travellers were killed with Mole digging knives.',
         truth: false,
+        variants: [
+          {
+            flags: ['mole-messenger-arrested'],
+            text: 'The travellers were killed with Mole digging knives. The steward says the crown should have kept the whole choir, not one old woman.',
+          },
+          {
+            flags: ['mole-talks-opened'],
+            text: 'The travellers were killed with Mole digging knives. The steward says this is what talks with the burrows buy.',
+          },
+        ],
       },
       {
         id: 'tokens',
@@ -1144,6 +1154,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'A Freehold mother',
         text: 'Her son walked toward the Abbey with a sister in grey three weeks ago. No letter since.',
         truth: true,
+        variants: [
+          {
+            flags: ['abbey-took-coldbrook-children'],
+            text: 'Her son walked toward the Abbey with a sister in grey three weeks ago. No letter since. The Coldbrook children went up the same road.',
+          },
+        ],
       },
       {
         id: 'abbey-letters',
@@ -1503,6 +1519,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         text: 'The Abbey’s census lists every child by name. Every child is accounted for.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'He had seen the census because he wrote it. He copied last winter’s pages himself, for the sisters’ tired eyes.',
+        variants: [
+          {
+            flags: ['d08-coldbrooks-recorded'],
+            text: 'The Abbey’s census lists every child by name, the Coldbrooks among them. Every child is accounted for.',
+          },
+        ],
       },
       {
         id: 'abbess-gift',
@@ -1870,6 +1894,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     title: 'A Friendly Raid',
     briefings: [
       {
+        id: 'vane-dead',
+        source: 'A gleeful Old House cousin',
+        text: 'Gristle Vane was killed by his own lieutenants last night.',
+        truth: false,
+      },
+      {
         id: 'dry-well',
         source: 'Jackalwire runners',
         text: 'The dry-well jackals are raiding Freehold farms. They take people, not goats.',
@@ -1880,12 +1910,17 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'Granny Umber’s cell',
         text: 'The Mole cells will talk truce, if the crown meant its talks.',
         truth: true,
-      },
-      {
-        id: 'vane-dead',
-        source: 'A gleeful Old House cousin',
-        text: 'Gristle Vane was killed by his own lieutenants last night.',
-        truth: false,
+        variants: [
+          {
+            flags: ['mole-messenger-arrested'],
+            source: 'Chalk on the postern gate',
+            text: 'No truce while the crown holds the old woman it took at the gate.',
+          },
+          {
+            flags: ['moles-blamed'],
+            text: 'The Mole cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
+          },
+        ],
       },
     ],
     komodo:
@@ -2827,6 +2862,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         text: 'The cut page is a Mole forgery meant to ruin Mayor Reedbell.',
         truth: false,
         komodoLie: true,
+        hindsight:
+          'No Mole touched that page. He wanted the ledger shut, and the burrows blamed for shutting it.',
+        variants: [
+          {
+            flags: ['mole-truce'],
+            text: 'The cut page is a Mole forgery. The burrows have their water now. They want Hollow Bell’s too.',
+          },
+        ],
       },
       {
         id: 'bell-water',
@@ -3082,6 +3125,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     title: 'Terms of Shelter',
     briefings: [
       {
+        id: 'peace-signed',
+        source: 'A hopeful herald',
+        text: 'The factions have signed a peace at the Saltroad.',
+        truth: false,
+      },
+      {
         id: 'war-coming',
         source: 'Every runner at once',
         text: 'Three factions are mustering at once. The map changes by tomorrow.',
@@ -3092,12 +3141,6 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'Freehold reeves',
         text: 'The Freeholds cannot hold their border alone.',
         truth: true,
-      },
-      {
-        id: 'peace-signed',
-        source: 'A hopeful herald',
-        text: 'The factions have signed a peace at the Saltroad.',
-        truth: false,
       },
     ],
     komodo:

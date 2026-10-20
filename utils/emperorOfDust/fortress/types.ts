@@ -242,6 +242,18 @@ export type TalkDef = {
   beats?: AudienceBeat[]
 }
 
+/**
+ * A briefing as it reads in runs that hold (or lack) certain story flags. The
+ * first matching variant replaces the source and text; truth never changes, so
+ * the day keeps exactly one lie and the Eye still finds it.
+ */
+export type BriefingVariant = {
+  flags?: string[]
+  notFlags?: string[]
+  source?: string
+  text?: string
+}
+
 export type Briefing = {
   id: string
   source: string
@@ -249,6 +261,9 @@ export type Briefing = {
   truth: boolean
   /** Komodo's own lie, readable after the Day 40 betrayal. */
   komodoLie?: boolean
+  /** What was true instead, shown once Komodo has betrayed the throne. */
+  hindsight?: string
+  variants?: BriefingVariant[]
 }
 
 export type DayDef = {

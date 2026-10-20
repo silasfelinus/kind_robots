@@ -6,13 +6,12 @@ import {
   ENDING_LEADS,
   LENSES,
   artUrl,
-  type Check,
+  type Effects,
   type EncounterCard,
   type Fate,
   type EndingLine,
   type LeadId,
   type LensId,
-  type Outcome,
   type SceneKind,
 } from '../ecotone/content'
 import {
@@ -27,6 +26,18 @@ import {
   SIGNATURES,
   type RouteStep,
 } from '../ecotone/story'
+import {
+  blankNode as blank,
+  signedParts,
+  storyOrder,
+  uniq,
+  type NodeKind,
+  type Playbook,
+  type PlaybookChoice,
+  type PlaybookNode,
+  type PlaybookRoute,
+  type PlaybookVariation,
+} from './types'
 
 // The Playbook Manager's view of Ecotone: every route as a chain of story nodes
 // (the event choice, fixed spine beats, white-rabbit forks with their card
@@ -34,77 +45,15 @@ import {
 // ending storylines, each tagged with the days, companions and lens
 // variations it is written for.
 
-export type NodeKind =
-  'opening' | 'spine' | 'fork' | 'encounter' | 'crossroads' | 'ending'
-
-export type PlaybookChoice = {
-  id: string
-  label: string
-  check?: Check
-  cost?: string
-  locked?: string
-  tags: string[]
-  success?: Outcome
-  failure?: Outcome
-  leadsTo?: string
-}
-
-export type VariationAxis = 'lens' | 'lead' | 'prospect' | 'alone' | 'fate'
-
-export type PlaybookVariation = {
-  axis: VariationAxis
-  key: string
-  label: string
-  text: string
-}
-
-export type PlaybookPlacement = {
-  route: string
-  routeName: string
-  day: number
-  dayName: string
-  step: number
-}
-
-export type PlaybookNode = {
-  key: string
-  kind: NodeKind
-  title: string
-  place: string
-  placements: PlaybookPlacement[]
-  chapter: number | null
-  companions: EndingLine[]
-  lenses: LensId[]
-  body: string[]
-  variations: PlaybookVariation[]
-  choices: PlaybookChoice[]
-  pool: string[]
-  scene: SceneKind
-  art: string | null
-  artUrl: string | null
-  needsArt: boolean
-  provenance: string
-  editable: boolean
-}
-
-export type PlaybookRoute = {
-  id: string
-  name: string
-  kind: string
-  steps: string[]
-}
-
-export type Playbook = {
-  game: string
-  title: string
-  routes: PlaybookRoute[]
-  nodes: Record<string, PlaybookNode>
-  /** Every node in story order: the opening, each route's chain, then encounters and endings. */
-  order: string[]
-}
-
-export const PLAYBOOK_GAMES = ['ecotone'] as const
-export type PlaybookGame = (typeof PLAYBOOK_GAMES)[number]
+export type {
+  NodeKind,
+  Playbook,
+  PlaybookChoice,
+  PlaybookNode,
+  PlaybookPlacement,
+  PlaybookRoute,
+  PlaybookVariation,
+} from './types'
 
 function lensLabel(id: LensId): string {
   return LENSES.find((lens) => lens.id === id)?.label ?? id
@@ -129,8 +78,15 @@ function stepTitle(key: string, nodes: Record<string, PlaybookNode>): string {
   return node ? `${node.key} · ${node.title}` : key
 }
 
-function uniq<T>(items: T[]): T[] {
-  return [...new Set(items)]
+function effectSummary(effects: Effects): string {
+  const parts = signedParts({
+    nerve: effects.nerve,
+    goodwill: effects.goodwill,
+    weird: effects.weird,
+  })
+  if (effects.evidence) parts.push('evidence')
+  if (effects.flag) parts.push(`flag ${effects.flag}`)
+  return parts.join(' · ')
 }
 
 export function playbookCardNode(card: EncounterCard): PlaybookNode {
@@ -201,8 +157,9 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
       cost: choice.cost,
       locked: choice.locked,
       tags,
-      success: choice.success,
-      failure: choice.failure,
+      success: { text: choice.success.text },
+      failure: choice.failure ? { text: choice.failure.text } : undefined,
+      effect: effectSummary(choice.success.effects) || undefined,
     }
   })
   const companions = uniq<LeadId>([
@@ -246,26 +203,7 @@ function blankNode(
   title: string,
   scene: SceneKind,
 ): PlaybookNode {
-  return {
-    key,
-    kind,
-    title,
-    place: '',
-    placements: [],
-    chapter: null,
-    companions: [],
-    lenses: [],
-    body: [],
-    variations: [],
-    choices: [],
-    pool: [],
-    scene,
-    art: null,
-    artUrl: null,
-    needsArt: false,
-    provenance: '',
-    editable: false,
-  }
+  return { ...blank(key, kind, title), scene }
 }
 
 function endingNode(lead: EndingLine): PlaybookNode {
@@ -295,7 +233,7 @@ function endingNode(lead: EndingLine): PlaybookNode {
         id: `${lens}.${fate}`,
         label: signature.title,
         tags: [lensLabel(lens), fate === 'hope' ? 'Hopeful' : 'Dark'],
-        success: { text: signature.line, effects: {} },
+        success: { text: signature.line },
       })
     }
     const coda = LENS_CODAS[lens]
@@ -338,7 +276,7 @@ export function buildEcotonePlaybook(): Playbook {
         `Meets ${event.companions.map(leadLabel).join(' or ')}`,
         `Offers ${event.lenses.map(lensLabel).join(', ')}`,
       ],
-      success: { text: event.pick, effects: {} },
+      success: { text: event.pick },
       leadsTo: first ? stepKey(event.id, first, 0) : undefined,
     }
   })
@@ -451,21 +389,53 @@ export function buildEcotonePlaybook(): Playbook {
   }
   for (const lead of ENDING_LEADS) nodes[`ending:${lead}`] = endingNode(lead)
 
-  const routes: PlaybookRoute[] = EVENTS.map((event) => ({
-    id: event.id,
-    name: event.name,
-    kind: event.kind,
-    steps: [
-      'event',
-      ...ROUTES[event.id].map((s, i) => stepKey(event.id, s, i)),
+  const routes: PlaybookRoute[] = EVENTS.map((event) => {
+    const steps = ROUTES[event.id]
+    const headings: Record<number, string> = { 0: 'Before it begins' }
+    steps.forEach((step, i) => {
+      if (step.day !== steps[i - 1]?.day)
+        headings[i + 1] = `Day ${step.day} · ${event.days[step.day - 1] ?? ''}`
+    })
+    return {
+      id: event.id,
+      name: event.name,
+      kind: event.kind,
+      steps: ['event', ...steps.map((s, i) => stepKey(event.id, s, i))],
+      headings,
+    }
+  })
+  const endingKeys = ENDING_LEADS.map((lead) => `ending:${lead}`)
+  return {
+    game: 'ecotone',
+    title: 'Ecotone',
+    blurb: 'Weird Humboldt: three routes, four companions and the endings.',
+    routes,
+    nodes,
+    order: storyOrder(routes, [...ENCOUNTERS.map((c) => c.id), ...endingKeys]),
+    sections: [
+      {
+        title: 'Ending storylines',
+        blurb:
+          'Who you finish with (or nobody, or the Wild Way) × opening lens × hopeful or dark.',
+        keys: endingKeys,
+      },
     ],
-  }))
-  const order = uniq([
-    ...routes.flatMap((route) => route.steps),
-    ...ENCOUNTERS.map((c) => c.id),
-    ...ENDING_LEADS.map((lead) => `ending:${lead}`),
-  ])
-  return { game: 'ecotone', title: 'Ecotone', routes, nodes, order }
+    people: ENDING_LEADS.map((id) => ({ id, label: leadLabel(id) })),
+    peopleLabel: 'Written for',
+    variations: LENSES.map((lens) => ({ id: lens.id, label: lens.short })),
+    variationLabel: 'Has a variation for',
+    dayLabel: 'Day',
+    kindLabels: {
+      fork: 'White rabbit',
+      encounter: 'Random encounter',
+      spine: 'Story spine',
+      ending: 'Ending storyline',
+    },
+    editable: true,
+    artProject: 'weird-humboldt',
+    artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
+    artNegative: 'anthro, furry',
+  }
 }
 
 export function describeLeadsTo(

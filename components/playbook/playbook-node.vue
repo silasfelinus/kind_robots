@@ -14,13 +14,12 @@
       :aria-pressed="selected"
       @click="pick(node.key)"
     >
-      <span
-        class="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl bg-base-300"
-      >
-        <EcotoneScene
-          :kind="node.scene"
-          :art="node.art ?? undefined"
-          :label="node.title"
+      <span class="relative h-16 w-24 shrink-0 overflow-hidden rounded-xl">
+        <PlaybookArt
+          :title="node.title"
+          :scene="node.scene"
+          :art="node.art"
+          :art-url="node.artUrl"
           class="absolute inset-0"
         />
         <span
@@ -34,7 +33,7 @@
           <span
             class="rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-wider"
             :class="KIND_STYLE[node.kind].badge"
-            >{{ KIND_STYLE[node.kind].label }}</span
+            >{{ store.kindLabel(node.kind) }}</span
           >
           <span class="font-mono text-[10px] text-base-content/50">{{
             node.key
@@ -61,15 +60,15 @@
             v-for="lead in node.companions"
             :key="lead"
             class="rounded-full px-1.5 py-0.5 text-[10px] font-black"
-            :class="LEAD_STYLE[lead]"
-            :title="`Written for ${leadLabel(lead)}`"
-            >{{ leadLabel(lead) }}</span
+            :class="personStyle(lead)"
+            :title="`${store.playbook.peopleLabel}: ${personLabel(lead)}`"
+            >{{ personLabel(lead) }}</span
           >
           <span
             v-for="lensId in node.lenses"
             :key="lensId"
             class="rounded-full border border-base-content/20 px-1.5 py-0.5 text-[10px] font-bold text-base-content/70"
-            :title="`Has a ${lensName(lensId)} variation`"
+            :title="`${store.playbook.variationLabel}: ${lensName(lensId)}`"
             >{{ lensName(lensId) }}</span
           >
         </span>
@@ -152,7 +151,7 @@
       <p
         class="px-0.5 pb-1.5 text-[10px] font-bold uppercase tracking-wider text-base-content/50"
       >
-        White rabbits in the pool · up to 3 dealt face up
+        {{ store.kindLabel('fork') }} · the cards it can deal
       </p>
       <div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-1.5">
         <button
@@ -168,13 +167,12 @@
           ]"
           @click="pick(id)"
         >
-          <span
-            class="relative h-9 w-12 shrink-0 overflow-hidden rounded-lg bg-base-300"
-          >
-            <EcotoneScene
-              :kind="store.playbook.nodes[id]?.scene ?? 'meadow'"
-              :art="store.playbook.nodes[id]?.art ?? undefined"
-              :label="store.playbook.nodes[id]?.title ?? id"
+          <span class="relative h-9 w-12 shrink-0 overflow-hidden rounded-lg">
+            <PlaybookArt
+              :title="store.playbook.nodes[id]?.title ?? id"
+              :scene="store.playbook.nodes[id]?.scene"
+              :art="store.playbook.nodes[id]?.art"
+              :art-url="store.playbook.nodes[id]?.artUrl"
               class="absolute inset-0"
             />
           </span>
@@ -195,8 +193,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePlaybookStore } from '~/stores/playbookStore'
-import { LENSES, type EndingLine, type LensId } from '~/utils/ecotone/content'
-import { leadLabel, type NodeKind } from '~/utils/playbook/ecotone'
+import type { NodeKind } from '~/utils/playbook/types'
 
 const props = defineProps<{ nodeKey: string; compact?: boolean }>()
 const emit = defineEmits<{ select: [key: string] }>()
@@ -206,14 +203,15 @@ const node = computed(() => store.nodeFor(props.nodeKey))
 const selected = computed(() => store.selectedKey === props.nodeKey)
 const dim = computed(() => store.filtersActive && !store.matches(props.nodeKey))
 const state = computed(() => store.flags(props.nodeKey))
+const multiRoute = computed(() => store.playbook.routes.length > 1)
 const dayLabels = computed(() => [
   ...new Set(
     (node.value?.placements ?? [])
       .filter((p) => store.route === 'all' || p.route === store.route)
       .map((p) =>
-        store.route === 'all'
-          ? `${p.route === 'kinetic' ? 'Race' : 'Fair'} D${p.day}`
-          : `Day ${p.day}, ${p.dayName}`,
+        multiRoute.value && store.route === 'all'
+          ? `${p.routeName.replace(/^The /, '').split(' ')[0]} ${store.playbook.dayLabel.charAt(0)}${p.day}`
+          : p.dayName,
       ),
   ),
 ])
@@ -227,52 +225,58 @@ function display(label: string) {
   return label.replaceAll('{companion}', '‹companion›')
 }
 
-function lensName(id: LensId) {
-  return LENSES.find((l) => l.id === id)?.short ?? id
+function lensName(id: string) {
+  return store.playbook.variations.find((v) => v.id === id)?.label ?? id
 }
 
-const KIND_STYLE: Record<
-  NodeKind,
-  { label: string; border: string; badge: string }
-> = {
+function personLabel(id: string) {
+  return store.playbook.people.find((p) => p.id === id)?.label ?? id
+}
+
+const PERSON_STYLES = [
+  'bg-fuchsia-500/15 text-fuchsia-700',
+  'bg-amber-500/20 text-amber-800',
+  'bg-emerald-500/15 text-emerald-700',
+  'bg-sky-500/15 text-sky-700',
+  'bg-base-300 text-base-content/70',
+  'bg-lime-500/20 text-lime-800',
+  'bg-rose-500/15 text-rose-700',
+  'bg-indigo-500/15 text-indigo-700',
+]
+
+function personStyle(id: string) {
+  const index = store.playbook.people.findIndex((p) => p.id === id)
+  return PERSON_STYLES[Math.max(0, index) % PERSON_STYLES.length]
+}
+
+const KIND_STYLE: Record<NodeKind, { border: string; badge: string }> = {
   opening: {
-    label: 'Opening',
     border: 'border-violet-400/60',
     badge: 'bg-violet-500 text-white',
   },
   spine: {
-    label: 'Story spine',
     border: 'border-emerald-500/50',
     badge: 'bg-emerald-600 text-white',
   },
-  fork: {
-    label: 'White rabbit',
-    border: 'border-sky-400/60',
-    badge: 'bg-sky-600 text-white',
-  },
+  fork: { border: 'border-sky-400/60', badge: 'bg-sky-600 text-white' },
   encounter: {
-    label: 'Random encounter',
     border: 'border-amber-400/60',
     badge: 'bg-amber-500 text-black',
   },
   crossroads: {
-    label: 'Crossroads',
     border: 'border-orange-400/60',
     badge: 'bg-orange-500 text-white',
   },
+  boss: { border: 'border-red-500/60', badge: 'bg-red-700 text-white' },
+  quest: { border: 'border-teal-500/60', badge: 'bg-teal-600 text-white' },
+  follower: {
+    border: 'border-fuchsia-400/60',
+    badge: 'bg-fuchsia-600 text-white',
+  },
+  thread: { border: 'border-indigo-400/60', badge: 'bg-indigo-600 text-white' },
   ending: {
-    label: 'Ending storyline',
     border: 'border-rose-400/70 bg-rose-50/40',
     badge: 'bg-rose-600 text-white',
   },
-}
-
-const LEAD_STYLE: Record<EndingLine, string> = {
-  mara: 'bg-fuchsia-500/15 text-fuchsia-700',
-  kit: 'bg-amber-500/20 text-amber-800',
-  juniper: 'bg-emerald-500/15 text-emerald-700',
-  cedar: 'bg-sky-500/15 text-sky-700',
-  alone: 'bg-base-300 text-base-content/70',
-  ecotopia: 'bg-lime-500/20 text-lime-800',
 }
 </script>

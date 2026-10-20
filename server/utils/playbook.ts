@@ -1,17 +1,17 @@
 import { createError } from 'h3'
 import {
-  PLAYBOOK_GAMES,
-  buildEcotonePlaybook,
-  type Playbook,
+  buildPlaybook,
+  isPlaybookGame,
   type PlaybookGame,
-} from '../../utils/playbook/ecotone'
+} from '../../utils/playbook/games'
+import type { Playbook } from '../../utils/playbook/types'
 import {
   isEmptyEdit,
   sanitizeCardEdit,
   type CardEdit,
 } from '../../utils/playbook/edits'
 
-// Playbook Manager server helpers (conductor weird-humboldt t-033). Node keys
+// Playbook Manager server helpers (conductor weird-humboldt t-033, t-036). Node keys
 // come from the authored playbook, so a row can only ever point at a real beat.
 
 export const PLAYBOOK_NOTE_KINDS = [
@@ -22,26 +22,15 @@ export const PLAYBOOK_NOTE_KINDS = [
 ] as const
 export type PlaybookNoteKind = (typeof PLAYBOOK_NOTE_KINDS)[number]
 
-const builders: Record<PlaybookGame, () => Playbook> = {
-  ecotone: buildEcotonePlaybook,
-}
-let cache: Partial<Record<PlaybookGame, Playbook>> = {}
-
 export function resolvePlaybookGame(raw: unknown): PlaybookGame {
   const slug = String(raw ?? '').trim()
-  if (!(PLAYBOOK_GAMES as readonly string[]).includes(slug))
+  if (!isPlaybookGame(slug))
     throw createError({ statusCode: 404, message: 'Unknown playbook.' })
-  return slug as PlaybookGame
+  return slug
 }
 
 export function playbookFor(game: PlaybookGame): Playbook {
-  cache[game] ??= builders[game]()
-  return cache[game] as Playbook
-}
-
-/** Test seam: rebuild playbooks after content changes. */
-export function resetPlaybookCache(): void {
-  cache = {}
+  return buildPlaybook(game)
 }
 
 export function resolvePlaybookNode(

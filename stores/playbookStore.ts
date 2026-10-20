@@ -2,13 +2,13 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { performFetch } from '~/stores/utils'
 import { ALL_CARDS } from '~/utils/ecotone/engine'
-import type { EndingLine, LensId } from '~/utils/ecotone/content'
+import { playbookCardNode } from '~/utils/playbook/ecotone'
 import {
-  buildEcotonePlaybook,
-  playbookCardNode,
-  type NodeKind,
-  type PlaybookNode,
-} from '~/utils/playbook/ecotone'
+  PLAYBOOK_GAMES,
+  buildPlaybook,
+  type PlaybookGame,
+} from '~/utils/playbook/games'
+import type { NodeKind, PlaybookNode } from '~/utils/playbook/types'
 import {
   applyCardEdit,
   isEmptyEdit,
@@ -22,9 +22,9 @@ import {
 } from '~/utils/playbook/artLanes'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 
-// Playbook Manager (conductor weird-humboldt t-033). The authored playbook is
-// built in the browser from the game's source; edits and notes come from the
-// admin API and are overlaid here.
+// Playbook Manager (conductor weird-humboldt t-033, t-036). The authored
+// playbook for the chosen game is built in the browser from that game's
+// source; edits and notes come from the admin API and are overlaid here.
 
 export type PlaybookEditRow = {
   nodeKey: string
@@ -59,13 +59,30 @@ export const KIND_ORDER: NodeKind[] = [
   'fork',
   'encounter',
   'crossroads',
+  'boss',
+  'quest',
+  'follower',
+  'thread',
   'ending',
 ]
 
-const GAME = 'ecotone'
+export const KIND_NAMES: Record<NodeKind, string> = {
+  opening: 'Opening',
+  spine: 'Story spine',
+  fork: 'Draw',
+  encounter: 'Encounter',
+  crossroads: 'Crossroads',
+  boss: 'Boss',
+  quest: 'Quest',
+  follower: 'Follower line',
+  thread: 'Quest line',
+  ending: 'Ending',
+}
 
 export const usePlaybookStore = defineStore('playbook', () => {
-  const playbook = buildEcotonePlaybook()
+  const game = ref<PlaybookGame>('ecotone')
+  const playbook = computed(() => buildPlaybook(game.value))
+  const games = PLAYBOOK_GAMES.map(({ id, title }) => ({ id, title }))
   const edits = ref<Record<string, PlaybookEditRow>>({})
   const notes = ref<PlaybookNoteRow[]>([])
   const loading = ref(false)
@@ -77,8 +94,8 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const route = ref<string>('all')
   const kinds = ref<NodeKind[]>([])
   const day = ref<number | null>(null)
-  const companion = ref<EndingLine | null>(null)
-  const lens = ref<LensId | null>(null)
+  const companion = ref<string | null>(null)
+  const lens = ref<string | null>(null)
   const status = ref<PlaybookStatus>('all')
   const search = ref('')
   const sort = ref<PlaybookSort>('story')
@@ -100,12 +117,17 @@ export const usePlaybookStore = defineStore('playbook', () => {
     return notes.value.filter((note) => note.nodeKey === key)
   }
 
+  function kindLabel(kind: NodeKind): string {
+    return playbook.value.kindLabels[kind] ?? KIND_NAMES[kind]
+  }
+
   /** The node as it reads with its saved overlay applied. */
   function nodeFor(key: string): PlaybookNode | null {
-    const base = playbook.nodes[key]
+    const base = playbook.value.nodes[key]
     if (!base) return null
     const edit = edits.value[key]
-    const card = edit && ALL_CARDS.find((c) => c.id === key)
+    const card =
+      edit && playbook.value.editable && ALL_CARDS.find((c) => c.id === key)
     if (!card) return base
     const edited = playbookCardNode(applyCardEdit(card, edit.content))
     return {
@@ -122,7 +144,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
 
   function flags(key: string) {
     const list = notesFor(key).filter((n) => !n.resolved)
-    const node = playbook.nodes[key]
+    const node = playbook.value.nodes[key]
     return {
       notes: list.filter((n) => n.kind === 'comment').length,
       flagged: list.some((n) => n.kind === 'flag'),
@@ -137,7 +159,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   const days = computed(() =>
     [
       ...new Set(
-        Object.values(playbook.nodes).flatMap((n) =>
+        Object.values(playbook.value.nodes).flatMap((n) =>
           n.placements.map((p) => p.day),
         ),
       ),
@@ -149,8 +171,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
     if (!node) return false
     if (
       route.value !== 'all' &&
-      node.kind !== 'ending' &&
-      node.kind !== 'opening' &&
+      node.placements.length &&
       !node.placements.some((p) => p.route === route.value)
     )
       return false
@@ -201,21 +222,24 @@ export const usePlaybookStore = defineStore('playbook', () => {
   )
 
   const listKeys = computed(() => {
-    const keys = playbook.order.filter(matches)
+    const keys = playbook.value.order.filter(matches)
     const firstDay = (key: string) =>
-      Math.min(...(playbook.nodes[key]?.placements.map((p) => p.day) ?? []), 99)
+      Math.min(
+        ...(playbook.value.nodes[key]?.placements.map((p) => p.day) ?? []),
+        99,
+      )
     const sorters: Record<PlaybookSort, (a: string, b: string) => number> = {
       story: () => 0,
       day: (a, b) => firstDay(a) - firstDay(b),
       kind: (a, b) =>
-        KIND_ORDER.indexOf(playbook.nodes[a]?.kind ?? 'ending') -
-        KIND_ORDER.indexOf(playbook.nodes[b]?.kind ?? 'ending'),
+        KIND_ORDER.indexOf(playbook.value.nodes[a]?.kind ?? 'ending') -
+        KIND_ORDER.indexOf(playbook.value.nodes[b]?.kind ?? 'ending'),
       companion: (a, b) =>
-        (playbook.nodes[a]?.companions.length ?? 9) -
-        (playbook.nodes[b]?.companions.length ?? 9),
+        (playbook.value.nodes[a]?.companions.length ?? 9) -
+        (playbook.value.nodes[b]?.companions.length ?? 9),
       title: (a, b) =>
-        (playbook.nodes[a]?.title ?? '').localeCompare(
-          playbook.nodes[b]?.title ?? '',
+        (playbook.value.nodes[a]?.title ?? '').localeCompare(
+          playbook.value.nodes[b]?.title ?? '',
         ),
     }
     return [...keys].sort(sorters[sort.value])
@@ -223,17 +247,17 @@ export const usePlaybookStore = defineStore('playbook', () => {
 
   const routes = computed(() =>
     route.value === 'all'
-      ? playbook.routes
-      : playbook.routes.filter((r) => r.id === route.value),
+      ? playbook.value.routes
+      : playbook.value.routes.filter((r) => r.id === route.value),
   )
 
   const selected = computed(() => nodeFor(selectedKey.value))
 
   const counts = computed(() => {
-    const all = Object.keys(playbook.nodes)
+    const all = Object.keys(playbook.value.nodes)
     return {
       nodes: all.length,
-      needsArt: all.filter((k) => playbook.nodes[k]?.needsArt).length,
+      needsArt: all.filter((k) => playbook.value.nodes[k]?.needsArt).length,
       edited: Object.keys(edits.value).length,
       live: Object.values(edits.value).filter((e) => e.live).length,
       open: openNotes.value.length,
@@ -254,7 +278,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
     const response = await performFetch<{
       edits: PlaybookEditRow[]
       notes: PlaybookNoteRow[]
-    }>(`/api/admin/playbook/${GAME}`)
+    }>(`/api/admin/playbook/${game.value}`)
     loading.value = false
     if (!response.success || !response.data) {
       say(response.message || 'Could not load the playbook notes.', true)
@@ -268,7 +292,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   }
 
   function nodePath(key: string) {
-    return `/api/admin/playbook/${GAME}/${encodeURIComponent(key)}`
+    return `/api/admin/playbook/${game.value}/${encodeURIComponent(key)}`
   }
 
   async function saveEdit(key: string, raw: CardEdit, live: boolean) {
@@ -341,7 +365,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   ) {
     const lane =
       PLAYBOOK_ART_LANES.find((l) => l.key === options.laneKey) ??
-      PLAYBOOK_ART_LANES[0]
+      PLAYBOOK_ART_LANES.find((l) => l.key === playbook.value.artLanes[0])
     if (!lane || !options.prompt.trim()) return false
     saving.value = true
     const seed = Math.floor(Math.random() * 2_000_000_000)
@@ -350,7 +374,11 @@ export const usePlaybookStore = defineStore('playbook', () => {
       {
         method: 'POST',
         body: JSON.stringify(
-          playbookArtRequest(lane, options.prompt, options.shape, seed),
+          playbookArtRequest(lane, options.prompt, options.shape, seed, {
+            projectSlug: playbook.value.artProject,
+            designer: playbook.value.title,
+            negative: playbook.value.artNegative,
+          }),
         ),
       },
     )
@@ -400,7 +428,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   function exportJson(): string {
     return JSON.stringify(
       {
-        game: GAME,
+        game: game.value,
         exportedAt: new Date().toISOString(),
         edits: Object.values(edits.value),
         openNotes: openNotes.value,
@@ -410,8 +438,25 @@ export const usePlaybookStore = defineStore('playbook', () => {
     )
   }
 
+  /** Open another game: filters and selection reset, its notes load. */
+  async function setGame(next: PlaybookGame) {
+    if (next === game.value && loaded.value) return
+    game.value = next
+    route.value = 'all'
+    clearFilters()
+    selectedKey.value = playbook.value.order[0] ?? ''
+    edits.value = {}
+    notes.value = []
+    loaded.value = false
+    await load()
+  }
+
   return {
+    game,
+    games,
     playbook,
+    kindLabel,
+    setGame,
     edits,
     notes,
     loading,

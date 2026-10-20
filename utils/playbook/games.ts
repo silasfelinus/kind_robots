@@ -11,24 +11,39 @@ import type { Playbook } from './types'
 // game's authored source. Ecotone takes full card edits; every other game
 // takes the text overlay (utils/playbook/textOverlay.ts).
 
+// `cover` is the game's own key art: the manager's game switcher, and the
+// backdrop for any beat that has no picture yet.
 export const PLAYBOOK_GAMES = [
-  { id: 'ecotone', title: 'Ecotone', build: buildEcotonePlaybook },
+  {
+    id: 'ecotone',
+    title: 'Ecotone',
+    cover: '/ecotone/title/key-art.webp',
+    build: buildEcotonePlaybook,
+  },
   {
     id: 'emperor-of-dust',
     title: 'Emperor of Dust',
+    cover: '/emperor-of-dust/map/wasteland.webp',
     build: buildEmperorOfDustPlaybook,
   },
   {
     id: 'shifting-lands',
     title: 'Zuzu: Shifting Lands',
+    cover: '/shifting-lands/cards/the-map-in-ashes.webp',
     build: buildShiftingLandsPlaybook,
   },
   {
     id: 'shifting-desks',
     title: 'Shifting Desks',
+    cover: '/shifting-desks/front-poster.svg',
     build: buildShiftingDesksPlaybook,
   },
-  { id: 'zuzu-gamebook', title: 'Zuzu Gamebook', build: buildGamebookPlaybook },
+  {
+    id: 'zuzu-gamebook',
+    title: 'Zuzu Gamebook',
+    cover: '/zuzu-gamebook/scenes/bell-tower.webp',
+    build: buildGamebookPlaybook,
+  },
 ] as const
 
 export type PlaybookGame = (typeof PLAYBOOK_GAMES)[number]['id']

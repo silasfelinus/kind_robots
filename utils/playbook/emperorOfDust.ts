@@ -283,7 +283,10 @@ export function buildEmperorOfDustPlaybook(): Playbook {
         `Act ${ROMAN[Math.ceil(day.day / 10)]} · days ${day.day}–${day.day + 9}`
     const key = `day:${day.day}`
     const node = blankNode(key, 'spine', day.title)
-    node.place = `Day ${day.day}${day.advisor ? ` · advisor ${day.advisor}` : ''}`
+    node.place = `Day ${day.day}${day.advisor ? ` · ${day.advisor.name} advises` : ''}`
+    node.artUrl = day.advisor
+      ? (illustration('npcs', day.advisor.npc) ?? null)
+      : null
     // Three briefings then Komodo, in order, so a text edit maps straight back.
     node.body = [...day.briefings.map((b) => b.text), day.komodo]
     node.variations = [

@@ -83,7 +83,14 @@ export const KIND_NAMES: Record<NodeKind, string> = {
 export const usePlaybookStore = defineStore('playbook', () => {
   const game = ref<PlaybookGame>('ecotone')
   const playbook = computed(() => buildPlaybook(game.value))
-  const games = PLAYBOOK_GAMES.map(({ id, title }) => ({ id, title }))
+  const games = PLAYBOOK_GAMES.map(({ id, title, cover }) => ({
+    id,
+    title,
+    cover,
+  }))
+  const cover = computed(
+    () => PLAYBOOK_GAMES.find((g) => g.id === game.value)?.cover ?? '',
+  )
   const edits = ref<Record<string, PlaybookEditRow>>({})
   const notes = ref<PlaybookNoteRow[]>([])
   const loading = ref(false)
@@ -456,6 +463,7 @@ export const usePlaybookStore = defineStore('playbook', () => {
   return {
     game,
     games,
+    cover,
     playbook,
     kindLabel,
     setGame,

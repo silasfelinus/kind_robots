@@ -7,12 +7,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A mannequin in a Ferndale shop window begs you to stop a wedding planned for 1912. Behind its veil lies a modern bus ticket.",
-    "investigate": "Find out which wedding the mannequin remembers",
-    "success": "The archive reveals the ceremony never happened because both people chose to leave town together.",
-    "failure": "A clockwork cough closes the window before you learn the names; the bus ticket remains.",
-    "help": "Ask the shopkeeper before interfering with strangers",
-    "helpOutcome": "The display is changed respectfully, and an elderly visitor recognizes a family photograph."
+    "pressure": "A mannequin in a Ferndale shop window begs you to stop a wedding scheduled for 1912. A modern bus ticket lies under her veil. The shopkeeper says the display has never moved and asks you not to touch the dress.",
+    "investigate": "Check the ceremony record before deciding the mannequin knows a real name",
+    "success": "The archive contains a canceled ceremony, not a tragedy. Both people chose to leave town together. The mannequin looks faintly pleased and declines to explain why.",
+    "failure": "The clock in the display coughs and the names vanish from the card. You retain the bus ticket and the good sense not to accuse anyone's ancestors.",
+    "help": "Ask the shopkeeper about the display and protect the family's privacy",
+    "helpOutcome": "The shopkeeper changes the display with the family's permission. A visitor recognizes a photograph and asks to keep the story private."
   },
   {
     "id": "WH-082",
@@ -22,12 +22,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A well-dressed cow owns the theater by inheritance and intends to stage a new play, but the board says hooves cannot sign contracts.",
-    "investigate": "Review the deed and old theater books",
-    "success": "The deed is valid except for one clause signed fifty years in the future.",
-    "failure": "Ink smears the last page. You can still prove the theater belonged to the family.",
-    "help": "Help the company rehearse with its unusual patron",
-    "helpOutcome": "The cow attends opening night and votes to pay the stage crew a proper wage."
+    "pressure": "A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra.",
+    "investigate": "Read the deed beside the company's books, not just the animal's costume",
+    "success": "The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too.",
+    "failure": "Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust.",
+    "help": "Help the company rehearse while its patron and workers negotiate",
+    "helpOutcome": "The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view."
   },
   {
     "id": "WH-083",

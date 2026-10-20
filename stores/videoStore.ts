@@ -260,22 +260,24 @@ export const useVideoStore = defineStore('videoStore', () => {
         }
       }
 
-      const notice = artJobRetryNotice(job)
-      if (notice) {
-        state.attempts = notice.attempts
-        state.attemptError = notice.error
-      }
+      if (state.jobId === jobId) {
+        const notice = artJobRetryNotice(job)
+        if (notice) {
+          state.attempts = notice.attempts
+          state.attemptError = notice.error
+        }
 
-      if (job?.status === 'RUNNING') {
-        state.status = 'rendering'
-        state.message = state.attemptError
-          ? `Retrying after attempt ${state.attempts} failed — rendering…`
-          : 'The studio engine is rendering your clip…'
-      } else if (job?.status === 'PENDING') {
-        state.status = 'queued'
-        state.message = state.attemptError
-          ? `Attempt ${state.attempts} failed — waiting for the studio engine to retry…`
-          : 'Queued — waiting for the studio engine to pick it up…'
+        if (job?.status === 'RUNNING') {
+          state.status = 'rendering'
+          state.message = state.attemptError
+            ? `Retrying after attempt ${state.attempts} failed — rendering…`
+            : 'The studio engine is rendering your clip…'
+        } else if (job?.status === 'PENDING') {
+          state.status = 'queued'
+          state.message = state.attemptError
+            ? `Attempt ${state.attempts} failed — waiting for the studio engine to retry…`
+            : 'Queued — waiting for the studio engine to pick it up…'
+        }
       }
 
       await sleep(POLL_MS)
@@ -318,18 +320,22 @@ export const useVideoStore = defineStore('videoStore', () => {
         )
       }
 
-      if (typeof job.artImageId === 'number') {
+      if (history.selectedJobId === jobId && typeof job.artImageId === 'number') {
         state.artImageId = job.artImageId
         await loadVideo(job.artImageId)
       }
 
-      state.status = 'done'
-      state.message = 'Clip ready.'
+      if (history.selectedJobId === jobId) {
+        state.status = 'done'
+        state.message = 'Clip ready.'
+      }
       await fetchJobs(1)
     } catch (err) {
-      state.status = 'error'
-      state.error = err instanceof Error ? err.message : String(err)
-      state.message = ''
+      if (history.selectedJobId === state.jobId) {
+        state.status = 'error'
+        state.error = err instanceof Error ? err.message : String(err)
+        state.message = ''
+      }
       await fetchJobs(1)
     }
   }

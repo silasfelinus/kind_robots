@@ -6,14 +6,14 @@ This batch edits **18 more regional encounters**, three per chapter, and adds **
 
 ## Scene selection and editorial intent
 
-| Region | Cards revised | Human stakes and consequences |
-| --- | --- | --- |
-| Arcata | WH-008, WH-011, WH-017 | Consent and unsafe theater stunts; a lost jogger before dusk; missing dorm resident with a right to privacy |
-| Coast | WH-033, WH-035, WH-037 | The dangerous listening cliff; submerged-porch trespass; a tiny river toll that must not strand anyone |
-| Eureka | WH-053, WH-057, WH-058 | No passengers in a leaking submarine; a volunteer's dignified break from a bear costume; restoring zoo signs without disrupting animals |
-| Backroads | WH-073, WH-076, WH-078 | Let small-footprint researchers present real methods; bus passengers need not confess to reach their stop; the frightened pay-phone caller needs a human answer |
-| Southern Humboldt | WH-093, WH-095, WH-099 | Ghost-tourist road safety; family consent to publish a resemblance in bark; a river-stone inheritance with a real floodplain question |
-| Kinetic Festival | WH-113, WH-115, WH-117 | Local rescue crews lead even when the boat is from somewhere impossible; erased teams get a voice in six futures; a reachable finish matters more than a solved mystery |
+| Region            | Cards revised          | Human stakes and consequences                                                                                                                                           |
+| ----------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arcata            | WH-008, WH-011, WH-017 | Consent and unsafe theater stunts; a lost jogger before dusk; missing dorm resident with a right to privacy                                                             |
+| Coast             | WH-033, WH-035, WH-037 | The dangerous listening cliff; submerged-porch trespass; a tiny river toll that must not strand anyone                                                                  |
+| Eureka            | WH-053, WH-057, WH-058 | No passengers in a leaking submarine; a volunteer's dignified break from a bear costume; restoring zoo signs without disrupting animals                                 |
+| Backroads         | WH-073, WH-076, WH-078 | Let small-footprint researchers present real methods; bus passengers need not confess to reach their stop; the frightened pay-phone caller needs a human answer         |
+| Southern Humboldt | WH-093, WH-095, WH-099 | Ghost-tourist road safety; family consent to publish a resemblance in bark; a river-stone inheritance with a real floodplain question                                   |
+| Kinetic Festival  | WH-113, WH-115, WH-117 | Local rescue crews lead even when the boat is from somewhere impossible; erased teams get a voice in six futures; a reachable finish matters more than a solved mystery |
 
 Each revised card retains the same **ID, chapter, map pool, standard investigate and care choice IDs, skill check, dice target, stat effects, outcome flags and save identity**. Only authored scene tension, choice labels, success, failure and care outcomes change. The six chapter reading kits mirror those exact playable strings and corresponding scene/outcome image briefs.
 

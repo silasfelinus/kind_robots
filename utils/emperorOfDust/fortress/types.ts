@@ -224,6 +224,24 @@ export type AudienceDef = {
   requires?: Requirement
 }
 
+/**
+ * A barracks conversation with one follower, played like an audience scene.
+ * The emperor can sit with one follower a day; each talk is heard once.
+ */
+export type TalkDef = {
+  id: string
+  follower: string
+  title: string
+  /** The first day this talk can happen. */
+  fromDay: number
+  /** Romance steps are marked so the barracks can show them as such. */
+  romance?: boolean
+  requires?: Requirement
+  lines: SceneLine[]
+  options: AudienceOption[]
+  beats?: AudienceBeat[]
+}
+
 export type Briefing = {
   id: string
   source: string
@@ -321,6 +339,12 @@ export type FortressRun = {
   dayAudiences?: string[]
   /** Audience id -> the beat it has reached, while a scene is still open. */
   audienceBeats?: Record<string, string>
+  /** Barracks talks heard, in order. */
+  talksHeard?: string[]
+  /** The day of the last talk, which uses up that day's conversation. */
+  talkDay?: number
+  /** The talk under way today and the beat it has reached. */
+  talkOpen?: { id: string; beat?: string }
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

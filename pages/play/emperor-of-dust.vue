@@ -200,6 +200,12 @@
                 </li>
               </ul>
             </div>
+            <EmperorFortressEpilogue
+              v-if="ending"
+              class="@container"
+              :run="run"
+              :ending="ending.id"
+            />
             <p class="text-sm opacity-75">
               Rewind to any dawn from the Chronicle to try another road, or
               begin again.

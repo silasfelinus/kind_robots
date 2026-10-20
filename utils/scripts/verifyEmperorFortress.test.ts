@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
@@ -50,6 +50,7 @@ import {
   followerDef,
 } from '../emperorOfDust/fortress/followers'
 import { REGIONS } from '../emperorOfDust/fortress/factions'
+import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
@@ -669,6 +670,77 @@ while (!isOver(book.current)) {
 assert.equal(runs, LAST_DAY, 'fifty days to the end')
 assert.equal(book.dawns.length, LAST_DAY)
 assert.throws(() => finishDay(book.current), /over/)
+// --- afterwards: the consequences epilogue ----------------------------------
+{
+  // Every flag an epilogue reads is one the game can set.
+  const settable = new Set<string>()
+  const addEffects = (effects?: { flags?: string[] }) => {
+    for (const flag of effects?.flags ?? []) settable.add(flag)
+  }
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const option of [
+        ...audience.options,
+        ...(audience.beats ?? []).flatMap((beat) => beat.options),
+      ])
+        addEffects(option.effects)
+  for (const quest of [
+    ...ACT_ONE_QUESTS,
+    ...ACT_ONE_LATE_QUESTS,
+    ...ACT_TWO_QUESTS,
+    ...ACT_THREE_QUESTS,
+    ...ACT_FOUR_QUESTS,
+    ...ACT_FIVE_QUESTS,
+    ...QUEST_TEMPLATES,
+  ]) {
+    for (const effects of Object.values(quest.rewards)) addEffects(effects)
+    addEffects(quest.expired)
+  }
+  const engineSource = readFileSync(
+    new URL('../emperorOfDust/fortress/engine.ts', import.meta.url),
+    'utf8',
+  )
+  const canSet = (flag: string) =>
+    settable.has(flag) ||
+    /^(chose|talk|heard|hideout):/.test(flag) ||
+    engineSource.includes(`'${flag}'`)
+  const subjectIds = EPILOGUE.map((subject) => subject.id)
+  assert.equal(new Set(subjectIds).size, subjectIds.length, 'epilogue ids')
+  for (const subject of EPILOGUE) {
+    assert.ok(subject.variants.length >= 1, subject.id)
+    if (subject.follower) assert.ok(followerDef(subject.follower), subject.id)
+    if (subject.npc) assert.ok(npcDef(subject.npc), subject.id)
+    for (const variant of subject.variants) {
+      assert.ok(variant.text.trim().length > 40, `${subject.id} has words`)
+      const when = variant.when ?? {}
+      for (const flag of [
+        ...(when.flags ?? []),
+        ...(when.anyFlags ?? []),
+        ...(when.notFlags ?? []),
+      ])
+        assert.ok(
+          canSet(flag),
+          `${subject.id} reads ${flag}, which nothing sets`,
+        )
+      for (const id of [...(when.alive ?? []), ...(when.dead ?? [])])
+        assert.ok(followerDef(id), `${subject.id} names ${id}`)
+      for (const id of when.endings ?? [])
+        assert.ok(ENDINGS[id], `${subject.id} ending ${id}`)
+    }
+  }
+}
+const afterwards = epilogueFor(book.current, endingOf(book.current).id)
+assert.ok(
+  afterwards.length >= 3,
+  'a finished campaign tells what became of them',
+)
+for (const entry of afterwards)
+  if (entry.subject.follower)
+    assert.ok(
+      book.current.roster.some((s) => s.id === entry.subject.follower),
+      'only followers who joined are remembered',
+    )
+
 const encoded = encodeBook(book)
 assert.deepEqual(decodeBook(encoded), book)
 assert.ok(

@@ -99,6 +99,7 @@ for (const companion of COMPANIONS) {
 }
 assert.equal(LENSES.length, 7, 'seven fully authored voluntary opening lenses')
 const openLenses = LENSES.filter((lens) => lens.open).map((lens) => lens.id)
+const establishedLenses: LensId[] = ['sober', 'tipsy', 'stoned', 'tripping_balls']
 assert.deepEqual(openLenses, [
   'sober',
   'tipsy',
@@ -458,9 +459,21 @@ newcomers.delete('')
 assert.equal(newcomers.size, 4, 'different seeds bring different newcomers')
 for (const card of ALL_CARDS) {
   const quest = QUEST_CARDS.find((candidate) => candidate.id === card.id)
-  if (quest?.requiresLens && !openLenses.includes(quest.requiresLens)) continue
+  if (quest?.requiresLens && !establishedLenses.includes(quest.requiresLens)) continue
   assert.ok(reached.has(card.id), `${card.id} turns up in play`)
 }
+for (const chapter of [1, 2, 3, 4, 5, 6])
+  assert.ok(Object.values(ROUTES).some((route) => route.some(
+    (step) => step.kind === 'fork' && step.pools.includes(chapter),
+  )), `chapter ${chapter} has at least one playable seeded route`)
+for (const lens of openLenses)
+  assert.ok(BEATS.some((beat) => beat.choices.some(
+    (choice) => choice.lens === lens && !choice.locked,
+  )), `the ${lens} opening is playable`)
+for (const branch of ['cocaine', 'meth', 'mdma'] as LensId[])
+  assert.ok(QUEST_CARDS.some((card) => card.requiresLens === branch),
+    `${branch} has its authored personal quest`)
+
 for (const fate of [
   'green-ribbon.hope',
   'green-ribbon.dark',

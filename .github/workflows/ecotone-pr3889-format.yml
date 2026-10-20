@@ -1,19 +1,22 @@
 name: PR 3889 formatting repair
 on:
-  push:
-    branches:
-      - worker/weird-humboldt-t-019-quest-signatures-20261020-q8e6g
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - .github/workflows/ecotone-pr3889-format.yml
+      - utils/ecotone/**
+      - utils/scripts/verifyEcotone.test.ts
 permissions:
   contents: write
 jobs:
   format:
+    if: github.event.pull_request.number == 3889
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: true
+          ref: worker/weird-humboldt-t-019-quest-signatures-20261020-q8e6g
       - uses: actions/setup-node@v4
         with:
           node-version: '24'

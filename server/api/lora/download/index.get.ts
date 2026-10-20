@@ -1,4 +1,9 @@
-import { createError, defineEventHandler, getQuery, setResponseHeader } from 'h3'
+import {
+  createError,
+  defineEventHandler,
+  getQuery,
+  setResponseHeader,
+} from 'h3'
 import prisma from '../../../utils/prisma'
 import { errorHandler } from '../../../utils/error'
 import { requireAdminApiUser } from '../../../utils/authGuard'
@@ -29,14 +34,8 @@ export default defineEventHandler(async (event) => {
     setResponseHeader(event, 'Cache-Control', 'private, no-store')
 
     const rawBefore = getQuery(event).before
-    const before =
-      rawBefore === undefined
-        ? null
-        : Number(rawBefore)
-    if (
-      before !== null &&
-      (!Number.isSafeInteger(before) || before <= 0)
-    ) {
+    const before = rawBefore === undefined ? null : Number(rawBefore)
+    if (before !== null && (!Number.isSafeInteger(before) || before <= 0)) {
       throw createError({ statusCode: 400, message: 'Invalid history cursor.' })
     }
 
@@ -75,7 +74,7 @@ export default defineEventHandler(async (event) => {
         history,
         counts,
         activeLimited: counts.PENDING + counts.CLAIMED > ACTIVE_LIMIT,
-        nextBefore: hasMore ? history[history.length - 1]?.id ?? null : null,
+        nextBefore: hasMore ? (history[history.length - 1]?.id ?? null) : null,
       },
       statusCode: 200,
     }

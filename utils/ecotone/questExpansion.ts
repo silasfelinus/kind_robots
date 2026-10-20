@@ -1,9 +1,12 @@
 import type { CompanionId, EncounterCard, LensId } from './content'
 import { REGIONAL_QUESTS } from './regionalQuestFactory'
+import { FORMER_GUIDE_QUESTS } from './formerGuideQuests'
 
 export type GatedEncounter = EncounterCard & {
   requiresLead?: CompanionId
   requiresLens?: LensId
+  requiresFormerGuide?: CompanionId
+  requiresMeetCount?: number
 }
 
 // The first expansion wave uses the existing 2d6, seed, save and Playbook contracts.
@@ -11,6 +14,7 @@ export type GatedEncounter = EncounterCard & {
 // unopened lenses never silently receive somebody else's personal quest.
 export const QUEST_CARDS: GatedEncounter[] = [
   ...REGIONAL_QUESTS,
+  ...FORMER_GUIDE_QUESTS,
   {
     id: 'WH-003',
     kind: 'encounter',

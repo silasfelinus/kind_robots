@@ -2576,7 +2576,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               {
                 id: 'claim-informant',
                 label:
-                  'Go to the feast, claim the boy as the crown’s, and pay what they ask.',
+                  'Go to the feast, claim the girl as the crown’s, and pay what they ask.',
                 requires: { cost: 25 },
                 effects: {
                   affinity: { jackalwire: -5 },
@@ -2584,7 +2584,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-informant-claimed'],
                 },
                 response:
-                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The boy walks home behind your wagon, bandaged paw to his chest, and the Gate Watch make room for him by their fire.',
+                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The girl walks home behind your wagon, bandaged paw to her chest, and the Gate Watch make room for her by their fire.',
               },
               {
                 id: 'deny-informant',
@@ -2595,7 +2595,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-informant-denied'],
                 },
                 response:
-                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the boy at the wheel. After a week the Gate Watch take the ration card down from above their fire and burn it.',
+                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the girl at the wheel. After a week the Gate Watch take the ration card down from above their fire and burn it.',
               },
               {
                 id: 'attend-armed',

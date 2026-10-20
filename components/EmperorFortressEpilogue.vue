@@ -25,10 +25,10 @@
         class="flex gap-3 rounded-xl border border-warning/25 bg-base-200/60 p-3"
       >
         <span
+          v-if="artFor(entry)"
           class="h-16 w-14 shrink-0 overflow-hidden rounded-md border border-warning/40 bg-base-300"
         >
           <img
-            v-if="artFor(entry)"
             :src="artFor(entry)"
             alt=""
             class="h-full w-full object-cover object-top"
@@ -47,13 +47,18 @@
 
     <figure
       v-else-if="current"
-      class="grid gap-3 rounded-xl border border-warning/30 bg-base-200/60 p-3 @md:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)]"
+      class="grid gap-3 rounded-xl border border-warning/30 bg-base-200/60 p-3"
+      :class="
+        artFor(current)
+          ? '@md:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)]'
+          : 'min-h-40'
+      "
     >
       <span
+        v-if="artFor(current)"
         class="mx-auto block h-48 w-36 overflow-hidden rounded-lg border border-warning/40 bg-base-300 @md:h-56 @md:w-full"
       >
         <img
-          v-if="artFor(current)"
           :key="current.subject.id"
           :src="artFor(current)"
           :alt="current.subject.name"

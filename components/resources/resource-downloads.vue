@@ -11,6 +11,8 @@ type QueueFilter = 'ALL' | 'ACTIVE' | 'DONE' | 'FAILED'
 const downloads = useResourceDownloadsStore()
 const filter = ref<QueueFilter>('ALL')
 const search = ref('')
+const confirmDeleteId = ref<number | null>(null)
+const confirmClearFailed = ref(false)
 let refreshTimer: ReturnType<typeof setInterval> | null = null
 
 const filtered = computed(() => {
@@ -39,6 +41,32 @@ const filtered = computed(() => {
     )
   })
 })
+
+// Bulk operations intentionally act only on currently displayed records.
+const visibleFailedIds = computed(() =>
+  filtered.value
+    .filter((row) => row.status === 'FAILED')
+    .slice(0, 50)
+    .map((row) => row.id),
+)
+
+async function bulkAction(operation: 'retry' | 'delete'): Promise<void> {
+  if (operation === 'delete' && !confirmClearFailed.value) {
+    confirmClearFailed.value = true
+    return
+  }
+  confirmClearFailed.value = false
+  await downloads.bulkFailed(operation, visibleFailedIds.value)
+}
+
+async function deleteAction(id: number): Promise<void> {
+  if (confirmDeleteId.value !== id) {
+    confirmDeleteId.value = id
+    return
+  }
+  confirmDeleteId.value = null
+  await downloads.deleteRecord(id)
+}
 
 const activeRows = computed(() =>
   filtered.value.filter(
@@ -169,6 +197,37 @@ onUnmounted(() => {
       />
     </div>
 
+    <div v-if="visibleFailedIds.length" class="flex shrink-0 flex-wrap items-center gap-2">
+      <button
+        type="button"
+        class="btn btn-xs btn-primary rounded-lg"
+        :disabled="downloads.bulkBusy || downloads.retryingId !== null"
+        @click="bulkAction('retry')"
+      >
+        Retry shown failed ({{ visibleFailedIds.length }})
+      </button>
+      <button
+        type="button"
+        class="btn btn-xs btn-outline rounded-lg"
+        :class="confirmClearFailed ? 'btn-error' : ''"
+        :disabled="downloads.bulkBusy"
+        @click="bulkAction('delete')"
+      >
+        {{ confirmClearFailed ? 'Confirm clear' : 'Clear shown failed' }}
+      </button>
+      <button
+        v-if="confirmClearFailed"
+        type="button"
+        class="btn btn-xs btn-ghost"
+        @click="confirmClearFailed = false"
+      >
+        Cancel
+      </button>
+      <span v-if="confirmClearFailed" class="kr-text-dim-xs">
+        History entries only. Model files are kept.
+      </span>
+    </div>
+
     <p v-if="downloads.error" role="alert" class="kr-note kr-note-error p-2">
       {{ downloads.error }}
     </p>
@@ -266,6 +325,23 @@ onUnmounted(() => {
                 class="kr-spinner-xs"
               />
               Retry
+            </button>
+            <button
+              type="button"
+              class="btn btn-xs rounded-lg"
+              :class="confirmDeleteId === item.id ? 'btn-error' : 'btn-ghost'"
+              :disabled="downloads.deletingId !== null || downloads.bulkBusy"
+              @click="deleteAction(item.id)"
+            >
+              {{ confirmDeleteId === item.id ? 'Confirm delete' : 'Delete' }}
+            </button>
+            <button
+              v-if="confirmDeleteId === item.id"
+              type="button"
+              class="btn btn-xs btn-ghost rounded-lg"
+              @click="confirmDeleteId = null"
+            >
+              Cancel
             </button>
           </div>
         </article>

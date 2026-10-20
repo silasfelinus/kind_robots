@@ -51,6 +51,8 @@ import {
   type RunState,
 } from '../ecotone/engine'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
+import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
+import { allConceptArtPitches, encounterArtPitches, endingArtPitches } from '../ecotone/conceptArtPitches'
 import {
   BEATS,
   EVENTS,
@@ -94,10 +96,12 @@ for (const companion of COMPANIONS) {
 assert.equal(
   LENSES.length,
   7,
-  'seven opening lenses, three still being written',
+  'seven fully authored voluntary opening lenses',
 )
 const openLenses = LENSES.filter((lens) => lens.open).map((lens) => lens.id)
-assert.deepEqual(openLenses, ['sober', 'tipsy', 'stoned', 'tripping_balls'])
+assert.deepEqual(openLenses, [
+  'sober', 'tipsy', 'stoned', 'tripping_balls', 'cocaine', 'meth', 'mdma',
+])
 
 // Endings: four companions plus going alone, seven lenses, two fates.
 assert.deepEqual(ENDING_LEADS, [
@@ -120,6 +124,48 @@ for (const lead of ENDING_LEADS) {
   }
 }
 for (const lens of openLenses) assert.ok(LENS_CODAS[lens], `${lens} coda`)
+
+// Full regional manuscript: 120 canonical seed IDs, every choice and result written.
+const canonical = ENCOUNTERS.filter((c) => /^WH-\\d{3}$/.test(c.id) && Number(c.id.slice(3)) <= 120)
+assert.equal(canonical.length, 120, 'all 120 canonical regional quests exist as cards')
+assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
+assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
+for (const card of canonical) {
+  assert.ok(card.body.length >= 2, `${card.id} has a playable illustrated scene`)
+  assert.ok(card.choices.length >= 2, `${card.id} has a real dilemma`)
+  for (const choice of card.choices) {
+    assert.ok(choice.label.length > 15, `${card.id} has an actionable choice`)
+    assert.ok(choice.success.text.length > 30, `${card.id} has a written outcome`)
+    if (choice.check) assert.ok(choice.failure?.text.length, `${card.id} has an authored failed check`)
+  }
+}
+const allPitchEntries = allConceptArtPitches()
+const allPitchKeys = allPitchEntries.map((p) => p.key)
+assert.equal(new Set(allPitchKeys).size, allPitchKeys.length, 'art brief keys are unique')
+const allPitchByKey = new Map(allPitchEntries.map((p) => [p.key, p]))
+for (const card of ALL_CARDS) {
+  assert.ok(allPitchByKey.has(cardArtKey(card.id)), `${card.id} has an intro brief`)
+  for (let index = 1; index < card.body.length; index++)
+    assert.ok(allPitchByKey.has(`paragraphs/${card.id.toLowerCase()}/${index + 1}`),
+      `${card.id} has concept art for body paragraph ${index + 1}`)
+  for (const choice of card.choices.filter((choice) => !choice.locked)) {
+    assert.ok(allPitchByKey.has(outcomeArtKey(card.id, choice.id, 'success')),
+      `${card.id}/${choice.id} has a success image brief`)
+    if (choice.failure)
+      assert.ok(allPitchByKey.has(outcomeArtKey(card.id, choice.id, 'failure')),
+        `${card.id}/${choice.id} has a failure image brief`)
+  }
+}
+for (const id of ENDING_IDS) {
+  assert.ok(allPitchByKey.has(endingArtKey(id)), `${id} has ending concept art`)
+  for (const span of ['one-year', 'ten-year', 'thirty-year'])
+    assert.ok(allPitchByKey.has(`epilogues/${id.replaceAll('.', '-')}/${span}`),
+      `${id} has its ${span} illustration brief`)
+}
+assert.ok(encounterArtPitches().length > 500)
+assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
+assert.ok(allPitchEntries.every((p) => p.status === 'editorial-draft'))
+assert.ok(allPitchEntries.every((p) => p.mustNotImply.length > 0 && p.sourceConditions.length > 0))
 
 // Every card and beat is at least a binary choice with honest provenance.
 assert.equal(new Set(ALL_CARDS.map((c) => c.id)).size, ALL_CARDS.length)
@@ -321,7 +367,7 @@ assert.equal(play(3, { ...race, area: 1 }).prospect, 'mara')
 let party = advance(chooseEvent(createRun(5, 'local'), 'kinetic'))
 party = advance(chooseBeat(party, 'pit'))
 assert.equal(party.card, 'KN-2')
-assert.equal(chooseBeat(party, 'fast-track'), party, 'locked roads stay shut')
+assert.ok(chooseBeat(party, 'fast-track').pending, 'fast-track opening is authored and playable')
 const drink = chooseBeat(party, 'tipsy')
 assert.ok(drink.pending, 'a choice waits on Continue')
 assert.equal(chooseBeat(drink, 'sober'), drink, 'no rerolling a result')
@@ -381,7 +427,7 @@ for (const fate of [
 ])
   assert.ok(fates.has(fate), `${fate} is reachable`)
 const written = ENDING_LEADS.flatMap((lead) =>
-  openLenses
+  ['sober', 'tipsy', 'stoned', 'tripping_balls']
     .filter((lens) => lead !== 'ecotopia' || lens !== 'tipsy')
     .flatMap((lens) => [`${lead}.${lens}.hope`, `${lead}.${lens}.dark`]),
 )

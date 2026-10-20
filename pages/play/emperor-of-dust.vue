@@ -490,6 +490,53 @@ useHead({ title: 'Emperor of Dust' })
   cursor: not-allowed;
 }
 
+.eod .eod-banner {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
+  border-top: 3px solid var(--eod-gilt);
+  color: var(--color-base-content);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklch, var(--eod-banner) 90%, white 6%),
+    color-mix(in oklch, var(--eod-banner) 80%, black 20%)
+  );
+  --eod-banner: oklch(40% 0.03 255);
+}
+
+.eod .eod-banner-hostile {
+  --eod-banner: oklch(45% 0.16 27);
+}
+
+.eod .eod-banner-wary {
+  --eod-banner: oklch(55% 0.11 70);
+}
+
+.eod .eod-banner-neutral {
+  --eod-banner: oklch(42% 0.04 240);
+}
+
+.eod .eod-banner-friendly {
+  --eod-banner: oklch(46% 0.09 150);
+}
+
+.eod .eod-banner-allied {
+  --eod-banner: oklch(52% 0.12 150);
+}
+
+.eod .eod-banner-gone {
+  --eod-banner: oklch(30% 0.01 255);
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.eod .eod-banner-fog {
+  --eod-banner: oklch(32% 0.015 255);
+  opacity: 0.55;
+}
+
+.eod .eod-banner-focused {
+  filter: drop-shadow(0 0 5px var(--eod-gilt));
+}
+
 .eod .eod-medallion {
   border: 1px solid var(--eod-gilt);
   background: radial-gradient(

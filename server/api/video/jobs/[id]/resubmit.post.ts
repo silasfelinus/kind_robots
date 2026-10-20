@@ -32,13 +32,17 @@ export default defineEventHandler(async (event) => {
     const width = Number(video.width)
     const height = Number(video.height)
     if (
-      !Number.isFinite(frames) || frames < 1 ||
-      !Number.isFinite(width) || width < 64 ||
-      !Number.isFinite(height) || height < 64
+      !Number.isFinite(frames) ||
+      frames < 1 ||
+      !Number.isFinite(width) ||
+      width < 64 ||
+      !Number.isFinite(height) ||
+      height < 64
     ) {
       throw createError({
         statusCode: 422,
-        message: 'This older job is missing render settings and cannot be resubmitted.',
+        message:
+          'This older job is missing render settings and cannot be resubmitted.',
       })
     }
     const payload = prepareArtJobRetryPayload(

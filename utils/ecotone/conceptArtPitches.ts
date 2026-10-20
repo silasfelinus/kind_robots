@@ -1,4 +1,10 @@
-import { ENCOUNTERS, ENDING_IDS, type Fate, type EndingLine, type LensId } from './content'
+import {
+  ENCOUNTERS,
+  ENDING_IDS,
+  type Fate,
+  type EndingLine,
+  type LensId,
+} from './content'
 import { BEATS, FUTURES, SIGNATURES } from './story'
 import { FUTURE_BOOKENDS, NEW_SIGNATURES } from './finaleExpansion'
 import { cardArtKey, endingArtKey, outcomeArtKey } from './artSlots'
@@ -36,14 +42,20 @@ function presentation(card: (typeof ENCOUNTERS)[number]): ConceptArtPitch {
     subject: card.title,
     action: card.body[0] ?? card.title,
     visibleEvidence: [card.scene, card.place, card.body[0] ?? ''],
-    mustNotImply: [...NEVER_ASSUME, 'This is the dilemma before any player choice; no solution is visible.'],
+    mustNotImply: [
+      ...NEVER_ASSUME,
+      'This is the dilemma before any player choice; no solution is visible.',
+    ],
     sourceConditions: [`seen:${card.id}`],
     altTextDraft: `${card.title} at ${card.place}: ${card.body[0] ?? 'the scene before a decision'}`,
     status: 'editorial-draft',
   }
 }
 
-function paragraphPitch(card: (typeof ENCOUNTERS)[number], i: number): ConceptArtPitch {
+function paragraphPitch(
+  card: (typeof ENCOUNTERS)[number],
+  i: number,
+): ConceptArtPitch {
   return {
     key: `paragraphs/${card.id.toLowerCase()}/${i + 1}`,
     phase: 'paragraph',
@@ -52,7 +64,10 @@ function paragraphPitch(card: (typeof ENCOUNTERS)[number], i: number): ConceptAr
     subject: card.title,
     action: card.body[i]!,
     visibleEvidence: [card.scene, card.place, card.body[i]!],
-    mustNotImply: [...NEVER_ASSUME, 'Remain before the decision; do not show any later outcome.'],
+    mustNotImply: [
+      ...NEVER_ASSUME,
+      'Remain before the decision; do not show any later outcome.',
+    ],
     sourceConditions: [`seen:${card.id}`, `paragraph:${i + 1}`],
     altTextDraft: `${card.title}, scene ${i + 1}: ${card.body[i]}`,
     status: 'editorial-draft',
@@ -110,7 +125,8 @@ export function encounterArtPitches(): ConceptArtPitch[] {
 export function endingArtPitches(): ConceptArtPitch[] {
   return ENDING_IDS.flatMap((id) => {
     const [lead, lens, fate] = id.split('.') as [EndingLine, LensId, Fate]
-    const signature = SIGNATURES[`${lead}.${lens}`]?.[fate] ??
+    const signature =
+      SIGNATURES[`${lead}.${lens}`]?.[fate] ??
       NEW_SIGNATURES[`${lead}.${lens}`]?.[fate]
     const base: ConceptArtPitch = {
       key: endingArtKey(id),
@@ -120,7 +136,10 @@ export function endingArtPitches(): ConceptArtPitch[] {
       subject: `${lead} / ${lens} / ${fate}`,
       action: signature?.line ?? FUTURES[lead][fate][0]!,
       visibleEvidence: [signature?.line ?? FUTURES[lead][fate][0]!],
-      mustNotImply: [...NEVER_ASSUME, 'The initial substance does not cause or define the moral outcome.'],
+      mustNotImply: [
+        ...NEVER_ASSUME,
+        'The initial substance does not cause or define the moral outcome.',
+      ],
       sourceConditions: [`earned-ending:${id}`],
       altTextDraft: `${signature?.title ?? id}: ${signature?.line ?? FUTURES[lead][fate][0]}`,
       status: 'editorial-draft',

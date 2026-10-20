@@ -238,7 +238,7 @@ export const BEATS: EncounterCard[] = [
         lens: 'meth',
         check: { skill: 'lore', target: 9 },
         success: {
-          text: 'The festival is still awake at dawn. By the repair tent, a radio operator hears three versions of tomorrow\'s weather and writes them in separate columns. You ask another listener to verify the third. The first good answer is to share the night watch, not own it.',
+          text: "The festival is still awake at dawn. By the repair tent, a radio operator hears three versions of tomorrow's weather and writes them in separate columns. You ask another listener to verify the third. The first good answer is to share the night watch, not own it.",
           effects: {
             evidence: 'Three independently compared dawn weather broadcasts',
             flag: 'night_watch_shared',

@@ -270,7 +270,8 @@ export const LENSES: Lens[] = [
     id: 'cocaine',
     label: 'The Fast Track',
     short: 'Fast Track',
-    offer: 'An offered stimulant at the invented pre-race party, freely accepted or refused.',
+    offer:
+      'An offered stimulant at the invented pre-race party, freely accepted or refused.',
     question: 'How does urgency change what I think deserves attention?',
     clarity: 2,
     open: true,
@@ -279,7 +280,8 @@ export const LENSES: Lens[] = [
     id: 'meth',
     label: 'The Signal That Never Sleeps',
     short: 'No Sleep',
-    offer: 'A voluntary stimulant choice in the invented warehouse, with no instructions or dosage.',
+    offer:
+      'A voluntary stimulant choice in the invented warehouse, with no instructions or dosage.',
     question: 'Who will share the long watch when this night is over?',
     clarity: 1,
     open: true,
@@ -288,7 +290,8 @@ export const LENSES: Lens[] = [
     id: 'mdma',
     label: 'Everybody Loves Everybody',
     short: 'Loves All',
-    offer: 'A voluntary empathogen choice at the invented party, not a promise of trust.',
+    offer:
+      'A voluntary empathogen choice at the invented party, not a promise of trust.',
     question: 'Which promises will survive when the feeling fades?',
     clarity: 2,
     open: true,

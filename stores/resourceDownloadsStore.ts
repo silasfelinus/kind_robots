@@ -44,6 +44,7 @@ export const useResourceDownloadsStore = defineStore('resourceDownloads', () => 
   const counts = ref<DownloadCounts>(emptyCounts())
   const nextBefore = ref<number | null>(null)
   const activeLimited = ref(false)
+  const hasLoadedOlder = ref(false)
   const loading = ref(false)
   const loadingMore = ref(false)
   const retryingId = ref<number | null>(null)
@@ -80,9 +81,8 @@ export const useResourceDownloadsStore = defineStore('resourceDownloads', () => 
       )
         .filter((row) => !activeIds.has(row.id))
         .sort((a, b) => b.id - a.id)
-      if (reset || nextBefore.value === null) {
-        nextBefore.value = data.nextBefore
-      }
+      if (reset) hasLoadedOlder.value = false
+      if (!hasLoadedOlder.value) nextBefore.value = data.nextBefore
       updatedAt.value = new Date()
     } catch (caught) {
       error.value =
@@ -111,6 +111,7 @@ export const useResourceDownloadsStore = defineStore('resourceDownloads', () => 
         .filter((row) => !activeIds.has(row.id))
         .sort((a, b) => b.id - a.id)
       nextBefore.value = response.data.nextBefore
+      hasLoadedOlder.value = true
     } catch (caught) {
       error.value =
         caught instanceof Error ? caught.message : 'Unable to load history.'

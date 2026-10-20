@@ -83,7 +83,13 @@ export const validateRun = (value: unknown): value is FortressRun => {
     (run.audienceBeats !== undefined &&
       (!object(run.audienceBeats) ||
         Object.keys(run.audienceBeats).length > 20 ||
-        !Object.values(run.audienceBeats).every((beat) => text(beat, 80))))
+        !Object.values(run.audienceBeats).every((beat) => text(beat, 80)))) ||
+    (run.talksHeard !== undefined && !textList(run.talksHeard, 500)) ||
+    (run.talkDay !== undefined && !int(run.talkDay, 1, LAST_DAY + 1)) ||
+    (run.talkOpen !== undefined &&
+      (!object(run.talkOpen) ||
+        !text(run.talkOpen.id, 80) ||
+        (run.talkOpen.beat !== undefined && !text(run.talkOpen.beat, 80))))
   )
     return false
   const day = run.day as number

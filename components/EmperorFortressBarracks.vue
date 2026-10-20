@@ -34,9 +34,14 @@
                 size="sm"
               />
               <span class="min-w-0 pr-1">
-                <strong class="block truncate font-serif text-sm">{{
-                  nameOf(member.id)
-                }}</strong>
+                <strong class="block truncate font-serif text-sm"
+                  >{{ nameOf(member.id) }}
+                  <span
+                    v-if="talkFor(run, member.id)"
+                    class="ml-0.5 inline-block h-1.5 w-1.5 rounded-full bg-warning align-middle"
+                    title="Has something to say"
+                    aria-label="has something to say"
+                /></strong>
                 <span class="block truncate opacity-65">{{
                   shortStatus(member.id)
                 }}</span>
@@ -141,11 +146,50 @@
           </p>
         </div>
       </div>
+      <EmperorFortressDialogue
+        v-if="talking && talk && scene"
+        :key="talk.id + ':' + (scene.beatId ?? '')"
+        :title="talk.title"
+        :speaker="scene.speaker"
+        :subtitle="def.species"
+        :art="art"
+        :lines="sceneLines"
+        :choices="talkChoices"
+        @choose="choose"
+      />
+      <div
+        v-else-if="talkReply"
+        class="rounded-md border border-warning/40 bg-warning/5 p-3"
+        role="status"
+      >
+        <p class="font-serif text-sm italic">{{ talkReply }}</p>
+      </div>
       <p
-        v-if="talkLine"
+        v-else-if="talkLine"
         class="border-l-2 border-warning/60 pl-3 font-serif text-sm italic"
       >
         “{{ talkLine }}”
+      </p>
+      <button
+        v-if="talk && !talking"
+        type="button"
+        class="eod-finish flex w-full items-center justify-center gap-2 px-4 py-2 text-sm disabled:opacity-50"
+        :disabled="talkedToday(run)"
+        :title="
+          talkedToday(run)
+            ? 'You have already sat with someone today.'
+            : undefined
+        "
+        @click="openTalk"
+      >
+        <Icon
+          :name="talk.romance ? 'kind-icon:heart' : 'kind-icon:chat'"
+          class="h-4 w-4"
+        />
+        Sit with {{ def.name }}: {{ talk.title }}
+      </button>
+      <p v-if="talk && talkedToday(run) && !talking" class="text-xs opacity-70">
+        You have already sat with someone today. {{ def.name }} will keep.
       </p>
       <p class="text-sm opacity-85">{{ def.biography }}</p>
 
@@ -246,13 +290,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import {
   bedsUsed,
   followerMood,
   followerStatus,
   injuryDaysLeft,
+  optionBlockers,
+  optionVisible,
+  talkFor,
+  talkScene,
+  talkedToday,
   traitKnown,
 } from '~/utils/emperorOfDust/fortress/engine'
 import {
@@ -266,6 +315,7 @@ import type {
   FortressRun,
   ItemDef,
   ItemSlot,
+  SceneLine,
 } from '~/utils/emperorOfDust/fortress/types'
 
 const SLOTS: ItemSlot[] = ['tool', 'charm']
@@ -316,6 +366,56 @@ const talkLine = computed(() => {
   const talk = def.value?.talk
   return talk?.length ? talk[props.run.day % talk.length] : ''
 })
+// --- talks: one conversation a day, played like an audience scene ---------
+const talking = ref(false)
+const talkReply = ref('')
+const talk = computed(() =>
+  def.value ? talkFor(props.run, def.value.id) : undefined,
+)
+const scene = computed(() =>
+  talk.value ? talkScene(props.run, talk.value) : null,
+)
+const sceneLines = computed<SceneLine[]>(() => {
+  const lines = scene.value?.lines ?? []
+  return scene.value?.beatId && talkReply.value
+    ? [talkReply.value, ...lines]
+    : lines
+})
+const talkChoices = computed(() =>
+  (scene.value?.options ?? [])
+    .filter((option) => optionVisible(props.run, option))
+    .map((option) => ({
+      id: option.id,
+      label: option.label,
+      note: option.requires?.cost ? `Costs ${option.requires.cost} brass` : '',
+      blockers: optionBlockers(props.run, option),
+    })),
+)
+// A talk left open from earlier in the day reopens where it stopped.
+watch(
+  [selectedId, () => props.run.day],
+  () => {
+    talkReply.value = ''
+    talking.value = props.run.talkOpen?.id === talk.value?.id && !!talk.value
+  },
+  { immediate: true },
+)
+
+function openTalk() {
+  talkReply.value = ''
+  talking.value = true
+}
+
+function choose(optionId: string) {
+  const id = talk.value?.id
+  if (!id) return
+  act(() => {
+    const next = court.talk(id, optionId)
+    talkReply.value = court.lastResponse
+    if (!next) talking.value = false
+  })
+}
+
 const statusLine = computed(() => {
   if (!def.value) return ''
   const status = followerStatus(props.run, def.value.id)

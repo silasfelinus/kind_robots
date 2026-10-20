@@ -24,6 +24,7 @@ import {
   bedsUsed,
   buyItem,
   chooseAudienceOption,
+  chooseTalkOption,
   createRun,
   dailyTaxes,
   equipItem,
@@ -40,6 +41,9 @@ import {
   previewQuest,
   recruit,
   selectHideout,
+  talkFor,
+  talkScene,
+  talkedToday,
   traitKnown,
   upgradeBeds,
   withdrawQuest,
@@ -51,6 +55,7 @@ import {
 } from '../emperorOfDust/fortress/followers'
 import { REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
+import { TALKS } from '../emperorOfDust/fortress/talks'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
@@ -638,6 +643,112 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
   assert.equal(run.audienceBeats, undefined)
 }
 
+// --- barracks talks ---------------------------------------------------------
+{
+  const talkIds = TALKS.map((talk) => talk.id)
+  assert.equal(new Set(talkIds).size, talkIds.length, 'talk ids are unique')
+  const allFlags = new Set(
+    TALKS.flatMap((talk) =>
+      [
+        ...talk.options,
+        ...(talk.beats ?? []).flatMap((b) => b.options),
+      ].flatMap((option) => option.effects.flags ?? []),
+    ),
+  )
+  for (const talk of TALKS) {
+    assert.ok(followerDef(talk.follower), `${talk.id} follower`)
+    assert.ok(talk.fromDay >= 1 && talk.fromDay <= LAST_DAY, talk.id)
+    const byId = new Map((talk.beats ?? []).map((beat) => [beat.id, beat]))
+    assert.equal(byId.size, (talk.beats ?? []).length, `${talk.id} beat ids`)
+    const reached = new Set<string>()
+    const walk = (options: AudienceOption[], path: string[]) => {
+      assert.ok(options.length >= 1, `${talk.id} every beat can be answered`)
+      const ids = options.map((option) => option.id)
+      assert.equal(new Set(ids).size, ids.length, `${talk.id} option ids`)
+      for (const option of options) {
+        assert.ok(option.response.trim(), `${talk.id}/${option.id} reply`)
+        assert.equal(option.postsQuests, undefined, 'talks post no quests')
+        assert.equal(option.effects.recruit, undefined, 'talks recruit no one')
+        if (!option.next) continue
+        assert.ok(byId.has(option.next), `${talk.id} -> ${option.next}`)
+        assert.ok(!path.includes(option.next), `${talk.id} loops`)
+        reached.add(option.next)
+        walk(byId.get(option.next)!.options, [...path, option.next])
+      }
+    }
+    walk(talk.options, [])
+    for (const id of byId.keys()) assert.ok(reached.has(id), `${talk.id}/${id}`)
+    // A talk that waits on another talk waits on one that exists and comes first.
+    for (const flag of talk.requires?.flags ?? []) {
+      if (!flag.startsWith('heard:')) continue
+      const before = TALKS.find((entry) => entry.id === flag.slice(6))
+      assert.ok(before, `${talk.id} waits on ${flag}`)
+      assert.ok(before.fromDay <= talk.fromDay, `${talk.id} after ${before.id}`)
+    }
+  }
+  // Every talk-only allegiance can be revealed by some talk or audience.
+  const audienceFlags = new Set(
+    DAYS.flatMap((def) =>
+      def.audiences.flatMap((audience) =>
+        [
+          ...audience.options,
+          ...(audience.beats ?? []).flatMap((b) => b.options),
+        ].flatMap((option) => option.effects.flags ?? []),
+      ),
+    ),
+  )
+  for (const def of FOLLOWERS)
+    for (const trait of def.traits)
+      if (trait.revealFlag && TALKS.some((t) => t.follower === def.id))
+        assert.ok(
+          allFlags.has(trait.revealFlag) || audienceFlags.has(trait.revealFlag),
+          `${trait.id} can be revealed`,
+        )
+
+  // Day 2: Rook has something to say; asking leads on; the day's talk is spent.
+  let run = finishDay(createRun(777)).run
+  const rook = talkFor(run, 'F001')!
+  assert.equal(rook?.id, 'rook-1')
+  assert.equal(talkScene(run, rook).npc, 'F001')
+  assert.ok(!talkedToday(run))
+  run = chooseTalkOption(run, 'rook-1', 'ask-name').run
+  assert.equal(run.talkOpen?.beat, 'wrong-side')
+  assert.ok(!talkedToday(run), 'a talk under way is not yet spent')
+  assert.ok(validateRun(run), 'a run mid-talk saves')
+  assert.equal(talkFor(run, 'F002'), undefined, 'one conversation at a time')
+  const closed = chooseTalkOption(run, 'rook-1', 'honest').run
+  assert.ok(closed.flags.includes('heard:rook-1'))
+  assert.ok(closed.flags.includes('talk:rook-1:honest'))
+  assert.ok(talkedToday(closed))
+  assert.throws(() => chooseTalkOption(closed, 'rook-1', 'honest'))
+  // A talk left open closes at dawn, heard, with its answers standing.
+  const dawn = finishDay(run).run
+  assert.equal(dawn.talkOpen, undefined)
+  assert.ok(dawn.talksHeard?.includes('rook-1'))
+  assert.ok(dawn.flags.includes('talk:rook-1:ask-name'))
+  // Saffron's badge reveals her allegiance through talk.
+  let shop = finishDay(finishDay(createRun(778)).run).run
+  shop = chooseTalkOption(shop, 'saffron-1', 'ask-badge').run
+  shop = chooseTalkOption(shop, 'saffron-1', 'keep-secret').run
+  const insignia = followerDef('F002')!.traits.find(
+    (trait) => trait.kind === 'allegiance',
+  )!
+  assert.ok(traitKnown(shop, insignia, []), 'talk reveals an allegiance')
+  // Followers away on a quest have nothing to say.
+  const away = { ...shop, talkDay: undefined }
+  away.active = [
+    {
+      questId: 'x',
+      party: ['F003'],
+      departedDay: 3,
+      returnsDay: 5,
+      postedDay: 3,
+      lastDay: 3,
+    },
+  ]
+  assert.equal(talkFor(away, 'F003'), undefined)
+}
+
 // --- a whole campaign, with saves and rewinds --------------------------------
 let book = newBook(createRun(31337))
 let runs = 0
@@ -696,6 +807,12 @@ assert.throws(() => finishDay(book.current), /over/)
     for (const effects of Object.values(quest.rewards)) addEffects(effects)
     addEffects(quest.expired)
   }
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      addEffects(option.effects)
   const engineSource = readFileSync(
     new URL('../emperorOfDust/fortress/engine.ts', import.meta.url),
     'utf8',

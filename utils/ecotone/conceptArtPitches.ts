@@ -7,6 +7,8 @@ import {
 } from './content'
 import { BEATS, FUTURES, SIGNATURES } from './story'
 import { FUTURE_BOOKENDS, NEW_SIGNATURES } from './finaleExpansion'
+import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
+import { REGIONAL_CALLBACKS } from './regionalCallbacks'
 import { cardArtKey, endingArtKey, outcomeArtKey } from './artSlots'
 
 /**
@@ -128,20 +130,21 @@ export function endingArtPitches(): ConceptArtPitch[] {
     const signature =
       SIGNATURES[`${lead}.${lens}`]?.[fate] ??
       NEW_SIGNATURES[`${lead}.${lens}`]?.[fate]
+    const journeyLine = REVISED_COMPANION_SIGNATURES[`${lead}.${lens}`]?.[fate] ?? signature?.line
     const base: ConceptArtPitch = {
       key: endingArtKey(id),
       phase: 'ending',
       title: signature?.title ?? `${lead}, ${lens}, ${fate}`,
       placeTime: 'Humboldt County, a possible earned future',
       subject: `${lead} / ${lens} / ${fate}`,
-      action: signature?.line ?? FUTURES[lead][fate][0]!,
-      visibleEvidence: [signature?.line ?? FUTURES[lead][fate][0]!],
+      action: journeyLine ?? FUTURES[lead][fate][0]!,
+      visibleEvidence: [journeyLine ?? FUTURES[lead][fate][0]!],
       mustNotImply: [
         ...NEVER_ASSUME,
         'The initial substance does not cause or define the moral outcome.',
       ],
       sourceConditions: [`earned-ending:${id}`],
-      altTextDraft: `${signature?.title ?? id}: ${signature?.line ?? FUTURES[lead][fate][0]}`,
+      altTextDraft: `${signature?.title ?? id}: ${journeyLine ?? FUTURES[lead][fate][0]}`,
       status: 'editorial-draft',
     }
     const bookends = FUTURE_BOOKENDS[lead]?.[fate]
@@ -173,6 +176,25 @@ export function endingArtPitches(): ConceptArtPitch[] {
   })
 }
 
+export function callbackArtPitches(): ConceptArtPitch[] {
+  return REGIONAL_CALLBACKS.map((callback) => ({
+    key: `callbacks/${callback.id.toLowerCase()}/${callback.choice}`,
+    phase: 'epilogue',
+    title: `${callback.id}: ${callback.choice} consequence`,
+    placeTime: 'Humboldt County, aftermath of a verified choice',
+    subject: callback.id,
+    action: callback.artMoment,
+    visibleEvidence: [callback.artMoment],
+    mustNotImply: [
+      ...NEVER_ASSUME,
+      'Do not show the paired alternate choice or a universal county-wide outcome from this one action.',
+    ],
+    sourceConditions: [`played:${callback.id}`, `flag:${callback.flag}`],
+    altTextDraft: `Because this choice was earned: ${callback.artMoment}`,
+    status: 'editorial-draft' as const,
+  }))
+}
+
 export function allConceptArtPitches(): ConceptArtPitch[] {
-  return [...encounterArtPitches(), ...endingArtPitches()]
+  return [...encounterArtPitches(), ...endingArtPitches(), ...callbackArtPitches()]
 }

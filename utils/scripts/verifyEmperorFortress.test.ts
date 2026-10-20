@@ -34,6 +34,7 @@ import {
   injuryDaysLeft,
   isOver,
   optionBlockers,
+  optionVisible,
   partyLimit,
   postDawnQuests,
   previewQuest,
@@ -572,6 +573,27 @@ for (const def of DAYS) {
   }
 }
 assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
+{
+  // Story gates hide an answer; brass gates show it locked.
+  const run = createRun(99)
+  const callback = { id: 'x', label: 'x', effects: {}, response: 'x' }
+  assert.ok(!optionVisible(run, { ...callback, requires: { flags: ['nope'] } }))
+  assert.ok(
+    optionVisible(run, { ...callback, requires: { notFlags: ['nope'] } }),
+  )
+  assert.ok(
+    !optionVisible(run, { ...callback, requires: { follower: 'F020' } }),
+  )
+  assert.ok(optionVisible(run, { ...callback, requires: { cost: 99999 } }))
+  // Every beat keeps at least one answer a player can see.
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const beat of audience.beats ?? [])
+        assert.ok(
+          beat.options.some((option) => !option.requires?.flags?.length),
+          `${audience.id}/${beat.id} has an answer without a story gate`,
+        )
+}
 
 {
   // Walk Day 1's first scene: an answer that leads on keeps the audience

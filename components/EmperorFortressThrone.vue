@@ -116,6 +116,7 @@ import {
   audienceScene,
   audiencesToday,
   optionBlockers,
+  optionVisible,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
@@ -188,18 +189,21 @@ watch(
 )
 
 const choices = computed(() =>
-  (scene.value?.options ?? []).map((option) => {
-    const notes: string[] = []
-    if (option.requires?.cost) notes.push(`Costs ${option.requires.cost} brass`)
-    for (const id of option.postsQuests ?? [])
-      notes.push(`Posts a quest: ${questDef(id)?.title ?? id}`)
-    return {
-      id: option.id,
-      label: option.label,
-      note: notes.join(' · '),
-      blockers: optionBlockers(props.run, option),
-    }
-  }),
+  (scene.value?.options ?? [])
+    .filter((option) => optionVisible(props.run, option))
+    .map((option) => {
+      const notes: string[] = []
+      if (option.requires?.cost)
+        notes.push(`Costs ${option.requires.cost} brass`)
+      for (const id of option.postsQuests ?? [])
+        notes.push(`Posts a quest: ${questDef(id)?.title ?? id}`)
+      return {
+        id: option.id,
+        label: option.label,
+        note: notes.join(' · '),
+        blockers: optionBlockers(props.run, option),
+      }
+    }),
 )
 
 function choose(optionId: string) {

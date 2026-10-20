@@ -41,24 +41,24 @@
 
 **Opening narration:** An unregistered sculpture was in every historic starting photo.
 
-**Escalation:** An entrant numbered minus one appears in race photos from years before its maker was born. Officials are deciding whether to erase the old pictures.
+**Escalation:** A sculpture numbered minus one appears in race photographs taken years before its maker was born. Officials want to erase the pictures to fix the record. The volunteer archivist would rather label what nobody understands.
 
-**Option A, investigate (visible 9 check):** Compare registration books with the photographs
+**Option A, investigate (visible 9 check):** Compare negatives, registration books and paint details without adding a convenient inventor
 
-- **Pass:** Every vanished year contains the same tiny repair crew in the background.
-- **Miss:** The numbers run when copied, but a retired volunteer recognizes the paint scheme.
+- **Pass:** Across three decades the same tiny repair crew stands behind the vehicle. Their faces are indistinct; their tools and homemade badge are not.
+- **Miss:** The copied registration numbers run together in the scanner. A retired mechanic still recognizes the paint, and asks you to preserve the original print.
 
-**Option B, assist without a check:** Let the maker tell the story in public
+**Option B, assist without a check:** Invite the maker and retired volunteers to describe only what they actually know
 
-- **Result:** The crowd makes room for a competitor whose origins remain unproven.
+- **Result:** The competitor gets a place to start, not a fabricated biography. The archive adds a small card reading ORIGIN UNVERIFIED.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-102`: An unregistered sculpture was in every historic starting photo. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-102/2`: An entrant numbered minus one appears in race photos from years before its maker was born. Officials are deciding whether to erase the old pictures. The people and location must match the opening.
-- `outcomes/wh-102/investigate-success`: Every vanished year contains the same tiny repair crew in the background. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-102/investigate-failure`: The numbers run when copied, but a retired volunteer recognizes the paint scheme. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-102/care-success`: The crowd makes room for a competitor whose origins remain unproven. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-102/2`: A sculpture numbered minus one appears in race photographs taken years before its maker was born. Officials want to erase the pictures to fix the record. The volunteer archivist would rather label what nobody understands. The people and location must match the opening.
+- `outcomes/wh-102/investigate-success`: Across three decades the same tiny repair crew stands behind the vehicle. Their faces are indistinct; their tools and homemade badge are not. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-102/investigate-failure`: The copied registration numbers run together in the scanner. A retired mechanic still recognizes the paint, and asks you to preserve the original print. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-102/care-success`: The competitor gets a place to start, not a fabricated biography. The archive adds a small card reading ORIGIN UNVERIFIED. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_102_verified`, `wh_102_partial`, `wh_102_care` (mutually exclusive results of this card).
 
@@ -72,24 +72,24 @@
 
 **Opening narration:** A judge gives perfect scores for violating Earth's physics.
 
-**Escalation:** A judge awards perfect scores to sculptures that fail basic physics. Ordinary builders protest that the rules used to require touching the road.
+**Escalation:** A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it.
 
-**Option A, investigate (visible 9 check):** Ask the judge to demonstrate a measurable criterion
+**Option A, investigate (visible 9 check):** Ask for one measurable criterion and insist it applies to every entrant
 
-- **Pass:** Its score sheet predicts which vehicle will lose a wheel near the bay.
-- **Miss:** The demonstration leaves no trace except the judge's uncanny certainty.
+- **Pass:** The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster.
+- **Miss:** The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt.
 
-**Option B, assist without a check:** Defend transparent rules for all teams
+**Option B, assist without a check:** Help the competitors draft fair judging rules that can survive an absurd race
 
-- **Result:** The judges publish a revised rubric that prizes care and ingenuity over spectacle alone.
+- **Result:** The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-103`: A judge gives perfect scores for violating Earth's physics. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-103/2`: A judge awards perfect scores to sculptures that fail basic physics. Ordinary builders protest that the rules used to require touching the road. The people and location must match the opening.
-- `outcomes/wh-103/investigate-success`: Its score sheet predicts which vehicle will lose a wheel near the bay. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-103/investigate-failure`: The demonstration leaves no trace except the judge's uncanny certainty. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-103/care-success`: The judges publish a revised rubric that prizes care and ingenuity over spectacle alone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-103/2`: A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it. The people and location must match the opening.
+- `outcomes/wh-103/investigate-success`: The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-103/investigate-failure`: The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-103/care-success`: The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_103_verified`, `wh_103_partial`, `wh_103_care` (mutually exclusive results of this card).
 

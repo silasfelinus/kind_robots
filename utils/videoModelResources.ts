@@ -59,10 +59,10 @@ export function videoModelSlot(
   const type = String(resource.resourceType || '').toUpperCase()
   const path = String(resource.localPath || '').replace(/\\/g, '/').toLowerCase()
   if (!path || path.includes('..') || path.startsWith('/')) return null
-  if (type === 'CHECKPOINT' && /ltx[._/-]?2[._-]?3/.test(path)) {
+  if (type === 'CHECKPOINT' && /ltx[._-]?2[._-]?3/.test(path)) {
     return 'ltx'
   }
-  if (type !== 'DIFFUSION_MODEL' || !/wan[._/-]?2[._-]?2/.test(path))
+  if (type !== 'DIFFUSION_MODEL' || !/wan[._-]?2[._-]?2/.test(path))
     return null
   if (/high[._-]?noise/.test(path) && /i2v/.test(path)) return 'wan-high'
   if (/low[._-]?noise/.test(path) && /i2v/.test(path)) return 'wan-low'

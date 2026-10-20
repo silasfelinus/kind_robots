@@ -29,7 +29,10 @@
   <section class="flex h-full min-h-0 w-full flex-col gap-2">
     <resource-gallery v-if="activeTab === 'library'" class="min-h-0 flex-1">
       <template #tabs>
-        <div role="tablist" class="flex max-w-full items-center gap-1 overflow-x-auto">
+        <div
+          role="tablist"
+          class="flex max-w-full items-center gap-1 overflow-x-auto"
+        >
           <button
             v-for="tab in tabs"
             :key="tab.key"
@@ -59,7 +62,10 @@
     <template v-else>
       <!-- Discover has no header of its own to host the switch, so it gets one
            compact row. Still inside the page surface rather than above it. -->
-      <div role="tablist" class="flex max-w-full shrink-0 items-center gap-1 overflow-x-auto">
+      <div
+        role="tablist"
+        class="flex max-w-full shrink-0 items-center gap-1 overflow-x-auto"
+      >
         <button
           v-for="tab in tabs"
           :key="tab.key"

@@ -319,6 +319,7 @@ export function earnedQuestCallbacks(
   for (const [flag, line] of branches)
     if (has(flag) && callbacks.length < 2) callbacks.push(line)
   for (const callback of chosenRegionalCallbacks(flags))
-    if (played.includes(callback.id) && callbacks.length < 2) callbacks.push(callback.text)
+    if (played.includes(callback.id) && callbacks.length < 2)
+      callbacks.push(callback.text)
   return callbacks
 }

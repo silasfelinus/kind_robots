@@ -364,7 +364,9 @@ export function drawFork(state: RunState, index: number): string[] {
       wildCards.length > 0 &&
       offered.length > 0 &&
       !offered.some((id) =>
-        open.find((card) => card.id === id)?.choices.some((choice) => choice.wild),
+        open
+          .find((card) => card.id === id)
+          ?.choices.some((choice) => choice.wild),
       )
     ) {
       const wildCard = seededShuffle(

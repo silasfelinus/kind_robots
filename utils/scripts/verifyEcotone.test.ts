@@ -3,10 +3,17 @@ import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
   STYLE_RENDERS,
+  ecotoneArtFirst,
   ecotoneArtSrc,
   normalizeEcotoneArtStyle,
 } from '../ecotone/artStyles'
 import { PLAYBOOK_ART_LANES } from '../playbook/artLanes'
+import {
+  cardArtKey,
+  ecotoneArtSlots,
+  endingArtKey,
+  outcomeArtKey,
+} from '../ecotone/artSlots'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   ARCHETYPES,
@@ -564,6 +571,32 @@ for (const [style, renders] of Object.entries(STYLE_RENDERS))
       existsSync(`public/ecotone/styles/${style}/${asset}.webp`),
       `${style} ships ${asset}`,
     )
+// The art standard (t-042): every card, every outcome and every ending has a slot.
+const slots = ecotoneArtSlots()
+assert.equal(slots.cards.length, BEATS.length + ENCOUNTERS.length)
+assert.equal(slots.endings.length, ENDING_IDS.length)
+const allSlots = [...slots.cards, ...slots.outcomes, ...slots.endings]
+assert.equal(new Set(allSlots).size, allSlots.length, 'slots are unique')
+assert.ok(slots.outcomes.includes(outcomeArtKey('KN-5', 'pedal', 'failure')))
+assert.ok(slots.cards.includes(cardArtKey('KN-7')))
+assert.equal(endingArtKey('mara.sober.hope'), 'endings/mara-sober-hope')
+for (const [style, renders] of Object.entries(STYLE_RENDERS))
+  for (const asset of renders ?? [])
+    assert.ok(
+      allSlots.includes(asset) || ECOTONE_ART.includes(asset),
+      `${style} ${asset} is a known picture`,
+    )
+for (const entry of racer.log.filter((e) => e.source.startsWith('KN-')))
+  assert.ok(
+    entry.art && slots.outcomes.includes(entry.art),
+    `${entry.source} records its outcome picture`,
+  )
+assert.equal(
+  ecotoneArtFirst([cardArtKey('WH-999'), 'companions/kit'], 'krea2'),
+  '/ecotone/companions/kit.webp',
+  'an unrendered slot falls back to the shared picture',
+)
+assert.equal(ecotoneArtFirst([cardArtKey('WH-999')], 'zimage'), null)
 assert.match(board, /provide\(ECOTONE_ART_STYLE_INJECTION, artStyle\)/)
 assert.match(board, /watch\(artStyle, saveEcotoneArtStyle\)/)
 assert.match(board, /role="radiogroup"/)

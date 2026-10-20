@@ -676,13 +676,14 @@ import type { SceneKind } from '~/utils/ecotone/content'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLE_INJECTION,
-  ecotoneArtSrc,
+  ecotoneArtFirst,
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 
 const props = defineProps<{
   kind: SceneKind
-  art?: string
+  /** One picture, or several with the most specific first (an outcome, then its card). */
+  art?: string | readonly string[]
   label: string
   portrait?: boolean
   /** Overrides the board's chosen style (the style picker previews each one). */
@@ -698,7 +699,7 @@ const chosenStyle = inject<Ref<EcotoneArtStyle>>(
   ref(DEFAULT_ECOTONE_ART_STYLE),
 )
 const src = computed(() =>
-  ecotoneArtSrc(props.art, props.artStyle ?? chosenStyle.value),
+  ecotoneArtFirst(props.art, props.artStyle ?? chosenStyle.value),
 )
 
 watch(src, () => {

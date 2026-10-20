@@ -37,6 +37,10 @@ import {
   type RestyleStyleWindow,
   type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
+import {
+  RESTYLE_SOURCE_FILE,
+  sniffRestyleSource,
+} from '@/utils/videoRestyleSource'
 
 export type VideoRestyleJob = {
   id: string
@@ -213,14 +217,6 @@ export async function listRestyleJobs(
     .slice(0, 100)
 }
 
-function sourceFormat(bytes: Buffer): 'mp4' | 'mov' | 'webm' | null {
-  if (bytes.length >= 12 && bytes.toString('ascii', 4, 8) === 'ftyp') {
-    return bytes.toString('ascii', 8, 12).startsWith('qt') ? 'mov' : 'mp4'
-  }
-  if (bytes.length >= 4 && bytes.readUInt32BE(0) === 0x1a45dfa3) return 'webm'
-  return null
-}
-
 export async function stageRestyleVideo(input: {
   userId: number
   data: Buffer
@@ -241,11 +237,11 @@ export async function stageRestyleVideo(input: {
       message: 'Upload must be a video under 128 MiB.',
     })
   }
-  const format = sourceFormat(input.data)
+  const format = sniffRestyleSource(input.data)
   if (!format)
     throw createError({
       statusCode: 415,
-      message: 'Upload an MP4, MOV or WebM video.',
+      message: 'Upload an MP4, MOV, WebM, MPEG or GIF video.',
     })
   const look = resolveRestyleLook(
     input.style,
@@ -370,7 +366,7 @@ export async function cloneRestyleVideo(input: {
   isMature?: unknown
 }): Promise<VideoRestyleJob> {
   const source = await loadRestyleJob(input.userId, input.id)
-  if (!/^source\.(mp4|mov|webm)$/.test(source.sourceFile)) {
+  if (!RESTYLE_SOURCE_FILE.test(source.sourceFile)) {
     throw createError({
       statusCode: 400,
       message: 'Invalid saved source file.',

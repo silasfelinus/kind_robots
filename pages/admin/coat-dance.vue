@@ -77,7 +77,7 @@
               ref="fileInput"
               type="file"
               class="sr-only"
-              accept=".mp4,.mov,.webm,video/mp4,video/quicktime,video/webm"
+              :accept="RESTYLE_SOURCE_ACCEPT"
               @change="chooseFile"
             />
           </label>
@@ -395,7 +395,7 @@
             class="relative grid min-h-0 flex-1 place-items-center overflow-hidden rounded-2xl border border-base-300 bg-neutral text-neutral-content"
           >
             <video
-              v-if="store.previewUrl"
+              v-if="store.previewUrl && store.previewKind === 'video'"
               ref="videoEl"
               :src="store.previewUrl"
               controls
@@ -405,6 +405,26 @@
               aria-label="Video playback preview"
               @loadedmetadata="readVideoMetadata"
             />
+            <img
+              v-else-if="store.previewUrl && store.previewKind === 'image'"
+              :src="store.previewUrl"
+              alt="Animated GIF preview"
+              class="absolute inset-0 h-full w-full object-contain"
+            />
+            <div
+              v-else-if="store.previewUrl"
+              class="max-w-xs space-y-2 p-4 text-center"
+            >
+              <icon name="kind-icon:video" class="mx-auto h-8 w-8" />
+              <p class="text-lg font-black tracking-tight">MPEG video ready</p>
+              <p class="text-sm opacity-80">
+                Browsers can’t play MPEG, so there’s no preview here. The
+                renderer reads it directly and your restyled film comes back as
+                MP4{{
+                  durationSec ? ` · ${formatRestyleTime(durationSec)}` : ''
+                }}.
+              </p>
+            </div>
             <div v-else class="max-w-xs space-y-2 p-4 text-center">
               <icon name="kind-icon:video" class="mx-auto h-8 w-8" />
               <p class="text-lg font-black tracking-tight">
@@ -881,6 +901,10 @@ import {
   type RestyleStyleId,
   type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
+import {
+  RESTYLE_SOURCE_ACCEPT,
+  RESTYLE_SOURCE_EXTENSION,
+} from '@/utils/videoRestyleSource'
 
 const userStore = useUserStore()
 const store = useVideoRestyleStore()
@@ -1272,25 +1296,27 @@ async function renderAsNewFilm() {
   }
 }
 
-function chooseFile(event: Event) {
+async function chooseFile(event: Event) {
   const input = event.target as HTMLInputElement
-  sourceFile.value = input.files?.[0] || null
+  const file = input.files?.[0] || null
+  sourceFile.value = file
   durationSec.value = 0
-  if (sourceFile.value) {
-    title.value =
-      sourceFile.value.name
-        .replace(/\.(mp4|mov|webm)$/i, '')
-        .replace(/[_-]+/g, ' ')
-        .trim() || 'Untitled video'
-    store.preview(sourceFile.value)
-    // Showing the upload mounts the player, which reads its duration.
-    playing.value = 'upload'
-    stageView.value = 'video'
-    store.error =
-      sourceFile.value.size > RESTYLE_MAX_BYTES
-        ? 'This video exceeds the 128 MiB upload limit.'
-        : ''
-  } else cancelUpload()
+  if (!file) return cancelUpload()
+  title.value =
+    file.name
+      .replace(RESTYLE_SOURCE_EXTENSION, '')
+      .replace(/[_-]+/g, ' ')
+      .trim() || 'Untitled video'
+  // Showing the upload mounts the player, which reads its duration.
+  playing.value = 'upload'
+  stageView.value = 'video'
+  store.error =
+    file.size > RESTYLE_MAX_BYTES
+      ? 'This video exceeds the 128 MiB upload limit.'
+      : ''
+  // GIF and MPEG have no <video> metadata, so their length is read from the file.
+  const parsed = await store.preview(file)
+  if (parsed !== null && sourceFile.value === file) applySourceDuration(parsed)
 }
 
 function cancelUpload() {
@@ -1308,9 +1334,17 @@ function readVideoMetadata(event: Event) {
   // Watching a 24-second generated pilot must not replace the 5:32
   // metadata of its full source in the project setup.
   if (!sourceFile.value) return
-  durationSec.value = Number.isFinite(video.duration) ? video.duration : 0
-  if (durationSec.value > RESTYLE_MAX_DURATION_SEC) {
+  applySourceDuration(Number.isFinite(video.duration) ? video.duration : 0)
+}
+
+function applySourceDuration(seconds: number) {
+  durationSec.value = seconds
+  if (seconds > RESTYLE_MAX_DURATION_SEC) {
     store.error = 'This studio currently supports videos up to 15 minutes.'
+  } else if (seconds < 1) {
+    store.error = seconds
+      ? 'This clip is shorter than one second.'
+      : 'Could not read how long this file is.'
   }
 }
 

@@ -13,6 +13,13 @@ import {
   type RestyleStyleId,
   type RestyleVariantMode,
 } from '@/utils/videoRestylePlan'
+import {
+  readRestyleSourceDuration,
+  readRestyleSourceFormat,
+  restylePreviewKind,
+  restylePreviewKindForType,
+  type RestylePreviewKind,
+} from '@/utils/videoRestyleSource'
 
 type GrabBagChoice = {
   variantStyleIds?: RestyleStyleId[]
@@ -29,6 +36,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
   const error = ref('')
   const notice = ref('')
   const previewUrl = ref<string | null>(null)
+  const previewKind = ref<RestylePreviewKind>('video')
   const stylePreviews = ref<Partial<Record<RestyleStyleId, RestylePreview>>>({})
   const stylePreviewBusy = ref(false)
   const stylePreviewError = ref('')
@@ -40,11 +48,22 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     if (previewUrl.value && import.meta.client)
       URL.revokeObjectURL(previewUrl.value)
     previewUrl.value = null
+    previewKind.value = 'video'
   }
 
-  function preview(file: File) {
+  function showPreview(file: Blob, kind: RestylePreviewKind) {
     clearPreview()
-    if (import.meta.client) previewUrl.value = URL.createObjectURL(file)
+    previewKind.value = kind
+    previewUrl.value = URL.createObjectURL(file)
+  }
+
+  async function preview(file: File): Promise<number | null> {
+    clearPreview()
+    if (!import.meta.client) return null
+    const format = await readRestyleSourceFormat(file)
+    showPreview(file, restylePreviewKind(format))
+    if (format !== 'gif' && format !== 'mpg') return null
+    return readRestyleSourceDuration(file, format)
   }
 
   async function refresh() {
@@ -188,10 +207,10 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
         )
       }
       const file = await response.blob()
-      if (!file.type.startsWith('video/'))
+      if (!file.type.startsWith('video/') && file.type !== 'image/gif')
         throw new Error('The stored file is not a video.')
       if (selectedId.value !== id) return false
-      previewUrl.value = URL.createObjectURL(file)
+      showPreview(file, restylePreviewKindForType(file.type))
       return true
     } catch (caught) {
       error.value =
@@ -397,7 +416,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
       if (!file.type.startsWith('video/'))
         throw new Error('Pilot result was not a video.')
       if (selectedId.value !== id) return false
-      previewUrl.value = URL.createObjectURL(file)
+      showPreview(file, 'video')
       return true
     } catch (caught) {
       error.value =
@@ -543,6 +562,7 @@ export const useVideoRestyleStore = defineStore('videoRestyle', () => {
     error,
     notice,
     previewUrl,
+    previewKind,
     stylePreviews,
     stylePreviewBusy,
     stylePreviewError,

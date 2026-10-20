@@ -1,6 +1,5 @@
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
-import path from 'node:path'
 import {
   createError,
   defineEventHandler,
@@ -14,12 +13,10 @@ import {
   loadRestyleJob,
   restyleSourcePath,
 } from '@/server/utils/videoRestyleJobs'
-
-const CONTENT_TYPES: Record<string, string> = {
-  '.mp4': 'video/mp4',
-  '.mov': 'video/quicktime',
-  '.webm': 'video/webm',
-}
+import {
+  RESTYLE_SOURCE_FILE,
+  restyleSourceContentType,
+} from '@/utils/videoRestyleSource'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -28,7 +25,7 @@ export default defineEventHandler(async (event) => {
       auth.user.id,
       getRouterParam(event, 'id') || '',
     )
-    if (!/^source\.(mp4|mov|webm)$/.test(job.sourceFile)) {
+    if (!RESTYLE_SOURCE_FILE.test(job.sourceFile)) {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
     const filePath = restyleSourcePath(job)
@@ -36,11 +33,7 @@ export default defineEventHandler(async (event) => {
     if (!fileStat?.isFile()) {
       throw createError({ statusCode: 404, message: 'Source video not found.' })
     }
-    setHeader(
-      event,
-      'Content-Type',
-      CONTENT_TYPES[path.extname(job.sourceFile)] || 'application/octet-stream',
-    )
+    setHeader(event, 'Content-Type', restyleSourceContentType(job.sourceFile))
     setHeader(event, 'Content-Length', fileStat.size)
     setHeader(event, 'Cache-Control', 'private, no-store')
     setHeader(event, 'X-Content-Type-Options', 'nosniff')

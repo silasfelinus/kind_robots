@@ -95,7 +95,7 @@ assert.ok(settings.includes('updateRestyleSettings'))
 assert.ok(settings.includes('body.overwriteStrength'))
 assert.ok(studio.includes('Overwrite strength'))
 assert.ok(studio.includes('v-model.number="overwriteStrength"'))
-assert.match(studio, /title\.value\s*=\s*sourceFile\.value\.name/)
+assert.match(studio, /title\.value\s*=\s*file\.name/)
 assert.ok(studio.includes('Save title'))
 const renameRoute = readFileSync(
   'server/api/video-restyle/[id]/title.patch.ts',
@@ -665,3 +665,68 @@ console.info('Grab bag rotation schedule verified')
   }
 }
 console.info('One-batch full film from a fresh upload verified')
+
+{
+  const { mkdtempSync, rmSync } = await import('node:fs')
+  const { tmpdir } = await import('node:os')
+  const { join } = await import('node:path')
+  const {
+    RESTYLE_SOURCE_ACCEPT,
+    RESTYLE_SOURCE_FILE,
+    readRestyleSourceDuration,
+    restylePreviewKind,
+    restyleSourceContentType,
+    sniffRestyleSource,
+  } = await import('../videoRestyleSource')
+  const fixture = (name: string) =>
+    readFileSync(`utils/scripts/fixtures/video-restyle/${name}`)
+  const mpeg = fixture('two-seconds.mpg')
+  const gif = fixture('one-and-a-half-seconds.gif')
+  assert.equal(sniffRestyleSource(mpeg), 'mpg')
+  assert.equal(sniffRestyleSource(gif), 'gif')
+  assert.equal(sniffRestyleSource(Buffer.from('not a video')), null)
+  assert.ok(
+    Math.abs(
+      (await readRestyleSourceDuration(new Blob([mpeg]), 'mpg')) - 2.0375,
+    ) < 0.01,
+    'MPEG length comes from its PTS range',
+  )
+  assert.equal(await readRestyleSourceDuration(new Blob([gif]), 'gif'), 1.51)
+  assert.equal(restylePreviewKind('gif'), 'image')
+  assert.equal(restylePreviewKind('mpg'), 'unplayable')
+  assert.equal(restylePreviewKind('mp4'), 'video')
+  for (const accepted of ['.mpg', '.mpeg', '.gif', 'video/mpeg', 'image/gif'])
+    assert.ok(RESTYLE_SOURCE_ACCEPT.split(',').includes(accepted))
+  assert.ok(studio.includes(':accept="RESTYLE_SOURCE_ACCEPT"'))
+  assert.equal(restyleSourceContentType('source.mpg'), 'video/mpeg')
+  assert.equal(restyleSourceContentType('source.gif'), 'image/gif')
+  assert.ok(!RESTYLE_SOURCE_FILE.test('source.exe'))
+
+  const privateRoot = mkdtempSync(join(tmpdir(), 'coat-dance-formats-'))
+  const previousRoot = process.env.PRIVATE_PATH
+  process.env.PRIVATE_PATH = privateRoot
+  try {
+    const { stageRestyleVideo } =
+      await import('../../server/utils/videoRestyleJobs')
+    const stage = (data: Buffer, durationSec: number) =>
+      stageRestyleVideo({
+        userId: 9,
+        data,
+        title: 'Format check',
+        style: 'noir',
+        quality: '720p',
+        durationSec,
+      })
+    assert.equal((await stage(mpeg, 2.04)).sourceFile, 'source.mpg')
+    assert.equal((await stage(gif, 1.51)).sourceFile, 'source.gif')
+    await assert.rejects(
+      stage(Buffer.from('not a video at all'), 5),
+      /MP4, MOV, WebM, MPEG or GIF/,
+    )
+  } finally {
+    if (previousRoot === undefined) delete process.env.PRIVATE_PATH
+    else process.env.PRIVATE_PATH = previousRoot
+    rmSync(privateRoot, { recursive: true, force: true })
+  }
+}
+console.info('MPEG and GIF sources verified')

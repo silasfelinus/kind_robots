@@ -1,6 +1,5 @@
 import { createReadStream } from 'node:fs'
 import { stat } from 'node:fs/promises'
-import path from 'node:path'
 import {
   createError,
   defineEventHandler,
@@ -14,6 +13,10 @@ import { requireMachineUser } from '@/server/utils/authGuard'
 import { errorHandler } from '@/server/utils/error'
 import { requireClaimedVacePilot } from '@/server/utils/claimedVacePilot'
 import { restyleSourcePath } from '@/server/utils/videoRestyleJobs'
+import {
+  RESTYLE_SOURCE_FILE,
+  restyleSourceContentType,
+} from '@/utils/videoRestyleSource'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -31,7 +34,7 @@ export default defineEventHandler(async (event) => {
       jobId,
       agentId,
     )
-    if (!/^source\.(mp4|mov|webm)$/.test(job.sourceFile)) {
+    if (!RESTYLE_SOURCE_FILE.test(job.sourceFile)) {
       throw createError({ statusCode: 404, message: 'Source is unavailable.' })
     }
     const filePath = restyleSourcePath(job)
@@ -42,15 +45,7 @@ export default defineEventHandler(async (event) => {
         message: 'Source bytes unavailable.',
       })
     }
-    setHeader(
-      event,
-      'Content-Type',
-      {
-        '.mp4': 'video/mp4',
-        '.mov': 'video/quicktime',
-        '.webm': 'video/webm',
-      }[path.extname(job.sourceFile)] || 'application/octet-stream',
-    )
+    setHeader(event, 'Content-Type', restyleSourceContentType(job.sourceFile))
     setHeader(event, 'Content-Length', file.size)
     setHeader(event, 'Cache-Control', 'private, no-store')
     return sendStream(event, createReadStream(filePath))

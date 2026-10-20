@@ -36,7 +36,7 @@ NEGATIVE = (
     "unreadable faces, artifacts, subtitles, low quality"
 )
 UUID_RE = re.compile(r"^[a-f0-9-]{36}$", re.I)
-SOURCE_RE = re.compile(r"^source\.(mp4|mov|webm)$")
+SOURCE_RE = re.compile(r"^source\.(mp4|mov|webm|mpg|gif)$")
 
 
 def stamp():

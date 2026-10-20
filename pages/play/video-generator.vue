@@ -12,11 +12,45 @@
         </span>
       </header>
 
+      <nav class="flex flex-wrap items-center gap-2" aria-label="Video generator views">
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="activePanel === 'create' ? 'btn-accent' : 'btn-outline'"
+          :aria-pressed="activePanel === 'create'"
+          @click="activePanel = 'create'"
+        >
+          <icon name="kind-icon:plus" class="kr-icon-4" />
+          Create clip
+        </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="activePanel === 'jobs' ? 'btn-accent' : 'btn-outline'"
+          :aria-pressed="activePanel === 'jobs'"
+          @click="openJobs"
+        >
+          <icon name="kind-icon:video" class="kr-icon-4" />
+          My clips
+          <span v-if="videoStore.history.totalCount" class="badge badge-ghost badge-sm">
+            {{ videoStore.history.totalCount }}
+          </span>
+        </button>
+        <span
+          v-if="videoStore.hasActiveJobs"
+          class="kr-badge-accent-sm"
+          role="status"
+        >
+          Rendering in progress
+        </span>
+      </nav>
+
       <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
         You need to be signed in to queue a clip — generation is billed to your
         account's mana.
       </div>
 
+      <div v-show="activePanel === 'create'" class="space-y-4">
       <section class="kr-panel-flat p-3">
         <div
           class="grid items-start gap-4 lg:grid-cols-[auto_minmax(0,1fr)]"
@@ -476,7 +510,7 @@
       </section>
 
       <section v-if="videoStore.state.videoSrc" class="space-y-2">
-        <h2 class="font-semibold">Result</h2>
+        <h2 class="font-semibold">Selected clip</h2>
         <img
           v-if="videoStore.resultIsImage"
           :src="videoStore.state.videoSrc"
@@ -501,12 +535,219 @@
           ⬇ Download clip
         </a>
       </section>
+      </div>
+
+      <section
+        v-if="isLoggedIn"
+        v-show="activePanel === 'jobs'"
+        class="grid min-h-0 gap-3 lg:grid-cols-[minmax(16rem,0.9fr)_minmax(0,1.4fr)]"
+        aria-label="Saved video renders"
+      >
+        <div class="kr-panel-flat flex min-h-0 flex-col gap-3 p-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-bold">My animated clips</h2>
+              <p class="kr-text-faded-xs">Saved across sessions · {{ videoStore.history.totalCount }} jobs</p>
+            </div>
+            <button
+              type="button"
+              class="kr-btn-outline-xs"
+              :disabled="videoStore.history.loading"
+              @click="videoStore.fetchJobs()"
+            >
+              <icon name="kind-icon:refresh-cw" class="kr-icon-4" />
+              Refresh
+            </button>
+          </div>
+          <p v-if="videoStore.history.error" class="text-sm text-error" role="alert">
+            {{ videoStore.history.error }}
+          </p>
+          <p v-if="videoStore.history.notice" class="text-sm text-success" role="status">
+            {{ videoStore.history.notice }}
+          </p>
+          <div v-if="videoStore.history.loading && !videoStore.history.jobs.length" class="kr-text-faded-sm">
+            Loading saved clips…
+          </div>
+          <div v-else-if="!videoStore.history.jobs.length" class="kr-text-faded-sm">
+            No saved video jobs yet. Generate a clip to start your history.
+          </div>
+          <div v-else class="max-h-[min(62vh,39rem)] space-y-2 overflow-y-auto pr-1">
+            <button
+              v-for="job in videoStore.history.jobs"
+              :key="job.id"
+              type="button"
+              class="flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-colors"
+              :class="
+                job.id === videoStore.history.selectedJobId
+                  ? 'border-accent bg-accent/10'
+                  : 'border-base-300 bg-base-100/60 hover:bg-base-200'
+              "
+              :aria-pressed="job.id === videoStore.history.selectedJobId"
+              @click="selectSavedJob(job.id)"
+            >
+              <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-base-200">
+                <icon
+                  :name="job.status === 'DONE' ? 'kind-icon:play' : 'kind-icon:video'"
+                  class="kr-icon-5"
+                />
+              </span>
+              <span class="min-w-0 flex-1">
+                <span class="flex items-center justify-between gap-2 text-sm font-semibold">
+                  <span>{{ job.model.toUpperCase() }} #{{ job.id }}</span>
+                  <span
+                    class="text-xs"
+                    :class="job.status === 'FAILED' ? 'text-error' : job.status === 'DONE' ? 'text-success' : 'text-info'"
+                  >
+                    {{ statusLabel(job.status) }}
+                  </span>
+                </span>
+                <span class="mt-1 block truncate text-xs opacity-75">
+                  {{ job.prompt || 'Untitled motion' }}
+                </span>
+                <span class="mt-1 block text-xs opacity-60">
+                  {{ formatJobDate(job.createdAt) }}
+                </span>
+              </span>
+            </button>
+          </div>
+          <div v-if="videoStore.history.pageCount > 1" class="flex items-center justify-between gap-2 text-xs">
+            <button
+              type="button"
+              class="kr-btn-outline-xs"
+              :disabled="videoStore.history.page <= 1 || videoStore.history.loading"
+              @click="videoStore.fetchJobs(videoStore.history.page - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ videoStore.history.page }} / {{ videoStore.history.pageCount }}</span>
+            <button
+              type="button"
+              class="kr-btn-outline-xs"
+              :disabled="videoStore.history.page >= videoStore.history.pageCount || videoStore.history.loading"
+              @click="videoStore.fetchJobs(videoStore.history.page + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+        <article v-if="videoStore.selectedJob" class="kr-panel-flat min-w-0 space-y-4 p-3">
+          <div class="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <h2 class="text-lg font-bold">
+                {{ videoStore.selectedJob.model.toUpperCase() }} · Job #{{ videoStore.selectedJob.id }}
+              </h2>
+              <p class="kr-text-faded-xs">
+                {{ formatJobDate(videoStore.selectedJob.createdAt) }}
+                · {{ videoStore.selectedJob.width }}×{{ videoStore.selectedJob.height }}
+                · {{ videoStore.selectedJob.durationSeconds }}s
+              </p>
+            </div>
+            <span
+              class="badge"
+              :class="videoStore.selectedJob.status === 'DONE' ? 'badge-success' : videoStore.selectedJob.status === 'FAILED' ? 'badge-error' : 'badge-info'"
+            >
+              {{ statusLabel(videoStore.selectedJob.status) }}
+            </span>
+          </div>
+
+          <div v-if="isActiveJob(videoStore.selectedJob.status)" class="space-y-2" role="status">
+            <progress class="progress progress-accent w-full" />
+            <p class="text-sm">{{ videoStore.state.message }}</p>
+            <p class="kr-text-faded-xs">
+              {{ videoStore.selectedJob.status === 'RUNNING' ? 'Relay has claimed the job' : 'Waiting for a relay slot' }}
+              <span v-if="videoStore.selectedJob.attempts">
+                · {{ videoStore.selectedJob.attempts }} previous attempt(s)
+              </span>
+            </p>
+            <p class="kr-text-faded-xs">
+              Stage updates come from the render queue. The backend does not report a reliable percent complete.
+            </p>
+          </div>
+
+          <div v-if="videoStore.state.attemptError" class="alert alert-warning text-xs">
+            {{ videoStore.state.attemptError }}
+          </div>
+          <div v-if="videoStore.state.error" class="alert alert-error text-sm" role="alert">
+            {{ videoStore.state.error }}
+          </div>
+
+          <div v-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
+            <img
+              v-if="videoStore.resultIsImage"
+              :src="videoStore.state.videoSrc"
+              class="max-h-[min(47vh,28rem)] w-full rounded-xl bg-black object-contain"
+              alt="Generated animated clip"
+            />
+            <video
+              v-else
+              :src="videoStore.state.videoSrc"
+              class="max-h-[min(47vh,28rem)] w-full rounded-xl bg-black object-contain"
+              :loop="loop"
+              controls
+              muted
+              playsinline
+            />
+            <a :href="videoStore.state.videoSrc" :download="downloadFilename" class="kr-btn-outline-plain">
+              Download clip
+            </a>
+          </div>
+          <p v-else-if="videoStore.selectedJob.status === 'DONE'" class="kr-text-faded-sm">
+            The render is complete. Loading its saved result…
+          </p>
+
+          <details class="rounded-xl border border-base-300 p-3 text-sm">
+            <summary class="cursor-pointer font-semibold">Original motion prompt</summary>
+            <p class="mt-2 whitespace-pre-wrap break-words">{{ videoStore.selectedJob.prompt }}</p>
+          </details>
+
+          <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              class="btn btn-accent btn-sm"
+              :disabled="isActiveJob(videoStore.selectedJob.status) || videoStore.history.actionId !== null"
+              @click="resubmitSavedJob(videoStore.selectedJob.id)"
+            >
+              Resubmit as new clip
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-error btn-sm"
+              :disabled="isActiveJob(videoStore.selectedJob.status) || videoStore.history.actionId !== null"
+              @click="pendingDeleteId = videoStore.selectedJob.id"
+            >
+              Delete history entry
+            </button>
+          </div>
+          <p class="kr-text-faded-xs">
+            Resubmitting uses your saved images and settings and charges for a new render.
+            Deleting this entry does not remove finished artwork from your gallery.
+          </p>
+          <div
+            v-if="pendingDeleteId === videoStore.selectedJob.id"
+            class="rounded-xl border border-error/40 bg-error/10 p-3 text-sm"
+          >
+            Remove this job from your history? The finished artwork will be kept.
+            <div class="mt-2 flex gap-2">
+              <button type="button" class="btn btn-error btn-sm" @click="deleteSavedJob(pendingDeleteId)">
+                Confirm delete
+              </button>
+              <button type="button" class="btn btn-ghost btn-sm" @click="pendingDeleteId = null">
+                Keep job
+              </button>
+            </div>
+          </div>
+        </article>
+        <div v-else class="kr-panel-flat flex items-center justify-center p-8 text-sm opacity-60">
+          Select a clip to inspect its progress and results.
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
 import { useVideoStore } from '@/stores/videoStore'
@@ -580,6 +821,8 @@ const firstImage = ref('')
 const route = useRoute()
 const firstImageArtId = ref<number | null>(null)
 const recentArtOpen = ref(false)
+const activePanel = ref<'create' | 'jobs'>('create')
+const pendingDeleteId = ref<number | null>(null)
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
 const negativePrompt = ref('')
@@ -675,6 +918,51 @@ const generateLabel = computed(() => {
   return `Generate ${engine.value.toUpperCase()} clip`
 })
 
+function statusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    PENDING: 'Queued',
+    RUNNING: 'Rendering',
+    DONE: 'Finished',
+    FAILED: 'Failed',
+    CANCELLED: 'Cancelled',
+  }
+  return labels[status] || status
+}
+
+function isActiveJob(status: string): boolean {
+  return status === 'PENDING' || status === 'RUNNING'
+}
+
+function formatJobDate(value: Date | string): string {
+  return new Date(value).toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+function openJobs(): void {
+  activePanel.value = 'jobs'
+  if (isLoggedIn.value) void videoStore.fetchJobs()
+}
+
+async function selectSavedJob(id: number): Promise<void> {
+  pendingDeleteId.value = null
+  await videoStore.selectJob(id)
+}
+
+async function resubmitSavedJob(id: number): Promise<void> {
+  pendingDeleteId.value = null
+  await videoStore.resubmitJob(id)
+}
+
+async function deleteSavedJob(id: number | null): Promise<void> {
+  if (id === null) return
+  if (await videoStore.deleteJob(id)) pendingDeleteId.value = null
+}
+
 function applyPreset(preset: NonNullable<ReturnType<typeof getVideoPreset>>): void {
   videoPresetId.value = preset.id
   width.value = preset.width
@@ -758,6 +1046,20 @@ onMounted(() => {
   if (Number.isInteger(requested) && requested > 0) {
     void useArtImageAsFirst(requested)
   }
+  if (isLoggedIn.value) void videoStore.fetchJobs(1)
+  refreshTimer = setInterval(() => {
+    if (isLoggedIn.value && videoStore.hasActiveJobs) {
+      void videoStore.fetchJobs()
+    }
+  }, 5_000)
+})
+
+let refreshTimer: ReturnType<typeof setInterval> | null = null
+onUnmounted(() => {
+  if (refreshTimer) clearInterval(refreshTimer)
+})
+watch(isLoggedIn, (signedIn) => {
+  if (signedIn) void videoStore.fetchJobs(1)
 })
 
 async function useLogoAsFirst() {
@@ -791,7 +1093,8 @@ async function generate() {
     resourceStore.visibleLoras,
   )
 
-  await videoStore.generate({
+  activePanel.value = 'jobs'
+  void videoStore.generate({
     engine: engine.value,
     presetId: videoPresetId.value || null,
     promptString: effectivePrompt,
@@ -813,6 +1116,7 @@ async function generate() {
     loras: loraPicks.value,
     isMature: isMature.value,
     isPublic: isPublic.value,
+    projectSlug: 'video-generator',
   })
 }
 </script>

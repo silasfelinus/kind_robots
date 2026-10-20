@@ -31,7 +31,10 @@ export default defineEventHandler(async (event) => {
       },
     })
     if (deleted.count !== 1) {
-      throw createError({ statusCode: 409, message: 'Job status changed. Refresh and retry.' })
+      throw createError({
+        statusCode: 409,
+        message: 'Job status changed. Refresh and retry.',
+      })
     }
     return {
       success: true,

@@ -382,24 +382,24 @@
 
 **Opening narration:** Invisible tourists keep buying tickets to an abandoned exhibit.
 
-**Escalation:** Invisible tourists queue at an abandoned roadside attraction and pay for tickets with neatly folded blank paper.
+**Escalation:** Invisible tourists queue in perfect order at an abandoned roadside attraction on the Avenue of the Giants. They pay with folded blank paper. The neighboring shopkeeper is worried about traffic on a narrow shoulder, and somebody has reopened a crumbling ticket booth without asking.
 
-**Option A, investigate (visible 9 check):** Read the guestbook for evidence of their route
+**Option A, investigate (visible 9 check):** Read the guestbook and inspect the receipts without stepping into traffic
 
-- **Pass:** Every guest signed the same future date and named a bridge removed years ago.
-- **Miss:** A gust tears out the page, but the empty ticket machine prints one more stub.
+- **Pass:** Every signature names tomorrow's date and a bridge dismantled years ago. The paper feels new. The shopkeeper can confirm the booth was locked yesterday.
+- **Miss:** A gust tears the page away before you copy all the names. An empty ticket machine prints a fresh stub and deposits it neatly beside your shoe.
 
-**Option B, assist without a check:** Help a neighbor turn the site into a safe rest area
+**Option B, assist without a check:** Turn the unsafe turnout into a free, marked place to pause and find directions
 
-- **Result:** The old booth becomes a free map-and-water stop for travelers nobody can quite see.
+- **Result:** The shopkeeper lends a water jug and volunteers place clear warning cones. Visible and invisible travelers take turns without making the road an exhibit.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-093`: Invisible tourists keep buying tickets to an abandoned exhibit. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-093/2`: Invisible tourists queue at an abandoned roadside attraction and pay for tickets with neatly folded blank paper. The people and location must match the opening.
-- `outcomes/wh-093/investigate-success`: Every guest signed the same future date and named a bridge removed years ago. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-093/investigate-failure`: A gust tears out the page, but the empty ticket machine prints one more stub. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-093/care-success`: The old booth becomes a free map-and-water stop for travelers nobody can quite see. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-093/2`: Invisible tourists queue in perfect order at an abandoned roadside attraction on the Avenue of the Giants. They pay with folded blank paper. The neighboring shopkeeper is worried about traffic on a narrow shoulder, and somebody has reopened a crumbling ticket booth without asking. The people and location must match the opening.
+- `outcomes/wh-093/investigate-success`: Every signature names tomorrow's date and a bridge dismantled years ago. The paper feels new. The shopkeeper can confirm the booth was locked yesterday. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-093/investigate-failure`: A gust tears the page away before you copy all the names. An empty ticket machine prints a fresh stub and deposits it neatly beside your shoe. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-093/care-success`: The shopkeeper lends a water jug and volunteers place clear warning cones. Visible and invisible travelers take turns without making the road an exhibit. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_093_verified`, `wh_093_partial`, `wh_093_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** A tree's scars resemble a family the player has just met.
 
-**Escalation:** A redwood scar resembles a family you met earlier, including a child they have not introduced. The faces change whenever the light changes.
+**Escalation:** In the bark of a redwood, a scar resembles a family you spoke with earlier, including a child they never mentioned. The likeness shifts when the canopy moves. A stranger with a camera wants to send it to the family before asking whether they want it.
 
-**Option A, investigate (visible 9 check):** Sketch the marks from two directions
+**Option A, investigate (visible 9 check):** Sketch the bark from the boardwalk at two different angles
 
-- **Pass:** A new figure appears beside the family at a future reunion, carrying an unfamiliar tool.
-- **Miss:** Your pencil snaps and the light shifts. The family portrait is gone but the scar is still there.
+- **Pass:** A new figure appears in the shadow of the sketch, carrying a strange pruning tool. You label what changed and avoid naming a relative who may not exist.
+- **Miss:** The sun moves and the faces dissolve into an ordinary scar. You keep both sketches, marked with their positions, rather than declaring the forest a family historian.
 
-**Option B, assist without a check:** Ask before showing the strange likeness
+**Option B, assist without a check:** Ask the family whether they want to hear about the resemblance before showing images
 
-- **Result:** The family chooses to view the sketch privately and leaves their own memory of the grove.
+- **Result:** The family chooses to see the sketches privately and asks you not to post them. The tree retains its shape, and the family retains the right to tell its own story.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-095`: A tree's scars resemble a family the player has just met. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-095/2`: A redwood scar resembles a family you met earlier, including a child they have not introduced. The faces change whenever the light changes. The people and location must match the opening.
-- `outcomes/wh-095/investigate-success`: A new figure appears beside the family at a future reunion, carrying an unfamiliar tool. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-095/investigate-failure`: Your pencil snaps and the light shifts. The family portrait is gone but the scar is still there. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-095/care-success`: The family chooses to view the sketch privately and leaves their own memory of the grove. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-095/2`: In the bark of a redwood, a scar resembles a family you spoke with earlier, including a child they never mentioned. The likeness shifts when the canopy moves. A stranger with a camera wants to send it to the family before asking whether they want it. The people and location must match the opening.
+- `outcomes/wh-095/investigate-success`: A new figure appears in the shadow of the sketch, carrying a strange pruning tool. You label what changed and avoid naming a relative who may not exist. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-095/investigate-failure`: The sun moves and the faces dissolve into an ordinary scar. You keep both sketches, marked with their positions, rather than declaring the forest a family historian. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-095/care-success`: The family chooses to see the sketches privately and asks you not to post them. The tree retains its shape, and the family retains the right to tell its own story. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_095_verified`, `wh_095_partial`, `wh_095_care` (mutually exclusive results of this card).
 
@@ -568,24 +568,24 @@
 
 **Opening narration:** A family insists their pet rock is the rightful heir to a ranch.
 
-**Escalation:** A family insists a river stone has inherited a ranch. The county clerk has never handled probate for a rock and is trying hard to be polite.
+**Escalation:** An Eel River family arrives at the county clerk's desk with a will naming a river stone as heir to a ranch. The clerk has handled disputes over cattle and fences, but not probate involving an object that cannot sign. Two relatives are already arguing over the riverbank.
 
-**Option A, investigate (visible 9 check):** Inspect the will and the stone's markings
+**Option A, investigate (visible 9 check):** Examine the will and the stone's marks with the family and clerk present
 
-- **Pass:** The marks are a flood-high-water record predicting the ranch's most vulnerable field.
-- **Miss:** The ink smudges on the old envelope. The family still explains why the stone mattered.
+- **Pass:** A line of scratches records flood levels that match old field notes and suggest one vulnerable pasture. The stone may be an odd heir, but the risk is practical and needs a plan.
+- **Miss:** The envelope's ink smears before you can read the signature. The relatives still remember the stone's history and the clerk offers a proper way to preserve their testimony.
 
-**Option B, assist without a check:** Help the heirs make a fair shared-use plan
+**Option B, assist without a check:** Help the heirs agree on access and bank protection while probate is reviewed
 
-- **Result:** They protect the riverbank and keep the stone on the mantel instead of using it as a weapon.
+- **Result:** The family keeps the stone on the mantel and drafts a shared-use agreement for the riverbank. Nobody wins the ranch by throwing its heir.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-099`: A family insists their pet rock is the rightful heir to a ranch. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-099/2`: A family insists a river stone has inherited a ranch. The county clerk has never handled probate for a rock and is trying hard to be polite. The people and location must match the opening.
-- `outcomes/wh-099/investigate-success`: The marks are a flood-high-water record predicting the ranch's most vulnerable field. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-099/investigate-failure`: The ink smudges on the old envelope. The family still explains why the stone mattered. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-099/care-success`: They protect the riverbank and keep the stone on the mantel instead of using it as a weapon. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-099/2`: An Eel River family arrives at the county clerk's desk with a will naming a river stone as heir to a ranch. The clerk has handled disputes over cattle and fences, but not probate involving an object that cannot sign. Two relatives are already arguing over the riverbank. The people and location must match the opening.
+- `outcomes/wh-099/investigate-success`: A line of scratches records flood levels that match old field notes and suggest one vulnerable pasture. The stone may be an odd heir, but the risk is practical and needs a plan. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-099/investigate-failure`: The envelope's ink smears before you can read the signature. The relatives still remember the stone's history and the clerk offers a proper way to preserve their testimony. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-099/care-success`: The family keeps the stone on the mantel and drafts a shared-use agreement for the riverbank. Nobody wins the ranch by throwing its heir. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_099_verified`, `wh_099_partial`, `wh_099_care` (mutually exclusive results of this card).
 

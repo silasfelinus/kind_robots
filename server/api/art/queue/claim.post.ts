@@ -114,7 +114,8 @@ export default defineEventHandler(async (event) => {
     const supportsVideoRestyleGrabBag =
       body?.supportsVideoRestyleGrabBag === true
     const supportsVideoRestyleFast = body?.supportsVideoRestyleFast === true
-    const supportsVideoRestyleStrength = body?.supportsVideoRestyleStrength === true
+    const supportsVideoRestyleStrength =
+      body?.supportsVideoRestyleStrength === true
     const supportsCompletionProof = body?.supportsCompletionProof === true
     const smartQueue = body?.smartQueue !== false
     const singleSlot = body?.singleSlot !== false

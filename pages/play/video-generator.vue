@@ -1116,6 +1116,7 @@ async function generate() {
     loras: loraPicks.value,
     isMature: isMature.value,
     isPublic: isPublic.value,
+    projectSlug: 'video-generator',
   })
 }
 </script>

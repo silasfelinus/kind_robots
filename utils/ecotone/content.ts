@@ -741,6 +741,12 @@ export const ENCOUNTERS: EncounterCard[] = [
         'The actors keep slipping away. For long moments it is just an otter and a kid, running.',
       tripping_balls:
         'You don’t see actors. You see Bill, Snerfy and the prairie dogs, alive in the dark. Later, when the masks come off, you may not believe it.',
+      cocaine:
+        'The crowd is moving fast, but the performers leave room to linger. You stop to read their credits and the names of the animals they remember.',
+      meth:
+        'The lanterns are gentle on tired eyes. A volunteer offers a place to sit, and you stay long enough to see each performer take off their mask.',
+      mdma:
+        'The audience feels briefly like one enormous family. The performers keep their own stories, and you ask permission before sharing a photograph.',
     },
     choices: [
       {

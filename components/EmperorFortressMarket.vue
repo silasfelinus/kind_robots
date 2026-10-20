@@ -1,48 +1,75 @@
 <template>
-  <section class="kr-panel space-y-3 p-4">
-    <div class="flex flex-wrap items-center justify-between gap-2">
-      <h2 class="font-serif text-2xl font-bold">The market</h2>
-      <span class="text-sm opacity-75">
+  <div
+    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,26rem)]"
+  >
+    <div class="flex items-end @max-4xl:hidden">
+      <p class="kr-panel px-3 py-2 text-sm italic">
         {{ run.inventory.length }} unequipped item{{
           run.inventory.length === 1 ? '' : 's'
         }}
         in the storeroom · equip them in the barracks
-      </span>
+      </p>
     </div>
-    <div
-      class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))] gap-2"
-    >
-      <article
-        v-for="item in ITEMS"
-        :key="item.id"
-        class="flex flex-col gap-1 rounded-xl border border-base-content/15 bg-base-100 p-3"
-      >
-        <span class="flex items-start justify-between gap-2">
-          <strong class="font-serif text-lg">{{ item.name }}</strong>
-          <span class="text-xs font-bold uppercase opacity-60">{{
-            item.slot
-          }}</span>
-        </span>
-        <p class="text-xs italic opacity-75">{{ item.text }}</p>
-        <p class="text-sm font-semibold text-warning">{{ effect(item) }}</p>
+    <section class="kr-panel flex min-h-0 flex-col gap-2 p-3">
+      <h2 class="sr-only">The market</h2>
+      <div class="flex gap-1" role="group" aria-label="Market stock">
         <button
+          v-for="tab in TABS"
+          :key="tab.id"
           type="button"
-          class="btn btn-sm btn-outline mt-auto"
-          :disabled="run.brass < item.price"
-          @click="buy(item.id)"
+          class="btn btn-xs flex-1"
+          :class="filter === tab.id ? 'btn-warning' : 'btn-outline'"
+          :aria-pressed="filter === tab.id"
+          @click="filter = tab.id"
         >
-          Buy · {{ item.price }} brass
+          {{ tab.label }}
         </button>
-      </article>
-    </div>
-    <p v-if="message" class="kr-note p-2 text-sm" role="status">
-      {{ message }}
-    </p>
-  </section>
+      </div>
+      <p class="text-xs italic opacity-70 @4xl:hidden">
+        {{ run.inventory.length }} unequipped in the storeroom · equip them in
+        the barracks
+      </p>
+      <ul class="grid gap-1.5">
+        <li
+          v-for="item in shown"
+          :key="item.id"
+          class="flex items-center gap-3 rounded-md border border-warning/25 bg-base-200/70 p-2"
+        >
+          <span
+            class="eod-medallion grid h-10 w-10 shrink-0 place-items-center rounded-md font-serif text-lg text-warning"
+            aria-hidden="true"
+            >{{ item.name.replace(/^The /, '').charAt(0) }}</span
+          >
+          <span class="min-w-0 flex-1">
+            <strong class="block font-serif text-sm">{{ item.name }}</strong>
+            <span class="block text-xs italic opacity-70">{{ item.text }}</span>
+            <span class="block text-xs font-semibold text-warning">{{
+              effect(item)
+            }}</span>
+          </span>
+          <button
+            type="button"
+            class="eod-price shrink-0 px-2 py-1 text-sm font-bold"
+            :disabled="run.brass < item.price"
+            :aria-label="`Buy ${item.name} for ${item.price} brass`"
+            @click="buy(item.id)"
+          >
+            <span
+              class="mr-1 inline-block h-2.5 w-2.5 rounded-full border-2 border-current align-middle"
+              aria-hidden="true"
+            />{{ item.price }}
+          </button>
+        </li>
+      </ul>
+      <p v-if="message" class="kr-note p-2 text-sm" role="status">
+        {{ message }}
+      </p>
+    </section>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { ITEMS } from '~/utils/emperorOfDust/fortress/followers'
 import type { FortressRun, ItemDef } from '~/utils/emperorOfDust/fortress/types'
@@ -50,6 +77,18 @@ import type { FortressRun, ItemDef } from '~/utils/emperorOfDust/fortress/types'
 defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
 const message = ref('')
+
+const TABS = [
+  { id: 'all', label: 'All' },
+  { id: 'tool', label: 'Tools' },
+  { id: 'charm', label: 'Charms' },
+] as const
+const filter = ref<(typeof TABS)[number]['id']>('all')
+const shown = computed(() =>
+  filter.value === 'all'
+    ? ITEMS
+    : ITEMS.filter((item) => item.slot === filter.value),
+)
 
 const ABILITY_TEXT: Record<string, string> = {
   'field-surgery': 'Injuries heal a day sooner',

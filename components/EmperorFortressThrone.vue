@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid min-h-full gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)]"
+    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)]"
   >
     <section
       class="relative flex min-h-64 flex-col justify-end @4xl:min-h-0"

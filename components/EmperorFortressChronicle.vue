@@ -1,5 +1,79 @@
 <template>
   <div class="grid gap-3 @4xl:grid-cols-2">
+    <section
+      class="grid gap-3 @md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] @4xl:col-span-2"
+    >
+      <div class="kr-panel space-y-1.5 p-3">
+        <h2 class="font-serif text-xl font-bold">Rewind</h2>
+        <ul class="kr-scroll max-h-72 space-y-1.5 pr-1">
+          <li v-for="day in dawnsNewestFirst" :key="day">
+            <button
+              type="button"
+              class="flex w-full items-center gap-3 rounded-md border px-3 py-2 text-left transition-colors"
+              :class="
+                pendingDay === day
+                  ? 'border-warning bg-warning/15'
+                  : 'border-warning/25 bg-base-200/70 hover:border-warning/60'
+              "
+              :aria-pressed="pendingDay === day"
+              @click="pendingDay = day"
+            >
+              <Icon
+                name="kind-icon:time"
+                class="h-5 w-5 shrink-0 text-warning"
+              />
+              <span class="min-w-0">
+                <strong class="block font-serif text-sm">
+                  Dawn {{ day }}
+                  <span
+                    v-if="day === run.day"
+                    class="ml-1 text-[10px] font-semibold uppercase tracking-widest text-warning"
+                    >current</span
+                  >
+                </strong>
+                <span class="block text-xs opacity-65"
+                  >Act {{ actOf(day) }}</span
+                >
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="eod-notice flex flex-col items-center gap-3 p-5 text-center">
+        <p class="eod-display text-base">Chronicle of Ash</p>
+        <span
+          class="flex gap-2"
+          role="img"
+          :aria-label="`Act ${actOf(run.day)} of 5`"
+        >
+          <span
+            v-for="actNumber in 5"
+            :key="actNumber"
+            class="h-3.5 w-3.5 rounded-full border-2"
+            :class="
+              actNumber === actOf(run.day)
+                ? 'border-error bg-error'
+                : 'border-current opacity-60'
+            "
+          />
+        </span>
+        <p class="text-sm italic leading-snug">
+          Return to the dawn of an earlier day. Everything after it is undone,
+          and the wasteland rolls fresh: chores, quest results and injuries may
+          come out differently. Secrets you uncovered and relics you earned stay
+          yours.
+        </p>
+        <button
+          type="button"
+          class="eod-finish mt-auto px-4 py-1.5 text-sm"
+          :disabled="!pendingDay"
+          @click="rewind"
+        >
+          {{ pendingDay ? `Rewind to Dawn ${pendingDay}` : 'Choose a dawn' }}
+        </button>
+      </div>
+    </section>
+
     <section class="kr-panel space-y-3 p-4">
       <h2 class="font-serif text-2xl font-bold">Saves</h2>
       <p class="text-xs opacity-70">
@@ -72,40 +146,6 @@
       </div>
     </section>
 
-    <section class="kr-panel space-y-3 p-4">
-      <h2 class="font-serif text-2xl font-bold">Rewind</h2>
-      <p class="text-xs opacity-70">
-        Return to the dawn of an earlier day. Everything after it is undone, and
-        the wasteland rolls fresh: chores, quest results and injuries may come
-        out differently. Secrets you uncovered and relics you earned stay yours.
-      </p>
-      <div class="flex flex-wrap gap-1">
-        <button
-          v-for="day in court.rewindableDays"
-          :key="day"
-          type="button"
-          class="btn btn-xs"
-          :class="pendingDay === day ? 'btn-warning' : 'btn-outline'"
-          @click="pendingDay = day"
-        >
-          Day {{ day }}
-        </button>
-      </div>
-      <p v-if="pendingDay" class="flex flex-wrap items-center gap-2 text-sm">
-        Rewind to dawn of Day {{ pendingDay }}?
-        <button type="button" class="btn btn-sm btn-warning" @click="rewind">
-          Rewind
-        </button>
-        <button
-          type="button"
-          class="btn btn-sm btn-ghost"
-          @click="pendingDay = null"
-        >
-          Cancel
-        </button>
-      </p>
-    </section>
-
     <section class="@container kr-panel space-y-3 p-4 @4xl:col-span-2">
       <h2 class="font-serif text-2xl font-bold">Items of Power</h2>
       <p class="text-xs opacity-70">
@@ -159,8 +199,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
+import { actOf } from '~/utils/emperorOfDust/fortress/engine'
 import { RELICS } from '~/utils/emperorOfDust/fortress/relics'
 import type { RelicId } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
@@ -170,6 +211,7 @@ const court = useEmperorFortressStore()
 const message = ref('')
 const confirmNew = ref(false)
 const pendingDay = ref<number | null>(null)
+const dawnsNewestFirst = computed(() => [...court.rewindableDays].reverse())
 
 function act(action: () => void, done: string) {
   try {

@@ -136,11 +136,11 @@
             <Icon :name="currentRoom.icon" class="h-5 w-5 text-warning" />
           </span>
           <div class="min-w-0">
-            <h1
+            <h2
               class="eod-plate eod-display inline-block px-3 py-0.5 text-lg sm:text-xl"
             >
               {{ currentRoom.title }}
-            </h1>
+            </h2>
             <p class="eod-tagline mt-1 hidden text-sm italic sm:block">
               {{ currentRoom.tagline }}
             </p>
@@ -416,6 +416,80 @@ useHead({ title: 'Emperor of Dust' })
   mask-composite: intersect;
 }
 
+.eod .eod-board {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.5rem;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      oklch(0% 0 0 / 0.08) 0 2px,
+      transparent 2px 46px
+    ),
+    linear-gradient(to bottom, oklch(42% 0.06 55), oklch(33% 0.05 50));
+  box-shadow:
+    inset 0 0 0 6px oklch(26% 0.04 50),
+    inset 0 0 0 7px var(--eod-gilt-dim),
+    inset 0 0 24px oklch(0% 0 0 / 0.45);
+}
+
+.eod .eod-notice {
+  position: relative;
+  min-height: 7.5rem;
+  border-radius: 2px;
+  color: oklch(28% 0.03 55);
+  background:
+    radial-gradient(ellipse at 30% 20%, oklch(96% 0.03 85), transparent 70%),
+    oklch(88% 0.045 80);
+  box-shadow:
+    0 6px 12px oklch(0% 0 0 / 0.45),
+    inset 0 0 18px oklch(60% 0.06 60 / 0.35);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.eod .eod-notice:hover {
+  transform: translateY(-2px) rotate(0deg);
+}
+
+.eod .eod-notice-picked {
+  transform: rotate(0deg) scale(1.03);
+  outline: 2px solid var(--eod-gilt);
+  outline-offset: 3px;
+}
+
+.eod .eod-pin {
+  position: absolute;
+  top: 0.35rem;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at 35% 35%,
+    oklch(70% 0.17 27),
+    oklch(42% 0.15 27)
+  );
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.5);
+}
+
+.eod .eod-price {
+  border: 1px solid var(--eod-gilt);
+  border-radius: 0.375rem;
+  color: var(--color-warning-content);
+  background: linear-gradient(
+    to bottom,
+    oklch(80% 0.11 80),
+    oklch(64% 0.11 68)
+  );
+}
+
+.eod .eod-price:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .eod .eod-medallion {
   border: 1px solid var(--eod-gilt);
   background: radial-gradient(
@@ -459,7 +533,12 @@ useHead({ title: 'Emperor of Dust' })
   );
 }
 
-.eod .eod-finish:hover {
+.eod .eod-finish:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.eod .eod-finish:hover:not(:disabled) {
   filter: brightness(1.08);
 }
 

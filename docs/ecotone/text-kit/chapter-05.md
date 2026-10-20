@@ -10,24 +10,24 @@
 
 **Opening narration:** A display mannequin asks the player to stop a wedding scheduled in 1912.
 
-**Escalation:** A mannequin in a Ferndale shop window begs you to stop a wedding planned for 1912. Behind its veil lies a modern bus ticket.
+**Escalation:** A mannequin in a Ferndale shop window begs you to stop a wedding scheduled for 1912. A modern bus ticket lies under her veil. The shopkeeper says the display has never moved and asks you not to touch the dress.
 
-**Option A, investigate (visible 9 check):** Find out which wedding the mannequin remembers
+**Option A, investigate (visible 9 check):** Check the ceremony record before deciding the mannequin knows a real name
 
-- **Pass:** The archive reveals the ceremony never happened because both people chose to leave town together.
-- **Miss:** A clockwork cough closes the window before you learn the names; the bus ticket remains.
+- **Pass:** The archive contains a canceled ceremony, not a tragedy. Both people chose to leave town together. The mannequin looks faintly pleased and declines to explain why.
+- **Miss:** The clock in the display coughs and the names vanish from the card. You retain the bus ticket and the good sense not to accuse anyone's ancestors.
 
-**Option B, assist without a check:** Ask the shopkeeper before interfering with strangers
+**Option B, assist without a check:** Ask the shopkeeper about the display and protect the family's privacy
 
-- **Result:** The display is changed respectfully, and an elderly visitor recognizes a family photograph.
+- **Result:** The shopkeeper changes the display with the family's permission. A visitor recognizes a photograph and asks to keep the story private.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-081`: A display mannequin asks the player to stop a wedding scheduled in 1912. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-081/2`: A mannequin in a Ferndale shop window begs you to stop a wedding planned for 1912. Behind its veil lies a modern bus ticket. The people and location must match the opening.
-- `outcomes/wh-081/investigate-success`: The archive reveals the ceremony never happened because both people chose to leave town together. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-081/investigate-failure`: A clockwork cough closes the window before you learn the names; the bus ticket remains. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-081/care-success`: The display is changed respectfully, and an elderly visitor recognizes a family photograph. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-081/2`: A mannequin in a Ferndale shop window begs you to stop a wedding scheduled for 1912. A modern bus ticket lies under her veil. The shopkeeper says the display has never moved and asks you not to touch the dress. The people and location must match the opening.
+- `outcomes/wh-081/investigate-success`: The archive contains a canceled ceremony, not a tragedy. Both people chose to leave town together. The mannequin looks faintly pleased and declines to explain why. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-081/investigate-failure`: The clock in the display coughs and the names vanish from the card. You retain the bus ticket and the good sense not to accuse anyone's ancestors. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-081/care-success`: The shopkeeper changes the display with the family's permission. A visitor recognizes a photograph and asks to keep the story private. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_081_verified`, `wh_081_partial`, `wh_081_care` (mutually exclusive results of this card).
 
@@ -41,24 +41,24 @@
 
 **Opening narration:** An elegantly dressed cow has inherited a very specific deed.
 
-**Escalation:** A well-dressed cow owns the theater by inheritance and intends to stage a new play, but the board says hooves cannot sign contracts.
+**Escalation:** A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra.
 
-**Option A, investigate (visible 9 check):** Review the deed and old theater books
+**Option A, investigate (visible 9 check):** Read the deed beside the company's books, not just the animal's costume
 
-- **Pass:** The deed is valid except for one clause signed fifty years in the future.
-- **Miss:** Ink smears the last page. You can still prove the theater belonged to the family.
+- **Pass:** The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too.
+- **Miss:** Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust.
 
-**Option B, assist without a check:** Help the company rehearse with its unusual patron
+**Option B, assist without a check:** Help the company rehearse while its patron and workers negotiate
 
-- **Result:** The cow attends opening night and votes to pay the stage crew a proper wage.
+- **Result:** The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-082`: An elegantly dressed cow has inherited a very specific deed. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-082/2`: A well-dressed cow owns the theater by inheritance and intends to stage a new play, but the board says hooves cannot sign contracts. The people and location must match the opening.
-- `outcomes/wh-082/investigate-success`: The deed is valid except for one clause signed fifty years in the future. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-082/investigate-failure`: Ink smears the last page. You can still prove the theater belonged to the family. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-082/care-success`: The cow attends opening night and votes to pay the stage crew a proper wage. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-082/2`: A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra. The people and location must match the opening.
+- `outcomes/wh-082/investigate-success`: The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-082/investigate-failure`: Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-082/care-success`: The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_082_verified`, `wh_082_partial`, `wh_082_care` (mutually exclusive results of this card).
 

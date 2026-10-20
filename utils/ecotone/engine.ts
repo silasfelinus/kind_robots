@@ -34,6 +34,7 @@ import {
   NEW_LENS_CODAS,
 } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
+import { openingLensChoices } from './openingLensChoices'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -632,7 +633,7 @@ function meet(state: RunState, accept: boolean): RunState {
 export function chooseBeat(state: RunState, choiceId: string): RunState {
   if (state.phase !== 'beat' || state.pending) return state
   const card = findCard(state.card)
-  const choice = card?.choices.find((c) => c.id === choiceId)
+  const choice = card && openingLensChoices(card).find((c) => c.id === choiceId)
   if (!card || !choice || choice.locked) return state
   let next: RunState = state
   if (choice.lens) {

@@ -67,7 +67,19 @@ export type Requirement = {
   follower?: string
   flags?: string[]
   notFlags?: string[]
+  /** At least `min` of these flags: a standing earned over many days. */
+  standing?: Standing
 }
+
+/** A track of story flags that accumulate, such as the crown's concessions. */
+export type Standing = { flags: readonly string[]; min: number }
+
+export const standingHeld = (
+  flags: readonly string[],
+  standing: Standing | undefined,
+): boolean =>
+  !standing ||
+  standing.flags.filter((flag) => flags.includes(flag)).length >= standing.min
 
 export type TraitKind = 'skill' | 'weakness' | 'allegiance'
 
@@ -146,6 +158,17 @@ export type ItemDef = {
   text: string
   stats?: Partial<StatBlock>
   ability?: Omit<AbilityDef, 'name' | 'text'>
+  /** Market (t-024): the faction whose people sell it; none for fortress staples. */
+  faction?: KingdomFactionId
+  /** Stock gate: the seller's affinity tier, or local support the stall needs. */
+  stock?: {
+    tier?: AffinityTier
+    local?: Partial<Record<LocalFactionId, number>>
+  }
+  /** +amount to every requirement of a quest for this faction or with this tag. */
+  edge?: { faction?: KingdomFactionId; tag?: string; amount: number }
+  /** What buying it costs beyond brass: somebody hears where it came from. */
+  onBuy?: Effects
 }
 
 export type QuestRequirement = { stat: Stat; band: Band; hidden?: boolean }
@@ -314,6 +337,34 @@ export type QuestReport = {
   effects: Effects
 }
 
+/**
+ * A change the map room announces at an act-end dawn (Days 11, 21, 31, 41):
+ * a banner revealed, a faction wiped out, land taken, a faction that held,
+ * or a warning about the next act end.
+ */
+export type MapEventKind =
+  'revealed' | 'wiped' | 'taken' | 'held' | 'warned-wipe' | 'warned-raid'
+
+export type MapEvent = {
+  /** The dawn it was announced. */
+  day: number
+  kind: MapEventKind
+  faction: KingdomFactionId
+  /** The rival that took, or threatens to take, the land. */
+  by?: KingdomFactionId
+  region?: string
+}
+
+/** A map change warned one act ahead; it can only happen on `dueDay`. */
+export type MapThreat = {
+  kind: 'wipe' | 'raid'
+  faction: KingdomFactionId
+  by?: KingdomFactionId
+  region?: string
+  issuedDay: number
+  dueDay: number
+}
+
 export type DawnReport = {
   day: number
   quests: QuestReport[]
@@ -321,6 +372,8 @@ export type DawnReport = {
   wages: number
   loanTaken: boolean
   events: string[]
+  /** Act-end map changes announced this dawn. */
+  map?: MapEvent[]
 }
 
 export type FortressRun = {
@@ -336,6 +389,12 @@ export type FortressRun = {
   strength: Record<KingdomFactionId, number>
   revealedFactions: KingdomFactionId[]
   wipedOut: KingdomFactionId[]
+  /** Regions taken at an act end: region id -> new holder. */
+  controllers?: Partial<Record<string, KingdomFactionId>>
+  /** Map changes warned for the next act end. */
+  mapWatch?: MapThreat[]
+  /** Every act-end map change so far, for the map room's history. */
+  mapLog?: MapEvent[]
   beds: 6 | 9 | 12
   roster: FollowerState[]
   recruitable: string[]
@@ -360,6 +419,11 @@ export type FortressRun = {
   talkDay?: number
   /** The talk under way today and the beat it has reached. */
   talkOpen?: { id: string; beat?: string }
+  /**
+   * Market (t-024): items bought from this stock window's stalls, and the
+   * followers treated today. Stale windows and days read as empty.
+   */
+  market?: { window: number; bought: string[]; day: number; treated: string[] }
 }
 
 /** Persistent across runs: revealed traits and allegiances. */

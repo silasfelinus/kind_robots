@@ -704,7 +704,7 @@
           <div
             v-else-if="zoomed && game.finished"
             class="kr-pane-scroll journey-reader"
-            aria-label="Journey complete"
+            aria-label="Journey ending"
           >
             <div class="encounter-grid">
               <div
@@ -730,12 +730,27 @@
                 <p
                   class="text-[10px] font-black uppercase tracking-[.25em] text-warning"
                 >
-                  Journey complete
+                  The road remembers
                 </p>
                 <h3 class="font-serif text-2xl font-black sm:text-3xl">
-                  {{ endTitle }}
+                  {{ game.ending?.title ?? endTitle }}
                 </h3>
-                <p class="text-sm opacity-80">
+                <p
+                  v-if="game.ending"
+                  class="text-xs font-bold uppercase tracking-wider opacity-70"
+                >
+                  {{ game.ending.path }}
+                </p>
+                <div v-if="game.ending" class="space-y-3">
+                  <p
+                    v-for="(paragraph, index) in game.ending.paragraphs"
+                    :key="game.ending.kind + '-' + index"
+                    class="text-sm leading-relaxed opacity-90"
+                  >
+                    {{ paragraph }}
+                  </p>
+                </div>
+                <p v-else class="text-sm opacity-80">
                   {{ game.state.journal[game.state.journal.length - 1]?.text }}
                 </p>
                 <p class="text-sm">
@@ -1490,7 +1505,8 @@ const zoomTarget = computed(() => {
       (game.activeEncounter?.title || game.activeCard.label)
     )
   if (game.bossReady) return 'Trial unlocked · ' + game.currentLand.boss.label
-  if (game.finished) return 'Journey complete · ' + endTitle.value
+  if (game.finished)
+    return 'Journey complete · ' + (game.ending?.title ?? endTitle.value)
   return ''
 })
 const zoomed = computed(() => !!zoomTarget.value && !roadPeek.value)

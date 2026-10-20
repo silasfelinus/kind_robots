@@ -22,12 +22,12 @@
     "place": "Moonstone Beach",
     "scene": "beach",
     "pool": 0,
-    "pressure": "The kombucha bottle bears your handwriting and tomorrow's date. Inside is a sketch of a rockfall that has not happened.",
-    "investigate": "Compare the message with tomorrow's tide chart",
-    "success": "The warning correctly names a tide height missing from the official table.",
-    "failure": "The ink bleeds in the spray; a tourist still recalls the exact location from your reading.",
-    "help": "Warn beachgoers and mark the hazardous access",
-    "helpOutcome": "A family moves its picnic before a cliff pebble shower begins, and nobody needs to believe in time travel."
+    "pressure": "A kombucha bottle rolls up between your shoes. The letter inside, signed in your handwriting, describes a rockfall tomorrow at the point where three families are sitting today. The date is right; the explanation is not.",
+    "investigate": "Compare the sketch with the cliff face and an independently posted warning",
+    "success": "The tide chart leaves out an hour that appears in the bottle's margin. A local volunteer confirms the cliff is already shedding grit.",
+    "failure": "The ink runs before you can preserve the time. You still know where the dangerous overhang is, which turns out to be the useful part.",
+    "help": "Move people away from the unstable edge without asking them to believe you",
+    "helpOutcome": "The picnic moves inland. A few pebbles begin falling where the blanket used to be. The family thanks you for the warning, not the time travel."
   },
   {
     "id": "WH-025",
@@ -37,12 +37,12 @@
     "place": "Moonstone Beach",
     "scene": "beach",
     "pool": 0,
-    "pressure": "A green piece of sea glass contains a lighthouse with a working rotating beacon. The tiny light points inland.",
-    "investigate": "Use a lens to map what the miniature beam touches",
-    "success": "It sweeps a hidden channel on a map of Trinidad that has not yet been published.",
-    "failure": "The glass slips into the sand, but the beam briefly marks a safe walking route.",
-    "help": "Return the glass to the shoreline collector who lost it",
-    "helpOutcome": "They recognize their grandmother's lighthouse and agree to show it without selling it."
+    "pressure": "Inside a piece of green sea glass, a lighthouse rotates with the solemnity of somebody fulfilling a very small contract. Its beam points inland, across the footprints of a collector looking for what she lost.",
+    "investigate": "Trace the miniature beacon across a real map before moving the glass",
+    "success": "The beam picks out a channel absent from the chart. You record the position and write UNVERIFIED in letters big enough to resist the temptation to announce a discovery.",
+    "failure": "The glass slips beneath the sand. For a second the beam draws a line toward higher ground; you mark the direction, not an invented certainty.",
+    "help": "Return the glass and ask whether the collector wants its secret kept",
+    "helpOutcome": "The collector recognizes it as a gift from her grandmother. She agrees to show you the light, but not to surrender the glass. That seems a reasonable arrangement."
   },
   {
     "id": "WH-026",

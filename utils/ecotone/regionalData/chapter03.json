@@ -7,12 +7,12 @@
     "place": "Old Town Eureka",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "An Old Town Victorian grows an extra window whenever a pedestrian admits a secret. Its owner is selling tickets to the confession tour.",
-    "investigate": "Count windows while asking about the building's permits",
-    "success": "The newly grown sash frames a room whose wallpaper shows the harbor ten years from now.",
-    "failure": "The window disappears before the camera focuses; its reflection stays in a shop across the street.",
-    "help": "Help a resident stop the invasive tours",
-    "helpOutcome": "The building closes its last extra window and the neighbor can sleep without being watched."
+    "pressure": "A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom.",
+    "investigate": "Count the added windows against permits, without asking anyone for a confession",
+    "success": "A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot.",
+    "failure": "The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address.",
+    "help": "Help the tenant end the invasive tours and reclaim her front steps",
+    "helpOutcome": "The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please."
   },
   {
     "id": "WH-042",
@@ -37,12 +37,12 @@
     "place": "Old Town Eureka",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "An Edwardian ghost refuses to haunt until his parking meter is validated. The council wants to tow the only car anyone can see through.",
-    "investigate": "Check the ghost's citation against archived street maps",
-    "success": "His ticket names a vanished lane and a courthouse hearing scheduled tomorrow.",
-    "failure": "The ticket crumbles, but the ghost remembers the clerk who issued it.",
-    "help": "Advocate for accessible public parking, living and otherwise",
-    "helpOutcome": "The meter attendant offers a sensible pass and the apparition finally moves his cart."
+    "pressure": "An Edwardian ghost has found a parking ticket under his spectral windshield and refuses to haunt until the meter is validated. The council wants to tow the invisible car, although nobody can agree where to attach the hook.",
+    "investigate": "Compare the citation with historic street maps and an actual meter record",
+    "success": "His citation names a lane the city paved over decades ago. The hearing date is tomorrow, which bothers the ghost less than the late fee.",
+    "failure": "The ticket turns to lint. An elderly clerk remembers the old lane and offers to check the archive, without promising an appeal will win.",
+    "help": "Help the people who use the street propose an accessible parking rule",
+    "helpOutcome": "The attendant issues a practical temporary pass. The ghost moves his vehicle and everybody else finally gets somewhere to park."
   },
   {
     "id": "WH-045",

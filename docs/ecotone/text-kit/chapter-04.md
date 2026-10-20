@@ -41,24 +41,24 @@
 
 **Opening narration:** A stranger remembers crossing a bridge that was demolished before their birth.
 
-**Escalation:** A traveler recalls crossing a demolished bridge in childhood though the bridge fell before he was born. His photograph shows a vehicle with no driver.
+**Escalation:** A traveler describes crossing a bridge that collapsed before he was born. His photograph shows its decking, a driverless car and a handwritten sign reading SLOW. He knows which family member took the picture, but not why she never mentioned the bridge.
 
-**Option A, investigate (visible 9 check):** Reconstruct the route from his photograph
+**Option A, investigate (visible 9 check):** Reconstruct the route from his account without treating memory as a crime
 
-- **Pass:** The far bank holds fresh tool marks from a bridge that only exists at certain tides.
-- **Miss:** The image fogs, but the traveler remembers the exact river bend.
+- **Pass:** Fresh tool marks appear on the far bank where no bridge has stood for years. You photograph them beside a current survey marker, without naming their maker.
+- **Miss:** The photograph fogs. He remembers the river bend and his aunt's laugh. You write down both rather than invent a date.
 
-**Option B, assist without a check:** Escort him across by the bridge people use today
+**Option B, assist without a check:** Walk with him across the present-day crossing and let him keep his story
 
-- **Result:** He reaches home without having to prove his impossible childhood to anyone.
+- **Result:** He reaches home safely. His impossible childhood can remain his, even if the bridge turns out to belong to nobody's map.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-063`: A stranger remembers crossing a bridge that was demolished before their birth. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-063/2`: A traveler recalls crossing a demolished bridge in childhood though the bridge fell before he was born. His photograph shows a vehicle with no driver. The people and location must match the opening.
-- `outcomes/wh-063/investigate-success`: The far bank holds fresh tool marks from a bridge that only exists at certain tides. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-063/investigate-failure`: The image fogs, but the traveler remembers the exact river bend. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-063/care-success`: He reaches home without having to prove his impossible childhood to anyone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-063/2`: A traveler describes crossing a bridge that collapsed before he was born. His photograph shows its decking, a driverless car and a handwritten sign reading SLOW. He knows which family member took the picture, but not why she never mentioned the bridge. The people and location must match the opening.
+- `outcomes/wh-063/investigate-success`: Fresh tool marks appear on the far bank where no bridge has stood for years. You photograph them beside a current survey marker, without naming their maker. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-063/investigate-failure`: The photograph fogs. He remembers the river bend and his aunt's laugh. You write down both rather than invent a date. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-063/care-success`: He reaches home safely. His impossible childhood can remain his, even if the bridge turns out to belong to nobody's map. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_063_verified`, `wh_063_partial`, `wh_063_care` (mutually exclusive results of this card).
 
@@ -72,24 +72,24 @@
 
 **Opening narration:** A musician plays weather forecasts as bluegrass solos.
 
-**Escalation:** A banjo player's bluegrass solos predict thunderstorms with unnerving precision. A passing storm is missing from the county forecast.
+**Escalation:** A bluegrass musician can forecast storms by picking a banjo solo, but the county weather report has no rain in it. The fiddler wants to keep playing; an elderly neighbor wants someone to check the culvert before dark.
 
-**Option A, investigate (visible 9 check):** Write down the notes and compare pressure readings
+**Option A, investigate (visible 9 check):** Record the melody, then cross-check the road and pressure readings
 
-- **Pass:** The tune names the exact road that will flood, note by note.
-- **Miss:** A broken string ends the forecast early; the crowd still hears the warning cadence.
+- **Pass:** The refrain repeats the name of a low road, note for letter, as water starts pooling under the bridge. The crew blocks the crossing before the rain arrives.
+- **Miss:** A string breaks halfway through. The musician can't remember the last bar, but the neighbor remembers which road flooded last winter.
 
-**Option B, assist without a check:** Help the musician alert neighbors without frightening them
+**Option B, assist without a check:** Organize practical warnings without announcing the banjo as an oracle
 
-- **Result:** The little town makes practical storm preparations while the band keeps playing.
+- **Result:** A volunteer closes the vulnerable road. The band moves indoors. Nobody asks the banjo to sign the incident report.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-064`: A musician plays weather forecasts as bluegrass solos. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-064/2`: A banjo player's bluegrass solos predict thunderstorms with unnerving precision. A passing storm is missing from the county forecast. The people and location must match the opening.
-- `outcomes/wh-064/investigate-success`: The tune names the exact road that will flood, note by note. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-064/investigate-failure`: A broken string ends the forecast early; the crowd still hears the warning cadence. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-064/care-success`: The little town makes practical storm preparations while the band keeps playing. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-064/2`: A bluegrass musician can forecast storms by picking a banjo solo, but the county weather report has no rain in it. The fiddler wants to keep playing; an elderly neighbor wants someone to check the culvert before dark. The people and location must match the opening.
+- `outcomes/wh-064/investigate-success`: The refrain repeats the name of a low road, note for letter, as water starts pooling under the bridge. The crew blocks the crossing before the rain arrives. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-064/investigate-failure`: A string breaks halfway through. The musician can't remember the last bar, but the neighbor remembers which road flooded last winter. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-064/care-success`: A volunteer closes the vulnerable road. The band moves indoors. Nobody asks the banjo to sign the incident report. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_064_verified`, `wh_064_partial`, `wh_064_care` (mutually exclusive results of this card).
 

@@ -34,8 +34,56 @@
       </ol>
 
       <div class="kr-scroll min-h-0 flex-1 p-3 sm:p-4">
+        <section
+          v-if="onMapPage"
+          class="space-y-3"
+          aria-label="The map has changed"
+        >
+          <p
+            class="text-center text-[10px] font-semibold uppercase tracking-[0.25em] text-warning"
+          >
+            The map room · end of {{ actName }}
+          </p>
+          <ul class="grid gap-3 @3xl:grid-cols-2">
+            <li
+              v-for="(card, i) in mapCards"
+              :key="i"
+              class="overflow-hidden rounded-lg border"
+              :class="card.border"
+            >
+              <div
+                class="relative h-28 bg-base-300 sm:h-36"
+                :class="card.dim ? 'grayscale' : ''"
+                :style="regionCropStyle(card.region)"
+                role="img"
+                :aria-label="`The painted map around ${card.regionName}`"
+              >
+                <span
+                  class="eod-banner absolute right-3 top-0 grid h-14 w-10 place-items-center pb-2 font-serif text-lg font-bold"
+                  :class="card.banner"
+                  aria-hidden="true"
+                  >{{ card.initial }}</span
+                >
+                <span
+                  class="eod-display absolute bottom-2 left-2 rounded px-2 py-0.5 text-xs"
+                  :class="card.ribbon"
+                  >{{ card.label }}</span
+                >
+              </div>
+              <div class="p-3">
+                <h2 class="font-serif text-xl font-bold text-warning">
+                  {{ card.title }}
+                </h2>
+                <p class="font-serif text-base italic leading-relaxed">
+                  {{ card.text }}
+                </p>
+              </div>
+            </li>
+          </ul>
+        </section>
+
         <article
-          v-if="current"
+          v-else-if="current"
           :key="current.questId"
           class="grid gap-3 @3xl:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
         >
@@ -157,7 +205,7 @@
               <button
                 type="button"
                 class="block w-full overflow-hidden rounded-md border border-warning/25 text-left"
-                @click="page = i"
+                @click="page = i + mapPages"
               >
                 <EmperorFortressQuestImage
                   :quest-id="quest.questId"
@@ -206,7 +254,7 @@
           class="eod-finish px-5 py-1.5 text-sm"
           @click="page += 1"
         >
-          {{ page === report.quests.length - 1 ? 'The ledger' : 'Next report' }}
+          {{ page === pages - 2 ? 'The ledger' : 'Next report' }}
         </button>
         <button
           v-else
@@ -228,12 +276,22 @@ import {
   followerPortrait,
   illustration,
 } from '~/utils/emperorOfDust/fortress/castArt'
-import { outcomeVariant } from '~/utils/emperorOfDust/fortress/questArt'
+import {
+  outcomeVariant,
+  regionCropStyle,
+} from '~/utils/emperorOfDust/fortress/questArt'
+import {
+  factionName,
+  mapEventText,
+  regionName,
+} from '~/utils/emperorOfDust/fortress/engine'
+import { REGIONS } from '~/utils/emperorOfDust/fortress/factions'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 import { codexEntry, codexTrait } from '~/utils/emperorOfDust/fortress/codex'
 import type {
   DawnReport,
+  MapEvent,
   QuestReport,
 } from '~/utils/emperorOfDust/fortress/types'
 
@@ -247,10 +305,92 @@ const betrayalArt = computed(() =>
     : undefined,
 )
 
-// One page per quest that came home or expired, then the ledger.
+// The act-end map first, then one page per quest that came home or
+// expired, then the ledger.
 const page = ref(0)
-const pages = computed(() => props.report.quests.length + 1)
-const current = computed(() => props.report.quests[page.value])
+const mapPages = computed(() => (props.report.map?.length ? 1 : 0))
+const pages = computed(() => mapPages.value + props.report.quests.length + 1)
+const onMapPage = computed(() => mapPages.value === 1 && page.value === 0)
+const current = computed(() =>
+  page.value < mapPages.value
+    ? undefined
+    : props.report.quests[page.value - mapPages.value],
+)
+
+const ACT_NAMES = ['', 'Act I', 'Act II', 'Act III', 'Act IV']
+const actName = computed(
+  () => ACT_NAMES[Math.floor((props.report.day - 1) / 10)] ?? 'the act',
+)
+const CARD_STYLE: Record<
+  MapEvent['kind'],
+  { label: string; border: string; ribbon: string; dim?: boolean }
+> = {
+  revealed: {
+    label: 'A new banner',
+    border: 'border-warning/60',
+    ribbon: 'bg-warning text-warning-content',
+  },
+  wiped: {
+    label: 'Wiped from the map',
+    border: 'border-error/70',
+    ribbon: 'bg-error text-error-content',
+    dim: true,
+  },
+  taken: {
+    label: 'Land changes hands',
+    border: 'border-error/50',
+    ribbon: 'bg-error/90 text-error-content',
+  },
+  held: {
+    label: 'Held',
+    border: 'border-success/50',
+    ribbon: 'bg-success text-success-content',
+  },
+  'warned-wipe': {
+    label: 'Warning',
+    border: 'border-warning/40',
+    ribbon: 'bg-base-300 text-warning',
+  },
+  'warned-raid': {
+    label: 'Warning',
+    border: 'border-warning/40',
+    ribbon: 'bg-base-300 text-warning',
+  },
+}
+const ORDER: MapEvent['kind'][] = [
+  'revealed',
+  'wiped',
+  'taken',
+  'held',
+  'warned-wipe',
+  'warned-raid',
+]
+const mapCards = computed(() =>
+  [...(props.report.map ?? [])]
+    .sort((a, b) => ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind))
+    .map((event) => {
+      const region =
+        event.region ??
+        REGIONS.find((entry) => entry.controller === event.faction)?.id ??
+        ''
+      const banner = event.kind === 'taken' ? event.by : event.faction
+      return {
+        ...mapEventText(event),
+        ...CARD_STYLE[event.kind],
+        region,
+        regionName: regionName(region),
+        initial: factionName(banner ?? event.faction)
+          .replace(/^The /, '')
+          .charAt(0),
+        banner:
+          event.kind === 'wiped'
+            ? 'eod-banner-gone'
+            : event.kind.startsWith('warned')
+              ? 'eod-banner-hostile'
+              : 'eod-banner-neutral',
+      }
+    }),
+)
 
 const injuryOf = (id: string) =>
   current.value?.injuries.find((injury) => injury.followerId === id)

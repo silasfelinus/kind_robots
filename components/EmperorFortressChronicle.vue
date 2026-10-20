@@ -92,10 +92,17 @@
               {{ slot.label }} · Day {{ slot.book.current.day }} ·
               {{ new Date(slot.savedAt).toLocaleString() }}
             </span>
+            <span
+              v-else-if="court.slotUnreadable[i]"
+              class="block text-xs text-error"
+            >
+              Unreadable. Left as it was; clear it to use this slot.
+            </span>
             <span v-else class="block text-xs opacity-60">Empty</span>
           </span>
           <span class="flex gap-1">
             <button
+              v-if="!court.slotUnreadable[i]"
               type="button"
               class="btn btn-xs btn-outline"
               @click="save(i)"
@@ -111,7 +118,7 @@
               Load
             </button>
             <button
-              v-if="slot"
+              v-if="slot || court.slotUnreadable[i]"
               type="button"
               class="btn btn-xs btn-ghost"
               @click="act(() => court.clearSlot(i), `Cleared slot ${i + 1}.`)"

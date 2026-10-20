@@ -1,5 +1,6 @@
 import { ENCOUNTERS, ENDING_IDS } from './content'
 import { BEATS } from './story'
+import { openingLensChoices } from './openingLensChoices'
 
 /**
  * Ecotone's art standard (conductor weird-humboldt t-042). Silas, 2026-10-20:
@@ -39,7 +40,7 @@ export function ecotoneArtSlots(): {
   return {
     cards: all.map((card) => cardArtKey(card.id)),
     outcomes: all.flatMap((card) =>
-      card.choices
+      openingLensChoices(card)
         .filter((choice) => !choice.locked)
         .flatMap((choice) => [
           outcomeArtKey(card.id, choice.id, 'success'),

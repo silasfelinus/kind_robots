@@ -1,12 +1,23 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { ACT_ONE_DAYS, ACT_ONE_QUESTS } from '../emperorOfDust/fortress/actOne'
 import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
 import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
-import { ENDINGS, endingOf } from '../emperorOfDust/fortress/endings'
+import {
+  ENDINGS,
+  type EndingId,
+  endingOf,
+} from '../emperorOfDust/fortress/endings'
+import {
+  MOLE_CONCESSIONS,
+  MOLE_GRIEVANCES,
+  MOLE_LEADERS,
+  MOLE_REFORMS_OPEN,
+  moleAccord,
+} from '../emperorOfDust/fortress/moles'
 import {
   DAYS,
   LAST_DAY,
@@ -22,10 +33,11 @@ import {
   audienceScene,
   audiencesToday,
   bedsUsed,
-  buyItem,
+  briefingMapLine,
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
+  earnFlag,
   dailyTaxes,
   equipItem,
   finishDay,
@@ -34,21 +46,25 @@ import {
   forecastMark,
   injuryDaysLeft,
   isOver,
+  mapWarnings,
   optionBlockers,
   optionVisible,
   partyLimit,
   postDawnQuests,
   previewQuest,
   recruit,
+  regionHolder,
+  regionTax,
   selectHideout,
   talkFor,
   talkScene,
   talkedToday,
+  threatsFor,
   traitKnown,
+  unmetRequirements,
   upgradeBeds,
   withdrawQuest,
   LAMPLIGHT_SIGHT,
-  earnFlag,
   tierOdds,
 } from '../emperorOfDust/fortress/engine'
 import {
@@ -72,7 +88,31 @@ import {
   ITEMS,
   followerDef,
 } from '../emperorOfDust/fortress/followers'
-import { REGIONS } from '../emperorOfDust/fortress/factions'
+import { ITEM_ICONS, itemDef, itemIcon } from '../emperorOfDust/fortress/items'
+import {
+  MIN_STOCK,
+  POULTICE_PRICE,
+  SURGEON_BASE,
+  SURGEON_PER_DAY,
+  boughtThisWindow,
+  buyItem,
+  effectReactions,
+  isPeddler,
+  itemEffects,
+  marketStock,
+  marketWindow,
+  nextRestockDay,
+  poulticeOffered,
+  saltroadMedicine,
+  sellItem,
+  sellPrice,
+  stallLines,
+  stockBlocker,
+  surgeonPrice,
+  treatFollower,
+  treatmentBlocker,
+} from '../emperorOfDust/fortress/market'
+import { ACT_END_DAWNS, REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { TALKS } from '../emperorOfDust/fortress/talks'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
@@ -90,6 +130,8 @@ import {
   updateCurrent,
   validateRun,
 } from '../emperorOfDust/fortress/saves'
+import type { SaveBook } from '../emperorOfDust/fortress/saves'
+import { POLICIES, playCampaign } from '../emperorOfDust/fortress/balance'
 import {
   acquireRelic,
   chooseNextLoadout,
@@ -499,6 +541,8 @@ assert.equal(bigger.beds, 9)
 assert.equal(recruit(bigger, 'F005').roster.length, 7)
 assert.throws(() => upgradeBeds(bigger), /gate-watch support 12/)
 
+// Seed 1234 lays out the Surveyor's Glass on Day 1 (the market owns buying).
+assert.ok(marketStock(start).includes('surveyors-glass'))
 const shopped = buyItem(start, 'surveyors-glass')
 assert.equal(
   shopped.brass,
@@ -531,14 +575,299 @@ assert.ok(
   day11.revealedFactions.includes('rustline'),
   'Rustline revealed after Act I',
 )
+assert.ok(
+  !createRun(77).revealedFactions.includes('black-verge') &&
+    !day11.revealedFactions.includes('black-verge'),
+  'the Black Verge stays fogged through Act I',
+)
+assert.ok(
+  finishDay({ ...day10, day: 20 }).run.revealedFactions.includes('black-verge'),
+  'Black Verge revealed after Act II',
+)
+assert.deepEqual(
+  finishDay(day10).report.map?.filter((e) => e.kind === 'revealed'),
+  [{ day: 11, kind: 'revealed', faction: 'rustline' }],
+  'the Act I dawn shows the Rustline reveal as a map event',
+)
+
+// --- the map: wipe-outs and raids only at act ends, always warned ------------
+// An unwarned faction at zero strength is not wiped at the act end: it is
+// warned there, and falls at the next act end only if nothing changes.
 const doomed: FortressRun = {
   ...day10,
   strength: { ...day10.strength, freeholds: 0 },
 }
+const warnedDawn = finishDay(doomed)
 assert.ok(
-  finishDay(doomed).run.wipedOut.includes('freeholds'),
-  'zero strength is wiped out at act end',
+  !warnedDawn.run.wipedOut.includes('freeholds'),
+  'no wipe-out without a warning an act ahead',
 )
+assert.ok(
+  warnedDawn.run.mapWatch?.some(
+    (t) => t.kind === 'wipe' && t.faction === 'freeholds' && t.dueDay === 21,
+  ),
+  'the act end warns the failing faction for the next act end',
+)
+assert.ok(
+  warnedDawn.report.map?.some(
+    (e) => e.kind === 'warned-wipe' && e.faction === 'freeholds',
+  ),
+  'the warning is in the dawn report',
+)
+const warning = mapWarnings(warnedDawn.run).find(
+  (w) => w.kind === 'wipe' && w.faction === 'freeholds',
+)
+assert.ok(warning, 'the map room shows the live warning')
+assert.equal(warning.daysLeft, 10)
+assert.match(warning.text, /Day 20 map/)
+assert.match(warning.remedy, /Strength 0 of 10\. One point saves them/)
+assert.ok(briefingMapLine(warnedDawn.run), 'the briefing carries the warning')
+// Mid-act, nothing falls, whatever the strength.
+const midAct = finishDay({ ...warnedDawn.run, day: 15, board: [] }).run
+assert.ok(!midAct.wipedOut.includes('freeholds'), 'no wipe-outs mid-act')
+assert.ok(
+  !midAct.mapLog?.some((e) => e.day === 16),
+  'the map is quiet on ordinary dawns',
+)
+// At the act end it was warned for, a faction still at zero falls...
+const fallDawn = finishDay({ ...warnedDawn.run, day: 20, board: [] })
+assert.ok(fallDawn.run.wipedOut.includes('freeholds'), 'warned and fell')
+assert.ok(fallDawn.report.map?.some((e) => e.kind === 'wiped'))
+const freeholdQuest = ACT_FOUR_QUESTS.find((q) => q.faction === 'freeholds')!
+const closed = finishDay({
+  ...warnedDawn.run,
+  day: 20,
+  board: [{ questId: freeholdQuest.id, postedDay: 20, lastDay: 22 }],
+}).run
+assert.ok(
+  !closed.board.some((entry) => entry.questId === freeholdQuest.id),
+  'a wiped faction’s notices come down',
+)
+const freeholdDawn = DAYS.find((def) =>
+  def.quests.some((id) => questDef(id)?.faction === 'freeholds'),
+)!
+const freeholdPosted = freeholdDawn.quests.find(
+  (id) => questDef(id)?.faction === 'freeholds',
+)!
+const wipedDawn: FortressRun = {
+  ...fallDawn.run,
+  day: freeholdDawn.day,
+  board: [],
+  reports: [],
+}
+postDawnQuests(wipedDawn)
+assert.ok(
+  !wipedDawn.board.some((entry) => entry.questId === freeholdPosted),
+  'and no new ones go up',
+)
+assert.equal(
+  regionTax(fallDawn.run, 'east-ford').paid,
+  0,
+  'a wiped faction pays no taxes',
+)
+// ...and one that found a point of strength holds.
+const heldDawn = finishDay({
+  ...warnedDawn.run,
+  day: 20,
+  board: [],
+  strength: { ...warnedDawn.run.strength, freeholds: 1 },
+})
+assert.ok(!heldDawn.run.wipedOut.includes('freeholds'), 'saved in time')
+assert.ok(
+  heldDawn.report.map?.some(
+    (e) => e.kind === 'held' && e.faction === 'freeholds' && !e.region,
+  ),
+)
+// Warnings are honest: only banners on the map, only factions that can fall.
+const fogTest: FortressRun = {
+  ...createRun(5),
+  strength: { ...createRun(5).strength, rustline: 0, 'hollow-bell': 2 },
+}
+assert.ok(
+  !threatsFor(fogTest, 11).some((t) => t.faction === 'rustline'),
+  'no warning for a fogged faction',
+)
+assert.ok(
+  !threatsFor(fogTest, 11).some((t) => t.faction === 'hollow-bell'),
+  'no warning for a faction nothing in the campaign can weaken',
+)
+assert.ok(
+  threatsFor(
+    { ...fogTest, strength: { ...fogTest.strength, 'hollow-bell': 0 } },
+    11,
+  ).some((t) => t.faction === 'hollow-bell'),
+  'a faction already at zero is always warned',
+)
+assert.ok(
+  threatsFor(
+    { ...fogTest, strength: { ...fogTest.strength, freeholds: 2 } },
+    11,
+  ).some((t) => t.kind === 'wipe' && t.faction === 'freeholds'),
+  'a faction that can still lose strength is warned at peril',
+)
+assert.ok(
+  !threatsFor({ ...fogTest, wipedOut: ['freeholds'] }, 11).some(
+    (t) => t.faction === 'freeholds' || t.by === 'freeholds',
+  ),
+  'no warnings for a banner already gone',
+)
+// Raids: a rival RAID_GAP stronger is warned an act ahead, then takes the land
+// only if the gap still stands, and the land's taxes follow the new holder.
+const raidRun: FortressRun = {
+  ...day10,
+  strength: { ...day10.strength, jackalwire: 7, freeholds: 4 },
+}
+const raidWarned = finishDay(raidRun).run
+const raid = raidWarned.mapWatch?.find((t) => t.kind === 'raid')
+assert.deepEqual(
+  raid && [raid.faction, raid.by, raid.region, raid.dueDay],
+  ['freeholds', 'jackalwire', 'east-ford', 21],
+  'the Pack is warned on the Eastern Ford',
+)
+assert.equal(regionHolder(raidWarned, 'east-ford'), 'freeholds')
+const raided = finishDay({ ...raidWarned, day: 20, board: [] })
+assert.equal(regionHolder(raided.run, 'east-ford'), 'jackalwire', 'taken')
+assert.ok(raided.report.map?.some((e) => e.kind === 'taken'))
+assert.equal(
+  regionTax(raided.run, 'east-ford').holder,
+  'jackalwire',
+  'the taken land pays as its new holder stands',
+)
+assert.equal(
+  regionTax(
+    {
+      ...raided.run,
+      affinity: { ...raided.run.affinity, jackalwire: -40 },
+    },
+    'east-ford',
+  ).paid,
+  0,
+  'a Wary holder withholds the taken land',
+)
+const repelled = finishDay({
+  ...raidWarned,
+  day: 20,
+  board: [],
+  strength: { ...raidWarned.strength, jackalwire: 6, freeholds: 4 },
+})
+assert.equal(
+  regionHolder(repelled.run, 'east-ford'),
+  'freeholds',
+  'closing the gap holds the land',
+)
+// An unwarned gap takes nothing at the act end.
+const unwarned = finishDay({
+  ...raidRun,
+  day: 20,
+  board: [],
+  strength: { ...raidRun.strength, freeholds: 1 },
+}).run
+assert.equal(regionHolder(unwarned, 'east-ford'), 'freeholds')
+// Taxes by tier: Wary and Hostile withhold, Neutral and Friendly pay the rate,
+// Allied adds half again.
+const taxRun = createRun(3)
+for (const [value, paid] of [
+  [-80, 0],
+  [-40, 0],
+  [0, 6],
+  [30, 6],
+  [70, 9],
+] as const)
+  assert.equal(
+    regionTax(
+      { ...taxRun, affinity: { ...taxRun.affinity, saltroad: value } },
+      'saltroad',
+    ).paid,
+    paid,
+    `Saltroad tax at affinity ${value}`,
+  )
+assert.equal(
+  dailyTaxes(taxRun),
+  REGIONS.reduce((sum, region) => sum + regionTax(taxRun, region.id).paid, 0),
+  'the treasury collects exactly what the map room lists',
+)
+// Saves keep the map and refuse a corrupt one.
+assert.ok(validateRun(raided.run), 'a run with map history validates')
+assert.ok(
+  !validateRun({ ...raided.run, controllers: { 'east-ford': 'nobody' } }),
+  'an unknown holder is refused',
+)
+assert.ok(
+  !validateRun({
+    ...raided.run,
+    mapLog: [{ day: 11, kind: 'nonsense', faction: 'freeholds' }],
+  } as unknown as FortressRun),
+  'an unknown map event is refused',
+)
+// Whole campaigns: every wipe-out and every taken region was warned at the
+// act end before, every map change lands on an act-end dawn, and reveals
+// keep to schedule.
+const campaignKinds = new Set<string>()
+for (const [seed, pick] of [
+  [1, 0],
+  [2, 0],
+  [3, -1],
+  [4, -1],
+] as const) {
+  let run = createRun(seed)
+  while (!isOver(run)) {
+    for (const audience of audiencesToday(run))
+      for (let beat = 0; beat < 8; beat += 1) {
+        if (run.audiencesHeard.includes(audience.id)) break
+        const open = audienceScene(run, audience).options.filter(
+          (option) => optionBlockers(run, option).length === 0,
+        )
+        const option = open.at(pick)
+        if (!option) break
+        run = chooseAudienceOption(run, audience.id, option.id).run
+      }
+    const dawn = finishDay(run)
+    run = dawn.run
+    assert.deepEqual(
+      dawn.report.map ?? [],
+      (run.mapLog ?? []).filter((e) => e.day === run.day),
+      'the dawn shows exactly the day’s map events',
+    )
+  }
+  const log = run.mapLog ?? []
+  for (const event of log) {
+    if (event.kind !== 'revealed')
+      assert.ok(
+        (ACT_END_DAWNS as readonly number[]).includes(event.day),
+        `${event.kind} on an act-end dawn (${event.day})`,
+      )
+    if (event.kind === 'wiped' || event.kind === 'taken')
+      assert.ok(
+        log.some(
+          (warned) =>
+            warned.day === event.day - 10 &&
+            warned.faction === event.faction &&
+            warned.kind ===
+              (event.kind === 'wiped' ? 'warned-wipe' : 'warned-raid'),
+        ),
+        `${event.kind} ${event.faction} on ${event.day} was warned an act ahead`,
+      )
+  }
+  assert.deepEqual(
+    log.filter((e) => e.kind === 'revealed').map((e) => [e.faction, e.day]),
+    [
+      ['rustline', 11],
+      ['black-verge', 21],
+    ],
+    'reveals on schedule',
+  )
+  assert.deepEqual(
+    [...run.wipedOut].sort(),
+    log
+      .filter((e) => e.kind === 'wiped')
+      .map((e) => e.faction)
+      .sort(),
+    'every wipe-out is in the map log',
+  )
+  for (const event of log) campaignKinds.add(event.kind)
+}
+for (const kind of ['wiped', 'taken', 'held', 'warned-wipe', 'warned-raid'])
+  assert.ok(campaignKinds.has(kind), `a neglected court sees ${kind}`)
 const day40: FortressRun = { ...createRun(77), day: 40, board: [], reports: [] }
 const fled = finishDay(day40).run
 assert.ok(fled.flags.includes('komodo-betrayal'))
@@ -885,7 +1214,7 @@ for (const entry of afterwards)
 const encoded = encodeBook(book)
 assert.deepEqual(decodeBook(encoded), book)
 assert.ok(
-  encoded.length < 1_000_000,
+  encoded.length < 250_000,
   `a full campaign save is ${encoded.length} bytes`,
 )
 
@@ -938,6 +1267,111 @@ const slot = encodeSlot(
 )
 assert.equal(decodeSlot(slot)?.label, 'Before the feast')
 assert.equal(decodeSlot(slot.replace('"version":3', '"version":2')), null)
+
+// --- compact save books (t-032) ---------------------------------------------
+// Dawns are stored packed against the next snapshot, so a whole campaign's
+// book stays small: an autosave and three full slots sit far under the ~5 MB
+// browser quota. Decoding rebuilds every dawn exactly, so a rewind from a
+// packed book is the same rewind as from the full one.
+{
+  const CAMPAIGNS: [string, number][] = [
+    ['greedy', 3],
+    ['patron:saltroad', 7],
+    ['reckless', 12],
+    ['spurn-all', 5],
+    ['idle', 2],
+  ]
+  for (const [policyId, seed] of CAMPAIGNS) {
+    const policy = POLICIES.find((p) => p.id === policyId)!
+    let full: SaveBook | null = null
+    playCampaign(policy, seed, (run) => {
+      full = full ? recordDawn(full, run) : newBook(run)
+    })
+    const whole = full! as SaveBook
+    const label = `${policyId} seed ${seed}`
+    assert.equal(whole.dawns.length, LAST_DAY, label)
+    const legacy = JSON.stringify(whole)
+    const raw = encodeBook(whole)
+    assert.ok(
+      raw.length < 250_000,
+      `${label}: a full book is ${raw.length} bytes`,
+    )
+    assert.ok(
+      raw.length * 5 < legacy.length,
+      `${label}: packed ${raw.length} vs ${legacy.length} bytes in full`,
+    )
+    const back = decodeBook(raw)!
+    assert.deepEqual(back, whole, `${label}: every dawn comes back exactly`)
+    assert.deepEqual(decodeBook(legacy), whole, `${label}: version 3 loads`)
+    for (const day of [1, 2, 17, 33, LAST_DAY])
+      assert.deepEqual(
+        rewindTo(back, day),
+        rewindTo(whole, day),
+        `${label}: rewinding a packed book to dawn ${day}`,
+      )
+    const rewound = rewindTo(back, 25)
+    assert.deepEqual(decodeBook(encodeBook(rewound)), rewound)
+    const at = new Date('2026-10-20T00:00:00Z')
+    const slotRaw = encodeSlot('Late', whole, at)
+    assert.ok(slotRaw.length < 250_000, `${label}: a full slot`)
+    assert.deepEqual(decodeSlot(slotRaw)?.book, whole)
+    const oldSlot = JSON.stringify({
+      version: 3,
+      label: 'Old',
+      savedAt: at.toISOString(),
+      book: whole,
+    })
+    assert.deepEqual(decodeSlot(oldSlot)?.book, whole, `${label}: old slots`)
+    assert.ok(
+      raw.length * 4 < 5_000_000 / 2,
+      'an autosave and three slots use under half a 5 MB quota',
+    )
+  }
+
+  // A history that drops a flag (a crisis resolved) still packs exactly.
+  let book = newBook(earnFlag(earnFlag(createRun(77), 'crisis:yard'), 'kept'))
+  const next = finishDay(book.current).run
+  next.flags = next.flags.filter((flag) => flag !== 'crisis:yard')
+  book = recordDawn(book, next)
+  const packed = JSON.parse(encodeBook(book))
+  assert.equal(packed.version, 4)
+  assert.deepEqual(decodeBook(JSON.stringify(packed)), book)
+
+  // Tampered packing is unreadable, never half-loaded.
+  type Stored = {
+    version: number
+    dawns: {
+      day: number
+      seed: number
+      flags: unknown
+      reports: { p: unknown; t: unknown; z?: unknown }
+    }[]
+  }
+  const long: Stored = JSON.parse(
+    encodeBook(
+      recordDawn(
+        recordDawn(book, finishDay(book.current).run),
+        finishDay(finishDay(book.current).run).run,
+      ),
+    ),
+  )
+  const reject = (mutate: (stored: Stored) => void, why: string) => {
+    const copy: Stored = JSON.parse(JSON.stringify(long))
+    mutate(copy)
+    assert.equal(decodeBook(JSON.stringify(copy)), null, why)
+  }
+  assert.ok(decodeBook(JSON.stringify(long)), 'the untampered book reads')
+  assert.ok(!Array.isArray(long.dawns[1]!.reports), 'reports are packed')
+  reject((s) => (s.dawns[1]!.reports.p = 99), 'a prefix longer than the next')
+  reject((s) => (s.dawns[1]!.reports.p = 0), 'an empty prefix is never written')
+  reject((s) => (s.dawns[1]!.reports.t = 'x'), 'a tail that is not a list')
+  reject((s) => (s.dawns[1]!.reports.z = 1), 'an unknown packing key')
+  reject((s) => (s.dawns[1]!.flags = { p: 1, t: [7] }), 'a bad flag in a tail')
+  reject((s) => (s.dawns[0]!.day = 2), 'dawns out of order')
+  reject((s) => s.dawns.push(s.dawns[0]!), 'too many dawns')
+  reject((s) => (s.version = 5), 'an unknown version')
+  reject((s) => (s.dawns[1]!.seed = 1), 'a dawn from another campaign')
+}
 
 // Effects stay bounded.
 const bounded = createRun(1)
@@ -1640,6 +2074,187 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
   )
 }
 
+// --- The Mole Revolutionaries (t-016) ----------------------------------------
+{
+  const dayOf = (day: number) => DAYS.find((def) => def.day === day)!
+  const audienceOn = (day: number, id: string) =>
+    dayOf(day).audiences.find((audience) => audience.id === id)!
+  const MOLE_AUDIENCES: [number, string][] = [
+    [21, 'd21-fen-weir'],
+    [32, 'd32-reform-list'],
+    [33, 'd33-sappers'],
+    [44, 'd44-coal-powder'],
+    [50, 'd50-burrows'],
+  ]
+  // New audiences come after the day's existing ones, and no day holds more
+  // than four.
+  for (const [day, id] of MOLE_AUDIENCES) {
+    assert.equal(dayOf(day).audiences.at(-1)!.id, id, `${id} comes last`)
+    assert.ok(dayOf(day).audiences.length <= 4, `day ${day} audiences`)
+  }
+  const allOptions = (audience: AudienceDef) => [
+    ...audience.options,
+    ...(audience.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  // Every flag on the reconciliation track is earned somewhere in the story.
+  const earned = new Set<string>()
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const option of allOptions(audience))
+        for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const talk of TALKS)
+    for (const option of [
+      ...talk.options,
+      ...(talk.beats ?? []).flatMap((beat) => beat.options),
+    ])
+      for (const flag of option.effects.flags ?? []) earned.add(flag)
+  for (const flag of [...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES])
+    assert.ok(earned.has(flag), `${flag} can be earned`)
+  assert.equal(
+    new Set([...MOLE_CONCESSIONS, ...MOLE_GRIEVANCES]).size,
+    MOLE_CONCESSIONS.length + MOLE_GRIEVANCES.length,
+    'a flag is a concession or a grievance, never both',
+  )
+  // Named leaders, each on stage somewhere.
+  const spoken = DAYS.flatMap((def) =>
+    def.audiences.flatMap((audience) => [
+      audience.speaker,
+      ...[audience.lines, ...(audience.beats ?? []).map((b) => b.lines)]
+        .flat()
+        .map((line) => (typeof line === 'string' ? line : line.who)),
+    ]),
+  ).join('\n')
+  assert.ok(MOLE_LEADERS.length >= 5)
+  for (const leader of MOLE_LEADERS) {
+    const surname = leader.name.split(' ').at(-1)!
+    assert.ok(spoken.includes(surname), `${leader.name} appears`)
+    if (leader.npc) assert.ok(npcDef(leader.npc), leader.npc)
+    if (leader.follower)
+      assert.equal(followerDef(leader.follower)?.origin, 'moles')
+  }
+  // Anti-witch dilemmas teeter: the burrows' gain is the fen's loss and the
+  // other way round, and there is a third road that costs something else.
+  for (const id of ['d33-sappers', 'd44-coal-powder']) {
+    const [day] = MOLE_AUDIENCES.find(([, aud]) => aud === id)!
+    const options = allOptions(audienceOn(day, id))
+    const moles = (o: AudienceOption) => o.effects.affinity?.moles ?? 0
+    const fen = (o: AudienceOption) => o.effects.affinity?.['mire-mothers'] ?? 0
+    assert.ok(
+      options.some((o) => moles(o) > 0 && fen(o) < 0),
+      `${id} burrows`,
+    )
+    assert.ok(
+      options.some((o) => fen(o) > 0 && moles(o) < 0),
+      `${id} fen`,
+    )
+    assert.ok(
+      options.some(
+        (o) => moles(o) >= 0 && fen(o) >= 0 && moles(o) + fen(o) > 0,
+      ),
+      `${id} has a road between`,
+    )
+  }
+  assert.ok(
+    allOptions(audienceOn(21, 'd21-fen-weir')).some(
+      (o) =>
+        (o.effects.affinity?.moles ?? 0) > 0 &&
+        (o.effects.affinity?.['mire-mothers'] ?? 0) < 0,
+    ),
+    'blowing the weir costs the fen',
+  )
+
+  // The standing gate: Lumen's reform list waits for two real concessions,
+  // and the whole assembly turns out on Day 50 only for five.
+  const reformDay = (flags: string[]) =>
+    audiencesToday(onDay(1, 32, { flags })).some(
+      (audience) => audience.id === 'd32-reform-list',
+    )
+  assert.ok(!reformDay([]))
+  assert.ok(!reformDay(['mole-talks-opened', 'moles-blamed']))
+  assert.ok(reformDay(['mole-talks-opened', 'mole-truce']))
+  assert.deepEqual(
+    unmetRequirements(onDay(1, 32), { standing: MOLE_REFORMS_OPEN }),
+    ['Not yet possible'],
+  )
+  const burrowsDay = (count: number) =>
+    audiencesToday(
+      onDay(1, 50, { flags: MOLE_CONCESSIONS.slice(0, count) }),
+    ).some((audience) => audience.id === 'd50-burrows')
+  assert.ok(!burrowsDay(4))
+  assert.ok(burrowsDay(5))
+  // Two reforms bring Lumen Shale to the barracks; the second offers only
+  // reforms not yet granted.
+  let reforms = onDay(1, 32, { flags: ['mole-talks-opened', 'mole-truce'] })
+  reforms = chooseAudienceOption(reforms, 'd32-reform-list', 'councils').run
+  const second = audienceScene(
+    reforms,
+    audienceOn(32, 'd32-reform-list'),
+  ).options.filter((o) => optionVisible(reforms, o))
+  assert.deepEqual(
+    second.map((o) => o.id),
+    ['second-ledger', 'second-sedition', 'one'],
+  )
+  reforms = chooseAudienceOption(
+    reforms,
+    'd32-reform-list',
+    'second-sedition',
+  ).run
+  assert.ok(reforms.recruitable.includes('F010'), 'Lumen will join')
+  assert.ok(
+    ['d32-reform-councils', 'd32-reform-sedition'].every((f) =>
+      reforms.flags.includes(f),
+    ),
+  )
+  // A crown that frees Granny Umber on Day 21 is not blamed for her on Day 26.
+  const freed = chooseAudienceOption(
+    onDay(1, 21, { flags: ['mole-messenger-arrested'] }),
+    'd21-fen-weir',
+    'free-umber',
+  ).run
+  assert.notEqual(
+    dayBriefings({ ...freed, day: 26 })![2]!.source,
+    'Chalk on the postern gate',
+  )
+  // The accord reads the whole track.
+  assert.equal(moleAccord(onDay(1, 30)).standing, 'wary')
+  assert.equal(
+    moleAccord({ flags: ['mole-messenger-arrested', 'moles-blamed'] }).standing,
+    'enemies',
+  )
+  assert.equal(
+    moleAccord({ flags: MOLE_CONCESSIONS.slice(0, 7) }).standing,
+    'reconciled',
+  )
+  assert.equal(
+    moleAccord({
+      flags: [...MOLE_CONCESSIONS.slice(0, 7), ...MOLE_GRIEVANCES.slice(0, 4)],
+    }).standing,
+    'talking',
+    'wrongs weigh against deeds',
+  )
+
+  // Day 50 endings remember the burrows.
+  const moleEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'moles',
+    )?.variant.text ?? ''
+  const coalEnding = (flags: string[], ending: EndingId) =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).find(
+      (entry) => entry.subject.id === 'coal-harrow',
+    )?.variant.text ?? ''
+  assert.match(moleEnding(['d44-dike-blown'], 'witchwater-throne'), /lake/)
+  assert.match(moleEnding([], 'witchwater-throne'), /underground/)
+  assert.match(moleEnding(['d50-moles-dig'], 'open-roads'), /two hundred/)
+  assert.match(
+    moleEnding(MOLE_CONCESSIONS.slice(0, 7), 'bell-restored'),
+    /ceasefire/,
+  )
+  assert.match(moleEnding([], 'iron-peace'), /burrow mouth/)
+  assert.match(coalEnding(['d33-coal-disowned'], 'open-roads'), /east/)
+  assert.match(coalEnding([], 'open-roads'), /powder/)
+  assert.match(coalEnding([], 'long-night'), /fuse/)
+}
+
 // Cast art: every listed image exists and names a real character and slot.
 for (const asset of CAST_ART) {
   const [group, slug, kind, state] = asset.split('/')
@@ -2252,6 +2867,362 @@ for (const def of DAYS)
     'secrets still hidden are counted, never named',
   )
   assert.equal(pages[1]!.entries[0]!.kindLabel, 'True allegiance')
+}
+
+// --- market (t-024) ---------------------------------------------------------
+{
+  // The catalog: 20-30 tools and charms, one stark line each, art-ready.
+  assert.ok(ITEMS.length >= 20 && ITEMS.length <= 34, `${ITEMS.length} items`)
+  assert.equal(new Set(ITEMS.map((item) => item.id)).size, ITEMS.length)
+  const iconFiles = new Set(
+    readdirSync('assets/icons').map((file) => file.replace(/\.svg$/, '')),
+  )
+  for (const item of ITEMS) {
+    assert.ok(item.slot === 'tool' || item.slot === 'charm', item.id)
+    assert.ok(item.price > 0 && item.price <= 80, `${item.id} price`)
+    assert.ok(itemEffects(item).length > 0, `${item.id} does something`)
+    assert.ok(
+      item.text.length <= 72 && !item.text.includes('\n'),
+      `${item.id}: one short line`,
+    )
+    assert.ok(
+      !/\b(very|lovely|gentle|eerie|sinister|seems to)\b/i.test(item.text),
+      `${item.id}: stark prose`,
+    )
+    assert.ok(ITEM_ICONS[item.id], `${item.id} has a placeholder glyph`)
+    assert.ok(
+      iconFiles.has(itemIcon(item).replace('kind-icon:', '')),
+      `${item.id}: ${itemIcon(item)} exists`,
+    )
+    assert.ok(
+      !/(fill|stroke)="#/.test(
+        readFileSync(
+          `assets/icons/${itemIcon(item).replace('kind-icon:', '')}.svg`,
+          'utf8',
+        ),
+      ),
+      `${item.id}: a single-colour glyph the seller tint can colour`,
+    )
+    if (item.ability)
+      assert.ok(
+        ![
+          'forecast',
+          'stall',
+          'quartermaster',
+          'thick-hide',
+          'undermine',
+          'many-hands',
+        ].includes(item.ability.kind),
+        `${item.id}: its power works from a slot`,
+      )
+  }
+  assert.ok(ITEMS.filter((item) => item.slot === 'tool').length >= 10)
+  assert.ok(ITEMS.filter((item) => item.slot === 'charm').length >= 10)
+  assert.ok(
+    ITEMS.filter((item) => item.onBuy).length >= 6,
+    'some goods carry a price beyond brass',
+  )
+  assert.deepEqual(
+    effectReactions(itemDef('reed-poppet')!.onBuy),
+    ['The Abbey −3'],
+    'the Abbey hears about Mire charms',
+  )
+
+  // Stalls turn over three times an act: days 1-3, 4-6, 7-10.
+  assert.deepEqual(
+    [1, 3, 4, 6, 7, 10, 11, 14, 17, 20, 41, 50].map(marketWindow),
+    [0, 0, 1, 1, 2, 2, 3, 4, 5, 5, 12, 14],
+  )
+  assert.equal(nextRestockDay(1), 4)
+  assert.equal(nextRestockDay(7), 11)
+  assert.equal(nextRestockDay(50), 51)
+
+  // Deterministic within a branch: same run, same stalls, all window long.
+  const fair = createRun(4321)
+  const stockOf = (run: FortressRun) => marketStock(run).join(',')
+  assert.equal(stockOf(fair), stockOf(createRun(4321)))
+  assert.equal(stockOf(fair), stockOf({ ...fair, day: 3 }))
+  assert.ok(marketStock(fair).length >= MIN_STOCK)
+  assert.ok(
+    marketStock(fair).every((id) => !stockBlocker(fair, itemDef(id)!)),
+    'only eligible goods are laid out',
+  )
+  // The stock rotates, and a rewind's new branch lays out fresh stalls.
+  const windows = new Set(
+    [1, 4, 7, 11, 14, 17, 21].map((day) => stockOf({ ...fair, day })),
+  )
+  assert.ok(windows.size >= 5, `stalls rotate (${windows.size} layouts)`)
+  const branches = new Set(
+    [0, 1, 2, 3, 4].map((branch) => stockOf({ ...fair, branch })),
+  )
+  assert.ok(branches.size >= 3, 'random stays random on a new branch')
+  // A rewind through the save book rerolls the replayed window too.
+  const twoDays = recordDawn(newBook(fair), finishDay(fair).run)
+  const rewound = rewindTo(twoDays, 2).current
+  assert.equal(rewound.branch, 1)
+  assert.equal(stockOf(rewound), stockOf({ ...finishDay(fair).run, branch: 1 }))
+
+  // The roads decide the stock: trust, reveals, wipe-outs, local support.
+  const crowItems = ITEMS.filter((item) => item.faction === 'storm-crows')
+  assert.ok(crowItems.length >= 2)
+  for (const item of crowItems)
+    assert.match(stockBlocker(fair, item) ?? '', /Storm Crow Conclave Friendly/)
+  const crowFriends: FortressRun = {
+    ...fair,
+    affinity: { ...fair.affinity, 'storm-crows': 40 },
+  }
+  for (const item of crowItems)
+    assert.equal(stockBlocker(crowFriends, item), null)
+  // Each item rolls on its own: warming a faction only adds to the stalls
+  // (beyond the MIN_STOCK top-up).
+  let checked = 0
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const cold = marketStock({ ...fair, seed })
+    if (cold.length <= MIN_STOCK) continue
+    const warm = new Set(marketStock({ ...crowFriends, seed }))
+    for (const id of cold)
+      assert.ok(warm.has(id), `${id} stays laid out when the Crows warm`)
+    checked += 1
+  }
+  assert.ok(checked >= 5)
+  const rustItems = ITEMS.filter((item) => item.faction === 'rustline')
+  for (const item of rustItems)
+    assert.match(stockBlocker(fair, item) ?? '', /Nobody on the map/)
+  const actTwo = finishDay({ ...fair, day: 10, board: [], reports: [] }).run
+  assert.equal(stockBlocker(actTwo, itemDef('rustline-cutters')!), null)
+  const mireGone: FortressRun = { ...fair, wipedOut: ['mire-mothers'] }
+  assert.match(
+    stockBlocker(mireGone, itemDef('reed-poppet')!) ?? '',
+    /gone from the map/,
+  )
+  for (let day = 1; day <= 40; day += 3)
+    assert.ok(
+      !marketStock({ ...mireGone, day }).some(
+        (id) => itemDef(id)?.faction === 'mire-mothers',
+      ),
+      'a wiped-out faction sells nothing',
+    )
+  assert.match(
+    stockBlocker(fair, itemDef('watch-buckler')!) ?? '',
+    /Gate Watch 14/,
+  )
+  assert.equal(
+    stockBlocker(
+      { ...fair, local: { ...fair.local, 'gate-watch': 14 } },
+      itemDef('watch-buckler')!,
+    ),
+    null,
+  )
+  assert.ok(stallLines(fair).length >= 1)
+
+  // Act V: the court buys from its host's peddler.
+  const hiding: FortressRun = {
+    ...crowFriends,
+    day: 43,
+    hideout: 'crow-cave',
+  }
+  assert.ok(isPeddler(hiding) && !isPeddler(fair))
+  assert.match(stallLines(hiding)[0] ?? '', /peddler/)
+  let hostShare = 0
+  let exileShare = 0
+  for (let seed = 1; seed <= 30; seed += 1) {
+    const stalls = marketStock({ ...hiding, seed })
+    hostShare += stalls.filter(
+      (id) => itemDef(id)?.faction === 'storm-crows',
+    ).length
+    exileShare += stalls.filter(
+      (id) => itemDef(id)?.faction === 'jackalwire',
+    ).length
+  }
+  assert.ok(
+    hostShare > exileShare,
+    `the host's goods travel with the court (${hostShare} vs ${exileShare})`,
+  )
+
+  // Buying: only what is laid out, once a window, and word gets out.
+  const findSeedWith = (id: string, base: FortressRun): FortressRun => {
+    for (let seed = 1; seed < 500; seed += 1) {
+      const run = { ...base, seed }
+      if (marketStock(run).includes(id)) return run
+    }
+    throw new Error(`no seed lays out ${id}`)
+  }
+  const poppetDay = findSeedWith('reed-poppet', fair)
+  const poppet = buyItem(poppetDay, 'reed-poppet')
+  assert.equal(poppet.brass, poppetDay.brass - itemDef('reed-poppet')!.price)
+  assert.deepEqual(poppet.inventory, ['reed-poppet'])
+  assert.equal(poppet.affinity.abbey, poppetDay.affinity.abbey - 3)
+  assert.deepEqual(boughtThisWindow(poppet), ['reed-poppet'])
+  assert.throws(() => buyItem(poppet, 'reed-poppet'), /no other/)
+  assert.ok(validateRun(poppet), 'a run with market state saves')
+  // The next window restocks the stall.
+  assert.deepEqual(boughtThisWindow({ ...poppet, day: 4 }), [])
+  const notLaid = ITEMS.find((item) => !marketStock(fair).includes(item.id))!
+  assert.throws(() => buyItem(fair, notLaid.id), /not on the stalls/)
+  assert.throws(
+    () => buyItem({ ...poppetDay, brass: 3 }, 'reed-poppet'),
+    /Needs 35 brass/,
+  )
+  assert.throws(() => buyItem(fair, 'no-such-thing'), /unknown item/)
+  const draughtDay = findSeedWith('night-draught', {
+    ...fair,
+    day: 22,
+    revealedFactions: [...fair.revealedFactions, 'rustline', 'black-verge'],
+    affinity: { ...fair.affinity, 'black-verge': 0 },
+  })
+  const drank = buyItem(draughtDay, 'night-draught')
+  assert.ok(drank.flags.includes('bought:night-draught'))
+  assert.equal(drank.local.yard, draughtDay.local.yard - 2)
+
+  // Selling: half the price, storeroom only.
+  const sold = sellItem(poppet, 'reed-poppet')
+  assert.equal(sold.brass, poppet.brass + sellPrice(itemDef('reed-poppet')!))
+  assert.equal(sellPrice(itemDef('reed-poppet')!), 17)
+  assert.deepEqual(sold.inventory, [])
+  assert.throws(() => sellItem(sold, 'reed-poppet'), /does not hold/)
+  const worn = equipItem(poppet, 'F001', 'charm', 'reed-poppet')
+  assert.throws(() => sellItem(worn, 'reed-poppet'), /does not hold/)
+  assert.throws(() => buyItem(sold, 'reed-poppet'), /no other/)
+
+  // Item edges: a waybill knows the Saltroad's roads and nobody else's.
+  const saltQuest = QUEST_TEMPLATES.find(
+    (quest) => quest.faction === 'saltroad',
+  )
+  const otherQuest = QUEST_TEMPLATES.find(
+    (quest) => quest.faction && quest.faction !== 'saltroad',
+  )
+  assert.ok(saltQuest && otherQuest)
+  const onBoard = (run: FortressRun, id: string): FortressRun => ({
+    ...run,
+    board: [{ questId: `${id}@1`, postedDay: 1, lastDay: 3 }],
+  })
+  const carrying: FortressRun = {
+    ...fair,
+    roster: fair.roster.map((state) =>
+      state.id === 'F001'
+        ? { ...state, equipment: { tool: 'saltroad-waybill' } }
+        : state,
+    ),
+  }
+  const total = (run: FortressRun, id: string) =>
+    previewQuest(onBoard(run, id), `${id}@1`, ['F001'], []).perRequirement[0]!
+      .total
+  assert.equal(
+    total(carrying, saltQuest.id) - total(fair, saltQuest.id),
+    2 +
+      (itemDef('saltroad-waybill')!.stats?.[saltQuest.requirements[0]!.stat] ??
+        0),
+    'the waybill adds its edge on Saltroad quests',
+  )
+  assert.equal(
+    total(carrying, otherQuest.id) - total(fair, otherQuest.id),
+    itemDef('saltroad-waybill')!.stats?.[otherQuest.requirements[0]!.stat] ?? 0,
+    'and nothing extra elsewhere',
+  )
+
+  // Treatments: the wounded at court, once a day, priced by the wound.
+  const hurt: FortressRun = {
+    ...fair,
+    brass: 100,
+    roster: fair.roster.map((state) =>
+      state.id === 'F001' ? { ...state, injuredUntilDay: 5 } : state,
+    ),
+  }
+  assert.equal(surgeonPrice(hurt, 'F001'), SURGEON_BASE + SURGEON_PER_DAY * 4)
+  const stitched = treatFollower(hurt, 'F001', 'surgeon')
+  assert.equal(stitched.healed, 1)
+  assert.equal(injuryDaysLeft(stitched.run, 'F001'), 3)
+  assert.equal(stitched.run.brass, 100 - surgeonPrice(hurt, 'F001'))
+  assert.match(
+    treatmentBlocker(stitched.run, 'F001', 'surgeon') ?? '',
+    /Seen today/,
+  )
+  assert.throws(() => treatFollower(stitched.run, 'F001', 'surgeon'), /Seen/)
+  assert.ok(validateRun(stitched.run), 'a treated run saves')
+  // Tomorrow the surgeon will see them again.
+  assert.equal(
+    treatmentBlocker({ ...stitched.run, day: 2 }, 'F001', 'surgeon'),
+    null,
+  )
+  assert.match(
+    treatmentBlocker(hurt, 'F002', 'surgeon') ?? '',
+    /Only the wounded/,
+  )
+  assert.match(
+    treatmentBlocker({ ...hurt, brass: 2 }, 'F001', 'surgeon') ?? '',
+    /Needs 16 brass/,
+  )
+  // A last day of a wound closed means the follower can ride today.
+  const nearly: FortressRun = {
+    ...hurt,
+    roster: hurt.roster.map((state) =>
+      state.id === 'F001' ? { ...state, injuredUntilDay: 2 } : state,
+    ),
+  }
+  assert.equal(
+    followerStatus(treatFollower(nearly, 'F001', 'surgeon').run, 'F001'),
+    'ready',
+  )
+  // Saltroad medicine: a quarter off while they are Friendly.
+  const caravans: FortressRun = {
+    ...hurt,
+    affinity: { ...hurt.affinity, saltroad: 30 },
+  }
+  assert.ok(saltroadMedicine(caravans) && !saltroadMedicine(hurt))
+  assert.equal(surgeonPrice(caravans, 'F001'), 12)
+  // The Mire poultice: cheap, seeded, sometimes worse; the Abbey hears.
+  assert.ok(poulticeOffered(hurt))
+  const outcomes = new Set<number>()
+  for (let seed = 1; seed <= 40; seed += 1) {
+    const run = { ...hurt, seed }
+    const result = treatFollower(run, 'F001', 'poultice')
+    assert.deepEqual(
+      result,
+      treatFollower(run, 'F001', 'poultice'),
+      'the poultice is seeded',
+    )
+    assert.ok([2, 0, -1].includes(result.healed))
+    assert.equal(
+      injuryDaysLeft(result.run, 'F001'),
+      4 - result.healed,
+      'the wound moves by what the poultice did',
+    )
+    assert.equal(result.run.brass, 100 - POULTICE_PRICE)
+    assert.equal(result.run.affinity.abbey, hurt.affinity.abbey - 1)
+    outcomes.add(result.healed)
+  }
+  assert.equal(outcomes.size, 3, 'the poultice can take, fail or go bad')
+  assert.ok(!poulticeOffered({ ...hurt, wipedOut: ['mire-mothers'] }))
+  assert.match(
+    treatmentBlocker(
+      { ...hurt, affinity: { ...hurt.affinity, 'mire-mothers': -80 } },
+      'F001',
+      'poultice',
+    ) ?? '',
+    /No Mire woman/,
+  )
+
+  // Saves: market state is optional and validated.
+  const noMarket: FortressRun = JSON.parse(JSON.stringify(poppet))
+  delete noMarket.market
+  assert.ok(validateRun(noMarket), 'a run from before the market still loads')
+  assert.ok(
+    !validateRun({ ...poppet, market: { ...poppet.market!, bought: ['x'] } }),
+    'unknown bought items are refused',
+  )
+  assert.ok(
+    !validateRun({
+      ...poppet,
+      market: { ...poppet.market!, treated: ['F001', 'F001'] },
+    }),
+    'a follower is treated once',
+  )
+  assert.ok(
+    !validateRun({
+      ...poppet,
+      market: { window: 99 } as unknown as FortressRun['market'],
+    }),
+  )
 }
 
 console.log('Emperor of Dust fortress contract: ok')

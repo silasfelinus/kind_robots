@@ -56,6 +56,11 @@ import { QUEST_CARDS } from '../ecotone/questExpansion'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
 import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
 import { FORMER_GUIDE_QUESTS } from '../ecotone/formerGuideQuests'
+import {
+  OPENING_LENS_ADDITIONS,
+  availableOpeningLenses,
+  openingLensChoices,
+} from '../ecotone/openingLensChoices'
 import { REGIONAL_CALLBACKS } from '../ecotone/regionalCallbacks'
 import { earnedQuestCallbacks } from '../ecotone/finaleExpansion'
 import {
@@ -154,6 +159,48 @@ assert.equal(
 )
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
+// Editorial round one: keep the image-first chapter kits in exact sync with
+// the playable scripts. These twelve cards carry sharpened consent, labor,
+// uncertainty and imperfect-help beats; old static Markdown must not drift.
+for (const id of [
+  'WH-001',
+  'WH-002',
+  'WH-023',
+  'WH-025',
+  'WH-041',
+  'WH-044',
+  'WH-063',
+  'WH-064',
+  'WH-081',
+  'WH-082',
+  'WH-102',
+  'WH-103',
+]) {
+  const script = REGIONAL_SCRIPTS.find((card) => card.id === id)!
+  const chapter = String(script.chapter).padStart(2, '0')
+  const manuscript = readFileSync(
+    `docs/ecotone/text-kit/chapter-${chapter}.md`,
+    'utf8',
+  )
+  const playable = findCard(id)!
+  assert.deepEqual(
+    playable.body,
+    [script.premise, script.pressure],
+    `${id} still has the two authored beats after editing`,
+  )
+  for (const line of [
+    script.pressure,
+    script.investigate,
+    script.help,
+    script.success,
+    script.failure,
+    script.helpOutcome,
+  ])
+    assert.ok(
+      manuscript.includes(line),
+      `${id} playable choice/outcome text is mirrored in the editor's reading kit`,
+    )
+}
 assert.equal(FORMER_GUIDE_QUESTS.length, 5)
 const reunionBase = createRun(101, 'reporter')
 for (const card of FORMER_GUIDE_QUESTS) {
@@ -525,7 +572,7 @@ function play(seed: number, plan: Plan) {
     assert.ok(card, 'a beat is in play')
     const choice =
       (card.choices.some((c) => c.prospect) ? card.choices[plan.area] : null) ??
-      card.choices.find((c) => c.lens === plan.lens) ??
+      openingLensChoices(card).find((c) => c.lens === plan.lens) ??
       card.choices.find((c) => c.meet === plan.accept) ??
       card.choices.filter((c) => !c.locked)[
         pick(card.choices.filter((c) => !c.locked).length)
@@ -535,6 +582,33 @@ function play(seed: number, plan: Plan) {
   return state
 }
 
+for (const event of ['GR-2', 'KN-2', 'QW-2']) {
+  const opening = findCard(event)!
+  assert.equal(
+    openingLensChoices(opening).length,
+    7,
+    `${event} visibly offers exactly seven lenses`,
+  )
+  assert.deepEqual(availableOpeningLenses(opening), openLenses)
+  for (const extra of OPENING_LENS_ADDITIONS[event]!) {
+    assert.ok(extra.success.text.length >= 80)
+    assert.ok(extra.failure?.text.length)
+    assert.ok(
+      ecotoneArtSlots().outcomes.includes(
+        outcomeArtKey(event, extra.id, 'failure'),
+      ),
+      `${event}/${extra.id} has a unique failure picture slot`,
+    )
+    assert.ok(
+      allPitchByKey.has(outcomeArtKey(event, extra.id, 'success')),
+      `${event}/${extra.id} has a proposed success picture`,
+    )
+    assert.ok(
+      allPitchByKey.has(outcomeArtKey(event, extra.id, 'failure')),
+      `${event}/${extra.id} has a proposed failure picture`,
+    )
+  }
+}
 const fair: Plan = {
   event: 'green-ribbon',
   area: 0,
@@ -710,10 +784,7 @@ const eventLensOptions = new Map<EventId, LensId[]>(
       .filter((step) => step.kind === 'beat')
       .map((step) => findCard(step.id))
       .find((card) => card?.choices.some((choice) => choice.lens))
-    const choices =
-      opening?.choices
-        .filter((choice) => choice.lens && !choice.locked)
-        .map((choice) => choice.lens!) ?? []
+    const choices = opening ? availableOpeningLenses(opening) : []
     assert.ok(choices.length > 0, `${event} must offer an opening`)
     return [event, choices]
   }),
@@ -761,7 +832,7 @@ for (let index = 0; index < 8400; index += 1) {
     const card = findCard(entry.source)
     assert.ok(card, `seed ${seed} logged a real card`)
     assert.ok(
-      card.choices.some(
+      openingLensChoices(card).some(
         (choice) =>
           entry.art === outcomeArtKey(card.id, choice.id, 'success') ||
           (choice.failure &&
@@ -826,10 +897,12 @@ assert.deepEqual(
   new Set(openLenses),
   'all seven lenses can begin at least one regional route',
 )
-assert.ok(
-  eventLensOptions.get('quiet')!.length < openLenses.length,
-  'catalogue gap: quiet route cannot currently earn every Wild Way lens',
-)
+for (const [event, lenses] of eventLensOptions)
+  assert.deepEqual(
+    lenses,
+    openLenses,
+    `${event} offers all seven voluntary lenses`,
+  )
 assert.equal(auditChapters.size, 6, 'all six regional chapters appear in runs')
 assert.equal(auditLensFates.size, 14, 'each opening can earn hope or darkness')
 for (const lead of ['mara', 'kit', 'juniper', 'cedar', 'alone'])
@@ -891,7 +964,7 @@ for (let seed = 1; seed < 40; seed += 1) {
 }
 
 // Keep choosing the animals and the Wild Way is paradise; drift and it is the hermit.
-function wildRun(seed: number, wild: boolean) {
+function wildRun(seed: number, wild: boolean, lens: LensId = 'sober') {
   let state = advance(chooseEvent(createRun(seed, 'gardener'), 'quiet'))
   while (state.phase !== 'end') {
     if (state.pending) state = advance(state)
@@ -907,9 +980,9 @@ function wildRun(seed: number, wild: boolean) {
       state = chooseCrossroads(state, false)
     else {
       const card = findCard(state.card)!
-      const open = card.choices.filter((c) => !c.locked)
+      const open = openingLensChoices(card).filter((c) => !c.locked)
       const pickChoice =
-        open.find((c) => c.lens === 'sober') ??
+        open.find((c) => c.lens === lens) ??
         open.find((c) => c.meet === false) ??
         (wild
           ? open.find((c) => c.wild)
@@ -927,6 +1000,21 @@ for (let seed = 1; seed < 40; seed += 1) {
   const drifting = wildRun(seed, false)
   assert.equal(drifting.ending, 'ecotopia.sober.dark', 'drifting is the hermit')
 }
+for (const lens of openLenses) {
+  const optimistic = wildRun(200 + openLenses.indexOf(lens), true, lens)
+  const bittersweet = wildRun(300 + openLenses.indexOf(lens), false, lens)
+  assert.equal(optimistic.ending, `ecotopia.${lens}.hope`)
+  assert.equal(bittersweet.ending, `ecotopia.${lens}.dark`)
+  assert.equal(optimistic.openingState, lens)
+  assert.equal(bittersweet.openingState, lens)
+  auditEndingIds.add(optimistic.ending!)
+  auditEndingIds.add(bittersweet.ending!)
+}
+assert.deepEqual(
+  auditEndingIds,
+  new Set(ENDING_IDS),
+  'all 84 endings have real fully played deterministic witnesses',
+)
 assert.match(FUTURES.ecotopia.dark.join(' '), /retire to a cabin/)
 
 // Asides know who you are traveling with.

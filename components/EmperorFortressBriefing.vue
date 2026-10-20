@@ -104,7 +104,13 @@
           </ul>
         </details>
       </template>
-      <p v-else class="text-sm opacity-75">
+      <p
+        v-if="mapLine"
+        class="border-l-2 border-error/70 pl-3 text-xs font-semibold text-error"
+      >
+        {{ mapLine.source }}: {{ mapLine.text }}
+      </p>
+      <p v-if="!today" class="text-sm opacity-75">
         No dispatches came up the road for Day {{ run.day }}. The wasteland’s
         daily chores still reach the quest room.
       </p>
@@ -127,7 +133,10 @@ import {
   komodoLiesInHindsight,
 } from '~/utils/emperorOfDust/fortress/briefings'
 import { dayDef } from '~/utils/emperorOfDust/fortress/content'
-import { forecastMark } from '~/utils/emperorOfDust/fortress/engine'
+import {
+  briefingMapLine,
+  forecastMark,
+} from '~/utils/emperorOfDust/fortress/engine'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
@@ -136,6 +145,7 @@ const props = defineProps<{ run: FortressRun }>()
 const emit = defineEmits<{ next: [] }>()
 
 const today = computed(() => dayDef(props.run.day))
+const mapLine = computed(() => briefingMapLine(props.run))
 /** Today's reports as this run reads them (flag-keyed variants applied). */
 const reports = computed(() => dayBriefings(props.run, today.value) ?? [])
 /** After the betrayal: every report that was Komodo's own lie. */

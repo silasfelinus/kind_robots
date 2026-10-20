@@ -1,9 +1,14 @@
 import {
+  ACT_END_DAWNS,
   KINGDOM_FACTION_DEFS,
   LOCAL_MAX,
   LOCAL_START,
+  PERIL_STRENGTH,
+  RAID_GAP,
   REGIONS,
+  RIVALRIES,
   affinityTier,
+  taxAtTier,
 } from './factions'
 import type { Mood } from './castArt'
 import { FOLLOWERS, followerDef, itemDef } from './followers'
@@ -14,10 +19,16 @@ import {
   isTemplateInstance,
   questDef,
 } from './content'
-import { AFFINITY_TIERS, KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
+import {
+  AFFINITY_TIERS,
+  KINGDOM_FACTIONS,
+  LOCAL_FACTIONS,
+  standingHeld,
+} from './types'
 import type {
   AbilityKind,
   ActiveQuest,
+  AffinityTier,
   AudienceDef,
   AudienceOption,
   Band,
@@ -27,8 +38,11 @@ import type {
   FollowerDef,
   FollowerState,
   FortressRun,
+  ItemDef,
   KingdomFactionId,
   LocalFactionId,
+  MapEvent,
+  MapThreat,
   OddsPreview,
   QuestDef,
   QuestReport,
@@ -182,6 +196,8 @@ const drawTemplates = (run: FortressRun): void => {
 const postQuest = (run: FortressRun, questId: string): void => {
   const def = questDef(questId)
   if (!def) throw new Error(`unknown quest: ${questId}`)
+  // A faction wiped from the map posts no more work.
+  if (def.faction && run.wipedOut.includes(def.faction)) return
   if (
     run.board.some((entry) => entry.questId === questId) ||
     run.active.some((entry) => entry.questId === questId) ||
@@ -300,6 +316,8 @@ export const unmetRequirements = (
     if (!run.flags.includes(flag)) reasons.push('Not yet possible')
   for (const flag of requires?.notFlags ?? [])
     if (run.flags.includes(flag)) reasons.push('No longer possible')
+  if (!standingHeld(run.flags, requires?.standing))
+    reasons.push('Not yet possible')
   if (bedsUsed(run) + recruits.length > run.beds)
     reasons.push('The barracks are full')
   return reasons
@@ -374,6 +392,7 @@ export const optionVisible = (
     return false
   if ((requires.notFlags ?? []).some((flag) => run.flags.includes(flag)))
     return false
+  if (!standingHeld(run.flags, requires.standing)) return false
   if (requires.follower) {
     const status = followerStatus(run, requires.follower)
     if (!status || status === 'dead') return false
@@ -650,7 +669,9 @@ const contribution = (
 ): number => {
   let value = member.def.stats[stat]
   for (const id of Object.values(member.state.equipment)) {
-    value += (id ? itemDef(id)?.stats?.[stat] : 0) ?? 0
+    const item = id ? itemDef(id) : undefined
+    value += item?.stats?.[stat] ?? 0
+    value += marketEdge(item, quest)
   }
   if (quest.faction) value += member.def.factionModifiers[quest.faction] ?? 0
   for (const trait of member.def.traits) {
@@ -658,6 +679,21 @@ const contribution = (
     if (known === 'all' || traitKnown(run, trait, known)) value += trait.amount
   }
   return Math.max(0, value)
+}
+
+// --- market edges (t-024) ----------------------------------------------------
+
+/** A tool or charm that knows one faction's roads or one kind of work. */
+export const marketEdge = (
+  item: ItemDef | undefined,
+  quest: QuestDef,
+): number => {
+  const edge = item?.edge
+  if (!edge) return 0
+  const matches =
+    (edge.faction !== undefined && edge.faction === quest.faction) ||
+    (edge.tag !== undefined && (quest.tags ?? []).includes(edge.tag))
+  return matches ? edge.amount : 0
 }
 
 const chanceFrom = (ratios: number[]): number => {
@@ -957,15 +993,7 @@ export const upgradeBeds = (run: FortressRun): FortressRun => {
   return next
 }
 
-export const buyItem = (run: FortressRun, itemId: string): FortressRun => {
-  const item = itemDef(itemId)
-  if (!item) throw new Error(`unknown item: ${itemId}`)
-  if (run.brass < item.price) throw new Error(`Needs ${item.price} brass`)
-  const next = cloneRun(run)
-  next.brass -= item.price
-  next.inventory.push(itemId)
-  return next
-}
+// Buying, selling and treatments live in market.ts (t-024).
 
 /** Equip an owned item (or clear a slot with null). */
 export const equipItem = (
@@ -1225,29 +1253,177 @@ export const selectHideout = (run: FortressRun): string => {
   return candidates[0]?.[1] ?? 'nameless-cave'
 }
 
-const actEnd = (run: FortressRun, events: string[]): void => {
+// --- the map: territories, taxes, act-end events ---------------------------
+//
+// The map only changes at act-end dawns (Days 11, 21, 31, 41), and a wipe-out
+// or a raid only happens if the map room warned of it at the act end before.
+// Every warning names what would stop it, and is only given when it can
+// actually come true.
+
+export const factionName = (id: KingdomFactionId): string =>
+  KINGDOM_FACTION_DEFS.find((def) => def.id === id)?.name ?? id
+
+export const regionName = (id: string): string =>
+  REGIONS.find((region) => region.id === id)?.name ?? id
+
+/** Who holds a region now: its first controller unless it was taken. */
+export const regionHolder = (
+  run: FortressRun,
+  regionId: string,
+): KingdomFactionId | undefined =>
+  run.controllers?.[regionId] ??
+  REGIONS.find((region) => region.id === regionId)?.controller
+
+/** The next act-end dawn after `day`, if the campaign has one. */
+export const nextActEnd = (day: number): number | undefined =>
+  ACT_END_DAWNS.find((dawn) => dawn > day)
+
+let fallible: Set<KingdomFactionId> | undefined
+/** Factions some quest or answer in the campaign can weaken. */
+const canWeaken = (faction: KingdomFactionId): boolean => {
+  if (!fallible) {
+    const set = new Set<KingdomFactionId>()
+    const scan = (effects?: Effects) => {
+      for (const [id, delta] of Object.entries(effects?.strength ?? {}))
+        if ((delta ?? 0) < 0) set.add(id as KingdomFactionId)
+    }
+    const quests = new Set<string>()
+    for (const day of Array.from({ length: LAST_DAY }, (_, i) => i + 1)) {
+      const def = dayDef(day)
+      for (const id of def?.quests ?? []) quests.add(id)
+      for (const audience of def?.audiences ?? [])
+        for (const option of [
+          ...audience.options,
+          ...(audience.beats ?? []).flatMap((beat) => beat.options),
+        ]) {
+          scan(option.effects)
+          for (const id of option.postsQuests ?? []) quests.add(id)
+        }
+    }
+    for (const quest of [
+      ...[...quests].map((id) => questDef(id)),
+      ...QUEST_TEMPLATES,
+    ]) {
+      if (!quest) continue
+      for (const effects of Object.values(quest.rewards)) scan(effects)
+      scan(quest.expired)
+    }
+    fallible = set
+  }
+  return fallible.has(faction)
+}
+
+const onMap = (run: FortressRun, faction: KingdomFactionId): boolean =>
+  run.revealedFactions.includes(faction) && !run.wipedOut.includes(faction)
+
+/** The land a stronger rival would take from `weak`: its own back, or the weak side's home. */
+const raidTarget = (
+  run: FortressRun,
+  strong: KingdomFactionId,
+  weak: KingdomFactionId,
+): string | undefined => {
+  const held = REGIONS.filter((region) => regionHolder(run, region.id) === weak)
+  return (
+    held.find((region) => region.controller === strong) ??
+    held.find((region) => region.controller === weak) ??
+    held[0]
+  )?.id
+}
+
+/**
+ * The warnings for the act end due at `dueDay`, as the map stands now:
+ * factions at or below peril strength that can still fall, and rivals at
+ * least RAID_GAP stronger than a neighbour that holds land.
+ */
+export const threatsFor = (run: FortressRun, dueDay: number): MapThreat[] => {
+  const threats: MapThreat[] = []
+  for (const faction of KINGDOM_FACTIONS) {
+    if (!onMap(run, faction) || run.strength[faction] > PERIL_STRENGTH) continue
+    if (run.strength[faction] > 0 && !canWeaken(faction)) continue
+    threats.push({ kind: 'wipe', faction, issuedDay: run.day, dueDay })
+  }
+  for (const [a, b] of RIVALRIES) {
+    if (!onMap(run, a) || !onMap(run, b)) continue
+    const [strong, weak] = run.strength[a] >= run.strength[b] ? [a, b] : [b, a]
+    if (run.strength[strong] - run.strength[weak] < RAID_GAP) continue
+    const region = raidTarget(run, strong, weak)
+    if (!region) continue
+    threats.push({
+      kind: 'raid',
+      faction: weak,
+      by: strong,
+      region,
+      issuedDay: run.day,
+      dueDay,
+    })
+  }
+  return threats
+}
+
+/** Resolves the warnings due today; returns what happened to each. */
+const resolveThreats = (run: FortressRun): MapEvent[] => {
+  const due = (run.mapWatch ?? []).filter((t) => t.dueDay === run.day)
+  const happened: MapEvent[] = []
+  for (const threat of due.filter((t) => t.kind === 'wipe')) {
+    if (!onMap(run, threat.faction)) continue
+    const fell = run.strength[threat.faction] <= 0
+    if (fell) {
+      run.wipedOut.push(threat.faction)
+      // Its notices come down with its banner.
+      run.board = run.board.filter(
+        (entry) => questDef(entry.questId)?.faction !== threat.faction,
+      )
+    }
+    happened.push({
+      day: run.day,
+      kind: fell ? 'wiped' : 'held',
+      faction: threat.faction,
+    })
+  }
+  for (const threat of due.filter((t) => t.kind === 'raid')) {
+    const { faction, by, region } = threat
+    if (!by || !region || !onMap(run, faction)) continue
+    const taken =
+      onMap(run, by) &&
+      regionHolder(run, region) === faction &&
+      run.strength[by] - run.strength[faction] >= RAID_GAP
+    if (taken) run.controllers = { ...run.controllers, [region]: by }
+    happened.push({
+      day: run.day,
+      kind: taken ? 'taken' : 'held',
+      faction,
+      by,
+      region,
+    })
+  }
+  return happened
+}
+
+const actEnd = (run: FortressRun, events: string[]): MapEvent[] => {
+  const map: MapEvent[] = []
   for (const def of KINGDOM_FACTION_DEFS) {
     if (
       def.revealedOnDay <= run.day &&
       !run.revealedFactions.includes(def.id)
     ) {
       run.revealedFactions.push(def.id)
-      events.push(`The map room has a new banner: ${def.name}.`)
+      map.push({ day: run.day, kind: 'revealed', faction: def.id })
     }
   }
-  if (![11, 21, 31, 41].includes(run.day)) return
-  for (const id of KINGDOM_FACTIONS) {
-    if (
-      run.revealedFactions.includes(id) &&
-      !run.wipedOut.includes(id) &&
-      run.strength[id] <= 0
-    ) {
-      run.wipedOut.push(id)
-      events.push(
-        `${KINGDOM_FACTION_DEFS.find((def) => def.id === id)?.name ?? id} is gone from the map.`,
-      )
-    }
+  if ((ACT_END_DAWNS as readonly number[]).includes(run.day)) {
+    map.push(...resolveThreats(run))
+    const due = nextActEnd(run.day)
+    run.mapWatch = due ? threatsFor(run, due) : []
+    for (const threat of run.mapWatch)
+      map.push({
+        day: run.day,
+        kind: threat.kind === 'wipe' ? 'warned-wipe' : 'warned-raid',
+        faction: threat.faction,
+        ...(threat.by ? { by: threat.by } : {}),
+        ...(threat.region ? { region: threat.region } : {}),
+      })
   }
+  if (map.length) run.mapLog = [...(run.mapLog ?? []), ...map]
   if (run.day === 41 && !run.flags.includes('komodo-betrayal')) {
     run.flags.push('komodo-betrayal')
     run.hideout = selectHideout(run)
@@ -1255,16 +1431,212 @@ const actEnd = (run: FortressRun, events: string[]): void => {
     run.flags.push(`hideout:${run.hideout}`)
     events.push('Young Komodo has betrayed the throne. The court flees.')
   }
+  return map
+}
+
+/** What one region pays the throne each dawn, and why. */
+export const regionTax = (
+  run: FortressRun,
+  regionId: string,
+): { holder?: KingdomFactionId; tier?: AffinityTier; paid: number } => {
+  const region = REGIONS.find((entry) => entry.id === regionId)
+  const holder = regionHolder(run, regionId)
+  if (!region || !holder || !onMap(run, holder)) return { holder, paid: 0 }
+  const tier = affinityTier(run.affinity[holder])
+  return { holder, tier, paid: taxAtTier(region.tax, tier) }
 }
 
 export const dailyTaxes = (run: FortressRun): number =>
-  REGIONS.filter(
-    (region) =>
-      run.revealedFactions.includes(region.controller) &&
-      !run.wipedOut.includes(region.controller) &&
-      tierRank(affinityTier(run.affinity[region.controller])) >=
-        tierRank('neutral'),
-  ).reduce((sum, region) => sum + region.tax, 0)
+  REGIONS.reduce((sum, region) => sum + regionTax(run, region.id).paid, 0)
+
+/** Factions whose names read as a crowd ("the Freeholds are"), not a body. */
+const PLURAL_NAMES: readonly KingdomFactionId[] = [
+  'freeholds',
+  'mire-mothers',
+  'saltroad',
+  'moles',
+]
+const verb = (faction: KingdomFactionId, many: string, one: string) =>
+  PLURAL_NAMES.includes(faction) ? many : one
+
+/** The stark line the map room, the dawn and the history show for an event. */
+export const mapEventText = (
+  event: MapEvent,
+): { title: string; text: string } => {
+  const f = event.faction
+  const name = factionName(f)
+  const by = event.by ? factionName(event.by) : ''
+  const raider = event.by ?? f
+  const land = event.region ? regionName(event.region) : ''
+  const map = `the Day ${event.day + 9} map`
+  switch (event.kind) {
+    case 'revealed':
+      return {
+        title: 'A new banner',
+        text:
+          REVEAL_LINES[f] ??
+          `The fog lifted in the night. ${name} ${verb(f, 'hang their', 'hangs its')} banner in the map room.`,
+      }
+    case 'wiped':
+      return {
+        title: `${name} ${verb(f, 'are', 'is')} gone`,
+        text: `The banner came down in the night. Nobody pays the throne for that land now. The survivors are already on the roads, carrying what they could.`,
+      }
+    case 'taken':
+      return {
+        title: `${land} changes hands`,
+        text: `${by} took ${land} from ${name}. The new banner went up before the old one hit the dirt. What the land pays now depends on how ${by} ${verb(raider, 'stand', 'stands')} with the throne.`,
+      }
+    case 'held':
+      return event.region
+        ? {
+            title: `${name} ${verb(f, 'hold', 'holds')} ${land}`,
+            text: `${by} came to the line and found it manned. ${land} stays with ${name}. Nobody thanks the crown out loud.`,
+          }
+        : {
+            title: `${name} ${verb(f, 'hold', 'holds')}`,
+            text: `Thin, hungry and still standing. The banner stays up. The map room crosses out a line it had already written.`,
+          }
+    case 'warned-wipe':
+      return {
+        title: `${name} ${verb(f, 'are', 'is')} failing`,
+        text: `Down to the last of ${verb(f, 'their', 'its')} strength. If none is left at ${map}, the banner comes down for good.`,
+      }
+    case 'warned-raid':
+      return {
+        title: `${by} ${verb(raider, 'eye', 'eyes')} ${land}`,
+        text: `${by} ${verb(raider, 'are', 'is')} massing on ${land}. If the gap to ${name} is still ${RAID_GAP} or more at ${map}, the land changes hands.`,
+      }
+  }
+}
+
+const REVEAL_LINES: Partial<Record<KingdomFactionId, string>> = {
+  rustline:
+    'The fog burned off the eastern rail yards overnight. Magpies and rats were already down there, picking the bones of the old trains. The Rustline hangs its banner in the map room. It was there all along.',
+  'black-verge':
+    'A rider came in from the far border with no saddle and no voice. Behind him the map has a new edge. The Black Verge Court hangs its banner, and the gorillas who hold it do not ask leave.',
+}
+
+/** A live warning for the map room and the briefing: what is coming and what stops it. */
+export type MapWarning = MapThreat & {
+  title: string
+  text: string
+  /** What would stop it, in the faction's current numbers. */
+  remedy: string
+  daysLeft: number
+}
+
+export const mapWarnings = (run: FortressRun): MapWarning[] =>
+  (run.mapWatch ?? [])
+    .filter((threat) => threat.dueDay > run.day && onMap(run, threat.faction))
+    .map((threat) => {
+      const event: MapEvent = {
+        day: threat.dueDay - 10,
+        kind: threat.kind === 'wipe' ? 'warned-wipe' : 'warned-raid',
+        faction: threat.faction,
+        ...(threat.by ? { by: threat.by } : {}),
+        ...(threat.region ? { region: threat.region } : {}),
+      }
+      const own = run.strength[threat.faction]
+      const name = factionName(threat.faction)
+      let remedy: string
+      if (threat.kind === 'wipe') {
+        remedy =
+          own > 0
+            ? `Strength ${own} of 10. They fall only if it reaches 0. Keep their quests from failing.`
+            : `Strength 0 of 10. One point saves them: win a quest for ${name} or take their side at court.`
+      } else {
+        const rival = threat.by ? run.strength[threat.by] : 0
+        const by = threat.by ? factionName(threat.by) : ''
+        remedy =
+          rival - own >= RAID_GAP
+            ? `${by} ${rival}, ${name} ${own}. Close the gap to ${RAID_GAP - 1} or less: strengthen ${name} or weaken ${by}.`
+            : `${by} ${rival}, ${name} ${own}. The gap is closed for now. Keep it that way.`
+      }
+      return {
+        ...threat,
+        ...mapEventText(event),
+        remedy,
+        daysLeft: threat.dueDay - run.day,
+      }
+    })
+
+const COUNTS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven']
+const DAYS_WORD = [...COUNTS, 'Eight', 'Nine', 'Ten']
+
+/** The briefing's word from the map room: the warning with least time left. */
+export const briefingMapLine = (
+  run: FortressRun,
+): { source: string; text: string } | undefined => {
+  const warnings = mapWarnings(run)
+  const first = [...warnings].sort((a, b) => a.daysLeft - b.daysLeft)[0]
+  if (!first) return undefined
+  const left = first.daysLeft
+  const when =
+    left <= 1
+      ? `Tonight the map is redrawn.`
+      : `${DAYS_WORD[left] ?? left} days to the Day ${first.dueDay - 1} map.`
+  const more =
+    warnings.length > 1
+      ? ` ${COUNTS[warnings.length - 1] ?? warnings.length - 1} more warning${warnings.length > 2 ? 's' : ''} on the table.`
+      : ''
+  return { source: 'The map room', text: `${first.title}. ${when}${more}` }
+}
+
+const MAP_EVENT_KINDS: readonly string[] = [
+  'revealed',
+  'wiped',
+  'taken',
+  'held',
+  'warned-wipe',
+  'warned-raid',
+]
+
+/** Save validation for the map fields (saves.ts): ids known, sizes bounded. */
+export const validMapState = (run: Record<string, unknown>): boolean => {
+  const isObject = (value: unknown): value is Record<string, unknown> =>
+    typeof value === 'object' && value !== null && !Array.isArray(value)
+  const faction = (value: unknown) =>
+    (KINGDOM_FACTIONS as readonly unknown[]).includes(value)
+  const region = (value: unknown) => REGIONS.some((entry) => entry.id === value)
+  const day = (value: unknown) =>
+    Number.isSafeInteger(value) &&
+    (value as number) >= 1 &&
+    (value as number) <= LAST_DAY + 1
+  const optional = (value: unknown, check: (v: unknown) => boolean) =>
+    value === undefined || check(value)
+  const event = (value: unknown) =>
+    isObject(value) &&
+    day(value.day) &&
+    MAP_EVENT_KINDS.includes(value.kind as string) &&
+    faction(value.faction) &&
+    optional(value.by, faction) &&
+    optional(value.region, region)
+  const threat = (value: unknown) =>
+    isObject(value) &&
+    (value.kind === 'wipe' || value.kind === 'raid') &&
+    faction(value.faction) &&
+    optional(value.by, faction) &&
+    optional(value.region, region) &&
+    day(value.issuedDay) &&
+    day(value.dueDay)
+  const list = (value: unknown, max: number, check: (v: unknown) => boolean) =>
+    value === undefined ||
+    (Array.isArray(value) && value.length <= max && value.every(check))
+  return (
+    (run.controllers === undefined ||
+      (isObject(run.controllers) &&
+        Object.entries(run.controllers).every(
+          ([id, holder]) => region(id) && faction(holder),
+        ))) &&
+    list(run.mapWatch, 40, threat) &&
+    list(run.mapLog, 200, event) &&
+    (!Array.isArray(run.reports) ||
+      run.reports.every(
+        (report: unknown) => !isObject(report) || list(report.map, 40, event),
+      ))
+  )
+}
 
 /**
  * Ends the day: quests ride out, the next dawn resolves returns and expiries,
@@ -1371,7 +1743,7 @@ export const finishDay = (
       events.push('The Ledger is calling in its loans.')
     }
   }
-  actEnd(next, events)
+  const map = actEnd(next, events)
   postDawnQuests(next)
   const report: DawnReport = {
     day: next.day,
@@ -1380,6 +1752,7 @@ export const finishDay = (
     wages,
     loanTaken,
     events,
+    ...(map.length ? { map } : {}),
   }
   next.reports = [...next.reports, report]
   return { run: next, report }

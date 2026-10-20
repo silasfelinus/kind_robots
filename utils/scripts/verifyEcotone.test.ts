@@ -43,6 +43,7 @@ import {
   chooseFork,
   computeEnding,
   createRun,
+  drawFork,
   fillText,
   findCard,
   mulberry32,

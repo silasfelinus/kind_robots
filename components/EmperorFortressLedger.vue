@@ -8,6 +8,9 @@
         {{ run.brass }} brass in the treasury. Taxes come in at dawn and wages
         go out; the map room shows who pays.
       </p>
+      <p class="mt-1 font-semibold">
+        Taxes +{{ dailyTaxes(run) }} · wages −{{ WAGE * bedsUsed(run) }} a day
+      </p>
     </div>
     <div
       v-for="faction in LOCAL_FACTION_DEFS"
@@ -49,6 +52,11 @@ import {
   LOCAL_MAX,
 } from '~/utils/emperorOfDust/fortress/factions'
 import { LOCAL_FACTION_ICONS } from '~/utils/emperorOfDust/fortress/rooms'
+import {
+  WAGE,
+  bedsUsed,
+  dailyTaxes,
+} from '~/utils/emperorOfDust/fortress/engine'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 // The court ledger the header toggle opens: the day, the treasury and every

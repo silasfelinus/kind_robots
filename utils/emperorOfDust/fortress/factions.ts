@@ -245,3 +245,44 @@ export const affinityTier = (value: number): AffinityTier => {
 
 export const LOCAL_START = 10
 export const LOCAL_MAX = 30
+
+/**
+ * The share of a region's tax rate each affinity tier pays the throne: Wary
+ * and Hostile holders withhold, Neutral and Friendly pay the rate, and an
+ * Allied holder adds half again as a tithe (rounded up).
+ */
+export const TIER_TAX_SHARE: Record<AffinityTier, number> = {
+  hostile: 0,
+  wary: 0,
+  neutral: 1,
+  friendly: 1,
+  allied: 1.5,
+}
+
+/** Tax a region pays the throne when its holder stands at `tier`. */
+export const taxAtTier = (rate: number, tier: AffinityTier): number =>
+  Math.ceil(rate * TIER_TAX_SHARE[tier])
+
+/**
+ * Act-end dawns: the map changes when Days 10, 20, 30 and 40 end, so the
+ * changes land on the dawns of Days 11, 21, 31 and 41.
+ */
+export const ACT_END_DAWNS = [11, 21, 31, 41] as const
+
+/** At or below this strength at an act end, a faction is warned it may fall. */
+export const PERIL_STRENGTH = 2
+
+/** A rival this much stronger at an act end is warned it may take land. */
+export const RAID_GAP = 3
+
+/** Neighbours at war. At an act end the stronger may take the weaker's land. */
+export const RIVALRIES: readonly (readonly [
+  KingdomFactionId,
+  KingdomFactionId,
+])[] = [
+  ['jackalwire', 'freeholds'],
+  ['moles', 'mire-mothers'],
+  ['storm-crows', 'mire-mothers'],
+  ['rustline', 'saltroad'],
+  ['black-verge', 'abbey'],
+]

@@ -1,6 +1,6 @@
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, questDef } from './content'
-import { rerollDawn } from './engine'
+import { rerollDawn, validMapState } from './engine'
 import { KINGDOM_FACTIONS, LOCAL_FACTIONS } from './types'
 import type { Codex, FortressRun } from './types'
 
@@ -101,7 +101,8 @@ export const validateRun = (value: unknown): value is FortressRun => {
       (!object(run.talkOpen) ||
         !text(run.talkOpen.id, 80) ||
         (run.talkOpen.beat !== undefined && !text(run.talkOpen.beat, 80)))) ||
-    (run.market !== undefined && !validMarket(run.market))
+    (run.market !== undefined && !validMarket(run.market)) ||
+    !validMapState(run)
   )
     return false
   const day = run.day as number

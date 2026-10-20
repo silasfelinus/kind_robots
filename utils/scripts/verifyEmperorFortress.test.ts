@@ -33,6 +33,7 @@ import {
   audienceScene,
   audiencesToday,
   bedsUsed,
+  briefingMapLine,
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
@@ -45,16 +46,20 @@ import {
   forecastMark,
   injuryDaysLeft,
   isOver,
+  mapWarnings,
   optionBlockers,
   optionVisible,
   partyLimit,
   postDawnQuests,
   previewQuest,
   recruit,
+  regionHolder,
+  regionTax,
   selectHideout,
   talkFor,
   talkScene,
   talkedToday,
+  threatsFor,
   traitKnown,
   unmetRequirements,
   upgradeBeds,
@@ -89,7 +94,7 @@ import {
   treatFollower,
   treatmentBlocker,
 } from '../emperorOfDust/fortress/market'
-import { REGIONS } from '../emperorOfDust/fortress/factions'
+import { ACT_END_DAWNS, REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { TALKS } from '../emperorOfDust/fortress/talks'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
@@ -552,14 +557,299 @@ assert.ok(
   day11.revealedFactions.includes('rustline'),
   'Rustline revealed after Act I',
 )
+assert.ok(
+  !createRun(77).revealedFactions.includes('black-verge') &&
+    !day11.revealedFactions.includes('black-verge'),
+  'the Black Verge stays fogged through Act I',
+)
+assert.ok(
+  finishDay({ ...day10, day: 20 }).run.revealedFactions.includes('black-verge'),
+  'Black Verge revealed after Act II',
+)
+assert.deepEqual(
+  finishDay(day10).report.map?.filter((e) => e.kind === 'revealed'),
+  [{ day: 11, kind: 'revealed', faction: 'rustline' }],
+  'the Act I dawn shows the Rustline reveal as a map event',
+)
+
+// --- the map: wipe-outs and raids only at act ends, always warned ------------
+// An unwarned faction at zero strength is not wiped at the act end: it is
+// warned there, and falls at the next act end only if nothing changes.
 const doomed: FortressRun = {
   ...day10,
   strength: { ...day10.strength, freeholds: 0 },
 }
+const warnedDawn = finishDay(doomed)
 assert.ok(
-  finishDay(doomed).run.wipedOut.includes('freeholds'),
-  'zero strength is wiped out at act end',
+  !warnedDawn.run.wipedOut.includes('freeholds'),
+  'no wipe-out without a warning an act ahead',
 )
+assert.ok(
+  warnedDawn.run.mapWatch?.some(
+    (t) => t.kind === 'wipe' && t.faction === 'freeholds' && t.dueDay === 21,
+  ),
+  'the act end warns the failing faction for the next act end',
+)
+assert.ok(
+  warnedDawn.report.map?.some(
+    (e) => e.kind === 'warned-wipe' && e.faction === 'freeholds',
+  ),
+  'the warning is in the dawn report',
+)
+const warning = mapWarnings(warnedDawn.run).find(
+  (w) => w.kind === 'wipe' && w.faction === 'freeholds',
+)
+assert.ok(warning, 'the map room shows the live warning')
+assert.equal(warning.daysLeft, 10)
+assert.match(warning.text, /Day 20 map/)
+assert.match(warning.remedy, /Strength 0 of 10\. One point saves them/)
+assert.ok(briefingMapLine(warnedDawn.run), 'the briefing carries the warning')
+// Mid-act, nothing falls, whatever the strength.
+const midAct = finishDay({ ...warnedDawn.run, day: 15, board: [] }).run
+assert.ok(!midAct.wipedOut.includes('freeholds'), 'no wipe-outs mid-act')
+assert.ok(
+  !midAct.mapLog?.some((e) => e.day === 16),
+  'the map is quiet on ordinary dawns',
+)
+// At the act end it was warned for, a faction still at zero falls...
+const fallDawn = finishDay({ ...warnedDawn.run, day: 20, board: [] })
+assert.ok(fallDawn.run.wipedOut.includes('freeholds'), 'warned and fell')
+assert.ok(fallDawn.report.map?.some((e) => e.kind === 'wiped'))
+const freeholdQuest = ACT_FOUR_QUESTS.find((q) => q.faction === 'freeholds')!
+const closed = finishDay({
+  ...warnedDawn.run,
+  day: 20,
+  board: [{ questId: freeholdQuest.id, postedDay: 20, lastDay: 22 }],
+}).run
+assert.ok(
+  !closed.board.some((entry) => entry.questId === freeholdQuest.id),
+  'a wiped faction’s notices come down',
+)
+const freeholdDawn = DAYS.find((def) =>
+  def.quests.some((id) => questDef(id)?.faction === 'freeholds'),
+)!
+const freeholdPosted = freeholdDawn.quests.find(
+  (id) => questDef(id)?.faction === 'freeholds',
+)!
+const wipedDawn: FortressRun = {
+  ...fallDawn.run,
+  day: freeholdDawn.day,
+  board: [],
+  reports: [],
+}
+postDawnQuests(wipedDawn)
+assert.ok(
+  !wipedDawn.board.some((entry) => entry.questId === freeholdPosted),
+  'and no new ones go up',
+)
+assert.equal(
+  regionTax(fallDawn.run, 'east-ford').paid,
+  0,
+  'a wiped faction pays no taxes',
+)
+// ...and one that found a point of strength holds.
+const heldDawn = finishDay({
+  ...warnedDawn.run,
+  day: 20,
+  board: [],
+  strength: { ...warnedDawn.run.strength, freeholds: 1 },
+})
+assert.ok(!heldDawn.run.wipedOut.includes('freeholds'), 'saved in time')
+assert.ok(
+  heldDawn.report.map?.some(
+    (e) => e.kind === 'held' && e.faction === 'freeholds' && !e.region,
+  ),
+)
+// Warnings are honest: only banners on the map, only factions that can fall.
+const fogTest: FortressRun = {
+  ...createRun(5),
+  strength: { ...createRun(5).strength, rustline: 0, 'hollow-bell': 2 },
+}
+assert.ok(
+  !threatsFor(fogTest, 11).some((t) => t.faction === 'rustline'),
+  'no warning for a fogged faction',
+)
+assert.ok(
+  !threatsFor(fogTest, 11).some((t) => t.faction === 'hollow-bell'),
+  'no warning for a faction nothing in the campaign can weaken',
+)
+assert.ok(
+  threatsFor(
+    { ...fogTest, strength: { ...fogTest.strength, 'hollow-bell': 0 } },
+    11,
+  ).some((t) => t.faction === 'hollow-bell'),
+  'a faction already at zero is always warned',
+)
+assert.ok(
+  threatsFor(
+    { ...fogTest, strength: { ...fogTest.strength, freeholds: 2 } },
+    11,
+  ).some((t) => t.kind === 'wipe' && t.faction === 'freeholds'),
+  'a faction that can still lose strength is warned at peril',
+)
+assert.ok(
+  !threatsFor({ ...fogTest, wipedOut: ['freeholds'] }, 11).some(
+    (t) => t.faction === 'freeholds' || t.by === 'freeholds',
+  ),
+  'no warnings for a banner already gone',
+)
+// Raids: a rival RAID_GAP stronger is warned an act ahead, then takes the land
+// only if the gap still stands, and the land's taxes follow the new holder.
+const raidRun: FortressRun = {
+  ...day10,
+  strength: { ...day10.strength, jackalwire: 7, freeholds: 4 },
+}
+const raidWarned = finishDay(raidRun).run
+const raid = raidWarned.mapWatch?.find((t) => t.kind === 'raid')
+assert.deepEqual(
+  raid && [raid.faction, raid.by, raid.region, raid.dueDay],
+  ['freeholds', 'jackalwire', 'east-ford', 21],
+  'the Pack is warned on the Eastern Ford',
+)
+assert.equal(regionHolder(raidWarned, 'east-ford'), 'freeholds')
+const raided = finishDay({ ...raidWarned, day: 20, board: [] })
+assert.equal(regionHolder(raided.run, 'east-ford'), 'jackalwire', 'taken')
+assert.ok(raided.report.map?.some((e) => e.kind === 'taken'))
+assert.equal(
+  regionTax(raided.run, 'east-ford').holder,
+  'jackalwire',
+  'the taken land pays as its new holder stands',
+)
+assert.equal(
+  regionTax(
+    {
+      ...raided.run,
+      affinity: { ...raided.run.affinity, jackalwire: -40 },
+    },
+    'east-ford',
+  ).paid,
+  0,
+  'a Wary holder withholds the taken land',
+)
+const repelled = finishDay({
+  ...raidWarned,
+  day: 20,
+  board: [],
+  strength: { ...raidWarned.strength, jackalwire: 6, freeholds: 4 },
+})
+assert.equal(
+  regionHolder(repelled.run, 'east-ford'),
+  'freeholds',
+  'closing the gap holds the land',
+)
+// An unwarned gap takes nothing at the act end.
+const unwarned = finishDay({
+  ...raidRun,
+  day: 20,
+  board: [],
+  strength: { ...raidRun.strength, freeholds: 1 },
+}).run
+assert.equal(regionHolder(unwarned, 'east-ford'), 'freeholds')
+// Taxes by tier: Wary and Hostile withhold, Neutral and Friendly pay the rate,
+// Allied adds half again.
+const taxRun = createRun(3)
+for (const [value, paid] of [
+  [-80, 0],
+  [-40, 0],
+  [0, 6],
+  [30, 6],
+  [70, 9],
+] as const)
+  assert.equal(
+    regionTax(
+      { ...taxRun, affinity: { ...taxRun.affinity, saltroad: value } },
+      'saltroad',
+    ).paid,
+    paid,
+    `Saltroad tax at affinity ${value}`,
+  )
+assert.equal(
+  dailyTaxes(taxRun),
+  REGIONS.reduce((sum, region) => sum + regionTax(taxRun, region.id).paid, 0),
+  'the treasury collects exactly what the map room lists',
+)
+// Saves keep the map and refuse a corrupt one.
+assert.ok(validateRun(raided.run), 'a run with map history validates')
+assert.ok(
+  !validateRun({ ...raided.run, controllers: { 'east-ford': 'nobody' } }),
+  'an unknown holder is refused',
+)
+assert.ok(
+  !validateRun({
+    ...raided.run,
+    mapLog: [{ day: 11, kind: 'nonsense', faction: 'freeholds' }],
+  } as unknown as FortressRun),
+  'an unknown map event is refused',
+)
+// Whole campaigns: every wipe-out and every taken region was warned at the
+// act end before, every map change lands on an act-end dawn, and reveals
+// keep to schedule.
+const campaignKinds = new Set<string>()
+for (const [seed, pick] of [
+  [1, 0],
+  [2, 0],
+  [3, -1],
+  [4, -1],
+] as const) {
+  let run = createRun(seed)
+  while (!isOver(run)) {
+    for (const audience of audiencesToday(run))
+      for (let beat = 0; beat < 8; beat += 1) {
+        if (run.audiencesHeard.includes(audience.id)) break
+        const open = audienceScene(run, audience).options.filter(
+          (option) => optionBlockers(run, option).length === 0,
+        )
+        const option = open.at(pick)
+        if (!option) break
+        run = chooseAudienceOption(run, audience.id, option.id).run
+      }
+    const dawn = finishDay(run)
+    run = dawn.run
+    assert.deepEqual(
+      dawn.report.map ?? [],
+      (run.mapLog ?? []).filter((e) => e.day === run.day),
+      'the dawn shows exactly the day’s map events',
+    )
+  }
+  const log = run.mapLog ?? []
+  for (const event of log) {
+    if (event.kind !== 'revealed')
+      assert.ok(
+        (ACT_END_DAWNS as readonly number[]).includes(event.day),
+        `${event.kind} on an act-end dawn (${event.day})`,
+      )
+    if (event.kind === 'wiped' || event.kind === 'taken')
+      assert.ok(
+        log.some(
+          (warned) =>
+            warned.day === event.day - 10 &&
+            warned.faction === event.faction &&
+            warned.kind ===
+              (event.kind === 'wiped' ? 'warned-wipe' : 'warned-raid'),
+        ),
+        `${event.kind} ${event.faction} on ${event.day} was warned an act ahead`,
+      )
+  }
+  assert.deepEqual(
+    log.filter((e) => e.kind === 'revealed').map((e) => [e.faction, e.day]),
+    [
+      ['rustline', 11],
+      ['black-verge', 21],
+    ],
+    'reveals on schedule',
+  )
+  assert.deepEqual(
+    [...run.wipedOut].sort(),
+    log
+      .filter((e) => e.kind === 'wiped')
+      .map((e) => e.faction)
+      .sort(),
+    'every wipe-out is in the map log',
+  )
+  for (const event of log) campaignKinds.add(event.kind)
+}
+for (const kind of ['wiped', 'taken', 'held', 'warned-wipe', 'warned-raid'])
+  assert.ok(campaignKinds.has(kind), `a neglected court sees ${kind}`)
 const day40: FortressRun = { ...createRun(77), day: 40, board: [], reports: [] }
 const fled = finishDay(day40).run
 assert.ok(fled.flags.includes('komodo-betrayal'))

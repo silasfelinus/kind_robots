@@ -1,10 +1,21 @@
 <template>
   <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
-    <section class="@container kr-panel p-4">
+    <section class="@container kr-panel self-start p-4 @4xl:sticky @4xl:top-0">
       <div class="flex flex-wrap items-center justify-between gap-2">
         <h2 class="sr-only">The map room</h2>
-        <span class="text-sm font-bold text-warning">
+        <span
+          class="tooltip tooltip-bottom tooltip-warning text-sm font-bold text-warning"
+          :data-tip="`Collected every dawn from the land of Neutral, Friendly and Allied holders. Wages are ${wages} a day.`"
+        >
           {{ dailyTaxes(run) }} brass a day in taxes
+        </span>
+        <span
+          v-if="nextMap"
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
+        >
+          The Day {{ nextMap - 1 }} map · {{ nextMap - run.day }} day{{
+            nextMap - run.day === 1 ? '' : 's'
+          }}
         </span>
       </div>
       <figure
@@ -23,25 +34,66 @@
           :class="[
             focused === region.id
               ? 'border-warning ring-2 ring-warning'
-              : 'border-base-content/30',
+              : region.threatened
+                ? 'border-error ring-2 ring-error/70'
+                : 'border-base-content/30',
             region.wiped ? 'line-through opacity-60' : '',
           ]"
           :style="{ left: region.x + '%', top: region.y + '%' }"
           :aria-label="markerLabel(region)"
           :title="markerLabel(region)"
           :aria-pressed="focused === region.id"
-          @click="focused = focused === region.id ? null : region.id"
+          @click="focus(region.id)"
         >
           <span
             class="h-2 w-2 shrink-0 rounded-full"
             :class="tierDot(region.tier, region.wiped)"
             aria-hidden="true"
           />
+          <span
+            v-if="region.threatened"
+            class="font-bold text-error"
+            aria-hidden="true"
+            >!</span
+          >
         </button>
       </figure>
     </section>
 
     <section class="space-y-3">
+      <div
+        v-if="warnings.length"
+        class="kr-panel border-error/50 p-4"
+        aria-label="Warnings for the next map"
+      >
+        <h3 class="font-serif text-xl font-bold text-error">
+          Before the Day {{ warnings[0]!.dueDay - 1 }} map
+        </h3>
+        <ul class="mt-2 space-y-2">
+          <li
+            v-for="warning in warnings"
+            :key="warning.kind + warning.faction + (warning.region ?? '')"
+            class="rounded-md border border-error/30 bg-error/5 p-2 text-sm"
+          >
+            <button
+              type="button"
+              class="block w-full text-left"
+              @click="focus(warning.region ?? homeOf(warning.faction))"
+            >
+              <strong class="block font-serif text-base">{{
+                warning.title
+              }}</strong>
+              <span class="block font-serif italic leading-snug">{{
+                warning.text
+              }}</span>
+              <span class="mt-1 block text-xs font-semibold text-warning">{{
+                warning.remedy
+              }}</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
       <div class="kr-panel p-3">
         <h3 class="font-serif text-xl font-bold">The kingdom</h3>
         <ul
@@ -51,43 +103,153 @@
           <li
             v-for="region in regions"
             :key="region.id"
-            class="flex flex-col items-center gap-1 text-center"
             :class="focused === region.id ? 'eod-banner-focused' : ''"
           >
-            <span
-              class="eod-banner grid h-20 w-14 place-items-center pb-3 font-serif text-xl font-bold"
-              :class="
-                region.fogged
-                  ? 'eod-banner-fog'
-                  : region.wiped
-                    ? 'eod-banner-gone'
-                    : bannerClass(region.tier)
-              "
-              aria-hidden="true"
-              >{{ region.fogged ? '?' : region.name.charAt(0) }}</span
+            <button
+              type="button"
+              class="flex w-full flex-col items-center gap-1 text-center"
+              :title="region.fogged ? 'Unmapped land' : markerLabel(region)"
+              :aria-pressed="focused === region.id"
+              :disabled="region.fogged"
+              @click="focus(region.id)"
             >
-            <template v-if="region.fogged">
-              <strong class="text-[11px] leading-tight">Unmapped</strong>
-              <span class="text-[10px] uppercase tracking-wider opacity-60"
-                >Fog</span
-              >
-            </template>
-            <template v-else>
-              <strong class="text-[11px] leading-tight">{{
-                region.name
-              }}</strong>
               <span
-                class="text-[10px] font-bold uppercase tracking-wider"
-                :class="region.wiped ? 'opacity-60' : tierClass(region.tier)"
-                >{{ region.wiped ? 'Gone' : region.tier }}</span
+                class="eod-banner relative grid h-20 w-14 place-items-center pb-3 font-serif text-xl font-bold"
+                :class="
+                  region.fogged
+                    ? 'eod-banner-fog'
+                    : region.wiped
+                      ? 'eod-banner-gone'
+                      : bannerClass(region.tier)
+                "
+                aria-hidden="true"
+                >{{ region.fogged ? '?' : region.initial }}</span
               >
-              <span v-if="!region.wiped" class="text-[10px] opacity-70">
-                {{ region.paying ? '+' : '−' }}{{ region.tax }} brass
-              </span>
-            </template>
+              <template v-if="region.fogged">
+                <strong class="text-[11px] leading-tight">Unmapped</strong>
+                <span class="text-[10px] uppercase tracking-wider opacity-60"
+                  >Fog</span
+                >
+              </template>
+              <template v-else>
+                <strong class="text-[11px] leading-tight">{{
+                  region.name
+                }}</strong>
+                <span
+                  class="text-[10px] font-bold uppercase tracking-wider"
+                  :class="region.wiped ? 'opacity-60' : tierClass(region.tier)"
+                  >{{ region.wiped ? 'Gone' : region.tier }}</span
+                >
+                <span
+                  v-if="!region.wiped"
+                  class="text-[10px]"
+                  :class="region.paid ? 'opacity-80' : 'text-error'"
+                >
+                  {{ region.paid ? `+${region.paid}` : `−${region.tax}` }}
+                  brass
+                </span>
+                <span
+                  v-if="region.taken"
+                  class="text-[10px] italic text-warning"
+                  >{{ region.holderName }}</span
+                >
+                <span
+                  v-if="region.threatened"
+                  class="text-[10px] font-bold uppercase text-error"
+                  >Warned</span
+                >
+              </template>
+            </button>
           </li>
         </ul>
       </div>
+
+      <div v-if="focusedRegion" class="kr-panel overflow-hidden p-0 text-sm">
+        <div
+          class="relative h-28 bg-base-300"
+          :style="regionCropStyle(focusedRegion.id)"
+          role="img"
+          :aria-label="`The painted map around ${focusedRegion.name}`"
+        >
+          <span
+            class="eod-display absolute bottom-2 left-3 rounded bg-black/60 px-2 py-0.5 text-base text-amber-50"
+            >{{ focusedRegion.name }}</span
+          >
+        </div>
+        <div class="space-y-2 p-3">
+          <p v-if="focusedRegion.wiped">
+            Its banner is gone from the map. This land pays nobody now.
+          </p>
+          <template v-else>
+            <p>
+              Held by <strong>{{ focusedRegion.holderName }}</strong
+              ><span v-if="focusedRegion.taken"
+                >, taken from {{ focusedRegion.firstName }}</span
+              >. With the throne:
+              <strong
+                class="capitalize"
+                :class="tierClass(focusedRegion.tier)"
+                >{{ focusedRegion.tier }}</strong
+              >.
+            </p>
+            <ul class="grid grid-cols-5 gap-1 text-center text-[10px]">
+              <li
+                v-for="entry in LEGEND"
+                :key="entry.tier"
+                class="tooltip rounded border px-1 py-1"
+                :class="
+                  entry.tier === focusedRegion.tier
+                    ? 'border-warning bg-warning/15 font-bold'
+                    : 'border-base-content/15 opacity-70'
+                "
+                :data-tip="`${entry.tier}: ${entry.text}`"
+              >
+                <span class="block capitalize">{{ entry.tier }}</span>
+                <span class="block text-xs">{{
+                  taxAtTier(focusedRegion.tax, entry.tier)
+                }}</span>
+              </li>
+            </ul>
+            <p class="text-xs opacity-75">
+              Rate {{ focusedRegion.tax }} brass a day. At
+              {{ focusedRegion.tier }} it pays {{ focusedRegion.paid }}.
+            </p>
+          </template>
+          <p
+            v-for="warning in focusedWarnings"
+            :key="warning.kind + warning.faction"
+            class="text-xs font-semibold text-error"
+          >
+            {{ warning.title }}. {{ warning.remedy }}
+          </p>
+        </div>
+      </div>
+
+      <div v-if="history.length" class="kr-panel p-4 text-sm">
+        <h3 class="font-serif text-xl font-bold">What changed</h3>
+        <section v-for="act in history" :key="act.day" class="mt-2">
+          <h4
+            class="text-[10px] font-semibold uppercase tracking-[0.2em] text-warning"
+          >
+            {{ act.label }}
+          </h4>
+          <ul class="mt-1 space-y-1">
+            <li
+              v-for="(entry, i) in act.events"
+              :key="i"
+              class="border-l-2 pl-2"
+              :class="
+                entry.warning
+                  ? 'border-error/40 text-xs opacity-75'
+                  : 'border-warning/60'
+              "
+            >
+              <strong>{{ entry.title }}.</strong> {{ entry.text }}
+            </li>
+          </ul>
+        </section>
+      </div>
+
       <div class="kr-panel p-4 text-sm">
         <h3 class="font-serif text-xl font-bold">Kingdom ledgers</h3>
         <p class="text-xs italic opacity-75">
@@ -142,44 +304,112 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { dailyTaxes } from '~/utils/emperorOfDust/fortress/engine'
 import {
-  KINGDOM_FACTION_DEFS,
+  WAGE,
+  bedsUsed,
+  dailyTaxes,
+  factionName,
+  mapEventText,
+  mapWarnings,
+  nextActEnd,
+  regionHolder,
+  regionTax,
+} from '~/utils/emperorOfDust/fortress/engine'
+import {
   LOCAL_FACTION_DEFS,
   LOCAL_MAX,
   REGIONS,
-  affinityTier,
+  taxAtTier,
 } from '~/utils/emperorOfDust/fortress/factions'
+import { regionCropStyle } from '~/utils/emperorOfDust/fortress/questArt'
 import type {
   AffinityTier,
   FortressRun,
+  KingdomFactionId,
 } from '~/utils/emperorOfDust/fortress/types'
 
 const props = defineProps<{ run: FortressRun }>()
 
+const warnings = computed(() => mapWarnings(props.run))
+const nextMap = computed(() =>
+  props.run.day <= 40 ? nextActEnd(props.run.day) : undefined,
+)
+const wages = computed(() => WAGE * bedsUsed(props.run))
+
 const regions = computed(() =>
   REGIONS.map((region) => {
-    const tier = affinityTier(props.run.affinity[region.controller])
-    const wiped = props.run.wipedOut.includes(region.controller)
+    const holder = regionHolder(props.run, region.id) ?? region.controller
+    const { tier = 'neutral', paid } = regionTax(props.run, region.id)
+    const wiped = props.run.wipedOut.includes(holder)
     return {
       ...region,
-      tier,
+      holder,
+      tier: tier as AffinityTier,
+      paid,
       wiped,
-      fogged: !props.run.revealedFactions.includes(region.controller),
-      paying: !wiped && ['neutral', 'friendly', 'allied'].includes(tier),
-      factionName:
-        KINGDOM_FACTION_DEFS.find((def) => def.id === region.controller)
-          ?.name ?? region.controller,
+      taken: holder !== region.controller,
+      fogged: !props.run.revealedFactions.includes(holder),
+      holderName: factionName(holder),
+      initial: factionName(holder).replace(/^The /, '').charAt(0),
+      firstName: factionName(region.controller),
+      threatened: warnings.value.some(
+        (warning) =>
+          warning.region === region.id ||
+          (warning.kind === 'wipe' && warning.faction === holder),
+      ),
     }
   }),
 )
 
+const homeOf = (faction: KingdomFactionId) =>
+  regions.value.find((region) => region.holder === faction)?.id ??
+  REGIONS.find((region) => region.controller === faction)?.id ??
+  ''
+
 const focused = ref<string | null>(null)
+const focus = (id: string) => {
+  focused.value = focused.value === id ? null : id
+}
 const mapped = computed(() => regions.value.filter((region) => !region.fogged))
+const focusedRegion = computed(() =>
+  regions.value.find((region) => region.id === focused.value && !region.fogged),
+)
+const focusedWarnings = computed(() =>
+  warnings.value.filter(
+    (warning) =>
+      warning.region === focused.value ||
+      (warning.kind === 'wipe' &&
+        warning.faction === focusedRegion.value?.holder),
+  ),
+)
+
+const ACT_NAMES = ['', 'Act I', 'Act II', 'Act III', 'Act IV']
+const history = computed(() => {
+  const acts = new Map<
+    number,
+    { title: string; text: string; warning: boolean }[]
+  >()
+  for (const event of props.run.mapLog ?? []) {
+    const list = acts.get(event.day) ?? []
+    list.push({
+      ...mapEventText(event),
+      warning: event.kind.startsWith('warned'),
+    })
+    acts.set(event.day, list)
+  }
+  return [...acts.entries()]
+    .sort(([a], [b]) => b - a)
+    .map(([day, events]) => ({
+      day,
+      label: `End of ${ACT_NAMES[Math.floor((day - 1) / 10)] ?? 'the act'} · Dawn of Day ${day}`,
+      events,
+    }))
+})
+
 const markerLabel = (region: (typeof regions.value)[number]) =>
   region.wiped
     ? `${region.name}: gone from the map`
-    : `${region.name}: ${region.tier}, ${region.paying ? 'pays' : 'withholds'} ${region.tax} brass`
+    : `${region.name}: held by ${region.holderName}, ${region.tier}. Rate ${region.tax}; ${region.paid ? `pays ${region.paid}` : 'withholds'} brass a day`
 const tierDot = (tier: AffinityTier, wiped: boolean) =>
   wiped
     ? 'bg-base-content/40'
@@ -192,11 +422,11 @@ const tierDot = (tier: AffinityTier, wiped: boolean) =>
       }[tier]
 
 const LEGEND: { tier: AffinityTier; text: string }[] = [
-  { tier: 'allied', text: 'pays taxes and sends help' },
-  { tier: 'friendly', text: 'pays taxes' },
-  { tier: 'neutral', text: 'pays, and watches' },
+  { tier: 'allied', text: 'pays the rate and half again in tithe' },
+  { tier: 'friendly', text: 'pays the full rate' },
+  { tier: 'neutral', text: 'pays the full rate, and watches' },
   { tier: 'wary', text: 'withholds taxes' },
-  { tier: 'hostile', text: 'withholds, and may move against you' },
+  { tier: 'hostile', text: 'withholds taxes; its doors stay shut' },
 ]
 
 const bannerClass = (tier: AffinityTier) =>

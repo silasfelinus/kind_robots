@@ -940,6 +940,14 @@
                 class="absolute left-2 top-2 rounded-full bg-[#09141c]/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider"
                 >Default</span
               >
+              <span
+                v-if="
+                  option.lane &&
+                  !styleHasRender(option.id, ECOTONE_STYLE_SAMPLE)
+                "
+                class="absolute bottom-2 right-2 rounded-full bg-[#09141c]/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-[#d9b877]"
+                >Renders in progress</span
+              >
             </span>
             <span class="block p-3">
               <span
@@ -955,6 +963,11 @@
               <span class="block text-xs text-[#f3e6c8]/70">{{
                 option.blurb
               }}</span>
+              <span
+                v-if="option.checkpoint"
+                class="mt-1 block text-[10px] font-bold uppercase tracking-wider text-[#c9a96e]/80"
+                >{{ option.checkpoint }}</span
+              >
             </span>
           </button>
         </div>
@@ -1018,6 +1031,7 @@ import {
   ecotoneArtSrc,
   loadEcotoneArtStyle,
   saveEcotoneArtStyle,
+  styleHasRender,
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 

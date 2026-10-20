@@ -41,7 +41,7 @@ const homesteadCards = V6_CARDS.filter((card) =>
 )
 assert.equal(homesteadCards.length, 24, 'both Homestead deck generations')
 for (const card of homesteadCards) {
-  assert.match(card.flavor, /\\b(you|your)\\b/i, `${card.id} speaks to the player`)
+  assert.match(card.flavor, /\b(you|your)\b/i, `${card.id} speaks to the player`)
   for (const choice of card.choices) {
     assert.ok(choice.risk.length >= 20, `${card.id}: risk stays readable`)
     assert.ok(choice.success.text.length >= 40, `${card.id}: success is authored`)

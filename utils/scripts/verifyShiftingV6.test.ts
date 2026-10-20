@@ -41,27 +41,35 @@ const homesteadCards = V6_CARDS.filter((card) =>
 )
 assert.equal(homesteadCards.length, 24, 'both Homestead deck generations')
 assert.ok(
-  homesteadCards.filter((card) => /\b(you|your)\b/i.test(card.flavor))
-    .length >= 12,
+  homesteadCards.filter((card) => /\b(you|your)\b/i.test(card.flavor)).length >=
+    12,
   'the reader remains directly addressed in the Homestead',
 )
 for (const card of homesteadCards) {
   for (const choice of card.choices) {
     assert.ok(choice.risk.length >= 20, `${card.id}: risk stays readable`)
-    assert.ok(choice.success.text.length >= 40, `${card.id}: success is authored`)
+    assert.ok(
+      choice.success.text.length >= 40,
+      `${card.id}: success is authored`,
+    )
     if (choice.failure)
-      assert.ok(choice.failure.text.length >= 40, `${card.id}: failure is authored`)
+      assert.ok(
+        choice.failure.text.length >= 40,
+        `${card.id}: failure is authored`,
+      )
   }
 }
 assert.match(
-  homesteadCards.find((card) => card.id === 'the-last-seed')!
+  homesteadCards
+    .find((card) => card.id === 'the-last-seed')!
     .choices.find((choice) => choice.id === 'shield-shoot')!.success.text,
   /food she had saved for planting week/,
   'seed sacrifice has a visible cost rather than an arbitrary treasure find',
 )
 assert.match(
-  LATER_LAND_PACK.encounters.find((card) => card.id === 'three-cups-on-the-table')!
-    .flavor,
+  LATER_LAND_PACK.encounters.find(
+    (card) => card.id === 'three-cups-on-the-table',
+  )!.flavor,
   /three cups of broth/,
   'the Three Cups prose names its visible, countable props',
 )

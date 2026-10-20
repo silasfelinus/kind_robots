@@ -4,6 +4,7 @@ import {
   assignQuest,
   buyItem,
   chooseAudienceOption,
+  chooseTalkOption,
   createRun,
   earnFlag,
   equipItem,
@@ -254,6 +255,15 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     persist()
   }
 
+  /** Answers a barracks talk; returns the beat it moves on to, if it goes on. */
+  function talk(talkId: string, optionId: string): string | undefined {
+    const result = chooseTalkOption(current(), talkId, optionId)
+    lastResponse.value = result.response
+    commit(result.run)
+    absorbAllegiances()
+    return result.next
+  }
+
   /** Answers the audience; returns the beat it moves on to, if it goes on. */
   function answer(audienceId: string, optionId: string): string | undefined {
     const result = chooseAudienceOption(current(), audienceId, optionId)
@@ -389,6 +399,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     load,
     newRun,
     answer,
+    talk,
     preview,
     assign,
     withdraw,

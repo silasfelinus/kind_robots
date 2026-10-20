@@ -36,8 +36,10 @@ import type {
   Requirement,
   SceneLine,
   Stat,
+  TalkDef,
   TraitDef,
 } from './types'
+import { TALKS } from './talks'
 
 export const START_BRASS = 120
 export const WAGE = 4
@@ -453,6 +455,102 @@ export const chooseAudienceOption = (
   }
   if (Object.keys(beats).length) next.audienceBeats = beats
   else delete next.audienceBeats
+  return { run: next, response: option.response, next: nextBeat?.id }
+}
+
+// --- barracks talks ---------------------------------------------------------
+
+export const talkDef = (id: string): TalkDef | undefined =>
+  TALKS.find((talk) => talk.id === id)
+
+/** True once today's conversation has been had (or is still going). */
+export const talkedToday = (run: FortressRun): boolean =>
+  run.talkDay === run.day && !run.talkOpen
+
+/**
+ * The talk a follower has for the emperor today: their earliest unheard talk
+ * whose day has come and whose requirements hold. Followers away on a quest
+ * or in the memorial row have nothing to say; the injured still talk.
+ */
+export const talkFor = (
+  run: FortressRun,
+  followerId: string,
+): TalkDef | undefined => {
+  if (run.talkOpen) {
+    const open = talkDef(run.talkOpen.id)
+    return open?.follower === followerId ? open : undefined
+  }
+  const status = followerStatus(run, followerId)
+  if (status !== 'ready' && status !== 'injured') return undefined
+  return TALKS.find(
+    (talk) =>
+      talk.follower === followerId &&
+      talk.fromDay <= run.day &&
+      !(run.talksHeard ?? []).includes(talk.id) &&
+      unmetRequirements(run, talk.requires).length === 0,
+  )
+}
+
+export const talkScene = (run: FortressRun, talk: TalkDef): AudienceScene => {
+  const beatId = run.talkOpen?.id === talk.id ? run.talkOpen.beat : undefined
+  const beat = beatId
+    ? talk.beats?.find((entry) => entry.id === beatId)
+    : undefined
+  const speaker = followerDef(talk.follower)?.name ?? talk.follower
+  if (!beat)
+    return {
+      speaker,
+      npc: talk.follower,
+      lines: talk.lines,
+      options: talk.options,
+    }
+  return {
+    beatId: beat.id,
+    speaker: beat.speaker ?? speaker,
+    npc: beat.npc ?? (beat.speaker ? undefined : talk.follower),
+    lines: beat.lines,
+    options: beat.options,
+  }
+}
+
+/**
+ * Answers a barracks talk. Like an audience, answers with `next` lead on and
+ * every answer applies at once; the closing answer marks the talk heard and
+ * leaves `heard:<talkId>` for later talks and audiences to read.
+ */
+export const chooseTalkOption = (
+  run: FortressRun,
+  talkId: string,
+  optionId: string,
+): { run: FortressRun; response: string; next?: string } => {
+  if (isOver(run)) throw new Error('the campaign is over')
+  const talk = talkDef(talkId)
+  if (!talk || talkFor(run, talk.follower)?.id !== talkId)
+    throw new Error('that conversation is not open today')
+  if (talkedToday(run))
+    throw new Error('the emperor has already sat with someone today')
+  const option = talkScene(run, talk).options.find(
+    (entry) => entry.id === optionId,
+  )
+  if (!option) throw new Error(`unknown option: ${optionId}`)
+  const blockers = optionBlockers(run, option)
+  if (blockers.length) throw new Error(blockers.join('; '))
+  const nextBeat = option.next
+    ? talk.beats?.find((entry) => entry.id === option.next)
+    : undefined
+  if (option.next && !nextBeat) throw new Error(`unknown beat: ${option.next}`)
+  const next = cloneRun(run)
+  next.brass -= option.requires?.cost ?? 0
+  applyEffects(next, option.effects)
+  next.flags.push(`talk:${talkId}:${optionId}`)
+  next.talkDay = next.day
+  if (nextBeat) {
+    next.talkOpen = { id: talkId, beat: nextBeat.id }
+  } else {
+    delete next.talkOpen
+    next.talksHeard = [...(next.talksHeard ?? []), talkId]
+    next.flags.push(`heard:${talkId}`)
+  }
   return { run: next, response: option.response, next: nextBeat?.id }
 }
 
@@ -1113,6 +1211,12 @@ export const finishDay = (
   next.audiencesHeard = []
   // A scene left half-way closes with the day; nothing it chose is undone.
   delete next.audienceBeats
+  if (next.talkOpen) {
+    // So does a talk, which then counts as heard: its answers already stand.
+    next.talksHeard = [...(next.talksHeard ?? []), next.talkOpen.id]
+    next.flags.push(`heard:${next.talkOpen.id}`)
+    delete next.talkOpen
+  }
   const quests: QuestReport[] = []
   const knownNow = [...known]
   for (const active of next.active.filter(

@@ -53,6 +53,7 @@ import {
 } from '../ecotone/engine'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
+import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
 import { REGIONAL_CALLBACKS } from '../ecotone/regionalCallbacks'
 import { earnedQuestCallbacks } from '../ecotone/finaleExpansion'
 import {
@@ -151,6 +152,66 @@ assert.equal(
 )
 assert.equal(new Set(canonical.map((c) => c.id)).size, 120)
 assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
+assert.equal(Object.keys(REGIONAL_REVISIONS).length, 13)
+const secondDraftLensCards = [
+  'WH-014',
+  'WH-026',
+  'WH-052',
+  'WH-074',
+  'WH-094',
+  'WH-114',
+]
+for (const [id, revision] of Object.entries(REGIONAL_REVISIONS)) {
+  const card = findCard(id)
+  assert.ok(card, `${id} second draft preserves the original encounter`)
+  assert.equal(
+    card.choices.length,
+    2 + revision.choices.length,
+    `${id} adds a genuine alternative rather than replacing a base choice`,
+  )
+  assert.ok(card.choices.length <= 4)
+  for (const added of revision.choices) {
+    assert.ok(
+      card.choices.some((choice) => choice.id === added.id),
+      `${id}/${added.id} is playable`,
+    )
+    assert.ok(added.success.effects.flag, `${id}/${added.id} is remembered`)
+    if (added.check)
+      assert.ok(
+        added.failure?.text && added.failure.effects.flag,
+        `${id}/${added.id} has an authored, remembered failure`,
+      )
+  }
+}
+for (const id of secondDraftLensCards) {
+  const lines = findCard(id)?.lensLines
+  for (const lens of openLenses)
+    assert.ok(
+      lines?.[lens] && lines[lens]!.length > 42,
+      `${id} has a concise, meaningful scene aside for ${lens}`,
+    )
+  assert.equal(
+    new Set(openLenses.map((lens) => lines?.[lens])).size,
+    openLenses.length,
+    `${id} seven focalizations are individually authored`,
+  )
+}
+assert.match(
+  cardAsides(findCard('WH-115')!, {
+    ...createRun(18, 'reporter'),
+    flags: ['wh_052_buoy_contract'],
+  }).join(' '),
+  /laminated copy of the buoy contract/,
+  'the later ballot remembers the earlier labor bargain',
+)
+assert.match(
+  cardAsides(findCard('WH-120')!, {
+    ...createRun(18, 'reporter'),
+    flags: ['wh_114_waterline_warning'],
+  }).join(' '),
+  /bright waterline tape/,
+  'the county future remembers the earlier warning',
+)
 for (const card of canonical) {
   assert.ok(
     card.body.length >= 2,
@@ -212,10 +273,18 @@ assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
 assert.equal(
   REGIONAL_CALLBACKS.length,
-  20,
-  'twenty precise optional regional payoffs',
+  26,
+  'twenty-six precise optional regional payoffs',
 )
 for (const callback of REGIONAL_CALLBACKS) {
+  assert.ok(
+    findCard(callback.id)?.choices.some(
+      (choice) =>
+        choice.success.effects.flag === callback.flag ||
+        choice.failure?.effects.flag === callback.flag,
+    ),
+    `${callback.id}/${callback.choice} is tied to a real outcome flag`,
+  )
   assert.ok(
     earnedQuestCallbacks([callback.flag], [callback.id]).includes(
       callback.text,

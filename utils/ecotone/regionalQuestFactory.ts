@@ -1,4 +1,5 @@
 import type { EncounterCard, SceneKind, SkillId } from './content'
+import { REGIONAL_REVISIONS } from './regionalSecondDraft'
 import arcata from './regionalData/chapter01.json'
 import coast from './regionalData/chapter02.json'
 import bay from './regionalData/chapter03.json'
@@ -48,6 +49,7 @@ const CHECK_SKILLS: SkillId[] = [
 export const REGIONAL_QUESTS: EncounterCard[] = REGIONAL_SCRIPTS.map(
   (script) => {
     const id = script.id.toLowerCase().replaceAll('-', '_')
+    const revision = REGIONAL_REVISIONS[script.id]
     return {
       id: script.id,
       kind: 'encounter',
@@ -56,6 +58,8 @@ export const REGIONAL_QUESTS: EncounterCard[] = REGIONAL_SCRIPTS.map(
       title: script.title,
       scene: script.scene,
       body: [script.premise, script.pressure],
+      ...(revision?.lensLines ? { lensLines: revision.lensLines } : {}),
+      ...(revision?.flagLines ? { flagLines: revision.flagLines } : {}),
       choices: [
         {
           id: 'investigate',
@@ -84,6 +88,7 @@ export const REGIONAL_QUESTS: EncounterCard[] = REGIONAL_SCRIPTS.map(
             effects: { goodwill: 1, flag: `${id}_care` },
           },
         },
+        ...(revision?.choices ?? []),
       ],
       provenance:
         'Regional place context follows the Ecotone seed atlas. All characters, dialogue, documents and impossible phenomena in this card are fictional; no public organization is claimed to have participated.',

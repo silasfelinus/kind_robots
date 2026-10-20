@@ -90,7 +90,11 @@
         <icon name="kind-icon:image" class="kr-icon-primary-12" />
         <p class="kr-text-black-lg mt-2 text-base-content">No images here.</p>
         <p class="text-sm">
-          {{ range === 'recent' ? 'No images from the last seven days match these filters.' : 'No art matches the current filters.' }}
+          {{
+            range === 'recent'
+              ? 'No images from the last seven days match these filters.'
+              : 'No art matches the current filters.'
+          }}
         </p>
         <button
           v-if="range === 'recent'"

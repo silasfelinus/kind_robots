@@ -351,24 +351,24 @@
 
 **Opening narration:** A homemade contraption claims to be a federally funded research craft.
 
-**Escalation:** A pedal-driven submarine claims a federal research grant, but its crew are three tired mechanics and a child holding a clipboard.
+**Escalation:** A pedal-powered submarine advertises itself as federally funded research. The crew is three sleepless mechanics and a child assigned to keep the clipboard dry. The tide is rising and the craft's hatch can only be opened from outside.
 
-**Option A, investigate (visible 9 check):** Review the grant documentation and hull design
+**Option A, investigate (visible 9 check):** Read the grant paperwork and test the hatch before anybody boards
 
-- **Pass:** The sponsor is a department that will be founded after the next great storm.
-- **Miss:** The submarine leaks before the test; the mechanics record the flaw in good faith.
+- **Pass:** The grant letter carries the seal of a department that will not exist until after a future storm. You log it as a mystery and the hatch as a present-tense problem.
+- **Miss:** Water enters during the unmanned test. The mechanics record the leak without excuses; the child triumphantly writes NO PASSENGERS beside the result.
 
-**Option B, assist without a check:** Organize a safe dockside demonstration
+**Option B, assist without a check:** Move the demonstration ashore and give the child a safe role
 
-- **Result:** Visitors enjoy the invention without sending the child below the waterline.
+- **Result:** The crew pedals the submarine on blocks, to great applause, and posts a list of repairs before its first proper launch. Nobody becomes a research subject.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-053`: A homemade contraption claims to be a federally funded research craft. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-053/2`: A pedal-driven submarine claims a federal research grant, but its crew are three tired mechanics and a child holding a clipboard. The people and location must match the opening.
-- `outcomes/wh-053/investigate-success`: The sponsor is a department that will be founded after the next great storm. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-053/investigate-failure`: The submarine leaks before the test; the mechanics record the flaw in good faith. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-053/care-success`: Visitors enjoy the invention without sending the child below the waterline. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-053/2`: A pedal-powered submarine advertises itself as federally funded research. The crew is three sleepless mechanics and a child assigned to keep the clipboard dry. The tide is rising and the craft's hatch can only be opened from outside. The people and location must match the opening.
+- `outcomes/wh-053/investigate-success`: The grant letter carries the seal of a department that will not exist until after a future storm. You log it as a mystery and the hatch as a present-tense problem. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-053/investigate-failure`: Water enters during the unmanned test. The mechanics record the leak without excuses; the child triumphantly writes NO PASSENGERS beside the result. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-053/care-success`: The crew pedals the submarine on blocks, to great applause, and posts a list of repairs before its first proper launch. Nobody becomes a research subject. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_053_verified`, `wh_053_partial`, `wh_053_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** The person giving animal talks cannot take off their costume.
 
-**Escalation:** A volunteer inside a bear suit delivers exact animal facts, then admits the zipper has been missing for months. The bear now corrects him when he lies.
+**Escalation:** A volunteer in a bear costume is giving a faultless talk about animal habitats. He has not been able to remove the suit in months, and the bear has begun correcting his mistakes in a voice only he can hear. He wants a break more than an audience.
 
-**Option A, investigate (visible 9 check):** Inspect the costume seam without frightening the volunteer
+**Option A, investigate (visible 9 check):** With his permission, examine the seam and ask when the corrections began
 
-- **Pass:** The inner lining bears a zoo inventory label written in a future handwriting.
-- **Miss:** The zipper breaks again; the volunteer laughs despite exhaustion.
+- **Pass:** The lining has an inventory label in handwriting nobody on the staff recognizes, stamped with next year's date. A keeper confirms the costume itself is older than that.
+- **Miss:** The last bit of zipper breaks while you inspect it. The volunteer laughs, then stops. You admit the repair is beyond you and find someone with the right tools.
 
-**Option B, assist without a check:** Arrange a break and a humane solution
+**Option B, assist without a check:** Ask a seamstress and the keeper to arrange a private, safe way out
 
-- **Result:** A seamstress sews in a new opening while the bear politely looks away.
+- **Result:** The new opening works, the volunteer rests, and the bear voice offers a solemn lecture on taking days off. No camera is invited to the fitting.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-057`: The person giving animal talks cannot take off their costume. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-057/2`: A volunteer inside a bear suit delivers exact animal facts, then admits the zipper has been missing for months. The bear now corrects him when he lies. The people and location must match the opening.
-- `outcomes/wh-057/investigate-success`: The inner lining bears a zoo inventory label written in a future handwriting. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-057/investigate-failure`: The zipper breaks again; the volunteer laughs despite exhaustion. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-057/care-success`: A seamstress sews in a new opening while the bear politely looks away. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-057/2`: A volunteer in a bear costume is giving a faultless talk about animal habitats. He has not been able to remove the suit in months, and the bear has begun correcting his mistakes in a voice only he can hear. He wants a break more than an audience. The people and location must match the opening.
+- `outcomes/wh-057/investigate-success`: The lining has an inventory label in handwriting nobody on the staff recognizes, stamped with next year's date. A keeper confirms the costume itself is older than that. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-057/investigate-failure`: The last bit of zipper breaks while you inspect it. The volunteer laughs, then stops. You admit the repair is beyond you and find someone with the right tools. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-057/care-success`: The new opening works, the volunteer rests, and the bear voice offers a solemn lecture on taking days off. No camera is invited to the fitting. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_057_verified`, `wh_057_partial`, `wh_057_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** An extremely official bird investigates missing color.
 
-**Escalation:** An official-looking peacock investigates stolen pigments at the zoo. His search warrant describes a color no human visitor can see, and several painted signs have gone white.
+**Escalation:** A peacock with a paper badge serves a search warrant on the zoo's missing colors. Painted signs have gone white overnight, and the bird insists on confiscating every pencil. The keepers would like the animals' enclosures explained to visitors before noon.
 
-**Option A, investigate (visible 9 check):** Read the warrant and inspect the stripped murals
+**Option A, investigate (visible 9 check):** Read the warrant with a keeper and compare the signs with old maintenance records
 
-- **Pass:** The missing pigment glitters on a dated transfer slip for a future conservation exhibit; the peacock's case is real to him.
-- **Miss:** The bird confiscates your pencil, but a keeper confirms the paint vanished before the search began.
+- **Pass:** A transfer slip for the missing pigment bears a date from a future conservation exhibit. The keeper copies the number; the peacock keeps insisting it has jurisdiction.
+- **Miss:** The peacock seizes your pencil before you finish the list. A keeper has already photographed the blank signs and lends you another one.
 
-**Option B, assist without a check:** Help the keepers restore the public signs without frightening animals
+**Option B, assist without a check:** Help restore legible visitor signs while leaving the animals undisturbed
 
-- **Result:** Visitors work from remembered colors; the peacock leaves his badge with the staff as a thank-you.
+- **Result:** Keepers and visitors repaint the wayfinding signs from safe references. The peacock awards the staff his badge, which is made of a very ordinary leaf.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-058`: An extremely official bird investigates missing color. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-058/2`: An official-looking peacock investigates stolen pigments at the zoo. His search warrant describes a color no human visitor can see, and several painted signs have gone white. The people and location must match the opening.
-- `outcomes/wh-058/investigate-success`: The missing pigment glitters on a dated transfer slip for a future conservation exhibit; the peacock's case is real to him. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-058/investigate-failure`: The bird confiscates your pencil, but a keeper confirms the paint vanished before the search began. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-058/care-success`: Visitors work from remembered colors; the peacock leaves his badge with the staff as a thank-you. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-058/2`: A peacock with a paper badge serves a search warrant on the zoo's missing colors. Painted signs have gone white overnight, and the bird insists on confiscating every pencil. The keepers would like the animals' enclosures explained to visitors before noon. The people and location must match the opening.
+- `outcomes/wh-058/investigate-success`: A transfer slip for the missing pigment bears a date from a future conservation exhibit. The keeper copies the number; the peacock keeps insisting it has jurisdiction. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-058/investigate-failure`: The peacock seizes your pencil before you finish the list. A keeper has already photographed the blank signs and lends you another one. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-058/care-success`: Keepers and visitors repaint the wayfinding signs from safe references. The peacock awards the staff his badge, which is made of a very ordinary leaf. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_058_verified`, `wh_058_partial`, `wh_058_care` (mutually exclusive results of this card).
 

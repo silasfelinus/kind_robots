@@ -46,6 +46,29 @@
               {{ projectOptionLabel(job) }} · {{ statusLabel(job.status) }}
             </option>
           </select>
+          <div
+            v-if="store.selected && !sourceFile"
+            class="flex min-w-[11rem] flex-1 items-center gap-1"
+          >
+            <input
+              v-model="title"
+              type="text"
+              class="input input-bordered input-sm min-w-0 flex-1"
+              maxlength="120"
+              aria-label="Project title"
+              placeholder="Name this video"
+              @keydown.enter="saveProjectTitle"
+            />
+            <button
+              v-if="title.trim() !== store.selected.title"
+              type="button"
+              class="kr-btn-xs btn-primary shrink-0"
+              :disabled="store.busy || isRendering(store.selected) || !title.trim()"
+              @click="saveProjectTitle"
+            >
+              Save title
+            </button>
+          </div>
           <label class="kr-btn-xs btn-outline shrink-0 cursor-pointer">
             New from video
             <input
@@ -664,7 +687,7 @@
               class="min-w-0 flex-1 rounded-xl border border-base-300 bg-base-200/50 px-2 py-1"
             >
               <summary class="cursor-pointer font-semibold">
-                Render settings · {{ quality }} ·
+                Render settings · {{ quality }} · {{ overwriteStrength }}% restyle ·
                 {{ renderSpeed === 'fast' ? 'Fast draft ·' : '' }}
                 {{ isPrivate ? 'Private' : 'Release candidate'
                 }}{{ isMature ? ' · Mature' : '' }}
@@ -703,6 +726,20 @@
                     {{ option.label }}
                   </button>
                 </span>
+                <label class="flex min-w-[12rem] flex-1 items-center gap-2">
+                  <span class="shrink-0 font-semibold">Overwrite strength</span>
+                  <input
+                    v-model.number="overwriteStrength"
+                    type="range"
+                    class="range range-primary range-xs min-w-[6rem] flex-1"
+                    min="0"
+                    max="100"
+                    step="5"
+                    :aria-valuetext="`${overwriteStrength}% restyle`"
+                    aria-label="Overwrite strength"
+                  />
+                  <output class="w-9 shrink-0 text-right tabular-nums">{{ overwriteStrength }}%</output>
+                </label>
                 <label class="flex cursor-pointer items-center gap-1">
                   <input
                     v-model="isPrivate"
@@ -720,6 +757,9 @@
                   Mature content
                 </label>
                 <p class="kr-text-faded-xs w-full">
+                  Lower overwrite strength mixes more of the original frames back into the
+                  rendered video; 0% is original, 100% is the existing full restyle.
+                  This controls visual replacement, not prompt accuracy.
                   Prompt-guided Wan VACE looks; 1080p is upscaled after
                   assembly. Fast draft uses the CausVid LoRA (8 steps instead of
                   20) for roughly five times the speed, with some loss of
@@ -916,7 +956,8 @@ const quality = ref<RestyleQuality>('1080p')
 const renderSpeed = ref<RestyleRenderSpeed>('standard')
 const isPrivate = ref(true)
 const isMature = ref(false)
-const title = ref('Coat Dance')
+const title = ref('Untitled video')
+const overwriteStrength = ref(100)
 const sourceFile = ref<File | null>(null)
 const durationSec = ref(0)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -930,6 +971,7 @@ const lookChanged = computed(() =>
           (store.selected.variantMode ?? 'cycle') !== grabBagMode.value)) ||
       store.selected.quality !== quality.value ||
       (store.selected.renderSpeed ?? 'standard') !== renderSpeed.value ||
+      (store.selected.overwriteStrength ?? 100) !== overwriteStrength.value ||
       (store.selected.isPrivate ?? true) !== isPrivate.value ||
       (store.selected.isMature ?? false) !== isMature.value),
   ),
@@ -1141,6 +1183,7 @@ function selectJob(job: VideoRestyleJob) {
   }
   quality.value = job.quality
   renderSpeed.value = job.renderSpeed ?? 'standard'
+  overwriteStrength.value = job.overwriteStrength ?? 100
   isPrivate.value = job.isPrivate ?? true
   isMature.value = job.isMature ?? false
   if (fileInput.value) fileInput.value.value = ''
@@ -1190,10 +1233,16 @@ async function saveLookAndRender() {
       isMature.value,
       grabBagChoice.value,
       renderSpeed.value,
+      overwriteStrength.value,
     )
   ) {
     await store.queueFull(id)
   }
+}
+
+async function saveProjectTitle() {
+  if (!store.selected || sourceFile.value || !title.value.trim()) return
+  await store.renameProject(store.selected.id, title.value.trim())
 }
 
 async function renderAsNewFilm() {
@@ -1207,6 +1256,7 @@ async function renderAsNewFilm() {
       style: style.value,
       quality: quality.value,
       renderSpeed: renderSpeed.value,
+      overwriteStrength: overwriteStrength.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
       ...grabBagChoice.value,
@@ -1222,6 +1272,7 @@ function chooseFile(event: Event) {
   sourceFile.value = input.files?.[0] || null
   durationSec.value = 0
   if (sourceFile.value) {
+    title.value = sourceFile.value.name.replace(/\.(mp4|mov|webm)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Untitled video'
     store.preview(sourceFile.value)
     // Showing the upload mounts the player, which reads its duration.
     playing.value = 'upload'
@@ -1264,6 +1315,7 @@ async function stage() {
       style: style.value,
       quality: quality.value,
       renderSpeed: renderSpeed.value,
+      overwriteStrength: overwriteStrength.value,
       isPrivate: isPrivate.value,
       isMature: isMature.value,
       ...grabBagChoice.value,

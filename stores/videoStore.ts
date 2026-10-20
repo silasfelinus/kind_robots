@@ -194,7 +194,8 @@ export const useVideoStore = defineStore('videoStore', () => {
         : undefined,
       videoWanMode: params.videoWanMode ?? undefined,
       videoCheckpointResourceId: params.videoCheckpointResourceId ?? undefined,
-      videoLowCheckpointResourceId: params.videoLowCheckpointResourceId ?? undefined,
+      videoLowCheckpointResourceId:
+        params.videoLowCheckpointResourceId ?? undefined,
       outputFormat: params.outputFormat,
       renderScale: params.renderScale ?? undefined,
       latentUpscaleModel: params.latentUpscaleModel ?? undefined,

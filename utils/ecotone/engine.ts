@@ -821,6 +821,13 @@ export function restoreRun(raw: unknown): RunState | null {
   if (s.activeLead !== null && !isCompanion(s.activeLead)) return null
   if (
     !Array.isArray(s.log) ||
+    !s.log.every(
+      (entry) =>
+        entry &&
+        typeof entry === 'object' &&
+        typeof entry.source === 'string' &&
+        typeof entry.title === 'string',
+    ) ||
     !Array.isArray(s.evidence) ||
     !Array.isArray(s.flags) ||
     !Array.isArray(s.followHistory)

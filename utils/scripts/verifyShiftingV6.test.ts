@@ -35,6 +35,33 @@ for (const land of JOURNEY_WORLD.lands) {
 }
 assert.equal(V6_CARDS.length, 120)
 
+const homesteadIds = new Set(JOURNEY_WORLD.lands[0]!.locations.map((p) => p.id))
+const homesteadCards = V6_CARDS.filter((card) =>
+  homesteadIds.has(card.locationId),
+)
+assert.equal(homesteadCards.length, 24, 'both Homestead deck generations')
+for (const card of homesteadCards) {
+  assert.match(card.flavor, /\\b(you|your)\\b/i, `${card.id} speaks to the player`)
+  for (const choice of card.choices) {
+    assert.ok(choice.risk.length >= 20, `${card.id}: risk stays readable`)
+    assert.ok(choice.success.text.length >= 40, `${card.id}: success is authored`)
+    if (choice.failure)
+      assert.ok(choice.failure.text.length >= 40, `${card.id}: failure is authored`)
+  }
+}
+assert.match(
+  homesteadCards.find((card) => card.id === 'the-last-seed')!
+    .choices.find((choice) => choice.id === 'shield-shoot')!.success.text,
+  /food she had saved for planting week/,
+  'seed sacrifice has a visible cost rather than an arbitrary treasure find',
+)
+assert.match(
+  LATER_LAND_PACK.encounters.find((card) => card.id === 'three-cups-on-the-table')!
+    .flavor,
+  /three cups of broth/,
+  'the Three Cups prose names its visible, countable props',
+)
+
 const choices = V6_CARDS.flatMap((card) => card.choices)
 const certainCards = V6_CARDS.filter((card) =>
   card.choices.some((choice) => !choice.roll),

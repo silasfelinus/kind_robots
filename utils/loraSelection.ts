@@ -157,12 +157,12 @@ export function videoLoraCompatibilityRank(
     return 0
   if (engine === 'ltx') {
     if (/WAN|HUNYUAN|SVD/.test(generation)) return 0
-    if (/LTX[ ._-]*2[ ._-]*(?!3\\b)[0-9]+/.test(generation)) return 0
+    if (/LTX[ ._-]*2[ ._-]*[0-9]+/.test(generation) && !/LTX[ ._-]*2[ ._-]*3/.test(generation)) return 0
     return /LTX[ ._-]*2[ ._-]*3/.test(generation) ? 40 :
       normalizedServer(resource) === 'LTX' ? 20 : 10
   }
   if (/LTX|HUNYUAN|SVD/.test(generation)) return 0
-  if (/WAN[ ._-]*2[ ._-]*(?!2\\b)[0-9]+/.test(generation)) return 0
+  if (/WAN[ ._-]*2[ ._-]*[0-9]+/.test(generation) && !/WAN[ ._-]*2[ ._-]*2/.test(generation)) return 0
   if (profile.endsWith('14b') && /(?:^|[^0-9])5B(?:$|[^0-9])/.test(generation))
     return 0
   if (profile.endsWith('5b') && /14B/.test(generation)) return 0

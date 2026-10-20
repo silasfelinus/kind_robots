@@ -435,7 +435,7 @@ assert.equal(fillText('Travel with {companion}', kitSide), 'Travel with Kit')
 const newcomers = new Set<string>()
 const reached = new Set<string>()
 const fates = new Set<string>()
-for (let seed = 1; seed < 1500; seed += 1) {
+for (let seed = 1; seed < 4000; seed += 1) {
   const next = mulberry32(seed)
   const plan: Plan = {
     event: (['kinetic', 'green-ribbon', 'quiet'] as const)[seed % 3]!,

@@ -45,7 +45,7 @@ export const EVENTS: EventInfo[] = [
     scene: 'meadow',
     art: 'scenes/prologue-meadow',
     companions: ['kit', 'juniper'],
-    lenses: ['sober', 'stoned', 'tripping_balls'],
+    lenses: ['sober', 'stoned', 'tripping_balls', 'meth'],
     days: ['Friday', 'Saturday', 'Sunday'],
     futureTarget: 5,
     provenance:
@@ -119,8 +119,6 @@ const MEET_CHOICES: Choice[] = [
     },
   },
 ]
-
-const LOCKED: Choice['success'] = { text: '', effects: {} }
 
 export const BEATS: EncounterCard[] = [
   {
@@ -232,6 +230,23 @@ export const BEATS: EncounterCard[] = [
         failure: {
           text: 'You follow a very convincing false lead to the porta-potties. It is, at least, a memorable false lead, and the colors are not done with you.',
           effects: { weird: 1, nerve: -1 },
+        },
+      },
+      {
+        id: 'long-watch',
+        label: 'The Long Watch: a voluntary adult stimulant choice',
+        lens: 'meth',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The festival is still awake at dawn. By the repair tent, a radio operator hears three versions of tomorrow\'s weather and writes them in separate columns. You ask another listener to verify the third. The first good answer is to share the night watch, not own it.',
+          effects: {
+            evidence: 'Three independently compared dawn weather broadcasts',
+            flag: 'night_watch_shared',
+          },
+        },
+        failure: {
+          text: 'Every sound seems worth following until the sky turns gray. You let a rested volunteer take over the radio, accept breakfast and keep only the frequency you can verify. The mystery will still be here after sleep.',
+          effects: { weird: 1, flag: 'night_watch_relief' },
         },
       },
     ],
@@ -813,17 +828,34 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'fast-track',
-        label: 'The Fast Track',
+        label: 'The Fast Track: an adult, voluntary stimulant choice',
         lens: 'cocaine',
-        locked: 'Being written',
-        success: LOCKED,
+        check: { skill: 'wits', target: 9 },
+        success: {
+          text: 'The brass band seems to have raced ahead of itself. You slow down long enough to notice the second set of shadow players at the loading door. A sober stagehand corroborates what you saw. Being quick did not make it true; checking did.',
+          effects: {
+            evidence: 'A stagehand witnessed the second shadow band',
+            flag: 'fast_track_checked',
+          },
+        },
+        failure: {
+          text: 'The party becomes a blur of brilliant half-formed plans. At the curb you find a race marshal who helps you locate a quiet place to sit. You keep the curious note, not the certainty that it explains everything.',
+          effects: { weird: 1, flag: 'fast_track_unverified' },
+        },
       },
       {
         id: 'loves-all',
-        label: 'Everybody Loves Everybody',
+        label: 'Everybody Loves Everybody: a voluntary adult choice',
         lens: 'mdma',
-        locked: 'Being written',
-        success: LOCKED,
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'For one evening the costume crews feel like a single team. You ask who has agreed to help tomorrow. Three people volunteer for an actual repair shift, and one writes the plan down. The promise, not the feeling, is what you can take with you.',
+          effects: { goodwill: 1, flag: 'crew_promise_written' },
+        },
+        failure: {
+          text: 'You are certain everyone understands each other until a mechanic points out that nobody has discussed safety. You apologize, share water and listen. Affection is real; the practical agreement still needs making.',
+          effects: { weird: 1, flag: 'crew_promise_pending' },
+        },
       },
     ],
     provenance:

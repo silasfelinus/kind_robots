@@ -12,6 +12,7 @@ import type { CrystalSpec, LanternSpec, SporeSpec } from './cavern'
 import type {
   CrowSpec,
   DripSpec,
+  StormCloudSpec,
   FallSpec,
   FluffSpec,
   LaneSpec,
@@ -28,7 +29,13 @@ export const H = 240
 export const HUD_H = 26
 
 export type MissionKind =
-  'plant' | 'deliver' | 'water' | 'rescue' | 'lantern' | 'rings' | 'boss'
+  | 'plant'
+  | 'deliver'
+  | 'water'
+  | 'rescue'
+  | 'lantern'
+  | 'rings'
+  | 'boss'
 
 /** The hazard roster (CABINETS.md section 9), in the order Free Flight unlocks them. */
 export const HAZARD_LADDER = [
@@ -96,7 +103,14 @@ export type CargoSpec = {
 
 /** How a mission's sky and ground are painted. */
 type SkyId =
-  'dawn' | 'noon' | 'dusk' | 'night' | 'downs' | 'gorge' | 'cavern' | 'storm'
+  | 'dawn'
+  | 'noon'
+  | 'dusk'
+  | 'night'
+  | 'downs'
+  | 'gorge'
+  | 'cavern'
+  | 'storm'
 export type ThemeId = SkyId | 'moon'
 
 /** A petal ring to fly through (a Ring Race). */
@@ -135,6 +149,9 @@ export type MissionSpec = {
   falls?: readonly FallSpec[]
   drips?: readonly DripSpec[]
   pebbles?: readonly PebbleSpec[]
+  /** Storm Shelf: lightning clouds, and rain that wets the pod and weighs it down. */
+  clouds?: readonly StormCloudSpec[]
+  rain?: boolean
   /** Firefly Caverns: a dark cave, crystal bumpers, spore puffballs and lanterns to relight. */
   dark?: boolean
   crystals?: readonly CrystalSpec[]

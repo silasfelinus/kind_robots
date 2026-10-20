@@ -1040,6 +1040,8 @@ const STORM: Island = {
       sun: 1000,
       wind: 0.002,
       gravity: 1.12,
+      rain: true,
+      clouds: [{ x: 460, y: 38, every: 420, offset: 150 }],
       seeds: 3,
       acorns: [{ id: 'storm-a1', x: 460, y: 70 }],
       par: par(700, 55),
@@ -1116,6 +1118,11 @@ const STORM: Island = {
       sun: 1400,
       wind: 0.003,
       gravity: 1.1,
+      rain: true,
+      clouds: [
+        { x: 600, y: 40, every: 360, offset: 60 },
+        { x: 1060, y: 40, every: 400, offset: 220 },
+      ],
       seeds: 0,
       cargo: [
         { kind: 'crate', x: 150, seedlings: 3, to: 'farm1' },
@@ -1245,7 +1252,15 @@ const STORM: Island = {
 const moonOf = (
   m: MissionSpec,
   over: Partial<MissionSpec> & { id: string; name: string; brief: string },
-): MissionSpec => ({ ...m, theme: 'moon', wind: 0, gravity: 0.42, ...over })
+): MissionSpec => ({
+  ...m,
+  theme: 'moon',
+  wind: 0,
+  gravity: 0.42,
+  rain: false,
+  clouds: [],
+  ...over,
+})
 
 const [S1, S2, S3, S4, S5] = STORM.missions as [
   MissionSpec,

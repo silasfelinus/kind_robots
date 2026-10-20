@@ -27,9 +27,10 @@ import type {
   FallSpec,
   Fluff,
   PebbleSpec,
+  StormCloudSpec,
   Windmill,
 } from './hazards'
-import { dripAt, pebbleAt, sailAngles } from './hazards'
+import { dripAt, pebbleAt, sailAngles, stormCloudAt } from './hazards'
 import type { AcornSpec, RingSpec } from './missions'
 import type { Pad, PlantKind } from './terrain'
 
@@ -604,4 +605,46 @@ export function drawDarkness(
     }
   }
   g.globalAlpha = 1
+}
+
+/** A lightning cloud: it darkens and crackles while it charges, then a bolt drops to the ground. */
+export function drawStormCloud(
+  g: CanvasRenderingContext2D,
+  c: StormCloudSpec,
+  floor: number,
+  tick: number,
+) {
+  const v = stormCloudAt(c, tick)
+  const lit = v.state !== 'rest'
+  const puffs = [-12, -4, 5, 13]
+  for (const dx of puffs) {
+    g.fillStyle = INK
+    g.fillRect(c.x + dx - 7, c.y - 9, 14, 12)
+  }
+  for (const dx of puffs) {
+    g.fillStyle = lit ? RAMPS.steel[1] : RAMPS.steel[3]
+    g.fillRect(c.x + dx - 6, c.y - 8, 12, 10)
+  }
+  if (v.state === 'charge') {
+    if (tick % 8 < 4)
+      glow(g, c.x, c.y, 10 + 12 * v.charge, '#ffffff', 0.35 * v.charge)
+    if (tick % 10 < 3) {
+      g.fillStyle = '#fff2a0'
+      g.fillRect(c.x - 1, c.y + 3, 2, 3)
+    }
+  }
+  if (v.state === 'strike') {
+    glow(g, c.x, c.y + 8, 16, '#fff2a0', 0.5)
+    let x = c.x
+    let y = c.y + 3
+    while (y < floor) {
+      const nx = c.x + ((Math.floor(y / 6) % 2) * 2 - 1) * 3
+      g.fillStyle = INK
+      g.fillRect(Math.min(x, nx) - 2, y, 6, 7)
+      g.fillStyle = '#fff2a0'
+      g.fillRect(Math.min(x, nx) - 1, y, 3, 7)
+      x = nx
+      y += 6
+    }
+  }
 }

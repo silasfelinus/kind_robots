@@ -128,7 +128,11 @@ export const useResourceDownloadsStore = defineStore(
     }
 
     async function retry(id: number): Promise<boolean> {
-      if (retryingId.value !== null || bulkBusy.value || deletingId.value !== null)
+      if (
+        retryingId.value !== null ||
+        bulkBusy.value ||
+        deletingId.value !== null
+      )
         return false
       retryingId.value = id
       error.value = ''
@@ -154,9 +158,12 @@ export const useResourceDownloadsStore = defineStore(
       }
     }
 
-
     async function deleteRecord(id: number): Promise<boolean> {
-      if (deletingId.value !== null || bulkBusy.value || retryingId.value !== null)
+      if (
+        deletingId.value !== null ||
+        bulkBusy.value ||
+        retryingId.value !== null
+      )
         return false
       deletingId.value = id
       error.value = ''
@@ -185,7 +192,11 @@ export const useResourceDownloadsStore = defineStore(
       operation: 'retry' | 'delete',
       ids: number[],
     ): Promise<boolean> {
-      if (bulkBusy.value || retryingId.value !== null || deletingId.value !== null)
+      if (
+        bulkBusy.value ||
+        retryingId.value !== null ||
+        deletingId.value !== null
+      )
         return false
       if (ids.length === 0 || ids.length > 50) return false
       bulkBusy.value = true
@@ -201,15 +212,21 @@ export const useResourceDownloadsStore = defineStore(
           body: JSON.stringify({ operation, ids }),
         })
         if (!response.success || !response.data) {
-          throw new Error(response.message || 'Could not update failed downloads.')
+          throw new Error(
+            response.message || 'Could not update failed downloads.',
+          )
         }
         const { changed, skipped, failed } = response.data
         const action = operation === 'retry' ? 'requeued' : 'cleared'
         notice.value = `${changed} failed downloads ${action}.${
-          skipped ? ` ${skipped} skipped because their status changed or a model is already queued.` : ''
+          skipped
+            ? ` ${skipped} skipped because their status changed or a model is already queued.`
+            : ''
         }`
         if (failed?.length) {
-          error.value = failed.map((item) => `#${item.id}: ${item.reason}`).join(' | ')
+          error.value = failed
+            .map((item) => `#${item.id}: ${item.reason}`)
+            .join(' | ')
         }
         await refresh(true)
         return true

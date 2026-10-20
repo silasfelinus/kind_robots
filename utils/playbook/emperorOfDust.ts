@@ -2,6 +2,7 @@ import {
   DAYS,
   QUEST_TEMPLATES,
   authoredQuestDef as questDef,
+  editorLine,
 } from '../emperorOfDust/fortress/content'
 import { FOLLOWERS } from '../emperorOfDust/fortress/followers'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
@@ -212,7 +213,7 @@ export function buildEmperorOfDustPlaybook(): Playbook {
     const key = `aud:${aud.id}`
     const node = blankNode(key, 'encounter', aud.title)
     node.place = aud.speaker
-    node.body = aud.lines
+    node.body = aud.lines.map(editorLine)
     node.editable = true
     node.editFields = { body: true, outcomes: true }
     node.placements.push(placement(day, step))

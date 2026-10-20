@@ -506,18 +506,21 @@ async function load() {
   loading.value = true
   error.value = ''
   const ids = artReviewJobIds(round.value)
-  const response = await performFetch<ReviewJob[]>(
-    `/api/admin/art-review?ids=${ids.join(',')}`,
-  )
+  // The server reads at most 300 jobs a call; the art standard has ~950.
+  for (let start = 0; start < ids.length; start += 300) {
+    const response = await performFetch<ReviewJob[]>(
+      `/api/admin/art-review?ids=${ids.slice(start, start + 300).join(',')}`,
+    )
+    if (!response.success || !response.data) {
+      error.value = response.message || 'Could not load the jobs.'
+      break
+    }
+    jobs.value = {
+      ...jobs.value,
+      ...Object.fromEntries(response.data.map((job) => [job.id, job])),
+    }
+  }
   loading.value = false
-  if (!response.success || !response.data) {
-    error.value = response.message || 'Could not load the jobs.'
-    return
-  }
-  jobs.value = {
-    ...jobs.value,
-    ...Object.fromEntries(response.data.map((job) => [job.id, job])),
-  }
 }
 
 function pickRound(id: string) {

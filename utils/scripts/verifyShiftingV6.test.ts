@@ -319,8 +319,11 @@ const fallenAfterTrial = {
   journey: { ...finalState.journey, phase: 'fallen' as const },
 }
 assert.ok(
-  authoredEndingV6(fallenAfterTrial, [trialMemory, failedTrial])?.paragraphs.some(
-    (line) => line.includes('last trial still holds its gate'),
+  authoredEndingV6(fallenAfterTrial, [
+    trialMemory,
+    failedTrial,
+  ])?.paragraphs.some((line) =>
+    line.includes('last trial still holds its gate'),
   ),
   'a fatal failed trial takes precedence over an earlier evidence victory',
 )

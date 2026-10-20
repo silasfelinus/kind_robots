@@ -9,23 +9,20 @@ import {
   videoModelSlot,
   type VideoModelResource,
 } from '../videoModelResources'
-import { videoLoraCompatibilityRank } from '../loraSelection'
 import { readFileSync } from 'node:fs'
 
-import type {
-  ComfyWorkflow,
-  ComfyWorkflowNode,
-  WanImageToVideoInput,
-} from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
 import {
   buildWanImageToVideoWorkflow,
   resolveWanMode,
   WAN_TI2V_UNET,
   WAN_TI2V_VAE,
   WAN_VAE,
+  type ComfyWorkflow,
+  type ComfyWorkflowNode,
+  type WanImageToVideoInput,
 } from '../../server/api/comfy/wan/utils/imageToVideoWorkflow'
 import { applyVideoLoraChain } from '../../server/api/comfy/utils/videoLoraChain'
-import { promptWithLoraTriggers, videoLoraCompatible } from '../loraSelection'
+import { promptWithLoraTriggers, videoLoraCompatible, videoLoraCompatibilityRank } from '../loraSelection'
 
 const base: WanImageToVideoInput = {
   prompt: 'a cat',

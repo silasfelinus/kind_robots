@@ -6,6 +6,11 @@ import prisma from '../../utils/prisma'
 import { errorHandler } from '../../utils/error'
 import { requireMachineUser } from '../../utils/authGuard'
 import { saveImage } from '../../utils/saveImage'
+import { readDbMaxPacketBytes } from '../../utils/musicVideo'
+import {
+  oversizeUpload,
+  oversizeUploadMessage,
+} from '~/utils/artImageUploadLimit'
 import {
   type RequestData,
   validateAndLoadArtCollectionId,
@@ -149,6 +154,20 @@ export default defineEventHandler(async (event) => {
     const fileType = normalizeFileType(requestData.fileType)
 
     const isAudio = isAudioType(fileType)
+
+    // The bytes go into one MySQL row; a file past the packet fails the INSERT
+    // with an error the relay could not act on, and it re-rendered the job
+    // until attempts ran out (ArtJob 40972). 413 tells it to stop.
+    const oversize = oversizeUpload(
+      requestData.imageBase64,
+      await readDbMaxPacketBytes(),
+    )
+    if (oversize) {
+      throw createError({
+        statusCode: 413,
+        message: oversizeUploadMessage(oversize, fileType),
+      })
+    }
 
     const savedImage = await saveImage(
       requestData.imageBase64,

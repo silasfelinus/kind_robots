@@ -196,6 +196,23 @@ export function getDefaultVideoPreset(
   return getVideoPreset(DEFAULT_VIDEO_PRESET_BY_ENGINE[engine])!
 }
 
+/**
+ * The output format the video generator page starts a preset on.
+ *
+ * Balanced stays WebP in VIDEO_PRESETS because the scene animator keys its
+ * finished batches on the preset's format, and changing it there would
+ * re-render them. On the generator, though, 65 frames of 1280×720 animated
+ * WebP is several times the size of the same clip as MP4 and can outgrow the
+ * ~11.8 MB an ArtImage row holds under the 16 MB database packet: ArtJob 40972
+ * rendered, then failed to save three times (2026-10-20).
+ */
+export function generatorOutputFormat(preset: {
+  id: string
+  outputFormat: VideoOutputFormat
+}): VideoOutputFormat {
+  return preset.id === 'ltx-12gb-balanced' ? 'mp4' : preset.outputFormat
+}
+
 export function getVideoPresetsForEngine(
   engine: VideoEngine,
 ): readonly (typeof VIDEO_PRESETS)[number][] {

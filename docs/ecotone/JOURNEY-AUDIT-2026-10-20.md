@@ -41,4 +41,4 @@ The previously missing lens options are now authored as ten supplementary choice
 
 The automated acceptance now demands 84 out of 84 real played ending witnesses, using 8,400 seeded campaigns plus specifically witnessed animal-first Wild Way endings for all seven lenses. A collectible slot is not counted merely for being declared in a gallery array. All seven must be voluntary and independent from companion choice, ideology and guaranteed fate. The extra options are new editorial drafts and have **not** queued new ArtJobs.
 
-This section supersedes the *opening availability* limitation described above once the implementation PR passes the complete CI suite. The question of real 45–75-minute human reading/playtime remains unverified by automation.
+This section supersedes the _opening availability_ limitation described above once the implementation PR passes the complete CI suite. The question of real 45–75-minute human reading/playtime remains unverified by automation.

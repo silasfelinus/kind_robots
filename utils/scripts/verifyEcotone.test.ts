@@ -6,6 +6,7 @@ import {
   ecotoneArtSrc,
   normalizeEcotoneArtStyle,
 } from '../ecotone/artStyles'
+import { PLAYBOOK_ART_LANES } from '../playbook/artLanes'
 import { existsSync, readFileSync } from 'node:fs'
 import {
   ARCHETYPES,
@@ -488,23 +489,35 @@ assert.ok(
 // Art styles (t-039): view-only, the Shifting Desks way.
 assert.deepEqual(
   ECOTONE_ART_STYLES.map((style) => style.id),
-  ['painted', 'storybook'],
+  ['zimage', 'krea2', 'arthemy', 'novacomic', 'storybook'],
+  'the four checkpoints Silas picked, plus the drawn Storybook',
 )
-assert.equal(DEFAULT_ECOTONE_ART_STYLE, 'painted')
-assert.equal(normalizeEcotoneArtStyle('nonsense'), 'painted')
-assert.equal(normalizeEcotoneArtStyle(null), 'painted')
+for (const style of ECOTONE_ART_STYLES)
+  if (style.lane)
+    assert.ok(
+      PLAYBOOK_ART_LANES.some((lane) => lane.key === style.lane),
+      `${style.id} has a generation lane`,
+    )
+assert.equal(DEFAULT_ECOTONE_ART_STYLE, 'zimage')
+assert.equal(normalizeEcotoneArtStyle('nonsense'), 'zimage')
+assert.equal(normalizeEcotoneArtStyle(null), 'zimage')
 assert.equal(
-  ecotoneArtSrc('companions/kit', 'painted'),
+  normalizeEcotoneArtStyle('painted'),
+  'zimage',
+  'a saved Painted choice keeps Z-Image',
+)
+assert.equal(
+  ecotoneArtSrc('companions/kit', 'novacomic'),
   '/ecotone/companions/kit.webp',
-  'Painted shows the shipped painting',
+  'a style falls back to the shipped painting until its render lands',
 )
 assert.equal(
   ecotoneArtSrc('companions/kit', 'storybook'),
   null,
   'Storybook shows the drawn scene',
 )
-assert.equal(ecotoneArtSrc('chapters/missing', 'painted'), null)
-assert.equal(ecotoneArtSrc(undefined, 'painted'), null)
+assert.equal(ecotoneArtSrc('chapters/missing', 'zimage'), null)
+assert.equal(ecotoneArtSrc(undefined, 'zimage'), null)
 for (const [style, renders] of Object.entries(STYLE_RENDERS))
   for (const asset of renders ?? [])
     assert.ok(

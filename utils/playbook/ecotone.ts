@@ -433,7 +433,7 @@ export function buildEcotonePlaybook(): Playbook {
     },
     editable: true,
     artProject: 'weird-humboldt',
-    artLanes: ['zimage', 'krea2', 'flux2', 'arthemy'],
+    artLanes: ['zimage', 'krea2', 'arthemy', 'novacomic'],
     artNegative: 'anthro, furry',
   }
 }

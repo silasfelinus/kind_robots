@@ -2,6 +2,8 @@
 // Ecotone checkpoint bake-off (conductor projects/weird-humboldt/art/
 // CHECKPOINT-BAKEOFF.yaml); each game's playbook lists its preferred order
 // (Arthemy, the Zuzu house checkpoint, first for the Zuzu games and Emperor of Dust).
+// Ecotone renders every picture in four of them, one per art style:
+// Z-Image Turbo, Krea 2, Arthemy and Nova Comic (utils/ecotone/artStyles.ts).
 
 export type PlaybookArtLane = {
   key: string
@@ -50,6 +52,18 @@ export const PLAYBOOK_ART_LANES: PlaybookArtLane[] = [
     label: 'Arthemy Western Art (Zuzu house lane)',
     engine: 'comfy',
     checkpoint: 'Illustrious/arthemyWesternArt_v30.safetensors',
+    prompt: 'tags',
+    prefix: TAG_PREFIX,
+    suffix: TAG_SUFFIX,
+    steps: 28,
+    cfg: 5,
+    sampler: 'euler_ancestral',
+  },
+  {
+    key: 'novacomic',
+    label: 'Nova Comic XL',
+    engine: 'comfy',
+    checkpoint: 'Illustrious/novaComicXL_v20.safetensors',
     prompt: 'tags',
     prefix: TAG_PREFIX,
     suffix: TAG_SUFFIX,

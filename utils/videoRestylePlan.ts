@@ -392,7 +392,12 @@ export function restylePreviewPrompt(styleId: RestyleStyleId): string {
 
 export const RESTYLE_DEFAULT_OVERWRITE_STRENGTH = 100
 export function isRestyleOverwriteStrength(value: unknown): value is number {
-  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 100
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 0 &&
+    value <= 100
+  )
 }
 
 export type RestyleQuality = '720p' | '1080p'

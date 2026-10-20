@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, reactive, toRefs } from 'vue'
 import type { ArtImage, ArtJob, Prisma } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
+import type { GalleryMaturityFilter } from '@/stores/artCollectionBrowseStore'
 import { resolveArtImageSource } from '~/utils/artImageSource'
 import type { ArtImageSource } from '~/utils/artImageSource'
 import {
@@ -177,6 +178,7 @@ type ArtJobState = {
    */
   failedImageKeys: string[]
   jobStatusFilter: ArtJobStatus | 'ALL'
+  jobMaturityFilter: GalleryMaturityFilter
   focusedJobId: number | null
   jobPage: number
   jobPageSize: number
@@ -220,6 +222,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     loadingImageIds: [],
     failedImageKeys: [],
     jobStatusFilter: 'PENDING',
+    jobMaturityFilter: 'all',
     focusedJobId: null,
     jobPage: 1,
     jobPageSize: DEFAULT_JOB_PAGE_SIZE,
@@ -428,6 +431,8 @@ export const useArtJobStore = defineStore('artJobStore', () => {
         pageSize: String(state.jobPageSize),
       })
       if (status !== 'ALL') params.set('status', status)
+      if (state.jobMaturityFilter !== 'all')
+        params.set('maturity', state.jobMaturityFilter)
       if (state.focusedJobId !== null)
         params.set('jobId', String(state.focusedJobId))
 
@@ -457,6 +462,15 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     const next = Math.min(Math.max(Math.floor(page), 1), state.jobPageCount)
     if (next === state.jobPage && state.jobs.length) return
     await fetchJobs(state.jobStatusFilter, next)
+  }
+
+  async function setJobMaturityFilter(
+    maturity: GalleryMaturityFilter,
+  ): Promise<void> {
+    if (maturity === state.jobMaturityFilter) return
+    state.jobMaturityFilter = maturity
+    state.jobPage = 1
+    await fetchJobs(state.jobStatusFilter, 1)
   }
 
   async function setJobPageSize(pageSize: number): Promise<void> {
@@ -733,6 +747,7 @@ export const useArtJobStore = defineStore('artJobStore', () => {
     focusJob,
     setJobPage,
     setJobPageSize,
+    setJobMaturityFilter,
     fetchTrainerJobs,
     loadJobImage,
     submitFeedback,

@@ -273,7 +273,9 @@ export function buildArtCollectionWhere({
       ? { OR: [{ isMature: false }, { userId }] }
       : { isMature: false }
 
-  return { AND: [privacy, mature] }
+  // isActive = false is the Recycle Bin (server/utils/artRecycleBin.ts): a
+  // deleted folder leaves every listing until it is restored.
+  return { AND: [{ isActive: true }, privacy, mature] }
 }
 
 export function buildArtImageSelect(query: Record<string, QueryValue> = {}) {

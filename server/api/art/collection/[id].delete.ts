@@ -1,8 +1,12 @@
 // server/api/art/collection/[id].delete.ts
+//
+// "Delete" moves the folder into the Gallery's Recycle Bin with its images
+// still inside it; restoring it brings the whole folder back. Erasing it for
+// good is POST /api/art/recycle-bin/purge.
 import { defineEventHandler, createError } from 'h3'
 import { errorHandler } from '../../../utils/error'
-import prisma from '../../../utils/prisma'
 import { requireApiUser } from '../../../utils/authGuard'
+import { recycleArtCollection } from '../../../utils/artRecycleBin'
 
 export default defineEventHandler(async (event) => {
   let response
@@ -20,34 +24,16 @@ export default defineEventHandler(async (event) => {
 
     const { user, isAdmin } = await requireApiUser(event)
 
-    const collection = await prisma.artCollection.findUnique({
-      where: { id: collectionId },
-      select: { userId: true },
+    const result = await recycleArtCollection(collectionId, {
+      id: user.id,
+      isAdmin,
     })
-
-    if (!collection) {
-      throw createError({
-        statusCode: 404,
-        message: `Collection with ID ${collectionId} does not exist.`,
-      })
-    }
-
-    if (!isAdmin && collection.userId !== user.id) {
-      throw createError({
-        statusCode: 403,
-        message: 'You do not have permission to delete this collection.',
-      })
-    }
-
-    await prisma.artCollection.delete({ where: { id: collectionId } })
 
     event.node.res.statusCode = 200
     response = {
       success: true,
-      message: isAdmin
-        ? `Art Collection with ID ${collectionId} deleted successfully by admin.`
-        : `Collection with ID ${collectionId} deleted successfully.`,
-      data: null,
+      message: result.message,
+      data: { id: collectionId, recycled: true },
       statusCode: 200,
     }
   } catch (error: unknown) {

@@ -317,6 +317,20 @@
               </span>
             </label>
 
+            <div class="flex flex-col gap-1">
+              <span
+                class="kr-text-dim-xs-60 font-semibold uppercase tracking-wide"
+              >
+                Maturity
+              </span>
+              <maturity-filter-toggle
+                :model-value="slideshowStore.settings.maturity"
+                aria-label="Slideshow maturity filter"
+                :disabled="slideshowStore.loadingPool"
+                @update:model-value="slideshowStore.setMaturity"
+              />
+            </div>
+
             <label class="flex items-start gap-2 text-sm">
               <input
                 type="checkbox"
@@ -398,6 +412,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useArtJobStore } from '@/stores/artJobStore'
 import { useArtStore } from '@/stores/artStore'
+import { useUserStore } from '@/stores/userStore'
 import {
   SLIDESHOW_DEPTH_CHOICES,
   SLIDESHOW_INTERVAL_CHOICES,
@@ -429,6 +444,7 @@ const ARRIVAL_FLASH_MS = 6000
 const slideshowStore = useArtSlideshowStore()
 const artJobStore = useArtJobStore()
 const artStore = useArtStore()
+const userStore = useUserStore()
 
 const rootElement = ref<HTMLElement | null>(null)
 const isPlaying = ref(true)
@@ -470,11 +486,13 @@ const fitClass = computed(() =>
   fitMode.value === 'cover' ? 'object-cover' : 'object-contain',
 )
 
-const canShowSlide = computed<boolean>(() => {
-  const job = currentJob.value
-  if (!job) return false
-  return !artJobVisibility(job).isMature || artStore.showMature
-})
+const revealsMatureByChoice = computed<boolean>(
+  () =>
+    slideshowStore.settings.maturity === 'mature' &&
+    !userStore.isMaturityRestricted,
+)
+
+const canShowSlide = computed<boolean>(() => isViewable(currentJob.value))
 
 const slideSrc = computed<string>(() => {
   const job = currentJob.value
@@ -554,7 +572,11 @@ const stageMessage = computed<string>(() => {
 
 function isViewable(job: typeof currentJob.value): boolean {
   if (!job) return false
-  return !artJobVisibility(job).isMature || artStore.showMature
+  return (
+    !artJobVisibility(job).isMature ||
+    artStore.showMature ||
+    revealsMatureByChoice.value
+  )
 }
 
 function markArrival(): void {
@@ -583,7 +605,11 @@ async function loadProtectedSlide(): Promise<void> {
   if (!job || typeof job.artImageId !== 'number') return
   if (artJobPublicImageSrc(job)) return
   if (!isViewable(job)) return
-  await artJobStore.loadJobImage(job.artImageId, artJobImageVersion(job))
+  await artJobStore.loadJobImage(
+    job.artImageId,
+    artJobImageVersion(job),
+    artJobVisibility(job).isMature && revealsMatureByChoice.value,
+  )
 }
 
 function nextSlide(): void {

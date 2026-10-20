@@ -22,6 +22,7 @@ import {
   archiveFolderMoveTarget,
   moveConfinedArchiveFile,
   normalizeArchiveFolderInput,
+  purgeQuarantinedArchiveFile,
   quarantineConfinedArchiveFile,
   quarantineRelativePathFor,
   resolveConfinedTargetPath,
@@ -151,6 +152,49 @@ async function testQuarantineRelocatesRatherThanDeletes() {
     )
     console.log(
       'verifyArtArchiveFileOps: quarantine relocates the file into the trash subtree instead of deleting it',
+    )
+  } finally {
+    await rm(root, { recursive: true, force: true })
+  }
+}
+
+async function testPurgeErasesOnlyQuarantinedFiles() {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'art-archive-fileops-'))
+  try {
+    await mkdir(path.join(root, 'a'), { recursive: true })
+    await writeFile(path.join(root, 'a', 'live.png'), 'live')
+    await writeFile(path.join(root, 'a', 'gone.png'), 'gone')
+
+    assert.equal(
+      await purgeQuarantinedArchiveFile(root, '_archive_trash/1-none.png'),
+      false,
+      'purging before any trash exists is a no-op',
+    )
+
+    const trashRelativePath = await quarantineConfinedArchiveFile(
+      root,
+      7,
+      'a/gone.png',
+    )
+    await assert.rejects(
+      purgeQuarantinedArchiveFile(root, 'a/live.png'),
+      /Only quarantined files can be purged/,
+    )
+    await assert.rejects(
+      purgeQuarantinedArchiveFile(root, '_archive_trash/../a/live.png'),
+      /Only quarantined files can be purged/,
+    )
+    assert.equal(await exists(path.join(root, 'a', 'live.png')), true)
+
+    assert.equal(await purgeQuarantinedArchiveFile(root, trashRelativePath), true)
+    assert.equal(await exists(path.join(root, trashRelativePath)), false)
+    assert.equal(
+      await purgeQuarantinedArchiveFile(root, trashRelativePath),
+      false,
+      'purging an already-erased file is a no-op',
+    )
+    console.log(
+      'verifyArtArchiveFileOps: Delete forever erases only files already in the trash subtree',
     )
   } finally {
     await rm(root, { recursive: true, force: true })
@@ -298,6 +342,7 @@ async function run() {
   await testRefusesToOverwriteExistingDestination()
   await testQuarantineRelocatesRatherThanDeletes()
   await testQuarantinePathIsKeyedOnEntryIdNotBasename()
+  await testPurgeErasesOnlyQuarantinedFiles()
   await testRestoreMovesFileBackToOriginalPath()
   await testRestoreRefusesToOverwriteAPathReoccupiedSinceQuarantine()
   await testResolveConfinedTargetAcceptsNewNestedPath()

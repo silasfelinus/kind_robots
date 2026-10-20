@@ -65,6 +65,36 @@
             />
           </div>
         </div>
+        <div v-if="departed.length" class="mt-2 px-1">
+          <p
+            class="text-[10px] font-semibold uppercase tracking-widest text-error"
+          >
+            Gone with Komodo
+          </p>
+          <ul class="mt-1 space-y-1.5">
+            <li
+              v-for="entry in departed"
+              :key="entry.followerId"
+              class="flex items-start gap-2 text-xs"
+              :title="entry.line"
+            >
+              <EmperorFortressPortrait
+                :follower-id="entry.followerId"
+                state="departed"
+                size="sm"
+                class="mt-0.5"
+              />
+              <span class="min-w-0">
+                <strong class="block truncate font-serif text-sm">{{
+                  nameOf(entry.followerId)
+                }}</strong>
+                <span class="block leading-snug text-error/90">{{
+                  entry.reason
+                }}</span>
+              </span>
+            </li>
+          </ul>
+        </div>
         <button
           v-if="run.beds < 12"
           type="button"
@@ -325,6 +355,7 @@ import {
   LOCAL_FACTION_DEFS,
 } from '~/utils/emperorOfDust/fortress/factions'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
+import { departedFollowers } from '~/utils/emperorOfDust/fortress/betrayal'
 import { followerDef, itemDef } from '~/utils/emperorOfDust/fortress/followers'
 import { howLearned } from '~/utils/emperorOfDust/fortress/codex'
 import { STATS } from '~/utils/emperorOfDust/fortress/types'
@@ -340,14 +371,20 @@ const SLOTS: ItemSlot[] = ['tool', 'charm']
 const PIPS = 10
 const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
-const selectedId = ref<string | null>(props.run.roster[0]?.id ?? null)
+const selectedId = ref<string | null>(
+  props.run.roster.find((entry) => !entry.dead && !entry.departed)?.id ?? null,
+)
 const error = ref('')
 
-const living = computed(() => props.run.roster.filter((state) => !state.dead))
+const living = computed(() =>
+  props.run.roster.filter((state) => !state.dead && !state.departed),
+)
 const fallen = computed(() => props.run.roster.filter((state) => state.dead))
+/** Followers who left with Young Komodo (t-028), each with a stark reason. */
+const departed = computed(() => departedFollowers(props.run))
 const state = computed(() =>
   props.run.roster.find(
-    (entry) => entry.id === selectedId.value && !entry.dead,
+    (entry) => entry.id === selectedId.value && !entry.dead && !entry.departed,
   ),
 )
 const def = computed(() =>

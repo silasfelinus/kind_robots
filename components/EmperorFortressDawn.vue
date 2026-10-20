@@ -82,6 +82,83 @@
           </ul>
         </section>
 
+        <section
+          v-else-if="onBetrayalPage && betrayal"
+          class="space-y-4"
+          aria-label="The tower has fallen"
+        >
+          <p
+            class="text-center text-[10px] font-semibold uppercase tracking-[0.25em] text-error"
+          >
+            The betrayal · the last night of Act IV
+          </p>
+          <div
+            class="grid items-start gap-3 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]"
+          >
+            <img
+              v-if="betrayalArt"
+              :src="betrayalArt"
+              alt="Young Komodo in the throne room doorway, holding the imperial seal"
+              class="mx-auto block max-h-44 w-auto rounded-lg bg-base-200 object-contain @3xl:max-h-64"
+            />
+            <div class="space-y-2">
+              <h2 class="font-serif text-2xl font-bold text-warning">
+                {{ buyerDef.name }} holds the tower
+              </h2>
+              <p class="font-serif text-base italic leading-relaxed sm:text-lg">
+                {{ buyerDef.fell }}
+              </p>
+              <p class="eod-chip p-2 text-xs">
+                <strong class="text-warning">Why:</strong>
+                {{ buyerDef.why }}
+              </p>
+              <p class="text-sm">
+                The court hides in
+                {{ HIDEOUT_NAMES[betrayal.hideout] ?? betrayal.hideout }}.
+              </p>
+            </div>
+          </div>
+          <section aria-label="Gone with Komodo">
+            <h3 class="eod-display text-lg text-error">Gone with Komodo</h3>
+            <ul
+              v-if="gone.length"
+              class="mt-2 grid gap-2 @3xl:grid-cols-2 @4xl:grid-cols-3"
+            >
+              <li
+                v-for="entry in gone"
+                :key="entry.followerId"
+                class="flex items-start gap-3 rounded-md border border-error/40 bg-error/5 p-2"
+              >
+                <span
+                  class="block h-20 w-16 shrink-0 overflow-hidden rounded-md border border-error/40 bg-base-200"
+                >
+                  <img
+                    v-if="goneArt(entry.followerId)"
+                    :src="goneArt(entry.followerId)"
+                    :alt="`${nameOf(entry.followerId)}, leaving`"
+                    class="h-full w-full object-cover object-top"
+                  />
+                </span>
+                <div class="min-w-0">
+                  <strong class="block font-serif text-base">{{
+                    nameOf(entry.followerId)
+                  }}</strong>
+                  <p class="font-serif text-sm italic leading-snug">
+                    {{ entry.line }}
+                  </p>
+                  <p v-if="entry.reason" class="mt-1 text-xs text-error">
+                    {{ entry.reason }}
+                  </p>
+                </div>
+              </li>
+            </ul>
+            <p v-else class="mt-1 font-serif text-sm italic opacity-85">
+              Nobody went with him. Every follower in the barracks came out with
+              you.
+            </p>
+          </section>
+        </section>
+
         <article
           v-else-if="current"
           :key="current.questId"
@@ -176,20 +253,14 @@
 
         <section v-else class="space-y-3">
           <p
-            v-if="!report.quests.length && !report.events.length"
+            v-if="!report.quests.length && !ledgerEvents.length"
             class="font-serif italic opacity-80"
           >
             A quiet night. Nobody came home, and nothing went wrong.
           </p>
-          <img
-            v-if="betrayalArt"
-            :src="betrayalArt"
-            alt="Young Komodo in an abbey robe, holding up the imperial seal"
-            class="mx-auto block max-h-80 w-auto rounded-lg bg-base-200 object-contain"
-          />
-          <ul v-if="report.events.length" class="space-y-1.5 text-sm">
+          <ul v-if="ledgerEvents.length" class="space-y-1.5 text-sm">
             <li
-              v-for="(event, i) in report.events"
+              v-for="(event, i) in ledgerEvents"
               :key="i"
               class="border-l-2 border-warning/60 pl-3"
             >
@@ -205,7 +276,7 @@
               <button
                 type="button"
                 class="block w-full overflow-hidden rounded-md border border-warning/25 text-left"
-                @click="page = i + mapPages"
+                @click="page = i + mapPages + betrayalPages"
               >
                 <EmperorFortressQuestImage
                   :quest-id="quest.questId"
@@ -227,12 +298,25 @@
             </li>
           </ul>
           <p class="eod-chip p-3 text-sm">
-            Taxes +{{ report.taxes }} brass · wages −{{
-              report.wages
-            }}
-            brass<span v-if="report.loanTaken">
+            <template v-if="report.income === 'host'">
+              Your host shared +{{ report.taxes }} brass · half wages −{{
+                report.wages
+              }}
+              brass
+            </template>
+            <template v-else>
+              Taxes +{{ report.taxes }} brass · wages −{{ report.wages }}
+              brass
+            </template>
+            <span v-if="report.loanTaken">
               · the Ledger covered the shortfall</span
             >
+          </p>
+          <p
+            v-if="report.income === 'host' && shareLine"
+            class="text-xs opacity-75"
+          >
+            {{ shareLine }} No region pays a crown in hiding.
           </p>
         </section>
       </div>
@@ -285,36 +369,78 @@ import {
   mapEventText,
   regionName,
 } from '~/utils/emperorOfDust/fortress/engine'
+import {
+  BUYERS,
+  DEPARTURE_LINES,
+  HIDEOUT_NAMES,
+  departureReason,
+  hostShareLine,
+} from '~/utils/emperorOfDust/fortress/betrayal'
 import { REGIONS } from '~/utils/emperorOfDust/fortress/factions'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 import { codexEntry, codexTrait } from '~/utils/emperorOfDust/fortress/codex'
 import type {
   DawnReport,
+  FortressRun,
   MapEvent,
   QuestReport,
 } from '~/utils/emperorOfDust/fortress/types'
 
-const props = defineProps<{ report: DawnReport }>()
+// `run` is the run after this dawn: it names why each follower left and
+// what the host shares. Without it the report still reads.
+const props = defineProps<{ report: DawnReport; run?: FortressRun | null }>()
 const emit = defineEmits<{ close: [] }>()
 
-/** Day 41 is the dawn Young Komodo betrays the throne (engine actEnd). */
+/** Day 41 is the dawn Young Komodo betrays the throne (engine betray). */
 const betrayalArt = computed(() =>
   props.report.day === 41
     ? castArtUrl('npcs/young-komodo/illustrated/betrayal')
     : undefined,
 )
+/** The betrayal page (t-028): who took the tower and who went with Komodo. */
+const betrayal = computed(() => props.report.betrayal)
+const buyerDef = computed(() => BUYERS[betrayal.value?.buyer ?? 'abbey'])
+const gone = computed(() =>
+  (betrayal.value?.departed ?? []).map(({ followerId, why }) => ({
+    followerId,
+    line: DEPARTURE_LINES[followerId] ?? '',
+    reason: props.run ? departureReason(props.run, followerId, why) : '',
+  })),
+)
+const goneArt = (id: string) =>
+  illustration('followers', id, 'sad') ?? followerPortrait(id)
+/** The ledger page's log, without what the betrayal page already told. */
+const ledgerEvents = computed(() => {
+  if (!betrayal.value) return props.report.events
+  const told = new Set([
+    buyerDef.value.fell,
+    ...gone.value.map(
+      ({ followerId }) => `${nameOf(followerId)} went with Young Komodo.`,
+    ),
+  ])
+  return props.report.events.filter((event) => !told.has(event))
+})
+const shareLine = computed(() =>
+  props.run ? hostShareLine(props.run, factionName) : '',
+)
 
-// The act-end map first, then one page per quest that came home or
-// expired, then the ledger.
+// The act-end map first, then the betrayal, then one page per quest that
+// came home or expired, then the ledger.
 const page = ref(0)
 const mapPages = computed(() => (props.report.map?.length ? 1 : 0))
-const pages = computed(() => mapPages.value + props.report.quests.length + 1)
+const betrayalPages = computed(() => (betrayal.value ? 1 : 0))
+const pages = computed(
+  () => mapPages.value + betrayalPages.value + props.report.quests.length + 1,
+)
 const onMapPage = computed(() => mapPages.value === 1 && page.value === 0)
+const onBetrayalPage = computed(
+  () => betrayalPages.value === 1 && page.value === mapPages.value,
+)
 const current = computed(() =>
-  page.value < mapPages.value
+  page.value < mapPages.value + betrayalPages.value
     ? undefined
-    : props.report.quests[page.value - mapPages.value],
+    : props.report.quests[page.value - mapPages.value - betrayalPages.value],
 )
 
 const ACT_NAMES = ['', 'Act I', 'Act II', 'Act III', 'Act IV']

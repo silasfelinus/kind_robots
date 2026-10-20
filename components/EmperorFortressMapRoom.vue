@@ -5,9 +5,16 @@
         <h2 class="sr-only">The map room</h2>
         <span
           class="tooltip tooltip-bottom tooltip-warning text-sm font-bold text-warning"
-          :data-tip="`Collected every dawn from the land of Neutral, Friendly and Allied holders. Wages are ${wages} a day.`"
+          :data-tip="
+            run.hideout
+              ? `${hostShareLine(run, factionName)} Half wages in hiding: ${wages} a day.`
+              : `Collected every dawn from the land of Neutral, Friendly and Allied holders. Wages are ${wages} a day.`
+          "
         >
-          {{ dailyTaxes(run) }} brass a day in taxes
+          <template v-if="run.hideout"
+            >{{ dailyIncome(run) }} brass a day from your host</template
+          >
+          <template v-else>{{ dailyTaxes(run) }} brass a day in taxes</template>
         </span>
         <span
           v-if="nextMap"
@@ -297,6 +304,13 @@
         <p class="mt-1">
           The court now hides at: {{ hideoutName(run.hideout) }}.
         </p>
+        <p v-if="buyerOf(run)" class="mt-1">
+          The tower flies {{ BUYERS[buyerOf(run)!].banner }}.
+        </p>
+        <p class="mt-1 opacity-80">
+          {{ hostShareLine(run, factionName) }} No region pays a crown in
+          hiding.
+        </p>
       </div>
     </section>
   </div>
@@ -305,9 +319,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import {
-  WAGE,
-  bedsUsed,
+  dailyIncome,
   dailyTaxes,
+  dailyWages,
   factionName,
   mapEventText,
   mapWarnings,
@@ -321,6 +335,11 @@ import {
   REGIONS,
   taxAtTier,
 } from '~/utils/emperorOfDust/fortress/factions'
+import {
+  BUYERS,
+  buyerOf,
+  hostShareLine,
+} from '~/utils/emperorOfDust/fortress/betrayal'
 import { regionCropStyle } from '~/utils/emperorOfDust/fortress/questArt'
 import type {
   AffinityTier,
@@ -334,7 +353,7 @@ const warnings = computed(() => mapWarnings(props.run))
 const nextMap = computed(() =>
   props.run.day <= 40 ? nextActEnd(props.run.day) : undefined,
 )
-const wages = computed(() => WAGE * bedsUsed(props.run))
+const wages = computed(() => dailyWages(props.run))
 
 const regions = computed(() =>
   REGIONS.map((region) => {

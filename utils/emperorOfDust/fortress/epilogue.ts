@@ -23,6 +23,8 @@ export type EpilogueCondition = {
   alive?: string[]
   /** These followers died. */
   dead?: string[]
+  /** These followers left with Young Komodo at the betrayal (t-028). */
+  departed?: string[]
   /** At least this many of a track of flags, such as Mole concessions. */
   standing?: Standing
 }
@@ -52,6 +54,8 @@ const joined = (run: FortressRun, id: string) =>
   run.roster.some((state) => state.id === id)
 const diedIn = (run: FortressRun, id: string) =>
   run.roster.some((state) => state.id === id && state.dead)
+const leftIn = (run: FortressRun, id: string) =>
+  run.roster.some((state) => state.id === id && !!state.departed)
 
 export const conditionHolds = (
   run: FortressRun,
@@ -65,8 +69,11 @@ export const conditionHolds = (
     (!when.anyFlags?.length || when.anyFlags.some(has)) &&
     !(when.notFlags ?? []).some(has) &&
     (!when.endings?.length || when.endings.includes(ending)) &&
-    (when.alive ?? []).every((id) => joined(run, id) && !diedIn(run, id)) &&
+    (when.alive ?? []).every(
+      (id) => joined(run, id) && !diedIn(run, id) && !leftIn(run, id),
+    ) &&
     (when.dead ?? []).every((id) => diedIn(run, id)) &&
+    (when.departed ?? []).every((id) => leftIn(run, id)) &&
     standingHeld(run.flags, when.standing)
   )
 }
@@ -892,6 +899,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F001',
     variants: [
       {
+        when: { departed: ['F001'] },
+        mood: 'sad',
+        text: 'Rook Bramble rode out behind Young Komodo and never rode back. On the southern road there is an outrider who can follow wagon ruts across bare stone. They do not stop at painted wagons anymore.',
+      },
+      {
         when: { dead: ['F001'] },
         mood: 'sad',
         text: 'Rook Bramble is buried at the Eastern Ford, facing the southern road. Every spring someone leaves a painted feather on the stone. Nobody at court has seen who.',
@@ -938,6 +950,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F002',
     variants: [
       {
+        when: { departed: ['F002'] },
+        mood: 'sad',
+        text: 'Saffron Kett went with Young Komodo. Past the mission road there is a bridge nobody paid for. It holds. Nobody crosses it.',
+      },
+      {
         when: { dead: ['F002'] },
         mood: 'sad',
         text: 'Saffron Kett is buried in the canyon by the Pack’s remembering fire, with her toolkit. The badge is still welded inside the lid. Every year Gristle Vane tells the goat story wrong at her stone, and waits for somebody to correct him.',
@@ -980,6 +997,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F003',
     variants: [
       {
+        when: { departed: ['F003'] },
+        mood: 'sad',
+        text: 'Kiyo left the night the tower fell and took Zuzu with her. Some winters a packet of bitter tea comes for the court’s wounded. No note. The string is tied the way she tied bandages.',
+      },
+      {
         when: { dead: ['F003'], flags: ['kiyo-letter-kept'] },
         mood: 'sad',
         text: 'Kiyo is buried facing the straits, with her kettle. The letter with a beetle on the envelope is in a vault again, unread. It waits for a boy who wants to be a hero and cannot finish a cup of tea. He is not old enough yet.',
@@ -1017,6 +1039,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Duchess Flint',
     follower: 'F004',
     variants: [
+      {
+        when: { departed: ['F004'] },
+        mood: 'sad',
+        text: 'Duchess Flint walked out behind Young Komodo and gave every checkpoint her title. They let her through. They always did. Nobody at court has heard her ask a precise question since.',
+      },
       {
         when: { dead: ['F004'] },
         mood: 'sad',
@@ -1059,6 +1086,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F005',
     variants: [
       {
+        when: { departed: ['F005'] },
+        mood: 'sad',
+        text: 'Pip Thread went with Young Komodo and kept his books. They are very good books. Every page adds up. Pip finds that the worst part.',
+      },
+      {
         when: { dead: ['F005'] },
         mood: 'sad',
         text: 'Pip Thread’s registers are filed in the Lamplight Archive under their own name. The last page is half finished. The Archive will not let anyone finish it. The pen is still squared with the edge of the page.',
@@ -1093,6 +1125,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Nera Gale',
     follower: 'F006',
     variants: [
+      {
+        when: { departed: ['F006'] },
+        mood: 'sad',
+        text: 'Nera Gale went with Young Komodo and sold the weather to whoever asked. Twice a year the court gets a forecast it did not pay for. It is always right.',
+      },
       {
         when: { dead: ['F006'] },
         mood: 'sad',
@@ -1138,6 +1175,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F007',
     variants: [
       {
+        when: { departed: ['F007'] },
+        mood: 'sad',
+        text: 'Ash Quill crossed every checkpoint in the wasteland on papers written at a kitchen table. The last pass the court saw carried Young Komodo’s seal. The hand was Ash’s.',
+      },
+      {
         when: { dead: ['F007'] },
         mood: 'sad',
         text: 'Ash Quill is buried by the side gate with their satchel. In it were thirty letters to a boy called Sorrel, unopened. The emperor has not opened them either. Every month the stack is one letter taller.',
@@ -1182,6 +1224,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F008',
     variants: [
       {
+        when: { departed: ['F008'] },
+        mood: 'sad',
+        text: 'Bram Coil keeps a storeroom for someone else now. Everyone eats before the speeches. The speeches are not about the emperor.',
+      },
+      {
         when: { dead: ['F008'] },
         mood: 'sad',
         text: 'Bram Coil is buried on the east wall, where he stood the night watch. On feast days nobody in the fortress speaks until everyone has eaten. Nobody remembers making the rule. Nobody breaks it.',
@@ -1217,6 +1264,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Keel Understone',
     follower: 'F009',
     variants: [
+      {
+        when: { departed: ['F009'] },
+        mood: 'sad',
+        text: 'Keel Understone went down a drain the night the tower fell and never came up where the court could see. The new well maps of the badlands are very good. Nobody signed them.',
+      },
       {
         when: { dead: ['F009'] },
         mood: 'sad',
@@ -1254,6 +1306,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Lumen Shale',
     follower: 'F010',
     variants: [
+      {
+        when: { departed: ['F010'] },
+        mood: 'sad',
+        text: 'Lumen Shale built her hospital with the brass Young Komodo paid her. She took it without thanks and without shame. There is no name over the door. She would not allow one.',
+      },
       {
         when: { dead: ['F010'] },
         mood: 'sad',
@@ -1298,6 +1355,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F011',
     variants: [
       {
+        when: { departed: ['F011'] },
+        mood: 'sad',
+        text: 'Tamsin Gutterwing owes nobody anything. She keeps a ledger to prove it. The crown is on the first page, struck through.',
+      },
+      {
         when: { dead: ['F011'] },
         mood: 'sad',
         text: 'Tamsin Gutterwing owed nothing when she died. She made sure of it. Her cut knots are at the bottom of the barracks well. The Conclave sent no letter. It would have been a long letter.',
@@ -1334,6 +1396,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Brother Teodor Lull',
     follower: 'F012',
     variants: [
+      {
+        when: { departed: ['F012'] },
+        mood: 'sad',
+        text: 'Brother Teodor went back to the soup kitchens under someone else’s banner. Every week he writes the emperor a letter. He tells himself it is harmless. He never sends it.',
+      },
       {
         when: { dead: ['F012'] },
         mood: 'sad',
@@ -1372,6 +1439,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F013',
     variants: [
       {
+        when: { departed: ['F013'] },
+        mood: 'sad',
+        text: 'Mags Ironhide stands at a gate that is not the crown’s. She reads poorly. She sings badly. She has stepped aside exactly once.',
+      },
+      {
         when: { dead: ['F013'] },
         mood: 'sad',
         text: 'Mags Ironhide is buried at the east gate, standing up, as she asked. The Watch reads her name at roll call every night, after Hob’s. Nobody has stepped aside for it.',
@@ -1408,6 +1480,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F014',
     variants: [
       {
+        when: { departed: ['F014'] },
+        mood: 'sad',
+        text: 'Pell Quickmarrow sold the crown’s strongbox in the rail yards for less than it was worth. He kept the lock. It hums.',
+      },
+      {
         when: { dead: ['F014'] },
         mood: 'sad',
         text: 'Pell Quickmarrow was buried in his coat, all forty pockets buttoned. The Archive offered to buy the coat first. The barracks would not sell.',
@@ -1443,6 +1520,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Isolde Brack',
     follower: 'F015',
     variants: [
+      {
+        when: { departed: ['F015'] },
+        mood: 'sad',
+        text: 'Isolde Brack went with Young Komodo, then home to the fen. The green candle she left on her bunk burned a full year. Nobody blew it out. Nobody could.',
+      },
       {
         when: { dead: ['F015'] },
         mood: 'sad',
@@ -1482,6 +1564,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Sable Thorne',
     follower: 'F016',
     variants: [
+      {
+        when: { departed: ['F016'] },
+        mood: 'sad',
+        text: 'Sable Thorne went out bare-handed and has not been seen since. Not by the court. Not by the Verge. That was the point.',
+      },
       {
         when: { dead: ['F016'] },
         mood: 'sad',
@@ -1524,6 +1611,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F017',
     variants: [
       {
+        when: { departed: ['F017'] },
+        mood: 'sad',
+        text: 'Cobb Harrow built a barn for Young Komodo’s friends. Then another. He still has not said what happened at Thistledown. Not to the crown.',
+      },
+      {
         when: { dead: ['F017'] },
         mood: 'sad',
         text: 'Cobb Harrow is buried in Thistledown, beside the barn he built three times. It is still standing. It is the fourth one now. Somebody else built it.',
@@ -1560,6 +1652,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Vesper Fanfare',
     follower: 'F018',
     variants: [
+      {
+        when: { departed: ['F018'] },
+        mood: 'sad',
+        text: 'Vesper Fanfare works the fairs on the far side of the wasteland. When someone asks about the emperor, she drops a ball on purpose. The crowd laughs. She does not.',
+      },
       {
         when: { dead: ['F018'] },
         mood: 'sad',
@@ -1598,6 +1695,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F019',
     variants: [
       {
+        when: { departed: ['F019'] },
+        mood: 'sad',
+        text: 'Hollin Moss drew the tower as it stood the night he left, one door circled. The map hangs where the court will never see it. He remembers roads that no longer exist. Now one more.',
+      },
+      {
         when: { dead: ['F019'] },
         mood: 'sad',
         text: 'Hollin Moss left the Archive four hundred maps. The last one is blank in the north. Owls never burn anything, he used to say. The Archive has burned nothing since.',
@@ -1632,6 +1734,11 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Juniper Slate',
     follower: 'F020',
     variants: [
+      {
+        when: { departed: ['F020'] },
+        mood: 'sad',
+        text: 'Juniper Slate runs a kitchen behind someone else’s walls. They still know everyone’s business by their stomach. They have never once said the emperor’s name.',
+      },
       {
         when: { dead: ['F020'] },
         mood: 'sad',

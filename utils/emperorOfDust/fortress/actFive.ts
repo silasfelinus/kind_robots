@@ -596,6 +596,48 @@ const vellumSays = (text: string): SceneLine => ({
   text,
 })
 
+/**
+ * Who bought the tower (t-028, `buyer:<id>`): the Abbey by default, else the
+ * Black Verge or House Vask. These scenes swap only the lines that name who
+ * holds the tower; the Abbess is still the patron behind every buyer.
+ */
+const swapLines = (
+  lines: SceneLine[],
+  swaps: Record<number, SceneLine>,
+): SceneLine[] => lines.map((line, i) => swaps[i] ?? line)
+
+const D41_STAYED: SceneLine[] = [
+  '“They’re not traitors, Majesty. Most of them. The grey sisters came to the kitchens the first night with hot soup and clean blankets. Said the tower needs cooks whoever sits in it.”',
+  '“My sister is one of them. And a boy I taught to bake. They’ll be feeding the Abbess’s guards by now. They’ll be good at it.”',
+  '“If the crown goes back, somebody asks what to do with them. Better tonight, by the fire. Not later, by a rope.”',
+  {
+    who: 'A Gate Watch sergeant',
+    text: '“Soup is soup, Foreman. My lads came over the wall with arrows in the air. Yours stayed for supper.”',
+  },
+  vellumSays(
+    '“The record can hold either word, Majesty. Stayed. Or turned. Not both. It keeps the one you choose a long time.”',
+  ),
+]
+
+const D43_ESCORT: SceneLine[] = [
+  '“You sent me with him, Majesty. Doubled the Watch and put me at his stirrup. I watched him the whole mission road. I’ve gone over every hour since.”',
+  '“He talked about the price of oats. He asked after my mother. At the Abbey gate he thanked me for the company and said the emperor had been very thorough. He went in. The sisters closed the gate between us. Kindly.”',
+  '“By the time I rode back the tower was flying grey. I was the escort. I escorted him to it.”',
+  vellumSays(
+    '“You did as ordered, Captain. So did he, in his way. That is the trouble with orders.”',
+  ),
+]
+
+const D45_ENVOY: SceneLine[] = [
+  'The Envoy comes alone, on foot, leading a horse too tired to ride. Plum coat muddy to the knee. The white gloves are gone. Their hands are pale as candle wax.',
+  'The court goes quiet. Everyone at this fire has been hunted by plum riders this month. Some have lost people to them.',
+  '“We bargained with the Abbess too, Majesty. For cures. For the condition. We did not read the price.”',
+  '“Now our manors are full of a singing nobody can stop. Our sick sit up in their beds at night, all together, and sing in a language none of us taught them. The Verge asks help of the crown it hunted.”',
+  vellumSays(
+    '“The riders who burned the Freehold farms this month were paid in Abbey cures, Majesty. Everyone here knows it. The Envoy knows we know.”',
+  ),
+]
+
 export const ACT_FIVE_DAYS: readonly DayDef[] = [
   {
     day: 41,
@@ -607,6 +649,16 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'A Gate Watch runner',
         text: 'The tower flies the Abbey’s grey banner this morning.',
         truth: true,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            text: 'The tower flies the plum banner of the Black Verge this morning.',
+          },
+          {
+            flags: ['buyer:old-houses'],
+            text: 'The tower flies the black swan of House Vask this morning.',
+          },
+        ],
       },
       {
         id: 'komodo-sorry',
@@ -708,17 +760,20 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             id: 'stayed',
             speaker: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
-            lines: [
-              '“They’re not traitors, Majesty. Most of them. The grey sisters came to the kitchens the first night with hot soup and clean blankets. Said the tower needs cooks whoever sits in it.”',
-              '“My sister is one of them. And a boy I taught to bake. They’ll be feeding the Abbess’s guards by now. They’ll be good at it.”',
-              '“If the crown goes back, somebody asks what to do with them. Better tonight, by the fire. Not later, by a rope.”',
+            lines: D41_STAYED,
+            variants: [
               {
-                who: 'A Gate Watch sergeant',
-                text: '“Soup is soup, Foreman. My lads came over the wall with arrows in the air. Yours stayed for supper.”',
+                flags: ['buyer:black-verge'],
+                lines: swapLines(D41_STAYED, {
+                  1: '“My sister is one of them. And a boy I taught to bake. They’ll be feeding plum riders by now. Riders eat a lot. They’ll be good at it.”',
+                }),
               },
-              vellumSays(
-                '“The record can hold either word, Majesty. Stayed. Or turned. Not both. It keeps the one you choose a long time.”',
-              ),
+              {
+                flags: ['buyer:old-houses'],
+                lines: swapLines(D41_STAYED, {
+                  1: '“My sister is one of them. And a boy I taught to bake. They’ll be feeding Lady Vask’s sons by now, off the good plates. They’ll be good at it.”',
+                }),
+              },
             ],
             options: [
               {
@@ -1044,6 +1099,16 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'A message from the tower',
         text: 'The Old Houses refuse to recognise the Abbess.',
         truth: false,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            text: 'The Old Houses refuse to recognise the Black Verge.',
+          },
+          {
+            flags: ['buyer:old-houses'],
+            text: 'The Old Houses refuse to recognise Lady Vask.',
+          },
+        ],
       },
       {
         id: 'host-terms',
@@ -2106,13 +2171,20 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'escort',
-            lines: [
-              '“You sent me with him, Majesty. Doubled the Watch and put me at his stirrup. I watched him the whole mission road. I’ve gone over every hour since.”',
-              '“He talked about the price of oats. He asked after my mother. At the Abbey gate he thanked me for the company and said the emperor had been very thorough. He went in. The sisters closed the gate between us. Kindly.”',
-              '“By the time I rode back the tower was flying grey. I was the escort. I escorted him to it.”',
-              vellumSays(
-                '“You did as ordered, Captain. So did he, in his way. That is the trouble with orders.”',
-              ),
+            lines: D43_ESCORT,
+            variants: [
+              {
+                flags: ['buyer:black-verge'],
+                lines: swapLines(D43_ESCORT, {
+                  2: '“By the time I rode back the tower was flying plum. Riders on the walls. Our walls. I was the escort. I escorted him to it.”',
+                }),
+              },
+              {
+                flags: ['buyer:old-houses'],
+                lines: swapLines(D43_ESCORT, {
+                  2: '“By the time I rode back the tower was flying Vask’s black swan. Her sons on our walls. I was the escort. I escorted him to it.”',
+                }),
+              },
             ],
             options: [
               {
@@ -2411,12 +2483,24 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'The host’s lookouts',
         text: 'The plum riders are pulling off every road, back toward the Black Verge.',
         truth: true,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            text: 'The plum riders are leaving the tower walls by night, back toward the Black Verge.',
+          },
+        ],
       },
       {
         id: 'verge-won',
         source: 'A Gate Watch rumour',
         text: 'The Black Verge Court has made peace with the Abbess.',
         truth: false,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            text: 'The Black Verge will hold the tower for the Abbess to the last rider.',
+          },
+        ],
       },
       {
         id: 'envoy-asks',
@@ -2435,14 +2519,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         speaker: 'The Envoy of the Black Verge',
         npc: 'the-verge-envoy',
         faction: 'black-verge',
-        lines: [
-          'The Envoy comes alone, on foot, leading a horse too tired to ride. Plum coat muddy to the knee. The white gloves are gone. Their hands are pale as candle wax.',
-          'The court goes quiet. Everyone at this fire has been hunted by plum riders this month. Some have lost people to them.',
-          '“We bargained with the Abbess too, Majesty. For cures. For the condition. We did not read the price.”',
-          '“Now our manors are full of a singing nobody can stop. Our sick sit up in their beds at night, all together, and sing in a language none of us taught them. The Verge asks help of the crown it hunted.”',
-          vellumSays(
-            '“The riders who burned the Freehold farms this month were paid in Abbey cures, Majesty. Everyone here knows it. The Envoy knows we know.”',
-          ),
+        lines: D45_ENVOY,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            lines: swapLines(D45_ENVOY, {
+              1: 'The court goes quiet. Five nights ago plum riders came through the tower gate at a walk. They have hunted this fire ever since. Some here have lost people to them.',
+              3: '“Now our manors are full of a singing nobody can stop. Our sick sit up in their beds at night, all together, and sing in a language none of us taught them. The Verge sits in your tower, Majesty. It asks help of the crown it robbed.”',
+            }),
+          },
         ],
         options: [
           {
@@ -3375,6 +3460,16 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'A hopeful herald',
         text: 'The Abbess has offered to surrender the tower tomorrow.',
         truth: false,
+        variants: [
+          {
+            flags: ['buyer:black-verge'],
+            text: 'The Black Verge has offered to give back the tower tomorrow.',
+          },
+          {
+            flags: ['buyer:old-houses'],
+            text: 'Lady Vask has offered to give back the tower tomorrow.',
+          },
+        ],
       },
       {
         id: 'coalition-here',

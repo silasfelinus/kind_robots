@@ -260,6 +260,7 @@
     <EmperorFortressDawn
       v-if="showDawn && court.lastReport"
       :report="court.lastReport"
+      :run="court.run"
       @close="showDawn = false"
     />
   </main>

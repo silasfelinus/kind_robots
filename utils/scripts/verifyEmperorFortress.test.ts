@@ -38,7 +38,9 @@ import {
   chooseTalkOption,
   createRun,
   earnFlag,
+  dailyIncome,
   dailyTaxes,
+  dailyWages,
   equipItem,
   finishDay,
   followerMood,
@@ -46,6 +48,7 @@ import {
   forecastMark,
   injuryDaysLeft,
   isOver,
+  lineText,
   mapWarnings,
   optionBlockers,
   optionVisible,
@@ -89,6 +92,26 @@ import {
   followerDef,
 } from '../emperorOfDust/fortress/followers'
 import { ITEM_ICONS, itemDef, itemIcon } from '../emperorOfDust/fortress/items'
+import {
+  BETRAYAL_DAY,
+  BUYERS,
+  BUYER_IDS,
+  CAVE_SHARE,
+  DEPARTURE_LINES,
+  HIDEOUT_HOST,
+  HIDEOUT_WAGE,
+  MAX_DEPARTURES,
+  MIN_LEFT,
+  OLD_HOUSES_LOST,
+  VERGE_SLIGHTS,
+  buyerOf,
+  departedFollowers,
+  departureCheck,
+  hostShare,
+  selectBuyer,
+  selectDepartures,
+  storyHeard,
+} from '../emperorOfDust/fortress/betrayal'
 import {
   MIN_STOCK,
   POULTICE_PRICE,
@@ -1921,7 +1944,11 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
     'rail-station',
     'nameless-cave',
   ]
-  for (const flag of [BETRAYAL_FLAG, ...HIDEOUT_IDS.map((h) => `hideout:${h}`)])
+  for (const flag of [
+    BETRAYAL_FLAG,
+    ...HIDEOUT_IDS.map((h) => `hideout:${h}`),
+    ...BUYER_IDS.map((b) => `buyer:${b}`),
+  ])
     flagSource(flag).laterDays.push(41)
 
   let variantCount = 0
@@ -3223,6 +3250,552 @@ for (const def of DAYS)
       market: { window: 99 } as unknown as FortressRun['market'],
     }),
   )
+}
+
+// --- t-028: Komodo's buyer, who goes with him, and the host's share ----------
+{
+  /** The last night: every banner on the map, twelve beds, no talks heard. */
+  const eve = (
+    patch: Partial<FortressRun> = {},
+    extra: string[] = [],
+    joinedDay = 5,
+  ): FortressRun => {
+    const base = onDay(1, 40)
+    return {
+      ...base,
+      board: [],
+      beds: 12,
+      revealedFactions: [...KINGDOM_FACTIONS],
+      roster: [
+        ...base.roster,
+        ...extra.map((id) => ({ id, joinedDay, equipment: {} })),
+      ],
+      ...patch,
+    }
+  }
+  const fall = (run: FortressRun) => finishDay(run)
+  assert.equal(BETRAYAL_DAY, 41)
+
+  // The buyer: the Abbey by default, read from state, never rolled.
+  const plain = eve()
+  const fell = fall(plain)
+  assert.equal(buyerOf(plain), undefined, 'no buyer before the betrayal')
+  assert.equal(buyerOf(fell.run), 'abbey', 'the Abbey is the default buyer')
+  assert.ok(fell.run.flags.includes('buyer:abbey'))
+  assert.equal(fell.report.betrayal?.buyer, 'abbey')
+  assert.equal(fell.report.betrayal?.hideout, fell.run.hideout)
+  assert.ok(fell.report.events.includes(BUYERS.abbey.fell))
+  for (const patch of [{ seed: 999 }, { branch: 7 }, { seed: -5, branch: 2 }])
+    assert.equal(
+      selectBuyer({ ...plain, ...patch }),
+      'abbey',
+      'seed and branch never change the buyer',
+    )
+  assert.deepEqual(
+    fall(eve()).run.roster,
+    fell.run.roster,
+    'the same night ends the same way',
+  )
+  const slighted = (count: number, patch: Partial<FortressRun> = {}) => {
+    const run = eve(patch)
+    return { ...run, flags: [...run.flags, ...VERGE_SLIGHTS.slice(0, count)] }
+  }
+  assert.equal(selectBuyer(slighted(3)), 'black-verge', 'three slights')
+  assert.equal(selectBuyer(slighted(2)), 'abbey', 'two slights are not enough')
+  assert.equal(
+    selectBuyer(
+      slighted(3, {
+        strength: { ...plain.strength, 'black-verge': plain.strength.abbey },
+      }),
+    ),
+    'abbey',
+    'a Verge no stronger than the Abbey leaves the walls to the sisters',
+  )
+  assert.equal(
+    selectBuyer(slighted(3, { wipedOut: ['black-verge'] })),
+    'abbey',
+    'a Verge wiped from the map buys nothing',
+  )
+  assert.equal(
+    selectBuyer(
+      slighted(3, {
+        revealedFactions: KINGDOM_FACTIONS.filter((f) => f !== 'black-verge'),
+      }),
+    ),
+    'abbey',
+    'an unrevealed Verge buys nothing',
+  )
+  assert.equal(
+    selectBuyer(eve({ affinity: { ...plain.affinity, 'black-verge': -70 } })),
+    'black-verge',
+    'an open feud is enough on its own',
+  )
+  assert.equal(
+    selectBuyer(
+      slighted(3, {
+        wipedOut: ['abbey'],
+        strength: { ...plain.strength, 'black-verge': 2 },
+      }),
+    ),
+    'black-verge',
+    'with the Abbey gone, the Verge holds the walls for the Abbess',
+  )
+  const lostHouses = (support: number, patch: Partial<FortressRun> = {}) => {
+    const run = eve(patch)
+    return { ...run, local: { ...run.local, 'old-houses': support } }
+  }
+  assert.equal(selectBuyer(lostHouses(OLD_HOUSES_LOST)), 'old-houses')
+  assert.equal(selectBuyer(lostHouses(OLD_HOUSES_LOST + 1)), 'abbey')
+  const both = lostHouses(0)
+  assert.equal(
+    selectBuyer({
+      ...both,
+      flags: [...both.flags, ...VERGE_SLIGHTS.slice(0, 3)],
+    }),
+    'black-verge',
+    'the Verge comes before House Vask',
+  )
+  // A save from before t-028 that is already past the betrayal reads as the Abbey.
+  assert.equal(
+    buyerOf({
+      ...fell.run,
+      flags: fell.run.flags.filter((flag) => !flag.startsWith('buyer:')),
+    }),
+    'abbey',
+  )
+  for (const buyer of BUYER_IDS) {
+    const run =
+      buyer === 'abbey'
+        ? plain
+        : buyer === 'black-verge'
+          ? slighted(3)
+          : lostHouses(0)
+    const dawn = fall(run)
+    assert.equal(buyerOf(dawn.run), buyer, `${buyer} bought the tower`)
+    assert.ok(dawn.report.events.includes(BUYERS[buyer].fell))
+    assert.ok(
+      dawn.run.flags.filter((flag) => flag.startsWith('buyer:')).length === 1,
+      'one buyer',
+    )
+  }
+
+  // Every Act V line that names who holds the tower reads right for each buyer.
+  const BANNER: Record<string, RegExp> = {
+    abbey: /Abbey’s grey banner/,
+    'black-verge': /plum banner of the Black Verge/,
+    'old-houses': /black swan of House Vask/,
+  }
+  const ABBEY_HOLDS =
+    /Abbey’s grey banner|flying grey\.|Abbess’s guards|recognise the Abbess|Abbess has offered to surrender/
+  for (const buyer of BUYER_IDS) {
+    const flags = [BETRAYAL_FLAG, 'hideout:mole-tunnels', `buyer:${buyer}`]
+    const texts: string[] = []
+    for (const def of DAYS.filter((d) => d.day >= 41)) {
+      const run = onDay(1, def.day, { hideout: 'mole-tunnels', flags })
+      texts.push(...dayBriefings(run, def)!.map((b) => b.text))
+      for (const audience of def.audiences) {
+        texts.push(...audienceScene(run, audience).lines.map(lineText))
+        for (const beat of audience.beats ?? [])
+          texts.push(
+            ...audienceScene(
+              { ...run, audienceBeats: { [audience.id]: beat.id } },
+              audience,
+            ).lines.map(lineText),
+          )
+      }
+    }
+    const all = texts.join('\n')
+    assert.match(all, BANNER[buyer]!, `${buyer}: the banner line`)
+    if (buyer !== 'abbey')
+      assert.doesNotMatch(
+        all,
+        ABBEY_HOLDS,
+        `${buyer}: nobody says the Abbey holds the tower`,
+      )
+    else assert.match(all, /Abbess’s guards/, 'the Abbey reading is unchanged')
+  }
+  // Scene variants only swap lines: same length, keyed on the buyer, never empty.
+  let sceneVariants = 0
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const scene of [audience, ...(audience.beats ?? [])])
+        for (const variant of scene.variants ?? []) {
+          sceneVariants += 1
+          assert.ok(variant.flags?.length, `${audience.id}: a variant is keyed`)
+          for (const flag of variant.flags ?? [])
+            assert.ok(
+              BUYER_IDS.some((b) => flag === `buyer:${b}`) && def.day >= 41,
+              `${audience.id}: ${flag} is the Day 41 buyer`,
+            )
+          assert.equal(variant.lines.length, scene.lines.length)
+          assert.notDeepEqual(variant.lines, scene.lines, audience.id)
+        }
+  assert.ok(sceneVariants >= 5, `${sceneVariants} buyer scene variants`)
+
+  // Who goes with him. Brother Teodor writes to the Abbess; Saffron's Pack is
+  // Wary of the crown by default. Nobody has sat with anyone.
+  const eight = eve({}, ['F005', 'F008', 'F012', 'F013'])
+  eight.roster.find((s) => s.id === 'F012')!.equipment = {
+    tool: 'old-road-crowbar',
+  }
+  assert.equal(
+    departureCheck(
+      eight,
+      'abbey',
+      eight.roster.find((s) => s.id === 'F012')!,
+    ).why,
+    'allegiance',
+  )
+  assert.equal(
+    departureCheck(
+      eight,
+      'abbey',
+      eight.roster.find((s) => s.id === 'F002')!,
+    ).why,
+    'neglect',
+  )
+  assert.equal(
+    departureCheck(
+      eight,
+      'abbey',
+      eight.roster.find((s) => s.id === 'F003')!,
+    ).why,
+    null,
+    'the Saltroad is Neutral',
+  )
+  assert.equal(
+    departureCheck(
+      eight,
+      'black-verge',
+      eight.roster.find((s) => s.id === 'F012')!,
+    ).why,
+    null,
+    'an allegiance to the Abbess does not pull toward the Verge',
+  )
+  const gone = fall(eight)
+  assert.deepEqual(
+    gone.report.betrayal?.departed,
+    [
+      { followerId: 'F012', why: 'allegiance' },
+      { followerId: 'F002', why: 'neglect' },
+    ],
+    'allegiance first, then neglect, in the order they joined',
+  )
+  assert.equal(followerStatus(gone.run, 'F012'), 'departed')
+  assert.equal(followerStatus(gone.run, 'F002'), 'departed')
+  assert.ok(
+    !gone.run.roster.find((s) => s.id === 'F012')!.dead,
+    'gone, not dead',
+  )
+  assert.equal(bedsUsed(gone.run), 6, 'their beds are free')
+  assert.equal(talkFor(gone.run, 'F012'), undefined, 'their talks stop')
+  assert.ok(
+    unmetRequirements(gone.run, { follower: 'F012' }).length > 0 &&
+      !optionVisible(gone.run, {
+        id: 'x',
+        label: 'x',
+        effects: {},
+        response: 'x',
+        requires: { follower: 'F012' },
+      }),
+    'scenes that need them do not open',
+  )
+  const someQuest = gone.run.board[0]
+  if (someQuest)
+    assert.throws(
+      () => assignQuest(gone.run, someQuest.questId, ['F012']),
+      /not ready|must go|needs/,
+      'nobody can send them',
+    )
+  assert.ok(gone.run.inventory.includes('old-road-crowbar'), 'their kit stays')
+  assert.deepEqual(gone.run.roster.find((s) => s.id === 'F012')!.equipment, {})
+  assert.ok(
+    gone.report.events.some((e) =>
+      /Brother Teodor Lull went with Young Komodo/.test(e),
+    ),
+  )
+  assert.equal(
+    gone.report.wages,
+    HIDEOUT_WAGE * bedsUsed(gone.run),
+    'nobody pays the gone',
+  )
+  const reasons = departedFollowers(gone.run)
+  assert.equal(reasons.length, 2)
+  const reasonOf = (id: string) =>
+    reasons.find((entry) => entry.followerId === id)!.reason
+  assert.equal(
+    reasonOf('F012'),
+    'Letters to the Abbess. The Abbey called. He went.',
+  )
+  assert.equal(
+    reasonOf('F002'),
+    `${41 - 1} days at court. Nobody sat with her once. Her people are wary of the crown.`,
+  )
+  for (const def of FOLLOWERS)
+    assert.ok(DEPARTURE_LINES[def.id], `${def.name}: a line for leaving`)
+
+  // Protections: a heard story, a sealed romance, being away.
+  const kept = (patch: Partial<FortressRun>, id: string) =>
+    departureCheck(
+      { ...eight, ...patch },
+      'abbey',
+      eight.roster.find((s) => s.id === id)!,
+    )
+  assert.deepEqual(kept({ talksHeard: ['teodor-1', 'teodor-2'] }, 'F012'), {
+    why: null,
+    kept: 'story',
+  })
+  assert.ok(
+    storyHeard({ ...eight, talksHeard: ['lumen-1'] }, 'F010'),
+    'Lumen has one tower talk',
+  )
+  assert.deepEqual(kept({ flags: ['romance-saffron-sealed'] }, 'F002'), {
+    why: null,
+    kept: 'romance',
+  })
+  assert.deepEqual(
+    kept(
+      {
+        active: [
+          {
+            questId: 'q',
+            party: ['F012'],
+            departedDay: 40,
+            returnsDay: 42,
+            postedDay: 40,
+            lastDay: 40,
+          },
+        ],
+      },
+      'F012',
+    ),
+    { why: null, kept: 'away' },
+  )
+  assert.equal(
+    kept({ talksHeard: ['saffron-1'] }, 'F002').why,
+    null,
+    'one talk is enough against neglect',
+  )
+  assert.equal(
+    kept({ talksHeard: ['teodor-1'] }, 'F012').why,
+    'allegiance',
+    'one talk does not answer an allegiance',
+  )
+  const late = eve({}, ['F005', 'F008', 'F013'], 35)
+  assert.equal(
+    departureCheck(
+      late,
+      'abbey',
+      late.roster.find((s) => s.id === 'F013')!,
+    ).why,
+    null,
+    'too new to be neglected',
+  )
+  // Whose people are crossed: wary or hostile, wiped out, or a local faction losing faith.
+  const crossed = (patch: Partial<FortressRun>, id: string) => {
+    const run = { ...eve({}, ['F008', 'F011', 'F013', 'F016']), ...patch }
+    return departureCheck(
+      run,
+      'abbey',
+      run.roster.find((s) => s.id === id)!,
+    ).why
+  }
+  assert.equal(crossed({ wipedOut: ['freeholds'] }, 'F008'), 'neglect')
+  assert.equal(crossed({}, 'F008'), null)
+  assert.equal(
+    crossed({ local: { ...plain.local, 'gate-watch': 5 } }, 'F013'),
+    'neglect',
+  )
+  assert.equal(
+    crossed({ local: { ...plain.local, 'gate-watch': 6 } }, 'F013'),
+    null,
+  )
+  assert.equal(
+    crossed({ affinity: { ...plain.affinity, 'storm-crows': -40 } }, 'F011'),
+    null,
+    'Tamsin owes the Conclave nothing either: no pull',
+  )
+  assert.equal(
+    crossed({ affinity: { ...plain.affinity, 'black-verge': -90 } }, 'F016'),
+    null,
+    'Sable is hunted by the Verge: never pulled to it',
+  )
+
+  // Caps: never more than MAX_DEPARTURES; never fewer than MIN_LEFT kept.
+  const everyone = FOLLOWERS.map((def) => def.id)
+  const cold = (ids: string[]) => {
+    const run = eve({
+      roster: ids.map((id) => ({ id, joinedDay: 1, equipment: {} })),
+      affinity: Object.fromEntries(
+        KINGDOM_FACTIONS.map((f) => [f, -40]),
+      ) as FortressRun['affinity'],
+      local: Object.fromEntries(
+        LOCAL_FACTIONS.map((f) => [f, 0]),
+      ) as FortressRun['local'],
+    })
+    return run
+  }
+  assert.equal(
+    selectDepartures(cold(everyone.slice(0, 12)), 'abbey').length,
+    MAX_DEPARTURES,
+  )
+  assert.equal(selectDepartures(cold(everyone.slice(0, 6)), 'abbey').length, 2)
+  assert.equal(
+    selectDepartures(cold(everyone.slice(0, MIN_LEFT)), 'abbey').length,
+    0,
+  )
+  assert.equal(
+    selectDepartures(cold([...everyone.slice(0, 4), 'F012']), 'abbey')[0]!
+      .followerId,
+    'F012',
+    'an allegiance outranks neglect when room is short',
+  )
+  const coldFall = fall(cold(everyone.slice(0, 12)))
+  assert.equal(
+    coldFall.run.roster.filter((s) => s.departed).length,
+    MAX_DEPARTURES,
+  )
+  assert.ok(validateRun(coldFall.run), 'a run with departures saves')
+  // Whole campaigns: the cap and the floor hold, and the court is never empty.
+  for (const policy of POLICIES.slice(0, 6))
+    for (let seed = 1; seed <= 2; seed += 1)
+      playCampaign(policy, seed, (run) => {
+        if (run.day !== 41) return
+        const left = run.roster.filter((s) => !s.dead && !s.departed).length
+        const went = run.roster.filter((s) => s.departed).length
+        assert.ok(went <= MAX_DEPARTURES, `${policy.id}: ${went} went`)
+        assert.ok(went === 0 || left >= MIN_LEFT, `${policy.id}: ${left} left`)
+        assert.ok(left > 0, `${policy.id}: the court has hands`)
+      })
+
+  // The epilogue: a follower who went with Komodo is told as gone, not dead or at court.
+  for (const def of FOLLOWERS) {
+    const base = onDay(1, 50)
+    const run: FortressRun = {
+      ...base,
+      flags: [BETRAYAL_FLAG, 'horror-sealed'],
+      roster: [
+        {
+          id: def.id,
+          joinedDay: 1,
+          departed: { day: 41, why: 'neglect' },
+          equipment: {},
+        },
+      ],
+    }
+    const told = epilogueFor(run, 'open-roads').find(
+      (e) => e.subject.follower === def.id,
+    )
+    assert.ok(told, `${def.name} is in the epilogue`)
+    assert.deepEqual(
+      told!.variant.when?.departed,
+      [def.id],
+      `${def.name}: the gone variant`,
+    )
+    const night = epilogueFor(run, 'long-night').find(
+      (e) => e.subject.follower === def.id,
+    )
+    assert.deepEqual(
+      night?.variant.when?.departed,
+      [def.id],
+      `${def.name}: gone under the Long Night too`,
+    )
+  }
+
+  // Saves: the new fields are optional and validated.
+  assert.ok(validateRun(gone.run), 'a betrayed run with departures saves')
+  const before: FortressRun = JSON.parse(JSON.stringify(gone.run))
+  for (const state of before.roster) delete state.departed
+  for (const report of before.reports) {
+    delete report.betrayal
+    delete report.income
+  }
+  assert.ok(validateRun(before), 'a save from before t-028 still loads')
+  const tampered = (mutate: (run: FortressRun) => void) => {
+    const run: FortressRun = JSON.parse(JSON.stringify(gone.run))
+    mutate(run)
+    return validateRun(run)
+  }
+  assert.ok(
+    !tampered((run) => {
+      run.roster.find((s) => s.id === 'F012')!.departed = {
+        day: 41,
+        why: 'bored' as 'neglect',
+      }
+    }),
+    'unknown reasons are refused',
+  )
+  assert.ok(
+    !tampered((run) => {
+      run.active.push({
+        questId: 'q-d41-stragglers',
+        party: ['F012'],
+        departedDay: 41,
+        returnsDay: 42,
+        postedDay: 41,
+        lastDay: 42,
+      })
+    }),
+    'a follower who left cannot ride out for the crown',
+  )
+  assert.ok(
+    !tampered((run) => {
+      run.reports.at(-1)!.betrayal!.buyer = 'moles' as 'abbey'
+    }),
+    'unknown buyers are refused',
+  )
+  assert.ok(
+    !tampered((run) => {
+      run.reports.at(-1)!.income = 'taxes' as 'host'
+    }),
+  )
+
+  // Income: the regions pay until the tower falls; then only the host shares.
+  assert.equal(dailyIncome(plain), dailyTaxes(plain))
+  assert.equal(dailyWages(plain), WAGE * bedsUsed(plain))
+  assert.equal(fall({ ...plain, day: 39 }).report.income, undefined)
+  assert.equal(fell.run.hideout, 'nameless-cave')
+  assert.equal(fell.report.income, 'host')
+  assert.equal(fell.report.taxes, CAVE_SHARE, 'the cave shares little')
+  assert.equal(fell.report.wages, HIDEOUT_WAGE * bedsUsed(fell.run))
+  const moleNight = eve({ affinity: { ...plain.affinity, moles: 70 } })
+  const moleDawn = fall(moleNight)
+  assert.equal(moleDawn.run.hideout, 'mole-tunnels')
+  assert.equal(
+    moleDawn.report.taxes,
+    moleDawn.run.strength.moles * 3,
+    'an Allied host shares three brass per point of strength',
+  )
+  assert.equal(moleDawn.report.taxes, hostShare(moleDawn.run)!.paid)
+  assert.notEqual(
+    moleDawn.report.taxes,
+    dailyTaxes(moleDawn.run),
+    'not the regions’ taxes',
+  )
+  const friendlyMoles = {
+    ...moleDawn.run,
+    affinity: { ...moleDawn.run.affinity, moles: 30 },
+  }
+  assert.equal(hostShare(friendlyMoles)!.paid, friendlyMoles.strength.moles * 2)
+  const waryMoles = {
+    ...moleDawn.run,
+    affinity: { ...moleDawn.run.affinity, moles: -30 },
+  }
+  assert.equal(
+    hostShare(waryMoles)!.paid,
+    0,
+    'a host the crown has crossed shares nothing',
+  )
+  const nextDawn = finishDay(moleDawn.run).report
+  assert.equal(nextDawn.income, 'host')
+  assert.equal(nextDawn.taxes, hostShare(finishDay(moleDawn.run).run)!.paid)
+  assert.equal(nextDawn.betrayal, undefined, 'the betrayal is told once')
+  for (const [hideout, faction] of Object.entries(HIDEOUT_HOST))
+    assert.equal(
+      selectHideout(eve({ affinity: { ...plain.affinity, [faction]: 90 } })),
+      hideout,
+      `${faction} hides the court in ${hideout}`,
+    )
 }
 
 console.log('Emperor of Dust fortress contract: ok')

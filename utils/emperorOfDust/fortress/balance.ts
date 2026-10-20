@@ -250,7 +250,7 @@ export const playCampaign = (
     loans: run.loans,
     wipedOut: run.wipedOut.length,
     brass: run.brass,
-    roster: run.roster.filter((state) => !state.dead).length,
+    roster: run.roster.filter((state) => !state.dead && !state.departed).length,
   }
 }
 

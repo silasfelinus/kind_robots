@@ -49,11 +49,19 @@ import type {
   QuestResultTier,
   Requirement,
   SceneLine,
+  SceneVariant,
   Stat,
   TalkDef,
   TraitDef,
 } from './types'
 import { TALKS } from './talks'
+import {
+  BETRAYAL_DAY,
+  HIDEOUT_HOST,
+  HIDEOUT_WAGE,
+  applyBetrayal,
+  hostShare,
+} from './betrayal'
 
 export const START_BRASS = 120
 export const WAGE = 4
@@ -215,7 +223,12 @@ const postQuest = (run: FortressRun, questId: string): void => {
 
 // --- followers --------------------------------------------------------------
 
-export type FollowerStatus = 'ready' | 'on-quest' | 'injured' | 'dead'
+export type FollowerStatus =
+  'ready' | 'on-quest' | 'injured' | 'dead' | 'departed'
+
+/** Gone from court: dead, or left with Young Komodo. */
+export const goneFromCourt = (status: FollowerStatus | null): boolean =>
+  !status || status === 'dead' || status === 'departed'
 
 export const followerStatus = (
   run: FortressRun,
@@ -224,6 +237,7 @@ export const followerStatus = (
   const state = run.roster.find((entry) => entry.id === id)
   if (!state) return null
   if (state.dead) return 'dead'
+  if (state.departed) return 'departed'
   if (run.active.some((quest) => quest.party.includes(id))) return 'on-quest'
   if ((state.injuredUntilDay ?? 0) > run.day) return 'injured'
   return 'ready'
@@ -279,7 +293,7 @@ export const injuryDaysLeft = (run: FortressRun, id: string): number => {
 }
 
 export const bedsUsed = (run: FortressRun): number =>
-  run.roster.filter((entry) => !entry.dead).length
+  run.roster.filter((entry) => !entry.dead && !entry.departed).length
 
 // --- requirements and effects -------------------------------------------------
 
@@ -307,7 +321,7 @@ export const unmetRequirements = (
   }
   if (requires?.follower) {
     const status = followerStatus(run, requires.follower)
-    if (!status || status === 'dead')
+    if (goneFromCourt(status))
       reasons.push(
         `Needs ${followerDef(requires.follower)?.name ?? requires.follower} at court`,
       )
@@ -395,7 +409,7 @@ export const optionVisible = (
   if (!standingHeld(run.flags, requires.standing)) return false
   if (requires.follower) {
     const status = followerStatus(run, requires.follower)
-    if (!status || status === 'dead') return false
+    if (goneFromCourt(status)) return false
   }
   return true
 }
@@ -414,6 +428,17 @@ export type AudienceScene = {
   options: AudienceOption[]
 }
 
+/** A scene's lines as this run reads them: the first matching variant wins. */
+export const sceneLines = (
+  run: Pick<FortressRun, 'flags'>,
+  scene: { lines: SceneLine[]; variants?: SceneVariant[] },
+): SceneLine[] =>
+  scene.variants?.find(
+    (variant) =>
+      (variant.flags ?? []).every((flag) => run.flags.includes(flag)) &&
+      !(variant.notFlags ?? []).some((flag) => run.flags.includes(flag)),
+  )?.lines ?? scene.lines
+
 export const audienceScene = (
   run: FortressRun,
   audience: AudienceDef,
@@ -426,14 +451,14 @@ export const audienceScene = (
     return {
       speaker: audience.speaker,
       npc: audience.npc,
-      lines: audience.lines,
+      lines: sceneLines(run, audience),
       options: audience.options,
     }
   return {
     beatId: beat.id,
     speaker: beat.speaker ?? audience.speaker,
     npc: beat.npc ?? (beat.speaker ? undefined : audience.npc),
-    lines: beat.lines,
+    lines: sceneLines(run, beat),
     options: beat.options,
   }
 }
@@ -1004,8 +1029,7 @@ export const equipItem = (
 ): FortressRun => {
   const status = followerStatus(run, followerId)
   if (status === 'on-quest') throw new Error('that follower is away')
-  if (!status || status === 'dead')
-    throw new Error('that follower is not at court')
+  if (goneFromCourt(status)) throw new Error('that follower is not at court')
   const next = cloneRun(run)
   const state = next.roster.find((entry) => entry.id === followerId)!
   const previous = state.equipment[slot]
@@ -1178,15 +1202,9 @@ const resolveQuest = (
   }
 }
 
-const HIDEOUTS: [KingdomFactionId, string][] = [
-  ['moles', 'mole-tunnels'],
-  ['storm-crows', 'crow-cave'],
-  ['hollow-bell', 'bell-cellars'],
-  ['jackalwire', 'wagon-circle'],
-  ['saltroad', 'moving-caravan'],
-  ['freeholds', 'freehold-barn'],
-  ['rustline', 'rail-station'],
-]
+const HIDEOUTS: [KingdomFactionId, string][] = Object.entries(HIDEOUT_HOST).map(
+  ([hideout, faction]) => [faction, hideout],
+)
 
 /**
  * Pledges: story flags where the crown took a faction's side on purpose.
@@ -1399,7 +1417,7 @@ const resolveThreats = (run: FortressRun): MapEvent[] => {
   return happened
 }
 
-const actEnd = (run: FortressRun, events: string[]): MapEvent[] => {
+const actEnd = (run: FortressRun): MapEvent[] => {
   const map: MapEvent[] = []
   for (const def of KINGDOM_FACTION_DEFS) {
     if (
@@ -1424,14 +1442,26 @@ const actEnd = (run: FortressRun, events: string[]): MapEvent[] => {
       })
   }
   if (map.length) run.mapLog = [...(run.mapLog ?? []), ...map]
-  if (run.day === 41 && !run.flags.includes('komodo-betrayal')) {
-    run.flags.push('komodo-betrayal')
-    run.hideout = selectHideout(run)
-    // Act V content gates on the host: `hideout:mole-tunnels` and so on.
-    run.flags.push(`hideout:${run.hideout}`)
-    events.push('Young Komodo has betrayed the throne. The court flees.')
-  }
   return map
+}
+
+/**
+ * The Day 41 dawn: Young Komodo sells the tower (betrayal.ts). The hideout
+ * is chosen after the act-end map, then the buyer and who goes with him.
+ */
+const betray = (
+  run: FortressRun,
+  events: string[],
+): DawnReport['betrayal'] | undefined => {
+  if (run.day !== BETRAYAL_DAY || run.flags.includes('komodo-betrayal'))
+    return undefined
+  run.flags.push('komodo-betrayal')
+  run.hideout = selectHideout(run)
+  // Act V content gates on the host: `hideout:mole-tunnels` and so on.
+  run.flags.push(`hideout:${run.hideout}`)
+  events.push('Young Komodo has betrayed the throne. The court flees.')
+  const { buyer, departed } = applyBetrayal(run, events)
+  return { buyer, hideout: run.hideout, departed }
 }
 
 /** What one region pays the throne each dawn, and why. */
@@ -1448,6 +1478,14 @@ export const regionTax = (
 
 export const dailyTaxes = (run: FortressRun): number =>
   REGIONS.reduce((sum, region) => sum + regionTax(run, region.id).paid, 0)
+
+/** Brass in at dawn: the regions' taxes, or in hiding the host's share. */
+export const dailyIncome = (run: FortressRun): number =>
+  run.hideout ? (hostShare(run)?.paid ?? 0) : dailyTaxes(run)
+
+/** Brass out at dawn: wages for every bed, halved in hiding. */
+export const dailyWages = (run: FortressRun): number =>
+  (run.hideout ? HIDEOUT_WAGE : WAGE) * bedsUsed(run)
 
 /** Factions whose names read as a crowd ("the Freeholds are"), not a body. */
 const PLURAL_NAMES: readonly KingdomFactionId[] = [
@@ -1728,8 +1766,13 @@ export const finishDay = (
     })
   }
   next.board = next.board.filter((item) => item.lastDay >= next.day)
-  const taxes = dailyTaxes(next)
-  const wages = WAGE * bedsUsed(next)
+  // From the Day 41 dawn the court is in hiding: the tower falls before the
+  // purse is counted, and the host pays instead of the regions.
+  const hiding = next.day >= BETRAYAL_DAY
+  const lateMap = hiding ? actEnd(next) : []
+  const betrayal = hiding ? betray(next, events) : undefined
+  const taxes = dailyIncome(next)
+  const wages = dailyWages(next)
   next.brass += taxes - wages
   let loanTaken = false
   if (next.brass < 0) {
@@ -1743,7 +1786,7 @@ export const finishDay = (
       events.push('The Ledger is calling in its loans.')
     }
   }
-  const map = actEnd(next, events)
+  const map = hiding ? lateMap : actEnd(next)
   postDawnQuests(next)
   const report: DawnReport = {
     day: next.day,
@@ -1753,6 +1796,8 @@ export const finishDay = (
     loanTaken,
     events,
     ...(map.length ? { map } : {}),
+    ...(next.hideout ? { income: 'host' as const } : {}),
+    ...(betrayal ? { betrayal } : {}),
   }
   next.reports = [...next.reports, report]
   return { run: next, report }

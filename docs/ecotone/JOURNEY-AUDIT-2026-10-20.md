@@ -34,3 +34,11 @@ Earlier version-4 saves used WH-004, WH-037 and WH-058 for the drug-specific sto
 ## Editorial follow-ups
 
 Every path should receive a human-paced session, including accessibility, repeated-looking choice pressure, unintended no-hope routes, historical/cultural verification, and all 84 ending combinations after common opening lens coverage is repaired. No live release or image generation is implied by CI success.
+
+## Seven-lens reopening (follow-up to #3933)
+
+The previously missing lens options are now authored as ten supplementary choices at GR-2, KN-2 and QW-2. The application displays **seven perspective selections** on each of those three opening beats, each with its own consequence and success/failure image brief. The underlying Playbook scene still has only its original 3–4 ordinary choices, so adding a perspective does not pretend there are seven separate story dilemmas. Existing outcome IDs and saved scene positions remain valid.
+
+The automated acceptance now demands 84 out of 84 real played ending witnesses, using 8,400 seeded campaigns plus specifically witnessed animal-first Wild Way endings for all seven lenses. A collectible slot is not counted merely for being declared in a gallery array. All seven must be voluntary and independent from companion choice, ideology and guaranteed fate. The extra options are new editorial drafts and have **not** queued new ArtJobs.
+
+This section supersedes the *opening availability* limitation described above once the implementation PR passes the complete CI suite. The question of real 45–75-minute human reading/playtime remains unverified by automation.

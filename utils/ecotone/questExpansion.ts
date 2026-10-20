@@ -1,4 +1,5 @@
 import type { CompanionId, EncounterCard, LensId } from './content'
+import { REGIONAL_QUESTS } from './regionalQuestFactory'
 
 export type GatedEncounter = EncounterCard & {
   requiresLead?: CompanionId
@@ -9,6 +10,7 @@ export type GatedEncounter = EncounterCard & {
 // Requirements are checked before the deterministic fork draw; absent guides and
 // unopened lenses never silently receive somebody else's personal quest.
 export const QUEST_CARDS: GatedEncounter[] = [
+  ...REGIONAL_QUESTS,
   {
     id: 'WH-003',
     kind: 'encounter',
@@ -105,7 +107,7 @@ export const QUEST_CARDS: GatedEncounter[] = [
       'Arcata Community Forest is real. The extra tree ring, private foundation offer, nymph and workers are fictional; no real land claim is implied.',
   },
   {
-    id: 'WH-004',
+    id: 'LX-FAST-01',
     kind: 'encounter',
     chapter: 1,
     requiresLens: 'cocaine',
@@ -235,7 +237,7 @@ export const QUEST_CARDS: GatedEncounter[] = [
       'Trinidad Harbor is real; speaking gulls, steward, dockworker and negotiations are invented.',
   },
   {
-    id: 'WH-037',
+    id: 'LX-NIGHT-01',
     kind: 'encounter',
     chapter: 2,
     requiresLens: 'meth',
@@ -388,7 +390,7 @@ export const QUEST_CARDS: GatedEncounter[] = [
       'Humboldt Bay is real; broadcaster and contract are invented. Cedar’s parents’ marriage persists; mother’s specific fictional Luna support role must not be represented as historical testimony.',
   },
   {
-    id: 'WH-058',
+    id: 'LX-HEART-01',
     kind: 'encounter',
     chapter: 3,
     requiresLens: 'mdma',

@@ -1084,10 +1084,10 @@ async function deleteSelected() {
 }
 
 function rootTitle(job: VideoRestyleJob): string {
-  const root = job.sourceProjectId
-    ? store.jobs.find((item) => item.id === job.sourceProjectId)
-    : undefined
-  return (root?.title ?? job.title).split(' · ')[0] || job.title
+  const autoSuffix = ` · ${labelFor(job.style)}`
+  return job.title.endsWith(autoSuffix)
+    ? job.title.slice(0, -autoSuffix.length)
+    : job.title
 }
 
 function setStageView(view: 'looks' | 'video') {

@@ -55,6 +55,7 @@ import {
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
 import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
+import { REGIONAL_LENS_VOICES } from '../ecotone/regionalLensVoices'
 import { FORMER_GUIDE_QUESTS } from '../ecotone/formerGuideQuests'
 import {
   OPENING_LENS_ADDITIONS,
@@ -165,16 +166,34 @@ assert.equal(REGIONAL_SCRIPTS.length, 111, '111 expanded regional manuscripts')
 for (const id of [
   'WH-001',
   'WH-002',
+  'WH-005',
+  'WH-007',
+  'WH-010',
   'WH-023',
   'WH-025',
+  'WH-028',
+  'WH-029',
+  'WH-031',
   'WH-041',
   'WH-044',
+  'WH-045',
+  'WH-047',
+  'WH-049',
   'WH-063',
   'WH-064',
+  'WH-065',
+  'WH-067',
+  'WH-071',
   'WH-081',
   'WH-082',
+  'WH-084',
+  'WH-086',
+  'WH-091',
   'WH-102',
   'WH-103',
+  'WH-104',
+  'WH-107',
+  'WH-111',
 ]) {
   const script = REGIONAL_SCRIPTS.find((card) => card.id === id)!
   const chapter = String(script.chapter).padStart(2, '0')
@@ -200,6 +219,29 @@ for (const id of [
       manuscript.includes(line),
       `${id} playable choice/outcome text is mirrored in the editor's reading kit`,
     )
+}
+const redlineLensCards = [
+  'WH-005',
+  'WH-028',
+  'WH-047',
+  'WH-065',
+  'WH-086',
+  'WH-107',
+]
+assert.deepEqual(Object.keys(REGIONAL_LENS_VOICES), redlineLensCards)
+for (const id of redlineLensCards) {
+  const card = findCard(id)!
+  const voices = card.lensLines!
+  const rendered = openLenses.map((lens) => voices[lens]!)
+  assert.ok(rendered.every((line) => line.length >= 60))
+  assert.equal(new Set(rendered).size, openLenses.length)
+  assert.deepEqual(voices, REGIONAL_LENS_VOICES[id])
+  assert.equal(card.choices[0]?.id, 'investigate')
+  assert.equal(card.choices[1]?.id, 'care')
+  assert.ok(
+    rendered.every((line) => !line.includes('you are morally')),
+    `${id} never uses lens identity as a moral verdict`,
+  )
 }
 assert.equal(FORMER_GUIDE_QUESTS.length, 5)
 const reunionBase = createRun(101, 'reporter')

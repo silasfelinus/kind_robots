@@ -103,24 +103,24 @@
 
 **Opening narration:** Six people insist they are one entrant, and somehow all are correct.
 
-**Escalation:** Six racers insist they are one competitor. Their sculpture works only when all six pull separate controls in exact disagreement.
+**Escalation:** Six kinetic racers insist they are one contestant. Their vehicle moves only when all six disagree on which lever to pull, a design decision the registration clerk cannot fit into the form's box marked CAPTAIN. None of the crew wants to surrender their vote to make paperwork happy.
 
-**Option A, investigate (visible 9 check):** Inspect the machine's unusual linkage
+**Option A, investigate (visible 9 check):** Inspect the linkage while all six demonstrate how they share control
 
-- **Pass:** The pedals are connected across an impossible gap, with an older race's number painted beneath.
-- **Miss:** The test splits the chain; each rider still gives a coherent account of the same turn.
+- **Pass:** The mechanism passes force through a gap you can measure but cannot cross. Beneath the frame sits an older race number; the six disagree about whether to paint over it, and leave it visible.
+- **Miss:** The chain splits during the test. All six describe the same movement from different seats, giving the mechanic enough information to isolate the fault.
 
-**Option B, assist without a check:** Help the crew enter as a team without forcing one identity
+**Option B, assist without a check:** Ask officials to register the crew as a team without making one person their owner
 
-- **Result:** Officials accept a shared entry, and the six choose their own order on the podium.
+- **Result:** The clerk accepts six names and one machine. The crew draws lots for starting order and keeps its argument, which seems to be part of the propulsion system.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-104`: Six people insist they are one entrant, and somehow all are correct. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-104/2`: Six racers insist they are one competitor. Their sculpture works only when all six pull separate controls in exact disagreement. The people and location must match the opening.
-- `outcomes/wh-104/investigate-success`: The pedals are connected across an impossible gap, with an older race's number painted beneath. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-104/investigate-failure`: The test splits the chain; each rider still gives a coherent account of the same turn. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-104/care-success`: Officials accept a shared entry, and the six choose their own order on the podium. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-104/2`: Six kinetic racers insist they are one contestant. Their vehicle moves only when all six disagree on which lever to pull, a design decision the registration clerk cannot fit into the form's box marked CAPTAIN. None of the crew wants to surrender their vote to make paperwork happy. The people and location must match the opening.
+- `outcomes/wh-104/investigate-success`: The mechanism passes force through a gap you can measure but cannot cross. Beneath the frame sits an older race number; the six disagree about whether to paint over it, and leave it visible. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-104/investigate-failure`: The chain splits during the test. All six describe the same movement from different seats, giving the mechanic enough information to isolate the fault. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-104/care-success`: The clerk accepts six names and one machine. The crew draws lots for starting order and keeps its argument, which seems to be part of the propulsion system. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_104_verified`, `wh_104_partial`, `wh_104_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** A miniature government attempts to reroute the race.
 
-**Escalation:** A sandcastle mayor declares the dune sovereign territory and charges the kinetic racers a border toll in seashells.
+**Escalation:** A sandcastle has elected a mayor and declared the dune an independent municipality. Its first ordinance is a seashell toll on the kinetic race. The crew wants the shortest route, while a volunteer points out that the castle's disputed territory includes fragile dune plants.
 
-**Option A, investigate (visible 9 check):** Ask how the tiny government protects the dune
+**Option A, investigate (visible 9 check):** Ask the tiny mayor for a boundary map and compare it with the marked habitat zone
 
-- **Pass:** The mayor's survey reveals a real patch of fragile vegetation beside the course.
-- **Miss:** A wave knocks down city hall, leaving only the hand-lettered bylaw.
+- **Pass:** The castle survey shows a real patch of sensitive vegetation that the current course tape misses. The volunteer corrects the tape and the mayor requests credit in the minutes.
+- **Miss:** A wave erases city hall and most of the border posts. Its surviving bylaw is legible enough to show the habitat boundary still matters.
 
-**Option B, assist without a check:** Help racers reroute around the castle and habitat
+**Option B, assist without a check:** Help the racers plot a detour that protects the plants without humiliating a sand government
 
-- **Result:** Everyone earns a passage stamp without trampling the plants.
+- **Result:** The racers wheel around the protected area. The sandcastle stamps a seashell permit, which immediately disintegrates in a pocket but counts as diplomacy.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-107`: A miniature government attempts to reroute the race. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-107/2`: A sandcastle mayor declares the dune sovereign territory and charges the kinetic racers a border toll in seashells. The people and location must match the opening.
-- `outcomes/wh-107/investigate-success`: The mayor's survey reveals a real patch of fragile vegetation beside the course. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-107/investigate-failure`: A wave knocks down city hall, leaving only the hand-lettered bylaw. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-107/care-success`: Everyone earns a passage stamp without trampling the plants. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-107/2`: A sandcastle has elected a mayor and declared the dune an independent municipality. Its first ordinance is a seashell toll on the kinetic race. The crew wants the shortest route, while a volunteer points out that the castle's disputed territory includes fragile dune plants. The people and location must match the opening.
+- `outcomes/wh-107/investigate-success`: The castle survey shows a real patch of sensitive vegetation that the current course tape misses. The volunteer corrects the tape and the mayor requests credit in the minutes. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-107/investigate-failure`: A wave erases city hall and most of the border posts. Its surviving bylaw is legible enough to show the habitat boundary still matters. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-107/care-success`: The racers wheel around the protected area. The sandcastle stamps a seashell permit, which immediately disintegrates in a pocket but counts as diplomacy. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_107_verified`, `wh_107_partial`, `wh_107_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** The craft refuses to float until its design philosophy is heard.
 
-**Escalation:** A floating sculpture refuses to launch until its makers acknowledge that a boat can be art and still have a duty to float.
+**Escalation:** A floating sculpture refuses to launch until its makers admit that a boat can also be art and still be expected to float. The artist calls this censorship; the skipper calls it a buoyancy problem; the spectators have started betting on which one gets wet first.
 
-**Option A, investigate (visible 9 check):** Inspect the hull while listening to the machine
+**Option A, investigate (visible 9 check):** Test the flotation chambers and let the sculpture explain what it is refusing
 
-- **Pass:** An extra compartment holds a chart showing a second water crossing beneath the bay.
-- **Miss:** Your test wets the spectators and the craft remains stubbornly at the dock.
+- **Pass:** A sealed compartment contains a chart of a second channel beneath the bay, dated after this race. The skipper photographs the chart before anyone claims it proves a safe crossing.
+- **Miss:** Your test soaks a row of spectators, and the boat declines to move. The crew apologizes, closes the launch lane and finds the missing ballast entry.
 
-**Option B, assist without a check:** Let the team redesign without humiliating the artist
+**Option B, assist without a check:** Help the crew redesign the hull without treating their artwork as a joke
 
-- **Result:** The crew adds flotation and keeps the sculpture's outrageous silhouette intact.
+- **Result:** The team adds flotation and a sensible launch plan while preserving the outrageous silhouette. It enters the water as art, not a wager on the rescue crew.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-111`: The craft refuses to float until its design philosophy is heard. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-111/2`: A floating sculpture refuses to launch until its makers acknowledge that a boat can be art and still have a duty to float. The people and location must match the opening.
-- `outcomes/wh-111/investigate-success`: An extra compartment holds a chart showing a second water crossing beneath the bay. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-111/investigate-failure`: Your test wets the spectators and the craft remains stubbornly at the dock. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-111/care-success`: The crew adds flotation and keeps the sculpture's outrageous silhouette intact. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-111/2`: A floating sculpture refuses to launch until its makers admit that a boat can also be art and still be expected to float. The artist calls this censorship; the skipper calls it a buoyancy problem; the spectators have started betting on which one gets wet first. The people and location must match the opening.
+- `outcomes/wh-111/investigate-success`: A sealed compartment contains a chart of a second channel beneath the bay, dated after this race. The skipper photographs the chart before anyone claims it proves a safe crossing. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-111/investigate-failure`: Your test soaks a row of spectators, and the boat declines to move. The crew apologizes, closes the launch lane and finds the missing ballast entry. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-111/care-success`: The team adds flotation and a sensible launch plan while preserving the outrageous silhouette. It enters the water as art, not a wager on the rescue crew. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_111_verified`, `wh_111_partial`, `wh_111_care` (mutually exclusive results of this card).
 

@@ -235,8 +235,12 @@
                   {{ resourceLabel(resource) }}
                 </span>
                 <span class="flex shrink-0 items-center gap-1">
-                  <span v-if="videoLoraCompatibilityRank(resource, profile) >= 35"
-                    class="kr-badge-accent-sm">Recommended</span>
+                  <span
+                    v-if="videoLoraCompatibilityRank(resource, profile) >= 35"
+                    class="kr-badge-accent-sm"
+                  >
+                    Recommended
+                  </span>
                   <span
                     v-if="resource.isMature"
                     class="kr-badge-outline-sm badge-error"

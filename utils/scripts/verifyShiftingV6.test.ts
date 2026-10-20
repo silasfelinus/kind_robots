@@ -298,6 +298,22 @@ assert.ok(
   'a trial that was not completed is never invented',
 )
 
+const failedTrial = {
+  ...trialMemory,
+  choiceId: 'confront',
+  roll: { ...trialMemory.roll, success: false },
+}
+const fallenAfterTrial = {
+  ...finalState,
+  journey: { ...finalState.journey, phase: 'fallen' as const },
+}
+assert.ok(
+  authoredEndingV6(fallenAfterTrial, [trialMemory, failedTrial])?.paragraphs.some(
+    (line) => line.includes('last trial still holds its gate'),
+  ),
+  'a fatal failed trial takes precedence over an earlier evidence victory',
+)
+
 type Policy = 'first' | 'certain' | 'bold' | 'random'
 const policies: Policy[] = ['first', 'certain', 'bold', 'random']
 let completed = 0

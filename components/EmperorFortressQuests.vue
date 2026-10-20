@@ -1,45 +1,54 @@
 <template>
   <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
     <section class="space-y-3">
-      <div class="kr-panel p-4">
-        <h2 class="font-serif text-2xl font-bold">The quest board</h2>
-        <p v-if="!run.board.length" class="mt-2 text-sm opacity-75">
+      <div class="eod-board p-3">
+        <h2 class="sr-only">The quest board</h2>
+        <p
+          v-if="!run.board.length"
+          class="eod-notice mx-auto max-w-xs p-4 text-center font-serif text-sm italic"
+        >
           The board is empty. Petitions in the throne room can post new quests.
         </p>
-        <div class="mt-3 grid gap-2">
+        <div
+          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,9rem),1fr))] gap-3"
+        >
           <button
-            v-for="entry in board"
+            v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="rounded-xl border p-3 text-left transition-colors"
-            :class="
-              selectedId === entry.questId
-                ? 'border-warning bg-warning/10'
-                : 'border-base-content/15 bg-base-100 hover:bg-base-200'
-            "
+            class="eod-notice flex flex-col p-3 pt-4 text-left"
+            :class="[
+              i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
+              selectedId === entry.questId ? 'eod-notice-picked' : '',
+            ]"
             :aria-pressed="selectedId === entry.questId"
             @click="select(entry.questId)"
           >
-            <span class="flex items-start justify-between gap-2">
-              <strong class="font-serif text-lg">{{
-                entry.quest.title
-              }}</strong>
-              <span
-                class="shrink-0 text-xs font-bold"
-                :class="entry.daysLeft === 1 ? 'text-error' : 'text-warning'"
-              >
-                {{
-                  entry.daysLeft === 1
-                    ? 'Last day'
-                    : `${entry.daysLeft} days left`
-                }}
-              </span>
+            <span class="eod-pin" aria-hidden="true" />
+            <strong class="eod-display text-sm leading-tight">{{
+              entry.quest.title
+            }}</strong>
+            <span class="mt-1 block text-xs italic leading-snug opacity-80">
+              {{ regionName(entry.quest.region) }}
             </span>
-            <span class="mt-1 block text-xs opacity-70">
-              {{ regionName(entry.quest.region) }} ·
-              {{ entry.quest.durationDays }}
-              {{ entry.quest.durationDays === 1 ? 'day' : 'days' }} ·
-              {{ partyLabel(entry.quest) }} · {{ dangerLabel(entry.quest) }}
+            <span
+              class="mt-auto flex items-center justify-between gap-2 pt-2 text-[11px] font-semibold"
+            >
+              <span>
+                {{ entry.quest.durationDays }}
+                {{ entry.quest.durationDays === 1 ? 'day' : 'days' }} ·
+                {{ dangerLabel(entry.quest) }}
+              </span>
+              <span
+                class="shrink-0 rounded-sm px-1"
+                :class="
+                  entry.daysLeft === 1
+                    ? 'bg-error text-error-content'
+                    : 'border border-current'
+                "
+              >
+                {{ entry.daysLeft === 1 ? 'Last day' : `${entry.daysLeft}d` }}
+              </span>
             </span>
           </button>
         </div>
@@ -126,7 +135,11 @@
       </dl>
 
       <div>
-        <p class="text-sm font-bold">Requirements</p>
+        <p
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
+        >
+          Requirements
+        </p>
         <ul class="mt-1 grid gap-1">
           <li
             v-for="(req, i) in selected.requirements"
@@ -149,10 +162,32 @@
       </div>
 
       <div>
-        <p class="text-sm font-bold">
-          Choose followers ({{ party.length }} /
-          {{ partyLimit(selected, party) }})
+        <p
+          class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
+        >
+          Assign party {{ party.length }} /
+          {{ partyLimit(selected, party) }}
         </p>
+        <div class="mt-2 flex flex-wrap gap-2" aria-hidden="true">
+          <span
+            v-for="slot in partyLimit(selected, party)"
+            :key="slot"
+            class="grid h-16 w-14 place-items-center overflow-hidden rounded-md border"
+            :class="
+              party[slot - 1]
+                ? 'border-warning'
+                : 'border-dashed border-base-content/30 text-base-content/40'
+            "
+          >
+            <img
+              v-if="party[slot - 1] && slotArt(party[slot - 1]!)"
+              :src="slotArt(party[slot - 1]!)"
+              alt=""
+              class="h-full w-full object-cover object-top"
+            />
+            <span v-else class="text-xl">+</span>
+          </span>
+        </div>
         <div class="mt-2 grid grid-cols-2 gap-2 @md:grid-cols-3">
           <button
             v-for="state in roster"
@@ -228,7 +263,7 @@
           :disabled="!canSend"
           @click="send"
         >
-          Assign {{ party.length || '' }} follower{{
+          Send {{ party.length || '' }} follower{{
             party.length === 1 ? '' : 's'
           }}
         </button>
@@ -248,6 +283,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue'
+import { followerPortrait } from '~/utils/emperorOfDust/fortress/castArt'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
@@ -272,6 +308,7 @@ const props = defineProps<{ run: FortressRun }>()
 const court = useEmperorFortressStore()
 const selectedId = ref<string | null>(null)
 const party = ref<string[]>([])
+const slotArt = (id: string) => followerPortrait(id)
 const hourglass = ref(false)
 const error = ref('')
 const detail = ref<HTMLElement | null>(null)

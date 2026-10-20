@@ -1,5 +1,8 @@
 <template>
-  <main class="kr-surface">
+  <main
+    class="kr-surface eod bg-base-200 text-base-content"
+    data-theme="emperor"
+  >
     <div v-if="!court.loaded || !run" class="grid min-h-96 place-items-center">
       <span class="kr-spinner-lg-primary" />
     </div>
@@ -16,63 +19,105 @@
       </p>
 
       <header
-        class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-warning/25 bg-base-200 px-3 py-2"
+        class="eod-frame flex shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2"
         aria-label="Reign status"
       >
-        <div class="min-w-24">
-          <p
-            class="text-[10px] font-semibold uppercase tracking-widest opacity-65"
-          >
-            Act {{ actOf(Math.min(run.day, LAST_DAY)) }}
-          </p>
-          <p class="font-serif text-xl font-bold">
-            {{ over ? 'The reign is over' : `Day ${run.day} / ${LAST_DAY}` }}
-          </p>
+        <div class="flex min-w-0 items-center gap-2">
+          <Icon name="kind-icon:crown" class="h-7 w-7 shrink-0 text-warning" />
+          <div class="min-w-0">
+            <p
+              class="eod-display truncate text-base leading-tight text-warning sm:text-lg"
+            >
+              Emperor of Dust
+            </p>
+            <p
+              class="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-75"
+            >
+              {{
+                over
+                  ? 'The reign is over'
+                  : `Act ${actName(actOf(Math.min(run.day, LAST_DAY)))} · Day ${run.day} / ${LAST_DAY}`
+              }}
+            </p>
+          </div>
         </div>
-        <ul class="flex flex-1 flex-wrap gap-1" aria-label="Fortress support">
+        <ul
+          class="order-last grid w-full grid-cols-5 gap-1 sm:order-none sm:flex sm:w-auto sm:flex-1 sm:justify-end"
+          aria-label="Fortress support"
+        >
           <li
             v-for="faction in LOCAL_FACTION_DEFS"
             :key="faction.id"
-            class="rounded-lg border border-base-content/10 bg-base-100 px-2 py-1 text-center"
+            class="eod-chip min-w-0 px-1.5 py-1 sm:w-28 sm:px-2"
             :title="faction.name + ': ' + faction.wants"
           >
-            <span class="block text-[9px] font-bold uppercase opacity-60">{{
-              shortName(faction.name)
-            }}</span>
-            <strong
-              class="font-serif"
-              :class="run.local[faction.id] <= 3 ? 'text-error' : ''"
-              >{{ run.local[faction.id] }}</strong
+            <span class="flex items-center justify-between gap-1">
+              <span
+                class="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider opacity-80"
+              >
+                <Icon
+                  :name="LOCAL_FACTION_ICONS[faction.id]"
+                  class="h-3 w-3 text-warning"
+                />
+                <span class="hidden sm:inline">{{
+                  shortName(faction.name)
+                }}</span>
+                <span class="sr-only sm:hidden">{{ faction.name }}</span>
+              </span>
+              <strong
+                class="text-xs"
+                :class="run.local[faction.id] <= 3 ? 'text-error' : ''"
+                >{{ run.local[faction.id] }}</strong
+              >
+            </span>
+            <span
+              class="mt-1 block h-1 overflow-hidden rounded-full bg-base-content/15"
+              aria-hidden="true"
             >
+              <span
+                class="block h-full rounded-full"
+                :class="run.local[faction.id] <= 3 ? 'bg-error' : 'bg-warning'"
+                :style="{
+                  width: (100 * run.local[faction.id]) / LOCAL_MAX + '%',
+                }"
+              />
+            </span>
           </li>
         </ul>
         <div
-          class="rounded-lg border border-warning/40 bg-warning/10 px-3 py-1 text-center"
+          class="eod-chip ml-auto flex items-center gap-2 px-3 py-1 sm:ml-0"
+          :title="run.brass + ' brass'"
         >
-          <span class="block text-[9px] font-bold uppercase opacity-60"
-            >Brass</span
+          <span
+            class="grid h-6 w-6 place-items-center rounded-full border-2 border-warning text-warning"
+            aria-hidden="true"
           >
-          <strong class="font-serif text-lg">{{ run.brass }}</strong>
+            <span class="h-2 w-2 rounded-full border border-warning" />
+          </span>
+          <strong class="eod-display text-xl leading-none">{{
+            run.brass
+          }}</strong>
+          <span class="sr-only">brass</span>
         </div>
       </header>
 
       <nav
-        class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-base-300 p-1"
+        class="eod-frame flex shrink-0 gap-1 overflow-x-auto p-1"
         aria-label="Fortress rooms"
       >
         <button
           v-for="room in rooms"
           :key="room.id"
           type="button"
-          class="btn btn-sm min-w-fit flex-1 whitespace-nowrap"
-          :class="activeRoom === room.id ? 'btn-warning' : 'btn-ghost'"
+          class="eod-tab flex min-w-fit flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
           :aria-current="activeRoom === room.id ? 'page' : undefined"
           @click="enter(room.id)"
         >
+          <Icon :name="room.icon" class="h-3.5 w-3.5" />
           {{ room.label }}
           <span
             v-if="room.badge"
-            class="badge badge-error badge-xs ml-1"
+            class="badge badge-error badge-xs"
             :aria-label="room.badge + ' waiting'"
             >{{ room.badge }}</span
           >
@@ -80,65 +125,94 @@
       </nav>
 
       <div
-        ref="stage"
-        class="kr-scroll @container min-h-0 flex-1 overscroll-contain rounded-xl border border-base-content/10 bg-base-200/20 p-1.5 sm:p-3"
+        class="eod-frame eod-stage relative isolate flex min-h-0 flex-1 flex-col overflow-hidden"
+        :style="stageStyle"
       >
-        <section
-          v-if="over && activeRoom !== 'chronicle'"
-          class="kr-panel space-y-3 p-5"
-        >
-          <p
-            class="text-xs font-semibold uppercase tracking-widest text-warning"
+        <div class="flex shrink-0 items-start gap-3 px-3 pt-3 sm:px-4">
+          <span
+            class="eod-medallion grid h-11 w-11 shrink-0 place-items-center rounded-full"
+            aria-hidden="true"
           >
-            Fifty days · the ending
-          </p>
-          <h2 class="font-serif text-3xl font-bold">{{ ending?.title }}</h2>
-          <p class="font-serif text-lg">{{ ending?.text }}</p>
-          <div v-if="run.memorials.length" class="rounded-xl bg-base-200 p-3">
-            <p class="text-sm font-semibold">Remembered by name</p>
-            <ul class="mt-1 text-sm">
-              <li v-for="memorial in run.memorials" :key="memorial.followerId">
-                {{ followerName(memorial.followerId) }}, Day
-                {{ memorial.day }}
-              </li>
-            </ul>
+            <Icon :name="currentRoom.icon" class="h-5 w-5 text-warning" />
+          </span>
+          <div class="min-w-0">
+            <h2
+              class="eod-plate eod-display inline-block px-3 py-0.5 text-lg sm:text-xl"
+            >
+              {{ currentRoom.title }}
+            </h2>
+            <p class="eod-tagline mt-1 hidden text-sm italic sm:block">
+              {{ currentRoom.tagline }}
+            </p>
           </div>
-          <p class="text-sm opacity-75">
-            Rewind to any dawn from the Chronicle to try another road, or begin
-            again.
-          </p>
-        </section>
-        <template v-else>
-          <EmperorFortressThrone v-if="activeRoom === 'throne'" :run="run" />
-          <EmperorFortressQuests
-            v-else-if="activeRoom === 'quests'"
+        </div>
+        <div
+          ref="stage"
+          class="kr-scroll @container min-h-0 flex-1 overscroll-contain p-2 sm:p-3"
+        >
+          <section
+            v-if="over && activeRoom !== 'chronicle'"
+            class="kr-panel space-y-3 p-5"
+          >
+            <p
+              class="text-xs font-semibold uppercase tracking-widest text-warning"
+            >
+              Fifty days · the ending
+            </p>
+            <h2 class="font-serif text-3xl font-bold">{{ ending?.title }}</h2>
+            <p class="font-serif text-lg">{{ ending?.text }}</p>
+            <div v-if="run.memorials.length" class="rounded-xl bg-base-200 p-3">
+              <p class="text-sm font-semibold">Remembered by name</p>
+              <ul class="mt-1 text-sm">
+                <li
+                  v-for="memorial in run.memorials"
+                  :key="memorial.followerId"
+                >
+                  {{ followerName(memorial.followerId) }}, Day
+                  {{ memorial.day }}
+                </li>
+              </ul>
+            </div>
+            <p class="text-sm opacity-75">
+              Rewind to any dawn from the Chronicle to try another road, or
+              begin again.
+            </p>
+          </section>
+          <template v-else>
+            <EmperorFortressThrone v-if="activeRoom === 'throne'" :run="run" />
+            <EmperorFortressQuests
+              v-else-if="activeRoom === 'quests'"
+              :run="run"
+            />
+            <EmperorFortressBarracks
+              v-else-if="activeRoom === 'barracks'"
+              :key="'barracks-' + run.day"
+              :run="run"
+            />
+            <EmperorFortressMarket
+              v-else-if="activeRoom === 'market'"
+              :run="run"
+            />
+            <EmperorFortressMapRoom
+              v-else-if="activeRoom === 'map'"
+              :run="run"
+            />
+          </template>
+          <EmperorFortressChronicle
+            v-if="activeRoom === 'chronicle'"
             :run="run"
           />
-          <EmperorFortressBarracks
-            v-else-if="activeRoom === 'barracks'"
-            :key="'barracks-' + run.day"
-            :run="run"
-          />
-          <EmperorFortressMarket
-            v-else-if="activeRoom === 'market'"
-            :run="run"
-          />
-          <EmperorFortressMapRoom v-else-if="activeRoom === 'map'" :run="run" />
-        </template>
-        <EmperorFortressChronicle
-          v-if="activeRoom === 'chronicle'"
-          :run="run"
-        />
+        </div>
       </div>
 
       <footer
         v-if="!over"
-        class="flex shrink-0 flex-wrap items-center justify-end gap-2 rounded-xl bg-base-300 p-2"
+        class="eod-frame flex shrink-0 flex-wrap items-center justify-end gap-2 px-3 py-2"
       >
-        <p v-if="warnings.length" class="mr-auto text-xs text-warning">
+        <p v-if="warnings.length" class="mr-auto text-xs italic text-warning">
           {{ warnings.join(' · ') }}
         </p>
-        <button type="button" class="btn btn-error btn-wide" @click="finish">
+        <button type="button" class="eod-finish px-6 py-2" @click="finish">
           Finish Day {{ run.day }}
         </button>
       </footer>
@@ -162,10 +236,18 @@ import {
   isOver,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { endingOf } from '~/utils/emperorOfDust/fortress/endings'
-import { LOCAL_FACTION_DEFS } from '~/utils/emperorOfDust/fortress/factions'
+import {
+  LOCAL_FACTION_DEFS,
+  LOCAL_MAX,
+} from '~/utils/emperorOfDust/fortress/factions'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
-
-type RoomId = 'throne' | 'quests' | 'barracks' | 'market' | 'map' | 'chronicle'
+import {
+  LOCAL_FACTION_ICONS,
+  ROOMS,
+  roomArtUrl,
+  roomDef,
+} from '~/utils/emperorOfDust/fortress/rooms'
+import type { RoomId } from '~/utils/emperorOfDust/fortress/rooms'
 
 const court = useEmperorFortressStore()
 const run = computed(() => court.run)
@@ -190,14 +272,24 @@ const expiring = computed(
     run.value?.board.filter((entry) => entry.lastDay === run.value!.day)
       .length ?? 0,
 )
-const rooms = computed<{ id: RoomId; label: string; badge?: number }[]>(() => [
-  { id: 'throne', label: 'Throne room', badge: unheard.value || undefined },
-  { id: 'quests', label: 'Quest room', badge: expiring.value || undefined },
-  { id: 'barracks', label: 'Barracks' },
-  { id: 'market', label: 'Market' },
-  { id: 'map', label: 'Map room' },
-  { id: 'chronicle', label: 'Chronicle' },
-])
+const rooms = computed(() =>
+  ROOMS.map((room) => ({
+    ...room,
+    badge:
+      (room.id === 'throne'
+        ? unheard.value
+        : room.id === 'quests'
+          ? expiring.value
+          : 0) || undefined,
+  })),
+)
+const currentRoom = computed(() => roomDef(activeRoom.value))
+const stageStyle = computed(() => {
+  const art = roomArtUrl(activeRoom.value)
+  return art ? { '--eod-room-art': `url(${art})` } : {}
+})
+const ACT_NAMES = ['I', 'II', 'III', 'IV', 'V']
+const actName = (act: number) => ACT_NAMES[act - 1] ?? String(act)
 const warnings = computed(() => [
   ...(unheard.value
     ? [`${unheard.value} petitioner${unheard.value === 1 ? '' : 's'} unheard`]
@@ -222,5 +314,262 @@ function finish() {
   activeRoom.value = 'throne'
 }
 
-onMounted(() => court.load())
+onMounted(() => {
+  court.load()
+  if (!document.getElementById('eod-display-font')) {
+    const link = document.createElement('link')
+    link.id = 'eod-display-font'
+    link.rel = 'stylesheet'
+    link.href =
+      'https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&display=swap'
+    document.head.appendChild(link)
+  }
+})
+
+useHead({ title: 'Emperor of Dust' })
 </script>
+
+<style>
+.eod {
+  --eod-gilt: oklch(72% 0.1 78);
+  --eod-gilt-dim: color-mix(in oklch, var(--eod-gilt) 45%, transparent);
+  --eod-ink: color-mix(in oklch, var(--color-base-100) 86%, transparent);
+}
+
+.eod .eod-display,
+.eod h2.font-serif,
+.eod h3.font-serif {
+  font-family: 'Cinzel', ui-serif, Georgia, serif;
+  letter-spacing: 0.05em;
+}
+
+.eod .eod-frame {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.5rem;
+  background: var(--eod-ink);
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklch, var(--color-base-200) 80%, transparent),
+    inset 0 0 0 4px color-mix(in oklch, var(--eod-gilt) 22%, transparent),
+    0 6px 18px oklch(0% 0 0 / 0.35);
+}
+
+.eod .eod-chip {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.375rem;
+  background: color-mix(in oklch, var(--color-base-200) 85%, transparent);
+}
+
+.eod .eod-tab {
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  color: color-mix(in oklch, var(--color-base-content) 80%, transparent);
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.eod .eod-tab:hover {
+  color: var(--color-warning);
+  background: color-mix(in oklch, var(--eod-gilt) 10%, transparent);
+}
+
+.eod .eod-tab[aria-current='page'] {
+  color: var(--color-warning-content);
+  border-color: var(--eod-gilt);
+  background: linear-gradient(
+    to bottom,
+    oklch(82% 0.11 82),
+    oklch(66% 0.11 70)
+  );
+}
+
+.eod .eod-stage {
+  background-color: var(--color-base-200);
+  background-image:
+    linear-gradient(
+      to bottom,
+      oklch(14% 0.02 255 / 0.55),
+      oklch(14% 0.02 255 / 0.15) 30%,
+      oklch(14% 0.02 255 / 0.65)
+    ),
+    var(--eod-room-art, none),
+    radial-gradient(
+      ellipse at 30% 25%,
+      oklch(62% 0.13 62 / 0.55),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 80% 90%,
+      oklch(42% 0.14 30 / 0.45),
+      transparent 55%
+    ),
+    linear-gradient(to bottom, oklch(26% 0.04 60), oklch(16% 0.025 255));
+  background-size: cover;
+  background-position: center;
+}
+
+.eod .eod-figure {
+  filter: drop-shadow(0 10px 18px oklch(0% 0 0 / 0.6));
+  mask-image:
+    linear-gradient(to right, transparent, black 14%, black 86%, transparent),
+    linear-gradient(to bottom, transparent, black 10%, black 85%, transparent);
+  mask-composite: intersect;
+}
+
+.eod .eod-board {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.5rem;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      oklch(0% 0 0 / 0.08) 0 2px,
+      transparent 2px 46px
+    ),
+    linear-gradient(to bottom, oklch(42% 0.06 55), oklch(33% 0.05 50));
+  box-shadow:
+    inset 0 0 0 6px oklch(26% 0.04 50),
+    inset 0 0 0 7px var(--eod-gilt-dim),
+    inset 0 0 24px oklch(0% 0 0 / 0.45);
+}
+
+.eod .eod-notice {
+  position: relative;
+  min-height: 7.5rem;
+  border-radius: 2px;
+  color: oklch(28% 0.03 55);
+  background:
+    radial-gradient(ellipse at 30% 20%, oklch(96% 0.03 85), transparent 70%),
+    oklch(88% 0.045 80);
+  box-shadow:
+    0 6px 12px oklch(0% 0 0 / 0.45),
+    inset 0 0 18px oklch(60% 0.06 60 / 0.35);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.eod .eod-notice:hover {
+  transform: translateY(-2px) rotate(0deg);
+}
+
+.eod .eod-notice-picked {
+  transform: rotate(0deg) scale(1.03);
+  outline: 2px solid var(--eod-gilt);
+  outline-offset: 3px;
+}
+
+.eod .eod-pin {
+  position: absolute;
+  top: 0.35rem;
+  left: 50%;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    circle at 35% 35%,
+    oklch(70% 0.17 27),
+    oklch(42% 0.15 27)
+  );
+  box-shadow: 0 1px 2px oklch(0% 0 0 / 0.5);
+}
+
+.eod .eod-price {
+  border: 1px solid var(--eod-gilt);
+  border-radius: 0.375rem;
+  color: var(--color-warning-content);
+  background: linear-gradient(
+    to bottom,
+    oklch(80% 0.11 80),
+    oklch(64% 0.11 68)
+  );
+}
+
+.eod .eod-price:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.eod .eod-medallion {
+  border: 1px solid var(--eod-gilt);
+  background: radial-gradient(
+    circle,
+    var(--color-base-100),
+    var(--color-base-200)
+  );
+  box-shadow:
+    0 0 0 3px var(--color-base-200),
+    0 0 0 4px var(--eod-gilt-dim);
+}
+
+.eod .eod-plate {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.25rem;
+  background: linear-gradient(
+    to right,
+    var(--eod-ink),
+    color-mix(in oklch, var(--color-base-100) 40%, transparent)
+  );
+  color: var(--color-base-content);
+}
+
+.eod .eod-tagline {
+  color: color-mix(in oklch, var(--color-base-content) 82%, transparent);
+  text-shadow: 0 1px 3px oklch(0% 0 0 / 0.8);
+}
+
+.eod .eod-finish {
+  border: 1px solid var(--eod-gilt);
+  border-radius: 0.375rem;
+  font-family: 'Cinzel', ui-serif, Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-warning-content);
+  background: linear-gradient(
+    to bottom,
+    oklch(80% 0.11 80),
+    oklch(62% 0.11 66)
+  );
+}
+
+.eod .eod-finish:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.eod .eod-finish:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.eod .kr-panel {
+  border: 1px solid var(--eod-gilt-dim);
+  border-radius: 0.5rem;
+  background: var(--eod-ink);
+  backdrop-filter: blur(3px);
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklch, var(--color-base-200) 70%, transparent),
+    inset 0 0 0 4px color-mix(in oklch, var(--eod-gilt) 18%, transparent);
+}
+
+.eod .btn-warning {
+  border-color: var(--eod-gilt);
+  background: linear-gradient(
+    to bottom,
+    oklch(80% 0.11 80),
+    oklch(64% 0.11 68)
+  );
+  color: var(--color-warning-content);
+}
+
+.eod .btn-outline {
+  border-color: var(--eod-gilt-dim);
+  color: var(--color-base-content);
+}
+
+.eod .btn-outline:hover:not(:disabled) {
+  border-color: var(--eod-gilt);
+  background: color-mix(in oklch, var(--eod-gilt) 15%, transparent);
+  color: var(--color-warning);
+}
+</style>

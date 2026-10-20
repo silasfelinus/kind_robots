@@ -1,65 +1,106 @@
 <template>
-  <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-    <section class="kr-panel space-y-3 p-4">
-      <p class="text-xs font-semibold uppercase tracking-widest text-warning">
-        {{ today?.advisor ?? 'Young Komodo' }} · morning briefing
-      </p>
-      <template v-if="today">
-        <p class="font-serif text-lg italic">“{{ today.komodo }}”</p>
-        <ul class="grid gap-2">
-          <li
-            v-for="report in today.briefings"
-            :key="report.id"
-            class="rounded-xl border p-3"
-            :class="
-              eyeReveals(run, report.truth) || forecastMark(run, report)
-                ? 'border-warning bg-warning/10'
-                : 'border-base-content/15 bg-base-100'
+  <div
+    class="grid min-h-full grid-cols-[minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)]"
+  >
+    <section
+      class="relative flex min-h-64 flex-col justify-end @4xl:min-h-0"
+      aria-label="The court"
+    >
+      <div class="relative z-10 self-start @4xl:max-w-md">
+        <button
+          type="button"
+          class="kr-panel flex items-center gap-2 px-3 py-1.5 text-xs font-semibold uppercase tracking-widest text-warning"
+          :aria-expanded="showBriefing"
+          @click="showBriefing = !showBriefing"
+        >
+          {{ today?.advisor ?? 'Young Komodo' }} · morning briefing
+          <Icon
+            :name="
+              showBriefing ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
             "
-          >
-            <span
-              v-if="eyeReveals(run, report.truth)"
-              class="block text-xs font-bold text-warning"
-              >The Eye marks this report false</span
-            >
-            <span
-              v-if="forecastMark(run, report)"
-              class="block text-xs font-bold text-warning"
-              >{{
-                forecastMark(run, report) === 'false'
-                  ? 'Nera reads the wind: this report is false'
-                  : 'Nera frowns: this report has no weather in it at all'
-              }}</span
-            >
-            <p
-              class="text-xs font-semibold uppercase tracking-wider opacity-60"
-            >
-              {{ report.source }}
+            class="h-3.5 w-3.5"
+          />
+        </button>
+        <div v-if="showBriefing" class="kr-panel mt-2 space-y-2 p-3">
+          <template v-if="today">
+            <p class="font-serif text-base italic">“{{ today.komodo }}”</p>
+            <ul class="grid gap-1.5">
+              <li
+                v-for="report in today.briefings"
+                :key="report.id"
+                class="rounded-md border p-2"
+                :class="
+                  eyeReveals(run, report.truth) || forecastMark(run, report)
+                    ? 'border-warning bg-warning/10'
+                    : 'border-base-content/15 bg-base-200/70'
+                "
+              >
+                <span
+                  v-if="eyeReveals(run, report.truth)"
+                  class="block text-xs font-bold text-warning"
+                  >The Eye marks this report false</span
+                >
+                <span
+                  v-if="forecastMark(run, report)"
+                  class="block text-xs font-bold text-warning"
+                  >{{
+                    forecastMark(run, report) === 'false'
+                      ? 'Nera reads the wind: this report is false'
+                      : 'Nera frowns: this report has no weather in it at all'
+                  }}</span
+                >
+                <p
+                  class="text-[10px] font-semibold uppercase tracking-wider opacity-60"
+                >
+                  {{ report.source }}
+                </p>
+                <p class="text-sm leading-snug">{{ report.text }}</p>
+              </li>
+            </ul>
+            <p class="text-xs italic opacity-70">
+              Two of these are true. One is not.
             </p>
-            <p class="mt-1 text-sm">{{ report.text }}</p>
-          </li>
-        </ul>
-        <p class="text-xs opacity-60">Two of these are true. One is not.</p>
-      </template>
-      <p v-else class="text-sm opacity-75">
-        Komodo has no written briefing for Day {{ run.day }} yet. Only the first
-        {{ DAYS.length }} days are scripted so far; the wasteland’s daily chores
-        still reach the quest room.
+          </template>
+          <p v-else class="text-sm opacity-75">
+            Komodo has no written briefing for Day {{ run.day }} yet. Only the
+            first {{ DAYS.length }} days are scripted so far; the wasteland’s
+            daily chores still reach the quest room.
+          </p>
+        </div>
+      </div>
+
+      <figure
+        v-if="sceneArt"
+        class="pointer-events-none mt-auto flex justify-center @4xl:absolute @4xl:inset-y-0 @4xl:left-[38%] @4xl:right-0"
+      >
+        <img
+          :key="sceneArt"
+          :src="sceneArt"
+          :alt="sceneAlt"
+          class="eod-figure block max-h-72 w-auto object-contain @4xl:h-full @4xl:max-h-none"
+        />
+      </figure>
+      <p
+        v-else-if="!audiences.length"
+        class="kr-panel mt-auto self-center px-4 py-2 font-serif italic"
+      >
+        No one has come to court today.
       </p>
     </section>
 
-    <section class="space-y-3">
-      <div class="kr-panel p-4">
-        <h2 class="font-serif text-2xl font-bold">The throne room</h2>
-        <p v-if="!audiences.length" class="mt-2 text-sm opacity-75">
-          No one has come to court today.
+    <section class="flex min-h-0 flex-col gap-2">
+      <div v-if="audiences.length" class="kr-panel p-2">
+        <p
+          class="px-1 text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70"
+        >
+          Audience {{ audienceIndex + 1 }} / {{ audiences.length }}
         </p>
-        <div v-else class="mt-3 flex flex-wrap gap-2">
+        <div class="mt-1 flex flex-wrap gap-1">
           <button
             v-for="audience in audiences"
             :key="audience.id"
             type="button"
-            class="btn btn-sm"
+            class="btn btn-xs"
             :class="
               selectedId === audience.id
                 ? 'btn-warning'
@@ -70,7 +111,11 @@
             @click="selectedId = audience.id"
           >
             {{ audience.title }}
-            <span v-if="heard(audience.id)" class="text-xs">· heard</span>
+            <Icon
+              v-if="heard(audience.id)"
+              name="kind-icon:check"
+              class="h-3 w-3"
+            />
           </button>
         </div>
       </div>
@@ -81,26 +126,22 @@
           class="kr-panel space-y-2 p-4"
           role="status"
         >
+          <h2 class="font-serif text-lg font-bold text-warning">
+            {{ selected.title }}
+          </h2>
           <p class="text-xs font-semibold uppercase tracking-widest opacity-60">
             {{ selected.speaker }}
           </p>
-          <img
-            v-if="reactionArt"
-            :src="reactionArt"
-            :alt="`${npc?.name}, ${reactions[selected.id]}`"
-            class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
-          />
-          <p class="font-serif text-lg italic">
+          <p class="font-serif text-base italic">
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
         </div>
-        <p v-if="!heard(selected.id) && npc" class="text-xs opacity-70">
-          {{ npc.name }} · {{ npc.species }}
-        </p>
         <EmperorFortressDialogue
-          v-if="!heard(selected.id)"
+          v-else
           :key="selected.id"
+          :title="selected.title"
           :speaker="selected.speaker"
+          :subtitle="npc?.species"
           :art="npc ? illustration('npcs', npc.slug) : undefined"
           :lines="selected.lines"
           :choices="choices"
@@ -115,7 +156,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { DAYS, dayDef, questDef } from '~/utils/emperorOfDust/fortress/content'
 import {
@@ -146,11 +187,28 @@ const selected = computed(
 const npc = computed(() =>
   selected.value?.npc ? npcDef(selected.value.npc) : undefined,
 )
-const reactionArt = computed(() => {
+const wide = ref(true)
+const showBriefing = ref(true)
+onMounted(() => {
+  wide.value = window.matchMedia?.('(min-width: 768px)').matches ?? true
+  showBriefing.value = wide.value
+})
+const audienceIndex = computed(() =>
+  Math.max(
+    0,
+    audiences.value.findIndex((entry) => entry.id === selectedId.value),
+  ),
+)
+const sceneArt = computed(() => {
+  if (!npc.value) return undefined
   const mood = selected.value ? reactions.value[selected.value.id] : undefined
-  return npc.value && mood
-    ? illustration('npcs', npc.value.slug, mood)
-    : undefined
+  return illustration('npcs', npc.value.slug, mood)
+})
+const sceneAlt = computed(() => {
+  const mood = selected.value ? reactions.value[selected.value.id] : undefined
+  return npc.value
+    ? `${npc.value.name}${mood ? ', ' + mood : ''}, before the throne`
+    : ''
 })
 
 watch(
@@ -158,6 +216,7 @@ watch(
   () => {
     responses.value = {}
     reactions.value = {}
+    showBriefing.value = wide.value
     selectedId.value =
       audiences.value.find((entry) => !heard(entry.id))?.id ?? null
   },

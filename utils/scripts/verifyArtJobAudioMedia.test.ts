@@ -273,7 +273,5 @@ console.log('✅ Fast draft VACE jobs need a relay with the CausVid LoRA')
       base,
     ),
   )
-  assert.ok(
-    artJobClaimableBy({ media: 'video-restyle-vace' }, base),
-  )
+  assert.ok(artJobClaimableBy({ media: 'video-restyle-vace' }, base))
 }

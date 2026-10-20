@@ -51,8 +51,10 @@ export function isStrengthRestyleArtJobPayload(payload: unknown): boolean {
   const body = payloadObject(payload)
   if (body?.media !== 'video-restyle-vace') return false
   const video = body.videoRestyle as Record<string, unknown> | undefined
-  return typeof video?.overwriteStrength === 'number' &&
+  return (
+    typeof video?.overwriteStrength === 'number' &&
     video.overwriteStrength !== 100
+  )
 }
 
 /** Coat Dance Fast draft: needs the CausVid LoRA on the relay's ComfyUI. */

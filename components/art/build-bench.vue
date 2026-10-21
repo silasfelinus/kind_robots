@@ -1,5 +1,5 @@
 <template>
-  <section class="@container kr-container-wide flex w-full flex-col gap-3 p-3 md:p-4">
+  <section class="@container kr-container-canvas flex w-full flex-col gap-3 p-3 md:p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <span class="kr-icon-tile">

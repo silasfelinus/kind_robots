@@ -1635,7 +1635,9 @@ async function handleImageDeleted(imageId: number) {
 
 function canModifyImage(image: ArtImage): boolean {
   return (
-    userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
+    userStore.isAdmin ||
+    (Number(currentUserId.value) > 0 &&
+      Number(image.userId) === Number(currentUserId.value))
   )
 }
 

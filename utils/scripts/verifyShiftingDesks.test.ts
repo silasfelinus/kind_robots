@@ -383,6 +383,22 @@ assert.equal(
   0,
   'evidence cannot appear in the wrong department',
 )
+assert.match(
+  reviewExhibits({
+    department: 'toy-division',
+    flags: ['drew-the-warning'],
+  })[0] ?? '',
+  /crayon drawing/,
+  'the exhibit must come from the earlier focus-group encounter',
+)
+assert.ok(
+  TOY_DIVISION.encounters.some((scene) =>
+    scene.choices.some((choice) =>
+      choice.success.add_flags.includes('drew-the-warning'),
+    ),
+  ),
+  'the case-file drawing must be obtainable before the Toy Division review',
+)
 for (const flag of [
   'form-zero-stamped',
   'shipped-the-bear',

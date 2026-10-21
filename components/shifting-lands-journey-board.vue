@@ -600,14 +600,16 @@
                     <div class="min-w-[12rem] flex-1">
                       <strong class="text-xs">Scout before the trial</strong>
                       <p class="text-xs opacity-75">
-                        Spend 1 HP once to study this gate and earn a careful route.
-                        Mercy or honesty earned along the road may also summon witnesses.
+                        Spend 1 HP once to study this gate and earn a careful
+                        route. Mercy or honesty earned along the road may also
+                        summon witnesses.
                       </p>
                     </div>
                     <span
                       v-if="game.preparedTrial"
                       class="text-xs font-bold text-success"
-                    >Route surveyed</span>
+                      >Route surveyed</span
+                    >
                     <button
                       v-else
                       type="button"
@@ -671,13 +673,19 @@
                         >
                       </span>
                       <span
-                        v-if="choice.id === 'witness' && !game.canTrial(choice.id)"
+                        v-if="
+                          choice.id === 'witness' && !game.canTrial(choice.id)
+                        "
                         class="text-xs opacity-70"
-                      >Requires two earned mercy or honesty marks</span>
+                        >Requires two earned mercy or honesty marks</span
+                      >
                       <span
-                        v-if="choice.id === 'scout' && !game.canTrial(choice.id)"
+                        v-if="
+                          choice.id === 'scout' && !game.canTrial(choice.id)
+                        "
                         class="text-xs opacity-70"
-                      >Scout this gate first, spending 1 HP</span>
+                        >Scout this gate first, spending 1 HP</span
+                      >
                     </button>
                   </div>
                   <div

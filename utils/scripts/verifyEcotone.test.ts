@@ -37,10 +37,12 @@ import {
   cardAsides,
   cardBody,
   chanceToSucceed,
+  checkBonus,
   chooseBeat,
   chooseCrossroads,
   chooseEvent,
   chooseFork,
+  chooseSubstanceMoment,
   computeEnding,
   createRun,
   drawFork,
@@ -53,6 +55,12 @@ import {
   type RunState,
 } from '../ecotone/engine'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
+import {
+  momentPerspective,
+  substanceEpilogue,
+  substanceSceneLine,
+  substanceSummary,
+} from '../ecotone/substanceArc'
 import { REGIONAL_SCRIPTS } from '../ecotone/regionalQuestFactory'
 import { REGIONAL_REVISIONS } from '../ecotone/regionalSecondDraft'
 import { REGIONAL_LENS_VOICES } from '../ecotone/regionalLensVoices'
@@ -722,6 +730,161 @@ assert.notDeepEqual(
   cardBody(gr2, { ...kitSide, prospect: 'juniper' }),
 )
 assert.equal(fillText('Travel with {companion}', kitSide), 'Travel with Kit')
+
+// Simulated human personas: experimentation, escalation, recovery and mixing.
+const momentBase: RunState = {
+  ...createRun(129, 'dealer'),
+  phase: 'beat',
+  event: 'green-ribbon',
+  card: 'WH-003',
+  openingState: 'sober',
+  currentState: 'sober',
+}
+const singleDrink = chooseSubstanceMoment(momentBase, ['alcohol'])
+assert.equal(
+  singleDrink.openingState,
+  'sober',
+  'an interlude never rewrites the opening',
+)
+assert.equal(singleDrink.substanceMoments.length, 1)
+assert.equal(substanceSummary(singleDrink.substanceMoments).alcoholStreak, 1)
+assert.match(
+  substanceSceneLine(singleDrink.substanceMoments, 1) ?? '',
+  /drink loosens/,
+)
+assert.equal(
+  substanceSceneLine(singleDrink.substanceMoments, 1, 'WH-004'),
+  null,
+  'substance prose does not repeat verbatim in every subsequent scene',
+)
+assert.equal(
+  chooseSubstanceMoment(singleDrink, ['alcohol']),
+  singleDrink,
+  'a scene permits only one optional interlude',
+)
+const rejected = { ...singleDrink, card: 'WH-004' }
+assert.equal(
+  chooseSubstanceMoment(rejected, ['alcohol', 'cannabis', 'coffee']),
+  rejected,
+)
+assert.equal(chooseSubstanceMoment(rejected, ['coffee', 'coffee']), rejected)
+let frequent = momentBase
+for (const card of ['WH-003', 'WH-004', 'WH-005', 'WH-006', 'WH-007']) {
+  frequent = chooseSubstanceMoment({ ...frequent, card }, ['alcohol'])
+  if (substanceSummary(frequent.substanceMoments).alcoholStreak === 3)
+    assert.match(
+      substanceSceneLine(frequent.substanceMoments, 1) ?? '',
+      /bridgebridge/,
+    )
+}
+assert.equal(substanceSummary(frequent.substanceMoments).alcoholStreak, 5)
+assert.equal(
+  frequent.clarity,
+  0,
+  'sustained excess affects clarity, not consent or options',
+)
+assert.match(
+  substanceSceneLine(frequent.substanceMoments, 1) ?? '',
+  /rrriver|rrriver|rrriver|rrriver/,
+)
+assert.equal(frequent.openingState, 'sober')
+assert.equal(
+  checkBonus(frequent, { skill: 'psyche', target: 7 }),
+  momentBase.skills.psyche,
+  'extreme drinking does not earn an uncanny insight bonus',
+)
+assert.equal(
+  checkBonus(
+    { ...momentBase, currentState: 'tripping_balls', clarity: 1 },
+    { skill: 'psyche', target: 7 },
+  ),
+  momentBase.skills.psyche + 1,
+  'the authored uncanny lens retains its existing 2d6 trade-off',
+)
+let dailyHabit = momentBase
+for (const day of [1, 2, 3, 4]) {
+  dailyHabit = chooseSubstanceMoment(
+    { ...dailyHabit, day, card: `WH-00${day + 2}` },
+    ['alcohol'],
+  )
+}
+assert.equal(
+  substanceSummary(dailyHabit.substanceMoments).counts.alcohol,
+  4,
+  'daily repetition is a recorded habit',
+)
+assert.equal(
+  substanceSummary(dailyHabit.substanceMoments).maxAlcoholStreak,
+  1,
+  'one drink on separate days is not acute overindulgence',
+)
+assert.doesNotMatch(
+  substanceSceneLine(dailyHabit.substanceMoments, 4) ?? '',
+  /bridgebridge|rrriver/,
+)
+
+assert.equal(computeEnding(frequent).id, computeEnding(momentBase).id)
+const nextCard = findCard('WH-008')!
+const impairedScene = { ...frequent, card: nextCard.id }
+const intactChoices = openingLensChoices(nextCard).map((choice) => choice.id)
+const afterChoice = chooseBeat(impairedScene, intactChoices[0]!)
+assert.equal(
+  afterChoice.log.at(-1)?.choice,
+  fillText(openingLensChoices(nextCard)[0]!.label, impairedScene),
+  'even when dialogue is garbled, the selected action remains readable',
+)
+assert.deepEqual(
+  openingLensChoices(nextCard).map((choice) => choice.id),
+  intactChoices,
+  'interludes never mutate scene choice IDs',
+)
+const pausing = chooseSubstanceMoment({ ...frequent, card: 'WH-008' }, [])
+assert.equal(pausing.clarity, 2, 'one break begins gradual recovery')
+const temperate = chooseSubstanceMoment({ ...pausing, card: 'WH-009' }, [])
+assert.equal(temperate.clarity, 3, 'a second voluntary break restores clarity')
+assert.match(
+  substanceEpilogue(temperate.substanceMoments) ?? '',
+  /choosing water/,
+)
+const mixed = chooseSubstanceMoment(momentBase, ['coffee', 'cannabis'])
+assert.deepEqual(mixed.substanceMoments[0]?.selected, ['coffee', 'cannabis'])
+assert.equal(momentPerspective(mixed.substanceMoments).lens, 'stoned')
+assert.equal(substanceSummary(mixed.substanceMoments).hippieSpeedball, true)
+assert.match(
+  substanceSceneLine(mixed.substanceMoments, 1) ?? '',
+  /hippie speedball/,
+)
+assert.match(
+  substanceEpilogue(mixed.substanceMoments) ?? '',
+  /hippie speedball/,
+)
+const fastSidequest = QUEST_CARDS.find((card) => card.id === 'LX-FAST-01')!
+assert.equal(
+  encounterEligible(fastSidequest, momentBase),
+  false,
+  'a sober opening alone does not grant a stimulant-specific scene',
+)
+const laterFast = chooseSubstanceMoment(momentBase, ['cocaine'])
+assert.equal(
+  encounterEligible(fastSidequest, laterFast),
+  true,
+  'a later voluntary experience can unlock the matching personal scene',
+)
+assert.equal(laterFast.openingState, 'sober')
+const mixedFast = chooseSubstanceMoment(momentBase, ['cannabis', 'cocaine'])
+assert.equal(encounterEligible(fastSidequest, mixedFast), true)
+
+assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(temperate))), temperate)
+const { substanceMoments: oldMoments, ...legacyMomentSave } = temperate
+assert.equal(oldMoments.length, 7)
+assert.ok(
+  restoreRun(legacyMomentSave)?.substanceMoments.length,
+  'older version-four saves retain their initial narrative memory',
+)
+assert.equal(
+  restoreRun({ ...temperate, substanceMoments: [{ selected: ['fake'] }] }),
+  null,
+)
 
 const newcomers = new Set<string>()
 const reached = new Set<string>()

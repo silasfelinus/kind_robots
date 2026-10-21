@@ -12,6 +12,7 @@ import {
   chooseCrossroads,
   chooseEvent,
   chooseFork,
+  chooseSubstanceMoment,
   computeEnding,
   createRun,
   crossroadsNewcomer,
@@ -22,6 +23,7 @@ import {
   type RunState,
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
+import type { SubstanceId } from '~/utils/ecotone/substanceArc'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
@@ -138,6 +140,10 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     if (run.value) update(chooseBeat(run.value, choiceId))
   }
 
+  function takeMoment(selected: SubstanceId[]) {
+    if (run.value) update(chooseSubstanceMoment(run.value, selected))
+  }
+
   function crossroads(follow: boolean) {
     if (run.value) update(chooseCrossroads(run.value, follow))
   }
@@ -173,6 +179,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     pickEvent,
     pickFork,
     choose,
+    takeMoment,
     crossroads,
     proceed,
     abandon,

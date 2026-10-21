@@ -384,6 +384,12 @@
                     {{ callback }}
                   </p>
                   <p
+                    v-if="substanceCoda"
+                    class="border-l-2 border-[#d9b877] pl-3 font-serif text-sm italic leading-relaxed"
+                  >
+                    {{ substanceCoda }}
+                  </p>
+                  <p
                     v-if="LENS_CODAS[game.ending.lens]"
                     class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
                   >
@@ -476,6 +482,61 @@
                 </button>
               </template>
               <template v-else>
+                <details
+                  v-if="canTakeMoment"
+                  :key="game.run?.card ?? ''"
+                  class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
+                >
+                  <summary
+                    class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]"
+                  >
+                    Optional moment · change the tempo
+                  </summary>
+                  <p class="my-2 text-xs text-[#f3e6c8]/75">
+                    Choose one or two experiences, or take a clear-headed break.
+                    Your first perspective stays in your story. No combination
+                    grants supernatural knowledge.
+                  </p>
+                  <div class="grid grid-cols-2 gap-1.5">
+                    <button
+                      v-for="moment in SUBSTANCE_CHOICES"
+                      :key="moment.id"
+                      type="button"
+                      class="rounded-lg border px-2 py-2 text-left text-xs"
+                      :class="
+                        momentSelections.includes(moment.id)
+                          ? 'border-[#d9b877] bg-[#d9b877]/20'
+                          : 'border-white/20'
+                      "
+                      :aria-pressed="momentSelections.includes(moment.id)"
+                      :disabled="
+                        momentSelections.length >= 2 &&
+                        !momentSelections.includes(moment.id)
+                      "
+                      :title="moment.detail"
+                      @click="toggleMoment(moment.id)"
+                    >
+                      {{ moment.label }}
+                    </button>
+                  </div>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
+                      :disabled="momentSelections.length === 0"
+                      @click="takeMoment(false)"
+                    >
+                      Take this moment
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-xs font-bold"
+                      @click="takeMoment(true)"
+                    >
+                      Water, air, a pause
+                    </button>
+                  </div>
+                </details>
                 <p class="eco-label px-1">{{ stage.question }}</p>
                 <div
                   class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
@@ -783,7 +844,8 @@
                       : 'Not chosen yet'
                   }}
                   · Clarity {{ game.run.clarity }} · Weird exposure
-                  {{ game.run.weird }}/{{ MAX_METER }}
+                  {{ game.run.weird }}/{{ MAX_METER }} ·
+                  {{ game.run.substanceMoments.length }} remembered moments
                 </p>
               </section>
             </div>
@@ -1045,6 +1107,11 @@ import {
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
 import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
+import {
+  SUBSTANCE_CHOICES,
+  substanceEpilogue,
+  type SubstanceId,
+} from '~/utils/ecotone/substanceArc'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -1052,6 +1119,40 @@ const game = useEcotoneStore()
 const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
 const continueButton = ref<HTMLButtonElement | null>(null)
+const momentSelections = ref<SubstanceId[]>([])
+const canTakeMoment = computed(() => {
+  const run = game.run
+  return Boolean(
+    run?.phase === 'beat' &&
+    !run.pending &&
+    run.openingState &&
+    run.card &&
+    !run.substanceMoments.some((moment) => moment.source === run.card),
+  )
+})
+const substanceCoda = computed(() =>
+  game.run ? substanceEpilogue(game.run.substanceMoments) : null,
+)
+watch(
+  () => game.run?.card,
+  () => {
+    momentSelections.value = []
+  },
+)
+
+function toggleMoment(id: SubstanceId) {
+  if (momentSelections.value.includes(id))
+    momentSelections.value = momentSelections.value.filter(
+      (entry) => entry !== id,
+    )
+  else if (momentSelections.value.length < 2)
+    momentSelections.value = [...momentSelections.value, id]
+}
+
+function takeMoment(clearHead: boolean) {
+  game.takeMoment(clearHead ? [] : momentSelections.value)
+  momentSelections.value = []
+}
 
 const tabs: { value: Tab; label: string }[] = [
   { value: 'road', label: 'Journey' },
@@ -1368,8 +1469,8 @@ const stage = computed<Stage>(() => {
         ? 'How do you enter the weekend?'
         : 'How do you answer?',
       body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
-      lensLine: run.openingState
-        ? (card.lensLines?.[run.openingState] ?? '')
+      lensLine: run.currentState
+        ? (card.lensLines?.[run.currentState] ?? '')
         : '',
       asides: cardAsides(card, run),
       portrait,

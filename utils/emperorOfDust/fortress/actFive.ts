@@ -1,4 +1,5 @@
 import type {
+  AudienceBeat,
   AudienceDef,
   AudienceOption,
   DayDef,
@@ -87,6 +88,19 @@ export const FINALE_AID: FlagAid[] = [
     stat: 'might',
   },
 ]
+
+/**
+ * The plans of what stood on the Abbey's hill (t-043): copied first and
+ * locked away on Day 14, still in the crown's hands on Day 50. They show the
+ * stair from the old well to the lowest room.
+ */
+const HILL_PLANS_AID: FlagAid = {
+  flags: ['d14-abbey-maps-first'],
+  notFlags: ['d25-hill-plans-returned'],
+  label: 'The hill’s old plans: a stair from the well to the lowest room',
+  bonus: 2,
+  stat: 'lore',
+}
 
 export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
   {
@@ -534,7 +548,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     danger: 'high',
     lethal: true,
     tags: ['tunnels'],
-    aid: FINALE_AID,
+    aid: [...FINALE_AID, HILL_PLANS_AID],
     rewards: {
       triumph: { flags: ['horror-sealed', 'abbess-unmasked'] },
       success: { flags: ['horror-sealed'] },
@@ -629,6 +643,8 @@ type HostTerms = {
   collect?: { paid: string; unpaid: string; kept: string }
   /** Paths that only exist once the emperor has asked. */
   paths: AudienceOption[]
+  /** Further beats a path leads into (t-043), after the host's truth. */
+  beats?: AudienceBeat[]
 }
 
 /** Brass the host takes instead of hands. */
@@ -759,9 +775,343 @@ const hostTerms = (host: HostTerms): AudienceDef => {
           ...host.paths,
         ],
       },
+      ...(host.beats ?? []),
     ],
   }
 }
+
+/**
+ * The deserter from the nameless cave was on the north wall the night the
+ * tower fell (t-043). What he saw follows the last night's precautions, in
+ * the order the fall itself is told (betrayal.ts FALL_OPENINGS), then the
+ * quiet word Komodo had on Day 40. Two lines change; the rest stand.
+ */
+const deserterLines = (saw: [string, string]): SceneLine[] => [
+  saw[0],
+  saw[1],
+  'He puts the helmet back on. Takes it off again. “Forty steps, Majesty. I had the breath to shout. I used it to run.”',
+  {
+    who: 'The Freehold widow',
+    text: '“He’s said it. Now eat.” She puts the heel of the loaf in his hand. He holds it. He does not eat.',
+  },
+]
+
+const DESERTER_SAW: {
+  default: [string, string]
+  variants: { flag: string; saw: [string, string] }[]
+} = {
+  default: [
+    '“Him, Majesty. Your advisor. Your seal in one hand and the bar in the other. He lifted it himself, slow, like a man letting the cat in.”',
+    '“Everyone on that wall knew his face. I knew his face. He looked up at us and nodded. Like we were in on it. Maybe we were.”',
+  ],
+  variants: [
+    {
+      flag: 'd40-komodo-held',
+      saw: [
+        '“Nobody I saw, Majesty. The postern was open before he got to it. Oiled. I heard it not squeak. That’s what I keep hearing.”',
+        '“He came up out of the drain wet to the knees and walked through it like a man going home. Somebody inside did his work for him. I didn’t stay to see who.”',
+      ],
+    },
+    {
+      flag: 'd40-seals-checked',
+      saw: [
+        '“The soup cart, Majesty. He had a pass for it. Your hand at the bottom. The sergeant said you’d read every order that day. Everyone heard you read them.”',
+        '“The sergeant lifted the bar for the cart. The cart was empty. The road behind it wasn’t.”',
+      ],
+    },
+    {
+      flag: 'd40-watch-recalled',
+      saw: [
+        '“Holloway. Sergeant Holloway. I was on the wall over her. She lifted the bar from inside with both hands, the way she taught us. Nobody made her.”',
+        '“She looked up once. Right at me. She knew I saw. I think she was glad somebody did.”',
+      ],
+    },
+    {
+      flag: 'komodo-escorted',
+      saw: [
+        '“Your seal, Majesty. Not him. He rode out with the Captain at his stirrup, like you ordered. At midnight a grey sister walked up to the north gate with the seal on a cord round her neck.”',
+        '“The night sergeant knew that seal. He’d seen it every day for a year. He opened. The sister thanked him. Then the road behind her filled up.”',
+      ],
+    },
+    {
+      flag: 'd40-seal-order-stood',
+      saw: [
+        '“He did, Majesty. Himself. Half the Watch was on the mission road on your order. Nobody stood at the bar but him.”',
+        '“He lifted it and looked up at the wall, right at me, and put a finger to his lips. Like we were friends.”',
+      ],
+    },
+    {
+      flag: 'komodo-asked-to-stay',
+      saw: [
+        '“A woman of the Watch. Young. He came down the stair talking about the air, and she lifted the bar for him. All the way. He said please. She said it back.”',
+        '“We drew the same rota. She didn’t know what she’d done till the first horse came through. I watched her know it. Then I ran.”',
+      ],
+    },
+    {
+      flag: 'komodo-leave-granted',
+      saw: [
+        '“Nobody on our side, Majesty. The gate opened for a paper with your seal on it. The sergeant read it twice by the lamp. The crown’s business, it said. He opened.”',
+        '“Your advisor wasn’t even there. He was up the mission road on your leave. The paper came back without him, in a grey sister’s hand.”',
+      ],
+    },
+  ],
+}
+
+/**
+ * The host comes to collect in person (t-043). On the Day 46 dawn a host
+ * whose terms the crown took and never kept took what it could
+ * (`host-demand-unpaid`); by evening the host is at the court's fire. The
+ * crown can pay late, leave someone with the host, ask for time on its word,
+ * or walk out with the debt and finish the war in the nameless cave.
+ */
+type HostPatience = {
+  hideout: string
+  faction: KingdomFactionId
+  speaker: string
+  npc: string
+  lines: SceneLine[]
+  pay: string
+  /** A follower from the host's own people, left with the host for good. */
+  surety: { follower: string; label: string; response: string; reason: string }
+  time: string
+  leave: string
+}
+
+const hostPatience = (host: HostPatience): AudienceDef => {
+  const goodwill = (amount: number): Effects => ({
+    affinity: { [host.faction]: amount } as Partial<
+      Record<KingdomFactionId, number>
+    >,
+  })
+  return {
+    id: `d46-patience-${host.hideout}`,
+    title: 'The Host’s Patience',
+    speaker: host.speaker,
+    npc: host.npc,
+    faction: host.faction,
+    requires: { flags: [`hideout:${host.hideout}`, 'host-demand-unpaid'] },
+    lines: host.lines,
+    options: [
+      {
+        id: 'pay',
+        label:
+          'Pay what the crown owes now. Turn out every pocket in the court.',
+        requires: { cost: HOST_DEMAND },
+        effects: { ...goodwill(10), flags: ['d46-host-paid-late'] },
+        response: host.pay,
+      },
+      {
+        id: 'surety',
+        label: host.surety.label,
+        requires: { follower: host.surety.follower },
+        effects: {
+          ...goodwill(10),
+          flags: ['d46-host-surety'],
+          dismiss: [
+            { follower: host.surety.follower, reason: host.surety.reason },
+          ],
+        },
+        response: host.surety.response,
+      },
+      {
+        id: 'time',
+        label: 'Ask for three more days, on the crown’s word.',
+        effects: { ...goodwill(-5), flags: ['d46-host-owed'] },
+        response: host.time,
+      },
+      {
+        id: 'leave',
+        label:
+          'Leave tonight with the debt unpaid. Take the court up into the hills.',
+        effects: {
+          ...goodwill(-10),
+          local: { yard: -1 },
+          flags: ['d46-host-left'],
+          relocate: 'nameless-cave',
+        },
+        response: host.leave,
+      },
+    ],
+  }
+}
+
+const HOST_PATIENCE: HostPatience[] = [
+  {
+    hideout: 'mole-tunnels',
+    faction: 'moles',
+    speaker: 'Granny Umber of the Mole Revolutionaries',
+    npc: 'granny-umber',
+    lines: [
+      'Granny Umber comes to your blanket after the noon meal, slate under one arm, cane under the other. She sits on an upturned bucket. It takes a while.',
+      '“The thirty met without me last night, Majesty. First time in twenty years. They didn’t take a vote. They took a count. Of you.”',
+      '“I told them the crown owes the Moles. They said: then where is it? Twenty brass and a propped tunnel. I had neither to show them.”',
+      '“I can hold them three days on my name. Maybe. My name isn’t what it was on Thursday.”',
+    ],
+    pay: 'You turn out every pocket in the court. Granny Umber counts it on her slate twice and takes it down the long tunnel herself. That night she sits in her chair at the meeting again.',
+    surety: {
+      follower: 'F009',
+      label:
+        'Leave Keel Understone with the thirty. Keel digs for them until the war is done.',
+      response:
+        'Keel nods like they have been waiting to be asked. They fold the crown’s sash and hand it to you. By nightfall Keel is on the far shift with the thirty, the only one of them who looks at you going past.',
+      reason:
+        'Keel Understone stayed in the burrows on the forty-sixth day, surety for the crown’s debt. Keel digs for the thirty now.',
+    },
+    time: 'Granny Umber writes three marks on her slate. “Three days on my name,” she says. That night the thirty vote her out of the chair, thirty to twenty-nine. She comes back and sits on the bucket again. She does not mention it.',
+    leave:
+      'The court goes up the old shaft at midnight with what it can carry. Granny Umber holds the lamp at the top. She does not come up after you. In the morning the shaft is filled.',
+  },
+  {
+    hideout: 'crow-cave',
+    faction: 'storm-crows',
+    speaker: 'Elder Corvane of the Storm Crows',
+    npc: 'elder-corvane',
+    lines: [
+      'Elder Corvane comes down off his ledge in the afternoon. He has not done that since you came. The young crows go quiet along the wall.',
+      'He carries the Conclave’s book open across his claws. The court’s line is the last one written. The ink is still wet.',
+      '“The Crows keep what they shelter, Majesty. We also keep accounts. The accounts are older.”',
+      '“The Abbey’s sisters have offered to settle yours. They ask nothing for it. That is the part I did not like.”',
+    ],
+    pay: 'The court’s last brass goes into the stone basin. Corvane watches every coin go in. Then he takes up his pen and draws one line through yours. Clean.',
+    surety: {
+      follower: 'F006',
+      label:
+        'Leave Nera Gale with the Conclave. She flies its watch until the debt is paid.',
+      response:
+        'Nera does not argue. She was a Crow before she was yours. Corvane writes her name in the book where your debt was. She goes up to the ledge and does not look back at the fire.',
+      reason:
+        'Nera Gale went back up to the Conclave’s ledge on the forty-sixth day, to fly its watch against the crown’s debt.',
+    },
+    time: 'Corvane writes a date in the margin. “The book is patient,” he says. “I am not the book.” That night the Abbey’s offer is read aloud to the whole Conclave. Twice.',
+    leave:
+      'The court walks out of the cave into the rain at midnight. Corvane does not stop you. In the morning the Conclave’s book has a new line under yours. Nobody tells you what it says.',
+  },
+  {
+    hideout: 'bell-cellars',
+    faction: 'hollow-bell',
+    speaker: 'Mayor Mara Reedbell of Hollow Bell',
+    npc: 'mara-reedbell',
+    lines: [
+      'Mara Reedbell comes down the cellar stair at dusk without a lamp. She knows the steps.',
+      '“The council voted, Majesty. You heard it. The boards are thin.”',
+      '“Seven to six to keep you. The six want the cellar back for the cider and the town back on the Abbey’s water. The seven want the aqueduct mended. They don’t much care who mends it.”',
+      '“I can’t carry seven forever. Give me something to carry them with.”',
+    ],
+    pay: 'Mara takes the brass up the stair in her apron. Through the boards you hear her lay it on the council table, coin by coin. Nobody calls another vote.',
+    surety: {
+      follower: 'F005',
+      label:
+        'Give Pip Thread to Hollow Bell. Pip keeps the town’s books until the war is done.',
+      response:
+        'Pip goes up the stair with Mara and the town ledger. By morning the water accounts balance for the first time in six years. The town keeps Pip. It does not offer to give Pip back.',
+      reason:
+        'Pip Thread went up the cellar stair on the forty-sixth day to keep Hollow Bell’s books for the crown’s debt, and stayed.',
+    },
+    time: 'Mara nods once and goes up. Through the boards you hear her ask for three days. Seven to six. Then the six go out and the door bangs. One of them is walking up the mission road.',
+    leave:
+      'The court climbs out through the coal chute at midnight. Mara holds the hatch. At dawn, from the ridge, you hear the town’s small bell ring for the first time since you came.',
+  },
+  {
+    hideout: 'wagon-circle',
+    faction: 'jackalwire',
+    speaker: 'Captain Gristle Vane of the Jackalwire Pack',
+    npc: 'gristle-vane',
+    lines: [
+      'Gristle Vane finds you at the water barrel and leans on it like it is his. It is.',
+      '“The canyon asked again last night, Majesty. Who are we feeding, and what for. I gave it a song. I’m out of songs.”',
+      '“Twenty brass is nothing. Twenty brass not paid is a story. Raiders love a story about a mark who can’t pay.”',
+      '“So. What do I tell them?”',
+    ],
+    pay: 'You count it into his hat. Vane bites one bit, then another, then stops biting. The drum starts up before he is back at his wagon.',
+    surety: {
+      follower: 'F018',
+      label:
+        'Lend him Vesper Fanfare. The Pack needs new songs more than brass.',
+      response:
+        'Vesper is up on a wagon roof before Vane finishes nodding. By midnight the canyon is singing about a crown that owes everybody. It is very funny. Vesper does not come back to the court’s fire.',
+      reason:
+        'Vesper Fanfare stayed with the Pack’s wagons on the forty-sixth night, singing off the crown’s debt.',
+    },
+    time: 'Vane laughs. “Your word,” he says, and tells the canyon. The canyon laughs too. That night two of the Pack sit by the court’s blankets with knives on their knees, to see that your word stays put.',
+    leave:
+      'The court walks out of the circle at midnight between two wagons that roll apart to let it through. Nobody plays. Behind you the wheels close again. Vane does not wave.',
+  },
+  {
+    hideout: 'moving-caravan',
+    faction: 'saltroad',
+    speaker: 'Oriel Saltmarsh of the Saltroad',
+    npc: 'oriel-saltmarsh',
+    lines: [
+      'At the noon halt Oriel Saltmarsh walks down the line and stops at your wagon. She does not count it. That is worse.',
+      '“Cargo pays freight, Majesty. Guards ride free. The court was guards for a while. Now it is cargo.”',
+      '“Freight is twenty brass to the next waystation. There is a grey buyer at the next waystation. He has asked what my cargo weighs.”',
+      '“I don’t sell people. Some of my drivers would. I am telling you which drivers.”',
+    ],
+    pay: 'Oriel counts it out loud, every bit. Then she counts the court. Guards again. At the waystation the grey buyer gets a wave and nothing else.',
+    surety: {
+      follower: 'F007',
+      label:
+        'Give her Ash Quill. A fennec who knows the salt roads drives for her until the war is done.',
+      response:
+        'Ash takes the reins of the fifth wagon like something they have wanted all their life. Oriel counts them. Driver. At the next halt Ash does not look back down the line.',
+      reason:
+        'Ash Quill took the reins of a Saltroad wagon on the forty-sixth day, freight for the crown’s debt.',
+    },
+    time: 'Oriel thinks. “Three days is two waystations,” she says. She moves the court’s wagon to the back of the line, behind the drivers she named. You ride there two days. Nobody sleeps.',
+    leave:
+      'The court drops off the tail of the caravan at a dry ford at midnight. Oriel counts the wagons as they roll on without you. Her voice carries a long way across the salt. It does not stop at yours.',
+  },
+  {
+    hideout: 'freehold-barn',
+    faction: 'freeholds',
+    speaker: 'Hester Plowright of the Border Freeholds',
+    npc: 'hester-plowright',
+    lines: [
+      'Hester Plowright comes down the ladder at supper with her slate and no basket.',
+      '“The Pardoes came to my gate this morning, Majesty. Not to talk. To look at the barn. The boy had a grey ribbon in his fist. He didn’t tie it. Yet.”',
+      '“The field burned standing. The brass never came. My neighbours are working out what the crown is worth to them. I can’t give them a number.”',
+      '“Give me one.”',
+    ],
+    pay: 'Hester counts it on the slate and walks it to the Pardoes herself. She comes back after dark with the grey ribbon and drops it in the stove. She does not put the quilt back.',
+    surety: {
+      follower: 'F008',
+      label:
+        'Leave Bram Coil with the Freeholds. He ploughs the burned field over and sows it again.',
+      response:
+        'Bram is in the black field before Hester finishes saying yes. By dusk he has turned a quarter of it with no horse. The Pardoes come to watch. They bring him water. Nobody brings a ribbon.',
+      reason:
+        'Bram Coil stayed in the Freeholds on the forty-sixth day to plough the burned field for the crown’s debt.',
+    },
+    time: 'Hester writes three days on her slate and hangs it on the barn door where the road can read it. The Pardoes’ boy comes to look. He can’t read. He ties the ribbon on the latch anyway.',
+    leave:
+      'The court leaves by the field gate at midnight. Hester holds the ladder. She keeps the quilt. In the morning the barn is just a barn. The Pardoes check.',
+  },
+  {
+    hideout: 'rail-station',
+    faction: 'rustline',
+    speaker: 'Jinx Coupler of the Rustline',
+    npc: 'jinx-coupler',
+    lines: [
+      'Jinx Coupler chalks a number on the court’s strongbox while you watch. Then a second number under it. Then a line.',
+      '“That’s the twenty, Majesty. That’s the interest. That’s the blankets. You bought them twice.”',
+      '“Everything here has a price chalked on it. I put one on you this morning. Small. In case.”',
+      '“The grey buyer read it. I wiped it off. I can chalk it back on.”',
+    ],
+    pay: 'Jinx bites every shiny one and wipes the strongbox clean with a sleeve. The price on you stays wiped too. Jinx checks it twice that night.',
+    surety: {
+      follower: 'F014',
+      label:
+        'Leave Pell Quickmarrow with the Rustline. He sorts bolts for Jinx until the war is done.',
+      response:
+        'Pell is sorting before the bargain is spoken. By dark the heaps make sense to Jinx and to Pell and to nobody else. Jinx chalks a price on Pell: NOT FOR SALE.',
+      reason:
+        'Pell Quickmarrow stayed at the rail station on the forty-sixth day to sort bolts for Jinx against the crown’s debt.',
+    },
+    time: 'Jinx chalks three marks on the strongbox. “Three days,” they say. That night the grey cart stops at the east siding. Jinx goes out to it and comes back and does not say what they talked about.',
+    leave:
+      'The court walks out along the dead rails at midnight. Behind you Jinx chalks a price on the empty floor where your blankets were. You do not go back to read it.',
+  },
+]
 
 const vellumSays = (text: string): SceneLine => ({
   who: 'Keeper Vellum',
@@ -2149,6 +2499,60 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             response:
               'He nods like he expected it. Helmet on. Into the dark. The widow says nothing. By morning one of the Moles is gone too. So is the good blanket.',
           },
+          {
+            // t-043: he saw who opened the gate, and nobody asked him.
+            id: 'who-opened',
+            label: 'Ask him who he saw open the gate.',
+            effects: {},
+            response:
+              'He looks at the widow. She looks at the fire. He breathes in like a man going under water.',
+            next: 'who-opened',
+          },
+        ],
+        beats: [
+          {
+            id: 'who-opened',
+            lines: deserterLines(DESERTER_SAW.default),
+            // What he saw is what the last night left (FALL_OPENINGS order).
+            variants: DESERTER_SAW.variants.map(({ flag, saw }) => ({
+              flags: [flag],
+              lines: deserterLines(saw),
+            })),
+            options: [
+              {
+                id: 'pardon',
+                label:
+                  'Pardon him out loud. He saw it, he ran, and he came back to say it.',
+                effects: {
+                  local: { yard: 2, 'gate-watch': -2 },
+                  flags: ['d42-deserter-pardoned'],
+                },
+                response:
+                  'You say it in front of all six. He does not thank you. He goes out for firewood and comes back with more than anyone can burn. Again. Again. Until you stop him.',
+              },
+              {
+                id: 'send-away',
+                label: 'Send him away. He watched it happen and he ran.',
+                effects: {
+                  local: { 'gate-watch': 2, yard: -2 },
+                  flags: ['d42-deserter-sent-away'],
+                },
+                response:
+                  'He nods like he expected it. Helmet on. Into the dark. By morning one of the Moles is gone too. So is the good blanket.',
+              },
+              {
+                id: 'carry-it',
+                label:
+                  'Tell him he carries it to the end. When the crown goes home, he says it under oath, to the Watch, to their faces.',
+                effects: {
+                  local: { lamplight: 2, 'gate-watch': -1 },
+                  flags: ['d42-deserter-witness'],
+                },
+                response:
+                  'He goes grey. “They’ll know I ran.” “Yes.” He nods for a long time. Then he takes the cave mouth for the night, spear across his knees, where every one of them can see him sit.',
+              },
+            ],
+          },
         ],
       }),
       {
@@ -2369,7 +2773,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“You pardoned me, Majesty. I gave you the name and you let me go. Three days later he did exactly what I said.”',
           '“The sisters still think I’m his runner. They don’t know I’m down here. If I went up the mission road tonight with a letter, they’d open the gate. Like always.”',
           '“I could carry one more letter. Or stay down here and dig and never carry anything again.”',
-          '“My name’s Tobin. Tobin Umber. Granny says it’s your choice. She’s my gran. She says it’s still your choice.”',
+          '“My name’s Odo. Odo Umber. Granny says it’s your choice. She’s my gran. She says it’s still your choice.”',
           'At the far end of the gallery Granny Umber is sorting props. She does not look up. Her paws have stopped moving.',
         ],
         options: [
@@ -2381,7 +2785,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d42-courier-kept'],
             },
             response:
-              'Tobin breathes out like he has held it since the thirty-eighth day. Granny Umber hands him a shovel without a word. Among Moles, that is welcome home.',
+              'Odo breathes out like he has held it since the thirty-eighth day. Granny Umber hands him a shovel without a word. Among Moles, that is welcome home.',
           },
           {
             id: 'send',
@@ -2773,6 +3177,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           'He folds his wings and looks at you a long time. His clouded eyes move over the court, the fire, the empty place where an advisor stood.',
           '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
           '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
+        ],
+        // t-043: the rain debt the crown told to wait on Day 34.
+        variants: [
+          {
+            flags: ['crow-debt-defaulted'],
+            lines: [
+              'Elder Corvane arrives at dawn on foot. The young crows who carried him wait in the rocks with spears across their knees. They have carried spears since the thirty-fourth day, when the crown said the debt would wait.',
+              'He looks at you a long time. “It is still waiting, Majesty. I did not come about it. I wanted you to watch me not mention it.”',
+              '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
+              '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
+            ],
+          },
         ],
         options: [
           {
@@ -3495,6 +3911,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      // t-043: a host whose terms went unpaid comes to the fire in person.
+      ...HOST_PATIENCE.map(hostPatience),
     ],
   },
   {

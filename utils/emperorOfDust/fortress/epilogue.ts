@@ -732,6 +732,11 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The Freeholds wrote their own charter, and Hester read it aloud from a hay cart, twice. It says strangers drink first on feast days. She argued against that clause for three nights. She lost. She signed it anyway.',
       },
       {
+        // t-043: a tenth of every cup sold at the back gates, Day 18.
+        when: { flags: ['d18-water-taxed'] },
+        text: 'The crown’s clerk kept a table at the Freehold back gate until the war, a tenth of every cup. The road called it the crown’s well. When the clerk went home Hester left the table standing. Strangers still put a coin on it. Nobody collects.',
+      },
+      {
         when: { flags: ['wells-closed'] },
         text: 'The Freehold wells stayed the Freeholders’ own. On the road outside the gates there is a cairn, one stone for each stranger who died thirsty. Hester Plowright waters Freeholders first and isn’t ashamed of it. She has never taken the cairn down.',
       },
@@ -953,6 +958,11 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The waystation families stayed quiet, as asked. Their wagon rolls at the back of every caravan, empty. Oriel will not sell it or load it. She says it is carrying something already.',
       },
       {
+        // t-043: the crown rode for the waystation on the thirty-third day.
+        when: { flags: ['waystation-defended'] },
+        text: 'The waystation the crown held at noon on the thirty-third day still stands. The Saltroad painted the gatepost in the crown’s colours. Every driver slaps it going by. Oriel Saltmarsh has never once slapped it. She repaints it every spring.',
+      },
+      {
         when: { flags: ['waystation-abandoned'] },
         text: 'The salt-house burned while the crown held Thistledown. Forty families rebuilt it a day further down the road. Oriel never asked the crown for an answer. She counts its caravans out loud as they pass.',
       },
@@ -1052,17 +1062,17 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
   },
   {
     id: 'courier',
-    name: 'Tobin Umber',
+    name: 'Odo Umber',
     variants: [
       {
         when: { flags: ['d42-courier-kept'] },
         mood: 'happy',
-        text: 'Tobin Umber never carried another letter. He digs for the water assembly. Granny Umber says he is the slowest digger in the burrows. She says it like a medal.',
+        text: 'Odo Umber never carried another letter. He digs for the water assembly. Granny Umber says he is the slowest digger in the burrows. She says it like a medal.',
       },
       {
         when: { flags: ['d42-courier-sent'] },
         mood: 'sad',
-        text: 'Tobin Umber carried one more letter up the mission road and came back with the Abbey kitchens drawn on his arm. The soot washed off. He sleeps with a lamp lit. He has never said what he heard on the stair.',
+        text: 'Odo Umber carried one more letter up the mission road and came back with the Abbey kitchens drawn on his arm. The soot washed off. He sleeps with a lamp lit. He has never said what he heard on the stair.',
       },
     ],
   },
@@ -2135,6 +2145,16 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
       {
         when: { flags: ['hideout:rail-station'] },
         text: 'The court hid in a dead rail station among the Rustline’s shiny bolts. The emperor’s wrench is still on the wall there, painted gold. Jinx charges visitors a copper to hold it.',
+      },
+      {
+        // t-043: he carried what he saw at the gate home, under oath.
+        when: { flags: ['hideout:nameless-cave', 'd42-deserter-witness'] },
+        text: 'The deserter from the cave said it under oath in the tower hall. The gate first, then the running, in that order. The Watch heard him to the end. Nobody struck him. Nobody sat with him at supper either. He eats by the gate. He says the view is good.',
+      },
+      {
+        // t-043: the court walked out on its host with the debt unpaid.
+        when: { flags: ['d46-host-left'] },
+        text: 'The court walked out on its host on the forty-sixth night with twenty brass owing, and finished the war in a cave with no name. The crown paid the debt the first spring, with interest. The receipt came back torn in half.',
       },
       {
         when: { flags: ['hideout:nameless-cave', 'd42-deserter-pardoned'] },

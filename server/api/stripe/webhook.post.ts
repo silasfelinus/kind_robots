@@ -143,7 +143,8 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
     typeof invoice.customer === 'string'
       ? invoice.customer
       : invoice.customer?.id
-  if (!customerId) throw new Error('Paid Patron invoice is missing a Stripe customer')
+  if (!customerId)
+    throw new Error('Paid Patron invoice is missing a Stripe customer')
 
   const priceId = process.env.STRIPE_PRICE_ID
   if (!priceId)
@@ -154,7 +155,8 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
 
   // Check against live Stripe state and the exact configured Patron price.
   // An invoice for another subscription/product must never mint tokens.
-  const subscription = await getStripeClient().subscriptions.retrieve(subscriptionId)
+  const subscription =
+    await getStripeClient().subscriptions.retrieve(subscriptionId)
   const subscriptionCustomer =
     typeof subscription.customer === 'string'
       ? subscription.customer

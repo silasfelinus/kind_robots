@@ -54,6 +54,8 @@ import {
   rollDice,
   type RunState,
 } from '../ecotone/engine'
+import { philosophyNeedles, VALUE_AXES } from '../ecotone/valueNeedles'
+import { SUBSTANCE_CHOICES } from '../ecotone/substanceArc'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 import {
   momentPerspective,
@@ -884,6 +886,114 @@ assert.ok(
 assert.equal(
   restoreRun({ ...temperate, substanceMoments: [{ selected: ['fake'] }] }),
   null,
+)
+
+// A philosophy is a weighted question, not a chemical diagnosis or moral fate.
+const philosophyBase = createRun(16180, 'reporter')
+const neutralValues = philosophyNeedles(philosophyBase)
+assert.equal(neutralValues.length, 4)
+assert.deepEqual(
+  VALUE_AXES.map((axis) => axis.id),
+  ['autonomy', 'continuity', 'ecology', 'agency'],
+)
+assert.ok(neutralValues.every((value) => value.chemistry === 0))
+const momentsFor = (
+  substance: 'alcohol' | 'cannabis' | 'coffee' | 'psychedelic' | 'cocaine' | 'meth' | 'mdma',
+  count: number,
+) =>
+  Array.from({ length: count }, (_, index) => ({
+    source: 'sample-' + index,
+    day: index + 1,
+    selected: [substance],
+  }))
+const oneDrinkValues = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: momentsFor('alcohol', 1),
+})
+const habitualValues = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: momentsFor('alcohol', 3),
+})
+const excessiveValues = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: momentsFor('alcohol', 8),
+})
+assert.equal(oneDrinkValues[0]?.chemistry, 1)
+assert.equal(habitualValues[0]?.chemistry, 2)
+assert.equal(excessiveValues[0]?.chemistry, 2, 'overindulgence cannot farm ideological power')
+const cannabisOnly = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: momentsFor('cannabis', 1),
+})
+const hippySpeedball = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: [
+    { source: 'sample-0', day: 1, selected: ['coffee', 'cannabis'] },
+  ],
+})
+assert.equal(cannabisOnly[2]?.chemistry, -1)
+assert.equal(hippySpeedball[2]?.chemistry, 0, 'coffee and cannabis offer countervailing questions')
+assert.equal(hippySpeedball[3]?.chemistry, -1)
+const returnedToTemperance = philosophyNeedles({
+  ...philosophyBase,
+  substanceMoments: [
+    ...momentsFor('alcohol', 3),
+    { source: 'sample-3', day: 4, selected: [] },
+    { source: 'sample-4', day: 4, selected: [] },
+  ],
+})
+assert.equal(returnedToTemperance[3]?.chemistry, -2)
+assert.equal(
+  philosophyNeedles({
+    ...philosophyBase,
+    substanceMoments: [{ source: 'opening', day: 1, selected: [] }],
+  })[3]?.chemistry,
+  0,
+  'choosing sober at the beginning is not a recovery score',
+)
+const volunteerChoice = {
+  step: 1,
+  day: 1,
+  source: 'WH-001',
+  title: 'The Human Statue',
+  choice: 'Give them a break',
+  roll: null,
+  text: 'They get water',
+  effects: { flag: 'wh_001_care' },
+}
+const helpingValues = philosophyNeedles({
+  ...philosophyBase,
+  log: [volunteerChoice],
+})
+assert.equal(helpingValues[0]?.decisions, 1)
+const hurriedClosure = philosophyNeedles({
+  ...philosophyBase,
+  log: [{ ...volunteerChoice, effects: { flag: 'juniper_closed_path' } }],
+})
+assert.equal(hurriedClosure[0]?.decisions, -2)
+assert.ok(
+  SUBSTANCE_CHOICES.every((choice) =>
+    philosophyNeedles({
+      ...philosophyBase,
+      substanceMoments: momentsFor(choice.id, 1),
+    }).some((value) => value.chemistry !== 0),
+  ),
+  'every authored perspective must tug at at least one axis',
+)
+for (const value of hippySpeedball) {
+  assert.ok(value.dice.every((die) => die >= 1 && die <= 6))
+  assert.equal(value.total, value.dice[0] + value.dice[1] + value.pull)
+  assert.ok(value.position >= 8 && value.position <= 92)
+}
+assert.deepEqual(
+  philosophyNeedles({ ...philosophyBase, substanceMoments: momentsFor('cannabis', 3) }),
+  philosophyNeedles({ ...philosophyBase, substanceMoments: momentsFor('cannabis', 3) }),
+  'philosophical rolls are reproducible for seeded saves',
+)
+assert.equal(
+  computeEnding({ ...momentBase, substanceMoments: momentsFor('alcohol', 3) }).id,
+  computeEnding(momentBase).id,
+  'philosophical pressures never make hope or darkness a drug verdict',
 )
 
 const newcomers = new Set<string>()

@@ -419,6 +419,9 @@
                             :style="{ left: value.position + '%' }"
                           />
                         </div>
+                        <p class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85">
+                          {{ value.reflection }}
+                        </p>
                         <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
                           Chemistry {{ value.chemistry >= 0 ? '+' : '' }}{{ value.chemistry }}
                           · decisions {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}

@@ -1,4 +1,5 @@
 import './verifyEcotoneAdversarial.test'
+import './verifyEcotoneEditorial.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
   isEcotoneReviewHeldArt,

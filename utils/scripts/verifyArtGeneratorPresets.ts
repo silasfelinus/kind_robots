@@ -573,7 +573,9 @@ assert.ok(generator.includes('artDimensionOptions('))
 assert.ok(generator.includes('v-for="option in widthOptions"'))
 assert.ok(generator.includes('v-for="option in heightOptions"'))
 assert.ok(generator.includes('placement="up"'))
-assert.ok(generator.includes('<details class="kr-panel-flat">'))
+assert.ok(
+  generator.includes('<details class="kr-panel-flat 2xl:col-start-1 2xl:row-start-3">'),
+)
 assert.ok(generator.includes('v-if="artStore.lastGeneratedArtImage"'))
 assert.ok(generator.includes('kr-container-wide flex min-h-full'))
 assert.ok(generator.includes('2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)]'))

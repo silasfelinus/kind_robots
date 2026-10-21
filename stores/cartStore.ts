@@ -420,7 +420,7 @@ export const useCartStore = defineStore('cartStore', () => {
       return {
         success: true,
         message: result.message,
-        endsAt: result.endsAt,
+        endsAt: result.data?.endsAt,
       }
     } catch (error) {
       handleError(error, 'cancelSubscription')

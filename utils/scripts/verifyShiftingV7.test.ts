@@ -91,7 +91,16 @@ for (const land of JOURNEY_WORLD.lands) {
   const trial = trialForLandV7(land.id)!
   assert.deepEqual(
     trial.choices.map((choice) => choice.id),
-    ['confront', 'parley', 'evidence', 'witness', 'scout', 'tribute', 'coerce', 'solidarity'],
+    [
+      'confront',
+      'parley',
+      'evidence',
+      'witness',
+      'scout',
+      'tribute',
+      'coerce',
+      'solidarity',
+    ],
   )
 }
 const initial = newJourneyLedgerV7(55)
@@ -243,8 +252,7 @@ function simulate(policy: Policy, runs: number): Row {
             ).id
           } else {
             id = (
-              available.find((item) => item.id === 'coerce') ??
-              available[0]!
+              available.find((item) => item.id === 'coerce') ?? available[0]!
             ).id
           }
           if (id === 'tribute' || id === 'coerce') row.darkTaken++
@@ -369,7 +377,7 @@ const lines = [
   ),
   '',
   'Witness and solidarity choices require deeds. Scouting spends HP and is recorded in replay. ' +
-    'Tribute spends food; coercion spends someone else\'s safety. Both add permanent moral marks. ' +
+    "Tribute spends food; coercion spends someone else's safety. Both add permanent moral marks. " +
     'V6 saves and trial difficulty are unchanged; V7 is a separate save version.',
 ]
 console.log('BEGIN SHIFTING V7 BALANCE REPORT')
@@ -382,7 +390,10 @@ assert.ok(rows.find((row) => row.policy === 'greedy')!.darkTaken > 0)
 assert.ok(rows.find((row) => row.policy === 'ruthless')!.darkTaken > 0)
 const finishing = {
   ...newJourneyLedgerV7(88).current,
-  journey: { ...newJourneyLedgerV7(88).current.journey, phase: 'complete' as const },
+  journey: {
+    ...newJourneyLedgerV7(88).current.journey,
+    phase: 'complete' as const,
+  },
 }
 const tributeMemory = {
   landId: 'verge',
@@ -404,20 +415,26 @@ const tributeMemory = {
   provisionChange: -1,
 }
 assert.ok(
-  authoredEndingV7(finishing, [tributeMemory])?.paragraphs.some(
-    (paragraph) => paragraph.includes('bought an open road'),
+  authoredEndingV7(finishing, [tributeMemory])?.paragraphs.some((paragraph) =>
+    paragraph.includes('bought an open road'),
   ),
   'a compromised victory remembers its actual bargain',
 )
 assert.ok(
-  !authoredEndingV7(finishing, [])?.paragraphs.some(
-    (paragraph) => paragraph.includes('bought an open road'),
+  !authoredEndingV7(finishing, [])?.paragraphs.some((paragraph) =>
+    paragraph.includes('bought an open road'),
   ),
   'a clean path cannot invent exploitative bargains',
 )
-const united = { ...finishing, marks: { ...finishing.marks, mercy: 4, honesty: 2 } }
+const united = {
+  ...finishing,
+  marks: { ...finishing.marks, mercy: 4, honesty: 2 },
+}
 assert.ok(
-  authoredEndingV7(united, [{ ...tributeMemory, choiceId: 'solidarity' }])
-    ?.paragraphs.some((paragraph) => paragraph.includes('share a warning bell')),
+  authoredEndingV7(united, [
+    { ...tributeMemory, choiceId: 'solidarity' },
+  ])?.paragraphs.some((paragraph) =>
+    paragraph.includes('share a warning bell'),
+  ),
   'an earned solidarity victory establishes a shared future',
 )

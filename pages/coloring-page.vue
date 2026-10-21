@@ -8,7 +8,7 @@
 -->
 <template>
   <div class="kr-surface h-full min-h-0">
-    <div class="kr-scroll kr-container-wide flex flex-col gap-3 p-3 sm:p-4">
+    <div class="kr-scroll kr-container-canvas flex flex-col gap-3 p-3 sm:p-4">
       <header class="flex items-start gap-3">
         <div
           class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"

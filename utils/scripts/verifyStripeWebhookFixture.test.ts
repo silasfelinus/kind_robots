@@ -447,6 +447,8 @@ assert.match(webhookSource, /if \(newGrant && user\.email\)/)
 assert.match(webhookSource, /if \(existing\) return false/)
 assert.match(receiptSource, /Your 1,000 Patron tokens are ready/)
 assert.match(receiptSource, /return sendTransactionalEmail\(/)
-console.log('✅ Patron token confirmation triggers only on new committed grants')
+console.log(
+  '✅ Patron token confirmation triggers only on new committed grants',
+)
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

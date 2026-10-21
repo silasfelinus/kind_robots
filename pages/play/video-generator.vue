@@ -8,7 +8,7 @@
         </NuxtLink>
         <span v-else />
         <span class="kr-badge-ghost-sm">
-          {{ activeEngine.label }} · {{ selectedPreset?.label || 'Custom' }}
+          {{ activePanel === 'music' ? 'Music video studio' : activeEngine.label + ' · ' + (selectedPreset?.label || 'Custom') }}
         </span>
       </header>
 
@@ -18,7 +18,7 @@
           class="btn btn-sm"
           :class="activePanel === 'create' ? 'btn-accent' : 'btn-outline'"
           :aria-pressed="activePanel === 'create'"
-          @click="activePanel = 'create'"
+          @click="selectPanel('create')"
         >
           <icon name="kind-icon:plus" class="kr-icon-4" />
           Create clip
@@ -36,6 +36,16 @@
             {{ videoStore.history.totalCount }}
           </span>
         </button>
+        <button
+          type="button"
+          class="btn btn-sm"
+          :class="activePanel === 'music' ? 'btn-accent' : 'btn-outline'"
+          :aria-pressed="activePanel === 'music'"
+          @click="selectPanel('music')"
+        >
+          <icon name="kind-icon:music" class="kr-icon-4" />
+          Music videos
+        </button>
         <span
           v-if="videoStore.hasActiveJobs"
           class="kr-badge-accent-sm"
@@ -45,11 +55,12 @@
         </span>
       </nav>
 
-      <div v-if="!isLoggedIn" class="alert alert-warning text-sm" role="alert">
+      <div v-if="!isLoggedIn && activePanel !== 'music'" class="alert alert-warning text-sm" role="alert">
         You need to be signed in to queue a clip — generation is billed to your
         account's mana.
       </div>
 
+      <MusicVideoStudio v-if="activePanel === 'music'" />
       <div v-show="activePanel === 'create'" class="space-y-4">
       <section class="kr-panel-flat p-3">
         <div
@@ -793,7 +804,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
 import {
   effectiveWanMode,
@@ -871,6 +882,7 @@ const outputFormat = ref<VideoOutputFormat>(
 )
 const firstImage = ref('')
 const route = useRoute()
+const router = useRouter()
 const firstImageArtId = ref<number | null>(null)
 const recentArtOpen = ref(false)
 const recentArtFilter = ref<RecentArtFilter>('sfw')
@@ -879,7 +891,9 @@ const recentArtFilters: { value: RecentArtFilter; label: string }[] = [
   { value: 'mature', label: 'Mature' },
   { value: 'sfw', label: 'SFW' },
 ]
-const activePanel = ref<'create' | 'jobs'>('create')
+const activePanel = ref<'create' | 'jobs' | 'music'>(
+  route.query.studio === 'music' ? 'music' : 'create',
+)
 const pendingDeleteId = ref<number | null>(null)
 const secondImage = ref('')
 const prompt = ref(WINK_PRESET)
@@ -1037,8 +1051,29 @@ function formatJobDate(value: Date | string): string {
   })
 }
 
+function selectPanel(panel: 'create' | 'jobs' | 'music'): void {
+  activePanel.value = panel
+  const query = { ...route.query }
+  if (panel === 'music') query.studio = 'music'
+  else {
+    delete query.studio
+    delete query.video
+  }
+  if (route.query.studio !== query.studio || route.query.video !== query.video) {
+    void router.replace({ query })
+  }
+}
+
+watch(
+  () => route.query.studio,
+  (studio) => {
+    if (studio === 'music') activePanel.value = 'music'
+    else if (activePanel.value === 'music') activePanel.value = 'create'
+  },
+)
+
 function openJobs(): void {
-  activePanel.value = 'jobs'
+  selectPanel('jobs')
   if (isLoggedIn.value) void videoStore.fetchJobs()
 }
 
@@ -1281,7 +1316,7 @@ async function generate() {
     resourceStore.visibleLoras,
   )
 
-  activePanel.value = 'jobs'
+  selectPanel('jobs')
   void videoStore.generate({
     engine: engine.value,
     presetId: videoPresetId.value || null,

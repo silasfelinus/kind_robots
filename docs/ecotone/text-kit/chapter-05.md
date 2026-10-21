@@ -72,24 +72,24 @@
 
 **Opening narration:** A tourist attraction's floor plan is rearranged by drawing cards.
 
-**Escalation:** Each card drawn from an antique deck rearranges a Victorian house's rooms. The tour guide is trapped between staircases that never meet.
+**Escalation:** A Victorian tour house rearranges its rooms whenever someone draws from a battered deck. The guide is stuck on a landing between two staircases and one guest keeps filming instead of listening to her directions. A fire exit sign now points toward a linen closet.
 
-**Option A, investigate (visible 9 check):** Map the rooms in the order the cards were drawn
+**Option A, investigate (visible 9 check):** Mark the stair positions and compare them with the posted escape plan
 
-- **Pass:** The route traces an old shoreline beneath Ferndale's painted storefronts.
-- **Miss:** The door relocates before you can mark it; the guide leaves a trail of chalk.
+- **Pass:** The cards reproduce three room layouts in a repeatable order. The guide preserves the sequence for inspectors while you locate an actual ground-floor exit.
+- **Miss:** The house reshuffles when you mark the final landing. You still record which doorway leads outside and which one merely promises to.
 
-**Option B, assist without a check:** Get visitors out before the next card turns
+**Option B, assist without a check:** Help the guide escort everyone out before trying another card
 
-- **Result:** Everyone reaches the garden without sacrificing the guide's dignity for a photo.
+- **Result:** All guests reach the garden and the guide gets a headcount. The house deals itself a consolation card marked TRY AGAIN TOMORROW.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-083`: A tourist attraction's floor plan is rearranged by drawing cards. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-083/2`: Each card drawn from an antique deck rearranges a Victorian house's rooms. The tour guide is trapped between staircases that never meet. The people and location must match the opening.
-- `outcomes/wh-083/investigate-success`: The route traces an old shoreline beneath Ferndale's painted storefronts. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-083/investigate-failure`: The door relocates before you can mark it; the guide leaves a trail of chalk. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-083/care-success`: Everyone reaches the garden without sacrificing the guide's dignity for a photo. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-083/2`: A Victorian tour house rearranges its rooms whenever someone draws from a battered deck. The guide is stuck on a landing between two staircases and one guest keeps filming instead of listening to her directions. A fire exit sign now points toward a linen closet. The people and location must match the opening.
+- `outcomes/wh-083/investigate-success`: The cards reproduce three room layouts in a repeatable order. The guide preserves the sequence for inspectors while you locate an actual ground-floor exit. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-083/investigate-failure`: The house reshuffles when you mark the final landing. You still record which doorway leads outside and which one merely promises to. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-083/care-success`: All guests reach the garden and the guide gets a headcount. The house deals itself a consolation card marked TRY AGAIN TOMORROW. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_083_verified`, `wh_083_partial`, `wh_083_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** A float features the player's decisions with embarrassing accuracy.
 
-**Escalation:** The parade float contains a miniature scene from your own weekend, including an embarrassing decision you have not yet made.
+**Escalation:** A parade float features a miniature of your weekend, including a particularly embarrassing decision you have yet to make. A teenage maker is being accused of spying on you, although she built the set from donated scraps and has never met you.
 
-**Option A, investigate (visible 9 check):** Check who built the miniature future
+**Option A, investigate (visible 9 check):** Ask the maker how she designed the tableau and compare its details with your notes
 
-- **Pass:** The model's paint includes a county seal that does not exist and a meeting date not yet set.
-- **Miss:** The float takes a turn and the figures swap places, leaving two competing predictions.
+- **Pass:** She shows a sketch dated before the event it depicts. You keep the drawing with her permission, not as proof that she knows your mind.
+- **Miss:** A gust carries off the miniature before anyone can agree what it showed. The maker remembers the costume seam you had noticed yourself.
 
-**Option B, assist without a check:** Help the children finish the parade safely
+**Option B, assist without a check:** Defend the maker from accusations and help repair the float
 
-- **Result:** They move the dangerous wheel and the spectators celebrate a float rather than a prophecy.
+- **Result:** The parade continues and the maker gets credit for her work. Your miniature bows to the crowd without waiting for your permission.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-085`: A float features the player's decisions with embarrassing accuracy. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-085/2`: The parade float contains a miniature scene from your own weekend, including an embarrassing decision you have not yet made. The people and location must match the opening.
-- `outcomes/wh-085/investigate-success`: The model's paint includes a county seal that does not exist and a meeting date not yet set. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-085/investigate-failure`: The float takes a turn and the figures swap places, leaving two competing predictions. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-085/care-success`: They move the dangerous wheel and the spectators celebrate a float rather than a prophecy. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-085/2`: A parade float features a miniature of your weekend, including a particularly embarrassing decision you have yet to make. A teenage maker is being accused of spying on you, although she built the set from donated scraps and has never met you. The people and location must match the opening.
+- `outcomes/wh-085/investigate-success`: She shows a sketch dated before the event it depicts. You keep the drawing with her permission, not as proof that she knows your mind. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-085/investigate-failure`: A gust carries off the miniature before anyone can agree what it showed. The maker remembers the costume seam you had noticed yourself. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-085/care-success`: The parade continues and the maker gets credit for her work. Your miniature bows to the crowd without waiting for your permission. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_085_verified`, `wh_085_partial`, `wh_085_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** A genial local asks for help with noise complaints during full moons.
 
-**Escalation:** A courteous were-bear has received a noise citation for roaring on full moons. He brings letters from neighbors who disagree about the sound.
+**Escalation:** A courteous were-bear has brought noise-complaint letters from three neighbors to a hearing. One asks for quiet; another likes the monthly roar because it tells her the storm is turning; the third wants a soundproof fence. None wants a supernatural wildlife trial.
 
-**Option A, investigate (visible 9 check):** Check the time and source of the alleged noise
+**Option A, investigate (visible 9 check):** Compare the complaint times with the sound readings and the calendar
 
-- **Pass:** The roar precedes its own echo by several seconds and coincides with a distant flood siren.
-- **Miss:** Your meter records nothing beyond wind, but a neighbor confirms the timing.
+- **Pass:** A faulty culvert amplifies the roar toward one house. The county can inspect it without deciding whether anyone is a were-bear.
+- **Miss:** The recording captures only wind. The neighbors agree on when the loudest night occurred and submit signed statements instead.
 
-**Option B, assist without a check:** Mediate a practical quiet-hours agreement
+**Option B, assist without a check:** Help the neighbors negotiate a trial quiet period and safe meeting place
 
-- **Result:** The bear helps install safer lighting and promises a warning bell before the next transformation.
+- **Result:** They arrange a test and exchange contact numbers. The were-bear thanks the clerk, then nearly eats the microphone cover by mistake.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-087`: A genial local asks for help with noise complaints during full moons. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-087/2`: A courteous were-bear has received a noise citation for roaring on full moons. He brings letters from neighbors who disagree about the sound. The people and location must match the opening.
-- `outcomes/wh-087/investigate-success`: The roar precedes its own echo by several seconds and coincides with a distant flood siren. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-087/investigate-failure`: Your meter records nothing beyond wind, but a neighbor confirms the timing. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-087/care-success`: The bear helps install safer lighting and promises a warning bell before the next transformation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-087/2`: A courteous were-bear has brought noise-complaint letters from three neighbors to a hearing. One asks for quiet; another likes the monthly roar because it tells her the storm is turning; the third wants a soundproof fence. None wants a supernatural wildlife trial. The people and location must match the opening.
+- `outcomes/wh-087/investigate-success`: A faulty culvert amplifies the roar toward one house. The county can inspect it without deciding whether anyone is a were-bear. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-087/investigate-failure`: The recording captures only wind. The neighbors agree on when the loudest night occurred and submit signed statements instead. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-087/care-success`: They arrange a test and exchange contact numbers. The were-bear thanks the clerk, then nearly eats the microphone cover by mistake. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_087_verified`, `wh_087_partial`, `wh_087_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** A perfect circle appears in the aisle of extension cords.
 
-**Escalation:** A crop circle appears in the hardware aisle among extension cords. The owner blames students; the cords hum with a frequency nobody bought.
+**Escalation:** A perfect crop circle has appeared in a hardware store's extension-cord aisle. The hum makes the checkout terminal skip numbers, and the owner is blaming students. A cashier is standing beside a hot cable nobody should touch.
 
-**Option A, investigate (visible 9 check):** Measure the circle before merchandise is moved
+**Option A, investigate (visible 9 check):** Trace the power circuit and check the cord labels without entering the circle
 
-- **Pass:** Its geometry matches the proposed plan for a new radio relay on the hills.
-- **Miss:** A mop erases the pattern; the hum remains on the store's emergency battery.
+- **Pass:** The humming cords carry tomorrow's inventory stickers. You photograph the labels after the owner isolates the power.
+- **Miss:** The breaker trips before you get a clean reading. A scorch mark identifies the outlet that needs inspection.
 
-**Option B, assist without a check:** Help the owner reopen the aisle without blaming anyone
+**Option B, assist without a check:** Move shoppers clear and help the owner shut down the unsafe display
 
-- **Result:** Workers reroute the cables and the shoppers finish their errands in peace.
+- **Result:** No one gets shocked and the owner stops accusing students. The cords quietly arrange themselves into a complaint about store hours.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-088`: A perfect circle appears in the aisle of extension cords. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-088/2`: A crop circle appears in the hardware aisle among extension cords. The owner blames students; the cords hum with a frequency nobody bought. The people and location must match the opening.
-- `outcomes/wh-088/investigate-success`: Its geometry matches the proposed plan for a new radio relay on the hills. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-088/investigate-failure`: A mop erases the pattern; the hum remains on the store's emergency battery. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-088/care-success`: Workers reroute the cables and the shoppers finish their errands in peace. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-088/2`: A perfect crop circle has appeared in a hardware store's extension-cord aisle. The hum makes the checkout terminal skip numbers, and the owner is blaming students. A cashier is standing beside a hot cable nobody should touch. The people and location must match the opening.
+- `outcomes/wh-088/investigate-success`: The humming cords carry tomorrow's inventory stickers. You photograph the labels after the owner isolates the power. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-088/investigate-failure`: The breaker trips before you get a clean reading. A scorch mark identifies the outlet that needs inspection. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-088/care-success`: No one gets shocked and the owner stops accusing students. The cords quietly arrange themselves into a complaint about store hours. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_088_verified`, `wh_088_partial`, `wh_088_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A cashier recognizes a receipt for an object that has not been invented.
 
-**Escalation:** A cashier produces a receipt for an invention that does not exist. The receipt names a customer who will not be born for years.
+**Escalation:** At a Fortuna counter, a cashier hands you a receipt for an invention that won't exist for years. It names an unborn customer and a serial number from tomorrow's shipment. The manager thinks the cashier invented the transaction to cover a register shortage.
 
-**Option A, investigate (visible 9 check):** Cross-check the printed part numbers
+**Option A, investigate (visible 9 check):** Compare the printed part numbers and the till audit before anyone assigns blame
 
-- **Pass:** They describe a device for measuring habitat health that could be built from today's components.
-- **Miss:** The thermal paper fades, but the cashier remembers the strange serial prefix.
+- **Pass:** The parts describe an achievable habitat sensor, but none are missing from inventory. The manager records the anomaly and clears the cashier's till.
+- **Miss:** The thermal paper fades before the device name can be read. The serial prefix and till total survive in the cashier's notebook.
 
-**Option B, assist without a check:** Make sure the cashier isn't penalized for the glitch
+**Option B, assist without a check:** Help the cashier document the glitch and complete a fair reconciliation
 
-- **Result:** The manager documents the event and refunds the customer without demanding an impossible explanation.
+- **Result:** The books balance and no wages are withheld. The receipt goes in a labeled envelope; it is the least convenient form of future technology.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-089`: A cashier recognizes a receipt for an object that has not been invented. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-089/2`: A cashier produces a receipt for an invention that does not exist. The receipt names a customer who will not be born for years. The people and location must match the opening.
-- `outcomes/wh-089/investigate-success`: They describe a device for measuring habitat health that could be built from today's components. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-089/investigate-failure`: The thermal paper fades, but the cashier remembers the strange serial prefix. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-089/care-success`: The manager documents the event and refunds the customer without demanding an impossible explanation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-089/2`: At a Fortuna counter, a cashier hands you a receipt for an invention that won't exist for years. It names an unborn customer and a serial number from tomorrow's shipment. The manager thinks the cashier invented the transaction to cover a register shortage. The people and location must match the opening.
+- `outcomes/wh-089/investigate-success`: The parts describe an achievable habitat sensor, but none are missing from inventory. The manager records the anomaly and clears the cashier's till. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-089/investigate-failure`: The thermal paper fades before the device name can be read. The serial prefix and till total survive in the cashier's notebook. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-089/care-success`: The books balance and no wages are withheld. The receipt goes in a labeled envelope; it is the least convenient form of future technology. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_089_verified`, `wh_089_partial`, `wh_089_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** A volunteer weather station forecasts emotional conditions alongside rainfall.
 
-**Escalation:** The Eel River volunteer forecast station reports both rainfall and the emotional weather of nearby residents. A coming storm is labeled APOLOGY.
+**Escalation:** The Eel River volunteer forecast station predicts rainfall and emotional weather. Tomorrow's river stage is printed next to APOLOGY, and a resident wants to know whether the machine is publicly announcing her private argument. The storm itself is real.
 
-**Option A, investigate (visible 9 check):** Compare the predictions with actual river measurements
+**Option A, investigate (visible 9 check):** Compare the gauge history with the station's printed emotional forecasts
 
-- **Pass:** The station has forecast a fast rise at a crossing absent from current hazard maps.
-- **Miss:** The sensors fail during the test, but the volunteer flags a real drainage obstruction.
+- **Pass:** The rain numbers match regional readings; the apology field has no measurement behind it. You keep the useful flood advisory and reject the gossip.
+- **Miss:** The paper jams before the flood crest time prints. A volunteer can still read the gauge directly and phone a confirmed level upstream.
 
-**Option B, assist without a check:** Help the volunteers publish an accessible warning
+**Option B, assist without a check:** Help volunteers post a clear weather warning without naming private residents
 
-- **Result:** Residents receive clear high-water advice with none of the ominous emotional labels.
+- **Result:** The flood notice reaches the river users. Someone writes PLEASE APOLOGIZE IN PERSON beneath the broken emotional forecast printer.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-090`: A volunteer weather station forecasts emotional conditions alongside rainfall. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-090/2`: The Eel River volunteer forecast station reports both rainfall and the emotional weather of nearby residents. A coming storm is labeled APOLOGY. The people and location must match the opening.
-- `outcomes/wh-090/investigate-success`: The station has forecast a fast rise at a crossing absent from current hazard maps. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-090/investigate-failure`: The sensors fail during the test, but the volunteer flags a real drainage obstruction. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-090/care-success`: Residents receive clear high-water advice with none of the ominous emotional labels. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-090/2`: The Eel River volunteer forecast station predicts rainfall and emotional weather. Tomorrow's river stage is printed next to APOLOGY, and a resident wants to know whether the machine is publicly announcing her private argument. The storm itself is real. The people and location must match the opening.
+- `outcomes/wh-090/investigate-success`: The rain numbers match regional readings; the apology field has no measurement behind it. You keep the useful flood advisory and reject the gossip. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-090/investigate-failure`: The paper jams before the flood crest time prints. A volunteer can still read the gauge directly and phone a confirmed level upstream. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-090/care-success`: The flood notice reaches the river users. Someone writes PLEASE APOLOGIZE IN PERSON beneath the broken emotional forecast printer. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_090_verified`, `wh_090_partial`, `wh_090_care` (mutually exclusive results of this card).
 
@@ -351,24 +351,24 @@
 
 **Opening narration:** An enormous silhouette insists the real giant is just off-trail.
 
-**Escalation:** A vast shadow claims its older brother is smaller and standing behind the next redwood. Every witness sees a different scale.
+**Escalation:** An enormous silhouette points beyond the redwoods and insists its older brother is smaller. Each witness describes a different height, while a tour operator starts leading paying visitors onto a closed restoration trail.
 
-**Option A, investigate (visible 9 check):** Take measurements without leaving the safe trail
+**Option A, investigate (visible 9 check):** Compare shadow angles and witnesses from the public path
 
-- **Pass:** The shadow's feet match a cliff formation miles away, projected at the wrong time of day.
-- **Miss:** The silhouette fades and your measuring tape snaps back to ordinary length.
+- **Pass:** The silhouette's edges track a patch of moving fog, but a tiny second set of footprints ends at the fence. You record both without trespassing.
+- **Miss:** The shadows overlap before a scale can be measured. A park visitor shares a photo with the trail boundary clearly visible.
 
-**Option B, assist without a check:** Keep the gawkers from damaging the roots
+**Option B, assist without a check:** Ask the operator to keep visitors on the open path and give the restoration crew room
 
-- **Result:** A ranger persuades the crowd to stay on the boardwalk and let the giant be unphotographed.
+- **Result:** The crowd moves back and the seedlings remain undisturbed. The smaller older brother declines to be photographed, a wise family policy.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-092`: An enormous silhouette insists the real giant is just off-trail. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-092/2`: A vast shadow claims its older brother is smaller and standing behind the next redwood. Every witness sees a different scale. The people and location must match the opening.
-- `outcomes/wh-092/investigate-success`: The shadow's feet match a cliff formation miles away, projected at the wrong time of day. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-092/investigate-failure`: The silhouette fades and your measuring tape snaps back to ordinary length. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-092/care-success`: A ranger persuades the crowd to stay on the boardwalk and let the giant be unphotographed. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-092/2`: An enormous silhouette points beyond the redwoods and insists its older brother is smaller. Each witness describes a different height, while a tour operator starts leading paying visitors onto a closed restoration trail. The people and location must match the opening.
+- `outcomes/wh-092/investigate-success`: The silhouette's edges track a patch of moving fog, but a tiny second set of footprints ends at the fence. You record both without trespassing. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-092/investigate-failure`: The shadows overlap before a scale can be measured. A park visitor shares a photo with the trail boundary clearly visible. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-092/care-success`: The crowd moves back and the seedlings remain undisturbed. The smaller older brother declines to be photographed, a wise family policy. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_092_verified`, `wh_092_partial`, `wh_092_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A fallen log records two more summers than have occurred.
 
-**Escalation:** A fallen redwood has two extra growth rings, each showing a summer nobody remembers. A contractor proposes to sell the slice as proof of prophecy.
+**Escalation:** A fallen redwood has two extra rings, one for each summer nobody remembers. A contractor wants to carve out a slice and sell it as proof of prophecy before the park's volunteer sawyer can document it.
 
-**Option A, investigate (visible 9 check):** Compare the rings with local climate records
+**Option A, investigate (visible 9 check):** Count the rings with the sawyer and compare growth bands without removing wood
 
-- **Pass:** One extra season contains evidence of drought mitigation that has not yet begun.
-- **Miss:** The sample splinters before a count is complete; the pattern survives in a careful rubbing.
+- **Pass:** The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir.
+- **Miss:** A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch.
 
-**Option B, assist without a check:** Protect the log until stewards decide its fate
+**Option B, assist without a check:** Help the volunteers protect the log from unauthorized cutting
 
-- **Result:** Volunteers cover the exposed wood and agree the forest should not be auctioned for a miracle.
+- **Result:** The contractor backs off and the trail crew posts a clear explanation. The log gets to keep its extra summers.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-094`: A fallen log records two more summers than have occurred. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-094/2`: A fallen redwood has two extra growth rings, each showing a summer nobody remembers. A contractor proposes to sell the slice as proof of prophecy. The people and location must match the opening.
-- `outcomes/wh-094/investigate-success`: One extra season contains evidence of drought mitigation that has not yet begun. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-094/investigate-failure`: The sample splinters before a count is complete; the pattern survives in a careful rubbing. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-094/care-success`: Volunteers cover the exposed wood and agree the forest should not be auctioned for a miracle. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-094/2`: A fallen redwood has two extra rings, one for each summer nobody remembers. A contractor wants to carve out a slice and sell it as proof of prophecy before the park's volunteer sawyer can document it. The people and location must match the opening.
+- `outcomes/wh-094/investigate-success`: The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-094/investigate-failure`: A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-094/care-success`: The contractor backs off and the trail crew posts a clear explanation. The log gets to keep its extra summers. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_094_verified`, `wh_094_partial`, `wh_094_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** A remote garden's sentient scarecrow wants employment protections.
 
-**Escalation:** A talking scarecrow is the only worker willing to tend a backwoods garden in the rain. Its owner says a thing made of straw cannot bargain.
+**Escalation:** A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off.
 
-**Option A, investigate (visible 9 check):** Ask what work the scarecrow actually performs
+**Option A, investigate (visible 9 check):** Compare the farm's written agreements with what the scarecrow has actually done
 
-- **Pass:** The ledger reveals a hidden irrigation leak the scarecrow has patched for months.
-- **Miss:** The scarecrow goes silent at the owner's approach but leaves a careful repair list.
+- **Pass:** The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law.
+- **Miss:** The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers.
 
-**Option B, assist without a check:** Negotiate rest and credit for the strange worker
+**Option B, assist without a check:** Help negotiate safe work limits and rest while the owner sorts out the records
 
-- **Result:** The gardener posts fair duties and builds a dry shelter the scarecrow can enter.
+- **Result:** A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-096`: A remote garden's sentient scarecrow wants employment protections. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-096/2`: A talking scarecrow is the only worker willing to tend a backwoods garden in the rain. Its owner says a thing made of straw cannot bargain. The people and location must match the opening.
-- `outcomes/wh-096/investigate-success`: The ledger reveals a hidden irrigation leak the scarecrow has patched for months. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-096/investigate-failure`: The scarecrow goes silent at the owner's approach but leaves a careful repair list. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-096/care-success`: The gardener posts fair duties and builds a dry shelter the scarecrow can enter. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-096/2`: A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off. The people and location must match the opening.
+- `outcomes/wh-096/investigate-success`: The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-096/investigate-failure`: The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-096/care-success`: A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_096_verified`, `wh_096_partial`, `wh_096_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** A homebrewed drink makes two contradictory memories equally convincing.
 
-**Escalation:** Two neighbors share a homebrew recipe and remember contradictory versions of the same harvest. Neither memory is evidence about the other person.
+**Escalation:** Two neighbors share a homebrew recipe and remember opposite versions of the same harvest. Neither recollection proves anything about the other's honesty. Their argument has reached the point where one is about to publish accusations on the community board.
 
-**Option A, investigate (visible 9 check):** Compare the stories against signed records
+**Option A, investigate (visible 9 check):** Compare dates and crop records while making no claims about what the drink causes
 
-- **Pass:** A shipping slip belongs to a future cooperative that neither neighbor yet trusts.
-- **Miss:** The labels peel off the jars and you cannot establish which account is older.
+- **Pass:** Both notebooks are internally consistent but the harvest receipts differ. You document the discrepancy and leave the neighbors free to revise their stories.
+- **Miss:** The old receipt is illegible and the recipe offers no answer. Each neighbor can still name a third witness who might remember the day.
 
-**Option B, assist without a check:** Help the neighbors decide what they know together
+**Option B, assist without a check:** Help them postpone the public accusation and agree on one checkable question
 
-- **Result:** They preserve both stories and agree to share a meal without forcing a verdict.
+- **Result:** They set down the bottles and call the packing crew. Dinner remains awkward, but nobody's reputation is decided by an argument about memories.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-097`: A homebrewed drink makes two contradictory memories equally convincing. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-097/2`: Two neighbors share a homebrew recipe and remember contradictory versions of the same harvest. Neither memory is evidence about the other person. The people and location must match the opening.
-- `outcomes/wh-097/investigate-success`: A shipping slip belongs to a future cooperative that neither neighbor yet trusts. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-097/investigate-failure`: The labels peel off the jars and you cannot establish which account is older. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-097/care-success`: They preserve both stories and agree to share a meal without forcing a verdict. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-097/2`: Two neighbors share a homebrew recipe and remember opposite versions of the same harvest. Neither recollection proves anything about the other's honesty. Their argument has reached the point where one is about to publish accusations on the community board. The people and location must match the opening.
+- `outcomes/wh-097/investigate-success`: Both notebooks are internally consistent but the harvest receipts differ. You document the discrepancy and leave the neighbors free to revise their stories. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-097/investigate-failure`: The old receipt is illegible and the recipe offers no answer. Each neighbor can still name a third witness who might remember the day. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-097/care-success`: They set down the bottles and call the packing crew. Dinner remains awkward, but nobody's reputation is decided by an argument about memories. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_097_verified`, `wh_097_partial`, `wh_097_care` (mutually exclusive results of this card).
 
@@ -537,24 +537,24 @@
 
 **Opening narration:** A low-flying craft is piloted by something that understands zoning rules.
 
-**Escalation:** A helicopter without registration follows the same line over a garden, piloted by someone obsessed with zoning maps.
+**Escalation:** An unmarked helicopter keeps tracing the garden boundary with unnatural precision. The pilot knows obscure zoning clauses; the grower fears somebody is filming private workers and the neighbors fear the craft will strike a power line.
 
-**Option A, investigate (visible 9 check):** Record its path from publicly accessible ground
+**Option A, investigate (visible 9 check):** Map the aircraft's path against public zoning boundaries from safe ground
 
-- **Pass:** The flight traces the outline of a proposed conservation easement no one has yet drawn.
-- **Miss:** Cloud cover swallows the vehicle, but the ground crew sees the last waypoint.
+- **Pass:** The route follows a proposed parcel change not yet on the public agenda. You note the filing number and refer the low flight to aviation authorities.
+- **Miss:** The craft vanishes into fog before you can read a marking. A neighbor captured its altitude against the line of a barn roof.
 
-**Option B, assist without a check:** Help residents ask for transparent flight notices
+**Option B, assist without a check:** Help workers move out of the landing area and document the safety concern
 
-- **Result:** The neighbors draft a calm request instead of accusing one another of secret deals.
+- **Result:** The grower closes the field briefly, everyone gets indoors and the helicopter leaves. The zoning complaint is filed without revealing anyone's private plants.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-098`: A low-flying craft is piloted by something that understands zoning rules. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-098/2`: A helicopter without registration follows the same line over a garden, piloted by someone obsessed with zoning maps. The people and location must match the opening.
-- `outcomes/wh-098/investigate-success`: The flight traces the outline of a proposed conservation easement no one has yet drawn. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-098/investigate-failure`: Cloud cover swallows the vehicle, but the ground crew sees the last waypoint. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-098/care-success`: The neighbors draft a calm request instead of accusing one another of secret deals. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-098/2`: An unmarked helicopter keeps tracing the garden boundary with unnatural precision. The pilot knows obscure zoning clauses; the grower fears somebody is filming private workers and the neighbors fear the craft will strike a power line. The people and location must match the opening.
+- `outcomes/wh-098/investigate-success`: The route follows a proposed parcel change not yet on the public agenda. You note the filing number and refer the low flight to aviation authorities. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-098/investigate-failure`: The craft vanishes into fog before you can read a marking. A neighbor captured its altitude against the line of a barn roof. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-098/care-success`: The grower closes the field briefly, everyone gets indoors and the helicopter leaves. The zoning complaint is filed without revealing anyone's private plants. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_098_verified`, `wh_098_partial`, `wh_098_care` (mutually exclusive results of this card).
 
@@ -599,24 +599,24 @@
 
 **Opening narration:** A fictional occult reading group accidentally summons its own literary critic.
 
-**Escalation:** A small occult book club has accidentally summoned the most exacting literary critic in existence. The entity hates lazy characterization.
+**Escalation:** A small fictional occult book club has summoned a literary critic by reading a bad ending aloud. The apparition calls every character a symbol and demands a rewrite before letting the members go home. The librarian wants the group to stop insulting her volunteers.
 
-**Option A, investigate (visible 9 check):** Ask which book the critic believes is real
+**Option A, investigate (visible 9 check):** Ask the critic to cite the text rather than pass judgment on the readers
 
-- **Pass:** A marginal note points to a library copy of a future county charter.
-- **Miss:** The critic tears up its own footnotes and vanishes before giving a recommendation.
+- **Pass:** The apparition identifies a missing scene instead of an allegedly deficient person. The author can revise it later, if they choose.
+- **Miss:** The critic speaks entirely in footnotes and everyone loses the thread. A book-club member copies the one useful question onto a bookmark.
 
-**Option B, assist without a check:** Let the members choose the ending of their own story
+**Option B, assist without a check:** Help the club close the meeting on time and let each reader keep their interpretation
 
-- **Result:** The critic admits that their imperfect, honest ending is better than its flawless one.
+- **Result:** They return the chairs and make a potluck date. The critic gets a library card, probationary, and a very long list of overdue opinions.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-100`: A fictional occult reading group accidentally summons its own literary critic. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-100/2`: A small occult book club has accidentally summoned the most exacting literary critic in existence. The entity hates lazy characterization. The people and location must match the opening.
-- `outcomes/wh-100/investigate-success`: A marginal note points to a library copy of a future county charter. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-100/investigate-failure`: The critic tears up its own footnotes and vanishes before giving a recommendation. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-100/care-success`: The critic admits that their imperfect, honest ending is better than its flawless one. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-100/2`: A small fictional occult book club has summoned a literary critic by reading a bad ending aloud. The apparition calls every character a symbol and demands a rewrite before letting the members go home. The librarian wants the group to stop insulting her volunteers. The people and location must match the opening.
+- `outcomes/wh-100/investigate-success`: The apparition identifies a missing scene instead of an allegedly deficient person. The author can revise it later, if they choose. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-100/investigate-failure`: The critic speaks entirely in footnotes and everyone loses the thread. A book-club member copies the one useful question onto a bookmark. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-100/care-success`: They return the chairs and make a potluck date. The critic gets a library card, probationary, and a very long list of overdue opinions. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_100_verified`, `wh_100_partial`, `wh_100_care` (mutually exclusive results of this card).
 

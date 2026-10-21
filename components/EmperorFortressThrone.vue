@@ -1,6 +1,9 @@
 <template>
   <div
-    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(30rem,42rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(36rem,48rem)]"
+    class="flex min-h-full flex-col gap-3 @4xl:grid"
+    :class="court.preferences.readingWidth === 'wide'
+      ? '@4xl:grid-cols-[minmax(0,1fr)_minmax(38rem,52rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(42rem,58rem)]'
+      : '@4xl:grid-cols-[minmax(0,1fr)_minmax(30rem,42rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(36rem,48rem)]'"
   >
     <section
       class="eod-figure-box relative flex min-h-0 flex-1 basis-0 flex-col justify-end"

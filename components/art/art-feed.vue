@@ -59,10 +59,71 @@
         <icon name="kind-icon:refresh" class="kr-icon-3-5" />
       </button>
 
+      <button
+        v-if="canShowBulkSelect"
+        type="button"
+        class="btn btn-xs rounded-lg"
+        :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
+        :aria-pressed="bulkSelectEnabled"
+        :disabled="isBatchWorking"
+        @click="toggleBulkSelect"
+      >
+        <icon name="kind-icon:checklist" class="kr-icon-3-5" />
+        {{ bulkSelectEnabled ? 'Selecting' : 'Select images' }}
+      </button>
+
       <span class="kr-badge-ghost-sm shrink-0">
         {{ visibleImages.length }}{{ feedStore.hasMore ? '+' : '' }} images
       </span>
     </div>
+
+    <div
+      v-if="bulkSelectEnabled"
+      class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-base-100 p-2"
+    >
+      <span class="kr-badge-primary-sm"
+        >{{ selectedImageIds.length }} selected</span
+      >
+      <button
+        type="button"
+        class="kr-btn-xs"
+        :disabled="isBatchWorking"
+        @click="selectAllLoaded"
+      >
+        Select all loaded ({{ selectableImages.length }})
+      </button>
+      <button
+        type="button"
+        class="kr-btn-ghost-xs"
+        :disabled="isBatchWorking || !selectedImageIds.length"
+        @click="selectedImageIds = []"
+      >
+        Clear
+      </button>
+      <button
+        type="button"
+        class="kr-btn-xs btn-error ml-auto"
+        :disabled="isBatchWorking || !selectedImageIds.length"
+        @click="deleteSelectedImages"
+      >
+        <span v-if="isBatchWorking" class="kr-spinner-xs" />
+        <icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
+        Move to Recycle Bin
+      </button>
+    </div>
+
+    <p
+      v-if="batchSuccess"
+      class="kr-note kr-note-success shrink-0 rounded-xl px-3 py-1.5 text-xs"
+    >
+      {{ batchSuccess }}
+    </p>
+    <p
+      v-if="batchError"
+      class="kr-note kr-note-error shrink-0 rounded-xl px-3 py-1.5 text-xs"
+    >
+      {{ batchError }}
+    </p>
 
     <div
       ref="scroller"
@@ -112,8 +173,27 @@
             <button
               type="button"
               class="block h-full w-full"
-              :aria-label="`Open ${imageLabel(image)}`"
-              @click="openImage(image)"
+              :class="
+                bulkSelectEnabled && isImageSelected(image.id)
+                  ? 'ring-4 ring-inset ring-primary'
+                  : ''
+              "
+              :aria-label="
+                bulkSelectEnabled
+                  ? `${isImageSelected(image.id) ? 'Deselect' : 'Select'} ${imageLabel(image)}`
+                  : `Open ${imageLabel(image)}`
+              "
+              :aria-pressed="
+                bulkSelectEnabled ? isImageSelected(image.id) : undefined
+              "
+              :disabled="
+                isBatchWorking || (bulkSelectEnabled && !canModifyImage(image))
+              "
+              @click="
+                bulkSelectEnabled
+                  ? toggleImageSelection(image)
+                  : openImage(image)
+              "
             >
               <img
                 :src="image.thumbnailUrl"
@@ -131,8 +211,28 @@
               {{ imageLabel(image) }}
             </p>
 
+            <span
+              v-if="bulkSelectEnabled && canModifyImage(image)"
+              class="pointer-events-none absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-lg border shadow"
+              :class="
+                isImageSelected(image.id)
+                  ? 'border-primary bg-primary text-primary-content'
+                  : 'border-base-300 bg-base-100/90 text-base-content'
+              "
+              aria-hidden="true"
+            >
+              <icon
+                :name="
+                  isImageSelected(image.id)
+                    ? 'kind-icon:check'
+                    : 'kind-icon:plus'
+                "
+                class="kr-icon-4"
+              />
+            </span>
+
             <button
-              v-if="deleteMode && canModifyImage(image)"
+              v-if="deleteMode && !bulkSelectEnabled && canModifyImage(image)"
               class="absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-error/40 bg-base-100/95 text-error shadow-lg transition hover:bg-error hover:text-error-content disabled:cursor-wait disabled:opacity-70"
               type="button"
               :disabled="deletingImageId !== null"
@@ -218,6 +318,7 @@ import {
 import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useUserStore } from '@/stores/userStore'
+import { recycleGalleryImages } from '@/utils/artGalleryBulkRecycle'
 import {
   ART_FEED_RANGES,
   DEFAULT_ART_FEED_RANGE,
@@ -239,6 +340,11 @@ const collectionId = ref<number | null>(feedStore.filters.collectionId)
 const failedImageIds = ref(new Set<number>())
 const selectedImage = ref<ArtFeedImage | null>(null)
 const deletingImageId = ref<number | null>(null)
+const bulkSelectEnabled = ref(false)
+const selectedImageIds = ref<number[]>([])
+const isBatchWorking = ref(false)
+const batchError = ref('')
+const batchSuccess = ref('')
 const collectionsRequested = ref(false)
 const ready = ref(false)
 let searchTimer: ReturnType<typeof setTimeout> | null = null
@@ -251,6 +357,14 @@ const currentUserId = computed(
 const visibleImages = computed(() =>
   feedStore.items.filter((image) => !failedImageIds.value.has(image.id)),
 )
+
+const selectableImages = computed(() =>
+  visibleImages.value.filter(canModifyImage),
+)
+const canShowBulkSelect = computed(
+  () => bulkSelectEnabled.value || selectableImages.value.length > 0,
+)
+const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
 
 const collectionOptions = computed(() =>
   collectionStore.collections
@@ -268,8 +382,69 @@ function imageLabel(image: ArtFeedImage): string {
 
 function canModifyImage(image: ArtFeedImage): boolean {
   return (
-    userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
+    userStore.isAdmin ||
+    (Number(currentUserId.value) > 0 &&
+      Number(image.userId) === Number(currentUserId.value))
   )
+}
+
+function isImageSelected(imageId: number): boolean {
+  return selectedImageIdSet.value.has(imageId)
+}
+
+function toggleBulkSelect() {
+  if (isBatchWorking.value) return
+  bulkSelectEnabled.value = !bulkSelectEnabled.value
+  selectedImageIds.value = []
+  batchError.value = ''
+}
+
+function toggleImageSelection(image: ArtFeedImage) {
+  if (isBatchWorking.value || !canModifyImage(image)) return
+  selectedImageIds.value = isImageSelected(image.id)
+    ? selectedImageIds.value.filter((id) => id !== image.id)
+    : [...selectedImageIds.value, image.id]
+}
+
+function selectAllLoaded() {
+  if (isBatchWorking.value) return
+  selectedImageIds.value = selectableImages.value.map((image) => image.id)
+}
+
+async function deleteSelectedImages() {
+  if (isBatchWorking.value) return
+  const selectableIds = new Set(selectableImages.value.map((image) => image.id))
+  const ids = selectedImageIds.value.filter((id) => selectableIds.has(id))
+  if (!ids.length) return
+  if (
+    !window.confirm(
+      `Move ${ids.length} selected image${ids.length === 1 ? '' : 's'} to the Recycle Bin? You can restore them from there.`,
+    )
+  ) {
+    return
+  }
+
+  isBatchWorking.value = true
+  batchError.value = ''
+  batchSuccess.value = ''
+  try {
+    const result = await recycleGalleryImages(ids, (imageId) =>
+      artStore.deleteArtImage(imageId),
+    )
+    for (const id of result.recycledIds) {
+      feedStore.removeImage(id)
+      if (selectedImage.value?.id === id) closeImage()
+    }
+    selectedImageIds.value = result.failedIds
+    if (result.recycledIds.length) {
+      batchSuccess.value = `Moved ${result.recycledIds.length} image${result.recycledIds.length === 1 ? '' : 's'} to the Recycle Bin.`
+    }
+    if (result.failedIds.length) {
+      batchError.value = `Could not move ${result.failedIds.length} image${result.failedIds.length === 1 ? '' : 's'} (#${result.failedIds.join(', #')}). They remain selected.`
+    }
+  } finally {
+    isBatchWorking.value = false
+  }
 }
 
 function markFailed(imageId: number) {
@@ -277,6 +452,10 @@ function markFailed(imageId: number) {
 }
 
 async function restartFeed() {
+  selectedImageIds.value = []
+  bulkSelectEnabled.value = false
+  batchError.value = ''
+  batchSuccess.value = ''
   failedImageIds.value = new Set()
   await feedStore.reset({
     range: range.value,
@@ -329,6 +508,9 @@ async function deleteImage(imageId: number) {
       return
     }
     feedStore.removeImage(imageId)
+    selectedImageIds.value = selectedImageIds.value.filter(
+      (id) => id !== imageId,
+    )
     if (selectedImage.value?.id === imageId) closeImage()
   } finally {
     deletingImageId.value = null

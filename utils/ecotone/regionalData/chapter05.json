@@ -37,12 +37,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "Each card drawn from an antique deck rearranges a Victorian house's rooms. The tour guide is trapped between staircases that never meet.",
-    "investigate": "Map the rooms in the order the cards were drawn",
-    "success": "The route traces an old shoreline beneath Ferndale's painted storefronts.",
-    "failure": "The door relocates before you can mark it; the guide leaves a trail of chalk.",
-    "help": "Get visitors out before the next card turns",
-    "helpOutcome": "Everyone reaches the garden without sacrificing the guide's dignity for a photo."
+    "pressure": "A Victorian tour house rearranges its rooms whenever someone draws from a battered deck. The guide is stuck on a landing between two staircases and one guest keeps filming instead of listening to her directions. A fire exit sign now points toward a linen closet.",
+    "investigate": "Mark the stair positions and compare them with the posted escape plan",
+    "success": "The cards reproduce three room layouts in a repeatable order. The guide preserves the sequence for inspectors while you locate an actual ground-floor exit.",
+    "failure": "The house reshuffles when you mark the final landing. You still record which doorway leads outside and which one merely promises to.",
+    "help": "Help the guide escort everyone out before trying another card",
+    "helpOutcome": "All guests reach the garden and the guide gets a headcount. The house deals itself a consolation card marked TRY AGAIN TOMORROW."
   },
   {
     "id": "WH-084",
@@ -67,12 +67,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The parade float contains a miniature scene from your own weekend, including an embarrassing decision you have not yet made.",
-    "investigate": "Check who built the miniature future",
-    "success": "The model's paint includes a county seal that does not exist and a meeting date not yet set.",
-    "failure": "The float takes a turn and the figures swap places, leaving two competing predictions.",
-    "help": "Help the children finish the parade safely",
-    "helpOutcome": "They move the dangerous wheel and the spectators celebrate a float rather than a prophecy."
+    "pressure": "A parade float features a miniature of your weekend, including a particularly embarrassing decision you have yet to make. A teenage maker is being accused of spying on you, although she built the set from donated scraps and has never met you.",
+    "investigate": "Ask the maker how she designed the tableau and compare its details with your notes",
+    "success": "She shows a sketch dated before the event it depicts. You keep the drawing with her permission, not as proof that she knows your mind.",
+    "failure": "A gust carries off the miniature before anyone can agree what it showed. The maker remembers the costume seam you had noticed yourself.",
+    "help": "Defend the maker from accusations and help repair the float",
+    "helpOutcome": "The parade continues and the maker gets credit for her work. Your miniature bows to the crowd without waiting for your permission."
   },
   {
     "id": "WH-086",
@@ -97,12 +97,12 @@
     "place": "Fortuna",
     "scene": "plaza",
     "pool": 1,
-    "pressure": "A courteous were-bear has received a noise citation for roaring on full moons. He brings letters from neighbors who disagree about the sound.",
-    "investigate": "Check the time and source of the alleged noise",
-    "success": "The roar precedes its own echo by several seconds and coincides with a distant flood siren.",
-    "failure": "Your meter records nothing beyond wind, but a neighbor confirms the timing.",
-    "help": "Mediate a practical quiet-hours agreement",
-    "helpOutcome": "The bear helps install safer lighting and promises a warning bell before the next transformation."
+    "pressure": "A courteous were-bear has brought noise-complaint letters from three neighbors to a hearing. One asks for quiet; another likes the monthly roar because it tells her the storm is turning; the third wants a soundproof fence. None wants a supernatural wildlife trial.",
+    "investigate": "Compare the complaint times with the sound readings and the calendar",
+    "success": "A faulty culvert amplifies the roar toward one house. The county can inspect it without deciding whether anyone is a were-bear.",
+    "failure": "The recording captures only wind. The neighbors agree on when the loudest night occurred and submit signed statements instead.",
+    "help": "Help the neighbors negotiate a trial quiet period and safe meeting place",
+    "helpOutcome": "They arrange a test and exchange contact numbers. The were-bear thanks the clerk, then nearly eats the microphone cover by mistake."
   },
   {
     "id": "WH-088",
@@ -112,12 +112,12 @@
     "place": "Fortuna",
     "scene": "plaza",
     "pool": 1,
-    "pressure": "A crop circle appears in the hardware aisle among extension cords. The owner blames students; the cords hum with a frequency nobody bought.",
-    "investigate": "Measure the circle before merchandise is moved",
-    "success": "Its geometry matches the proposed plan for a new radio relay on the hills.",
-    "failure": "A mop erases the pattern; the hum remains on the store's emergency battery.",
-    "help": "Help the owner reopen the aisle without blaming anyone",
-    "helpOutcome": "Workers reroute the cables and the shoppers finish their errands in peace."
+    "pressure": "A perfect crop circle has appeared in a hardware store's extension-cord aisle. The hum makes the checkout terminal skip numbers, and the owner is blaming students. A cashier is standing beside a hot cable nobody should touch.",
+    "investigate": "Trace the power circuit and check the cord labels without entering the circle",
+    "success": "The humming cords carry tomorrow's inventory stickers. You photograph the labels after the owner isolates the power.",
+    "failure": "The breaker trips before you get a clean reading. A scorch mark identifies the outlet that needs inspection.",
+    "help": "Move shoppers clear and help the owner shut down the unsafe display",
+    "helpOutcome": "No one gets shocked and the owner stops accusing students. The cords quietly arrange themselves into a complaint about store hours."
   },
   {
     "id": "WH-089",
@@ -127,12 +127,12 @@
     "place": "Fortuna",
     "scene": "plaza",
     "pool": 1,
-    "pressure": "A cashier produces a receipt for an invention that does not exist. The receipt names a customer who will not be born for years.",
-    "investigate": "Cross-check the printed part numbers",
-    "success": "They describe a device for measuring habitat health that could be built from today's components.",
-    "failure": "The thermal paper fades, but the cashier remembers the strange serial prefix.",
-    "help": "Make sure the cashier isn't penalized for the glitch",
-    "helpOutcome": "The manager documents the event and refunds the customer without demanding an impossible explanation."
+    "pressure": "At a Fortuna counter, a cashier hands you a receipt for an invention that won't exist for years. It names an unborn customer and a serial number from tomorrow's shipment. The manager thinks the cashier invented the transaction to cover a register shortage.",
+    "investigate": "Compare the printed part numbers and the till audit before anyone assigns blame",
+    "success": "The parts describe an achievable habitat sensor, but none are missing from inventory. The manager records the anomaly and clears the cashier's till.",
+    "failure": "The thermal paper fades before the device name can be read. The serial prefix and till total survive in the cashier's notebook.",
+    "help": "Help the cashier document the glitch and complete a fair reconciliation",
+    "helpOutcome": "The books balance and no wages are withheld. The receipt goes in a labeled envelope; it is the least convenient form of future technology."
   },
   {
     "id": "WH-090",
@@ -142,12 +142,12 @@
     "place": "Fortuna",
     "scene": "plaza",
     "pool": 1,
-    "pressure": "The Eel River volunteer forecast station reports both rainfall and the emotional weather of nearby residents. A coming storm is labeled APOLOGY.",
-    "investigate": "Compare the predictions with actual river measurements",
-    "success": "The station has forecast a fast rise at a crossing absent from current hazard maps.",
-    "failure": "The sensors fail during the test, but the volunteer flags a real drainage obstruction.",
-    "help": "Help the volunteers publish an accessible warning",
-    "helpOutcome": "Residents receive clear high-water advice with none of the ominous emotional labels."
+    "pressure": "The Eel River volunteer forecast station predicts rainfall and emotional weather. Tomorrow's river stage is printed next to APOLOGY, and a resident wants to know whether the machine is publicly announcing her private argument. The storm itself is real.",
+    "investigate": "Compare the gauge history with the station's printed emotional forecasts",
+    "success": "The rain numbers match regional readings; the apology field has no measurement behind it. You keep the useful flood advisory and reject the gossip.",
+    "failure": "The paper jams before the flood crest time prints. A volunteer can still read the gauge directly and phone a confirmed level upstream.",
+    "help": "Help volunteers post a clear weather warning without naming private residents",
+    "helpOutcome": "The flood notice reaches the river users. Someone writes PLEASE APOLOGIZE IN PERSON beneath the broken emotional forecast printer."
   },
   {
     "id": "WH-091",
@@ -172,12 +172,12 @@
     "place": "Avenue of the Giants",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A vast shadow claims its older brother is smaller and standing behind the next redwood. Every witness sees a different scale.",
-    "investigate": "Take measurements without leaving the safe trail",
-    "success": "The shadow's feet match a cliff formation miles away, projected at the wrong time of day.",
-    "failure": "The silhouette fades and your measuring tape snaps back to ordinary length.",
-    "help": "Keep the gawkers from damaging the roots",
-    "helpOutcome": "A ranger persuades the crowd to stay on the boardwalk and let the giant be unphotographed."
+    "pressure": "An enormous silhouette points beyond the redwoods and insists its older brother is smaller. Each witness describes a different height, while a tour operator starts leading paying visitors onto a closed restoration trail.",
+    "investigate": "Compare shadow angles and witnesses from the public path",
+    "success": "The silhouette's edges track a patch of moving fog, but a tiny second set of footprints ends at the fence. You record both without trespassing.",
+    "failure": "The shadows overlap before a scale can be measured. A park visitor shares a photo with the trail boundary clearly visible.",
+    "help": "Ask the operator to keep visitors on the open path and give the restoration crew room",
+    "helpOutcome": "The crowd moves back and the seedlings remain undisturbed. The smaller older brother declines to be photographed, a wise family policy."
   },
   {
     "id": "WH-093",
@@ -202,12 +202,12 @@
     "place": "Avenue of the Giants",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A fallen redwood has two extra growth rings, each showing a summer nobody remembers. A contractor proposes to sell the slice as proof of prophecy.",
-    "investigate": "Compare the rings with local climate records",
-    "success": "One extra season contains evidence of drought mitigation that has not yet begun.",
-    "failure": "The sample splinters before a count is complete; the pattern survives in a careful rubbing.",
-    "help": "Protect the log until stewards decide its fate",
-    "helpOutcome": "Volunteers cover the exposed wood and agree the forest should not be auctioned for a miracle."
+    "pressure": "A fallen redwood has two extra rings, one for each summer nobody remembers. A contractor wants to carve out a slice and sell it as proof of prophecy before the park's volunteer sawyer can document it.",
+    "investigate": "Count the rings with the sawyer and compare growth bands without removing wood",
+    "success": "The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir.",
+    "failure": "A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch.",
+    "help": "Help the volunteers protect the log from unauthorized cutting",
+    "helpOutcome": "The contractor backs off and the trail crew posts a clear explanation. The log gets to keep its extra summers."
   },
   {
     "id": "WH-095",
@@ -232,12 +232,12 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A talking scarecrow is the only worker willing to tend a backwoods garden in the rain. Its owner says a thing made of straw cannot bargain.",
-    "investigate": "Ask what work the scarecrow actually performs",
-    "success": "The ledger reveals a hidden irrigation leak the scarecrow has patched for months.",
-    "failure": "The scarecrow goes silent at the owner's approach but leaves a careful repair list.",
-    "help": "Negotiate rest and credit for the strange worker",
-    "helpOutcome": "The gardener posts fair duties and builds a dry shelter the scarecrow can enter."
+    "pressure": "A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off.",
+    "investigate": "Compare the farm's written agreements with what the scarecrow has actually done",
+    "success": "The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law.",
+    "failure": "The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers.",
+    "help": "Help negotiate safe work limits and rest while the owner sorts out the records",
+    "helpOutcome": "A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation."
   },
   {
     "id": "WH-097",
@@ -247,12 +247,12 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "Two neighbors share a homebrew recipe and remember contradictory versions of the same harvest. Neither memory is evidence about the other person.",
-    "investigate": "Compare the stories against signed records",
-    "success": "A shipping slip belongs to a future cooperative that neither neighbor yet trusts.",
-    "failure": "The labels peel off the jars and you cannot establish which account is older.",
-    "help": "Help the neighbors decide what they know together",
-    "helpOutcome": "They preserve both stories and agree to share a meal without forcing a verdict."
+    "pressure": "Two neighbors share a homebrew recipe and remember opposite versions of the same harvest. Neither recollection proves anything about the other's honesty. Their argument has reached the point where one is about to publish accusations on the community board.",
+    "investigate": "Compare dates and crop records while making no claims about what the drink causes",
+    "success": "Both notebooks are internally consistent but the harvest receipts differ. You document the discrepancy and leave the neighbors free to revise their stories.",
+    "failure": "The old receipt is illegible and the recipe offers no answer. Each neighbor can still name a third witness who might remember the day.",
+    "help": "Help them postpone the public accusation and agree on one checkable question",
+    "helpOutcome": "They set down the bottles and call the packing crew. Dinner remains awkward, but nobody's reputation is decided by an argument about memories."
   },
   {
     "id": "WH-098",
@@ -262,12 +262,12 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A helicopter without registration follows the same line over a garden, piloted by someone obsessed with zoning maps.",
-    "investigate": "Record its path from publicly accessible ground",
-    "success": "The flight traces the outline of a proposed conservation easement no one has yet drawn.",
-    "failure": "Cloud cover swallows the vehicle, but the ground crew sees the last waypoint.",
-    "help": "Help residents ask for transparent flight notices",
-    "helpOutcome": "The neighbors draft a calm request instead of accusing one another of secret deals."
+    "pressure": "An unmarked helicopter keeps tracing the garden boundary with unnatural precision. The pilot knows obscure zoning clauses; the grower fears somebody is filming private workers and the neighbors fear the craft will strike a power line.",
+    "investigate": "Map the aircraft's path against public zoning boundaries from safe ground",
+    "success": "The route follows a proposed parcel change not yet on the public agenda. You note the filing number and refer the low flight to aviation authorities.",
+    "failure": "The craft vanishes into fog before you can read a marking. A neighbor captured its altitude against the line of a barn roof.",
+    "help": "Help workers move out of the landing area and document the safety concern",
+    "helpOutcome": "The grower closes the field briefly, everyone gets indoors and the helicopter leaves. The zoning complaint is filed without revealing anyone's private plants."
   },
   {
     "id": "WH-099",
@@ -292,11 +292,11 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A small occult book club has accidentally summoned the most exacting literary critic in existence. The entity hates lazy characterization.",
-    "investigate": "Ask which book the critic believes is real",
-    "success": "A marginal note points to a library copy of a future county charter.",
-    "failure": "The critic tears up its own footnotes and vanishes before giving a recommendation.",
-    "help": "Let the members choose the ending of their own story",
-    "helpOutcome": "The critic admits that their imperfect, honest ending is better than its flawless one."
+    "pressure": "A small fictional occult book club has summoned a literary critic by reading a bad ending aloud. The apparition calls every character a symbol and demands a rewrite before letting the members go home. The librarian wants the group to stop insulting her volunteers.",
+    "investigate": "Ask the critic to cite the text rather than pass judgment on the readers",
+    "success": "The apparition identifies a missing scene instead of an allegedly deficient person. The author can revise it later, if they choose.",
+    "failure": "The critic speaks entirely in footnotes and everyone loses the thread. A book-club member copies the one useful question onto a bookmark.",
+    "help": "Help the club close the meeting on time and let each reader keep their interpretation",
+    "helpOutcome": "They return the chairs and make a potluck date. The critic gets a library card, probationary, and a very long list of overdue opinions."
   }
 ]

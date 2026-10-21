@@ -466,7 +466,9 @@ const failureEchoes = [
 ] as const
 for (const [id, earnedDetail] of failureEchoes) {
   const card = findCard(id)!
-  const investigate = card.choices.find((choice) => choice.id === 'investigate')!
+  const investigate = card.choices.find(
+    (choice) => choice.id === 'investigate',
+  )!
   const failure = investigate.failure!
   const flag = `${id.toLowerCase().replaceAll('-', '_')}_partial`
   assert.ok(
@@ -474,7 +476,10 @@ for (const [id, earnedDetail] of failureEchoes) {
     `${id} failure must remain a specific, playable scene`,
   )
   assert.equal(failure.effects.flag, flag)
-  assert.ok(!failure.effects.evidence, `${id} loss never grants verified evidence`)
+  assert.ok(
+    !failure.effects.evidence,
+    `${id} loss never grants verified evidence`,
+  )
   const callback = REGIONAL_CALLBACKS.find(
     (entry) => entry.id === id && entry.choice === 'investigate-failure',
   )
@@ -487,10 +492,14 @@ for (const [id, earnedDetail] of failureEchoes) {
     !earnedQuestCallbacks([], [id]).includes(callback!.text),
     `${id} cannot invent a loss not actually rolled`,
   )
-  const pitch = allPitchByKey.get(`callbacks/${id.toLowerCase()}/investigate-failure`)
+  const pitch = allPitchByKey.get(
+    `callbacks/${id.toLowerCase()}/investigate-failure`,
+  )
   assert.equal(pitch?.action, callback!.artMoment)
   assert.ok(
-    pitch?.mustNotImply.some((line) => line.includes('This investigation failed')),
+    pitch?.mustNotImply.some((line) =>
+      line.includes('This investigation failed'),
+    ),
     `${id} art brief must not depict the winning resolution`,
   )
 }

@@ -105,7 +105,7 @@ const INJURY_CHANCE: Record<
  */
 export const LETHAL_BLOW: Partial<Record<QuestResultTier, number>> = {
   failure: 40,
-  partial: 12,
+  partial: 8,
 }
 export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   none: [0, 0],
@@ -132,7 +132,7 @@ export const actOf = (day: number): number => clamp(Math.ceil(day / 10), 1, 5)
  * standing aid (the Day 50 roads and FINALE_AID) are exempt: there, ten days
  * of preparation decide the odds, not an extra quarter.
  */
-export const LETHAL_NEED_SCALE = 1.25
+export const LETHAL_NEED_SCALE = 1.2
 
 /** Whether a quest's needs take LETHAL_NEED_SCALE. */
 export const lethalScaled = (quest: QuestDef): boolean =>

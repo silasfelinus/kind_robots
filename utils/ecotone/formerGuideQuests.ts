@@ -240,8 +240,10 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
     meetingLines: {
       mara: 'Mara has drawn the supply budget on a napkin with a grease pencil. She keeps the private designs in her closed sketchbook and asks who is paying the dishwasher.',
       kit: 'Kit has balanced a bent bicycle wheel over the soup table. The wheel turns toward whoever is talking, a splendid effect she admits is mostly a draft from the kitchen.',
-      juniper: 'Juniper has brought seedlings for the rain-soaked verge. She wants to know who will water them in August, and she will not accept the answer “the forest” this time.',
-      cedar: 'Cedar has built a hand-cranked radio that announces the next volunteer shift in a voice from yesterday. He has also posted a paper roster for people who do not trust the radio.',
+      juniper:
+        'Juniper has brought seedlings for the rain-soaked verge. She wants to know who will water them in August, and she will not accept the answer “the forest” this time.',
+      cedar:
+        'Cedar has built a hand-cranked radio that announces the next volunteer shift in a voice from yesterday. He has also posted a paper roster for people who do not trust the radio.',
     },
     flagLines: {
       slug_sank: {

@@ -289,10 +289,13 @@ const register = async () => {
     }
 
     // Only the login response establishes the session and supplies its token.
-    const loginResponse = await userStore.login({
-      username: username.value,
-      password: password.value || undefined,
-    })
+    const loginResponse = await userStore.login(
+      {
+        username: username.value,
+        password: password.value || undefined,
+      },
+      { newlyRegistered: true },
+    )
 
     if (!loginResponse.success) {
       errorStore.setError(

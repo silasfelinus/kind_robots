@@ -686,6 +686,19 @@
                         class="text-xs opacity-70"
                         >Scout this gate first, spending 1 HP</span
                       >
+                      <span
+                        v-if="
+                          choice.id === 'solidarity' &&
+                          !game.canTrial(choice.id)
+                        "
+                        class="text-xs opacity-70"
+                        >Requires 4 mercy and 2 honesty marks</span
+                      >
+                      <span
+                        v-if="choice.id === 'coerce'"
+                        class="text-xs font-semibold text-warning"
+                        >Someone else bears this danger; the debt will be remembered</span
+                      >
                     </button>
                   </div>
                   <div

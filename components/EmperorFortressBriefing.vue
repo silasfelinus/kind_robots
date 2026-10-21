@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(26rem,0.92fr)_minmax(0,1.08fr)] @7xl:grid-cols-[minmax(32rem,0.85fr)_minmax(0,1.15fr)]"
+    class="eod-briefing flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(26rem,0.92fr)_minmax(0,1.08fr)] @7xl:grid-cols-[minmax(32rem,0.85fr)_minmax(0,1.15fr)]"
   >
     <figure
       v-if="advisorArt"

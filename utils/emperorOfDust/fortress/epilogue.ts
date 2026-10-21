@@ -172,7 +172,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d19-millers-levy-repealed'] },
-        text: 'The levy was repealed for eleven hands at the vote. Aldous Hopper has voted with the crown at every council since. He has never said thank you. He bows exactly as low as he did the first day.',
+        text: 'The levy was repealed for nine hands at the vote. Aldous Hopper has voted with the crown at every council since. He has never said thank you. He bows exactly as low as he did the first day.',
       },
       {
         when: { flags: ['d02-mill-names-posted'] },
@@ -371,6 +371,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The Crows’ part in the Abbey’s night carts stayed between one fire and the record. Keeper Vellum’s line through that page is still there. Corvane bowed once, that night. He has never needed to bow again.',
       },
       {
+        when: { flags: ['d11-rain-bought'] },
+        text: 'The tower bought one season of rain outright and owed nothing for it. The rain came, and went. Corvane never once looked at the tower again. He made sure the tower saw him not looking.',
+      },
+      {
         when: { flags: ['no-rain'] },
         text: 'The tower refused the Conclave’s rain, and the Freeholds stayed dry. They dug deeper. Their wells are the deepest in the kingdom now. Every Freehold kitchen knows who kept the sky clear, and argues about it at supper.',
       },
@@ -398,12 +402,29 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The runners lent to the Heights went on wages, with their own names on every bag, home by first frost. Every bag came home. So did every runner.',
       },
       {
+        when: { flags: ['d34-tamsin-swapped'] },
+        text: 'Tamsin Gutterwing went back up the Heights in a Yard child’s sash and ran the far paths for the Conclave until the war was over, and after. Linnet came home and learned to read. She reads Tamsin’s letters aloud in the Yard. There are not many. They are all about weather.',
+      },
+      {
+        when: { flags: ['d34-runner-left'] },
+        mood: 'sad',
+        text: 'Linnet went back up the Heights in the rain because the crown would not buy her down. She went off the high path in the first winter storm with someone else’s letters on her back. The Crows sang for her. They sent the letters on.',
+      },
+      {
+        when: { flags: ['d34-runner-bought'] },
+        text: 'Linnet came down off the Heights for sixty brass and never ran again. She walks everywhere now, slowly. The other two served their seasons out. One came home.',
+      },
+      {
         when: { flags: ['d42-runner-redeemed'] },
         text: 'The third runner’s bond was struck from Corvane’s slate with the crown’s last brass. She keeps the sash folded on a shelf. Her hands have found other work.',
       },
       {
         when: { flags: ['covenant-paid-in-runners', 'd20-runners-term-fixed'] },
         text: 'Three Yard volunteers climbed the Heights for one season by the tower’s calendar. Two came home on the right day, to the hour. The third stayed. She sends her mother a grey feather at the turn of each season. No letter.',
+      },
+      {
+        when: { flags: ['d20-court-runners'] },
+        text: 'Three of the court’s own climbed the Heights to pay for the rain. Lady Vask’s nephew came down years later, a grown bird who would not sit at her table.',
       },
       {
         when: { anyFlags: ['covenant-paid-in-runners', 'runners-lent'] },
@@ -1354,6 +1375,10 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Tamsin Gutterwing',
     follower: 'F011',
     variants: [
+      {
+        when: { flags: ['d34-tamsin-swapped'] },
+        text: 'Tamsin Gutterwing wears a Conclave sash again. She chose it this time, and she says that is the whole difference. The Crows do not believe her. Neither does she.',
+      },
       {
         when: { departed: ['F011'] },
         mood: 'sad',

@@ -5,7 +5,11 @@ export const ZUZU_PROJECTS = [
     label: 'Music videos & trailer',
     route: '/play/video-generator?studio=music',
   },
-  { slug: 'comic-film', label: 'Animated episode', route: '/play/video-generator?studio=music' },
+  {
+    slug: 'comic-film',
+    label: 'Animated episode',
+    route: '/play/video-generator?studio=music',
+  }
   { slug: 'zuzu-lair', label: "Zuzu's Lair", route: '/admin/zuzu-lair' },
   { slug: 'zuzu-gamebook', label: 'Gamebook', route: '/play/zuzu-gamebook' },
   {

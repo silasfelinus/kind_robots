@@ -538,6 +538,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     rewards: {
       triumph: { flags: ['horror-sealed', 'abbess-unmasked'] },
       success: { flags: ['horror-sealed'] },
+      // t-041: a partial on the well road still shuts the door, the hard way.
+      partial: { flags: ['horror-sealed'] },
       failure: { flags: ['horror-wakes'] },
     },
     expired: {},
@@ -545,6 +547,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       triumph:
         'They came up through the floor behind the Abbess mid-song. The crypt is shut. The sisters scattered at dawn.',
       success: 'The back door led to the right room. The crypt is shut.',
+      partial:
+        'They reached the room late and shut the door on the singing from the wrong side. They came back up the well one at a time, counting each other in the dark.',
       failure:
         'The well led somewhere. Not the crypt. The party came back silent.',
       expired: 'Nobody took the well road.',
@@ -554,7 +558,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     id: 'q-d50-ring-the-bell',
     title: 'Ring the Silent Bell',
     summary:
-      'The clapper is home. Carry it up the Abbey tower. Ring the bell that has been silent a hundred years. The Archive believes the sound put the thing to sleep the first time.',
+      'The clapper is home. Carry it up the Abbey tower, past the sisters on the stair. Ring the bell that has been silent a hundred years. The Archive believes the sound put the thing to sleep the first time. Whoever climbs may not come down.',
     region: 'mission-road',
     faction: 'abbey',
     durationDays: 1,
@@ -565,11 +569,16 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       { stat: 'lore', band: 'mid' },
     ],
     danger: 'high',
+    // t-041: a hundred-year-old tower with the Abbey's sisters on the stair.
+    // Whoever climbs may not come down.
+    lethal: true,
     tags: ['defense'],
     aid: FINALE_AID,
     rewards: {
       triumph: { flags: ['horror-sealed', 'bell-rung'] },
       success: { flags: ['horror-sealed', 'bell-rung'] },
+      // A partial seals the horror but cracks the bell: no Bell Restored.
+      partial: { flags: ['horror-sealed'] },
       failure: { flags: ['horror-wakes'] },
     },
     expired: {},
@@ -578,6 +587,8 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'The Silent Bell rang once. Every bell in the kingdom answered, down to the tin ones on goats. Under the Abbey, something turned over in its sleep. Then it was still.',
       success:
         'The Silent Bell rang once. Under the Abbey, something went quiet.',
+      partial:
+        'The Silent Bell rang once and split down its whole length on the note. Under the Abbey, something went quiet. Hollow Bell will never hear it again.',
       failure:
         'The clapper struck. The bell cracked down its whole length without a sound.',
       expired: 'The clapper stayed in its cloth. Nobody climbed.',

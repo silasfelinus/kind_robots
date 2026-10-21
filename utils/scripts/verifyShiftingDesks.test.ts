@@ -171,11 +171,10 @@ const toyCallbacks = [
 for (const callback of toyCallbacks) {
   assert.ok(
     ORIENTATION.encounters.some((card) =>
-      card.choices.some((choice) =>
-        [
-          ...choice.success.add_flags,
-          ...(choice.failure?.add_flags ?? []),
-        ].includes(callback.sourceFlag),
+      card.choices.some(
+        (choice) =>
+          choice.success.add_flags.includes(callback.sourceFlag) ||
+          (choice.failure?.add_flags ?? []).includes(callback.sourceFlag),
       ),
     ),
     `${callback.sourceFlag} must be earnable before arriving at the Toy Division`,

@@ -15,18 +15,18 @@ These are **questions**, not alignments. A restorative habitat project can invol
 
 These are literary emphasis weights, not medical effects, personality diagnoses or stereotypes. The visual needle moves toward the named pole when that perspective appears in play:
 
-| Selected experience | Thematic direction it emphasizes |
-| --- | --- |
-| Alcohol | Solidarity, the social question of belonging and obligation |
-| Cannabis | Ecology, interconnected living systems |
-| Coffee | Engineering and Agency, deadlines and control |
-| Psychedelic fiction | Reinvention and Fate, unusual futures and the possibility of change |
-| Cocaine fiction | Autonomy and Reinvention, urgency and personal initiative |
-| Meth fiction | Engineering and Agency, the pressure of keeping systems working |
-| MDMA fiction | Solidarity and Agency, care, consent and accountable action |
-| Water, air, a voluntary pause | Agency; deliberate reconsideration without moral superiority |
+| Selected experience           | Thematic direction it emphasizes                                    |
+| ----------------------------- | ------------------------------------------------------------------- |
+| Alcohol                       | Solidarity, the social question of belonging and obligation         |
+| Cannabis                      | Ecology, interconnected living systems                              |
+| Coffee                        | Engineering and Agency, deadlines and control                       |
+| Psychedelic fiction           | Reinvention and Fate, unusual futures and the possibility of change |
+| Cocaine fiction               | Autonomy and Reinvention, urgency and personal initiative           |
+| Meth fiction                  | Engineering and Agency, the pressure of keeping systems working     |
+| MDMA fiction                  | Solidarity and Agency, care, consent and accountable action         |
+| Water, air, a voluntary pause | Agency; deliberate reconsideration without moral superiority        |
 
-No substance *guarantees* an ideology. `sober` as a first lens is neutral, not a philosophical advantage; only later intentional pauses create their own agency weight. The opening lens still determines the collectible ID and the opening-signature memory.
+No substance _guarantees_ an ideology. `sober` as a first lens is neutral, not a philosophical advantage; only later intentional pauses create their own agency weight. The opening lens still determines the collectible ID and the opening-signature memory.
 
 ### Repetition, mixing and temperance
 
@@ -38,7 +38,7 @@ No substance *guarantees* an ideology. `sober` as a first lens is neutral, not a
 
 ## The last roll
 
-At the finale, Ecotone rolls **four independent seeded 2d6 results**. Each score is `2d6 + chemical pull + deed pull`, subject to the cap. Less than 7 leans to the first pole, more than 7 to the second, and exactly 7 retains the tension. The Journal shows the *pre-roll needle* as the run unfolds. The ending shows the dice, the contributions and one conditional authored reflection per axis.
+At the finale, Ecotone rolls **four independent seeded 2d6 results**. Each score is `2d6 + chemical pull + deed pull`, subject to the cap. Less than 7 leans to the first pole, more than 7 to the second, and exactly 7 retains the tension. The Journal shows the _pre-roll needle_ as the run unfolds. The ending shows the dice, the contributions and one conditional authored reflection per axis.
 
 The existing **84 stable endings** remain `7 opening memories × 6 final leads × 2 earned fates`. The four philosophy rolls give emotional coloration **within** those collectible endings, not 84 multiplied by 16 political variants. Hope/dark is still earned by civic consequences, evidence, nerve and, on Wild Way, animal-first choices. Do not make philosophical orthodoxy, ethnicity, sexuality, tribal rights or a chemical an automatic eligibility gate.
 

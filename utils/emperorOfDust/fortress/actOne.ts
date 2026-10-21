@@ -27,13 +27,15 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -2 } },
     outcomes: {
       triumph:
-        'The well road is clear. The Freeholders who watched have started calling it the emperor’s road.',
+        'The last boulder rolls into the ditch before sunrise. Freehold wagons bring water and a sack of bread for the Yard. They call it the emperor’s road now. The Yard says the wagoners should have the naming rights.',
       success:
-        'The well road is clear by evening. The water barrels roll again.',
-      partial: 'Half the rockfall is moved. Carts pass one at a time.',
-      failure: 'The rockfall shifted again. The Yard hauls water by hand.',
+        'The last cart passes at dusk. The Yard works by lantern to refill the tower cistern. A Freeholder leaves a jar of clean water at the gate, sealed with wax.',
+      partial:
+        'One cart can pass if its driver folds the mirror and keeps a wheel against the drop. The water barrels wait in line. A Yard hand stays awake to wave them through.',
+      failure:
+        'The hillside comes down a second time. The Yard foreman sets the crew to carrying buckets along the goat path. The cooks cut supper water in half.',
       expired:
-        'Nobody cleared the road. The Yard hauled water by hand for two days and still talks about it.',
+        'The road closes under another slip. The Yard crew carries water uphill in cooking pots. On the second evening one worker leaves a cracked pot on the throne-room steps.',
     },
   },
   {
@@ -63,12 +65,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'hollow-bell': -8 }, local: { yard: -2 } },
     outcomes: {
       success:
-        'Clear water runs to Hollow Bell again. Mara Reedbell sends a barrel of pickled plums and a long thank-you.',
+        'The far wards hear water in their pipes before dawn. Mara Reedbell sends pickled plums and a letter naming every mason who worked the channel. Your name is last.',
       partial:
-        'The leak is slowed, not stopped. The far wards still queue at the pump before dawn.',
+        'The masons bind the worst split with wire and tar. Water reaches the far wards for an hour each morning. Mara asks how long an hour is supposed to keep a family alive.',
       failure:
-        'The channel collapsed under the engineers. Hollow Bell is drier than before.',
-      expired: 'The aqueduct was left to leak. The mayor stopped writing.',
+        'The repaired arch gives way under the first full flow. A mason comes back with his coat stiff from lime and tells Mara which house lost its water first. It was hers.',
+      expired:
+        'Mara’s final letter arrives with a ring of dried mud around the seal. Hollow Bell’s far wards are drawing from a ditch. After that, the mayor sends no more letters.',
     },
   },
   {
@@ -94,11 +97,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -5 }, local: { ledger: -2 } },
     outcomes: {
       success:
-        'The Pack took the armistice. The fiddler played your coronation march at the bridge, badly, and the wagons rolled back before she finished.',
-      partial: 'The wagons stay, but nobody draws a blade.',
-      failure: 'The parley ended in insults. The toll is still closed.',
+        'The hyena captain scratches out your coronation march on her fiddle. Her riders pull the wagons clear before the last sour note. The Saltroad medicine carts cross first; the Pack watches every bottle.',
+      partial:
+        'The Pack drags its wagons to one side, leaving room for a single cart. The captain asks the next trader for a song instead of brass. The driver knows no songs.',
+      failure:
+        'The fiddle goes back into its case. The captain tells your envoys to walk home while their horses are still worth stealing. The caravan’s medicine waits behind the painted wagons.',
       expired:
-        'The wagons sat at the bridge all day. Saltroad trade went the long way.',
+        'By dusk the medicine caravan has turned toward the dry wash. The Saltroad factor sends the tower a bill for two days of extra water. The painted wagons still hold the bridge.',
     },
   },
   {
@@ -125,10 +130,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -5 } },
     outcomes: {
       success:
-        'The bridge is open. The Pack withdrew. They will remember who pushed.',
-      partial: 'The wagons pulled back a hundred yards and dug in.',
-      failure: 'The Pack held the bridge. The Gate Watch is muttering.',
-      expired: 'Nobody moved the wagons.',
+        'The Watch opens the bridge at spearpoint. The Pack rolls south, carrying its sick pups in covered wagons. Saltroad traders cheer until they see the medicine cart they smashed in the fighting.',
+      partial:
+        'The Pack gives up the tollhouse and plants its wheels across the narrow road beyond it. The Watch claims the gate. No cart reaches the far side.',
+      failure:
+        'The Watch comes back missing three shields and its red banner. The hyena captain has hung the banner above the toll booth. She charges a brass bit to see it.',
+      expired:
+        'The blockade outlasts your order. Saltroad drivers unload flour by the bridge and carry it through the shallows themselves. The Pack takes a share for watching.',
     },
   },
   {
@@ -153,11 +161,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'mire-mothers': -5 } },
     outcomes: {
       success:
-        'Every lantern reached the far side. The refugees left a sprig of bog myrtle on the escort’s saddle.',
+        'Forty-one lanterns cross the causeway. The rear guard hears a child counting footsteps inside one of the glass housings. At dawn Sister Reedlight leaves bog myrtle on the escort’s saddle, still wet.',
       partial:
-        'Most of the refugees made it. Two lanterns turned back into the fen.',
-      failure: 'Raider scouts scattered the column.',
-      expired: 'No escort came. The lanterns went on alone.',
+        'Thirty-nine lanterns reach the checkpoint. Two turn back at the sound of the raiders’ horses. Sister Reedlight thanks your escort, then asks for the names of the missing.',
+      failure:
+        'The scouts strike at the narrow boardwalk. The escort returns with a broken lantern and a wet blanket. Sister Reedlight takes both and does not ask where their owners are.',
+      expired:
+        'The watch reports forty-one lights entering the fen after sunset. By dawn they can see only eight. Sister Reedlight sends no complaint. She sends the empty lantern hooks.',
     },
   },
   {
@@ -187,10 +197,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'Forty-one lanterns. Thirty-eight travelers. Three lanterns walked the road with no one under them. The Archive has the list.',
-      partial: 'The count is half done and doesn’t add up.',
-      failure: 'The refugees refused the count. The witches took offense.',
-      expired: 'The lanterns passed uncounted.',
+        'The escort counts thirty-eight travelers and forty-one lights. Three lanterns move over the mud with nothing beneath them. The Lamplight clerk copies the figures twice, then locks the book.',
+      partial:
+        'The registrar counts nineteen travelers and twenty-one lanterns before the fog comes in. They lose the line and their place in the ledger. The figures will not balance.',
+      failure:
+        'Sister Reedlight closes her ledger and leads the column away. The escort finds its tally cards soaked through at dawn. The witch has filed a protest with no signature.',
+      expired:
+        'The lamps cross the ford in a long yellow line. No clerk goes with them. When the Archive asks how many entered the realm, the Watch sends back an empty form.',
     },
   },
   {
@@ -215,11 +228,14 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     },
     expired: { affinity: { freeholds: -10 }, local: { yard: -2 } },
     outcomes: {
-      success: 'The cart is out and the grain is dry. Mostly.',
-      partial: 'The cart is out. Half the grain is not.',
-      failure: 'The river took the cart.',
+      success:
+        'The ferrymen haul the cart onto the bank by its axle. Two sacks are wet, the rest sound. The ferrymen have the dry grain baked into bread before anyone can argue about ownership.',
+      partial:
+        'The grain cart reaches the bank without its rear wheels. Half the sacks are swollen and sour. A Freehold reeve divides the dry half among the three villages while the farmer watches.',
+      failure:
+        'The current overturns the grain cart at the ford. A farmer follows it along the bank until the wheel disappears. The Freeholds have enough flour for two more days.',
       expired:
-        'The river took the cart while the court argued about something else.',
+        'The cart goes under before a team reaches the ford. A Freehold reeve sends you a bag of river mud with six kernels of grain in it. The message is clear enough.',
     },
   },
   {
@@ -249,12 +265,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -5 } },
     outcomes: {
       success:
-        'Clause nine lets the Conclave name its favor after the rain falls. The court struck it. The envoy initialled the strike without a word.',
+        'The archivists find the clause that lets the Conclave collect any favor he names after the rain. They strike it out. His envoy initials the page with one black quill and takes a copy for the roost.',
       partial:
-        'The contract is long and the court is tired. A few clauses are struck.',
+        'Three nights of reading turn up a dozen suspect phrases. The archivists strike half and miss the page with the runners’ names. The Conclave sends thanks for the careful work.',
       failure:
-        'The readers were caught writing in the Conclave’s sacred margins.',
-      expired: 'The Crows grew tired of waiting.',
+        'A Conclave scribe catches your readers altering the bonded runners’ clause. The contract comes back with the crown’s seal cut out. The Conclave says it will discuss rain when the seal is returned.',
+      expired:
+        'The storm breaks over the Heights and passes north. The Conclave’s envoy folds the unsigned contract. At court the farmers ask whether the clouds would have stopped if you had answered sooner.',
     },
   },
   {
@@ -284,10 +301,13 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { moles: -5 } },
     outcomes: {
       success:
-        'The tithe was never paid. The Moles never claimed it was. The clerk invented it. The Moles appreciate an honest count.',
-      partial: 'The auditors found the ledger but not the tithe.',
-      failure: 'The auditors were escorted out of the tunnels, blindfolded.',
-      expired: 'Nobody went down. The rumor of a paid tithe grew.',
+        'An elderly Mole witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not a Mole’s. She asks for the clerk’s name, and waits while the court decides whether to give it.',
+      partial:
+        'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
+      failure:
+        'The Moles walk your auditors back to daylight with cloth over their eyes. A Mole clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
+      expired:
+        'The false receipt passes from clerk to clerk until it is entered as revenue. The tunnel elders refuse to pay a debt she never owed. Marisol Tallow asks where the missing brass has gone.',
     },
   },
   {
@@ -314,11 +334,15 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -10 } },
     outcomes: {
       triumph:
-        'All three wells run clear. For once the villages agree on whom to thank.',
-      success: 'All three wells run. One of them tastes of iron.',
-      partial: 'Two wells run. The third village is not pleased.',
-      failure: 'The wells silted over again.',
-      expired: 'The wells went dry and the villages blamed the tower.',
+        'Three wells run clean at dawn. A Freehold elder draws the first three cups and hands them to the village elders in turn. The elders quarrel about who should pay the water crew, but they drink.',
+      success:
+        'All three pumps draw water, though the third stains the bucket red. The water crew calls it a season saved. The third village asks whether iron counts as drinking water.',
+      partial:
+        'Two villages fill their barrels. At the third, the pump coughs grit. A Freehold reeve gives their elder her own canteen and promises the crew will return.',
+      failure:
+        'The crew opens one well and loses the other two to silt. A Freehold reeve puts the broken pump handle in a wagon. He says the crown can have its equipment back.',
+      expired:
+        'By the third day all three villages are drawing water from a ditch. A Freehold reeve brings the last dry bucket to court and turns it over on the carpet. Nothing falls.',
     },
   },
   {
@@ -704,7 +728,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Send engineers to repair the channel.',
             effects: {},
             response:
-              'Mara writes something in her ledger. “Then I’ll expect them.”',
+              'Mara opens her ledger at the page for the far wards. Three household names have been crossed out. “Then I’ll expect them,” she says. She leaves the page open until you look.',
             postsQuests: ['q-d01-aqueduct-repair'],
           },
           {
@@ -717,7 +741,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               local: { ledger: 2, yard: -3 },
             },
             response:
-              'Mara’s smile does not move. “Hollow Bell will pay. Hollow Bell will remember paying.”',
+              'Mara holds out the book and asks whose names belong on the levy. You tell her: everyone. “Then they’ll remember your name,” she says, and writes it above the names of the millers.',
           },
         ],
         beats: [
@@ -801,7 +825,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Offer safe passage in exchange for an armistice.',
             effects: {},
             response:
-              'The captain laughs. “Send someone who can hold a tune. We’ll see.”',
+              'The captain plucks one sour note from the fiddle. “Send someone who can negotiate and count bottles. The pups still need their medicine.” She takes her boots off your carpet before she leaves, and makes a show of it.',
             postsQuests: ['q-d01-toll-parley'],
           },
           {
@@ -809,7 +833,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Tell the captain the bridge will be cleared by force.',
             effects: { local: { 'gate-watch': 1 } },
             response:
-              'The captain spits on your floor. Cheerfully. “Bring friends.”',
+              'The captain spits on your floor and counts the Watch guards at the door. “Bring friends,” she says. “And a wagon for the ones who don’t come back.”',
             postsQuests: ['q-d01-toll-break'],
           },
           {
@@ -821,7 +845,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               local: { ledger: -1 },
             },
             response:
-              'The captain bites a brass bit, nods, and leaves a painted feather on the arm of your throne.',
+              'The captain bites your brass and points her fiddle toward the southern road. “Seven days,” she says. The Saltroad clerk adds the payment to a fresh column marked tolls owed by the crown.',
           },
         ],
         beats: [
@@ -914,14 +938,15 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Escort the refugees without asking their secrets.',
             effects: {},
             response:
-              'Sister Reedlight bows low. Her lantern does not flicker.',
+              'Sister Reedlight bows with both hands around the lantern. “At the far checkpoint, count their faces,” she says. “Not just the lights.” Then she leaves before you can ask why.',
             postsQuests: ['q-d01-mirefen-escort'],
           },
           {
             id: 'question',
             label: 'Inspect the lanterns and record every traveler.',
             effects: { local: { lamplight: 1 } },
-            response: '“Of course,” says Sister Reedlight, a moment too late.',
+            response:
+              '“Of course,” says Sister Reedlight. She turns her lantern so the glass hides her face. Behind her, one refugee takes a step toward the door and is stopped by another’s hand.',
             postsQuests: ['q-d01-mirefen-inspect'],
           },
         ],
@@ -1545,7 +1570,8 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'leave-it',
             label: 'Leave Hollow Bell its stories.',
             effects: { affinity: { 'hollow-bell': 3 } },
-            response: 'Mara looks relieved. Then, for a moment, afraid.',
+            response:
+              'Mara reaches for the wrapped hand-bell at her belt. “Thank you,” she says. Her thumb finds the knot in the cloth and pulls it tight.',
           },
         ],
         beats: [

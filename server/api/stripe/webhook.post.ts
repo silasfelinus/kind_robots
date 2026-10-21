@@ -713,7 +713,9 @@ async function handleSubscriptionLifecycle(subscription: Stripe.Subscription) {
       ? patronPeriodEnd(subscription, process.env.STRIPE_PRICE_ID || '')
       : null
   if (isActive && subscription.cancel_at_period_end && !scheduledEnd)
-    throw new Error('Active cancelled Patron subscription has no paid-through date')
+    throw new Error(
+      'Active cancelled Patron subscription has no paid-through date',
+    )
 
   await prisma.user.update({
     where: { id: user.id },

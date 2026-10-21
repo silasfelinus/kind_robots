@@ -1,8 +1,7 @@
+<!-- Music-video editor embedded in the Video Studio Music Videos tab. -->
 <template>
   <section class="min-h-0 w-full">
     <div class="space-y-3">
-      <!-- Controls only: the shell's workspace-header renders the title and
-           subtitle from content/channels/projects/music-video.md (THE HEADER RULE). -->
       <header class="kr-toolbar justify-end">
         <button
           v-if="userStore.isLoggedIn && !store.current"

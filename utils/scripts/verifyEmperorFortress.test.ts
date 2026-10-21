@@ -1145,6 +1145,161 @@ assert.ok(sceneCount >= 3, 'the court holds scenes, not only petitions')
   assert.equal(talkFor(away, 'F003'), undefined)
 }
 
+// --- talk pacing (t-042) -----------------------------------------------------
+{
+  // A talk never names a follower who may not be at court: another follower
+  // is named only in the talk's own follower's scene, or in a talk, answer or
+  // beat that waits on that follower being present (`requires.follower`).
+  const names = FOLLOWERS.map((def) => ({
+    id: def.id,
+    patterns: [
+      new RegExp(
+        `\\b${def.name.replace(/^(Duchess|Brother) /, '').split(' ')[0]}\\b`,
+      ),
+      new RegExp(`\\bthe ${def.species}\\b`, 'i'),
+    ],
+  }))
+  const textOf = (line: string | { text: string }) =>
+    typeof line === 'string' ? line : line.text
+  const checkNames = (
+    talkId: string,
+    where: string,
+    text: string,
+    present: Set<string>,
+  ) => {
+    for (const name of names)
+      if (!present.has(name.id) && name.patterns.some((p) => p.test(text)))
+        assert.fail(`${talkId} ${where} names ${name.id}, who may be absent`)
+  }
+  for (const talk of TALKS) {
+    const base = new Set([talk.follower])
+    if (talk.requires?.follower) base.add(talk.requires.follower)
+    // A beat may assume whoever every answer leading into it waited on.
+    const beatGates = new Map<string, Set<string>>()
+    const visit = (
+      options: readonly AudienceOption[],
+      present: Set<string>,
+      where: string,
+    ) => {
+      for (const option of options) {
+        const gated = new Set(present)
+        if (option.requires?.follower) gated.add(option.requires.follower)
+        checkNames(talk.id, `${where}/${option.id}`, option.label, gated)
+        checkNames(talk.id, `${where}/${option.id}`, option.response, gated)
+        if (!option.next) continue
+        const before = beatGates.get(option.next)
+        beatGates.set(
+          option.next,
+          before ? new Set([...before].filter((id) => gated.has(id))) : gated,
+        )
+      }
+    }
+    talk.lines.forEach((line, i) =>
+      checkNames(talk.id, `line ${i}`, textOf(line), base),
+    )
+    visit(talk.options, base, 'opening')
+    // Beats only lead forward (checked above), so a few passes settle them.
+    for (let pass = 0; pass < (talk.beats ?? []).length; pass += 1)
+      for (const beat of talk.beats ?? []) {
+        const present = beatGates.get(beat.id)
+        if (!present) continue
+        beat.lines.forEach((line, i) =>
+          checkNames(talk.id, `${beat.id} line ${i}`, textOf(line), present),
+        )
+        visit(beat.options, present, beat.id)
+      }
+  }
+
+  // A player who sits with someone every day finds someone with something to
+  // say on most days. Measured 2026-10-21 over 13 balance policies x 5 seeds,
+  // talking to the follower whose talk has waited longest: before t-042,
+  // 64.7% of days with a full barracks (longest dry spell 9 days) and 35.1%
+  // with only the four starters (19 days). After: 96.3% and 86.9%, and never
+  // more than three dry days running. The floors below sit under those.
+  const sitDaily = (seed: number, recruits: boolean) => {
+    let run = createRun(seed)
+    const days: boolean[] = []
+    const open = (options: readonly AudienceOption[]) =>
+      options.find(
+        (option) =>
+          optionVisible(run, option) &&
+          optionBlockers(run, option).length === 0,
+      )
+    while (!isOver(run)) {
+      for (const id of recruits ? [...run.recruitable] : []) {
+        try {
+          run = recruit(run, id)
+        } catch {
+          try {
+            run = recruit(upgradeBeds(run), id)
+          } catch {
+            // No bed or no brass: the offer waits.
+          }
+        }
+      }
+      for (const audience of audiencesToday(run))
+        for (let beat = 0; beat < 8; beat += 1) {
+          if (run.audiencesHeard.includes(audience.id)) break
+          const option = open(audienceScene(run, audience).options)
+          if (!option) break
+          run = chooseAudienceOption(run, audience.id, option.id).run
+        }
+      const waiting = run.roster
+        .map((state) => talkFor(run, state.id))
+        .filter((talk) => !!talk)
+        .sort((a, b) => a.fromDay - b.fromDay)
+      days.push(waiting.length > 0)
+      const talk = waiting[0]
+      for (let beat = 0; talk && beat < 8; beat += 1) {
+        if ((run.talksHeard ?? []).includes(talk.id)) break
+        const option = open(talkScene(run, talk).options)
+        if (!option) break
+        run = chooseTalkOption(run, talk.id, option.id).run
+      }
+      for (const entry of [...run.board]) {
+        const quest = questDef(entry.questId)!
+        const ready = run.roster
+          .map((state) => state.id)
+          .filter((id) => followerStatus(run, id) === 'ready')
+        const party = quest.mustInclude
+          ? [
+              quest.mustInclude,
+              ...ready.filter((id) => id !== quest.mustInclude),
+            ]
+          : ready
+        if (quest.mustInclude && !ready.includes(quest.mustInclude)) continue
+        if (party.length < quest.party.min) continue
+        const picked = party.slice(0, quest.party.min)
+        if (previewQuest(run, quest.id, picked).chance < 45) continue
+        try {
+          run = assignQuest(run, entry.questId, picked)
+        } catch {
+          // A party the engine refuses stays home.
+        }
+      }
+      run = finishDay(run).run
+    }
+    let dry = 0
+    let longest = 0
+    for (const talked of days) {
+      dry = talked ? 0 : dry + 1
+      longest = Math.max(longest, dry)
+    }
+    return { share: days.filter(Boolean).length / days.length, longest }
+  }
+  for (const seed of [1, 2, 3]) {
+    const full = sitDaily(seed, true)
+    assert.ok(full.share >= 0.9, `seed ${seed}: talks on ${full.share} of days`)
+    assert.ok(full.longest <= 3, `seed ${seed}: ${full.longest} dry days`)
+    const starters = sitDaily(seed, false)
+    assert.ok(
+      starters.share >= 0.8,
+      `seed ${seed}, starters only: talks on ${starters.share} of days`,
+    )
+    assert.ok(starters.longest <= 3, `seed ${seed}: ${starters.longest} dry`)
+  }
+}
+
 // --- a whole campaign, with saves and rewinds --------------------------------
 let book = newBook(createRun(31337))
 let runs = 0

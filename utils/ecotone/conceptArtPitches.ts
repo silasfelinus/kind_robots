@@ -214,6 +214,11 @@ export function callbackArtPitches(): ConceptArtPitch[] {
     mustNotImply: [
       ...NEVER_ASSUME,
       'Do not show the paired alternate choice or a universal county-wide outcome from this one action.',
+      ...(callback.choice === 'investigate-failure'
+        ? [
+            'This investigation failed. Do not depict a confirmed measurement, a recovered object or a solved mystery that the failed roll did not earn.',
+          ]
+        : []),
     ],
     sourceConditions: [`played:${callback.id}`, `flag:${callback.flag}`],
     altTextDraft: `Because this choice was earned: ${callback.artMoment}`,

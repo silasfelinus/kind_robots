@@ -116,6 +116,12 @@
       >
         {{ candles.source }}: {{ candles.text }}
       </p>
+      <p
+        v-if="courting"
+        class="border-l-2 border-warning/70 pl-3 text-xs font-semibold text-warning"
+      >
+        {{ courting.source }}: {{ courting.text }}
+      </p>
       <p v-if="!today" class="text-sm opacity-75">
         No dispatches came up the road for Day {{ run.day }}. The wasteland’s
         daily chores still reach the quest room.
@@ -140,6 +146,7 @@ import {
   komodoLiesInHindsight,
 } from '~/utils/emperorOfDust/fortress/briefings'
 import { candlesLine } from '~/utils/emperorOfDust/fortress/endings'
+import { komodoCourtingLine } from '~/utils/emperorOfDust/fortress/betrayal'
 import { dayDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   briefingMapLine,
@@ -158,6 +165,8 @@ const mapLine = computed(() => briefingMapLine(props.run))
 const lines = computed(() => dayLines(props.run, today.value))
 /** From Day 45: the Hundred Candles rule and today's count. */
 const candles = computed(() => candlesLine(props.run))
+/** Days 37-40: who Young Komodo sits up with (t-041). */
+const courting = computed(() => komodoCourtingLine(props.run))
 /** Today's reports as this run reads them (flag-keyed variants applied). */
 const reports = computed(() => dayBriefings(props.run, today.value) ?? [])
 /** After the betrayal: every report that was Komodo's own lie. */

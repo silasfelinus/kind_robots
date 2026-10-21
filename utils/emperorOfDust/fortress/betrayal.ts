@@ -13,7 +13,7 @@
 //   without hands;
 // - what the court lives on in hiding: the host's share, not the regions'
 //   taxes, and half wages, because the host feeds the court.
-import { affinityTier } from './factions'
+import { KINGDOM_FACTION_DEFS, affinityTier } from './factions'
 import { followerDef } from './followers'
 import { TALKS } from './talks'
 import { AFFINITY_TIERS, variantText } from './types'
@@ -180,6 +180,11 @@ export const MIN_LEFT = 4
 export const NEGLECT_JOINED_BY = BETRAYAL_DAY - 11
 /** Local support at or below this: the follower's people are losing faith. */
 export const LOCAL_CROSSED = 5
+/**
+ * How far below where it started a kingdom faction must fall, by the crown's
+ * hand, before a follower born to it goes home to it (t-041).
+ */
+export const KIN_FALL = 20
 
 const ROMANCE_NAMES: Record<string, string> = {
   F001: 'rook',
@@ -258,6 +263,29 @@ export const peopleCrossed = (
     : 'are wary of the crown'
 }
 
+/**
+ * The crown turned the follower's own people against it (t-041): a fortress
+ * faction losing faith, a kingdom faction gone from the map, Hostile, or Wary
+ * and at least KIN_FALL below where it stood on Day 1. A people who were
+ * always wary of the crown do not count; a people the crown made wary do.
+ * Followers estranged from their people feel no pull.
+ */
+export const peopleBroken = (
+  run: FortressRun,
+  def: FollowerDef,
+): string | null => {
+  const crossed = peopleCrossed(run, def)
+  if (!crossed || def.origin in run.local) return crossed
+  const faction = def.origin as KingdomFactionId
+  if (crossed !== 'are wary of the crown') return crossed
+  const start =
+    KINGDOM_FACTION_DEFS.find((entry) => entry.id === faction)?.startAffinity ??
+    0
+  return run.affinity[faction] <= start - KIN_FALL
+    ? 'turned wary of the crown'
+    : null
+}
+
 export type DepartureCheck =
   { why: DepartureWhy } | { why: null; kept?: 'away' | 'romance' | 'story' }
 
@@ -272,6 +300,9 @@ export const departureCheck = (
   if (run.active.some((quest) => quest.party.includes(state.id)))
     return { why: null, kept: 'away' }
   if (romanceSealed(run, state.id)) return { why: null, kept: 'romance' }
+  // Sitting with someone does not outweigh turning their people (t-041).
+  if (talksHeardWith(run, state.id) > 0 && peopleBroken(run, def))
+    return { why: 'kin' }
   if (storyHeard(run, state.id)) return { why: null, kept: 'story' }
   if (allegianceTo(def, BUYERS[buyer].faction)) return { why: 'allegiance' }
   if (
@@ -284,7 +315,7 @@ export const departureCheck = (
 }
 
 /**
- * Who goes: allegiance before neglect, then in the order they joined; at most
+ * Who goes: allegiance, then kin, then neglect, then in the order they joined; at most
  * MAX_DEPARTURES, and never below MIN_LEFT followers left to the court.
  */
 export const selectDepartures = (
@@ -297,12 +328,78 @@ export const selectDepartures = (
     const check = departureCheck(run, buyer, state)
     return check.why ? [{ followerId: state.id, why: check.why }] : []
   })
-  const rank = (why: DepartureWhy) => (why === 'allegiance' ? 0 : 1)
+  const rank = (why: DepartureWhy) =>
+    why === 'allegiance' ? 0 : why === 'kin' ? 1 : 2
   return leaving
     .map((entry, i) => ({ entry, i }))
     .sort((a, b) => rank(a.entry.why) - rank(b.entry.why) || a.i - b.i)
     .slice(0, room)
     .map(({ entry }) => entry)
+}
+
+// --- Komodo's last recruit (t-041) -------------------------------------------
+//
+// Three persona campaigns sat with everyone and lost nobody: the betrayal cost
+// nothing personal. Komodo was the emperor's advisor. He knows who the emperor
+// trusts. If nobody else goes with him, he sits up with the follower the
+// emperor sat with most, and that follower goes. It is always someone the
+// player knows, it is named days ahead, and three things stop it: Komodo held
+// in the cells or followed on the last night, a sealed romance, or that
+// follower away on a quest when the gate opens.
+
+/** Last-night answers that leave Komodo no hour alone with anyone. */
+export const KOMODO_WATCHED: readonly string[] = [
+  'd40-komodo-held',
+  'd40-komodo-followed',
+]
+/** From this day the briefing names who Komodo is sitting up with. */
+export const COURTING_FROM_DAY = BETRAYAL_DAY - 4
+/** Only someone at court since this day: long enough to be known. */
+export const COURTED_JOINED_BY = BETRAYAL_DAY - 11
+
+/**
+ * The follower Komodo is working on: the one the emperor sat with most (at
+ * least once), never a sealed romance; earliest at court breaks a tie.
+ * `ignoreAway` reads the court as the briefing sees it, before quests ride.
+ */
+export const komodoCourts = (
+  run: FortressRun,
+  ignoreAway = false,
+): string | undefined => {
+  if (KOMODO_WATCHED.some((flag) => run.flags.includes(flag))) return undefined
+  const present = run.roster.filter((state) => !state.dead && !state.departed)
+  if (present.length <= MIN_LEFT) return undefined
+  return present
+    .filter(
+      (state) =>
+        state.joinedDay <= COURTED_JOINED_BY &&
+        !romanceSealed(run, state.id) &&
+        (ignoreAway ||
+          !run.active.some((quest) => quest.party.includes(state.id))) &&
+        talksHeardWith(run, state.id) > 0,
+    )
+    .map((state, i) => ({ state, i, heard: talksHeardWith(run, state.id) }))
+    .sort((a, b) => b.heard - a.heard || a.i - b.i)[0]?.state.id
+}
+
+/**
+ * The briefing's warning from Day 37: who Komodo sits up with, and what
+ * would keep them. Silent once he is watched, or nobody fits.
+ */
+export const komodoCourtingLine = (
+  run: FortressRun,
+): { source: string; text: string } | undefined => {
+  if (run.day < COURTING_FROM_DAY || run.day >= BETRAYAL_DAY) return undefined
+  const id = komodoCourts(run, true)
+  const def = id ? followerDef(id) : undefined
+  if (!def) return undefined
+  const words = PRONOUNS[def.pronouns] ?? PRONOUNS['they/them']!
+  const nights = run.day - COURTING_FROM_DAY + 1
+  const count = ['One night', 'Two nights', 'Three nights', 'Four nights']
+  return {
+    source: 'The barracks',
+    text: `Young Komodo has sat up late with ${def.name}. ${count[nights - 1] ?? 'Every night'} now, the lamp low, the ledger shut between them. Nobody hears what he says. ${words.subj} ${words.subj === 'They' ? 'laugh' : 'laughs'} once, quietly, and then ${words.subj === 'They' ? 'do' : 'does'} not.`,
+  }
 }
 
 /**
@@ -321,6 +418,9 @@ export const applyBetrayal = (
   const buyer = selectBuyer(run)
   run.flags.push(`buyer:${buyer}`)
   const departed = selectDepartures(run, buyer)
+  // Nobody else went: Komodo takes the one he sat up with (t-041).
+  const courted = departed.length ? undefined : komodoCourts(run)
+  if (courted) departed.push({ followerId: courted, why: 'persuaded' })
   for (const { followerId, why } of departed) {
     const state = run.roster.find((entry) => entry.id === followerId)
     if (!state) continue
@@ -392,6 +492,15 @@ export const departureReason = (
   }
   const state = run.roster.find((entry) => entry.id === followerId)
   const days = BETRAYAL_DAY - (state?.joinedDay ?? 1)
+  if (why === 'persuaded') {
+    const heard = talksHeardWith(run, followerId)
+    const times =
+      ['once', 'twice', 'three times', 'four times', 'five times'][heard - 1] ??
+      'more times than you counted'
+    return `You sat with ${words.obj} ${times}. Young Komodo sat with ${words.obj} the last night. ${words.subj} went.`
+  }
+  if (why === 'kin')
+    return `You sat with ${words.obj}. ${words.poss} people ${peopleBroken(run, def) ?? peopleCrossed(run, def) ?? 'are gone'}. ${words.subj} went to them.`
   const people = peopleCrossed(run, def) ?? 'owe the crown nothing'
   return `${days} days at court. Nobody sat with ${words.obj} once. ${words.poss} people ${people}.`
 }

@@ -83,6 +83,12 @@ export const BAND_NEED: Record<Band, number> = {
   high: 16,
   extreme: 22,
 }
+/**
+ * Each act's roads ask more (t-041). A party of three met "high" from Day 3
+ * on, so careful staffing was free; needs now rise with the act the party
+ * rides out in, and gear, aid and the right people matter again.
+ */
+export const ACT_NEED_SCALE: readonly number[] = [1, 1.15, 1.3, 1.4, 1.5]
 const INJURY_CHANCE: Record<
   QuestDef['danger'],
   Record<QuestResultTier, number>
@@ -91,6 +97,15 @@ const INJURY_CHANCE: Record<
   low: { triumph: 0, success: 0, partial: 20, failure: 40 },
   mid: { triumph: 0, success: 10, partial: 35, failure: 60 },
   high: { triumph: 5, success: 20, partial: 50, failure: 80 },
+}
+/**
+ * On a lethal quest, the chance a deep wound (5+ days) kills instead (t-041),
+ * by result. A failure was 35% and a partial never killed, so lethal quests
+ * showed 0-4% and nobody died in three full campaigns. One death at most.
+ */
+export const LETHAL_BLOW: Partial<Record<QuestResultTier, number>> = {
+  failure: 40,
+  partial: 12,
 }
 export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   none: [0, 0],
@@ -110,6 +125,26 @@ const clamp = (value: number, low: number, high: number): number =>
   Math.max(low, Math.min(high, value))
 
 export const actOf = (day: number): number => clamp(Math.ceil(day / 10), 1, 5)
+
+/**
+ * A lethal road asks this much more again (t-041): the best party the court
+ * could field still went out at 95% to quests that can kill. Roads that carry
+ * standing aid (the Day 50 roads and FINALE_AID) are exempt: there, ten days
+ * of preparation decide the odds, not an extra quarter.
+ */
+export const LETHAL_NEED_SCALE = 1.25
+
+/** Whether a quest's needs take LETHAL_NEED_SCALE. */
+export const lethalScaled = (quest: QuestDef): boolean =>
+  !!quest.lethal && !quest.aid?.length
+
+/** What a band asks of a party riding out on `day` (t-041). */
+export const bandNeed = (band: Band, day: number, lethal = false): number =>
+  Math.round(
+    BAND_NEED[band] *
+      (ACT_NEED_SCALE[actOf(day) - 1] ?? 1) *
+      (lethal ? LETHAL_NEED_SCALE : 1),
+  )
 
 export const isOver = (run: FortressRun): boolean => run.day > LAST_DAY
 
@@ -193,18 +228,49 @@ export const postDawnQuests = (run: FortressRun): void => {
     .map((audience) => audience.id)
 }
 
+/** A chore is posted at most this many times a run (t-041). */
+export const CHORE_POSTINGS = 2
+
+/** The template a chore instance (`id@day`) was drawn from. */
+export const choreOf = (questId: string): string => questId.split('@')[0] ?? ''
+
+/** Instances of a chore posted this run: on the board, out, or come home. */
+export const chorePostings = (run: FortressRun, templateId: string): number =>
+  [
+    ...run.board.map((entry) => entry.questId),
+    ...run.active.map((entry) => entry.questId),
+    ...run.reports.flatMap((report) =>
+      report.quests.map((entry) => entry.questId),
+    ),
+  ].filter((id) => isTemplateInstance(id) && choreOf(id) === templateId).length
+
+/** Whether a chore can be drawn today (t-041). */
+export const choreOpen = (run: FortressRun, template: QuestDef): boolean => {
+  const posted = [...run.board, ...run.active].map((entry) => entry.questId)
+  return (
+    (!template.faction ||
+      (run.revealedFactions.includes(template.faction) &&
+        !run.wipedOut.includes(template.faction))) &&
+    (!template.days ||
+      (run.day >= template.days[0] && run.day <= template.days[1])) &&
+    // Never two copies at once, never a third posting, never beside its twin.
+    !posted.some(
+      (id) => isTemplateInstance(id) && choreOf(id) === template.id,
+    ) &&
+    chorePostings(run, template.id) < CHORE_POSTINGS &&
+    !(template.shuns ?? []).some((id) => posted.includes(id))
+  )
+}
+
 /**
  * Authored days draw one seeded chore, unscripted days draw two. A faction's
  * chores only appear once its banner is on the map, and stop if it is wiped out.
+ * Each chore keeps to its days, is posted at most twice, and never beside a
+ * copy of itself (t-041).
  */
 const drawTemplates = (run: FortressRun): void => {
   const draws = dayDef(run.day) ? 1 : 2
-  const pool = QUEST_TEMPLATES.filter(
-    (template) =>
-      !template.faction ||
-      (run.revealedFactions.includes(template.faction) &&
-        !run.wipedOut.includes(template.faction)),
-  )
+  const pool = QUEST_TEMPLATES.filter((template) => choreOpen(run, template))
   for (let i = 0; i < draws && pool.length; i += 1) {
     const index = rollFor(run, `dawn:${run.day}:${i}`) % pool.length
     const [template] = pool.splice(index, 1)
@@ -843,8 +909,23 @@ const contribution = (
   stat: Stat,
   quest: QuestDef,
   known: readonly string[] | 'all',
-): number => {
+): number => contributionOf(run, member, stat, quest, known).value
+
+/**
+ * A member's share of one need, and how much of it the court cannot see yet:
+ * the size of every trait that applies here and the Codex has not read
+ * (t-041). The roll counts those traits; an honest preview has to allow for
+ * them either way, without saying which way they cut.
+ */
+const contributionOf = (
+  run: FortressRun,
+  member: Member,
+  stat: Stat,
+  quest: QuestDef,
+  known: readonly string[] | 'all',
+): { value: number; unread: number } => {
   let value = member.def.stats[stat]
+  let unread = 0
   for (const id of Object.values(member.state.equipment)) {
     const item = id ? itemDef(id) : undefined
     value += item?.stats?.[stat] ?? 0
@@ -854,8 +935,9 @@ const contribution = (
   for (const trait of member.def.traits) {
     if (!traitApplies(trait, quest)) continue
     if (known === 'all' || traitKnown(run, trait, known)) value += trait.amount
+    else unread += Math.abs(trait.amount)
   }
-  return Math.max(0, value)
+  return { value: Math.max(0, value), unread }
 }
 
 // --- market edges (t-024) ----------------------------------------------------
@@ -873,16 +955,23 @@ export const marketEdge = (
   return matches ? edge.amount : 0
 }
 
+/**
+ * Success chance from how far a party meets each need (t-041). Meeting every
+ * need exactly is a 75% call; it takes half again on every need to reach the
+ * 95% ceiling. (It was 90% at bare need and 95% at a quarter over, so the
+ * best party was always a safe call.)
+ */
+export const CHANCE_AT_NEED = 75
 const chanceFrom = (ratios: number[]): number => {
   if (!ratios.length) return 95
   const met =
     ratios.reduce((sum, ratio) => sum + Math.min(1, ratio), 0) / ratios.length
   const over =
     ratios.reduce(
-      (sum, ratio) => sum + Math.max(0, Math.min(1.25, ratio) - 1),
+      (sum, ratio) => sum + Math.max(0, Math.min(1.5, ratio) - 1),
       0,
     ) / ratios.length
-  return clamp(Math.round(10 + 80 * met + 20 * over), 5, 95)
+  return clamp(Math.round(5 + (CHANCE_AT_NEED - 5) * met + 40 * over), 5, 95)
 }
 
 const partyRatios = (
@@ -946,6 +1035,37 @@ export const aidResolution = (
       (a, b) => TIER_RANK.indexOf(b.resolve!) - TIER_RANK.indexOf(a.resolve!),
     )[0]
 
+/**
+ * A chore's dawn line (t-041): its authored line and its `outcomeAlts` take
+ * turns, starting from a seeded line, so a chore's second trip home never
+ * repeats its first. Authored quests read questOutcomeText as before.
+ */
+const resultText = (
+  run: FortressRun,
+  questId: string,
+  quest: QuestDef,
+  tier: QuestReport['tier'],
+): string => {
+  const base = questOutcomeText(run, quest, tier)
+  if (!isTemplateInstance(questId)) return base
+  const alts =
+    quest.outcomeAlts?.[tier] ??
+    (tier === 'triumph' && !quest.outcomes.triumph
+      ? quest.outcomeAlts?.success
+      : undefined)
+  if (!alts?.length) return base
+  const lines = [base, ...alts]
+  const earlier = run.reports
+    .flatMap((report) => report.quests)
+    .filter(
+      (entry) =>
+        entry.questId !== questId &&
+        isTemplateInstance(entry.questId) &&
+        choreOf(entry.questId) === quest.id,
+    ).length
+  return lines[(rollFor(run, `text:${quest.id}`) + earlier) % lines.length]!
+}
+
 /** The dawn line for a quest result, as this run's flags read it. */
 export const questOutcomeText = (
   run: Pick<FortressRun, 'flags'>,
@@ -972,6 +1092,13 @@ const evaluate = (
   const aid = members.length
     ? aidTotals(run, quest)
     : quest.requirements.map(() => 0)
+  const unread = quest.requirements.map((req) =>
+    members.reduce(
+      (sum, member) =>
+        sum + contributionOf(run, member, req.stat, quest, known).unread,
+      0,
+    ),
+  )
   const totals = quest.requirements.map((req, i) => {
     const base = members.reduce(
       (sum, member) => sum + contribution(run, member, req.stat, quest, known),
@@ -984,7 +1111,7 @@ const evaluate = (
       .reduce((sum, { def }) => sum + def.stats.wits, 0)
     return base + undermine + (aid[i] ?? 0)
   })
-  return { abilities, juryRig, totals, aid }
+  return { abilities, juryRig, totals, aid, unread }
 }
 
 export const previewQuest = (
@@ -997,7 +1124,7 @@ export const previewQuest = (
   const quest = questDef(questId)
   if (!quest) throw new Error(`unknown quest: ${questId}`)
   const members = membersOf(run, party)
-  const { abilities, juryRig, totals, aid } = evaluate(
+  const { abilities, juryRig, totals, aid, unread } = evaluate(
     run,
     quest,
     members,
@@ -1010,34 +1137,47 @@ export const previewQuest = (
   const hiddenIndexes = quest.requirements
     .map((req, i) => (req.hidden && !scouted ? i : -1))
     .filter((i) => i >= 0)
-  const needs = quest.requirements.map((req) => BAND_NEED[req.band])
-  const chanceWith = (override?: Band) =>
+  const needs = quest.requirements.map((req) =>
+    bandNeed(req.band, run.day, lethalScaled(quest)),
+  )
+  // Unread traits shift a need's total by up to their size, either way.
+  const chanceWith = (override?: Band, shift = 0) =>
     chanceFrom(
       partyRatios(
-        totals,
+        totals.map((total, i) => Math.max(0, total + shift * (unread[i] ?? 0))),
         needs.map((need, i) =>
-          override && hiddenIndexes.includes(i) ? BAND_NEED[override] : need,
+          override && hiddenIndexes.includes(i)
+            ? bandNeed(override, run.day, lethalScaled(quest))
+            : need,
         ),
         juryRig,
       ),
     )
-  const estimate = hiddenIndexes.length > 0 && members.length > 0
+  const unreadTraits = members.filter(({ def }) =>
+    def.traits.some(
+      (trait) => traitApplies(trait, quest) && !traitKnown(run, trait, known),
+    ),
+  ).length
+  const estimate =
+    members.length > 0 && (hiddenIndexes.length > 0 || unreadTraits > 0)
   const low = members.length
     ? estimate
-      ? chanceWith('extreme')
+      ? chanceWith(hiddenIndexes.length ? 'extreme' : undefined, -1)
       : chanceWith()
     : 0
   const high = members.length
     ? estimate
-      ? chanceWith('low')
+      ? chanceWith(hiddenIndexes.length ? 'low' : undefined, 1)
       : chanceWith()
     : 0
   const guardian = abilityTotal(abilities, 'guardian')
   const lucky = hasAbility(abilities, 'lucky')
   const luck = lucky ? luckyChance : (c: number) => c
   const baseChance = estimate ? Math.round((low + high) / 2) : low
+  // Wounds and deaths are shown at the bottom of the range: the worst the
+  // court cannot yet rule out (t-041).
   const risk = members.length
-    ? injuryRisk(quest, baseChance, {
+    ? injuryRisk(quest, low, {
         lucky,
         encore: hasAbility(abilities, 'encore'),
         omen: hasAbility(abilities, 'omen'),
@@ -1051,6 +1191,7 @@ export const previewQuest = (
     ...risk,
     chance: luck(baseChance),
     estimate,
+    ...(unreadTraits ? { unread: unreadTraits } : {}),
     low: luck(low),
     high: luck(high),
     perRequirement: quest.requirements.map((req, i) => ({
@@ -1141,10 +1282,13 @@ export const injuryRisk = (
     // Field Surgery can close a short wound before the party is home.
     if (raw - party.surgery > 0) lasting += 1
   }
-  const blow = odds('failure') * (deep / 100) * 0.35
+  const someoneDies = (tier: QuestResultTier) => {
+    const blow = odds(tier) * (deep / 100) * ((LETHAL_BLOW[tier] ?? 0) / 100)
+    return tiers[tier] * (1 - (1 - blow) ** party.size)
+  }
   const death =
     quest.lethal && !party.warden
-      ? tiers.failure * (1 - (1 - blow) ** party.size)
+      ? someoneDies('failure') + someoneDies('partial')
       : 0
   return {
     injuryRisk: Math.round(wounded * lasting),
@@ -1318,7 +1462,9 @@ const resolveQuest = (
   const chance = chanceFrom(
     partyRatios(
       totals,
-      quest.requirements.map((req) => BAND_NEED[req.band]),
+      quest.requirements.map((req) =>
+        bandNeed(req.band, active.departedDay, lethalScaled(quest)),
+      ),
       juryRig,
     ),
   )
@@ -1373,10 +1519,9 @@ const resolveQuest = (
     const lethalBlow =
       quest.lethal &&
       !hasAbility(abilities, 'warden') &&
-      tier === 'failure' &&
       deaths.length === 0 &&
       raw >= 5 &&
-      rollFor(run, `death:${key}:${def.id}`) < 35
+      rollFor(run, `death:${key}:${def.id}`) < (LETHAL_BLOW[tier] ?? 0)
     if (lethalBlow) {
       state.dead = true
       state.deathDay = run.day
@@ -1430,13 +1575,14 @@ const resolveQuest = (
     questId: active.questId,
     tier,
     party: [...active.party],
-    chance,
+    // The chance as the preview showed it: Cave-Luck's second roll included.
+    chance: hasAbility(abilities, 'lucky') ? luckyChance(chance) : chance,
     roll,
     injuries,
     deaths,
     revealedTraits,
     effects,
-    text: questOutcomeText(run, quest, tier),
+    text: resultText(run, active.questId, quest, tier),
   }
 }
 
@@ -1483,7 +1629,7 @@ const expireQuest = (
     ),
   ) as Effects
   applyEffects(run, effects, events)
-  const text = aid?.outcome ?? questOutcomeText(run, quest, tier)
+  const text = aid?.outcome ?? resultText(run, questId, quest, tier)
   markResult(run, questId, tier)
   return {
     questId,
@@ -2079,7 +2225,6 @@ export const finishDay = (
     }
   }
   const map = hiding ? lateMap : actEnd(next)
-  postDawnQuests(next)
   const report: DawnReport = {
     day: next.day,
     quests,
@@ -2091,7 +2236,10 @@ export const finishDay = (
     ...(next.hideout ? { income: 'host' as const } : {}),
     ...(betrayal ? { betrayal } : {}),
   }
+  // The dawn's report is filed before the board is posted, so a quest that
+  // came home tonight counts as posted (t-041: chores at most twice a run).
   next.reports = [...next.reports, report]
+  postDawnQuests(next)
   return { run: next, report }
 }
 

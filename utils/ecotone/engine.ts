@@ -882,8 +882,8 @@ export function restoreRun(raw: unknown): RunState | null {
   const incoming = raw as Partial<RunState>
   // Saves written before the consultation hold must not resurrect held cards
   // in the journal, a fork, a pending result, or the resumed scene.
-  const heldCurrent = typeof incoming.card === 'string' &&
-    isEcotoneReviewHeldCard(incoming.card)
+  const heldCurrent =
+    typeof incoming.card === 'string' && isEcotoneReviewHeldCard(incoming.card)
   const s: Partial<RunState> = {
     ...incoming,
     card: heldCurrent ? null : incoming.card,
@@ -894,18 +894,23 @@ export function restoreRun(raw: unknown): RunState | null {
       ? incoming.played.filter((id) => !isEcotoneReviewHeldCard(id))
       : incoming.played,
     log: Array.isArray(incoming.log)
-      ? incoming.log.filter((entry) => !isEcotoneReviewHeldCard(entry?.source ?? ''))
+      ? incoming.log.filter(
+          (entry) => !isEcotoneReviewHeldCard(entry?.source ?? ''),
+        )
       : incoming.log,
     evidence: Array.isArray(incoming.evidence)
-      ? incoming.evidence.filter((entry) => entry !== 'A latitude from another county')
+      ? incoming.evidence.filter(
+          (entry) => entry !== 'A latitude from another county',
+        )
       : incoming.evidence,
     flags: Array.isArray(incoming.flags)
       ? incoming.flags.filter((flag) => !flag.startsWith('mad_river_'))
       : incoming.flags,
-    pending: incoming.pending &&
+    pending:
+      incoming.pending &&
       isEcotoneReviewHeldCard(incoming.pending.entry?.source ?? '')
-      ? null
-      : incoming.pending,
+        ? null
+        : incoming.pending,
   }
   if (s.version !== ECOTONE_SAVE_VERSION) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null

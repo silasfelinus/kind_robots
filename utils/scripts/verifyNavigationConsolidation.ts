@@ -484,6 +484,15 @@ const channelStoreSource = source('stores/channelContentStore.ts')
 const pickerSource = source('components/navigation/channel-select.vue')
 const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')
 const accountHubSource = source('components/navigation/account-hub.vue')
+assert.ok(
+  accountHubSource.includes(
+    'class="account-hub static flex min-w-0 justify-center sm:relative"',
+  ) &&
+    accountHubSource.includes('<div class="relative">') &&
+    accountHubSource.includes('class="absolute left-2 right-2 top-full') &&
+    accountHubSource.includes('sm:left-auto sm:right-0 sm:w-80'),
+  'phone account menu must be anchored to the full header while its avatar badge and desktop dropdown keep their own positioning',
+)
 const homePageSource = source('components/home/home-page.vue').replace(/\s+/g, ' ')
 const visitorDirectorySource = source('components/home/home-visitor-directory.vue')
 assert.ok(channelStoreSource.includes('const navigationChannels = computed(() =>'))

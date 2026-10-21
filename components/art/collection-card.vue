@@ -15,7 +15,11 @@
     <template #actions>
       <button
         v-if="
-          !selectionMode && showActions && allowEdit && canEdit && (activeSelected || compact)
+          !selectionMode &&
+          showActions &&
+          allowEdit &&
+          canEdit &&
+          (activeSelected || compact)
         "
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
@@ -27,7 +31,11 @@
 
       <button
         v-if="
-          !selectionMode && showActions && allowDelete && canEdit && (activeSelected || compact)
+          !selectionMode &&
+          showActions &&
+          allowDelete &&
+          canEdit &&
+          (activeSelected || compact)
         "
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
@@ -95,7 +103,10 @@
         "
         aria-hidden="true"
       >
-        <Icon :name="activeSelected ? 'kind-icon:check' : 'kind-icon:plus'" class="kr-icon-4" />
+        <Icon
+          :name="activeSelected ? 'kind-icon:check' : 'kind-icon:plus'"
+          class="kr-icon-4"
+        />
       </div>
 
       <div
@@ -284,7 +295,8 @@ const mediaCollection = computed(() => props.collection as ArtImageCollection)
 const activeSelected = computed(() =>
   props.selectionMode
     ? props.selected
-    : props.selected || collectionStore.currentCollection?.id === props.collection.id,
+    : props.selected ||
+      collectionStore.currentCollection?.id === props.collection.id,
 )
 
 const isHiddenMature = computed(() =>

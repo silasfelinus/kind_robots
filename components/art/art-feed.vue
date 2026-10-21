@@ -81,7 +81,9 @@
       v-if="bulkSelectEnabled"
       class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-primary/30 bg-base-100 p-2"
     >
-      <span class="kr-badge-primary-sm">{{ selectedImageIds.length }} selected</span>
+      <span class="kr-badge-primary-sm"
+        >{{ selectedImageIds.length }} selected</span
+      >
       <button
         type="button"
         class="kr-btn-xs"
@@ -110,10 +112,16 @@
       </button>
     </div>
 
-    <p v-if="batchSuccess" class="kr-note kr-note-success shrink-0 rounded-xl px-3 py-1.5 text-xs">
+    <p
+      v-if="batchSuccess"
+      class="kr-note kr-note-success shrink-0 rounded-xl px-3 py-1.5 text-xs"
+    >
       {{ batchSuccess }}
     </p>
-    <p v-if="batchError" class="kr-note kr-note-error shrink-0 rounded-xl px-3 py-1.5 text-xs">
+    <p
+      v-if="batchError"
+      class="kr-note kr-note-error shrink-0 rounded-xl px-3 py-1.5 text-xs"
+    >
       {{ batchError }}
     </p>
 
@@ -165,15 +173,27 @@
             <button
               type="button"
               class="block h-full w-full"
-              :class="bulkSelectEnabled && isImageSelected(image.id) ? 'ring-4 ring-inset ring-primary' : ''"
+              :class="
+                bulkSelectEnabled && isImageSelected(image.id)
+                  ? 'ring-4 ring-inset ring-primary'
+                  : ''
+              "
               :aria-label="
                 bulkSelectEnabled
                   ? `${isImageSelected(image.id) ? 'Deselect' : 'Select'} ${imageLabel(image)}`
                   : `Open ${imageLabel(image)}`
               "
-              :aria-pressed="bulkSelectEnabled ? isImageSelected(image.id) : undefined"
-              :disabled="isBatchWorking || (bulkSelectEnabled && !canModifyImage(image))"
-              @click="bulkSelectEnabled ? toggleImageSelection(image) : openImage(image)"
+              :aria-pressed="
+                bulkSelectEnabled ? isImageSelected(image.id) : undefined
+              "
+              :disabled="
+                isBatchWorking || (bulkSelectEnabled && !canModifyImage(image))
+              "
+              @click="
+                bulkSelectEnabled
+                  ? toggleImageSelection(image)
+                  : openImage(image)
+              "
             >
               <img
                 :src="image.thumbnailUrl"
@@ -194,10 +214,21 @@
             <span
               v-if="bulkSelectEnabled && canModifyImage(image)"
               class="pointer-events-none absolute left-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-lg border shadow"
-              :class="isImageSelected(image.id) ? 'border-primary bg-primary text-primary-content' : 'border-base-300 bg-base-100/90 text-base-content'"
+              :class="
+                isImageSelected(image.id)
+                  ? 'border-primary bg-primary text-primary-content'
+                  : 'border-base-300 bg-base-100/90 text-base-content'
+              "
               aria-hidden="true"
             >
-              <icon :name="isImageSelected(image.id) ? 'kind-icon:check' : 'kind-icon:plus'" class="kr-icon-4" />
+              <icon
+                :name="
+                  isImageSelected(image.id)
+                    ? 'kind-icon:check'
+                    : 'kind-icon:plus'
+                "
+                class="kr-icon-4"
+              />
             </span>
 
             <button
@@ -397,9 +428,8 @@ async function deleteSelectedImages() {
   batchError.value = ''
   batchSuccess.value = ''
   try {
-    const result = await recycleGalleryImages(
-      ids,
-      (imageId) => artStore.deleteArtImage(imageId),
+    const result = await recycleGalleryImages(ids, (imageId) =>
+      artStore.deleteArtImage(imageId),
     )
     for (const id of result.recycledIds) {
       feedStore.removeImage(id)
@@ -478,7 +508,9 @@ async function deleteImage(imageId: number) {
       return
     }
     feedStore.removeImage(imageId)
-    selectedImageIds.value = selectedImageIds.value.filter((id) => id !== imageId)
+    selectedImageIds.value = selectedImageIds.value.filter(
+      (id) => id !== imageId,
+    )
     if (selectedImage.value?.id === imageId) closeImage()
   } finally {
     deletingImageId.value = null

@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="kr-scroll kr-container max-w-7xl space-y-4 p-4 sm:p-5">
+    <div class="@container kr-scroll kr-container-canvas space-y-3 p-2 sm:p-4">
       <header class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm">
         <NuxtLink v-if="userStore.isAdmin" to="/admin/coat-dance" class="btn btn-primary btn-sm rounded-xl text-primary-content">
           <icon name="kind-icon:video" class="kr-icon-4" />
@@ -123,7 +123,7 @@
         </div>
       </section>
 
-      <section class="grid gap-3 md:grid-cols-2">
+      <section class="grid min-w-0 gap-3 @4xl:grid-cols-2">
         <div class="kr-panel-flat space-y-2 p-3">
           <div class="flex items-center justify-between">
             <label class="font-semibold">
@@ -179,7 +179,7 @@
             </p>
             <div
               v-else
-              class="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-1.5"
+              class="grid max-h-[min(45vh,30rem)] grid-cols-[repeat(auto-fill,minmax(min(100%,7rem),1fr))] gap-2 overflow-y-auto overscroll-contain rounded-xl p-1"
             >
               <button
                 v-for="item in visibleRecentArt"
@@ -230,7 +230,7 @@
           />
           <div
             v-if="firstImage && canShowDraftImages"
-            class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
+            class="relative flex aspect-video min-h-44 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-inner"
           >
             <img
               :src="firstImage"
@@ -269,7 +269,7 @@
           />
           <div
             v-if="secondImage && canShowDraftImages"
-            class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
+            class="relative flex aspect-video min-h-44 items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200 shadow-inner"
           >
             <img
               :src="secondImage"
@@ -721,13 +721,13 @@
             <img
               v-if="videoStore.resultIsImage"
               :src="videoStore.state.videoSrc"
-              class="max-h-[min(47vh,28rem)] w-full rounded-xl bg-black object-contain"
+              class="max-h-[min(65vh,44rem)] w-full rounded-2xl bg-black object-contain"
               alt="Generated animated clip"
             />
             <video
               v-else
               :src="videoStore.state.videoSrc"
-              class="max-h-[min(47vh,28rem)] w-full rounded-xl bg-black object-contain"
+              class="max-h-[min(65vh,44rem)] w-full rounded-2xl bg-black object-contain"
               :loop="loop"
               controls
               muted

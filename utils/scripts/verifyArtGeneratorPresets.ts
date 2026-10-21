@@ -630,6 +630,26 @@ assert.ok(
   'Comfy servers must preserve the SDXL image-to-image engine instead of falling back to another lane',
 )
 
+const benchView = readFileSync('components/art/build-bench.vue', 'utf8')
+assert.ok(benchView.includes('@container kr-container-canvas'))
+assert.ok(benchView.includes('@5xl:grid-cols-2'))
+assert.ok(benchView.includes('aspect-[5/4]'))
+assert.ok(
+  benchView.indexOf('<!-- result -->') <
+    benchView.indexOf('<span class="font-semibold">Engine</span>'),
+)
+
+const stylerView = readFileSync('components/art/art-styler.vue', 'utf8')
+assert.equal(stylerView.split('max-h-[min(50vh,36rem)]').length - 1, 2)
+assert.ok(stylerView.includes('overflow-y-auto overscroll-contain'))
+
+const coloringView = readFileSync('pages/coloring-page.vue', 'utf8')
+assert.ok(coloringView.includes('kr-scroll kr-container-canvas'))
+assert.ok(!coloringView.includes('max-w-4xl'))
+const canvasStyles = readFileSync('assets/css/tailwind.css', 'utf8')
+assert.ok(canvasStyles.includes('.kr-container-canvas'))
+assert.ok(canvasStyles.includes('@apply w-full max-w-none;'))
+
 const bench = readFileSync('stores/buildBenchStore.ts', 'utf8')
 assert.ok(bench.includes("presetId: 'krea2-turbo'"))
 assert.ok(bench.includes("presetId: 'sdxl-distilled'"))

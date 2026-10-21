@@ -7,8 +7,8 @@
   still lives in the Styler tab; this is the one-tap front door.
 -->
 <template>
-  <div class="kr-surface kr-container max-w-4xl">
-    <div class="kr-scroll flex flex-col gap-4 p-4 sm:p-6">
+  <div class="kr-surface h-full min-h-0">
+    <div class="kr-scroll kr-container-canvas flex flex-col gap-3 p-3 sm:p-4">
       <header class="flex items-start gap-3">
         <div
           class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary"
@@ -17,17 +17,16 @@
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
-            <p class="kr-text-black-2xl tracking-tight text-base-content">
+            <p
+              class="text-2xl font-black tracking-tight text-base-content sm:text-3xl"
+            >
               Coloring Page Maker
             </p>
             <span class="kr-badge-primary-sm font-bold">New</span>
           </div>
-          <p class="kr-text-dim-sm max-w-2xl">
-            Turn any photo or finished design into a printable black-and-white
-            coloring page. Upload an image or pick one from your gallery, choose
-            <b class="text-base-content/80">Coloring Page</b> for crisp line art
-            or <b class="text-base-content/80">Bold Coloring</b> for thick,
-            kid-friendly outlines, then generate, download, and print.
+          <p class="kr-text-dim-sm max-w-3xl">
+            Turn a photo or artwork into printable line art. Pick a source,
+            choose your style, and create your next coloring page.
           </p>
         </div>
       </header>

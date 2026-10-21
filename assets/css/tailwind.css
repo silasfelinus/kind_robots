@@ -562,6 +562,11 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply mx-auto w-full max-w-[112rem];
   }
 
+  /* Image-first stages should fill the available workspace, even on ultrawide screens. */
+  .kr-container-canvas {
+    @apply w-full max-w-none;
+  }
+
   /* A titled block of related content — consistent vertical rhythm. */
   .kr-section {
     @apply space-y-4;

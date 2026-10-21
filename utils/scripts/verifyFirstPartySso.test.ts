@@ -187,7 +187,7 @@ assert.match(registrationSource, /password:\s*_password/)
 
 // Registration returns a user, not a token. Login is the only session creator.
 const registerStoreAction = registrationStoreSource.match(
-  /async function register\(userData: RegisterUserData\) \{([\s\S]*?)\n  async function updateUserToken/,
+  /async function register\(userData: RegisterUserData\) \{([\s\S]*?)\n\s+async function updateUserToken/,
 )?.[1]
 assert.ok(registerStoreAction)
 assert.match(registerStoreAction, /['"]\/api\/users\/register['"]/)

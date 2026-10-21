@@ -11,7 +11,8 @@ import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { attachGalleryArchiveMediaPaths } from '../../../utils/artGalleryArchiveMedia'
 import { resolveArtImageSource } from '~/utils/artImageSource'
-import type { RecentArtJobImage } from '~/utils/recentArtImages'
+import type { RecentArtJobImage, RecentArtFilter } from '~/utils/recentArtImages'
+import { viewerShowsMature } from '../../../utils/contentAccess'
 
 const DEFAULT_LIMIT = 24
 const MAX_LIMIT = 60
@@ -31,7 +32,17 @@ export default defineEventHandler(async (event) => {
     const auth = await requireMachineUser(event)
     const query = getQuery(event)
     const limit = readLimit(query.limit)
-    const includeMature = readBoolean(query.showMature)
+    const requestedFilter: RecentArtFilter =
+      query.filter === 'mature'
+        ? 'mature'
+        : query.filter === 'all' || readBoolean(query.showMature)
+          ? 'all'
+          : 'sfw'
+    const preference = await prisma.user.findUnique({
+      where: { id: auth.user.id },
+      select: { showMature: true, Role: true, UserRoles: { select: { role: true } } },
+    })
+    const filter = viewerShowsMature(preference) ? requestedFilter : 'sfw'
 
     const jobs = await prisma.artJob.findMany({
       where: {
@@ -40,7 +51,7 @@ export default defineEventHandler(async (event) => {
         artImageId: { not: null },
       },
       orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
-      take: limit * 2,
+      take: limit * 8,
       select: { id: true, createdAt: true, updatedAt: true, artImageId: true },
     })
 
@@ -56,7 +67,9 @@ export default defineEventHandler(async (event) => {
       where: {
         id: { in: imageIds },
         userId: auth.user.id,
-        ...(includeMature ? {} : { isMature: { not: true } }),
+        ...(filter === 'all'
+          ? {}
+          : { isMature: filter === 'mature' ? true : { not: true } }),
       },
       select: {
         id: true,

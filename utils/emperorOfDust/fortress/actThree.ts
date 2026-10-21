@@ -460,6 +460,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'A Jackalwire runner',
         text: 'Gristle Vane wants an alliance against the riders in plum.',
         truth: true,
+        // t-043: the tincture fee the crown stopped paying on Day 8.
+        variants: [
+          {
+            flags: ['d03-tincture-fee-lapsed'],
+            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the hyena price. Triple, since the crown stopped paying.',
+          },
+        ],
       },
       {
         id: 'verge-peaceful',

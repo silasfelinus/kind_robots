@@ -6400,6 +6400,42 @@ for (const def of DAYS)
     assert.equal(owed.hideout, hideout)
     assert.equal(owed.affinity[faction], angry.affinity[faction] - 5)
   }
+  // In play the Day 46 dawn collects first, then the host comes in person.
+  const owing = onDay(1, HOST_COLLECT_DAY - 1, {
+    hideout: 'mole-tunnels',
+    brass: 0,
+    flags: ['komodo-betrayal', 'hideout:mole-tunnels', 'host-terms-accepted'],
+    dues: [{ id: 'host-due:mole-tunnels', day: HOST_COLLECT_DAY, from: 42 }],
+  })
+  const collected = finishDay(owing).run
+  assert.ok(collected.flags.includes('host-demand-unpaid'))
+  assert.ok(
+    audiencesToday(collected).some((a) => a.id === 'd46-patience-mole-tunnels'),
+    'the unpaid host is at the fire that evening',
+  )
+
+  // (7) Act I's late flags reach later days.
+  const briefing = (day: number, id: string) =>
+    DAYS.find((def) => def.day === day)!.briefings.find((b) => b.id === id)!
+  assert.ok(
+    briefing(31, 'watch-thin').variants?.some((v) =>
+      v.flags?.includes('d10-oath-of-care-broken'),
+    ),
+  )
+  assert.ok(
+    briefing(21, 'vane-offer').variants?.some((v) =>
+      v.flags?.includes('d03-tincture-fee-lapsed'),
+    ),
+  )
+  assert.match(
+    questOutcomeText({ flags: ['d10-promise-broken'] }, thistledown, 'expired'),
+    /Two promises/,
+  )
+  assert.ok(
+    BUYERS['old-houses'].whyVariants?.some((v) =>
+      v.flags?.includes('d10-oath-names-houses'),
+    ),
+  )
   assert.match(
     told(['hideout:nameless-cave', 'd46-host-left'], 'hideout'),
     /walked out/,

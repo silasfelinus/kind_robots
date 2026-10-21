@@ -185,6 +185,13 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
     },
     // t-043: a held Ford sends the riders the long way round.
     outcomeVariants: {
+      // t-043: the second time the crown sends Thistledown nobody (Day 10).
+      expired: [
+        {
+          flags: ['d10-promise-broken'],
+          text: 'The crown chose the other road. Again. On the tenth day it promised every hand and sent none. Hester Plowright counts this with that. Two promises. No hands.',
+        },
+      ],
       success: [
         {
           flags: ['ford-held'],
@@ -405,6 +412,13 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'The Gate Watch',
         text: 'Half the Gate Watch is already on the walls and has not slept.',
         truth: true,
+        // t-043: “never cheaply” was spent on the canyon convoy (Day 11).
+        variants: [
+          {
+            flags: ['d10-oath-of-care-broken'],
+            text: 'Half the Gate Watch is on the walls and has not slept. Dunmark picks the riders for the Ford by lot. He has not sworn anyone to anything since the canyon.',
+          },
+        ],
       },
     ],
     komodo:

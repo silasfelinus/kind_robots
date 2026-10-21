@@ -163,6 +163,11 @@ export const BUYERS: Record<BuyerId, BuyerDef> = {
         flags: ['d37-houses-surety'],
         text: 'The Old Houses stood surety for the crown on the thirty-seventh day, and Komodo signed as witness. He had paid Lady Vask’s house for two years. The crown lost them anyway.',
       },
+      {
+        // t-043: the Day 10 oath named the Houses beside the crown.
+        flags: ['d10-oath-names-houses'],
+        text: 'On the tenth day the Watch swore to the crown and to the Houses that fed it. On the last night the Houses called in their half. The young sentries who had said Lady Vask’s name stood aside for her sons.',
+      },
     ],
   },
 }

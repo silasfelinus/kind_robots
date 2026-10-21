@@ -618,8 +618,11 @@ const recentArtRoute = readFileSync(
   'utf8',
 )
 assert.ok(recentArtRoute.includes('userId: auth.user.id,'))
+assert.ok(recentArtRoute.includes('viewerShowsMature(preference)'))
 assert.ok(
-  recentArtRoute.includes('includeMature ? {} : { isMature: { not: true } }'),
+  recentArtRoute.includes(
+    "filter === 'mature' ? true : { not: true }",
+  ),
 )
 const videoGeneratorPage = readFileSync(
   'pages/play/video-generator.vue',
@@ -627,7 +630,7 @@ const videoGeneratorPage = readFileSync(
 )
 assert.ok(videoGeneratorPage.includes('route.query.artImageId'))
 assert.ok(
-  /if \(frame\.isMature\) \{\s*isMature\.value = true\s*isPublic\.value = false/.test(
+  /if \(frame\.isMature\) \{\s*if \(!userStore\.showMature\) return\s*isMature\.value = true\s*isPublic\.value = false/.test(
     videoGeneratorPage,
   ),
 )

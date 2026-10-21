@@ -314,7 +314,11 @@
                   : activeGroupKey === group.key
               "
               :selection-mode="collectionBulkSelectEnabled"
-              :earned-karma="earnedKarmaByCollectionId[group.id]"
+              :earned-karma="
+                collectionBulkSelectEnabled
+                  ? undefined
+                  : earnedKarmaByCollectionId[group.id]
+              "
               :compact="viewSize === 'xs' || viewSize === 'sm'"
               :show-stats="false"
               :show-select-button="collectionBulkSelectEnabled"

@@ -17,14 +17,16 @@
         </div>
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-center gap-2">
-            <p class="text-2xl font-black tracking-tight text-base-content sm:text-3xl">
+            <p
+              class="text-2xl font-black tracking-tight text-base-content sm:text-3xl"
+            >
               Coloring Page Maker
             </p>
             <span class="kr-badge-primary-sm font-bold">New</span>
           </div>
           <p class="kr-text-dim-sm max-w-3xl">
-            Turn a photo or artwork into printable line art. Pick a source, choose
-            your style, and create your next coloring page.
+            Turn a photo or artwork into printable line art. Pick a source,
+            choose your style, and create your next coloring page.
           </p>
         </div>
       </header>

@@ -87,6 +87,8 @@ const resubmitRoute = readFileSync(
 
 assert.match(getRoute, /userId: auth\.user\.id/)
 assert.match(getRoute, /pageCount/)
+assert.match(getRoute, /isMatureByImageId/)
+assert.match(getRoute, /userId: auth\.user\.id/)
 assert.match(deleteRoute, /userId: auth\.user\.id/)
 assert.match(deleteRoute, /status: \{ in: \['DONE', 'FAILED', 'CANCELLED'\] \}/)
 assert.match(resubmitRoute, /userId: auth\.user\.id/)

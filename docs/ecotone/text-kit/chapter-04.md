@@ -387,7 +387,7 @@
 **Option A, investigate (visible 9 check):** Check the lettering against flood marks and ask the named person what, if anything, she consents to share
 
 - **Pass:** A current scar runs under the carved letters; the timing is strange, not a confession. You document the wood without adding a theory about her life.
-- **Miss:** The water pulls the board away before you measure it. The witness keeps a photograph, and you can corroborate the rising-water time.
+- **Miss:** The river takes the board before you can measure the letters. Someone has already posted the witness's name with a theory she did not approve. She keeps her photograph and asks you to list what is still unverified; you help her write a correction request, not another ghost story.
 
 **Option B, assist without a check:** Help stop the rumor and get the witness safely away from the bank
 
@@ -398,7 +398,7 @@
 - `cards/wh-074`: A message in driftwood names a witness who was never present. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-074/2`: Driftwood spells the name of a witness who insists she has never stood on this riverbank. A neighbor has already started accusing her of hiding something. She wants the board removed before the rumor reaches her workplace. The people and location must match the opening.
 - `outcomes/wh-074/investigate-success`: A current scar runs under the carved letters; the timing is strange, not a confession. You document the wood without adding a theory about her life. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-074/investigate-failure`: The water pulls the board away before you measure it. The witness keeps a photograph, and you can corroborate the rising-water time. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-074/investigate-failure`: The river takes the board before you can measure the letters. Someone has already posted the witness's name with a theory she did not approve. She keeps her photograph and asks you to list what is still unverified; you help her write a correction request, not another ghost story. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-074/care-success`: The neighbor retracts the accusation and the witness goes home. The river offers no apology, but it does stop spelling names for an hour. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_074_verified`, `wh_074_partial`, `wh_074_care` (mutually exclusive results of this card).

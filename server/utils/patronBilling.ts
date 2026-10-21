@@ -22,7 +22,9 @@ type PatronInvoiceSnapshot = {
   subscription?: StripeSubscriptionReference
 }
 
-export function paidPatronInvoiceSubscriptionId(invoice: unknown): string | null {
+export function paidPatronInvoiceSubscriptionId(
+  invoice: unknown,
+): string | null {
   if (!invoice || typeof invoice !== 'object') return null
 
   const row = invoice as PatronInvoiceSnapshot
@@ -39,8 +41,7 @@ export function paidPatronInvoiceSubscriptionId(invoice: unknown): string | null
   )
     return null
 
-  const sub =
-    row.parent?.subscription_details?.subscription ?? row.subscription
+  const sub = row.parent?.subscription_details?.subscription ?? row.subscription
 
   if (typeof sub === 'string') return sub.startsWith('sub_') ? sub : null
   if (sub && typeof sub.id === 'string' && sub.id.startsWith('sub_'))
@@ -48,9 +49,10 @@ export function paidPatronInvoiceSubscriptionId(invoice: unknown): string | null
   return null
 }
 
-export function checkoutHasPaidSubscription(
-  session: { mode?: string | null; payment_status?: string | null },
-): boolean {
+export function checkoutHasPaidSubscription(session: {
+  mode?: string | null
+  payment_status?: string | null
+}): boolean {
   return session.mode === 'subscription' && session.payment_status === 'paid'
 }
 

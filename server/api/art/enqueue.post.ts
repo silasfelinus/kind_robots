@@ -1190,10 +1190,10 @@ function buildVideoJobPayload(
     lastImageName = last.name
     images.push(last)
   }
-  if (!firstImageName) {
+  if (!firstImageName && !(isWan && body.videoWanMode === 'ti2v' && !lastImageName)) {
     throw createError({
       statusCode: 400,
-      message: 'Video generation needs at least a first image.',
+      message: 'Select a first image, or choose WAN TI2V for prompt-only video.',
     })
   }
 

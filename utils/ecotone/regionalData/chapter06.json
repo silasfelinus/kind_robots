@@ -117,7 +117,7 @@
     "success": "The map's shifting edge points to a lost survey peg, but the legal route is unchanged. The mechanic marks both on a separate sketch.",
     "failure": "The paper tears and takes the supposed shortcut with it. A sand-streaked photograph still shows the official markers intact.",
     "help": "Help the team follow the safe course without crossing habitat closures",
-    "helpOutcome": "The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the turtles out of trouble."
+    "helpOutcome": "The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the dune grass out of trouble."
   },
   {
     "id": "WH-109",

@@ -453,7 +453,9 @@ export const useCartStore = defineStore('cartStore', () => {
       return {
         success: false,
         message:
-          error instanceof Error ? error.message : 'Could not open secure billing',
+          error instanceof Error
+            ? error.message
+            : 'Could not open secure billing',
       }
     } finally {
       loading.value = false

@@ -263,7 +263,11 @@ function stream() {
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (court.textSpeed === 'instant' || reduced || court.preferences.motion === 'reduced') {
+  if (
+    court.textSpeed === 'instant' ||
+    reduced ||
+    court.preferences.motion === 'reduced'
+  ) {
     visible.value = scene.value.text.length
     return
   }

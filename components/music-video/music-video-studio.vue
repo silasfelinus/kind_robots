@@ -278,6 +278,7 @@ onMounted(async () => {
   await store.loadList()
   const id = routeVideoId()
   if (id && id !== store.current?.id) await store.select(id)
+  else if (!id && store.current) store.close()
   // Renders finish on the Comfy box while the page is open; check on them.
   store.startWatching()
   ready.value = true

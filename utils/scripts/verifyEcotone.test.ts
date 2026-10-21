@@ -787,6 +787,29 @@ assert.match(
   /rrriver|rrriver|rrriver|rrriver/,
 )
 assert.equal(frequent.openingState, 'sober')
+let dailyHabit = momentBase
+for (const day of [1, 2, 3, 4]) {
+  dailyHabit = chooseSubstanceMoment(
+    { ...dailyHabit, day, card: `WH-00${day + 2}` },
+    ['alcohol'],
+  )
+}
+assert.equal(
+  substanceSummary(dailyHabit.substanceMoments).counts.alcohol,
+  4,
+  'daily repetition is a recorded habit',
+)
+assert.equal(
+  substanceSummary(dailyHabit.substanceMoments).maxAlcoholStreak,
+  1,
+  'one drink on separate days is not acute overindulgence',
+)
+assert.doesNotMatch(
+  substanceSceneLine(dailyHabit.substanceMoments, 4) ?? '',
+  /bridgebridge|rrriver/,
+)
+
+
 assert.equal(computeEnding(frequent).id, computeEnding(momentBase).id)
 const nextCard = findCard('WH-008')!
 const impairedScene = { ...frequent, card: nextCard.id }

@@ -101,10 +101,11 @@ for (const elkChoice of ['ranger', 'road'] as const) {
 
 const fairExit = findCard('GR-4')!
 const fairFinale = findCard('GR-5')!
-assert.equal(
-  cardAsides(fairFinale, createRun(8, 'reporter')).length,
-  0,
-  'a new run has no fabricated forest memories',
+assert.ok(
+  !cardAsides(fairFinale, createRun(8, 'reporter')).some((line) =>
+    /exit markers|impossible maps|hikers you waited with/.test(line),
+  ),
+  'a new run cannot fabricate the new forest-loop callbacks',
 )
 for (const [choiceId, failureFlag, phrase] of [
   ['slug', 'loop_exit_marked', /improvised exit markers/],

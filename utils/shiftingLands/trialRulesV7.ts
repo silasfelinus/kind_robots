@@ -275,7 +275,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Call on people you helped or truths you defended. Requires at least two earned mercy or honesty marks; costs no provisions.',
       skill: 'bearing',
-      target: landId === 'verge' ? 11 : 10,
+      target: landId === 'verge' ? 12 : 11,
       cost: 0,
       requiredAnyFlags: [],
       success: witness.success,
@@ -287,7 +287,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Use the pattern learned by spending one health to study this specific trial first.',
       skill: 'awareness',
-      target: landId === 'verge' ? 11 : 9,
+      target: landId === 'verge' ? 12 : 10,
       cost: 0,
       requiredAnyFlags: [],
       success: scout.success,
@@ -301,7 +301,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Spend 1 provision to buy priority while other people bear the consequences. Easy Wits check; your bargain becomes part of your story.',
       skill: 'wits',
-      target: 7,
+      target: landId === 'verge' ? 10 : 9,
       cost: 1,
       requiredAnyFlags: [],
       success: dark.tribute.success,
@@ -313,7 +313,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Shift the danger onto another traveler. An easier Steel check at no material cost; your cruelty will be remembered.',
       skill: 'steel',
-      target: 8,
+      target: landId === 'verge' ? 10 : 9,
       cost: 0,
       requiredAnyFlags: [],
       success: dark.coerce.success,
@@ -325,7 +325,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Requires four mercy and two honesty marks from real encounters. Organize those you protected for a hard-won collective route.',
       skill: 'bearing',
-      target: landId === 'verge' ? 10 : 9,
+      target: landId === 'verge' ? 11 : 10,
       cost: 0,
       requiredAnyFlags: [],
       success: solidarity.success,

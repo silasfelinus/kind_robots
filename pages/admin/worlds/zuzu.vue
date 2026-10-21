@@ -1184,7 +1184,7 @@ const quickLinks = [
     label: 'Music videos',
     icon: 'kind-icon:video',
     to: '/play/video-generator?studio=music',
-  }
+  },
   { label: 'Gamebook', icon: 'kind-icon:book-open', to: '/play/zuzu-gamebook' },
 ]
 

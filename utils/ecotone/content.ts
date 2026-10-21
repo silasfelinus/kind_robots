@@ -1,3 +1,4 @@
+import { isEcotoneReviewHeldArt, isEcotoneReviewHeldCard } from './reviewHold'
 import { QUEST_CARDS } from './questExpansion'
 
 export type SkillId = 'rizz' | 'burly' | 'wits' | 'lore' | 'psyche'
@@ -175,7 +176,7 @@ export const COMPANIONS: Companion[] = [
     event: 'kinetic',
     meetAt: 'the tattoo table at the Kinetic race',
     motif: 'six-winged bird',
-    bio: 'Raised on her family’s reservation, meticulous and dryly funny. A tribal small-business grant helped her open a busy studio. She skips cannabis when she works: she likes her lines where she left them.',
+    bio: 'Meticulous, dryly funny and fiercely protective of her clients, Mara runs a busy independent tattoo studio. She skips cannabis while working: she likes her lines where she left them.',
     line: '“I don’t need to be high to know that tree just moved.”',
     anomaly:
       'A design she has never drawn keeps turning up in other people’s hands.',
@@ -950,7 +951,7 @@ export const ENCOUNTERS: EncounterCard[] = [
     provenance:
       'The graffiti spot behind the Bayshore Mall is real, and locals call it the Devil’s Playground. The film crew, Ray and the second monster are invented.',
   },
-]
+].filter((card) => !isEcotoneReviewHeldCard(card.id))
 
 export type Chapter = {
   number: number
@@ -1070,7 +1071,6 @@ export const ECOTONE_ART_ROOT = '/ecotone/'
 export const ECOTONE_ART: string[] = [
   'title/key-art',
   'scenes/prologue-meadow',
-  'companions/mara',
   'companions/kit',
   'companions/juniper',
   'chapters/arcata-after-hours',
@@ -1086,12 +1086,11 @@ export const ECOTONE_ART: string[] = [
   'encounters/wh-061-perilous-plunge',
   'encounters/arcata-marsh',
   'encounters/fickle-hill',
-  'encounters/wh-121-latitude-argument',
   'encounters/anchor-stores',
   'encounters/behind-the-mall',
 ]
 
 export function artUrl(asset?: string): string | null {
-  if (!asset || !ECOTONE_ART.includes(asset)) return null
+  if (!asset || isEcotoneReviewHeldArt(asset) || !ECOTONE_ART.includes(asset)) return null
   return `${ECOTONE_ART_ROOT}${asset}.webp`
 }

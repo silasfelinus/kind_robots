@@ -1,13 +1,37 @@
 import type { LensId } from './content'
 
 export const SUBSTANCE_CHOICES = [
-  { id: 'alcohol', label: 'Another drink', detail: 'A social ritual can become a pattern.' },
-  { id: 'cannabis', label: 'Cannabis', detail: 'A slower, more associative moment.' },
+  {
+    id: 'alcohol',
+    label: 'Another drink',
+    detail: 'A social ritual can become a pattern.',
+  },
+  {
+    id: 'cannabis',
+    label: 'Cannabis',
+    detail: 'A slower, more associative moment.',
+  },
   { id: 'coffee', label: 'Coffee', detail: 'A very Humboldt kind of urgency.' },
-  { id: 'psychedelic', label: 'The uncanny', detail: 'A fictional altered perspective, without a revelation guarantee.' },
-  { id: 'cocaine', label: 'The fast track', detail: 'Urgency, followed by its ordinary consequences.' },
-  { id: 'meth', label: 'The long night', detail: 'Rest and corroboration still matter.' },
-  { id: 'mdma', label: 'The open heart', detail: 'Warmth does not erase anyone’s boundaries.' },
+  {
+    id: 'psychedelic',
+    label: 'The uncanny',
+    detail: 'A fictional altered perspective, without a revelation guarantee.',
+  },
+  {
+    id: 'cocaine',
+    label: 'The fast track',
+    detail: 'Urgency, followed by its ordinary consequences.',
+  },
+  {
+    id: 'meth',
+    label: 'The long night',
+    detail: 'Rest and corroboration still matter.',
+  },
+  {
+    id: 'mdma',
+    label: 'The open heart',
+    detail: 'Warmth does not erase anyone’s boundaries.',
+  },
 ] as const
 
 export type SubstanceId = (typeof SUBSTANCE_CHOICES)[number]['id']
@@ -19,7 +43,9 @@ export type SubstanceMoment = {
 
 const ids: readonly string[] = SUBSTANCE_CHOICES.map((entry) => entry.id)
 
-export function validSubstanceSelection(value: unknown): value is SubstanceId[] {
+export function validSubstanceSelection(
+  value: unknown,
+): value is SubstanceId[] {
   return (
     Array.isArray(value) &&
     value.length <= 2 &&
@@ -28,7 +54,9 @@ export function validSubstanceSelection(value: unknown): value is SubstanceId[] 
   )
 }
 
-export function validSubstanceMoments(value: unknown): value is SubstanceMoment[] {
+export function validSubstanceMoments(
+  value: unknown,
+): value is SubstanceMoment[] {
   return (
     Array.isArray(value) &&
     value.length <= 180 &&
@@ -54,12 +82,15 @@ export function openingSubstance(lens: LensId): SubstanceId[] {
     meth: 'meth',
     mdma: 'mdma',
   }
-  return initial[lens] ? [initial[lens]] as SubstanceId[] : []
+  return initial[lens] ? ([initial[lens]] as SubstanceId[]) : []
 }
 
 export function substanceSummary(moments: SubstanceMoment[]) {
   const counts = Object.fromEntries(
-    SUBSTANCE_CHOICES.map(({ id }) => [id, moments.filter((m) => m.selected.includes(id)).length]),
+    SUBSTANCE_CHOICES.map(({ id }) => [
+      id,
+      moments.filter((m) => m.selected.includes(id)).length,
+    ]),
   ) as Record<SubstanceId, number>
   let alcoholStreak = 0
   let maxAlcoholStreak = 0
@@ -77,7 +108,9 @@ export function substanceSummary(moments: SubstanceMoment[]) {
     if (moment.selected.length !== 0) break
     restStreak += 1
   }
-  const used = SUBSTANCE_CHOICES.filter((choice) => choice.id !== 'coffee' && counts[choice.id] > 0)
+  const used = SUBSTANCE_CHOICES.filter(
+    (choice) => choice.id !== 'coffee' && counts[choice.id] > 0,
+  )
   return {
     counts,
     alcoholStreak,
@@ -85,20 +118,34 @@ export function substanceSummary(moments: SubstanceMoment[]) {
     restStreak,
     substancesTried: used.length,
     repeated: used.some(({ id }) => counts[id] >= 3),
-    hippieSpeedball: moments.some((m) => m.selected.includes('coffee') && m.selected.includes('cannabis')),
+    hippieSpeedball: moments.some(
+      (m) => m.selected.includes('coffee') && m.selected.includes('cannabis'),
+    ),
     latest: moments.at(-1) ?? null,
   }
 }
 
-export function momentPerspective(moments: SubstanceMoment[]): { lens: LensId; clarity: number } {
+export function momentPerspective(moments: SubstanceMoment[]): {
+  lens: LensId
+  clarity: number
+} {
   const summary = substanceSummary(moments)
   const selected = summary.latest?.selected ?? []
   if (selected.length === 0)
-    return { lens: 'sober', clarity: summary.restStreak === 1 && summary.maxAlcoholStreak >= 3 ? 2 : 3 }
+    return {
+      lens: 'sober',
+      clarity:
+        summary.restStreak === 1 && summary.maxAlcoholStreak >= 3 ? 2 : 3,
+    }
   if (selected.includes('alcohol'))
-    return { lens: 'tipsy', clarity: summary.alcoholStreak >= 5 ? 0 : summary.alcoholStreak >= 3 ? 1 : 2 }
+    return {
+      lens: 'tipsy',
+      clarity:
+        summary.alcoholStreak >= 5 ? 0 : summary.alcoholStreak >= 3 ? 1 : 2,
+    }
   if (selected.includes('meth')) return { lens: 'meth', clarity: 1 }
-  if (selected.includes('psychedelic')) return { lens: 'tripping_balls', clarity: 1 }
+  if (selected.includes('psychedelic'))
+    return { lens: 'tripping_balls', clarity: 1 }
   if (selected.includes('cocaine')) return { lens: 'cocaine', clarity: 2 }
   if (selected.includes('mdma')) return { lens: 'mdma', clarity: 2 }
   if (selected.includes('cannabis')) return { lens: 'stoned', clarity: 2 }
@@ -106,7 +153,10 @@ export function momentPerspective(moments: SubstanceMoment[]): { lens: LensId; c
 }
 
 /** Additional viewpoint, never a replacement for the scene's facts or action labels. */
-export function substanceSceneLine(moments: SubstanceMoment[], day: number): string | null {
+export function substanceSceneLine(
+  moments: SubstanceMoment[],
+  day: number,
+): string | null {
   const summary = substanceSummary(moments)
   const last = summary.latest
   if (!last || last.day !== day) return null

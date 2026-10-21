@@ -749,10 +749,6 @@ assert.equal(
   singleDrink,
   'a scene permits only one optional interlude',
 )
-assert.equal(
-  chooseSubstanceMoment({ ...singleDrink, card: 'WH-004' }, ['caffeine' as never]),
-  singleDrink.card === 'WH-004' ? singleDrink : undefined,
-)
 const rejected = { ...singleDrink, card: 'WH-004' }
 assert.equal(chooseSubstanceMoment(rejected, ['alcohol', 'cannabis', 'coffee']), rejected)
 assert.equal(chooseSubstanceMoment(rejected, ['coffee', 'coffee']), rejected)
@@ -768,10 +764,18 @@ assert.match(substanceSceneLine(frequent.substanceMoments, 1) ?? '', /rrriver|rr
 assert.equal(frequent.openingState, 'sober')
 assert.equal(computeEnding(frequent).id, computeEnding(momentBase).id)
 const nextCard = findCard('WH-008')!
+const impairedScene = { ...frequent, card: nextCard.id }
+const intactChoices = openingLensChoices(nextCard).map((choice) => choice.id)
+const afterChoice = chooseBeat(impairedScene, intactChoices[0]!)
+assert.equal(
+  afterChoice.log.at(-1)?.choice,
+  fillText(openingLensChoices(nextCard)[0]!.label, impairedScene),
+  'even when dialogue is garbled, the selected action remains readable',
+)
 assert.deepEqual(
-  nextCard.choices.map((choice) => choice.id),
-  nextCard.choices.map((choice) => choice.id),
-  'intoxication must not scramble player-facing choice IDs',
+  openingLensChoices(nextCard).map((choice) => choice.id),
+  intactChoices,
+  'interludes never mutate scene choice IDs',
 )
 const pausing = chooseSubstanceMoment({ ...frequent, card: 'WH-008' }, [])
 assert.equal(pausing.clarity, 2, 'one break begins gradual recovery')

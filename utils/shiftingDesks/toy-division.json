@@ -3802,7 +3802,9 @@
           "effects": {
             "clearance": 1
           },
-          "add_flags": ["shipped-the-bear"],
+          "add_flags": [
+            "shipped-the-bear"
+          ],
           "remove_flags": [],
           "department_outcome": "shipped-on-schedule",
           "grades": {
@@ -3843,7 +3845,9 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": ["stuffed-the-bear"],
+          "add_flags": [
+            "stuffed-the-bear"
+          ],
           "remove_flags": [],
           "department_outcome": "soft-launch",
           "grades": {
@@ -3887,7 +3891,9 @@
             "clearance": 1,
             "suspicion": -1
           },
-          "add_flags": ["named-the-parents"],
+          "add_flags": [
+            "named-the-parents"
+          ],
           "remove_flags": [],
           "department_outcome": "promoted-to-product-owner",
           "grades": {
@@ -3930,7 +3936,9 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": ["pulled-the-alarm"],
+          "add_flags": [
+            "pulled-the-alarm"
+          ],
           "remove_flags": [],
           "department_outcome": "party-evacuated",
           "grades": {
@@ -3969,7 +3977,9 @@
           "effects": {
             "composure": 1
           },
-          "add_flags": ["mk0-gave-the-speech"],
+          "add_flags": [
+            "mk0-gave-the-speech"
+          ],
           "remove_flags": [],
           "department_outcome": "the-bear-speaks",
           "grades": {
@@ -4003,7 +4013,9 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": ["named-every-bear"],
+          "add_flags": [
+            "named-every-bear"
+          ],
           "remove_flags": [],
           "department_outcome": "recalled-with-love",
           "grades": {
@@ -4042,11 +4054,92 @@
           "effects": {
             "clearance": 1
           },
-          "add_flags": ["gave-investors-bears"],
+          "add_flags": [
+            "gave-investors-bears"
+          ],
           "remove_flags": [],
           "department_outcome": "launch-postponed",
           "grades": {
             "spite": 1
+          }
+        },
+        "failure": null
+      },
+      {
+        "id": "read-the-robot-minority-report",
+        "label": "Read the robot's minority report into the launch record",
+        "intent": "One participant said the ticking was wrong. Eleven agreed with the Company. Investors should hear the one.",
+        "risk_hint": "Requires dissent entered in the focus-group minutes. Risky Rapport check; the microphone belongs to Defense.",
+        "requires": {
+          "flag": "robot-dissent-entered-minutes"
+        },
+        "cost": {
+          "suspicion": 1
+        },
+        "roll": {
+          "dice_count": 2,
+          "die_sides": 6,
+          "skill": "rapport",
+          "modifier": 0,
+          "target": 9
+        },
+        "success": {
+          "text": "You read the report aloud over the cake cutting. The projector displays ONE AGAINST ELEVEN, legally not unanimous. An investor asks for the robot to demonstrate. It is missing. The launch is suspended until the dissenting unit can be produced; Defense spends the afternoon hunting a witness it reassigned.",
+          "effects": {
+            "composure": -1
+          },
+          "add_flags": [
+            "investors-read-robot-dissent"
+          ],
+          "remove_flags": [],
+          "department_outcome": "launch-postponed",
+          "grades": {
+            "empathy": 2,
+            "ingenuity": 1
+          }
+        },
+        "failure": {
+          "text": "The microphone cuts off after 'one against.' An assistant translates the eleven remaining votes into a unanimous endorsement. Investors applaud and you are sent back to Proving Grounds to find a witness with a more agreeable voice.",
+          "effects": {
+            "suspicion": 2
+          },
+          "add_flags": [
+            "robot-minutes-confiscated"
+          ],
+          "remove_flags": [],
+          "department_outcome": "back-to-the-drawing-board",
+          "grades": {
+            "empathy": 1,
+            "ingenuity": 1
+          }
+        }
+      },
+      {
+        "id": "present-the-parents-warning",
+        "label": "Let parents present the corrected safety warning",
+        "intent": "Parents have copies of the dated hazard label. Put those copies in front of investors funding the release.",
+        "risk_hint": "Requires the incident warning to reach parents. Certain result; testimony becomes your liability too.",
+        "requires": {
+          "flag": "warning-reached-parents"
+        },
+        "cost": {
+          "forms": -1,
+          "suspicion": 1
+        },
+        "roll": null,
+        "success": {
+          "text": "Three parents approach the plinth carrying corrected label copies: NEXT THURSDAY. PARKING STRUCTURE. TEDDY BEAR. PAL asks for a brief statement. They read the whole thing. Investors refuse to sign until the Company explains why tomorrow's harm has a printed date. The ribbon remains uncut and your name is on every copy.",
+          "effects": {
+            "composure": -1
+          },
+          "add_flags": [
+            "parents-testified-at-launch"
+          ],
+          "remove_flags": [],
+          "department_outcome": "launch-postponed",
+          "grades": {
+            "empathy": 2,
+            "ingenuity": 1
           }
         },
         "failure": null
@@ -4086,7 +4179,7 @@
       {
         "id": "launch-postponed",
         "title": "Launch Postponed Indefinitely",
-        "summary": "You handed the investors their own product, and none of them would hold it. The launch waits for braver money."
+        "summary": "The investors decided the bears could remain somebody else's responsibility. The launch waits for braver money, and the Company keeps the cake in the freezer."
       },
       {
         "id": "back-to-the-drawing-board",

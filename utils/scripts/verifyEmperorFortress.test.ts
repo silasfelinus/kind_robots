@@ -82,6 +82,16 @@ import {
   withdrawQuest,
   LAMPLIGHT_SIGHT,
   tierOdds,
+  ACT_NEED_SCALE,
+  CHANCE_AT_NEED,
+  CHORE_POSTINGS,
+  LETHAL_BLOW,
+  LETHAL_NEED_SCALE,
+  bandNeed,
+  injuryRisk,
+  choreOpen,
+  chorePostings,
+  lethalScaled,
 } from '../emperorOfDust/fortress/engine'
 import {
   dangerLine,
@@ -128,6 +138,11 @@ import {
   selectBuyer,
   selectDepartures,
   storyHeard,
+  COURTING_FROM_DAY,
+  KIN_FALL,
+  komodoCourtingLine,
+  komodoCourts,
+  peopleBroken,
 } from '../emperorOfDust/fortress/betrayal'
 import {
   MIN_STOCK,
@@ -199,26 +214,6 @@ import type {
   AudienceOption,
   FortressRun,
 } from '../emperorOfDust/fortress/types'
-// t-041: risk, economy and chores.
-import {
-  ACT_NEED_SCALE,
-  CHANCE_AT_NEED,
-  CHORE_POSTINGS,
-  LETHAL_BLOW,
-  LETHAL_NEED_SCALE,
-  bandNeed,
-  injuryRisk,
-  choreOpen,
-  chorePostings,
-  lethalScaled,
-} from '../emperorOfDust/fortress/engine'
-import {
-  COURTING_FROM_DAY,
-  KIN_FALL,
-  komodoCourtingLine,
-  komodoCourts,
-  peopleBroken,
-} from '../emperorOfDust/fortress/betrayal'
 
 // --- content contract -------------------------------------------------------
 assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')

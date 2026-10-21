@@ -96,11 +96,12 @@ export function stepAuthoredTrial(
   state: JourneyState,
   flags: readonly string[],
   choiceId: string,
+  trialOverride?: AuthoredTrial,
 ): { journey: JourneyState; outcome: TrialResult } | null {
   if (state.phase !== 'boss') return null
   const land = JOURNEY_WORLD.lands[state.landIndex]
   if (!land) return null
-  const trial = trialForLand(land.id)
+  const trial = trialOverride ?? trialForLand(land.id)
   const choice = trial?.choices.find((entry) => entry.id === choiceId)
   if (!choice || !canChooseTrial(choice, flags, state.provisions)) return null
 

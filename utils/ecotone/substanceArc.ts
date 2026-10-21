@@ -108,8 +108,7 @@ export function substanceSummary(moments: SubstanceMoment[]) {
   }
   const latestDay = moments.at(-1)?.day
   for (const moment of [...moments].reverse()) {
-    if (!moment.selected.includes('alcohol') || moment.day !== latestDay)
-      break
+    if (!moment.selected.includes('alcohol') || moment.day !== latestDay) break
     alcoholStreak += 1
   }
   for (const moment of [...moments].reverse()) {

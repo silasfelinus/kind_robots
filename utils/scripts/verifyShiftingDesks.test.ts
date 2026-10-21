@@ -235,6 +235,89 @@ for (const debt of [
   )
 }
 
+const recordsCallbacks = [
+  ['the-parents-behind-the-mirror', 'own-the-petition', 'suggestion-traced-to-you', 'parents-saw-the-suggestion'],
+  ['the-robot-panel', 'let-the-no-count', 'taught-pip-to-say-no', 'robot-dissent-entered-minutes'],
+  ['rate-their-sincerity', 'submit-bs-card', 'read-successor-bs-card', 'b-note-admitted'],
+  ['the-union-walkthrough', 'show-shared-invoice', 'shared-a-desk-with-beverly', 'beverly-repaid-shared-desk'],
+  ['mr-sunshine-is-being-replaced', 'compare-kevins-watch', 'wearing-kevins-watch', 'kevin-voice-out-of-sync'],
+  ['the-safe-distance-memo', 'quote-thursdays-incident', 'knows-the-incident', 'future-incident-on-record'],
+] as const
+
+for (const [cardId, choiceId, sourceFlag, rewardFlag] of recordsCallbacks) {
+  const origin = recordsProfiles.encounters.some((scene) =>
+    scene.choices.some(
+      (choice) =>
+        choice.success.add_flags.includes(sourceFlag) ||
+        (choice.failure?.add_flags ?? []).includes(sourceFlag),
+    ),
+  )
+  assert.ok(origin, `${sourceFlag} is earnable during Records before Toy Division`)
+  const target = TOY_DIVISION.encounters.find((scene) => scene.id === cardId)
+  assert.ok(target, `missing Toy Division callback card ${cardId}`)
+  assert.ok(target.choices.length <= 4, `${cardId} keeps the four-choice cap`)
+  const action = target.choices.find((choice) => choice.id === choiceId)
+  assert.ok(action, `missing ${choiceId}`)
+  assert.equal(action.requires?.flag, sourceFlag)
+  assert.ok(action.success.add_flags.includes(rewardFlag))
+  assert.ok(
+    !action.roll || !!action.failure?.text,
+    `${choiceId} has a meaningful result for a failed roll`,
+  )
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some((variant) => variant.when_flag === rewardFlag),
+    ),
+    `${rewardFlag} must have an ending reader if its Toy scene was drawn`,
+  )
+}
+
+// The Records questionnaire is not allowed to erase Pip's intention on success.
+const windowTen = recordsProfiles.encounters.find(
+  (card) => card.id === 'pip-at-window-10',
+)
+const lesson = windowTen?.choices.find((choice) => choice.id === 'teach-him-no')
+assert.ok(lesson)
+assert.match(lesson.success.text, /Pip practices/)
+assert.match(lesson.success.text, /say no, mean it/)
+assert.match(
+  lesson.failure?.text ?? '',
+  /Pip learns the syllable but not the reason/,
+)
+
+// Earlier choices still matter if the player never draws their Toy callback.
+for (const flag of [
+  'knows-the-up-tube',
+  'wrote-to-the-surface',
+  'pip-rode-the-up-tube',
+  'sealed-the-up-tube',
+  'let-pip-be-reviewed',
+  'approved-own-successor-date',
+  'balanced-pips-quota',
+  'read-successor-bs-card',
+  'suggestion-traced-to-you',
+]) {
+  assert.ok(
+    recordsProfiles.encounters.some((scene) =>
+      scene.choices.some(
+        (choice) =>
+          choice.success.add_flags.includes(flag) ||
+          (choice.failure?.add_flags ?? []).includes(flag),
+      ),
+    ),
+    `${flag} must come from an actual playable Records decision`,
+  )
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some((variant) => variant.when_flag === flag),
+    ) ||
+      TOY_DIVISION.encounters.some((scene) =>
+        scene.choices.some((choice) => choice.requires?.flag === flag),
+      ),
+    `${flag} needs a later reader`,
+  )
+}
+
 const allChoices = DEPARTMENTS.flatMap((d) => [
   ...d.encounters.flatMap((e) => e.choices),
   ...d.boss.choices,

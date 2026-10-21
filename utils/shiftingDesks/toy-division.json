@@ -3802,9 +3802,7 @@
           "effects": {
             "clearance": 1
           },
-          "add_flags": [
-            "shipped-the-bear"
-          ],
+          "add_flags": ["shipped-the-bear"],
           "remove_flags": [],
           "department_outcome": "shipped-on-schedule",
           "grades": {
@@ -3845,9 +3843,7 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": [
-            "stuffed-the-bear"
-          ],
+          "add_flags": ["stuffed-the-bear"],
           "remove_flags": [],
           "department_outcome": "soft-launch",
           "grades": {
@@ -3891,9 +3887,7 @@
             "clearance": 1,
             "suspicion": -1
           },
-          "add_flags": [
-            "named-the-parents"
-          ],
+          "add_flags": ["named-the-parents"],
           "remove_flags": [],
           "department_outcome": "promoted-to-product-owner",
           "grades": {
@@ -3936,9 +3930,7 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": [
-            "pulled-the-alarm"
-          ],
+          "add_flags": ["pulled-the-alarm"],
           "remove_flags": [],
           "department_outcome": "party-evacuated",
           "grades": {
@@ -3977,9 +3969,7 @@
           "effects": {
             "composure": 1
           },
-          "add_flags": [
-            "mk0-gave-the-speech"
-          ],
+          "add_flags": ["mk0-gave-the-speech"],
           "remove_flags": [],
           "department_outcome": "the-bear-speaks",
           "grades": {
@@ -4013,9 +4003,7 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": [
-            "named-every-bear"
-          ],
+          "add_flags": ["named-every-bear"],
           "remove_flags": [],
           "department_outcome": "recalled-with-love",
           "grades": {
@@ -4054,9 +4042,7 @@
           "effects": {
             "clearance": 1
           },
-          "add_flags": [
-            "gave-investors-bears"
-          ],
+          "add_flags": ["gave-investors-bears"],
           "remove_flags": [],
           "department_outcome": "launch-postponed",
           "grades": {
@@ -4088,9 +4074,7 @@
           "effects": {
             "composure": -1
           },
-          "add_flags": [
-            "investors-read-robot-dissent"
-          ],
+          "add_flags": ["investors-read-robot-dissent"],
           "remove_flags": [],
           "department_outcome": "launch-postponed",
           "grades": {
@@ -4103,9 +4087,7 @@
           "effects": {
             "suspicion": 2
           },
-          "add_flags": [
-            "robot-minutes-confiscated"
-          ],
+          "add_flags": ["robot-minutes-confiscated"],
           "remove_flags": [],
           "department_outcome": "back-to-the-drawing-board",
           "grades": {
@@ -4132,9 +4114,7 @@
           "effects": {
             "composure": -1
           },
-          "add_flags": [
-            "parents-testified-at-launch"
-          ],
+          "add_flags": ["parents-testified-at-launch"],
           "remove_flags": [],
           "department_outcome": "launch-postponed",
           "grades": {

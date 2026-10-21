@@ -12,7 +12,10 @@ import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '@/utils/artImageSource'
-import type { RecentArtJobImage, RecentArtFilter } from '@/utils/recentArtImages'
+import type {
+  RecentArtJobImage,
+  RecentArtFilter,
+} from '@/utils/recentArtImages'
 import type { VideoGeneratorJobSummary } from '@/server/utils/videoGeneratorJobs'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type { LoraPick } from '@/utils/loraSelection'
@@ -207,7 +210,10 @@ export const useVideoStore = defineStore('videoStore', () => {
   function rememberStudioSettings(settings: VideoStudioSettings): void {
     if (!import.meta.client) return
     try {
-      window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+      window.localStorage.setItem(
+        SETTINGS_STORAGE_KEY,
+        JSON.stringify(settings),
+      )
     } catch {
       // Private browsing and storage quotas must not block creating videos.
     }

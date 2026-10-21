@@ -53,6 +53,11 @@ import {
   resolveCheckoutSessionRoute,
   type CheckoutSessionRoute,
 } from '../../server/api/stripe/webhook.post.js'
+import {
+  PATRON_MONTHLY_TOKENS,
+  checkoutHasPaidSubscription,
+  paidPatronInvoiceSubscriptionId,
+} from '../../server/utils/patronBilling.js'
 
 // --- resolveCheckoutSessionRoute -----------------------------------------
 
@@ -264,5 +269,52 @@ assert.equal(
 console.log(
   '✅ redelivered signatures for the same payload verify independently but decode to the same session id -- the idempotency guard has a stable key to check',
 )
+
+// --- Paid Patron subscription invoices -----------------------------------
+// Only a settled, positive-value initial or renewal invoice can award paid
+// TOKENS. Modern Stripe invoices nest subscription under parent; old snapshots
+// still carry it at the top level.
+assert.equal(PATRON_MONTHLY_TOKENS, 1000)
+assert.equal(
+  paidPatronInvoiceSubscriptionId({
+    status: 'paid',
+    amount_paid: 500,
+    billing_reason: 'subscription_create',
+    parent: { subscription_details: { subscription: 'sub_modern' } },
+  }),
+  'sub_modern',
+)
+assert.equal(
+  paidPatronInvoiceSubscriptionId({
+    status: 'paid',
+    amount_paid: 500,
+    billing_reason: 'subscription_cycle',
+    subscription: { id: 'sub_legacy' },
+  }),
+  'sub_legacy',
+)
+for (const [label, data] of [
+  ['unpaid invoice', { status: 'open', amount_paid: 500 }],
+  ['failed payment', { status: 'uncollectible', amount_paid: 500 }],
+  ['zero dollar trial', { status: 'paid', amount_paid: 0 }],
+  ['manual invoice', { status: 'paid', amount_paid: 500, billing_reason: 'manual' }],
+  ['proration', { status: 'paid', amount_paid: 500, billing_reason: 'subscription_update' }],
+  ['missing sub id', { status: 'paid', amount_paid: 500, billing_reason: 'subscription_cycle' }],
+] as const) {
+  assert.equal(paidPatronInvoiceSubscriptionId(data), null, label)
+}
+assert.equal(
+  checkoutHasPaidSubscription({ mode: 'subscription', payment_status: 'paid' }),
+  true,
+)
+assert.equal(
+  checkoutHasPaidSubscription({ mode: 'subscription', payment_status: 'unpaid' }),
+  false,
+)
+assert.equal(
+  checkoutHasPaidSubscription({ mode: 'payment', payment_status: 'paid' }),
+  false,
+)
+console.log('✅ Paid Patron invoice and checkout eligibility guards passed')
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

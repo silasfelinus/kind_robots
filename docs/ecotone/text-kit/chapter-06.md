@@ -418,7 +418,7 @@
 **Option A, investigate (visible 9 check):** Identify what the stranger can verify and where the equipment will land
 
 - **Pass:** You learn the memory is tied to a photo still safely ashore. The crew recovers the gear before it reaches open water.
-- **Miss:** The minute ends before your reconstruction makes sense. You keep the photo's description and warn the crew where the current is taking the case.
+- **Miss:** The minute snaps shut before you can reconstruct either timeline. A case slips beneath the dock; the stranger cannot say whether her brother's photograph was taken here or somewhere else. You mark the current for the crew and write down her description without completing it for her. Both losses remain losses.
 
 **Option B, assist without a check:** Call for a second helper and keep the stranger out of the water
 
@@ -429,7 +429,7 @@
 - `cards/wh-114`: The protagonist can save equipment or rescue a stranger's memory. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-114/2`: For one minute the tide and time exchange jobs. A stranger asks you to save a memory of her brother while a crew's electrical gear is sliding off the dock. You can act on one danger immediately; the other needs a witness who will listen. The people and location must match the opening.
 - `outcomes/wh-114/investigate-success`: You learn the memory is tied to a photo still safely ashore. The crew recovers the gear before it reaches open water. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-114/investigate-failure`: The minute ends before your reconstruction makes sense. You keep the photo's description and warn the crew where the current is taking the case. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-114/investigate-failure`: The minute snaps shut before you can reconstruct either timeline. A case slips beneath the dock; the stranger cannot say whether her brother's photograph was taken here or somewhere else. You mark the current for the crew and write down her description without completing it for her. Both losses remain losses. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-114/care-success`: The crew saves the equipment and the stranger reaches her friend, who remembers the same photograph. Nobody has to choose between grief and a life jacket. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_114_verified`, `wh_114_partial`, `wh_114_care` (mutually exclusive results of this card).

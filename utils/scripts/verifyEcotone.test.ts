@@ -1657,7 +1657,11 @@ const ensemble = cardAsides(assembly, {
   flags: ['slug_sank'],
   activeLead: 'juniper',
 })
-assert.equal(ensemble.length, 3, 'the last two met companions and the sinking echo')
+assert.equal(
+  ensemble.length,
+  3,
+  'the last two met companions and the sinking echo',
+)
 assert.match(ensemble[2]!, /waterlogged race number/)
 assert.equal(
   cardAsides(assembly, { ...base, meetingOrder: [] }).length,

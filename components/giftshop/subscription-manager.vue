@@ -61,7 +61,8 @@
             v-else-if="!isPatron && hasStripeSubscription"
             class="text-center text-sm text-warning"
           >
-            Your subscription needs attention. Manage Billing to update your payment method.
+            Your subscription needs attention. Manage Billing to update your
+            payment method.
           </p>
           <p
             v-else-if="scheduledEnd"
@@ -112,7 +113,9 @@ const message = ref('')
 const error = ref('')
 
 const isPatron = computed(() => userStore.isMember)
-const hasStripeSubscription = computed(() => Boolean(userStore.user?.stripeSubscriptionId))
+const hasStripeSubscription = computed(() =>
+  Boolean(userStore.user?.stripeSubscriptionId),
+)
 const scheduledEnd = computed(() => {
   const member = userStore.user
   if (!isPatron.value || !member?.stripeSubscriptionId || !member.memberUntil)
@@ -143,8 +146,7 @@ const openBillingPortal = async () => {
       throw new Error(result.message || 'Could not open billing')
     window.location.assign(result.url)
   } catch (err: unknown) {
-    error.value =
-      err instanceof Error ? err.message : 'Could not open billing'
+    error.value = err instanceof Error ? err.message : 'Could not open billing'
   }
 }
 

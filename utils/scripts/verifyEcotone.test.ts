@@ -898,7 +898,14 @@ assert.deepEqual(
 )
 assert.ok(neutralValues.every((value) => value.chemistry === 0))
 const momentsFor = (
-  substance: 'alcohol' | 'cannabis' | 'coffee' | 'psychedelic' | 'cocaine' | 'meth' | 'mdma',
+  substance:
+    | 'alcohol'
+    | 'cannabis'
+    | 'coffee'
+    | 'psychedelic'
+    | 'cocaine'
+    | 'meth'
+    | 'mdma',
   count: number,
 ) =>
   Array.from({ length: count }, (_, index) => ({
@@ -920,7 +927,11 @@ const excessiveValues = philosophyNeedles({
 })
 assert.equal(oneDrinkValues[0]?.chemistry, 1)
 assert.equal(habitualValues[0]?.chemistry, 2)
-assert.equal(excessiveValues[0]?.chemistry, 2, 'overindulgence cannot farm ideological power')
+assert.equal(
+  excessiveValues[0]?.chemistry,
+  2,
+  'overindulgence cannot farm ideological power',
+)
 const cannabisOnly = philosophyNeedles({
   ...philosophyBase,
   substanceMoments: momentsFor('cannabis', 1),
@@ -932,7 +943,11 @@ const hippySpeedball = philosophyNeedles({
   ],
 })
 assert.equal(cannabisOnly[2]?.chemistry, -1)
-assert.equal(hippySpeedball[2]?.chemistry, 0, 'coffee and cannabis offer countervailing questions')
+assert.equal(
+  hippySpeedball[2]?.chemistry,
+  0,
+  'coffee and cannabis offer countervailing questions',
+)
 assert.equal(hippySpeedball[3]?.chemistry, -1)
 const returnedToTemperance = philosophyNeedles({
   ...philosophyBase,
@@ -990,16 +1005,21 @@ for (const chemical of SUBSTANCE_CHOICES) {
   for (const [index, value] of first.entries()) {
     if (value.chemistry === 0) continue
     const outcomes = new Set(
-      Array.from({ length: 160 }, (_, seed) =>
-        philosophyNeedles({
-          ...philosophyBase,
-          seed: seed + 1,
-          substanceMoments: momentsFor(chemical.id, 1),
-        })[index]?.outcome,
+      Array.from(
+        { length: 160 },
+        (_, seed) =>
+          philosophyNeedles({
+            ...philosophyBase,
+            seed: seed + 1,
+            substanceMoments: momentsFor(chemical.id, 1),
+          })[index]?.outcome,
       ),
     )
     assert.ok(outcomes.has(value.left), `${chemical.id} can roll ${value.left}`)
-    assert.ok(outcomes.has(value.right), `${chemical.id} can roll ${value.right}`)
+    assert.ok(
+      outcomes.has(value.right),
+      `${chemical.id} can roll ${value.right}`,
+    )
   }
 }
 for (const value of hippySpeedball) {
@@ -1008,12 +1028,19 @@ for (const value of hippySpeedball) {
   assert.ok(value.position >= 8 && value.position <= 92)
 }
 assert.deepEqual(
-  philosophyNeedles({ ...philosophyBase, substanceMoments: momentsFor('cannabis', 3) }),
-  philosophyNeedles({ ...philosophyBase, substanceMoments: momentsFor('cannabis', 3) }),
+  philosophyNeedles({
+    ...philosophyBase,
+    substanceMoments: momentsFor('cannabis', 3),
+  }),
+  philosophyNeedles({
+    ...philosophyBase,
+    substanceMoments: momentsFor('cannabis', 3),
+  }),
   'philosophical rolls are reproducible for seeded saves',
 )
 assert.equal(
-  computeEnding({ ...momentBase, substanceMoments: momentsFor('alcohol', 3) }).id,
+  computeEnding({ ...momentBase, substanceMoments: momentsFor('alcohol', 3) })
+    .id,
   computeEnding(momentBase).id,
   'philosophical pressures never make hope or darkness a drug verdict',
 )

@@ -10,24 +10,24 @@
 
 **Opening narration:** A tiny landlord charges rent to every crab and makes the player mediator.
 
-**Escalation:** A crab landlord posts eviction notices on tidepool stones. His tenants say the new rent is a pinch of moonlight every dawn.
+**Escalation:** At low tide a crab landlord posts EVICTED signs on stones occupied by hermit crabs. The rent is moonlight, apparently collected in shells. A child wants to save the smallest tenants by moving them into a bucket, a plan that would dry them out.
 
-**Option A, investigate (visible 7 check):** Read the leases before anyone gets moved
+**Option A, investigate (visible 7 check):** Read the lease terms and watch the animals from outside the pool
 
-- **Pass:** Each document contains the same illegible signature, dated on a day the tide never went out.
-- **Miss:** A wave washes the papers away, but the landlord admits there is no dry place to relocate anyone.
+- **Pass:** The landlord's moonlight ledger corresponds to a real drainage problem upstream. A tidepool volunteer records it; no crab needs relocating.
+- **Miss:** The lease dissolves into saltwater before you finish. The volunteer has photographed an exposed channel that needs attention before the next tide.
 
-**Option B, assist without a check:** Mediate a fair shared use of the pool
+**Option B, assist without a check:** Keep hands out of the pool and help the child build a visitor sign
 
-- **Result:** The crabs keep their homes; the landlord receives a pebble marked COMMON WATER.
+- **Result:** The child draws a diagram of the tenants' actual homes. The landlord stamps the sign APPROVED and attempts to charge the volunteer a deposit.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-022`: A tiny landlord charges rent to every crab and makes the player mediator. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-022/2`: A crab landlord posts eviction notices on tidepool stones. His tenants say the new rent is a pinch of moonlight every dawn. The people and location must match the opening.
-- `outcomes/wh-022/investigate-success`: Each document contains the same illegible signature, dated on a day the tide never went out. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-022/investigate-failure`: A wave washes the papers away, but the landlord admits there is no dry place to relocate anyone. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-022/care-success`: The crabs keep their homes; the landlord receives a pebble marked COMMON WATER. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-022/2`: At low tide a crab landlord posts EVICTED signs on stones occupied by hermit crabs. The rent is moonlight, apparently collected in shells. A child wants to save the smallest tenants by moving them into a bucket, a plan that would dry them out. The people and location must match the opening.
+- `outcomes/wh-022/investigate-success`: The landlord's moonlight ledger corresponds to a real drainage problem upstream. A tidepool volunteer records it; no crab needs relocating. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-022/investigate-failure`: The lease dissolves into saltwater before you finish. The volunteer has photographed an exposed channel that needs attention before the next tide. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-022/care-success`: The child draws a diagram of the tenants' actual homes. The landlord stamps the sign APPROVED and attempts to charge the volunteer a deposit. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_022_verified`, `wh_022_partial`, `wh_022_care` (mutually exclusive results of this card).
 
@@ -103,24 +103,24 @@
 
 **Opening narration:** A phantom light warns of things not visible to boats.
 
-**Escalation:** A second light appears above Trinidad Head whenever a boat passes a harmless-looking patch of water. The harbor pilot refuses to name it.
+**Escalation:** A second beacon flashes above Trinidad Head where no light is installed. A harbor pilot refuses to name it after a crew followed it once and nearly struck a submerged hazard. Two skippers disagree over whether to report an unverified warning.
 
-**Option A, investigate (visible 7 check):** Cross-check the phantom flashes with radio logs
+**Option A, investigate (visible 7 check):** Cross-check the phantom flashes against radio logs and the published hazard chart
 
-- **Pass:** The pattern predicts a submerged obstruction that ordinary instruments miss.
-- **Miss:** A cloud spoils the count, but one sailor confirms the light did not track any known vessel.
+- **Pass:** The pattern matches a submerged obstruction missing from the current chart. The pilot radios a cautious location instead of steering toward the impossible light.
+- **Miss:** Low cloud erases the flashes halfway through the count. A sailor corroborates the bearing, which is enough for a safety notice, not a new navigation mark.
 
-**Option B, assist without a check:** Share the warning with local crews
+**Option B, assist without a check:** Help the local crews issue a clear advisory through the harbor office
 
-- **Result:** The harbor keeps a careful watch rather than send anyone toward an unverified beacon alone.
+- **Result:** The skippers agree on a temporary watch and no one is sent to chase the second light. The phantom beacon flashes once, perhaps impatiently.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-026`: A phantom light warns of things not visible to boats. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-026/2`: A second light appears above Trinidad Head whenever a boat passes a harmless-looking patch of water. The harbor pilot refuses to name it. The people and location must match the opening.
-- `outcomes/wh-026/investigate-success`: The pattern predicts a submerged obstruction that ordinary instruments miss. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-026/investigate-failure`: A cloud spoils the count, but one sailor confirms the light did not track any known vessel. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-026/care-success`: The harbor keeps a careful watch rather than send anyone toward an unverified beacon alone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-026/2`: A second beacon flashes above Trinidad Head where no light is installed. A harbor pilot refuses to name it after a crew followed it once and nearly struck a submerged hazard. Two skippers disagree over whether to report an unverified warning. The people and location must match the opening.
+- `outcomes/wh-026/investigate-success`: The pattern matches a submerged obstruction missing from the current chart. The pilot radios a cautious location instead of steering toward the impossible light. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-026/investigate-failure`: Low cloud erases the flashes halfway through the count. A sailor corroborates the bearing, which is enough for a safety notice, not a new navigation mark. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-026/care-success`: The skippers agree on a temporary watch and no one is sent to chase the second light. The phantom beacon flashes once, perhaps impatiently. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_026_verified`, `wh_026_partial`, `wh_026_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** A weather clerk stamps fog permits and rejects the player's identity.
 
-**Escalation:** A clerk at a pop-up weather window insists your name is already registered to fog bank seventeen, where you supposedly live.
+**Escalation:** A weather clerk unfolds a counter from the fog and insists your legal residence is FOG BANK SEVENTEEN. Your ordinary ID still works everywhere except the clerk's ledger. A delivery courier behind you needs an address before the perishables warm up.
 
-**Option A, investigate (visible 7 check):** Request the original weather permit
+**Option A, investigate (visible 7 check):** Compare the fog register with the courier's route and your own address
 
-- **Pass:** The address is the county's missing harbor district; the expiration date is a hundred years ahead.
-- **Miss:** The clerk shreds the duplicate and says you will receive the original by mail.
+- **Pass:** Fog Bank Seventeen is listed as a defunct postal sorting route, with a delivery scheduled for tomorrow. The courier records the discrepancy without surrendering the shipment.
+- **Miss:** The clerk stamps your application UNLOCATABLE before you finish speaking. The receipt carries a sorting code the post office can check.
 
-**Option B, assist without a check:** Challenge the clerk's exclusion of other travelers
+**Option B, assist without a check:** Let the courier use the dry counter to phone dispatch before arguing residency
 
-- **Result:** She opens a public queue and finally issues shelter permits to people who cannot prove a forecast.
+- **Result:** The delivery finds a real refrigerated dock and the courier is paid for the delay. The clerk files a complaint against visibility.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-030`: A weather clerk stamps fog permits and rejects the player's identity. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-030/2`: A clerk at a pop-up weather window insists your name is already registered to fog bank seventeen, where you supposedly live. The people and location must match the opening.
-- `outcomes/wh-030/investigate-success`: The address is the county's missing harbor district; the expiration date is a hundred years ahead. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-030/investigate-failure`: The clerk shreds the duplicate and says you will receive the original by mail. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-030/care-success`: She opens a public queue and finally issues shelter permits to people who cannot prove a forecast. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-030/2`: A weather clerk unfolds a counter from the fog and insists your legal residence is FOG BANK SEVENTEEN. Your ordinary ID still works everywhere except the clerk's ledger. A delivery courier behind you needs an address before the perishables warm up. The people and location must match the opening.
+- `outcomes/wh-030/investigate-success`: Fog Bank Seventeen is listed as a defunct postal sorting route, with a delivery scheduled for tomorrow. The courier records the discrepancy without surrendering the shipment. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-030/investigate-failure`: The clerk stamps your application UNLOCATABLE before you finish speaking. The receipt carries a sorting code the post office can check. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-030/care-success`: The delivery finds a real refrigerated dock and the courier is paid for the delay. The clerk files a complaint against visibility. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_030_verified`, `wh_030_partial`, `wh_030_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A photographer discovers the horizon belongs to next Tuesday.
 
-**Escalation:** A photographer has copyrighted this sunset because, she insists, it belongs to Tuesday. Her proofs show the horizon in two places at once.
+**Escalation:** A photographer claims to own Tuesday's sunset, although tonight is Saturday. Her proofs show two horizons and a stranded beach visitor appears in both. She has begun charging people to look toward the water.
 
-**Option A, investigate (visible 7 check):** Check the film timestamps against the tide
+**Option A, investigate (visible 7 check):** Check the original negatives and the tide schedule before calling the pictures a prediction
 
-- **Pass:** The second horizon matches a weather report from a future date and the wrong moon phase.
-- **Miss:** The memory card corrupts, leaving one negative with an impossible sun.
+- **Pass:** The second horizon shares a specific buoy number with a future marine advisory. The photographer agrees to provide the frames as evidence, not exclusive access.
+- **Miss:** The negative fogs under the inspection light. The visitor still identifies the buoy, and you record the location without claiming the image was genuine.
 
-**Option B, assist without a check:** Invite the community to witness without buying the sky
+**Option B, assist without a check:** Help the photographer stop blocking the beach access and share the weather risk
 
-- **Result:** The photographer projects the image at the library for free, and everyone argues productively about what they saw.
+- **Result:** The footpath opens. The photographer keeps her copyright argument for another day; the visitor gets home before the incoming tide.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-032`: A photographer discovers the horizon belongs to next Tuesday. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-032/2`: A photographer has copyrighted this sunset because, she insists, it belongs to Tuesday. Her proofs show the horizon in two places at once. The people and location must match the opening.
-- `outcomes/wh-032/investigate-success`: The second horizon matches a weather report from a future date and the wrong moon phase. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-032/investigate-failure`: The memory card corrupts, leaving one negative with an impossible sun. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-032/care-success`: The photographer projects the image at the library for free, and everyone argues productively about what they saw. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-032/2`: A photographer claims to own Tuesday's sunset, although tonight is Saturday. Her proofs show two horizons and a stranded beach visitor appears in both. She has begun charging people to look toward the water. The people and location must match the opening.
+- `outcomes/wh-032/investigate-success`: The second horizon shares a specific buoy number with a future marine advisory. The photographer agrees to provide the frames as evidence, not exclusive access. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-032/investigate-failure`: The negative fogs under the inspection light. The visitor still identifies the buoy, and you record the location without claiming the image was genuine. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-032/care-success`: The footpath opens. The photographer keeps her copyright argument for another day; the visitor gets home before the incoming tide. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_032_verified`, `wh_032_partial`, `wh_032_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** Sea creatures perform comedy whose punch lines cause harmless tremors.
 
-**Escalation:** Underwater comics perform through a pool of clear water. Each punchline produces a harmless tremor that makes nearby cups dance.
+**Escalation:** A tidepool hosts an underwater open-mic night. The punchlines make paper cups tremble along the seawall, and a nervous café worker has started stacking them beneath heavy glassware. The comic shrimp is bombing spectacularly.
 
-**Option A, investigate (visible 7 check):** Count the tremors and ask who is listening
+**Option A, investigate (visible 7 check):** Log the tremors against the performances and local instrument readings
 
-- **Pass:** The sequence repeats a coastal warning code once used by an invented lighthouse keeper.
-- **Miss:** Your notes dissolve when a crab steals the pen, but the rhythm can be clapped back.
+- **Pass:** The shakes follow the jokes but not the applause. A scientist agrees to monitor the seawall while the shrimp demands a better audience.
+- **Miss:** A passing truck ruins your measurements. You still note which cups jumped and where the café worker was standing.
 
-**Option B, assist without a check:** Let the audience vote on a safer stage
+**Option B, assist without a check:** Help the worker move breakables and ask the performers for an intermission
 
-- **Result:** The performers move to a deeper pool where the comedy does not rattle the visitors' feet.
+- **Result:** The café stays open, the sea creatures take a break, and the shrimp receives the first respectful heckle of its professional life.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-034`: Sea creatures perform comedy whose punch lines cause harmless tremors. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-034/2`: Underwater comics perform through a pool of clear water. Each punchline produces a harmless tremor that makes nearby cups dance. The people and location must match the opening.
-- `outcomes/wh-034/investigate-success`: The sequence repeats a coastal warning code once used by an invented lighthouse keeper. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-034/investigate-failure`: Your notes dissolve when a crab steals the pen, but the rhythm can be clapped back. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-034/care-success`: The performers move to a deeper pool where the comedy does not rattle the visitors' feet. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-034/2`: A tidepool hosts an underwater open-mic night. The punchlines make paper cups tremble along the seawall, and a nervous café worker has started stacking them beneath heavy glassware. The comic shrimp is bombing spectacularly. The people and location must match the opening.
+- `outcomes/wh-034/investigate-success`: The shakes follow the jokes but not the applause. A scientist agrees to monitor the seawall while the shrimp demands a better audience. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-034/investigate-failure`: A passing truck ruins your measurements. You still note which cups jumped and where the café worker was standing. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-034/care-success`: The café stays open, the sea creatures take a break, and the shrimp receives the first respectful heckle of its professional life. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_034_verified`, `wh_034_partial`, `wh_034_care` (mutually exclusive results of this card).
 
@@ -382,24 +382,24 @@
 
 **Opening narration:** A boat returns upstream without moving the water.
 
-**Escalation:** A rower reaches the launch ramp upstream without having disturbed the water. The oars are soaked on one side and perfectly dry on the other.
+**Escalation:** A rower returns to the launch ramp upstream with one side of her oars wet and the other dry. She insists she did not move through the channel. Her partner is about to retrace the trip alone to prove she isn't lying.
 
-**Option A, investigate (visible 7 check):** Check the boat's wake with a second observer
+**Option A, investigate (visible 7 check):** Compare her route, oar marks and the launch-camera timestamps
 
-- **Pass:** There is a reverse current running through a strip of water narrower than an oar blade.
-- **Miss:** The strip closes around your marker; the rower draws the shape in the dirt before it fades.
+- **Pass:** The camera shows the boat departing twice but arriving once. The pair keep the recording and report a channel anomaly rather than risking another run.
+- **Miss:** Spray obscures the lens at the crucial minute. The dry blade carries an unfamiliar paint mark that the rower recognizes as a dock number.
 
-**Option B, assist without a check:** Help the exhausted rower rest and rejoin the crew
+**Option B, assist without a check:** Persuade the partner to stand down and help the rower warm up
 
-- **Result:** The crew meets them ashore, and nobody has to prove the impossible before offering a blanket.
+- **Result:** Both rowers get dry clothes and contact the harbor office together. Nobody has to repeat the trick merely to be believed.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-036`: A boat returns upstream without moving the water. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-036/2`: A rower reaches the launch ramp upstream without having disturbed the water. The oars are soaked on one side and perfectly dry on the other. The people and location must match the opening.
-- `outcomes/wh-036/investigate-success`: There is a reverse current running through a strip of water narrower than an oar blade. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-036/investigate-failure`: The strip closes around your marker; the rower draws the shape in the dirt before it fades. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-036/care-success`: The crew meets them ashore, and nobody has to prove the impossible before offering a blanket. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-036/2`: A rower returns to the launch ramp upstream with one side of her oars wet and the other dry. She insists she did not move through the channel. Her partner is about to retrace the trip alone to prove she isn't lying. The people and location must match the opening.
+- `outcomes/wh-036/investigate-success`: The camera shows the boat departing twice but arriving once. The pair keep the recording and report a channel anomaly rather than risking another run. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-036/investigate-failure`: Spray obscures the lens at the crucial minute. The dry blade carries an unfamiliar paint mark that the rower recognizes as a dock number. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-036/care-success`: Both rowers get dry clothes and contact the harbor office together. Nobody has to repeat the trick merely to be believed. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_036_verified`, `wh_036_partial`, `wh_036_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** An orange detour sign leads to the same path twenty years earlier.
 
-**Escalation:** An orange detour sign leads twenty years backward to a bridge still under construction. A worker recognizes your boots but not your face.
+**Escalation:** An orange detour sign leads to a bridge construction site twenty years in the past. A worker recognizes your muddy boots from a photograph in the site office, but the modern trail behind you is closing for the evening.
 
-**Option A, investigate (visible 7 check):** Compare the old road with the present route
+**Option A, investigate (visible 7 check):** Record the bridge details without stepping onto an unfinished span
 
-- **Pass:** A utility sketch marks the future location of an unexplained antenna on the bluff.
-- **Miss:** The construction whistle ends the interval; you return with orange dust on an unworn sole.
+- **Pass:** A work order names a foundation repair omitted from today's trail map. You bring the note back to the current maintenance desk.
+- **Miss:** The foreman demands a permit you cannot possibly have. Your sketch still captures the old railing alignment, which the current crew can check.
 
-**Option B, assist without a check:** Warn present-day cyclists about the vanished junction
+**Option B, assist without a check:** Help hikers turn away from the unstable detour
 
-- **Result:** A temporary sign keeps riders out of the dangerous shoulder when the detour returns.
+- **Result:** The last walker follows the safe path while you cover the misleading arrow. The sign promptly complains about historical preservation.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-038`: An orange detour sign leads to the same path twenty years earlier. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-038/2`: An orange detour sign leads twenty years backward to a bridge still under construction. A worker recognizes your boots but not your face. The people and location must match the opening.
-- `outcomes/wh-038/investigate-success`: A utility sketch marks the future location of an unexplained antenna on the bluff. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-038/investigate-failure`: The construction whistle ends the interval; you return with orange dust on an unworn sole. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-038/care-success`: A temporary sign keeps riders out of the dangerous shoulder when the detour returns. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-038/2`: An orange detour sign leads to a bridge construction site twenty years in the past. A worker recognizes your muddy boots from a photograph in the site office, but the modern trail behind you is closing for the evening. The people and location must match the opening.
+- `outcomes/wh-038/investigate-success`: A work order names a foundation repair omitted from today's trail map. You bring the note back to the current maintenance desk. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-038/investigate-failure`: The foreman demands a permit you cannot possibly have. Your sketch still captures the old railing alignment, which the current crew can check. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-038/care-success`: The last walker follows the safe path while you cover the misleading arrow. The sign promptly complains about historical preservation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_038_verified`, `wh_038_partial`, `wh_038_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** Locals with clipboards are trying to vote the moon out of office.
 
-**Escalation:** A secret tide committee proposes to remove the moon by popular vote. Its chair has never seen high water but owns five clipboards.
+**Escalation:** The Secret Tide Committee is taking signatures to dismiss the moon. Its chair owns five clipboards but has never waited at a flooded trail gate. A fisher needs the current tide table, not an election recount.
 
-**Option A, investigate (visible 7 check):** Inspect the ballots and ask what the motion would change
+**Option A, investigate (visible 7 check):** Ask where the committee gets its forecasts and compare them with official observations
 
-- **Pass:** The votes are predicted tide heights, and one illegal entry points to a storm they have hidden.
-- **Miss:** The chair calls a procedural recess; you rescue the agenda from the trash.
+- **Pass:** The committee has copied a future tide chart, including a dangerous low-water anomaly. You report the reading without certifying its lunar politics.
+- **Miss:** A wave takes the ballots and half the supporting documents. The fisher rescues a chart corner with a useful observation time.
 
-**Option B, assist without a check:** Invite the people who use the river to the meeting
+**Option B, assist without a check:** Help the fisher and shoreline users post practical tide information
 
-- **Result:** Fishers and walkers reject the cosmic stunt and vote for public flood notices instead.
+- **Result:** The launch crew adjusts its departure and no one misses a safe crossing. The committee files a procedural objection to gravity.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-039`: Locals with clipboards are trying to vote the moon out of office. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-039/2`: A secret tide committee proposes to remove the moon by popular vote. Its chair has never seen high water but owns five clipboards. The people and location must match the opening.
-- `outcomes/wh-039/investigate-success`: The votes are predicted tide heights, and one illegal entry points to a storm they have hidden. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-039/investigate-failure`: The chair calls a procedural recess; you rescue the agenda from the trash. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-039/care-success`: Fishers and walkers reject the cosmic stunt and vote for public flood notices instead. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-039/2`: The Secret Tide Committee is taking signatures to dismiss the moon. Its chair owns five clipboards but has never waited at a flooded trail gate. A fisher needs the current tide table, not an election recount. The people and location must match the opening.
+- `outcomes/wh-039/investigate-success`: The committee has copied a future tide chart, including a dangerous low-water anomaly. You report the reading without certifying its lunar politics. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-039/investigate-failure`: A wave takes the ballots and half the supporting documents. The fisher rescues a chart corner with a useful observation time. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-039/care-success`: The launch crew adjusts its departure and no one misses a safe crossing. The committee files a procedural objection to gravity. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_039_verified`, `wh_039_partial`, `wh_039_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** An upside-down kayak drips saltwater and asks for directions home.
 
-**Escalation:** An upside-down kayak drips saltwater from a branch above the trail. A tiny voice beneath its seat asks if north is still north.
+**Escalation:** A kayak hangs upside down from a cedar limb, dripping seawater onto a dry trail. A voice beneath its seat is asking whether north is still north. The trail crew is preparing to saw the branch before checking who, or what, is inside.
 
-**Option A, investigate (visible 7 check):** Follow the salt trail without shaking the tree
+**Option A, investigate (visible 7 check):** Confirm the voice's location and inspect the tie-downs from solid ground
 
-- **Pass:** The dripping water draws an impossible estuary map across the bark.
-- **Miss:** The rope breaks and the sketch washes away, though you note a new inlet.
+- **Pass:** A current marine registration tag sits beside a dock pass dated next summer. You photograph both before anyone moves the craft.
+- **Miss:** The kayak pivots out of reach just as you approach. A dry compass falls from its seat and points reliably toward the nearest safe path.
 
-**Option B, assist without a check:** Help lower the boat safely to the ground
+**Option B, assist without a check:** Help the crew lower the kayak without standing beneath the loaded branch
 
-- **Result:** Its unseen owner thanks the rescue team and paddles it down the proper river.
+- **Result:** The crew rigs a rope and brings the kayak down intact. The voice thanks them, asks for a map and declines an interview.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-040`: An upside-down kayak drips saltwater and asks for directions home. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-040/2`: An upside-down kayak drips saltwater from a branch above the trail. A tiny voice beneath its seat asks if north is still north. The people and location must match the opening.
-- `outcomes/wh-040/investigate-success`: The dripping water draws an impossible estuary map across the bark. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-040/investigate-failure`: The rope breaks and the sketch washes away, though you note a new inlet. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-040/care-success`: Its unseen owner thanks the rescue team and paddles it down the proper river. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-040/2`: A kayak hangs upside down from a cedar limb, dripping seawater onto a dry trail. A voice beneath its seat is asking whether north is still north. The trail crew is preparing to saw the branch before checking who, or what, is inside. The people and location must match the opening.
+- `outcomes/wh-040/investigate-success`: A current marine registration tag sits beside a dock pass dated next summer. You photograph both before anyone moves the craft. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-040/investigate-failure`: The kayak pivots out of reach just as you approach. A dry compass falls from its seat and points reliably toward the nearest safe path. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-040/care-success`: The crew rigs a rope and brings the kayak down intact. The voice thanks them, asks for a map and declines an interview. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_040_verified`, `wh_040_partial`, `wh_040_care` (mutually exclusive results of this card).
 

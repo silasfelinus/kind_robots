@@ -1046,12 +1046,13 @@
                 <p
                   class="mb-1 text-[10px] font-black uppercase tracking-widest text-info"
                 >
-                  <Icon name="kind-icon:footprints" class="mr-1 inline size-4" />
+                  <Icon name="kind-icon:map" class="mr-1 inline size-4" />
                   The world remembers
                 </p>
                 <details
-                  v-for="echo in game.currentWorldEchoes"
+                  v-for="(echo, index) in game.currentWorldEchoes"
                   :key="echo.id"
+                  :open="index === 0"
                   class="group border-t border-base-content/10 py-1 first:border-0"
                 >
                   <summary

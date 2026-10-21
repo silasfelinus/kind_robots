@@ -237,6 +237,17 @@ export const FORMER_GUIDE_QUESTS: GatedEncounter[] = [
       'Someone has set up a soup table beside a repair workshop. Two people you recognize from the weekend are there, busy with other conversations. A handwritten sign says EVERYBODY WELCOME. Beneath it: THIS IS NOT A GOVERNMENT.',
       'Nobody demands a reunion. Some people are still annoyed with one another. Yet tools, food and useful information are moving between tables, which might be the closest thing the county has to a working miracle.',
     ],
+    meetingLines: {
+      mara: 'Mara has drawn the supply budget on a napkin with a grease pencil. She keeps the private designs in her closed sketchbook and asks who is paying the dishwasher.',
+      kit: 'Kit has balanced a bent bicycle wheel over the soup table. The wheel turns toward whoever is talking, a splendid effect she admits is mostly a draft from the kitchen.',
+      juniper: 'Juniper has brought seedlings for the rain-soaked verge. She wants to know who will water them in August, and she will not accept the answer “the forest” this time.',
+      cedar: 'Cedar has built a hand-cranked radio that announces the next volunteer shift in a voice from yesterday. He has also posted a paper roster for people who do not trust the radio.',
+    },
+    flagLines: {
+      slug_sank: {
+        all: 'Someone produces your waterlogged race number as a ceremonial soup coaster. Nobody offers to erase the sinking from the story; the people who helped bail the sculpture are still laughing together.',
+      },
+    },
     lensLines: {
       sober:
         'You count shared tools and notice who is cleaning up. Good intentions are wonderful; someone still has to wash the bowls.',

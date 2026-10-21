@@ -7,6 +7,7 @@
 // and binned folders leave every collection listing.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { recycleGalleryImages } from '../../utils/artGalleryBulkRecycle'
 import {
   readRecycleBinRequest,
   runRecycleBinRequest,
@@ -176,8 +177,44 @@ function testRecycleBinInvariants() {
   )
 }
 
+async function testBulkGalleryRecycle() {
+  const attempted: number[] = []
+  const result = await recycleGalleryImages(
+    [1, 2, 2, 3, 4],
+    async (id) => {
+      attempted.push(id)
+      if (id === 2) throw new Error('Image not owned')
+      return id !== 4
+    },
+    2,
+  )
+  assert.deepEqual([...attempted].sort(), [1, 2, 3, 4])
+  assert.deepEqual([...result.recycledIds].sort(), [1, 3])
+  assert.deepEqual([...result.failedIds].sort(), [2, 4])
+
+  const gallery = read('components/art/art-gallery.vue')
+  const feed = read('components/art/art-feed.vue')
+  const manager = read('components/art/art-manager.vue')
+  const studio = read('components/art/art-studio.vue')
+  assert.ok(manager.includes('<art-feed'))
+  assert.ok(manager.includes('<art-gallery'))
+  assert.ok(studio.includes("browseStore.setGalleryPrivacyFilter('private')"))
+  for (const component of [gallery, feed]) {
+    assert.ok(component.includes('recycleGalleryImages('))
+    assert.ok(component.includes('selectedImageIds'))
+    assert.ok(component.includes('Move to Recycle Bin'))
+    assert.ok(component.includes('window.confirm('))
+    assert.ok(component.includes('canModifyImage('))
+  }
+  assert.ok(gallery.includes('!showHeader && activeGroup'))
+  assert.ok(feed.includes('Select all loaded'))
+  assert.ok(feed.includes('bulkSelectEnabled ? toggleImageSelection(image) : openImage(image)'))
+  console.log('verifyArtRecycleBin: gallery and collection views support recoverable multi-select')
+}
+
 async function run() {
   await testRequestParsing()
+  await testBulkGalleryRecycle()
   testQueueMaturityFilter()
   testFeedRanges()
   testRecycleBinInvariants()

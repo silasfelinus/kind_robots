@@ -14,9 +14,7 @@ import {
   trialForLandV7,
 } from './trialRulesV7'
 
-export type JourneyActionV7 =
-  | JourneyActionV6
-  | { type: 'PREPARE' }
+export type JourneyActionV7 = JourneyActionV6 | { type: 'PREPARE' }
 
 export type JourneyLedgerV7 = Omit<JourneyLedgerV6, 'version' | 'actions'> & {
   version: 7
@@ -46,7 +44,11 @@ export function stepJourneyLedgerV7(
   ledger: JourneyLedgerV7,
   action: JourneyActionV7,
 ): JourneyLedgerV7 {
-  if (ledger.actions.length >= MAX_ACTIONS || !action || typeof action !== 'object')
+  if (
+    ledger.actions.length >= MAX_ACTIONS ||
+    !action ||
+    typeof action !== 'object'
+  )
     return ledger
   const state = ledger.current
   if (action.type === 'PREPARE') {
@@ -81,10 +83,17 @@ export function stepJourneyLedgerV7(
       return ledger
     const land = JOURNEY_WORLD.lands[state.journey.landIndex]
     const trial = land && trialForLandV7(land.id)
-    const choice = trial?.choices.find((candidate) => candidate.id === action.choiceId)
+    const choice = trial?.choices.find(
+      (candidate) => candidate.id === action.choiceId,
+    )
     if (!trial || !choice || !canChooseTrialV7(choice, state, ledger.prepared))
       return ledger
-    const result = stepAuthoredTrial(state.journey, state.flags, action.choiceId, trial)
+    const result = stepAuthoredTrial(
+      state.journey,
+      state.flags,
+      action.choiceId,
+      trial,
+    )
     if (!result) return ledger
     return {
       ...ledger,
@@ -130,7 +139,8 @@ export function restoreJourneyLedgerV7(value: unknown): JourneyLedgerV7 | null {
     !Array.isArray(saved.usedRewards) ||
     !Array.isArray(saved.trialResults) ||
     !saved.current
-  ) return null
+  )
+    return null
   try {
     if (JSON.stringify(value).length > MAX_SAVE_SIZE) return null
     let rebuilt = fresh
@@ -142,9 +152,11 @@ export function restoreJourneyLedgerV7(value: unknown): JourneyLedgerV7 | null {
     if (
       !sameReplay(rebuilt.current, saved.current) ||
       !sameReplay(rebuilt.trialResults, saved.trialResults) ||
-      JSON.stringify(rebuilt.usedRewards) !== JSON.stringify(saved.usedRewards) ||
+      JSON.stringify(rebuilt.usedRewards) !==
+        JSON.stringify(saved.usedRewards) ||
       JSON.stringify(rebuilt.prepared) !== JSON.stringify(saved.prepared)
-    ) return null
+    )
+      return null
     return rebuilt
   } catch {
     return null

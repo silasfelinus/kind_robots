@@ -2,15 +2,15 @@
 
 These are **additional terminal variants** layered on top of the existing 10 authored V6 ending identities and the V7 moral-accountability paragraphs. They do not change victory probability or encounter rules. Each route requires recorded successful trial outcomes that match the real land boss, turn, roll, skill and target. Exact conditions are executable in `endingsConstellationsV7.ts`.
 
-| Finale | Required successful choices and earned marks | What the world inherits |
-| --- | --- | --- |
-| **The Lantern Commons** | Two successful solidarity trials, one successful witness trial, mercy ≥4 and honesty ≥2, no attempted tribute/coercion | Shelters, boats, lantern stations and publicly accountable work |
-| **The Book Nobody Owns** | Two successful witnessed trials, one successful evidence trial, honesty ≥3, no attempted exploitation | A public register of missing names, held by multiple families |
-| **A Ford With No Toll** | Two successful scouted trials, one successful evidence trial, mercy ≥2, no attempted exploitation | Routes and surveys copied freely, beyond tollkeepers' control |
-| **The Franchise of Hunger** | At least three successful tribute trials and no successful coercions | Comfortable private passage sustained by rising tolls on everyone else |
-| **The Province of Empty Hands** | At least three successful coercion trials and no successful tributes | Uncontested control, no trust or companions willing to share it |
-| **The Market of Silence** | At least one successful tribute and one successful coercion | An efficient machine for selling precedence and policing the desperate |
-| **A Bridge Without Forgiveness** | Two successful exploitative trials plus one successful solidarity trial | Restitution begun, with no promise of absolution from those harmed |
+| Finale                           | Required successful choices and earned marks                                                                           | What the world inherits                                                |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **The Lantern Commons**          | Two successful solidarity trials, one successful witness trial, mercy ≥4 and honesty ≥2, no attempted tribute/coercion | Shelters, boats, lantern stations and publicly accountable work        |
+| **The Book Nobody Owns**         | Two successful witnessed trials, one successful evidence trial, honesty ≥3, no attempted exploitation                  | A public register of missing names, held by multiple families          |
+| **A Ford With No Toll**          | Two successful scouted trials, one successful evidence trial, mercy ≥2, no attempted exploitation                      | Routes and surveys copied freely, beyond tollkeepers' control          |
+| **The Franchise of Hunger**      | At least three successful tribute trials and no successful coercions                                                   | Comfortable private passage sustained by rising tolls on everyone else |
+| **The Province of Empty Hands**  | At least three successful coercion trials and no successful tributes                                                   | Uncontested control, no trust or companions willing to share it        |
+| **The Market of Silence**        | At least one successful tribute and one successful coercion                                                            | An efficient machine for selling precedence and policing the desperate |
+| **A Bridge Without Forgiveness** | Two successful exploitative trials plus one successful solidarity trial                                                | Restitution begun, with no promise of absolution from those harmed     |
 
 ## Narrative rules
 

@@ -14,6 +14,30 @@ export const VALUE_AXES = [
 ] as const
 
 export type ValueAxisId = (typeof VALUE_AXES)[number]['id']
+const VALUE_REFLECTIONS: Record<ValueAxisId, [string, string, string]> = {
+  autonomy: [
+    'You kept some decisions your own. Independence carried responsibilities nobody could take off your hands.',
+    'You trusted that obligations could be shared without making every neighbor agree.',
+    'The county needed private rooms and common tables. Neither could stand in for the other.',
+  ],
+  continuity: [
+    'Some of what survived deserved to. Keeping a place was work, not an excuse to freeze it.',
+    'You made room for unfamiliar ways of living here, aware that novelty does not pay its own rent.',
+    'The old ways and the next ones kept borrowing one another\'s tools.',
+  ],
+  ecology: [
+    'The living watershed had its own timetable, and you found reasons to keep listening.',
+    'The tools and networks mattered, provided somebody could maintain them and answer for their costs.',
+    'Creeks and circuits continued their argument. You learned to ask who was in charge of both.',
+  ],
+  agency: [
+    'You treated a predicted future as an invitation to act, not an instruction to surrender.',
+    'You learned how stubborn consequences can be, even when everybody wants a new beginning.',
+    'Some predictions held. Others did not. The difference remained an honest mystery.',
+  ],
+}
+
+
 export type ValueRoll = {
   id: ValueAxisId
   left: string
@@ -25,6 +49,7 @@ export type ValueRoll = {
   dice: [number, number]
   total: number
   outcome: string
+  reflection: string
   /** On a 0-100 scale: this is the accumulated lean before the die roll. */
   position: number
 }
@@ -112,6 +137,7 @@ export function philosophyNeedles(
       dice,
       total,
       outcome,
+      reflection: VALUE_REFLECTIONS[axis.id][total === 7 ? 2 : total < 7 ? 0 : 1],
       position: Math.max(8, Math.min(92, 50 + pull * 10)),
     }
   })

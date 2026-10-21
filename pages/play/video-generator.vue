@@ -172,7 +172,7 @@
               Loading your recent art…
             </p>
             <p
-              v-else-if="!videoStore.recentArt.items.length"
+              v-else-if="!visibleRecentArt.length"
               class="text-xs opacity-60"
             >
               No recent images match this filter.
@@ -182,7 +182,7 @@
               class="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-1.5"
             >
               <button
-                v-for="item in videoStore.recentArt.items"
+                v-for="item in visibleRecentArt"
                 :key="item.artImageId"
                 type="button"
                 class="relative aspect-square overflow-hidden rounded-xl border-2 bg-base-200"
@@ -569,6 +569,7 @@
           playsinline
         />
         <a
+          v-if="canShowSelectedClip"
           :href="videoStore.state.videoSrc"
           :download="downloadFilename"
           class="kr-btn-outline-plain"
@@ -713,7 +714,10 @@
             {{ videoStore.state.error }}
           </div>
 
-          <div v-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
+          <p v-if="videoStore.selectedJob.status === 'DONE' && !canShowSelectedClip" class="kr-text-faded-sm">
+            Mature clip preview hidden by your account setting.
+          </p>
+          <div v-else-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
             <p v-if="!canShowSelectedClip" class="kr-text-faded-sm">
               Mature clip preview hidden by your account setting.
             </p>
@@ -732,7 +736,7 @@
               muted
               playsinline
             />
-            <a :href="videoStore.state.videoSrc" :download="downloadFilename" class="kr-btn-outline-plain">
+            <a v-if="canShowSelectedClip" :href="videoStore.state.videoSrc" :download="downloadFilename" class="kr-btn-outline-plain">
               Download clip
             </a>
           </div>
@@ -907,6 +911,11 @@ const selectedLoraProfile = computed(() =>
   videoLoraProfile(engine.value, selectedWanMode.value),
 )
 const canShowDraftImages = computed(() => !isMature.value || userStore.showMature)
+const visibleRecentArt = computed(() =>
+  userStore.showMature
+    ? videoStore.recentArt.items
+    : videoStore.recentArt.items.filter((item) => !item.isMature),
+)
 const canShowSelectedClip = computed(
   () => !videoStore.selectedJob?.isMature || userStore.showMature,
 )
@@ -1161,8 +1170,11 @@ watch(
   () => userStore.showMature,
   (enabled) => {
     if (!enabled) recentArtFilter.value = 'sfw'
-    else if (recentArtOpen.value && isLoggedIn.value) {
+    if (recentArtOpen.value && isLoggedIn.value) {
       void videoStore.fetchRecentArt(recentArtFilter.value)
+    }
+    if (videoStore.selectedJob?.status === 'DONE') {
+      void videoStore.selectJob(videoStore.selectedJob.id)
     }
   },
 )

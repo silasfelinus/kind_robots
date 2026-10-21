@@ -198,7 +198,7 @@
         </template>
       </template>
     </div>
-  </main>
+  </section>
 </template>
 
 <script setup lang="ts">

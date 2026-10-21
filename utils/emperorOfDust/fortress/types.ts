@@ -583,6 +583,10 @@ export type DawnReport = {
     /** How the tower fell and why, as this run read them (t-040). */
     fell?: string
     why?: string
+    /** What the crown's precautions saved, line by line (t-038). */
+    ready?: string[]
+    /** Komodo's note under the seal: the physician answer, kept (t-038). */
+    note?: string
   }
 }
 

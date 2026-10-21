@@ -101,6 +101,35 @@
         </ul>
       </div>
 
+      <div
+        v-if="forecast"
+        class="kr-panel border-warning/40 p-4 text-sm"
+        aria-label="Where the court would run"
+      >
+        <h3 class="font-serif text-xl font-bold">If the tower fell tonight</h3>
+        <p v-if="forecast.first" class="mt-1 font-serif">
+          The court would run to
+          <strong>{{ hideoutName(forecast.first.hideout) }}</strong
+          >. {{ factionName(forecast.first.host) }}:
+          <span class="capitalize" :class="tierClass(forecast.first.tier)">{{
+            forecast.first.tier
+          }}</span
+          >, {{ pledgeWords(forecast.first.pledges) }}.
+        </p>
+        <p v-else class="mt-1 font-serif">
+          No friend on the map has a roof to offer. The court would hide in
+          {{ hideoutName('nameless-cave') }}.
+        </p>
+        <p v-if="forecast.next" class="mt-1 text-xs opacity-80">
+          Next: {{ hideoutName(forecast.next.hideout) }},
+          {{ pledgeWords(forecast.next.pledges) }}.
+        </p>
+        <p class="mt-1 text-xs italic opacity-70">
+          Only a Friendly or Allied banner takes the court in. Promises kept to
+          one side weigh more than goodwill.
+        </p>
+      </div>
+
       <div class="kr-panel p-3">
         <h3 class="font-serif text-xl font-bold">The kingdom</h3>
         <ul
@@ -323,6 +352,7 @@ import {
   dailyTaxes,
   dailyWages,
   factionName,
+  hideoutForecast,
   mapEventText,
   mapWarnings,
   nextActEnd,
@@ -354,6 +384,16 @@ const nextMap = computed(() =>
   props.run.day <= 40 ? nextActEnd(props.run.day) : undefined,
 )
 const wages = computed(() => dailyWages(props.run))
+/** From Granny Umber's two roads (Day 35) to the last night: the court's likely host. */
+const FORECAST_FROM = 35
+const forecast = computed(() => {
+  const { day, hideout } = props.run
+  if (hideout || day < FORECAST_FROM || day > 40) return undefined
+  const [first, next] = hideoutForecast(props.run)
+  return { first, next }
+})
+const pledgeWords = (count: number) =>
+  count === 1 ? 'one promise kept' : `${count || 'no'} promises kept`
 
 const regions = computed(() =>
   REGIONS.map((region) => {

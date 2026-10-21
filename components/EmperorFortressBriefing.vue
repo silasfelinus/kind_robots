@@ -83,7 +83,7 @@
             The Archive went back through every morning dispatch. These came
             from Young Komodo’s runner.
           </p>
-          <ul class="kr-scroll mt-2 grid max-h-72 gap-2 pr-1">
+          <ul class="mt-2 grid gap-2 pr-1">
             <li
               v-for="entry in hindsight"
               :key="entry.briefing.id"

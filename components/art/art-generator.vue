@@ -463,8 +463,8 @@
           </section>
 
           <art-lora-picker
-            class="@7xl:col-start-2 @7xl:row-span-3 @7xl:row-start-1 @7xl:self-stretch"
             v-model="loraPicks"
+            class="@7xl:col-start-2 @7xl:row-span-3 @7xl:row-start-1 @7xl:self-stretch"
             :engine="generationEngine"
             :checkpoint-family="selectedCheckpointFamily"
           />

@@ -1,0 +1,136 @@
+import assert from 'node:assert/strict'
+import {
+  advance,
+  cardAsides,
+  chooseBeat,
+  chooseCrossroads,
+  chooseEvent,
+  chooseFork,
+  createRun,
+  findCard,
+  type RunState,
+} from '../ecotone/engine'
+import { openingLensChoices } from '../ecotone/openingLensChoices'
+
+type ElkChoice = 'ranger' | 'road'
+
+function soberQuietJourney(seed: number, elkChoice: ElkChoice): RunState {
+  let state = advance(chooseEvent(createRun(seed, 'reporter'), 'quiet'))
+  let guard = 0
+  let witnessedElk = false
+  let witnessedEcho = false
+  while (state.phase !== 'end') {
+    assert.ok(++guard < 120, 'even a poorly rolled sober route terminates')
+    if (state.phase === 'fork') {
+      state = chooseFork(state, state.offered[0]!)
+      continue
+    }
+    if (state.phase === 'crossroads') {
+      state = advance(chooseCrossroads(state, false))
+      continue
+    }
+    assert.equal(state.phase, 'beat')
+    const card = findCard(state.card)
+    assert.ok(card)
+    if (card.id === 'QW-5') {
+      const asides = cardAsides(card, state).join(' ')
+      if (state.flags.includes('elk_ranger_followup')) {
+        assert.match(asides, /three independent visitors/)
+        witnessedEcho = true
+      }
+      if (state.flags.includes('elk_future_photo')) {
+        assert.match(asides, /sandwich-shop receipt/)
+        witnessedEcho = true
+      }
+    }
+    const choiceId =
+      card.id === 'QW-1'
+        ? 'trail'
+        : card.id === 'QW-2'
+          ? 'sober'
+          : card.id === 'QW-4'
+            ? elkChoice
+            : card.id === 'QW-5'
+              ? 'restore'
+              : openingLensChoices(card).find((choice) => !choice.locked)?.id
+    assert.ok(choiceId, `playable choice for ${card.id}`)
+    state = advance(chooseBeat(state, choiceId))
+    if (card.id === 'QW-4') witnessedElk = true
+  }
+  assert.ok(witnessedElk, 'a quiet journey actually reaches Elk Meadow')
+  const elk = state.log.find((entry) => entry.source === 'QW-4')
+  assert.ok(elk?.roll, 'the elk decision actually made a dice check')
+  if (!elk.roll.success) {
+    assert.ok(witnessedEcho, 'a failed elk check alters the later cabin scene')
+    assert.ok(
+      state.flags.includes(
+        elkChoice === 'ranger' ? 'elk_ranger_followup' : 'elk_future_photo',
+      ),
+    )
+    assert.equal(
+      elk.effects.flag,
+      elkChoice === 'ranger' ? 'elk_ranger_followup' : 'elk_future_photo',
+      'the logged consequence is the real saved flag',
+    )
+  }
+  assert.equal(state.openingState, 'sober')
+  assert.match(state.ending ?? '', /^ecotopia\.sober\.(hope|dark)$/)
+  return state
+}
+
+for (const elkChoice of ['ranger', 'road'] as const) {
+  const results = new Set<string>()
+  for (let seed = 1; seed <= 100; seed += 1) {
+    const completed = soberQuietJourney(seed, elkChoice)
+    const elk = completed.log.find((entry) => entry.source === 'QW-4')!
+    results.add(elk.roll?.success ? 'success' : 'failure')
+    if (seed === 7) {
+      assert.deepEqual(
+        completed,
+        soberQuietJourney(seed, elkChoice),
+        'a sober journey, including earned consequences, replays identically',
+      )
+    }
+  }
+  assert.deepEqual(
+    [...results].sort(),
+    ['failure', 'success'],
+    `${elkChoice} has both witnessed roll results under real seeded play`,
+  )
+}
+
+const fairExit = findCard('GR-4')!
+const fairFinale = findCard('GR-5')!
+assert.ok(
+  !cardAsides(fairFinale, createRun(8, 'reporter')).some((line) =>
+    /exit markers|impossible maps|hikers you waited with/.test(line),
+  ),
+  'a new run cannot fabricate the new forest-loop callbacks',
+)
+for (const [choiceId, failureFlag, phrase] of [
+  ['slug', 'loop_exit_marked', /improvised exit markers/],
+  ['seam', 'loop_wrong_map_posted', /impossible maps/],
+] as const) {
+  let failed = false
+  for (let seed = 1; seed <= 80; seed += 1) {
+    const start: RunState = {
+      ...createRun(seed, 'reporter'),
+      phase: 'beat',
+      event: 'green-ribbon',
+      card: fairExit.id,
+      openingState: 'sober',
+      currentState: 'sober',
+    }
+    const result = chooseBeat(start, choiceId)
+    if (!result.log[0]?.roll?.success) {
+      failed = true
+      assert.ok(result.flags.includes(failureFlag))
+      assert.match(cardAsides(fairFinale, result).join(' '), phrase)
+      assert.ok(
+        !cardAsides(fairFinale, start).some((line) => phrase.test(line)),
+      )
+      break
+    }
+  }
+  assert.ok(failed, `${choiceId} has a deterministic failure witness`)
+}

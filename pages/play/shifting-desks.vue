@@ -512,6 +512,16 @@
                   {{ view.card.flavor_text }}
                 </p>
               </div>
+              <div
+                v-if="caseFileExhibits.length"
+                class="rounded-lg border border-amber-700/50 bg-amber-100/80 p-2 text-xs leading-snug text-stone-900"
+                aria-label="Evidence from your personnel file"
+              >
+                <p class="font-mono font-bold uppercase">Case-file exhibits</p>
+                <p v-for="exhibit in caseFileExhibits" :key="exhibit">
+                  {{ exhibit }}
+                </p>
+              </div>
               <template v-if="run.pending">
                 <article
                   class="relative flex flex-col gap-2 rounded-2xl border-2 p-3 sm:p-4"
@@ -926,6 +936,7 @@ import {
   locationById,
   gradeRequirement,
   gradeTitle,
+  reviewExhibits,
   interimResults,
   departmentBoard,
   restructuringById,
@@ -1035,6 +1046,9 @@ const pickedJob = computed(() => jobById(pickedJobId.value))
 
 const run = computed(() => store.run)
 const view = computed(() => store.card)
+const caseFileExhibits = computed(() =>
+  run.value && view.value?.kind === 'boss' ? reviewExhibits(run.value) : [],
+)
 
 const METER_INFO: Record<Meter, { icon: string; help: string }> = {
   composure: {

@@ -45,6 +45,7 @@ import {
   finalVerdict,
   gradeRequirement,
   interimResults,
+  reviewExhibits,
   rankedGrades,
   RESTRUCTURING_CARD,
   departmentBoard,
@@ -350,6 +351,75 @@ for (const flag of [
     `${flag} needs a later reader`,
   )
 }
+
+// Mandatory review surfaces keep seven options even when history is complicated.
+// Instead of hiding/adding options, case-file exhibits reveal remembered decisions.
+for (const dept of [recordsProfiles, TOY_DIVISION]) {
+  assert.equal(
+    dept.boss.choices.length,
+    7,
+    `${dept.department.id} retains the compact seven-choice review limit`,
+  )
+}
+const recordsEvidence = reviewExhibits({
+  department: 'records',
+  flags: ['taught-pip-to-say-no', 'wrote-to-the-surface', 'signed-kevins-card'],
+})
+assert.equal(recordsEvidence.length, 2, 'review exhibits stay compact')
+assert.match(recordsEvidence[0] ?? '', /Pip learned to refuse/)
+assert.match(recordsEvidence[1] ?? '', /WE READ/)
+assert.deepEqual(
+  reviewExhibits({
+    department: 'toy-division',
+    flags: ['robot-dissent-entered-minutes', 'warning-reached-parents'],
+  }).length,
+  2,
+)
+assert.equal(
+  reviewExhibits({
+    department: 'orientation',
+    flags: ['wrote-to-the-surface'],
+  }).length,
+  0,
+  'evidence cannot appear in the wrong department',
+)
+assert.match(
+  reviewExhibits({
+    department: 'toy-division',
+    flags: ['drew-the-warning'],
+  })[0] ?? '',
+  /crayon drawing/,
+  'the exhibit must come from the earlier focus-group encounter',
+)
+assert.ok(
+  TOY_DIVISION.encounters.some((scene) =>
+    scene.choices.some((choice) =>
+      choice.success.add_flags.includes('drew-the-warning'),
+    ),
+  ),
+  'the case-file drawing must be obtainable before the Toy Division review',
+)
+for (const flag of [
+  'form-zero-stamped',
+  'shipped-the-bear',
+  'forged-form-zero',
+  'named-the-parents',
+  'supervisor-confided',
+  'signed-kevins-card',
+  'perfect-wellness-score',
+]) {
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some((variant) => variant.when_flag === flag),
+    ),
+    `${flag} is considered by a final Board outcome`,
+  )
+}
+assert.match(
+  asset('../../pages/play/shifting-desks.vue'),
+  /caseFileExhibits\.length/,
+  'the playable desk displays earned case-file evidence during reviews',
+)
 
 const allChoices = DEPARTMENTS.flatMap((d) => [
   ...d.encounters.flatMap((e) => e.choices),

@@ -718,11 +718,8 @@
             Mature clip preview hidden by your account setting.
           </p>
           <div v-else-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
-            <p v-if="!canShowSelectedClip" class="kr-text-faded-sm">
-              Mature clip preview hidden by your account setting.
-            </p>
             <img
-              v-else-if="videoStore.resultIsImage"
+              v-if="videoStore.resultIsImage"
               :src="videoStore.state.videoSrc"
               class="max-h-[min(47vh,28rem)] w-full rounded-xl bg-black object-contain"
               alt="Generated animated clip"

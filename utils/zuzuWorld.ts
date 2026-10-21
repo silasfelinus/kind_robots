@@ -3,9 +3,9 @@ export const ZUZU_PROJECTS = [
   {
     slug: 'music-video',
     label: 'Music videos & trailer',
-    route: '/play/music-video',
+    route: '/play/video-generator?studio=music',
   },
-  { slug: 'comic-film', label: 'Animated episode', route: '/play/music-video' },
+  { slug: 'comic-film', label: 'Animated episode', route: '/play/video-generator?studio=music' },
   { slug: 'zuzu-lair', label: "Zuzu's Lair", route: '/admin/zuzu-lair' },
   { slug: 'zuzu-gamebook', label: 'Gamebook', route: '/play/zuzu-gamebook' },
   {

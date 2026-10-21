@@ -5,10 +5,7 @@ import {
   stepJourneyLedgerV7,
 } from '../shiftingLands/saveLedgerV7'
 import { activeV6Card, choiceLock } from '../shiftingLands/deckV6'
-import {
-  canChooseTrialV7,
-  trialForLandV7,
-} from '../shiftingLands/trialRulesV7'
+import { canChooseTrialV7, trialForLandV7 } from '../shiftingLands/trialRulesV7'
 import {
   MORAL_CHAIN_PAIRS,
   moralChainsV7,

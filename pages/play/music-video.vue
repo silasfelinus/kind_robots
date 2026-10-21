@@ -1,5 +1,7 @@
 <template>
-  <div class="kr-surface" />
+  <main class="kr-surface h-full min-h-0 overflow-hidden">
+    <div class="kr-scroll" />
+  </main>
 </template>
 
 <script setup lang="ts">

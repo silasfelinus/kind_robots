@@ -389,6 +389,195 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042): one hard question each, spread so the barracks
+  // never goes quiet for long.
+  {
+    id: 'rook-saddle',
+    follower: 'F001',
+    title: 'Crown Leather',
+    fromDay: 7,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Two saddles on the stable rail. One is Rook’s: cracked, patched, older than the fortress. The other is new Watch leather with the crown pressed into the flap.',
+      'Dunmark sent it up. Decent of him. Riders in crown leather get waved through the posts. Riders in old leather get searched.',
+      'Thing is, the Pack knows my saddle. They let me ride close because of it. Put me in yours and I’m one more Watch rider. I get through the posts. I stop getting close.',
+    ],
+    options: [
+      {
+        id: 'crown',
+        label: 'Ride in the crown’s leather. The posts matter more.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['rook-crown-saddle'] },
+        response:
+          'Rook buckles it on without a word. The old saddle goes on a peg by the door. They touch it every morning on the way out.',
+      },
+      {
+        id: 'old',
+        label: 'Keep the old saddle. Let the Watch search them.',
+        effects: { local: { 'gate-watch': -1 }, flags: ['rook-old-saddle'] },
+        response:
+          'Rook sends the new one back with thanks. The posts search them twice a week after that. Slowly. They come in late and don’t mention it.',
+      },
+    ],
+  },
+  {
+    id: 'rook-cistern',
+    follower: 'F001',
+    title: 'A Cup on a String',
+    fromDay: 17,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Rook comes in at dusk with dust to the knees and a full waterskin. Nobody comes off the north ridge with a full waterskin.',
+      'Cistern. Old one, under a flat stone where the track bends. Somebody keeps it clean. There’s a tin cup on a string.',
+      'One family, I’d guess. Freeholders. It keeps them alive in the dry months. Put it on the crown’s map and the Watch drinks there too. Then the whole ridge. In a month it’s mud.',
+      'Leave it off, and the Watch keeps riding that track dry.',
+    ],
+    options: [
+      {
+        id: 'mark',
+        label: 'Mark it. The Watch rides that ridge for everyone.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['rook-cistern-marked'] },
+        response:
+          'Rook draws a small square on the map. In three weeks there is a queue at the stone. The cup on the string is gone. Nobody knows who took it.',
+      },
+      {
+        id: 'leave',
+        label: 'Leave it off the map. It belongs to whoever kept it clean.',
+        effects: { affinity: { freeholds: 5 }, flags: ['rook-cistern-kept'] },
+        response:
+          '“Then I never found it.” Rook hands you the last of the water. A week later a Watch rider comes off the ridge with his tongue split from thirst.',
+      },
+    ],
+  },
+  {
+    id: 'rook-post',
+    follower: 'F001',
+    title: 'The Ford Post',
+    fromDay: 24,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Rook is sitting on the woodpile with their ears flat. They have been sitting there since the Ford.',
+      'Sergeant at the Ford post. Good one. Eleven years. The Pack crossed the shallows last night, twenty wagons, and he watched them go. Didn’t ring. Didn’t ride.',
+      'His brother drives the third wagon. He told me so. Then he asked me not to tell you. I said I’d ask you first. That’s as far as I’d go for him.',
+    ],
+    options: [
+      {
+        id: 'report',
+        label: 'Report him to Dunmark. A post that doesn’t ring is no post.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['rook-sergeant-reported'],
+        },
+        response:
+          'Dunmark breaks him to the ranks in the Yard at noon. He takes it standing. Rook doesn’t watch. That evening the sergeant’s stripes are on the woodpile where Rook sat.',
+      },
+      {
+        id: 'quiet',
+        label: 'Move him off the Ford yourself. Quietly. No book.',
+        effects: {
+          affinity: { jackalwire: 5 },
+          local: { 'gate-watch': -1 },
+          flags: ['rook-sergeant-moved'],
+        },
+        response:
+          'He goes to the stables. Nobody asks why. The Watch asks anyway, among itself. The new man at the Ford rings the bell at every shadow for a month.',
+      },
+    ],
+  },
+  {
+    id: 'rook-knife',
+    follower: 'F001',
+    title: 'Somebody’s Knife',
+    fromDay: 31,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Rook puts a knife on your table. Bone handle. A name scratched in it you can’t read.',
+      'Rider in the ditch past the second well. No colours. Not ours. Not anybody’s. He was going fast. He wanted this taken to his mother. Canyon road. Two days down, two back.',
+      'War’s on. You need your outrider. I know. I also said yes to him. He was holding my sleeve.',
+    ],
+    options: [
+      {
+        id: 'go',
+        label: 'Let Rook go. Four days. The crown can ride blind that long.',
+        effects: { local: { 'gate-watch': -1 }, flags: ['rook-carried-knife'] },
+        response:
+          'Rook is gone before light. Four days the Watch rides the war roads without them and loses a wagon to a gully nobody marked. Rook comes back thin and says, “She knew it by the handle.”',
+      },
+      {
+        id: 'send',
+        label: 'Keep Rook. Send the knife down with the next caravan.',
+        effects: { flags: ['rook-knife-sent'] },
+        response:
+          'A driver takes it. Rook watches the wagon all the way to the bend. Nobody ever hears if it arrived. Rook never asks.',
+      },
+    ],
+  },
+  {
+    id: 'rook-route',
+    follower: 'F001',
+    title: 'The Ridge Route',
+    fromDay: 37,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Rook comes up the barracks ladder fast and sits on the top rung, which they never do.',
+      'Komodo asked me for the ridge route. The one nobody uses. Said the crown wants it for a courier. Polite. Had a pencil ready.',
+      'He speaks for you. If I say no, I’m saying I don’t trust him. If I say yes, there’s one more person who knows the only quiet way out of here.',
+    ],
+    options: [
+      {
+        id: 'give',
+        label: 'Give him the route. He speaks for the crown.',
+        effects: { flags: ['rook-gave-komodo-route'] },
+        response:
+          'Rook draws it for him on the back of a dispatch. Komodo thanks them and folds it twice. Rook can’t say why the fold bothers them.',
+      },
+      {
+        id: 'keep',
+        label:
+          'Tell Rook to keep it. Nobody has the ridge route but the two of you.',
+        effects: { flags: ['rook-kept-route'] },
+        response:
+          'Komodo doesn’t ask again. He thanks Rook for their caution in front of the whole barracks. It sounds like praise. Rook eats alone that night.',
+      },
+    ],
+  },
+  {
+    id: 'rook-postern',
+    follower: 'F001',
+    title: 'The Man Who Opened the Postern',
+    fromDay: 47,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Rook brings a Watchman to the hideout fire by the collar. Young. Thin. Still in the tower’s grey.',
+      'Found him with the hosts’ goats. He opened the postern the night the tower fell. Says Komodo told him it was your order. Says he believed it.',
+      'He’s got a wife down the valley. He came here to find you and say sorry. Then he lost his nerve and hid with the goats. I believe that part.',
+    ],
+    options: [
+      {
+        id: 'judge',
+        label:
+          'Judge him at the fire, in front of everyone who lost the tower.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['rook-postern-judged'] },
+        response:
+          'The court hears him out. Nobody speaks for him. He is sent down the valley without his grey, on foot. Rook walks him to the last cairn and comes back with the coat over one arm.',
+      },
+      {
+        id: 'spare',
+        label: 'Let him go. He was lied to. So were you.',
+        effects: { flags: ['rook-postern-spared'] },
+        response:
+          'He cries. Rook looks away while he does it. Two Watchmen at the fire get up and leave. One doesn’t come back.',
+      },
+      {
+        id: 'route',
+        label:
+          'Tell the fire you gave Komodo the ridge route yourself. You believed him too.',
+        requires: { flags: ['rook-gave-komodo-route'] },
+        effects: { flags: ['rook-postern-spared', 'rook-shared-blame'] },
+        response:
+          'It goes quiet. The Watchman stares at you. Then Rook sits down beside him, close, the way they sit with you on the roof. Nobody gets up to leave.',
+      },
+    ],
+  },
   // --- F002 Saffron Kett -------------------------------------------------------
   {
     id: 'saffron-1',
@@ -832,6 +1021,137 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'saffron-hoist',
+    follower: 'F002',
+    title: 'The Hoist',
+    fromDay: 16,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Saffron has rigged a pulley in the barracks loft. A rope, a wheel off a dead cart, a counterweight of scrap. One porter can lift a sack of meal with two fingers. She shows you twice.',
+      'Then she stops grinning. Four porters from the Yard carry the stores up that stair. Paid by the sack. Their kids eat by the sack.',
+      'I built it because I could. I didn’t think past the wheel. I never do. You tell me if it stays.',
+    ],
+    options: [
+      {
+        id: 'keep',
+        label: 'Keep the hoist. The porters can carry somewhere else.',
+        effects: {
+          local: { ledger: 1, yard: -1 },
+          flags: ['saffron-hoist-kept'],
+        },
+        response:
+          'The hoist stays. Two porters find work at the gate. Two don’t. One of them spits on the loft stair every morning. Saffron oils the wheel and doesn’t look at him.',
+      },
+      {
+        id: 'down',
+        label: 'Take it down. The porters eat by the sack.',
+        effects: { local: { yard: 1 }, flags: ['saffron-hoist-down'] },
+        response:
+          'Saffron unbolts it herself. She keeps the wheel on her bench. When she is thinking, she spins it with one finger. It never stops where she wants.',
+      },
+    ],
+  },
+  {
+    id: 'saffron-iron',
+    follower: 'F002',
+    title: 'Free Iron',
+    fromDay: 25,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'A cart stands outside the workshop. Rivets, bar iron, good plate. A basket of bread on top with a cloth over it.',
+      'Gift from the Mission. Two sisters brought it. Wouldn’t take a receipt. Said it was for the Ford bridge, so nobody else drowns crossing.',
+      'Nobody gives iron for nothing. Not in this country. I want to send it back. Then the bridge goes up a month late, and the Ford stays the Ford for another month.',
+    ],
+    options: [
+      {
+        id: 'use',
+        label: 'Use the iron. The bridge goes up.',
+        effects: { affinity: { abbey: 5 }, flags: ['saffron-mission-iron'] },
+        response:
+          'The bridge is up by the new moon. A sister comes to bless it. Saffron stands at the far end with a hammer in her fist and does not come over.',
+      },
+      {
+        id: 'return',
+        label: 'Send it back. Build slower, with iron the crown paid for.',
+        effects: { affinity: { abbey: -5 }, flags: ['saffron-refused-iron'] },
+        response:
+          'She loads it back on the cart herself. Three weeks later a wagon goes over at the Ford in a flash flood. Two drown. Saffron goes to the burial. She doesn’t say why.',
+      },
+    ],
+  },
+  {
+    id: 'saffron-drawings',
+    follower: 'F002',
+    title: 'The Red Marks',
+    fromDay: 34,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Saffron has every bridge she ever built rolled out on the workshop floor, pinned with spanners. Each one has a small red mark. The place where it breaks.',
+      'The Watch wants copies. For defence, they say. They’re right. A sapper who knows the red mark can save a bridge in an hour.',
+      'And a sapper who steals the drawings can drop every bridge in the country in a night. If I burn the marks, they’re only in my head. Then you’d better not lose me.',
+    ],
+    options: [
+      {
+        id: 'give',
+        label:
+          'Give the Watch the drawings. A war needs them more than she does.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['saffron-drawings-given'],
+        },
+        response:
+          'The Watch makes three copies. One goes to the Ford post. One to the tower. One gets lost on the road and nobody can say where. Saffron stops sleeping well.',
+      },
+      {
+        id: 'burn',
+        label: 'Burn the red marks. Keep them in her head.',
+        effects: { flags: ['saffron-drawings-burned'] },
+        response:
+          'She burns them page by page in the workshop stove. Then she looks at you. “Now don’t lose me.” It isn’t a joke.',
+      },
+    ],
+  },
+  {
+    id: 'saffron-wagons',
+    follower: 'F002',
+    title: 'The Lightning Jaws Will Have You',
+    fromDay: 45,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'A Pack scout came to the hideout before dawn. Painted wagon, lightning bolt on the side. He talked to Saffron for an hour and didn’t look at anyone else.',
+      'The Lightning Jaws will take me back. No questions. And whoever I bring. Twenty wagons. Water. Rifles. They ride for you if I ask. Not for the crown. For me.',
+      'They also ride for whoever pays them next spring. I know that. You’d be in their debt. I’d be theirs again.',
+    ],
+    options: [
+      {
+        id: 'ask',
+        label:
+          'Ask her to send for them. The court needs wagons more than pride.',
+        effects: { affinity: { jackalwire: 5 }, flags: ['saffron-asked-pack'] },
+        response:
+          'She writes it in grease pencil on the back of a drawing. The wagons come in four days. She drives the first one in. She is wearing the badge on her coat now. Outside.',
+      },
+      {
+        id: 'refuse',
+        label:
+          'Tell her she owes them nothing. Not for the court. Not for you.',
+        effects: { flags: ['saffron-pack-refused'] },
+        response:
+          'The scout leaves at noon. Saffron watches the dust till it’s gone. That night the court rations water to half a cup. She gives you hers.',
+      },
+      {
+        id: 'reported',
+        label:
+          'Tell her you once had that badge reported to the Watch. You won’t spend it now.',
+        requires: { flags: ['saffron-badge-reported'] },
+        effects: { flags: ['saffron-pack-refused'] },
+        response:
+          'Saffron laughs. First time in a week. “That’s the worst apology I ever heard.” She sends the scout away with a wrench for his captain. Their wrench. She’s had it twenty years.',
+      },
+    ],
+  },
   // --- F003 Kiyo ---------------------------------------------------------------
   {
     id: 'kiyo-1',
@@ -1138,6 +1458,194 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'kiyo-gallows',
+    follower: 'F003',
+    title: 'A Gallows Stitch',
+    fromDay: 16,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'There is a raider on Kiyo’s table with a knife wound under the ribs. Two Watchmen at the door. One holds the raider’s boots.',
+      'They want him fit to stand on Thursday. For the rope. A man who cannot stand cannot be hanged properly, they say. It upsets the crowd.',
+      'I can close it. I am good at this. I would like you to tell me whether I am closing it for him or for the rope.',
+    ],
+    options: [
+      {
+        id: 'mend',
+        label: 'Mend him. What the law does after is not hers to carry.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['kiyo-mended-condemned'],
+        },
+        response:
+          'Kiyo sews him neat and small. He thanks her. On Thursday he stands. Kiyo is in the infirmary with the shutters closed, boiling her needles twice.',
+      },
+      {
+        id: 'refuse',
+        label: 'Let her refuse. Someone else can sew a gallows stitch.',
+        effects: {
+          local: { 'gate-watch': -1 },
+          flags: ['kiyo-refused-gallows'],
+        },
+        response:
+          'The Watch surgeon does it. Badly. On Thursday the man is carried up the steps with his shirt red through. The crowd is upset. Kiyo hears it from the infirmary.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-buttons',
+    follower: 'F003',
+    title: 'Buttons',
+    fromDay: 22,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Kiyo opens her paw. Three brass buttons. A Watch button, a Ledger clerk’s, and one off your own steward’s coat.',
+      'From my son’s pocket. He has a friend now. A Yard boy, eight, nobody’s. The boy takes things. Small things. My son holds them for him. He is proud to be trusted.',
+      'I can keep them apart. Or I can take the boy into the infirmary where I can see him. Then I have two. I do not have enough for one.',
+    ],
+    options: [
+      {
+        id: 'apart',
+        label: 'Keep them apart. Her son comes first.',
+        effects: { local: { yard: -1 }, flags: ['kiyo-kept-apart'] },
+        response:
+          'Kiyo returns the buttons and says nothing about where she found them. Her son cries for two nights. The Yard boy is caught in the Ledger’s storeroom a week later. The Watch is rough with him.',
+      },
+      {
+        id: 'take',
+        label: 'Give the boy a cot in the infirmary. Two sons, then.',
+        effects: { local: { yard: 1 }, flags: ['kiyo-took-yard-boy'] },
+        response:
+          '“Then he is mine too. You did that.” The boy sleeps under the table the first week. The second week, a button turns up on Kiyo’s pillow. Just one. Hers.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-vial',
+    follower: 'F003',
+    title: 'The Vial in the Glove',
+    fromDay: 29,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'A white glove on Kiyo’s table, folded round a glass vial. The Black Verge envoy left it when he passed through the infirmary. Left it. Did not give it.',
+      'Fever cure, the label says. I cannot read the rest. A Watch girl in the third bed has had the black fever four days. Tonight is the night it decides.',
+      'The Verge cures things on conditions. Everyone knows. Nobody knows what the condition is until it comes.',
+    ],
+    options: [
+      {
+        id: 'use',
+        label: 'Give it to the girl.',
+        effects: {
+          affinity: { 'black-verge': 5 },
+          flags: ['kiyo-used-verge-cure'],
+        },
+        response:
+          'The fever breaks by morning. The girl asks for water, then bread, then where the tall stranger in the gloves went. She asks every day. Kiyo writes down each time.',
+      },
+      {
+        id: 'pour',
+        label: 'Pour it out. Fight the fever with what she knows.',
+        effects: { flags: ['kiyo-poured-cure'] },
+        response:
+          'Kiyo empties it into the drain and sits with the girl all night. The girl lives. Her lungs don’t mend. She will never run the wall again.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-triage',
+    follower: 'F003',
+    title: 'Nine Beds',
+    fromDay: 35,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Nine beds in the infirmary. Fourteen wounded. Watch, Yard, and three riders from the other side of the war, brought in because they were lying on the road.',
+      'At home the rule was worst first. Whoever they were. The Watch says the rule here is ours first. Both rules are a kind of mercy. Both kill somebody tonight.',
+      'I want one rule. Yours. Then I do not have to choose fourteen times.',
+    ],
+    options: [
+      {
+        id: 'worst',
+        label: 'Worst first. Whoever they are.',
+        effects: { local: { 'gate-watch': -1 }, flags: ['kiyo-worst-first'] },
+        response:
+          'A Watch corporal waits on the floor all night while an enemy rider has the bed. He lives. He doesn’t forget whose rule it was. Neither does the Watch.',
+      },
+      {
+        id: 'ours',
+        label: 'Ours first. The court’s own come before the war’s.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['kiyo-ours-first'] },
+        response:
+          'At dawn one of the three is dead on the floor. Kiyo sews the sheet over him herself. She writes his name on the wall by the door, small, as best she can spell it.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-runner',
+    follower: 'F003',
+    title: 'Small Enough to Get Through',
+    fromDay: 46,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Kiyo’s son wants to run messages with the scouts. He is small. He is quiet. He gets into places. The scouts say he’d be useful. They say it kindly.',
+      'Everyone here is useful. He sees it. He wants to be useful too. He asked me. He said please.',
+      'I am asking you because I cannot say no to him and I cannot say yes.',
+    ],
+    options: [
+      {
+        id: 'run',
+        label: 'Let him carry one message. Close by. Home by dark.',
+        effects: { flags: ['kiyo-zuzu-runner'] },
+        response:
+          'He comes back at dusk out of breath with the answer word for word. He is proud for a week. Kiyo watches him practise being quiet. He gets better at it every day.',
+      },
+      {
+        id: 'keep',
+        label: 'No. He is a child. He stays by the fire.',
+        effects: { flags: ['kiyo-zuzu-kept'] },
+        response:
+          'He sulks two days. On the third he is on the hideout roof, where nobody saw him climb, watching the road. Kiyo brings him down. She can’t make herself scold him.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-postern',
+    follower: 'F003',
+    title: 'A Lantern at the Postern',
+    fromDay: 39,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Kiyo has a child’s shoe in her lap. Her son’s. Wet with dew.',
+      'I found it outside the postern this morning. Outside, Majesty. The door was barred when I looked. At the third bell it was not. I saw a lantern there, and a coat I know, going out.',
+      'I think it was the adviser. I am not sure. I am a foreigner with a kettle. If I say his name to the Watch and I am wrong, I will not be the one they believe next time.',
+    ],
+    options: [
+      {
+        id: 'watch',
+        label: 'Tell the Watch. Double the guard on the postern.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['kiyo-postern-reported'],
+        },
+        response:
+          'Dunmark doubles the postern guard without asking whose lantern. One of the two new men is young and thin and proud of the post. Kiyo brings him tea at the third bell.',
+      },
+      {
+        id: 'ask',
+        label: 'Ask Komodo yourself. Quietly.',
+        effects: { flags: ['kiyo-postern-asked'] },
+        response:
+          'Komodo laughs. He was walking off a headache. He describes the lantern, and the dew, and the shoe, and thanks Kiyo for her care. Every detail is right. That is what frightens her.',
+      },
+      {
+        id: 'lie',
+        label: 'Let it lie. A lantern at a door is not a crime.',
+        effects: { flags: ['kiyo-postern-let-lie'] },
+        response:
+          'Kiyo nods. That night she moves her son’s cot into the middle of the infirmary, away from every wall.',
+      },
+    ],
+  },
   // --- F004 Duchess Flint ------------------------------------------------------
   {
     id: 'flint-1',
@@ -1422,6 +1930,170 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'flint-light',
+    follower: 'F004',
+    title: 'Losses: Light',
+    fromDay: 7,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Flint has the morning report on her knee. One line is underlined in pencil. Losses: light.',
+      'Three people, Majesty. A drover, his boy, a Watch girl called Ennis. Light. I asked the clerk. He said names take an hour a day to copy, and the Ledger pays by the hour.',
+      'I would like the names in the report. Every report. I know what an hour costs. I am asking anyway.',
+    ],
+    options: [
+      {
+        id: 'names',
+        label: 'Names in every report. The Ledger can pay the hour.',
+        effects: { local: { ledger: -1 }, flags: ['flint-names-in-reports'] },
+        response:
+          'The clerks grumble. The reports get longer. Flint reads the first one aloud at supper. Three names. The barracks goes quiet and stays that way.',
+      },
+      {
+        id: 'numbers',
+        label: 'Numbers. A court with a war coming has to count, not mourn.',
+        effects: { local: { ledger: 1 }, flags: ['flint-numbers-only'] },
+        response:
+          '“Light,” Flint says. She writes the three names in the back of her own book. After that she adds every name, every day, by hand. Nobody asks her to stop.',
+      },
+    ],
+  },
+  {
+    id: 'flint-papers',
+    follower: 'F004',
+    title: 'Good Papers',
+    fromDay: 19,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'A family at the gate. Five of them. Their travel papers are good. Too good. The Watch found the forger’s thumbprint in the wax.',
+      'Flint is on the gate bench beside the mother, shawl round both of them.',
+      'Majesty. I came through a checkpoint on a lie once. Forty people did. You know this. The Watch says a gate that bends for a good lie bends for a bad one. The Watch is right. So am I.',
+    ],
+    options: [
+      {
+        id: 'admit',
+        label: 'Let them in. Burn the papers.',
+        effects: {
+          local: { 'gate-watch': -1, yard: 1 },
+          flags: ['flint-forgers-admitted'],
+        },
+        response:
+          'The papers go in the guardroom stove. The Watch sergeant watches them burn and writes something in his book. A month later three more families come with the same thumbprint.',
+      },
+      {
+        id: 'turn',
+        label: 'Turn them back. The gate holds for everyone or no one.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['flint-forgers-turned'],
+        },
+        response:
+          'Flint walks them out herself. Slowly. She gives the mother her shawl. She comes back without it and sits on the floor of the barracks until dark.',
+      },
+    ],
+  },
+  {
+    id: 'flint-seating',
+    follower: 'F004',
+    title: 'Below the Salt',
+    fromDay: 33,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Flint has the plan for the Saltroad Congress table. Komodo drew it. Neat squares. Names in each.',
+      'He has put the Moles below the salt. By the door. Where the draught is. He says it keeps the Old Houses calm.',
+      'It will. And Granny Umber will sit by that door all night and remember every minute of it. Chairs are what people remember, Majesty. Not speeches.',
+    ],
+    options: [
+      {
+        id: 'move',
+        label: 'Move the Moles up the table. Let the Old Houses sulk.',
+        effects: {
+          local: { 'old-houses': -1 },
+          affinity: { moles: 5 },
+          flags: ['flint-moved-moles'],
+        },
+        response:
+          'Flint redraws the squares herself. Komodo looks at the new plan a long time. “Bold,” he says. Lady Vask sends a note asking if the draught by the door can be fixed. It can’t.',
+      },
+      {
+        id: 'leave',
+        label:
+          'Leave the seating. The Congress is too important for a quarrel about chairs.',
+        effects: {
+          local: { 'old-houses': 1 },
+          flags: ['flint-seating-kept'],
+        },
+        response:
+          'Flint rolls up the plan. “Then I will sit by the door with her,” she says. And she does, when the night comes. Nobody moves her.',
+      },
+    ],
+  },
+  {
+    id: 'flint-threat',
+    follower: 'F004',
+    title: 'Surrender by the New Moon',
+    fromDay: 43,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Flint sits on the hideout floor with a sealed letter on her knee. The hosts gave it to her this morning.',
+      'There is a camp below the ridge. Families who followed Komodo’s buyer and now want to come back. The hosts want them told: surrender by the new moon, or be burned out.',
+      'They would let me close. Nobody else. And it is a threat. You know what I said, my fifth day.',
+    ],
+    options: [
+      {
+        id: 'carry',
+        label: 'Ask her to carry it. Just this once. They will listen to her.',
+        effects: { flags: ['flint-carried-threat'] },
+        response:
+          'Flint is quiet a long time. Then she stands, slowly, and goes. The camp surrenders. Nobody burns. She doesn’t sit on the floor again.',
+      },
+      {
+        id: 'other',
+        label: 'Send a host rider with it. Keep her out of it.',
+        requires: { notFlags: ['flint-no-threats'] },
+        effects: { flags: ['flint-threat-refused'] },
+        response:
+          'A host rider takes it. He comes back with an arrow in his saddle and no answer. On the new moon there is smoke below the ridge. Flint counts it.',
+      },
+      {
+        id: 'word',
+        label: 'Keep your word. Her voice carries no threats. Not even now.',
+        requires: { flags: ['flint-no-threats'] },
+        effects: { flags: ['flint-threat-refused'] },
+        response:
+          'Flint hands the letter back unopened. A host rider takes it. He comes back with an arrow in his saddle. On the new moon there is smoke below the ridge. Flint watches it with you. She says thank you, and means it, and it costs her.',
+      },
+    ],
+  },
+  {
+    id: 'flint-sisters',
+    follower: 'F004',
+    title: 'One by One',
+    fromDay: 48,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Flint has a list on her knee. Sisters of the Mission. Every name the court has heard since the summer.',
+      'The coalition wants the Abbey closed when this is over. Some want it burned, sisters and all. The Abbess will say none of them knew. The coalition will say all of them did.',
+      'Both are lies. I would like to try them one by one. It will take a year. People will die waiting for a verdict on someone who did nothing.',
+    ],
+    options: [
+      {
+        id: 'try',
+        label: 'One by one. However long it takes.',
+        effects: { flags: ['flint-trials-one-by-one'] },
+        response:
+          'Flint writes it at the top of her list. One by one. The coalition captains look at each other and say nothing yet. That is the first day of the year it takes.',
+      },
+      {
+        id: 'scatter',
+        label: 'Close the Abbey and scatter them. No trials. No fires.',
+        effects: { flags: ['flint-abbey-scattered'] },
+        response:
+          '“Then the guilty walk out with the rest,” Flint says. “Into every village in the country.” She folds the list. She doesn’t argue. She keeps it.',
+      },
+    ],
+  },
   // --- F005 Pip Thread ---------------------------------------------------------
   {
     id: 'pip-1',
@@ -1703,6 +2375,178 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'pip-well',
+    follower: 'F005',
+    title: 'Tax on a Dry Well',
+    fromDay: 11,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Pip holds out the tax roll at arm’s length, like something that might bite. One line is pinned with a pin.',
+      'The Yard is taxed for the east well. The east well dried up three summers ago. Somebody kept writing it in. Every quarter. Same hand.',
+      'If it is corrected back to the start, the crown owes the Yard three years. If it is corrected from today, the crown keeps three years it took for water nobody drank. I do not mind which. I mind that it is written down.',
+    ],
+    options: [
+      {
+        id: 'back',
+        label: 'Correct it back to the start. Pay the Yard what it’s owed.',
+        requires: { cost: 15 },
+        effects: {
+          local: { yard: 2, ledger: -1 },
+          flags: ['pip-well-repaid'],
+        },
+        response:
+          'The Ledger pays it in copper, so it takes two carts. The Yard buys a goat. Nobody else in the country gets their three years back. They hear about the goat.',
+      },
+      {
+        id: 'today',
+        label: 'Correct it from today. The crown cannot repay every old wrong.',
+        effects: { local: { yard: -1 }, flags: ['pip-well-corrected'] },
+        response:
+          'Pip strikes the line and writes the date beside it. Small. Then, smaller, in the margin: three years. They do not explain the margin. They do not have to.',
+      },
+    ],
+  },
+  {
+    id: 'pip-census',
+    follower: 'F005',
+    title: 'A List of the Yard',
+    fromDay: 23,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Pip wants to count the Yard. Every family. Every bed. Names. Then the bread can go by the list, and the north side stops running short every week.',
+      'The Yard does not want a list. The Mission keeps lists. The Ledger keeps lists. People on lists get found.',
+      'They are right. So am I. A list feeds people. A list is also how you find them.',
+    ],
+    options: [
+      {
+        id: 'count',
+        label: 'Count them. Fair bread needs a list.',
+        effects: { local: { yard: -1, ledger: 1 }, flags: ['pip-yard-census'] },
+        response:
+          'Pip counts for four days. The bread goes fair for the first time all year. On the fifth morning three families are gone from the north side. Nobody says where.',
+      },
+      {
+        id: 'none',
+        label: 'No list. Bread by eye, as before.',
+        effects: { local: { yard: 1 }, flags: ['pip-no-census'] },
+        response:
+          'The bread runs out on the north side first. Every week. Pip writes down which side. They can’t help it. Nobody else sees the page.',
+      },
+    ],
+  },
+  {
+    id: 'pip-buried',
+    follower: 'F005',
+    title: 'If the Tower Burns',
+    fromDay: 30,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Pip has made a second copy of the register of the missing. Three volumes. Oilcloth. Tied with tarred string. It sits on their stool like a loaf.',
+      'If the tower burns, the register burns. I would like this one somewhere else. I can bury it where only I know. Or the Lamplight Archive will take it. The Archive has a vault and a keeper.',
+      'Only I know means if I die, nobody knows. The Archive means anybody who owns the Archive owns the names.',
+    ],
+    options: [
+      {
+        id: 'bury',
+        label: 'Bury it where only Pip knows.',
+        effects: { flags: ['pip-copy-buried'] },
+        response:
+          'Pip is gone one afternoon and comes back with dirt under their nails. They do not say where. They walk lighter. At supper they eat nothing.',
+      },
+      {
+        id: 'archive',
+        label:
+          'Lodge it with the Lamplight Archive. A vault, a keeper, a receipt.',
+        effects: { local: { lamplight: 1 }, flags: ['pip-copy-archived'] },
+        response:
+          'The keeper signs for it in purple ink. Pip reads the receipt three times. They keep it in their shirt.',
+      },
+      {
+        id: 'tower',
+        label:
+          'No. The register stays in the tower, where the crown can guard it.',
+        effects: { flags: ['pip-copy-in-tower'] },
+        response:
+          'Pip unties the string and puts the volumes back on the shelf. They tie the string round their wrist instead. They wear it for weeks.',
+      },
+    ],
+  },
+  {
+    id: 'pip-roster',
+    follower: 'F005',
+    title: 'A Perfect Hand',
+    fromDay: 36,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Pip has a sister’s roster from the Mission, borrowed for one night. Thirty names in a round brown hand. They have copied the hand already, on scrap. It is perfect.',
+      'The party going into the Abbey needs a line on this page to get past the door. I can write one. Nobody will ever tell it from hers.',
+      'It is the only thing I have never done. I would like you to know that before you ask me.',
+    ],
+    options: [
+      {
+        id: 'write',
+        label: 'Ask them to write it. People are inside.',
+        effects: { local: { lamplight: -1 }, flags: ['pip-forged-roster'] },
+        response:
+          'Pip writes one line. It takes them an hour. The party gets in. Afterwards Pip burns the scrap and washes their hands until the knuckles crack.',
+      },
+      {
+        id: 'bent',
+        label:
+          'Remind them you told them once you might bend a page. This is the page.',
+        requires: { flags: ['pip-record-bent'] },
+        effects: { local: { lamplight: -1 }, flags: ['pip-forged-roster'] },
+        response:
+          '“You did say.” Pip writes the line. Perfect. They do not burn the scrap. They keep it with your answer from the first week, folded together.',
+      },
+      {
+        id: 'spare',
+        label: 'Don’t. The party finds another way in.',
+        effects: { flags: ['pip-refused-forgery'] },
+        response:
+          'Pip puts the pen down. The party goes over the orchard wall instead and comes back a man short, limping. Pip sits with him all night.',
+      },
+    ],
+  },
+  {
+    id: 'pip-copy',
+    follower: 'F005',
+    title: 'Let Them Copy',
+    fromDay: 48,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Pip is writing out the register of the missing again by the hideout fire. Third time. The hosts’ clerk sits beside them with her own paper and waits.',
+      'She wants to copy it as I go. Their villages lost children too. She wants to know which. She would use it. Against the Mission. Against anyone on it.',
+      'Once it is in her hand it is not ours. I wanted to ask before it is.',
+    ],
+    options: [
+      {
+        id: 'share',
+        label: 'Let her copy. Their missing are on it too.',
+        effects: { flags: ['pip-register-shared'] },
+        response:
+          'The clerk copies every page. By the end of the week the hosts have a list of names to say at their fire. And a list of names to hunt. Pip hears both.',
+      },
+      {
+        id: 'hold',
+        label: 'Not yet. Not till it is whole and checked.',
+        effects: { flags: ['pip-register-held'] },
+        response:
+          'The clerk puts her paper away. She doesn’t sit with Pip again. The hosts’ bread comes slower after that.',
+      },
+      {
+        id: 'dig',
+        label:
+          'Send for the copy Pip buried. Give her that one, not the one in their head.',
+        requires: { flags: ['pip-copy-buried'] },
+        effects: { flags: ['pip-register-shared', 'pip-copy-dug-up'] },
+        response:
+          'Two scouts dig where Pip draws the map. The oilcloth held. Pip unwraps it at the fire and cries without making a sound. The clerk copies from it. Pip keeps writing anyway.',
+      },
+    ],
+  },
   // --- F006 Nera Gale ----------------------------------------------------------
   {
     id: 'nera-1',
@@ -2070,6 +2914,38 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'nera-hail',
+    follower: 'F006',
+    title: 'Hail on the Wheat',
+    fromDay: 29,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Nera’s storm-glass has gone white at the bottom. Small grains, like salt, turning.',
+      'Hail. Three days. On the Freehold wheat below the Ford, a week before it’s cut. I am certain.',
+      'Forecasts are Conclave property. If the Freeholds are warned and the wheat is saved, Corvane will know exactly who read it. Then I stop being a dissident in your barracks and start being a thief. They hang thieves on the Heights. Slowly.',
+    ],
+    options: [
+      {
+        id: 'warn',
+        label: 'Warn the Freeholds. Wheat feeds the winter.',
+        effects: {
+          affinity: { freeholds: 5, 'storm-crows': -5 },
+          flags: ['nera-warned-freeholds'],
+        },
+        response:
+          'Riders go out by noon. The Freeholds cut green and lose a third instead of all of it. Four days later a crow leaves a single black feather on Nera’s sill. She keeps it.',
+      },
+      {
+        id: 'silent',
+        label: 'Say nothing. Her cover is worth more than one harvest.',
+        effects: { flags: ['nera-kept-hail'] },
+        response:
+          'The hail comes on the third day, white and loud. The wheat below the Ford is flat by evening. Nera watches from the high window and writes down how long it lasted. Exactly.',
+      },
+    ],
+  },
   // --- F007 Ash Quill ----------------------------------------------------------
   {
     id: 'ash-1',
@@ -2357,6 +3233,36 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'ash-seal',
+    follower: 'F007',
+    title: 'Saltroad Wax',
+    fromDay: 30,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Ash has one letter apart from the rest of the post, face down on the table. Their paw is flat on it.',
+      'Addressed to the court adviser. Saltroad wax. But the wax is wrong. It’s the factor’s seal pressed into Abbey grey. Somebody melted one over the other.',
+      'I don’t open letters. Eleven years. That’s the whole of what I am. And I have never wanted to open one more in my life.',
+    ],
+    options: [
+      {
+        id: 'open',
+        label: 'Open it. Reseal it. He never knows.',
+        effects: { flags: ['ash-opened-komodo-letter'] },
+        response:
+          'Ash opens it with a hot knife and shaking paws. Grain prices. Nothing else. They reseal it perfectly. They can’t eat that night. They don’t say which part made them sick.',
+      },
+      {
+        id: 'deliver',
+        label:
+          'Deliver it unopened. A courier who opens one letter opens them all.',
+        effects: { flags: ['ash-delivered-unopened'] },
+        response:
+          'Ash puts it in Komodo’s hand. He thanks them and slits it with one claw. Doesn’t read it there. Ash watches him walk away with it. Their ears stay flat for a day.',
+      },
+    ],
+  },
   // --- F008 Bram Coil ----------------------------------------------------------
   {
     id: 'bram-1',
@@ -2516,6 +3422,39 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'bram-third',
+    follower: 'F008',
+    title: 'A Third Off',
+    fromDay: 32,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Bram has chalked a new number on the larder door. Two thirds. He stands beside it like a sentry.',
+      'War stores have to last to the thaw. They won’t, at the old ration. So the barracks eats two thirds. A Watch sentry fainted on the east wall this morning. He’ll be the first of many.',
+      'Hold the line, and the stores last and the Watch is weak. Give it back, and the Watch is strong till the stores run out. Pick the month you want to be hungry in.',
+    ],
+    options: [
+      {
+        id: 'hold',
+        label: 'Hold the line. Two thirds to the thaw.',
+        effects: { local: { 'gate-watch': -1 }, flags: ['bram-held-ration'] },
+        response:
+          'Bram eats his two thirds at the barracks table where everyone can see. Three more sentries faint that week. The stores hold. Bram looks thinner every day and won’t talk about it.',
+      },
+      {
+        id: 'restore',
+        label:
+          'Give the Watch its full ration. The Yard makes up the difference.',
+        effects: {
+          local: { 'gate-watch': 1, yard: -1 },
+          flags: ['bram-watch-fed'],
+        },
+        response:
+          'Bram rubs out the chalk. Then he walks down to the Yard and tells them himself, to their faces. He doesn’t send a clerk. They don’t thank him for it.',
+      },
+    ],
+  },
   // --- F009 Keel Understone ----------------------------------------------------
   {
     id: 'keel-1',
@@ -3111,6 +4050,168 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'tamsin-sill',
+    follower: 'F011',
+    title: 'A Crow on the Sill',
+    fromDay: 12,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'A crow sat on the barracks sill at dawn with a forecast tied to its leg. Addressed to Tamsin Gutterwing. By name. In the runners’ hand.',
+      'Tamsin has not touched it. She sits on the wardrobe and watches it sit on the bunk.',
+      'It’s a true one. They only send true ones the first time. If I read it, I’m carrying again. That’s how it starts. If I don’t, you lose a true forecast in a dry year.',
+    ],
+    options: [
+      {
+        id: 'read',
+        label: 'Ask her to read it. The court needs to know when it rains.',
+        effects: {
+          affinity: { 'storm-crows': 5 },
+          flags: ['tamsin-read-forecast'],
+        },
+        response:
+          'Tamsin reads it aloud, flat. Rain on the ninth day. It rains on the ninth day. The Yard’s cisterns are open and full. That night a second crow lands on the sill. It sits there.',
+      },
+      {
+        id: 'burn',
+        label: 'Burn it unread. She carries for nobody.',
+        effects: { flags: ['tamsin-burned-forecast'] },
+        response:
+          'She burns it in the lamp. Nine days later it rains hard for an hour, and the Yard’s cisterns are shut against the dust. Most of it runs off into the Ford. Tamsin watches it go.',
+      },
+    ],
+  },
+  {
+    id: 'tamsin-climb',
+    follower: 'F011',
+    title: 'How to Climb a Wall',
+    fromDay: 26,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'There are six Yard children on the barracks roof. Tamsin is teaching them which stones on the east wall take a foot and which ones lie.',
+      'The Watch caught us. They’re not wrong. A child who can climb the wall can let a thief in over it.',
+      'But if this tower ever falls in the night, the gate will be the first place anyone looks. I want them to know another way. I knew one at their age. It’s why I’m alive.',
+    ],
+    options: [
+      {
+        id: 'teach',
+        label: 'Let her teach them.',
+        effects: {
+          local: { yard: 1, 'gate-watch': -1 },
+          flags: ['tamsin-taught-climbing'],
+        },
+        response:
+          'The lessons go on at dusk. The Watch puts a man on the east wall who mostly watches children. Two weeks later a sack of the Ledger’s salt goes over the east wall in the night. Nobody can prove a thing.',
+      },
+      {
+        id: 'stop',
+        label: 'Stop it. The wall is the wall.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['tamsin-no-climbing'] },
+        response:
+          'Tamsin brings them down one by one. The smallest bites her. She lets him. Afterwards she sits on the wardrobe and picks at her sash where the knots used to be.',
+      },
+    ],
+  },
+  {
+    id: 'tamsin-flue',
+    follower: 'F011',
+    title: 'The Old Flue',
+    fromDay: 32,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Tamsin is black to the elbows with soot. She sits on the hearth with her knees up.',
+      'Every place I sleep, I find a way out. Here it’s the old kitchen flue. Up past the bread oven, out on the roof of the stores. Nobody else fits.',
+      'Dunmark found the soot on my sash. He wants the flue bricked. Then it’s safe. And then I can’t sleep. That’s my problem, not yours. But it’s also the only door in this tower nobody watches.',
+    ],
+    options: [
+      {
+        id: 'brick',
+        label: 'Let Dunmark brick it.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['tamsin-flue-bricked'] },
+        response:
+          'The masons brick it in a morning. Tamsin watches them do it. She sleeps on the wardrobe with her boots on for a month.',
+      },
+      {
+        id: 'keep',
+        label: 'Keep the flue open. Let it be hers.',
+        effects: { flags: ['tamsin-flue-kept'] },
+        response:
+          'Dunmark hears it from you and says nothing. He doubles the guard on the stores roof. Tamsin starts sleeping with her boots off.',
+      },
+    ],
+  },
+  {
+    id: 'tamsin-fledgling',
+    follower: 'F011',
+    title: 'A Spy Nine Years Old',
+    fromDay: 38,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'The Watch took a Crow runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
+      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold Crow children.',
+      'Send her back and she carries till she dies. Keep her and the Conclave says the crown steals runners. Which is what they do. Pick one.',
+    ],
+    options: [
+      {
+        id: 'keep',
+        label: 'Keep her. The Conclave can say what it likes.',
+        effects: {
+          affinity: { 'storm-crows': -5 },
+          flags: ['tamsin-kept-spy'],
+        },
+        response:
+          'Elder Corvane writes before dawn. Three lines. The Crows will come to the Congress, and they will remember. The girl sleeps on top of the wardrobe beside Tamsin and won’t come down.',
+      },
+      {
+        id: 'return',
+        label: 'Send her back. Not on the eve of the Congress.',
+        effects: {
+          affinity: { 'storm-crows': 5 },
+          flags: ['tamsin-spy-returned'],
+        },
+        response:
+          'Tamsin walks her to the gate. Gives her a knife, hilt first. “For the knots. When you’re ready.” The girl takes it. She doesn’t look back.',
+      },
+    ],
+  },
+  {
+    id: 'tamsin-carry',
+    follower: 'F011',
+    title: 'Carrying Again',
+    fromDay: 44,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Tamsin is on the highest beam of the hideout with her legs hanging down. She doesn’t come down when you call. You climb up.',
+      'The hosts need a runner across the Heights. Their allies are three caves over. Nobody else knows the draughts. I do.',
+      'I swore I’d never carry again. I was eight when I swore it. I’d like you to tell me whether that still counts.',
+    ],
+    options: [
+      {
+        id: 'carry',
+        label: 'Ask her to carry. Once. The court is out of better roads.',
+        effects: { flags: ['tamsin-runs-again'] },
+        response:
+          'She goes at dusk. She comes back in two days with the answer and her chimes wrapped in wool. She doesn’t unwrap them.',
+      },
+      {
+        id: 'none',
+        label: 'Tell the hosts she runs for nobody.',
+        effects: { flags: ['tamsin-runs-for-none'] },
+        response:
+          'The hosts send their own runner. He loses the draught in the second cave. They find him in the spring. Tamsin goes with them to bring him down.',
+      },
+      {
+        id: 'children',
+        label:
+          'Ask her to carry for the children she taught to climb. They need those allies.',
+        requires: { flags: ['tamsin-taught-climbing'] },
+        effects: { flags: ['tamsin-runs-again'] },
+        response:
+          '“That’s a dirty way to ask.” She goes anyway. Two of the Yard children who came over the east wall the night the tower fell watch her go from the same beam.',
+      },
+    ],
+  },
   // --- F012 Brother Teodor Lull -----------------------------------------------
   {
     id: 'teodor-1',
@@ -3383,6 +4484,73 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'teodor-sister',
+    follower: 'F012',
+    title: 'A Sister at the Kitchen Door',
+    fromDay: 26,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Teodor brings you a bowl you didn’t ask for and sits down across from you. He doesn’t tell a joke.',
+      'A sister came to the kitchen door last night. Thin. Grey habit with the bell cut off it. She asked for bread. Then she asked for me. By name.',
+      'If she ran, she knows things. If she was sent, she’s in my kitchen. I ran once. Nobody asked me a single question. I have wondered since if they should have.',
+    ],
+    options: [
+      {
+        id: 'take',
+        label: 'Take her in. Let her work the kitchen beside him.',
+        effects: { flags: ['teodor-took-sister'] },
+        response:
+          'She peels potatoes for a week and says nothing. On the eighth day she asks Teodor how many beds the Yard has. He tells you. He doesn’t tell her.',
+      },
+      {
+        id: 'watch',
+        label: 'Hand her to the Watch. Questions first. Bread after.',
+        effects: {
+          local: { 'gate-watch': 1 },
+          flags: ['teodor-sister-questioned'],
+        },
+        response:
+          'The Watch has her two days. She tells them about the lower house, the beds, the lessons. Then she stops talking for good. Teodor brings her soup in the cell and sits outside the bars.',
+      },
+      {
+        id: 'away',
+        label: 'Give her bread and send her on. The court cannot risk it.',
+        effects: { flags: ['teodor-sister-sent-on'] },
+        response:
+          'Teodor wraps two loaves and walks her to the Ford road. She doesn’t look back. He stands there until the dust settles. He doesn’t know which way she turned.',
+      },
+    ],
+  },
+  {
+    id: 'teodor-pot',
+    follower: 'F012',
+    title: 'One Pot',
+    fromDay: 45,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'One pot in the hideout. Teodor stirs it with the ladle on its cord. He has counted the bowls twice.',
+      'Our people and the hosts’ children. There isn’t enough for both. Not full bowls. The hosts gave us their roof. Our people gave you everything else.',
+      'Soup is arithmetic, Majesty. I said that once like it was a joke.',
+    ],
+    options: [
+      {
+        id: 'hosts',
+        label: 'The hosts’ children first. It is their roof.',
+        effects: { flags: ['teodor-fed-hosts'] },
+        response:
+          'The children eat full. The court eats thin. A Watchman says something about whose side the crown is on. Teodor gives him his own bowl and doesn’t answer.',
+      },
+      {
+        id: 'ours',
+        label: 'The court first. They followed you here.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['teodor-fed-court'] },
+        response:
+          'The court eats full. The hosts’ children watch from the door. Next morning there is a guard on the hosts’ well that wasn’t there before.',
+      },
+    ],
+  },
   // --- F013 Mags Ironhide ------------------------------------------------------
   {
     id: 'mags-1',
@@ -3515,6 +4683,35 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'mags-door',
+    follower: 'F013',
+    title: 'Nobody Armed',
+    fromDay: 33,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Mags has been given the Congress door. Her orders are one line, and Dunmark read it to her twice: nobody armed goes in.',
+      'The Saltroad factor won’t come without her drivers. Her drivers won’t come without their knives. Komodo says let them in. Says the Congress fails without the Saltroad.',
+      'I’ve never once stepped aside. Not for a duke. I’ll do it if you tell me. I want you to know what you’re telling me.',
+    ],
+    options: [
+      {
+        id: 'aside',
+        label: 'Let the drivers through. The Congress needs the Saltroad.',
+        effects: { affinity: { saltroad: 5 }, flags: ['mags-stepped-aside'] },
+        response:
+          'Mags steps aside. She stands there afterwards with her shoulder against the wall, looking at the floor where she used to stand.',
+      },
+      {
+        id: 'hold',
+        label: 'Nobody armed. Mags holds the door.',
+        effects: { affinity: { saltroad: -5 }, flags: ['mags-held-door'] },
+        response:
+          '“Right.” She plants her feet. The factor’s drivers argue an hour. The factor goes in alone, furious, and sits by the door all night where she can see the drivers through it.',
+      },
+    ],
+  },
   // --- F014 Pell Quickmarrow ---------------------------------------------------
   {
     id: 'pell-1',
@@ -3738,6 +4935,35 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'pell-handcar',
+    follower: 'F014',
+    title: 'The Handcar',
+    fromDay: 38,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Pell has grease on his whiskers and a grin he can’t put away. He drags you to the barracks window and points at the old rail cut.',
+      'Handcar. Under the slag heap. Runs. I ran it. Twenty people down the old line in an hour, and nobody on a horse can follow.',
+      'Saltroad would take it against my debt. All of it. I’d be a free rat. Or it stays under the slag heap and I stay in hock, and the crown’s got a back door nobody knows. Your bed. Your call.',
+    ],
+    options: [
+      {
+        id: 'sell',
+        label: 'Sell it. Clear his debt.',
+        effects: { affinity: { saltroad: 5 }, flags: ['pell-sold-handcar'] },
+        response:
+          'The Saltroad hauls it off on a dray. Pell signs the release with a flourish and buys the barracks a round with money he doesn’t have yet. He sleeps like the dead.',
+      },
+      {
+        id: 'keep',
+        label: 'Keep it under the slag. The crown may need a back door.',
+        effects: { flags: ['pell-kept-handcar'] },
+        response:
+          'Pell oils it once a week at night. The Saltroad agent comes twice more about the debt. Pell meets him at the gate with all forty pockets buttoned.',
+      },
+    ],
+  },
   // --- F015 Isolde Brack -------------------------------------------------------
   {
     id: 'isolde-1',
@@ -4044,6 +5270,35 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'isolde-burrow',
+    follower: 'F015',
+    title: 'A Witch at the Burrow',
+    fromDay: 37,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Isolde comes back from the Yard with her lantern dark and her jaw set.',
+      'Mole family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
+      'They won’t let me through the door. A Mother’s hand on their child. They’d rather it died clean. The Watch would carry me in if you said so. I’m asking whether you say so.',
+    ],
+    options: [
+      {
+        id: 'order',
+        label: 'Order the door open. The child comes first.',
+        effects: { affinity: { moles: -5 }, flags: ['isolde-forced-cure'] },
+        response:
+          'Two Watchmen hold the father in the passage. Isolde works all night. By morning the child is cool. The family moves out of the Yard that week. They take the child. They leave the blanket Isolde used.',
+      },
+      {
+        id: 'respect',
+        label: 'Respect the family. It is their door and their child.',
+        effects: { affinity: { moles: 5 }, flags: ['isolde-respected-door'] },
+        response:
+          'Isolde leaves a green candle on their step and walks away. The child dies on the third night. The mother brings the candle back to the barracks, unlit, and sets it on Isolde’s sill.',
+      },
+    ],
+  },
   // --- F016 Sable Thorne -------------------------------------------------------
   {
     id: 'sable-1',
@@ -4052,7 +5307,7 @@ export const TALKS: readonly TalkDef[] = [
     fromDay: 29,
     requires: { notFlags: IN_THE_TOWER },
     lines: [
-      'Sable Thorne has made tea in the barracks with a kettle borrowed from Kiyo and cups borrowed from nobody. Two cups. White gloves. They pour without spilling a drop, which on a barracks bunk is a kind of violence.',
+      'Sable Thorne has made tea in the barracks with a kettle borrowed from the infirmary and cups borrowed from nobody. Two cups. White gloves. They pour without spilling a drop, which on a barracks bunk is a kind of violence.',
       'Sit, Majesty. I know. The court thinks I am a spy, or a plague, or a debt the crown will regret. All three are reasonable.',
       'I have a favour to ask. Small. When the fever comes, and it will, I would like to be locked in. A key. Someone else holds it.',
       'The question is who.',
@@ -4173,7 +5428,7 @@ export const TALKS: readonly TalkDef[] = [
     lines: [
       'Sable has pushed the barracks bunks against the walls. They stand in the middle of the floor in the plum coat, gloves on, one paw held out at shoulder height.',
       'The Verge has a dance. Eleven steps. Courtiers learn it before they can read. I have not danced it in four years. I find I miss it. That is embarrassing.',
-      'It needs two. I would ask Mags, but Mags would break my foot and apologise.',
+      'It needs two. I would ask the Watch, but the Watch would break my foot and apologise.',
       'You may say no. Most people should.',
     ],
     options: [
@@ -4420,6 +5675,35 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'sable-chain',
+    follower: 'F016',
+    title: 'No Door That Locks',
+    fromDay: 46,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Sable has borrowed a length of wagon chain from the hosts and laid it on their bedroll in a neat coil. White gloves on top.',
+      'The fever is coming. A week. Perhaps less. The tower had a door with a lock. This place has curtains.',
+      'Chain me to the post. Please. Or someone sits with me through it, and I cannot promise what that someone will be sitting with.',
+    ],
+    options: [
+      {
+        id: 'chain',
+        label: 'Chain them, as they ask.',
+        effects: { flags: ['sable-chained'] },
+        response:
+          'The fever comes on the fifth night. The chain holds. The hosts’ children hear it rattle till dawn and are afraid of Sable after. Sable thanks you with impeccable manners and cannot look at the post.',
+      },
+      {
+        id: 'sit',
+        label: 'No chains. Someone sits with them all night.',
+        effects: { flags: ['sable-watched'] },
+        response:
+          'The fever comes on the fifth night. The Watchman who sits with them comes out at dawn with three long scratches down his arm and says it was nothing. Sable sends him their gloves.',
+      },
+    ],
+  },
   // --- F017 Cobb Harrow --------------------------------------------------------
   {
     id: 'cobb-1',
@@ -4567,7 +5851,12 @@ export const TALKS: readonly TalkDef[] = [
     follower: 'F017',
     title: 'Same Bench',
     fromDay: 20,
-    requires: { flags: ['heard:cobb-1'], notFlags: IN_THE_TOWER },
+    // The whole scene is about Saffron, so it waits for her to be at court.
+    requires: {
+      flags: ['heard:cobb-1'],
+      notFlags: IN_THE_TOWER,
+      follower: 'F002',
+    },
     lines: [
       'Supper. The barracks table. Cobb comes in with his bowl, sees who is on the bench, and stops.',
       'Saffron Kett. Jackal. Welding scars. She is mid-story and does not see him.',
@@ -4650,6 +5939,69 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'cobb-timber',
+    follower: 'F017',
+    title: 'My Barn for Sale',
+    fromDay: 28,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Cobb puts a charred beam end on your table. Oak. Pegged, not nailed. His mark cut in the end grain.',
+      'Rustline trader in the market’s selling Thistledown timber. Salvage. Off my barn. Off my neighbours’. Cheap, and folk are buying.',
+      'Salvage law says what burns and lies is anybody’s. I know. I don’t want it back. I want him to stop.',
+    ],
+    options: [
+      {
+        id: 'ban',
+        label: 'Ban the sale. Salvage law bends for Thistledown.',
+        effects: {
+          affinity: { rustline: -5, freeholds: 5 },
+          flags: ['cobb-salvage-banned'],
+        },
+        response:
+          'The trader packs up, swearing. Next week every Rustline stall puts its prices up a copper, for the crown’s new rules. Cobb buys back one beam with his own pay and nails it over his bunk.',
+      },
+      {
+        id: 'law',
+        label: 'Salvage is salvage. The law can’t pick favourites.',
+        effects: {
+          affinity: { rustline: 5, freeholds: -5 },
+          flags: ['cobb-salvage-allowed'],
+        },
+        response:
+          'Cobb takes the beam end back. He walks through the market every morning after that, the long way, past the stall. He never stops. He never buys.',
+      },
+    ],
+  },
+  {
+    id: 'cobb-frame',
+    follower: 'F017',
+    title: 'The Fourth Barn',
+    fromDay: 44,
+    requires: { flags: ['komodo-betrayal'] },
+    lines: [
+      'Cobb has his hammer and his hat and a bundle on his back. He is standing at the hideout mouth, not leaving.',
+      'Word came. Thistledown burned again in the dark. Fourth time. Folk are sleeping in the fields.',
+      'It’s three days. I can raise a frame before the frost. Or I stay, and you’ve got one more pair of hands when the end comes. I came here to say something. Never did. Maybe this is it.',
+    ],
+    options: [
+      {
+        id: 'go',
+        label: 'Go. Raise the frame. Come back if you can.',
+        effects: { affinity: { freeholds: 5 }, flags: ['cobb-went-home'] },
+        response:
+          'He goes at first light. Nine days later he is back with ash in his hat. “Raised the frame,” he says. “Somebody else can roof it.” He sits on the woodpile and sleeps sitting up.',
+      },
+      {
+        id: 'stay',
+        label: 'Stay. The court needs your hands now.',
+        effects: { flags: ['cobb-stayed'] },
+        response:
+          'Cobb puts the bundle down. He builds the hosts a lean-to for the sick by nightfall without being asked. He doesn’t look north. Not once. Everyone notices.',
+      },
+    ],
+  },
   // --- F018 Vesper Fanfare -----------------------------------------------------
   {
     id: 'vesper-1',
@@ -4932,6 +6284,38 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'vesper-powder',
+    follower: 'F018',
+    title: 'One Spark',
+    fromDay: 31,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Vesper has her clubs under one arm and the war camp’s quartermaster at her heels, red in the face.',
+      'Camp below the Ford’s losing three a night. Deserters. They’re not cowards, boss. They’re bored and scared and nobody’s laughed in a week. Give me one night. One show.',
+      'The quartermaster says no fire within a hundred paces of the lamp oil. The oil’s everywhere. He’s right. So am I.',
+    ],
+    options: [
+      {
+        id: 'show',
+        label: 'Let her do the show. Far from the oil as she can get.',
+        effects: {
+          local: { yard: 1, 'gate-watch': -1 },
+          flags: ['vesper-war-show'],
+        },
+        response:
+          'She juggles on a sandbar in the river, so far out they need lanterns to see her. They laugh. Nobody deserts that week. A spark lands in a fodder cart on the way back. It burns. Nobody’s hurt. The quartermaster doesn’t speak to her again.',
+      },
+      {
+        id: 'no',
+        label: 'No fire. Not near the oil. Not in a war.',
+        effects: { local: { 'gate-watch': 1 }, flags: ['vesper-no-show'] },
+        response:
+          'Vesper puts the clubs down. She goes down to the camp anyway and juggles turnips. A few laugh. Two more go over the ridge that night.',
+      },
+    ],
+  },
   // --- F019 Hollin Moss --------------------------------------------------------
   {
     id: 'hollin-1',
@@ -5059,7 +6443,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'feather',
         label:
           'Tell him Nera has been leaving a grey feather on the throne on mornings when a report has no weather in it.',
-        requires: { flags: ['nera-watching-briefings'] },
+        requires: { flags: ['nera-watching-briefings'], follower: 'F006' },
         effects: {},
         response: 'Hollin goes still.',
         next: 'feather',
@@ -5161,6 +6545,35 @@ export const TALKS: readonly TalkDef[] = [
     ],
   },
 
+  // Short talks (t-042).
+  {
+    id: 'hollin-eyes',
+    follower: 'F019',
+    title: 'Borrowed Eyes',
+    fromDay: 26,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Hollin holds a map up to the lamp. Then closer. Then he puts it down.',
+      'The fine lines go now, after dark. Contours. Wells. I drew a well on the wrong side of a ridge on Tuesday. A rider found the mistake. He found it thirsty.',
+      'There is a Yard girl with good eyes who already reads my maps over my shoulder. The Archive says only sworn copyists learn the craft. An Archive copyist comes in a month. Riders ride every day.',
+    ],
+    options: [
+      {
+        id: 'girl',
+        label: 'Teach the girl. Riders ride every day.',
+        effects: { local: { lamplight: -1 }, flags: ['hollin-taught-girl'] },
+        response:
+          'She learns fast. Faster than he did. The Archive writes a stiff letter. In the spring she draws the north ridge alone, and Hollin finds nothing to correct. He looks for an hour.',
+      },
+      {
+        id: 'sworn',
+        label: 'Wait for the sworn copyist. The craft has rules for a reason.',
+        effects: { local: { lamplight: 1 }, flags: ['hollin-waited-copyist'] },
+        response:
+          'The copyist arrives in five weeks with a seal and a cough. Until then Hollin draws by daylight only, and slower. Two more wells are wrong. One rider doesn’t come back to report it.',
+      },
+    ],
+  },
   // --- F020 Juniper Slate ------------------------------------------------------
   {
     id: 'juniper-1',
@@ -5407,6 +6820,35 @@ export const TALKS: readonly TalkDef[] = [
               '“Then I keep feeding them.” There is an extra potato in the pot that night. Three bowls get one each.',
           },
         ],
+      },
+    ],
+  },
+  // Short talks (t-042).
+  {
+    id: 'juniper-sugar',
+    follower: 'F020',
+    title: 'Sugar for a Wedding',
+    fromDay: 22,
+    requires: { notFlags: IN_THE_TOWER },
+    lines: [
+      'Juniper is weighing a bag of sugar in one paw and the infirmary’s order slip in the other. Not looking at either.',
+      'A Watch sergeant and a Yard porter want to marry. Saturday. The whole Yard’s talking. First good news in a month. They want a cake.',
+      'This is the only sugar in the fortress. A spoon of it goes in every fever draught. I’ll bake if you say. I’ll look at the fever beds after. So will you.',
+    ],
+    options: [
+      {
+        id: 'cake',
+        label: 'Bake the cake. The Yard needs one good Saturday.',
+        effects: { local: { yard: 1 }, flags: ['juniper-baked-cake'] },
+        response:
+          'The cake is lopsided and enormous. The Watch and the Yard dance together in the mud. On Tuesday the fever draughts go out bitter. Two children spit them up. Juniper sits with them.',
+      },
+      {
+        id: 'sick',
+        label: 'The sugar stays with the sick.',
+        effects: { local: { yard: -1 }, flags: ['juniper-kept-sugar'] },
+        response:
+          'The wedding has bread and salt. The bride says it’s fine. It is fine. Juniper makes a cake of turnips and honey-water. Nobody eats much of it. They all say thank you.',
       },
     ],
   },

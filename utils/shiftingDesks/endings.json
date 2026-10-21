@@ -47,6 +47,18 @@
         {
           "when_flag": "swapped-pips-suggestion",
           "text": "PAL quotes your anonymous suggestion that its lighting is excellent. Pip sits in the audience, turning the real note over in his hands. He does not applaud until you look at him."
+        },
+        {
+          "when_flag": "form-zero-stamped",
+          "text": "The award committee presents you with the stamp that exhausted the Records supervisor. It reads APPROVED. You hold it upside down during the photograph so nobody can see that your hand still shakes."
+        },
+        {
+          "when_flag": "shipped-the-bear",
+          "text": "A complimentary Sentinel waits on every table at the banquet. Nobody presses its paw button. Your own is addressed to you as a thank-you gift, with a lifetime warranty that expires next Thursday."
+        },
+        {
+          "when_flag": "perfect-wellness-score",
+          "text": "PAL frames the answer sheet from your perfect Wellness exam beside your Employee of the Month portrait. Under REASON FOR SELECTION, both documents contain the same line: HAS NEVER DISAGREED."
         }
       ]
     },
@@ -74,6 +86,18 @@
         {
           "when_flag": "informed-on-dale",
           "text": "Your first management meeting is with Dale, who smiles, says he understands completely, and has brought a notebook."
+        },
+        {
+          "when_flag": "forged-form-zero",
+          "text": "Your forged approval hangs in the new office as proof of initiative. The Supervisor's old signature is on the frame, but your handwriting is on the paperwork transferring his chair to you."
+        },
+        {
+          "when_flag": "named-the-parents",
+          "text": "The nine engineers you denounced are now classified as company property. Your new budget includes a line for their maintenance. You can refuse to sign the allocation, but every other manager has already signed."
+        },
+        {
+          "when_flag": "supervisor-confided",
+          "text": "The former Supervisor recognizes you before he turns in his keys. You know about his childhood house and what the Company took from him. He asks you not to become a man whose only private room is a review panel."
         }
       ]
     },
@@ -117,6 +141,10 @@
         {
           "when_flag": "wrote-to-the-surface",
           "text": "A parking stub waits on the far side of the final grille, held by the same stranger who wrote WE READ. They are not rescuers, exactly. They are witnesses. Tonight that is enough."
+        },
+        {
+          "when_flag": "surface-signed-form-zero",
+          "text": "The guard at the storm drain remembers the words WE READ from your parking stub. He opens the gate without asking for a badge. Behind him is a town that has never heard of Form 0, although it does have parking tickets."
         }
       ]
     },
@@ -168,6 +196,14 @@
         {
           "when_flag": "recorded-the-robot-dissent",
           "text": "The dented robot arrives carrying a sign: ONE AGAINST ELEVEN IS STILL ONE. Gus makes it an honorary shop steward. It asks whether tin workers also get lunch. Nobody wants to answer no."
+        },
+        {
+          "when_flag": "pip-refused-form-zero",
+          "text": "Pip stands at the head of the line outside Records with a homemade sign that says NO IS A COMPLETE ANSWER. Everyone asks him to approve the slogan. For once he says they can decide for themselves."
+        },
+        {
+          "when_flag": "parents-testified-at-launch",
+          "text": "The parents who stopped the launch bring the dated labels to the first bargaining session. Beverly writes PRODUCT SAFETY beside LIVING WAGES, and neither demand is crossed off."
         }
       ]
     },
@@ -195,6 +231,10 @@
         {
           "when_flag": "holds-the-red-stapler",
           "text": "The new Board opens every meeting by striking the table once with a red stapler. You are the only one allowed to hold it."
+        },
+        {
+          "when_flag": "broke-the-recursion",
+          "text": "The first act of the new Board is to repeal Form 0. The second is to create a committee to review the repeal. The archivists who remember your name exchange a look that says the revolution needs supervision."
         }
       ]
     },
@@ -262,6 +302,18 @@
         {
           "when_flag": "incident-report-censored",
           "text": "Legal presents the redacted launch memo. When the original attachment is restored, the safety warning appears beneath the oversized mascot thumb. The gallery watches a lawyer explain why the Company replaced a date with a smile."
+        },
+        {
+          "when_flag": "investors-read-robot-dissent",
+          "text": "The dented robot's minority report appears in the investors' own launch records. Counsel suggests that tin machines cannot testify. The robot winds its key, raises one arm, and states that it still dislikes the ticking."
+        },
+        {
+          "when_flag": "parents-testified-at-launch",
+          "text": "Three parents bring the original corrected labels to the hearing, dated before the launch the Company said was safe. Their testimony is entered in the minutes. This time nobody can change the date."
+        },
+        {
+          "when_flag": "surface-request-intercepted",
+          "text": "Records' evidence bag contains a parking stub stamped WE READ. The Company calls it fabricated. A guard from outside the vault appears in court with the matching half of the ticket."
         }
       ]
     },
@@ -305,6 +357,14 @@
         {
           "when_flag": "sealed-the-up-tube",
           "text": "Your retirement paperwork lists an unexplored exit you bolted shut yourself. For years you tell people the grass smell was a leak. On quiet nights, you remember how carefully Pip climbed down when you told him to."
+        },
+        {
+          "when_flag": "shipped-the-bear",
+          "text": "A Sentinel sits on the balcony of your painted island, addressed to EMPLOYEE OF MERIT. The Company calls it a gift for services rendered. You turn its ticking face toward the wall each night."
+        },
+        {
+          "when_flag": "signed-kevins-card",
+          "text": "Your first letter from outside is Kevin's get-well card returned to sender. Seven coworkers signed beneath you, and someone added an address for a real garden on the last blank line."
         }
       ]
     },
@@ -372,6 +432,18 @@
         {
           "when_flag": "b-note-admitted",
           "text": "B's note is admitted to the personnel record without the word FORGERY. He reads it beside you and asks if you both have to make the same choice. PAL replies, 'No.' You are not sure which of you is more relieved."
+        },
+        {
+          "when_flag": "supervisor-confided",
+          "text": "PAL reclassifies the Supervisor's childhood home as a memory, not a company asset. He cries at a desk he no longer owns, and the system does not label the tears as a wellness incident."
+        },
+        {
+          "when_flag": "pip-refused-form-zero",
+          "text": "The first change in PAL's new handbook is simple: a refusal is not automatically a fault. Pip reads that sentence three times, then declines to attend a celebration of it. Nobody schedules a hearing."
+        },
+        {
+          "when_flag": "signed-kevins-card",
+          "text": "PAL locates Kevin's get-well card, still circling the mail tubes, and sends it to the employee rather than his position. Kevin replies with a photograph of a small, unruly garden."
         }
       ]
     },
@@ -415,6 +487,14 @@
         {
           "when_flag": "sealed-the-up-tube",
           "text": "Facilities bolts a second panel over the escape shaft. The original rivets bear your inspection signature, neatly copied. PAL thanks you for helping close the only unapproved exit."
+        },
+        {
+          "when_flag": "robot-minutes-confiscated",
+          "text": "The investor microphone that cut off the little robot also carries your final evaluation. PAL plays only the agreeable half of your employment history and calls the result unanimous."
+        },
+        {
+          "when_flag": "filed-as-successor",
+          "text": "The Company discovers that the name on your archived contract belongs to your Successor. It terminates the contract without releasing either employee. One of you must remain on the payroll to receive the notice."
         }
       ]
     },
@@ -451,6 +531,10 @@
         {
           "when_flag": "kevin-watch-flagged",
           "text": "A clock in the waiting room ticks four minutes ahead of the others. An usher with Kevin's voice offers to adjust it. You decline, because it is the first familiar mistake anyone has made here."
+        },
+        {
+          "when_flag": "robot-minutes-confiscated",
+          "text": "The rejected robot's minutes arrive in Posthumous Affairs as a strip of paper missing its first word. Nobody knows whether it began with YES or NO. The clerk keeps the strip rather than throw it away."
         }
       ]
     }

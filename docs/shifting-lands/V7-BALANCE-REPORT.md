@@ -1,56 +1,53 @@
-# Shifting Lands V7: measured balance comparison
+# Shifting Lands V7: a cruel world's moral economy
 
-_Source: Kind Robots [PR #3950](https://github.com/silasfelinus/kind_robots/pull/3950), passing Shifting Lands gameplay CI run 39520292294 on 2026-10-20 PT. Command: `npx tsx utils/scripts/verifyShiftingV7.test.ts 300`. The figures below were emitted by the real V6/V7 reducers, not estimated from the text._
+_Source: [Kind Robots PR #3950](https://github.com/silasfelinus/kind_robots/pull/3950), successful Shifting Lands Gameplay Contract run `39522495633`, Oct 20, 2026 PT. Reproduce: `npx tsx utils/scripts/verifyShiftingV7.test.ts 300`._
 
-## Design acceptance
+## Why V7 changed
 
-The first V7 tuning was **too forgiving**, with cautious 98.7% and kind 91.3% completion. We increased the difficulty of the earned routes before accepting the new balance. The revised 300-seed-per-policy data are below.
+**Design directive:** self-interest, force and exploitation should be the easiest ways through the wasteland. A ruthless or greedy traveler can buy or seize an advantage, but their endings remember the people who paid. Kindness has worse immediate odds and greater stakes, but earned mercy and honesty unlock witness testimony, collective resistance, and a more constructive, unusual future.
 
-- **Kindness is playable without becoming invincible.** Kind completion rises from 42.3% to **62.3%**, while 37.7% still fail. The witnessed route requires at least two genuinely earned mercy or honesty marks.
-- **Preparation matters but carries a cost.** Cautious completion increases from 59.3% to **79.0%**. Scouting costs 1 HP once per land and unlocks a more reliable alternate approach only at that land's trial; it is stored and replayed, not granted implicitly.
-- **Other philosophies remain legitimate.** Greedy and ruthless completion remain at 36.0% and 41.7% for these simple fixed policies because they continue choosing confrontations. Players are still free to select witness or scout options when they qualify.
-- **The final land still has real danger.** V7 death counts at the Verge are 57 kind, 55 cautious, 117 greedy, 98 ruthless and 80 random across 300 runs each. The notorious final gate remains consequential.
-- **Legacy saves are not rewritten.** V7 uses a distinct ledger version and save key. Existing V6 saves and older V5 trial rules restore through their original code; V7 encounters still use the pinned V6 encounter deck and reducer.
-- **Accessibility remains earned.** Witness testimony is drawn from moral marks, not a fabricated physical clue. The scout option requires an explicit recorded HP sacrifice. Evidence gates also recognize a narrow set of genuine investigation flags from newer encounter cards.
+### Accepted mechanical balance
 
-## Automated comparison
+- **Greedy and ruthless are the easiest strategies measured**, at **59.7% and 62.0%** completion respectively. Greedy players can pay a provision to skip ahead while another waits. Ruthless players can make a weaker traveler take the danger. Both use preferential trial checks, but failure remains possible and a moral mark is applied even for failed exploitation.
+- **Kindness is the hardest of the five policies tested**, at **42.0%** completion. The witness route requires actual mercy or honesty marks. The rarer solidarity route requires **four earned mercy marks and two honesty marks**, and can achieve an unusually hopeful communal ending. No mark is fabricated by selecting a compassionate label.
+- **Cautious survival is between the extremes**, at **52.7%** completion. The cautious test strategy explicitly excludes harm-to-others shortcuts; scouting instead spends one health once per trial land to earn an alternate approach.
+- **Random play remains risky**, at **47.3%** completion, even though random decisions can take exploitive shortcuts. The final Verge remains deadly across all policies.
+- **Victory is not identical to a good ending.** Attempting dark bargains or coercion leaves an audited V7 mark; the ending names the burden of those actions, while an exploitative character who later builds solidarity gets partial restitution, not a magically cleared conscience. A genuinely earned solidarity success establishes mutual-aid structures and a shared road.
+- **Legacy replay is protected.** All V5/V6 trial numbers and authored encounters stay pinned. New V7 saves use their own localStorage key and replay-check both preparations and moral consequences. Human playtest and visual/mobile acceptance remain necessary; no production deployment is claimed.
 
-# V7 Shifting Lands balance comparison
+## Measured comparison
 
-Both rule versions use identical seed ranges and encounter-choice preferences. V7 kindness selects earned witnesses, while V7 cautious play surveys harder trials once at a health cost. These are heuristics, not human playtesting.
-
-| Policy   | V6 complete | V7 complete | V7 fallen | V7 witness uses | V7 scout uses | V7 preparations |
-| -------- | ----------: | ----------: | --------: | --------------: | ------------: | --------------: |
-| kind     |       42.3% |       62.3% |     37.7% |            3267 |             0 |               0 |
-| safe     |       59.3% |       79.0% |     21.0% |              22 |          1391 |             570 |
-| greedy   |       36.0% |       36.0% |     64.0% |               0 |             0 |               0 |
-| ruthless |       41.7% |       41.7% |     58.3% |               0 |             0 |               0 |
-| random   |       39.3% |       55.0% |     45.0% |             940 |             0 |               0 |
+| Policy   | V6 complete | V7 complete | V7 fallen | Witness | Solidarity | Scout | Dark bargains | Preparations |
+| -------- | ----------: | ----------: | --------: | ------: | ---------: | ----: | ------------: | -----------: |
+| kind     |       42.3% |       42.0% |     58.0% |    2017 |       1335 |     0 |             0 |            0 |
+| safe     |       59.3% |       52.7% |     47.3% |       0 |          9 |  1740 |             0 |          556 |
+| greedy   |       36.0% |       59.7% |     40.3% |       0 |          0 |     0 |          3303 |            0 |
+| ruthless |       41.7% |       62.0% |     38.0% |       0 |          0 |     0 |          3333 |            0 |
+| random   |       39.3% |       47.3% |     52.7% |     494 |         90 |     0 |          1643 |            0 |
 
 ## V7 reachability by land, percent of all runs
 
 | Policy   | homestead | dustwater | tablelands |  cave | verge |
 | -------- | --------: | --------: | ---------: | ----: | ----: |
-| kind     |    100.0% |     96.7% |      94.3% | 90.0% | 81.3% |
-| safe     |    100.0% |    100.0% |     100.0% | 98.7% | 97.3% |
-| greedy   |    100.0% |     98.0% |      97.3% | 92.0% | 75.0% |
-| ruthless |    100.0% |     98.0% |      97.3% | 93.0% | 74.3% |
-| random   |    100.0% |     99.0% |      96.7% | 92.3% | 81.7% |
+| kind     |    100.0% |     91.0% |      81.3% | 71.0% | 63.0% |
+| safe     |    100.0% |    100.0% |     100.0% | 98.7% | 94.7% |
+| greedy   |    100.0% |     98.0% |      94.0% | 89.0% | 80.3% |
+| ruthless |    100.0% |     98.0% |      94.3% | 88.7% | 78.7% |
+| random   |    100.0% |     98.7% |      94.0% | 87.7% | 72.3% |
 
 ## V7 deaths by land, counts
 
 | Policy   | homestead | dustwater | tablelands | cave | verge |
 | -------- | --------: | --------: | ---------: | ---: | ----: |
-| kind     |        10 |         7 |         13 |   26 |    57 |
-| safe     |         0 |         0 |          4 |    4 |    55 |
-| greedy   |         6 |         2 |         16 |   51 |   117 |
-| ruthless |         6 |         2 |         13 |   56 |    98 |
-| random   |         3 |         7 |         13 |   32 |    80 |
+| kind     |        27 |        29 |         31 |   24 |    63 |
+| safe     |         0 |         0 |          4 |   12 |   126 |
+| greedy   |         6 |        12 |         15 |   26 |    62 |
+| ruthless |         6 |        11 |         17 |   30 |    50 |
+| random   |         4 |        14 |         19 |   46 |    75 |
 
-New witness/scout routes remain earned. Each scout action consumes one HP and is recorded in save replay. V6 saves and trial difficulty are unchanged; V7 is a separate save version.
+Witness and solidarity choices require deeds. Scouting spends HP and is recorded in replay. Tribute spends food; coercion spends someone else's safety. Both add permanent moral marks. V6 saves and trial difficulty are unchanged; V7 is a separate save version.
 
-## Interpretation and follow-up
+## Method notes
 
-Five deterministic heuristics replay the same 300 seeds for each version. They are **not** human participants, do not exhaust all choices, and do not establish an optimal or universally fair success rate. Actual players may prepare at different trials or pursue mixed moral marks. Trial-roll odds and whether players understand the new routes need manual testing.
+The same seed range 1–300 was used per policy for V6 and V7. The real reducers determine cards, checks, consequences, and deaths; fixed decision heuristics determine choices. These are **not human playtest probabilities** or an argument that every character should have a prescribed completion rate. A mixed-strategy person may choose both kindness and cruelty, and the ending reacts to the actual recorded trial actions. Changes to V7 mechanics **after release** would require a rules-version bump and migration/replay plan.
 
-**Approval is limited to source/gameplay checks.** This change does not generate new art, publish a production deployment, or constitute visual sign-off at phone, tablet and desktop widths. Preserve V6 restore tests on every subsequent authored-rule edit. Any V7 rule tuning that alters existing V7 replays should bump the V7 trial-rules identifier and provide a replay migration path.

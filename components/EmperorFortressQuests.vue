@@ -76,7 +76,9 @@
       </div>
 
       <details class="kr-panel shrink-0 p-3">
-        <summary class="cursor-pointer font-serif text-base font-bold">Out on quests · {{ run.active.length }}</summary>
+        <summary class="cursor-pointer font-serif text-base font-bold">
+          Out on quests · {{ run.active.length }}
+        </summary>
         <p v-if="!run.active.length" class="mt-2 text-sm opacity-75">
           Nobody is away.
         </p>
@@ -291,7 +293,9 @@
             <span v-else class="text-xl">+</span>
           </button>
         </div>
-        <div class="mt-2 grid grid-cols-2 gap-1.5 @md:grid-cols-3 @lg:grid-cols-4">
+        <div
+          class="mt-2 grid grid-cols-2 gap-1.5 @md:grid-cols-3 @lg:grid-cols-4"
+        >
           <button
             v-for="state in roster"
             :key="state.id"

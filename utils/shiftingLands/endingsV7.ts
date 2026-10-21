@@ -36,9 +36,17 @@ export function authoredEndingV7(
     else paragraphs.push(
       'The easy bargains outlive your journey. People who were made to pay them keep the accounts, even if you never return to settle one.',
     )
+    if (solidarity.length) {
+      paragraphs.push(
+        'Later you stood with those who were asked to pay your toll. Some welcomed the help. Others refused to forgive you. You stayed long enough to hear both answers, and no one had to call your change of heart a clean slate.',
+      )
+    }
     return {
       ...base,
-      path: 'The quick road, and its price',
+      title: solidarity.length ? 'The Debt Carried Open' : base.title,
+      path: solidarity.length
+        ? 'Reckoning and partial repair'
+        : 'The quick road, and its price',
       paragraphs,
     }
   }

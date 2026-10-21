@@ -418,6 +418,6 @@ assert.ok(
 const united = { ...finishing, marks: { ...finishing.marks, mercy: 4, honesty: 2 } }
 assert.ok(
   authoredEndingV7(united, [{ ...tributeMemory, choiceId: 'solidarity' }])
-    ?.paragraphs.some((paragraph) => paragraph.includes('shared a warning bell')),
+    ?.paragraphs.some((paragraph) => paragraph.includes('share a warning bell')),
   'an earned solidarity victory establishes a shared future',
 )

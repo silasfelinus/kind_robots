@@ -1635,6 +1635,35 @@ assert.match(
   /grew feathers/,
 )
 assert.equal(cardAsides(marsh, base).length, 0, 'no guide, no aside')
+const assembly = findCard('FR-ASSEMBLY-01')
+assert.ok(assembly?.meetingLines)
+for (const [firstGuide, secondGuide] of [
+  ['mara', 'kit'],
+  ['juniper', 'cedar'],
+  ['cedar', 'mara'],
+] as const) {
+  const actual = cardAsides(assembly, {
+    ...base,
+    meetingOrder: [firstGuide, secondGuide],
+    activeLead: null,
+  })
+  assert.equal(actual.length, 2, 'the potluck includes only the two met people')
+  assert.match(actual[0]!, new RegExp(firstGuide, 'i'))
+  assert.match(actual[1]!, new RegExp(secondGuide, 'i'))
+}
+const ensemble = cardAsides(assembly, {
+  ...base,
+  meetingOrder: ['mara', 'kit', 'juniper', 'cedar'],
+  flags: ['slug_sank'],
+  activeLead: 'juniper',
+})
+assert.equal(ensemble.length, 3, 'the last two met companions and the sinking echo')
+assert.match(ensemble[2]!, /waterlogged race number/)
+assert.equal(
+  cardAsides(assembly, { ...base, meetingOrder: [] }).length,
+  0,
+  'a saved meeting cannot conjure people the player has not met',
+)
 const conscripted = findCard('KN-4')
 assert.ok(conscripted)
 assert.match(cardAsides(conscripted, base)[0] ?? '', /strangers adopts you/)

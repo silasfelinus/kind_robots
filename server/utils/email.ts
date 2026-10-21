@@ -232,14 +232,17 @@ export function sendPatronTokensGrantedEmail(
   amountCents: number,
   receiptUrl: string | null,
 ) {
-  const greeting = name.trim().split(/\\s+/)[0] || 'friend'
+  const greeting = name.trim().split(/\s+/)[0] || 'friend'
   const amount = '$' + (amountCents / 100).toFixed(2)
   let link = appBaseUrl() + '/sanctuary'
+  let isStripeReceipt = false
   if (receiptUrl) {
     try {
       const url = new URL(receiptUrl)
-      if (url.protocol === 'https:' && url.hostname.endsWith('.stripe.com'))
+      if (url.protocol === 'https:' && url.hostname.endsWith('.stripe.com')) {
         link = url.toString()
+        isStripeReceipt = true
+      }
     } catch {
       // No usable receipt link; the account fallback remains available.
     }
@@ -254,7 +257,7 @@ export function sendPatronTokensGrantedEmail(
       `<p>Hi ${escapeHtml(greeting)},</p>
       <p>Your Patron payment of <strong>${amount}</strong> was received, and <strong>1,000 paid tokens</strong> are now in your Kind Robots wallet.</p>
       <p>Thank you for supporting the stories, worlds, and curious creatures we're building together.</p>
-      ${button(link, receiptUrl && link === receiptUrl ? 'View Stripe receipt' : 'View your wallet')}
+      ${button(link, isStripeReceipt ? 'View Stripe receipt' : 'View your wallet')}
       <p style="font-size:13px;color:#8a8f9c;">Questions about your tokens or membership? Just reply to this email.</p>`,
     ),
   })

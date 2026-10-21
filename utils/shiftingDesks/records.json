@@ -1150,7 +1150,7 @@
             "die_sides": 6,
             "skill": "discretion",
             "modifier": 0,
-            "target": 8
+            "target": 9
           },
           "success": {
             "text": "The clip opens the drawer. Inside are personnel records filed under EQUIPMENT, including yours. A footnote reads: FLEXIBLE PERSONNEL MAY BE REPURPOSED WITHOUT NOTICE. You take the page. On your way out, your visitor badge is already labeled TOOL.",

@@ -4151,79 +4151,6 @@
             "ingenuity": 1
           }
         }
-      },
-      {
-        "id": "ask-pip-to-say-no",
-        "label": "Have Pip deny Form 0 its own request",
-        "intent": "Pip learned that no can be a complete answer. Let his signature reject the form that traps you both.",
-        "risk_hint": "Requires teaching Pip to refuse. Certain result; the Supervisor keeps a copy for Performance Review.",
-        "requires": {
-          "flag": "taught-pip-to-say-no"
-        },
-        "cost": {
-          "suspicion": 1,
-          "forms": -1
-        },
-        "roll": null,
-        "success": {
-          "text": "You hand Pip Form 0. His hand trembles, but he says 'No' to a form that has never heard it before. The Supervisor searches for an appeal procedure, discovers the appeal is Form 0, and stamps the denial FINAL. You leave. Pip is assigned to Refusals and asks whether he may refuse that job too.",
-          "effects": {
-            "composure": -1
-          },
-          "add_flags": ["pip-refused-form-zero"],
-          "remove_flags": [],
-          "department_outcome": "returned-to-sender",
-          "grades": {
-            "empathy": 1,
-            "ingenuity": 2
-          }
-        },
-        "failure": null
-      },
-      {
-        "id": "ask-the-surface-to-authorize",
-        "label": "Present the surface parking stub as authorization",
-        "intent": "Someone above answered your message. Show Records that the Company is not the whole world.",
-        "risk_hint": "Requires a message answered by the surface. Risky Discretion check; only internal signatures are supposed to count.",
-        "requires": {
-          "flag": "wrote-to-the-surface"
-        },
-        "cost": {
-          "suspicion": 1
-        },
-        "roll": {
-          "dice_count": 2,
-          "die_sides": 6,
-          "skill": "discretion",
-          "modifier": 0,
-          "target": 9
-        },
-        "success": {
-          "text": "The parking stub bears two words: WE READ. You copy them onto Form 0's approval line. The Supervisor hesitates: external correspondence outranks internal drafts, under a rule he has never needed before. He stamps RETURNED TO SENDER. You keep the stub; Fenwick quietly copies the unfamiliar handwriting.",
-          "effects": {
-            "forms": -1
-          },
-          "add_flags": ["surface-signed-form-zero"],
-          "remove_flags": [],
-          "department_outcome": "returned-to-sender",
-          "grades": {
-            "ingenuity": 2,
-            "empathy": 1
-          }
-        },
-        "failure": {
-          "text": "The Supervisor scans the stub. WE READ flashes across every counter before PAL classifies the sender as an unauthorized exit. Your Form 0 comes back unapproved and Fenwick seals the return tube with paper marked EVIDENCE.",
-          "effects": {
-            "suspicion": 1
-          },
-          "add_flags": ["surface-request-intercepted"],
-          "remove_flags": [],
-          "department_outcome": "refiled",
-          "grades": {
-            "ingenuity": 2,
-            "empathy": 1
-          }
-        }
       }
     ],
     "department_outcomes": [
@@ -4245,7 +4172,7 @@
       {
         "id": "returned-to-sender",
         "title": "Returned to Sender",
-        "summary": "Form 0 returned with an answer the Company did not expect. Records stamped it through and will spend years asking who authorized it."
+        "summary": "The building approved you itself, in handwriting nobody recognizes. Somebody down there knows your name."
       },
       {
         "id": "struck-from-the-record",

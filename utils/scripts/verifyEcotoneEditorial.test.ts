@@ -134,3 +134,133 @@ for (const [choiceId, failureFlag, phrase] of [
   }
   assert.ok(failed, `${choiceId} has a deterministic failure witness`)
 }
+ 
+// Round eight: the *result* of a choice, not just the entrance, must make
+// room for the guide actually traveling with the player.
+const outcomeGuides = ['kit', 'juniper', 'cedar', 'mara'] as const
+const commentaryCases = [
+  ['GR-5', 'petition'],
+  ['GR-5', 'buyer'],
+  ['GR-5', 'offering'],
+  ['QW-5', 'restore'],
+  ['QW-5', 'call'],
+  ['QW-5', 'porch'],
+] as const
+for (const [cardId, choiceId] of commentaryCases) {
+  const card = findCard(cardId)!
+  const choice = card.choices.find((item) => item.id === choiceId)!
+  for (const outcome of [choice.success, choice.failure].filter(
+    (item) => item !== undefined,
+  )) {
+    assert.deepEqual(
+      Object.keys(outcome.leadLines ?? {}).sort(),
+      ['alone', ...outcomeGuides].sort(),
+      `${cardId}/${choiceId} gives everyone a distinct voiced outcome`,
+    )
+    assert.equal(
+      new Set(Object.values(outcome.leadLines)).size,
+      5,
+      'no two present companions share a generic reaction',
+    )
+  }
+
+  const observed = new Set<string>()
+  for (let seed = 1; seed <= 64; seed += 1) {
+    const guide = outcomeGuides[seed % outcomeGuides.length]!
+    const start: RunState = {
+      ...createRun(seed, 'reporter'),
+      phase: 'beat',
+      event: card.event!,
+      card: cardId,
+      meetingOrder: [guide],
+      activeLead: guide,
+      openingState: 'sober',
+      currentState: 'sober',
+    }
+    const result = chooseBeat(start, choiceId)
+    const entry = result.log[0]!
+    const selected = entry.roll?.success === false ? choice.failure! : choice.success
+    observed.add(entry.roll?.success === false ? 'failure' : 'success')
+    assert.equal(
+      entry.text,
+      [selected.text, selected.leadLines?.[guide]].filter(Boolean).join('\n\n'),
+      `${cardId}/${choiceId} logs the voice of the guide actually present`,
+    )
+    assert.ok(!entry.text.includes('undefined'))
+    const soloStart: RunState = {
+      ...start,
+      activeLead: null,
+      meetingOrder: [guide],
+    }
+    const solo = chooseBeat(soloStart, choiceId)
+    const soloEntry = solo.log[0]!
+    const soloOutcome =
+      soloEntry.roll?.success === false ? choice.failure! : choice.success
+    assert.equal(
+      soloEntry.text,
+      [soloOutcome.text, soloOutcome.leadLines?.alone]
+        .filter(Boolean)
+        .join('\n\n'),
+      'having met a companion does not make them magically present later',
+    )
+  }
+  assert.ok(observed.has('success'))
+  if (choice.failure) assert.ok(observed.has('failure'))
+}
+
+for (const [cardId, choiceId, expectedFlag, scene] of [
+  ['GR-5', 'petition', 'forest_petition', 'speech'],
+  ['GR-5', 'buyer', 'buyer_no_names', 'privacy'],
+  ['QW-5', 'restore', 'creek_started', 'snag'],
+  ['QW-5', 'call', 'cabin_future_message', 'gauge'],
+] as const) {
+  let found = false
+  for (let seed = 1; seed <= 128; seed += 1) {
+    const start: RunState = {
+      ...createRun(seed, 'reporter'),
+      phase: 'beat',
+      event: cardId === 'GR-5' ? 'green-ribbon' : 'quiet',
+      card: cardId,
+      openingState: 'sober',
+      currentState: 'sober',
+    }
+    const result = chooseBeat(start, choiceId)
+    if (result.log[0]?.roll?.success !== false) continue
+    found = true
+    assert.ok(result.flags.includes(expectedFlag))
+    assert.ok(result.nerve < start.nerve, `${cardId} failed roll costs nerve`)
+    assert.ok(
+      result.log[0]?.text.toLowerCase().includes(scene),
+      `${cardId} failure has authored, scene-specific consequences`,
+    )
+    if (cardId === 'GR-5' && choiceId === 'buyer') {
+      assert.ok(result.goodwill <= start.goodwill)
+    }
+    break
+  }
+  assert.ok(found, `${cardId}/${choiceId} has an observed failure`)
+}
+
+const soberBench = findCard('QW-2')!
+const elkMeadow = findCard('QW-4')!
+let foundBenchFailure = false
+for (let seed = 1; seed <= 128; seed += 1) {
+  const start: RunState = {
+    ...createRun(seed, 'reporter'),
+    phase: 'beat',
+    event: 'quiet',
+    card: 'QW-2',
+  }
+  const result = chooseBeat(start, 'sober')
+  if (result.log[0]?.roll?.success !== false) continue
+  foundBenchFailure = true
+  assert.ok(result.flags.includes('bench_tally_erased'))
+  assert.ok(result.nerve < start.nerve)
+  assert.match(cardAsides(elkMeadow, result).join(' '), /peculiar block handwriting/)
+  assert.ok(
+    !cardAsides(elkMeadow, start).join(' ').includes('peculiar block handwriting'),
+    'a first-time visitor has no false memory of the erased board',
+  )
+  break
+}
+assert.ok(foundBenchFailure, 'the sober bench has an actual losing-roll witness')

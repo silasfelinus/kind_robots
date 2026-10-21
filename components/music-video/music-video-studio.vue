@@ -148,7 +148,7 @@
           </div>
 
           <!-- On a large screen the stage and the scenes each take half. -->
-          <section v-if="store.canProduce" class="grid gap-4 xl:grid-cols-2">
+          <section v-if="store.canProduce" class="grid gap-4 @4xl:grid-cols-2">
             <div class="min-w-0 space-y-3">
               <MusicVideoBriefPanel />
               <MusicVideoProducePanel />

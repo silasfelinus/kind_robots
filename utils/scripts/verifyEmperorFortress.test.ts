@@ -5473,4 +5473,27 @@ for (const def of DAYS)
   assert.ok(fair.effects.recruitable?.includes('F018'), 'Vesper, for the road')
 }
 
+// --- t-041: the Day 50 roads -----------------------------------------------------
+{
+  // Every Day 50 road can kill, and no result comes home without a line.
+  for (const id of [
+    'q-d50-last-dispatch',
+    'q-d50-crypt-path',
+    'q-d50-ring-the-bell',
+  ]) {
+    const road = questDef(id)!
+    assert.ok(road.lethal, `${id} can cost a follower`)
+    for (const tier of ['success', 'partial', 'failure'] as const)
+      assert.ok(road.outcomes[tier], `${id}: a ${tier} line`)
+    assert.ok(
+      road.rewards.partial?.flags?.includes('horror-sealed'),
+      `${id}: a partial still shuts the door`,
+    )
+  }
+  // A partial at the bell seals the horror but cracks the bell: no Bell peace.
+  const bell = questDef('q-d50-ring-the-bell')!
+  assert.ok(!bell.rewards.partial?.flags?.includes('bell-rung'))
+  assert.ok(bell.rewards.success.flags?.includes('bell-rung'))
+}
+
 console.log('Emperor of Dust fortress contract: ok')

@@ -3883,9 +3883,7 @@
             "clearance": 1,
             "forms": 1
           },
-          "add_flags": [
-            "form-zero-stamped"
-          ],
+          "add_flags": ["form-zero-stamped"],
           "remove_flags": [],
           "department_outcome": "stamped-through",
           "grades": {
@@ -3926,9 +3924,7 @@
           "effects": {
             "forms": 2
           },
-          "add_flags": [
-            "forged-form-zero"
-          ],
+          "add_flags": ["forged-form-zero"],
           "remove_flags": [],
           "department_outcome": "forged-through",
           "grades": {
@@ -3972,9 +3968,7 @@
             "clearance": 2,
             "suspicion": 2
           },
-          "add_flags": [
-            "broke-the-recursion"
-          ],
+          "add_flags": ["broke-the-recursion"],
           "remove_flags": [],
           "department_outcome": "filled-correctly",
           "grades": {
@@ -4019,9 +4013,7 @@
             "clearance": 1,
             "suspicion": 1
           },
-          "add_flags": [
-            "form-zero-came-back"
-          ],
+          "add_flags": ["form-zero-came-back"],
           "remove_flags": [],
           "department_outcome": "returned-to-sender",
           "grades": {
@@ -4033,9 +4025,7 @@
           "effects": {
             "composure": -1
           },
-          "add_flags": [
-            "delivered-by-tube"
-          ],
+          "add_flags": ["delivered-by-tube"],
           "remove_flags": [],
           "department_outcome": "refiled",
           "grades": {
@@ -4067,9 +4057,7 @@
             "composure": 1,
             "suspicion": 1
           },
-          "add_flags": [
-            "form-zero-never-existed"
-          ],
+          "add_flags": ["form-zero-never-existed"],
           "remove_flags": [],
           "department_outcome": "struck-from-the-record",
           "grades": {
@@ -4109,9 +4097,7 @@
             "suspicion": 2,
             "clearance": 1
           },
-          "add_flags": [
-            "form-zero-reassigned"
-          ],
+          "add_flags": ["form-zero-reassigned"],
           "remove_flags": [],
           "department_outcome": "returned-to-sender",
           "grades": {
@@ -4146,9 +4132,7 @@
             "clearance": 1,
             "suspicion": 1
           },
-          "add_flags": [
-            "form-zero-folded"
-          ],
+          "add_flags": ["form-zero-folded"],
           "remove_flags": [],
           "department_outcome": "filled-correctly",
           "grades": {
@@ -4186,9 +4170,7 @@
           "effects": {
             "composure": -1
           },
-          "add_flags": [
-            "pip-refused-form-zero"
-          ],
+          "add_flags": ["pip-refused-form-zero"],
           "remove_flags": [],
           "department_outcome": "returned-to-sender",
           "grades": {
@@ -4221,9 +4203,7 @@
           "effects": {
             "forms": -1
           },
-          "add_flags": [
-            "surface-signed-form-zero"
-          ],
+          "add_flags": ["surface-signed-form-zero"],
           "remove_flags": [],
           "department_outcome": "returned-to-sender",
           "grades": {
@@ -4236,9 +4216,7 @@
           "effects": {
             "suspicion": 1
           },
-          "add_flags": [
-            "surface-request-intercepted"
-          ],
+          "add_flags": ["surface-request-intercepted"],
           "remove_flags": [],
           "department_outcome": "refiled",
           "grades": {

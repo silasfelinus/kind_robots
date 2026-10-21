@@ -140,7 +140,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Call on people you helped or truths you defended. Requires at least two earned mercy or honesty marks; costs no provisions.',
       skill: 'bearing',
-      target: landId === 'verge' ? 10 : 9,
+      target: landId === 'verge' ? 11 : 10,
       cost: 0,
       requiredAnyFlags: [],
       success: witness.success,
@@ -152,7 +152,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Use the pattern learned by spending one health to study this specific trial first.',
       skill: 'awareness',
-      target: landId === 'verge' ? 9 : 8,
+      target: landId === 'verge' ? 11 : 9,
       cost: 0,
       requiredAnyFlags: [],
       success: scout.success,

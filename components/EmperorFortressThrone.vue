@@ -10,14 +10,16 @@
       aria-label="The court"
     >
       <figure
-        v-if="sceneArt"
+        v-if="sceneFigures.length"
         class="pointer-events-none absolute inset-0 flex items-end justify-center"
       >
         <img
-          :key="sceneArt"
-          :src="sceneArt"
-          :alt="sceneAlt"
-          class="eod-figure block h-full w-auto max-w-full object-contain object-bottom"
+          v-for="figure in sceneFigures"
+          :key="figure.slug"
+          :src="figure.art"
+          :alt="figure.name"
+          class="eod-figure block h-full min-w-0 w-auto object-contain object-bottom"
+          :class="sceneFigures.length > 1 ? 'max-w-1/2' : 'max-w-full'"
         />
       </figure>
       <p
@@ -124,7 +126,7 @@ import {
 } from '~/utils/emperorOfDust/fortress/engine'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
-import { npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
+import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
 import type {
   FortressRun,
   SceneLine,
@@ -169,16 +171,21 @@ const audienceIndex = computed(() =>
     audiences.value.findIndex((entry) => entry.id === selectedId.value),
   ),
 )
-const sceneArt = computed(() => {
-  if (!npc.value) return undefined
+const sceneFigures = computed(() => {
+  const speaker = selected.value?.speaker ?? ''
+  const onStage = NPCS.filter((actor) => speaker.includes(actor.name))
+    .sort((a, b) => speaker.indexOf(a.name) - speaker.indexOf(b.name))
+  if (npc.value && !onStage.some((actor) => actor.slug === npc.value?.slug))
+    onStage.unshift(npc.value)
   const mood = selected.value ? reactions.value[selected.value.id] : undefined
-  return illustration('npcs', npc.value.slug, mood)
-})
-const sceneAlt = computed(() => {
-  const mood = selected.value ? reactions.value[selected.value.id] : undefined
-  return npc.value
-    ? `${npc.value.name}${mood ? ', ' + mood : ''}, before the throne`
-    : ''
+  return onStage.slice(0, 3).flatMap((actor) => {
+    const art = illustration(
+      'npcs',
+      actor.slug,
+      actor.slug === npc.value?.slug ? mood : undefined,
+    )
+    return art ? [{ slug: actor.slug, name: actor.name, art }] : []
+  })
 })
 
 watch(

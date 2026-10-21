@@ -1,5 +1,5 @@
 <template>
-  <section class="kr-container flex flex-col gap-4 p-4 md:p-6">
+  <section class="@container kr-container-wide flex w-full flex-col gap-3 p-3 md:p-4">
     <header class="flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
         <span class="kr-icon-tile">
@@ -28,11 +28,11 @@
       {{ store.state.error }}
     </p>
 
-    <div class="grid gap-4 md:grid-cols-2">
+    <div class="grid min-w-0 gap-3 @5xl:grid-cols-2 @5xl:items-stretch">
       <div
         v-for="side in (['A', 'B'] as BenchSide[])"
         :key="side"
-        class="kr-panel-flat flex flex-col gap-3 p-4"
+        class="kr-panel-flat flex min-w-0 flex-col gap-3 p-3 sm:p-4"
         :class="store.state.winner === side ? 'border-success bg-success/5' : ''"
       >
         <div class="flex items-center justify-between">
@@ -52,6 +52,41 @@
           </button>
         </div>
 
+        <!-- result -->
+        <div class="relative flex aspect-[5/4] w-full items-center justify-center overflow-hidden rounded-2xl border border-base-300 bg-base-200/80 shadow-inner @5xl:aspect-[4/3]">
+          <div
+            v-if="result(side).status === 'idle'"
+            class="kr-text-dim-xs flex flex-col items-center gap-2"
+          >
+            <Icon name="kind-icon:image" class="kr-icon-8 opacity-60" />
+            No render yet
+          </div>
+          <div v-else-if="result(side).status === 'queued' || result(side).status === 'rendering'" class="flex flex-col items-center gap-2 text-xs">
+            <span class="loading loading-spinner loading-md" />
+            {{ result(side).status === 'rendering' ? 'Rendering…' : 'Queued…' }}
+            <span v-if="result(side).jobId" class="opacity-50">job #{{ result(side).jobId }}</span>
+          </div>
+          <p v-else-if="result(side).status === 'failed'" class="kr-note kr-note-warning">
+            Failed: {{ result(side).error }}
+          </p>
+          <img
+            v-else-if="result(side).src"
+            :src="result(side).src"
+            :alt="`Build ${side} render`"
+            class="h-full w-full object-contain"
+          />
+        </div>
+
+        <div v-if="result(side).status === 'done'" class="flex items-center justify-between text-[11px] opacity-70">
+          <span>seed {{ result(side).seed ?? '—' }} · {{ elapsed(side) }} · ArtImage #{{ result(side).artImageId }}</span>
+          <button
+            class="btn btn-xs"
+            :class="store.state.winner === side ? 'btn-success' : 'btn-ghost'"
+            @click="store.pickWinner(side)"
+          >
+            {{ store.state.winner === side ? '🏆 winner' : 'Pick winner' }}
+          </button>
+        </div>
         <label class="flex flex-col gap-1 text-xs">
           <span class="font-semibold">Engine</span>
           <select
@@ -135,41 +170,6 @@
           Render Build {{ side }}
         </button>
 
-        <!-- result -->
-        <div class="kr-tile-md flex min-h-48 items-center justify-center">
-          <div
-            v-if="result(side).status === 'idle'"
-            class="kr-text-dim-xs flex flex-col items-center gap-2"
-          >
-            <Icon name="kind-icon:image" class="kr-icon-8 opacity-60" />
-            No render yet
-          </div>
-          <div v-else-if="result(side).status === 'queued' || result(side).status === 'rendering'" class="flex flex-col items-center gap-2 text-xs">
-            <span class="loading loading-spinner loading-md" />
-            {{ result(side).status === 'rendering' ? 'Rendering…' : 'Queued…' }}
-            <span v-if="result(side).jobId" class="opacity-50">job #{{ result(side).jobId }}</span>
-          </div>
-          <p v-else-if="result(side).status === 'failed'" class="kr-note kr-note-warning">
-            Failed: {{ result(side).error }}
-          </p>
-          <img
-            v-else-if="result(side).src"
-            :src="result(side).src"
-            :alt="`Build ${side} render`"
-            class="max-h-96 w-auto rounded-xl"
-          />
-        </div>
-
-        <div v-if="result(side).status === 'done'" class="flex items-center justify-between text-[11px] opacity-70">
-          <span>seed {{ result(side).seed ?? '—' }} · {{ elapsed(side) }} · ArtImage #{{ result(side).artImageId }}</span>
-          <button
-            class="btn btn-xs"
-            :class="store.state.winner === side ? 'btn-success' : 'btn-ghost'"
-            @click="store.pickWinner(side)"
-          >
-            {{ store.state.winner === side ? '🏆 winner' : 'Pick winner' }}
-          </button>
-        </div>
       </div>
     </div>
 

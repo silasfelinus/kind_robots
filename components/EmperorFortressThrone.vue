@@ -175,8 +175,9 @@ const audienceIndex = computed(() =>
 )
 const sceneFigures = computed(() => {
   const speaker = selected.value?.speaker ?? ''
-  const onStage = NPCS.filter((actor) => speaker.includes(actor.name))
-    .sort((a, b) => speaker.indexOf(a.name) - speaker.indexOf(b.name))
+  const onStage = NPCS.filter((actor) => speaker.includes(actor.name)).sort(
+    (a, b) => speaker.indexOf(a.name) - speaker.indexOf(b.name),
+  )
   if (npc.value && !onStage.some((actor) => actor.slug === npc.value?.slug))
     onStage.unshift(npc.value)
   const mood = selected.value ? reactions.value[selected.value.id] : undefined

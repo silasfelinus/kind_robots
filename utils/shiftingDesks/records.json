@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/RECORDS-12.json",
-  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
+  "sourceSha": "7ff9481570f4a43b56eebdcf701e550b1e319b39",
   "department": {
     "id": "records",
     "title": "Records & Forms",
@@ -972,6 +972,49 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "correct-his-score",
+          "label": "Correct Pemberton's score in red",
+          "intent": "Your Red Pen profile grants you one correction. Use it for the man who has been waiting since 1974.",
+          "risk_hint": "Requires Red Pen profile. Risky Compliance check: the answer key belongs to Wellness.",
+          "requires": {
+            "flag": "profiled-as-a-red-pen"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You draw a red line through INCOMPLETE and write PASSED. Pemberton sets his index cards down, very gently, as if the cabinet might wake. His retirement notice prints in your name, under PROCTOR. 'You should come to my garden,' he says. The camera above the drawer swivels toward you.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["freed-pemberton", "signed-pembertons-release"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Your red correction feeds back through the scoring machine and lands on your own personnel file: RETEST REQUIRED. Pemberton offers you a chair. 'I can show you how to wait without forgetting what you are waiting for,' he says.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
@@ -1090,6 +1133,48 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "bend-open-the-lock",
+          "label": "Open the drawer with your Paperclip result",
+          "intent": "Your test paperclip fits a keyhole. Maybe flexibility was a job qualification all along.",
+          "risk_hint": "Requires Paperclip profile. Risky Discretion check; archivists regard bending as tampering.",
+          "requires": {
+            "flag": "profiled-as-a-paperclip"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "The clip opens the drawer. Inside are personnel records filed under EQUIPMENT, including yours. A footnote reads: FLEXIBLE PERSONNEL MAY BE REPURPOSED WITHOUT NOTICE. You take the page. On your way out, your visitor badge is already labeled TOOL.",
+            "effects": {
+              "clearance": 1,
+              "composure": -1
+            },
+            "add_flags": ["read-the-classification-ledger"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The paperclip snaps inside the lock. The drawer stamps your file REPAIR REQUESTED. PAL thanks you for volunteering as a replacement hinge. You escape before Facilities arrives with its measuring tape.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
         }
       ]
     },
@@ -1191,6 +1276,49 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "serve-as-the-shredder",
+          "label": "Use your Shredder clearance as cover",
+          "intent": "Defense trusts you to dispose of paper. Gus can reconstruct what you bring him, if you keep the pieces.",
+          "risk_hint": "Requires Shredder profile. Risky Discretion check; Defense tracks every disposed sheet.",
+          "requires": {
+            "flag": "profiled-as-a-shredder"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sign out the confiscated union roster as DESTROYED and feed the pieces to Gus through a service hatch. He spends the night restoring names, not just evidence. He pauses over one: Kevin, still listed as a dues-paying member. The disposal camera catches your sleeve.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["restored-the-union-roster"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Defense counts the pages before you can pass them over. Gus quietly burns his list of safe meeting rooms so nobody else will be caught. 'You meant well,' he says, which is somehow worse than an accusation.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": ["compromised-union-archive"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
@@ -1309,6 +1437,32 @@
               "ingenuity": 1
             }
           }
+        },
+        {
+          "id": "staple-both-applications",
+          "label": "Staple Beverly's application to yours",
+          "intent": "Your Stapler classification says people belong together. Make PAL process you as one employment unit.",
+          "risk_hint": "Requires Stapler profile. Certain outcome; you become legally inseparable colleagues.",
+          "requires": {
+            "flag": "profiled-as-a-stapler"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You staple the two applications together. PAL cannot separate them without Form D: Division of Personnel. Beverly gets the job and insists your name stays beside hers on the door. The first invoice for her excellent work is charged to you. 'We can appeal together,' she says.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["shared-a-desk-with-beverly"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
         }
       ]
     },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ORIENTATION-12.json",
-  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
+  "sourceSha": "7ff9481570f4a43b56eebdcf701e550b1e319b39",
   "department": {
     "id": "orientation",
     "title": "Orientation",
@@ -2288,7 +2288,7 @@
       "id": "which-office-supply-are-you",
       "location_id": "orientation-theater",
       "title": "Which Office Supply Are You?",
-      "flavor_text": "Dr. Halvorsen hands you the last intake test: twelve questions and one result. Are you a Stapler (holds things together), a Paperclip (flexible under pressure), a Red Pen (corrects others) or a Shredder (makes problems go away)? A carbon copy of each result is sent to a different floor. Halvorsen taps the Shredder box with her pen. \"Defense reads these,\" she murmurs. It is not quite a warning.",
+      "flavor_text": "Dr. Halvorsen places a twelve-question intake test on your knee. Four official classifications: Stapler (keeps people together), Paperclip (bends without breaking), Red Pen (finds mistakes) and Shredder (makes problems disappear). Question nine asks what you would do if a coworker were replaced by a machine that kept their coffee warm. The answer sheet has room for a thirteenth question, but no question thirteen. \"Defense receives a copy,\" Halvorsen says, touching the Shredder box. \"Please answer for yourself, not the person you think we want.\"",
       "polarity": "mixed",
       "tags": ["psych-test", "satire"],
       "weight": 3,
@@ -2298,7 +2298,7 @@
         {
           "id": "answer-as-a-stapler",
           "label": "Answer as a Stapler",
-          "intent": "Holding things together sounds nice. It sounds like friendship.",
+          "intent": "Insist the replaced coworker still belongs on the team, even if the Company calls them obsolete.",
           "risk_hint": "Certain outcome. Staplers are a known affinity group.",
           "requires": null,
           "cost": {
@@ -2306,7 +2306,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Your profile comes back Stapler, with a faint pencil asterisk beside it. Someone has drawn a tiny raised fist inside the asterisk. You feel, briefly, that you have been recognized.",
+            "text": "The test prints STAPLER. Halvorsen draws a tiny raised fist beside it, then covers it with her thumb when the camera turns. The displaced coworker keeps their desk. Your own file gains an extra page headed GROUP AFFILIATIONS.",
             "effects": {
               "composure": 1
             },
@@ -2319,9 +2319,76 @@
           "failure": null
         },
         {
+          "id": "answer-as-a-paperclip",
+          "label": "Answer as a Paperclip",
+          "intent": "Transfer the coworker to a different job. Keep them employed, even if you have to bend the rules and yourself.",
+          "risk_hint": "Certain outcome. Flexibility is filed as consent to further bending.",
+          "requires": null,
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "PAPERCLIP, the machine declares. The coworker is reassigned instead of terminated. You are made their permanent accommodation contact, which means every impossible request arrives on your desk first. Halvorsen folds the results into a very small square.",
+            "effects": {
+              "forms": 1,
+              "suspicion": 1
+            },
+            "add_flags": ["profiled-as-a-paperclip"],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "answer-as-a-red-pen",
+          "label": "Answer as a Red Pen",
+          "intent": "Correct the test itself: the thirteenth answer is missing and the replacement was never authorized.",
+          "risk_hint": "Risky Vigilance check. The machine grades amendments as evidence.",
+          "requires": null,
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You mark the missing question in red. The answer key unfolds a hidden fifth column: LOAD-BEARING EMPLOYEE. The computer assigns you both RED PEN and that classification. A repair order for the entire department prints with your name as the responsible part. Halvorsen pockets the carbon copy before Defense can collect it.",
+            "effects": {
+              "clearance": 1,
+              "composure": -1
+            },
+            "add_flags": ["profiled-as-a-red-pen", "load-bearing-employee"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "Halvorsen holds up your correction. 'You found an error,' she says. 'Red Pen, then.' Defense immediately assigns you to proofread the dismissal notice for the coworker you were trying to help. The machine gets the coffee.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": ["profiled-as-a-red-pen"],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2,
+              "empathy": 1
+            }
+          }
+        },
+        {
           "id": "answer-as-a-shredder",
           "label": "Answer as a Shredder",
-          "intent": "Problems that go away are the best kind of problems.",
+          "intent": "Call the replacement an efficiency measure. The displaced coworker will never see the memo if it is shredded.",
           "risk_hint": "Routine Compliance check; every answer must point the same way.",
           "requires": null,
           "cost": {
@@ -2335,11 +2402,11 @@
             "target": 7
           },
           "success": {
-            "text": "A perfect Shredder. Within the hour a thank-you note arrives from Defense on heavy cream paper, along with a bump in clearance and a calendar invitation you cannot decline.",
+            "text": "The machine stamps SHREDDER in red. Defense sends you a thank-you note and an invitation you cannot decline. The coworker's name is removed from the roster before the coffee has gone cold. Halvorsen leaves the original memo face down between you.",
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["recruited-by-defense"],
+            "add_flags": ["recruited-by-defense", "profiled-as-a-shredder"],
             "remove_flags": [],
             "grades": {
               "spite": 1,
@@ -2347,83 +2414,17 @@
             }
           },
           "failure": {
-            "text": "Question 9 gives you away: you would rather keep the kitten. Your profile reads Shredder (Sentimental), which Defense considers the least reliable kind.",
+            "text": "The machine catches your hesitation at question nine: you would keep the coworker's farewell card. It prints SHREDDER (SENTIMENTAL), and Defense keeps both words. Halvorsen quietly slides the card back to you. You have no way to deliver it.",
             "effects": {
               "suspicion": 1
             },
-            "add_flags": [],
+            "add_flags": ["profiled-as-a-shredder"],
             "remove_flags": [],
             "grades": {
               "spite": 1,
               "obedience": 1
             }
           }
-        },
-        {
-          "id": "crack-the-answer-key",
-          "label": "Work out what the questions really measure",
-          "intent": "Twelve questions, four results. The math is suspicious.",
-          "risk_hint": "Risky Vigilance check. Halvorsen is watching you count.",
-          "requires": null,
-          "cost": {
-            "composure": -1
-          },
-          "roll": {
-            "dice_count": 2,
-            "die_sides": 6,
-            "skill": "vigilance",
-            "modifier": 0,
-            "target": 9
-          },
-          "success": {
-            "text": "Every answer pattern leads to a fifth box nobody is shown: Load-Bearing Employee. You tick it. Halvorsen raises one eyebrow, then quietly initials it and slides your sheet to the bottom of the pile.",
-            "effects": {
-              "clearance": 1,
-              "suspicion": 1
-            },
-            "add_flags": ["load-bearing-employee"],
-            "remove_flags": [],
-            "grades": {
-              "ingenuity": 2
-            }
-          },
-          "failure": {
-            "text": "Halvorsen watches you count patterns on your fingers. \"That,\" she says gently, \"is the Paperclip response.\" You are profiled as flexible, which means you will be bent.",
-            "effects": {
-              "suspicion": 1
-            },
-            "add_flags": ["profiled-as-a-paperclip"],
-            "remove_flags": [],
-            "grades": {
-              "ingenuity": 2
-            }
-          }
-        },
-        {
-          "id": "return-her-envelope",
-          "label": "Show Halvorsen her own sealed envelope",
-          "intent": "She gave it to you for a reason. Maybe this is the reason.",
-          "risk_hint": "Certain outcome. You spend her trust in public.",
-          "requires": {
-            "flag": "halvorsen-envelope"
-          },
-          "cost": {
-            "composure": -1
-          },
-          "roll": null,
-          "success": {
-            "text": "She recognizes her handwriting, goes pale, and hands you the pen. \"Write whatever you like,\" she says. \"I will file it as observed.\" For a moment she looks like someone who used to believe in this work.",
-            "effects": {
-              "suspicion": -1
-            },
-            "add_flags": ["halvorsen-trusts-you"],
-            "remove_flags": [],
-            "grades": {
-              "empathy": 1,
-              "ingenuity": 1
-            }
-          },
-          "failure": null
         }
       ]
     },

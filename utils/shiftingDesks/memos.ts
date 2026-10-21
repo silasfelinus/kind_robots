@@ -40,6 +40,14 @@ export const FLAG_MEMOS: Record<string, string> = {
     'Dale from Compliance has been scheduled for a Recalibration. Dale seems fine.',
   'survey-wrote-help':
     'A survey answer of "HELP" has been reclassified as "Happy."',
+  'profiled-as-a-stapler':
+    'STAPLER classification confirmed. Employees who bind teams together will receive a Separation Audit.',
+  'profiled-as-a-paperclip':
+    'PAPERCLIP personnel may be bent or reassigned without a second consent form. Thank you for your flexibility.',
+  'profiled-as-a-red-pen':
+    'RED PEN employees may correct every mistake except the one in their own file. Question Thirteen remains unissued.',
+  'profiled-as-a-shredder':
+    'SHREDDER personnel are exempt from seeing disposal notices. All disposal notices are now addressed to you.',
   'stapler-front-contact':
     'Reminder: drawing office supplies with raised fists is seditious stationery.',
   'saw-unlisted-chapter':

@@ -90,7 +90,8 @@ export default defineEventHandler(async (event) => {
     response = {
       success: true,
       endsAt: endDate.toISOString(),
-      message: 'Renewal cancelled. Your Patron access stays active until the end of the paid period.',
+      message:
+        'Renewal cancelled. Your Patron access stays active until the end of the paid period.',
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

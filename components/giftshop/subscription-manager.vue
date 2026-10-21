@@ -41,13 +41,12 @@
           <ul class="list-disc list-inside text-base-content/80 space-y-1">
             <li>
               <span class="font-semibold text-primary"
-                >1000 monthly mana tokens</span
+                >1,000 paid tokens each month</span
               >
               ⚡
             </li>
-            <li>Priority support & faster AI response</li>
-            <li>Private forums & exclusive content</li>
-            <li>Early access to new features & models</li>
+            <li>Credited after each successful monthly payment</li>
+            <li>Help support the creation of new worlds and stories</li>
           </ul>
         </div>
         <div class="mt-6">
@@ -58,12 +57,19 @@
           >
             Subscribe – $5/month
           </button>
+          <p
+            v-else-if="scheduledEnd"
+            class="text-center text-sm text-base-content/80"
+          >
+            Renewal cancelled. Your Patron access continues until
+            <strong>{{ scheduledEnd }}</strong>.
+          </p>
           <button
             v-else
             class="btn btn-outline w-full rounded-2xl text-lg"
             @click="cancelSub"
           >
-            Cancel Subscription
+            Cancel renewal at period end
           </button>
         </div>
       </div>
@@ -91,7 +97,15 @@ const cartStore = useCartStore()
 const message = ref('')
 const error = ref('')
 
-const isPatron = computed(() => userStore.user?.isMember === true)
+const isPatron = computed(() => userStore.isMember)
+const scheduledEnd = computed(() => {
+  const member = userStore.user
+  if (!isPatron.value || !member?.stripeSubscriptionId || !member.memberUntil)
+    return ''
+  const date = new Date(member.memberUntil)
+  if (!Number.isFinite(date.getTime()) || date <= new Date()) return ''
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+})
 
 const startSubscription = async () => {
   try {
@@ -107,8 +121,9 @@ const cancelSub = async () => {
     if (!userStore.user?.id) throw new Error('User not logged in')
     const result = await cartStore.cancelSubscription()
     if (!result.success) throw new Error(result.message)
-    userStore.user.isMember = false
-    message.value = 'Subscription cancelled. Thank you for your support!'
+    if (!result.endsAt) throw new Error('Cancellation date was not returned')
+    userStore.user.memberUntil = new Date(result.endsAt)
+    message.value = 'Renewal cancelled. Your existing Patron access stays active through the paid period.'
   } catch (err: any) {
     error.value = err.message || 'Could not cancel subscription.'
   }

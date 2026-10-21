@@ -86,15 +86,16 @@ const cab = brickBloom.create({
   demo: false,
   hiScore: 0,
 }) as unknown as Inner
+const ringOf = () => cab.ring as { dots: unknown[] }
 assert.equal(cab.ring, null, 'the first wall has no ring')
 cab.tour = { house: 1, wall: 'vine-3b' }
 cab.startStage(4)
-assert.equal(cab.ring?.dots.length, RING_DOTS, 'Vine Hall rings a crate')
+assert.equal(ringOf().dots.length, RING_DOTS, 'Vine Hall rings a crate')
 const guarded = cab.ringBrick!
 const hp = guarded.hp
 cab.crack(guarded)
 assert.equal(guarded.hp, hp, 'the ring shields its crate')
-cab.ring!.dots.length = 0
+ringOf().dots.length = 0
 cab.crack(guarded)
 assert.equal(guarded.hp, hp - 1, 'a cleared ring leaves the crate open')
 cab.tour = { house: 0, wall: 'seed-2a' }

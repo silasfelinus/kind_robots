@@ -227,24 +227,24 @@
 
 **Opening narration:** Cows follow invisible traffic signals with military precision.
 
-**Escalation:** Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property.
+**Escalation:** On a narrow backroad outside Blue Lake, a herd of cows stops and starts at traffic signals no human can see. A delivery driver, already late, inches his van toward the animals. 'They're not being stubborn,' says the rancher. 'They're waiting for the green.' The driver says the cows have better benefits than he does. Around the blind bend, a second truck has begun accelerating.
 
 **Option A, investigate (visible 9 check):** Compare the herd's stopping points with the bend in the road and recorded traffic
 
-- **Pass:** The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign.
-- **Miss:** A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement.
+- **Pass:** You time the herd's movements against the bend and discover its imaginary green arrives only when oncoming traffic clears the blind corner. The rancher wants a proper caution sign; the driver wants assurance he can finish his shift. The cattle are reliable, but not legally recognized road engineers. You document the safe interval and help request a real sign without promising the cows can police everyone forever.
+- **Miss:** A pickup charges around the bend before you can finish timing the pattern. The herd scatters toward the ditch, and the driver slams on the brakes. Nobody is struck, but the rancher has to count every animal. Your dash camera captured the stop, not its cause. You help with the search instead of claiming a miracle you failed to measure.
 
 **Option B, assist without a check:** Help slow the vehicles and give the rancher room to move the cattle safely
 
-- **Result:** The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone.
+- **Result:** You wave the van to a safe pullout, help the rancher open the gate, and keep the next driver from treating the herd as a dare. The cattle cross at their own pace. The delivery driver misses his bonus window; the rancher offers to sign the delay report, and the driver accepts. One cow pauses beside your car until you apologize for honking.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-069`: Cows follow invisible traffic signals with military precision. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-069/2`: Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property. The people and location must match the opening.
-- `outcomes/wh-069/investigate-success`: The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-069/investigate-failure`: A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-069/care-success`: The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-069/2`: On a narrow backroad outside Blue Lake, a herd of cows stops and starts at traffic signals no human can see. A delivery driver, already late, inches his van toward the animals. 'They're not being stubborn,' says the rancher. 'They're waiting for the green.' The driver says the cows have better benefits than he does. Around the blind bend, a second truck has begun accelerating. The people and location must match the opening.
+- `outcomes/wh-069/investigate-success`: You time the herd's movements against the bend and discover its imaginary green arrives only when oncoming traffic clears the blind corner. The rancher wants a proper caution sign; the driver wants assurance he can finish his shift. The cattle are reliable, but not legally recognized road engineers. You document the safe interval and help request a real sign without promising the cows can police everyone forever. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-069/investigate-failure`: A pickup charges around the bend before you can finish timing the pattern. The herd scatters toward the ditch, and the driver slams on the brakes. Nobody is struck, but the rancher has to count every animal. Your dash camera captured the stop, not its cause. You help with the search instead of claiming a miracle you failed to measure. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-069/care-success`: You wave the van to a safe pullout, help the rancher open the gate, and keep the next driver from treating the herd as a dare. The cattle cross at their own pace. The delivery driver misses his bonus window; the rancher offers to sign the delay report, and the driver accepts. One cow pauses beside your car until you apologize for honking. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_069_verified`, `wh_069_partial`, `wh_069_care` (mutually exclusive results of this card).
 

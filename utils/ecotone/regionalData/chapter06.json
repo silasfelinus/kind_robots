@@ -37,12 +37,12 @@
     "place": "Arcata Plaza · kinetic starting line",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it.",
+    "pressure": "A judge at the Kinetic Championship gives perfect marks to sculptures that ignore gravity. A crew of exhausted welders points out that their own wheels still have to touch the road and carry a rider home safely. 'The rubric is perfectly clear,' the judge says, holding up a blank sheet. One of the impossible vehicles floats gently above a broken axle, while the mechanics who built the ordinary ones gather beneath it in case something falls.",
     "investigate": "Ask for one measurable criterion and insist it applies to every entrant",
-    "success": "The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster.",
-    "failure": "The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt.",
+    "success": "When pressed to name one measurable criterion, the judge produces a scoring chart that accurately predicts a loose wheel at the bay crossing. The builders halt the dangerous sculpture long enough to fix it. The judge refuses to award safety points, calling them 'a provincial limitation.' You save the warning and ask the crew what they think the competition is for, rather than letting the judge rewrite the race while anyone is aboard.",
+    "failure": "The judge demonstrates the supposed rule by sending a test wheel into the air. It vanishes without tracks or witnesses. The ordinary builders demand equal marks, but you cannot certify a trick nobody can reproduce. The judge calls your caution cowardice; a mechanic asks you to check the axles before the next launch. Uncertainty has a practical use even when it cannot win an argument.",
     "help": "Help the competitors draft fair judging rules that can survive an absurd race",
-    "helpOutcome": "The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves."
+    "helpOutcome": "You help the riders write rules that reward ingenuity while still requiring working brakes, disclosed risks and a way home for the crews. The floating entrants remain welcome if they can explain how they will rescue an injured rider. One builder complains this ruins the magic. 'No,' says a welder, wiping grease from her face. 'It means we all get to see tomorrow.'"
   },
   {
     "id": "WH-104",
@@ -127,12 +127,12 @@
     "place": "Manila dunes · kinetic course",
     "scene": "dunes",
     "pool": 1,
-    "pressure": "A traditional race bribe has developed a voice and promises to reverse tomorrow's disputed judging in exchange for cheers. A young team built its sculpture from donated wheels and cannot afford a protest fee, let alone a sentient favor.",
+    "pressure": "At the Kinetic judges' table, a traditional costume bribe has developed a voice and offers to reverse tomorrow's scores in exchange for louder applause. A young crew with donated bicycle wheels cannot afford the official protest fee, much less a favor with its own legal opinions. 'I can make you winners,' the bribe whispers. Their captain looks at the patched vehicle and says, 'Could you make us paid?' The judges are pretending not to hear any of this.",
     "investigate": "Check the stated judging rules and ask how the bribe claims to change them",
-    "success": "The bribe quotes a rule that was never adopted. You bring the real scoring sheet to the teams before rumor becomes an official result.",
-    "failure": "The object vanishes when the chair arrives. Its promises survive in three accounts that contradict one another; the actual scores can still be checked.",
+    "success": "You compare the bribe's legal claims against the published rulebook and discover its supposed appeal clause was never adopted. The young crew asks you to read the real judging sheet aloud, including the points they genuinely lost. They are furious, but now they know what to contest. The bribe calls you a terrible negotiator and starts bidding for a different audience.",
+    "failure": "The bribe vanishes when the chair walks over, leaving three contradictory promises in the witnesses' mouths. The crew wants you to repeat the most generous version, since nobody can prove it false. You cannot certify the deal; telling the truth will disappoint people who badly need a break. You show them the actual scores anyway and help them decide whether an appeal is worth the cost.",
     "help": "Help the young team file a fair objection without buying an advantage",
-    "helpOutcome": "A volunteer finds the appeal form and waives no rule for anyone. The bribe sulks in a costume pocket, outbid by transparent paperwork."
+    "helpOutcome": "You help the young team ask the judges for the same written appeals process available to richer crews. A volunteer offers to pay the filing fee without buying the result. The team makes its case on the merits and loses one disputed point but keeps its name in the record. The sentient bribe sulks in a costume pocket, apparently offended that nobody wanted to win quite badly enough."
   },
   {
     "id": "WH-110",

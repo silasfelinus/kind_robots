@@ -22,6 +22,7 @@ import {
   TRIAL_RULES_V7,
 } from '../shiftingLands/trialRulesV7'
 import { balanceReportV6 } from './shiftingLandsV6BalanceReport'
+import { authoredEndingV7 } from '../shiftingLands/endingsV7'
 
 const POLICIES = ['kind', 'safe', 'greedy', 'ruthless', 'random'] as const
 type Policy = (typeof POLICIES)[number]
@@ -90,7 +91,7 @@ for (const land of JOURNEY_WORLD.lands) {
   const trial = trialForLandV7(land.id)!
   assert.deepEqual(
     trial.choices.map((choice) => choice.id),
-    ['confront', 'parley', 'evidence', 'witness', 'scout'],
+    ['confront', 'parley', 'evidence', 'witness', 'scout', 'tribute', 'coerce', 'solidarity'],
   )
 }
 const initial = newJourneyLedgerV7(55)
@@ -153,6 +154,8 @@ type Row = {
   scoutTaken: number
   prepared: number
   uniquePreparations: number
+  darkTaken: number
+  solidarityTaken: number
 }
 function simulate(policy: Policy, runs: number): Row {
   const row: Row = {
@@ -168,6 +171,8 @@ function simulate(policy: Policy, runs: number): Row {
     scoutTaken: 0,
     prepared: 0,
     uniquePreparations: 0,
+    darkTaken: 0,
+    solidarityTaken: 0,
   }
   for (let seed = 1; seed <= runs; seed++) {
     let ledger: JourneyLedgerV7 = newJourneyLedgerV7(seed)
@@ -210,6 +215,7 @@ function simulate(policy: Policy, runs: number): Row {
           let id: string
           if (policy === 'kind') {
             id = (
+              available.find((item) => item.id === 'solidarity') ??
               available.find((item) => item.id === 'witness') ??
               available.find((item) => item.id === 'scout') ??
               available.find((item) => item.id === 'evidence') ??
@@ -229,11 +235,20 @@ function simulate(policy: Policy, runs: number): Row {
             ).id
           } else if (policy === 'random') {
             id = available[random(seed, step, available.length)]!.id
+          } else if (policy === 'greedy') {
+            id = (
+              available.find((item) => item.id === 'tribute') ??
+              available.find((item) => item.id === 'coerce') ??
+              available[0]!
+            ).id
           } else {
             id = (
-              available.find((item) => item.id === 'confront') ?? available[0]!
+              available.find((item) => item.id === 'coerce') ??
+              available[0]!
             ).id
           }
+          if (id === 'tribute' || id === 'coerce') row.darkTaken++
+          if (id === 'solidarity') row.solidarityTaken++
           if (id === 'witness') row.witnessTaken++
           if (id === 'scout') row.scoutTaken++
           next = stepJourneyLedgerV7(ledger, { type: 'TRIAL', choiceId: id })
@@ -303,11 +318,12 @@ const lines = [
   '# V7 Shifting Lands balance comparison',
   '',
   'Both rule versions use identical seed ranges and encounter-choice preferences. ' +
-    'V7 kindness selects earned witnesses, while V7 cautious play surveys harder trials once at a health cost. ' +
-    'These are heuristics, not human playtesting.',
+    'V7 compassion uses earned witness/solidarity routes; cautious play scouts without harming bystanders. ' +
+    'Greedy choices buy precedence and ruthless choices push danger onto others. ' +
+    'These are deterministic heuristics, not human playtesting.',
   '',
-  '| Policy | V6 complete | V7 complete | V7 fallen | V7 witness uses | V7 scout uses | V7 preparations |',
-  '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
+  '| Policy | V6 complete | V7 complete | V7 fallen | Witness | Solidarity | Scout | Dark bargains | Preparations |',
+  '| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |',
   ...rows.map(
     (row, i) =>
       '| ' +
@@ -321,7 +337,11 @@ const lines = [
       ' | ' +
       row.witnessTaken +
       ' | ' +
+      row.solidarityTaken +
+      ' | ' +
       row.scoutTaken +
+      ' | ' +
+      row.darkTaken +
       ' | ' +
       row.prepared +
       ' |',
@@ -348,7 +368,8 @@ const lines = [
     (row) => '| ' + row.policy + ' | ' + row.diedByLand.join(' | ') + ' |',
   ),
   '',
-  'New witness/scout routes remain earned. Each scout action consumes one HP and is recorded in save replay. ' +
+  'Witness and solidarity choices require deeds. Scouting spends HP and is recorded in replay. ' +
+    'Tribute spends food; coercion spends someone else\'s safety. Both add permanent moral marks. ' +
     'V6 saves and trial difficulty are unchanged; V7 is a separate save version.',
 ]
 console.log('BEGIN SHIFTING V7 BALANCE REPORT')
@@ -357,3 +378,46 @@ console.log('END SHIFTING V7 BALANCE REPORT')
 assert.ok(rows.every((row) => row.stalled === 0))
 assert.ok(rows.find((row) => row.policy === 'kind')!.witnessTaken > 0)
 assert.ok(rows.find((row) => row.policy === 'safe')!.scoutTaken > 0)
+assert.ok(rows.find((row) => row.policy === 'greedy')!.darkTaken > 0)
+assert.ok(rows.find((row) => row.policy === 'ruthless')!.darkTaken > 0)
+const finishing = {
+  ...newJourneyLedgerV7(88).current,
+  journey: { ...newJourneyLedgerV7(88).current.journey, phase: 'complete' as const },
+}
+const tributeMemory = {
+  landId: 'verge',
+  bossId: 'the-verge-gate',
+  choiceId: 'tribute',
+  turn: 5,
+  roll: {
+    landId: 'verge',
+    locationId: 'the-verge-gate',
+    dice: [3, 4] as [number, number],
+    skill: 'wits' as const,
+    modifier: 2,
+    difficulty: 7,
+    total: 9,
+    success: true,
+  },
+  resultText: 'The negotiator accepts the price.',
+  hpChange: 0,
+  provisionChange: -1,
+}
+assert.ok(
+  authoredEndingV7(finishing, [tributeMemory])?.paragraphs.some(
+    (paragraph) => paragraph.includes('bought an open road'),
+  ),
+  'a compromised victory remembers its actual bargain',
+)
+assert.ok(
+  !authoredEndingV7(finishing, [])?.paragraphs.some(
+    (paragraph) => paragraph.includes('bought an open road'),
+  ),
+  'a clean path cannot invent exploitative bargains',
+)
+const united = { ...finishing, marks: { ...finishing.marks, mercy: 4, honesty: 2 } }
+assert.ok(
+  authoredEndingV7(united, [{ ...tributeMemory, choiceId: 'solidarity' }])
+    ?.paragraphs.some((paragraph) => paragraph.includes('shared a warning bell')),
+  'an earned solidarity victory establishes a shared future',
+)

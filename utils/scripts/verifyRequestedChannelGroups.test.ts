@@ -105,9 +105,14 @@ for (const tab of [
   'mandarin',
   'button',
   'daily-pitches',
-  'music-video',
 ]) {
   assert.match(nav(`projects/${tab}`), /\nchannelKey: projects\n/)
 }
+
+assert.equal(existsSync('content/channels/projects/music-video.md'), false)
+const videoStudio = nav('projects/video-generator')
+assert.match(videoStudio, /\\nroute: \\/play\\/video-generator\\n/)
+assert.match(videoStudio, /Music Videos tab/)
+assert.equal(existsSync('components/music-video/music-video-studio.vue'), true)
 
 console.log('Requested navigation grouping contract passed')

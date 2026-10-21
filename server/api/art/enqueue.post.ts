@@ -1250,7 +1250,7 @@ function buildVideoJobPayload(
     : buildLtxImageToVideoWorkflow({
         prompt: promptString,
         negativePrompt,
-        firstImageName,
+        firstImageName: firstImageName!,
         lastImageName,
         width,
         height,

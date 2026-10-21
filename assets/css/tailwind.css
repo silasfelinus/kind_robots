@@ -557,9 +557,9 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
     @apply mx-auto w-full max-w-6xl;
   }
 
-  /* Wider variant for dashboards and galleries. */
+  /* Creative workspaces and galleries may use the available XL screen width. */
   .kr-container-wide {
-    @apply mx-auto w-full max-w-7xl;
+    @apply mx-auto w-full max-w-[112rem];
   }
 
   /* A titled block of related content — consistent vertical rhythm. */

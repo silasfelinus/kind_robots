@@ -70,3 +70,33 @@ export function isFiveDollarMonthlyPatronPrice(price: {
     price.recurring?.interval_count === 1
   )
 }
+
+/**
+ * Stripe's modern Subscription objects put current_period_end on line items,
+ * while older snapshots carried it at subscription level. Keep the date
+ * tied to the configured Patron price rather than a different invoice line.
+ */
+export function patronPeriodEnd(
+  subscription: {
+    current_period_end?: number | null
+    items?: {
+      data?: Array<{
+        price?: { id?: string }
+        current_period_end?: number | null
+      }>
+    }
+  },
+  patronPriceId: string,
+): Date | null {
+  const item = subscription.items?.data?.find(
+    (candidate) => candidate.price?.id === patronPriceId,
+  )
+  const seconds = item?.current_period_end ?? subscription.current_period_end
+  if (
+    typeof seconds !== 'number' ||
+    !Number.isSafeInteger(seconds) ||
+    seconds <= 0
+  )
+    return null
+  return new Date(seconds * 1000)
+}

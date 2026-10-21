@@ -369,7 +369,7 @@ export const BEATS: EncounterCard[] = [
     scene: 'meadow',
     art: 'scenes/prologue-meadow',
     body: [
-      'On the last night the fair burns a wicker redwood in the meadow, and everyone still standing comes to watch. The moss puppet takes a bow. Growers trade seeds and promises. Somebody is collecting signatures to protect the forest behind the stage, and somebody else is collecting signatures to buy it.',
+      'On the last night the fair burns a wicker redwood in the meadow, and everyone still standing comes to watch. The moss puppet takes a bow. Growers trade seeds and promises. Two tables face each other across the fire: one wants a public-access forest, the other proposes private habitat restoration with fewer visitors. People you like are volunteering at both.',
       'In the smoke over the fire you can see the county, the way you can see faces in clouds. It is changing shape, waiting to see what you do.',
     ],
     lensLines: {
@@ -407,37 +407,73 @@ export const BEATS: EncounterCard[] = [
     choices: [
       {
         id: 'petition',
-        label: 'Sign the petition to protect the forest, and get others to',
+        label: 'Organize the public-access petition, including the hard questions',
+        cost: 'The rival restoration group will remember where you stood',
         check: { skill: 'rizz', target: 7 },
         success: {
-          text: 'By midnight there are three hundred signatures, a bake sale schedule and a legal fund. The smoke settles into the shape of a forest with a trail through it.',
+          text: 'Your pitch about public trails gathers a crowd until a woman asks who will keep visitors away from nesting birds. You give her the microphone. By midnight the group has enough pledges to pay for a path survey, but the open-access and habitat factions still disagree. Nobody mistakes a good night for a settled future.',
           effects: { goodwill: 1, flag: 'forest_petition' },
+          leadLines: {
+            kit: 'Kit offers to build a miniature moving trail model for the next meeting. “People can argue over a thing they can see,” she says.',
+            juniper: 'Juniper signs, then circles the sensitive grove on the map. “We cannot promise everyone every foot of a forest,” she says.',
+            cedar: 'Cedar wants to know who will maintain the path in February. “A bridge that only exists in speeches is a ditch,” he says.',
+            mara: 'Mara volunteers to paint a sign showing both proposals accurately. “Let them disagree with the real choices,” she says.',
+            alone: 'You find yourself between two groups that both love the place. Nobody hands you the correct side of the argument.',
+          },
         },
         failure: {
-          text: 'You collect forty signatures and a lecture about zoning. It is a start. The smoke can’t decide.',
-          effects: { flag: 'forest_petition' },
+          text: 'You launch into a stirring speech about saving the trees. A former trail worker asks whose land you plan to open and who gets to say no. You cannot answer. Half the listeners leave, and a promised donation is withdrawn. You stay to hear the question properly, knowing you may have damaged the cause you meant to help.',
+          effects: { nerve: -1, flag: 'forest_petition' },
+          leadLines: {
+            kit: 'Kit winces. “That speech had a magnificent jump and no landing,” she says. She stays to listen with you.',
+            juniper: 'Juniper is furious at the missing habitat plan. “Do not make the forest a prop for your beautiful speech,” she says.',
+            cedar: 'Cedar does not rescue you. “We have to ask the people fixing the roads before we promise a road,” he says.',
+            mara: 'Mara pockets the half-finished campaign poster. “We can print something after we know what we are actually asking for.”',
+            alone: 'For once you wish someone else would take the microphone. Nobody does. You go find the trail worker and apologize.',
+          },
         },
       },
       {
         id: 'buyer',
-        label: 'Find out who is buying the forest',
+        label: 'Investigate the buyer before deciding whether to oppose them',
         check: { skill: 'lore', target: 9 },
         success: {
-          text: 'The buyer’s address is a post office box in a county with no trees. You write it down, with the names of three locals who will vouch for what you saw.',
+          text: 'The buyer is a local cooperative of retired mill hands and wildlife volunteers. Their restoration plan is real, and so is the locked gate they would put across the popular trail. Several families rely on that shortcut. You find the public meeting date and tell both tables, neither of which thanks you for complicating its favorite story.',
           effects: { evidence: 'Who is buying the forest behind the stage' },
+          leadLines: {
+            kit: 'Kit knows someone who takes that trail to work. “I like the owls too,” she says. “Somebody has to figure out the path.”',
+            juniper: '“Fewer footsteps might save the old hollow,” Juniper says, “but not if people are shut out of deciding.”',
+            cedar: 'Cedar points to the cooperative’s survey. “That slope is sliding whether the gate is open or not. We need better information than either flyer.”',
+            mara: 'Mara sketches the competing plans side by side. “It is amazing what people omit from a pretty map.”',
+            alone: 'Knowing more has not made the question smaller. At least you can bring the missing facts to the meeting.',
+          },
         },
         failure: {
-          text: 'You find the buyer’s representative, who is charming and generous and gone by morning, along with your notes.',
-          effects: { nerve: -1 },
+          text: 'The buyer’s agent invites you into the tent, then asks you to hand over the petitioners’ names before showing the proposal. You refuse. The agent locks the folder, and people at both tables blame you for coming back with nothing. You have protected your neighbors’ privacy, but you cannot promise that the land will remain open.',
+          effects: { nerve: -1, goodwill: -1, flag: 'buyer_no_names' },
+          leadLines: {
+            kit: 'Kit is angry at the agent. She is also angry at you for promising a scoop. “Next time do not promise the answer before you ask the question.”',
+            juniper: 'Juniper asks whether you would have taken the deal. She does not answer for you. That is somehow worse.',
+            cedar: 'Cedar checks whether the refusal cost anyone a permit. “You can do the right thing and still leave everybody stranded,” he says.',
+            mara: 'Mara turns over the agent’s blank business card. “People keep telling me access is a gift. Funny how often it costs somebody else’s privacy.”',
+            alone: 'Both tables want a simple culprit. You will not give them the names, and you cannot give them an easier story.',
+          },
         },
       },
       {
         id: 'offering',
-        label: 'Give the fire something of yours',
-        cost: 'Something you won’t get back',
+        label: 'Burn the only sketch you made of the impossible forest path',
+        cost: 'You cannot show anyone the sketch again',
         success: {
-          text: 'You give the fire the notebook you kept all weekend. The smoke takes the shape of everyone you met, all of them laughing. You remember everything anyway.',
+          text: 'You feed the fire your one sketch of the path that folds back onto itself. The smoke briefly makes an exit where no exit should be. Tomorrow somebody asks you to show them that route, and all you have is your word. Your notes on what can actually be verified remain safe in your pocket.',
           effects: { weird: 1, nerve: 1 },
+          leadLines: {
+            kit: 'Kit watches the sketch curl. “That was a good drawing,” she says, with no attempt to make the sacrifice sound free.',
+            juniper: 'Juniper does not stop you. “The place is not obligated to stay the way we caught it,” she says.',
+            cedar: 'Cedar asks if you copied the measurements first. When you nod, he finally lets himself smile.',
+            mara: 'Mara winces at the disappearing lines. “I would have bought that from you,” she says. “I am not kidding.”',
+            alone: 'There is nobody to ask why. That does not mean you will never regret it.',
+          },
         },
       },
     ],

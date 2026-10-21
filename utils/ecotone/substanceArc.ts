@@ -156,10 +156,12 @@ export function momentPerspective(moments: SubstanceMoment[]): {
 export function substanceSceneLine(
   moments: SubstanceMoment[],
   day: number,
+  source?: string,
 ): string | null {
   const summary = substanceSummary(moments)
   const last = summary.latest
-  if (!last || last.day !== day) return null
+  if (!last || last.day !== day || (source && last.source !== source))
+    return null
   if (summary.alcoholStreak >= 5)
     return '“Th’ brri— the p-p-paper, an’ the... rrriver is a stapler.” You try again. Nothing recognizable comes out. Someone offers a chair and listens anyway. The decisions in front of you remain clear.'
   if (summary.alcoholStreak >= 3)

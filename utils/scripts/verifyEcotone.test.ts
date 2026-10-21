@@ -809,7 +809,6 @@ assert.doesNotMatch(
   /bridgebridge|rrriver/,
 )
 
-
 assert.equal(computeEnding(frequent).id, computeEnding(momentBase).id)
 const nextCard = findCard('WH-008')!
 const impairedScene = { ...frequent, card: nextCard.id }

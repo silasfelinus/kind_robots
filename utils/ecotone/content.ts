@@ -318,7 +318,7 @@ export const CROSSROADS: Record<CompanionId, string[]> = {
   ],
 }
 
-export const ENCOUNTERS: EncounterCard[] = [
+const AUTHORED_ENCOUNTERS: EncounterCard[] = [
   ...QUEST_CARDS,
   {
     id: 'WH-006',
@@ -951,7 +951,11 @@ export const ENCOUNTERS: EncounterCard[] = [
     provenance:
       'The graffiti spot behind the Bayshore Mall is real, and locals call it the Devil’s Playground. The film crew, Ray and the second monster are invented.',
   },
-].filter((card) => !isEcotoneReviewHeldCard(card.id))
+]
+
+export const ENCOUNTERS: EncounterCard[] = AUTHORED_ENCOUNTERS.filter(
+  (card) => !isEcotoneReviewHeldCard(card.id),
+)
 
 export type Chapter = {
   number: number

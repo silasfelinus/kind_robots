@@ -2284,16 +2284,13 @@
         }
       ]
     },
-{
+    {
       "id": "which-office-supply-are-you",
       "location_id": "orientation-theater",
       "title": "Which Office Supply Are You?",
       "flavor_text": "Dr. Halvorsen places a twelve-question intake test on your knee. Four official classifications: Stapler (keeps people together), Paperclip (bends without breaking), Red Pen (finds mistakes) and Shredder (makes problems disappear). Question nine asks what you would do if a coworker were replaced by a machine that kept their coffee warm. The answer sheet has room for a thirteenth question, but no question thirteen. \"Defense receives a copy,\" Halvorsen says, touching the Shredder box. \"Please answer for yourself, not the person you think we want.\"",
       "polarity": "mixed",
-      "tags": [
-        "psych-test",
-        "satire"
-      ],
+      "tags": ["psych-test", "satire"],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a psychologist in cat-eye glasses leaning over a theater seat to tap a pen on a long quiz sheet, four little drawings of a stapler, a paperclip, a red pen and a shredder in a row along its margin, a new hire chewing a pencil, warm spotlight from the stage, safety-orange and manila palette, halftone grain, every surface bare and unmarked",
@@ -2313,9 +2310,7 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": [
-              "profiled-as-a-stapler"
-            ],
+            "add_flags": ["profiled-as-a-stapler"],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -2339,9 +2334,7 @@
               "forms": 1,
               "suspicion": 1
             },
-            "add_flags": [
-              "profiled-as-a-paperclip"
-            ],
+            "add_flags": ["profiled-as-a-paperclip"],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2372,10 +2365,7 @@
               "clearance": 1,
               "composure": -1
             },
-            "add_flags": [
-              "profiled-as-a-red-pen",
-              "load-bearing-employee"
-            ],
+            "add_flags": ["profiled-as-a-red-pen", "load-bearing-employee"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 2,
@@ -2387,9 +2377,7 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": [
-              "profiled-as-a-red-pen"
-            ],
+            "add_flags": ["profiled-as-a-red-pen"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 2,
@@ -2418,10 +2406,7 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": [
-              "recruited-by-defense",
-              "profiled-as-a-shredder"
-            ],
+            "add_flags": ["recruited-by-defense", "profiled-as-a-shredder"],
             "remove_flags": [],
             "grades": {
               "spite": 1,
@@ -2433,9 +2418,7 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": [
-              "profiled-as-a-shredder"
-            ],
+            "add_flags": ["profiled-as-a-shredder"],
             "remove_flags": [],
             "grades": {
               "spite": 1,

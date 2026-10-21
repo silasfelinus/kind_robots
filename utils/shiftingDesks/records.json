@@ -725,7 +725,7 @@
             "target": 9
           },
           "success": {
-            "text": "The incident is described in full: which door, which Thursday, which coworker. Forewarned is not quite forearmed, but it is at least a sleeve.",
+            "text": "The incident report is dated next Thursday. A teddy bear leaves a parking structure in a sealed crate; an employee tries to warn the delivery driver; another employee signs the release anyway. Under WITNESS the Company has typed your name. Under AUTHOR OF WARNING it has typed the name of a person you recognize from earlier today. The witness signature is already in your handwriting.",
             "effects": {
               "clearance": 1
             },
@@ -736,7 +736,7 @@
             }
           },
           "failure": {
-            "text": "The incident pages are redacted with a marker that smells of oranges. In the margin, in your handwriting, someone has written: sorry.",
+            "text": "The incident pages are blacked out with a marker that smells of oranges. When you hold them under the desk lamp, the ink goes transparent for one second: PARKING STRUCTURE. THURSDAY. A name you almost recognize. Then the cuff tightens, and somebody's handwritten 'SORRY' returns in the margin.",
             "effects": {
               "composure": -1
             },
@@ -764,7 +764,7 @@
             "target": 9
           },
           "success": {
-            "text": "Corrections accepted. The dream transcript is removed, the dental records are amended, and the spring review now ends after \"showed real promise.\" Full stop.",
+            "text": "The clerk accepts your corrections. Your childhood dental history is deleted, your dream transcript is shortened to 'slept,' and the spring review now stops after 'showed real promise.' You have erased its last seven words without changing the incident those words predicted. PAL issues a receipt headed PERSONALITY AMENDMENT: FINAL.",
             "effects": {
               "composure": 1,
               "suspicion": -1
@@ -776,7 +776,7 @@
             }
           },
           "failure": {
-            "text": "Your corrections are filed as a new section titled ATTEMPTED CORRECTIONS. The file is now ten inches thick, and the cuff tightens.",
+            "text": "Your corrections are filed as a new chapter of the original document, titled EVIDENCE OF RESISTANCE TO ACCURATE RECORDS. The file swells to ten inches. The cuff writes your pulse beside the entry, perfectly legible. You have edited the story by giving it a villain.",
             "effects": {
               "suspicion": 1
             },
@@ -1889,7 +1889,7 @@
       "id": "the-suggestion-tube",
       "location_id": "pneumatic-tube-exchange",
       "title": "The Suggestion Tube",
-      "flavor_text": "A new sky-blue tube has been bolted beside the Exchange, with a brass slot for Anonymous Suggestions. Every capsule it swallows pops out upstairs on the Supervisor's desk, beside a magnifying glass and a stack of handwriting samples. Pip is standing at the slot with a folded note that reads, in his big round letters, MAYBE FEWER REASSIGNMENTS? \"It's anonymous,\" he tells you happily.",
+      "flavor_text": "A sky-blue tube is bolted beside the Exchange. Its brass mouth says ANONYMOUS SUGGESTIONS; a glass window in the pipe shows each note emerging directly onto the Supervisor's desk, beside a magnifying glass and a stack of handwriting samples. Pip has folded a note in his round letters: MAYBE FEWER REASSIGNMENTS? 'It's anonymous,' he says, and looks at you for reassurance.",
       "polarity": "mixed",
       "tags": ["conspiracy", "paperwork", "satire"],
       "weight": 3,
@@ -1907,7 +1907,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The tube gulps Pip's note. Upstairs, a magnifying glass is lifted. By lunch Pip has been invited to a Suggestion Follow-Up Session, and he is thrilled to finally be heard.",
+            "text": "You do not stop him. The tube takes the note like a swallow; the glass window shows it unfolding beneath the Supervisor's magnifier. By lunch Pip has been invited to a Suggestion Follow-Up Session. He has polished his shoes for it, unaware that the envelope lists his desk number as the first item of concern.",
             "effects": {
               "suspicion": -1
             },
@@ -1931,7 +1931,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You copy MAYBE FEWER REASSIGNMENTS? in your own hand and post it before he can. Pip pockets his note, puzzled. By lunch your handwriting has been matched, and PAL has scheduled a chat about your enthusiasm.",
+            "text": "You copy MAYBE FEWER REASSIGNMENTS? in your own handwriting and post it. Pip keeps his original, puzzled but safe for now. The Supervisor's magnifier pauses over the carbon paper: your signature appears on his calendar under INTENT TO IMPROVE. Pip spends the afternoon rehearsing what he will say if someone asks who wrote it.",
             "effects": {
               "composure": 1
             },
@@ -1960,7 +1960,7 @@
             "target": 9
           },
           "success": {
-            "text": "Pip's note slides up your sleeve and a glowing tribute to PAL's lighting choices drops into the slot. PAL is so moved it reads the suggestion aloud over the Exchange speakers. Pip is confused, and safe.",
+            "text": "Pip's note disappears up your sleeve. Your tribute to PAL's perfectly even fluorescent lighting is read aloud over every Exchange speaker, without the slightest hint of irony. Pip laughs before he can stop himself, then pockets his genuine suggestion. You have saved him from the hearing and taught him that the only anonymous opinion is praise.",
             "effects": {
               "suspicion": -1
             },
@@ -1972,7 +1972,7 @@
             }
           },
           "failure": {
-            "text": "Pip notices the swap and asks, loudly and kindly, why you have his note. Dispatcher Fenwick hears. So, as far as anyone can tell, does the tube.",
+            "text": "Pip sees the substitution and asks, loud enough for Fenwick to hear, why you are hiding his words. PAL requests both notes for comparison and announces that anonymous authors should come forward voluntarily. Pip steps toward the tube; you step in front of him. Neither of you looks anonymous anymore.",
             "effects": {
               "suspicion": 2
             },
@@ -2147,7 +2147,7 @@
       "id": "the-tube-that-goes-up",
       "location_id": "pneumatic-tube-exchange",
       "title": "The Tube That Goes Up",
-      "flavor_text": "Behind a riveted panel in the Exchange's oldest wall, one tube runs the wrong way. Capsules fed into it rise, and the air sighing down it smells of cut grass and parking lot. Fenwick swears nothing alive has ever come back down. Pip has already climbed onto the intake ledge. \"Somebody should test it,\" he says, tightening his lanyards. \"I'm very expendable. It says so on my badge.\"",
+      "flavor_text": "Behind a riveted panel in the Exchange's oldest wall, one tube runs the wrong way. Capsules fed into it rise, and the air sighing down it smells of cut grass and a parking lot after rain. A scratched brass label reads SURFACE: CORRESPONDENCE ONLY. Fenwick swears nothing living has ever come back down. Pip has already climbed onto the intake ledge. 'Somebody should test it,' he says, tightening his lanyards. 'I'm very expendable. It says so on my badge.'",
       "polarity": "bad",
       "tags": ["deathtrap", "sacrifice", "conspiracy"],
       "weight": 2,
@@ -2171,7 +2171,7 @@
             "target": 11
           },
           "success": {
-            "text": "You rocket up forty floors of brass and come to rest against a grille. Through it you see sky, actual sky, and a security guard eating a sandwich. Then the pressure reverses, politely, and you are returned to the Exchange with grass on your shoes and the route in your head.",
+            "text": "You rocket through forty floors of brass, strike a grille and glimpse actual sky. A guard is eating a sandwich on the other side. He sees you, tears off half the wrapper and writes a seven-digit maintenance code on it before the pressure reverses. You return to Records with grass on your shoes and the route memorized. Pip reads the wrapper twice: the date printed on it is tomorrow.",
             "effects": {
               "clearance": 1,
               "suspicion": 1
@@ -2183,7 +2183,7 @@
             }
           },
           "failure": {
-            "text": "Halfway up, the tube reconsiders. Your Successor is thawed by lunch and handed a capsule containing your shoes. PAL logs the incident as an unscheduled commute.",
+            "text": "Halfway up, the tube finds a bureaucratic reason to reverse its airflow. You survive the fall into a padded mail cart, but PAL thaws your Successor anyway: transportation incidents count as absences, not injuries. Pip retrieves your shoes from the chute and asks whether the person wearing your face will need them.",
             "effects": {
               "successors": -1
             },
@@ -2205,7 +2205,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Pip waves and is gone with a sound like a cork. Twenty minutes later he drops back into the down tray, windswept, holding a dandelion. \"There's sky,\" he whispers. Then PAL invites him to a short, friendly conversation about where he has been.",
+            "text": "Pip vanishes with the sound of a cork. Twenty minutes later he drops out of the return tray, windswept and holding a dandelion. 'There's sky,' he whispers. Then the Supervisor sends him a cheerful invitation to a Suggestion Follow-Up Session: PAL insists the flower is an unauthorized outside opinion. Pip presses it between the pages of his badge.",
             "effects": {
               "suspicion": -1
             },
@@ -2234,7 +2234,7 @@
             "target": 9
           },
           "success": {
-            "text": "You weight a capsule and roll a note inside: SEND HELP, OR AT LEAST SANDWICHES. It rises and stays risen. Hours later a capsule drops down holding a parking stub dated today. Someone up there is reading.",
+            "text": "You load a capsule with a note: SEND HELP, OR AT LEAST SANDWICHES. It rises past the SURFACE label and does not come back for an hour. Then a capsule drops with a parking stub, the date circled, and two words in another hand: WE READ. Fenwick takes the envelope but you keep the stub.",
             "effects": {
               "composure": 1
             },
@@ -2245,7 +2245,7 @@
             }
           },
           "failure": {
-            "text": "The capsule comes straight back down at speed and finds the Supervisor's coffee mug on its way past the dispatch desk. Pip helps you write the apology.",
+            "text": "Your weighted capsule hurtles back through the wrong-way tube and shatters the Supervisor's mug. He takes your name for the damage report; Pip secretly rescues the note from the wet carpet. Whatever you wrote still exists, and it now has a witness.",
             "effects": {
               "suspicion": 2
             },
@@ -2334,7 +2334,7 @@
             "target": 7
           },
           "success": {
-            "text": "It is Kevin's wristwatch, still running, with a tiny map of the Exchange engraved on the back and a star scratched beside Tube 14. You strap it on. It runs four minutes fast, like Kevin did.",
+            "text": "Inside is Kevin's wristwatch, still running four minutes fast, with a tiny Tube 14 map scratched beneath the glass. The seconds hand stops whenever you point it toward the Proving Grounds, then resumes when you turn away. You buckle it on before Fenwick can confiscate it. Kevin always said being early was a form of kindness.",
             "effects": {
               "composure": 1
             },
@@ -2367,7 +2367,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You write: Hope you are feeling more whole. It is the nicest sentence anyone in Records has written this year. By evening seven other clerks have signed beneath yours, very small.",
+            "text": "You write: 'Hope you are feeling more whole.' By evening seven other clerks have added their names, each smaller than the last. PAL scans the card and classifies it as a group petition; everyone who signed now owes Kevin a visit. You are the only one who knows where the card went.",
             "effects": {
               "composure": 1
             },
@@ -2520,7 +2520,7 @@
             "target": 9
           },
           "success": {
-            "text": "B's card lists your favorite sandwich, your worst fear and, under Notes, one word in B's own handwriting: Sorry. B was here before you, and B has already read yours.",
+            "text": "B's card lists your favorite sandwich, your worst fear, and a note in handwriting so close to yours it makes you dizzy: I SAID YES SO YOU COULD SAY NO. Below, a photocopied focus-group assignment shows your face in a propeller beanie and the date tomorrow. Whoever B is trying to become, he already knows the test.",
             "effects": {
               "forms": 1
             },
@@ -2531,7 +2531,7 @@
             }
           },
           "failure": {
-            "text": "B's card is blank except for a fingerprint, which is yours. You spend the rest of your shift not thinking about it, loudly.",
+            "text": "B's file is blank except for a fingerprint that matches yours and an appointment slip stamped FOCUS GROUP. Tomorrow. A clerk removes the card before you can read the room number. You spend the rest of your shift trying not to picture your face on a stranger.",
             "effects": {
               "composure": -1
             },
@@ -3276,7 +3276,7 @@
       "id": "pip-at-window-10",
       "location_id": "window-9",
       "title": "Pip at Window 10",
-      "flavor_text": "Pip has been assigned to Window 10, right beside yours, and his queue is rioting politely. He has approved everyone, including a filing cabinet and a man who was only delivering sandwiches. His quota card is all yeses. PAL chimes gently: \"Window 10 will be reviewed at the end of the shift.\" Pip waves at you through the partition, beaming, holding up a sandwich someone gave him.",
+      "flavor_text": "Pip has been assigned to Window 10, beside yours, and his queue is rioting politely. He has approved everyone, including a filing cabinet and a sandwich courier. His quota card is a wall of YES. PAL chimes: 'Window 10 will be reviewed at the end of the shift. Approved applicants remain approved; applicants you deny must come back tomorrow.' Pip waves through the partition, beaming, holding the courier's spare sandwich.",
       "polarity": "mixed",
       "tags": ["paperwork", "sacrifice", "satire"],
       "weight": 3,
@@ -3294,7 +3294,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You stamp no after no on your own queue until the numbers across both windows balance. Pip's review comes back Satisfactory. He does not know what it cost. The people in your line do.",
+            "text": "You make up for Pip's yeses by denying every person in your own line. A woman with an oxygen tank asks for the name of an appeals clerk. You give her yours. Pip's quota finishes in the green; his review calls him compassionate and you efficient. At closing the woman is still sitting where your line began.",
             "effects": {
               "suspicion": -1,
               "forms": 1
@@ -3325,7 +3325,7 @@
             "target": 9
           },
           "success": {
-            "text": "You coach him through the glass: frown, sigh, find the box. On his fourth try Pip says no to a man with an incomplete form, bursts into tears, and approves him anyway. His numbers improve just enough. He thanks you for making him worse.",
+            "text": "Pip practices: breathe, check the box, say no, mean it. On the fourth try he denies a man whose only missing document is a signature from someone who died years ago. The man leaves without yelling. Pip's quota improves and his smile doesn't. 'Did I do it right?' he asks. The machine says yes before you can decide.",
             "effects": {
               "clearance": 1
             },
@@ -3337,7 +3337,7 @@
             }
           },
           "failure": {
-            "text": "Pip learns too well. He says no to everyone, including the Supervisor, who was only passing. Window 10 is closed for review, and so, for a while, is Pip's smile.",
+            "text": "Pip learns the syllable but not the reason. He says no to everyone, including the Supervisor, who only wanted directions. Window 10 is closed for review. Pip has discovered a boundary, and the Company immediately files a complaint against it.",
             "effects": {
               "suspicion": 1,
               "composure": -1
@@ -3363,7 +3363,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You slide over and run both windows at once, a stamp in each hand, while Pip eats his sandwich on the floor. Window 10's review records your initials instead of his. The visitor log is square.",
+            "text": "You run two windows, stamps beating like mismatched hearts. Pip eats the sandwich on the floor, relieved. The review discovers your initials on every approval and calls it a heroic productivity demonstration. PAL assigns you both quotas permanently. Pip writes THANK YOU on a receipt that is also an application you forgot to stamp.",
             "effects": {
               "forms": 1
             },
@@ -3386,7 +3386,7 @@
           },
           "roll": null,
           "success": {
-            "text": "At the end of the shift a pleasant woman with a clipboard reviews Window 10. Pip is promoted to a role with fewer decisions in it. He waves from the elevator, going down, still holding the sandwich.",
+            "text": "A woman with a clipboard asks Pip to justify his last ten yeses. He tries to tell a story about each applicant; she needs only numbers. He is reassigned as a Living Approval Stamp, a position in which his kindness is officially automated. He waves from the downward elevator, still holding the sandwich. Your own stamp feels heavier.",
             "effects": {
               "suspicion": -1
             },

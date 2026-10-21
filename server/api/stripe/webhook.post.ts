@@ -110,7 +110,8 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
 
   // A late/retried checkout event must not restore access after Stripe
   // marked a subscription past due or cancelled it.
-  const subscription = await getStripeClient().subscriptions.retrieve(subscriptionId)
+  const subscription =
+    await getStripeClient().subscriptions.retrieve(subscriptionId)
   const subscriptionCustomer =
     typeof subscription.customer === 'string'
       ? subscription.customer
@@ -143,10 +144,7 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
     )
     return
   }
-  if (
-    user.stripeSubscriptionId &&
-    user.stripeSubscriptionId !== subscriptionId
-  )
+  if (user.stripeSubscriptionId && user.stripeSubscriptionId !== subscriptionId)
     return
 
   await prisma.user.update({
@@ -722,9 +720,7 @@ async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
 async function handleSubscriptionLifecycle(subscriptionId: string) {
   const latest = await getStripeClient().subscriptions.retrieve(subscriptionId)
   const customerId =
-    typeof latest.customer === 'string'
-      ? latest.customer
-      : latest.customer?.id
+    typeof latest.customer === 'string' ? latest.customer : latest.customer?.id
 
   if (!customerId) return
 
@@ -734,24 +730,21 @@ async function handleSubscriptionLifecycle(subscriptionId: string) {
   if (!user) return
 
   // An old/replaced subscription must not clobber the currently tracked one.
-  if (
-    user.stripeSubscriptionId &&
-    user.stripeSubscriptionId !== latest.id
-  )
+  if (user.stripeSubscriptionId && user.stripeSubscriptionId !== latest.id)
     return
 
-  const isActive =
-    latest.status === 'active' || latest.status === 'trialing'
+  const isActive = latest.status === 'active' || latest.status === 'trialing'
   const isTerminal =
-    latest.status === 'canceled' ||
-    latest.status === 'incomplete_expired'
+    latest.status === 'canceled' || latest.status === 'incomplete_expired'
 
   const scheduledEnd =
     isActive && latest.cancel_at_period_end
       ? patronPeriodEnd(latest, process.env.STRIPE_PRICE_ID || '')
       : null
   if (isActive && latest.cancel_at_period_end && !scheduledEnd)
-    throw new Error('Active cancelled Patron subscription has no paid-through date')
+    throw new Error(
+      'Active cancelled Patron subscription has no paid-through date',
+    )
 
   await prisma.user.update({
     where: { id: user.id },
@@ -849,8 +842,7 @@ export default defineEventHandler(async (event) => {
     } else if (stripeEvent.type === 'invoice.payment_failed') {
       const invoice = stripeEvent.data.object as Stripe.Invoice
       const subscriptionId = stripeInvoiceSubscriptionId(invoice)
-      if (subscriptionId)
-        await handleSubscriptionLifecycle(subscriptionId)
+      if (subscriptionId) await handleSubscriptionLifecycle(subscriptionId)
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||
       stripeEvent.type === 'customer.subscription.deleted'

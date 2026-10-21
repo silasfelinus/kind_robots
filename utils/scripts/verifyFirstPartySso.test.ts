@@ -197,6 +197,12 @@ assert.doesNotMatch(registerStoreAction, /token\.value\s*=|setToken\(|captureCur
 assert.doesNotMatch(registerStoreAction, /['"]Unknown error['"]/)
 assert.match(registrationPageSource, /await userStore\.register\(/)
 assert.match(registrationPageSource, /await userStore\.login\(/)
+assert.match(registrationPageSource, /\{ newlyRegistered: true \}/)
+assert.match(registrationStoreSource, /if \(options\.newlyRegistered\)/)
+assert.match(
+  registrationStoreSource,
+  /if \(options\.newlyRegistered\) \{\s*void useAchievementStore\(\)\.rewardAchievementByCode\('Dashboard'\)/,
+)
 assert.match(registrationPageSource, /Account created, but automatic sign-in failed:/)
 assert.match(registrationPageSource, /await navigateTo\('\/dashboard'\)/)
 

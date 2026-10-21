@@ -1455,8 +1455,9 @@ const markResult = (
     if (!run.flags.includes(flag)) run.flags.push(flag)
   }
   if (run.aid?.[questId]) {
-    const rest = { ...run.aid }
-    delete rest[questId]
+    const rest = Object.fromEntries(
+      Object.entries(run.aid).filter(([id]) => id !== questId),
+    )
     if (Object.keys(rest).length) run.aid = rest
     else delete run.aid
   }

@@ -1719,6 +1719,39 @@ export const selectHideout = (run: FortressRun): string => {
   return candidates[0]?.[1] ?? 'nameless-cave'
 }
 
+/** One possible host on the last night, as the map room names it (t-038). */
+export type HideoutCandidate = {
+  hideout: string
+  host: KingdomFactionId
+  tier: AffinityTier
+  pledges: number
+}
+
+/**
+ * Where the court would run if the tower fell tonight, best first: the same
+ * ranking as selectHideout, so the map room's hint never lies. Empty means
+ * the nameless cave.
+ */
+export const hideoutForecast = (run: FortressRun): HideoutCandidate[] =>
+  HIDEOUTS.filter(
+    ([faction]) =>
+      !run.wipedOut.includes(faction) &&
+      run.revealedFactions.includes(faction) &&
+      tierRank(affinityTier(run.affinity[faction])) >= tierRank('friendly'),
+  )
+    .sort(
+      ([a], [b]) =>
+        hostScore(run, b) - hostScore(run, a) ||
+        run.strength[b] - run.strength[a],
+    )
+    .map(([host, hideout]) => ({
+      hideout,
+      host,
+      tier: affinityTier(run.affinity[host]),
+      pledges: (PLEDGES[host] ?? []).filter((flag) => run.flags.includes(flag))
+        .length,
+    }))
+
 // --- the map: territories, taxes, act-end events ---------------------------
 //
 // The map only changes at act-end dawns (Days 11, 21, 31, 41), and a wipe-out
@@ -1908,8 +1941,7 @@ const betray = (
   // Act V content gates on the host: `hideout:mole-tunnels` and so on.
   run.flags.push(`hideout:${run.hideout}`)
   events.push('Young Komodo has betrayed the throne. The court flees.')
-  const { buyer, departed, fell, why } = applyBetrayal(run, events)
-  return { buyer, hideout: run.hideout, departed, fell, why }
+  return { ...applyBetrayal(run, events), hideout: run.hideout }
 }
 
 /** What one region pays the throne each dawn, and why. */

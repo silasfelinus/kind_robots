@@ -118,6 +118,32 @@
               </p>
             </div>
           </div>
+          <p
+            v-if="betrayal.note"
+            class="rounded-md border border-base-content/20 bg-base-200/60 p-3 font-serif text-sm"
+          >
+            <span class="block text-xs uppercase tracking-wider opacity-70"
+              >Under the seal on the gatehouse table, in his hand</span
+            >
+            <span class="italic">“{{ betrayal.note }}”</span>
+          </p>
+          <section
+            v-if="betrayal.ready?.length"
+            aria-label="What the crown was ready for"
+          >
+            <h3 class="eod-display text-lg text-success">
+              You were ready for some of it
+            </h3>
+            <ul class="mt-1 space-y-1">
+              <li
+                v-for="(line, i) in betrayal.ready"
+                :key="i"
+                class="border-l-2 border-success/60 pl-2 font-serif text-sm"
+              >
+                {{ line }}
+              </li>
+            </ul>
+          </section>
           <section aria-label="Gone with Komodo">
             <h3 class="eod-display text-lg text-error">Gone with Komodo</h3>
             <ul
@@ -423,6 +449,7 @@ const ledgerEvents = computed(() => {
   if (!betrayal.value) return props.report.events
   const told = new Set([
     fell.value,
+    ...(betrayal.value.ready ?? []),
     ...gone.value.map(
       ({ followerId }) => `${nameOf(followerId)} went with Young Komodo.`,
     ),

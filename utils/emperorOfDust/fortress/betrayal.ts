@@ -16,11 +16,12 @@
 import { KINGDOM_FACTION_DEFS, affinityTier } from './factions'
 import { followerDef } from './followers'
 import { TALKS } from './talks'
-import { AFFINITY_TIERS, variantText } from './types'
+import { AFFINITY_TIERS, gateHolds, pickVariant, variantText } from './types'
 import type {
   AffinityTier,
   BuyerId,
   DepartureWhy,
+  FlagGate,
   FollowerDef,
   FollowerState,
   FortressRun,
@@ -53,6 +54,15 @@ export type BuyerDef = {
   whyVariants?: TextVariant[]
 }
 
+/**
+ * Bought on Day 37 (d37-verge-terms): while the peace holds the Verge does
+ * not bid for the tower. A common front at the long table breaks it.
+ */
+export const VERGE_PEACE = 'd37-verge-peace'
+export const VERGE_PEACE_BROKEN = 'congress-common-front'
+export const vergeAtPeace = (run: FortressRun): boolean =>
+  run.flags.includes(VERGE_PEACE) && !run.flags.includes(VERGE_PEACE_BROKEN)
+
 /** The sentence every buyer's fall opens with, unless the last night changed it. */
 export const FALL_OPENING =
   'Young Komodo opened the gate at midnight with your seal.'
@@ -73,6 +83,14 @@ export const FALL_OPENINGS: TextVariant[] = [
   {
     flags: ['d40-watch-recalled'],
     text: 'The Watch stood the walls at midnight, as you ordered. Young Komodo did not need the walls. Sergeant Holloway lifted the bar for him from inside.',
+  },
+  {
+    flags: ['komodo-escorted'],
+    text: 'Young Komodo rode out with Dunmark at his side, as you ordered. At the Abbey he showed the sisters your seal, and the sisters showed Dunmark a cot. At midnight your seal opened your gate without him.',
+  },
+  {
+    flags: ['d40-seal-order-stood'],
+    text: 'Half the Watch was on the mission road by your order. Young Komodo opened the gate at midnight with your seal, and nobody stood behind it to ask.',
   },
 ]
 
@@ -98,7 +116,18 @@ export const BUYERS: Record<BuyerId, BuyerDef> = {
     banner: 'the Abbey’s grey banner',
     faction: 'abbey',
     fell: 'Young Komodo opened the gate at midnight with your seal. The grey sisters came in with lanterns and soup. By dawn the tower flies the Abbey’s grey banner.',
-    why: 'His bargain was always with the Abbess. Nobody the crown had wronged was strong enough to outbid her.',
+    why: 'He sold to the Abbess. He always had. Nobody the crown had crossed was strong enough to outbid her.',
+    // The thirty-sixth night, paid off (playtest act4 R4).
+    whyVariants: [
+      {
+        flags: ['d36-komodo-at-rehearsal'],
+        text: 'You sent him to her yourself, on the thirty-sixth night. They had three hours. It was enough to agree a price.',
+      },
+      {
+        flags: ['rehearsal-attended'],
+        text: 'She held your hand three hours on the thirty-sixth night. She remembered the warmth. She bought the rest of you from him.',
+      },
+    ],
   },
   'black-verge': {
     id: 'black-verge',
@@ -106,7 +135,17 @@ export const BUYERS: Record<BuyerId, BuyerDef> = {
     banner: 'the plum banner of the Black Verge',
     faction: 'black-verge',
     fell: 'Young Komodo opened the gate at midnight with your seal. Plum riders came through it at a walk. By dawn the tower flies the plum banner of the Black Verge. The Abbess paid for the horses.',
-    why: 'The crown crossed the Black Verge again and again. Its riders outnumber the sisters. The Abbess let them have the walls.',
+    why: 'The crown made an enemy of the Black Verge. Its riders outnumber the sisters. The Abbess let them have the walls.',
+    whyVariants: [
+      {
+        flags: [VERGE_PEACE, VERGE_PEACE_BROKEN],
+        text: 'The crown bought a peace from the Verge and broke it at the long table two days later. The Verge does not take apologies. It took the gate.',
+      },
+      {
+        flags: ['d37-verge-refused'],
+        text: 'The envoy named three prices on the thirty-seventh day. The crown paid none of them. Komodo named a fourth.',
+      },
+    ],
   },
   'old-houses': {
     id: 'old-houses',
@@ -115,6 +154,16 @@ export const BUYERS: Record<BuyerId, BuyerDef> = {
     local: 'old-houses',
     fell: 'Young Komodo opened the gate at midnight with your seal. Lady Vask’s sons were already in the yard. By dawn the tower flies the black swan of House Vask. The Abbess sent flowers.',
     why: 'The crown lost the Old Houses. Komodo had paid Lady Vask’s house for two years. It was ready.',
+    whyVariants: [
+      {
+        flags: ['d37-vask-son-sent'],
+        text: 'The crown sent Lady Vask’s son to winter with the Verge. Komodo told her where to send the bill.',
+      },
+      {
+        flags: ['d37-houses-surety'],
+        text: 'The Old Houses stood surety for the crown on the thirty-seventh day, and Komodo signed as witness. He had paid Lady Vask’s house for two years. The crown lost them anyway.',
+      },
+    ],
   },
 }
 
@@ -132,6 +181,7 @@ export const VERGE_SLIGHTS: readonly string[] = [
   'sable-sheltered',
   'sable-hidden',
   'congress-common-front',
+  'd37-verge-refused',
 ]
 export const VERGE_SLIGHTS_NEEDED = 3
 /** Old Houses support at or below this on the last night: Lady Vask is ready. */
@@ -153,6 +203,7 @@ export const vergeSlights = (run: FortressRun): number =>
 export const selectBuyer = (run: FortressRun): BuyerId => {
   const verge = 'black-verge'
   if (
+    !vergeAtPeace(run) &&
     stands(run, verge) &&
     (run.strength[verge] > run.strength.abbey || !stands(run, 'abbey')) &&
     (vergeSlights(run) >= VERGE_SLIGHTS_NEEDED ||
@@ -265,6 +316,25 @@ export const peopleCrossed = (
 }
 
 /**
+ * Followers the crown itself sent to the buyer's door before the last night
+ * (t-038): they go when that buyer calls, whoever sat with them. A sealed
+ * romance still keeps them.
+ */
+export const CALLED_HOME: readonly {
+  follower: string
+  flags: string[]
+  buyer: BuyerId
+}[] = [{ follower: 'F012', flags: ['d36-teodor-at-rehearsal'], buyer: 'abbey' }]
+
+const calledHome = (run: FortressRun, buyer: BuyerId, id: string): boolean =>
+  CALLED_HOME.some(
+    (entry) =>
+      entry.follower === id &&
+      entry.buyer === buyer &&
+      entry.flags.every((flag) => run.flags.includes(flag)),
+  )
+
+/**
  * The crown turned the follower's own people against it (t-041): a fortress
  * faction losing faith, a kingdom faction gone from the map, Hostile, or Wary
  * and at least KIN_FALL below where it stood on Day 1. A people who were
@@ -301,6 +371,7 @@ export const departureCheck = (
   if (run.active.some((quest) => quest.party.includes(state.id)))
     return { why: null, kept: 'away' }
   if (romanceSealed(run, state.id)) return { why: null, kept: 'romance' }
+  if (calledHome(run, buyer, state.id)) return { why: 'allegiance' }
   // Sitting with someone does not outweigh turning their people (t-041).
   if (talksHeardWith(run, state.id) > 0 && peopleBroken(run, def))
     return { why: 'kin' }
@@ -315,16 +386,136 @@ export const departureCheck = (
   return { why: null }
 }
 
+// --- what the careful crown saved (t-038) -------------------------------------
+
 /**
- * Who goes: allegiance, then kin, then neglect, then in the order they joined; at most
- * MAX_DEPARTURES, and never below MIN_LEFT followers left to the court.
+ * A precaution the last nights left standing. Every one gets its line on the
+ * betrayal page; each that `guards` the tower lowers how many can go with
+ * Komodo, down to GUARDED_FLOOR. The tower still falls.
+ */
+export type Precaution = FlagGate & {
+  id: string
+  line: string
+  guards?: boolean
+}
+
+export const PRECAUTIONS: readonly Precaution[] = [
+  {
+    id: 'secret-tunnel',
+    flags: ['d35-tunnel-secret', 'route-tunnel'],
+    notFlags: ['quest:q-d35-tunnel:partial'],
+    guards: true,
+    line: 'He sent riders down the trestle road after you. You were not on it. Granny Umber’s chalk took the court under the badlands, and nobody followed.',
+  },
+  {
+    id: 'rosters',
+    flags: ['d38-rosters-changed'],
+    guards: true,
+    line: 'The rosters he carried up the mission road were a week old. Dunmark’s new ones put the right people on the wrong walls. It cost him an hour.',
+  },
+  {
+    id: 'watch-recalled',
+    flags: ['d40-watch-recalled'],
+    guards: true,
+    line: 'The Watch was on the walls when the bar came up. Most of them came out with you, in order, spears first.',
+  },
+  {
+    id: 'seals-checked',
+    flags: ['d40-seals-checked'],
+    guards: true,
+    line: 'He had one order you had read, and nothing else. The rest of his stack was grain chits.',
+  },
+  {
+    id: 'komodo-held',
+    flags: ['d40-komodo-held'],
+    guards: true,
+    line: 'He lost the first hour of the night in a cell. The court did not lose it.',
+  },
+  {
+    id: 'militia-on-gate',
+    flags: ['d34-militia-on-gate'],
+    guards: true,
+    line: 'The Freehold sergeant had the gate at midnight. He would not lift the bar for a seal. They lifted it over him. His thirty held the yard until the court was out.',
+  },
+  {
+    id: 'escorted',
+    flags: ['komodo-escorted'],
+    guards: true,
+    line: 'The doubled watch was still on the gate when it opened. They did not stop it. They saw who came through, and they said so.',
+  },
+  {
+    id: 'archive-evacuated',
+    flags: ['archive-evacuated'],
+    guards: true,
+    line: 'The sisters found the Archive’s shelves bare. Vellum’s crates were already on the back road.',
+  },
+  {
+    id: 'archive-bait',
+    flags: ['d40-archive-bait'],
+    notFlags: ['archive-evacuated'],
+    line: 'He came to the Archive at eleven and asked for the forty orders by number. Vellum gave him the wrong forty.',
+  },
+  {
+    id: 'followed',
+    flags: ['d40-komodo-followed'],
+    line: 'Rook was on the ridge when the gate opened. “He walked his horse back in the old ruts,” the hare says. “I know which ruts now.”',
+  },
+  {
+    id: 'sealed-name',
+    flags: ['d40-vellum-sealed-name'],
+    line: 'At dawn you find Vellum’s slip in your sleeve. The wax is whole. You never got to read it alone. One word. You knew it.',
+  },
+]
+
+/** However careful the crown, Komodo takes at least this many he can reach. */
+export const GUARDED_FLOOR = 1
+
+export const precautionsTaken = (run: FortressRun): Precaution[] =>
+  PRECAUTIONS.filter((entry) => gateHolds(run.flags, entry))
+
+/** How many can go with Komodo, after the guards the crown set. */
+export const departureCap = (run: FortressRun): number => {
+  const guards = precautionsTaken(run).filter((entry) => entry.guards).length
+  return guards
+    ? Math.max(GUARDED_FLOOR, MAX_DEPARTURES - guards)
+    : MAX_DEPARTURES
+}
+
+/**
+ * The note under the seal on the gatehouse table: the answer the crown gave
+ * the physician question, kept (playtest act4 R8.3).
+ */
+export const KOMODO_NOTES: readonly TextVariant[] = [
+  {
+    flags: ['d40-komodo-told-ask'],
+    text: 'You said to ask. I am asking now, and you are not here to answer. Forgive the hat.',
+  },
+  {
+    flags: ['d40-komodo-told-do-it'],
+    text: 'You said that is what love is for. I am holding you to it.',
+  },
+  {
+    flags: ['d40-komodo-told-no-cure'],
+    text: 'You said there is no such cure. You were right. I am selling it anyway.',
+  },
+  {
+    flags: ['d40-komodo-asked-who'],
+    text: 'You asked who. Ask the Abbess what she charges.',
+  },
+]
+
+/**
+ * Who goes: allegiance, then kin, then neglect, then in the order they
+ * joined; at most `cap` (MAX_DEPARTURES less the crown's guards), and never
+ * below MIN_LEFT followers left to the court.
  */
 export const selectDepartures = (
   run: FortressRun,
   buyer: BuyerId,
+  cap: number = departureCap(run),
 ): { followerId: string; why: DepartureWhy }[] => {
   const present = run.roster.filter((state) => !state.dead && !state.departed)
-  const room = Math.max(0, Math.min(MAX_DEPARTURES, present.length - MIN_LEFT))
+  const room = Math.max(0, Math.min(cap, present.length - MIN_LEFT))
   const leaving = present.flatMap((state) => {
     const check = departureCheck(run, buyer, state)
     return check.why ? [{ followerId: state.id, why: check.why }] : []
@@ -415,10 +606,16 @@ export const applyBetrayal = (
   departed: { followerId: string; why: DepartureWhy }[]
   fell: string
   why: string
+  ready?: string[]
+  note?: string
 } => {
   const buyer = selectBuyer(run)
   run.flags.push(`buyer:${buyer}`)
   const departed = selectDepartures(run, buyer)
+  const going = new Set(departed.map((entry) => entry.followerId))
+  const stayed = selectDepartures(run, buyer, MAX_DEPARTURES).filter(
+    (entry) => !going.has(entry.followerId),
+  )
   // Nobody else went: Komodo takes the one he sat up with (t-041).
   const courted = departed.length ? undefined : komodoCourts(run)
   if (courted) departed.push({ followerId: courted, why: 'persuaded' })
@@ -437,7 +634,27 @@ export const applyBetrayal = (
     events.push(
       `${followerDef(followerId)?.name ?? followerId} went with Young Komodo.`,
     )
-  return { buyer, departed, fell, why }
+  const ready = [
+    ...precautionsTaken(run).map((entry) => entry.line),
+    ...stayed.map(({ followerId }) => stayedLine(followerId)),
+  ]
+  events.push(...ready)
+  const note = pickVariant(run.flags, KOMODO_NOTES)?.text
+  return {
+    buyer,
+    departed,
+    fell,
+    why,
+    ...(ready.length ? { ready } : {}),
+    ...(note ? { note } : {}),
+  }
+}
+
+/** A follower the crown's guards kept: packed to go, and stayed. */
+export const stayedLine = (followerId: string): string => {
+  const def = followerDef(followerId)
+  const words = PRONOUNS[def?.pronouns ?? ''] ?? PRONOUNS['they/them']!
+  return `${def?.name ?? followerId} had packed to go with him. ${words.subj} saw the court awake and put the bag down.`
 }
 
 // --- the stark lines ----------------------------------------------------------
@@ -451,7 +668,7 @@ export const DEPARTURE_LINES: Record<string, string> = {
   F005: 'Pip took one ledger and left the rest in alphabetical order.',
   F006: 'Nera went out into weather nobody else could read. The wind was going her way.',
   F007: 'Ash wrote their own pass at the kitchen table. The ink was dry before the gate opened.',
-  F008: 'Bram counted the court’s bread before he went. He took his share. Exactly his share.',
+  F008: 'Bram counted the court’s spears before he went. He took one. Exactly one.',
   F009: 'Keel went down a drain nobody knew was a door. They mapped it years ago. For pay.',
   F010: 'Lumen left a list of who is owed what. Her own name is not on it.',
   F011: 'Tamsin went over the wall the way she came in. She owes the crown nothing. She checked.',
@@ -463,7 +680,7 @@ export const DEPARTURE_LINES: Record<string, string> = {
   F017: 'Cobb walked out with his hammer. He did not say goodbye. He never said much.',
   F018: 'Vesper left in the middle of a song. One ball is still on the floor where it fell.',
   F019: 'Hollin flew out slow, with his scroll case. The map on his desk has one door circled.',
-  F020: 'Juniper left broth on the fire and a note under the pot. The note says: stir it.',
+  F020: 'Juniper’s bunk is stripped to the boards. She left the blanket folded for whoever comes next.',
 }
 
 const PRONOUNS: Record<string, { subj: string; obj: string; poss: string }> = {

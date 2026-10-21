@@ -1,6 +1,67 @@
-import type { DayDef, QuestDef } from './types'
+import type { DayDef, QuestAid, QuestDef } from './types'
 import { D34_RUNNER_AT_GATE } from './actTwo'
 import { MOLE_REFORMS_OPEN } from './moles'
+
+// Answers that send real help to a quest already on the board (t-040 quest
+// aid), so the audience and the board stop booking the same crisis twice
+// (playtest act4 #2). Nobody sent: the quest settles at `resolve`.
+const FORD = 'q-d31-iron-rain'
+const WATCH_AT_FORD: QuestAid = {
+  questId: FORD,
+  label: 'The Gate Watch holds the near bank',
+  bonus: 2,
+  stat: 'might',
+  resolve: 'partial',
+  outcome:
+    'Dunmark held the near bank with the Watch and no plan. They came home in carts.',
+}
+const VOLUNTEERS_AT_FORD: QuestAid = {
+  questId: FORD,
+  label: 'Thirty-one volunteers hold the near bank',
+  bonus: 1,
+  stat: 'might',
+  resolve: 'partial',
+  outcome:
+    'The volunteers held the near bank one night. They came home in carts, the youngest first.',
+}
+const PACK_AT_FORD: QuestAid = {
+  questId: FORD,
+  label: 'The Pack rides for the Ford',
+  bonus: 2,
+  stat: 'might',
+  resolve: 'partial',
+  outcome:
+    'The Pack held the Ford two days. On the third they took their pay in Freehold sheep.',
+}
+const BOXCARS_AT_FORD: QuestAid = {
+  questId: FORD,
+  label: 'Rustline boxcars wall the Ford',
+  bonus: 2,
+  stat: 'might',
+  resolve: 'partial',
+  outcome: 'The boxcars held a day. Then the riders brought rope.',
+}
+const WATCH_AT_THISTLEDOWN: QuestAid = {
+  questId: 'q-d33-thistledown',
+  label: 'The Gate Watch rides for Thistledown',
+  bonus: 2,
+  resolve: 'partial',
+  outcome:
+    'The Watch reached Thistledown at noon and lost a barn holding the rest. Hester counted heads twice.',
+}
+const REHEARSAL = 'q-d36-bell-rehearsal'
+const EMPEROR_AT_FRONT: QuestAid = {
+  questId: REHEARSAL,
+  label: 'Every sister watches the emperor in the front row',
+  bonus: 3,
+  stat: 'guile',
+}
+const TEODOR_SINGS_FLAT: QuestAid = {
+  questId: REHEARSAL,
+  label: 'Teodor sings flat; every sister turns to glare',
+  bonus: 2,
+  stat: 'guile',
+}
 
 // Act IV, Days 31-40, "The Long Table" (conductor DAY-PLAN.md): open faction
 // war, the coalition that will decide the Act V hideout, and Young Komodo's
@@ -140,7 +201,7 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
     },
     outcomes: {
       success:
-        'The caravan rolled out at dusk with every crate. Oriel Saltmarsh’s factor paid in brass and salt. On the Saltroad, same thing.',
+        'The caravan rolled out at dusk with every crate. Oriel Saltmarsh’s factor paid in brass and salt.',
       partial:
         'The caravan escaped with half its stock. The waystation did not escape at all.',
       failure:
@@ -171,15 +232,18 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
         strength: { jackalwire: 1 },
         flags: ['trestle-held'],
       },
+      // A burned bridge is nobody's road out (playtest act4 #8).
       failure: {
         affinity: { jackalwire: -5 },
         strength: { jackalwire: -1 },
         flags: ['trestle-burned'],
+        clearFlags: ['route-trestle'],
       },
     },
     expired: {
       strength: { jackalwire: -1 },
       flags: ['trestle-burned'],
+      clearFlags: ['route-trestle'],
     },
     outcomes: {
       success:
@@ -213,15 +277,18 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
         strength: { moles: 1 },
         flags: ['tunnel-held'],
       },
+      // The Moles brought the roof down: the pledge and the way out go with it.
       failure: {
         affinity: { moles: -5 },
         strength: { moles: -1 },
         flags: ['tunnel-collapsed'],
+        clearFlags: ['route-tunnel'],
       },
     },
     expired: {
       strength: { moles: -1 },
       flags: ['tunnel-collapsed'],
+      clearFlags: ['route-tunnel'],
     },
     outcomes: {
       success:
@@ -347,6 +414,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               strength: { freeholds: 1 },
               local: { 'gate-watch': -2 },
               flags: ['watch-marched'],
+              questAid: [WATCH_AT_FORD],
             },
             response:
               'Dunmark salutes and is gone before the echo is. By noon the walls are quiet.',
@@ -366,24 +434,27 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             label: 'Hire the Pack to ride for the Ford.',
             requires: { cost: 30, affinity: { jackalwire: 'neutral' } },
             effects: {
-              affinity: { jackalwire: 5 },
+              affinity: { jackalwire: 5, freeholds: -3 },
               strength: { freeholds: 1 },
               flags: ['pack-hired-ford'],
+              questAid: [PACK_AT_FORD],
             },
             response:
-              'The Pack rides out whooping. The Freeholds will be grateful and appalled in equal parts.',
+              'The Pack rides out whooping. The rider watches them go, her good hand on her knife. “They’ll want paying in our fields after,” she says. “They always do.”',
           },
           {
             id: 'rustline',
             label: 'Pay the Rustline to wall the Ford with scrap.',
             requires: { cost: 20, affinity: { rustline: 'neutral' } },
             effects: {
-              affinity: { rustline: 10 },
+              affinity: { rustline: 10, freeholds: -3 },
               strength: { freeholds: 1 },
+              local: { yard: -1 },
               flags: ['rustline-barricades'],
+              questAid: [BOXCARS_AT_FORD],
             },
             response:
-              'By noon the Ford is walled with rusted boxcars. The magpies charge by the boxcar. Worth it.',
+              'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. The magpies charge by the boxcar. The Freeholds will spend the winter fencing fields they kept.',
           },
         ],
         beats: [
@@ -411,6 +482,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   strength: { freeholds: 1 },
                   local: { 'gate-watch': -2 },
                   flags: ['watch-marched'],
+                  questAid: [WATCH_AT_FORD],
                 },
                 response:
                   'Dunmark salutes and is gone before the echo is. The rider runs after him, arm and all. By noon the walls are empty. Komodo walks them alone, counting his steps.',
@@ -430,37 +502,42 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 label: 'Hire the Pack. Let raiders bleed for farmers.',
                 requires: { cost: 30, affinity: { jackalwire: 'neutral' } },
                 effects: {
-                  affinity: { jackalwire: 5 },
+                  affinity: { jackalwire: 5, freeholds: -3 },
                   strength: { freeholds: 1 },
                   flags: ['pack-hired-ford'],
+                  questAid: [PACK_AT_FORD],
                 },
                 response:
-                  'The Pack rides out whooping. The rider watches them go, her good hand on her knife.',
+                  'The Pack rides out whooping. The rider watches them go, her good hand on her knife. “They’ll want paying in our fields after,” she says. “They always do.”',
               },
               {
                 id: 'rustline',
                 label: 'Pay the Rustline to wall the Ford with scrap.',
                 requires: { cost: 20, affinity: { rustline: 'neutral' } },
                 effects: {
-                  affinity: { rustline: 10 },
+                  affinity: { rustline: 10, freeholds: -3 },
                   strength: { freeholds: 1 },
+                  local: { yard: -1 },
                   flags: ['rustline-barricades'],
+                  questAid: [BOXCARS_AT_FORD],
                 },
                 response:
-                  'By noon the Ford is walled with rusted boxcars. The magpies charge by the boxcar. Nobody from the tower has to go.',
+                  'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. Nobody from the tower has to go. The Freeholds will spend the winter fencing fields they kept.',
               },
               {
                 id: 'volunteers',
                 label:
                   'You swore not to spend the Watch cheaply. Ask for volunteers.',
                 requires: { flags: ['oath-of-care'] },
+                // Kindness costs the walls (playtest act4 R1).
                 effects: {
                   affinity: { freeholds: 5 },
-                  local: { 'gate-watch': 2 },
+                  local: { 'gate-watch': -1 },
                   flags: ['d31-watch-volunteers'],
+                  questAid: [VOLUNTEERS_AT_FORD],
                 },
                 response:
-                  'Dunmark repeats your oath to the yard. Thirty-one step forward, the youngest first. He sends four back to the walls without a word. The rider counts the rest.',
+                  'Dunmark repeats your oath to the yard. Thirty-one step forward, the youngest first. He sends four back to the walls without a word. That night the youngest recruit stands the east wall alone. He is fifteen.',
               },
               {
                 id: 'porters',
@@ -470,6 +547,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 5 },
                   local: { 'gate-watch': -1, yard: -3 },
                   flags: ['d31-porters-on-walls'],
+                  questAid: [WATCH_AT_FORD],
                 },
                 response:
                   'By dusk porters in flour-white aprons line the walls, kitchen spits for pikes. Foreman Ash walks the line twice. He does not speak to the throne for a week.',
@@ -552,7 +630,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['ledger-page-kept', 'ledger-hand-studied'],
             },
             response:
-              'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen before every number, the way some people tap a claw.”',
+              'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
           },
           {
             id: 'komodo',
@@ -612,7 +690,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['ledger-page-kept', 'ledger-hand-studied'],
                 },
                 response:
-                  'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen before every number, the way some people tap a claw.”',
+                  'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
               },
               {
                 id: 'komodo',
@@ -670,9 +748,9 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         requires: { standing: MOLE_REFORMS_OPEN },
         lines: [
           'A prairie dog climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
-          'Lumen Shale. I organize for the assembly. Granny Umber says the crown has done two honest things. The assembly says two is luck. Three is a habit.',
-          'This is the list. Three reforms. A council seat for the burrows in this hall. The crown’s tax ledger nailed to the gate where anyone can read it. And the sedition law burned. The one you can hang a singer with.',
-          'Grant one and we keep talking. Grant two and I work for you. Grant none and I go home and tell them the truth. That’s worse.',
+          '“Lumen Shale. I organize for the assembly. Granny Umber says the crown has done two honest things. The assembly says two is luck. Three is a habit.”',
+          '“This is the list. Three reforms. A council seat for the burrows in this hall. The crown’s tax ledger nailed to the gate where anyone can read it. And the sedition law burned. The one you can hang a singer with.”',
+          '“Grant one and we keep talking. Grant two and I work for you. Grant none and I go home and tell them the truth. That’s worse.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
@@ -952,6 +1030,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               strength: { freeholds: 1 },
               local: { 'gate-watch': -3 },
+              flags: ['d33-watch-to-thistledown'],
+              questAid: [WATCH_AT_THISTLEDOWN],
             },
             response:
               'Dunmark groans in the doorway and goes to find his boots. Hester looks almost satisfied.',
@@ -1018,6 +1098,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 5 },
                   strength: { freeholds: 1 },
                   local: { 'gate-watch': -3 },
+                  flags: ['d33-watch-to-thistledown'],
+                  questAid: [WATCH_AT_THISTLEDOWN],
                 },
                 response:
                   'Dunmark groans in the doorway and goes to find his boots. Hester looks almost satisfied. The drover nearly smiles.',
@@ -1028,7 +1110,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   'Bring the drovers’ families into the outer court. The stock takes its chances.',
                 requires: { cost: 20 },
                 effects: {
-                  affinity: { saltroad: 10 },
+                  affinity: { saltroad: 10, freeholds: -5 },
                   local: { yard: -2, 'old-houses': -1 },
                   flags: ['d33-drovers-sheltered'],
                 },
@@ -1059,8 +1141,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         faction: 'mire-mothers',
         lines: [
           'Sister Reedlight comes in with fen mud to the hem and a lantern that burns without oil. Three young moles walk ahead of her, tied wrist to wrist with green reed. Nobody at court has seen reed hold a knot like that.',
-          'Your war is loud, so I will be quick. These three were under the Mirefen last night with picks and a keg. Digging a drain. Coal Harrow’s orders, they say. They say it proudly.',
-          'The fen has its own law for people who come to empty it. I came to ask if the crown would rather judge them first. I am being polite.',
+          '“Your war is loud, so I will be quick. These three were under the Mirefen last night with picks and a keg. Digging a drain. Coal Harrow’s orders, they say. They say it proudly.”',
+          '“The fen has its own law for people who come to empty it. I came to ask if the crown would rather judge them first. I am being polite.”',
           {
             who: 'Granny Umber',
             npc: 'granny-umber',
@@ -1154,7 +1236,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             speaker: 'Sister Reedlight of the Mire Mothers',
             npc: 'sister-reedlight',
             lines: [
-              'Nothing you would call cruel. We give them to the water for a night. Most come up in the morning. They are quieter after. They do not dig again.',
+              '“Nothing you would call cruel. We give them to the water for a night. Most come up in the morning. They are quieter after. They do not dig again.”',
               {
                 who: 'Granny Umber',
                 npc: 'granny-umber',
@@ -1208,21 +1290,23 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             speaker: 'Granny Umber of the Mole Revolutionaries',
             npc: 'granny-umber',
             lines: [
-              'I hated the Mothers before your grandmother was born, young ruler. I hate them now. That isn’t the question.',
-              'Send the three home and I’ll stand up in the assembly tonight and say Coal Harrow does not speak for the burrows. Out loud. He’ll hear it by morning.',
-              'He’s my sister’s boy. Write that down somewhere. Then forget it.',
+              '“I hated the Mothers before your grandmother was born, young ruler. I hate them now. That isn’t the question.”',
+              '“Send the three home and I’ll stand up in the assembly tonight and say Coal Harrow does not speak for the burrows. Out loud. He’ll hear it by morning. Half the young ones will walk out behind him.”',
+              '“He’s my sister’s boy. Write that down somewhere. Then forget it.”',
             ],
             options: [
               {
                 id: 'disown',
                 label:
                   'Send the three home. The burrows disown Coal Harrow, out loud.',
+                // The burrows split for it (playtest act4 #5: no free win-win).
                 effects: {
                   affinity: { moles: 5, 'mire-mothers': 5 },
+                  strength: { moles: -1 },
                   flags: ['d33-coal-disowned', 'd33-sappers-freed'],
                 },
                 response:
-                  'She says it in the assembly that night. Her voice does not shake. Her paw on the cane does. In the morning Reedlight’s reed is found on the gate step, cut, in a neat coil.',
+                  'She says it in the assembly that night. Her voice does not shake. Her paw on the cane does. Forty of the young ones walk out behind Coal. In the morning Reedlight’s reed is found on the gate step, cut, in a neat coil.',
               },
               {
                 id: 'to-fen',
@@ -1331,15 +1415,6 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             next: 'something-else',
           },
           {
-            id: 'ask-runners',
-            label: 'Ask after the three Yard volunteers sent up the Heights.',
-            requires: { flags: ['covenant-paid-in-runners'] },
-            effects: {},
-            response:
-              '“Two came home,” Corvane says. “One stayed. She says the caves are quieter than your Yard. We did not ask her to say so.” He tilts his head. “We rarely have to.”',
-            next: 'something-else',
-          },
-          {
             id: 'tamsin',
             label: 'Let Tamsin Gutterwing answer him.',
             requires: { follower: 'F011' },
@@ -1391,7 +1466,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['crow-debt-defaulted'],
             },
             response:
-              'Corvane rises without a word. That night every crow on the Heights faces the tower. None of them sleep.',
+              'Corvane rises without a word. That night every crow on the Heights faces the tower. None of them sleep. By morning the roosts are armed. Crows keep spite the way farmers keep seed.',
           },
         ],
         beats: [
@@ -1451,7 +1526,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. That night every crow on the Heights faces the tower. None of them sleep. Neither do you, much.',
+                  'Corvane rises without a word. That night every crow on the Heights faces the tower. By morning the roosts are armed. You do not sleep much either.',
               },
               {
                 id: 'ford-rights',
@@ -1500,12 +1575,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. Tamsin watches the crows leave the sills one by one. “They’ll come back for it,” she says. “They always do.”',
+                  'Corvane rises without a word. Tamsin watches the crows leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
               },
               {
                 id: 'wages',
                 label:
-                  'Lend runners on Tamsin’s terms: wages, their own names on every bag, home by first frost.',
+                  'Lend runners on Tamsin’s terms: wages, their names on every bag, home by first frost. Corvane will call it half paid.',
                 requires: { cost: 20 },
                 effects: {
                   affinity: { 'storm-crows': 5 },
@@ -1513,7 +1588,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d34-runners-on-wages'],
                 },
                 response:
-                  'Corvane looks at Tamsin a long time. “Wages,” he says, like the word tastes of tin. “Once.” Tamsin does not smile. Her tail loosens.',
+                  'Corvane looks at Tamsin a long time. “Wages,” he says, like the word tastes of tin. “Once. The debt stays in the second book until the frost.” Tamsin does not smile. Her tail loosens.',
               },
             ],
           },
@@ -1570,6 +1645,31 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             },
             response:
               'They go quietly, which is worse. By evening the outer court is swept and empty. Someone has scratched the Ford’s name into the gatepost at a child’s height.',
+          },
+          {
+            id: 'stay-on-gate',
+            label:
+              'Quarter them in the Yard. They stand the gate beside the Watch.',
+            effects: {
+              affinity: { freeholds: 5 },
+              local: { yard: -3, 'gate-watch': 1 },
+              flags: ['d34-militia-on-gate'],
+            },
+            response:
+              'The sergeant salutes with the hand that still works. That night there are rams on the gate. Foreman Ash counts thirty-one more bowls and says nothing about it, loudly.',
+          },
+          {
+            id: 'water-first',
+            label:
+              'Tell them the truth first: the Ford’s water belongs to the Crows now.',
+            requires: { flags: ['d34-ford-water-signed'] },
+            effects: {
+              affinity: { freeholds: -5 },
+              local: { yard: 1 },
+              flags: ['d34-militia-told-water'],
+            },
+            response:
+              'The sergeant looks at the windows. A crow sits on every sill. “Then what are we taking back,” he says. It is not a question. They go home by the long road, so they will not pass a sluice.',
           },
         ],
       },
@@ -1648,11 +1748,11 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             label: 'Let Saffron Kett choose.',
             requires: { follower: 'F002' },
             effects: {
-              affinity: { jackalwire: 10 },
+              affinity: { jackalwire: 10, moles: -5 },
               flags: ['route-trestle', 'saffron-chose-route'],
             },
             response:
-              'Saffron does not hesitate. “The trestle. I know every weld in it, and which ones hold.” Granny Umber shrugs. On a mole that is mostly elbows.',
+              'Saffron does not hesitate. “The trestle. I know every weld in it, and which ones hold.” Granny Umber shrugs. On a mole that is mostly elbows. “The crown let its welder choose,” she says. “I’ll tell my grandmother’s bones.”',
             postsQuests: ['q-d35-trestle'],
           },
           {
@@ -1709,7 +1809,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 label: 'Let Saffron Kett choose. It is her bridge.',
                 requires: { follower: 'F002' },
                 effects: {
-                  affinity: { jackalwire: 10 },
+                  affinity: { jackalwire: 10, moles: -5 },
                   flags: ['route-trestle', 'saffron-chose-route'],
                 },
                 response:
@@ -1720,12 +1820,13 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 id: 'secret-tunnel',
                 label:
                   'Hold the tunnel. Let the court believe you chose the trestle. Your advisor too.',
+                // A lie told in the Pack's name costs more than an honest no.
                 effects: {
-                  affinity: { moles: 10, jackalwire: -5 },
+                  affinity: { moles: 10, jackalwire: -10 },
                   flags: ['route-tunnel', 'd35-tunnel-secret'],
                 },
                 response:
-                  'You say “the trestle” aloud for the hall, and Komodo writes it down. Later, at the postern, Granny Umber presses a lump of tunnel chalk into your hand. “Now forget where it goes.”',
+                  'You say “the trestle” aloud for the hall, and Komodo writes it down. The Pack hears by supper that the crown chose their bridge. By the end of the week they hear the rest. At the postern Granny Umber presses a lump of tunnel chalk into your hand. “Now forget where it goes.”',
                 postsQuests: ['q-d35-tunnel'],
               },
             ],
@@ -1850,7 +1951,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 npc: 'young-komodo',
                 text: 'If the emperor is busy with the war tonight, Sister, I could sit at the front in the crown’s place. Cellars frighten me. Chapels I can manage.',
               },
-              '“Oh, would you?” says Sister Marrow. For the first time she sounds pleased. “She is so very fond of you.”',
+              '“Oh, would you?” says Sister Marrow. For the first time she sounds pleased.',
             ],
             options: [
               {
@@ -1869,7 +1970,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 label: 'Decline. Nobody from this court sits at the front.',
                 effects: { affinity: { abbey: -5 } },
                 response:
-                  '“Of course,” says Sister Marrow. “Another time.” On her way out she bows to Komodo. Deeper than she bowed to you.',
+                  '“Of course,” says Sister Marrow. “Another time.” She leaves the card on the step. Nobody picks it up until evening.',
               },
               {
                 id: 'evidence',
@@ -1902,6 +2003,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   affinity: { abbey: 5 },
                   local: { lamplight: 1 },
                   flags: ['rehearsal-attended', 'd36-emperor-decoy'],
+                  questAid: [EMPEROR_AT_FRONT],
                 },
                 response:
                   'Three hours at the front while a choir of children sings toward the floor. The Abbess holds your hand. Her hand is warm. You do not let go first. That would be noticed.',
@@ -1948,12 +2050,14 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 id: 'teodor-goes',
                 label:
                   'Send Teodor in the emperor’s place. Keep the sisters’ eyes on the front row.',
+                // He may not come back from her (betrayal.ts CALLED_HOME).
                 effects: {
                   affinity: { abbey: 5 },
                   flags: ['d36-teodor-at-rehearsal'],
+                  questAid: [TEODOR_SINGS_FLAT],
                 },
                 response:
-                  'Teodor nods. “I’ll sing flat on purpose. It is the one thing in that chapel they cannot bear.” At the door Sister Marrow takes his arm, gently, the way you hold someone who might run.',
+                  'Teodor nods. “I’ll sing flat on purpose. It is the one thing in that chapel they cannot bear.” Then, lower: “She will ask me to stay, Majesty. Six years she asked. I don’t know what I’ll say this time.” At the door Sister Marrow takes his arm, the way you hold someone who might run.',
               },
             ],
           },
@@ -2069,7 +2173,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 npc: 'young-komodo',
                 text: 'The Abbey has never borrowed a coin from the Ledger, Factor. They are a charity. Nobody lends to a charity.',
               },
-              'Tallow’s pen stops a hair above the page. “As your advisor says.” She writes nothing. “I keep my clients’ confidences, Majesty. Some sit closer to the throne than I do.”',
+              'Tallow’s pen stops a hair above the page. “As your advisor says.” She writes nothing. “I keep my clients’ confidences, Majesty. It is most of what I sell.”',
               'She lets that lie between you exactly until Komodo starts talking about grain.',
             ],
             options: [
@@ -2125,7 +2229,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d37-crown-debts-read'],
                 },
                 response:
-                  'Tallow hands it over like a knife, blade first. Nine pages. Page six is lamp oil, on credit, delivered up the mission road. A careful hand. A small dot before every number, where the pen tapped first.',
+                  'Tallow hands it over like a knife, blade first. Nine pages. Page six is lamp oil, on credit, delivered up the mission road. A careful hand. Two small dots before every number, where the pen tapped first.',
               },
               {
                 id: 'houses',
@@ -2135,7 +2239,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d37-houses-surety'],
                 },
                 response:
-                  'Lady Vask signs without reading it, which means she read it last night. “The Old Houses are glad to help the crown. And to be remembered for it.” The Yard hears by supper.',
+                  'Lady Vask signs without reading it, which means she read it last night. “The Old Houses are glad to help the crown. And to be remembered for it.” Young Komodo countersigns as witness. His sevens are very proud. The Yard hears by supper.',
               },
             ],
           },
@@ -2180,7 +2284,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d37-yard-oil-bought'],
             },
             response:
-              'The barrels come up the road by evening. The Yard lights every lamp it owns and leaves them burning all night.',
+              'The barrels come up the road by evening. The Yard lights every lamp it owns. Ash lights the last one himself, then stands under it. “Thank you for the oil,” he says. “You didn’t answer me.”',
           },
           {
             id: 'silence',
@@ -2191,6 +2295,181 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             },
             response:
               'Ash picks up his lamps. In the gallery one of the Old Houses murmurs “quite right.” Ash hears it. By nightfall so does the whole Yard.',
+          },
+          {
+            id: 'truth-and-oil',
+            label:
+              'Tell him the truth about the brazier, and buy the oil as well.',
+            requires: { cost: 25 },
+            effects: {
+              local: { yard: 4, 'old-houses': -2 },
+              affinity: { saltroad: 5 },
+              flags: ['d37-burn-admitted', 'd37-yard-oil-bought'],
+            },
+            response:
+              'You tell him in front of the gallery. Lady Vask leaves before you finish. The barrels come up the road by evening, and Ash lights the ovens first, the lamps after. “Both,” he says. “I didn’t think you had both in you.”',
+          },
+        ],
+      },
+      {
+        // The war's enemy at the table (playtest act4 #5): every price the
+        // Verge names is paid by someone else, and the peace keeps the Verge
+        // from bidding for the tower (betrayal.ts VERGE_PEACE).
+        id: 'd37-verge-terms',
+        title: 'Terms in White Gloves',
+        speaker: 'The Envoy of the Black Verge',
+        npc: 'the-verge-envoy',
+        faction: 'black-verge',
+        lines: [
+          'The Envoy of the Black Verge walks the carpet at the pace of a funeral. White gloves. A servant follows with a plum pennant folded small and a stool nobody unfolds.',
+          '“The Court is tired of the Ford, Majesty. So are the riders. We would like to stop. The Court does not stop for nothing.”',
+          '“Three prices. Choose one and the riders go home before the frost.”',
+          '“The far fields at the Ford, past the river. The Freeholds plant this bank. We plant that one.”',
+          '“Or forty brass. Riders paid to stop must ride somewhere. We suggest the salt flats. The Saltroad has guards.”',
+          '“Or a guest of rank, to winter with the Court. Kept warm. Returned in spring.”',
+          {
+            who: 'Captain Ferro Dunmark',
+            npc: 'ferro-dunmark',
+            text: 'Every one of those is a price somebody else pays, Majesty. That’s how you know it’s the Verge.',
+          },
+        ],
+        options: [
+          {
+            id: 'fields',
+            label:
+              'Cede the far fields. The Freeholds keep this bank, and their lives.',
+            effects: {
+              affinity: { 'black-verge': 15, freeholds: -10 },
+              strength: { freeholds: -1 },
+              flags: ['d37-verge-peace', 'd37-far-fields-ceded'],
+            },
+            response:
+              'The envoy draws the new line on your map with one gloved finger. It is very straight. By the week’s end the far-bank farmers come over the Ford with their doors on carts. They stack the doors against your gate.',
+          },
+          {
+            id: 'salt-flats',
+            label: 'Pay the forty. Let the riders find the salt flats.',
+            requires: { cost: 40 },
+            effects: {
+              affinity: { 'black-verge': 10, saltroad: -10 },
+              strength: { saltroad: -1 },
+              flags: ['d37-verge-peace', 'd37-war-sent-south'],
+            },
+            response:
+              'The envoy takes the purse between two fingers. Three nights later the waystation road is lit by burning wagons. Oriel Saltmarsh sends back the crown’s last letter unopened.',
+          },
+          {
+            id: 'vask-son',
+            label: 'Send a guest of rank: Lady Vask’s second son.',
+            effects: {
+              affinity: { 'black-verge': 10 },
+              local: { 'old-houses': -3 },
+              flags: ['d37-verge-peace', 'd37-vask-son-sent'],
+            },
+            response:
+              '“Corwin is nineteen,” Lady Vask says. That is all she says. The boy walks down the carpet in his good coat and climbs into the plum carriage. His mother watches from the gallery until the dust settles. Then she watches the throne.',
+          },
+          {
+            id: 'refuse',
+            label:
+              'No price. The crown does not buy peace from people who burn farms.',
+            effects: {
+              affinity: { 'black-verge': -10, freeholds: 5 },
+              flags: ['d37-verge-refused'],
+            },
+            response:
+              'The envoy removes one glove, finger by finger. “The Court keeps a short list, Majesty. Everyone on it is sorry.” That night the riders light their fires one field closer.',
+          },
+          {
+            id: 'ask-warm',
+            label: 'Ask what the Court does with the guests it keeps warm.',
+            effects: { affinity: { 'black-verge': -5 } },
+            response:
+              'The envoy’s smile stops short of the eyes. “You may ask, Majesty. You are paying for the answer.”',
+            next: 'warm',
+          },
+          {
+            id: 'sable',
+            label: 'Give them Sable. The Court asked for Sable once already.',
+            requires: {
+              follower: 'F016',
+              notFlags: ['sable-not-traded', 'sable-chose-to-stay'],
+            },
+            effects: {
+              affinity: { 'black-verge': 15 },
+              flags: ['d37-verge-peace', 'd37-sable-returned'],
+              dismiss: [
+                {
+                  follower: 'F016',
+                  reason:
+                    'Sable went back to the Verge in the envoy’s carriage, the price of the Ford.',
+                },
+              ],
+            },
+            response:
+              'Sable hears it from the doorway. They take off one glove and fold it into your hand. “Good arithmetic,” they say. They do not look back from the carriage. The glove stays cold all day. Then it is only a glove.',
+          },
+        ],
+        beats: [
+          {
+            id: 'warm',
+            lines: [
+              '“Fields feed people. People are warm. The Court is cold, Majesty. It has been cold a long time.”',
+              '“Our guests give a little warmth. A cup a month. They eat very well. Most stay after spring. We do not ask why.”',
+              {
+                who: 'Captain Ferro Dunmark',
+                npc: 'ferro-dunmark',
+                text: 'The riders don’t burn the farmhouses, Majesty. I always wondered. They burn the barns and leave the houses standing.',
+              },
+              '“Houses are where the people are,” says the envoy. “Why would anyone burn those?”',
+            ],
+            options: [
+              {
+                id: 'fields',
+                label: 'Cede the far fields anyway. Peace is peace.',
+                effects: {
+                  affinity: { 'black-verge': 15, freeholds: -10 },
+                  strength: { freeholds: -1 },
+                  flags: ['d37-verge-peace', 'd37-far-fields-ceded'],
+                },
+                response:
+                  'The envoy draws the line on your map with one gloved finger. The far-bank farmers come over the Ford with their doors on carts. Some of the houses on that bank keep their doors. Their lamps stay lit all winter.',
+              },
+              {
+                id: 'salt-flats',
+                label: 'Pay the forty. The Saltroad has guards.',
+                requires: { cost: 40 },
+                effects: {
+                  affinity: { 'black-verge': 10, saltroad: -10 },
+                  strength: { saltroad: -1 },
+                  flags: ['d37-verge-peace', 'd37-war-sent-south'],
+                },
+                response:
+                  'The envoy takes the purse between two fingers. Three nights later the waystation road is lit by burning wagons. The drovers’ houses are left standing. Empty.',
+              },
+              {
+                id: 'vask-son',
+                label: 'Send Lady Vask’s second son. He will be well fed.',
+                effects: {
+                  affinity: { 'black-verge': 10 },
+                  local: { 'old-houses': -3 },
+                  flags: ['d37-verge-peace', 'd37-vask-son-sent'],
+                },
+                response:
+                  '“Corwin is nineteen,” Lady Vask says. That is all she says. She heard the envoy. So did he. He climbs into the plum carriage anyway, because she does not tell him not to.',
+              },
+              {
+                id: 'warn-freeholds',
+                label:
+                  'Send the envoy home and write Hester what the riders want her farms for.',
+                effects: {
+                  affinity: { 'black-verge': -15, freeholds: 10 },
+                  flags: ['d37-verge-refused', 'd37-freeholds-warned'],
+                },
+                response:
+                  'You write it yourself. Within the week every Freehold house has a bar on the door and a dog behind it. The envoy leaves one glove on the step. The servant comes back for it after dark.',
+              },
+            ],
           },
         ],
       },
@@ -2241,7 +2520,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         lines: [
           'Dunmark brings in a young Mole in chains. Sixteen, no more. He has been crying and stopped, and wiped his face on his chains. There is rust on his cheek.',
           '“I didn’t steal them. I carry them,” the Mole says. “Up the mission road at night, twice a week, for a year. I know who gives them to me. Pardon me and I’ll say the name.”',
-          'Young Komodo has come down from the gallery, which he never does for thieves. He stands at the foot of the dais, ledger under his arm. When he speaks, the boy looks at the floor.',
+          'The court has turned out for a thief, which it never does. Clerks on the gallery rail. Lady Vask with her fan. Young Komodo at the foot of the dais with the morning’s papers.',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
@@ -2521,6 +2800,42 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           'Young Komodo stands at the far end with a seating chart, ticking off each guest. The host of a wedding nobody wanted.',
           'Oriel Saltmarsh rises, beak first. “Majesty, your advisor put the Abbess at your right hand and the Moles by the door. Is that where the crown wants them?”',
         ],
+        // The table remembers what the crown said out loud (playtest act4 R2)
+        // and the peace it bought (d37-verge-terms).
+        variants: [
+          {
+            flags: ['promised-thistledown', 'thistledown-abandoned'],
+            lines: [
+              'The long table runs the length of the throne room, a chair for every banner on the map, even the plum one. Down the middle march Abbey candles, a gift. Their flames do not move.',
+              {
+                who: 'Hester Plowright',
+                npc: 'hester-plowright',
+                text: 'Before anyone sits. You said it out loud, Majesty. Before noon, you said. I’ve a whole village heard you.',
+              },
+              'Oriel Saltmarsh rises, beak first. “Majesty, your advisor put the Abbess at your right hand and the Moles by the door. Is that where the crown wants them?”',
+            ],
+          },
+          {
+            flags: ['promised-waystation', 'waystation-abandoned'],
+            lines: [
+              'The long table runs the length of the throne room, a chair for every banner on the map, even the plum one. Down the middle march Abbey candles, a gift. Their flames do not move.',
+              'Young Komodo stands at the far end with a seating chart, ticking off each guest. The host of a wedding nobody wanted.',
+              'Oriel Saltmarsh rises, beak first. “The crown chose us, Majesty. It said so to Hester’s face. Then it chose nothing.” She lets that sit. “Your advisor put the Abbess at your right hand and the Moles by the door. Is that where the crown wants them?”',
+            ],
+          },
+          {
+            flags: ['d37-verge-peace'],
+            lines: [
+              'The long table runs the length of the throne room, a chair for every banner on the map, even the plum one. Down the middle march Abbey candles, a gift. Their flames do not move.',
+              {
+                who: 'The Envoy of the Black Verge',
+                npc: 'the-verge-envoy',
+                text: 'We have our peace, Majesty. I came to watch you keep it. A common front against my riders would be a short peace.',
+              },
+              'Oriel Saltmarsh rises, beak first. “Majesty, your advisor put the Abbess at your right hand and the Moles by the door. Is that where the crown wants them?”',
+            ],
+          },
+        ],
         options: [
           {
             id: 'ask-seating',
@@ -2596,6 +2911,24 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             },
             response:
               'Hester hears you out with her basket on her knees. Then: “Barns can be rebuilt.” Then: “Seed grain can’t.” Then nothing. Oriel counts something on her feathers under the table.',
+          },
+          {
+            id: 'tally',
+            label:
+              'Open the sisters’ tally book on the table. Read the “Paid” column aloud.',
+            requires: { flags: ['abbey-crypt-ledger'] },
+            effects: {
+              affinity: {
+                abbey: -15,
+                'hollow-bell': 5,
+                freeholds: -5,
+                saltroad: -5,
+              },
+              strength: { abbey: -1 },
+              flags: ['d39-tally-read'],
+            },
+            response:
+              'You read the first page. Families from Thistledown. Families from the salt-house. Brass beside each name. On the second page Hester puts her hand flat on the book. Her sister’s name is on it. The Abbess folds her hands and waits for you to finish. You do not finish.',
           },
         ],
         beats: [
@@ -2688,6 +3021,24 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 response:
                   'The table goes quiet as you sit at the foot, between Komodo and a Mole. Hester laughs out loud. The Abbess, alone at the head by the empty throne, folds her hands and waits. Komodo does not look at you again.',
               },
+              {
+                id: 'tally',
+                label:
+                  'Open the sisters’ tally book on the table. Read the “Paid” column aloud.',
+                requires: { flags: ['abbey-crypt-ledger'] },
+                effects: {
+                  affinity: {
+                    abbey: -15,
+                    'hollow-bell': 5,
+                    freeholds: -5,
+                    saltroad: -5,
+                  },
+                  strength: { abbey: -1 },
+                  flags: ['d39-tally-read'],
+                },
+                response:
+                  'You read the first page. Families from Thistledown. Families from the salt-house. Brass beside each name. On the second page Hester puts her hand flat on the book. Her sister’s name is on it. The Abbess folds her hands and waits for you to finish. You do not finish.',
+              },
             ],
           },
         ],
@@ -2727,7 +3078,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Whatever happens, Your Majesty, remember I always told you the price of things. Nearly always. Tonight I would like to ride to the Saltroad and settle some accounts.',
+      'Whatever happens, Your Majesty, remember I always told you the price of things. Nearly always.',
     quests: [],
     audiences: [
       {
@@ -2744,6 +3095,22 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'You signed forty orders the day of the Congress, Your Majesty. I brought them in a stack. That one was the thirty-first. The pilgrims asked for an escort. It seemed a small thing.',
+          },
+        ],
+        // Day 31's walls, remembered (playtest act4 R1/R6).
+        variants: [
+          {
+            flags: ['watch-marched'],
+            lines: [
+              'The long table from the Congress still stands. Chairs pushed back, cups half full. Dunmark walks past them with a folded order in his fist.',
+              '“Half my night watch has orders to stand on the mission road tonight, Majesty. To guard pilgrims. For the Abbey’s rehearsal.”',
+              '“First the Ford took my walls. Now the Abbey wants my nights. It’s under your seal, and I don’t remember you telling me. Somebody’s counting how often I’m gone, Majesty. It isn’t me.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'You signed forty orders the day of the Congress, Your Majesty. I brought them in a stack. That one was the thirty-first. The pilgrims asked for an escort. It seemed a small thing.',
+              },
+            ],
           },
         ],
         options: [
@@ -2763,7 +3130,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d40-watch-recalled'],
             },
             response:
-              'Dunmark tears the order in half, then in half again. “I will write to the sisters,” Komodo says mildly. “They always understand.” Lady Vask remarks that a seal used to mean something.',
+              'Dunmark tears the order in half, then in half again. “I will write to the sisters,” Komodo says mildly. “They always understand.” Lady Vask watches the pieces fall. “The Old Houses hold their land by that seal, Majesty. One does like to know it means something.”',
           },
           {
             id: 'stand',
@@ -2799,7 +3166,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d40-watch-recalled'],
                 },
                 response:
-                  'Dunmark tears the order in half, then in half again. “I will write to the sisters,” Komodo says mildly. He watches the pieces fall, reading them.',
+                  'Dunmark tears the order in half, then in half again. “I will write to the sisters,” Komodo says mildly. He watches the pieces fall, reading them. From the gallery Lady Vask: “The Old Houses hold their land by that seal, Majesty. One does like to know it means something.”',
               },
               {
                 id: 'stand',
@@ -2873,6 +3240,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               '“Not in this room, Majesty. Rooms have doors. Doors have people standing in them.”',
               '“I’ll tell you this much, because it is not a name. The hand that wrote the oil wrote forty orders for the crown’s seal this month. I have copies. Whoever wrote them was proud of their sevens.”',
               '“I would like to take the books, and the copies, somewhere without this room in it. Tonight.”',
+              '“Or I wait. If I move the books tonight, the hand will know I found it. If I wait, the copies are still on the shelf when he comes for them. I can give him the wrong ones. Your choice, Majesty. I have been wrong about fewer things than most, but I have been wrong.”',
             ],
             options: [
               {
@@ -2887,10 +3255,14 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'morning',
-                label: 'It can wait until morning.',
-                effects: { local: { lamplight: -2 } },
+                label:
+                  'Wait until morning. Leave the copies on the shelf for him to find.',
+                effects: {
+                  local: { lamplight: -2 },
+                  flags: ['d40-archive-bait'],
+                },
                 response:
-                  'Vellum closes his eyes. “As the emperor wishes. I will sleep in the Archive tonight. Door locked. Lamps out.”',
+                  'Vellum closes his eyes. “As the emperor wishes. I will sleep in the Archive tonight. Door locked. Lamps out. The wrong forty on the top shelf.”',
               },
               {
                 id: 'sealed-name',
@@ -2937,31 +3309,6 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               'Komodo smiles. “The kind that are cheaper settled in the dark, Your Majesty. Most are.” His claw taps the ledger once.',
             next: 'accounts',
           },
-          {
-            id: 'leave',
-            label: 'Go. The crown trusts you.',
-            effects: { flags: ['komodo-leave-granted'] },
-            response:
-              'Komodo bows lower than he has ever bowed. At the door he stops. His claw taps the ledger once, twice. He writes nothing down.',
-          },
-          {
-            id: 'stay',
-            label: 'Stay. The court needs its advisor tonight.',
-            effects: { flags: ['komodo-asked-to-stay'] },
-            response:
-              '“Of course,” says Komodo. He stays. He is good company all evening. At midnight he excuses himself to check the gate.',
-          },
-          {
-            id: 'escort',
-            label: 'Double the Gate Watch, and send them with him.',
-            requires: { local: { 'gate-watch': 10 } },
-            effects: {
-              local: { 'gate-watch': -2 },
-              flags: ['komodo-escorted', 'gate-doubled'],
-            },
-            response:
-              'Komodo looks at the doubled watch a long moment. “Thorough. I taught you that.” Captain Dunmark rides out beside him.',
-          },
         ],
         beats: [
           {
@@ -2969,7 +3316,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             lines: [
               '“Your first morning, a mayor came up that carpet before the herald finished your name. I thought: eaten within the week. I am almost never wrong about prices, Your Majesty. I was wrong about you.”',
               '“You kept asking what things cost. Not in brass. In people. Nobody had asked me that in years. I had stopped asking it myself.”',
-              'Far off, up the mission road, the Abbey is rehearsing again. It reaches the tower as pressure more than sound, like weather before it breaks. Tonight it does not sound like a rehearsal.',
+              'Far off, up the mission road, the Abbey is rehearsing again. It reaches the tower as pressure more than sound, through the soles of your feet. Tonight it does not sound like a rehearsal.',
               '“May I ask you something? Not as your advisor. As whatever I am when the hall is empty.”',
             ],
             options: [
@@ -2986,7 +3333,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   'First ask whether he ever learned where the Abbey’s children go.',
                 effects: {},
                 response:
-                  'Komodo looks at the empty petitioners’ bench. “I told you to ask that on the eighth day. Not today, perhaps, I said.” He turns a page without reading it. “I asked every day since. I found out. Ask me tomorrow what it cost.”',
+                  'Komodo looks at the empty petitioners’ bench. “I told you to ask that on the eighth day. Not today. But I would ask, I said.” He turns a page without reading it. “I asked every day since. I found out. Ask me tomorrow what it cost.”',
                 next: 'question',
               },
               {
@@ -3009,13 +3356,6 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               '“The roads are quiet tonight. I made sure. I will be back before anyone misses me. If they do, say I went to count barrels. Nobody follows a lizard who is counting barrels.”',
             ],
             options: [
-              {
-                id: 'leave',
-                label: 'Then go count your barrels. The crown trusts you.',
-                effects: { flags: ['komodo-leave-granted'] },
-                response:
-                  'Komodo bows lower than he has ever bowed. At the door he stops. His claw taps the ledger once, twice. He writes nothing down.',
-              },
               {
                 id: 'trust',
                 label:
@@ -3084,6 +3424,16 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   '“Runners,” says Komodo. “They will say anything for a bowl of soup.” He says it to the ledger.',
                 next: 'cornered',
               },
+              {
+                id: 'chain',
+                label:
+                  'Say nothing. Tap two fingers on the step, twice, the way the Mole boy did.',
+                requires: { flags: ['d38-hall-cleared'] },
+                effects: { flags: ['d40-komodo-confronted'] },
+                response:
+                  'Komodo watches your fingers. Once. Twice. He does not ask where you learned it. He knows which room was empty.',
+                next: 'cornered',
+              },
             ],
           },
           {
@@ -3136,7 +3486,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               'Komodo shuts the ledger. Not hard. In forty days he has never done anything hard. He folds his hands on the cover and looks at you with the cold, still attention he turns on other people.',
               '“You have been counting, Your Majesty. Good. I taught you that. I am proud of you, believe it or not.”',
               '“I am going to say something. Remember it. Everything I have done in this court, I did for this court. Some of it you would thank me for. Some you would not. Ask me tomorrow which is which.”',
-              '“Tonight I would only like to ride to the Saltroad and count some barrels.”',
+              '“Tonight I would only like to ride to the Saltroad and count some barrels. But since you are counting, count one more thing for me first.”',
             ],
             options: [
               {
@@ -3145,7 +3495,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 effects: { flags: ['d40-komodo-asked-tomorrow'] },
                 response:
                   '“Tomorrow,” he agrees. His voice catches on the word, like a coat on a nail.',
-                next: 'door',
+                next: 'question',
               },
               {
                 id: 'now',
@@ -3153,7 +3503,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 effects: { flags: ['d40-komodo-pressed'] },
                 response:
                   'You wait. The lamps gutter. At last Komodo says, “I have never once lied to you about the price of anything.” As far as you know, it is true. It is not an answer.',
-                next: 'door',
+                next: 'question',
               },
               {
                 id: 'mercy',
@@ -3162,7 +3512,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 effects: { flags: ['d40-komodo-offered-mercy'] },
                 response:
                   'For a moment you think he will tell you. His mouth opens. Up the mission road the bell with no clapper does something that is not quite a sound. He closes his mouth. “From me,” he says. “Yes. You will.”',
-                next: 'door',
+                next: 'question',
               },
             ],
           },
@@ -3170,7 +3520,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             id: 'door',
             lines: [
               'Komodo stands, brushes the dust of the step from his coat, and fastens the top button. It was already fastened.',
-              '“Some advice, Your Majesty. It is all I am good for tonight. Whoever your friends are on the map this evening, those are your walls tomorrow. Choose the ones with roofs.”',
+              '“Some advice, Your Majesty. It is all I am good for tonight. Whoever your friends were on the map this morning, those are your walls tomorrow. I hope you chose the ones with roofs.”',
               '“Keep the Keeper close. He is slow, and slow things survive. And if you ever hear a bell that has no clapper, do not go toward it. Whatever it sounds like. Whoever is calling.”',
               '“There. That is all the free advice in the tower. The rest has a price, and I have already paid it.”',
             ],

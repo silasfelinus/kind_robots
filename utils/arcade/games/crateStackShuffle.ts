@@ -278,7 +278,7 @@ type Warehouse = {
   stud: string
 }
 
-/** Five warehouse bays, one per level in turn: night shift, cold store, harbour, greenhouse, ember. */
+/** Six warehouse bays, one per level in turn: night shift, cold store, harbour, greenhouse, ember, candy dock. */
 export const WAREHOUSES: readonly Warehouse[] = [
   {
     sky: [RAMPS.night[2], RAMPS.purple[0], RAMPS.night[1]],
@@ -309,6 +309,12 @@ export const WAREHOUSES: readonly Warehouse[] = [
     shelves: mix(RAMPS.rust[0], RAMPS.night[2], 0.5),
     beam: RAMPS.rust[2],
     stud: RAMPS.gold[4],
+  },
+  {
+    sky: [RAMPS.pink[0], RAMPS.purple[0], RAMPS.night[1]],
+    shelves: mix(RAMPS.pink[0], RAMPS.night[2], 0.5),
+    beam: RAMPS.pink[1],
+    stud: RAMPS.pink[3],
   },
 ]
 

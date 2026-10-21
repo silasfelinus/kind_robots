@@ -72,6 +72,7 @@ import {
   regionHolder,
   regionTax,
   selectHideout,
+  hideoutForecast,
   talkFor,
   talkScene,
   talkedToday,
@@ -121,6 +122,12 @@ import {
   BUYERS,
   BUYER_IDS,
   CAVE_SHARE,
+  GUARDED_FLOOR,
+  PRECAUTIONS,
+  VERGE_PEACE,
+  departureCap,
+  stayedLine,
+  towerTalks,
   DEPARTURE_LINES,
   FALL_OPENING,
   HIDEOUT_HOST,
@@ -2829,11 +2836,18 @@ assert.ok(
     (a) => a.npc === 'young-komodo',
   ),
 )
-const lastNight = chooseAudienceOption(
-  onDay(1, 40),
-  'd40-quiet-word',
-  'leave',
-).run
+// The quiet word is a room the player walks into (t-038 R8): no answer
+// closes it before the physician question.
+const quietWord = (
+  run: FortressRun,
+  path: string[] = ['sit', 'ask', 'ask-me', 'leave'],
+): FortressRun =>
+  path.reduce(
+    (state, option) =>
+      chooseAudienceOption(state, 'd40-quiet-word', option).run,
+    run,
+  )
+const lastNight = quietWord(onDay(1, 40))
 assert.ok(finishDay(lastNight).run.flags.includes('komodo-betrayal'))
 
 // --- Act V: the hideout and the endings ------------------------------------
@@ -2875,9 +2889,7 @@ for (const hideout of hideouts) {
     `${hideout} posts its host quest`,
   )
 }
-const betrayed = finishDay(
-  chooseAudienceOption(onDay(1, 40), 'd40-quiet-word', 'leave').run,
-).run
+const betrayed = finishDay(quietWord(onDay(1, 40))).run
 assert.ok(betrayed.hideout)
 assert.ok(betrayed.flags.includes(`hideout:${betrayed.hideout}`))
 // Day 50: the front door is always posted; the well and the bell are earned.
@@ -3881,6 +3893,20 @@ for (const def of DAYS)
           `chose:${audience.id}:${option.id}`,
         ])
           answeredBy.set(flag, Math.min(answeredBy.get(flag) ?? 99, def.day))
+  // t-038: or a quest result from an earlier day (a broken promise read at
+  // the long table), dated by the day in its id.
+  for (const quest of [
+    ...ACT_ONE_QUESTS,
+    ...ACT_ONE_LATE_QUESTS,
+    ...ACT_TWO_QUESTS,
+    ...ACT_THREE_QUESTS,
+    ...ACT_FOUR_QUESTS,
+  ]) {
+    const day = Number(/^q-d(\d+)-/.exec(quest.id)?.[1] ?? 99)
+    for (const effects of [...Object.values(quest.rewards), quest.expired])
+      for (const flag of effects?.flags ?? [])
+        answeredBy.set(flag, Math.min(answeredBy.get(flag) ?? 99, day))
+  }
   let sceneVariants = 0
   for (const def of DAYS)
     for (const audience of def.audiences)
@@ -5241,6 +5267,247 @@ for (const def of DAYS)
       .join(' '),
     /Dust lung/,
   )
+}
+
+{
+  // --- t-038: Act IV playtest rewrites ---------------------------------------
+  const act4 = (day: number) => DAYS.find((def) => def.day === day)!
+  const scene = (day: number, id: string) =>
+    act4(day).audiences.find((audience) => audience.id === id)!
+  const everyOption = (audience: AudienceDef, id: string) =>
+    [
+      ...audience.options,
+      ...(audience.beats ?? []).flatMap((beat) => beat.options),
+    ].filter((option) => option.id === id)
+  /** The run at the dawn a quest leaves the board, nobody sent. */
+  const settle = (run: FortressRun, questId: string) => {
+    let state = run
+    for (let i = 0; i < 4; i += 1) {
+      const dawn = finishDay(state)
+      state = dawn.run
+      const report = dawn.report.quests.find((q) => q.questId === questId)
+      if (report) return { run: state, report }
+    }
+    throw new Error(`${questId} never left the board`)
+  }
+
+  // R1: every way to help the Ford costs someone, and the board listens.
+  const muster = scene(31, 'd31-muster')
+  for (const id of ['pack', 'rustline'])
+    for (const option of everyOption(muster, id))
+      assert.ok(
+        (option.effects.affinity?.freeholds ?? 0) < 0,
+        `d31 ${id} costs the Freeholds`,
+      )
+  for (const option of everyOption(muster, 'volunteers'))
+    assert.ok(
+      (option.effects.local?.['gate-watch'] ?? 0) < 0,
+      'volunteers cost the walls',
+    )
+  for (const id of ['march', 'pack', 'rustline', 'volunteers', 'porters'])
+    for (const option of everyOption(muster, id))
+      assert.equal(
+        option.effects.questAid?.[0]?.questId,
+        'q-d31-iron-rain',
+        `d31 ${id} helps the Ford`,
+      )
+  const marched = chooseAudienceOption(onDay(5, 31), 'd31-muster', 'march').run
+  const ford = settle(marched, 'q-d31-iron-rain')
+  assert.equal(ford.report.tier, 'partial', 'the Watch held the near bank')
+  assert.ok(ford.report.aided)
+  assert.ok(!ford.run.flags.includes('ford-lost'), 'nobody says nobody rode')
+  // R2: the Watch sent to Thistledown keeps it off the abandoned list.
+  let roads = onDay(5, 33, {
+    local: { ...createRun(5).local, 'gate-watch': 15 },
+  })
+  roads = chooseAudienceOption(roads, 'd33-both-roads', 'watch').run
+  const thistle = settle(roads, 'q-d33-thistledown')
+  assert.ok(thistle.report.aided)
+  assert.ok(!thistle.run.flags.includes('thistledown-abandoned'))
+  for (const option of everyOption(scene(33, 'd33-both-roads'), 'salt-house'))
+    assert.ok((option.effects.affinity?.freeholds ?? 0) < 0)
+  // #5: the old win-wins cost a rival now.
+  for (const option of everyOption(scene(33, 'd33-sappers'), 'disown'))
+    assert.ok((option.effects.strength?.moles ?? 0) < 0, 'the burrows split')
+  for (const option of everyOption(scene(35, 'd35-two-bridges'), 'saffron'))
+    assert.ok((option.effects.affinity?.moles ?? 0) < 0, 'Granny minds')
+  // #8: a road that falls is nobody's road out, or anyone's pledge.
+  for (const [questId, route] of [
+    ['q-d35-tunnel', 'route-tunnel'],
+    ['q-d35-trestle', 'route-trestle'],
+  ] as const) {
+    const quest = questDef(questId)!
+    for (const effects of [quest.rewards.failure, quest.expired])
+      assert.ok(effects.clearFlags?.includes(route), `${questId} clears`)
+  }
+  const dug = chooseAudienceOption(onDay(5, 35), 'd35-two-bridges', 'tunnel')
+  const collapsed = settle(dug.run, 'q-d35-tunnel').run
+  assert.ok(collapsed.flags.includes('tunnel-collapsed'))
+  assert.ok(!collapsed.flags.includes('route-tunnel'), 'no pledge in rubble')
+
+  // R3: the militia can stand the gate, and that is remembered at the fall.
+  const militia = scene(34, 'd34-outer-court')
+  assert.ok(militia.options.some((o) => o.id === 'stay-on-gate'))
+  // R4: the decoy and Teodor really help the cellar party.
+  let rehearsal = onDay(5, 36)
+  rehearsal = chooseAudienceOption(
+    rehearsal,
+    'd36-invitation',
+    'ask-performance',
+  ).run
+  rehearsal = chooseAudienceOption(rehearsal, 'd36-invitation', 'decoy').run
+  assert.ok(
+    previewQuest(rehearsal, 'q-d36-bell-rehearsal', ['F001']).aid.length,
+    'the front row draws the sisters’ eyes',
+  )
+  // Teodor sent to the Abbess goes when she buys, story heard or not.
+  const teodorRun = onDay(5, 41, {
+    roster: [
+      ...createRun(5).roster,
+      { id: 'F012', joinedDay: 12, equipment: {} },
+    ],
+    talksHeard: towerTalks('F012').map((talk) => talk.id),
+  })
+  const teodor = teodorRun.roster.find((state) => state.id === 'F012')!
+  assert.equal(departureCheck(teodorRun, 'abbey', teodor).why, null)
+  teodorRun.flags.push('d36-teodor-at-rehearsal')
+  assert.equal(departureCheck(teodorRun, 'abbey', teodor).why, 'allegiance')
+  assert.equal(departureCheck(teodorRun, 'old-houses', teodor).why, null)
+  for (const [buyer, flag, pattern] of [
+    ['abbey', 'd36-komodo-at-rehearsal', /You sent him to her yourself/],
+    ['abbey', 'rehearsal-attended', /held your hand three hours/],
+    ['old-houses', 'd37-vask-son-sent', /Lady Vask’s son/],
+    ['black-verge', 'd37-verge-refused', /named three prices/],
+  ] as const)
+    assert.match(
+      fallText(onDay(5, 41, { flags: [flag] }), BUYERS[buyer]).why,
+      pattern,
+      `${buyer} why reads ${flag}`,
+    )
+
+  // #5: the Black Verge is a party the crown can bargain with.
+  const terms = scene(37, 'd37-verge-terms')
+  for (const option of terms.options.filter((o) =>
+    o.effects.flags?.includes(VERGE_PEACE),
+  ))
+    assert.ok(
+      Object.values(option.effects.affinity ?? {}).some((v) => v! < 0) ||
+        Object.values(option.effects.local ?? {}).some((v) => v! < 0) ||
+        option.effects.dismiss?.length,
+      `every Verge price lands on someone: ${option.id}`,
+    )
+  const vergeRun = onDay(5, 41, {
+    strength: { ...createRun(5).strength, 'black-verge': 9, abbey: 1 },
+    revealedFactions: [...KINGDOM_FACTIONS],
+    flags: ['d20-verge-answered', 'd28-pups-asked', 'sable-sheltered'],
+    local: { ...createRun(5).local, 'old-houses': 10 },
+  })
+  assert.equal(selectBuyer(vergeRun), 'black-verge')
+  assert.equal(
+    selectBuyer({ ...vergeRun, flags: [...vergeRun.flags, VERGE_PEACE] }),
+    'abbey',
+    'a peace keeps the Verge from bidding',
+  )
+  assert.equal(
+    selectBuyer({
+      ...vergeRun,
+      flags: [...vergeRun.flags, VERGE_PEACE, 'congress-common-front'],
+    }),
+    'black-verge',
+    'a common front breaks the peace',
+  )
+  assert.ok(VERGE_SLIGHTS.includes('d37-verge-refused'))
+
+  // R8: the quiet word is a room the player walks into.
+  const quiet = scene(40, 'd40-quiet-word')
+  assert.deepEqual(
+    quiet.options.map((o) => o.id),
+    ['sit', 'accounts'],
+    'no one-click exit',
+  )
+  // Every road to the door goes through the physician question.
+  const byBeat = new Map((quiet.beats ?? []).map((beat) => [beat.id, beat]))
+  const walkQuiet = (options: AudienceOption[], seen: string[]): void => {
+    for (const option of options) {
+      if (!option.next) {
+        assert.ok(seen.includes('question'), `${option.id} skips the question`)
+        continue
+      }
+      walkQuiet(byBeat.get(option.next)!.options, [...seen, option.next])
+    }
+  }
+  walkQuiet(quiet.options, [])
+  assert.ok(!/Tonight I would like/.test(act4(40).komodo), 'morning line')
+
+  // R9: precautions are read at the fall and keep people.
+  for (const [flag, pattern] of [
+    ['komodo-escorted', /Dunmark at his side/],
+    ['d40-seal-order-stood', /by your order/],
+  ] as const) {
+    const fall = finishDay(onDay(5, 40, { flags: [flag] }))
+    assert.match(fall.report.betrayal!.fell!, pattern, flag)
+  }
+  assert.equal(departureCap(onDay(5, 40)), MAX_DEPARTURES)
+  const guarded = onDay(5, 40, {
+    flags: ['d40-watch-recalled', 'd38-rosters-changed', 'd40-komodo-held'],
+  })
+  assert.equal(departureCap(guarded), GUARDED_FLOOR)
+  const ready = finishDay(
+    quietWord(guarded, ['sit', 'ask', 'no-cure', 'leave']),
+  ).report.betrayal!
+  assert.equal(ready.ready?.length, 3, 'one line per precaution')
+  assert.match(ready.note!, /selling it anyway/, 'the physician answer kept')
+  assert.ok(validateRun(finishDay(guarded).run), 'precautions save')
+  for (const entry of PRECAUTIONS) assert.ok(entry.line.trim(), entry.id)
+  // A neglected court: the guards keep some who had packed.
+  const neglected = onDay(5, 41, {
+    roster: createRun(5).roster.map((state) => ({ ...state, joinedDay: 1 })),
+    local: { ...createRun(5).local, yard: 0, ledger: 0, lamplight: 0 },
+  })
+  const unguarded = selectDepartures(neglected, 'abbey', MAX_DEPARTURES)
+  if (unguarded.length > GUARDED_FLOOR)
+    assert.ok(
+      selectDepartures(neglected, 'abbey', GUARDED_FLOOR).length <
+        unguarded.length,
+    )
+  assert.match(stayedLine('F003'), /put the bag down/)
+
+  // The map room's hint names the host selectHideout will choose.
+  for (let seed = 1; seed <= 20; seed += 1) {
+    const run = onDay(seed, 39, {
+      revealedFactions: [...KINGDOM_FACTIONS],
+      affinity: {
+        ...createRun(seed).affinity,
+        moles: 40 + seed,
+        freeholds: 60 - seed,
+      },
+      flags: seed % 2 ? ['route-tunnel'] : [],
+    })
+    assert.equal(
+      hideoutForecast(run)[0]?.hideout ?? 'nameless-cave',
+      selectHideout(run),
+      `forecast seed ${seed}`,
+    )
+  }
+  assert.ok(
+    readFileSync('components/EmperorFortressMapRoom.vue', 'utf8').includes(
+      'hideoutForecast',
+    ),
+  )
+  // The answer on the step is asked again on Day 50.
+  const ifFound = DAYS.find((def) => def.day === 50)!.audiences.find(
+    (audience) => audience.id === 'd50-if-you-find-him',
+  )!
+  for (const flag of [
+    'd40-komodo-told-ask',
+    'd40-komodo-told-do-it',
+    'd40-komodo-told-no-cure',
+    'd40-komodo-asked-who',
+  ])
+    assert.ok(
+      ifFound.options.some((o) => o.requires?.flags?.includes(flag)),
+      `Day 50 reads ${flag}`,
+    )
 }
 
 // --- t-041: risk, economy and chores ------------------------------------------

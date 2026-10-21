@@ -4535,6 +4535,56 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             response:
               'Dunmark repeats it twice. Three of the party write it on their sleeves. Nobody asks if you want him alive or dead. After they go, you realise you have not decided.',
           },
+          // The physician question, answered on the step, answered again
+          // (t-038, playtest act4 R8.3).
+          {
+            id: 'answer-ask',
+            label:
+              'Tell the party to ask him first, before anything. You promised him that much.',
+            requires: { flags: ['d40-komodo-told-ask'] },
+            effects: {
+              local: { lamplight: 1, 'gate-watch': -1 },
+              flags: ['d50-komodo-to-answer'],
+            },
+            response:
+              'Dunmark writes ASK on the back of his hand. He does not like it. He keeps it.',
+          },
+          {
+            id: 'answer-do-it',
+            label:
+              'You told him love does what it must. If he is doing it on that stair, let him.',
+            requires: { flags: ['d40-komodo-told-do-it'] },
+            effects: {
+              local: { 'gate-watch': -2, yard: 1 },
+              flags: ['d50-komodo-spared'],
+            },
+            response:
+              'Dunmark looks at you a long time. “You told him that,” he says. “On the step.” He goes to tell the party. He does not say it the way you did.',
+          },
+          {
+            id: 'answer-no-cure',
+            label:
+              'No cure, only sellers. Bring the seller back to face the people he sold.',
+            requires: { flags: ['d40-komodo-told-no-cure'] },
+            effects: {
+              local: { lamplight: 2, 'gate-watch': -1 },
+              flags: ['d50-komodo-to-answer'],
+            },
+            response:
+              '“A seller I can carry,” Dunmark says. “Sellers don’t fight.” He is wrong about that, and he knows it.',
+          },
+          {
+            id: 'answer-who',
+            label:
+              'You asked him who the physician was. If they find him, ask again.',
+            requires: { flags: ['d40-komodo-asked-who'] },
+            effects: {
+              local: { lamplight: 1 },
+              flags: ['d50-komodo-to-answer'],
+            },
+            response:
+              '“Who,” Dunmark says, trying the word. “He’ll know what it means?” You nod. The party carries one word up the mission road.',
+          },
         ],
       },
       {

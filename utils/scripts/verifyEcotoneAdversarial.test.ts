@@ -73,14 +73,22 @@ for (const card of allCards) {
   assert.ok(cardPitch.sourceConditions.includes('seen:' + card.id))
   const choices = openingLensChoices(card).filter((choice) => !choice.locked)
   const ids = choices.map((choice) => choice.id)
-  assert.equal(new Set(ids).size, ids.length, card.id + ' has unique choice IDs')
+  assert.equal(
+    new Set(ids).size,
+    ids.length,
+    card.id + ' has unique choice IDs',
+  )
   for (const choice of choices) {
     const successKey = outcomeArtKey(card.id, choice.id, 'success')
     const successPitch = byArtKey.get(successKey)
     assert.ok(successPitch, card.id + '/' + choice.id + ' success needs art')
     assert.equal(successPitch.action, choice.success.text)
     assert.ok(successPitch.sourceConditions.includes('result:success'))
-    assert.ok(successPitch.sourceConditions.includes('chosen:' + card.id + ':' + choice.id))
+    assert.ok(
+      successPitch.sourceConditions.includes(
+        'chosen:' + card.id + ':' + choice.id,
+      ),
+    )
     const base: RunState = {
       ...createRun(boxcars, 'reporter'),
       phase: 'beat',
@@ -95,7 +103,10 @@ for (const card of allCards) {
     assert.ok(win, card.id + '/' + choice.id + ' must resolve')
     assert.equal(win.art, successKey, 'success has the correct result picture')
     assert.equal(win.roll?.success ?? true, true)
-    assert.ok(win.text.trim().length > 12, 'success reads as a scene, not a verdict')
+    assert.ok(
+      win.text.trim().length > 12,
+      'success reads as a scene, not a verdict',
+    )
     branchesChecked++
     if (!choice.check) continue
 
@@ -106,7 +117,11 @@ for (const card of allCards) {
     assert.ok(artSlots.outcomes.includes(failKey))
     assert.equal(failPitch.action, choice.failure.text)
     assert.ok(failPitch.sourceConditions.includes('result:failure'))
-    assert.ok(failPitch.sourceConditions.includes('chosen:' + card.id + ':' + choice.id))
+    assert.ok(
+      failPitch.sourceConditions.includes(
+        'chosen:' + card.id + ':' + choice.id,
+      ),
+    )
     assert.notEqual(
       choice.failure.text.trim(),
       choice.success.text.trim(),
@@ -146,7 +161,9 @@ type Persona = {
 }
 
 function playPersona(plan: Persona): RunState {
-  let state = advance(chooseEvent(createRun(plan.seed, plan.archetype), plan.event))
+  let state = advance(
+    chooseEvent(createRun(plan.seed, plan.archetype), plan.event),
+  )
   let turns = 0
   while (state.phase !== 'end') {
     assert.ok(++turns < 100, 'no stalled journey: ' + JSON.stringify(plan))
@@ -174,7 +191,7 @@ function playPersona(plan: Persona): RunState {
     const pick = (plan.seed + plan.strategy * 3 + turns) % playable.length
     const choice = areaChoices.length
       ? areaChoices[plan.area % areaChoices.length]
-      : lensChoice ?? meetChoice ?? playable[pick]
+      : (lensChoice ?? meetChoice ?? playable[pick])
     assert.ok(choice && !choice.locked, 'personas cannot take locked options')
     const pending = chooseBeat(state, choice.id)
     assert.ok(pending.pending, 'choice must resolve, never silently do nothing')
@@ -183,9 +200,7 @@ function playPersona(plan: Persona): RunState {
       outcomeArtKey(
         card.id,
         choice.id,
-        pending.pending.entry.roll?.success === false
-          ? 'failure'
-          : 'success',
+        pending.pending.entry.roll?.success === false ? 'failure' : 'success',
       ),
       'each actual result must point to its own art slot',
     )
@@ -202,8 +217,7 @@ function playPersona(plan: Persona): RunState {
     assert.ok(
       state.log.some(
         (entry) =>
-          entry.source === callback.id &&
-          entry.effects.flag === callback.flag,
+          entry.source === callback.id && entry.effects.flag === callback.flag,
       ),
       'future callback must have an earned source: ' + callback.flag,
     )
@@ -233,7 +247,7 @@ for (const event of EVENTS) {
   ] as LensId[]) {
     for (const archetype of ARCHETYPES) {
       for (const area of [0, 1]) {
-        for (const strategy of [0, 1, 2]) {
+        for (const strategy of [0, 1, 2, 3, 4, 5]) {
           const seed = 119 + journeys * 17
           const plan: Persona = {
             event: event.id,
@@ -242,8 +256,8 @@ for (const event of EVENTS) {
             area,
             strategy,
             seed,
-            accept: strategy !== 0,
-            follow: strategy === 2,
+            accept: strategy % 3 !== 0,
+            follow: strategy % 3 === 2,
           }
           const state = playPersona(plan)
           if (journeys % 17 === 0) {

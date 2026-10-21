@@ -196,11 +196,11 @@
         class="rounded-md border border-warning/40 bg-warning/5 p-3"
         role="status"
       >
-        <p class="font-serif text-sm italic">{{ talkReply }}</p>
+        <p class="eod-reading italic">{{ talkReply }}</p>
       </div>
       <p
         v-else-if="talkLine"
-        class="border-l-2 border-warning/60 pl-3 font-serif text-sm italic"
+        class="eod-reading border-l-2 border-warning/60 pl-3 italic"
       >
         “{{ talkLine }}”
       </p>

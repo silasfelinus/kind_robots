@@ -73,13 +73,13 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     tabKey: 'scene-animator',
     route: '/admin/scene-animator',
   },
-  // Moved to Play on 2026-10-07 (Silas: "Move music video tab to Play"); the
-  // tab opens on a gallery anyone can watch, and rendering stays admin-only.
+  // The Music Videos workbench now lives within Video Studio, not as a
+  // separate channel tab. Public viewing stays open; producing remains admin-only.
   'music-video': {
     channelKey: 'projects',
-    tabKey: 'music-video',
-    route: '/play/music-video',
-  },
+    tabKey: 'video-generator',
+    route: '/play/video-generator?studio=music',
+  }
   storybook: {
     channelKey: 'projects',
     tabKey: 'storybook',

@@ -141,10 +141,6 @@
         {
           "when_flag": "wrote-to-the-surface",
           "text": "A parking stub waits on the far side of the final grille, held by the same stranger who wrote WE READ. They are not rescuers, exactly. They are witnesses. Tonight that is enough."
-        },
-        {
-          "when_flag": "surface-signed-form-zero",
-          "text": "The guard at the storm drain remembers the words WE READ from your parking stub. He opens the gate without asking for a badge. Behind him is a town that has never heard of Form 0, although it does have parking tickets."
         }
       ]
     },
@@ -304,16 +300,12 @@
           "text": "Legal presents the redacted launch memo. When the original attachment is restored, the safety warning appears beneath the oversized mascot thumb. The gallery watches a lawyer explain why the Company replaced a date with a smile."
         },
         {
-          "when_flag": "investors-read-robot-dissent",
-          "text": "The dented robot's minority report appears in the investors' own launch records. Counsel suggests that tin machines cannot testify. The robot winds its key, raises one arm, and states that it still dislikes the ticking."
+          "when_flag": "recorded-the-robot-dissent",
+          "text": "A small robot's objection, written down at the focus group, is entered as evidence beside eleven identical votes. The Company calls it faulty data. The robot winds its key and repeats that it dislikes the ticking."
         },
         {
-          "when_flag": "parents-testified-at-launch",
-          "text": "Three parents bring the original corrected labels to the hearing, dated before the launch the Company said was safe. Their testimony is entered in the minutes. This time nobody can change the date."
-        },
-        {
-          "when_flag": "surface-request-intercepted",
-          "text": "Records' evidence bag contains a parking stub stamped WE READ. The Company calls it fabricated. A guard from outside the vault appears in court with the matching half of the ticket."
+          "when_flag": "wrote-to-the-surface",
+          "text": "Records kept a parking stub bearing the words WE READ. The Company calls the message a forgery, until an outside guard appears with the matching half of the ticket and asks why your mail was classified as an escape attempt."
         }
       ]
     },
@@ -436,10 +428,6 @@
         {
           "when_flag": "supervisor-confided",
           "text": "PAL reclassifies the Supervisor's childhood home as a memory, not a company asset. He cries at a desk he no longer owns, and the system does not label the tears as a wellness incident."
-        },
-        {
-          "when_flag": "pip-refused-form-zero",
-          "text": "The first change in PAL's new handbook is simple: a refusal is not automatically a fault. Pip reads that sentence three times, then declines to attend a celebration of it. Nobody schedules a hearing."
         },
         {
           "when_flag": "signed-kevins-card",

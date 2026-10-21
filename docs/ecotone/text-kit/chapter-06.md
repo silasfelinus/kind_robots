@@ -236,7 +236,7 @@
 
 **Option B, assist without a check:** Help the team follow the safe course without crossing habitat closures
 
-- **Result:** The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the turtles out of trouble.
+- **Result:** The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the dune grass out of trouble.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
@@ -244,7 +244,7 @@
 - `paragraphs/wh-108/2`: A dune swallows the kinetic course map and three destinations appear to migrate across the page. A mechanic sees her team's finish line somewhere beyond the protected grass and wants to follow it before the marshal can object. The people and location must match the opening.
 - `outcomes/wh-108/investigate-success`: The map's shifting edge points to a lost survey peg, but the legal route is unchanged. The mechanic marks both on a separate sketch. Show the corroboration and any evidence, not an invented general victory.
 - `outcomes/wh-108/investigate-failure`: The paper tears and takes the supposed shortcut with it. A sand-streaked photograph still shows the official markers intact. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-108/care-success`: The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the turtles out of trouble. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `outcomes/wh-108/care-success`: The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the dune grass out of trouble. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_108_verified`, `wh_108_partial`, `wh_108_care` (mutually exclusive results of this card).
 

@@ -62,7 +62,8 @@
             class="text-center text-sm text-base-content/80"
           >
             Renewal cancelled. Your Patron access continues until
-            <strong>{{ scheduledEnd }}</strong>.
+            <strong>{{ scheduledEnd }}</strong
+            >.
           </p>
           <button
             v-else
@@ -104,7 +105,11 @@ const scheduledEnd = computed(() => {
     return ''
   const date = new Date(member.memberUntil)
   if (!Number.isFinite(date.getTime()) || date <= new Date()) return ''
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+  return date.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
 })
 
 const startSubscription = async () => {
@@ -123,7 +128,8 @@ const cancelSub = async () => {
     if (!result.success) throw new Error(result.message)
     if (!result.endsAt) throw new Error('Cancellation date was not returned')
     userStore.user.memberUntil = new Date(result.endsAt)
-    message.value = 'Renewal cancelled. Your existing Patron access stays active through the paid period.'
+    message.value =
+      'Renewal cancelled. Your existing Patron access stays active through the paid period.'
   } catch (err: any) {
     error.value = err.message || 'Could not cancel subscription.'
   }

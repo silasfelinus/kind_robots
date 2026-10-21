@@ -158,7 +158,7 @@ for (const [cardId, choiceId] of commentaryCases) {
       `${cardId}/${choiceId} gives everyone a distinct voiced outcome`,
     )
     assert.equal(
-      new Set(Object.values(outcome.leadLines)).size,
+      new Set(Object.values(outcome.leadLines ?? {})).size,
       5,
       'no two present companions share a generic reaction',
     )

@@ -57,7 +57,12 @@ const factionList = (value: unknown): boolean =>
   value.every((id) => (KINGDOM_FACTIONS as readonly unknown[]).includes(id)) &&
   new Set(value).size === value.length
 
-const DEPARTURE_WHYS: readonly unknown[] = ['allegiance', 'neglect']
+const DEPARTURE_WHYS: readonly unknown[] = [
+  'allegiance',
+  'neglect',
+  'kin',
+  'persuaded',
+]
 const LEAVING_WHYS: readonly unknown[] = [...DEPARTURE_WHYS, 'dismissed']
 
 /** Left with Komodo (t-028) or sent away (t-040): optional for older saves. */

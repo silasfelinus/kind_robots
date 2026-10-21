@@ -361,12 +361,25 @@
           </template>
           <template v-else> · nobody comes home wounded</template>
           <span v-if="selected.lethal" class="font-semibold text-error">
-            · {{ odds.deathChance }}% someone dies</span
+            · {{ odds.estimate ? 'up to ' : '' }}{{ odds.deathChance }}% someone
+            dies</span
           >
         </p>
-        <p v-if="odds.estimate" class="mt-1 text-xs opacity-75">
+        <p
+          v-if="odds.estimate && odds.perRequirement.some((req) => req.hidden)"
+          class="mt-1 text-xs opacity-75"
+        >
           Some needs are hidden. A scout, a follower who knows the ground, or
           the Lamplight Archive at {{ LAMPLIGHT_SIGHT }} would read them.
+        </p>
+        <p v-if="odds.unread" class="mt-1 text-xs opacity-75">
+          {{
+            odds.unread === 1
+              ? 'Someone in this party has'
+              : `${odds.unread} in this party have`
+          }}
+          a trait here the Codex has not read. It could cut either way. The true
+          odds are somewhere in the range.
         </p>
         <ul
           v-if="odds.aid.length"

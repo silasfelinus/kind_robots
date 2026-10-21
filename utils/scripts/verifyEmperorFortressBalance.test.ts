@@ -44,14 +44,39 @@ assert.ok(share(of('patron:storm-crows').endings['crows-bargain']) >= 0.7)
 assert.ok(share(of('patron:mire-mothers').endings['witchwater-throne']) >= 0.7)
 
 // Careful play usually seals the crypt, and deaths stay rare and signposted.
-for (const r of report) {
-  if (r.policy === 'idle' || r.policy === 'reckless') continue
+//
+// t-041 retuned this deliberately. The old cap (0.6 deaths a run) was met
+// with room to spare because nothing on the board could kill: three persona
+// campaigns buried nobody, lethal quests previewed at 0-4% death and A Hundred
+// Candles was unreachable. Lethal quests now go out at honest 55-90% odds and
+// a deep wound on a failed (or barely held) lethal road can kill, so careful
+// courts lose about one follower every two campaigns. The cap is one death a
+// campaign on average; the floors below make sure the board can still cost a
+// life and that losing two is something a careful court can do.
+const careful = report.filter(
+  (r) => r.policy !== 'idle' && r.policy !== 'reckless',
+)
+for (const r of careful) {
   assert.ok(
     share(r.endings['long-night']) <= 0.2,
     `${r.policy} rarely loses the crypt`,
   )
-  assert.ok(r.deaths / RUNS <= 0.6, `${r.policy} deaths ${r.deaths / RUNS}`)
+  assert.ok(r.deaths / RUNS <= 1, `${r.policy} deaths ${r.deaths / RUNS}`)
 }
+const carefulRuns = careful.length * RUNS
+const carefulDeaths = careful.reduce((sum, r) => sum + r.deaths, 0)
+assert.ok(
+  carefulDeaths / carefulRuns >= 0.2,
+  `careful courts lose followers (${carefulDeaths / carefulRuns} a run)`,
+)
+const candles = careful.reduce(
+  (sum, r) => sum + (r.endings['hundred-candles'] ?? 0),
+  0,
+)
+assert.ok(
+  candles >= 1 && candles / carefulRuns <= 0.2,
+  `A Hundred Candles is reachable by careful play, not routine (${candles})`,
+)
 // Recklessness costs more than care.
 assert.ok(
   of('reckless').deaths > of('greedy').deaths,
@@ -62,5 +87,12 @@ for (const r of report) {
   if (r.policy === 'idle') continue
   assert.ok(r.loans / RUNS <= 5, `${r.policy} loans ${r.loans / RUNS}`)
 }
+// t-041: but brass does run short. Persona campaigns never needed a loan and
+// sat on 150-335 brass with nothing to buy; a court that takes on everyone
+// who offers should feel the purse at least once in most campaigns.
+assert.ok(
+  careful.filter((r) => r.loans > 0).length >= careful.length * 0.75,
+  'most careful courts borrow at least once',
+)
 
 console.log('Emperor of Dust balance: ok')

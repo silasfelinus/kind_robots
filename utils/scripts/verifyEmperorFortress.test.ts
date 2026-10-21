@@ -82,6 +82,16 @@ import {
   withdrawQuest,
   LAMPLIGHT_SIGHT,
   tierOdds,
+  ACT_NEED_SCALE,
+  CHANCE_AT_NEED,
+  CHORE_POSTINGS,
+  LETHAL_BLOW,
+  LETHAL_NEED_SCALE,
+  bandNeed,
+  injuryRisk,
+  choreOpen,
+  chorePostings,
+  lethalScaled,
 } from '../emperorOfDust/fortress/engine'
 import {
   dangerLine,
@@ -128,6 +138,11 @@ import {
   selectBuyer,
   selectDepartures,
   storyHeard,
+  COURTING_FROM_DAY,
+  KIN_FALL,
+  komodoCourtingLine,
+  komodoCourts,
+  peopleBroken,
 } from '../emperorOfDust/fortress/betrayal'
 import {
   MIN_STOCK,
@@ -388,7 +403,20 @@ assert.equal(chooseAudienceOption(start, 'd01-toll', 'pay').run.brass, 100)
 
 // --- quest room -------------------------------------------------------------
 const odds = previewQuest(repaired, 'q-d01-aqueduct-repair', ['F002'])
-assert.equal(odds.estimate, false)
+// t-041: Saffron's Bridge-builder applies here and the Codex has not read it,
+// so the preview is a range that holds the true odds, not a point.
+assert.equal(odds.estimate, true, 'an unread trait makes it an estimate')
+assert.equal(odds.unread, 1)
+assert.ok(odds.low < odds.high && odds.low <= odds.chance)
+const readOdds = previewQuest(
+  repaired,
+  'q-d01-aqueduct-repair',
+  ['F002'],
+  ['F002-bridge-builder'],
+)
+assert.equal(readOdds.estimate, false, 'read traits give a point')
+assert.equal(readOdds.unread, undefined)
+assert.ok(readOdds.chance >= odds.low && readOdds.chance <= odds.high)
 assert.equal(odds.durationDays, 2)
 assert.ok(odds.chance >= 5 && odds.chance <= 95)
 assert.equal(odds.perRequirement[0]?.needed, BAND_NEED.mid)
@@ -4827,6 +4855,308 @@ for (const def of DAYS)
     /\.eod-bar \.tooltip-bottom::after\s*\{\s*transform: translateX\(-50%\)/,
     'the tooltip tail stays on its button when the bubble shifts',
   )
+}
+
+// --- t-041: risk, economy and chores ------------------------------------------
+{
+  // Needs rise by act; lethal roads ask a quarter more, except roads that
+  // carry standing aid (Day 50), where preparation decides the odds.
+  assert.deepEqual(ACT_NEED_SCALE.length, 5)
+  assert.equal(bandNeed('mid', 1), BAND_NEED.mid)
+  assert.equal(
+    bandNeed('mid', 45),
+    Math.round(BAND_NEED.mid * ACT_NEED_SCALE[4]!),
+  )
+  assert.ok(bandNeed('high', 31) > bandNeed('high', 21))
+  assert.equal(
+    bandNeed('high', 9, true),
+    Math.round(BAND_NEED.high * LETHAL_NEED_SCALE),
+  )
+  assert.ok(lethalScaled(questDef('q-d09-iron-convoy')!))
+  assert.ok(
+    !lethalScaled(questDef('q-d50-last-dispatch')!),
+    'finale: aid decides',
+  )
+  const late = onDay(1, 33)
+  late.board.push({
+    questId: 'r-bandit-sighting@33',
+    postedDay: 33,
+    lastDay: 34,
+  })
+  assert.equal(
+    previewQuest(late, 'r-bandit-sighting@33', ['F001'], ['x'])
+      .perRequirement[0]?.needed,
+    bandNeed('mid', 33),
+    'the preview shows the act’s need',
+  )
+  // Meeting every need exactly is a real call, not a sure thing.
+  assert.equal(CHANCE_AT_NEED, 75)
+
+  // A lethal partial can kill too, so an Omen party is not death-proof.
+  assert.ok((LETHAL_BLOW.partial ?? 0) > 0 && (LETHAL_BLOW.failure ?? 0) > 0)
+  const convoy = questDef('q-d09-iron-convoy')!
+  const risky = injuryRisk(convoy, 60, {
+    lucky: false,
+    encore: false,
+    omen: true,
+    warden: false,
+    guardian: 0,
+    surgery: 0,
+    size: 3,
+  })
+  assert.ok(risky.deathChance > 0, 'omen turns failure into a deadly partial')
+  assert.equal(
+    injuryRisk(convoy, 60, {
+      lucky: false,
+      encore: false,
+      omen: false,
+      warden: true,
+      guardian: 0,
+      surgery: 0,
+      size: 3,
+    }).deathChance,
+    0,
+    'a warden still keeps everyone alive',
+  )
+
+  // Honest previews: across real campaigns the odds that are rolled always lie
+  // inside the range the quest room showed, Cave-Luck included.
+  for (const seed of [1, 2, 3]) {
+    let run = createRun(seed)
+    const known: string[] = []
+    let checked = 0
+    while (run.day <= 20) {
+      const shown = new Map<string, { low: number; high: number }>()
+      for (const entry of [...run.board]) {
+        const quest = questDef(entry.questId)!
+        const ready = run.roster
+          .filter((state) => followerStatus(run, state.id) === 'ready')
+          .map((state) => state.id)
+        const party = quest.mustInclude
+          ? [
+              quest.mustInclude,
+              ...ready.filter((id) => id !== quest.mustInclude),
+            ]
+          : ready
+        const pick = party.slice(
+          0,
+          Math.max(quest.party.min, Math.min(2, quest.party.max)),
+        )
+        if (
+          pick.length < quest.party.min ||
+          pick.some((id) => !ready.includes(id))
+        )
+          continue
+        try {
+          const preview = previewQuest(run, entry.questId, pick, known)
+          run = assignQuest(run, entry.questId, pick)
+          shown.set(entry.questId, preview)
+        } catch {
+          // A quest this naive party cannot take stays on the board.
+        }
+      }
+      const dawn = finishDay(run, known)
+      for (const quest of dawn.report.quests) {
+        known.push(...quest.revealedTraits)
+        const range = shown.get(quest.questId)
+        if (!range || !quest.party.length) continue
+        checked += 1
+        assert.ok(
+          quest.chance >= range.low && quest.chance <= range.high,
+          `${quest.questId}: rolled at ${quest.chance}, shown ${range.low}-${range.high}`,
+        )
+      }
+      run = dawn.run
+    }
+    assert.ok(checked > 10, `seed ${seed}: ${checked} quests checked`)
+  }
+
+  // Chores: thirty of them, each with a window, alternates and modest pay.
+  assert.ok(QUEST_TEMPLATES.length >= 30, `${QUEST_TEMPLATES.length} chores`)
+  for (const chore of QUEST_TEMPLATES) {
+    assert.ok(chore.days && chore.days[0] >= 1 && chore.days[1] <= 50, chore.id)
+    assert.ok(
+      Object.values(chore.outcomeAlts ?? {}).some((lines) => lines.length),
+      `${chore.id}: a second line for a second trip`,
+    )
+    assert.ok((chore.rewards.success.brass ?? 0) <= 12, `${chore.id}: pay`)
+  }
+  assert.ok(
+    QUEST_TEMPLATES.some((chore) => chore.lethal),
+    'one chore can cost a friend',
+  )
+  assert.ok(
+    QUEST_TEMPLATES.filter((chore) => chore.days![0] > 40).length >= 3,
+    'the court in hiding has its own chores',
+  )
+  // Whole campaigns: never two copies of a chore at once, never a third
+  // posting, never outside its days, never beside its authored twin, and a
+  // chore's second trip home never repeats the first trip's line.
+  const greedy = POLICIES.find((policy) => policy.id === 'greedy')!
+  for (const seed of [1, 2, 3, 4]) {
+    let last: FortressRun | undefined
+    playCampaign(greedy, seed, (run) => {
+      last = run
+      const live = [...run.board, ...run.active].map((entry) => entry.questId)
+      const chores = live.filter((id) => id.includes('@'))
+      assert.equal(
+        new Set(chores.map((id) => id.split('@')[0])).size,
+        chores.length,
+        `seed ${seed} day ${run.day}: two copies of one chore`,
+      )
+      for (const id of chores) {
+        const def = questDef(id)!
+        const posted = Number(id.split('@')[1])
+        assert.ok(posted >= def.days![0] && posted <= def.days![1], id)
+        assert.ok(chorePostings(run, def.id) <= CHORE_POSTINGS, id)
+        for (const twin of def.shuns ?? [])
+          assert.ok(
+            !run.board.some(
+              (entry) => entry.questId === twin && entry.postedDay < posted,
+            ),
+            `${id} beside ${twin}`,
+          )
+      }
+    })
+    const lines = new Map<string, string[]>()
+    for (const report of last!.reports)
+      for (const quest of report.quests)
+        if (quest.questId.includes('@')) {
+          const key = `${quest.questId.split('@')[0]}:${quest.tier}`
+          lines.set(key, [...(lines.get(key) ?? []), quest.text ?? ''])
+        }
+    for (const [key, texts] of lines) {
+      const chore = questDef(key.split(':')[0]!)!
+      if ((chore.outcomeAlts?.[key.split(':')[1] as 'success'] ?? []).length)
+        assert.equal(new Set(texts).size, texts.length, `${key} repeats itself`)
+    }
+  }
+  const glass = onDay(1, 15)
+  glass.board = [{ questId: 'q-d15-study-glass', postedDay: 15, lastDay: 16 }]
+  assert.ok(
+    !choreOpen(glass, questDef('r-strange-relic')!),
+    'the chore never sits beside its authored twin',
+  )
+  assert.ok(!choreOpen(onDay(1, 20), questDef('r-hidden-bread')!), 'Act V only')
+
+  // Departures with weight. A follower the emperor sat with goes home when
+  // the crown turns their own people (kin)...
+  const night = (patch: Partial<FortressRun> = {}): FortressRun => {
+    const base = onDay(1, 40)
+    return {
+      ...base,
+      board: [],
+      beds: 12,
+      revealedFactions: [...KINGDOM_FACTIONS],
+      roster: [
+        ...base.roster,
+        ...['F005', 'F008', 'F013'].map((id) => ({
+          id,
+          joinedDay: 5,
+          equipment: {},
+        })),
+      ],
+      ...patch,
+    }
+  }
+  const pack = night({
+    talksHeard: ['saffron-1', 'saffron-2'],
+    affinity: { ...plain.affinity, jackalwire: -20 - KIN_FALL },
+  })
+  const saffron = pack.roster.find((state) => state.id === 'F002')!
+  assert.ok(
+    peopleBroken(pack, followerDef('F002')!),
+    'the crown turned the Pack',
+  )
+  assert.equal(departureCheck(pack, 'abbey', saffron).why, 'kin')
+  assert.equal(
+    departureCheck(
+      { ...pack, affinity: { ...plain.affinity, jackalwire: -20 } },
+      'abbey',
+      saffron,
+    ).why,
+    null,
+    'a people that was always wary does not pull a heard follower',
+  )
+  assert.equal(
+    departureCheck(
+      { ...pack, flags: ['romance-saffron-sealed'] },
+      'abbey',
+      saffron,
+    ).why,
+    null,
+    'a sealed romance still keeps her',
+  )
+  const kinFall = finishDay(pack)
+  assert.ok(
+    kinFall.report.betrayal?.departed.some(
+      (entry) => entry.followerId === 'F002' && entry.why === 'kin',
+    ),
+  )
+  assert.match(
+    departedFollowers(kinFall.run).find((entry) => entry.followerId === 'F002')!
+      .reason,
+    /^You sat with her\. Her people .*She went to them\.$/,
+  )
+
+  // ...and when nobody else goes, Komodo takes the one the emperor sat with
+  // most, named in the briefing from Day 37.
+  const close = night({
+    // Saffron heard once, so the wary Pack does not pull her by neglect.
+    talksHeard: ['rook-1', 'rook-2', 'rook-3', 'saffron-1', 'kiyo-1', 'kiyo-2'],
+  })
+  const closeRoster = close.roster.map((state) => state.id)
+  assert.equal(komodoCourts(close), 'F001', 'the one the emperor sat with most')
+  const warned = { ...close, day: COURTING_FROM_DAY }
+  assert.match(komodoCourtingLine(warned)!.text, /Rook/)
+  assert.equal(
+    komodoCourtingLine({ ...close, day: COURTING_FROM_DAY - 1 }),
+    undefined,
+  )
+  const taken = finishDay(close)
+  assert.deepEqual(taken.report.betrayal?.departed, [
+    { followerId: 'F001', why: 'persuaded' },
+  ])
+  assert.match(
+    departedFollowers(taken.run).find((entry) => entry.followerId === 'F001')!
+      .reason,
+    /You sat with .* three times\. Young Komodo sat with .* the last night\./,
+  )
+  assert.ok(validateRun(taken.run), 'saves keep a persuaded departure')
+  // Three things stop it: Komodo watched, a sealed romance, or away.
+  for (const flag of ['d40-komodo-held', 'd40-komodo-followed']) {
+    assert.equal(komodoCourts({ ...close, flags: [flag] }), undefined, flag)
+    assert.equal(komodoCourtingLine({ ...warned, flags: [flag] }), undefined)
+    assert.deepEqual(
+      finishDay({ ...close, flags: [flag] }).report.betrayal?.departed,
+      [],
+    )
+  }
+  assert.equal(
+    komodoCourts({ ...close, flags: ['romance-rook-sealed'] }),
+    'F003',
+    'with Rook sealed, Komodo turns to Kiyo',
+  )
+  const away = {
+    ...close,
+    active: [
+      {
+        questId: 'q',
+        party: ['F001'],
+        departedDay: 40,
+        returnsDay: 42,
+        postedDay: 40,
+        lastDay: 40,
+      },
+    ],
+  }
+  assert.equal(komodoCourts(away), 'F003', 'Rook is away; Kiyo is not')
+  assert.equal(
+    komodoCourts(night()),
+    undefined,
+    'nobody he can use: no one sat with',
+  )
+  assert.ok(closeRoster.length > 4)
 }
 
 // --- t-036: Act II playtest rewrites ------------------------------------------

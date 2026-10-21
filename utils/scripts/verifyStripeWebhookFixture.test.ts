@@ -56,6 +56,7 @@ import {
 import {
   PATRON_MONTHLY_TOKENS,
   checkoutHasPaidSubscription,
+  isFiveDollarMonthlyPatronPrice,
   paidPatronInvoiceSubscriptionId,
 } from '../../server/utils/patronBilling.js'
 
@@ -315,6 +316,22 @@ assert.equal(
   checkoutHasPaidSubscription({ mode: 'payment', payment_status: 'paid' }),
   false,
 )
-console.log('✅ Paid Patron invoice and checkout eligibility guards passed')
+assert.equal(
+  isFiveDollarMonthlyPatronPrice({
+    active: true, currency: 'usd', unit_amount: 500,
+    recurring: { interval: 'month', interval_count: 1 },
+  }),
+  true,
+)
+for (const wrong of [
+  { active: true, currency: 'usd', unit_amount: 999, recurring: { interval: 'month', interval_count: 1 } },
+  { active: true, currency: 'usd', unit_amount: 500, recurring: { interval: 'year', interval_count: 1 } },
+  { active: true, currency: 'eur', unit_amount: 500, recurring: { interval: 'month', interval_count: 1 } },
+  { active: false, currency: 'usd', unit_amount: 500, recurring: { interval: 'month', interval_count: 1 } },
+  { active: true, currency: 'usd', unit_amount: 500, recurring: null },
+]) {
+  assert.equal(isFiveDollarMonthlyPatronPrice(wrong), false)
+}
+console.log('✅ Paid Patron invoice, checkout and $5 monthly price guards passed')
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

@@ -93,21 +93,24 @@
         </div>
       </div>
 
-      <div
+      <button
         v-if="selectionMode && canEdit"
-        class="pointer-events-none absolute right-2 top-2 flex size-8 items-center justify-center rounded-lg border shadow"
+        type="button"
+        class="absolute right-2 top-2 z-20 flex size-8 items-center justify-center rounded-lg border shadow"
+        :aria-pressed="activeSelected"
+        :aria-label="`${activeSelected ? 'Deselect' : 'Select'} ${collectionLabel}`"
+        @click.stop="selectCollection"
         :class="
           activeSelected
             ? 'border-primary bg-primary text-primary-content'
             : 'border-base-300 bg-base-100/90 text-base-content'
         "
-        aria-hidden="true"
       >
         <Icon
           :name="activeSelected ? 'kind-icon:check' : 'kind-icon:plus'"
           class="kr-icon-4"
         />
-      </div>
+      </button>
 
       <div
         v-if="compact || size === 'xs' || size === 'sm'"

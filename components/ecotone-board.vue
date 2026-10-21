@@ -395,7 +395,9 @@
                   >
                     {{ LENS_CODAS[game.ending.lens] }}
                   </p>
-                  <section class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3">
+                  <section
+                    class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
+                  >
                     <h3 class="eco-label">Four philosophical rolls</h3>
                     <p class="mt-1 text-xs text-[#f3e6c8]/65">
                       Repeated perspectives tilt the odds. Decisions can agree
@@ -408,25 +410,37 @@
                         :key="value.id"
                         class="rounded-lg border border-white/10 p-2"
                       >
-                        <div class="flex items-center justify-between gap-2 text-xs font-bold">
+                        <div
+                          class="flex items-center justify-between gap-2 text-xs font-bold"
+                        >
                           <span>{{ value.left }} ↔ {{ value.right }}</span>
-                          <span class="text-[#d9b877]">{{ value.outcome }}</span>
+                          <span class="text-[#d9b877]">{{
+                            value.outcome
+                          }}</span>
                         </div>
-                        <div class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35">
-                          <span class="absolute inset-y-0 left-1/2 w-px bg-white/40" />
+                        <div
+                          class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35"
+                        >
+                          <span
+                            class="absolute inset-y-0 left-1/2 w-px bg-white/40"
+                          />
                           <span
                             class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
                             :style="{ left: value.position + '%' }"
                           />
                         </div>
-                        <p class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85">
+                        <p
+                          class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85"
+                        >
                           {{ value.reflection }}
                         </p>
                         <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
-                          Chemistry {{ value.chemistry >= 0 ? '+' : '' }}{{ value.chemistry }}
-                          · decisions {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}
-                          · 2d6 ({{ value.dice[0] }} + {{ value.dice[1] }})
-                          + pull {{ value.pull }} = {{ value.total }}
+                          Chemistry {{ value.chemistry >= 0 ? '+' : ''
+                          }}{{ value.chemistry }} · decisions
+                          {{ value.decisions >= 0 ? '+' : ''
+                          }}{{ value.decisions }} · 2d6 ({{ value.dice[0] }} +
+                          {{ value.dice[1] }}) + pull {{ value.pull }} =
+                          {{ value.total }}
                         </p>
                       </div>
                     </div>
@@ -883,15 +897,18 @@
                     <span>{{ value.right }}</span>
                   </div>
                   <div class="relative mt-1 h-2 rounded-full bg-[#8fb8b0]/35">
-                    <span class="absolute inset-y-0 left-1/2 w-px bg-white/40" />
+                    <span
+                      class="absolute inset-y-0 left-1/2 w-px bg-white/40"
+                    />
                     <span
                       class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9b877]"
                       :style="{ left: value.position + '%' }"
                     />
                   </div>
                   <p class="mt-1 text-[11px] text-white/60">
-                    Perspective {{ value.chemistry >= 0 ? '+' : '' }}{{ value.chemistry }}
-                    · actions {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}
+                    Perspective {{ value.chemistry >= 0 ? '+' : ''
+                    }}{{ value.chemistry }} · actions
+                    {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}
                   </p>
                 </div>
               </section>
@@ -1196,9 +1213,7 @@ const canTakeMoment = computed(() => {
 const substanceCoda = computed(() =>
   game.run ? substanceEpilogue(game.run.substanceMoments) : null,
 )
-const philosophy = computed(() =>
-  game.run ? philosophyNeedles(game.run) : [],
-)
+const philosophy = computed(() => (game.run ? philosophyNeedles(game.run) : []))
 watch(
   () => game.run?.card,
   () => {

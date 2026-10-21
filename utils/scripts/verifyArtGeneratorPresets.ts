@@ -575,15 +575,24 @@ assert.ok(generator.includes('v-for="option in heightOptions"'))
 assert.ok(generator.includes('placement="up"'))
 assert.ok(generator.includes('<details class="kr-panel-flat">'))
 assert.ok(generator.includes('v-if="artStore.lastGeneratedArtImage"'))
+assert.ok(generator.includes('kr-container-wide flex min-h-full'))
+assert.ok(generator.includes('2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)]'))
+assert.ok(generator.includes('2xl:row-span-3 2xl:row-start-1'))
 assert.ok(!generator.includes('Nothing rendered yet this session.'))
 
 const artLoraPickerSource = readFileSync(
   'components/art/art-lora-picker.vue',
   'utf8',
 )
-assert.ok(artLoraPickerSource.includes("'max-h-[14rem]'"))
-assert.ok(artLoraPickerSource.includes("'max-h-[24rem]'"))
+assert.ok(artLoraPickerSource.includes("'max-h-[14rem] 2xl:max-h-[min(62vh,46rem)]'"))
+assert.ok(artLoraPickerSource.includes("'max-h-[24rem] 2xl:max-h-[min(76vh,56rem)]'"))
+assert.ok(artLoraPickerSource.includes('2xl:max-h-[min(62vh,46rem)]'))
+assert.ok(artLoraPickerSource.includes('overflow-y-auto overscroll-contain'))
+assert.ok(artLoraPickerSource.includes('2xl:size-20'))
 assert.ok(!artLoraPickerSource.includes('max-h-none'))
+
+const responsiveStyles = readFileSync('assets/css/tailwind.css', 'utf8')
+assert.ok(responsiveStyles.includes('max-w-[112rem]'))
 
 const sharedButton = readFileSync('components/art/generate-button.vue', 'utf8')
 assert.ok(sharedButton.includes('DEFAULT_ART_PRESET_ID'))

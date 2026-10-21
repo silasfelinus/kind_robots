@@ -10,7 +10,7 @@
       aria-modal="true"
       aria-labelledby="eod-preferences-title"
       tabindex="-1"
-      class="kr-scroll eod-frame w-full max-w-3xl max-h-full overflow-y-auto bg-base-100 p-4 shadow-2xl sm:p-6"
+      class="@container kr-scroll eod-frame w-full max-w-3xl max-h-full overflow-y-auto bg-base-100 p-4 shadow-2xl sm:p-6"
     >
       <header class="mb-5 flex items-start justify-between gap-3">
         <div>
@@ -23,7 +23,7 @@
           Close
         </button>
       </header>
-      <div class="grid gap-5 sm:grid-cols-2">
+      <div class="grid gap-5 @sm:grid-cols-2">
         <fieldset class="space-y-2">
           <legend class="font-semibold text-warning">Story text size</legend>
           <p class="text-sm opacity-75">Dialogue, dispatches and answers.</p>

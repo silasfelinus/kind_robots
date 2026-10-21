@@ -60,7 +60,6 @@
       </button>
 
       <button
-        v-if="canShowBulkSelect"
         type="button"
         class="btn btn-xs rounded-lg"
         :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
@@ -69,7 +68,7 @@
         @click="toggleBulkSelect"
       >
         <icon name="kind-icon:checklist" class="kr-icon-3-5" />
-        {{ bulkSelectEnabled ? 'Selecting' : 'Select images' }}
+        {{ bulkSelectEnabled ? 'Done selecting' : 'Select images' }}
       </button>
 
       <span class="kr-badge-ghost-sm shrink-0">
@@ -100,6 +99,9 @@
       >
         Clear
       </button>
+      <span v-if="!selectableImages.length" class="kr-text-dim-xs">
+        Only images you own or administer can be edited.
+      </span>
       <button
         type="button"
         class="kr-btn-xs btn-error ml-auto"
@@ -109,6 +111,59 @@
         <span v-if="isBatchWorking" class="kr-spinner-xs" />
         <icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
         Move to Recycle Bin
+      </button>
+    </div>
+
+    <div
+      v-if="bulkSelectEnabled"
+      class="flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-base-300 bg-base-100 p-2"
+    >
+      <select
+        v-model.number="batchCollectionId"
+        class="select select-bordered select-xs max-w-52 bg-base-200"
+        aria-label="Batch image collection"
+        :disabled="isBatchWorking"
+      >
+        <option :value="null">Choose collection...</option>
+        <option v-for="option in collectionOptions" :key="option.id" :value="option.id">
+          {{ option.label }}
+        </option>
+      </select>
+      <button
+        type="button"
+        class="kr-btn-xs btn-secondary"
+        :disabled="isBatchWorking || !selectedImageIds.length || !selectedBatchCollectionId"
+        @click="addSelectedToCollection"
+      >
+        <icon name="kind-icon:plus" class="kr-icon-3-5" /> Add to collection
+      </button>
+      <select
+        v-model="batchIsPublic"
+        class="select select-bordered select-xs bg-base-200"
+        aria-label="Batch image visibility"
+        :disabled="isBatchWorking"
+      >
+        <option value="keep">Visibility: keep</option>
+        <option value="true">Set public</option>
+        <option value="false">Set private</option>
+      </select>
+      <select
+        v-model="batchIsMature"
+        class="select select-bordered select-xs bg-base-200"
+        aria-label="Batch image maturity"
+        :disabled="isBatchWorking"
+      >
+        <option value="keep">Maturity: keep</option>
+        <option value="true">Set mature</option>
+        <option value="false">Set safe</option>
+      </select>
+      <button
+        type="button"
+        class="kr-btn-xs btn-info"
+        :disabled="isBatchWorking || !selectedImageIds.length || (batchIsPublic === 'keep' && batchIsMature === 'keep')"
+        @click="applySelectedImageFlags"
+      >
+        <icon name="kind-icon:edit" class="kr-icon-3-5" /> Apply edits
       </button>
     </div>
 
@@ -342,6 +397,9 @@ const selectedImage = ref<ArtFeedImage | null>(null)
 const deletingImageId = ref<number | null>(null)
 const bulkSelectEnabled = ref(false)
 const selectedImageIds = ref<number[]>([])
+const batchCollectionId = ref<number | null>(null)
+const batchIsPublic = ref<'keep' | 'true' | 'false'>('keep')
+const batchIsMature = ref<'keep' | 'true' | 'false'>('keep')
 const isBatchWorking = ref(false)
 const batchError = ref('')
 const batchSuccess = ref('')
@@ -361,10 +419,11 @@ const visibleImages = computed(() =>
 const selectableImages = computed(() =>
   visibleImages.value.filter(canModifyImage),
 )
-const canShowBulkSelect = computed(
-  () => bulkSelectEnabled.value || selectableImages.value.length > 0,
-)
 const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
+const selectedBatchCollectionId = computed(() => {
+  const id = Number(batchCollectionId.value)
+  return Number.isInteger(id) && id > 0 ? id : null
+})
 
 const collectionOptions = computed(() =>
   collectionStore.collections
@@ -396,7 +455,11 @@ function toggleBulkSelect() {
   if (isBatchWorking.value) return
   bulkSelectEnabled.value = !bulkSelectEnabled.value
   selectedImageIds.value = []
+  batchCollectionId.value = null
+  batchIsPublic.value = 'keep'
+  batchIsMature.value = 'keep'
   batchError.value = ''
+  if (bulkSelectEnabled.value) void loadCollectionOptions()
 }
 
 function toggleImageSelection(image: ArtFeedImage) {
@@ -409,6 +472,70 @@ function toggleImageSelection(image: ArtFeedImage) {
 function selectAllLoaded() {
   if (isBatchWorking.value) return
   selectedImageIds.value = selectableImages.value.map((image) => image.id)
+}
+
+async function runFeedBatch(
+  verb: string,
+  action: (image: ArtFeedImage) => Promise<boolean>,
+) {
+  if (isBatchWorking.value) return
+  const selectedIds = new Set(selectedImageIds.value)
+  const images = selectableImages.value.filter((image) => selectedIds.has(image.id))
+  if (!images.length) return
+  isBatchWorking.value = true
+  batchError.value = ''
+  batchSuccess.value = ''
+  const failed: number[] = []
+  try {
+    for (const image of images) {
+      try {
+        if (!(await action(image))) failed.push(image.id)
+      } catch {
+        failed.push(image.id)
+      }
+    }
+    const completed = images.length - failed.length
+    selectedImageIds.value = failed
+    if (completed) {
+      batchSuccess.value = `${verb} ${completed} image${completed === 1 ? '' : 's'}.`
+    }
+    if (failed.length) {
+      batchError.value = `Failed for image #${failed.join(', #')}. Those remain selected.`
+    }
+    await feedStore.reset({
+      range: range.value,
+      privacy: browseStore.galleryPrivacyFilter,
+      maturity: browseStore.galleryMaturityFilter,
+      collectionId: collectionId.value,
+      search: searchInput.value,
+    })
+  } catch (error) {
+    batchError.value = error instanceof Error ? error.message : 'Failed to refresh the image feed.'
+  } finally {
+    isBatchWorking.value = false
+  }
+}
+
+async function addSelectedToCollection() {
+  const id = selectedBatchCollectionId.value
+  if (!id) return
+  await runFeedBatch('Added to collection:', async (image) => {
+    const result = await artStore.updateArtImageConnections(image.id, {
+      artCollectionIds: [id],
+    })
+    return result.success
+  })
+}
+
+async function applySelectedImageFlags() {
+  const updates: { isPublic?: boolean; isMature?: boolean } = {}
+  if (batchIsPublic.value !== 'keep') updates.isPublic = batchIsPublic.value === 'true'
+  if (batchIsMature.value !== 'keep') updates.isMature = batchIsMature.value === 'true'
+  if (!Object.keys(updates).length) return
+  await runFeedBatch('Updated', async (image) => {
+    const result = await artStore.updateArtImage(image.id, updates)
+    return result.success
+  })
 }
 
 async function deleteSelectedImages() {

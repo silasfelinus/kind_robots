@@ -1,6 +1,6 @@
 <template>
   <div class="kr-surface">
-    <div class="@container kr-scroll kr-container-wide space-y-3 p-2 sm:p-4">
+    <div class="@container kr-scroll kr-container-canvas space-y-3 p-2 sm:p-4">
       <header class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm">
         <NuxtLink v-if="userStore.isAdmin" to="/admin/coat-dance" class="btn btn-primary btn-sm rounded-xl text-primary-content">
           <icon name="kind-icon:video" class="kr-icon-4" />

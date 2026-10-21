@@ -1988,13 +1988,16 @@
         }
       ]
     },
-    {
+{
       "id": "halvorsen-changes-the-tape",
       "location_id": "cognitive-testing-chamber",
       "title": "Halvorsen Changes the Tape",
-      "flavor_text": "Dr. Halvorsen sits across the white table with her enormous clipboard, running your Standard Affect Interview in a perfectly level voice. At question nine she reaches over and presses a switch. The speaker grille above you goes quiet. \"The tape needs changing,\" she says. \"It takes ninety seconds. It has always taken ninety seconds.\" She does not change the tape.",
+      "flavor_text": "Dr. Halvorsen sits across the white table with her enormous clipboard, running your Standard Affect Interview in a perfectly level voice. At question nine she reaches over and presses a switch. The speaker grille above you goes quiet. \"The tape needs changing,\" she says. \"It takes ninety seconds. It has always taken ninety seconds.\" She does not change the tape. On the table's edge sits an empty envelope tray labeled RETURNED CORRESPONDENCE. Halvorsen does not look at it.",
       "polarity": "good",
-      "tags": ["psych-test", "conspiracy"],
+      "tags": [
+        "psych-test",
+        "conspiracy"
+      ],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a bright white room with a small white table, a brisk psychologist in cat-eye glasses and a grey bun leaning forward with one finger on a switch beneath a dark round speaker grille, a worker opposite her sitting up very straight, a reel-to-reel recorder at her elbow with its reels standing still, carbon-paper blue and fluorescent green palette, halftone grain, every surface bare and unmarked",
@@ -2016,7 +2019,9 @@
             "effects": {
               "composure": 2
             },
-            "add_flags": ["halvorsen-in-your-corner"],
+            "add_flags": [
+              "halvorsen-in-your-corner"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2046,7 +2051,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["saw-your-interim-results"],
+            "add_flags": [
+              "saw-your-interim-results"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -2081,11 +2088,41 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["reported-halvorsen-off-script"],
+            "add_flags": [
+              "reported-halvorsen-off-script"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
               "empathy": -2
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "return-her-envelope",
+          "label": "Return the envelope she trusted you with",
+          "intent": "She gave it to you at Orientation. Give it back only while PAL cannot hear.",
+          "risk_hint": "Requires Halvorsen's sealed envelope. Certain outcome, but now she is implicated.",
+          "requires": {
+            "flag": "halvorsen-envelope"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You lay the sealed envelope between you. Halvorsen recognizes her handwriting and lets her clinical voice slip. 'That was meant to reach someone before they became a test result.' She writes the name of a person who can still be saved on the envelope and hands it back, opened. When the speaker clicks on, she addresses you by your name, not your number.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "halvorsen-trusts-you"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
             }
           },
           "failure": null

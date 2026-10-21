@@ -35,7 +35,7 @@ export type ComfyWorkflowNode = {
 export type WanImageToVideoInput = {
   prompt: string
   negativePrompt: string
-  firstImageName: string
+  firstImageName: string | null
   lastImageName?: string | null
   width: number
   height: number
@@ -206,6 +206,10 @@ export function buildWanImageToVideoWorkflow(
       samplerName,
       scheduler,
     })
+  }
+
+  if (!input.firstImageName) {
+    throw new Error('WAN A14B requires a first image.')
   }
 
   const workflow: ComfyWorkflow = {
@@ -446,11 +450,14 @@ function buildWanTi2vWorkflow(
       class_type: 'CLIPTextEncode',
       _meta: { title: 'CLIP Text Encode Negative' },
     },
-    img_first: {
+  }
+
+  if (input.firstImageName) {
+    workflow['img_first'] = {
       inputs: { image: input.firstImageName },
       class_type: 'LoadImage',
       _meta: { title: 'Load First Image' },
-    },
+    }
   }
 
   let modelRef: [string, number] = ['unet', 0]
@@ -475,7 +482,7 @@ function buildWanTi2vWorkflow(
       height,
       length,
       batch_size: 1,
-      start_image: ['img_first', 0],
+      ...(input.firstImageName ? { start_image: ['img_first', 0] } : {}),
     },
     class_type: 'Wan22ImageToVideoLatent',
     _meta: { title: 'WAN 2.2 Image To Video Latent' },

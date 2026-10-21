@@ -221,20 +221,20 @@
    * more of the backgrounds." These are the four numbers to move, and moving
    * them moves every page at once — that is the whole point of the tokens.
    */
-  --kr-surface: color-mix(in oklch, var(--color-base-200) 62%, transparent);
+  --kr-surface: color-mix(in oklch, var(--color-base-200) 84%, transparent);
   --kr-surface-raised: color-mix(
     in oklch,
-    var(--color-base-100) 66%,
+    var(--color-base-100) 92%,
     transparent
   );
   --kr-surface-sunken: color-mix(
     in oklch,
-    var(--color-base-300) 55%,
+    var(--color-base-300) 80%,
     transparent
   );
   --kr-surface-border: color-mix(
     in oklch,
-    var(--color-base-300) 45%,
+    var(--color-base-300) 72%,
     transparent
   );
 }
@@ -769,6 +769,11 @@ section:has(div[class*='xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'])
    */
   .kr-panel-muted-compact-row {
     @apply rounded-xl border border-base-300 bg-base-200 px-3 py-2;
+  }
+
+  /* Opaque toolbar for controls in front of illustrated page backdrops. */
+  .kr-toolbar-surface {
+    @apply rounded-2xl border border-base-300 bg-base-100 p-2 text-base-content shadow-sm;
   }
 
   /* Flat bordered surface for dense lists, rows, and inboxes. */

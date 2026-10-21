@@ -12,7 +12,7 @@
         </span>
       </header>
 
-      <nav class="flex flex-wrap items-center gap-2" aria-label="Video generator views">
+      <nav class="kr-toolbar-surface flex flex-wrap items-center gap-2" aria-label="Video generator views">
         <button
           type="button"
           class="btn btn-sm"
@@ -124,10 +124,11 @@
       </section>
 
       <section class="grid gap-3 md:grid-cols-2">
-        <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100/70 p-3">
+        <div class="kr-panel-flat space-y-2 p-3">
           <div class="flex items-center justify-between">
             <label class="font-semibold">
-              First image <span class="text-error">*</span>
+              First image <span v-if="engine !== 'wan' || selectedWanMode !== 'ti2v'" class="text-error">*</span>
+              <span v-else class="kr-text-faded-xs">(optional for WAN 5B)</span>
             </label>
             <div class="flex flex-wrap gap-1">
               <button
@@ -147,7 +148,23 @@
               </button>
             </div>
           </div>
-          <div v-if="recentArtOpen" class="space-y-1">
+          <div v-if="recentArtOpen" class="space-y-2">
+            <div v-if="userStore.showMature" class="flex flex-wrap gap-1" role="group" aria-label="Recent image maturity">
+              <button
+                v-for="option in recentArtFilters"
+                :key="option.value"
+                type="button"
+                class="btn btn-xs"
+                :class="recentArtFilter === option.value ? 'btn-accent' : 'btn-outline'"
+                :aria-pressed="recentArtFilter === option.value"
+                @click="recentArtFilter = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+            <p v-else class="kr-text-faded-xs">
+              Show mature is off in account settings. Only SFW art is displayed.
+            </p>
             <p
               v-if="videoStore.recentArt.loading"
               class="text-xs opacity-60"
@@ -155,17 +172,17 @@
               Loading your recent art…
             </p>
             <p
-              v-else-if="!videoStore.recentArt.items.length"
+              v-else-if="!visibleRecentArt.length"
               class="text-xs opacity-60"
             >
-              No finished art jobs yet.
+              No recent images match this filter.
             </p>
             <div
               v-else
               class="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-1.5"
             >
               <button
-                v-for="item in videoStore.recentArt.items"
+                v-for="item in visibleRecentArt"
                 :key="item.artImageId"
                 type="button"
                 class="relative aspect-square overflow-hidden rounded-xl border-2 bg-base-200"
@@ -212,7 +229,7 @@
             @change="(e) => onFileChange(e, 'first')"
           />
           <div
-            v-if="firstImage"
+            v-if="firstImage && canShowDraftImages"
             class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
           >
             <img
@@ -229,12 +246,18 @@
               ✕
             </button>
           </div>
-          <p v-else class="text-xs opacity-50">
-            Required — the clip starts from this frame.
+          <p v-else-if="firstImage" class="kr-text-faded-xs">
+            Mature preview hidden by your account setting.
+            <button type="button" class="link" @click="clearFirstImage">Clear image</button>
+          </p>
+          <p v-else class="kr-text-faded-xs">
+            {{ engine === 'wan' && selectedWanMode === 'ti2v'
+              ? 'Optional — leave blank to create from your prompt.'
+              : 'Select a first image, or switch to WAN 5B for prompt-only video.' }}
           </p>
         </div>
 
-        <div class="space-y-2 rounded-2xl border border-base-300 bg-base-100/70 p-3">
+        <div class="kr-panel-flat space-y-2 p-3">
           <label class="font-semibold">
             End image <span class="opacity-50">(optional)</span>
           </label>
@@ -245,7 +268,7 @@
             @change="(e) => onFileChange(e, 'second')"
           />
           <div
-            v-if="secondImage"
+            v-if="secondImage && canShowDraftImages"
             class="relative flex aspect-video items-center justify-center overflow-hidden rounded bg-base-200"
           >
             <img
@@ -262,13 +285,17 @@
               ✕
             </button>
           </div>
-          <p v-else class="text-xs opacity-50">
+          <p v-else-if="secondImage" class="kr-text-faded-xs">
+            Mature preview hidden by your account setting.
+            <button type="button" class="link" @click="secondImage = ''">Clear image</button>
+          </p>
+          <p v-else class="kr-text-faded-xs">
             If set, the clip morphs from the first image to this one.
           </p>
         </div>
       </section>
 
-      <section class="space-y-2">
+      <section class="kr-panel-flat space-y-2 p-3">
         <div class="flex items-center justify-between">
           <label class="font-semibold">Motion prompt</label>
           <button
@@ -316,7 +343,6 @@
         <content-visibility-controls
           v-model:is-mature="isMature"
           v-model:is-public="isPublic"
-          :disabled="videoStore.isBusy"
         />
 
         <div class="kr-panel-flat space-y-3 p-3">
@@ -386,7 +412,7 @@
         </div>
       </section>
 
-      <details class="text-sm">
+      <details class="kr-panel-flat p-3 text-sm">
         <summary class="cursor-pointer opacity-70">
           Advanced quality &amp; size
         </summary>
@@ -448,7 +474,7 @@
         class="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,26rem)]"
       >
         <div
-          class="flex items-center gap-3 rounded-2xl border border-base-300 bg-base-100/70 px-4 py-3 text-sm"
+          class="kr-panel-flat flex items-center gap-3 px-4 py-3 text-sm"
           :class="
             runtimeTier === 'slow' || runtimeTier === 'very-slow'
               ? 'border-warning/50'
@@ -521,10 +547,13 @@
         </div>
       </section>
 
-      <section v-if="videoStore.state.videoSrc" class="space-y-2">
+      <section v-if="videoStore.state.videoSrc" class="kr-panel-flat space-y-2 p-3">
         <h2 class="font-semibold">Selected clip</h2>
+        <p v-if="!canShowSelectedClip" class="kr-text-faded-sm">
+          Mature clip preview hidden by your account setting.
+        </p>
         <img
-          v-if="videoStore.resultIsImage"
+          v-else-if="videoStore.resultIsImage"
           :src="videoStore.state.videoSrc"
           class="w-full rounded-lg border border-base-300 bg-black object-contain"
           alt="Generated clip"
@@ -540,6 +569,7 @@
           playsinline
         />
         <a
+          v-if="canShowSelectedClip"
           :href="videoStore.state.videoSrc"
           :download="downloadFilename"
           class="kr-btn-outline-plain"
@@ -684,7 +714,10 @@
             {{ videoStore.state.error }}
           </div>
 
-          <div v-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
+          <p v-if="videoStore.selectedJob.status === 'DONE' && !canShowSelectedClip" class="kr-text-faded-sm">
+            Mature clip preview hidden by your account setting.
+          </p>
+          <div v-else-if="videoStore.selectedJob.status === 'DONE' && videoStore.state.videoSrc" class="space-y-2">
             <img
               v-if="videoStore.resultIsImage"
               :src="videoStore.state.videoSrc"
@@ -700,7 +733,7 @@
               muted
               playsinline
             />
-            <a :href="videoStore.state.videoSrc" :download="downloadFilename" class="kr-btn-outline-plain">
+            <a v-if="canShowSelectedClip" :href="videoStore.state.videoSrc" :download="downloadFilename" class="kr-btn-outline-plain">
               Download clip
             </a>
           </div>
@@ -759,7 +792,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useResourceStore } from '@/stores/resourceStore'
 import {
@@ -771,7 +804,8 @@ import {
 import { useVideoStore } from '@/stores/videoStore'
 import { useUserStore } from '@/stores/userStore'
 import { resolveArtImageSource } from '@/utils/artImageSource'
-import type { RecentArtJobImage } from '@/utils/recentArtImages'
+import type { RecentArtJobImage, RecentArtFilter } from '@/utils/recentArtImages'
+import type { VideoStudioSettings } from '@/stores/videoStore'
 import {
   promptWithLoraTriggers,
   type LoraPick,
@@ -839,6 +873,12 @@ const firstImage = ref('')
 const route = useRoute()
 const firstImageArtId = ref<number | null>(null)
 const recentArtOpen = ref(false)
+const recentArtFilter = ref<RecentArtFilter>('sfw')
+const recentArtFilters: { value: RecentArtFilter; label: string }[] = [
+  { value: 'all', label: 'Both' },
+  { value: 'mature', label: 'Mature' },
+  { value: 'sfw', label: 'SFW' },
+]
 const activePanel = ref<'create' | 'jobs'>('create')
 const pendingDeleteId = ref<number | null>(null)
 const secondImage = ref('')
@@ -850,12 +890,12 @@ const videoCheckpointResourceId = ref<number | null>(null)
 const videoLowCheckpointResourceId = ref<number | null>(null)
 const isMature = ref(false)
 const isPublic = ref(true)
-const durationSeconds = ref(initialPreset.durationSeconds)
-const fps = ref(initialPreset.fps)
+const durationSeconds = ref<number>(initialPreset.durationSeconds)
+const fps = ref<number>(initialPreset.fps)
 const loop = ref(initialPreset.loop)
-const width = ref(initialPreset.width)
-const height = ref(initialPreset.height)
-const renderScale = ref(initialPreset.renderScale)
+const width = ref<number>(initialPreset.width)
+const height = ref<number>(initialPreset.height)
+const renderScale = ref<number>(initialPreset.renderScale)
 const latentUpscaleModel = ref<string | null>(initialPreset.latentUpscaleModel)
 const refineSampler = ref<string | null>(initialPreset.refineSampler)
 const refineSigmas = ref<string | null>(initialPreset.refineSigmas)
@@ -866,6 +906,15 @@ const selectedWanMode = computed(() =>
 )
 const selectedLoraProfile = computed(() =>
   videoLoraProfile(engine.value, selectedWanMode.value),
+)
+const canShowDraftImages = computed(() => !isMature.value || userStore.showMature)
+const visibleRecentArt = computed(() =>
+  userStore.showMature
+    ? videoStore.recentArt.items
+    : videoStore.recentArt.items.filter((item) => !item.isMature),
+)
+const canShowSelectedClip = computed(
+  () => !videoStore.selectedJob?.isMature || userStore.showMature,
 )
 // A mature checkpoint must not be queued as an unmarked public clip. The
 // server repeats this check independently; this reflects it immediately in UI.
@@ -945,8 +994,8 @@ const downloadFilename = computed(
 const canGenerate = computed(
   () =>
     isLoggedIn.value &&
-    !videoStore.isBusy &&
-    !!firstImage.value &&
+    (Boolean(firstImage.value) ||
+      (engine.value === 'wan' && selectedWanMode.value === 'ti2v')) &&
     !!prompt.value.trim() &&
     width.value >= 64 &&
     height.value >= 64 &&
@@ -954,8 +1003,6 @@ const canGenerate = computed(
     fps.value > 0,
 )
 const generateLabel = computed(() => {
-  if (videoStore.state.status === 'queued') return 'Queued…'
-  if (videoStore.state.status === 'rendering') return 'Rendering…'
   if (runtimeTier.value === 'very-slow') {
     return `Generate ${engine.value.toUpperCase()} clip — very slow`
   }
@@ -1073,7 +1120,7 @@ function clearFirstImage(): void {
 function toggleRecentArt(): void {
   recentArtOpen.value = !recentArtOpen.value
   if (recentArtOpen.value && !videoStore.recentArt.items.length) {
-    void videoStore.fetchRecentArt(userStore.showMature)
+    void videoStore.fetchRecentArt(recentArtFilter.value)
   }
 }
 
@@ -1083,12 +1130,15 @@ async function useArtImageAsFirst(artImageId: number): Promise<void> {
   firstImage.value = frame.dataUrl
   firstImageArtId.value = artImageId
   if (frame.isMature) {
+    if (!userStore.showMature) return
     isMature.value = true
     isPublic.value = false
   }
 }
 
 onMounted(() => {
+  const saved = videoStore.loadStudioSettings()
+  if (saved) restoreStudioSettings(saved)
   const requested = Number(route.query.artImageId)
   if (Number.isInteger(requested) && requested > 0) {
     void useArtImageAsFirst(requested)
@@ -1108,6 +1158,97 @@ onUnmounted(() => {
 watch(isLoggedIn, (signedIn) => {
   if (signedIn) void videoStore.fetchJobs(1)
 })
+watch(recentArtFilter, () => {
+  if (recentArtOpen.value && isLoggedIn.value) {
+    void videoStore.fetchRecentArt(recentArtFilter.value)
+  }
+})
+watch(
+  () => userStore.showMature,
+  (enabled) => {
+    if (!enabled) recentArtFilter.value = 'sfw'
+    if (recentArtOpen.value && isLoggedIn.value) {
+      void videoStore.fetchRecentArt(recentArtFilter.value)
+    }
+    if (videoStore.selectedJob?.status === 'DONE') {
+      void videoStore.selectJob(videoStore.selectedJob.id)
+    }
+  },
+)
+
+function restoreStudioSettings(saved: VideoStudioSettings): void {
+  if (saved.engine === 'wan' || saved.engine === 'ltx') engine.value = saved.engine
+  if (typeof saved.videoPresetId === 'string') videoPresetId.value = saved.videoPresetId
+  if (outputFormats.some((option) => option.value === saved.outputFormat)) {
+    outputFormat.value = saved.outputFormat
+  }
+  if (saved.wanMode === 'ti2v' || saved.wanMode === 'a14b') wanMode.value = saved.wanMode
+  if (typeof saved.prompt === 'string') prompt.value = saved.prompt
+  if (typeof saved.negativePrompt === 'string') negativePrompt.value = saved.negativePrompt
+  if (typeof saved.isMature === 'boolean') isMature.value = saved.isMature
+  if (typeof saved.isPublic === 'boolean') isPublic.value = saved.isPublic
+  if (typeof saved.loop === 'boolean') loop.value = saved.loop
+  for (const [value, field] of [
+    [saved.durationSeconds, durationSeconds],
+    [saved.fps, fps],
+    [saved.width, width],
+    [saved.height, height],
+    [saved.renderScale, renderScale],
+  ] as const) {
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) field.value = value
+  }
+  if (typeof saved.seedInput === 'number' || typeof saved.seedInput === 'string') {
+    seedInput.value = saved.seedInput
+  }
+  latentUpscaleModel.value = saved.latentUpscaleModel ?? null
+  refineSampler.value = saved.refineSampler ?? null
+  refineSigmas.value = saved.refineSigmas ?? null
+  if (Array.isArray(saved.loraPicks)) loraPicks.value = saved.loraPicks
+  if (userStore.showMature &&
+      (saved.recentArtFilter === 'all' || saved.recentArtFilter === 'mature')) {
+    recentArtFilter.value = saved.recentArtFilter
+  }
+  void nextTick(() => {
+    videoCheckpointResourceId.value = saved.videoCheckpointResourceId ?? null
+    videoLowCheckpointResourceId.value = saved.videoLowCheckpointResourceId ?? null
+  })
+}
+
+watch(
+  [
+    engine, videoPresetId, outputFormat, wanMode, prompt, negativePrompt, isMature,
+    isPublic, durationSeconds, fps, loop, width, height, renderScale,
+    seedInput, latentUpscaleModel, refineSampler, refineSigmas,
+    videoCheckpointResourceId, videoLowCheckpointResourceId, loraPicks, recentArtFilter,
+  ],
+  () => {
+    videoStore.rememberStudioSettings({
+      engine: engine.value,
+      videoPresetId: videoPresetId.value,
+      outputFormat: outputFormat.value,
+      wanMode: wanMode.value,
+      prompt: prompt.value,
+      negativePrompt: negativePrompt.value,
+      isMature: isMature.value,
+      isPublic: isPublic.value,
+      durationSeconds: durationSeconds.value,
+      fps: fps.value,
+      loop: loop.value,
+      width: width.value,
+      height: height.value,
+      renderScale: renderScale.value,
+      seedInput: seedInput.value,
+      latentUpscaleModel: latentUpscaleModel.value,
+      refineSampler: refineSampler.value,
+      refineSigmas: refineSigmas.value,
+      videoCheckpointResourceId: videoCheckpointResourceId.value,
+      videoLowCheckpointResourceId: videoLowCheckpointResourceId.value,
+      loraPicks: loraPicks.value,
+      recentArtFilter: recentArtFilter.value,
+    })
+  },
+  { deep: true },
+)
 
 async function useLogoAsFirst() {
   try {

@@ -7,11 +7,15 @@
 // pattern in stores/artStore.ts, kept standalone so the video page has a small,
 // focused surface.
 import { defineStore } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
 import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
 import { resolveArtImageSource } from '@/utils/artImageSource'
-import type { RecentArtJobImage } from '@/utils/recentArtImages'
+import type {
+  RecentArtJobImage,
+  RecentArtFilter,
+} from '@/utils/recentArtImages'
 import type { VideoGeneratorJobSummary } from '@/server/utils/videoGeneratorJobs'
 import { artJobRetryNotice } from '@/utils/artJobRetryNotice'
 import type { LoraPick } from '@/utils/loraSelection'
@@ -52,6 +56,33 @@ export interface GenerateVideoParams {
   designer?: string | null
   projectSlug?: string | null
 }
+
+export type VideoStudioSettings = {
+  engine: VideoEngine
+  videoPresetId: VideoPresetId | ''
+  outputFormat: VideoOutputFormat
+  wanMode: WanVideoMode
+  prompt: string
+  negativePrompt: string
+  isMature: boolean
+  isPublic: boolean
+  durationSeconds: number
+  fps: number
+  loop: boolean
+  width: number
+  height: number
+  renderScale: number
+  seedInput: number | string
+  latentUpscaleModel: string | null
+  refineSampler: string | null
+  refineSigmas: string | null
+  videoCheckpointResourceId: number | null
+  videoLowCheckpointResourceId: number | null
+  loraPicks: LoraPick[]
+  recentArtFilter: RecentArtFilter
+}
+
+const SETTINGS_STORAGE_KEY = 'kindrobots.video-studio.settings.v1'
 
 type QueuedJob = {
   id: number
@@ -113,6 +144,7 @@ function artImageToVideoSrc(image: ArtImage | null | undefined): string {
 }
 
 export const useVideoStore = defineStore('videoStore', () => {
+  const userStore = useUserStore()
   const state = reactive({
     status: 'idle' as VideoJobStatus,
     jobId: null as number | null,
@@ -130,6 +162,7 @@ export const useVideoStore = defineStore('videoStore', () => {
     items: [] as RecentArtJobImage[],
     loading: false,
     loadingFrameId: null as number | null,
+    requestId: 0,
     error: '',
   })
 
@@ -159,6 +192,32 @@ export const useVideoStore = defineStore('videoStore', () => {
   )
 
   const resultIsImage = computed(() => isImageClipFileType(state.fileType))
+
+  function loadStudioSettings(): VideoStudioSettings | null {
+    if (!import.meta.client) return null
+    try {
+      const value = window.localStorage.getItem(SETTINGS_STORAGE_KEY)
+      if (!value) return null
+      const parsed: unknown = JSON.parse(value)
+      return parsed && typeof parsed === 'object'
+        ? (parsed as VideoStudioSettings)
+        : null
+    } catch {
+      return null
+    }
+  }
+
+  function rememberStudioSettings(settings: VideoStudioSettings): void {
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(
+        SETTINGS_STORAGE_KEY,
+        JSON.stringify(settings),
+      )
+    } catch {
+      // Private browsing and storage quotas must not block creating videos.
+    }
+  }
 
   function reset(): void {
     state.status = 'idle'
@@ -309,6 +368,7 @@ export const useVideoStore = defineStore('videoStore', () => {
   }
 
   async function generate(params: GenerateVideoParams): Promise<void> {
+    let submittedJobId: number | null = null
     reset()
     state.status = 'queued'
     state.loop = params.loop
@@ -316,6 +376,7 @@ export const useVideoStore = defineStore('videoStore', () => {
 
     try {
       const jobId = await enqueue(params)
+      submittedJobId = jobId
       state.jobId = jobId
       history.selectedJobId = jobId
       await fetchJobs(1)
@@ -342,7 +403,7 @@ export const useVideoStore = defineStore('videoStore', () => {
       }
       await fetchJobs(1)
     } catch (err) {
-      if (history.selectedJobId === state.jobId) {
+      if (submittedJobId === null || history.selectedJobId === submittedJobId) {
         state.status = 'error'
         state.error = err instanceof Error ? err.message : String(err)
         state.message = ''
@@ -381,7 +442,11 @@ export const useVideoStore = defineStore('videoStore', () => {
             : job.status === 'CANCELLED'
               ? 'Render cancelled.'
               : ''
-    if (job.artImageId && job.status === 'DONE') {
+    if (job.isMature && !userStore.showMature) {
+      state.artImageId = null
+      state.videoSrc = ''
+      state.fileType = ''
+    } else if (job.artImageId && job.status === 'DONE') {
       if (state.artImageId !== job.artImageId || !state.videoSrc) {
         state.videoSrc = ''
         state.artImageId = job.artImageId
@@ -505,24 +570,29 @@ export const useVideoStore = defineStore('videoStore', () => {
     }
   }
 
-  async function fetchRecentArt(showMature: boolean): Promise<void> {
+  async function fetchRecentArt(filter: RecentArtFilter): Promise<void> {
+    const requestId = ++recentArt.requestId
     recentArt.loading = true
     recentArt.error = ''
+    recentArt.items = []
     try {
       const res = await performFetch<RecentArtJobImage[]>(
-        `/api/art/queue/recent-images?limit=24&showMature=${showMature}`,
+        `/api/art/queue/recent-images?limit=24&filter=${filter}`,
         { method: 'GET' },
         1,
         20_000,
       )
+      if (requestId !== recentArt.requestId) return
       if (!res.success || !Array.isArray(res.data)) {
         throw new Error(res.message || 'Recent art could not be loaded.')
       }
       recentArt.items = res.data
     } catch (err) {
-      recentArt.error = err instanceof Error ? err.message : String(err)
+      if (requestId === recentArt.requestId) {
+        recentArt.error = err instanceof Error ? err.message : String(err)
+      }
     } finally {
-      recentArt.loading = false
+      if (requestId === recentArt.requestId) recentArt.loading = false
     }
   }
 
@@ -573,6 +643,8 @@ export const useVideoStore = defineStore('videoStore', () => {
   return {
     state,
     recentArt,
+    loadStudioSettings,
+    rememberStudioSettings,
     history,
     selectedJob,
     hasActiveJobs,

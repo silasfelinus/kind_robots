@@ -15,6 +15,7 @@ const job = {
     media: 'video',
     promptString: 'slow orbit of a green robot',
     images: [{ name: 'private.png', imageData: 'secret-source-bytes' }],
+    save: { isMature: true, isPublic: false },
     video: {
       model: 'wan',
       width: 768,
@@ -37,10 +38,18 @@ const summary = summarizeVideoGeneratorJob(job)
 assert.equal(summary?.id, 42)
 assert.equal(summary?.model, 'wan')
 assert.equal(summary?.status, 'RUNNING')
+assert.equal(summary?.isMature, true)
 assert.equal(summary?.attempts, 1)
 assert.equal(summary?.frames, 65)
 assert.equal(summary?.prompt, 'slow orbit of a green robot')
 assert.ok(!JSON.stringify(summary).includes('secret-source-bytes'))
+assert.equal(
+  summarizeVideoGeneratorJob({
+    ...job,
+    payload: JSON.stringify({ media: 'video', video: { model: 'wan' } }),
+  })?.isMature,
+  false,
+)
 
 assert.equal(
   videoGeneratorMetadata({ ...job, projectSlug: 'scene-animator' }),
@@ -78,10 +87,31 @@ const resubmitRoute = readFileSync(
 
 assert.match(getRoute, /userId: auth\.user\.id/)
 assert.match(getRoute, /pageCount/)
+assert.match(getRoute, /isMatureByImageId/)
+assert.match(getRoute, /userId: auth\.user\.id/)
 assert.match(deleteRoute, /userId: auth\.user\.id/)
 assert.match(deleteRoute, /status: \{ in: \['DONE', 'FAILED', 'CANCELLED'\] \}/)
 assert.match(resubmitRoute, /userId: auth\.user\.id/)
 assert.match(resubmitRoute, /authAndGate\(event/)
 assert.match(resubmitRoute, /prepareArtJobRetryPayload/)
 assert.match(resubmitRoute, /await gate\.commit/)
-console.log('Video generator history contract passed.')
+const source = readFileSync('pages/play/video-generator.vue', 'utf8')
+const store = readFileSync('stores/videoStore.ts', 'utf8')
+const queue = readFileSync('server/api/art/enqueue.post.ts', 'utf8')
+const recent = readFileSync('server/api/art/queue/recent-images.get.ts', 'utf8')
+assert.match(source, /recentArtFilters/)
+assert.match(source, /canShowSelectedClip/)
+assert.match(source, /rememberStudioSettings/)
+assert.match(
+  source,
+  /engine.value === 'wan' && selectedWanMode.value === 'ti2v'/,
+)
+assert.doesNotMatch(source, /!videoStore.isBusy &&/)
+assert.match(store, /SETTINGS_STORAGE_KEY/)
+assert.match(store, /recentArt.requestId/)
+assert.match(queue, /WAN TI2V for prompt-only video/)
+assert.match(recent, /viewerShowsMature\(preference\)/)
+assert.match(recent, /filter === 'mature'/)
+console.log(
+  'Video generator history, prompt-only, preferences and mature filter contracts passed.',
+)

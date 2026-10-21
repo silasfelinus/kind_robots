@@ -16,3 +16,5 @@ export type RecentArtJobImage = {
   fileName: string | null
   fileType: string | null
 }
+
+export type RecentArtFilter = 'all' | 'mature' | 'sfw'

@@ -26,8 +26,29 @@ export default defineEventHandler(async (event) => {
       skip: (safePage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
     })
+    const imageIds = stored
+      .map((job) => job.artImageId)
+      .filter((id): id is number => id !== null)
+    const imageMaturity = imageIds.length
+      ? await prisma.artImage.findMany({
+          where: { id: { in: imageIds }, userId: auth.user.id },
+          select: { id: true, isMature: true },
+        })
+      : []
+    const isMatureByImageId = new Map(
+      imageMaturity.map((image) => [image.id, image.isMature]),
+    )
     const jobs = stored
-      .map(summarizeVideoGeneratorJob)
+      .map((job) => {
+        const summary = summarizeVideoGeneratorJob(job)
+        if (!summary) return null
+        return {
+          ...summary,
+          isMature:
+            summary.isMature ||
+            isMatureByImageId.get(job.artImageId ?? -1) === true,
+        }
+      })
       .filter((job): job is NonNullable<typeof job> => job !== null)
 
     return {

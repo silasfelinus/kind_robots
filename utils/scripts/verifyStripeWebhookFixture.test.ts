@@ -386,7 +386,10 @@ const modern = patronPeriodEnd(
 )
 assert.equal(modern?.toISOString(), new Date(endSeconds * 1000).toISOString())
 assert.equal(
-  patronPeriodEnd({ current_period_end: endSeconds }, 'price_patron')?.getTime(),
+  patronPeriodEnd(
+    { current_period_end: endSeconds },
+    'price_patron',
+  )?.getTime(),
   endSeconds * 1000,
 )
 assert.equal(
@@ -396,10 +399,9 @@ assert.equal(
   ),
   null,
 )
-assert.equal(
-  patronPeriodEnd({ current_period_end: -1 }, 'price_patron'),
-  null,
+assert.equal(patronPeriodEnd({ current_period_end: -1 }, 'price_patron'), null)
+console.log(
+  '✅ Cancellation preserves paid-through dates across Stripe API versions',
 )
-console.log('✅ Cancellation preserves paid-through dates across Stripe API versions')
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

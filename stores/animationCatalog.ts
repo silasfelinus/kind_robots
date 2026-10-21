@@ -876,6 +876,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'domino-spiral-cascade',
+    label: 'Domino Spiral Cascade',
+    reveal: 'A tipping wave runs the whole spiral and stands it back up',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A spiral of colorful dominoes topples in one slow wave, lies flat, then rises to go again 🁢 hover to light up the tiles near you, click to speed the wave',
+    color: '#ef476f',
+    releasedAt: '2026-10-21T13:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

@@ -35,7 +35,6 @@ import {
   type JourneyLedgerV4,
 } from '~/utils/shiftingLands/saveLedgerV4'
 import {
-  newJourneyLedgerV6,
   restoreJourneyLedgerV6,
   stepJourneyLedgerV6,
   v6CharacterSheet,

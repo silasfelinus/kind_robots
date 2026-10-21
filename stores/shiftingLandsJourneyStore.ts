@@ -50,6 +50,7 @@ import {
 } from '~/utils/shiftingLands/deckV6'
 import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
+import { worldEchoesV7 } from '~/utils/shiftingLands/worldEchoesV7'
 import {
   newJourneyLedgerV7,
   restoreJourneyLedgerV7,
@@ -231,6 +232,14 @@ export const useShiftingLandsJourneyStore = defineStore(
         : [],
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
+    const worldEchoes = computed(() =>
+      ledger.value.version === 7
+        ? worldEchoesV7(ledger.value.current, ledger.value.trialResults)
+        : [],
+    )
+    const currentWorldEchoes = computed(() =>
+      worldEchoes.value.filter((echo) => echo.landId === currentLand.value.id),
+    )
     const ending = computed(() =>
       ledger.value.version === 7
         ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
@@ -468,6 +477,8 @@ export const useShiftingLandsJourneyStore = defineStore(
       trialPlate,
       currentTrial,
       lastTrialOutcome,
+      worldEchoes,
+      currentWorldEchoes,
       canTrial,
       canPrepareTrial,
       preparedTrial,

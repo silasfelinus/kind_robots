@@ -26,13 +26,23 @@ import { balanceReportV6 } from './shiftingLandsV6BalanceReport'
 const POLICIES = ['kind', 'safe', 'greedy', 'ruthless', 'random'] as const
 type Policy = (typeof POLICIES)[number]
 const BONUS: Record<string, number> = {
-  steel: 3, awareness: 2, wits: 2, bearing: 2, resolve: 2, insight: 2,
+  steel: 3,
+  awareness: 2,
+  wits: 2,
+  bearing: 2,
+  resolve: 2,
+  insight: 2,
 }
 const perPolicy = process.argv[2] === undefined ? 300 : Number(process.argv[2])
-assert.ok(Number.isSafeInteger(perPolicy) && perPolicy >= 1 && perPolicy <= 5000)
+assert.ok(
+  Number.isSafeInteger(perPolicy) && perPolicy >= 1 && perPolicy <= 5000,
+)
 assert.equal(TRIAL_RULES_V7, 1)
 const legacy = newJourneyLedgerV6(42)
-assert.deepEqual(restoreJourneyLedgerV6(JSON.parse(JSON.stringify(legacy))), legacy)
+assert.deepEqual(
+  restoreJourneyLedgerV6(JSON.parse(JSON.stringify(legacy))),
+  legacy,
+)
 assert.equal(restoreJourneyLedgerV7(legacy), null, 'never misread V6 as V7')
 assert.equal(restoreJourneyLedgerV6(newJourneyLedgerV7(42)), null)
 for (const land of JOURNEY_WORLD.lands) {
@@ -59,19 +69,24 @@ const expected = (choice: V6Choice, key: 'hp_delta' | 'provisions_delta') =>
   chance(choice) * choice.success[key] +
   (1 - chance(choice)) * (choice.failure?.[key] ?? 0)
 const mark = (choice: V6Choice, key: string) =>
-  chance(choice) * ((choice.success.marks as Record<string, number> | undefined)?.[key] ?? 0) +
-  (1 - chance(choice)) * ((choice.failure?.marks as Record<string, number> | undefined)?.[key] ?? 0)
+  chance(choice) *
+    ((choice.success.marks as Record<string, number> | undefined)?.[key] ?? 0) +
+  (1 - chance(choice)) *
+    ((choice.failure?.marks as Record<string, number> | undefined)?.[key] ?? 0)
 function random(seed: number, step: number, size: number): number {
   return ((Math.imul(seed ^ (step + 1), 1664525) + 1013904223) >>> 0) % size
 }
 function encounterPick(
-  choices: V6Choice[], policy: Policy, seed: number, step: number,
+  choices: V6Choice[],
+  policy: Policy,
+  seed: number,
+  step: number,
 ): V6Choice {
   if (policy === 'random') return choices[random(seed, step, choices.length)]!
   const score = (choice: V6Choice) => {
     const hp = expected(choice, 'hp_delta') + (choice.cost?.hp ?? 0)
-    const food = expected(choice, 'provisions_delta') +
-      (choice.cost?.provisions ?? 0)
+    const food =
+      expected(choice, 'provisions_delta') + (choice.cost?.provisions ?? 0)
     const mercy = mark(choice, 'mercy')
     const honest = mark(choice, 'honesty')
     const cunning = mark(choice, 'cunning')
@@ -100,11 +115,18 @@ type Row = {
 }
 function simulate(policy: Policy, runs: number): Row {
   const row: Row = {
-    policy, completed: 0, fallen: 0, stalled: 0,
+    policy,
+    completed: 0,
+    fallen: 0,
+    stalled: 0,
     reached: Array(5).fill(0) as number[],
     diedByLand: Array(5).fill(0) as number[],
-    witnessEligible: 0, scoutEligible: 0,
-    witnessTaken: 0, scoutTaken: 0, prepared: 0, uniquePreparations: 0,
+    witnessEligible: 0,
+    scoutEligible: 0,
+    witnessTaken: 0,
+    scoutTaken: 0,
+    prepared: 0,
+    uniquePreparations: 0,
   }
   for (let seed = 1; seed <= runs; seed++) {
     let ledger: JourneyLedgerV7 = newJourneyLedgerV7(seed)
@@ -126,7 +148,8 @@ function simulate(policy: Policy, runs: number): Row {
         const available = trial.choices.filter((choice) =>
           canChooseTrialV7(choice, state, ledger.prepared),
         )
-        if (available.some((item) => item.id === 'witness')) row.witnessEligible++
+        if (available.some((item) => item.id === 'witness'))
+          row.witnessEligible++
         if (available.some((item) => item.id === 'scout')) row.scoutEligible++
         // Scarce food never buys compassion, and a cautious player is willing
         // to trade a measured point of health for a mapped alternate route.
@@ -135,7 +158,8 @@ function simulate(policy: Policy, runs: number): Row {
           index >= 3 &&
           journey.hp >= 4 &&
           canPrepareTrialV7(state, ledger.prepared) &&
-          (policy === 'safe' || !available.some((item) => item.id === 'witness'))
+          (policy === 'safe' ||
+            !available.some((item) => item.id === 'witness'))
         ) {
           next = stepJourneyLedgerV7(ledger, { type: 'PREPARE' })
           row.prepared++
@@ -144,40 +168,56 @@ function simulate(policy: Policy, runs: number): Row {
           assert.ok(available.length)
           let id: string
           if (policy === 'kind') {
-            id = (available.find((item) => item.id === 'witness') ??
+            id = (
+              available.find((item) => item.id === 'witness') ??
               available.find((item) => item.id === 'scout') ??
               available.find((item) => item.id === 'evidence') ??
               available.find((item) => item.id === 'parley') ??
-              available[0]!).id
+              available[0]!
+            ).id
           } else if (policy === 'safe') {
-            id = (available.find((item) => item.id === 'scout') ??
-              [...available].sort((a, b) =>
-                (a.target - BONUS[a.skill]! + a.cost * 0.75) -
-                (b.target - BONUS[b.skill]! + b.cost * 0.75))[0]!).id
+            id = (
+              available.find((item) => item.id === 'scout') ??
+              [...available].sort(
+                (a, b) =>
+                  a.target -
+                  BONUS[a.skill]! +
+                  a.cost * 0.75 -
+                  (b.target - BONUS[b.skill]! + b.cost * 0.75),
+              )[0]!
+            ).id
           } else if (policy === 'random') {
             id = available[random(seed, step, available.length)]!.id
           } else {
-            id = (available.find((item) => item.id === 'confront') ??
-              available[0]!).id
+            id = (
+              available.find((item) => item.id === 'confront') ?? available[0]!
+            ).id
           }
           if (id === 'witness') row.witnessTaken++
           if (id === 'scout') row.scoutTaken++
           next = stepJourneyLedgerV7(ledger, { type: 'TRIAL', choiceId: id })
         }
       } else if (!journey.active) {
-        const open = reachableLocations(journey).filter((id) =>
-          !journey.resolved.some((result) => result.locationId === id),
+        const open = reachableLocations(journey).filter(
+          (id) => !journey.resolved.some((result) => result.locationId === id),
         )
-        if (!open.length) { stalled = true; break }
+        if (!open.length) {
+          stalled = true
+          break
+        }
         next = stepJourneyLedgerV7(ledger, {
-          type: 'TRAVEL', locationId: open[0]!,
+          type: 'TRAVEL',
+          locationId: open[0]!,
         })
       } else {
         const card = activeV6Card(state)!
         const open = card.choices.filter((choice) => !choiceLock(state, choice))
         assert.ok(open.length)
         const chosen = encounterPick(open, policy, seed, step)
-        next = stepJourneyLedgerV7(ledger, { type: 'CHOOSE', choiceId: chosen.id })
+        next = stepJourneyLedgerV7(ledger, {
+          type: 'CHOOSE',
+          choiceId: chosen.id,
+        })
       }
       assert.notEqual(next, ledger, 'a legal choice changes the ledger')
       ledger = next
@@ -193,7 +233,9 @@ function simulate(policy: Policy, runs: number): Row {
       row.stalled++
     }
     if (seed <= 20) {
-      const restored = restoreJourneyLedgerV7(JSON.parse(JSON.stringify(ledger)))
+      const restored = restoreJourneyLedgerV7(
+        JSON.parse(JSON.stringify(ledger)),
+      )
       assert.deepEqual(restored, ledger, 'new V7 saves exactly replay')
       const forged = JSON.parse(JSON.stringify(ledger))
       forged.current.marks.mercy += 5
@@ -201,7 +243,11 @@ function simulate(policy: Policy, runs: number): Row {
       if (ledger.prepared.length) {
         const erased = JSON.parse(JSON.stringify(ledger))
         erased.prepared = []
-        assert.equal(restoreJourneyLedgerV7(erased), null, 'cannot forge scout status')
+        assert.equal(
+          restoreJourneyLedgerV7(erased),
+          null,
+          'cannot forge scout status',
+        )
       }
     }
   }
@@ -211,7 +257,7 @@ function simulate(policy: Policy, runs: number): Row {
 
 const rows = POLICIES.map((policy) => simulate(policy, perPolicy))
 const old = balanceReportV6(perPolicy)
-const pct = (n: number, d: number) => (100 * n / d).toFixed(1) + '%'
+const pct = (n: number, d: number) => ((100 * n) / d).toFixed(1) + '%'
 const lines = [
   '# V7 Shifting Lands balance comparison',
   '',
@@ -221,28 +267,44 @@ const lines = [
   '',
   '| Policy | V6 complete | V7 complete | V7 fallen | V7 witness uses | V7 scout uses | V7 preparations |',
   '| --- | ---: | ---: | ---: | ---: | ---: | ---: |',
-  ...rows.map((row, i) =>
-    '| ' + row.policy + ' | ' + pct(old[i]!.completed, perPolicy) +
-    ' | ' + pct(row.completed, perPolicy) + ' | ' +
-    pct(row.fallen, perPolicy) + ' | ' + row.witnessTaken +
-    ' | ' + row.scoutTaken + ' | ' + row.prepared + ' |',
+  ...rows.map(
+    (row, i) =>
+      '| ' +
+      row.policy +
+      ' | ' +
+      pct(old[i]!.completed, perPolicy) +
+      ' | ' +
+      pct(row.completed, perPolicy) +
+      ' | ' +
+      pct(row.fallen, perPolicy) +
+      ' | ' +
+      row.witnessTaken +
+      ' | ' +
+      row.scoutTaken +
+      ' | ' +
+      row.prepared +
+      ' |',
   ),
   '',
   '## V7 reachability by land, percent of all runs',
   '',
   '| Policy | ' + JOURNEY_WORLD.lands.map((land) => land.id).join(' | ') + ' |',
   '| --- | ---: | ---: | ---: | ---: | ---: |',
-  ...rows.map((row) =>
-    '| ' + row.policy + ' | ' + row.reached.map((count) =>
-      pct(count, perPolicy)).join(' | ') + ' |',
+  ...rows.map(
+    (row) =>
+      '| ' +
+      row.policy +
+      ' | ' +
+      row.reached.map((count) => pct(count, perPolicy)).join(' | ') +
+      ' |',
   ),
   '',
   '## V7 deaths by land, counts',
   '',
   '| Policy | ' + JOURNEY_WORLD.lands.map((land) => land.id).join(' | ') + ' |',
   '| --- | ---: | ---: | ---: | ---: | ---: |',
-  ...rows.map((row) =>
-    '| ' + row.policy + ' | ' + row.diedByLand.join(' | ') + ' |',
+  ...rows.map(
+    (row) => '| ' + row.policy + ' | ' + row.diedByLand.join(' | ') + ' |',
   ),
   '',
   'New witness/scout routes remain earned. Each scout action consumes one HP and is recorded in save replay. ' +

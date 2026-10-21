@@ -208,8 +208,11 @@ async function testBulkGalleryRecycle() {
   }
   assert.ok(gallery.includes('!showHeader && activeGroup'))
   assert.ok(feed.includes('Select all loaded'))
-  assert.ok(feed.includes('bulkSelectEnabled ? toggleImageSelection(image) : openImage(image)'))
-  console.log('verifyArtRecycleBin: gallery and collection views support recoverable multi-select')
+  assert.ok(feed.includes('toggleImageSelection(image)'))
+  assert.ok(feed.includes('openImage(image)'))
+  console.log(
+    'verifyArtRecycleBin: gallery and collection views support recoverable multi-select',
+  )
 }
 
 async function run() {

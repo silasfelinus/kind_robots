@@ -631,7 +631,7 @@ assert.ok(
 )
 
 const benchView = readFileSync('components/art/build-bench.vue', 'utf8')
-assert.ok(benchView.includes('@container kr-container-wide'))
+assert.ok(benchView.includes('@container kr-container-canvas'))
 assert.ok(benchView.includes('@5xl:grid-cols-2'))
 assert.ok(benchView.includes('aspect-[5/4]'))
 assert.ok(
@@ -649,6 +649,9 @@ assert.ok(stylerView.includes('overflow-y-auto overscroll-contain'))
 const coloringView = readFileSync('pages/coloring-page.vue', 'utf8')
 assert.ok(coloringView.includes('kr-scroll kr-container-wide'))
 assert.ok(!coloringView.includes('max-w-4xl'))
+const canvasStyles = readFileSync('assets/css/tailwind.css', 'utf8')
+assert.ok(canvasStyles.includes('.kr-container-canvas'))
+assert.ok(canvasStyles.includes('@apply w-full max-w-none;'))
 
 const bench = readFileSync('stores/buildBenchStore.ts', 'utf8')
 assert.ok(bench.includes("presetId: 'krea2-turbo'"))

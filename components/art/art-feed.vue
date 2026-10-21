@@ -351,7 +351,9 @@ function imageLabel(image: ArtFeedImage): string {
 
 function canModifyImage(image: ArtFeedImage): boolean {
   return (
-    userStore.isAdmin || Number(image.userId) === Number(currentUserId.value)
+    userStore.isAdmin ||
+    (Number(currentUserId.value) > 0 &&
+      Number(image.userId) === Number(currentUserId.value))
   )
 }
 

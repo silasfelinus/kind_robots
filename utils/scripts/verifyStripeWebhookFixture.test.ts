@@ -55,8 +55,9 @@ import {
 } from '../../server/api/stripe/webhook.post.js'
 import {
   PATRON_MONTHLY_TOKENS,
+  PATRON_MONTHLY_PRICE_CENTS,
   checkoutHasPaidSubscription,
-  isFiveDollarMonthlyPatronPrice,
+  isNineDollarMonthlyPatronPrice,
   paidPatronInvoiceSubscriptionId,
   patronPeriodEnd,
   stripeInvoiceSubscriptionId,
@@ -278,6 +279,7 @@ console.log(
 // TOKENS. Modern Stripe invoices nest subscription under parent; old snapshots
 // still carry it at the top level.
 assert.equal(PATRON_MONTHLY_TOKENS, 1000)
+assert.equal(PATRON_MONTHLY_PRICE_CENTS, 900)
 assert.equal(
   stripeInvoiceSubscriptionId({
     status: 'open',
@@ -356,10 +358,10 @@ assert.equal(
   false,
 )
 assert.equal(
-  isFiveDollarMonthlyPatronPrice({
+  isNineDollarMonthlyPatronPrice({
     active: true,
     currency: 'usd',
-    unit_amount: 500,
+    unit_amount: 900,
     recurring: { interval: 'month', interval_count: 1 },
   }),
   true,
@@ -368,7 +370,7 @@ for (const wrong of [
   {
     active: true,
     currency: 'usd',
-    unit_amount: 999,
+    unit_amount: 500,
     recurring: { interval: 'month', interval_count: 1 },
   },
   {
@@ -391,10 +393,10 @@ for (const wrong of [
   },
   { active: true, currency: 'usd', unit_amount: 500, recurring: null },
 ]) {
-  assert.equal(isFiveDollarMonthlyPatronPrice(wrong), false)
+  assert.equal(isNineDollarMonthlyPatronPrice(wrong), false)
 }
 console.log(
-  '✅ Paid Patron invoice, checkout and $5 monthly price guards passed',
+  '✅ Paid Patron invoice, checkout and $9 monthly price guards passed',
 )
 
 // --- Cancellation at the paid-through date -------------------------------

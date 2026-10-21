@@ -1,10 +1,11 @@
 import type { TrialResult } from './authoredBosses'
 import type { JourneyStateV6 } from './deckV6'
 import { authoredEndingV6, type AuthoredEndingV6 } from './endingsV6'
+import { moralConstellationEndingV7 } from './endingsConstellationsV7'
 
 // The road is easier when somebody else pays. The epilogue remembers exactly
 // which bargains were attempted; the kindness payoff requires acts, not intent.
-export function authoredEndingV7(
+function authoredEndingV7Base(
   state: JourneyStateV6,
   trials: readonly TrialResult[],
 ): AuthoredEndingV6 | null {
@@ -80,4 +81,12 @@ export function authoredEndingV7(
     return { ...base, path: 'Trust earned on the harder road', paragraphs }
   }
   return base
+}
+
+export function authoredEndingV7(
+  state: JourneyStateV6,
+  trials: readonly TrialResult[],
+): AuthoredEndingV6 | null {
+  const base = authoredEndingV7Base(state, trials)
+  return base ? moralConstellationEndingV7(base, state, trials) : null
 }

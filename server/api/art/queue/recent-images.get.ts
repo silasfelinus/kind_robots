@@ -11,7 +11,10 @@ import { errorHandler } from '../../../utils/error'
 import { requireMachineUser } from '../../../utils/authGuard'
 import { attachGalleryArchiveMediaPaths } from '../../../utils/artGalleryArchiveMedia'
 import { resolveArtImageSource } from '~/utils/artImageSource'
-import type { RecentArtJobImage, RecentArtFilter } from '~/utils/recentArtImages'
+import type {
+  RecentArtJobImage,
+  RecentArtFilter,
+} from '~/utils/recentArtImages'
 import { viewerShowsMature } from '../../../utils/contentAccess'
 
 const DEFAULT_LIMIT = 24
@@ -40,7 +43,11 @@ export default defineEventHandler(async (event) => {
           : 'sfw'
     const preference = await prisma.user.findUnique({
       where: { id: auth.user.id },
-      select: { showMature: true, Role: true, UserRoles: { select: { role: true } } },
+      select: {
+        showMature: true,
+        Role: true,
+        UserRoles: { select: { role: true } },
+      },
     })
     const filter = viewerShowsMature(preference) ? requestedFilter : 'sfw'
 

@@ -228,6 +228,32 @@ assert.ok(!heldRestored.log.some((entry) => entry.source === 'WH-121'))
 assert.ok(!heldRestored.flags.includes('mad_river_peace'))
 assert.ok(!heldRestored.evidence.includes('A latitude from another county'))
 
+// Sixth pass: eight independent civic and comic encounters. All base outcomes
+// remain distinct, and the six reading kits must use the same authored copy.
+const sixthPassScenes = [
+  'WH-017',
+  'WH-022',
+  'WH-044',
+  'WH-045',
+  'WH-069',
+  'WH-084',
+  'WH-103',
+  'WH-109',
+]
+for (const id of sixthPassScenes) {
+  const script = REGIONAL_SCRIPTS.find((entry) => entry.id === id)!
+  assert.ok(script, `${id} sixth-pass encounter exists`)
+  assert.ok(
+    script.pressure.length > 270 &&
+      script.success.length > 260 &&
+      script.failure.length > 260 &&
+      script.helpOutcome.length > 260,
+    `${id} has a full conflict, earned win, genuine loss and care consequence`,
+  )
+  assert.notEqual(script.success, script.failure)
+  assert.notEqual(script.helpOutcome, script.success)
+  assert.notEqual(script.helpOutcome, script.failure)
+}
 // Full regional manuscript: 120 canonical seed IDs, every choice and result written.
 const canonical = ENCOUNTERS.filter(
   (c) => /^WH-\d{3}$/.test(c.id) && Number(c.id.slice(3)) <= 120,

@@ -72,24 +72,24 @@
 
 **Opening narration:** An Edwardian apparition refuses to haunt without reimbursed meter fees.
 
-**Escalation:** An Edwardian ghost has found a parking ticket under his spectral windshield and refuses to haunt until the meter is validated. The council wants to tow the invisible car, although nobody can agree where to attach the hook.
+**Escalation:** An Edwardian ghost has received a parking ticket under his spectral windshield and refuses to haunt another minute until somebody validates the meter. A city officer wants to tow the invisible car. 'From which end?' asks the tow driver, holding a hook through its bonnet. Two wheelchair users are waiting for the curb space. The ghost insists he was parked here first, which is technically true by eighty-seven years.
 
 **Option A, investigate (visible 9 check):** Compare the citation with historic street maps and an actual meter record
 
-- **Pass:** His citation names a lane the city paved over decades ago. The hearing date is tomorrow, which bothers the ghost less than the late fee.
-- **Miss:** The ticket turns to lint. An elderly clerk remembers the old lane and offers to check the archive, without promising an appeal will win.
+- **Pass:** The citation names a narrow lane paved over decades ago. The ghost wants the historical error to erase his late fee, but the officer points to a perfectly modern curb ramp he has been blocking. You find the old street plan and show both of them. The hearing can proceed tomorrow; tonight the car needs to move. The ghost calls this revisionism and starts his engine.
+- **Miss:** The ticket turns to lint before you can preserve the number. The ghost claims this proves the city never had jurisdiction; the officer insists the fine doubles. Meanwhile a woman trying to use the ramp asks whether either of them remembers she is here. You cannot settle the old fee. You can make room for her without needing a verdict.
 
 **Option B, assist without a check:** Help the people who use the street propose an accessible parking rule
 
-- **Result:** The attendant issues a practical temporary pass. The ghost moves his vehicle and everybody else finally gets somewhere to park.
+- **Result:** You help the officer issue a temporary access pass for the ghost's inconveniently old registration, on condition the spectral car stops occupying the curb ramp. He moves it with magnificent offense. The wheelchair users get through, the tow driver goes home, and the ghost says he will haunt city hall instead. 'There's already a waiting list,' the clerk replies.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-044`: An Edwardian apparition refuses to haunt without reimbursed meter fees. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-044/2`: An Edwardian ghost has found a parking ticket under his spectral windshield and refuses to haunt until the meter is validated. The council wants to tow the invisible car, although nobody can agree where to attach the hook. The people and location must match the opening.
-- `outcomes/wh-044/investigate-success`: His citation names a lane the city paved over decades ago. The hearing date is tomorrow, which bothers the ghost less than the late fee. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-044/investigate-failure`: The ticket turns to lint. An elderly clerk remembers the old lane and offers to check the archive, without promising an appeal will win. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-044/care-success`: The attendant issues a practical temporary pass. The ghost moves his vehicle and everybody else finally gets somewhere to park. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-044/2`: An Edwardian ghost has received a parking ticket under his spectral windshield and refuses to haunt another minute until somebody validates the meter. A city officer wants to tow the invisible car. 'From which end?' asks the tow driver, holding a hook through its bonnet. Two wheelchair users are waiting for the curb space. The ghost insists he was parked here first, which is technically true by eighty-seven years. The people and location must match the opening.
+- `outcomes/wh-044/investigate-success`: The citation names a narrow lane paved over decades ago. The ghost wants the historical error to erase his late fee, but the officer points to a perfectly modern curb ramp he has been blocking. You find the old street plan and show both of them. The hearing can proceed tomorrow; tonight the car needs to move. The ghost calls this revisionism and starts his engine. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-044/investigate-failure`: The ticket turns to lint before you can preserve the number. The ghost claims this proves the city never had jurisdiction; the officer insists the fine doubles. Meanwhile a woman trying to use the ramp asks whether either of them remembers she is here. You cannot settle the old fee. You can make room for her without needing a verdict. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-044/care-success`: You help the officer issue a temporary access pass for the ghost's inconveniently old registration, on condition the spectral car stops occupying the curb ramp. He moves it with magnificent offense. The wheelchair users get through, the tow driver goes home, and the ghost says he will haunt city hall instead. 'There's already a waiting list,' the clerk replies. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_044_verified`, `wh_044_partial`, `wh_044_care` (mutually exclusive results of this card).
 
@@ -103,24 +103,24 @@
 
 **Opening narration:** A tourist card shows an accurate street scene under two suns.
 
-**Escalation:** A cheap postcard claims to show Eureka on Mars. There are two suns over the waterfront, a tram line no one has built and a corner store with the correct name but a door on the wrong side. The archivist would like to see the original, preferably before the tourist tries to sell it.
+**Escalation:** A postcard on the Eureka waterfront shows the town beneath two suns, with the correct shop signs and a tram nobody remembers building. A collector offers the owner three hundred dollars if she signs over all rights to the picture. 'I only wanted to send a card to my brother,' she says. The archivist wants the original for conservation; the collector wants it before anybody notices the street corner has moved.
 
 **Option A, investigate (visible 9 check):** Compare the postcard's storefront shadows with today's street layout
 
-- **Pass:** The card's double shadows converge on a building missing from both city maps, though its front steps are plainly there. The archivist records the discrepancy without assigning a planet.
-- **Miss:** Rain smears the return address, but leaves two clean circles where the suns should be. A conservator offers to stabilize the card before anyone scrapes at it.
+- **Pass:** You compare the double shadows to the real storefronts and find a doorway that appears on the postcard but nowhere on the assessor's plans. The archivist wants to publish the discovery immediately. The owner folds her arms: 'It's still my card.' You preserve the measurements and ask for permission to quote her, rather than turning her family message into a public attraction.
+- **Miss:** Rain eats the return address before you can make a copy. Two clear circles remain where the suns were printed; the collector declares them proof of Mars and raises his offer. The owner almost sells, needing the money. You cannot prove the postcard's origin or dictate her choice, but you can tell her what the conservator can still save.
 
 **Option B, assist without a check:** Ask the owner before donating or publishing somebody else's impossible souvenir
 
-- **Result:** The owner loans the postcard under a clear agreement. Neighbors annotate a copy, arguing about the trolley line and a vanished bakery instead of being told what they remember.
+- **Result:** You help the owner make a time-limited loan agreement with the archive, including the right to take the card back. Neighbors annotate a copy with memories of shops that have closed and places that never existed. The collector calls the arrangement financially foolish. The owner mails her brother a photograph and keeps the original in a dry envelope.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-045`: A tourist card shows an accurate street scene under two suns. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-045/2`: A cheap postcard claims to show Eureka on Mars. There are two suns over the waterfront, a tram line no one has built and a corner store with the correct name but a door on the wrong side. The archivist would like to see the original, preferably before the tourist tries to sell it. The people and location must match the opening.
-- `outcomes/wh-045/investigate-success`: The card's double shadows converge on a building missing from both city maps, though its front steps are plainly there. The archivist records the discrepancy without assigning a planet. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-045/investigate-failure`: Rain smears the return address, but leaves two clean circles where the suns should be. A conservator offers to stabilize the card before anyone scrapes at it. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-045/care-success`: The owner loans the postcard under a clear agreement. Neighbors annotate a copy, arguing about the trolley line and a vanished bakery instead of being told what they remember. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-045/2`: A postcard on the Eureka waterfront shows the town beneath two suns, with the correct shop signs and a tram nobody remembers building. A collector offers the owner three hundred dollars if she signs over all rights to the picture. 'I only wanted to send a card to my brother,' she says. The archivist wants the original for conservation; the collector wants it before anybody notices the street corner has moved. The people and location must match the opening.
+- `outcomes/wh-045/investigate-success`: You compare the double shadows to the real storefronts and find a doorway that appears on the postcard but nowhere on the assessor's plans. The archivist wants to publish the discovery immediately. The owner folds her arms: 'It's still my card.' You preserve the measurements and ask for permission to quote her, rather than turning her family message into a public attraction. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-045/investigate-failure`: Rain eats the return address before you can make a copy. Two clear circles remain where the suns were printed; the collector declares them proof of Mars and raises his offer. The owner almost sells, needing the money. You cannot prove the postcard's origin or dictate her choice, but you can tell her what the conservator can still save. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-045/care-success`: You help the owner make a time-limited loan agreement with the archive, including the right to take the card back. Neighbors annotate a copy with memories of shops that have closed and places that never existed. The collector calls the arrangement financially foolish. The owner mails her brother a photograph and keeps the original in a dry envelope. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_045_verified`, `wh_045_partial`, `wh_045_care` (mutually exclusive results of this card).
 

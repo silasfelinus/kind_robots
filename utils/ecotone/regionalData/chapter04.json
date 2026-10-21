@@ -112,12 +112,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property.",
+    "pressure": "On a narrow backroad outside Blue Lake, a herd of cows stops and starts at traffic signals no human can see. A delivery driver, already late, inches his van toward the animals. 'They're not being stubborn,' says the rancher. 'They're waiting for the green.' The driver says the cows have better benefits than he does. Around the blind bend, a second truck has begun accelerating.",
     "investigate": "Compare the herd's stopping points with the bend in the road and recorded traffic",
-    "success": "The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign.",
-    "failure": "A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement.",
+    "success": "You time the herd's movements against the bend and discover its imaginary green arrives only when oncoming traffic clears the blind corner. The rancher wants a proper caution sign; the driver wants assurance he can finish his shift. The cattle are reliable, but not legally recognized road engineers. You document the safe interval and help request a real sign without promising the cows can police everyone forever.",
+    "failure": "A pickup charges around the bend before you can finish timing the pattern. The herd scatters toward the ditch, and the driver slams on the brakes. Nobody is struck, but the rancher has to count every animal. Your dash camera captured the stop, not its cause. You help with the search instead of claiming a miracle you failed to measure.",
     "help": "Help slow the vehicles and give the rancher room to move the cattle safely",
-    "helpOutcome": "The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone."
+    "helpOutcome": "You wave the van to a safe pullout, help the rancher open the gate, and keep the next driver from treating the herd as a dare. The cattle cross at their own pace. The delivery driver misses his bonus window; the rancher offers to sign the delay report, and the driver accepts. One cow pauses beside your car until you apologize for honking."
   },
   {
     "id": "WH-070",

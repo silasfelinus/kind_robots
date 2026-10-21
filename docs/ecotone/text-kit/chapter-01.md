@@ -413,24 +413,24 @@
 
 **Opening narration:** A missing dorm room has a remarkably active meal plan.
 
-**Escalation:** The housing office insists Dorm 404 does not exist. Someone leaves shoes against the blank wall, a meal card is charged three times a day, and a resident adviser has been told to stop asking after the missing student. The shoes are still wet from the rain.
+**Escalation:** The housing office insists Dorm 404 does not exist, although the meal plan is charged three times a day and somebody keeps setting wet shoes against the blank wall. 'I did the welfare report,' the resident adviser says. 'They told me to stop looking for a student who isn't on the roster.' A cashier has started slipping an extra apple into each bag. 'A person can be hungry,' she says, 'even when the computer says they aren't.'
 
 **Option A, investigate (visible 7 check):** Check the meal-plan charges with housing staff before guessing who lives there
 
-- **Pass:** The account belongs to a student enrolled next autumn, with an emergency-contact number that rings inside the wall. The registrar logs the anomaly rather than inventing a disciplinary case.
-- **Miss:** The card is deactivated and dinner appears at the wall anyway. A cafeteria worker signs the receipt and asks the housing office to check that somebody is eating.
+- **Pass:** The account lists a student whose first semester begins next autumn, along with a working emergency number that rings from inside the wall. The housing manager wants to classify the charge as fraud; the cashier insists they call before they punish anyone. The registrar records the discrepancy. No one gets to call the invisible student a criminal simply because the records came first.
+- **Miss:** The meal card is deactivated before you can copy its full history. That evening a dinner tray still vanishes at the wall. The manager announces the matter closed and orders the shoes removed. The cashier refuses to throw out anybody's belongings and asks you to help find a safe way to leave another meal. You lost the accounting trail, not your responsibility to the student.
 
 **Option B, assist without a check:** Arrange a welfare check that gives the unseen resident privacy and a safe way to answer
 
-- **Result:** The resident adviser leaves food, a written question and the number for a real person. By morning the reply says THANK YOU FOR KNOCKING. Nobody tries to tear down the wall.
+- **Result:** You persuade the adviser to leave a meal, a private response card and the number of an actual person who will answer. The manager wants a camera installed; the adviser says that would be a condition, not an invitation. In the morning, the card reads THANK YOU FOR KNOCKING. The student has not appeared, but someone finally behaved as though they existed.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-017`: A missing dorm room has a remarkably active meal plan. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-017/2`: The housing office insists Dorm 404 does not exist. Someone leaves shoes against the blank wall, a meal card is charged three times a day, and a resident adviser has been told to stop asking after the missing student. The shoes are still wet from the rain. The people and location must match the opening.
-- `outcomes/wh-017/investigate-success`: The account belongs to a student enrolled next autumn, with an emergency-contact number that rings inside the wall. The registrar logs the anomaly rather than inventing a disciplinary case. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-017/investigate-failure`: The card is deactivated and dinner appears at the wall anyway. A cafeteria worker signs the receipt and asks the housing office to check that somebody is eating. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-017/care-success`: The resident adviser leaves food, a written question and the number for a real person. By morning the reply says THANK YOU FOR KNOCKING. Nobody tries to tear down the wall. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-017/2`: The housing office insists Dorm 404 does not exist, although the meal plan is charged three times a day and somebody keeps setting wet shoes against the blank wall. 'I did the welfare report,' the resident adviser says. 'They told me to stop looking for a student who isn't on the roster.' A cashier has started slipping an extra apple into each bag. 'A person can be hungry,' she says, 'even when the computer says they aren't.' The people and location must match the opening.
+- `outcomes/wh-017/investigate-success`: The account lists a student whose first semester begins next autumn, along with a working emergency number that rings from inside the wall. The housing manager wants to classify the charge as fraud; the cashier insists they call before they punish anyone. The registrar records the discrepancy. No one gets to call the invisible student a criminal simply because the records came first. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-017/investigate-failure`: The meal card is deactivated before you can copy its full history. That evening a dinner tray still vanishes at the wall. The manager announces the matter closed and orders the shoes removed. The cashier refuses to throw out anybody's belongings and asks you to help find a safe way to leave another meal. You lost the accounting trail, not your responsibility to the student. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-017/care-success`: You persuade the adviser to leave a meal, a private response card and the number of an actual person who will answer. The manager wants a camera installed; the adviser says that would be a condition, not an invitation. In the morning, the card reads THANK YOU FOR KNOCKING. The student has not appeared, but someone finally behaved as though they existed. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_017_verified`, `wh_017_partial`, `wh_017_care` (mutually exclusive results of this card).
 

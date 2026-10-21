@@ -103,24 +103,24 @@
 
 **Opening narration:** An unseen panel awards prizes based on regrets, not flavor.
 
-**Escalation:** A second, invisible jury is tasting pies at the Ferndale fair. Its scores are based on whether the baker has confessed a regret, not whether the crust can support its own weight. One competitor is thirteen, and the ghostly judges are demanding a deeply personal statement.
+**Escalation:** An invisible jury has joined the Ferndale pie contest. It scores each baker's most intimate regret rather than the crust, and now insists that a thirteen-year-old competitor describe something she has never told her family. 'My pie has blackberries,' she says. 'That's all I entered.' The fair organizer is afraid to disqualify judges nobody can see, because half the crowd has started cheering for the supernatural round.
 
 **Option A, investigate (visible 9 check):** Ask the invisible judges to reveal their rules and who authorized them
 
-- **Pass:** The secret scorecards describe a fair that will take place next year. A living organizer confirms nobody has approved those categories and moves the sheets to the lost-and-found.
-- **Miss:** A pie tin rings loudly and the unseen judges walk out without legs. The bakers retain their entry numbers and enough witnesses to demand another tasting.
+- **Pass:** You uncover the second jury's scorecards, already dated for next year's contest. An organizer admits she let the strange judges take a table because they promised publicity. The young baker asks whether she can withdraw her statement without withdrawing her pie. You give the organizer the rules and make her answer in front of the entrants. The invisible jury protests that secrets add flavor.
+- **Miss:** A pie tin rings like a dinner gong, and the invisible jury departs with its scorecards. You cannot prove which baker was pressured into revealing what. The organizer proposes keeping the mysterious rankings because people enjoyed the show. The thirteen-year-old asks her to explain why a grown-up's entertainment should count more than a child's privacy. The room gets very quiet.
 
 **Option B, assist without a check:** Let the bakers withdraw personal stories while keeping their pies in the contest
 
-- **Result:** The living panel awards prizes for flavor and a crust that survives the journey. Nobody has to turn private grief into an ingredient.
+- **Result:** You ask the bakers, not the audience, which contest they actually entered. They agree to a second tasting using the announced rules, with private stories kept private. The invisible jury calls this censorship from somewhere under the table. The youngest competitor wins a ribbon for a crust that survives the trip home and tells everyone absolutely nothing about her diary.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-084`: An unseen panel awards prizes based on regrets, not flavor. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-084/2`: A second, invisible jury is tasting pies at the Ferndale fair. Its scores are based on whether the baker has confessed a regret, not whether the crust can support its own weight. One competitor is thirteen, and the ghostly judges are demanding a deeply personal statement. The people and location must match the opening.
-- `outcomes/wh-084/investigate-success`: The secret scorecards describe a fair that will take place next year. A living organizer confirms nobody has approved those categories and moves the sheets to the lost-and-found. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-084/investigate-failure`: A pie tin rings loudly and the unseen judges walk out without legs. The bakers retain their entry numbers and enough witnesses to demand another tasting. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-084/care-success`: The living panel awards prizes for flavor and a crust that survives the journey. Nobody has to turn private grief into an ingredient. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-084/2`: An invisible jury has joined the Ferndale pie contest. It scores each baker's most intimate regret rather than the crust, and now insists that a thirteen-year-old competitor describe something she has never told her family. 'My pie has blackberries,' she says. 'That's all I entered.' The fair organizer is afraid to disqualify judges nobody can see, because half the crowd has started cheering for the supernatural round. The people and location must match the opening.
+- `outcomes/wh-084/investigate-success`: You uncover the second jury's scorecards, already dated for next year's contest. An organizer admits she let the strange judges take a table because they promised publicity. The young baker asks whether she can withdraw her statement without withdrawing her pie. You give the organizer the rules and make her answer in front of the entrants. The invisible jury protests that secrets add flavor. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-084/investigate-failure`: A pie tin rings like a dinner gong, and the invisible jury departs with its scorecards. You cannot prove which baker was pressured into revealing what. The organizer proposes keeping the mysterious rankings because people enjoyed the show. The thirteen-year-old asks her to explain why a grown-up's entertainment should count more than a child's privacy. The room gets very quiet. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-084/care-success`: You ask the bakers, not the audience, which contest they actually entered. They agree to a second tasting using the announced rules, with private stories kept private. The invisible jury calls this censorship from somewhere under the table. The youngest competitor wins a ribbon for a crust that survives the trip home and tells everyone absolutely nothing about her diary. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_084_verified`, `wh_084_partial`, `wh_084_care` (mutually exclusive results of this card).
 

@@ -10,24 +10,24 @@
 
 **Opening narration:** A tiny landlord charges rent to every crab and makes the player mediator.
 
-**Escalation:** At low tide a crab landlord posts EVICTED signs on stones occupied by hermit crabs. The rent is moonlight, apparently collected in shells. A child wants to save the smallest tenants by moving them into a bucket, a plan that would dry them out.
+**Escalation:** At low tide a crab landlord posts EVICTED notices on the borrowed shells of three hermit crabs. The rent is moonlight, collected in empty limpet shells, and a child has already fetched a bucket to rescue the smallest tenant. 'You can't make somebody a refugee to prove you're kind,' the tide-pool volunteer says, gently taking the bucket away. A bigger crab raises one claw at the word tenant, in either agreement or complaint.
 
 **Option A, investigate (visible 7 check):** Read the lease terms and watch the animals from outside the pool
 
-- **Pass:** The landlord's moonlight ledger corresponds to a real drainage problem upstream. A tidepool volunteer records it; no crab needs relocating.
-- **Miss:** The lease dissolves into saltwater before you finish. The volunteer has photographed an exposed channel that needs attention before the next tide.
+- **Pass:** The tiny rent ledger corresponds to a real drainage blockage upstream. The volunteer points out which channel is still getting fresh water, and the child draws it instead of moving the animals. The crab landlord claims to have filed the report months ago, then tries to charge a research fee. You have evidence of the drainage problem, not permission to rearrange the pool.
+- **Miss:** The lease dissolves when the tide surges, taking your careful list of tenants with it. The child wants to scoop the crabs out before they are washed away. The volunteer stops both of you: this tide is their home, not your emergency. You cannot prove what the landlord charged, but a photograph of the dry upstream channel survives.
 
 **Option B, assist without a check:** Keep hands out of the pool and help the child build a visitor sign
 
-- **Result:** The child draws a diagram of the tenants' actual homes. The landlord stamps the sign APPROVED and attempts to charge the volunteer a deposit.
+- **Result:** You help the child write a visitor sign that warns people to keep their hands out of the pool, even when the occupants appear to be arguing with their landlord. The child is disappointed not to save anybody personally. Then the smallest crab chooses a new shell by itself. The landlord stamps the sign APPROVED and sends the volunteer a bill for stationery.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-022`: A tiny landlord charges rent to every crab and makes the player mediator. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-022/2`: At low tide a crab landlord posts EVICTED signs on stones occupied by hermit crabs. The rent is moonlight, apparently collected in shells. A child wants to save the smallest tenants by moving them into a bucket, a plan that would dry them out. The people and location must match the opening.
-- `outcomes/wh-022/investigate-success`: The landlord's moonlight ledger corresponds to a real drainage problem upstream. A tidepool volunteer records it; no crab needs relocating. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-022/investigate-failure`: The lease dissolves into saltwater before you finish. The volunteer has photographed an exposed channel that needs attention before the next tide. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-022/care-success`: The child draws a diagram of the tenants' actual homes. The landlord stamps the sign APPROVED and attempts to charge the volunteer a deposit. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-022/2`: At low tide a crab landlord posts EVICTED notices on the borrowed shells of three hermit crabs. The rent is moonlight, collected in empty limpet shells, and a child has already fetched a bucket to rescue the smallest tenant. 'You can't make somebody a refugee to prove you're kind,' the tide-pool volunteer says, gently taking the bucket away. A bigger crab raises one claw at the word tenant, in either agreement or complaint. The people and location must match the opening.
+- `outcomes/wh-022/investigate-success`: The tiny rent ledger corresponds to a real drainage blockage upstream. The volunteer points out which channel is still getting fresh water, and the child draws it instead of moving the animals. The crab landlord claims to have filed the report months ago, then tries to charge a research fee. You have evidence of the drainage problem, not permission to rearrange the pool. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-022/investigate-failure`: The lease dissolves when the tide surges, taking your careful list of tenants with it. The child wants to scoop the crabs out before they are washed away. The volunteer stops both of you: this tide is their home, not your emergency. You cannot prove what the landlord charged, but a photograph of the dry upstream channel survives. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-022/care-success`: You help the child write a visitor sign that warns people to keep their hands out of the pool, even when the occupants appear to be arguing with their landlord. The child is disappointed not to save anybody personally. Then the smallest crab chooses a new shell by itself. The landlord stamps the sign APPROVED and sends the volunteer a bill for stationery. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_022_verified`, `wh_022_partial`, `wh_022_care` (mutually exclusive results of this card).
 

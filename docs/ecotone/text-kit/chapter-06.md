@@ -72,24 +72,24 @@
 
 **Opening narration:** A judge gives perfect scores for violating Earth's physics.
 
-**Escalation:** A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it.
+**Escalation:** A judge at the Kinetic Championship gives perfect marks to sculptures that ignore gravity. A crew of exhausted welders points out that their own wheels still have to touch the road and carry a rider home safely. 'The rubric is perfectly clear,' the judge says, holding up a blank sheet. One of the impossible vehicles floats gently above a broken axle, while the mechanics who built the ordinary ones gather beneath it in case something falls.
 
 **Option A, investigate (visible 9 check):** Ask for one measurable criterion and insist it applies to every entrant
 
-- **Pass:** The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster.
-- **Miss:** The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt.
+- **Pass:** When pressed to name one measurable criterion, the judge produces a scoring chart that accurately predicts a loose wheel at the bay crossing. The builders halt the dangerous sculpture long enough to fix it. The judge refuses to award safety points, calling them 'a provincial limitation.' You save the warning and ask the crew what they think the competition is for, rather than letting the judge rewrite the race while anyone is aboard.
+- **Miss:** The judge demonstrates the supposed rule by sending a test wheel into the air. It vanishes without tracks or witnesses. The ordinary builders demand equal marks, but you cannot certify a trick nobody can reproduce. The judge calls your caution cowardice; a mechanic asks you to check the axles before the next launch. Uncertainty has a practical use even when it cannot win an argument.
 
 **Option B, assist without a check:** Help the competitors draft fair judging rules that can survive an absurd race
 
-- **Result:** The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves.
+- **Result:** You help the riders write rules that reward ingenuity while still requiring working brakes, disclosed risks and a way home for the crews. The floating entrants remain welcome if they can explain how they will rescue an injured rider. One builder complains this ruins the magic. 'No,' says a welder, wiping grease from her face. 'It means we all get to see tomorrow.'
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-103`: A judge gives perfect scores for violating Earth's physics. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-103/2`: A judge gives perfect marks to sculptures that ignore gravity. The ordinary builders object because their wheels, unlike everyone else's, must still touch the road. The judge insists the rubric is clear and refuses to show it. The people and location must match the opening.
-- `outcomes/wh-103/investigate-success`: The scoring sheet predicts a loose wheel at the bay crossing. The crew checks the axle first; the judge gives them no points for avoiding disaster. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-103/investigate-failure`: The judge's demonstration leaves neither tracks nor witnesses. You record the failed test instead of awarding it the benefit of a supernatural doubt. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-103/care-success`: The organizers publish rules rewarding practical ingenuity and crew safety. The impossible vehicles remain welcome, but no longer exempt from explaining themselves. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-103/2`: A judge at the Kinetic Championship gives perfect marks to sculptures that ignore gravity. A crew of exhausted welders points out that their own wheels still have to touch the road and carry a rider home safely. 'The rubric is perfectly clear,' the judge says, holding up a blank sheet. One of the impossible vehicles floats gently above a broken axle, while the mechanics who built the ordinary ones gather beneath it in case something falls. The people and location must match the opening.
+- `outcomes/wh-103/investigate-success`: When pressed to name one measurable criterion, the judge produces a scoring chart that accurately predicts a loose wheel at the bay crossing. The builders halt the dangerous sculpture long enough to fix it. The judge refuses to award safety points, calling them 'a provincial limitation.' You save the warning and ask the crew what they think the competition is for, rather than letting the judge rewrite the race while anyone is aboard. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-103/investigate-failure`: The judge demonstrates the supposed rule by sending a test wheel into the air. It vanishes without tracks or witnesses. The ordinary builders demand equal marks, but you cannot certify a trick nobody can reproduce. The judge calls your caution cowardice; a mechanic asks you to check the axles before the next launch. Uncertainty has a practical use even when it cannot win an argument. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-103/care-success`: You help the riders write rules that reward ingenuity while still requiring working brakes, disclosed risks and a way home for the crews. The floating entrants remain welcome if they can explain how they will rescue an injured rider. One builder complains this ruins the magic. 'No,' says a welder, wiping grease from her face. 'It means we all get to see tomorrow.' Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_103_verified`, `wh_103_partial`, `wh_103_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A customary race bribe becomes sentient and offers a better deal.
 
-**Escalation:** A traditional race bribe has developed a voice and promises to reverse tomorrow's disputed judging in exchange for cheers. A young team built its sculpture from donated wheels and cannot afford a protest fee, let alone a sentient favor.
+**Escalation:** At the Kinetic judges' table, a traditional costume bribe has developed a voice and offers to reverse tomorrow's scores in exchange for louder applause. A young crew with donated bicycle wheels cannot afford the official protest fee, much less a favor with its own legal opinions. 'I can make you winners,' the bribe whispers. Their captain looks at the patched vehicle and says, 'Could you make us paid?' The judges are pretending not to hear any of this.
 
 **Option A, investigate (visible 9 check):** Check the stated judging rules and ask how the bribe claims to change them
 
-- **Pass:** The bribe quotes a rule that was never adopted. You bring the real scoring sheet to the teams before rumor becomes an official result.
-- **Miss:** The object vanishes when the chair arrives. Its promises survive in three accounts that contradict one another; the actual scores can still be checked.
+- **Pass:** You compare the bribe's legal claims against the published rulebook and discover its supposed appeal clause was never adopted. The young crew asks you to read the real judging sheet aloud, including the points they genuinely lost. They are furious, but now they know what to contest. The bribe calls you a terrible negotiator and starts bidding for a different audience.
+- **Miss:** The bribe vanishes when the chair walks over, leaving three contradictory promises in the witnesses' mouths. The crew wants you to repeat the most generous version, since nobody can prove it false. You cannot certify the deal; telling the truth will disappoint people who badly need a break. You show them the actual scores anyway and help them decide whether an appeal is worth the cost.
 
 **Option B, assist without a check:** Help the young team file a fair objection without buying an advantage
 
-- **Result:** A volunteer finds the appeal form and waives no rule for anyone. The bribe sulks in a costume pocket, outbid by transparent paperwork.
+- **Result:** You help the young team ask the judges for the same written appeals process available to richer crews. A volunteer offers to pay the filing fee without buying the result. The team makes its case on the merits and loses one disputed point but keeps its name in the record. The sentient bribe sulks in a costume pocket, apparently offended that nobody wanted to win quite badly enough.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-109`: A customary race bribe becomes sentient and offers a better deal. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-109/2`: A traditional race bribe has developed a voice and promises to reverse tomorrow's disputed judging in exchange for cheers. A young team built its sculpture from donated wheels and cannot afford a protest fee, let alone a sentient favor. The people and location must match the opening.
-- `outcomes/wh-109/investigate-success`: The bribe quotes a rule that was never adopted. You bring the real scoring sheet to the teams before rumor becomes an official result. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-109/investigate-failure`: The object vanishes when the chair arrives. Its promises survive in three accounts that contradict one another; the actual scores can still be checked. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-109/care-success`: A volunteer finds the appeal form and waives no rule for anyone. The bribe sulks in a costume pocket, outbid by transparent paperwork. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-109/2`: At the Kinetic judges' table, a traditional costume bribe has developed a voice and offers to reverse tomorrow's scores in exchange for louder applause. A young crew with donated bicycle wheels cannot afford the official protest fee, much less a favor with its own legal opinions. 'I can make you winners,' the bribe whispers. Their captain looks at the patched vehicle and says, 'Could you make us paid?' The judges are pretending not to hear any of this. The people and location must match the opening.
+- `outcomes/wh-109/investigate-success`: You compare the bribe's legal claims against the published rulebook and discover its supposed appeal clause was never adopted. The young crew asks you to read the real judging sheet aloud, including the points they genuinely lost. They are furious, but now they know what to contest. The bribe calls you a terrible negotiator and starts bidding for a different audience. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-109/investigate-failure`: The bribe vanishes when the chair walks over, leaving three contradictory promises in the witnesses' mouths. The crew wants you to repeat the most generous version, since nobody can prove it false. You cannot certify the deal; telling the truth will disappoint people who badly need a break. You show them the actual scores anyway and help them decide whether an appeal is worth the cost. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-109/care-success`: You help the young team ask the judges for the same written appeals process available to richer crews. A volunteer offers to pay the filing fee without buying the result. The team makes its case on the merits and loses one disputed point but keeps its name in the record. The sentient bribe sulks in a costume pocket, apparently offended that nobody wanted to win quite badly enough. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_109_verified`, `wh_109_partial`, `wh_109_care` (mutually exclusive results of this card).
 

@@ -146,6 +146,23 @@
     </header>
 
     <div
+      v-if="!showHeader && activeGroup && !isRecycleBinOpen && !props.dropdownMode"
+      class="flex shrink-0 items-center justify-end gap-2"
+    >
+      <button
+        type="button"
+        class="kr-btn-xs"
+        :class="bulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
+        :aria-pressed="bulkSelectEnabled"
+        :disabled="isBatchWorking"
+        @click="toggleBulkSelect"
+      >
+        <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
+        {{ bulkSelectEnabled ? 'Selecting' : 'Select images' }}
+      </button>
+    </div>
+
+    <div
       v-if="errorMessage"
       class="shrink-0 flex items-center gap-2 kr-note kr-note-error rounded-xl px-3 py-2 text-xs"
     >
@@ -388,7 +405,7 @@
             >
               <span v-if="isBatchWorking" class="kr-spinner-xs" />
               <Icon v-else name="kind-icon:trash" class="kr-icon-3-5" />
-              Delete
+              Move to Recycle Bin
             </button>
           </div>
         </div>
@@ -592,6 +609,7 @@ import { useCollectionStore } from '@/stores/collectionStore'
 import { ErrorType, useErrorStore } from '@/stores/errorStore'
 import { useRecycleBinStore } from '@/stores/recycleBinStore'
 import { useUserStore } from '@/stores/userStore'
+import { recycleGalleryImages } from '@/utils/artGalleryBulkRecycle'
 
 type BatchFlagValue = 'keep' | 'true' | 'false'
 type ViewSize = GalleryDensity
@@ -1506,8 +1524,8 @@ async function applySelectedImageFlags() {
 }
 
 async function deleteSelectedImages() {
-  if (!canBatchModifyImages.value) return
-  const ids = [...selectedImageIds.value]
+  if (!canBatchModifyImages.value || isBatchWorking.value) return
+  const ids = selectedImages.value.map((image) => image.id)
   const confirmed = window.confirm(
     `Move ${ids.length} selected image${ids.length === 1 ? '' : 's'} to the Recycle Bin? You can restore them from there.`,
   )
@@ -1517,25 +1535,32 @@ async function deleteSelectedImages() {
   successMessage.value = ''
   isBatchWorking.value = true
   try {
-    await runLimited(ids, 3, async (imageId) => {
-      const deleted = await artStore.deleteArtImage(imageId)
-      if (!deleted) throw new Error(`Failed to delete image #${imageId}.`)
+    const result = await recycleGalleryImages(
+      ids,
+      (imageId) => artStore.deleteArtImage(imageId),
+    )
+
+    for (const imageId of result.recycledIds) {
       const next = { ...hydratedImages.value }
       delete next[imageId]
       hydratedImages.value = next
-    })
-
+    }
     if (
       selectedImageForOverlay.value &&
-      ids.includes(selectedImageForOverlay.value.id)
+      result.recycledIds.includes(selectedImageForOverlay.value.id)
     ) {
       selectedImageForOverlay.value = null
     }
-    selectedImageIds.value = []
-    successMessage.value = `Moved ${ids.length} image${ids.length === 1 ? '' : 's'} to the Recycle Bin.`
+    selectedImageIds.value = result.failedIds
+    if (result.recycledIds.length) {
+      successMessage.value = `Moved ${result.recycledIds.length} image${result.recycledIds.length === 1 ? '' : 's'} to the Recycle Bin.`
+    }
+    if (result.failedIds.length) {
+      errorMessage.value = `Could not move ${result.failedIds.length} image${result.failedIds.length === 1 ? '' : 's'} (#${result.failedIds.join(', #')}). They remain selected; retry when ready.`
+    }
     await refreshBrowseData()
   } catch (error) {
-    const message = getErrorMessage(error, 'Failed to delete selected images.')
+    const message = getErrorMessage(error, 'Failed to refresh the gallery.')
     errorMessage.value = message
     errorStore.setError(ErrorType.NETWORK_ERROR, message)
   } finally {

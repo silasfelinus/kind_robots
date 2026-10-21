@@ -1589,3 +1589,5 @@ const playStore = readFileSync('stores/ecotoneStore.ts', 'utf8')
 assert.ok(!/artStyle/.test(playStore), 'the style never enters the run')
 
 console.log('Ecotone contract passed')
+
+import './verifyEcotoneAdversarial.test'

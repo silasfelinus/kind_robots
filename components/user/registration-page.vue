@@ -280,22 +280,37 @@ const register = async () => {
       password: password.value || undefined,
     })
 
-    if (!registerResponse.success)
-      throw new Error(registerResponse.message || 'Registration failed.')
+    if (!registerResponse.success) {
+      errorStore.setError(
+        ErrorType.REGISTRATION_ERROR,
+        `Registration failed: ${registerResponse.message || 'Please try again.'}`,
+      )
+      return
+    }
 
-    // Automatically log the user in after registration
-    const loginResponse = await userStore.login({
-      username: username.value,
-      password: password.value || undefined,
-    })
+    // Only the login response establishes the session and supplies its token.
+    const loginResponse = await userStore.login(
+      {
+        username: username.value,
+        password: password.value || undefined,
+      },
+      { newlyRegistered: true },
+    )
 
-    if (!loginResponse.success)
-      throw new Error(loginResponse.message || 'Login failed.')
+    if (!loginResponse.success) {
+      errorStore.setError(
+        ErrorType.REGISTRATION_ERROR,
+        `Account created, but automatic sign-in failed: ${loginResponse.message || 'Please sign in manually.'}`,
+      )
+      return
+    }
+
+    await navigateTo('/dashboard')
   } catch (e: unknown) {
     const message =
       e instanceof Error
-        ? `Registration or login failed: ${e.message}`
-        : 'An unknown error occurred.'
+        ? e.message
+        : 'An unexpected registration error occurred.'
     errorStore.setError(ErrorType.REGISTRATION_ERROR, message)
   } finally {
     isLoading.value = false

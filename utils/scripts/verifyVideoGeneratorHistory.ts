@@ -96,7 +96,10 @@ assert.match(resubmitRoute, /authAndGate\(event/)
 assert.match(resubmitRoute, /prepareArtJobRetryPayload/)
 assert.match(resubmitRoute, /await gate\.commit/)
 const source = readFileSync('pages/play/video-generator.vue', 'utf8')
-const musicStudio = readFileSync('components/music-video/music-video-studio.vue', 'utf8')
+const musicStudio = readFileSync(
+  'components/music-video/music-video-studio.vue',
+  'utf8',
+)
 const legacyMusicRoute = readFileSync('pages/play/music-video.vue', 'utf8')
 const placements = readFileSync('utils/projectPlacements.ts', 'utf8')
 const videoNavigation = readFileSync(

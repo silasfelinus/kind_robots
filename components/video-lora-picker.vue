@@ -21,6 +21,14 @@
           video LoRAs remain available below them.
         </p>
         <div class="flex flex-wrap items-center gap-1">
+          <button
+            type="button"
+            class="kr-btn-ghost-xs-plain"
+            :disabled="refreshing"
+            @click="refreshResources"
+          >
+            {{ refreshing ? 'Refreshing…' : 'Refresh LoRAs' }}
+          </button>
         <div class="join" aria-label="LoRA browser size">
           <button
             type="button"
@@ -155,7 +163,7 @@
     </p>
 
     <div
-      v-if="resourceStore.isLoading && !resourceStore.hasLoaded"
+      v-if="refreshing && !resourceStore.hasLoaded"
       class="flex min-h-32 items-center justify-center rounded-lg bg-base-200"
     >
       <span class="kr-spinner-sm" />
@@ -287,6 +295,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useResourceStore } from '@/stores/resourceStore'
+import { useUserStore } from '@/stores/userStore'
 import { MAX_LORAS_PER_JOB } from '@/utils/loraLimits'
 import {
   loraTriggerTerms,
@@ -318,6 +327,9 @@ const emit = defineEmits<{
 }>()
 
 const resourceStore = useResourceStore()
+const userStore = useUserStore()
+const refreshing = ref(false)
+let refreshQueued = false
 const search = ref('')
 const browserSize = ref<'comfortable' | 'expanded'>('comfortable')
 
@@ -370,9 +382,32 @@ const filteredResources = computed(() => {
   )
 })
 
-onMounted(async () => {
-  if (!resourceStore.hasLoaded) await resourceStore.getResources()
+onMounted(() => {
+  void refreshResources()
 })
+
+watch(
+  () => userStore.showMature,
+  () => {
+    void refreshResources()
+  },
+)
+
+async function refreshResources(): Promise<void> {
+  if (refreshing.value) {
+    refreshQueued = true
+    return
+  }
+  refreshing.value = true
+  try {
+    do {
+      refreshQueued = false
+      await resourceStore.getResources(true)
+    } while (refreshQueued)
+  } finally {
+    refreshing.value = false
+  }
+}
 
 // Engine/model-family/maturity/access changes prune invalid picks immediately. A WAN LoRA
 // never remains silently attached when the user switches to LTX, and vice versa.

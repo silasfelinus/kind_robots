@@ -2687,7 +2687,9 @@ assert.deepEqual([...peaceFlags].sort(), [
 const setFlags = new Set([
   ...DAYS.flatMap((def) =>
     def.audiences.flatMap((a) =>
-      a.options.flatMap((o) => o.effects.flags ?? []),
+      [...a.options, ...(a.beats ?? []).flatMap((b) => b.options)].flatMap(
+        (o) => o.effects.flags ?? [],
+      ),
     ),
   ),
   ...[
@@ -4303,7 +4305,9 @@ for (const def of DAYS)
   }
   assert.ok(billed(['rain-covenant']), 'a covenant never settled')
   assert.ok(billed(['covenant-broken']), 'a covenant broken')
-  assert.ok(billed(['covenant-paid-in-runners']), 'a season of runners ends')
+  // Lead decision (t-036): a covenant paid in runners is not billed in
+  // brass. A person comes due instead: Linnet at the gate.
+  assert.ok(!billed(['covenant-paid-in-runners']), 'runners are not billed')
   assert.ok(!billed(['covenant-bought-out']), 'bought out: owes nothing')
   assert.ok(!billed(['d20-pastures-ceded']), 'settled in pastures')
   assert.ok(
@@ -4823,6 +4827,320 @@ for (const def of DAYS)
     /\.eod-bar \.tooltip-bottom::after\s*\{\s*transform: translateX\(-50%\)/,
     'the tooltip tail stays on its button when the bubble shifts',
   )
+}
+
+// --- t-036: Act II playtest rewrites ------------------------------------------
+{
+  const answer = (run: FortressRun, id: string, ...path: string[]) => {
+    for (const option of path) run = chooseAudienceOption(run, id, option).run
+    return run
+  }
+  const lineTexts = (run: FortressRun, id: string) => {
+    const audience = audiencesToday(run).find((a) => a.id === id)!
+    return audienceScene(run, audience).lines.map(lineText).join(' ')
+  }
+  const seen = (run: FortressRun, id: string) =>
+    audiencesToday(run).some((a) => a.id === id)
+  const optionIds = (run: FortressRun, id: string) =>
+    audienceScene(
+      run,
+      audiencesToday(run).find((a) => a.id === id)!,
+    )
+      .options.filter((option) => optionVisible(run, option))
+      .map((option) => option.id)
+
+  // 1. Clause eleven can be read for free, and reading it keeps the scene open.
+  const d11 = { ...onDay(1, 11), brass: 100 }
+  const read = answer(d11, 'd11-rainmaker', 'ask-service', 'read-eleven')
+  assert.equal(read.brass, d11.brass, 'reading the clause costs nothing')
+  assert.ok(!read.audiencesHeard.includes('d11-rainmaker'), 'still open')
+  assert.match(lineTexts(read, 'd11-rainmaker'), /counted by the Conclave/)
+  assert.ok(optionIds(read, 'd11-rainmaker').includes('amend-term'))
+  // Tamsin reads it aloud and the court still decides.
+  const tamsinDay = { ...withCast(4, 11, ['F001', 'F011']), brass: 100 }
+  for (const path of [['tamsin'], ['ask-service', 'tamsin']]) {
+    const reading = answer(tamsinDay, 'd11-rainmaker', ...path)
+    assert.ok(!reading.audiencesHeard.includes('d11-rainmaker'), 'Tamsin')
+    assert.match(lineTexts(reading, 'd11-rainmaker'), /I was counted/)
+    const signed = answer(reading, 'd11-rainmaker', 'covenant')
+    assert.ok(
+      signed.flags.includes('rain-covenant') &&
+        signed.flags.includes('bonded-runner-clause'),
+      'Tamsin’s reading and a signature can stand together',
+    )
+    // ...so Day 20's question about the clause she read can be asked.
+    const day20 = onDay(1, 20, { flags: signed.flags })
+    assert.ok(optionIds(day20, 'd20-covenant-due').includes('clause-eleven'))
+  }
+  // A clause read yourself has its own Day 20 question.
+  const selfRead = answer(read, 'd11-rainmaker', 'covenant')
+  assert.ok(
+    optionIds(
+      onDay(1, 20, { flags: selfRead.flags }),
+      'd20-covenant-due',
+    ).includes('ask-eleven'),
+  )
+  // A season fixed in the margin on Day 11 is honoured on Day 20, and closes
+  // the covenant: nothing more is owed on Day 34.
+  const termed = answer(read, 'd11-rainmaker', 'amend-term')
+  assert.ok(termed.flags.includes('d11-term-fixed'))
+  const termDay = onDay(1, 20, { flags: termed.flags })
+  assert.ok(optionIds(termDay, 'd20-covenant-due').includes('hold-term'))
+  const kept = answer(termDay, 'd20-covenant-due', 'hold-term', 'keep-term')
+  assert.ok(kept.flags.includes('d20-runners-term-fixed'))
+  assert.ok(!kept.flags.includes('rain-covenant'))
+  // Rain bought for one season is remembered, and can be pledged to the Bell.
+  const bought = answer(d11, 'd11-rainmaker', 'one-season')
+  assert.ok(bought.flags.includes('d11-rain-bought'))
+  assert.ok(
+    optionIds(onDay(1, 19, { flags: bought.flags }), 'd19-bell-vote').includes(
+      'water',
+    ),
+  )
+  assert.match(
+    epilogueFor({ ...onDay(1, 50), flags: bought.flags }, 'open-roads').find(
+      (entry) => entry.subject.id === 'crows',
+    )!.variant.text,
+    /bought one season/,
+  )
+
+  // 2. The rain keeps one clock: it breaks on the Day 20 dawn, or never.
+  const rainReport = (flags: string[]) =>
+    dayBriefings(onDay(1, 20, { flags }))!.find((b) => b.id === 'rains-coming')!
+  assert.match(rainReport(['d11-rain-signed']).text, /broke over the Ford/)
+  assert.match(rainReport(['d11-rain-bought']).text, /broke over the Ford/)
+  assert.match(rainReport(['no-rain']).text, /stop at the tower’s border/)
+  assert.doesNotMatch(rainReport([]).text, /within two days/)
+  assert.match(dueDef('rain-covenant')!.line, /before dawn/)
+  const dam = questDef('q-d20-ford-dam')!
+  assert.doesNotMatch(dam.summary, /covenant or not/)
+  assert.match(
+    questOutcomeText({ ...onDay(1, 21), flags: ['no-rain'] }, dam, 'expired'),
+    /the kind the Conclave does not sell/,
+  )
+
+  // 3. How the covenant was settled is what later days remember.
+  const paid = (flags: string[]) => {
+    const eve = onDay(1, 33, {
+      flags,
+      dues: [
+        { id: 'crow-debt', day: 34, from: 20 },
+        { id: 'runner-at-gate', day: 34, from: 20 },
+      ],
+    })
+    return finishDay(eve).run
+  }
+  // A covenant paid in runners sends a person to the gate, not a bill.
+  const gate = paid(['covenant-paid-in-runners'])
+  assert.ok(seen(gate, 'd34-runner-at-gate'))
+  assert.ok(!seen(gate, 'd34-crow-debt'), 'no brass bill on top')
+  assert.ok(!seen(paid(['rain-covenant']), 'd34-runner-at-gate'))
+  assert.ok(seen(paid(['rain-covenant']), 'd34-crow-debt'), 'brass bills stay')
+  assert.ok(
+    !seen(
+      paid(['covenant-paid-in-runners', 'd20-runners-term-fixed']),
+      'd34-runner-at-gate',
+    ),
+    'a fixed term sends nobody down',
+  )
+  assert.match(dayBriefings(gate)![1]!.text, /runner in a Conclave sash/)
+  // Buy-out comes first (the old brass flow), then the harder roads.
+  const gateOptions = audiencesToday(gate).find(
+    (a) => a.id === 'd34-runner-at-gate',
+  )!.options
+  assert.deepEqual(
+    gateOptions.map((o) => o.id),
+    ['buy-out', 'leave', 'tamsin-goes'],
+  )
+  assert.equal(gateOptions[0]!.requires?.cost, 60, 'the old bill, in a person')
+  assert.ok(
+    (gateOptions[0]!.effects.affinity?.['storm-crows'] ?? 0) < 0,
+    'buying her out early cools the Crows',
+  )
+  assert.ok(!optionVisible(gate, gateOptions[2]!), 'no Tamsin, no swap')
+  const withTamsin = paid(['covenant-paid-in-runners'])
+  withTamsin.roster = [
+    ...withTamsin.roster,
+    { id: 'F011', joinedDay: 1, equipment: {} },
+  ]
+  const swapped = answer(
+    { ...withTamsin, brass: 0 },
+    'd34-runner-at-gate',
+    'tamsin-goes',
+  )
+  assert.equal(
+    swapped.roster.find((s) => s.id === 'F011')?.departed?.why,
+    'dismissed',
+    'Tamsin goes up the Heights in Linnet’s place',
+  )
+  const left = answer({ ...gate, brass: 0 }, 'd34-runner-at-gate', 'leave')
+  assert.ok(left.flags.includes('crow-debt-paid'), 'the term is served')
+  assert.match(
+    epilogueFor({ ...onDay(1, 50), flags: left.flags }, 'open-roads').find(
+      (entry) => entry.subject.id === 'runners',
+    )!.variant.text,
+    /went off the high path/,
+  )
+  const courtGate = paid(['covenant-paid-in-runners', 'd20-court-runners'])
+  assert.match(lineTexts(courtGate, 'd34-runner-at-gate'), /clerk’s girl/)
+  // Day 42 hears the same history the Day 34 gate made.
+  const d42 = (flags: string[]) =>
+    onDay(1, 42, {
+      flags: ['hideout:crow-cave', 'covenant-paid-in-runners', ...flags],
+    })
+  assert.match(
+    lineTexts(d42(left.flags), 'd42-bonded-runners'),
+    /sent her back/,
+  )
+  assert.match(
+    lineTexts(d42(['d20-runners-term-fixed']), 'd42-bonded-runners'),
+    /to the hour/,
+  )
+  assert.doesNotMatch(
+    lineTexts(d42(['d20-court-runners']), 'd42-bonded-runners'),
+    /from the Yard/,
+  )
+  assert.match(
+    epilogueFor(
+      {
+        ...onDay(1, 50),
+        flags: ['covenant-paid-in-runners', 'd20-court-runners'],
+      },
+      'open-roads',
+    ).find((entry) => entry.subject.id === 'runners')!.variant.text,
+    /Lady Vask’s nephew/,
+  )
+  // Brass instead of runners is remembered; pastures ceded keep a pledge.
+  const covenant20 = onDay(1, 20, { flags: ['rain-covenant'], brass: 100 })
+  const boughtOut = answer(covenant20, 'd20-covenant-due', 'pay-brass')
+  assert.ok(boughtOut.dues?.some((due) => due.id === 'crow-substitution'))
+  assert.ok(PLEDGES['storm-crows']!.includes('d20-pastures-ceded'))
+  assert.ok(PLEDGES['hollow-bell']!.includes('wells-shared'))
+  assert.ok(PLEDGES.freeholds!.includes('wells-closed'))
+  // The Yard that lost its brass and its children the same morning says so.
+  const levied = answer(covenant20, 'd20-levy', 'levy-yard')
+  const sent = answer(levied, 'd20-covenant-due', 'send-runners')
+  assert.ok(
+    finishDay(sent).report.events.some((line) =>
+      /Yard gate at dawn/.test(line),
+    ),
+  )
+  const courtSent = answer(
+    levied,
+    'd20-covenant-due',
+    'ask-season',
+    'court-runners',
+  )
+  assert.ok(
+    !finishDay(courtSent).report.events.some((line) =>
+      /Yard gate at dawn/.test(line),
+    ),
+    'not when the court sent its own',
+  )
+
+  // 4. Hollow Bell votes on its history with the crown.
+  const bell = (flags: string[]) => onDay(1, 19, { flags })
+  assert.match(
+    lineTexts(bell(['d13-bell-saboteur-named']), 'd19-bell-vote'),
+    /Hessle boy/,
+  )
+  assert.match(
+    lineTexts(bell(['d18-strangers-walked']), 'd19-bell-vote'),
+    /strangers/,
+  )
+  assert.match(
+    lineTexts(bell(['d13-bell-warned']), 'd19-bell-vote'),
+    /knocks first/,
+  )
+  assert.ok(
+    optionIds(bell(['d13-bell-saboteur-named']), 'd19-bell-vote').includes(
+      'free-miller-son',
+    ),
+  )
+  assert.ok(!optionIds(bell([]), 'd19-bell-vote').includes('free-miller-son'))
+  const speechDay = { ...bell(['d13-bell-warned', 'd18-strangers-walked']) }
+  speechDay.board = [
+    { questId: 'q-d19-bell-speech', postedDay: 19, lastDay: 19 },
+  ]
+  assert.equal(
+    previewQuest(speechDay, 'q-d19-bell-speech', ['F001']).aid.length,
+    2,
+    'what the crown did for the Bell helps its speaker',
+  )
+  // A garrison costs the Watch at the Bell every week, and Day 20 notices.
+  const garrisoned = answer(
+    { ...bell([]), local: { ...bell([]).local, 'gate-watch': 12 } },
+    'd19-bell-vote',
+    'garrison',
+  )
+  assert.ok(garrisoned.dues?.some((due) => due.id === 'bell-garrison'))
+  assert.equal(dueDef('bell-garrison')!.every, 7)
+  assert.match(
+    lineTexts(onDay(1, 20, { flags: garrisoned.flags }), 'd20-levy'),
+    /at Hollow Bell. You put them there yesterday/,
+  )
+
+  // 5. Threats made in Act II come back as dues.
+  const scheduled = (effects: { schedule?: string[] } | undefined) =>
+    effects?.schedule ?? []
+  const sabotage = questDef('q-d13-engine-sabotage')!
+  assert.ok(scheduled(sabotage.rewards.failure).includes('vane-bolt'))
+  assert.ok(scheduled(sabotage.rewards.success).includes('engine-fails'))
+  assert.ok(scheduled(dam.rewards.failure).includes('ford-burrows'))
+  assert.ok(scheduled(dam.expired).includes('ford-burrows'))
+  assert.ok(
+    scheduled(questDef('q-d19-bell-speech')!.expired).includes(
+      'bell-gate-shut',
+    ),
+  )
+  assert.ok(VERGE_SLIGHTS.includes('d16-border-silver-seized'))
+  const hoard = onDay(1, 16, { brass: 100 })
+  const seized = answer(hoard, 'd16-hoarders', 'ask-vask', 'seize-silver')
+  assert.ok(seized.dues?.some((due) => due.id === 'verge-change'))
+  const plum = answer(
+    onDay(1, 20, { flags: seized.flags }),
+    'd20-levy',
+    'ask-riders',
+  )
+  assert.match(lineTexts(plum, 'd20-levy'), /silver that went astray/)
+  const tokens = answer(
+    { ...onDay(1, 18, { flags: ['thistledown-burned'] }), brass: 100 },
+    'd18-strangers',
+    'ask-thistledown',
+    'crown-tokens',
+  )
+  assert.ok(tokens.dues?.some((due) => due.id === 'thistledown-tokens'))
+  assert.equal(dueDef('thistledown-tokens')!.cost, 15, 'the crown answers')
+
+  // 6. Day 12: investigating no longer comes free.
+  const cellars = questDef('q-d12-mirefen-cellars')!
+  assert.ok((cellars.expired.affinity?.['mire-mothers'] ?? 0) < 0)
+  const sworn = answer(onDay(1, 12), 'd12-mire-protection', 'swear-unsearched')
+  assert.ok(sworn.board.some((q) => q.questId === 'q-d12-mirefen-defense'))
+  assert.ok(!sworn.board.some((q) => q.questId === 'q-d12-mirefen-cellars'))
+  assert.ok(
+    sworn.local.lamplight < onDay(1, 12).local.lamplight,
+    'the oath costs',
+  )
+  assert.match(
+    questOutcomeText(
+      { ...onDay(1, 14), flags: ['d12-names-spoken'] },
+      cellars,
+      'success',
+    ),
+    /say aloud/,
+  )
+
+  // 7. Effects agree with their words.
+  const ledgerLevy = audiencesToday(onDay(1, 20))
+    .find((a) => a.id === 'd20-levy')!
+    .options.find((o) => o.id === 'levy-ledger')!
+  assert.ok((ledgerLevy.effects.local?.yard ?? 0) < 0, 'Yard loans go up')
+  const fair = audiencesToday(onDay(1, 18))
+    .find((a) => a.id === 'd18-fair')!
+    .beats!.find((b) => b.id === 'cider')!
+    .options.find((o) => o.id === 'barrels-to-road')!
+  assert.ok(fair.effects.recruitable?.includes('F018'), 'Vesper, for the road')
 }
 
 console.log('Emperor of Dust fortress contract: ok')

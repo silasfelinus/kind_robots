@@ -10,6 +10,7 @@ import type {
   SceneLine,
   SceneVariant,
 } from './types'
+import { D42_RUNNER_VARIANTS } from './actTwo'
 import { MOLE_ASSEMBLY_TURNS_OUT } from './moles'
 
 // Act V, Days 41-50, "The Hideout" (conductor DAY-PLAN.md): the court on the
@@ -2298,6 +2299,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         speaker: 'A runner bonded to the Conclave',
         faction: 'storm-crows',
         requires: { flags: ['hideout:crow-cave', 'covenant-paid-in-runners'] },
+        // Who went up, for how long, and what the Day 34 gate cost (t-036).
+        variants: D42_RUNNER_VARIANTS,
         lines: [
           'A young stoat in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.',
           '“You won’t know me, Majesty. You sent three of us from the Yard to pay for the rain. I was the third.”',

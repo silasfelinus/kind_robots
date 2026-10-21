@@ -341,6 +341,30 @@ for (const id of fifthPassScenes) {
   assert.notEqual(scene.success, scene.helpOutcome)
   assert.notEqual(scene.failure, scene.helpOutcome)
 }
+const companionVoices = ['mara', 'kit', 'juniper', 'cedar'] as const
+for (const id of ['WH-008', 'WH-023', 'WH-065', 'WH-082']) {
+  const card = findCard(id)!
+  const lines = companionVoices.map((companion) =>
+    cardAsides(card, {
+      ...createRun(10, 'reporter'),
+      activeLead: companion,
+    }).join(' '),
+  )
+  assert.ok(
+    lines.every((line) => line.length > 60),
+    `${id} each actual guide has a written point of view`,
+  )
+  assert.equal(
+    new Set(lines).size,
+    4,
+    `${id} four companions disagree or act in distinct voices`,
+  )
+  assert.equal(
+    cardAsides(card, createRun(10, 'reporter')).length,
+    0,
+    `${id} does not invent a companion when the player travels alone`,
+  )
+}
 const costlyThirdWays = [
   'WH-008',
   'WH-023',

@@ -125,14 +125,22 @@
         :disabled="isBatchWorking"
       >
         <option :value="null">Choose collection...</option>
-        <option v-for="option in collectionOptions" :key="option.id" :value="option.id">
+        <option
+          v-for="option in collectionOptions"
+          :key="option.id"
+          :value="option.id"
+        >
           {{ option.label }}
         </option>
       </select>
       <button
         type="button"
         class="kr-btn-xs btn-secondary"
-        :disabled="isBatchWorking || !selectedImageIds.length || !selectedBatchCollectionId"
+        :disabled="
+          isBatchWorking ||
+          !selectedImageIds.length ||
+          !selectedBatchCollectionId
+        "
         @click="addSelectedToCollection"
       >
         <icon name="kind-icon:plus" class="kr-icon-3-5" /> Add to collection
@@ -160,7 +168,11 @@
       <button
         type="button"
         class="kr-btn-xs btn-info"
-        :disabled="isBatchWorking || !selectedImageIds.length || (batchIsPublic === 'keep' && batchIsMature === 'keep')"
+        :disabled="
+          isBatchWorking ||
+          !selectedImageIds.length ||
+          (batchIsPublic === 'keep' && batchIsMature === 'keep')
+        "
         @click="applySelectedImageFlags"
       >
         <icon name="kind-icon:edit" class="kr-icon-3-5" /> Apply edits
@@ -480,7 +492,9 @@ async function runFeedBatch(
 ) {
   if (isBatchWorking.value) return
   const selectedIds = new Set(selectedImageIds.value)
-  const images = selectableImages.value.filter((image) => selectedIds.has(image.id))
+  const images = selectableImages.value.filter((image) =>
+    selectedIds.has(image.id),
+  )
   if (!images.length) return
   isBatchWorking.value = true
   batchError.value = ''
@@ -510,7 +524,10 @@ async function runFeedBatch(
       search: searchInput.value,
     })
   } catch (error) {
-    batchError.value = error instanceof Error ? error.message : 'Failed to refresh the image feed.'
+    batchError.value =
+      error instanceof Error
+        ? error.message
+        : 'Failed to refresh the image feed.'
   } finally {
     isBatchWorking.value = false
   }
@@ -529,8 +546,10 @@ async function addSelectedToCollection() {
 
 async function applySelectedImageFlags() {
   const updates: { isPublic?: boolean; isMature?: boolean } = {}
-  if (batchIsPublic.value !== 'keep') updates.isPublic = batchIsPublic.value === 'true'
-  if (batchIsMature.value !== 'keep') updates.isMature = batchIsMature.value === 'true'
+  if (batchIsPublic.value !== 'keep')
+    updates.isPublic = batchIsPublic.value === 'true'
+  if (batchIsMature.value !== 'keep')
+    updates.isMature = batchIsMature.value === 'true'
   if (!Object.keys(updates).length) return
   await runFeedBatch('Updated', async (image) => {
     const result = await artStore.updateArtImage(image.id, updates)

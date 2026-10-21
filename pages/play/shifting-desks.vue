@@ -511,16 +511,16 @@
                 >
                   {{ view.card.flavor_text }}
                 </p>
-                <div
-                  v-if="caseFileExhibits.length"
-                  class="rounded-lg border border-amber-700/50 bg-amber-100/80 p-2 text-xs leading-snug text-stone-900"
-                  aria-label="Evidence from your personnel file"
-                >
-                  <p class="font-mono font-bold uppercase">Case-file exhibits</p>
-                  <p v-for="exhibit in caseFileExhibits" :key="exhibit">
-                    {{ exhibit }}
-                  </p>
-                </div>
+              </div>
+              <div
+                v-if="caseFileExhibits.length"
+                class="rounded-lg border border-amber-700/50 bg-amber-100/80 p-2 text-xs leading-snug text-stone-900"
+                aria-label="Evidence from your personnel file"
+              >
+                <p class="font-mono font-bold uppercase">Case-file exhibits</p>
+                <p v-for="exhibit in caseFileExhibits" :key="exhibit">
+                  {{ exhibit }}
+                </p>
               </div>
               <template v-if="run.pending">
                 <article

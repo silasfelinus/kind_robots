@@ -96,6 +96,34 @@ assert.match(resubmitRoute, /authAndGate\(event/)
 assert.match(resubmitRoute, /prepareArtJobRetryPayload/)
 assert.match(resubmitRoute, /await gate\.commit/)
 const source = readFileSync('pages/play/video-generator.vue', 'utf8')
+const musicStudio = readFileSync('components/music-video/music-video-studio.vue', 'utf8')
+const legacyMusicRoute = readFileSync('pages/play/music-video.vue', 'utf8')
+const placements = readFileSync('utils/projectPlacements.ts', 'utf8')
+const videoNavigation = readFileSync(
+  'content/channels/projects/video-generator.md',
+  'utf8',
+)
+assert.match(source, /<MusicVideoStudio v-if="activePanel === 'music'" \/>/)
+assert.match(source, /route\.query\.studio === 'music'/)
+assert.match(source, /selectPanel\('music'\)/)
+assert.match(source, /delete query\.video/)
+assert.match(source, /activePanel === 'music'/)
+assert.match(musicStudio, /<MusicVideoGallery v-if="!store\.current" \/>/)
+assert.match(musicStudio, /<MusicVideoViewer v-else \/>/)
+assert.match(musicStudio, /store\.startWatching\(\)/)
+assert.match(musicStudio, /store\.stopWatching\(\)/)
+assert.match(musicStudio, /else if \(!id && store\.current\) store\.close\(\)/)
+assert.match(legacyMusicRoute, /redirectCode: 301/)
+assert.match(legacyMusicRoute, /\.\.\.route\.query, studio: 'music'/)
+assert.match(placements, /route: '\/play\/video-generator\?studio=music'/)
+assert.match(videoNavigation, /Music Videos tab/)
+assert.equal(
+  readFileSync('content/channels/projects/index.md', 'utf8').includes(
+    'Video Studio',
+  ),
+  true,
+)
+
 const store = readFileSync('stores/videoStore.ts', 'utf8')
 const queue = readFileSync('server/api/art/enqueue.post.ts', 'utf8')
 const recent = readFileSync('server/api/art/queue/recent-images.get.ts', 'utf8')

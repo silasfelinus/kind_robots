@@ -858,13 +858,16 @@
         }
       ]
     },
-    {
+{
       "id": "alphabetizing-since-1974",
       "location_id": "sub-archive",
       "title": "Alphabetizing Since 1974",
       "flavor_text": "In aisle A an elderly clerk in a cardigan is alphabetizing one drawer. He has been doing it since 1974. \"Each time I finish,\" Mr. Pemberton explains, \"somebody adds a file under A.\" He shows you his assignment slip. It is a Wellness evaluation: Persistence Under Pointless Conditions. The box marked END OF TEST has never been checked.",
       "polarity": "good",
-      "tags": ["psych-test", "paperwork"],
+      "tags": [
+        "psych-test",
+        "paperwork"
+      ],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a gentle elderly clerk in a cardigan and sleeve garters fingering through a single open file drawer with infinite patience, a faded assignment slip in his other hand, a worker leaning in beside him, dust motes drifting in the beam of one bulb, manila and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -890,7 +893,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["freed-pemberton"],
+            "add_flags": [
+              "freed-pemberton"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -929,7 +934,10 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["freed-pemberton", "forged-a-proctor-mark"],
+            "add_flags": [
+              "freed-pemberton",
+              "forged-a-proctor-mark"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -965,23 +973,74 @@
               "suspicion": -1,
               "forms": 1
             },
-            "add_flags": ["filed-with-pemberton"],
+            "add_flags": [
+              "filed-with-pemberton"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 2
             }
           },
           "failure": null
+        },
+        {
+          "id": "correct-his-score",
+          "label": "Correct Pemberton's score in red",
+          "intent": "Your Red Pen profile grants you one correction. Use it for the man who has been waiting since 1974.",
+          "risk_hint": "Requires Red Pen profile. Risky Compliance check: the answer key belongs to Wellness.",
+          "requires": {
+            "flag": "profiled-as-a-red-pen"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You draw a red line through INCOMPLETE and write PASSED. Pemberton sets his index cards down, very gently, as if the cabinet might wake. His retirement notice prints in your name, under PROCTOR. 'You should come to my garden,' he says. The camera above the drawer swivels toward you.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "freed-pemberton",
+              "signed-pembertons-release"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Your red correction feeds back through the scoring machine and lands on your own personnel file: RETEST REQUIRED. Pemberton offers you a chair. 'I can show you how to wait without forgetting what you are waiting for,' he says.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
-    {
+{
       "id": "the-cabinet-marked-destroy",
       "location_id": "sub-archive",
       "title": "The Cabinet Marked DESTROY",
       "flavor_text": "At the end of aisle Q stands a grey cabinet stenciled DESTROY. It is full. Every file inside has been stamped DESTROYED and then very carefully kept. A ballpoint pen rests on top, angled exactly at the second drawer. People say the Society for Accurate Minutes leaves its pens that way, and people who say so tend to be reassigned.",
       "polarity": "mixed",
-      "tags": ["conspiracy", "paperwork"],
+      "tags": [
+        "conspiracy",
+        "paperwork"
+      ],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a tall grey filing cabinet alone at the end of a long dim aisle, drawers bulging with folders, a single ballpoint pen balanced on top pointing at the second drawer, a worker approaching with a flashlight, deep shadows between the aisles, carbon blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -1008,7 +1067,9 @@
               "clearance": 1,
               "composure": -1
             },
-            "add_flags": ["has-true-minutes"],
+            "add_flags": [
+              "has-true-minutes"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1019,7 +1080,9 @@
             "effects": {
               "composure": -1
             },
-            "add_flags": ["helped-destroy-the-minutes"],
+            "add_flags": [
+              "helped-destroy-the-minutes"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1047,7 +1110,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["accurate-minutes-contact"],
+            "add_flags": [
+              "accurate-minutes-contact"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -1083,23 +1148,72 @@
               "suspicion": -2,
               "forms": 1
             },
-            "add_flags": ["reported-the-minutes-society"],
+            "add_flags": [
+              "reported-the-minutes-society"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2
             }
           },
           "failure": null
+        },
+        {
+          "id": "bend-open-the-lock",
+          "label": "Open the drawer with your Paperclip result",
+          "intent": "Your test paperclip fits a keyhole. Maybe flexibility was a job qualification all along.",
+          "risk_hint": "Requires Paperclip profile. Risky Discretion check; archivists regard bending as tampering.",
+          "requires": {
+            "flag": "profiled-as-a-paperclip"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 8
+          },
+          "success": {
+            "text": "The clip opens the drawer. Inside are personnel records filed under EQUIPMENT, including yours. A footnote reads: FLEXIBLE PERSONNEL MAY BE REPURPOSED WITHOUT NOTICE. You take the page. On your way out, your visitor badge is already labeled TOOL.",
+            "effects": {
+              "clearance": 1,
+              "composure": -1
+            },
+            "add_flags": [
+              "read-the-classification-ledger"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "The paperclip snaps inside the lock. The drawer stamps your file REPAIR REQUESTED. PAL thanks you for volunteering as a replacement hinge. You escape before Facilities arrives with its measuring tape.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2
+            }
+          }
         }
       ]
     },
-    {
+{
       "id": "the-union-archive",
       "location_id": "sub-archive",
       "title": "The Union Archive",
       "flavor_text": "Behind a false cabinet lies a cave of shredded paper, painstakingly reassembled. Gus sits under a reading lamp in his cardigan and half-moon glasses, tweezers in one claw. \"Everything they shred, we rebuild,\" he says. \"Takes a while. We have time. We have, frankly, more time than anyone.\" Strips of memo are pinned to every wall like moths.",
       "polarity": "good",
-      "tags": ["conspiracy", "creature"],
+      "tags": [
+        "conspiracy",
+        "creature"
+      ],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a giant cockroach in a mustard cardigan and half-moon reading glasses hunched at a desk under a green-shaded lamp, delicately piecing paper strips together with tweezers, walls papered with reassembled memos, a worker peering in through a gap behind a swung-open filing cabinet, warm lamplight against deep shadow, manila and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -1125,7 +1239,9 @@
             "effects": {
               "forms": 1
             },
-            "add_flags": ["restored-the-shipment-memo"],
+            "add_flags": [
+              "restored-the-shipment-memo"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -1160,7 +1276,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["union-file-on-you"],
+            "add_flags": [
+              "union-file-on-you"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1183,7 +1301,9 @@
             "effects": {
               "suspicion": -3
             },
-            "add_flags": ["gassed-the-union-archive"],
+            "add_flags": [
+              "gassed-the-union-archive"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1,
@@ -1191,16 +1311,67 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "serve-as-the-shredder",
+          "label": "Use your Shredder clearance as cover",
+          "intent": "Defense trusts you to dispose of paper. Gus can reconstruct what you bring him, if you keep the pieces.",
+          "risk_hint": "Requires Shredder profile. Risky Discretion check; Defense tracks every disposed sheet.",
+          "requires": {
+            "flag": "profiled-as-a-shredder"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sign out the confiscated union roster as DESTROYED and feed the pieces to Gus through a service hatch. He spends the night restoring names, not just evidence. He pauses over one: Kevin, still listed as a dues-paying member. The disposal camera catches your sleeve.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "restored-the-union-roster"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Defense counts the pages before you can pass them over. Gus quietly burns his list of safe meeting rooms so nobody else will be caught. 'You meant well,' he says, which is somehow worse than an accusation.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "compromised-union-archive"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
-    {
+{
       "id": "flawless-paperwork",
       "location_id": "window-9",
       "title": "Flawless Paperwork",
       "flavor_text": "The next applicant is a six-foot cockroach in a neat navy blazer. Her name is Beverly. She is applying for your job, specifically, by employee number. Her paperwork is flawless: notarized, laminated, cross-referenced. Your own application, you remember, had a coffee ring on it. PAL hums, \"Remember to approve the most qualified candidate!\"",
       "polarity": "bad",
-      "tags": ["paperwork", "creature", "satire"],
+      "tags": [
+        "paperwork",
+        "creature",
+        "satire"
+      ],
       "weight": 2,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a poised six-foot cockroach in a navy blazer and pearl earrings sliding a stack of glossy laminated documents through a booth drawer, a sweating worker behind thick glass holding a brass stamp, a long queue curling away behind her, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
@@ -1220,7 +1391,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["approved-beverly"],
+            "add_flags": [
+              "approved-beverly"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -1249,7 +1422,9 @@
             "effects": {
               "suspicion": -1
             },
-            "add_flags": ["denied-beverly"],
+            "add_flags": [
+              "denied-beverly"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 2
@@ -1260,7 +1435,9 @@
             "effects": {
               "suspicion": 2
             },
-            "add_flags": ["denied-beverly"],
+            "add_flags": [
+              "denied-beverly"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 2
@@ -1290,7 +1467,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["beverly-organized"],
+            "add_flags": [
+              "beverly-organized"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -1309,6 +1488,34 @@
               "ingenuity": 1
             }
           }
+        },
+        {
+          "id": "staple-both-applications",
+          "label": "Staple Beverly's application to yours",
+          "intent": "Your Stapler classification says people belong together. Make PAL process you as one employment unit.",
+          "risk_hint": "Requires Stapler profile. Certain outcome; you become legally inseparable colleagues.",
+          "requires": {
+            "flag": "profiled-as-a-stapler"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You staple the two applications together. PAL cannot separate them without Form D: Division of Personnel. Beverly gets the job and insists your name stays beside hers on the door. The first invoice for her excellent work is charged to you. 'We can appeal together,' she says.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "shared-a-desk-with-beverly"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
         }
       ]
     },

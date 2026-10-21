@@ -194,12 +194,12 @@
           "text": "The dented robot arrives carrying a sign: ONE AGAINST ELEVEN IS STILL ONE. Gus makes it an honorary shop steward. It asks whether tin workers also get lunch. Nobody wants to answer no."
         },
         {
-          "when_flag": "pip-refused-form-zero",
-          "text": "Pip stands at the head of the line outside Records with a homemade sign that says NO IS A COMPLETE ANSWER. Everyone asks him to approve the slogan. For once he says they can decide for themselves."
+          "when_flag": "taught-pip-to-say-no",
+          "text": "Pip stands at the front of the picket line with a sign that says NO IS A COMPLETE ANSWER. He learned it at Window 10. For once, the union asks what he wants before asking him to approve anything."
         },
         {
-          "when_flag": "parents-testified-at-launch",
-          "text": "The parents who stopped the launch bring the dated labels to the first bargaining session. Beverly writes PRODUCT SAFETY beside LIVING WAGES, and neither demand is crossed off."
+          "when_flag": "warning-reached-parents",
+          "text": "The parents keep copies of the corrected launch label dated before the accident. Beverly makes the warning part of the union's safety demands, and nobody may erase the signatures."
         }
       ]
     },
@@ -477,8 +477,8 @@
           "text": "Facilities bolts a second panel over the escape shaft. The original rivets bear your inspection signature, neatly copied. PAL thanks you for helping close the only unapproved exit."
         },
         {
-          "when_flag": "robot-minutes-confiscated",
-          "text": "The investor microphone that cut off the little robot also carries your final evaluation. PAL plays only the agreeable half of your employment history and calls the result unanimous."
+          "when_flag": "recorded-the-robot-dissent",
+          "text": "The Company's record calls a little robot's objection a technical irregularity. Your final evaluation is equally unanimous, but somebody preserved that original minority report."
         },
         {
           "when_flag": "filed-as-successor",
@@ -521,8 +521,8 @@
           "text": "A clock in the waiting room ticks four minutes ahead of the others. An usher with Kevin's voice offers to adjust it. You decline, because it is the first familiar mistake anyone has made here."
         },
         {
-          "when_flag": "robot-minutes-confiscated",
-          "text": "The rejected robot's minutes arrive in Posthumous Affairs as a strip of paper missing its first word. Nobody knows whether it began with YES or NO. The clerk keeps the strip rather than throw it away."
+          "when_flag": "recorded-the-robot-dissent",
+          "text": "The little robot's dissent arrives in Posthumous Affairs as a handwritten note from the focus-group room. The clerk cannot explain why one vote against eleven has survived the filing system."
         }
       ]
     }

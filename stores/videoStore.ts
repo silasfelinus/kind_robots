@@ -7,6 +7,7 @@
 // pattern in stores/artStore.ts, kept standalone so the video page has a small,
 // focused surface.
 import { defineStore } from 'pinia'
+import { useUserStore } from '@/stores/userStore'
 import { reactive, computed } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import { performFetch } from '@/stores/utils'
@@ -140,6 +141,7 @@ function artImageToVideoSrc(image: ArtImage | null | undefined): string {
 }
 
 export const useVideoStore = defineStore('videoStore', () => {
+  const userStore = useUserStore()
   const state = reactive({
     status: 'idle' as VideoJobStatus,
     jobId: null as number | null,
@@ -434,7 +436,11 @@ export const useVideoStore = defineStore('videoStore', () => {
             : job.status === 'CANCELLED'
               ? 'Render cancelled.'
               : ''
-    if (job.artImageId && job.status === 'DONE') {
+    if (job.isMature && !userStore.showMature) {
+      state.artImageId = null
+      state.videoSrc = ''
+      state.fileType = ''
+    } else if (job.artImageId && job.status === 'DONE') {
       if (state.artImageId !== job.artImageId || !state.videoSrc) {
         state.videoSrc = ''
         state.artImageId = job.artImageId

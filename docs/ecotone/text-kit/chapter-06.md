@@ -10,24 +10,24 @@
 
 **Opening narration:** A kinetic team needs the audience to clap in an exact impossible rhythm.
 
-**Escalation:** A human-powered sculpture moves only when the crowd claps in a rhythm no conductor can hold. The exhausted riders are thinking of withdrawing.
+**Escalation:** A kinetic bicycle sculpture runs only when spectators clap in a rhythm nobody can sustain. Its riders are spent and the marshal has little daylight left for the road course. A sponsor wants them to try again for the camera.
 
-**Option A, investigate (visible 9 check):** Count the missing beat using the crew's own pedals
+**Option A, investigate (visible 9 check):** Time the wheel motion against safe clapping intervals and inspect the drive chain
 
-- **Pass:** The rhythm proves to be a message spelling a street name on the future race route.
-- **Miss:** Your count slips, but a drummer writes the sequence on a discarded bib.
+- **Pass:** The applause controls a slipping clutch, not magic horsepower. The crew records the flaw and can repair it without another public exhaustion test.
+- **Miss:** The rhythm breaks under the crowd's enthusiasm. A rider spots the worn linkage while you slow the restart.
 
-**Option B, assist without a check:** Teach the crowd an easier shared rhythm
+**Option B, assist without a check:** Help the team choose a safe withdrawal or rest break without public shaming
 
-- **Result:** Children and mechanics clap together; the sculpture crosses the starting line without hurting anyone.
+- **Result:** The riders drink water and accept a tow to the next repair area. The crowd claps for the decision rather than demanding another lap.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-101`: A kinetic team needs the audience to clap in an exact impossible rhythm. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-101/2`: A human-powered sculpture moves only when the crowd claps in a rhythm no conductor can hold. The exhausted riders are thinking of withdrawing. The people and location must match the opening.
-- `outcomes/wh-101/investigate-success`: The rhythm proves to be a message spelling a street name on the future race route. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-101/investigate-failure`: Your count slips, but a drummer writes the sequence on a discarded bib. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-101/care-success`: Children and mechanics clap together; the sculpture crosses the starting line without hurting anyone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-101/2`: A kinetic bicycle sculpture runs only when spectators clap in a rhythm nobody can sustain. Its riders are spent and the marshal has little daylight left for the road course. A sponsor wants them to try again for the camera. The people and location must match the opening.
+- `outcomes/wh-101/investigate-success`: The applause controls a slipping clutch, not magic horsepower. The crew records the flaw and can repair it without another public exhaustion test. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-101/investigate-failure`: The rhythm breaks under the crowd's enthusiasm. A rider spots the worn linkage while you slow the restart. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-101/care-success`: The riders drink water and accept a tow to the next repair area. The crowd claps for the decision rather than demanding another lap. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_101_verified`, `wh_101_partial`, `wh_101_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** The race launches at noon, midnight and both at once.
 
-**Escalation:** The noon siren sounds at midnight and again at noon; both crowds appear in the same Plaza without seeing one another.
+**Escalation:** The starting siren sounds both at noon and midnight; two crowds occupy Arcata Plaza without seeing each other. A volunteer marshal is trying to keep a children's group out of a launch lane that seems to exist twice.
 
-**Option A, investigate (visible 9 check):** Compare recordings from both launches
+**Option A, investigate (visible 9 check):** Compare recording timestamps from the two starting lines while staying clear of the race
 
-- **Pass:** A single whistle note has two timestamps and reveals a route into the missing harbor.
-- **Miss:** Your recorder overloads but leaves the sound of a second crowd cheering.
+- **Pass:** The same whistle has two timestamps and a harbor echo. The marshal keeps the recordings while treating the live course as the only one crews should enter.
+- **Miss:** Your phone clips the noise into static, but the second crowd's cheer remains on another volunteer's recording.
 
-**Option B, assist without a check:** Help marshals separate the overlapping starting lines
+**Option B, assist without a check:** Help the marshal separate the visible racers and route spectators to safe viewing space
 
-- **Result:** The teams start safely, whatever the clocks claim.
+- **Result:** The actual teams launch after a fresh headcount. The midnight crowd applauds on a delay, which is almost courteous.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-105`: The race launches at noon, midnight and both at once. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-105/2`: The noon siren sounds at midnight and again at noon; both crowds appear in the same Plaza without seeing one another. The people and location must match the opening.
-- `outcomes/wh-105/investigate-success`: A single whistle note has two timestamps and reveals a route into the missing harbor. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-105/investigate-failure`: Your recorder overloads but leaves the sound of a second crowd cheering. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-105/care-success`: The teams start safely, whatever the clocks claim. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-105/2`: The starting siren sounds both at noon and midnight; two crowds occupy Arcata Plaza without seeing each other. A volunteer marshal is trying to keep a children's group out of a launch lane that seems to exist twice. The people and location must match the opening.
+- `outcomes/wh-105/investigate-success`: The same whistle has two timestamps and a harbor echo. The marshal keeps the recordings while treating the live course as the only one crews should enter. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-105/investigate-failure`: Your phone clips the noise into static, but the second crowd's cheer remains on another volunteer's recording. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-105/care-success`: The actual teams launch after a fresh headcount. The midnight crowd applauds on a delay, which is almost courteous. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_105_verified`, `wh_105_partial`, `wh_105_care` (mutually exclusive results of this card).
 
@@ -165,24 +165,24 @@
 
 **Opening narration:** A kinetic sculpture rolls downhill so vigorously it reaches yesterday.
 
-**Escalation:** A sculpture descends Dead Man's Drop so fast its crew arrives yesterday. The racers' goggles still hold sand from today.
+**Escalation:** A kinetic sculpture hits Dead Man's Drop and reaches yesterday with sand still caught in its goggles. Its exhausted crew wants to attempt the descent again to prove the story, although a brake cable has begun to fray.
 
-**Option A, investigate (visible 9 check):** Check wheel marks against the dune's old track
+**Option A, investigate (visible 9 check):** Compare the crew's route log and the mechanical wear before considering another descent
 
-- **Pass:** The tire pattern is imprinted beneath a layer laid down before the sculpture was built.
-- **Miss:** Wind erases the marks, but a racer brings back a lost glove they have not yet worn.
+- **Pass:** The sand sample and log disagree about time but agree the brake is failing. The crew retires the run and preserves both clues.
+- **Miss:** The date on the log smears in a wet glove. A volunteer spots the frayed cable and marks the vehicle unfit before anyone repeats the drop.
 
-**Option B, assist without a check:** Help the crew rejoin the present race
+**Option B, assist without a check:** Help the crew secure the sculpture and arrange recovery from the course
 
-- **Result:** Volunteers anchor the sculpture and keep the riders from trying the descent again.
+- **Result:** Everyone reaches the repair point unhurt. The sculpture's clock insists it has already received tomorrow's safety inspection.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-106`: A kinetic sculpture rolls downhill so vigorously it reaches yesterday. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-106/2`: A sculpture descends Dead Man's Drop so fast its crew arrives yesterday. The racers' goggles still hold sand from today. The people and location must match the opening.
-- `outcomes/wh-106/investigate-success`: The tire pattern is imprinted beneath a layer laid down before the sculpture was built. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-106/investigate-failure`: Wind erases the marks, but a racer brings back a lost glove they have not yet worn. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-106/care-success`: Volunteers anchor the sculpture and keep the riders from trying the descent again. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-106/2`: A kinetic sculpture hits Dead Man's Drop and reaches yesterday with sand still caught in its goggles. Its exhausted crew wants to attempt the descent again to prove the story, although a brake cable has begun to fray. The people and location must match the opening.
+- `outcomes/wh-106/investigate-success`: The sand sample and log disagree about time but agree the brake is failing. The crew retires the run and preserves both clues. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-106/investigate-failure`: The date on the log smears in a wet glove. A volunteer spots the frayed cable and marks the vehicle unfit before anyone repeats the drop. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-106/care-success`: Everyone reaches the repair point unhurt. The sculpture's clock insists it has already received tomorrow's safety inspection. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_106_verified`, `wh_106_partial`, `wh_106_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** A traveling dune relocates three of the player's remembered destinations.
 
-**Escalation:** A traveling dune swallows the course map and relocates three remembered destinations. A mechanic insists their team's finish line is now somewhere else.
+**Escalation:** A dune swallows the kinetic course map and three destinations appear to migrate across the page. A mechanic sees her team's finish line somewhere beyond the protected grass and wants to follow it before the marshal can object.
 
-**Option A, investigate (visible 9 check):** Cross-check landmarks with a second route scout
+**Option A, investigate (visible 9 check):** Compare the moving map with current flagged route markers and the tide plan
 
-- **Pass:** The dune exposes an older road alignment that can guide the racers back safely.
-- **Miss:** The skyline shifts before you make the last mark, leaving only a trustworthy bearing.
+- **Pass:** The map's shifting edge points to a lost survey peg, but the legal route is unchanged. The mechanic marks both on a separate sketch.
+- **Miss:** The paper tears and takes the supposed shortcut with it. A sand-streaked photograph still shows the official markers intact.
 
-**Option B, assist without a check:** Help the teams make a public safe-route plan
+**Option B, assist without a check:** Help the team follow the safe course without crossing habitat closures
 
-- **Result:** Crews agree on a visible path rather than follow contradictory private maps.
+- **Result:** The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the turtles out of trouble.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-108`: A traveling dune relocates three of the player's remembered destinations. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-108/2`: A traveling dune swallows the course map and relocates three remembered destinations. A mechanic insists their team's finish line is now somewhere else. The people and location must match the opening.
-- `outcomes/wh-108/investigate-success`: The dune exposes an older road alignment that can guide the racers back safely. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-108/investigate-failure`: The skyline shifts before you make the last mark, leaving only a trustworthy bearing. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-108/care-success`: Crews agree on a visible path rather than follow contradictory private maps. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-108/2`: A dune swallows the kinetic course map and three destinations appear to migrate across the page. A mechanic sees her team's finish line somewhere beyond the protected grass and wants to follow it before the marshal can object. The people and location must match the opening.
+- `outcomes/wh-108/investigate-success`: The map's shifting edge points to a lost survey peg, but the legal route is unchanged. The mechanic marks both on a separate sketch. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-108/investigate-failure`: The paper tears and takes the supposed shortcut with it. A sand-streaked photograph still shows the official markers intact. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-108/care-success`: The racers take the marked detour and reach the water stage. The dune keeps the map; the volunteer keeps the turtles out of trouble. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_108_verified`, `wh_108_partial`, `wh_108_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A customary race bribe becomes sentient and offers a better deal.
 
-**Escalation:** A ceremonial race bribe becomes sentient and offers a much better deal: in exchange for applause, it will solve tomorrow's unfair judgment.
+**Escalation:** A traditional race bribe has developed a voice and promises to reverse tomorrow's disputed judging in exchange for cheers. A young team built its sculpture from donated wheels and cannot afford a protest fee, let alone a sentient favor.
 
-**Option A, investigate (visible 9 check):** Read the offer out loud where everyone can hear it
+**Option A, investigate (visible 9 check):** Check the stated judging rules and ask how the bribe claims to change them
 
-- **Pass:** The contract's fine print names a judge who has not arrived and a secret ballot.
-- **Miss:** The bribe escapes under a sculpture, but your copy shows its signature is a tiny handprint.
+- **Pass:** The bribe quotes a rule that was never adopted. You bring the real scoring sheet to the teams before rumor becomes an official result.
+- **Miss:** The object vanishes when the chair arrives. Its promises survive in three accounts that contradict one another; the actual scores can still be checked.
 
-**Option B, assist without a check:** Suggest an open award instead of another favor
+**Option B, assist without a check:** Help the young team file a fair objection without buying an advantage
 
-- **Result:** Racers create a mutual-help prize with transparent votes and no mysterious debt.
+- **Result:** A volunteer finds the appeal form and waives no rule for anyone. The bribe sulks in a costume pocket, outbid by transparent paperwork.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-109`: A customary race bribe becomes sentient and offers a better deal. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-109/2`: A ceremonial race bribe becomes sentient and offers a much better deal: in exchange for applause, it will solve tomorrow's unfair judgment. The people and location must match the opening.
-- `outcomes/wh-109/investigate-success`: The contract's fine print names a judge who has not arrived and a secret ballot. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-109/investigate-failure`: The bribe escapes under a sculpture, but your copy shows its signature is a tiny handprint. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-109/care-success`: Racers create a mutual-help prize with transparent votes and no mysterious debt. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-109/2`: A traditional race bribe has developed a voice and promises to reverse tomorrow's disputed judging in exchange for cheers. A young team built its sculpture from donated wheels and cannot afford a protest fee, let alone a sentient favor. The people and location must match the opening.
+- `outcomes/wh-109/investigate-success`: The bribe quotes a rule that was never adopted. You bring the real scoring sheet to the teams before rumor becomes an official result. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-109/investigate-failure`: The object vanishes when the chair arrives. Its promises survive in three accounts that contradict one another; the actual scores can still be checked. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-109/care-success`: A volunteer finds the appeal form and waives no rule for anyone. The bribe sulks in a costume pocket, outbid by transparent paperwork. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_109_verified`, `wh_109_partial`, `wh_109_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** A crew of cryptids performs cheerful and competent roadside repairs.
 
-**Escalation:** A cheerful cryptid rescue crew repairs stalled vehicles using ordinary tools and occasionally impossible hands. A sponsor wants exclusive rights to photograph them.
+**Escalation:** A cryptid rescue crew is replacing a broken axle in the dunes with ordinary tools and several impossible hands. A sponsor wants exclusive rights to their faces and calls it the price of receiving help.
 
-**Option A, investigate (visible 9 check):** Watch the crew work and document the mechanical fix
+**Option A, investigate (visible 9 check):** Document the mechanical repair rather than the rescuers' identities
 
-- **Pass:** A patched axle bears the same strange maker's mark as the unknown racer.
-- **Miss:** Their best mechanic slips away before questions, leaving a perfectly safe repair.
+- **Pass:** The replacement axle carries the unknown racer's maker's mark. The team records it for inspection, without photographing a volunteer who has asked for privacy.
+- **Miss:** The lead mechanic slips away before you can ask about the mark. The repair remains safe and its tool scratches give the crew a trace to compare later.
 
-**Option B, assist without a check:** Help shield the rescuers from intrusive publicity
+**Option B, assist without a check:** Help the crew protect the rescuers' consent and feed everyone doing the repair
 
-- **Result:** The teams thank them with food and leave the rescue workers unnamed.
+- **Result:** The sculpture moves again. The rescue crew accepts sandwiches and no publicity; the sponsor learns that gratitude is not a media release.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-110`: A crew of cryptids performs cheerful and competent roadside repairs. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-110/2`: A cheerful cryptid rescue crew repairs stalled vehicles using ordinary tools and occasionally impossible hands. A sponsor wants exclusive rights to photograph them. The people and location must match the opening.
-- `outcomes/wh-110/investigate-success`: A patched axle bears the same strange maker's mark as the unknown racer. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-110/investigate-failure`: Their best mechanic slips away before questions, leaving a perfectly safe repair. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-110/care-success`: The teams thank them with food and leave the rescue workers unnamed. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-110/2`: A cryptid rescue crew is replacing a broken axle in the dunes with ordinary tools and several impossible hands. A sponsor wants exclusive rights to their faces and calls it the price of receiving help. The people and location must match the opening.
+- `outcomes/wh-110/investigate-success`: The replacement axle carries the unknown racer's maker's mark. The team records it for inspection, without photographing a volunteer who has asked for privacy. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-110/investigate-failure`: The lead mechanic slips away before you can ask about the mark. The repair remains safe and its tool scratches give the crew a trace to compare later. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-110/care-success`: The sculpture moves again. The rescue crew accepts sandwiches and no publicity; the sponsor learns that gratitude is not a media release. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_110_verified`, `wh_110_partial`, `wh_110_care` (mutually exclusive results of this card).
 
@@ -351,24 +351,24 @@
 
 **Opening narration:** A mirror bay exists briefly just beneath the first.
 
-**Escalation:** Just below Humboldt Bay a mirror crossing becomes visible. One team sees an empty route; another sees the racers who disappeared yesterday.
+**Escalation:** A mirror crossing opens briefly beneath the real bay, showing one team an empty channel and another the racers who disappeared yesterday. Both crews want to launch first. The safety boat is already committed to the actual course.
 
-**Option A, investigate (visible 9 check):** Compare soundings from the real and mirror channels
+**Option A, investigate (visible 9 check):** Compare the mirror's landmarks with today's marked water route from shore
 
-- **Pass:** The mirrored buoys spell out the date of a future public rescue drill.
-- **Miss:** The reflection vanishes before the pole touches it; a skipper confirms it was not a trick of glare.
+- **Pass:** A reflection matches an old channel survey rather than a safe route. You record it and leave navigation to the marshals.
+- **Miss:** The mirror folds away before anyone agrees on the bearings. A safety volunteer has drawn the vanished marker position in a waterproof notebook.
 
-**Option B, assist without a check:** Keep the racers in the marked, supervised channel
+**Option B, assist without a check:** Keep both crews off the unmarked crossing until rescue coverage is available
 
-- **Result:** The race crosses safely while observers preserve the impossible sighting.
+- **Result:** The teams queue for the authorized launch and neither vanishes. One sculpture's reflection keeps paddling for a second after its crew stops.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-112`: A mirror bay exists briefly just beneath the first. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-112/2`: Just below Humboldt Bay a mirror crossing becomes visible. One team sees an empty route; another sees the racers who disappeared yesterday. The people and location must match the opening.
-- `outcomes/wh-112/investigate-success`: The mirrored buoys spell out the date of a future public rescue drill. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-112/investigate-failure`: The reflection vanishes before the pole touches it; a skipper confirms it was not a trick of glare. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-112/care-success`: The race crosses safely while observers preserve the impossible sighting. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-112/2`: A mirror crossing opens briefly beneath the real bay, showing one team an empty channel and another the racers who disappeared yesterday. Both crews want to launch first. The safety boat is already committed to the actual course. The people and location must match the opening.
+- `outcomes/wh-112/investigate-success`: A reflection matches an old channel survey rather than a safe route. You record it and leave navigation to the marshals. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-112/investigate-failure`: The mirror folds away before anyone agrees on the bearings. A safety volunteer has drawn the vanished marker position in a waterproof notebook. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-112/care-success`: The teams queue for the authorized launch and neither vanishes. One sculpture's reflection keeps paddling for a second after its crew stops. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_112_verified`, `wh_112_partial`, `wh_112_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** The protagonist can save equipment or rescue a stranger's memory.
 
-**Escalation:** For one minute the tide and time exchange places. A stranger begs for a lost memory while the crew's vital equipment begins to sink.
+**Escalation:** For one minute the tide and time exchange jobs. A stranger asks you to save a memory of her brother while a crew's electrical gear is sliding off the dock. You can act on one danger immediately; the other needs a witness who will listen.
 
-**Option A, investigate (visible 9 check):** Chart the strange current to recover the equipment safely
+**Option A, investigate (visible 9 check):** Identify what the stranger can verify and where the equipment will land
 
-- **Pass:** You save the gear and discover an inscription that dates the flood one year ahead.
-- **Miss:** The current steals the map as well as the rope. Everyone stays above water.
+- **Pass:** You learn the memory is tied to a photo still safely ashore. The crew recovers the gear before it reaches open water.
+- **Miss:** The minute ends before your reconstruction makes sense. You keep the photo's description and warn the crew where the current is taking the case.
 
-**Option B, assist without a check:** Help the stranger recover what matters before the tide turns
+**Option B, assist without a check:** Call for a second helper and keep the stranger out of the water
 
-- **Result:** They remember the face of someone they love, and the crew shares tools to replace what was lost.
+- **Result:** The crew saves the equipment and the stranger reaches her friend, who remembers the same photograph. Nobody has to choose between grief and a life jacket.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-114`: The protagonist can save equipment or rescue a stranger's memory. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-114/2`: For one minute the tide and time exchange places. A stranger begs for a lost memory while the crew's vital equipment begins to sink. The people and location must match the opening.
-- `outcomes/wh-114/investigate-success`: You save the gear and discover an inscription that dates the flood one year ahead. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-114/investigate-failure`: The current steals the map as well as the rope. Everyone stays above water. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-114/care-success`: They remember the face of someone they love, and the crew shares tools to replace what was lost. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-114/2`: For one minute the tide and time exchange jobs. A stranger asks you to save a memory of her brother while a crew's electrical gear is sliding off the dock. You can act on one danger immediately; the other needs a witness who will listen. The people and location must match the opening.
+- `outcomes/wh-114/investigate-success`: You learn the memory is tied to a photo still safely ashore. The crew recovers the gear before it reaches open water. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-114/investigate-failure`: The minute ends before your reconstruction makes sense. You keep the photo's description and warn the crew where the current is taking the case. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-114/care-success`: The crew saves the equipment and the stranger reaches her friend, who remembers the same photograph. Nobody has to choose between grief and a life jacket. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_114_verified`, `wh_114_partial`, `wh_114_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** A trophy congratulates winners and whispers the county's original name.
 
-**Escalation:** A trophy beats with a pulse and whispers a forgotten county name. The winners fear that accepting it will erase their shared effort.
+**Escalation:** The winner's trophy beats like a small heart and whispers a county name nobody recognizes. The crew is afraid accepting it will erase the hours they built together. The announcer is waiting for a photograph; the makers want a moment without spectators.
 
-**Option A, investigate (visible 9 check):** Listen to the rhythm and compare historical names
+**Option A, investigate (visible 9 check):** Check the inscription against the event ledger and ask the crew what they want recorded
 
-- **Pass:** The pulse matches the interval between two future public meetings.
-- **Miss:** You hear a name no map confirms; the trophy falls silent when polished.
+- **Pass:** The trophy's plaque bears an impossible alternate date. The official ledger preserves the crew's actual result no matter what the object calls the county.
+- **Miss:** The name fades when you copy it. A teammate still has a photo of the plaque and everyone remembers who built the machine.
 
-**Option B, assist without a check:** Ask the crew what winning should mean
+**Option B, assist without a check:** Give the crew space to decide whether to accept the prize together
 
-- **Result:** They dedicate the prize to the people who kept the course open.
+- **Result:** They take a team photo holding their own battered tool box. The trophy waits on its plinth, briefly the least important thing onstage.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-116`: A trophy congratulates winners and whispers the county's original name. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-116/2`: A trophy beats with a pulse and whispers a forgotten county name. The winners fear that accepting it will erase their shared effort. The people and location must match the opening.
-- `outcomes/wh-116/investigate-success`: The pulse matches the interval between two future public meetings. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-116/investigate-failure`: You hear a name no map confirms; the trophy falls silent when polished. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-116/care-success`: They dedicate the prize to the people who kept the course open. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-116/2`: The winner's trophy beats like a small heart and whispers a county name nobody recognizes. The crew is afraid accepting it will erase the hours they built together. The announcer is waiting for a photograph; the makers want a moment without spectators. The people and location must match the opening.
+- `outcomes/wh-116/investigate-success`: The trophy's plaque bears an impossible alternate date. The official ledger preserves the crew's actual result no matter what the object calls the county. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-116/investigate-failure`: The name fades when you copy it. A teammate still has a photo of the plaque and everyone remembers who built the machine. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-116/care-success`: They take a team photo holding their own battered tool box. The trophy waits on its plinth, briefly the least important thing onstage. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_116_verified`, `wh_116_partial`, `wh_116_care` (mutually exclusive results of this card).
 
@@ -537,24 +537,24 @@
 
 **Opening narration:** A legendary mechanical inspiration requests one final impossible modification.
 
-**Escalation:** A ghostly engineer appears beside a kinetic contraption and asks for one change that would make the machine impossible and strangely humane.
+**Escalation:** A ghostly engineer offers the kinetic crew one last modification: a lever that would make the sculpture sail beautifully and become impossible to steer. The exhausted fabricator is tempted to prove the design could work.
 
-**Option A, investigate (visible 9 check):** Ask the apparition to explain the actual mechanism
+**Option A, investigate (visible 9 check):** Sketch the proposed mechanism and compare it with the crew's tested controls
 
-- **Pass:** Its diagrams reveal a way to share effort between riders rather than stealing power from one.
-- **Miss:** The drawing folds itself into dust, but a mechanic remembers the crucial hinge.
+- **Pass:** The elegant lever would bypass a safety stop. The fabricator keeps the drawing as art and leaves the real steering intact.
+- **Miss:** The engineer disappears before explaining the linkage. The crew saves a rough sketch and rejects an untested change at the finish line.
 
-**Option B, assist without a check:** Help the tired riders finish their own design
+**Option B, assist without a check:** Help the fabricator credit the idea without risking the riders
 
-- **Result:** The ghost gives a quiet nod as the team repairs the bike without sacrificing safety.
+- **Result:** They paint the ghost's initials on a spare panel and finish with the tested rig. The engineer applauds the restraint, the most unlikely part of the haunting.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-118`: A legendary mechanical inspiration requests one final impossible modification. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-118/2`: A ghostly engineer appears beside a kinetic contraption and asks for one change that would make the machine impossible and strangely humane. The people and location must match the opening.
-- `outcomes/wh-118/investigate-success`: Its diagrams reveal a way to share effort between riders rather than stealing power from one. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-118/investigate-failure`: The drawing folds itself into dust, but a mechanic remembers the crucial hinge. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-118/care-success`: The ghost gives a quiet nod as the team repairs the bike without sacrificing safety. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-118/2`: A ghostly engineer offers the kinetic crew one last modification: a lever that would make the sculpture sail beautifully and become impossible to steer. The exhausted fabricator is tempted to prove the design could work. The people and location must match the opening.
+- `outcomes/wh-118/investigate-success`: The elegant lever would bypass a safety stop. The fabricator keeps the drawing as art and leaves the real steering intact. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-118/investigate-failure`: The engineer disappears before explaining the linkage. The crew saves a rough sketch and rejects an untested change at the finish line. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-118/care-success`: They paint the ghost's initials on a spare panel and finish with the tested rig. The engineer applauds the restraint, the most unlikely part of the haunting. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_118_verified`, `wh_118_partial`, `wh_118_care` (mutually exclusive results of this card).
 
@@ -568,24 +568,24 @@
 
 **Opening narration:** Five parallel champions arrive, all insisting they already met the player.
 
-**Escalation:** Five champions arrive, each wearing a different medal and remembering you differently. One praises you for an act you did not perform.
+**Escalation:** Five champions arrive at the finish wearing five different medals. Each remembers you doing something different. One credits you for a rescue you never made; the actual volunteer who performed it is standing ten feet away, unnoticed.
 
-**Option A, investigate (visible 9 check):** Check the awards against your own written log
+**Option A, investigate (visible 9 check):** Compare the five stories with the race log and named witnesses
 
-- **Pass:** You find the version whose claimed help actually appears in your notes; the rest accept correction.
-- **Miss:** The medals exchange owners too quickly to trace, but nobody can take your witness account away.
+- **Pass:** Three accounts share a true timing error, but none agrees on the winner. The marshal preserves the evidence and records the real volunteer's role.
+- **Miss:** The champions wander into the crowd before you identify the shared mistake. You still collect two names and the volunteer's original incident report.
 
-**Option B, assist without a check:** Let the champions celebrate without erasing each other
+**Option B, assist without a check:** Make room for the rescuer to tell their own story before anyone hands out medals
 
-- **Result:** They share the stage and acknowledge the unseen crews who made every race possible.
+- **Result:** The volunteer gets thanked, the ceremony continues, and the five champions decide to share a podium built for two.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-119`: Five parallel champions arrive, all insisting they already met the player. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-119/2`: Five champions arrive, each wearing a different medal and remembering you differently. One praises you for an act you did not perform. The people and location must match the opening.
-- `outcomes/wh-119/investigate-success`: You find the version whose claimed help actually appears in your notes; the rest accept correction. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-119/investigate-failure`: The medals exchange owners too quickly to trace, but nobody can take your witness account away. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-119/care-success`: They share the stage and acknowledge the unseen crews who made every race possible. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-119/2`: Five champions arrive at the finish wearing five different medals. Each remembers you doing something different. One credits you for a rescue you never made; the actual volunteer who performed it is standing ten feet away, unnoticed. The people and location must match the opening.
+- `outcomes/wh-119/investigate-success`: Three accounts share a true timing error, but none agrees on the winner. The marshal preserves the evidence and records the real volunteer's role. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-119/investigate-failure`: The champions wander into the crowd before you identify the shared mistake. You still collect two names and the volunteer's original incident report. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-119/care-success`: The volunteer gets thanked, the ceremony continues, and the five champions decide to share a podium built for two. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_119_verified`, `wh_119_partial`, `wh_119_care` (mutually exclusive results of this card).
 
@@ -599,24 +599,24 @@
 
 **Opening narration:** The player's relationships, evidence and choices determine the surviving ending.
 
-**Escalation:** A county ballot lists wilderness, industry, spectacle and shared stewardship as if each were one neat box. Its clerk says your weekend's deeds will count more than your speech.
+**Escalation:** The county ballot offers wilderness, industry, spectacle and shared stewardship in four tidy boxes. A clerk says your deeds count more than your speech. Around you are people who will live with the result, including those no campaign bothered to invite.
 
-**Option A, investigate (visible 9 check):** Review the ledger of actions before a final count
+**Option A, investigate (visible 9 check):** Compare the ballot summary with the actual decisions and the people affected
 
-- **Pass:** The ledger corrects an inflated claim and preserves a real promise that deserves to survive the vote.
-- **Miss:** A page goes missing, but someone you helped testifies about what truly happened.
+- **Pass:** The campaign slogans cannot contain the evidence you collected. The clerk adds your verified account to the record, without promising which future wins.
+- **Miss:** A projector fails before you can display the last document. You still name where the evidence can be found, and another witness offers to corroborate it.
 
-**Option B, assist without a check:** Insist the affected communities can speak before the future resolves
+**Option B, assist without a check:** Make room for someone affected by the proposal who has not been heard
 
-- **Result:** The meeting reconvenes with open minutes. The actual fate remains to be decided by the journey's final reckoning.
+- **Result:** The meeting grows messier and more representative. No one agrees on a miracle. The county has to make its choice in public.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-120`: The player's relationships, evidence and choices determine the surviving ending. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-120/2`: A county ballot lists wilderness, industry, spectacle and shared stewardship as if each were one neat box. Its clerk says your weekend's deeds will count more than your speech. The people and location must match the opening.
-- `outcomes/wh-120/investigate-success`: The ledger corrects an inflated claim and preserves a real promise that deserves to survive the vote. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-120/investigate-failure`: A page goes missing, but someone you helped testifies about what truly happened. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-120/care-success`: The meeting reconvenes with open minutes. The actual fate remains to be decided by the journey's final reckoning. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-120/2`: The county ballot offers wilderness, industry, spectacle and shared stewardship in four tidy boxes. A clerk says your deeds count more than your speech. Around you are people who will live with the result, including those no campaign bothered to invite. The people and location must match the opening.
+- `outcomes/wh-120/investigate-success`: The campaign slogans cannot contain the evidence you collected. The clerk adds your verified account to the record, without promising which future wins. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-120/investigate-failure`: A projector fails before you can display the last document. You still name where the evidence can be found, and another witness offers to corroborate it. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-120/care-success`: The meeting grows messier and more representative. No one agrees on a miracle. The county has to make its choice in public. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_120_verified`, `wh_120_partial`, `wh_120_care` (mutually exclusive results of this card).
 

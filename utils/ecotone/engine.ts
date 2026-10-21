@@ -302,7 +302,11 @@ export function cardBody(card: EncounterCard, state: RunState): string[] {
 
 export function cardAsides(card: EncounterCard, state: RunState): string[] {
   const asides: string[] = []
-  const substanceLine = substanceSceneLine(state.substanceMoments, state.day, card.id)
+  const substanceLine = substanceSceneLine(
+    state.substanceMoments,
+    state.day,
+    card.id,
+  )
   if (substanceLine) asides.push(substanceLine)
   const presence = card.presence
   if (presence) {

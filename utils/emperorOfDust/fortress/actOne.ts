@@ -30,8 +30,10 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
         'The last boulder rolls into the ditch before sunrise. Hester’s wagons bring water and a sack of bread for the Yard. They call it the emperor’s road now. The Yard says Hester should have the naming rights.',
       success:
         'The last cart passes at dusk. The Yard works by lantern to refill the tower cistern. A Freeholder leaves a jar of clean water at the gate, sealed with wax.',
-      partial: 'One cart can pass if its driver folds the mirror and keeps a wheel against the drop. The water barrels wait in line. A Yard hand stays awake to wave them through.',
-      failure: 'The hillside comes down a second time. Dunmore sets the Yard to carrying buckets along the goat path. The cooks cut supper water in half.',
+      partial:
+        'One cart can pass if its driver folds the mirror and keeps a wheel against the drop. The water barrels wait in line. A Yard hand stays awake to wave them through.',
+      failure:
+        'The hillside comes down a second time. Dunmore sets the Yard to carrying buckets along the goat path. The cooks cut supper water in half.',
       expired:
         'The road closes under another slip. Dunmore’s crew carries water uphill in cooking pots. On the second evening one worker leaves a cracked pot on the throne-room steps.',
     },
@@ -68,7 +70,8 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
         'The masons bind the worst split with wire and tar. Water reaches the far wards for an hour each morning. Mara asks how long an hour is supposed to keep a family alive.',
       failure:
         'The repaired arch gives way under the first full flow. A mason comes back with his coat stiff from lime and tells Mara which house lost its water first. It was hers.',
-      expired: 'Mara’s final letter arrives with a ring of dried mud around the seal. Hollow Bell’s far wards are drawing from a ditch. After that, the mayor sends no more letters.',
+      expired:
+        'Mara’s final letter arrives with a ring of dried mud around the seal. Hollow Bell’s far wards are drawing from a ditch. After that, the mayor sends no more letters.',
     },
   },
   {
@@ -95,8 +98,10 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The hyena captain scratches out your coronation march on her fiddle. Her riders pull the wagons clear before the last sour note. Oriel’s medicine carts cross first; the Pack watches every bottle.',
-      partial: 'The Pack drags its wagons to one side, leaving room for a single cart. The captain asks the next trader for a song instead of brass. The driver knows no songs.',
-      failure: 'The fiddle goes back into its case. The captain tells your envoys to walk home while their horses are still worth stealing. Oriel’s medicine waits behind the painted wagons.',
+      partial:
+        'The Pack drags its wagons to one side, leaving room for a single cart. The captain asks the next trader for a song instead of brass. The driver knows no songs.',
+      failure:
+        'The fiddle goes back into its case. The captain tells your envoys to walk home while their horses are still worth stealing. Oriel’s medicine waits behind the painted wagons.',
       expired:
         'By dusk the medicine caravan has turned toward the dry wash. Oriel sends the tower a bill for two days of extra water. The painted wagons still hold the bridge.',
     },
@@ -126,9 +131,12 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The Watch opens the bridge at spearpoint. The Pack rolls south, carrying its sick pups in covered wagons. Saltroad traders cheer until they see the medicine cart they smashed in the fighting.',
-      partial: 'The Pack gives up the tollhouse and plants its wheels across the narrow road beyond it. The Watch claims the gate. No cart reaches the far side.',
-      failure: 'The Watch comes back missing three shields and its red banner. The hyena captain has hung the banner above the toll booth. She charges a brass bit to see it.',
-      expired: 'The blockade outlasts your order. Oriel’s drivers unload flour by the bridge and carry it through the shallows themselves. The Pack takes a share for watching.',
+      partial:
+        'The Pack gives up the tollhouse and plants its wheels across the narrow road beyond it. The Watch claims the gate. No cart reaches the far side.',
+      failure:
+        'The Watch comes back missing three shields and its red banner. The hyena captain has hung the banner above the toll booth. She charges a brass bit to see it.',
+      expired:
+        'The blockade outlasts your order. Oriel’s drivers unload flour by the bridge and carry it through the shallows themselves. The Pack takes a share for watching.',
     },
   },
   {
@@ -156,8 +164,10 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
         'Forty-one lanterns cross the causeway. The rear guard hears a child counting footsteps inside one of the glass housings. At dawn Sister Reedlight leaves bog myrtle on the escort’s saddle, still wet.',
       partial:
         'Thirty-nine lanterns reach the checkpoint. Two turn back at the sound of the raiders’ horses. Sister Reedlight thanks your escort, then asks for the names of the missing.',
-      failure: 'The scouts strike at the narrow boardwalk. The escort returns with a broken lantern and a wet blanket. Sister Reedlight takes both and does not ask where their owners are.',
-      expired: 'The watch reports forty-one lights entering the fen after sunset. By dawn they can see only eight. Sister Reedlight sends no complaint. She sends the empty lantern hooks.',
+      failure:
+        'The scouts strike at the narrow boardwalk. The escort returns with a broken lantern and a wet blanket. Sister Reedlight takes both and does not ask where their owners are.',
+      expired:
+        'The watch reports forty-one lights entering the fen after sunset. By dawn they can see only eight. Sister Reedlight sends no complaint. She sends the empty lantern hooks.',
     },
   },
   {
@@ -188,9 +198,12 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The escort counts thirty-eight travelers and forty-one lights. Three lanterns move over the mud with nothing beneath them. The Lamplight clerk copies the figures twice, then locks the book.',
-      partial: 'The registrar counts nineteen travelers and twenty-one lanterns before the fog comes in. They lose the line and their place in the ledger. The figures will not balance.',
-      failure: 'Sister Reedlight closes her ledger and leads the column away. The escort finds its tally cards soaked through at dawn. The witch has filed a protest with no signature.',
-      expired: 'The lamps cross the ford in a long yellow line. No clerk goes with them. When the Archive asks how many entered the realm, the Watch sends back an empty form.',
+      partial:
+        'The registrar counts nineteen travelers and twenty-one lanterns before the fog comes in. They lose the line and their place in the ledger. The figures will not balance.',
+      failure:
+        'Sister Reedlight closes her ledger and leads the column away. The escort finds its tally cards soaked through at dawn. The witch has filed a protest with no signature.',
+      expired:
+        'The lamps cross the ford in a long yellow line. No clerk goes with them. When the Archive asks how many entered the realm, the Watch sends back an empty form.',
     },
   },
   {
@@ -215,9 +228,12 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     },
     expired: { affinity: { freeholds: -10 }, local: { yard: -2 } },
     outcomes: {
-      success: 'The ferrymen haul the cart onto the bank by its axle. Two sacks are wet, the rest sound. Hester has the dry grain baked into bread before anyone can argue about ownership.',
-      partial: 'The grain cart reaches the bank without its rear wheels. Half the sacks are swollen and sour. Hester divides the dry half among the three villages while the farmer watches.',
-      failure: 'The current overturns the grain cart at the ford. A farmer follows it along the bank until the wheel disappears. The Freeholds have enough flour for two more days.',
+      success:
+        'The ferrymen haul the cart onto the bank by its axle. Two sacks are wet, the rest sound. Hester has the dry grain baked into bread before anyone can argue about ownership.',
+      partial:
+        'The grain cart reaches the bank without its rear wheels. Half the sacks are swollen and sour. Hester divides the dry half among the three villages while the farmer watches.',
+      failure:
+        'The current overturns the grain cart at the ford. A farmer follows it along the bank until the wheel disappears. The Freeholds have enough flour for two more days.',
       expired:
         'The cart goes under before a team reaches the ford. Hester sends you a bag of river mud with six kernels of grain in it. The message is clear enough.',
     },
@@ -254,7 +270,8 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
         'Three nights of reading turn up a dozen suspect phrases. The archivists strike half and miss the page with the runners’ names. Corvane sends thanks for the careful work.',
       failure:
         'A Conclave scribe catches your readers altering the bonded runners’ clause. The contract comes back with the crown’s seal cut out. Corvane says he will discuss rain when the seal is returned.',
-      expired: 'The storm breaks over the Heights and passes north. Corvane folds his unsigned contract. At court the farmers ask whether the clouds would have stopped if you had answered sooner.',
+      expired:
+        'The storm breaks over the Heights and passes north. Corvane folds his unsigned contract. At court the farmers ask whether the clouds would have stopped if you had answered sooner.',
     },
   },
   {
@@ -285,9 +302,12 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Granny Umber places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not a Mole’s. She asks for the clerk’s name, and waits while the court decides whether to give it.',
-      partial: 'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
-      failure: 'The Moles walk your auditors back to daylight with cloth over their eyes. Granny Umber gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
-      expired: 'The false receipt passes from clerk to clerk until it is entered as revenue. Granny Umber refuses to pay a debt she never owed. Marisol Tallow asks where the missing brass has gone.',
+      partial:
+        'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
+      failure:
+        'The Moles walk your auditors back to daylight with cloth over their eyes. Granny Umber gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
+      expired:
+        'The false receipt passes from clerk to clerk until it is entered as revenue. Granny Umber refuses to pay a debt she never owed. Marisol Tallow asks where the missing brass has gone.',
     },
   },
   {
@@ -315,10 +335,14 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'Three wells run clean at dawn. Hester draws the first three cups and hands them to the village elders in turn. The elders quarrel about who should pay the water crew, but they drink.',
-      success: 'All three pumps draw water, though the third stains the bucket red. Hester calls it a season saved. The third village asks whether iron counts as drinking water.',
-      partial: 'Two villages fill their barrels. At the third, the pump coughs grit. Hester gives their elder her own canteen and promises the crew will return.',
-      failure: 'The crew opens one well and loses the other two to silt. A Freehold reeve puts the broken pump handle in a wagon. He says the crown can have its equipment back.',
-      expired: 'By the third day all three villages are drawing water from a ditch. Hester brings the last dry bucket to court and turns it over on the carpet. Nothing falls.',
+      success:
+        'All three pumps draw water, though the third stains the bucket red. Hester calls it a season saved. The third village asks whether iron counts as drinking water.',
+      partial:
+        'Two villages fill their barrels. At the third, the pump coughs grit. Hester gives their elder her own canteen and promises the crew will return.',
+      failure:
+        'The crew opens one well and loses the other two to silt. A Freehold reeve puts the broken pump handle in a wagon. He says the crown can have its equipment back.',
+      expired:
+        'By the third day all three villages are drawing water from a ditch. Hester brings the last dry bucket to court and turns it over on the carpet. Nothing falls.',
     },
   },
   {
@@ -921,7 +945,8 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'question',
             label: 'Inspect the lanterns and record every traveler.',
             effects: { local: { lamplight: 1 } },
-            response: '“Of course,” says Sister Reedlight. She turns her lantern so the glass hides her face. Behind her, one refugee takes a step toward the door and is stopped by another’s hand.',
+            response:
+              '“Of course,” says Sister Reedlight. She turns her lantern so the glass hides her face. Behind her, one refugee takes a step toward the door and is stopped by another’s hand.',
             postsQuests: ['q-d01-mirefen-inspect'],
           },
         ],
@@ -1545,7 +1570,8 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'leave-it',
             label: 'Leave Hollow Bell its stories.',
             effects: { affinity: { 'hollow-bell': 3 } },
-            response: 'Mara reaches for the wrapped hand-bell at her belt. “Thank you,” she says. Her thumb finds the knot in the cloth and pulls it tight.',
+            response:
+              'Mara reaches for the wrapped hand-bell at her belt. “Thank you,” she says. Her thumb finds the knot in the cloth and pulls it tight.',
           },
         ],
         beats: [

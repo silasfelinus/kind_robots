@@ -844,6 +844,22 @@ assert.match(
   substanceEpilogue(mixed.substanceMoments) ?? '',
   /hippie speedball/,
 )
+const fastSidequest = QUEST_CARDS.find((card) => card.id === 'LX-FAST-01')!
+assert.equal(
+  encounterEligible(fastSidequest, momentBase),
+  false,
+  'a sober opening alone does not grant a stimulant-specific scene',
+)
+const laterFast = chooseSubstanceMoment(momentBase, ['cocaine'])
+assert.equal(
+  encounterEligible(fastSidequest, laterFast),
+  true,
+  'a later voluntary experience can unlock the matching personal scene',
+)
+assert.equal(laterFast.openingState, 'sober')
+const mixedFast = chooseSubstanceMoment(momentBase, ['cannabis', 'cocaine'])
+assert.equal(encounterEligible(fastSidequest, mixedFast), true)
+
 assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(temperate))), temperate)
 const { substanceMoments: oldMoments, ...legacyMomentSave } = temperate
 assert.equal(oldMoments.length, 7)

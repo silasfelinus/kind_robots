@@ -787,43 +787,37 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function register(userData: RegisterUserData) {
     try {
-      const res = await performFetch<{ user: User; token: string }>(
-        '/api/user/register',
+      const res = await performFetch<{ user: User }>(
+        '/api/users/register',
         {
           method: 'POST',
           body: JSON.stringify(userData),
         },
       )
 
-      if (res.success && res.data) {
-        user.value = res.data.user
-        token.value = res.data.token
-        initialized.value = true
-        updateUserInList(res.data.user)
-
-        if (stayLoggedIn.value) {
-          saveToLocalStorage('token', res.data.token)
-        }
-
-        const { useLoginManagerStore } = await import('@/stores/loginStore')
-        useLoginManagerStore().captureCurrentSession()
-
-        // Achievement: "Trailblazer" for creating an account (deduped).
-        void useAchievementStore().rewardAchievementByCode('Dashboard')
-
-        lastError.value = null
-        return res
+      if (!res.success) {
+        const message = res.message || 'Registration failed.'
+        lastError.value = message
+        return { success: false, message }
       }
 
-      handleError(new Error(res.message), 'register')
-      lastError.value = res.message
+      if (!res.data?.user?.id) {
+        const message =
+          'The server did not confirm the new account. Try signing in before registering again.'
+        lastError.value = message
+        return { success: false, message }
+      }
 
-      return { success: false, message: res.message }
+      // Registration creates the account; /api/auth/login owns the session.
+      // Do not cache an absent registration token as an authenticated session.
+      lastError.value = null
+      return { success: true, message: res.message, user: res.data.user }
     } catch (error) {
       handleError(error, 'register')
-      lastError.value = 'Unknown error'
-
-      return { success: false, message: 'Unknown error' }
+      const message =
+        error instanceof Error ? error.message : 'Registration request failed.'
+      lastError.value = message
+      return { success: false, message }
     }
   }
 

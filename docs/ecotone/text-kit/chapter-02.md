@@ -108,7 +108,7 @@
 **Option A, investigate (visible 7 check):** Cross-check the phantom flashes against radio logs and the published hazard chart
 
 - **Pass:** The pattern matches a submerged obstruction missing from the current chart. The pilot radios a cautious location instead of steering toward the impossible light.
-- **Miss:** Low cloud erases the flashes halfway through the count. A sailor corroborates the bearing, which is enough for a safety notice, not a new navigation mark.
+- **Miss:** Cloud swallows the uncharted beacon halfway through your count. A skipper begs you to call the flashes a safe route anyway; you refuse. The pilot pins your seven uncertain marks beside a warning that no one should follow unverified lights, which is useful advice on several levels.
 
 **Option B, assist without a check:** Help the local crews issue a clear advisory through the harbor office
 
@@ -119,7 +119,7 @@
 - `cards/wh-026`: A phantom light warns of things not visible to boats. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-026/2`: A second beacon flashes above Trinidad Head where no light is installed. A harbor pilot refuses to name it after a crew followed it once and nearly struck a submerged hazard. Two skippers disagree over whether to report an unverified warning. The people and location must match the opening.
 - `outcomes/wh-026/investigate-success`: The pattern matches a submerged obstruction missing from the current chart. The pilot radios a cautious location instead of steering toward the impossible light. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-026/investigate-failure`: Low cloud erases the flashes halfway through the count. A sailor corroborates the bearing, which is enough for a safety notice, not a new navigation mark. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-026/investigate-failure`: Cloud swallows the uncharted beacon halfway through your count. A skipper begs you to call the flashes a safe route anyway; you refuse. The pilot pins your seven uncertain marks beside a warning that no one should follow unverified lights, which is useful advice on several levels. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-026/care-success`: The skippers agree on a temporary watch and no one is sent to chase the second light. The phantom beacon flashes once, perhaps impatiently. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_026_verified`, `wh_026_partial`, `wh_026_care` (mutually exclusive results of this card).

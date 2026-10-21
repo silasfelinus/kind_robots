@@ -158,7 +158,9 @@
         @click="toggleCollectionBulkSelect"
       >
         <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
-        {{ collectionBulkSelectEnabled ? 'Done selecting' : 'Select collections' }}
+        {{
+          collectionBulkSelectEnabled ? 'Done selecting' : 'Select collections'
+        }}
       </button>
       <span v-if="collectionBulkSelectEnabled" class="kr-badge-primary-sm">
         {{ selectedCollectionIds.length }} selected
@@ -170,10 +172,20 @@
       class="flex shrink-0 flex-col gap-2 rounded-xl border border-primary/30 bg-base-100 p-2"
     >
       <div class="flex flex-wrap items-center gap-2">
-        <button type="button" class="kr-btn-xs" :disabled="isBatchWorking || !selectableCollectionGroups.length" @click="selectAllFilteredCollections">
+        <button
+          type="button"
+          class="kr-btn-xs"
+          :disabled="isBatchWorking || !selectableCollectionGroups.length"
+          @click="selectAllFilteredCollections"
+        >
           Select all filtered ({{ selectableCollectionGroups.length }})
         </button>
-        <button type="button" class="kr-btn-ghost-xs" :disabled="isBatchWorking || !selectedCollectionIds.length" @click="selectedCollectionIds = []">
+        <button
+          type="button"
+          class="kr-btn-ghost-xs"
+          :disabled="isBatchWorking || !selectedCollectionIds.length"
+          @click="selectedCollectionIds = []"
+        >
           Clear
         </button>
         <span v-if="!selectableCollectionGroups.length" class="kr-text-dim-xs">
@@ -181,21 +193,47 @@
         </span>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <select v-model="batchCollectionIsPublic" class="select select-bordered select-xs min-w-36 bg-base-200" aria-label="Batch collection visibility" :disabled="isBatchWorking">
+        <select
+          v-model="batchCollectionIsPublic"
+          class="select select-bordered select-xs min-w-36 bg-base-200"
+          aria-label="Batch collection visibility"
+          :disabled="isBatchWorking"
+        >
           <option value="keep">Visibility: keep</option>
           <option value="true">Set public</option>
           <option value="false">Set private</option>
         </select>
-        <select v-model="batchCollectionIsMature" class="select select-bordered select-xs min-w-36 bg-base-200" aria-label="Batch collection maturity" :disabled="isBatchWorking">
+        <select
+          v-model="batchCollectionIsMature"
+          class="select select-bordered select-xs min-w-36 bg-base-200"
+          aria-label="Batch collection maturity"
+          :disabled="isBatchWorking"
+        >
           <option value="keep">Maturity: keep</option>
           <option value="true">Set mature</option>
           <option value="false">Set safe</option>
         </select>
-        <button type="button" class="kr-btn-xs btn-info" :disabled="isBatchWorking || !selectedCollectionIds.length || (batchCollectionIsPublic === 'keep' && batchCollectionIsMature === 'keep')" @click="applySelectedCollectionFlags">
+        <button
+          type="button"
+          class="kr-btn-xs btn-info"
+          :disabled="
+            isBatchWorking ||
+            !selectedCollectionIds.length ||
+            (batchCollectionIsPublic === 'keep' &&
+              batchCollectionIsMature === 'keep')
+          "
+          @click="applySelectedCollectionFlags"
+        >
           <Icon name="kind-icon:edit" class="kr-icon-3-5" /> Apply edits
         </button>
-        <button type="button" class="kr-btn-xs btn-error" :disabled="isBatchWorking || !selectedCollectionIds.length" @click="deleteSelectedCollections">
-          <Icon name="kind-icon:trash" class="kr-icon-3-5" /> Move to Recycle Bin
+        <button
+          type="button"
+          class="kr-btn-xs btn-error"
+          :disabled="isBatchWorking || !selectedCollectionIds.length"
+          @click="deleteSelectedCollections"
+        >
+          <Icon name="kind-icon:trash" class="kr-icon-3-5" /> Move to Recycle
+          Bin
         </button>
       </div>
     </div>
@@ -762,7 +800,9 @@ const viewSize = ref<ViewSize>('md')
 const galleryReady = ref(false)
 
 const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
-const selectedCollectionIdSet = computed(() => new Set(selectedCollectionIds.value))
+const selectedCollectionIdSet = computed(
+  () => new Set(selectedCollectionIds.value),
+)
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
@@ -967,8 +1007,9 @@ const selectableCollectionGroups = computed(() =>
 )
 
 const selectedCollectionGroups = computed(() =>
-  collectionGroups.value.filter((group) =>
-    selectedCollectionIdSet.value.has(group.id) && canModifyCollection(group),
+  collectionGroups.value.filter(
+    (group) =>
+      selectedCollectionIdSet.value.has(group.id) && canModifyCollection(group),
   ),
 )
 
@@ -1148,7 +1189,9 @@ function toggleCollectionSelection(id: number) {
 
 function selectAllFilteredCollections() {
   if (isBatchWorking.value) return
-  selectedCollectionIds.value = selectableCollectionGroups.value.map((group) => group.id)
+  selectedCollectionIds.value = selectableCollectionGroups.value.map(
+    (group) => group.id,
+  )
 }
 
 async function runCollectionBatch(
@@ -1180,7 +1223,10 @@ async function runCollectionBatch(
     }
     await refreshBrowseData()
   } catch (error) {
-    errorMessage.value = getErrorMessage(error, 'Collection gallery failed to refresh.')
+    errorMessage.value = getErrorMessage(
+      error,
+      'Collection gallery failed to refresh.',
+    )
   } finally {
     isBatchWorking.value = false
   }
@@ -1202,9 +1248,13 @@ async function applySelectedCollectionFlags() {
 
 async function deleteSelectedCollections() {
   const count = selectedCollectionGroups.value.length
-  if (!count || !window.confirm(
-    `Move ${count} collection${count === 1 ? '' : 's'} to the Recycle Bin? Their images will not be deleted.`,
-  )) return
+  if (
+    !count ||
+    !window.confirm(
+      `Move ${count} collection${count === 1 ? '' : 's'} to the Recycle Bin? Their images will not be deleted.`,
+    )
+  )
+    return
   await runCollectionBatch('Moved to Recycle Bin:', (id) =>
     collectionStore.deleteCollectionById(id),
   )

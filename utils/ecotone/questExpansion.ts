@@ -39,7 +39,7 @@ export const QUEST_CARDS: GatedEncounter[] = [
           },
         },
         failure: {
-          text: 'The register prints TOMORROW and jams. The vendor still gives you the peach, and you are no less hungry.',
+          text: 'The register prints TOMORROW and jams just as the line reaches the curb. The vendor records the sale by hand; the teenager keeps a photograph of the timestamp. You still get the peach.',
           effects: { goodwill: 1 },
         },
       },
@@ -232,7 +232,7 @@ export const QUEST_CARDS: GatedEncounter[] = [
         id: 'feed',
         label: 'Placate the union with your lunch',
         success: {
-          text: 'You are immediately outvoted by forty gulls and one extremely pleased dockworker. It solves lunch, not the harbor.',
+          text: 'Forty gulls hold an immediate vote and eat your lunch. The dockworker writes down which bins are still leaking; feeding the union has solved lunch, not the harbor.',
           effects: { weird: 1 },
         },
       },

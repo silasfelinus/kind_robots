@@ -1,6 +1,6 @@
 ---
 contentType: tab
-channelKey: arcade
+channelKey: admin
 tabKey: zuzu-lair
 label: Zuzu's Lair
 title: Zuzu's Lair

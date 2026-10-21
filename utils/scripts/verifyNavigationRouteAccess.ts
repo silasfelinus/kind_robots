@@ -261,6 +261,11 @@ assert.match(
   /const footerVars = computed<CSSProperties>\(\(\) => \{[\s\S]*?left:\s*'0px',[\s\S]*?right:\s*'var\(--sheet-w\)'/,
   'The workspace hand/footer must reserve the right-side sheet width instead of the left.',
 )
+assert.match(
+  workspaceHeaderSource,
+  /<NuxtLink\s+to="\/"[\s\S]*?aria-label="Home"[\s\S]*?<Icon name="kind-icon:home"/,
+  'A persistent branded Home icon in the shared header must link to the homepage.',
+)
 assert.ok(
   workspaceHeaderSource.includes('to="/art"'),
   'The fixed workspace header must keep a direct Art Studio shortcut.',
@@ -375,8 +380,8 @@ for (const key of ['art', 'projects', 'studios', 'people', 'shelf']) {
 const navigationMoves = [
   {
     slug: 'zuzu-lair',
-    from: 'admin',
-    to: 'arcade',
+    from: 'arcade',
+    to: 'admin',
     route: '/admin/zuzu-lair',
     admin: true,
   },

@@ -22,12 +22,12 @@
     "place": "Old Town Eureka",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The antique shop sells second-place relics: the pen almost used to sign a treaty and the hat a famous ghost chose not to wear.",
-    "investigate": "Verify a relic's history before it leaves the shop",
-    "success": "The object is ordinary but its label predicts a municipal vote still weeks away.",
-    "failure": "You buy an impressive fake; the shopkeeper refunds you after you explain why attribution matters.",
-    "help": "Help the clerk return a misidentified family keepsake",
-    "helpOutcome": "A grandmother recovers her box, which is more valuable than any curse."
+    "pressure": "An Old Town antique dealer sells objects that nearly became famous: a pen left untouched at a signing, a hat declined by a ghost. A visitor recognizes her grandfather's toolbox in the window and wants it removed before a tour group invents a family scandal.",
+    "investigate": "Check the toolbox provenance against the shop ledger before trusting its label",
+    "success": "The listing is wrong, but a receipt bears the date of a future city vote. The dealer preserves the paper as a curiosity and corrects the family's history.",
+    "failure": "The alleged relic turns out to be a convincing copy. The dealer offers a refund; the visitor still finds her grandfather's repair mark inside the lid.",
+    "help": "Help the visitor recover the toolbox without making her family story an attraction",
+    "helpOutcome": "The toolbox goes home and the dealer leaves a blank space in the display. A sign reads NOT FOR SALE, which draws the biggest crowd yet."
   },
   {
     "id": "WH-044",
@@ -67,12 +67,12 @@
     "place": "Eureka F Street waterfront / Perilous Plunge",
     "scene": "bay",
     "pool": 1,
-    "pressure": "A costumed bay jumper surfaces on Monday after entering on Saturday. Her friends insist the clock is only ten seconds ahead.",
-    "investigate": "Correlate her wristwatch with harbor announcements",
-    "success": "The watch recorded a weather warning two days before the microphones broadcast it.",
-    "failure": "The watch stops when you touch it, but her soggy race bib bears Monday's date.",
-    "help": "Get the chilled jumper warm before any interview",
-    "helpOutcome": "The rescue volunteers make a plan that values a person over a spectacular headline."
+    "pressure": "A bay-plunge fundraiser jumper comes out of Saturday's water with Monday's newspaper caught in her costume. Her friends want to celebrate the time travel; she wants someone to notice that she is shaking and cannot find her phone.",
+    "investigate": "Compare the newspaper edition, event video and volunteer check-in times",
+    "success": "The footage shows two date displays disagreeing while her jump remains continuous. The organizer saves both originals without claiming a scientific breakthrough.",
+    "failure": "A spectator overwrites the clip with a victory montage. The jumper still has a Monday parking slip stapled to her costume and asks to keep it.",
+    "help": "Get the jumper dry and ask a medic to check her before the interviews begin",
+    "helpOutcome": "She warms up under a borrowed blanket and calls home. A fundraiser volunteer labels the newspaper LOST PROPERTY, FUTURE, and takes a lunch break."
   },
   {
     "id": "WH-047",
@@ -97,12 +97,12 @@
     "place": "Eureka F Street waterfront / Perilous Plunge",
     "scene": "bay",
     "pool": 1,
-    "pressure": "A contestant dressed as a weather balloon has filed forms declaring it an unidentified object. Inspectors find the paperwork alarmingly convincing.",
-    "investigate": "Trace the registration number without detaining the performer",
-    "success": "Its serial number belongs to a weather station reporting from a future drought.",
-    "failure": "The permit says CLASSIFIED and the wind steals it before you can copy the code.",
-    "help": "Defend the contestant's right to compete anonymously",
-    "helpOutcome": "Judges award the costume a place without requiring anyone to surrender their name."
+    "pressure": "A costume competitor has registered as a weather balloon with a laminated certificate, an inspection history and a polite refusal to explain how the zipper works. A volunteer is being asked to disqualify the act or certify an actual unidentified object.",
+    "investigate": "Compare the permit number with the published costume category rules",
+    "success": "The form was issued by an office scheduled to open next year. It does not exempt the entrant from today's safety inspection, which everyone accepts.",
+    "failure": "The stamp bleeds when you try to copy it. The volunteer retains a witness signature and declines to make a ruling based on damp stationery.",
+    "help": "Help the volunteer judge the costume fairly without demanding the entrant unmask",
+    "helpOutcome": "The act competes in the open category and the inspection passes. The trophy reads BEST AMBIGUOUS PAPERWORK."
   },
   {
     "id": "WH-049",
@@ -127,12 +127,12 @@
     "place": "Eureka F Street waterfront / Perilous Plunge",
     "scene": "bay",
     "pool": 1,
-    "pressure": "The fundraiser's post-plunge hot tub speaks in bubbles, offering prophecies that are consistently useful and consistently wrong about who deserves credit.",
-    "investigate": "Test one prediction against a public event",
-    "success": "A bubble maps an upcoming ferry route but assigns it to someone who never sailed.",
-    "failure": "The water turns cloudy, leaving you with a plausible warning and no author.",
-    "help": "Ask the volunteers who actually kept everyone safe",
-    "helpOutcome": "The prophecy stops talking long enough for the crew to receive a thank-you."
+    "pressure": "The post-plunge hot tub is delivering prophecies in soap bubbles. Its forecasts keep saving someone's day while assigning the credit to strangers. The exhausted volunteer who filled it is being hailed as a mystic and has not eaten since sunrise.",
+    "investigate": "Write down a prediction and check how the event was actually documented",
+    "success": "The forecast accurately warns of a failed heater, but the bubble credits a person who is out of town. You log the repair instead of the legend.",
+    "failure": "The message bursts before anyone agrees on its wording. A witness remembers the temperature warning, which a technician can verify without an oracle.",
+    "help": "Make sure the volunteer gets a break and the tub passes its ordinary safety checks",
+    "helpOutcome": "The heater is shut down, warm drinks appear, and the volunteer gets lunch. The tub insists it predicted the sandwiches."
   },
   {
     "id": "WH-051",
@@ -142,12 +142,12 @@
     "place": "Humboldt Bay",
     "scene": "bay",
     "pool": 2,
-    "pressure": "Oysters convene a floating parliament and subpoena a gull for stealing mussels. The gull's defense is that the tide taught it to.",
-    "investigate": "Collect testimony from both sides",
-    "success": "The shell minutes reveal a channel marker missing from the next day's chart.",
-    "failure": "The gull swallows the notice, but two witnesses agree on the location.",
-    "help": "Negotiate a nonviolent shoreline agreement",
-    "helpOutcome": "The council reserves a feeding patch and the gull promises only to steal human french fries."
+    "pressure": "A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel.",
+    "investigate": "Examine the mussel evidence and the parliament's jurisdiction claims",
+    "success": "The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power.",
+    "failure": "The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony.",
+    "help": "Help move the assembly away from boats and let the accused gull depart",
+    "helpOutcome": "Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips."
   },
   {
     "id": "WH-052",
@@ -157,12 +157,12 @@
     "place": "Humboldt Bay",
     "scene": "bay",
     "pool": 2,
-    "pressure": "A channel buoy has walked off its station and announced a strike. It says the sea keeps giving false directions.",
-    "investigate": "Measure the vacancy with a passing skipper",
-    "success": "The buoy's old position is correct on a chart dated next year, not today's.",
-    "failure": "Your compass spins and the buoy refuses another shift until someone listens.",
-    "help": "Help boaters place an honest temporary marker",
-    "helpOutcome": "Crews post a clear warning and agree to investigate instead of blaming the buoy."
+    "pressure": "A channel marker has drifted ashore and drawn a picket line in the sand. It says the chart has been lying about the depth for months. A fishing crew is preparing to take the shortcut it used to mark.",
+    "investigate": "Compare the buoy's last recorded position with current soundings and chart updates",
+    "success": "The shortcut has shoaled. A skipper radios the measured position; the buoy's labor claim can wait for daylight.",
+    "failure": "You cannot confirm the depth before the tide changes. The recorded drift still gives the harbor office a location worth checking.",
+    "help": "Warn the crew to use the charted route and support a safe inspection",
+    "helpOutcome": "The boats take the longer channel without incident. The buoy accepts a dry place to rest and a temporary sign reading STRIKE, NOT NAVIGATION."
   },
   {
     "id": "WH-053",
@@ -187,12 +187,12 @@
     "place": "Humboldt Bay",
     "scene": "bay",
     "pool": 2,
-    "pressure": "The tide deposits a rustless bicycle with fresh sand in its gears. A rental sticker names a journey none of the staff remembers.",
-    "investigate": "Check the frame number with the ferry records",
-    "success": "It was checked out tomorrow by a rider who crossed the bay through the missing channel.",
-    "failure": "Salt takes the ink off the sticker, but the wheels turn backward once without contact.",
-    "help": "Return the bicycle to the people who need it",
-    "helpOutcome": "A youth cycling group repairs the brakes and makes its mystery public."
+    "pressure": "The tide returns a bicycle without a fleck of rust. Its rental tag records a ride out to a pier that no longer exists, and the rental clerk is afraid the owner will charge her for a vehicle she never signed out.",
+    "investigate": "Match the tag number to the rental records and surviving pier maps",
+    "success": "The trip date is tomorrow; a photographed frame number matches the present bike. The clerk logs it as evidence rather than charging a customer.",
+    "failure": "Saltwater ruins the QR code as you scan it. The paper key tag survives with the initials of someone the clerk remembers.",
+    "help": "Help the clerk keep the bicycle safe and correct the inventory without blame",
+    "helpOutcome": "The shop locks the bike inside and writes an incident note. Somebody hangs a HELMET REQUIRED sign on the door to the past."
   },
   {
     "id": "WH-056",
@@ -202,12 +202,12 @@
     "place": "Sequoia Park / Zoo",
     "scene": "grove",
     "pool": 3,
-    "pressure": "A park bench has gathered objects visitors forgot as children, including one nobody can bear to identify. A caretaker wants the bench removed.",
-    "investigate": "Find the oldest returned object and ask who remembers it",
-    "success": "A toy compass points to the tree with three doorways rather than magnetic north.",
-    "failure": "You recognize a toy but not its owner; the bench offers no explanation.",
-    "help": "Help people reclaim memories without performing grief",
-    "helpOutcome": "Visitors leave messages for one another. The bench keeps only what they choose to donate."
+    "pressure": "A redwood-park bench is holding lost childhood belongings: a mitten, a model airplane, a letter never mailed. One item makes a visitor go still. The caretaker has been ordered to remove the bench because nobody filed the proper installation permit.",
+    "investigate": "Check where the bench came from and ask before identifying anyone's belongings",
+    "success": "An old maintenance ledger records its arrival tomorrow. The caretaker preserves the entry, and the visitor quietly claims the letter without having to explain it.",
+    "failure": "The bench's plaque becomes unreadable under your camera. You still find a municipal bolt mark beneath the seat and report it as a trace.",
+    "help": "Help the caretaker catalog the items privately while the bench is evaluated",
+    "helpOutcome": "The objects are stored with consent and the visitor chooses which one to keep. The bench stays another week, pending a very ordinary hearing."
   },
   {
     "id": "WH-057",
@@ -247,12 +247,12 @@
     "place": "Sequoia Park / Zoo",
     "scene": "grove",
     "pool": 3,
-    "pressure": "One family has spent decades finishing the same picnic. Each time they fold the cloth, another child arrives at the table.",
-    "investigate": "Compare the photographs around the basket",
-    "success": "The youngest child's birthday lies thirty years in the future, yet the cake is fresh.",
-    "failure": "The album closes before you copy a date; the family still invites you to sit.",
-    "help": "Help them decide when a gathering may end",
-    "helpOutcome": "The parents pack at last and carry the leftovers to the shelter rather than hold the children forever."
+    "pressure": "A family picnic has lasted long enough for three generations of children to keep arriving after the blanket is folded. The grandparents are exhausted and one child needs medication from the car. A photographer thinks the whole thing would make a charming brochure.",
+    "investigate": "Compare the family's photos and dates without separating anyone from the table",
+    "success": "A photograph shows an extra place setting before its occupant was born. The family keeps the original and lets you record only the date discrepancy.",
+    "failure": "You lose track of the sequence halfway through. The youngest child has written everyone's name on a paper plate, which is at least a reliable headcount.",
+    "help": "Help the family get necessities and protect their privacy while they leave",
+    "helpOutcome": "They pack food, medication and children in that order. For the first time the blanket folds flat; nobody volunteers it for a museum."
   },
   {
     "id": "WH-060",
@@ -262,11 +262,11 @@
     "place": "Sequoia Park / Zoo",
     "scene": "grove",
     "pool": 3,
-    "pressure": "A hollow redwood holds three doorways: PUBLIC, PRIVATE and FORGOTTEN. A ranger says none has a key and all have an exit.",
-    "investigate": "Test each threshold from outside with a witness",
-    "success": "The public doorway opens onto a future trail meeting, including its still-blank sign-in sheet.",
-    "failure": "The forgotten door seals when named; you chalk its outline for a safer return.",
-    "help": "Ask who should decide access to the tree",
-    "helpOutcome": "Local stewards agree to survey the site before turning the anomaly into a tourist attraction."
+    "pressure": "A hollow redwood presents three doors: PUBLIC, PRIVATE and FORGOTTEN. A ranger says they all lead out, but visitors have been leaving through places they never entered. A school group is approaching, and the PUBLIC door has begun charging admission.",
+    "investigate": "Check the doorways from outside and compare the ranger's visitor count",
+    "success": "A carved mark links the PRIVATE exit to a locked maintenance path. The ranger closes the route until its real safety can be checked.",
+    "failure": "The doors swap labels when you blink. The group's teacher records the original positions, and you agree not to test the unknown exit with children.",
+    "help": "Help the ranger redirect visitors onto the marked, accessible trail",
+    "helpOutcome": "The group sees the living redwood without buying a ticket to anywhere. The PUBLIC door displays a complaint about lost revenue."
   }
 ]

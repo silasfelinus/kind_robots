@@ -150,11 +150,17 @@ for (const game of [
   'zuzu-showdown',
   'zuzu-ghost-trail',
   'zuzu-pinball',
-  'zuzu-lair',
 ]) {
   const tab = readFileSync(`content/channels/arcade/${game}.md`, 'utf8')
   assert.match(tab, /\nchannelKey: arcade\n/)
 }
+
+const privateLairTab = readFileSync(
+  'content/channels/admin/zuzu-lair.md',
+  'utf8',
+)
+assert.match(privateLairTab, /\nchannelKey: admin\n/)
+assert.match(privateLairTab, /\nrequiredRole: ADMIN\n/)
 
 const page = readFileSync('pages/play/arcade/index.vue', 'utf8')
 assert.match(

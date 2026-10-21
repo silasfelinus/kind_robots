@@ -62,6 +62,20 @@
     <div
       class="flex min-h-12 min-w-0 items-center gap-1.5 px-1.5 py-1.5 sm:gap-2 sm:px-2 xl:min-h-16 xl:gap-3 xl:px-3"
     >
+      <NuxtLink
+        to="/"
+        class="btn btn-ghost btn-sm btn-square shrink-0 rounded-xl border border-base-300"
+        :class="
+          route.path === '/'
+            ? 'border-primary bg-primary/15 text-primary'
+            : 'bg-base-100'
+        "
+        :aria-current="route.path === '/' ? 'page' : undefined"
+        aria-label="Home"
+        title="Home"
+      >
+        <Icon name="kind-icon:home" class="kr-icon-5" />
+      </NuxtLink>
       <!--
         KEPT, though Silas's list of four does not mention it, because it only
         appears when there is somewhere to go back TO (navStore.canGoBack) and

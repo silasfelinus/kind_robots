@@ -719,8 +719,8 @@ async function handleGiftshopCartPurchase(session: Stripe.Checkout.Session) {
 // Sync from Stripe's *latest* subscription, not the stale snapshot embedded
 // in one event. Invoice failures and subscription updates can arrive in any
 // order; the last webhook delivered is not necessarily the newest state.
-async function handleSubscriptionLifecycle(subscription: Stripe.Subscription) {
-  const latest = await getStripeClient().subscriptions.retrieve(subscription.id)
+async function handleSubscriptionLifecycle(subscriptionId: string) {
+  const latest = await getStripeClient().subscriptions.retrieve(subscriptionId)
   const customerId =
     typeof latest.customer === 'string'
       ? latest.customer
@@ -849,16 +849,14 @@ export default defineEventHandler(async (event) => {
     } else if (stripeEvent.type === 'invoice.payment_failed') {
       const invoice = stripeEvent.data.object as Stripe.Invoice
       const subscriptionId = stripeInvoiceSubscriptionId(invoice)
-      if (subscriptionId) {
-        const latest = await stripe.subscriptions.retrieve(subscriptionId)
-        await handleSubscriptionLifecycle(latest)
-      }
+      if (subscriptionId)
+        await handleSubscriptionLifecycle(subscriptionId)
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||
       stripeEvent.type === 'customer.subscription.deleted'
     ) {
       await handleSubscriptionLifecycle(
-        stripeEvent.data.object as Stripe.Subscription,
+        (stripeEvent.data.object as Stripe.Subscription).id,
       )
     }
 

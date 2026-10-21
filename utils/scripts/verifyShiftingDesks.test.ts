@@ -351,6 +351,94 @@ for (const flag of [
   )
 }
 
+const reviewCallbacks = [
+  {
+    department: 'records',
+    choiceId: 'ask-pip-to-say-no',
+    requiredFlag: 'taught-pip-to-say-no',
+    grantedFlag: 'pip-refused-form-zero',
+    outcome: 'returned-to-sender',
+  },
+  {
+    department: 'records',
+    choiceId: 'ask-the-surface-to-authorize',
+    requiredFlag: 'wrote-to-the-surface',
+    grantedFlag: 'surface-signed-form-zero',
+    outcome: 'returned-to-sender',
+  },
+  {
+    department: 'toy-division',
+    choiceId: 'read-the-robot-minority-report',
+    requiredFlag: 'robot-dissent-entered-minutes',
+    grantedFlag: 'investors-read-robot-dissent',
+    outcome: 'launch-postponed',
+  },
+  {
+    department: 'toy-division',
+    choiceId: 'present-the-parents-warning',
+    requiredFlag: 'warning-reached-parents',
+    grantedFlag: 'parents-testified-at-launch',
+    outcome: 'launch-postponed',
+  },
+] as const
+
+for (const callback of reviewCallbacks) {
+  const dept = DEPARTMENTS.find(
+    (candidate) => candidate.department.id === callback.department,
+  )
+  assert.ok(dept, `missing department ${callback.department}`)
+  const action = dept.boss.choices.find(
+    (choice) => choice.id === callback.choiceId,
+  )
+  assert.ok(action, `missing history-dependent review ${callback.choiceId}`)
+  assert.equal(action.requires?.flag, callback.requiredFlag)
+  assert.ok(
+    dept.encounters.some((scene) =>
+      scene.choices.some(
+        (choice) =>
+          choice.success.add_flags.includes(callback.requiredFlag) ||
+          (choice.failure?.add_flags ?? []).includes(callback.requiredFlag),
+      ),
+    ),
+    `${callback.requiredFlag} must be obtainable before this review`,
+  )
+  assert.equal(action.success.department_outcome, callback.outcome)
+  assert.ok(action.success.add_flags.includes(callback.grantedFlag))
+  if (action.roll) {
+    assert.ok(action.failure, `${action.id} needs a failed-check outcome`)
+    assert.ok(
+      action.failure.department_outcome,
+      `${action.id} needs a failure review status`,
+    )
+  } else {
+    assert.equal(action.failure, null)
+  }
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some(
+        (variant) => variant.when_flag === callback.grantedFlag,
+      ),
+    ),
+    `${callback.grantedFlag} must have an endgame case-file echo`,
+  )
+}
+for (const flag of [
+  'form-zero-stamped',
+  'shipped-the-bear',
+  'forged-form-zero',
+  'named-the-parents',
+  'supervisor-confided',
+  'signed-kevins-card',
+  'perfect-wellness-score',
+]) {
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some((variant) => variant.when_flag === flag),
+    ),
+    `${flag} must be considered by a final Board outcome`,
+  )
+}
+
 const allChoices = DEPARTMENTS.flatMap((d) => [
   ...d.encounters.flatMap((e) => e.choices),
   ...d.boss.choices,

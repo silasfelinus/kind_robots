@@ -294,6 +294,7 @@ type ArtStoreState = {
   isGenerating: boolean
   generationMessage: string
   generationMessageTone: 'success' | 'error'
+  generationMessageSequence: number
   /** What the loaded source image is, for the viewer. Nothing downstream reads it. */
   sourceImageLabel: string
   lastGeneratedArtImage: ArtImage | null
@@ -425,6 +426,7 @@ export const useArtStore = defineStore('artStore', () => {
     isGenerating: false,
     generationMessage: '',
     generationMessageTone: 'success',
+    generationMessageSequence: 0,
     sourceImageLabel: '',
     lastGeneratedArtImage: null,
     lastRandomBatchPlan: null,
@@ -580,6 +582,7 @@ export const useArtStore = defineStore('artStore', () => {
   function setGenerationMessage(tone: 'success' | 'error', message: string): void {
     state.generationMessageTone = tone
     state.generationMessage = message
+    state.generationMessageSequence += 1
   }
 
   function clearGenerationMessage(): void {

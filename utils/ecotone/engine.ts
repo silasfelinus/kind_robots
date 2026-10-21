@@ -1,3 +1,4 @@
+import { isEcotoneReviewHeldCard } from './reviewHold'
 import {
   ARCHETYPES,
   COMPANIONS,
@@ -878,7 +879,39 @@ function migrateRecordedLensQuests(state: RunState): RunState {
 
 export function restoreRun(raw: unknown): RunState | null {
   if (!raw || typeof raw !== 'object') return null
-  const s = raw as Partial<RunState>
+  const incoming = raw as Partial<RunState>
+  // Saves written before the consultation hold must not resurrect held cards
+  // in the journal, a fork, a pending result, or the resumed scene.
+  const heldCurrent =
+    typeof incoming.card === 'string' && isEcotoneReviewHeldCard(incoming.card)
+  const s: Partial<RunState> = {
+    ...incoming,
+    card: heldCurrent ? null : incoming.card,
+    offered: Array.isArray(incoming.offered)
+      ? incoming.offered.filter((id) => !isEcotoneReviewHeldCard(id))
+      : incoming.offered,
+    played: Array.isArray(incoming.played)
+      ? incoming.played.filter((id) => !isEcotoneReviewHeldCard(id))
+      : incoming.played,
+    log: Array.isArray(incoming.log)
+      ? incoming.log.filter(
+          (entry) => !isEcotoneReviewHeldCard(entry?.source ?? ''),
+        )
+      : incoming.log,
+    evidence: Array.isArray(incoming.evidence)
+      ? incoming.evidence.filter(
+          (entry) => entry !== 'A latitude from another county',
+        )
+      : incoming.evidence,
+    flags: Array.isArray(incoming.flags)
+      ? incoming.flags.filter((flag) => !flag.startsWith('mad_river_'))
+      : incoming.flags,
+    pending:
+      incoming.pending &&
+      isEcotoneReviewHeldCard(incoming.pending.entry?.source ?? '')
+        ? null
+        : incoming.pending,
+  }
   if (s.version !== ECOTONE_SAVE_VERSION) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
@@ -889,7 +922,7 @@ export function restoreRun(raw: unknown): RunState | null {
   if (typeof s.step !== 'number' || s.step < 0) return null
   if (s.event && s.step > ROUTES[s.event].length) return null
   if (s.card !== null && !findCard(s.card)) return null
-  if (s.phase === 'beat' && !s.card) return null
+  if (s.phase === 'beat' && !s.card && !heldCurrent) return null
   if (!isCardList(s.offered) || !isCardList(s.played)) return null
   if (s.prospect !== null && !isCompanion(s.prospect)) return null
   if (!Array.isArray(s.meetingOrder) || !s.meetingOrder.every(isCompanion))
@@ -933,5 +966,10 @@ export function restoreRun(raw: unknown): RunState | null {
           ]
         : []),
   }
-  return migrateRecordedLensQuests(restored)
+  const migrated = migrateRecordedLensQuests(restored)
+  if (heldCurrent && migrated.phase === 'beat')
+    return enterStep({ ...migrated, pending: null }, migrated.step + 1)
+  if (migrated.phase === 'fork' && migrated.offered.length === 0)
+    return enterStep({ ...migrated, pending: null }, migrated.step + 1)
+  return migrated
 }

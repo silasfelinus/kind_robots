@@ -1,3 +1,5 @@
+import { isEcotoneReviewHeldArtSubject } from './reviewHold'
+
 // Ecotone art ledgers for the temporary checkpoint review page
 // (/admin/art-review, conductor weird-humboldt t-043): every round's lanes,
 // subjects and ArtJob ids, snapshotted from conductor
@@ -34,7 +36,7 @@ export type ArtReviewRound = {
   notes: Partial<Record<'people' | 'places' | 'recommendation', string>>
 }
 
-export const ART_REVIEW_ROUNDS: ArtReviewRound[] = [
+const ALL_ART_REVIEW_ROUNDS: ArtReviewRound[] = [
   {
     id: 'standard',
     title: 'Art standard (4 styles)',
@@ -4633,6 +4635,16 @@ export const ART_REVIEW_ROUNDS: ArtReviewRound[] = [
     notes: {},
   },
 ]
+
+/** Withhold culturally unreviewed subjects and associated prompts/job IDs from this UI. */
+export const ART_REVIEW_ROUNDS: ArtReviewRound[] = ALL_ART_REVIEW_ROUNDS.map(
+  (round) => ({
+    ...round,
+    subjects: round.subjects.filter(
+      (subject) => !isEcotoneReviewHeldArtSubject(subject),
+    ),
+  }),
+).filter((round) => round.subjects.length > 0)
 
 /** Every job id across the rounds, for one batched status read. */
 export function artReviewJobIds(round: ArtReviewRound): number[] {

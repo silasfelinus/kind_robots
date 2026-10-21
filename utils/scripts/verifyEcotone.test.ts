@@ -1,4 +1,9 @@
 import './verifyEcotoneAdversarial.test'
+import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
+import {
+  isEcotoneReviewHeldArt,
+  isEcotoneReviewHeldArtSubject,
+} from '../ecotone/reviewHold'
 import assert from 'node:assert/strict'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
@@ -159,6 +164,69 @@ for (const lead of ENDING_LEADS) {
   }
 }
 for (const lens of openLenses) assert.ok(LENS_CODAS[lens], `${lens} coda`)
+
+// The Wiyot/Tuluwat pre-consultation hold must fail closed everywhere a
+// reviewer or player might see unreviewed material. Independent fiction stays.
+assert.ok(!ENCOUNTERS.some((card) => card.id === 'WH-121'))
+assert.equal(findCard('WH-121'), null)
+assert.ok(ENCOUNTERS.some((card) => card.id === 'WH-037'))
+assert.ok(
+  !/tribal|reservation|grant/i.test(
+    COMPANIONS.find((c) => c.id === 'mara')!.bio,
+  ),
+)
+for (const key of [
+  'cards/wh-121',
+  'outcomes/wh-121/reading-success',
+  'encounters/wh-121-latitude-argument',
+  'companions/mara',
+  'endings/mara-sober-hope',
+  'endings/ecotopia-mdma-dark',
+  'cards/kn-1',
+  'outcomes/kn-1/flash-success',
+]) {
+  assert.ok(isEcotoneReviewHeldArt(key), `${key} is held`)
+  assert.equal(ecotoneArtSrc(key, 'krea2'), null)
+  assert.equal(artUrl(key), null)
+}
+assert.ok(
+  ART_REVIEW_ROUNDS.every((round) =>
+    round.subjects.every((subject) => !isEcotoneReviewHeldArtSubject(subject)),
+  ),
+  'review gallery cannot display held prompts or preview jobs',
+)
+const heldBase = advance(chooseEvent(createRun(5, 'local'), 'kinetic'))
+const historicSave = {
+  ...heldBase,
+  phase: 'beat' as const,
+  step: 4,
+  card: 'WH-121',
+  offered: ['WH-121'],
+  played: ['WH-121'],
+  flags: ['mad_river_peace'],
+  evidence: ['A latitude from another county'],
+  log: [
+    {
+      source: 'WH-121',
+      title: 'The Latitude Argument',
+      choice: 'Help him take the reading',
+      roll: null,
+      text: 'You held the horizon for the expedition',
+      effects: {},
+    },
+  ],
+}
+const heldRestored = restoreRun(historicSave)
+assert.ok(
+  heldRestored,
+  'older saves advance past the held scene rather than being discarded',
+)
+assert.notEqual(heldRestored.card, 'WH-121')
+assert.ok(!heldRestored.offered.includes('WH-121'))
+assert.ok(!heldRestored.played.includes('WH-121'))
+assert.ok(!heldRestored.log.some((entry) => entry.source === 'WH-121'))
+assert.ok(!heldRestored.flags.includes('mad_river_peace'))
+assert.ok(!heldRestored.evidence.includes('A latitude from another county'))
 
 // Full regional manuscript: 120 canonical seed IDs, every choice and result written.
 const canonical = ENCOUNTERS.filter(

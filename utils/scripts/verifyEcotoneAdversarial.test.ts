@@ -221,8 +221,25 @@ function playPersona(plan: Persona): RunState {
       ),
       'future callback must have an earned source: ' + callback.flag,
     )
+  }
+  const shownCallbacks = earnedQuestCallbacks(state.flags, state.played)
+  assert.ok(
+    shownCallbacks.length <= 2,
+    'finale displays no more than two echoes',
+  )
+  for (const text of shownCallbacks) {
+    const regional = REGIONAL_CALLBACKS.find(
+      (candidate) => candidate.text === text,
+    )
+    if (!regional) continue
+    assert.ok(state.flags.includes(regional.flag))
+    assert.ok(state.played.includes(regional.id))
     assert.ok(
-      earnedQuestCallbacks(state.flags, state.played).includes(callback.text),
+      state.log.some(
+        (entry) =>
+          entry.source === regional.id && entry.effects.flag === regional.flag,
+      ),
+      'every displayed callback must come from a witnessed choice',
     )
   }
   const restored = restoreRun(JSON.parse(JSON.stringify(state)))

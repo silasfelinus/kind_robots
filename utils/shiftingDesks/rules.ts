@@ -418,14 +418,19 @@ export function reviewExhibits(
     ],
     [
       'future-incident-on-record',
-      'FOREKNOWLEDGE: You quoted the Company\'s future incident report in the launch memo. The date was known before the celebration.',
+      "FOREKNOWLEDGE: You quoted the Company's future incident report in the launch memo. The date was known before the celebration.",
     ],
     [
       'named-the-parents',
       'PRODUCT LOYALTY: Your testimony identified the concerned engineers. The Company has opened a reassignment file for all nine.',
     ],
   ]
-  const entries = state.department === 'records' ? records : state.department === 'toy-division' ? toys : []
+  const entries =
+    state.department === 'records'
+      ? records
+      : state.department === 'toy-division'
+        ? toys
+        : []
   return entries
     .filter(([flag]) => state.flags.includes(flag))
     .slice(0, 2)

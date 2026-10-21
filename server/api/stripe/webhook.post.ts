@@ -4,6 +4,11 @@ import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { applyMana, usdToMana } from '~/server/utils/mana'
+import {
+  PATRON_MONTHLY_TOKENS,
+  checkoutHasPaidSubscription,
+  paidPatronInvoiceSubscriptionId,
+} from '~/server/utils/patronBilling'
 import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
 import type { ProductType } from '~/prisma/generated/prisma/client'
 import { checkPrintEligibility } from '../art/utils/printEligibility'
@@ -81,6 +86,10 @@ async function handleManaTopup(session: Stripe.Checkout.Session) {
 // route on session.mode instead. Idempotent by construction: this only ever sets
 // isMember/stripeSubscriptionId to their new value, it never accumulates like mana.
 async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
+  // A completed checkout can still be unpaid (e.g. asynchronous payment).
+  // Membership/token entitlements require actual payment, not a redirect.
+  if (!checkoutHasPaidSubscription(session)) return
+
   const customerId =
     typeof session.customer === 'string'
       ? session.customer
@@ -118,6 +127,105 @@ async function handleSubscriptionCheckout(session: Stripe.Checkout.Session) {
 
   console.log(
     `🎫 Activated membership for user ${user.id} (subscription ${subscriptionId})`,
+  )
+}
+
+// Each successful initial/renewal Patron invoice grants 1,000 paid TOKENS.
+// Invoice.id (NOT event.id) is the idempotency key: Stripe sends multiple
+// event kinds and can retry deliveries. The user-row lock serializes grant
+// attempts for the same account, then the ledger lookup + balance write share
+// the same transaction. Never grant for an unpaid or unrelated invoice.
+async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
+  const subscriptionId = paidPatronInvoiceSubscriptionId(invoice)
+  if (!subscriptionId) return
+
+  const customerId =
+    typeof invoice.customer === 'string'
+      ? invoice.customer
+      : invoice.customer?.id
+  if (!customerId) throw new Error('Paid Patron invoice is missing a Stripe customer')
+
+  const priceId = process.env.STRIPE_PRICE_ID
+  if (!priceId)
+    throw createError({
+      statusCode: 500,
+      message: 'Patron subscription price is not configured',
+    })
+
+  // Check against live Stripe state and the exact configured Patron price.
+  // An invoice for another subscription/product must never mint tokens.
+  const subscription = await getStripeClient().subscriptions.retrieve(subscriptionId)
+  const subscriptionCustomer =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer?.id
+  const matchesPrice = subscription.items.data.some(
+    (item) => item.price.id === priceId,
+  )
+  const validStatus =
+    subscription.status === 'active' || subscription.status === 'trialing'
+
+  if (!matchesPrice || !validStatus || subscriptionCustomer !== customerId)
+    return
+
+  const user = await prisma.user.findFirst({
+    where: { stripeCustomerId: customerId },
+    select: { id: true },
+  })
+  if (!user)
+    throw new Error('Paid Patron invoice has no linked Kind Robots customer')
+
+  await prisma.$transaction(async (tx) => {
+    // Serializes concurrent duplicate invoice events without adding a schema
+    // migration or relying on a check-then-insert outside a transaction.
+    const locked = await tx.$queryRaw<Array<{ id: number }>>`
+      SELECT id FROM \`User\` WHERE id = ${user.id} FOR UPDATE
+    `
+    if (locked.length !== 1)
+      throw new Error('Kind Robots customer vanished during Patron grant')
+
+    const current = await tx.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { stripeCustomerId: true, stripeSubscriptionId: true },
+    })
+    if (current.stripeCustomerId !== customerId) return
+    if (
+      current.stripeSubscriptionId &&
+      current.stripeSubscriptionId !== subscriptionId
+    )
+      return
+
+    const existing = await tx.manaTransaction.findFirst({
+      where: {
+        userId: user.id,
+        reason: 'SUBSCRIPTION_GRANT',
+        refId: invoice.id,
+      },
+    })
+    if (existing) return
+
+    await applyMana({
+      userId: user.id,
+      amount: PATRON_MONTHLY_TOKENS,
+      reason: 'SUBSCRIPTION_GRANT',
+      refId: invoice.id,
+      note: 'Patron monthly paid invoice token grant',
+      provider: 'stripe',
+      costUsd: invoice.amount_paid / 100,
+      tx,
+    })
+    await tx.user.update({
+      where: { id: user.id },
+      data: {
+        isMember: true,
+        memberUntil: null,
+        stripeSubscriptionId: subscriptionId,
+      },
+    })
+  })
+
+  console.log(
+    `🎫 Processed paid Patron invoice ${invoice.id} for subscription ${subscriptionId}`,
   )
 }
 
@@ -680,6 +788,8 @@ export default defineEventHandler(async (event) => {
         case 'unhandled':
           break
       }
+    } else if (stripeEvent.type === 'invoice.paid') {
+      await handlePaidPatronInvoice(stripeEvent.data.object as Stripe.Invoice)
     } else if (
       stripeEvent.type === 'customer.subscription.updated' ||
       stripeEvent.type === 'customer.subscription.deleted'

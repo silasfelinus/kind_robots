@@ -574,7 +574,9 @@ assert.ok(generator.includes('v-for="option in widthOptions"'))
 assert.ok(generator.includes('v-for="option in heightOptions"'))
 assert.ok(generator.includes('placement="up"'))
 assert.ok(
-  generator.includes('<details class="kr-panel-flat @7xl:col-start-1 @7xl:row-start-3">'),
+  generator.includes(
+    '<details class="kr-panel-flat @7xl:col-start-1 @7xl:row-start-3">',
+  ),
 )
 assert.ok(generator.includes('v-if="artStore.lastGeneratedArtImage"'))
 assert.ok(generator.includes('<section class="@container min-h-full w-full">'))

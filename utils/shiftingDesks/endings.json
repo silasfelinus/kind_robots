@@ -3,7 +3,7 @@
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
   "sourceRef": "main@864ef2f06c46ee0ac7eb50b4446cdb2dcf75847a",
   "endings": [
-{
+    {
       "id": "employee-of-the-month",
       "title": "Employee of the Month",
       "kind": "board",
@@ -77,7 +77,7 @@
         }
       ]
     },
-{
+    {
       "id": "escape-through-the-ducts",
       "title": "Escape Through the Ducts",
       "kind": "board",
@@ -120,7 +120,7 @@
         }
       ]
     },
-{
+    {
       "id": "roach-union-general-strike",
       "title": "Roach Union General Strike",
       "kind": "board",
@@ -198,7 +198,7 @@
         }
       ]
     },
-{
+    {
       "id": "whistleblower",
       "title": "Whistleblower",
       "kind": "board",
@@ -258,10 +258,14 @@
         {
           "when_flag": "suggestion-became-evidence",
           "text": "The prosecution waves your petition as proof that you organized an unauthorized opinion. Your attorney asks the clerk to read its full text aloud: MAYBE FEWER REASSIGNMENTS? The gallery takes a minute to stop laughing."
+        },
+        {
+          "when_flag": "incident-report-censored",
+          "text": "Legal presents the redacted launch memo. When the original attachment is restored, the safety warning appears beneath the oversized mascot thumb. The gallery watches a lawyer explain why the Company replaced a date with a smile."
         }
       ]
     },
-{
+    {
       "id": "early-retirement",
       "title": "Early Retirement",
       "kind": "board",
@@ -304,7 +308,7 @@
         }
       ]
     },
-{
+    {
       "id": "the-kind-rewrite",
       "title": "The Kind Rewrite",
       "kind": "board",
@@ -364,10 +368,14 @@
         {
           "when_flag": "robot-dissent-entered-minutes",
           "text": "The first act of the new PAL is to stop treating minority reports as errors. The little robot votes no again, solely to check. Its vote stays on the screen."
+        },
+        {
+          "when_flag": "b-note-admitted",
+          "text": "B's note is admitted to the personnel record without the word FORGERY. He reads it beside you and asks if you both have to make the same choice. PAL replies, 'No.' You are not sure which of you is more relieved."
         }
       ]
     },
-{
+    {
       "id": "position-eliminated",
       "title": "Position Eliminated",
       "kind": "elimination",
@@ -410,7 +418,7 @@
         }
       ]
     },
-{
+    {
       "id": "posthumous-affairs",
       "title": "The Department of Posthumous Affairs",
       "kind": "secret",

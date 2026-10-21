@@ -236,12 +236,42 @@ for (const debt of [
 }
 
 const recordsCallbacks = [
-  ['the-parents-behind-the-mirror', 'own-the-petition', 'suggestion-traced-to-you', 'parents-saw-the-suggestion'],
-  ['the-robot-panel', 'let-the-no-count', 'taught-pip-to-say-no', 'robot-dissent-entered-minutes'],
-  ['rate-their-sincerity', 'submit-bs-card', 'read-successor-bs-card', 'b-note-admitted'],
-  ['the-union-walkthrough', 'show-shared-invoice', 'shared-a-desk-with-beverly', 'beverly-repaid-shared-desk'],
-  ['mr-sunshine-is-being-replaced', 'compare-kevins-watch', 'wearing-kevins-watch', 'kevin-voice-out-of-sync'],
-  ['the-safe-distance-memo', 'quote-thursdays-incident', 'knows-the-incident', 'future-incident-on-record'],
+  [
+    'the-parents-behind-the-mirror',
+    'own-the-petition',
+    'suggestion-traced-to-you',
+    'parents-saw-the-suggestion',
+  ],
+  [
+    'the-robot-panel',
+    'let-the-no-count',
+    'taught-pip-to-say-no',
+    'robot-dissent-entered-minutes',
+  ],
+  [
+    'rate-their-sincerity',
+    'submit-bs-card',
+    'read-successor-bs-card',
+    'b-note-admitted',
+  ],
+  [
+    'the-union-walkthrough',
+    'show-shared-invoice',
+    'shared-a-desk-with-beverly',
+    'beverly-repaid-shared-desk',
+  ],
+  [
+    'mr-sunshine-is-being-replaced',
+    'compare-kevins-watch',
+    'wearing-kevins-watch',
+    'kevin-voice-out-of-sync',
+  ],
+  [
+    'the-safe-distance-memo',
+    'quote-thursdays-incident',
+    'knows-the-incident',
+    'future-incident-on-record',
+  ],
 ] as const
 
 for (const [cardId, choiceId, sourceFlag, rewardFlag] of recordsCallbacks) {
@@ -252,7 +282,10 @@ for (const [cardId, choiceId, sourceFlag, rewardFlag] of recordsCallbacks) {
         (choice.failure?.add_flags ?? []).includes(sourceFlag),
     ),
   )
-  assert.ok(origin, `${sourceFlag} is earnable during Records before Toy Division`)
+  assert.ok(
+    origin,
+    `${sourceFlag} is earnable during Records before Toy Division`,
+  )
   const target = TOY_DIVISION.encounters.find((scene) => scene.id === cardId)
   assert.ok(target, `missing Toy Division callback card ${cardId}`)
   assert.ok(target.choices.length <= 4, `${cardId} keeps the four-choice cap`)

@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { isFiveDollarMonthlyPatronPrice } from '~/server/utils/patronBilling'
 
 let stripe: Stripe | null = null
 
@@ -48,6 +49,50 @@ export default defineEventHandler(async (event) => {
 
     const stripe = getStripeClient()
     const priceId = getSubscriptionPriceId()
+
+    if (user.isMember && user.stripeSubscriptionId) {
+      const error = new Error('You already have a Patron subscription') as Error & {
+        statusCode: number
+      }
+      error.statusCode = 409
+      throw error
+    }
+
+    // The screen promises $5 USD per month. Never silently sell a different
+    // amount/currency/interval just because STRIPE_PRICE_ID was misconfigured.
+    const price = await stripe.prices.retrieve(priceId)
+    if (!isFiveDollarMonthlyPatronPrice(price)) {
+      const error = new Error(
+        'Patron Stripe price must be an active $5 USD monthly recurring price',
+      ) as Error & { statusCode: number }
+      error.statusCode = 500
+      throw error
+    }
+
+    const rawBaseUrl = process.env.APP_BASE_URL || process.env.BASE_URL
+    if (!rawBaseUrl) {
+      const error = new Error('Payment return URL is not configured') as Error & {
+        statusCode: number
+      }
+      error.statusCode = 500
+      throw error
+    }
+    let baseUrl: URL
+    try {
+      baseUrl = new URL(rawBaseUrl)
+      const localDev =
+        baseUrl.protocol === 'http:' &&
+        ['localhost', '127.0.0.1'].includes(baseUrl.hostname)
+      if (baseUrl.protocol !== 'https:' && !localDev)
+        throw new Error('Payment return URLs must use HTTPS')
+    } catch {
+      const error = new Error('Payment return URL must be a valid HTTPS URL') as Error & {
+        statusCode: number
+      }
+      error.statusCode = 500
+      throw error
+    }
+
     const email = user.email || `user-${user.id}@kindrobots.org`
 
     const customerId =
@@ -69,8 +114,8 @@ export default defineEventHandler(async (event) => {
           quantity: 1,
         },
       ],
-      success_url: `${process.env.BASE_URL}/sanctuary?subscription=success`,
-      cancel_url: `${process.env.BASE_URL}/sanctuary?subscription=cancelled`,
+      success_url: new URL('/sanctuary?subscription=success', baseUrl).toString(),
+      cancel_url: new URL('/sanctuary?subscription=cancelled', baseUrl).toString(),
     })
 
     return {

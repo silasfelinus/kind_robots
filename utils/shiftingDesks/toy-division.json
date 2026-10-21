@@ -521,12 +521,12 @@
           }
         },
         {
-          "id": "attach-the-drawing",
-          "label": "Attach your crayon warning as evidence",
-          "intent": "Halvorsen kept your drawing from the focus group. The machine diagram says more than forty pages of euphemisms.",
-          "risk_hint": "Requires your warning drawing. Risky Tinkering check: Legal will insist on a certified original.",
+          "id": "attach-the-incident-footnote",
+          "label": "Attach the exit interview's incident footnote",
+          "intent": "You read the Company's future incident report at Orientation. Put that dated evidence beside the forty-page hazard list.",
+          "risk_hint": "Requires the incident footnote from Orientation. Risky Tinkering check: Legal demands a certified original.",
           "requires": {
-            "flag": "drew-the-warning"
+            "flag": "read-the-incident-footnote"
           },
           "cost": {
             "suspicion": 1
@@ -539,7 +539,7 @@
             "target": 9
           },
           "success": {
-            "text": "You retrieve the crayon diagram from Halvorsen's confidential envelope and staple it over the cheerful label. Legal cannot remove an image submitted by a child-test subject without declaring children unreliable. The first thousand boxes ship with the real mechanism visible. Defense writes your name on every returned carton.",
+            "text": "You copy the exit interview's footnote onto the hazard sticker: NEXT THURSDAY. TEDDY BEAR. PARKING STRUCTURE. Legal calls it a forecast, not a warning, but cannot explain how a future incident entered a signed employee file. The first thousand cartons ship with the date intact. Defense files an objection under your name.",
             "effects": {
               "composure": -1
             },
@@ -553,12 +553,12 @@
             }
           },
           "failure": {
-            "text": "Legal certifies the picture, crops out the mechanism and turns the red warning arrows into a mascot's smile. The bear packaging now says APPROVED BY REAL CHILDREN. You recognize every line of the smile.",
+            "text": "Legal stamps your footnote FORWARD-LOOKING STATEMENT, circles the date and adds it to a cheerful advertisement for next Thursday's launch. Children are now invited to the parking structure. Your correction has become the campaign.",
             "effects": {
               "suspicion": 1
             },
             "add_flags": [
-              "drawing-became-advertising"
+              "forecast-became-advertising"
             ],
             "remove_flags": [],
             "grades": {

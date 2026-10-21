@@ -9,6 +9,7 @@ export type RegionalRevision = {
   choices: Choice[]
   lensLines?: EncounterCard['lensLines']
   flagLines?: EncounterCard['flagLines']
+  leadLines?: EncounterCard['leadLines']
 }
 
 export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
@@ -30,6 +31,16 @@ export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
         },
       },
     ],
+    leadLines: {
+      mara:
+        'Mara eyes the broken prop knife. \'Consent stops being consent when someone threatens the rent check. Somebody should tell the director.\'',
+      kit:
+        'Kit looks at the understudy, then the audience. \'A good stunt is where every performer gets to do it again tomorrow. I can teach them a better fall.\'',
+      juniper:
+        'Juniper studies the alien\'s penciled injury clause. \'It learned to ask for safety faster than the humans learned to offer it.\'',
+      cedar:
+        'Cedar holds the prop knife beside the lighting panel. \'You can engineer an illusion that looks deadly. Engineering the actual danger back in is just lazy.\'',
+    },
   },
   'WH-023': {
     choices: [
@@ -48,6 +59,16 @@ export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
         },
       },
     ],
+    leadLines: {
+      mara:
+        'Mara folds the warning letter without touching the sleeping children. \'If the rock is loose, talk about the rock. Nobody owes a stranger faith in a magic envelope.\'',
+      kit:
+        'Kit crouches to inspect the overhang. \'I\'ve stood under unsafe rigging while someone promised the show must go on. It was a stupid promise then too.\'',
+      juniper:
+        'Juniper watches the pebbles tick off the cliff. \'The stone has already spoken. You don\'t have to believe the handwriting to hear it.\'',
+      cedar:
+        'Cedar traces the crack with a finger kept well clear of the ledge. \'The date\'s suspect. The slope isn\'t. Let\'s separate those facts before somebody gets hurt.\'',
+    },
   },
   'WH-041': {
     choices: [
@@ -92,6 +113,16 @@ export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
         all: 'One of the guests heard about the beach path you helped close after the rocks started falling. They appreciate a warning with evidence but ask you to keep tonight\'s private gathering off your map.',
       },
     },
+    leadLines: {
+      mara:
+        'Mara takes one look at the telephoto lens. \'If I wouldn\'t photograph a client without asking, I sure won\'t put somebody\'s home online for a pie recipe.\'',
+      kit:
+        'Kit balances a plate on one palm. \'People pay to see me perform. That doesn\'t buy a camera operator a ticket to my private dinner.\'',
+      juniper:
+        'Juniper watches the hooded guest withdraw into the trees. \'Visibility can be a threat. A forest corridor isn\'t an invitation to turn its residents into exhibits.\'',
+      cedar:
+        'Cedar sets down the serving tray. \'There\'s a way to map a trail for its caretakers without publishing everybody\'s front door. We\'ve built that sort of network before.\'',
+    },
   },
   'WH-082': {
     choices: [
@@ -114,6 +145,16 @@ export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
       wh_041_porch_vigil: {
         all: 'A stagehand recalls your night on the Victorian tenants\' porch and asks whether you would stay as long for workers instead of windows.',
       },
+    },
+    leadLines: {
+      mara:
+        'Mara studies the unpaid ledger. \'I know a studio can be one bad season from shutting. That isn\'t an excuse to tell apprentices their work is free.\'',
+      kit:
+        'Kit rests a hand on the orchestra rail. \'I know how to stop a show. I don\'t know how to get the musicians paid after. We should talk about both.\'',
+      juniper:
+        'Juniper watches rain collect in a violin case. \'I could grow a roof of leaves. It would leak by winter. Somebody still has to pay the people holding this place up.\'',
+      cedar:
+        'Cedar taps the wage column. \'My dad could fix that roof. My mom could get people organized. Neither would tell workers a promise spends like cash.\'',
     },
   },
   'WH-096': {

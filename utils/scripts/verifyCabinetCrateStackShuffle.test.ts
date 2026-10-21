@@ -158,9 +158,9 @@ assert.deepEqual([...newBag(mulberry32(3))].sort(), [...KINDS].sort())
   assert.ok(game.score > 0)
 }
 
-assert.equal(WAREHOUSES.length, 5)
+assert.equal(WAREHOUSES.length, 6)
 assert.equal(warehouseFor(1), 0)
 assert.equal(warehouseFor(WAREHOUSES.length + 1), 0)
-assert.equal(new Set([1, 2, 3, 4, 5].map(warehouseFor)).size, 5)
+assert.equal(new Set([1, 2, 3, 4, 5, 6].map(warehouseFor)).size, 6)
 
 console.log('crate stack shuffle: ok')

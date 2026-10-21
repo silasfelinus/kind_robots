@@ -395,6 +395,39 @@
                   >
                     {{ LENS_CODAS[game.ending.lens] }}
                   </p>
+                  <section class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3">
+                    <h3 class="eco-label">Four philosophical rolls</h3>
+                    <p class="mt-1 text-xs text-[#f3e6c8]/65">
+                      Repeated perspectives tilt the odds. Decisions can agree
+                      or push back. The 2d6 rolls settle a point of view, not
+                      whether your future deserves hope.
+                    </p>
+                    <div class="mt-3 grid gap-3">
+                      <div
+                        v-for="value in philosophy"
+                        :key="value.id"
+                        class="rounded-lg border border-white/10 p-2"
+                      >
+                        <div class="flex items-center justify-between gap-2 text-xs font-bold">
+                          <span>{{ value.left }} ↔ {{ value.right }}</span>
+                          <span class="text-[#d9b877]">{{ value.outcome }}</span>
+                        </div>
+                        <div class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35">
+                          <span class="absolute inset-y-0 left-1/2 w-px bg-white/40" />
+                          <span
+                            class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
+                            :style="{ left: value.position + '%' }"
+                          />
+                        </div>
+                        <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
+                          Chemistry {{ value.chemistry >= 0 ? '+' : '' }}{{ value.chemistry }}
+                          · decisions {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}
+                          · 2d6 ({{ value.dice[0] }} + {{ value.dice[1] }})
+                          + pull {{ value.pull }} = {{ value.total }}
+                        </p>
+                      </div>
+                    </div>
+                  </section>
                   <div class="rounded-xl bg-black/30 p-3">
                     <p class="eco-label">
                       What decided it: {{ game.ending.score }} of
@@ -836,6 +869,32 @@
               <section
                 class="rounded-2xl border border-white/10 bg-black/25 p-3"
               >
+                <h3 class="text-sm font-black">Philosophical currents</h3>
+                <p class="mb-2 text-xs text-white/60">
+                  The needle reflects accumulated moments and actual decisions.
+                  The dice are revealed only at the finale.
+                </p>
+                <div v-for="value in philosophy" :key="value.id" class="mb-3">
+                  <div class="flex justify-between gap-2 text-xs">
+                    <span>{{ value.left }}</span>
+                    <span>{{ value.right }}</span>
+                  </div>
+                  <div class="relative mt-1 h-2 rounded-full bg-[#8fb8b0]/35">
+                    <span class="absolute inset-y-0 left-1/2 w-px bg-white/40" />
+                    <span
+                      class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#d9b877]"
+                      :style="{ left: value.position + '%' }"
+                    />
+                  </div>
+                  <p class="mt-1 text-[11px] text-white/60">
+                    Perspective {{ value.chemistry >= 0 ? '+' : '' }}{{ value.chemistry }}
+                    · actions {{ value.decisions >= 0 ? '+' : '' }}{{ value.decisions }}
+                  </p>
+                </div>
+              </section>
+              <section
+                class="rounded-2xl border border-white/10 bg-black/25 p-3"
+              >
                 <h3 class="text-sm font-black">Opening lens</h3>
                 <p class="text-sm text-white/85">
                   {{
@@ -1107,6 +1166,7 @@ import {
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
 import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
+import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
   SUBSTANCE_CHOICES,
   substanceEpilogue,
@@ -1132,6 +1192,9 @@ const canTakeMoment = computed(() => {
 })
 const substanceCoda = computed(() =>
   game.run ? substanceEpilogue(game.run.substanceMoments) : null,
+)
+const philosophy = computed(() =>
+  game.run ? philosophyNeedles(game.run) : [],
 )
 watch(
   () => game.run?.card,

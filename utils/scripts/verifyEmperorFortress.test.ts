@@ -2102,7 +2102,13 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
   // A due with a fixed day sets its flags at that dawn (t-040).
   for (const due of DUES)
     if (due.day && !due.every)
-      noteEffects(due.effects, (entry) => entry.laterDays.push(due.day!))
+      // t-035: an unpaid or lapsed due sets its flags at that same dawn.
+      for (const effects of [
+        due.effects,
+        due.unpaid?.effects,
+        due.lapsed?.effects,
+      ])
+        noteEffects(effects, (entry) => entry.laterDays.push(due.day!))
   for (const talk of TALKS) {
     flagSource(`heard:${talk.id}`).talk = true
     for (const option of sceneOptions(talk)) {
@@ -3611,7 +3617,11 @@ for (const def of DAYS)
         ...audience.options,
         ...(audience.beats ?? []).flatMap((beat) => beat.options),
       ])
-        for (const flag of option.effects.flags ?? [])
+        for (const flag of [
+          ...(option.effects.flags ?? []),
+          // t-035: the answer itself is an earlier day's answer too.
+          `chose:${audience.id}:${option.id}`,
+        ])
           answeredBy.set(flag, Math.min(answeredBy.get(flag) ?? 99, def.day))
   let sceneVariants = 0
   for (const def of DAYS)
@@ -4613,6 +4623,155 @@ for (const def of DAYS)
     page,
     /\.eod-bar \.tooltip-bottom::after\s*\{\s*transform: translateX\(-50%\)/,
     'the tooltip tail stays on its button when the bubble shifts',
+  )
+}
+
+// --- t-035: Act I playtest rewrites ------------------------------------------
+{
+  const answer = (run: FortressRun, audience: string, ...ids: string[]) => {
+    for (const id of ids) run = chooseAudienceOption(run, audience, id).run
+    return run
+  }
+  const dueIds = (run: FortressRun) => (run.dues ?? []).map((due) => due.id)
+  const thistle = 'q-d10-freehold-raid'
+
+  // Day 10: riding out saves Thistledown in part and costs the gate tonight.
+  const rode = answer(onDay(5, 10), 'd10-oath', 'ask-ranks', 'ride-out')
+  assert.ok(rode.aid?.[thistle]?.some((aid) => aid.resolve === 'partial'))
+  assert.ok(
+    previewQuest(rode, thistle, ['F001', 'F002']).chance >
+      previewQuest(onDay(5, 10), thistle, ['F001', 'F002']).chance,
+    'the Watch riding out helps whoever goes',
+  )
+  for (const id of ['d10-postern-night', 'd10-postern-shut'])
+    assert.ok(dueIds(rode).includes(id), id)
+  const rodeDawn = finishDay(rode)
+  const raid = rodeDawn.report.quests.find((q) => q.questId === thistle)!
+  assert.equal(raid.tier, 'partial', 'nobody went, the Watch held the door')
+  assert.ok(raid.aided && !rodeDawn.run.flags.includes('thistledown-burned'))
+  assert.ok(rodeDawn.report.events.some((e) => /fifteen brass/.test(e)))
+  const held = finishDay(
+    answer(onDay(5, 10), 'd10-oath', 'ask-ranks', 'hold-gate'),
+  )
+  assert.ok(
+    held.run.flags.includes('thistledown-burned'),
+    'the gate, not the village',
+  )
+  assert.equal(dueDef('d10-postern-night')!.effects!.brass, -15)
+  assert.ok(!held.report.events.some((e) => /postern/.test(e)), 'gate held')
+  // The Day 6 stocks nailed the postern shut: the theft never happens.
+  const nailed = finishDay(
+    answer(
+      onDay(5, 10, { flags: ['d06-stablehand-stocks'] }),
+      'd10-oath',
+      'ask-ranks',
+      'ride-out',
+    ),
+  )
+  assert.ok(nailed.report.events.some((e) => /nailed shut/.test(e)))
+  assert.ok(!nailed.report.events.some((e) => /fifteen brass/.test(e)))
+
+  // “Never cheaply” breaks if the lethal convoy is lost after it is sworn.
+  const sworn = (flags: string[]) =>
+    finishDay(answer(onDay(5, 10, { flags }), 'd10-oath', 'care')).run
+  const broken = sworn(['quest:q-d09-iron-convoy:failure'])
+  assert.ok(!broken.flags.includes('oath-of-care'))
+  assert.ok(broken.flags.includes('d10-oath-of-care-broken'))
+  assert.ok(sworn([]).flags.includes('oath-of-care'), 'kept when nobody fell')
+
+  // A promise to Thistledown nobody keeps costs the Freeholds' trust.
+  const promised = answer(onDay(5, 10), 'd10-thistledown', 'promise')
+  const unkept = finishDay(promised).run
+  assert.ok(unkept.flags.includes('d10-promise-broken'))
+  // Striking the Pack's camp settles Thistledown as the scene narrates.
+  const struck = finishDay(
+    answer(
+      onDay(5, 10, { flags: ['pack-camp-mapped'] }),
+      'd10-thistledown',
+      'ask-colors',
+      'strike-camp',
+    ),
+  ).run
+  assert.ok(struck.flags.includes('thistledown-held'))
+
+  // Day 9: hiring the Pack rides alongside, it does not replace the escort.
+  const convoy = 'q-d09-iron-convoy'
+  const day9 = onDay(5, 9, {
+    affinity: { ...createRun(5).affinity, jackalwire: 0 },
+  })
+  const hired = answer(day9, 'd09-convoy', 'hire-pack')
+  assert.ok(hired.board.some((entry) => entry.questId === convoy))
+  assert.ok(
+    previewQuest(hired, convoy, ['F003', 'F004']).chance >
+      previewQuest(day9, convoy, ['F003', 'F004']).chance,
+  )
+  assert.ok(
+    /not be home tomorrow/.test(dayLines(day9, DAYS[8]).komodo),
+    'Day 9 warns that the convoy party misses Thistledown',
+  )
+
+  // Day 7: the storm lands on Day 10, kinder with the crows' hour.
+  const crowed = answer(onDay(5, 7), 'd07-crow-warning', 'warn-freeholds')
+  assert.equal(crowed.dues?.find((due) => due.id === 'd07-storm')?.day, 10)
+  const storm = (flags: string[]) =>
+    finishDay(
+      onDay(5, 9, { flags, dues: [{ id: 'd07-storm', day: 10, from: 7 }] }),
+    ).run
+  assert.ok(storm(['crow-forecast-day10']).flags.includes('d10-harvest-in'))
+  const lost = storm([])
+  assert.ok(lost.flags.includes('d10-harvest-lost'))
+  assert.match(dayBriefings(lost)![0].text, /storm took/)
+  // Komodo's Day 7 lie can be tested, and he answers for it on Day 10.
+  const doubted = answer(
+    onDay(5, 7),
+    'd07-crow-warning',
+    'ask-shelter',
+    'galleries-anyway',
+  )
+  assert.ok(doubted.board.some((entry) => entry.questId === 'q-d07-galleries'))
+  assert.match(
+    dayLines({ flags: ['d07-galleries-found'] }, DAYS[9]).komodo,
+    /clean boots/,
+  )
+
+  // Dominant answers now cost something.
+  const brokeVane = onDay(5, 5, { flags: ['feast-armed'], brass: 30 })
+  const apology = audienceScene(
+    answer(brokeVane, 'd05-toll-grudge', 'ask-feast'),
+    DAYS[4]!.audiences.find((a) => a.id === 'd05-toll-grudge')!,
+  ).options.find((option) => option.id === 'apologize')!
+  assert.ok(optionBlockers(brokeVane, apology).length, 'an apology costs forty')
+  const flour = DAYS[4]!.audiences.find((a) => a.id === 'd05-flour')!
+  const polite = flour.options.find((option) => option.id === 'old-houses')!
+  assert.ok(
+    optionBlockers(onDay(5, 5), polite).length,
+    'the polite ask needs a crown that courted the Houses',
+  )
+  const charter = DAYS[5]!.audiences.find((a) => a.id === 'd06-market-charter')!
+  const rules = charter.options.find((option) => option.id === 'archive-rules')!
+  assert.ok(optionBlockers(onDay(5, 6), rules).length, 'the Archive is earned')
+  const fair = DAYS[1]!.audiences
+    .find((a) => a.id === 'd02-dust-tax')!
+    .options.find((option) => option.id === 'fair')!
+  assert.ok(
+    Object.values(fair.effects.local ?? {}).some((delta) => (delta ?? 0) < 0),
+    'a fair rate costs somebody',
+  )
+  // The Day 3 tincture fee rises, as the factor said.
+  const fee = answer(
+    onDay(5, 3, { flags: ['pack-medicine'] }),
+    'd03-tincture-letter',
+    'pay-fee',
+  )
+  assert.equal(fee.dues?.find((due) => due.id === 'd03-tincture-fee')?.day, 8)
+  // Day 5 never tells the dust-lung story twice.
+  const toll = DAYS[4]!.audiences.find((a) => a.id === 'd05-toll')!
+  const prices = toll.beats!.find((beat) => beat.id === 'prices')!
+  assert.doesNotMatch(
+    sceneLines({ flags: ['chose:d01-toll:ask-toll'] }, prices)
+      .map(lineText)
+      .join(' '),
+    /Dust lung/,
   )
 }
 

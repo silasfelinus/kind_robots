@@ -530,8 +530,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'You count ducks for an hour and lose count twice. It is the best hour of your month.',
-          effects: { nerve: 1 },
+          text: 'You spend the best part of an hour counting birds until you discover someone has rubbed out the tally board behind you. Yesterday’s numbers reappear in your own handwriting. By the time you find a witness, the tide has washed the footprints off the path. Your careful morning has given you nothing you can prove, and the lost hour irritates you more than the birds ever could.',
+          effects: { nerve: -1, flag: 'bench_tally_erased' },
         },
       },
       {
@@ -630,6 +630,11 @@ export const BEATS: EncounterCard[] = [
       mara: 'Mara is sketching the bull’s antlers, fast. On her page they branch into a seventh tine that isn’t there.',
     },
     aloneLine: 'Nobody here knows your name. The elk don’t need it.',
+    flagLines: {
+      bench_tally_erased: {
+        all: 'The meadow observation board has the same peculiar block handwriting as the marsh tally somebody erased behind your back. Your first impulse is to photograph it. The second is to ask who last touched the chalk.',
+      },
+    },
     choices: [
       {
         id: 'wait',
@@ -652,8 +657,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'The ranger gets called away before she can open her notes: somebody has mistaken an elk’s favorite scratching post for an emergency telephone. She hands you the public observation form and asks you to record the time, not a theory. You leave with less proof than you hoped for and an invitation to compare notes tomorrow.',
-          effects: { goodwill: 1, flag: 'elk_ranger_followup' },
+          text: 'Before the ranger can show you her notes, a visitor climbs the fence for a closer picture. You call for help instead of chasing your own theory. By the time everyone is safely back, the elk have gone and so has your best chance to compare their movements. The ranger takes down the time you saw them turn and promises to check the other witnesses. You have lost the afternoon and still cannot say what happened.',
+          effects: { nerve: -1, flag: 'elk_ranger_followup' },
         },
       },
       {
@@ -668,8 +673,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'You follow the road for an hour and discover an excellent sandwich shop. Above the counter hangs a photograph of the elk meadow, dated next Thursday. The bull is facing west; in the corner, just entering frame, is your own coat. The owner says the photographer has not been in yet. You pay, write down the date, and go back before dark.',
-          effects: { weird: 1, flag: 'elk_future_photo' },
+          text: 'You follow the road too far and miss your ride back. The sandwich shop near the highway is closing; above the counter hangs a photograph of the meadow, dated next Thursday. The bull faces west. At the edge of the frame is your own coat. The owner says the photographer has not been in yet. You write down the date and begin the cold walk back, without the explanation you came for.',
+          effects: { weird: 1, nerve: -1, flag: 'elk_future_photo' },
         },
       },
     ],
@@ -687,7 +692,7 @@ export const BEATS: EncounterCard[] = [
     scene: 'grove',
     body: [
       'On the last morning you drive up the Mad River until the road turns to gravel and the gravel to a footpath. There is a cabin up here, empty, with a for-sale sign so old the phone number has five digits.',
-      'From the porch you can see an osprey nest, a gravel bar where the salmon used to run thick, and a hillside replanted in rows of young redwoods. Somebody started something here and didn’t finish it. The quiet is waiting to see whether you will.',
+      'From the porch you can see an osprey nest, a gravel bar where the salmon used to run thick, and a hillside replanted in rows of young redwoods. A volunteer restoration crew is working downstream today, following a plan that leaves some fallen wood in place for fish habitat. Somebody started something here and didn’t finish it. The quiet is waiting to see whether you will.',
     ],
     lensLines: {
       sober:
@@ -724,16 +729,30 @@ export const BEATS: EncounterCard[] = [
       {
         id: 'restore',
         label:
-          'Spend the day hauling brush out of the creek so the salmon can come back',
+          'Join the volunteer crew for a day of permitted creek restoration',
         wild: true,
         check: { skill: 'burly', target: 9 },
         success: {
-          text: 'The volunteer crew shows you which blockage is safe to move and which fallen wood protects young fish. By dark you have opened one narrow side channel. A salmon noses past the gravel bar while the crew debates whether it came through yesterday. Nobody claims you brought it back in a single afternoon. They hand you the next monitoring date, and you put it in your calendar.',
+          text: 'The crew shows you which blockage is safe to move and which fallen wood shelters young fish. You open one side channel before sundown. A salmon noses past the gravel bar while the crew debates whether it swam through yesterday. Nobody claims you restored a river in a single afternoon. The crew chief asks whether you will come back for the monitoring, and now you have to decide what your promise is worth.',
           effects: { goodwill: 1, flag: 'creek_restored' },
+          leadLines: {
+            juniper: 'Juniper has stopped calling the river patient. “It has already waited for people who promised to return,” she says. “I want to be here when we do.”',
+            kit: 'Kit has blisters from hauling the tools. “A show lasts ten minutes,” she says. “This is a trick I might spend a year learning.”',
+            cedar: 'Cedar wants to know who owns the culvert upstream. “A beautiful afternoon will not move a bad pipe,” he says, and offers to help find the crew an engineer.',
+            mara: 'Mara draws a tiny calendar on her own wrist. “That is the glamorous part,” she says. “Coming back when there are no photographs.”',
+            alone: 'Nobody makes the next visit for you. You look at the dates, the work still to do, and your own calendar.',
+          },
         },
         failure: {
-          text: 'The snag is too heavy and a volunteer stops you before you tear up the bank. The crew marks its position, asks you to help carry the tools back, and invites you to the next permitted work day. You have not restored a river. You have joined people who know how much work it takes.',
-          effects: { flag: 'creek_started', goodwill: 1 },
+          text: 'You pull at a snag without understanding how much of the bank it holds. A crew member catches your arm before the soil gives way and sends you back to carry tools. You have cost them an afternoon of work and you know it. The offer to come back is real; so is the possibility that they will ask you to listen more than lift.',
+          effects: { flag: 'creek_started', nerve: -1 },
+          leadLines: {
+            juniper: 'Juniper is angry, not at the river. “I knew where the roots ran,” she says. After a while she asks you to come back with her and learn.',
+            kit: 'Kit sets down her gloves. “I rehearsed a fall like that once,” she says. “Only mine did not take a riverbank with it.” She stays to help reset the stakes.',
+            cedar: 'Cedar does not soften it. “A little extra pull and the whole bank goes.” He shows you what you missed, then hands you the shovel with the lighter load.',
+            mara: 'Mara looks at the damaged stakes, then at you. “A good apology is a day of work,” she says. She helps the crew redraw the markers.',
+            alone: 'Nobody explains away your mistake. You help carry the tools and listen when the crew tells you why they put the snag there.',
+          },
         },
       },
       {
@@ -741,20 +760,41 @@ export const BEATS: EncounterCard[] = [
         label: 'Call the five-digit number on the sign',
         check: { skill: 'lore', target: 9 },
         success: {
-          text: 'The number connects, impossibly, to the person who planted the redwoods forty years ago. She tells you what she meant to do with the place. It is a long call.',
+          text: 'The five-digit number connects to a woman who planted the redwoods forty years ago. She says she always intended the cabin to be a place for exhausted neighbors to rest, not a private monument to whoever could afford the deed. Then the line goes dead. The for-sale sign has no owner listed. You have an impossible memory of a conversation, but no authority to make her plan happen.',
           effects: { evidence: 'The plan for the cabin on the Mad River' },
+          leadLines: {
+            juniper: '“A place can belong to the people who need it,” Juniper says. “But somebody has to buy it first. I hate that part.”',
+            kit: 'Kit offers to put on a benefit show, then checks herself. “First we find out if anyone actually wants us to.”',
+            cedar: 'Cedar points at the roofline. “Even a haunted community center needs to pass inspection.” He offers a real structural survey, not another promise.',
+            mara: 'Mara draws a rough floor plan. “Nobody gets to call it a refuge if the people using it have no say,” she says.',
+            alone: 'You copy the words down while you can still hear them. A dead telephone is not permission to decide what this place becomes.',
+          },
         },
         failure: {
-          text: 'The number rings eleven times. Then an answering machine clicks on and plays your own voice reading tomorrow’s river level. You put down the receiver, write the level on your hand, and decide to check a real gauge before trusting a ghost with flood advice.',
-          effects: { weird: 1, flag: 'cabin_future_message' },
+          text: 'The number rings eleven times. An answering machine clicks on and plays your voice reading tomorrow’s river level. The number sounds dangerously high. There is no way to ask the caller what it means. You write it down, check the public gauge rather than spread a warning you cannot justify, and lose the rest of the evening to the awful possibility that your future self was trying to help.',
+          effects: { weird: 1, nerve: -1, flag: 'cabin_future_message' },
+          leadLines: {
+            juniper: '“I believe you heard it,” Juniper says. “I do not know what it was.” For once her uncertainty is more frightening than a theory.',
+            kit: 'Kit asks you to repeat the recording in your own voice, then shakes her head. “It had your pauses wrong.”',
+            cedar: 'Cedar tests the dead line twice. “No signal,” he says. “And we are still not sending out a flood warning on a ghost’s word.”',
+            mara: 'Mara sets her sketchbook down. “If you have to make a call that matters, use a living person to check it.”',
+            alone: 'The phone stays silent. You sit with the unverified number and a choice not to terrify your neighbors on a guess.',
+          },
         },
       },
       {
         id: 'porch',
         label: 'Just sit on the porch until it gets dark',
         success: {
-          text: 'You sit while the osprey comes and goes. A neighbor walks up with a thermos, asks whether you plan to buy the cabin, and accepts your answer that you do not know. She tells you who maintains the footpath. There is comfort in a day that leaves room for tomorrow without pretending the county has stopped changing.',
+          text: 'You watch the osprey come and go until a neighbor walks up with a thermos. She asks whether you intend to buy the cabin. You tell her you do not know. She says that if you want to stay, the caretaker needs help with the footpath, but the county is still arguing over the land. She leaves you a name, not a demand. Sometimes a whole decision is knowing which question belongs to tomorrow.',
           effects: { nerve: 1, flag: 'porch_neighbor_met' },
+          leadLines: {
+            juniper: 'Juniper starts to ask why you will not act, then stops. “You are allowed to see something without claiming it,” she says.',
+            kit: 'Kit practices a disappearing coin trick on the porch. You know where the coin went. You do not tell her.',
+            cedar: 'Cedar listens to the porch steps creak. “That one needs a new nail,” he says, and lets it creak anyway.',
+            mara: 'Mara closes the sketchbook without finishing the osprey. “It will still be flying tomorrow,” she says. “Unless it has somewhere better to be.”',
+            alone: 'Nobody appoints you caretaker, hero, or hermit. You leave the neighbor’s name somewhere you can find it.',
+          },
         },
       },
     ],

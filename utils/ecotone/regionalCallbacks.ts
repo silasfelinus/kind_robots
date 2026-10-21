@@ -15,6 +15,60 @@ export type RegionalCallback = {
 
 export const REGIONAL_CALLBACKS: RegionalCallback[] = [
   {
+    id: 'WH-014',
+    choice: 'investigate-failure',
+    flag: 'wh_014_partial',
+    priority: 4,
+    text: 'The drainage crew kept your failed dye test in its log, so its next survey began with measured water and the photograph the volunteer actually took. The mushrooms still demand a formal apology for your methodology.',
+    artMoment:
+      'Rainy forest inspection table with a crossed-out green dye sketch, volunteer seep photograph and tiny fungal complaint slips; no solved pipe diagram',
+  },
+  {
+    id: 'WH-026',
+    choice: 'investigate-failure',
+    flag: 'wh_026_partial',
+    priority: 4,
+    text: 'Your interrupted lighthouse count stayed pinned in the harbor office with empty spaces. The chart was not magically corrected; pilots kept gathering sightings rather than steering boats toward a promise you could not prove.',
+    artMoment:
+      'Harbor pilot pinning an interrupted flash tally beside an unfinished safety notice, Trinidad Head lost in fog; no confirmed navigation line',
+  },
+  {
+    id: 'WH-052',
+    choice: 'investigate-failure',
+    flag: 'wh_052_partial',
+    priority: 4,
+    text: 'The resurvey request recorded the fishing crews’ detour costs beside your provisional sounding. The buoy is still on strike. No clerk gets to call an unmeasured shortcut safe just to make the paperwork smaller.',
+    artMoment:
+      'Humboldt Bay harbor counter with incomplete sounding sketch, detour fuel receipt and stranded picketing buoy outside; no safe shortcut indicated',
+  },
+  {
+    id: 'WH-074',
+    choice: 'investigate-failure',
+    flag: 'wh_074_partial',
+    priority: 5,
+    text: 'The river kept the driftwood, but the witness kept her own photograph and the correction request you helped write. Her name did not become a solved clue just because somebody else wanted a ghost story.',
+    artMoment:
+      'Willow Creek witness holding a river photograph beside a consent-first correction request, personal name obscured; missing driftwood and unverified measurements',
+  },
+  {
+    id: 'WH-094',
+    choice: 'investigate-failure',
+    flag: 'wh_094_partial',
+    priority: 4,
+    text: 'The contractor called the conflicting tree-ring counts a prophecy. The sawyer posted both unfinished tallies for everyone to scrutinize. The county archive preserved the disagreement, not the certainty someone hoped to sell.',
+    artMoment:
+      'Public redwood volunteer board with two visibly conflicting hand-drawn ring counts, fallen tree beyond and no removed wood sample',
+  },
+  {
+    id: 'WH-114',
+    choice: 'investigate-failure',
+    flag: 'wh_114_partial',
+    priority: 5,
+    text: 'The missing case never came back and nobody restored the stranger’s memory on command. The crew saved the current warning you drew; the stranger kept her own unfinished description of her brother.',
+    artMoment:
+      'Dockside current-warning chart next to a stranger’s incomplete memory sketch, empty wet mooring where a case sank; nothing recovered',
+  },
+  {
     id: 'FR-MARA-01',
     choice: 'transparent-lease',
     flag: 'mara_second_studio_agreement',

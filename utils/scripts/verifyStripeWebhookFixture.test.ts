@@ -298,9 +298,18 @@ for (const [label, data] of [
   ['unpaid invoice', { status: 'open', amount_paid: 500 }],
   ['failed payment', { status: 'uncollectible', amount_paid: 500 }],
   ['zero dollar trial', { status: 'paid', amount_paid: 0 }],
-  ['manual invoice', { status: 'paid', amount_paid: 500, billing_reason: 'manual' }],
-  ['proration', { status: 'paid', amount_paid: 500, billing_reason: 'subscription_update' }],
-  ['missing sub id', { status: 'paid', amount_paid: 500, billing_reason: 'subscription_cycle' }],
+  [
+    'manual invoice',
+    { status: 'paid', amount_paid: 500, billing_reason: 'manual' },
+  ],
+  [
+    'proration',
+    { status: 'paid', amount_paid: 500, billing_reason: 'subscription_update' },
+  ],
+  [
+    'missing sub id',
+    { status: 'paid', amount_paid: 500, billing_reason: 'subscription_cycle' },
+  ],
 ] as const) {
   assert.equal(paidPatronInvoiceSubscriptionId(data), null, label)
 }
@@ -309,7 +318,10 @@ assert.equal(
   true,
 )
 assert.equal(
-  checkoutHasPaidSubscription({ mode: 'subscription', payment_status: 'unpaid' }),
+  checkoutHasPaidSubscription({
+    mode: 'subscription',
+    payment_status: 'unpaid',
+  }),
   false,
 )
 assert.equal(
@@ -318,20 +330,44 @@ assert.equal(
 )
 assert.equal(
   isFiveDollarMonthlyPatronPrice({
-    active: true, currency: 'usd', unit_amount: 500,
+    active: true,
+    currency: 'usd',
+    unit_amount: 500,
     recurring: { interval: 'month', interval_count: 1 },
   }),
   true,
 )
 for (const wrong of [
-  { active: true, currency: 'usd', unit_amount: 999, recurring: { interval: 'month', interval_count: 1 } },
-  { active: true, currency: 'usd', unit_amount: 500, recurring: { interval: 'year', interval_count: 1 } },
-  { active: true, currency: 'eur', unit_amount: 500, recurring: { interval: 'month', interval_count: 1 } },
-  { active: false, currency: 'usd', unit_amount: 500, recurring: { interval: 'month', interval_count: 1 } },
+  {
+    active: true,
+    currency: 'usd',
+    unit_amount: 999,
+    recurring: { interval: 'month', interval_count: 1 },
+  },
+  {
+    active: true,
+    currency: 'usd',
+    unit_amount: 500,
+    recurring: { interval: 'year', interval_count: 1 },
+  },
+  {
+    active: true,
+    currency: 'eur',
+    unit_amount: 500,
+    recurring: { interval: 'month', interval_count: 1 },
+  },
+  {
+    active: false,
+    currency: 'usd',
+    unit_amount: 500,
+    recurring: { interval: 'month', interval_count: 1 },
+  },
   { active: true, currency: 'usd', unit_amount: 500, recurring: null },
 ]) {
   assert.equal(isFiveDollarMonthlyPatronPrice(wrong), false)
 }
-console.log('✅ Paid Patron invoice, checkout and $5 monthly price guards passed')
+console.log(
+  '✅ Paid Patron invoice, checkout and $5 monthly price guards passed',
+)
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

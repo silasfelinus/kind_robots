@@ -1068,8 +1068,8 @@
                     {{ echo.text }}
                   </p>
                   <p class="mt-1 text-[11px] opacity-65">
-                    Earned through an earlier {{ echo.source }} decision.
-                    Also recorded in the Journal.
+                    Earned through an earlier {{ echo.source }} decision. Also
+                    recorded in the Journal.
                   </p>
                 </details>
               </section>
@@ -1315,7 +1315,8 @@
                   Ripples across the lands
                 </h3>
                 <p class="mt-1 text-xs opacity-70">
-                  Only people and events your actual choices brought into the story.
+                  Only people and events your actual choices brought into the
+                  story.
                 </p>
                 <ol class="mt-2 space-y-2">
                   <li
@@ -1326,8 +1327,16 @@
                     <span
                       class="text-[10px] font-bold uppercase tracking-widest text-info"
                     >
-                      {{ game.world.lands.find((land) => land.id === echo.landId)?.name }}
-                      · {{ echo.source === 'trial' ? 'Past trial' : 'Past encounter' }}
+                      {{
+                        game.world.lands.find((land) => land.id === echo.landId)
+                          ?.name
+                      }}
+                      ·
+                      {{
+                        echo.source === 'trial'
+                          ? 'Past trial'
+                          : 'Past encounter'
+                      }}
                     </span>
                     <h4 class="mt-1 font-serif text-sm font-bold">
                       {{ echo.title }}

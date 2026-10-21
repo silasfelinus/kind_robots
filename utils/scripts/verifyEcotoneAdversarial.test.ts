@@ -223,17 +223,21 @@ function playPersona(plan: Persona): RunState {
     )
   }
   const shownCallbacks = earnedQuestCallbacks(state.flags, state.played)
-  assert.ok(shownCallbacks.length <= 2, 'finale displays no more than two echoes')
+  assert.ok(
+    shownCallbacks.length <= 2,
+    'finale displays no more than two echoes',
+  )
   for (const text of shownCallbacks) {
-    const regional = REGIONAL_CALLBACKS.find((candidate) => candidate.text === text)
+    const regional = REGIONAL_CALLBACKS.find(
+      (candidate) => candidate.text === text,
+    )
     if (!regional) continue
     assert.ok(state.flags.includes(regional.flag))
     assert.ok(state.played.includes(regional.id))
     assert.ok(
       state.log.some(
         (entry) =>
-          entry.source === regional.id &&
-          entry.effects.flag === regional.flag,
+          entry.source === regional.id && entry.effects.flag === regional.flag,
       ),
       'every displayed callback must come from a witnessed choice',
     )

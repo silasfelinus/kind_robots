@@ -147,6 +147,94 @@ for (const dept of DEPARTMENTS) {
   }
 }
 
+const toyCallbacks = [
+  {
+    cardId: 'the-warning-label',
+    choiceId: 'attach-the-incident-footnote',
+    sourceFlag: 'read-the-incident-footnote',
+    earnedFlag: 'warning-reached-parents',
+  },
+  {
+    cardId: 'the-confidante-prototype',
+    choiceId: 'read-pal-its-buddy-report',
+    sourceFlag: 'filed-a-report-on-pal',
+    earnedFlag: 'pal-remembered-kindness',
+  },
+  {
+    cardId: 'the-range-safety-quiz',
+    choiceId: 'break-the-safety-jingle',
+    sourceFlag: 'hums-the-jingle',
+    earnedFlag: 'broke-the-range-jingle',
+  },
+] as const
+
+for (const callback of toyCallbacks) {
+  assert.ok(
+    ORIENTATION.encounters.some((card) =>
+      card.choices.some(
+        (choice) =>
+          choice.success.add_flags.includes(callback.sourceFlag) ||
+          (choice.failure?.add_flags ?? []).includes(callback.sourceFlag),
+      ),
+    ),
+    `${callback.sourceFlag} must be earnable before arriving at the Toy Division`,
+  )
+  const scene = TOY_DIVISION.encounters.find(
+    (card) => card.id === callback.cardId,
+  )
+  assert.ok(scene, `missing Toy Division scene ${callback.cardId}`)
+  assert.ok(
+    scene.choices.length <= 4,
+    `${callback.cardId} preserves the four-route scene limit`,
+  )
+  const choice = scene.choices.find((route) => route.id === callback.choiceId)
+  assert.ok(choice, `missing callback route ${callback.choiceId}`)
+  assert.equal(choice.requires?.flag, callback.sourceFlag)
+  assert.ok(choice.success.add_flags.includes(callback.earnedFlag))
+  assert.ok(
+    choice.failure,
+    `${callback.choiceId} must be interesting on failure`,
+  )
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some(
+        (variant) => variant.when_flag === callback.earnedFlag,
+      ),
+    ),
+    `${callback.earnedFlag} must resonate in an attainable ending`,
+  )
+}
+
+const questionnaire = TOY_DIVISION.encounters.find(
+  (card) => card.id === 'the-questionnaire',
+)
+assert.match(
+  questionnaire?.flavor_text ?? '',
+  /Question 4[^.]*DRAW YOUR NEW FRIEND/,
+  'the focus-group setup promises the drawing box before offering it',
+)
+const sincerity = TOY_DIVISION.encounters.find(
+  (card) => card.id === 'rate-their-sincerity',
+)
+assert.match(
+  sincerity?.flavor_text ?? '',
+  /SUCCESSOR #4471-B/,
+  'the sincerity test identifies B before asking the player to judge him',
+)
+for (const debt of [
+  'inventoried-pip',
+  'reported-on-pip',
+  'rated-b-insincere',
+  'drew-the-warning',
+]) {
+  assert.ok(
+    ENDINGS.some((ending) =>
+      ending.variants.some((variant) => variant.when_flag === debt),
+    ),
+    `an important prior decision ${debt} needs a later echo`,
+  )
+}
+
 const allChoices = DEPARTMENTS.flatMap((d) => [
   ...d.encounters.flatMap((e) => e.choices),
   ...d.boss.choices,

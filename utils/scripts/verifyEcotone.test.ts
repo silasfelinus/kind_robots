@@ -1,6 +1,9 @@
 import './verifyEcotoneAdversarial.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
-import { isEcotoneReviewHeldArt, isEcotoneReviewHeldArtSubject } from '../ecotone/reviewHold'
+import {
+  isEcotoneReviewHeldArt,
+  isEcotoneReviewHeldArtSubject,
+} from '../ecotone/reviewHold'
 import assert from 'node:assert/strict'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
@@ -167,7 +170,11 @@ for (const lens of openLenses) assert.ok(LENS_CODAS[lens], `${lens} coda`)
 assert.ok(!ENCOUNTERS.some((card) => card.id === 'WH-121'))
 assert.equal(findCard('WH-121'), undefined)
 assert.ok(ENCOUNTERS.some((card) => card.id === 'WH-037'))
-assert.ok(!/tribal|reservation|grant/i.test(COMPANIONS.find((c) => c.id === 'mara')!.bio))
+assert.ok(
+  !/tribal|reservation|grant/i.test(
+    COMPANIONS.find((c) => c.id === 'mara')!.bio,
+  ),
+)
 for (const key of [
   'cards/wh-121',
   'outcomes/wh-121/reading-success',
@@ -210,7 +217,10 @@ const historicSave = {
   ],
 }
 const heldRestored = restoreRun(historicSave)
-assert.ok(heldRestored, 'older saves advance past the held scene rather than being discarded')
+assert.ok(
+  heldRestored,
+  'older saves advance past the held scene rather than being discarded',
+)
 assert.notEqual(heldRestored.card, 'WH-121')
 assert.ok(!heldRestored.offered.includes('WH-121'))
 assert.ok(!heldRestored.played.includes('WH-121'))

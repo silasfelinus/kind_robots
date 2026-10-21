@@ -134,7 +134,7 @@ for (const [choiceId, failureFlag, phrase] of [
   }
   assert.ok(failed, `${choiceId} has a deterministic failure witness`)
 }
- 
+
 // Round eight: the *result* of a choice, not just the entrance, must make
 // room for the guide actually traveling with the player.
 const outcomeGuides = ['kit', 'juniper', 'cedar', 'mara'] as const
@@ -179,7 +179,8 @@ for (const [cardId, choiceId] of commentaryCases) {
     }
     const result = chooseBeat(start, choiceId)
     const entry = result.log[0]!
-    const selected = entry.roll?.success === false ? choice.failure! : choice.success
+    const selected =
+      entry.roll?.success === false ? choice.failure! : choice.success
     observed.add(entry.roll?.success === false ? 'failure' : 'success')
     assert.equal(
       entry.text,
@@ -256,11 +257,19 @@ for (let seed = 1; seed <= 128; seed += 1) {
   foundBenchFailure = true
   assert.ok(result.flags.includes('bench_tally_erased'))
   assert.ok(result.nerve < start.nerve)
-  assert.match(cardAsides(elkMeadow, result).join(' '), /peculiar block handwriting/)
+  assert.match(
+    cardAsides(elkMeadow, result).join(' '),
+    /peculiar block handwriting/,
+  )
   assert.ok(
-    !cardAsides(elkMeadow, start).join(' ').includes('peculiar block handwriting'),
+    !cardAsides(elkMeadow, start)
+      .join(' ')
+      .includes('peculiar block handwriting'),
     'a first-time visitor has no false memory of the erased board',
   )
   break
 }
-assert.ok(foundBenchFailure, 'the sober bench has an actual losing-roll witness')
+assert.ok(
+  foundBenchFailure,
+  'the sober bench has an actual losing-roll witness',
+)

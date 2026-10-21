@@ -394,10 +394,8 @@ export const ENCOUNTERS: EncounterCard[] = [
         'The folds in the picnic blanket briefly resemble roads crossing mountains. Then somebody shakes out the crumbs and it is cloth again.',
       cocaine:
         'The tide is turning, Glenn is missing and the group wants a photo now. You ask which problem the family actually wants help with first.',
-      meth:
-        'The overlapping arguments are hard to follow. The youngest shows you a photo and lets you study it away from the noise.',
-      mdma:
-        'Everyone wants the family included, including Glenn. You can offer to help without deciding who owes anybody a photograph.',
+      meth: 'The overlapping arguments are hard to follow. The youngest shows you a photo and lets you study it away from the noise.',
+      mdma: 'Everyone wants the family included, including Glenn. You can offer to help without deciding who owes anybody a photograph.',
     },
     choices: [
       {

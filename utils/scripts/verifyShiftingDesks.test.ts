@@ -102,7 +102,10 @@ assert.ok(recordsProfiles)
 for (const [id, flag] of Object.entries(profileRoutes)) {
   const route = officeSupplyTest.choices.find((choice) => choice.id === id)
   assert.ok(route, `missing profile answer ${id}`)
-  assert.ok(FLAG_MEMOS[flag], `${flag} must be remembered in the personnel memos`)
+  assert.ok(
+    FLAG_MEMOS[flag],
+    `${flag} must be remembered in the personnel memos`,
+  )
   assert.ok(
     route.success.add_flags.includes(flag),
     `${id} must file its profile`,

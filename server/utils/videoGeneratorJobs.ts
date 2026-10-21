@@ -6,6 +6,7 @@ export type VideoGeneratorJobSummary = {
   status: ArtJob['status']
   model: 'ltx' | 'wan'
   prompt: string
+  isMature: boolean
   createdAt: Date
   updatedAt: Date | null
   claimedAt: Date | null
@@ -45,11 +46,13 @@ export function summarizeVideoGeneratorJob(
   const metadata = videoGeneratorMetadata(job)
   if (!metadata) return null
   const payload = parseArtJobPayload(job.payload)
+  const save = payload.save as { isMature?: boolean } | undefined
   return {
     id: job.id,
     status: job.status,
     model: metadata.model,
     prompt: String(payload.promptString || '').slice(0, 300),
+    isMature: save?.isMature === true,
     createdAt: job.createdAt,
     updatedAt: job.updatedAt,
     claimedAt: job.claimedAt,

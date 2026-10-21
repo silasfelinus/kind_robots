@@ -640,10 +640,7 @@ assert.ok(
 )
 
 const stylerView = readFileSync('components/art/art-styler.vue', 'utf8')
-assert.equal(
-  stylerView.split('max-h-[min(50vh,36rem)]').length - 1,
-  2,
-)
+assert.equal(stylerView.split('max-h-[min(50vh,36rem)]').length - 1, 2)
 assert.ok(stylerView.includes('overflow-y-auto overscroll-contain'))
 
 const coloringView = readFileSync('pages/coloring-page.vue', 'utf8')

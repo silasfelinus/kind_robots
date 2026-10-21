@@ -228,6 +228,10 @@ const TRIALS: Record<string, Record<string, string>> = {
       'At the Abbess’s door you bring witnesses, and shared bread becomes a demand for an accounting.',
     evidence:
       'At the Abbess’s door your evidence opens a way past the locked wing.',
+    witness:
+      'At the Abbess’s door the people you protected testify together, and the children leave under their gaze.',
+    scout:
+      'At the Abbess’s door you use the patrol route you patiently mapped to reach the locked wing without a fight.'
   },
   dustwater: {
     confront:
@@ -236,6 +240,10 @@ const TRIALS: Record<string, Record<string, string>> = {
       'At the Crossing Gate you put the bargain in writing before the keeper moves the winch.',
     evidence:
       'At the Crossing Gate you follow a safe channel the toll book never mentions.',
+    witness:
+      'At the Crossing Gate the boat crews demand the same fair passage for everyone, backed by their public testimony.',
+    scout:
+      'At the Crossing Gate your costly hours at the winch reveal when its chain will finally slacken.'
   },
   tablelands: {
     confront:
@@ -244,6 +252,10 @@ const TRIALS: Record<string, Record<string, string>> = {
       'At the canyon you ask the Warden for a bargain instead of an order.',
     evidence:
       'At the canyon you put proof against the Warden’s version of events.',
+    witness:
+      'At the canyon the caravan stands together, and the Warden can no longer pretend its people are missing property.',
+    scout:
+      'At the canyon you guide the caravan along the stone ledge you measured before the storm.'
   },
   cave: {
     confront:
@@ -252,6 +264,10 @@ const TRIALS: Record<string, Record<string, string>> = {
       'Below the hills you find words enough to bargain before anyone draws a blade.',
     evidence:
       'Below the hills you make the evidence from above answer the voices below.',
+    witness:
+      'Below the hills the bound guardian is released because you insisted that promises be judged alongside power.',
+    scout:
+      'Below the hills you find the gap in the binding circle that a careful survey revealed.'
   },
   verge: {
     confront:
@@ -260,6 +276,10 @@ const TRIALS: Record<string, Record<string, string>> = {
       'At the last threshold you bargain for terms another traveler may survive.',
     evidence:
       'At the last threshold you make proof stronger than the rule against passage.',
+    witness:
+      'At the last threshold the names of those who trusted you answer the negotiator’s command to remain silent.',
+    scout:
+      'At the last threshold you open the door at its hidden seam after spending your strength learning the stone.'
   },
 }
 

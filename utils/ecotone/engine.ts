@@ -724,7 +724,12 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
       title: card.title,
       choice: fillText(choice.label, state),
       roll,
-      text: fillText(outcome.text, next),
+      text: [
+        fillText(outcome.text, next),
+        outcome.leadLines?.[next.activeLead ?? 'alone'],
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
       effects: outcome.effects,
       art: outcomeArtKey(card.id, choice.id, result),
     },

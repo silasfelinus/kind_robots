@@ -79,7 +79,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     channelKey: 'projects',
     tabKey: 'video-generator',
     route: '/play/video-generator?studio=music',
-  }
+  },
   storybook: {
     channelKey: 'projects',
     tabKey: 'storybook',

@@ -30,7 +30,7 @@
               @click="handleGenerate"
             >
               <span
-                v-if="artStore.isGenerating"
+                v-if="artStore.isGenerating || submittingBatch"
                 class="flex items-center gap-2"
               >
                 <span class="kr-spinner-sm-dots" />
@@ -46,7 +46,7 @@
               v-model:is-mature="outputIsMature"
               v-model:is-public="outputIsPublic"
               compact
-              :disabled="artStore.isGenerating"
+              :disabled="artStore.isGenerating || submittingBatch"
             />
 
             <p class="kr-text-dim-xs text-center">
@@ -55,25 +55,49 @@
           </div>
         </div>
 
-        <div
-          v-if="artStore.generationMessage"
-          class="mt-3 flex items-start gap-2 kr-note p-3"
-          :class="
-            artStore.generationMessageTone === 'error'
-              ? 'kr-note-error'
-              : 'kr-note-success'
-          "
-          role="status"
-        >
-          <Icon
-            :name="
-              artStore.generationMessageTone === 'error'
-                ? 'kind-icon:alert'
-                : 'kind-icon:check'
-            "
-            class="kr-icon-4 mt-0.5 shrink-0"
-          />
-          {{ artStore.generationMessage }}
+        <div aria-live="polite" aria-atomic="true">
+          <Transition name="generation-notice" mode="out-in">
+            <div
+              v-if="artStore.generationMessage"
+              :key="artStore.generationMessageSequence"
+              class="kr-note mt-3 flex items-start gap-2 p-3"
+              :class="
+                artStore.generationMessageTone === 'error'
+                  ? 'kr-note-error'
+                  : 'kr-note-success'
+              "
+              :role="
+                artStore.generationMessageTone === 'error' ? 'alert' : 'status'
+              "
+            >
+              <Icon
+                :name="
+                  artStore.generationMessageTone === 'error'
+                    ? 'kind-icon:alert'
+                    : 'kind-icon:check'
+                "
+                class="kr-icon-4 mt-0.5 shrink-0"
+              />
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-bold uppercase tracking-wide">
+                  {{
+                    artStore.generationMessageTone === 'error'
+                      ? 'Generation error'
+                      : 'Generation update'
+                  }}
+                </p>
+                <p>{{ artStore.generationMessage }}</p>
+              </div>
+              <button
+                type="button"
+                class="btn btn-ghost btn-sm ml-auto shrink-0 rounded-xl"
+                aria-label="Dismiss generation notice"
+                @click="artStore.clearGenerationMessage"
+              >
+                <Icon name="kind-icon:close" class="kr-icon-4" />
+              </button>
+            </div>
+          </Transition>
         </div>
       </header>
 
@@ -823,6 +847,7 @@ const userStore = useUserStore()
 const presets = ART_GENERATOR_PRESETS
 const presetId = ref<string>(DEFAULT_ART_PRESET_ID)
 const serverChoice = ref<ServerChoice>('default')
+const submittingBatch = ref(false)
 
 const activePreset = computed(() => getPreset(presetId.value))
 const activeProfile = computed(() => engineProfile(activePreset.value.engine))
@@ -1245,6 +1270,7 @@ const canGenerate = computed(() =>
   Boolean(
     artStore.canGenerateArt &&
       !artStore.isGenerating &&
+      !submittingBatch.value &&
       (!sourceImageRequired.value || Boolean(sourceImage.value)) &&
       canAfford.value &&
       destinationCompatible.value,
@@ -1263,6 +1289,7 @@ const engineWarning = computed(() => {
 })
 
 const busyLabel = computed(() => {
+  if (submittingBatch.value) return 'Queueing batch…'
   if (artStore.queueState === 'queued') return 'Queued…'
   if (artStore.queueState === 'rendering') return 'Rendering…'
   return 'Generating…'
@@ -1444,23 +1471,84 @@ function buildOverrides(): GenerateOverrides {
 }
 
 async function handleGenerate(): Promise<void> {
-  const overrides = buildOverrides()
-  const result = usesBatchQueue.value
-    ? await artStore.enqueueRandomizedArtBatch({
-        batch: artStore.generationBatchSize,
-        overrides,
-      })
-    : await artStore.generateCurrentArt(overrides)
-  if (result.success) return
+  if (submittingBatch.value || artStore.isGenerating) return
 
-  const message = result.message || 'Generation failed.'
-  errorStore.addError(
-    /mana|⚡/i.test(message)
-      ? ErrorType.INTERACTION_ERROR
-      : ErrorType.GENERAL_ERROR,
-    /mana|⚡/i.test(message)
-      ? `${message} Visit your wallet to top up.`
-      : message,
-  )
+  const isBatch = usesBatchQueue.value
+  if (isBatch) {
+    submittingBatch.value = true
+    artStore.clearGenerationMessage()
+  }
+
+  try {
+    const overrides = buildOverrides()
+    const result = isBatch
+      ? await artStore.enqueueRandomizedArtBatch({
+          batch: artStore.generationBatchSize,
+          overrides,
+        })
+      : await artStore.generateCurrentArt(overrides)
+    if (result.success) return
+
+    const message = result.message || 'Generation failed.'
+    if (!artStore.generationMessage) {
+      artStore.setGenerationMessage('error', message)
+    }
+    errorStore.addError(
+      /mana|⚡/i.test(message)
+        ? ErrorType.INTERACTION_ERROR
+        : ErrorType.GENERAL_ERROR,
+      /mana|⚡/i.test(message)
+        ? `${message} Visit your wallet to top up.`
+        : message,
+    )
+  } catch (cause) {
+    const message =
+      cause instanceof Error ? cause.message : 'Generation failed.'
+    artStore.setGenerationMessage('error', message)
+    errorStore.addError(ErrorType.GENERAL_ERROR, message)
+  } finally {
+    submittingBatch.value = false
+  }
 }
 </script>
+
+<style scoped>
+.generation-notice-enter-active {
+  animation: generation-notice-arrival 650ms ease-out;
+}
+
+.generation-notice-leave-active {
+  transition: opacity 120ms ease-out;
+}
+
+.generation-notice-leave-to {
+  opacity: 0;
+}
+
+@keyframes generation-notice-arrival {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.98);
+    filter: brightness(1.25);
+  }
+  55% {
+    opacity: 1;
+    filter: brightness(1.12);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .generation-notice-enter-active {
+    animation: none;
+  }
+
+  .generation-notice-leave-active {
+    transition: none;
+  }
+}
+</style>

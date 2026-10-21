@@ -83,6 +83,16 @@ import {
   withdrawQuest,
   LAMPLIGHT_SIGHT,
   tierOdds,
+  ACT_NEED_SCALE,
+  CHANCE_AT_NEED,
+  CHORE_POSTINGS,
+  LETHAL_BLOW,
+  LETHAL_NEED_SCALE,
+  bandNeed,
+  injuryRisk,
+  choreOpen,
+  chorePostings,
+  lethalScaled,
 } from '../emperorOfDust/fortress/engine'
 import {
   dangerLine,
@@ -135,6 +145,11 @@ import {
   selectBuyer,
   selectDepartures,
   storyHeard,
+  COURTING_FROM_DAY,
+  KIN_FALL,
+  komodoCourtingLine,
+  komodoCourts,
+  peopleBroken,
 } from '../emperorOfDust/fortress/betrayal'
 import {
   MIN_STOCK,
@@ -205,6 +220,7 @@ import type {
   AudienceDef,
   AudienceOption,
   FortressRun,
+  SceneLine,
 } from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
@@ -394,7 +410,20 @@ assert.equal(chooseAudienceOption(start, 'd01-toll', 'pay').run.brass, 100)
 
 // --- quest room -------------------------------------------------------------
 const odds = previewQuest(repaired, 'q-d01-aqueduct-repair', ['F002'])
-assert.equal(odds.estimate, false)
+// t-041: Saffron's Bridge-builder applies here and the Codex has not read it,
+// so the preview is a range that holds the true odds, not a point.
+assert.equal(odds.estimate, true, 'an unread trait makes it an estimate')
+assert.equal(odds.unread, 1)
+assert.ok(odds.low < odds.high && odds.low <= odds.chance)
+const readOdds = previewQuest(
+  repaired,
+  'q-d01-aqueduct-repair',
+  ['F002'],
+  ['F002-bridge-builder'],
+)
+assert.equal(readOdds.estimate, false, 'read traits give a point')
+assert.equal(readOdds.unread, undefined)
+assert.ok(readOdds.chance >= odds.low && readOdds.chance <= odds.high)
 assert.equal(odds.durationDays, 2)
 assert.ok(odds.chance >= 5 && odds.chance <= 95)
 assert.equal(odds.perRequirement[0]?.needed, BAND_NEED.mid)
@@ -1931,6 +1960,233 @@ const komodoLies = (days: typeof DAYS) =>
   days.flatMap((def) => def.briefings).filter((b) => b.komodoLie).length
 assert.equal(komodoLies(DAYS.filter((def) => def.day <= 30)), 4)
 assert.equal(komodoLies(DAYS), 8)
+
+{
+  // --- t-037: Act III playtest rewrite ----------------------------------------
+  const act3 = (id: string): AudienceDef =>
+    DAYS.flatMap((def) => def.audiences).find((a) => a.id === id)!
+  const act3Options = (audience: AudienceDef) => [
+    ...audience.options,
+    ...(audience.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  const act3Text = DAYS.filter((def) => def.day >= 21 && def.day <= 30)
+    .flatMap((def) => def.audiences)
+    .flatMap((audience) => [
+      ...[audience, ...(audience.beats ?? [])].flatMap((scene) => [
+        ...scene.lines,
+        ...(scene.variants ?? []).flatMap((v) => v.lines),
+      ]),
+      ...act3Options(audience).flatMap((o) => [o.label, o.response]),
+    ])
+    .map((line) => (typeof line === 'string' ? line : line.text))
+    .join('\n')
+  // The winks are gone: the Abbey must stay doubtable until Mara's page.
+  for (const wink of [
+    'purse that never empties',
+    'Or anything',
+    'well chosen',
+    'lose anyone',
+    'I cannot find the flaw',
+    'It sounds like a threat',
+    'such a friend to the mission',
+    'Four cots',
+  ])
+    assert.ok(!act3Text.includes(wink), `Act III no longer says “${wink}”`)
+  assert.ok(
+    !questDef('q-d24-coldbrook-visit')!.outcomes.success!.includes('Four'),
+    'Wenna gave the Abbey three children',
+  )
+
+  // Every alliance on Day 21 is an alliance: the hideout and epilogue see it.
+  const d21 = onDay(1, 21, { flags: ['pack-medicine', 'pack-camp-mapped'] })
+  const allied = (beat: string, option: string) => {
+    const opened = chooseAudienceOption(
+      d21,
+      'd21-captains-promise',
+      beat === 'price' ? 'ask-price' : 'ask-saffron',
+    ).run
+    return chooseAudienceOption(opened, 'd21-captains-promise', option).run
+  }
+  for (const [beat, option] of [
+    ['price', 'pups-as-guests'],
+    ['price', 'tincture-debt'],
+    ['price', 'camp-threat'],
+    ['saffron', 'pups-back'],
+  ] as const) {
+    const run = allied(beat, option)
+    assert.ok(run.flags.includes('pack-alliance'), `${option} allies`)
+    assert.equal(
+      run.strength.jackalwire,
+      d21.strength.jackalwire + 1,
+      `${option} strengthens the Pack`,
+    )
+  }
+
+  // Vane asks for the rhino only when Mags is at court.
+  const raid = act3('d26-friendly-raid')
+  for (const option of act3Options(raid))
+    if (/rhino/i.test(option.response))
+      assert.equal(option.requires?.follower, 'F013', option.id)
+  const withoutMags = withCast(1, 26, ['F001'])
+  const withMags = withCast(1, 26, ['F001', 'F013'])
+  const magsOption = raid.options.find((o) => o.id === 'help-mags')!
+  assert.ok(!optionVisible(withoutMags, magsOption))
+  assert.ok(optionVisible(withMags, magsOption))
+
+  // Day 25: every probe can still reach the orphan writ.
+  const abbess = act3('d25-the-abbess')
+  for (const beat of ['census', 'komodo', 'teodor'])
+    assert.ok(
+      abbess
+        .beats!.find((b) => b.id === beat)!
+        .options.some((o) => o.next === 'offer'),
+      `${beat} leads on to the writ`,
+    )
+  // Taxing the Abbey costs the Yard its bread, wherever it is asked.
+  for (const option of act3Options(abbess).filter((o) => o.id === 'tax'))
+    assert.ok((option.effects.local?.yard ?? 0) < 0, 'the tithe costs bread')
+  // She has heard what the court did to her this week.
+  const heard = (flags: string[]) =>
+    sceneLines({ flags }, abbess)
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' ')
+  assert.match(heard(['d23-mission-syrup-seized']), /fever ward cried/)
+  assert.match(heard(['asked-abbey-politely']), /Ormond boy/)
+  assert.match(
+    heard(['d23-mission-syrup-seized', 'asked-abbey-politely']),
+    /fever ward cried.*Ormond boy/,
+  )
+  assert.equal(sceneLines({ flags: [] }, abbess), abbess.lines)
+  // The cough comes back to the Yard when the sisters are barred.
+  const barred = dayBriefings(onDay(1, 25, { flags: ['d23-sisters-barred'] }))!
+  assert.match(barred[2]!.text, /cough came back/)
+
+  // Day 29: letting Pip read is a reading, not the end of the scene.
+  const mara = act3('d29-mayors-secret')
+  assert.equal(mara.options.find((o) => o.id === 'pip')!.next, 'price')
+  assert.ok(
+    mara
+      .beats!.find((b) => b.id === 'envelope')!
+      .options.some((o) => o.next === 'price'),
+    'the envelope does not lock out Mara’s price',
+  )
+
+  // Day 30: the Abbey's wagons take the children and the grown still need a
+  // gate; sheltering every child is gone once they are on the wagons.
+  const terms = onDay(1, 30)
+  const atGate = chooseAudienceOption(terms, 'd30-terms', 'ask-gate').run
+  const wagons = chooseAudienceOption(
+    atGate,
+    'd30-terms',
+    'abbey-takes-children',
+  )
+  assert.equal(wagons.next, 'losses')
+  assert.ok(!wagons.run.audiencesHeard.includes('d30-terms'))
+  const losses = audienceScene(wagons.run, act3('d30-terms'))
+  assert.ok(
+    !losses.options.some(
+      (o) => o.id === 'children-first' && optionVisible(wagons.run, o),
+    ),
+  )
+  const grown = chooseAudienceOption(wagons.run, 'd30-terms', 'freeholds').run
+  assert.ok(grown.flags.includes('sheltered-freeholds'))
+  assert.ok(grown.flags.includes('d30-children-to-abbey'))
+  assert.deepEqual(
+    grown.dues?.find((due) => due.id === 'abbey-wagons-return')?.day,
+    34,
+    'the wagons come back on Day 34',
+  )
+  // Hidden from the throne: the court does not see the return coming.
+  assert.ok(
+    !optionStakes(
+      atGate,
+      act3('d30-terms')
+        .beats!.find((b) => b.id === 'marrow')!
+        .options.find((o) => o.id === 'abbey-takes-children')!,
+    ).some((stake) => /Comes due/.test(stake.text)),
+  )
+  const back = finishDay(
+    onDay(1, 33, {
+      flags: ['d30-children-to-abbey'],
+      dues: [{ id: 'abbey-wagons-return', day: 34, from: 30 }],
+    }),
+  )
+  assert.ok(back.report.events.some((e) => /Forty-one children/.test(e)))
+  // Marrow and Hester remember the week; the first match is the fullest.
+  const marrow = act3('d30-terms').beats!.find((b) => b.id === 'marrow')!
+  const marrowSays = (flags: string[]) =>
+    sceneLines({ flags }, marrow)
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' ')
+  assert.match(marrowSays(['d23-tam-visited']), /Tam Coldbrook asked/)
+  assert.match(
+    marrowSays(['abbess-honored', 'd24-form-letter-told']),
+    /remembers how this court honoured her.*Bett Ormond sleeps/,
+  )
+  assert.match(
+    marrowSays(['d23-tam-visited', 'abbess-honored']),
+    /Tam Coldbrook asked/,
+    'one aside per group, by priority',
+  )
+  assert.doesNotMatch(marrowSays([]), /Tam|Bett Ormond/)
+  // The Watch that followed the dry well reports, and says so at the gate.
+  const follow = act3('d26-friendly-raid')
+    .beats!.find((b) => b.id === 'where')!
+    .options.find((o) => o.id === 'follow')!
+  assert.ok(
+    optionStakes(onDay(1, 26), follow).some((s) =>
+      /Comes due Day 28: The Watch on the dry-well road/.test(s.text),
+    ),
+  )
+  assert.match(
+    sceneLines({ flags: ['d26-dry-well-followed'] }, act3('d30-terms'))
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' '),
+    /eleven people go by on a rope/,
+  )
+  // Keeping the orphans from the Abbey fills the Yard after the act's end.
+  const writ = act3('d25-the-abbess').beats!.find((b) => b.id === 'offer')!
+  assert.ok(
+    optionStakes(
+      onDay(1, 25, { brass: 100 }),
+      writ.options.find((o) => o.id === 'refuse-writ')!,
+    ).some((s) => /Comes due Day 31: Orphans at the Yard gate/.test(s.text)),
+  )
+  // Act III's dues all belong to answers somebody can give.
+  for (const id of [
+    'midnight-visit',
+    'census-clerk-report',
+    'dry-well-watch',
+    'war-orphans',
+    'quiet-watch-report',
+    'abbey-wagons-return',
+  ]) {
+    assert.ok(dueDef(id), id)
+    assert.ok(
+      DAYS.some((def) =>
+        def.audiences.some((a) =>
+          act3Options(a).some((o) => o.effects.schedule?.includes(id)),
+        ),
+      ),
+      `${id} is scheduled by an answer`,
+    )
+  }
+
+  // The epilogue remembers the war-night children and Bett Ormond.
+  const told = (flags: string[], ending: EndingId = 'open-roads') =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).map((e) => e.subject.id)
+  assert.ok(told(['d30-children-to-abbey']).includes('war-children'))
+  assert.ok(told(['d24-letter-read-kindly']).includes('ormond'))
+  assert.ok(!told([]).includes('yard-sisters'), 'only in the Yard branch')
+  assert.ok(told(['d23-sisters-welcome']).includes('yard-sisters'))
+  assert.match(
+    epilogueFor(
+      { ...onDay(1, 50), flags: ['d30-children-to-abbey'] },
+      'long-night',
+    ).find((e) => e.subject.id === 'war-children')!.variant.text,
+    /singing/,
+  )
+}
 
 // Under the Wall: Keel's Wits count toward Might requirements.
 const keel = followerDef('F009')!
@@ -4612,6 +4868,214 @@ for (const def of DAYS)
   )
 }
 
+// --- t-039: Act V and the endings, rewritten from the 2026-10-21 playtest ------
+{
+  const dayOf = (day: number) => DAYS.find((def) => def.day === day)!
+  const scene = (day: number, id: string) =>
+    dayOf(day).audiences.find((audience) => audience.id === id)!
+  const optionIn = (audience: AudienceDef, id: string, beat?: string) =>
+    (beat
+      ? audience.beats!.find((entry) => entry.id === beat)!.options
+      : audience.options
+    ).find((option) => option.id === id)!
+  const court = (day: number, flags: string[] = []): FortressRun => {
+    const run = onDay(5, day, { flags: ['komodo-betrayal', ...flags] })
+    for (const id of ['F005', 'F006', 'F007'])
+      if (!run.roster.some((state) => state.id === id))
+        run.roster.push({ id, joinedDay: 1, equipment: {} })
+    run.beds = 9
+    return run
+  }
+  const lineTexts = (lines: SceneLine[]) =>
+    lines.map((line) => (typeof line === 'string' ? line : line.text))
+
+  // Day 47: going home is real. Kiyo and Saffron leave; the Pack rides.
+  const kiyoHome = optionIn(scene(47, 'd47-kiyo'), 'home')
+  assert.equal(kiyoHome.effects.dismiss?.[0]?.follower, 'F003')
+  const d47 = court(47)
+  if (!d47.roster.some((state) => state.id === 'F002'))
+    d47.roster.push({ id: 'F002', joinedDay: 1, equipment: {} })
+  const sentHome = chooseAudienceOption(d47, 'd47-kiyo', 'home').run
+  assert.equal(followerStatus(sentHome, 'F003'), 'departed')
+  assert.ok(
+    epilogueFor(sentHome, 'open-roads')
+      .find((entry) => entry.subject.id === 'kiyo')!
+      .variant.text.includes('went home'),
+    'Kiyo sent home is told as home, not gone with Komodo',
+  )
+  const saffronGo = chooseAudienceOption(d47, 'd47-saffron', 'go').run
+  assert.ok(saffronGo.flags.includes('d47-pack-rides'))
+  assert.ok(
+    saffronGo.roster.find((state) => state.id === 'F002')!.departed,
+    'Saffron goes home',
+  )
+  const stays = chooseAudienceOption(d47, 'd47-saffron', 'stay').run
+  assert.ok(!stays.flags.includes('d47-pack-rides'), 'stay: the Pack stays')
+  for (const [flag, label] of [
+    ['d47-pack-rides', 'The Pack rides at the Abbey wall'],
+    ['d44-dike-blown', 'The fen went down the Abbey’s deep well'],
+  ] as const)
+    assert.ok(
+      FINALE_AID.some(
+        (aid) => aid.flags?.includes(flag) && aid.label === label,
+      ),
+      `${flag} reaches the Day 50 odds`,
+    )
+
+  // Day 50: one road with every hand on it is a real choice; dig costs Moles,
+  // holding the stairs hands the court a lamp.
+  const d50 = court(50)
+  const front = chooseAudienceOption(d50, 'd50-roads-in', 'front').run
+  const party = d50.roster.slice(0, 3).map((state) => state.id)
+  assert.ok(
+    previewQuest(front, 'q-d50-last-dispatch', party).aid.some(
+      (aid) => aid.label === 'Every hand at the front door',
+    ),
+    'the front door gets every hand',
+  )
+  const burrows = scene(50, 'd50-burrows')
+  assert.equal(optionIn(burrows, 'dig').effects.strength?.moles, -1)
+  assert.ok(optionIn(burrows, 'stairs').effects.items?.includes('carbide-lamp'))
+  assert.equal(
+    optionIn(burrows, 'vote-dig', 'lumen').effects.strength?.moles,
+    -1,
+  )
+  // Reedlight's lantern lights the well it was made for.
+  const lantern = optionIn(scene(46, 'd46-reedlight'), 'take')
+  assert.equal(lantern.effects.questAid?.[0]?.questId, 'q-d46-well-that-spoke')
+
+  // Continuity: the last fire seats who is there, at the rank Day 43 left.
+  const peace = scene(49, 'd49-whose-peace')
+  const plain = lineTexts(sceneLines(court(49), peace)).join('\n')
+  assert.match(plain, /Captain Dunmark/)
+  assert.match(plain, /Sister Reedlight has set her lantern/)
+  const after = lineTexts(
+    sceneLines(
+      court(49, ['d43-dunmark-demoted', 'd44-dike-blown', 'verge-allied']),
+      peace,
+    ),
+  ).join('\n')
+  assert.match(after, /Sergeant Dunmark/)
+  assert.doesNotMatch(after, /Captain Dunmark/)
+  assert.match(after, /Sister Reedlight did not come/)
+  assert.match(after, /Envoy of the Black Verge/)
+  const leftOut = peace.beats!.find((beat) => beat.id === 'left-out')!
+  assert.match(
+    lineTexts(leftOut.lines).join('\n'),
+    /Bury two more/,
+    'the Candles rule is spoken at the last fire',
+  )
+  assert.match(dayOf(50).komodo, /here at the fire/, 'Vellum is at the fire')
+  assert.ok(
+    !/Captain/.test(scene(50, 'd50-if-you-find-him').speaker),
+    'Day 50 never re-promotes a demoted Dunmark',
+  )
+  // The cook walked through the kitchen door the crown opened.
+  assert.match(
+    lineTexts(
+      sceneLines(
+        court(47, ['d41-kitchen-door-open']),
+        scene(47, 'd47-letter-in-the-flour'),
+      ),
+    ).join('\n'),
+    /Through the door you opened/,
+  )
+  // Speech in the powder and burrows scenes is quoted.
+  for (const line of [
+    ...scene(44, 'd44-coal-powder').beats![0]!.lines,
+    ...burrows.beats![0]!.lines,
+  ])
+    assert.match(
+      typeof line === 'string' ? line : line.text,
+      /^“/,
+      'spoken lines are quoted',
+    )
+
+  // Day 42: every host's bargain buys something and every host collects in
+  // its own voice; Jinx's terms send half an engine up the mission road.
+  for (const audience of dayOf(42).audiences.filter((a) =>
+    a.id.startsWith('d42-terms-'),
+  )) {
+    const bargain = optionIn(audience, 'bargain', 'price')
+    const flags = bargain.effects.flags ?? []
+    assert.ok(
+      Object.keys(bargain.effects).some((key) => key !== 'flags') ||
+        flags.length > 1,
+      `${audience.id}: the bargain does what it says`,
+    )
+    const hideout = audience.id.slice('d42-terms-'.length)
+    assert.ok(
+      dueDef(`host-due:${hideout}`)!.line !==
+        dueDef('host-due:mole-tunnels')!.line || hideout === 'mole-tunnels',
+      `${hideout} collects in its own words`,
+    )
+  }
+  const rail = scene(42, 'd42-terms-rail-station')
+  assert.ok(
+    optionIn(rail, 'accept').effects.flags?.includes('d42-engine-half-sold'),
+  )
+  // Brass buys more than words, where both are offered.
+  const thistle = scene(42, 'd42-thistledown')
+  assert.ok(
+    optionIn(thistle, 'repay').effects.affinity!.freeholds! >
+      optionIn(thistle, 'names').effects.affinity!.freeholds!,
+  )
+  const graves = scene(42, 'd42-waystation-graves')
+  assert.ok(
+    optionIn(graves, 'pay').effects.affinity!.saltroad! >
+      optionIn(graves, 'face').effects.affinity!.saltroad!,
+  )
+
+  // The epilogue: the vote survives the Candles and the Long Night, and the
+  // names are read once, by the ending, not by three subjects.
+  const finished = (flags: string[]): FortressRun => ({
+    ...createRun(3),
+    day: LAST_DAY + 1,
+    flags,
+  })
+  const told = (flags: string[], ending: EndingId) =>
+    epilogueFor(finished(flags), ending)
+  const candles = told(['horror-sealed', 'peace-iron'], 'hundred-candles')
+  assert.match(
+    candles.find((entry) => entry.subject.id === 'charter')!.variant.text,
+    /iron peace/,
+    'A Hundred Candles remembers the vote',
+  )
+  for (const id of ['yard', 'archive'])
+    assert.ok(
+      !candles
+        .find((entry) => entry.subject.id === id)
+        ?.variant.text.match(/names/),
+      `${id} does not repeat the reading of the names`,
+    )
+  const night = told(
+    [
+      'hideout:mole-tunnels',
+      'd42-faced-the-thirty',
+      'd50-moles-hold-stairs',
+      'peace-tunnels',
+    ],
+    'long-night',
+  )
+  for (const [id, words] of [
+    ['hideout', /thirty/],
+    ['moles', /held the stairs/],
+    ['charter', /last fire/],
+  ] as const)
+    assert.match(
+      night.find((entry) => entry.subject.id === id)!.variant.text,
+      words,
+      `the Long Night remembers ${id}`,
+    )
+  assert.ok(
+    told(['d49-crown-laid-down', 'peace-roads'], 'open-roads').some(
+      (entry) => entry.subject.id === 'charter',
+    ),
+    'laying the crown down is remembered apart from Open Roads',
+  )
+  assert.doesNotMatch(ENDINGS['hundred-candles'].text, /cost too much/)
+}
+
 // t-034: a header tooltip never runs past the header. At 390px a long tab tip centred on an
 // edge tab widened the page shell's scroll range by ~24px and anything that scrolled a tab into
 // view slid the whole fortress sideways; visible, the tip was cut off mid-word.
@@ -4885,6 +5349,308 @@ for (const def of DAYS)
       ifFound.options.some((o) => o.requires?.flags?.includes(flag)),
       `Day 50 reads ${flag}`,
     )
+}
+
+// --- t-041: risk, economy and chores ------------------------------------------
+{
+  // Needs rise by act; lethal roads ask a quarter more, except roads that
+  // carry standing aid (Day 50), where preparation decides the odds.
+  assert.deepEqual(ACT_NEED_SCALE.length, 5)
+  assert.equal(bandNeed('mid', 1), BAND_NEED.mid)
+  assert.equal(
+    bandNeed('mid', 45),
+    Math.round(BAND_NEED.mid * ACT_NEED_SCALE[4]!),
+  )
+  assert.ok(bandNeed('high', 31) > bandNeed('high', 21))
+  assert.equal(
+    bandNeed('high', 9, true),
+    Math.round(BAND_NEED.high * LETHAL_NEED_SCALE),
+  )
+  assert.ok(lethalScaled(questDef('q-d09-iron-convoy')!))
+  assert.ok(
+    !lethalScaled(questDef('q-d50-last-dispatch')!),
+    'finale: aid decides',
+  )
+  const late = onDay(1, 33)
+  late.board.push({
+    questId: 'r-bandit-sighting@33',
+    postedDay: 33,
+    lastDay: 34,
+  })
+  assert.equal(
+    previewQuest(late, 'r-bandit-sighting@33', ['F001'], ['x'])
+      .perRequirement[0]?.needed,
+    bandNeed('mid', 33),
+    'the preview shows the act’s need',
+  )
+  // Meeting every need exactly is a real call, not a sure thing.
+  assert.equal(CHANCE_AT_NEED, 75)
+
+  // A lethal partial can kill too, so an Omen party is not death-proof.
+  assert.ok((LETHAL_BLOW.partial ?? 0) > 0 && (LETHAL_BLOW.failure ?? 0) > 0)
+  const convoy = questDef('q-d09-iron-convoy')!
+  const risky = injuryRisk(convoy, 60, {
+    lucky: false,
+    encore: false,
+    omen: true,
+    warden: false,
+    guardian: 0,
+    surgery: 0,
+    size: 3,
+  })
+  assert.ok(risky.deathChance > 0, 'omen turns failure into a deadly partial')
+  assert.equal(
+    injuryRisk(convoy, 60, {
+      lucky: false,
+      encore: false,
+      omen: false,
+      warden: true,
+      guardian: 0,
+      surgery: 0,
+      size: 3,
+    }).deathChance,
+    0,
+    'a warden still keeps everyone alive',
+  )
+
+  // Honest previews: across real campaigns the odds that are rolled always lie
+  // inside the range the quest room showed, Cave-Luck included.
+  for (const seed of [1, 2, 3]) {
+    let run = createRun(seed)
+    const known: string[] = []
+    let checked = 0
+    while (run.day <= 20) {
+      const shown = new Map<string, { low: number; high: number }>()
+      for (const entry of [...run.board]) {
+        const quest = questDef(entry.questId)!
+        const ready = run.roster
+          .filter((state) => followerStatus(run, state.id) === 'ready')
+          .map((state) => state.id)
+        const party = quest.mustInclude
+          ? [
+              quest.mustInclude,
+              ...ready.filter((id) => id !== quest.mustInclude),
+            ]
+          : ready
+        const pick = party.slice(
+          0,
+          Math.max(quest.party.min, Math.min(2, quest.party.max)),
+        )
+        if (
+          pick.length < quest.party.min ||
+          pick.some((id) => !ready.includes(id))
+        )
+          continue
+        try {
+          const preview = previewQuest(run, entry.questId, pick, known)
+          run = assignQuest(run, entry.questId, pick)
+          shown.set(entry.questId, preview)
+        } catch {
+          // A quest this naive party cannot take stays on the board.
+        }
+      }
+      const dawn = finishDay(run, known)
+      for (const quest of dawn.report.quests) {
+        known.push(...quest.revealedTraits)
+        const range = shown.get(quest.questId)
+        if (!range || !quest.party.length) continue
+        checked += 1
+        assert.ok(
+          quest.chance >= range.low && quest.chance <= range.high,
+          `${quest.questId}: rolled at ${quest.chance}, shown ${range.low}-${range.high}`,
+        )
+      }
+      run = dawn.run
+    }
+    assert.ok(checked > 10, `seed ${seed}: ${checked} quests checked`)
+  }
+
+  // Chores: thirty of them, each with a window, alternates and modest pay.
+  assert.ok(QUEST_TEMPLATES.length >= 30, `${QUEST_TEMPLATES.length} chores`)
+  for (const chore of QUEST_TEMPLATES) {
+    assert.ok(chore.days && chore.days[0] >= 1 && chore.days[1] <= 50, chore.id)
+    assert.ok(
+      Object.values(chore.outcomeAlts ?? {}).some((lines) => lines.length),
+      `${chore.id}: a second line for a second trip`,
+    )
+    assert.ok((chore.rewards.success.brass ?? 0) <= 12, `${chore.id}: pay`)
+  }
+  assert.ok(
+    QUEST_TEMPLATES.some((chore) => chore.lethal),
+    'one chore can cost a friend',
+  )
+  assert.ok(
+    QUEST_TEMPLATES.filter((chore) => chore.days![0] > 40).length >= 3,
+    'the court in hiding has its own chores',
+  )
+  // Whole campaigns: never two copies of a chore at once, never a third
+  // posting, never outside its days, never beside its authored twin, and a
+  // chore's second trip home never repeats the first trip's line.
+  const greedy = POLICIES.find((policy) => policy.id === 'greedy')!
+  for (const seed of [1, 2, 3, 4]) {
+    let last: FortressRun | undefined
+    playCampaign(greedy, seed, (run) => {
+      last = run
+      const live = [...run.board, ...run.active].map((entry) => entry.questId)
+      const chores = live.filter((id) => id.includes('@'))
+      assert.equal(
+        new Set(chores.map((id) => id.split('@')[0])).size,
+        chores.length,
+        `seed ${seed} day ${run.day}: two copies of one chore`,
+      )
+      for (const id of chores) {
+        const def = questDef(id)!
+        const posted = Number(id.split('@')[1])
+        assert.ok(posted >= def.days![0] && posted <= def.days![1], id)
+        assert.ok(chorePostings(run, def.id) <= CHORE_POSTINGS, id)
+        for (const twin of def.shuns ?? [])
+          assert.ok(
+            !run.board.some(
+              (entry) => entry.questId === twin && entry.postedDay < posted,
+            ),
+            `${id} beside ${twin}`,
+          )
+      }
+    })
+    const lines = new Map<string, string[]>()
+    for (const report of last!.reports)
+      for (const quest of report.quests)
+        if (quest.questId.includes('@')) {
+          const key = `${quest.questId.split('@')[0]}:${quest.tier}`
+          lines.set(key, [...(lines.get(key) ?? []), quest.text ?? ''])
+        }
+    for (const [key, texts] of lines) {
+      const chore = questDef(key.split(':')[0]!)!
+      if ((chore.outcomeAlts?.[key.split(':')[1] as 'success'] ?? []).length)
+        assert.equal(new Set(texts).size, texts.length, `${key} repeats itself`)
+    }
+  }
+  const glass = onDay(1, 15)
+  glass.board = [{ questId: 'q-d15-study-glass', postedDay: 15, lastDay: 16 }]
+  assert.ok(
+    !choreOpen(glass, questDef('r-strange-relic')!),
+    'the chore never sits beside its authored twin',
+  )
+  assert.ok(!choreOpen(onDay(1, 20), questDef('r-hidden-bread')!), 'Act V only')
+
+  // Departures with weight. A follower the emperor sat with goes home when
+  // the crown turns their own people (kin)...
+  const night = (patch: Partial<FortressRun> = {}): FortressRun => {
+    const base = onDay(1, 40)
+    return {
+      ...base,
+      board: [],
+      beds: 12,
+      revealedFactions: [...KINGDOM_FACTIONS],
+      roster: [
+        ...base.roster,
+        ...['F005', 'F008', 'F013'].map((id) => ({
+          id,
+          joinedDay: 5,
+          equipment: {},
+        })),
+      ],
+      ...patch,
+    }
+  }
+  const pack = night({
+    talksHeard: ['saffron-1', 'saffron-2'],
+    affinity: { ...plain.affinity, jackalwire: -20 - KIN_FALL },
+  })
+  const saffron = pack.roster.find((state) => state.id === 'F002')!
+  assert.ok(
+    peopleBroken(pack, followerDef('F002')!),
+    'the crown turned the Pack',
+  )
+  assert.equal(departureCheck(pack, 'abbey', saffron).why, 'kin')
+  assert.equal(
+    departureCheck(
+      { ...pack, affinity: { ...plain.affinity, jackalwire: -20 } },
+      'abbey',
+      saffron,
+    ).why,
+    null,
+    'a people that was always wary does not pull a heard follower',
+  )
+  assert.equal(
+    departureCheck(
+      { ...pack, flags: ['romance-saffron-sealed'] },
+      'abbey',
+      saffron,
+    ).why,
+    null,
+    'a sealed romance still keeps her',
+  )
+  const kinFall = finishDay(pack)
+  assert.ok(
+    kinFall.report.betrayal?.departed.some(
+      (entry) => entry.followerId === 'F002' && entry.why === 'kin',
+    ),
+  )
+  assert.match(
+    departedFollowers(kinFall.run).find((entry) => entry.followerId === 'F002')!
+      .reason,
+    /^You sat with her\. Her people .*She went to them\.$/,
+  )
+
+  // ...and when nobody else goes, Komodo takes the one the emperor sat with
+  // most, named in the briefing from Day 37.
+  const close = night({
+    // Saffron heard once, so the wary Pack does not pull her by neglect.
+    talksHeard: ['rook-1', 'rook-2', 'rook-3', 'saffron-1', 'kiyo-1', 'kiyo-2'],
+  })
+  const closeRoster = close.roster.map((state) => state.id)
+  assert.equal(komodoCourts(close), 'F001', 'the one the emperor sat with most')
+  const warned = { ...close, day: COURTING_FROM_DAY }
+  assert.match(komodoCourtingLine(warned)!.text, /Rook/)
+  assert.equal(
+    komodoCourtingLine({ ...close, day: COURTING_FROM_DAY - 1 }),
+    undefined,
+  )
+  const taken = finishDay(close)
+  assert.deepEqual(taken.report.betrayal?.departed, [
+    { followerId: 'F001', why: 'persuaded' },
+  ])
+  assert.match(
+    departedFollowers(taken.run).find((entry) => entry.followerId === 'F001')!
+      .reason,
+    /You sat with .* three times\. Young Komodo sat with .* the last night\./,
+  )
+  assert.ok(validateRun(taken.run), 'saves keep a persuaded departure')
+  // Three things stop it: Komodo watched, a sealed romance, or away.
+  for (const flag of ['d40-komodo-held', 'd40-komodo-followed']) {
+    assert.equal(komodoCourts({ ...close, flags: [flag] }), undefined, flag)
+    assert.equal(komodoCourtingLine({ ...warned, flags: [flag] }), undefined)
+    assert.deepEqual(
+      finishDay({ ...close, flags: [flag] }).report.betrayal?.departed,
+      [],
+    )
+  }
+  assert.equal(
+    komodoCourts({ ...close, flags: ['romance-rook-sealed'] }),
+    'F003',
+    'with Rook sealed, Komodo turns to Kiyo',
+  )
+  const away = {
+    ...close,
+    active: [
+      {
+        questId: 'q',
+        party: ['F001'],
+        departedDay: 40,
+        returnsDay: 42,
+        postedDay: 40,
+        lastDay: 40,
+      },
+    ],
+  }
+  assert.equal(komodoCourts(away), 'F003', 'Rook is away; Kiyo is not')
+  assert.equal(
+    komodoCourts(night()),
+    undefined,
+    'nobody he can use: no one sat with',
+  )
+  assert.ok(closeRoster.length > 4)
 }
 
 // --- t-036: Act II playtest rewrites ------------------------------------------
@@ -5199,6 +5965,29 @@ for (const def of DAYS)
     .beats!.find((b) => b.id === 'cider')!
     .options.find((o) => o.id === 'barrels-to-road')!
   assert.ok(fair.effects.recruitable?.includes('F018'), 'Vesper, for the road')
+}
+
+// --- t-041: the Day 50 roads -----------------------------------------------------
+{
+  // Every Day 50 road can kill, and no result comes home without a line.
+  for (const id of [
+    'q-d50-last-dispatch',
+    'q-d50-crypt-path',
+    'q-d50-ring-the-bell',
+  ]) {
+    const road = questDef(id)!
+    assert.ok(road.lethal, `${id} can cost a follower`)
+    for (const tier of ['success', 'partial', 'failure'] as const)
+      assert.ok(road.outcomes[tier], `${id}: a ${tier} line`)
+    assert.ok(
+      road.rewards.partial?.flags?.includes('horror-sealed'),
+      `${id}: a partial still shuts the door`,
+    )
+  }
+  // A partial at the bell seals the horror but cracks the bell: no Bell peace.
+  const bell = questDef('q-d50-ring-the-bell')!
+  assert.ok(!bell.rewards.partial?.flags?.includes('bell-rung'))
+  assert.ok(bell.rewards.success.flags?.includes('bell-rung'))
 }
 
 console.log('Emperor of Dust fortress contract: ok')

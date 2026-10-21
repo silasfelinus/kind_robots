@@ -358,6 +358,15 @@ export type QuestDef = {
   outcomeVariants?: Partial<Record<QuestResultTier | 'expired', TextVariant[]>>
   /** Standing help read from flags when the quest rolls (t-040). */
   aid?: FlagAid[]
+  /**
+   * Chores only (t-041): further lines for a result. A chore's second trip
+   * home reads differently from its first.
+   */
+  outcomeAlts?: Partial<Record<QuestResultTier | 'expired', string[]>>
+  /** Chores only (t-041): the first and last day it can be posted. */
+  days?: [number, number]
+  /** Chores only (t-041): never posted beside these quests (an authored twin). */
+  shuns?: string[]
 }
 
 /**
@@ -488,7 +497,13 @@ export type FollowerState = {
  * Why a follower left with Komodo: a hidden allegiance to his buyer, or forty
  * days in which nobody at court sat with them while their people were crossed.
  */
-export type DepartureWhy = 'allegiance' | 'neglect' | 'dismissed'
+/**
+ * Why a follower left: a hidden allegiance to the buyer, neglect, their own
+ * people turned against the crown (`kin`, t-041), talked round by Komodo on
+ * the last night (`persuaded`, t-041), or sent home by an answer.
+ */
+export type DepartureWhy =
+  'allegiance' | 'neglect' | 'kin' | 'persuaded' | 'dismissed'
 
 /** Who Komodo sold the tower to. The Abbess is always his patron. */
 export type BuyerId = 'abbey' | 'black-verge' | 'old-houses'
@@ -634,8 +649,13 @@ export type Codex = { version: 1; revealed: string[] }
 
 export type OddsPreview = {
   chance: number
-  /** True when any requirement is still hidden, so the chance is an estimate. */
+  /**
+   * True when any requirement is still hidden, or someone in the party has a
+   * trait here the Codex has not read: the chance is an estimate, low-high.
+   */
   estimate: boolean
+  /** Party members whose unread traits apply here (t-041). */
+  unread?: number
   low: number
   high: number
   perRequirement: {

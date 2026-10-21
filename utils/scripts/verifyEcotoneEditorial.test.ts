@@ -242,7 +242,6 @@ for (const [cardId, choiceId, expectedFlag, scene] of [
   assert.ok(found, `${cardId}/${choiceId} has an observed failure`)
 }
 
-const soberBench = findCard('QW-2')!
 const elkMeadow = findCard('QW-4')!
 let foundBenchFailure = false
 for (let seed = 1; seed <= 128; seed += 1) {

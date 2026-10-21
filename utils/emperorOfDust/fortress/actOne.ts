@@ -704,7 +704,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Send engineers to repair the channel.',
             effects: {},
             response:
-              'Mara writes something in her ledger. “Then I’ll expect them.”',
+              'Mara opens her ledger at the page for the far wards. Three household names have been crossed out. “Then I’ll expect them,” she says. She leaves the page open until you look.',
             postsQuests: ['q-d01-aqueduct-repair'],
           },
           {
@@ -717,7 +717,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               local: { ledger: 2, yard: -3 },
             },
             response:
-              'Mara’s smile does not move. “Hollow Bell will pay. Hollow Bell will remember paying.”',
+              'Mara holds out the book and asks whose names belong on the levy. You tell her: everyone. “Then they’ll remember your name,” she says, and writes it above the names of the millers.',
           },
         ],
         beats: [
@@ -801,7 +801,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Offer safe passage in exchange for an armistice.',
             effects: {},
             response:
-              'The captain laughs. “Send someone who can hold a tune. We’ll see.”',
+              'The captain plucks one sour note from the fiddle. “Send someone who can negotiate and count bottles. The pups still need their medicine.” She takes her boots off your carpet before she leaves, and makes a show of it.',
             postsQuests: ['q-d01-toll-parley'],
           },
           {
@@ -809,7 +809,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Tell the captain the bridge will be cleared by force.',
             effects: { local: { 'gate-watch': 1 } },
             response:
-              'The captain spits on your floor. Cheerfully. “Bring friends.”',
+              'The captain spits on your floor and counts the Watch guards at the door. “Bring friends,” she says. “And a wagon for the ones who don’t come back.”',
             postsQuests: ['q-d01-toll-break'],
           },
           {
@@ -821,7 +821,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               local: { ledger: -1 },
             },
             response:
-              'The captain bites a brass bit, nods, and leaves a painted feather on the arm of your throne.',
+              'The captain bites your brass and points her fiddle toward the southern road. “Seven days,” she says. The Saltroad clerk adds the payment to a fresh column marked tolls owed by the crown.',
           },
         ],
         beats: [
@@ -914,14 +914,14 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Escort the refugees without asking their secrets.',
             effects: {},
             response:
-              'Sister Reedlight bows low. Her lantern does not flicker.',
+              'Sister Reedlight bows with both hands around the lantern. “At the far checkpoint, count their faces,” she says. “Not just the lights.” Then she leaves before you can ask why.',
             postsQuests: ['q-d01-mirefen-escort'],
           },
           {
             id: 'question',
             label: 'Inspect the lanterns and record every traveler.',
             effects: { local: { lamplight: 1 } },
-            response: '“Of course,” says Sister Reedlight, a moment too late.',
+            response: '“Of course,” says Sister Reedlight. She turns her lantern so the glass hides her face. Behind her, one refugee takes a step toward the door and is stopped by another’s hand.',
             postsQuests: ['q-d01-mirefen-inspect'],
           },
         ],
@@ -1545,7 +1545,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'leave-it',
             label: 'Leave Hollow Bell its stories.',
             effects: { affinity: { 'hollow-bell': 3 } },
-            response: 'Mara looks relieved. Then, for a moment, afraid.',
+            response: 'Mara reaches for the wrapped hand-bell at her belt. “Thank you,” she says. Her thumb finds the knot in the cloth and pulls it tight.',
           },
         ],
         beats: [

@@ -80,12 +80,12 @@ assert.equal(
 assert.equal(
   trialForLandV7('verge')!.choices.find((choice) => choice.id === 'witness')!
     .target,
-  11,
+  12,
 )
 assert.equal(
   trialForLandV7('verge')!.choices.find((choice) => choice.id === 'scout')!
     .target,
-  11,
+  12,
 )
 for (const land of JOURNEY_WORLD.lands) {
   const trial = trialForLandV7(land.id)!
@@ -234,13 +234,15 @@ function simulate(policy: Policy, runs: number): Row {
           } else if (policy === 'safe') {
             id = (
               available.find((item) => item.id === 'scout') ??
-              [...available].sort(
-                (a, b) =>
-                  a.target -
-                  BONUS[a.skill]! +
-                  a.cost * 0.75 -
-                  (b.target - BONUS[b.skill]! + b.cost * 0.75),
-              )[0]!
+              [...available]
+                .filter((item) => item.id !== 'tribute' && item.id !== 'coerce')
+                .sort(
+                  (a, b) =>
+                    a.target -
+                    BONUS[a.skill]! +
+                    a.cost * 0.75 -
+                    (b.target - BONUS[b.skill]! + b.cost * 0.75),
+                )[0]!
             ).id
           } else if (policy === 'random') {
             id = available[random(seed, step, available.length)]!.id

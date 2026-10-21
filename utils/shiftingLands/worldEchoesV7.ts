@@ -1,6 +1,7 @@
 import type { TrialResult } from './authoredBosses'
 import type { JourneyStateV6 } from './deckV6'
 import { JOURNEY_WORLD } from './journey'
+import { moralChainsV7 } from './moralChainsV7'
 
 // Presentation only: never invent a deed, change the saved reducer or preview
 // a future land. Every passage is keyed to the recorded, successful choice.
@@ -301,5 +302,6 @@ export function worldEchoesV7(
       count++
     }
   }
+  echoes.push(...moralChainsV7(state, trials))
   return echoes
 }

@@ -77,7 +77,10 @@ assert.match(store, /stepJourneyLedgerV5\(active, action as JourneyActionV5\)/)
 assert.match(store, /stepJourneyLedgerV6\(active, action as JourneyActionV6\)/)
 assert.match(store, /stepJourneyLedgerV7\(active, action as JourneyActionV7\)/)
 assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v7'/)
-assert.match(store, /const LEGACY_V6_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v6'/)
+assert.match(
+  store,
+  /const LEGACY_V6_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v6'/,
+)
 assert.match(
   store,
   /const LEGACY_V5_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v5'/,

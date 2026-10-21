@@ -37,12 +37,12 @@
     "place": "Arcata Plaza",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A seller's jars are labeled FIRST KISS, LAST BUS and THINGS LEFT UNSAID. One contains a street you almost remember walking, on a night you never lived.",
-    "investigate": "Locate the original owner of the memory",
-    "success": "She recognizes a bus route planned for ten years from now, right down to its unbuilt terminal.",
-    "failure": "The lid cracks and the memory becomes wet-paper scent; you retain the name of a street.",
-    "help": "Insist the bottled memories go back to their owners",
-    "helpOutcome": "Three strangers recover enough of themselves to call someone they have missed."
+    "pressure": "A fog seller has priced a jar of LAST BUS at twelve dollars, plus whatever the buyer has forgotten. A woman recognizes the handwriting on its label but says the memory is hers to give, not his to sell. You recognize the street inside. Neither of you recognizes the night.",
+    "investigate": "Ask the woman whether she wants the jar opened, then check the route number",
+    "success": "She chooses to open it. The memory shows a future bus terminal drawn on a folded transfer; you copy the route, not her private recollection.",
+    "failure": "The seal snaps and the picture dissolves. You save the damp label, and the woman remembers which driver once used that handwriting.",
+    "help": "Help the owners reclaim the jars without making their memories a public show",
+    "helpOutcome": "The seller returns three jars and cancels his demonstration. The woman keeps hers closed. Reclaiming something does not oblige her to explain it."
   },
   {
     "id": "WH-005",
@@ -97,12 +97,12 @@
     "place": "Minor Theatre",
     "scene": "theater",
     "pool": 1,
-    "pressure": "A cat-shaped gap in the projection selects a film about a theater fire decades ago. The film ends tomorrow, with a weather warning.",
-    "investigate": "Follow the phantom cat into the booth",
-    "success": "Inside the canister you find a program printed for tomorrow and a warning about the harbor.",
-    "failure": "The projectionist interrupts, but you both see a paw print on the glass from the inside.",
-    "help": "Ask the theater staff to make copies",
-    "helpOutcome": "They preserve the reel before morning, and no one has to steal the evidence."
+    "pressure": "At the Minor, a cat-shaped absence pads across the projector beam and selects a reel about a theater fire. The last frame is tomorrow's date and a harbor weather alert. The projectionist is paid to protect the film, not to decide whether a ghost understands forecasts.",
+    "investigate": "Compare the final frame with the archive catalog and the current harbor advisory",
+    "success": "The reel's stock is decades old, but the warning names a berth added last spring. You preserve the frame number and report the risk without claiming a prediction.",
+    "failure": "The reel tangles before you can photograph the date. The projectionist saves the leader strip, where one impossible paw print remains in the emulsion.",
+    "help": "Help staff safeguard the reel and circulate the practical weather warning",
+    "helpOutcome": "The reel goes into a proper canister; the advisory reaches the harbor desk. The cat chooses the next feature and declines to explain its taste."
   },
   {
     "id": "WH-010",
@@ -142,12 +142,12 @@
     "place": "Arcata Community Forest / Redwood Park",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A deer in reflective gear hands you a warning from 1897. The old notice describes a collapsed bridge under today's heavily used trail.",
-    "investigate": "Inspect the bank before dismissing the warning",
-    "success": "The soil is unstable in exactly the place the impossible notice names.",
-    "failure": "The deer vanishes before you read the seal, but the ground slumps under your boot.",
-    "help": "Help volunteers close the risky section",
-    "helpOutcome": "Hikers take a marked detour. The deer waits until the last child is clear."
+    "pressure": "A deer in a reflective vest stops hikers beside a slope and hands over a bridge-closure notice dated 1897. One corner bears today's trail maintenance number. A family with a stroller is approaching the washed-out bank.",
+    "investigate": "Compare the old notice with the current trail map and inspect the bank from safe ground",
+    "success": "The present-day drainage line crosses the vanished bridge footing. You photograph fresh cracks and give the maintenance crew an exact location.",
+    "failure": "A gust takes the notice before you can photograph its seal. You still mark a crack widening under the trail edge and tell the crew what you saw.",
+    "help": "Turn walkers back and help volunteers mark a safe detour",
+    "helpOutcome": "The stroller and everyone behind it take the longer route. The deer checks the barriers twice, which is more than the county budget allows."
   },
   {
     "id": "WH-014",
@@ -157,12 +157,12 @@
     "place": "Arcata Community Forest / Redwood Park",
     "scene": "grove",
     "pool": 2,
-    "pressure": "Mushrooms have written an unusually detailed noise complaint about a drainage pipe that nobody admits installing.",
-    "investigate": "Turn the complaint into a site survey",
-    "success": "You uncover a buried pipe with a future-dated invoice and diverted water.",
-    "failure": "Rain ruins your measurements, but the displaced soil remains obvious.",
-    "help": "Call the trail crew and include the neighbors",
-    "helpOutcome": "The crew restores the water without trampling the colony, though the mushrooms file an appeal."
+    "pressure": "A row of mushrooms has filed a noise complaint against a drainage pipe below the Community Forest trail. Each cap holds a tiny slip of paper. The sound is not loud, but the slope downhill is newly wet and a volunteer has found sediment in the creek.",
+    "investigate": "Trace the pipe's outflow with the volunteer without digging into the fungal bed",
+    "success": "The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site.",
+    "failure": "Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows.",
+    "help": "Help the trail crew reroute foot traffic while they inspect the discharge",
+    "helpOutcome": "A short closure keeps boots off the colony and lets the crew sample the water. The mushrooms amend their complaint to include an appreciation for signage."
   },
   {
     "id": "WH-015",
@@ -172,12 +172,12 @@
     "place": "Arcata Community Forest / Redwood Park",
     "scene": "grove",
     "pool": 2,
-    "pressure": "An empty ring of chairs encircles cold ash. Invisible campers argue about whether you will betray someone whose name you have not heard.",
-    "investigate": "Ask the unseen speakers to name the missing person",
-    "success": "The name appears in ash beside a date that has not happened.",
-    "failure": "They answer only with an old song; an unworn boot leaves a fresh print.",
-    "help": "Leave the site safer than you found it",
-    "helpOutcome": "An unseen voice thanks you for clearing the ring rather than exploiting the mystery."
+    "pressure": "Six camp chairs ring ash cold enough to hold rainwater. Invisible campers are debating a future betrayal with startling confidence; you hear the name of a person you have yet to meet. A real hiker sits down, hoping the voices know where her missing friend went.",
+    "investigate": "Write down the disputed names and ask the voices for a verifiable trail detail",
+    "success": "Their arguments disagree about everything except a ranger-station marker. The hiker recognizes it and calls the station with a precise search area.",
+    "failure": "Every voice talks at once and the names become useless. Beneath one chair you find a fresh boot print headed toward the marked path.",
+    "help": "Stay with the hiker and contact the ranger rather than audition for the prophecy",
+    "helpOutcome": "The ranger gets a description and a last known location; the hiker has company while she waits. The empty chairs argue about whether this counts as betrayal."
   },
   {
     "id": "WH-016",
@@ -187,12 +187,12 @@
     "place": "Cal Poly Humboldt campus",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "The visiting moon occupies a tiny campus lectern while daylight crosses the windows. The professor introduces it without irony.",
-    "investigate": "Ask which coastline the moon remembers",
-    "success": "Its crater chart illuminates a harbor with two lighthouses, only one of them built.",
-    "failure": "The answer comes as a moving tide line on the blackboard, and students record it.",
-    "help": "Let skeptical students ask their own questions",
-    "helpOutcome": "The lecture becomes a serious public seminar where uncertainty is welcome."
+    "pressure": "The visiting lecturer is a moon no larger than a grapefruit, sitting at the campus podium beneath a borrowed desk lamp. It has scheduled office hours during a partial eclipse. An astronomy student worries the class will believe the guest's charming false claims about the tides.",
+    "investigate": "Ask the moon to distinguish its anecdotes from the measurements in the syllabus",
+    "success": "It admits one celebrated eclipse story is borrowed. The student corrects the data sheet while the moon supplies a startlingly accurate new observation.",
+    "failure": "The moon refuses a citation and rolls beneath the lectern. The class keeps the conflicting readings for later comparison instead of voting on astronomy.",
+    "help": "Help the professor hold a discussion where students can ask questions safely",
+    "helpOutcome": "The student leads a demonstration with a lamp and two oranges. The moon volunteers to be the third orange and accepts peer review badly."
   },
   {
     "id": "WH-017",
@@ -217,12 +217,12 @@
     "place": "Cal Poly Humboldt campus",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "The fourth member of a thesis committee has never lived or died. She gives devastatingly precise feedback on a dissertation still being written.",
-    "investigate": "Check the minutes of earlier defenses",
-    "success": "A correction in her handwriting identifies a historical error the faculty has not yet committed.",
-    "failure": "Her signature fades from the minutes. The candidate keeps the useful argument.",
-    "help": "Protect the student's right to a fair defense",
-    "helpOutcome": "The impossible examiner drops an unreasonable demand and asks a genuine question."
+    "pressure": "The thesis committee's fourth examiner appears on no enrollment ledger, obituary or faculty roster. She has nevertheless written thirty-seven devastating margin notes, and the candidate is minutes from a defense whose result determines their funding.",
+    "investigate": "Check the cited sources in the mysterious examiner's critique",
+    "success": "Most are solid; one quotes an article not yet published. The candidate gets time to verify it rather than having a dissertation rewritten by a ghost.",
+    "failure": "One citation sends you through a circular archive index. You flag it as unverifiable; the candidate can answer the substantive question without pretending otherwise.",
+    "help": "Ask the chair to make the defense fair despite the extra examiner",
+    "helpOutcome": "The chair rules the phantom's notes advisory and extends the candidate's time. The examiner nods, disappointed to discover due process."
   },
   {
     "id": "WH-019",
@@ -232,12 +232,12 @@
     "place": "Cal Poly Humboldt campus",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "The mascot stops cheering to give zoological advice about animals absent from the north coast. The field notes are uncomfortably accurate.",
-    "investigate": "Compare the drawings with the campus collection",
-    "success": "A species declared extinct is visible in a field sketch made yesterday at the marsh.",
-    "failure": "The zipper jams before you can copy the notes. You still recognize the wing pattern.",
-    "help": "Make sure the sweating performer gets a break",
-    "helpOutcome": "A stagehand brings water, and the mascot returns to being a person."
+    "pressure": "Between cheers, the campus mascot delivers a lecture on an animal no one on the field can identify. Its drawings are persuasive. Its microphone is feeding the speech over the emergency instructions, while the student inside the costume looks desperate for water.",
+    "investigate": "Ask for the field notebook and compare the sketches with the campus collections",
+    "success": "A sketch records markings from a specimen accessioned tomorrow. The curator takes the copy; nobody calls it proof of a living animal.",
+    "failure": "The mascot forgets the species name as soon as its head comes off. The student retains a drawing with one unusually exact habitat note.",
+    "help": "Get the student out of the overheated suit and return the microphone to safety announcements",
+    "helpOutcome": "The medic checks the student; the game resumes with a replacement announcer. The mascot's written complaint about inaccurate birds remains on the bulletin board."
   },
   {
     "id": "WH-020",
@@ -247,11 +247,11 @@
     "place": "Cal Poly Humboldt campus",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "Students receive final exams before their first lecture. The questions are about public decisions the town has not yet made.",
-    "investigate": "Audit an exam against the course plan",
-    "success": "One answer predicts a flood-barrier dispute fifteen years hence, including an unfamiliar civic seal.",
-    "failure": "The registrar keeps the paper, but you remember the date and the name of a proposed creek.",
-    "help": "Set up a study group to compare evidence",
-    "helpOutcome": "Students share food and notes instead of competing for grades awarded before learning."
+    "pressure": "Final exams appear in students' inboxes before their first lecture. Every question concerns a civic decision nobody has publicly proposed. A teaching assistant is fielding panicked emails from students who think this is a trick to deny them financial aid.",
+    "investigate": "Compare the exam metadata with course records and a public council agenda",
+    "success": "One question cites a meeting room that will not open until next month. The registrar can investigate the timestamp without grading anyone's future.",
+    "failure": "The files redate themselves when downloaded. A student has saved a paper printout bearing the original header, enough to start a fair review.",
+    "help": "Help students get the exams paused without exposing private grades",
+    "helpOutcome": "The instructor postpones the test and offers an actual syllabus. A student frames the premature F as a warning against group projects."
   }
 ]

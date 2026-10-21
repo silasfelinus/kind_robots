@@ -111,6 +111,28 @@ button, or data object is technically reachable.
 - Settings-style UI is appropriate for settings. A creative product surface should look and
   feel designed before it is sent to Silas for visual acceptance.
 
+## Console-first, space-filling creative surfaces (Silas, 2026-10-20 PT)
+
+The default visual metaphor for creative tools and games is a **console**, not a
+stacked web form. Artwork, maps, video, and playable stages get the strongest
+visual hierarchy and first use of available space. Controls should feel like
+a compact command deck around the stage; long settings and explanatory text
+belong in details panels or the tutorial sidebar.
+
+- On large displays, use the available **container** width and height instead of
+  trapping creative content in a narrow centered reading column. Responsive
+  columns in shared components use container queries or intrinsic grids rather
+  than viewport-only breakpoints.
+- Prioritize real, large image previews and image-led choices over text-heavy
+  cards, tiny thumbnails, and empty decorative gutters. When artwork is missing,
+  preserve an image-sized fallback instead of collapsing the visual stage.
+- On small displays, collapse supporting controls before shrinking the stage into
+  illegibility. Keep the primary action visible, with each gallery and option
+  browser owning its bounded scrolling so the last item stays reachable.
+- Apply this incrementally to existing surfaces. Do not globally widen
+  long-form reading content, invent nested scroll panes, or claim visual
+  acceptance without rendered phone, tablet, desktop and XL checks.
+
 ## Database — standing rules from Silas (2026-07-02)
 
 The database holds real data.

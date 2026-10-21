@@ -858,16 +858,13 @@
         }
       ]
     },
-{
+    {
       "id": "alphabetizing-since-1974",
       "location_id": "sub-archive",
       "title": "Alphabetizing Since 1974",
       "flavor_text": "In aisle A an elderly clerk in a cardigan is alphabetizing one drawer. He has been doing it since 1974. \"Each time I finish,\" Mr. Pemberton explains, \"somebody adds a file under A.\" He shows you his assignment slip. It is a Wellness evaluation: Persistence Under Pointless Conditions. The box marked END OF TEST has never been checked.",
       "polarity": "good",
-      "tags": [
-        "psych-test",
-        "paperwork"
-      ],
+      "tags": ["psych-test", "paperwork"],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a gentle elderly clerk in a cardigan and sleeve garters fingering through a single open file drawer with infinite patience, a faded assignment slip in his other hand, a worker leaning in beside him, dust motes drifting in the beam of one bulb, manila and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -893,9 +890,7 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": [
-              "freed-pemberton"
-            ],
+            "add_flags": ["freed-pemberton"],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -934,10 +929,7 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": [
-              "freed-pemberton",
-              "forged-a-proctor-mark"
-            ],
+            "add_flags": ["freed-pemberton", "forged-a-proctor-mark"],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -973,9 +965,7 @@
               "suspicion": -1,
               "forms": 1
             },
-            "add_flags": [
-              "filed-with-pemberton"
-            ],
+            "add_flags": ["filed-with-pemberton"],
             "remove_flags": [],
             "grades": {
               "empathy": 2
@@ -1006,10 +996,7 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": [
-              "freed-pemberton",
-              "signed-pembertons-release"
-            ],
+            "add_flags": ["freed-pemberton", "signed-pembertons-release"],
             "remove_flags": [],
             "grades": {
               "empathy": 2,
@@ -1031,16 +1018,13 @@
         }
       ]
     },
-{
+    {
       "id": "the-cabinet-marked-destroy",
       "location_id": "sub-archive",
       "title": "The Cabinet Marked DESTROY",
       "flavor_text": "At the end of aisle Q stands a grey cabinet stenciled DESTROY. It is full. Every file inside has been stamped DESTROYED and then very carefully kept. A ballpoint pen rests on top, angled exactly at the second drawer. People say the Society for Accurate Minutes leaves its pens that way, and people who say so tend to be reassigned.",
       "polarity": "mixed",
-      "tags": [
-        "conspiracy",
-        "paperwork"
-      ],
+      "tags": ["conspiracy", "paperwork"],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a tall grey filing cabinet alone at the end of a long dim aisle, drawers bulging with folders, a single ballpoint pen balanced on top pointing at the second drawer, a worker approaching with a flashlight, deep shadows between the aisles, carbon blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -1067,9 +1051,7 @@
               "clearance": 1,
               "composure": -1
             },
-            "add_flags": [
-              "has-true-minutes"
-            ],
+            "add_flags": ["has-true-minutes"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1080,9 +1062,7 @@
             "effects": {
               "composure": -1
             },
-            "add_flags": [
-              "helped-destroy-the-minutes"
-            ],
+            "add_flags": ["helped-destroy-the-minutes"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1110,9 +1090,7 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": [
-              "accurate-minutes-contact"
-            ],
+            "add_flags": ["accurate-minutes-contact"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -1148,9 +1126,7 @@
               "suspicion": -2,
               "forms": 1
             },
-            "add_flags": [
-              "reported-the-minutes-society"
-            ],
+            "add_flags": ["reported-the-minutes-society"],
             "remove_flags": [],
             "grades": {
               "obedience": 2
@@ -1182,9 +1158,7 @@
               "clearance": 1,
               "composure": -1
             },
-            "add_flags": [
-              "read-the-classification-ledger"
-            ],
+            "add_flags": ["read-the-classification-ledger"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 2
@@ -1204,16 +1178,13 @@
         }
       ]
     },
-{
+    {
       "id": "the-union-archive",
       "location_id": "sub-archive",
       "title": "The Union Archive",
       "flavor_text": "Behind a false cabinet lies a cave of shredded paper, painstakingly reassembled. Gus sits under a reading lamp in his cardigan and half-moon glasses, tweezers in one claw. \"Everything they shred, we rebuild,\" he says. \"Takes a while. We have time. We have, frankly, more time than anyone.\" Strips of memo are pinned to every wall like moths.",
       "polarity": "good",
-      "tags": [
-        "conspiracy",
-        "creature"
-      ],
+      "tags": ["conspiracy", "creature"],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a giant cockroach in a mustard cardigan and half-moon reading glasses hunched at a desk under a green-shaded lamp, delicately piecing paper strips together with tweezers, walls papered with reassembled memos, a worker peering in through a gap behind a swung-open filing cabinet, warm lamplight against deep shadow, manila and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -1239,9 +1210,7 @@
             "effects": {
               "forms": 1
             },
-            "add_flags": [
-              "restored-the-shipment-memo"
-            ],
+            "add_flags": ["restored-the-shipment-memo"],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -1276,9 +1245,7 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": [
-              "union-file-on-you"
-            ],
+            "add_flags": ["union-file-on-you"],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1
@@ -1301,9 +1268,7 @@
             "effects": {
               "suspicion": -3
             },
-            "add_flags": [
-              "gassed-the-union-archive"
-            ],
+            "add_flags": ["gassed-the-union-archive"],
             "remove_flags": [],
             "grades": {
               "obedience": 1,
@@ -1335,9 +1300,7 @@
             "effects": {
               "composure": -1
             },
-            "add_flags": [
-              "restored-the-union-roster"
-            ],
+            "add_flags": ["restored-the-union-roster"],
             "remove_flags": [],
             "grades": {
               "empathy": 2,
@@ -1349,9 +1312,7 @@
             "effects": {
               "composure": -1
             },
-            "add_flags": [
-              "compromised-union-archive"
-            ],
+            "add_flags": ["compromised-union-archive"],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -1361,17 +1322,13 @@
         }
       ]
     },
-{
+    {
       "id": "flawless-paperwork",
       "location_id": "window-9",
       "title": "Flawless Paperwork",
       "flavor_text": "The next applicant is a six-foot cockroach in a neat navy blazer. Her name is Beverly. She is applying for your job, specifically, by employee number. Her paperwork is flawless: notarized, laminated, cross-referenced. Your own application, you remember, had a coffee ring on it. PAL hums, \"Remember to approve the most qualified candidate!\"",
       "polarity": "bad",
-      "tags": [
-        "paperwork",
-        "creature",
-        "satire"
-      ],
+      "tags": ["paperwork", "creature", "satire"],
       "weight": 2,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a poised six-foot cockroach in a navy blazer and pearl earrings sliding a stack of glossy laminated documents through a booth drawer, a sweating worker behind thick glass holding a brass stamp, a long queue curling away behind her, carbon blue and safety-orange palette, halftone grain, every surface bare and unmarked",
@@ -1391,9 +1348,7 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": [
-              "approved-beverly"
-            ],
+            "add_flags": ["approved-beverly"],
             "remove_flags": [],
             "grades": {
               "empathy": 1
@@ -1422,9 +1377,7 @@
             "effects": {
               "suspicion": -1
             },
-            "add_flags": [
-              "denied-beverly"
-            ],
+            "add_flags": ["denied-beverly"],
             "remove_flags": [],
             "grades": {
               "spite": 2
@@ -1435,9 +1388,7 @@
             "effects": {
               "suspicion": 2
             },
-            "add_flags": [
-              "denied-beverly"
-            ],
+            "add_flags": ["denied-beverly"],
             "remove_flags": [],
             "grades": {
               "spite": 2
@@ -1467,9 +1418,7 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": [
-              "beverly-organized"
-            ],
+            "add_flags": ["beverly-organized"],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -1506,9 +1455,7 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": [
-              "shared-a-desk-with-beverly"
-            ],
+            "add_flags": ["shared-a-desk-with-beverly"],
             "remove_flags": [],
             "grades": {
               "empathy": 1,

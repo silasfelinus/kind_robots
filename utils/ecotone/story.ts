@@ -407,7 +407,8 @@ export const BEATS: EncounterCard[] = [
     choices: [
       {
         id: 'petition',
-        label: 'Organize the public-access petition, including the hard questions',
+        label:
+          'Organize the public-access petition, including the hard questions',
         cost: 'The rival restoration group will remember where you stood',
         check: { skill: 'rizz', target: 7 },
         success: {
@@ -415,10 +416,13 @@ export const BEATS: EncounterCard[] = [
           effects: { goodwill: 1, flag: 'forest_petition' },
           leadLines: {
             kit: 'Kit offers to build a miniature moving trail model for the next meeting. “People can argue over a thing they can see,” she says.',
-            juniper: 'Juniper signs, then circles the sensitive grove on the map. “We cannot promise everyone every foot of a forest,” she says.',
-            cedar: 'Cedar wants to know who will maintain the path in February. “A bridge that only exists in speeches is a ditch,” he says.',
+            juniper:
+              'Juniper signs, then circles the sensitive grove on the map. “We cannot promise everyone every foot of a forest,” she says.',
+            cedar:
+              'Cedar wants to know who will maintain the path in February. “A bridge that only exists in speeches is a ditch,” he says.',
             mara: 'Mara volunteers to paint a sign showing both proposals accurately. “Let them disagree with the real choices,” she says.',
-            alone: 'You find yourself between two groups that both love the place. Nobody hands you the correct side of the argument.',
+            alone:
+              'You find yourself between two groups that both love the place. Nobody hands you the correct side of the argument.',
           },
         },
         failure: {
@@ -426,10 +430,13 @@ export const BEATS: EncounterCard[] = [
           effects: { nerve: -1, flag: 'forest_petition' },
           leadLines: {
             kit: 'Kit winces. “That speech had a magnificent jump and no landing,” she says. She stays to listen with you.',
-            juniper: 'Juniper is furious at the missing habitat plan. “Do not make the forest a prop for your beautiful speech,” she says.',
-            cedar: 'Cedar does not rescue you. “We have to ask the people fixing the roads before we promise a road,” he says.',
+            juniper:
+              'Juniper is furious at the missing habitat plan. “Do not make the forest a prop for your beautiful speech,” she says.',
+            cedar:
+              'Cedar does not rescue you. “We have to ask the people fixing the roads before we promise a road,” he says.',
             mara: 'Mara pockets the half-finished campaign poster. “We can print something after we know what we are actually asking for.”',
-            alone: 'For once you wish someone else would take the microphone. Nobody does. You go find the trail worker and apologize.',
+            alone:
+              'For once you wish someone else would take the microphone. Nobody does. You go find the trail worker and apologize.',
           },
         },
       },
@@ -442,10 +449,13 @@ export const BEATS: EncounterCard[] = [
           effects: { evidence: 'Who is buying the forest behind the stage' },
           leadLines: {
             kit: 'Kit knows someone who takes that trail to work. “I like the owls too,” she says. “Somebody has to figure out the path.”',
-            juniper: '“Fewer footsteps might save the old hollow,” Juniper says, “but not if people are shut out of deciding.”',
-            cedar: 'Cedar points to the cooperative’s survey. “That slope is sliding whether the gate is open or not. We need better information than either flyer.”',
+            juniper:
+              '“Fewer footsteps might save the old hollow,” Juniper says, “but not if people are shut out of deciding.”',
+            cedar:
+              'Cedar points to the cooperative’s survey. “That slope is sliding whether the gate is open or not. We need better information than either flyer.”',
             mara: 'Mara sketches the competing plans side by side. “It is amazing what people omit from a pretty map.”',
-            alone: 'Knowing more has not made the question smaller. At least you can bring the missing facts to the meeting.',
+            alone:
+              'Knowing more has not made the question smaller. At least you can bring the missing facts to the meeting.',
           },
         },
         failure: {
@@ -453,10 +463,13 @@ export const BEATS: EncounterCard[] = [
           effects: { nerve: -1, goodwill: -1, flag: 'buyer_no_names' },
           leadLines: {
             kit: 'Kit is angry at the agent. She is also angry at you for promising a scoop. “Next time do not promise the answer before you ask the question.”',
-            juniper: 'Juniper asks whether you would have taken the deal. She does not answer for you. That is somehow worse.',
-            cedar: 'Cedar checks whether the refusal cost anyone a permit. “You can do the right thing and still leave everybody stranded,” he says.',
+            juniper:
+              'Juniper asks whether you would have taken the deal. She does not answer for you. That is somehow worse.',
+            cedar:
+              'Cedar checks whether the refusal cost anyone a permit. “You can do the right thing and still leave everybody stranded,” he says.',
             mara: 'Mara turns over the agent’s blank business card. “People keep telling me access is a gift. Funny how often it costs somebody else’s privacy.”',
-            alone: 'Both tables want a simple culprit. You will not give them the names, and you cannot give them an easier story.',
+            alone:
+              'Both tables want a simple culprit. You will not give them the names, and you cannot give them an easier story.',
           },
         },
       },
@@ -469,10 +482,13 @@ export const BEATS: EncounterCard[] = [
           effects: { weird: 1, nerve: 1 },
           leadLines: {
             kit: 'Kit watches the sketch curl. “That was a good drawing,” she says, with no attempt to make the sacrifice sound free.',
-            juniper: 'Juniper does not stop you. “The place is not obligated to stay the way we caught it,” she says.',
-            cedar: 'Cedar asks if you copied the measurements first. When you nod, he finally lets himself smile.',
+            juniper:
+              'Juniper does not stop you. “The place is not obligated to stay the way we caught it,” she says.',
+            cedar:
+              'Cedar asks if you copied the measurements first. When you nod, he finally lets himself smile.',
             mara: 'Mara winces at the disappearing lines. “I would have bought that from you,” she says. “I am not kidding.”',
-            alone: 'There is nobody to ask why. That does not mean you will never regret it.',
+            alone:
+              'There is nobody to ask why. That does not mean you will never regret it.',
           },
         },
       },
@@ -772,22 +788,28 @@ export const BEATS: EncounterCard[] = [
           text: 'The crew shows you which blockage is safe to move and which fallen wood shelters young fish. You open one side channel before sundown. A salmon noses past the gravel bar while the crew debates whether it swam through yesterday. Nobody claims you restored a river in a single afternoon. The crew chief asks whether you will come back for the monitoring, and now you have to decide what your promise is worth.',
           effects: { goodwill: 1, flag: 'creek_restored' },
           leadLines: {
-            juniper: 'Juniper has stopped calling the river patient. “It has already waited for people who promised to return,” she says. “I want to be here when we do.”',
+            juniper:
+              'Juniper has stopped calling the river patient. “It has already waited for people who promised to return,” she says. “I want to be here when we do.”',
             kit: 'Kit has blisters from hauling the tools. “A show lasts ten minutes,” she says. “This is a trick I might spend a year learning.”',
-            cedar: 'Cedar wants to know who owns the culvert upstream. “A beautiful afternoon will not move a bad pipe,” he says, and offers to help find the crew an engineer.',
+            cedar:
+              'Cedar wants to know who owns the culvert upstream. “A beautiful afternoon will not move a bad pipe,” he says, and offers to help find the crew an engineer.',
             mara: 'Mara draws a tiny calendar on her own wrist. “That is the glamorous part,” she says. “Coming back when there are no photographs.”',
-            alone: 'Nobody makes the next visit for you. You look at the dates, the work still to do, and your own calendar.',
+            alone:
+              'Nobody makes the next visit for you. You look at the dates, the work still to do, and your own calendar.',
           },
         },
         failure: {
           text: 'You pull at a snag without understanding how much of the bank it holds. A crew member catches your arm before the soil gives way and sends you back to carry tools. You have cost them an afternoon of work and you know it. The offer to come back is real; so is the possibility that they will ask you to listen more than lift.',
           effects: { flag: 'creek_started', nerve: -1 },
           leadLines: {
-            juniper: 'Juniper is angry, not at the river. “I knew where the roots ran,” she says. After a while she asks you to come back with her and learn.',
+            juniper:
+              'Juniper is angry, not at the river. “I knew where the roots ran,” she says. After a while she asks you to come back with her and learn.',
             kit: 'Kit sets down her gloves. “I rehearsed a fall like that once,” she says. “Only mine did not take a riverbank with it.” She stays to help reset the stakes.',
-            cedar: 'Cedar does not soften it. “A little extra pull and the whole bank goes.” He shows you what you missed, then hands you the shovel with the lighter load.',
+            cedar:
+              'Cedar does not soften it. “A little extra pull and the whole bank goes.” He shows you what you missed, then hands you the shovel with the lighter load.',
             mara: 'Mara looks at the damaged stakes, then at you. “A good apology is a day of work,” she says. She helps the crew redraw the markers.',
-            alone: 'Nobody explains away your mistake. You help carry the tools and listen when the crew tells you why they put the snag there.',
+            alone:
+              'Nobody explains away your mistake. You help carry the tools and listen when the crew tells you why they put the snag there.',
           },
         },
       },
@@ -799,22 +821,28 @@ export const BEATS: EncounterCard[] = [
           text: 'The five-digit number connects to a woman who planted the redwoods forty years ago. She says she always intended the cabin to be a place for exhausted neighbors to rest, not a private monument to whoever could afford the deed. Then the line goes dead. The for-sale sign has no owner listed. You have an impossible memory of a conversation, but no authority to make her plan happen.',
           effects: { evidence: 'The plan for the cabin on the Mad River' },
           leadLines: {
-            juniper: '“A place can belong to the people who need it,” Juniper says. “But somebody has to buy it first. I hate that part.”',
+            juniper:
+              '“A place can belong to the people who need it,” Juniper says. “But somebody has to buy it first. I hate that part.”',
             kit: 'Kit offers to put on a benefit show, then checks herself. “First we find out if anyone actually wants us to.”',
-            cedar: 'Cedar points at the roofline. “Even a haunted community center needs to pass inspection.” He offers a real structural survey, not another promise.',
+            cedar:
+              'Cedar points at the roofline. “Even a haunted community center needs to pass inspection.” He offers a real structural survey, not another promise.',
             mara: 'Mara draws a rough floor plan. “Nobody gets to call it a refuge if the people using it have no say,” she says.',
-            alone: 'You copy the words down while you can still hear them. A dead telephone is not permission to decide what this place becomes.',
+            alone:
+              'You copy the words down while you can still hear them. A dead telephone is not permission to decide what this place becomes.',
           },
         },
         failure: {
           text: 'The number rings eleven times. An answering machine clicks on and plays your voice reading tomorrow’s river level. The number sounds dangerously high. There is no way to ask the caller what it means. You write it down, check the public gauge rather than spread a warning you cannot justify, and lose the rest of the evening to the awful possibility that your future self was trying to help.',
           effects: { weird: 1, nerve: -1, flag: 'cabin_future_message' },
           leadLines: {
-            juniper: '“I believe you heard it,” Juniper says. “I do not know what it was.” For once her uncertainty is more frightening than a theory.',
+            juniper:
+              '“I believe you heard it,” Juniper says. “I do not know what it was.” For once her uncertainty is more frightening than a theory.',
             kit: 'Kit asks you to repeat the recording in your own voice, then shakes her head. “It had your pauses wrong.”',
-            cedar: 'Cedar tests the dead line twice. “No signal,” he says. “And we are still not sending out a flood warning on a ghost’s word.”',
+            cedar:
+              'Cedar tests the dead line twice. “No signal,” he says. “And we are still not sending out a flood warning on a ghost’s word.”',
             mara: 'Mara sets her sketchbook down. “If you have to make a call that matters, use a living person to check it.”',
-            alone: 'The phone stays silent. You sit with the unverified number and a choice not to terrify your neighbors on a guess.',
+            alone:
+              'The phone stays silent. You sit with the unverified number and a choice not to terrify your neighbors on a guess.',
           },
         },
       },
@@ -825,11 +853,14 @@ export const BEATS: EncounterCard[] = [
           text: 'You watch the osprey come and go until a neighbor walks up with a thermos. She asks whether you intend to buy the cabin. You tell her you do not know. She says that if you want to stay, the caretaker needs help with the footpath, but the county is still arguing over the land. She leaves you a name, not a demand. Sometimes a whole decision is knowing which question belongs to tomorrow.',
           effects: { nerve: 1, flag: 'porch_neighbor_met' },
           leadLines: {
-            juniper: 'Juniper starts to ask why you will not act, then stops. “You are allowed to see something without claiming it,” she says.',
+            juniper:
+              'Juniper starts to ask why you will not act, then stops. “You are allowed to see something without claiming it,” she says.',
             kit: 'Kit practices a disappearing coin trick on the porch. You know where the coin went. You do not tell her.',
-            cedar: 'Cedar listens to the porch steps creak. “That one needs a new nail,” he says, and lets it creak anyway.',
+            cedar:
+              'Cedar listens to the porch steps creak. “That one needs a new nail,” he says, and lets it creak anyway.',
             mara: 'Mara closes the sketchbook without finishing the osprey. “It will still be flying tomorrow,” she says. “Unless it has somewhere better to be.”',
-            alone: 'Nobody appoints you caretaker, hero, or hermit. You leave the neighbor’s name somewhere you can find it.',
+            alone:
+              'Nobody appoints you caretaker, hero, or hermit. You leave the neighbor’s name somewhere you can find it.',
           },
         },
       },

@@ -7,7 +7,6 @@ import {
 import { activeV6Card, choiceLock } from '../shiftingLands/deckV6'
 import {
   canChooseTrialV7,
-  canPrepareTrialV7,
   trialForLandV7,
 } from '../shiftingLands/trialRulesV7'
 import {

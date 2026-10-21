@@ -1,6 +1,6 @@
 <!-- Music-video editor embedded in the Video Studio Music Videos tab. -->
 <template>
-  <section class="min-h-0 w-full">
+  <section class="@container min-h-0 w-full">
     <div class="space-y-3">
       <header class="kr-toolbar justify-end">
         <button

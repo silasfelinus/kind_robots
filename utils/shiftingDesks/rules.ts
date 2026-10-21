@@ -421,8 +421,8 @@ export function reviewExhibits(
       "FOREKNOWLEDGE: You quoted the Company's future incident report in the launch memo. The date was known before the celebration.",
     ],
     [
-      'named-the-parents',
-      'PRODUCT LOYALTY: Your testimony identified the concerned engineers. The Company has opened a reassignment file for all nine.',
+      'drew-the-warning',
+      'FOCUS GROUP EVIDENCE: Your crayon drawing showed the mechanism inside the bear. Legal has filed it as an approved design concept.',
     ],
   ]
   const entries =

@@ -359,6 +359,36 @@ assert.match(enqueueSource, /upgradesMaturity \? \{ isMature: true, isPublic: fa
 assert.match(enqueueSource, /ti2vUnet: body\.videoModelPaths\?\.wanTi2v/)
 assert.match(enqueueSource, /highNoiseUnet: body\.videoModelPaths\?\.wanHigh/)
 
+// The picker must not reuse a catalog fetched before today's imports or before
+// the user opted in to mature Resources. The server filters those rows, so
+// changing the toggle without refetching cannot reveal them.
+const videoLoraPickerSource = readFileSync('components/video-lora-picker.vue', 'utf8')
+assert.match(
+  videoLoraPickerSource,
+  /onMounted\(\(\) => \{\s*void refreshResources\(\)/,
+  'opening video generation must reload newly imported LoRAs',
+)
+assert.match(
+  videoLoraPickerSource,
+  /\(\) => userStore\.showMature,\s*\(\) => \{\s*void refreshResources\(\)/,
+  'toggling mature Resources must reload the server-filtered catalog',
+)
+assert.match(
+  videoLoraPickerSource,
+  /await resourceStore\.getResources\(true\)/,
+  'video LoRA refresh must bypass the loaded-store cache',
+)
+assert.match(
+  videoLoraPickerSource,
+  /refreshQueued = true/,
+  'a maturity change during an in-flight reload must trigger a second fetch',
+)
+assert.match(
+  videoLoraPickerSource,
+  /@click="refreshResources"/,
+  'new LoRAs imported while the picker is open must be manually refreshable',
+)
+
 console.log(
   'WAN/video LoRA contract OK: TI2V and A14B retain their graph shapes, ' +
     'ordered user LoRA stacks reach every sampler model path, LTX keeps its ' +

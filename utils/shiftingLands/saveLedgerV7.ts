@@ -98,7 +98,18 @@ export function stepJourneyLedgerV7(
     return {
       ...ledger,
       actions: [...ledger.actions, action],
-      current: { ...state, journey: result.journey },
+      // Taking the easy way has a cost even when the dice fail. These marks
+      // are recorded and verified by V7 replay, never applied to V6 saves.
+      current: {
+        ...state,
+        journey: result.journey,
+        marks:
+          action.choiceId === 'coerce'
+            ? { ...state.marks, ruthlessness: state.marks.ruthlessness + 1 }
+            : action.choiceId === 'tribute'
+              ? { ...state.marks, cunning: state.marks.cunning + 1 }
+              : state.marks,
+      },
       trialResults: [...ledger.trialResults, result.outcome],
     }
   }

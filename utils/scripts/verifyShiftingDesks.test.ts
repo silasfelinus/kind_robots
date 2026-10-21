@@ -79,6 +79,64 @@ assert.doesNotMatch(
   /developer_note|"brief"|art_ref/,
 )
 
+const officeSupplyTest = ORIENTATION.encounters.find(
+  (card) => card.id === 'which-office-supply-are-you',
+)
+assert.ok(officeSupplyTest, 'Orientation retains its four-way intake questionnaire')
+const profileRoutes = {
+  'answer-as-a-stapler': 'profiled-as-a-stapler',
+  'answer-as-a-paperclip': 'profiled-as-a-paperclip',
+  'answer-as-a-red-pen': 'profiled-as-a-red-pen',
+  'answer-as-a-shredder': 'profiled-as-a-shredder',
+} as const
+assert.deepEqual(
+  officeSupplyTest.choices.map((choice) => choice.id),
+  Object.keys(profileRoutes),
+  'every identity offered in the question must be a deliberate answer',
+)
+const recordsProfiles = DEPARTMENTS.find((d) => d.department.id === 'records')
+assert.ok(recordsProfiles)
+for (const [id, flag] of Object.entries(profileRoutes)) {
+  const route = officeSupplyTest.choices.find((choice) => choice.id === id)
+  assert.ok(route, `missing profile answer ${id}`)
+  assert.ok(route.success.add_flags.includes(flag), `${id} must file its profile`)
+  assert.ok(
+    !route.failure || route.failure.add_flags.includes(flag),
+    `${id} must file its profile even when the skill check fails`,
+  )
+  assert.ok(
+    recordsProfiles.encounters.some((encounter) =>
+      encounter.choices.some((choice) => choice.requires?.flag === flag),
+    ),
+    `${flag} must have a consequential follow-up in Records`,
+  )
+}
+assert.ok(
+  officeSupplyTest.choices.some((choice) =>
+    choice.success.add_flags.includes('load-bearing-employee'),
+  ),
+  'the secret fifth category remains a result, not an unrelated fifth menu option',
+)
+const halvorsenCallback = WELLNESS.encounters.find(
+  (card) => card.id === 'halvorsen-changes-the-tape',
+)
+assert.ok(
+  halvorsenCallback?.choices.some(
+    (choice) =>
+      choice.requires?.flag === 'halvorsen-envelope' &&
+      choice.success.add_flags.includes('halvorsen-trusts-you'),
+  ),
+  'Halvorsen receives the envelope in private instead of interrupting another quiz',
+)
+for (const dept of DEPARTMENTS) {
+  for (const card of dept.encounters) {
+    assert.ok(
+      card.choices.length >= 2 && card.choices.length <= 4,
+      `${card.id} must keep the playable two-to-four-route encounter contract`,
+    )
+  }
+}
+
 const allChoices = DEPARTMENTS.flatMap((d) => [
   ...d.encounters.flatMap((e) => e.choices),
   ...d.boss.choices,

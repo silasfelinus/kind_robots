@@ -22,6 +22,18 @@ type PatronInvoiceSnapshot = {
   subscription?: StripeSubscriptionReference
 }
 
+// Extract an invoice's parent subscription independently of payment status.
+// Failed renewal invoices also need their owning subscription for recovery.
+export function stripeInvoiceSubscriptionId(invoice: unknown): string | null {
+  if (!invoice || typeof invoice !== 'object') return null
+  const row = invoice as PatronInvoiceSnapshot
+  const sub = row.parent?.subscription_details?.subscription ?? row.subscription
+  if (typeof sub === 'string') return sub.startsWith('sub_') ? sub : null
+  if (sub && typeof sub.id === 'string' && sub.id.startsWith('sub_'))
+    return sub.id
+  return null
+}
+
 export function paidPatronInvoiceSubscriptionId(
   invoice: unknown,
 ): string | null {
@@ -41,12 +53,7 @@ export function paidPatronInvoiceSubscriptionId(
   )
     return null
 
-  const sub = row.parent?.subscription_details?.subscription ?? row.subscription
-
-  if (typeof sub === 'string') return sub.startsWith('sub_') ? sub : null
-  if (sub && typeof sub.id === 'string' && sub.id.startsWith('sub_'))
-    return sub.id
-  return null
+  return stripeInvoiceSubscriptionId(row)
 }
 
 export function checkoutHasPaidSubscription(session: {

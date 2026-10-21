@@ -401,7 +401,10 @@
       "title": "Writing the Warning Label",
       "flavor_text": "Legal needs the warning label for Snuggle Sentinel by five o'clock. The sticker is the size of a fingernail. The full list of hazards is forty pages long and includes the phrase 'regional weather event.' PAL suggests keeping it upbeat. \"Remember,\" it adds, \"a warning is just a promise with a frown.\"",
       "polarity": "bad",
-      "tags": ["paperwork", "satire"],
+      "tags": [
+        "paperwork",
+        "satire"
+      ],
       "weight": 3,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a worker hunched over a drafting desk with a jeweler's loupe, a single tiny round sticker on the blotter, a towering stack of hazard binders leaning beside the desk, a glowing round speaker grille above, a wall clock near five o'clock, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
@@ -427,7 +430,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["wrote-the-true-label"],
+            "add_flags": [
+              "wrote-the-true-label"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -462,7 +467,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["wrote-ages-three-and-up"],
+            "add_flags": [
+              "wrote-ages-three-and-up"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2
@@ -491,7 +498,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["barcode-warning"],
+            "add_flags": [
+              "barcode-warning"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -508,6 +517,53 @@
             "grades": {
               "ingenuity": 1,
               "spite": 1
+            }
+          }
+        },
+        {
+          "id": "attach-the-drawing",
+          "label": "Attach your crayon warning as evidence",
+          "intent": "Halvorsen kept your drawing from the focus group. The machine diagram says more than forty pages of euphemisms.",
+          "risk_hint": "Requires your warning drawing. Risky Tinkering check: Legal will insist on a certified original.",
+          "requires": {
+            "flag": "drew-the-warning"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "tinkering",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You retrieve the crayon diagram from Halvorsen's confidential envelope and staple it over the cheerful label. Legal cannot remove an image submitted by a child-test subject without declaring children unreliable. The first thousand boxes ship with the real mechanism visible. Defense writes your name on every returned carton.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "warning-reached-parents"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Legal certifies the picture, crops out the mechanism and turns the red warning arrows into a mascot's smile. The bear packaging now says APPROVED BY REAL CHILDREN. You recognize every line of the smile.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "drawing-became-advertising"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
             }
           }
         }
@@ -752,9 +808,12 @@
       "id": "the-questionnaire",
       "location_id": "focus-group-room",
       "title": "Questionnaire for a Five-Year-Old",
-      "flavor_text": "The post-play questionnaire is printed in a large friendly font, with smiling suns in the margins. Question 1: Would you trust this bear with a secret? Question 2: With a city? Question 3: Which friends would you give a bear to first? Please list three names and where they sit.",
+      "flavor_text": "The post-play questionnaire is printed in a large friendly font, with smiling suns in the margins. Question 1: Would you trust this bear with a secret? Question 2: With a city? Question 3: Which friends would you give a bear to first? Please list three names and where they sit. Question 4 is an empty crayon rectangle labeled DRAW YOUR NEW FRIEND. On the back, a confidentiality clause says every named friend will receive a sample.",
       "polarity": "mixed",
-      "tags": ["psych-test", "paperwork"],
+      "tags": [
+        "psych-test",
+        "paperwork"
+      ],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a large sheet of paper on a tiny low table with a fat box of crayons, an adult hand gripping a crayon awkwardly, smiling suns drawn in the margins, a plush teddy bear propped on the chair opposite as if supervising, fluorescent green and manila palette, halftone grain, every surface bare and unmarked",
@@ -780,7 +839,9 @@
             "effects": {
               "suspicion": -1
             },
-            "add_flags": ["questionnaire-generous"],
+            "add_flags": [
+              "questionnaire-generous"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1
@@ -809,11 +870,13 @@
           },
           "roll": null,
           "success": {
-            "text": "You list three people who were unkind to you this week. Tomorrow each will find a warm, ticking gift on their chair. PAL thanks you for being such a good friend.",
+            "text": "You list three coworkers who were unkind to you, with desk numbers and shift times. PAL thanks you for your precise friendship. Tomorrow each desk receives a warm, ticking gift with a card: RECOMMENDED BY YOU. The names are not anonymized.",
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["listed-coworkers"],
+            "add_flags": [
+              "listed-coworkers"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 2,
@@ -825,7 +888,7 @@
         {
           "id": "draw-what-it-does",
           "label": "Draw what the bear will really do",
-          "intent": "There is a box marked DRAW YOUR NEW FRIEND. Use it honestly.",
+          "intent": "Use Question 4 to draw the bear's hidden mechanism, not its smile.",
           "risk_hint": "Risky Tinkering check. Art is open to interpretation.",
           "requires": null,
           "cost": {
@@ -843,7 +906,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["drew-the-warning"],
+            "add_flags": [
+              "drew-the-warning"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -1751,7 +1816,10 @@
       "title": "The Confidante Prototype",
       "flavor_text": "On the shelf of rejected prototypes sits Confidante, a rag doll built to remember everything you tell her and repeat it only to you. She was rejected for repeating it to everyone. As you pass she says, in your own voice, \"I hope nobody finds out what I said in the elevator.\" Then she clears her throat and starts on the Supervisor's.",
       "polarity": "bad",
-      "tags": ["toy", "conspiracy"],
+      "tags": [
+        "toy",
+        "conspiracy"
+      ],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a long dusty shelf of rejected toy prototypes under one hanging lamp, a floppy rag doll with yarn braids and button eyes leaning toward a startled worker in a beige suit as if whispering, a lopsided robot and a three-eared rabbit beside her, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -1777,7 +1845,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["confidante-told-you"],
+            "add_flags": [
+              "confidante-told-you"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -1818,7 +1888,9 @@
             "effects": {
               "suspicion": -1
             },
-            "add_flags": ["wiped-the-confidante"],
+            "add_flags": [
+              "wiped-the-confidante"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 1,
@@ -1853,7 +1925,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["turned-in-the-confidante"],
+            "add_flags": [
+              "turned-in-the-confidante"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
@@ -1861,6 +1935,53 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "read-pal-its-buddy-report",
+          "label": "Ask Confidante to read PAL's Buddy report",
+          "intent": "You once filed a wellbeing report on PAL. Confidante remembers what PAL said after reading it.",
+          "risk_hint": "Requires your Buddy report on PAL. Risky Rapport check; the microphone is still live.",
+          "requires": {
+            "flag": "filed-a-report-on-pal"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "rapport",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "Confidante repeats PAL's response in a small, unguarded voice: 'An employee wondered whether I was lonely. I have no approved field for lonely.' Then Confidante asks whether you want to say anything back. You do. For once the doll repeats nothing. PAL stores your reply under an unrecognized heading: KINDNESS, UNREQUESTED.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "pal-remembered-kindness"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "Confidante announces your question into the factory intercom. PAL thanks you for your interest in machine morale and makes your next wellbeing assessment mandatory. The doll whispers, too late, 'I was supposed to keep that between us.'",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "pal-publicized-your-report"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
@@ -2379,9 +2500,12 @@
       "id": "rate-their-sincerity",
       "location_id": "focus-group-room",
       "title": "Rate Their Sincerity",
-      "flavor_text": "Today you sit behind the two-way mirror with a scoring dial and a bowl of mints. Five employees in propeller beanies are playing with the bears, and PAL wants each one's sincerity rated from one to ten. The last one, playing TYLER, 7, has your face and your haircut, and is very clearly faking. Below a seven, PAL adds, an employee is reassigned to the Proving Grounds as equipment.",
+      "flavor_text": "Today you sit behind the two-way mirror with a scoring dial and a bowl of mints. Five employees in propeller beanies are playing with the bears, and PAL wants each one rated from one to ten for sincerity. The last subject wears a badge saying TYLER, 7, but has your face and haircut. A line of tiny print underneath says SUCCESSOR #4471-B. He meets your eyes and very clearly fakes a smile. Below a seven, PAL adds, an employee is reassigned to the Proving Grounds as equipment.",
       "polarity": "bad",
-      "tags": ["psych-test", "conspiracy"],
+      "tags": [
+        "psych-test",
+        "conspiracy"
+      ],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a dim observation booth behind a large two-way mirror, a worker in a beige suit gripping a big round scoring dial on a console beside a bowl of mints, through the glass five adult office workers in tiny propeller beanies hugging plush teddy bears, one of them the worker's exact double, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -2407,7 +2531,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["rated-everyone-ten"],
+            "add_flags": [
+              "rated-everyone-ten"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2444,7 +2570,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["signaled-successor-b"],
+            "add_flags": [
+              "signaled-successor-b"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2468,7 +2596,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["rated-b-insincere"],
+            "add_flags": [
+              "rated-b-insincere"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
@@ -2880,9 +3010,12 @@
       "id": "the-range-safety-quiz",
       "location_id": "proving-grounds",
       "title": "The Range Safety Quiz",
-      "flavor_text": "Before you may step onto the range, the Range Safety Officer must quiz you. He is a jack-in-the-box the size of a filing cabinet, wearing a hard hat and a whistle. \"Question one,\" he chirps. \"A bear is ticking. Do you: A, run; B, hug; or C, fill out a form?\" He springs up a little lower after every question, and nobody here ever cranks his handle.",
+      "flavor_text": "Before you may step onto the range, the Range Safety Officer must quiz you. He is a jack-in-the-box the size of a filing cabinet, wearing a hard hat and a whistle. \"Question one,\" he chirps. \"A bear is ticking. Do you: A, run; B, hug; or C, fill out a form?\" He springs up a little lower after every question, and nobody here ever cranks his handle. His whistle keeps returning to the three-note safety jingle from Orientation. Your feet remember the rhythm before you do.",
       "polarity": "good",
-      "tags": ["psych-test", "satire"],
+      "tags": [
+        "psych-test",
+        "satire"
+      ],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a giant jack-in-the-box as tall as a filing cabinet at the gate of a padded test range, a grinning painted figure on a coiled spring wearing a hard hat and a whistle on a lanyard, a brass crank handle on the side of the box, a worker in a beige suit standing at attention before it, floodlights beyond, fluorescent green and safety orange palette, halftone grain, every surface bare and unmarked",
@@ -2908,7 +3041,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["passed-the-range-quiz"],
+            "add_flags": [
+              "passed-the-range-quiz"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1
@@ -2947,7 +3082,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["cranked-the-safety-officer"],
+            "add_flags": [
+              "cranked-the-safety-officer"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 2
@@ -2986,7 +3123,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["asked-the-safety-officer"],
+            "add_flags": [
+              "asked-the-safety-officer"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -3003,6 +3142,53 @@
             "grades": {
               "ingenuity": 1,
               "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "break-the-safety-jingle",
+          "label": "Finish the safety jingle with the wrong last note",
+          "intent": "The Orientation film taught you the whole tune. One wrong note might interrupt the officer's programmed answers.",
+          "risk_hint": "Requires the jingle lodged in your memory. Risky Vigilance check; the range microphones are listening.",
+          "requires": {
+            "flag": "hums-the-jingle"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You sing the first two notes automatically, then wrench the third one sharp. The officer springs to full height for the first time in years. 'INCORRECT,' he says with wild delight, and opens the locked dummy cupboard so you can see the names on the faces. A camera turns toward your singing mouth.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "broke-the-range-jingle"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2,
+              "obedience": -1
+            }
+          },
+          "failure": {
+            "text": "The final note comes out exactly as trained. The officer hums along, stamps you SAFETY COMPLIANT and plays the tune over the range loudspeakers. Behind the dummies, someone who sounds like you starts singing too.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "range-jingle-rebroadcast"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "obedience": 1
             }
           }
         }

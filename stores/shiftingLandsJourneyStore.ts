@@ -50,6 +50,7 @@ import {
   type V6Choice,
 } from '~/utils/shiftingLands/deckV6'
 import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
+import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
 import {
   newJourneyLedgerV7,
   restoreJourneyLedgerV7,
@@ -232,9 +233,11 @@ export const useShiftingLandsJourneyStore = defineStore(
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
     const ending = computed(() =>
-      ledger.value.version === 6 || ledger.value.version === 7
-        ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
-        : null,
+      ledger.value.version === 7
+        ? authoredEndingV7(ledger.value.current, ledger.value.trialResults)
+        : ledger.value.version === 6
+          ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
+          : null,
     )
     const canTrial = (choiceId: string): boolean => {
       const choice = currentTrial.value?.choices.find(

@@ -1,7 +1,7 @@
 <template>
-  <div class="grid gap-3 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
-    <section class="space-y-3">
-      <div class="eod-board p-3">
+  <div class="grid min-h-full gap-3 @4xl:h-full @4xl:min-h-0 @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]">
+    <section class="flex min-h-0 flex-col gap-2">
+      <div class="eod-board kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
         <h2 class="sr-only">The quest board</h2>
         <p
           v-if="!run.board.length"
@@ -10,13 +10,13 @@
           The board is empty. Petitions in the throne room can post new quests.
         </p>
         <div
-          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,9rem),1fr))] gap-3"
+          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3 @7xl:gap-4"
         >
           <button
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex flex-col p-2 pt-3 text-left"
+            class="eod-notice flex min-h-52 flex-col p-3 pt-4 text-left"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -29,12 +29,12 @@
               :quest-id="entry.questId"
               :region="entry.quest.region"
               :label="entry.quest.title"
-              class="-mx-1 -mt-1 mb-2 aspect-[16/9] rounded-sm"
+              class="-mx-1 -mt-1 mb-3 aspect-[16/10] rounded-sm"
             />
-            <strong class="eod-display text-sm leading-tight">{{
+            <strong class="eod-display text-base leading-snug">{{
               entry.quest.title
             }}</strong>
-            <span class="mt-1 block text-xs italic leading-snug opacity-80">
+            <span class="mt-1 block text-sm italic leading-snug opacity-80">
               {{ regionName(entry.quest.region) }}
             </span>
             <span
@@ -75,8 +75,8 @@
         </div>
       </div>
 
-      <div class="kr-panel p-4">
-        <h3 class="font-serif text-xl font-bold">Out on quests</h3>
+      <details class="kr-panel shrink-0 p-3">
+        <summary class="cursor-pointer font-serif text-base font-bold">Out on quests · {{ run.active.length }}</summary>
         <p v-if="!run.active.length" class="mt-2 text-sm opacity-75">
           Nobody is away.
         </p>
@@ -109,19 +109,19 @@
             </button>
           </li>
         </ul>
-      </div>
+      </details>
     </section>
 
     <section
       v-if="selected && selectedEntry"
       ref="detail"
-      class="@container kr-panel space-y-3 p-4"
+      class="@container kr-panel kr-scroll min-h-0 space-y-3 overflow-y-auto p-4 @4xl:h-full"
     >
       <EmperorFortressQuestImage
         :quest-id="selected.id"
         :region="selected.region"
         :label="selected.title"
-        class="-mx-4 -mt-4 aspect-[21/8] rounded-t-lg"
+        class="float-right mb-2 ml-3 aspect-[4/3] w-36 rounded-lg @md:w-44"
       />
       <div>
         <p class="text-xs font-semibold uppercase tracking-widest text-warning">
@@ -135,7 +135,7 @@
           >
         </p>
         <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
-        <p class="mt-1 text-sm">{{ selected.summary }}</p>
+        <p class="mt-1 text-base leading-snug">{{ selected.summary }}</p>
         <p
           v-if="selected.mustInclude"
           class="mt-1 text-xs font-semibold text-warning"
@@ -256,12 +256,12 @@
             · at least {{ selected.party.min }}</span
           >
         </p>
-        <div class="mt-2 flex flex-wrap gap-2">
+        <div class="mt-2 flex flex-wrap gap-1.5">
           <button
             v-for="slot in partyLimit(selected, party)"
             :key="slot"
             type="button"
-            class="relative grid h-16 w-14 place-items-center overflow-hidden rounded-md border"
+            class="relative grid h-14 w-12 place-items-center overflow-hidden rounded-md border"
             :class="
               party[slot - 1]
                 ? 'border-warning'
@@ -291,12 +291,12 @@
             <span v-else class="text-xl">+</span>
           </button>
         </div>
-        <div class="mt-2 grid grid-cols-2 gap-2 @md:grid-cols-3">
+        <div class="mt-2 grid grid-cols-2 gap-1.5 @md:grid-cols-3 @lg:grid-cols-4">
           <button
             v-for="state in roster"
             :key="state.id"
             type="button"
-            class="flex items-center gap-2 rounded-xl border p-2 text-left text-xs"
+            class="flex items-center gap-1.5 rounded-lg border p-1.5 text-left text-xs"
             :class="
               party.includes(state.id)
                 ? 'border-warning bg-warning/10'

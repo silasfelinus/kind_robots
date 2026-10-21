@@ -1,4 +1,5 @@
 import type { DayDef, QuestDef } from './types'
+import { D34_RUNNER_AT_GATE } from './actTwo'
 import { MOLE_REFORMS_OPEN } from './moles'
 
 // Act IV, Days 31-40, "The Long Table" (conductor DAY-PLAN.md): open faction
@@ -1267,6 +1268,13 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         truth: true,
         variants: [
           {
+            // A covenant paid in runners comes due as a person (t-036).
+            flags: ['covenant-paid-in-runners'],
+            notFlags: ['d20-runners-term-fixed'],
+            source: 'The gate sergeant',
+            text: 'A runner in a Conclave sash sat on the gate step all night in the rain. She has not knocked. The covenant falls due today, and it has sent a face.',
+          },
+          {
             notFlags: ['crow-debt-called'],
             source: 'The gate sergeant',
             text: 'Elder Corvane’s herald passed the gate at dawn and did not stop. The crown owes the Conclave nothing today.',
@@ -1283,6 +1291,11 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
     komodo:
       'Crows forgive nothing, Your Majesty. I admire that most about them. Whatever was promised for the rain, they have come to collect.',
     komodoVariants: [
+      {
+        flags: ['covenant-paid-in-runners'],
+        notFlags: ['d20-runners-term-fixed'],
+        text: 'The Crows sent no bill, Your Majesty. They sent the girl. That is the bill.',
+      },
       {
         notFlags: ['crow-debt-called'],
         text: 'The Crows are on every sill and want nothing, Your Majesty. They want us to watch them want nothing. That is how they say a debt is closed.',
@@ -1560,6 +1573,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D34_RUNNER_AT_GATE,
     ],
   },
   {

@@ -1523,12 +1523,16 @@ export const PLEDGES: Partial<Record<KingdomFactionId, readonly string[]>> = {
     'rain-covenant',
     'covenant-paid-in-runners',
     'crow-debt-paid',
+    // The tower kept its margin and paid in land (t-036).
+    'd20-pastures-ceded',
   ],
   'hollow-bell': [
     'bell-voted-yes',
     'bell-under-protection',
     'mara-protected',
     'abbess-shamed',
+    // Paid to open the wells to the Bell's road (t-036).
+    'wells-shared',
   ],
   jackalwire: [
     'pack-alliance',
@@ -1538,7 +1542,7 @@ export const PLEDGES: Partial<Record<KingdomFactionId, readonly string[]>> = {
     'route-trestle',
   ],
   saltroad: ['sheltered-saltroad', 'promised-waystation'],
-  freeholds: ['sheltered-freeholds', 'promised-thistledown', 'wells-shared'],
+  freeholds: ['sheltered-freeholds', 'promised-thistledown', 'wells-closed'],
   rustline: [
     'rustline-crate-bought',
     'blue-lantern-route',

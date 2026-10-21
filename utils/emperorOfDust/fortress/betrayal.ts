@@ -125,6 +125,7 @@ export const BUYER_IDS = Object.keys(BUYERS) as BuyerId[]
  * Verge stronger than the Abbey takes the walls instead of the sisters.
  */
 export const VERGE_SLIGHTS: readonly string[] = [
+  'd16-border-silver-seized',
   'd20-verge-answered',
   'chose:d28-verge-envoy:refuse',
   'd28-pups-asked',

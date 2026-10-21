@@ -21,17 +21,17 @@ export const ENDINGS: Record<EndingId, EndingDef> = {
   'bell-restored': {
     id: 'bell-restored',
     title: 'The Bell Restored',
-    text: 'Hollow Bell rings again, with a clapper fished out of the Mirefen, and the kingdom gathers around the sound. The crown sits lighter than it did, in a town that has decided to love it for as long as the Bell stands.',
+    text: 'The Silent Bell rang on the last night, with a clapper fished out of the Mirefen. Now Hollow Bell rings every evening and the kingdom comes up the hill to hear it. The crown sits lighter, in a town that has decided to love it. For as long as the Bell stands.',
   },
   'open-roads': {
     id: 'open-roads',
     title: 'Open Roads',
-    text: 'The crown comes home smaller. Councils run the Freeholds, the Saltroad writes its own charters, and the tower is mostly a place where people come to argue. The roads are open. That turns out to be enough.',
+    text: 'The crown comes home smaller. Councils run the Freeholds. The Saltroad writes its own charters. The tower is a place people come to argue. The roads are open.',
   },
   'iron-peace': {
     id: 'iron-peace',
     title: 'Iron Peace',
-    text: 'The Gate Watch stands on every road, and nobody raids anybody. Nobody sings much, either. It is a peace, and it is held very tightly, by hands that remember how close it came.',
+    text: 'The Gate Watch stands on every road. Nobody raids anybody. Nobody sings much. The hands that hold the peace remember how close it came, and do not loosen.',
   },
   'crows-bargain': {
     id: 'crows-bargain',
@@ -51,12 +51,12 @@ export const ENDINGS: Record<EndingId, EndingDef> = {
   'long-night': {
     id: 'long-night',
     title: 'The Long Night',
-    text: 'The door under the Abbey stayed open. The singing spread along the roads, and the factions scattered ahead of it into the hills and the fen and the deep tunnels. Somewhere, the court is still alive. Somewhere, people still tell stories about the emperor who tried.',
+    text: 'The door under the Abbey stayed open. The singing spread along the roads, and the factions scattered ahead of it into the hills and the fen and the deep tunnels. Somewhere, the court is still alive.',
   },
   'hundred-candles': {
     id: 'hundred-candles',
     title: 'A Hundred Candles',
-    text: 'The horror sleeps, and the kingdom stands, and it cost too much. On the first night of every year the court lights a candle for every name it lost, and reads the names aloud, all of them, slowly.',
+    text: 'The horror sleeps. The kingdom stands. The row of names is longer than the charter signed at the last fire. On the first night of every year the court reads the names aloud, all of them, slowly.',
   },
 }
 

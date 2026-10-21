@@ -6,7 +6,11 @@ import type { JourneyStateV6, V6Result } from '../shiftingLands/deckV6'
 import type { TrialResult } from '../shiftingLands/authoredBosses'
 
 const fresh = newJourneyLedgerV7(606).current
-assert.deepEqual(worldEchoesV7(fresh, []), [], 'no flash-forwards on the first land')
+assert.deepEqual(
+  worldEchoesV7(fresh, []),
+  [],
+  'no flash-forwards on the first land',
+)
 
 const first = JOURNEY_WORLD.lands[0]!
 const successRoll = {
@@ -71,8 +75,14 @@ assert.deepEqual(
   'a failed trial never becomes a later triumph',
 )
 for (const id of [
-  'confront', 'parley', 'evidence', 'witness', 'scout',
-  'solidarity', 'tribute', 'coerce',
+  'confront',
+  'parley',
+  'evidence',
+  'witness',
+  'scout',
+  'solidarity',
+  'tribute',
+  'coerce',
 ]) {
   const echoed = worldEchoesV7(atDustwater, [recordedTrial(id)])
   assert.equal(echoed.length, 1, `the ${id} route has distinct arrival copy`)
@@ -104,31 +114,44 @@ const helped: JourneyStateV6 = {
   outcomes: [outcome],
 }
 const helpedEchoes = worldEchoesV7(helped, [recordedTrial('witness')])
-assert.equal(helpedEchoes.length, 2, 'arrival remembers both trial and actual deed')
+assert.equal(
+  helpedEchoes.length,
+  2,
+  'arrival remembers both trial and actual deed',
+)
 assert.equal(helpedEchoes[1]!.id, 'shared-bread')
 assert.equal(helpedEchoes[1]!.source, 'encounter')
 assert.equal(helpedEchoes[1]!.sourceLocationId, 'wayside-refuge')
 assert.equal(
-  worldEchoesV7({
-    ...helped,
-    outcomes: [{ ...outcome, success: false }],
-  }, [recordedTrial('witness')]).length,
+  worldEchoesV7(
+    {
+      ...helped,
+      outcomes: [{ ...outcome, success: false }],
+    },
+    [recordedTrial('witness')],
+  ).length,
   1,
   'a failed rescue never fabricates a saved child',
 )
 assert.equal(
-  worldEchoesV7({
-    ...helped,
-    outcomes: [{ ...outcome, choiceId: 'point-out-the-boy' }],
-  }, [recordedTrial('witness')]).at(-1)?.id,
+  worldEchoesV7(
+    {
+      ...helped,
+      outcomes: [{ ...outcome, choiceId: 'point-out-the-boy' }],
+    },
+    [recordedTrial('witness')],
+  ).at(-1)?.id,
   'reported-boy',
   'the same encounter can return with the opposite moral consequence',
 )
 assert.equal(
-  worldEchoesV7({
-    ...helped,
-    outcomes: [{ ...outcome, locationId: 'canyon-trail' }],
-  }, [recordedTrial('witness')]).length,
+  worldEchoesV7(
+    {
+      ...helped,
+      outcomes: [{ ...outcome, locationId: 'canyon-trail' }],
+    },
+    [recordedTrial('witness')],
+  ).length,
   1,
   'a choice cannot masquerade as one from an earlier land',
 )

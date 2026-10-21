@@ -19,7 +19,7 @@
           :src="figure.art"
           :alt="figure.name"
           class="eod-figure block h-full min-w-0 w-auto object-contain object-bottom"
-          :class="sceneFigures.length > 1 ? 'max-w-1/2' : 'max-w-full'"
+          :class="sceneFigures.length > 1 ? 'max-w-[50%]' : 'max-w-full'"
         />
       </figure>
       <p

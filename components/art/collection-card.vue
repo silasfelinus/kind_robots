@@ -15,7 +15,11 @@
     <template #actions>
       <button
         v-if="
-          showActions && allowEdit && canEdit && (activeSelected || compact)
+          !selectionMode &&
+          showActions &&
+          allowEdit &&
+          canEdit &&
+          (activeSelected || compact)
         "
         class="rounded-full bg-base-100 p-2 text-primary shadow transition hover:bg-primary hover:text-primary-content"
         type="button"
@@ -27,7 +31,11 @@
 
       <button
         v-if="
-          showActions && allowDelete && canEdit && (activeSelected || compact)
+          !selectionMode &&
+          showActions &&
+          allowDelete &&
+          canEdit &&
+          (activeSelected || compact)
         "
         class="rounded-full bg-base-100 p-2 text-error shadow transition hover:bg-error hover:text-error-content"
         type="button"
@@ -84,6 +92,25 @@
           </span>
         </div>
       </div>
+
+      <button
+        v-if="selectionMode && canEdit"
+        type="button"
+        class="absolute right-2 top-2 z-20 flex size-8 items-center justify-center rounded-lg border shadow"
+        :class="
+          activeSelected
+            ? 'border-primary bg-primary text-primary-content'
+            : 'border-base-300 bg-base-100/90 text-base-content'
+        "
+        :aria-pressed="activeSelected"
+        :aria-label="`${activeSelected ? 'Deselect' : 'Select'} ${collectionLabel}`"
+        @click.stop="selectCollection"
+      >
+        <Icon
+          :name="activeSelected ? 'kind-icon:check' : 'kind-icon:plus'"
+          class="kr-icon-4"
+        />
+      </button>
 
       <div
         v-if="compact || size === 'xs' || size === 'sm'"
@@ -171,11 +198,11 @@
           class="btn btn-xs w-full rounded-lg"
           :class="activeSelected ? 'btn-primary' : 'btn-outline'"
           type="button"
-          :disabled="isHiddenMature"
+          :disabled="isHiddenMature || (selectionMode && !canEdit)"
           @click.stop="selectCollection"
         >
           <Icon name="kind-icon:folder" class="kr-icon-3-5" />
-          {{ activeSelected ? 'Selected' : 'Open' }}
+          {{ activeSelected ? 'Selected' : selectionMode ? 'Select' : 'Open' }}
         </button>
       </div>
 
@@ -210,6 +237,7 @@ const props = withDefaults(
   defineProps<{
     collection: ArtCollection
     selected?: boolean
+    selectionMode?: boolean
     compact?: boolean
     size?: 'xs' | 'sm' | 'md' | 'lg'
     showImage?: boolean
@@ -232,6 +260,7 @@ const props = withDefaults(
   }>(),
   {
     selected: false,
+    selectionMode: false,
     compact: false,
     size: 'md',
     showImage: true,
@@ -256,6 +285,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   open: [id: number]
+  toggleSelection: [id: number]
   edit: [id: number]
   delete: [id: number]
 }>()
@@ -265,10 +295,11 @@ const userStore = useUserStore()
 
 const mediaCollection = computed(() => props.collection as ArtImageCollection)
 
-const activeSelected = computed(
-  () =>
-    props.selected ||
-    collectionStore.currentCollection?.id === props.collection.id,
+const activeSelected = computed(() =>
+  props.selectionMode
+    ? props.selected
+    : props.selected ||
+      collectionStore.currentCollection?.id === props.collection.id,
 )
 
 const isHiddenMature = computed(() =>
@@ -392,6 +423,10 @@ function createImageDataUrl(image: ArtImage | null): string {
 
 async function selectCollection() {
   if (isHiddenMature.value) return
+  if (props.selectionMode) {
+    if (canEdit.value) emit('toggleSelection', props.collection.id)
+    return
+  }
   collectionStore.setCurrentCollection(props.collection.id)
   collectionStore.setSelectedCollectionIds([props.collection.id])
   emit('open', props.collection.id)

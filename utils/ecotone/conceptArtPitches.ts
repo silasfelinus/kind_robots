@@ -9,7 +9,12 @@ import { BEATS, EVENTS, FUTURES, SIGNATURES } from './story'
 import { FUTURE_BOOKENDS, NEW_SIGNATURES } from './finaleExpansion'
 import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { REGIONAL_CALLBACKS } from './regionalCallbacks'
-import { cardArtKey, endingArtKey, eventArtKey, outcomeArtKey } from './artSlots'
+import {
+  cardArtKey,
+  endingArtKey,
+  eventArtKey,
+  outcomeArtKey,
+} from './artSlots'
 import { openingLensChoices } from './openingLensChoices'
 
 /**

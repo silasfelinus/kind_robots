@@ -7,10 +7,30 @@ import { SUBSTANCE_CHOICES, type SubstanceId } from './substanceArc'
  * real-world pharmacology or guaranteed fates: they weight fictional finale rolls.
  */
 export const VALUE_AXES = [
-  { id: 'autonomy', left: 'Autonomy', right: 'Solidarity', question: 'My freedom, or what we owe one another?' },
-  { id: 'continuity', left: 'Continuity', right: 'Reinvention', question: 'What should survive, and what should change?' },
-  { id: 'ecology', left: 'Ecology', right: 'Engineering', question: 'Living systems, built systems, or their uneasy alliance?' },
-  { id: 'agency', left: 'Agency', right: 'Fate', question: 'Can a forecast be changed by what we do?' },
+  {
+    id: 'autonomy',
+    left: 'Autonomy',
+    right: 'Solidarity',
+    question: 'My freedom, or what we owe one another?',
+  },
+  {
+    id: 'continuity',
+    left: 'Continuity',
+    right: 'Reinvention',
+    question: 'What should survive, and what should change?',
+  },
+  {
+    id: 'ecology',
+    left: 'Ecology',
+    right: 'Engineering',
+    question: 'Living systems, built systems, or their uneasy alliance?',
+  },
+  {
+    id: 'agency',
+    left: 'Agency',
+    right: 'Fate',
+    question: 'Can a forecast be changed by what we do?',
+  },
 ] as const
 
 export type ValueAxisId = (typeof VALUE_AXES)[number]['id']
@@ -23,7 +43,7 @@ const VALUE_REFLECTIONS: Record<ValueAxisId, [string, string, string]> = {
   continuity: [
     'Some of what survived deserved to. Keeping a place was work, not an excuse to freeze it.',
     'You made room for unfamiliar ways of living here, aware that novelty does not pay its own rent.',
-    'The old ways and the next ones kept borrowing one another\'s tools.',
+    "The old ways and the next ones kept borrowing one another's tools.",
   ],
   ecology: [
     'The living watershed had its own timetable, and you found reasons to keep listening.',
@@ -36,7 +56,6 @@ const VALUE_REFLECTIONS: Record<ValueAxisId, [string, string, string]> = {
     'Some predictions held. Others did not. The difference remained an honest mystery.',
   ],
 }
-
 
 export type ValueRoll = {
   id: ValueAxisId
@@ -97,7 +116,9 @@ export function philosophyNeedles(
   const chemistry = [0, 0, 0, 0]
   const decisions = [0, 0, 0, 0]
   for (const { id } of SUBSTANCE_CHOICES) {
-    const count = state.substanceMoments.filter((m) => m.selected.includes(id)).length
+    const count = state.substanceMoments.filter((m) =>
+      m.selected.includes(id),
+    ).length
     // One-time experimentation matters; repetition matters more, but a binge
     // cannot be farmed for unlimited ideological power.
     const strength = count >= 3 ? 2 : count > 0 ? 1 : 0
@@ -113,8 +134,12 @@ export function philosophyNeedles(
   for (const entry of state.log) {
     const flag = entry.effects.flag
     const written = flag ? DECISION_PERSPECTIVES[flag] : undefined
-    const regionalCare = flag?.endsWith('_care') ? ([1, 0, 0, 0] as const) : undefined
-    const verified = flag?.endsWith('_verified') ? ([0, 0, 0, -1] as const) : undefined
+    const regionalCare = flag?.endsWith('_care')
+      ? ([1, 0, 0, 0] as const)
+      : undefined
+    const verified = flag?.endsWith('_verified')
+      ? ([0, 0, 0, -1] as const)
+      : undefined
     const vector = written ?? regionalCare ?? verified
     if (!vector) continue
     vector.forEach((delta, i) => {
@@ -128,7 +153,8 @@ export function philosophyNeedles(
     const pull = capped(chemicalLean + decisionLean, 4)
     const dice = rollDice(state.seed, 9000 + i)
     const total = dice[0] + dice[1] + pull
-    const outcome = total === 7 ? 'In tension' : total < 7 ? axis.left : axis.right
+    const outcome =
+      total === 7 ? 'In tension' : total < 7 ? axis.left : axis.right
     return {
       ...axis,
       chemistry: chemicalLean,
@@ -137,7 +163,8 @@ export function philosophyNeedles(
       dice,
       total,
       outcome,
-      reflection: VALUE_REFLECTIONS[axis.id][total === 7 ? 2 : total < 7 ? 0 : 1],
+      reflection:
+        VALUE_REFLECTIONS[axis.id][total === 7 ? 2 : total < 7 ? 0 : 1],
       position: Math.max(8, Math.min(92, 50 + pull * 10)),
     }
   })

@@ -181,10 +181,15 @@ for (const callback of toyCallbacks) {
   assert.ok(choice, `missing callback route ${callback.choiceId}`)
   assert.equal(choice.requires?.flag, callback.sourceFlag)
   assert.ok(choice.success.add_flags.includes(callback.earnedFlag))
-  assert.ok(choice.failure, `${callback.choiceId} must be interesting on failure`)
+  assert.ok(
+    choice.failure,
+    `${callback.choiceId} must be interesting on failure`,
+  )
   assert.ok(
     ENDINGS.some((ending) =>
-      ending.variants.some((variant) => variant.when_flag === callback.earnedFlag),
+      ending.variants.some(
+        (variant) => variant.when_flag === callback.earnedFlag,
+      ),
     ),
     `${callback.earnedFlag} must resonate in an attainable ending`,
   )

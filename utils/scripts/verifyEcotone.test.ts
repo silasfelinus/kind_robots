@@ -752,6 +752,11 @@ assert.match(
   /drink loosens/,
 )
 assert.equal(
+  substanceSceneLine(singleDrink.substanceMoments, 1, 'WH-004'),
+  null,
+  'substance prose does not repeat verbatim in every subsequent scene',
+)
+assert.equal(
   chooseSubstanceMoment(singleDrink, ['alcohol']),
   singleDrink,
   'a scene permits only one optional interlude',

@@ -69,7 +69,7 @@ const abbessOpening = (asides: (string | undefined)[]): SceneLine[] => [
   {
     who: 'Foreman Dunmore Ash',
     npc: 'dunmore-ash',
-    text: 'That’s Linnet. She came to my Yard at six with lice and no shoes, Majesty. The sisters walked her up the mission road in the hungry year. I never saw her again. Until now.',
+    text: 'That’s Moll. She came to my Yard at six with lice and no shoes, Majesty. The sisters walked her up the mission road in the hungry year. I never saw her again. Until now.',
   },
   'The otter sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
   joinLine(joinLine(ABBESS_SPEECH, asides[0]), asides[1]),
@@ -135,6 +135,15 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     ],
     danger: 'mid',
     tags: ['tracking', 'records', 'medicine'],
+    // t-043: the map that blew across the throne room on Day 14 was this Ford.
+    aid: [
+      {
+        flags: ['maps-copied'],
+        label: 'The Archive’s copy of the Ford before it moved',
+        bonus: 1,
+        stat: 'wits',
+      },
+    ],
     rewards: {
       success: {
         affinity: { moles: 10 },
@@ -1996,8 +2005,82 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               'Teodor comes forward, hands folded. The Abbess’s face opens like a window.',
             next: 'teodor',
           },
+          {
+            // t-043: the crown copied the hill's plans first on Day 14.
+            id: 'ask-hill',
+            label:
+              'Ask why one of her sisters came to the Archive for the plans of what stood on the Abbey’s hill.',
+            requires: { flags: ['d14-abbey-maps-first'] },
+            effects: {},
+            response:
+              'The Abbess stops smiling. She does not frown. Her face simply has nothing on it for a moment.',
+            next: 'hill',
+          },
         ],
         beats: [
+          {
+            id: 'hill',
+            lines: [
+              '“Because it is still standing, Your Majesty. Underneath.”',
+              '“Old houses keep their cellars. We keep ours swept. There is a stair down there we closed before your grandmother was born. A sister wanted to be sure the plans showed it closed. They do not. Plans are old.”',
+              '“You have them now. Locked away, I hear. Keep them locked. Some stairs are safer on paper than in anyone’s head.”',
+              {
+                who: 'Keeper Abelard Vellum',
+                npc: 'abelard-vellum',
+                text: 'The plan shows a stair from the old well to the lowest room, Majesty. It shows no door at the bottom. I looked twice.',
+              },
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'Every hill has old foundations, Your Majesty. A gift returned costs nothing and buys a great deal.',
+              },
+            ],
+            options: [
+              {
+                id: 'return-plans',
+                label:
+                  'Give her the plans back. A crown should not keep another house’s cellars.',
+                effects: {
+                  affinity: { abbey: 10 },
+                  local: { lamplight: -2 },
+                  flags: ['d25-hill-plans-returned'],
+                },
+                response:
+                  'Keeper Vellum brings the case himself and puts it in her hands. He does not let go at once. The Abbess thanks him by name. On the road home a sister carries the case. Nobody else touches it.',
+              },
+              {
+                id: 'keep-plans',
+                label:
+                  'Keep them locked in the Archive. The crown reads its own maps.',
+                effects: {
+                  affinity: { abbey: -5 },
+                  local: { lamplight: 1 },
+                  flags: ['d25-hill-plans-kept'],
+                },
+                response:
+                  '“Of course,” says the Abbess. “Read them often. Paper keeps better when someone reads it.” That week the Archive’s night porter is offered a better post in the Abbey kitchens. He declines. He tells Vellum. Vellum changes the lock.',
+              },
+              {
+                id: 'honor',
+                label: 'Let the stair be. Honor the Abbess before the court.',
+                effects: {
+                  affinity: { abbey: 15 },
+                  local: { yard: 2 },
+                  flags: ['abbess-honored'],
+                },
+                response:
+                  'The Abbess inclines her head. The Yard cheers her bread. Keeper Vellum goes back to the Archive before the cheering ends.',
+              },
+              {
+                id: 'ask-wants',
+                label: 'Leave the stair. Ask what she walked here for.',
+                effects: {},
+                response:
+                  'The Abbess finds her smile again where she left it. “Yes. That.”',
+                next: 'offer',
+              },
+            ],
+          },
           {
             id: 'census',
             lines: [
@@ -3478,6 +3561,81 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 response:
                   '“A debt,” says Mara. “Well. I know how those work. I’ve been paying one for six years.”',
               },
+              {
+                // t-043: the Day 19 vote tied, and Mara broke it unseen.
+                id: 'ask-tie',
+                label:
+                  'The vote on the crown’s protection tied. Ask which way she broke it.',
+                requires: { flags: ['bell-vote-tied'] },
+                effects: {},
+                response:
+                  'Mara picks up the hand-bell. Turns it mouth up. She still does not ring it.',
+                next: 'tie',
+              },
+            ],
+          },
+          {
+            id: 'tie',
+            lines: [
+              '“For the crown. I said I’d never say. There. Said.”',
+              '“Not for love of you, Majesty. Every spring a sister walks down the mission road with a list. I wanted somebody bigger than me in the valley with a reason to watch her come.”',
+              '“Then I sat in my kitchen and waited for you to look. You took your time. Somebody cut the page and put it in your hands, and here you are, looking.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'A tied vote is a coin in the air, Your Majesty. Anyone can call it after it lands.',
+              },
+              'Mara sets the bell down. “Look, then. That’s what I voted for.”',
+            ],
+            options: [
+              {
+                id: 'confession',
+                label:
+                  'She wanted to be watched. Have her write it all down, in her own hand.',
+                effects: {
+                  affinity: { abbey: -10, 'hollow-bell': -5 },
+                  local: { lamplight: 2 },
+                  flags: ['d29-mara-confession'],
+                },
+                response:
+                  'Mara writes for an hour. Near the end her hand stops once, over a name. Then it goes on. She signs, blots, and walks home to ring the evening bell. It rings on time.',
+              },
+              {
+                id: 'expose',
+                label:
+                  'Expose the page to Hollow Bell. She voted for this. Let her town look too.',
+                effects: {
+                  affinity: { 'hollow-bell': -15 },
+                  local: { lamplight: 4 },
+                  flags: ['mara-exposed'],
+                },
+                response:
+                  'Mara nods. “Good,” she says, and means it, and goes white anyway. By the next market the town has another mayor. Nine hands for him. Nobody ties.',
+              },
+              {
+                id: 'protect',
+                label:
+                  'Burn the page. She has been watched enough. The Bell needs her.',
+                effects: {
+                  affinity: { 'hollow-bell': 10 },
+                  local: { lamplight: -3 },
+                  flags: ['mara-protected'],
+                },
+                response:
+                  'Mara watches the page burn. “That isn’t what I voted for,” she says. She takes the ash home in her handkerchief. Komodo looks relieved.',
+              },
+              {
+                id: 'bargain',
+                label:
+                  'Keep the page, and her debt. The crown is watching now.',
+                effects: {
+                  brass: 20,
+                  affinity: { 'hollow-bell': 5 },
+                  flags: ['mara-owes-crown'],
+                },
+                response:
+                  '“A debt,” says Mara. “Fine. A debt watches too.” She leaves the hand-bell on the dais step, mouth down, and walks home without it.',
+              },
             ],
           },
           {
@@ -3675,6 +3833,32 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 text: 'The Moles flooded our east field last spring. I won’t sleep in a courtyard with them, Majesty. War or no war.',
               },
             ],
+            // t-043: the trade-road copies the Ledger bought on Day 14.
+            variants: [
+              {
+                flags: ['d14-ledger-owns-roads'],
+                lines: [
+                  {
+                    who: 'Hester Plowright',
+                    npc: 'hester-plowright',
+                    text: 'Eleven farms, two wells, and everyone on them, Majesty. We have no walls. We have fences. Fences are for goats.',
+                  },
+                  {
+                    who: 'A Saltroad drover',
+                    text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Mind, we already pay the Ledger a toll to read our own roads, Majesty. You sold them the copies. Oriel says she isn’t begging. She says it’s arithmetic.',
+                  },
+                  {
+                    who: 'The Mole envoy',
+                    text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
+                  },
+                  {
+                    who: 'Hester Plowright',
+                    npc: 'hester-plowright',
+                    text: 'The Moles flooded our east field last spring. I won’t sleep in a courtyard with them, Majesty. War or no war.',
+                  },
+                ],
+              },
+            ],
             options: [
               {
                 id: 'children-first',
@@ -3724,6 +3908,21 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'The Mole envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
+              },
+              {
+                // t-043: undo the Day 14 sale, at the Ledger's expense.
+                id: 'buy-roads-back',
+                label:
+                  'Shelter the Saltroad, and buy its road maps back from the Ledger tonight.',
+                requires: { flags: ['d14-ledger-owns-roads'], cost: 20 },
+                effects: {
+                  affinity: { saltroad: 15 },
+                  strength: { saltroad: 1 },
+                  local: { ledger: -2 },
+                  flags: ['sheltered-saltroad', 'd30-roads-bought-back'],
+                },
+                response:
+                  'Factor Tallow sells the copies back at cost and writes a small note in a small book. The drover burns them in the courtyard, one by one, while the caravans roll in. Hester Plowright watches the smoke go up. Then she leaves.',
               },
             ],
           },

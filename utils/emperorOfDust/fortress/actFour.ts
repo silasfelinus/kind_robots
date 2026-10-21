@@ -1,4 +1,4 @@
-import type { DayDef, QuestAid, QuestDef } from './types'
+import type { DayDef, DueDef, QuestAid, QuestDef } from './types'
 import { D34_RUNNER_AT_GATE } from './actTwo'
 import { MOLE_REFORMS_OPEN } from './moles'
 
@@ -87,6 +87,24 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
     danger: 'high',
     lethal: true,
     tags: ['defense', 'urgent'],
+    // t-043: the dam the crown shored up on Day 20 backed the river into a
+    // reservoir across the old crossing. The riders have one road over now.
+    aid: [
+      {
+        flags: ['ford-dam-built'],
+        label: 'The new reservoir drowns the old crossing',
+        bonus: 1,
+        stat: 'might',
+      },
+    ],
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['ford-dam-built'],
+          text: 'The riders came down to the old crossing and found the reservoir where it used to be. They tried the dam road, one horse wide. The Ford held. The farms behind it still stand.',
+        },
+      ],
+    },
     rewards: {
       triumph: {
         affinity: { freeholds: 15 },
@@ -164,6 +182,21 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       failure: 'The party was late. Thistledown paid in barns and seed grain.',
       expired:
         'The crown chose the other road. Thistledown will remember which one.',
+    },
+    // t-043: a held Ford sends the riders the long way round.
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['ford-held'],
+          text: 'The riders came over the ridge at noon, the long way round. The Ford was held against them. They came in tired and found the fields full of pitchforks and the crown’s colours. They did not stay.',
+        },
+      ],
+      failure: [
+        {
+          flags: ['ford-held'],
+          text: 'The party was late. The riders had ridden the long way round the held Ford and still came first. Thistledown paid in barns and seed grain.',
+        },
+      ],
     },
   },
   {
@@ -331,6 +364,7 @@ export const ACT_FOUR_QUESTS: readonly QuestDef[] = [
       failure: {
         affinity: { abbey: -10 },
         flags: ['rehearsal-caught'],
+        schedule: ['marrow-plums'],
       },
     },
     expired: { flags: ['abbey-crypt-heard'] },
@@ -3580,5 +3614,22 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         ],
       },
     ],
+  },
+]
+
+/**
+ * What Act IV's quests bring back on a later dawn (t-043). Hidden: the court
+ * learns them when they happen.
+ */
+export const ACT_FOUR_DUES: readonly DueDef[] = [
+  {
+    // Sister Marrow walked the party out of the cellars and asked after the
+    // emperor's health three times.
+    id: 'marrow-plums',
+    title: 'A basket from the Abbey',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['rehearsal-caught'] },
+    line: 'A basket came up the mission road at dawn. Plums, a clean cloth, and a card in Sister Marrow’s round hand: For the emperor’s health. The cooks would not touch them. Young Komodo ate one standing up and said it was very good.',
   },
 ]

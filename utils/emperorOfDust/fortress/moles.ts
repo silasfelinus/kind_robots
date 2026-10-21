@@ -40,7 +40,7 @@ export const MOLE_LEADERS: readonly MoleLeader[] = [
     stance: 'Powder first. The fen first, then the tower.',
   },
   {
-    name: 'Tobin Umber',
+    name: 'Odo Umber',
     role: 'Courier, Granny Umber’s grandson',
     stance: 'Carries what he is given. Has her squint.',
   },

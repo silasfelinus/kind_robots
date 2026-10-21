@@ -384,6 +384,8 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         strength: { 'hollow-bell': 1 },
         flags: ['bell-voted-yes'],
       },
+      // t-043: Mara broke the tie and would not say which way. Day 29 asks.
+      partial: { flags: ['bell-vote-tied'] },
       failure: {
         affinity: { 'hollow-bell': -10 },
         flags: ['bell-voted-no'],

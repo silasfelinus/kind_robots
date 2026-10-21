@@ -5990,4 +5990,261 @@ for (const def of DAYS)
   assert.ok(bell.rewards.success.flags?.includes('bell-rung'))
 }
 
+// --- t-043: playtest follow-ups --------------------------------------------------
+{
+  const fortressSource = (file: string) =>
+    readFileSync(
+      new URL(`../emperorOfDust/fortress/${file}`, import.meta.url),
+      'utf8',
+    )
+  const audienceOn = (day: number, id: string) =>
+    DAYS.find((def) => def.day === day)!.audiences.find((a) => a.id === id)!
+  const sceneText = (run: FortressRun, day: number, id: string) =>
+    audienceScene(run, audienceOn(day, id)).lines.map(lineText).join(' ')
+  const optionIds = (run: FortressRun, day: number, id: string) =>
+    audienceScene(run, audienceOn(day, id))
+      .options.filter((option) => optionVisible(run, option))
+      .map((option) => option.id)
+  const aidLabels = (run: FortressRun, questId: string, party: string[]) =>
+    previewQuest(run, questId, party).aid.map((aid) => aid.label)
+
+  // (4) One Linnet: the Day 34 runner keeps the name; the otter sister on
+  // Day 25 is Moll. One Tobin: Pip's lost boy; Granny's grandson is Odo.
+  assert.ok(!fortressSource('actThree.ts').includes('Linnet'))
+  assert.ok(fortressSource('actThree.ts').includes('That’s Moll.'))
+  for (const file of ['actFive.ts', 'moles.ts', 'epilogue.ts'])
+    assert.ok(!fortressSource(file).includes('Tobin Umber'), file)
+  assert.ok(fortressSource('moles.ts').includes('Odo Umber'))
+
+  // (2) A tied vote leaves a flag, and Day 29 can ask which way Mara broke it.
+  assert.ok(
+    questDef('q-d19-bell-speech')!.rewards.partial?.flags?.includes(
+      'bell-vote-tied',
+    ),
+  )
+  const d29 = (flags: string[]) =>
+    chooseAudienceOption(
+      onDay(1, 29, { flags }),
+      'd29-mayors-secret',
+      'ask-cost',
+    ).run
+  assert.ok(!optionIds(d29([]), 29, 'd29-mayors-secret').includes('ask-tie'))
+  const tied = chooseAudienceOption(
+    d29(['bell-vote-tied']),
+    'd29-mayors-secret',
+    'ask-tie',
+  ).run
+  assert.match(sceneText(tied, 29, 'd29-mayors-secret'), /For the crown/)
+  assert.ok(
+    chooseAudienceOption(
+      tied,
+      'd29-mayors-secret',
+      'confession',
+    ).run.flags.includes('d29-mara-confession'),
+  )
+
+  // The hill's plans, copied first on Day 14: the Abbess answers on Day 25,
+  // and the plans light the well road on Day 50 unless they went back.
+  const d25 = onDay(1, 25, { flags: ['d14-abbey-maps-first'] })
+  assert.ok(!optionIds(onDay(1, 25), 25, 'd25-the-abbess').includes('ask-hill'))
+  const hill = chooseAudienceOption(d25, 'd25-the-abbess', 'ask-hill').run
+  assert.match(sceneText(hill, 25, 'd25-the-abbess'), /Underneath/)
+  const returned = chooseAudienceOption(
+    hill,
+    'd25-the-abbess',
+    'return-plans',
+  ).run
+  assert.ok(returned.flags.includes('d25-hill-plans-returned'))
+  const d50 = onDay(1, 50, { hideout: 'crow-cave', flags: ['komodo-betrayal'] })
+  const four = d50.roster.slice(0, 3).map((state) => state.id)
+  const plans = 'The hill’s old plans: a stair from the well to the lowest room'
+  assert.ok(!aidLabels(d50, 'q-d50-crypt-path', four).includes(plans))
+  assert.ok(
+    aidLabels(
+      { ...d50, flags: [...d50.flags, 'd14-abbey-maps-first'] },
+      'q-d50-crypt-path',
+      four,
+    ).includes(plans),
+  )
+  assert.ok(
+    !aidLabels(
+      {
+        ...d50,
+        flags: [
+          ...d50.flags,
+          'd14-abbey-maps-first',
+          'd25-hill-plans-returned',
+        ],
+      },
+      'q-d50-crypt-path',
+      four,
+    ).includes(plans),
+    'plans handed back light nothing',
+  )
+
+  // The Archive's copy of the Ford reaches the bodies at the Ford.
+  const d22 = onDay(1, 22)
+  const pair = d22.roster.slice(0, 2).map((state) => state.id)
+  const fordMap = 'The Archive’s copy of the Ford before it moved'
+  assert.ok(!aidLabels(d22, 'q-d22-ford-bodies', pair).includes(fordMap))
+  assert.ok(
+    aidLabels(
+      { ...d22, flags: ['maps-copied'] },
+      'q-d22-ford-bodies',
+      pair,
+    ).includes(fordMap),
+  )
+
+  // The Saltroad pays the Ledger to read its own roads, and can buy them back.
+  const losses = (flags: string[]) =>
+    chooseAudienceOption(
+      onDay(1, 30, { flags, brass: 100 }),
+      'd30-terms',
+      'ask-losses',
+    ).run
+  assert.ok(!optionIds(losses([]), 30, 'd30-terms').includes('buy-roads-back'))
+  assert.doesNotMatch(sceneText(losses([]), 30, 'd30-terms'), /Ledger a toll/)
+  const sold = losses(['d14-ledger-owns-roads'])
+  assert.match(sceneText(sold, 30, 'd30-terms'), /Ledger a toll/)
+  const bought = chooseAudienceOption(sold, 'd30-terms', 'buy-roads-back').run
+  assert.equal(bought.brass, sold.brass - 20)
+  for (const flag of ['sheltered-saltroad', 'd30-roads-bought-back'])
+    assert.ok(bought.flags.includes(flag), flag)
+
+  // The Ford dam's reservoir narrows the Iron Rain; a held Ford reaches
+  // Thistledown; the waystation and the water tax reach the epilogue.
+  const d31 = onDay(1, 31)
+  const reservoir = 'The new reservoir drowns the old crossing'
+  assert.ok(!aidLabels(d31, 'q-d31-iron-rain', pair).includes(reservoir))
+  assert.ok(
+    aidLabels(
+      { ...d31, flags: ['ford-dam-built'] },
+      'q-d31-iron-rain',
+      pair,
+    ).includes(reservoir),
+  )
+  const ironRain = questDef('q-d31-iron-rain')!
+  assert.match(
+    questOutcomeText({ flags: ['ford-dam-built'] }, ironRain, 'triumph'),
+    /reservoir/,
+  )
+  const thistledown = questDef('q-d33-thistledown')!
+  for (const tier of ['success', 'failure'] as const)
+    assert.match(
+      questOutcomeText({ flags: ['ford-held'] }, thistledown, tier),
+      /long way round/,
+    )
+  const told = (flags: string[], id: string) =>
+    epilogueFor({ ...onDay(1, 50), flags }, 'iron-peace').find(
+      (entry) => entry.subject.id === id,
+    )?.variant.text ?? ''
+  assert.match(told(['d18-water-taxed'], 'freeholds'), /crown’s well/)
+  assert.match(told(['waystation-defended'], 'saltroad'), /gatepost/)
+
+  // Caught at the rehearsal: the Abbey sends plums the next dawn.
+  assert.ok(
+    questDef('q-d36-bell-rehearsal')!.rewards.failure?.schedule?.includes(
+      'marrow-plums',
+    ),
+  )
+  assert.ok(dueDef('marrow-plums')?.hidden)
+  // The Crows remember the debt the crown told to wait.
+  assert.match(
+    sceneText(
+      onDay(1, 44, { flags: ['crow-debt-defaulted'] }),
+      44,
+      'd44-crow-name',
+    ),
+    /debt would wait/,
+  )
+
+  // (3) The deserter saw who opened the gate; what he saw follows the
+  // last night. Carrying it home under oath is its own road.
+  const cave = (flags: string[]) =>
+    chooseAudienceOption(
+      chooseAudienceOption(
+        onDay(1, 42, {
+          hideout: 'nameless-cave',
+          flags: ['komodo-betrayal', 'hideout:nameless-cave', ...flags],
+        }),
+        'd42-terms-nameless-cave',
+        'ask',
+      ).run,
+      'd42-terms-nameless-cave',
+      'who-opened',
+    ).run
+  const caveText = (flags: string[]) =>
+    sceneText(cave(flags), 42, 'd42-terms-nameless-cave')
+  assert.match(caveText([]), /lifted it himself/)
+  assert.match(caveText(['d40-watch-recalled']), /Holloway/)
+  assert.match(caveText(['komodo-asked-to-stay']), /A woman of the Watch/)
+  assert.match(caveText(['komodo-leave-granted']), /a paper with your seal/)
+  assert.match(
+    caveText(['d40-komodo-held', 'komodo-asked-to-stay']),
+    /postern/,
+    'the fall as told outranks the quiet word',
+  )
+  const witness = chooseAudienceOption(
+    cave([]),
+    'd42-terms-nameless-cave',
+    'carry-it',
+  ).run
+  assert.ok(witness.flags.includes('d42-deserter-witness'))
+  assert.match(
+    told(['hideout:nameless-cave', 'd42-deserter-witness'], 'hideout'),
+    /under oath/,
+  )
+
+  // A host whose demand went unpaid comes to the fire on Day 46: pay late,
+  // leave someone, ask for time, or walk out into the nameless cave.
+  for (const [hideout, faction] of [
+    ['mole-tunnels', 'moles'],
+    ['crow-cave', 'storm-crows'],
+    ['bell-cellars', 'hollow-bell'],
+    ['wagon-circle', 'jackalwire'],
+    ['moving-caravan', 'saltroad'],
+    ['freehold-barn', 'freeholds'],
+    ['rail-station', 'rustline'],
+  ] as const) {
+    const id = `d46-patience-${hideout}`
+    const base = {
+      hideout,
+      flags: ['komodo-betrayal', `hideout:${hideout}`, 'host-terms-accepted'],
+    }
+    const calm = onDay(1, HOST_COLLECT_DAY, base)
+    assert.ok(
+      !audiencesToday(calm).some((a) => a.id === id),
+      `${id}: unpaid only`,
+    )
+    const angry = onDay(1, HOST_COLLECT_DAY, {
+      ...base,
+      brass: 0,
+      flags: [...base.flags, 'host-demand-unpaid'],
+    })
+    assert.ok(
+      audiencesToday(angry).some((a) => a.id === id),
+      id,
+    )
+    const def = audienceOn(HOST_COLLECT_DAY, id)
+    const option = (key: string) => def.options.find((o) => o.id === key)!
+    assert.equal(option('pay').requires?.cost, HOST_DEMAND)
+    assert.equal(option('surety').effects.dismiss?.length, 1)
+    assert.equal(
+      option('surety').requires?.follower,
+      option('surety').effects.dismiss![0]!.follower,
+      `${id}: only someone at court can be left`,
+    )
+    const left = chooseAudienceOption(angry, id, 'leave').run
+    assert.equal(left.hideout, 'nameless-cave', `${id}: the court walks out`)
+    assert.equal(left.affinity[faction], angry.affinity[faction] - 10)
+    const owed = chooseAudienceOption(angry, id, 'time').run
+    assert.equal(owed.hideout, hideout)
+    assert.equal(owed.affinity[faction], angry.affinity[faction] - 5)
+  }
+  assert.match(
+    told(['hideout:nameless-cave', 'd46-host-left'], 'hideout'),
+    /walked out/,
+  )
+}
+
 console.log('Emperor of Dust fortress contract: ok')

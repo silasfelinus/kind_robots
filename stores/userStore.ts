@@ -787,13 +787,10 @@ export const useUserStore = defineStore('userStore', () => {
 
   async function register(userData: RegisterUserData) {
     try {
-      const res = await performFetch<{ user: User }>(
-        '/api/users/register',
-        {
-          method: 'POST',
-          body: JSON.stringify(userData),
-        },
-      )
+      const res = await performFetch<{ user: User }>('/api/users/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+      })
 
       if (!res.success) {
         const message = res.message || 'Registration failed.'

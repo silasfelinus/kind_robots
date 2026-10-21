@@ -59,6 +59,7 @@ import {
   isFiveDollarMonthlyPatronPrice,
   paidPatronInvoiceSubscriptionId,
   patronPeriodEnd,
+  stripeInvoiceSubscriptionId,
 } from '../../server/utils/patronBilling.js'
 
 // --- resolveCheckoutSessionRoute -----------------------------------------
@@ -277,6 +278,31 @@ console.log(
 // TOKENS. Modern Stripe invoices nest subscription under parent; old snapshots
 // still carry it at the top level.
 assert.equal(PATRON_MONTHLY_TOKENS, 1000)
+assert.equal(
+  stripeInvoiceSubscriptionId({
+    status: 'open',
+    billing_reason: 'subscription_cycle',
+    parent: { subscription_details: { subscription: 'sub_failed_modern' } },
+  }),
+  'sub_failed_modern',
+)
+assert.equal(
+  stripeInvoiceSubscriptionId({
+    status: 'uncollectible',
+    subscription: 'sub_failed_legacy',
+  }),
+  'sub_failed_legacy',
+)
+assert.equal(
+  paidPatronInvoiceSubscriptionId({
+    status: 'open',
+    amount_paid: 500,
+    billing_reason: 'subscription_cycle',
+    subscription: 'sub_failed_legacy',
+  }),
+  null,
+)
+
 assert.equal(
   paidPatronInvoiceSubscriptionId({
     status: 'paid',

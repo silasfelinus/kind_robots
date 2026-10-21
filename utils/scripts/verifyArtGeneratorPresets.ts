@@ -586,8 +586,12 @@ const artLoraPickerSource = readFileSync(
   'components/art/art-lora-picker.vue',
   'utf8',
 )
-assert.ok(artLoraPickerSource.includes("'max-h-[14rem] 2xl:max-h-[min(62vh,46rem)]'"))
-assert.ok(artLoraPickerSource.includes("'max-h-[24rem] 2xl:max-h-[min(76vh,56rem)]'"))
+assert.ok(
+  artLoraPickerSource.includes("'max-h-[14rem] 2xl:max-h-[min(62vh,46rem)]'"),
+)
+assert.ok(
+  artLoraPickerSource.includes("'max-h-[24rem] 2xl:max-h-[min(76vh,56rem)]'"),
+)
 assert.ok(artLoraPickerSource.includes('2xl:max-h-[min(62vh,46rem)]'))
 assert.ok(artLoraPickerSource.includes('overflow-y-auto overscroll-contain'))
 assert.ok(artLoraPickerSource.includes('2xl:size-20'))

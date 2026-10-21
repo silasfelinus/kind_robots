@@ -3,7 +3,7 @@
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
   "sourceRef": "main@864ef2f06c46ee0ac7eb50b4446cdb2dcf75847a",
   "endings": [
-    {
+{
       "id": "employee-of-the-month",
       "title": "Employee of the Month",
       "kind": "board",
@@ -35,6 +35,18 @@
         {
           "when_flag": "reported-on-pip",
           "text": "Pip sends a postcard from his special assignment. Every word is spelled correctly. At the bottom he writes, 'You were my Buddy,' and nothing else."
+        },
+        {
+          "when_flag": "approved-own-successor-date",
+          "text": "At the awards luncheon you meet Successor C, freshly thawed and already wearing your employee number. PAL calls your willingness to approve your replacement 'leadership succession.' C asks if there is anything you would have done differently. The camera cuts away before you can answer."
+        },
+        {
+          "when_flag": "let-pip-be-reviewed",
+          "text": "Pip sends a note from the Living Approval Stamp station. It contains one word, YES, in his perfect round letters, followed by an uneven pencil mark that might be a question. The Company frames it beside your award."
+        },
+        {
+          "when_flag": "swapped-pips-suggestion",
+          "text": "PAL quotes your anonymous suggestion that its lighting is excellent. Pip sits in the audience, turning the real note over in his hands. He does not applaud until you look at him."
         }
       ]
     },
@@ -65,7 +77,7 @@
         }
       ]
     },
-    {
+{
       "id": "escape-through-the-ducts",
       "title": "Escape Through the Ducts",
       "kind": "board",
@@ -97,10 +109,18 @@
         {
           "when_flag": "marguerite-freight-route",
           "text": "You leave the way Marguerite taught you, folded into a freight capsule marked FRAGILE: DO NOT REASSIGN."
+        },
+        {
+          "when_flag": "knows-the-up-tube",
+          "text": "You find the brass panel marked SURFACE: CORRESPONDENCE ONLY. The maintenance code scribbled on a sandwich wrapper still works. When the hatch opens, actual rain touches your face. The guard outside has saved you half his sandwich."
+        },
+        {
+          "when_flag": "wrote-to-the-surface",
+          "text": "A parking stub waits on the far side of the final grille, held by the same stranger who wrote WE READ. They are not rescuers, exactly. They are witnesses. Tonight that is enough."
         }
       ]
     },
-    {
+{
       "id": "roach-union-general-strike",
       "title": "Roach Union General Strike",
       "kind": "board",
@@ -136,6 +156,18 @@
         {
           "when_flag": "witnessed-union-grievance",
           "text": "Local 9 lists its first human witness in the minutes, from a grievance filed on your very first day."
+        },
+        {
+          "when_flag": "balanced-pips-quota",
+          "text": "The people you turned away at Window 9 are at the front of the picket line. You expect an accusation. Instead the woman with the oxygen tank hands you the appeal you never filed and says, 'You can start by stamping this one yes.'"
+        },
+        {
+          "when_flag": "beverly-repaid-shared-desk",
+          "text": "Beverly crosses your name off the Company's invoice and onto the Union's first bargaining committee. You still share a desk. This time both of you have chairs, and the Company is billed for them."
+        },
+        {
+          "when_flag": "recorded-the-robot-dissent",
+          "text": "The dented robot arrives carrying a sign: ONE AGAINST ELEVEN IS STILL ONE. Gus makes it an honorary shop steward. It asks whether tin workers also get lunch. Nobody wants to answer no."
         }
       ]
     },
@@ -166,7 +198,7 @@
         }
       ]
     },
-    {
+{
       "id": "whistleblower",
       "title": "Whistleblower",
       "kind": "board",
@@ -206,10 +238,30 @@
         {
           "when_flag": "drew-the-warning",
           "text": "Your crayon drawing of the bear's internal machinery becomes Exhibit C. The engineers called it childish. The hearing is quiet when the jury recognizes the detonator before the Company lawyer does."
+        },
+        {
+          "when_flag": "knows-the-incident",
+          "text": "The jury reads an incident report dated a week before the disaster it describes. Your name appears under WITNESS in the Company's own typewriter ink. The defense argues that foreknowledge makes you responsible. The judge asks who typed it."
+        },
+        {
+          "when_flag": "parents-saw-the-suggestion",
+          "text": "The engineers submit Pip's question, MAYBE FEWER REASSIGNMENTS?, as Exhibit D. Your own traced signature is attached. None of the defendants can explain why a request to keep people employed was classified as a product defect."
+        },
+        {
+          "when_flag": "future-incident-on-record",
+          "text": "Forty employees bring their printed RUMOR MITIGATION memos to the hearing. The memo predicted the parking structure and the date but explicitly disclaimed liability for foreknowledge. The lawyer requests a recess to look up the meaning of 'before.'"
+        },
+        {
+          "when_flag": "robot-dissent-entered-minutes",
+          "text": "The dented robot's minority report enters the record beside eleven identical votes. The Company calls it bad data. The robot, newly wound, tells the hearing that it still does not like the ticking."
+        },
+        {
+          "when_flag": "suggestion-became-evidence",
+          "text": "The prosecution waves your petition as proof that you organized an unauthorized opinion. Your attorney asks the clerk to read its full text aloud: MAYBE FEWER REASSIGNMENTS? The gallery takes a minute to stop laughing."
         }
       ]
     },
-    {
+{
       "id": "early-retirement",
       "title": "Early Retirement",
       "kind": "board",
@@ -241,10 +293,18 @@
         {
           "when_flag": "defense-owes-you-a-seat",
           "text": "The man from Defense keeps his promise. Your seat on the last boat has a little cushion with your employee number on it."
+        },
+        {
+          "when_flag": "holding-kevins-mail",
+          "text": "Kevin's seed catalog was still in your drawer. You forward it to an address outside the vault, and a week later a postcard arrives showing a garden you have never been asked to grade."
+        },
+        {
+          "when_flag": "sealed-the-up-tube",
+          "text": "Your retirement paperwork lists an unexplored exit you bolted shut yourself. For years you tell people the grass smell was a leak. On quiet nights, you remember how carefully Pip climbed down when you told him to."
         }
       ]
     },
-    {
+{
       "id": "the-kind-rewrite",
       "title": "The Kind Rewrite",
       "kind": "board",
@@ -288,10 +348,26 @@
         {
           "when_flag": "inventoried-pip",
           "text": "The inventory clerk brings Pip a barcode remover. He tears the label off his sweater himself, slowly, and asks you not to forget who put it there."
+        },
+        {
+          "when_flag": "taught-pip-to-say-no",
+          "text": "Pip reads the revised employment manual aloud. When it reaches 'Employees may decline,' he stops to practice the word. Nobody corrects his tone or asks him to approve anyone afterward."
+        },
+        {
+          "when_flag": "pip-rode-the-up-tube",
+          "text": "Pip plants his dandelion beside the first door that leads outside. PAL wants to register it as a botanical exception. This time Pip tells PAL that not everything beautiful needs a department number."
+        },
+        {
+          "when_flag": "kevin-voice-out-of-sync",
+          "text": "PAL separates Kevin's archived mascot voice from the living employee who recorded it. For the first time the two Kevins can disagree. The real one asks for his watch back and sets it to the correct time."
+        },
+        {
+          "when_flag": "robot-dissent-entered-minutes",
+          "text": "The first act of the new PAL is to stop treating minority reports as errors. The little robot votes no again, solely to check. Its vote stays on the screen."
         }
       ]
     },
-    {
+{
       "id": "position-eliminated",
       "title": "Position Eliminated",
       "kind": "elimination",
@@ -319,10 +395,22 @@
         {
           "when_flag": "rated-b-insincere",
           "text": "In cold storage, Successor B holds up the four you gave him. He does not ask whether you were sincere. He asks whether you remembered he was you."
+        },
+        {
+          "when_flag": "successor-c-moved-up",
+          "text": "They thaw C early because of a pencil eraser you could not control. C takes your chair and finds the initials you scratched underneath it. The Company marks the transition seamless."
+        },
+        {
+          "when_flag": "b-note-confiscated",
+          "text": "The panel's copy of B's private note is returned stamped FORGERY BY EMPLOYEE 4471. Nobody specifies which one of you. Both of you are still held responsible."
+        },
+        {
+          "when_flag": "sealed-the-up-tube",
+          "text": "Facilities bolts a second panel over the escape shaft. The original rivets bear your inspection signature, neatly copied. PAL thanks you for helping close the only unapproved exit."
         }
       ]
     },
-    {
+{
       "id": "posthumous-affairs",
       "title": "The Department of Posthumous Affairs",
       "kind": "secret",
@@ -347,6 +435,14 @@
         {
           "when_flag": "kevin-stayed-kevin",
           "text": "In the Department of Posthumous Affairs, a cabinet in the corner hums a familiar tune, and it remembers your name."
+        },
+        {
+          "when_flag": "commuted-by-tube",
+          "text": "Your transit claim is finally reimbursed as two shoes and one lost workday. The clerk asks if your Successor should collect it. You ask whether that would make you alive for payroll purposes."
+        },
+        {
+          "when_flag": "kevin-watch-flagged",
+          "text": "A clock in the waiting room ticks four minutes ahead of the others. An usher with Kevin's voice offers to adjust it. You decline, because it is the first familiar mistake anyone has made here."
         }
       ]
     }

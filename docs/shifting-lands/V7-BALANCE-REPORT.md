@@ -50,4 +50,3 @@ Witness and solidarity choices require deeds. Scouting spends HP and is recorded
 ## Method notes
 
 The same seed range 1–300 was used per policy for V6 and V7. The real reducers determine cards, checks, consequences, and deaths; fixed decision heuristics determine choices. These are **not human playtest probabilities** or an argument that every character should have a prescribed completion rate. A mixed-strategy person may choose both kindness and cruelty, and the ending reacts to the actual recorded trial actions. Changes to V7 mechanics **after release** would require a rules-version bump and migration/replay plan.
-

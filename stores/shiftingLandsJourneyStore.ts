@@ -98,7 +98,7 @@ export const useShiftingLandsJourneyStore = defineStore(
     const session = computed(() => ledger.value.current)
     const state = computed(() => session.value.journey)
     const characterSheet = computed(() =>
-      ledger.value.version >= 6
+      (ledger.value.version === 6 || ledger.value.version === 7)
         ? v6CharacterSheet(ledger.value.current, ledger.value.usedRewards)
         : journeyCharacterSheet(
             ledger.value.current as AuthoredJourneyState,
@@ -107,11 +107,11 @@ export const useShiftingLandsJourneyStore = defineStore(
     )
     const findCard = (id: string) => v6Card(id) ?? findFiveLandCard(id)
     const lockFor = (choice: V6Choice): string | null =>
-      ledger.value.version >= 6
+      (ledger.value.version === 6 || ledger.value.version === 7)
         ? choiceLock(ledger.value.current, choice)
         : null
     const marks = computed(() =>
-      ledger.value.version >= 6 ? ledger.value.current.marks : null,
+      (ledger.value.version === 6 || ledger.value.version === 7) ? ledger.value.current.marks : null,
     )
     const loaded = ref(false)
     const restoreWarning = ref(false)
@@ -135,7 +135,7 @@ export const useShiftingLandsJourneyStore = defineStore(
         locations.value.find((card) => card.id === state.value.active) ?? null,
     )
     const activeEncounter = computed(() =>
-      ledger.value.version >= 6
+      (ledger.value.version === 6 || ledger.value.version === 7)
         ? activeV6Card(ledger.value.current)
         : ledger.value.version >= 4
           ? activeFiveLandEncounter(
@@ -218,13 +218,13 @@ export const useShiftingLandsJourneyStore = defineStore(
           : null,
     )
     const trialResults = computed(() =>
-      ledger.value.version >= 5
+      (ledger.value.version === 5 || ledger.value.version === 6 || ledger.value.version === 7)
         ? ledger.value.trialResults
         : [],
     )
     const lastTrialOutcome = computed(() => trialResults.value.at(-1) ?? null)
     const ending = computed(() =>
-      ledger.value.version >= 6
+      (ledger.value.version === 6 || ledger.value.version === 7)
         ? authoredEndingV6(ledger.value.current, ledger.value.trialResults)
         : null,
     )

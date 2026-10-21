@@ -65,7 +65,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       success:
         'Clear water runs to Hollow Bell again. Mara Reedbell sends a barrel of pickled plums and a long thank-you.',
       partial:
-        'The leak is slowed, not stopped. Hollow Bell is grateful and damp.',
+        'The leak is slowed, not stopped. The far wards still queue at the pump before dawn.',
       failure:
         'The channel collapsed under the engineers. Hollow Bell is drier than before.',
       expired: 'The aqueduct was left to leak. The mayor stopped writing.',
@@ -94,7 +94,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -5 }, local: { ledger: -2 } },
     outcomes: {
       success:
-        'The Pack accepts the armistice and plays a terrible song for the emperor.',
+        'The Pack took the armistice. The fiddler played your coronation march at the bridge, badly, and the wagons rolled back before she finished.',
       partial: 'The wagons stay, but nobody draws a blade.',
       failure: 'The parley ended in insults. The toll is still closed.',
       expired:
@@ -187,7 +187,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'More travelers than lanterns. Some lanterns had no one under them. The Archive has the list.',
+        'Forty-one lanterns. Thirty-eight travelers. Three lanterns walked the road with no one under them. The Archive has the list.',
       partial: 'The count is half done and doesn’t add up.',
       failure: 'The refugees refused the count. The witches took offense.',
       expired: 'The lanterns passed uncounted.',
@@ -249,7 +249,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -5 } },
     outcomes: {
       success:
-        'Clause nine lets the Conclave name the favor after the rain falls. The court strikes it. The Crows pretend to be impressed.',
+        'Clause nine lets the Conclave name its favor after the rain falls. The court struck it. The envoy initialled the strike without a word.',
       partial:
         'The contract is long and the court is tired. A few clauses are struck.',
       failure:
@@ -349,7 +349,8 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       success:
         'At the third hour the rope moved. Nobody was holding it. The watchers will say no more in front of the court.',
       partial: 'The vigil heard something. Nobody agrees what.',
-      failure: 'The watchers fell asleep in the pews.',
+      failure:
+        'The watchers woke at dawn in the pews. The rope had moved in the night. None of them saw it.',
       expired: 'The bell rang again that night, unwatched.',
     },
   },
@@ -414,7 +415,8 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       success:
         'The toll was never lifted. The clerk skimmed the difference. Saltroad caravans are delighted.',
       partial: 'The count is off, but nobody can prove by whom.',
-      failure: 'The counters lost track around the four-hundredth goat.',
+      failure:
+        'The counters lost the tally in the dust of the goat herds. The toll-clerk smiled at them all day.',
       expired: 'The toll stayed a mystery. The Ledger noticed.',
     },
   },
@@ -448,9 +450,10 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'The lanterns scattered like startled fish. Under the ones the party caught, there was nothing.',
+        'The lanterns broke and ran over the water. Under the ones the party caught there was no one. Only the lantern, still warm.',
       partial: 'The ambush sprang early. The lanterns went dark and vanished.',
-      failure: 'Something in the reeds ambushed the ambushers.',
+      failure:
+        'The party came back at dawn soaked to the chest and short two spears. Nobody will say what pulled at their ankles.',
       expired: 'The lanterns marched on.',
     },
   },
@@ -484,6 +487,27 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       failure:
         'The lanterns went dark. The hailing lantern went out by itself.',
       expired: 'Nobody hailed them.',
+    },
+    // t-035: the reed-cutter asked for her husband by name.
+    outcomeVariants: {
+      success: [
+        {
+          flags: [
+            'chose:d03-fen-lanterns:ask-girl',
+            'chose:d03-fen-lanterns:hail',
+          ],
+          text: 'The party called for Corran across the water. The lanterns stopped. One answered, in his voice and not in his words: “He is walking with us. He is not cold.” The reed-cutter’s girl came off the roof.',
+        },
+      ],
+      failure: [
+        {
+          flags: [
+            'chose:d03-fen-lanterns:ask-girl',
+            'chose:d03-fen-lanterns:hail',
+          ],
+          text: 'The party called for Corran across the water. Every lantern went dark at his name. The hailing lantern went out by itself.',
+        },
+      ],
     },
   },
   {
@@ -1033,11 +1057,11 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               'A fair rate, posted on the gate where everyone can read it.',
             effects: {
               brass: 15,
-              local: { ledger: 1, yard: 1, lamplight: 1 },
+              local: { ledger: 1, yard: -1, lamplight: 1, 'old-houses': -1 },
               flags: ['tax-posted'],
             },
             response:
-              'By evening the rate is painted on the gate in letters a hand high. Nobody is delighted. Everybody can read it.',
+              'By evening the rate is painted on the gate in letters a hand high. Dunmore reads it twice. “Fair. And the chits stay in her box.” An Old House steward copies it down and asks, loudly, when the rents go up on the gate beside it.',
           },
           {
             id: 'low',
@@ -1158,11 +1182,11 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   'A fair rate, posted on the gate where everyone can read it.',
                 effects: {
                   brass: 15,
-                  local: { ledger: 1, yard: 1, lamplight: 1 },
+                  local: { ledger: 1, yard: 1, lamplight: 1, 'old-houses': -1 },
                   flags: ['tax-posted'],
                 },
                 response:
-                  'By evening the rate is on the gate, and under it, in smaller letters: Chits settled. Nobody is delighted. Everybody can read it.',
+                  'By evening the rate is on the gate, and under it, in smaller letters: Chits settled. An Old House steward copies both lines down and asks, loudly, when the rents go up beside them.',
               },
               {
                 id: 'low',
@@ -1483,6 +1507,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
           'Mara Reedbell comes up the carpet out of breath. Nobody has seen that before. Her ledger is chained to her belt. The little hand-bell beside it is wrapped in cloth and knotted shut.',
           '“The old chapel bell rang all night, Your Majesty, and nobody was near the rope. The chapel was locked. I hold the only key.”',
           '“Half the town says it’s a warning. Half says it’s a welcome. Nobody goes out after dark. My people are frightened.”',
+          '“The last time it rang through the night was a dry month like this one. A well-cleaner’s boy went missing in the far wards. People remember that. I would rather they didn’t.”',
           '“I would rather it stayed a story. But if the crown wants to look, look quietly.”',
           {
             who: 'Young Komodo',
@@ -1735,13 +1760,13 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             id: 'count',
             speaker: 'A Gate Watch sergeant',
             lines: [
-              '“Forty-one on the road, Majesty, by my own count, quiet like you said. Old ones, little ones, a cutter with a splinted leg we carried the last mile.”',
-              '“Forty-one at the fen edge, when they walked into the reeds with those gold lanterns. I counted them in. I counted them out.”',
+              '“Forty-one lanterns on the road, Majesty, by my own count, quiet like you said. I counted lights. Old ones under them, little ones, a cutter with a splinted leg we carried the last mile.”',
+              '“Forty-one at the fen edge, when they walked into the reeds. I counted them in. I counted them out. Lights, Majesty. In the dark you count what you can see.”',
               'He looks at the tally stick. “Forty now, her girl says. I don’t like a count that goes down, Majesty. Less when nobody tells us who.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'Forty-one went into the fen, Your Majesty. Forty walk out, and one of those is a reed-cutter who was never on the road. I would like to know where the other two went.',
+                text: 'Forty-one lights went into the fen, Your Majesty. Forty walk out, and one of those hangs from the hand of a reed-cutter who was never on the road. I would like to know where the other two went.',
               },
             ],
             options: [
@@ -1891,9 +1916,10 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               affinity: { saltroad: 5, jackalwire: 5 },
               local: { ledger: -1 },
               flags: ['d03-tincture-fee-paid'],
+              schedule: ['d03-tincture-fee'],
             },
             response:
-              'The factor writes a receipt so neat it looks engraved. “A pleasure.” The price of a kindness has been set. It will rise.',
+              'The factor writes a receipt so neat it looks engraved. “A pleasure. The next one is twenty. They go up, Your Majesty. Kindness is a habit, and habits are priced.”',
           },
           {
             id: 'single-kindness',
@@ -1966,6 +1992,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   affinity: { saltroad: 5, jackalwire: 5 },
                   local: { ledger: -1 },
                   flags: ['d03-tincture-fee-paid'],
+                  schedule: ['d03-tincture-fee'],
                 },
                 response:
                   'She takes the brass with both hands, like something from a grave. “He’d want me to take it. That’s the trouble with him.”',
@@ -2036,6 +2063,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   affinity: { saltroad: 5, jackalwire: 5 },
                   local: { ledger: -1 },
                   flags: ['d03-tincture-fee-paid'],
+                  schedule: ['d03-tincture-fee'],
                 },
                 response:
                   'Kiyo picks up her kettle. Later you find her in the Yard kitchen anyway, boiling willowbark for no one.',
@@ -2582,7 +2610,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               {
                 id: 'claim-informant',
                 label:
-                  'Go to the feast, claim the girl as the crown’s, and pay what they ask.',
+                  'Go to the feast, claim the boy as the crown’s, and pay what they ask.',
                 requires: { cost: 25 },
                 effects: {
                   affinity: { jackalwire: -5 },
@@ -2590,7 +2618,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-informant-claimed'],
                 },
                 response:
-                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The girl walks home behind your wagon, bandaged paw to her chest, and the Gate Watch make room for her by their fire.',
+                  'You pay in front of the whole camp. The captains laugh and cut the rope themselves. The boy walks home behind your wagon, bandaged paw to his chest, and the Gate Watch make room for him by their fire.',
               },
               {
                 id: 'deny-informant',
@@ -2601,7 +2629,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-informant-denied'],
                 },
                 response:
-                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the girl at the wheel. After a week the Gate Watch take the ration card down from above their fire and burn it.',
+                  'The painter nods like you confirmed a price. Nobody at court learns what happened to the boy at the wheel. After a week the Gate Watch take the ration card down from above their fire and burn it.',
               },
               {
                 id: 'attend-armed',
@@ -2681,6 +2709,26 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
  * feels it, until the court leaves the tower or the rate is repealed.
  */
 export const ACT_ONE_DUES: readonly DueDef[] = [
+  // t-035: “The price of a kindness has been set. It will rise.” It does.
+  {
+    id: 'd03-tincture-fee',
+    title: 'The tincture fee',
+    day: 8,
+    cost: 20,
+    when: { flags: ['d03-tincture-fee-paid'] },
+    warning:
+      'The Saltroad’s fee on the Pack’s tincture: twenty brass at the Day 8 dawn.',
+    line: 'The Saltroad factor’s second receipt came at dawn. Twenty brass. She had written it out before the first was dry.',
+    effects: { affinity: { jackalwire: 3 } },
+    unpaid: {
+      line: 'The Saltroad factor’s second receipt came at dawn. The strongbox could not meet it. By noon the bridge price for hyenas was triple again, and the factor’s letter said so in one line.',
+      effects: {
+        affinity: { jackalwire: -5, saltroad: -3 },
+        clearFlags: ['d03-tincture-fee-paid'],
+        flags: ['d03-tincture-fee-lapsed'],
+      },
+    },
+  },
   {
     id: 'market-rate-hard',
     title: 'The hard rate',

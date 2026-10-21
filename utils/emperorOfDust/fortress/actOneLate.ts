@@ -28,10 +28,10 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { local: { yard: -2 } },
     outcomes: {
       success:
-        'The barrels roll in at dusk, cheaper than the foreman feared. The kitchens sing all night.',
+        'The barrels came in at dusk, cheaper than the foreman feared. The ovens were lit before the carts were unloaded.',
       partial: 'Half the barrels arrive. The Yard cuts bread by the slice.',
       failure:
-        'The carts wanted more than the tower had. The Yard tightens its belts and its jaws.',
+        'The carts wanted more than the tower had. The Yard eats half loaves and says out loud whose fault it is.',
       expired:
         'No one went. The foreman served porridge for supper and told everyone whose fault it was.',
     },
@@ -76,7 +76,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         'The bridge stayed open two days. The Pack went home with nothing but a sore opinion of the tower.',
       success: 'The carts crossed. Gristle Vane counted every one.',
       partial: 'Half the carts crossed. Then the wagons closed ranks.',
-      failure: 'The Pack held the bridge and laughed about it all night.',
+      failure:
+        'The Pack held the bridge. You could hear them from the wall all night.',
       expired: 'Nobody went. The Saltroad carts took the long road again.',
     },
   },
@@ -106,7 +107,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -5 } },
     outcomes: {
       success:
-        'The Pack guarded the carts and ate only one goat that was not theirs. The Saltroad calls that a pact.',
+        'The Pack guarded the carts the whole road. One goat went missing. The Saltroad calls that a pact.',
       partial: 'The carts arrived. Some of the cargo did not.',
       failure: 'The escort vanished the second night. So did three crates.',
       expired: 'The offer went stale. The Pack took it as an insult.',
@@ -179,6 +180,45 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       failure:
         'The parcel was lost in the reeds. Something in the reeds kept it.',
       expired: 'The Crows took back their warning, word by word.',
+    },
+  },
+  {
+    // t-035: Komodo's first lie of his own, made something the crown can test.
+    id: 'q-d07-galleries',
+    title: 'Under the Ford',
+    summary:
+      'Go down the old Mole galleries under the Eastern Ford, quietly. Komodo’s runner says rubble and rats. See for yourself.',
+    region: 'mole-tunnels',
+    faction: 'moles',
+    durationDays: 1,
+    boardDays: 2,
+    party: { min: 1, max: 2 },
+    requirements: [
+      { stat: 'guile', band: 'mid' },
+      { stat: 'lore', band: 'low', hidden: true },
+    ],
+    danger: 'low',
+    tags: ['tunnels', 'tracking'],
+    rewards: {
+      success: {
+        affinity: { moles: 5 },
+        local: { lamplight: 1 },
+        flags: ['d07-galleries-found'],
+      },
+      partial: { flags: ['d07-galleries-door-barred'] },
+      failure: { affinity: { moles: -5 } },
+    },
+    expired: {},
+    outcomes: {
+      triumph:
+        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. An old Mole asked the party not to tell the tower. Then she asked who had told the tower it was empty.',
+      success:
+        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. They asked the party not to tell the tower. The party told you anyway.',
+      partial:
+        'The party found the old door at the end of a path worn smooth. It was barred from the inside. Somebody behind it was breathing.',
+      failure:
+        'The party went down with a lamp and came up without it. Something in the dark took it out of a hand, politely.',
+      expired: 'Nobody went down. The path stayed smooth.',
     },
   },
   {
@@ -320,6 +360,27 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       expired:
         'No one went. Thistledown burned. The Freeholds will remember that too.',
     },
+    // t-035: the hill farmers the crown fed on Day 9 came down to the granary.
+    outcomeVariants: {
+      triumph: [
+        {
+          flags: ['d09-farmers-fed'],
+          text: 'Thistledown held. Hill farmers came down with old crossbows and stood in the granary door beside your people. “Your grain came up our road under a flour-sack flag,” one said. “We owed it.”',
+        },
+      ],
+      success: [
+        {
+          flags: ['d09-farmers-fed'],
+          text: 'Thistledown held. Its granary did not. Hill farmers came down to stand in the door anyway. “Your grain came up our road under a flour-sack flag. We owed it.”',
+        },
+      ],
+      expired: [
+        {
+          flags: ['d10-thistledown-promised'],
+          text: 'The rider waited by the board until dark. Nobody signed. Thistledown burned.',
+        },
+      ],
+    },
   },
 ]
 
@@ -386,7 +447,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'saffron',
-            label: 'Let Saffron Kett answer him. She rode with the Pack once.',
+            label: 'Let Saffron Kett answer him. She knows his voice.',
             requires: { follower: 'F002' },
             effects: {},
             response:
@@ -418,14 +479,56 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'hold',
             label: 'Send a party to hold the bridge open.',
             effects: { local: { 'gate-watch': 1 } },
-            response:
-              'Vane grins with every tooth. “Bring snacks. It may take a while.”',
+            response: 'Vane grins with every tooth. “I’ll bring the chair.”',
             postsQuests: ['q-d05-toll-standoff'],
           },
         ],
         beats: [
           {
             id: 'prices',
+            // t-035: a crown that already heard the dust-lung story hears
+            // something new: who corners the cure, or what the crown changed.
+            variants: [
+              {
+                flags: ['d03-tincture-one-price'],
+                lines: [
+                  '“One price at the bridge now, Your Majesty. Same as a salt-flat village. The pups drink. I came for the toll anyway.” He shrugs. Feathers. “Habit.”',
+                  '“Here is the true bill. Grey robes buy every vial on the flats at your one price before the carts reach my bridge. For their children, they say. They have a great many children. What is left comes to my camps, and there is not much left.”',
+                  '“So I still need brass. I am a thief. They are a charity. I know which one of us sleeps better.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'One price was the crown’s kindness, Your Majesty. Someone always finds where a kindness can be bought wholesale. The Abbey feeds half the mission road. I would not quarrel with it over cough syrup.',
+                  },
+                ],
+              },
+              {
+                flags: ['d03-caravan-burners-named'],
+                lines: [
+                  '“Red Spoke. You named them at court. Chalked it above your Watch’s fire.” Vane says it pleasantly. “They were mine once. They are not now. Because of you, nobody on the Ford road will sell to them, so they sell to me, and I cannot pay.”',
+                  '“So the toll doubled. The tincture did not get cheaper because you found the right hyenas to blame. The Saltroad still prices it like we all burned that caravan.”',
+                  '“I am a thief. I am also the cheapest thief between here and the canyon. The next one won’t wear such a good coat.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'He has lost a band and gained a grievance, Your Majesty. The bridge is still his.',
+                  },
+                ],
+              },
+              {
+                flags: ['chose:d01-toll:ask-toll'],
+                lines: [
+                  '“You know why. You asked my fiddler on your first day, and she told you, and she cried after. She does not cry.” Vane spreads his coat. “So ask me something new. Ask me who is buying the tincture now.”',
+                  '“Grey robes. The Abbey buys every vial on the flats before the carts reach my bridge. For their children, they say. They have a great many children. What is left the Saltroad sells to me at triple, because there is not much left.”',
+                  '“So the toll doubled. I am a thief. They are a charity. I know which one of us sleeps better.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'A raider accusing an Abbey, Your Majesty. I would not repeat it outside this hall. The bridge is still his either way.',
+                  },
+                ],
+              },
+            ],
             lines: [
               '“Because the tincture doubled, Your Majesty. Dust lung. The pups cough. The Saltroad sells the cure, and it has learned hyenas pay whatever they are asked.”',
               '“So the carts pay me, I pay the carts, and the brass goes round the bridge like water round a drain. Everybody gets wet. Nobody drinks.”',
@@ -490,7 +593,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'Hold the bridge. A thief in a good coat is still a thief.',
                 effects: { local: { 'gate-watch': 1 } },
                 response:
-                  '“Bring snacks.” Vane does not look sorry. He looks relieved to be the villain again.',
+                  '“Good.” Vane does not look sorry. He looks relieved to be the villain again.',
                 postsQuests: ['q-d05-toll-standoff'],
               },
             ],
@@ -545,7 +648,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'Hold the bridge. Saffron built it; the crown keeps it open.',
                 effects: { local: { 'gate-watch': 1 } },
                 response:
-                  '“Bring snacks,” Vane says, to Saffron. Under her breath she is counting every weak bolt on the bridge she built.',
+                  '“Your bolts or mine, Kett?” Vane says, to Saffron. Under her breath she is counting every weak bolt on the bridge she built.',
                 postsQuests: ['q-d05-toll-standoff'],
               },
             ],
@@ -613,7 +716,9 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'apologize',
-                label: 'Apologize, here, in front of the whole court.',
+                label:
+                  'Apologize, here, in front of the whole court, and ask what that is worth to him.',
+                requires: { cost: 40 },
                 effects: {
                   affinity: { jackalwire: 10 },
                   local: { 'old-houses': -2, 'gate-watch': -1 },
@@ -621,7 +726,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d05-apologized-to-vane'],
                 },
                 response:
-                  'The hall goes quiet enough to hear the lamp oil. Vane breaks the loaf, hands you the half without the knife. “Forty, then. An apology is worth ten. I checked.” On the gallery rail an Old House fan snaps shut.',
+                  'The hall goes quiet enough to hear the lamp oil. Vane breaks the loaf and hands you the half without the knife. “Forty, then. An apology is worth ten. I checked.” He counts the forty into his hat. On the gallery rail an Old House fan snaps shut.',
               },
               {
                 id: 'pay',
@@ -652,23 +757,91 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Foreman Dunmore Ash of the Yard',
         npc: 'dunmore-ash',
         faction: 'yard',
+        // t-035: Dunmore's third visit reads as Day 2's consequence.
+        variants: [
+          {
+            flags: ['d02-flour-capped'],
+            lines: [
+              'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+              '“Hollow Bell capped its flour like you ordered. They ground exactly what they ground last year. Not one sack more. That’s why I’m here.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
+              },
+              'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+            ],
+          },
+          {
+            flags: ['d02-flour-dear'],
+            lines: [
+              'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+              '“Flour’s a third dearer since your mill order. Three days. It used to be four.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
+              },
+              'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+            ],
+          },
+          {
+            flags: ['d02-chits-voided'],
+            lines: [
+              'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+              '“You paid my cooks their chits. They ate it. All of it. Now the flour.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
+              },
+              'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+            ],
+          },
+          {
+            flags: ['tax-high'],
+            lines: [
+              'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+              '“You taxed the market hard. The Saltroad paid it at the gate and took it back out of my flour.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
+              },
+              'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+            ],
+          },
+          {
+            flags: ['tax-low'],
+            lines: [
+              'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+              '“Cheap market, cheap bread, you said. Bread’s cheap. There’s just none of it. And the Ledger’s box is still full of my cooks’ paper.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
+              },
+              'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+            ],
+          },
+        ],
         lines: [
-          'Foreman Dunmore Ash comes up from the kitchens with flour on his apron and nothing in his hands. He does not bow. He lays an empty sack on the carpet, folded in four.',
-          'Three days of flour, Majesty. Then the ovens go cold. A hungry Yard is a loud Yard.',
-          'I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
+          'Foreman Dunmore Ash comes up from the kitchens with flour to the elbows. He does not bow. He counts on his fingers, loaves maybe, and stops at three.',
+          '“Nobody’s fault. That’s the worst kind. Nobody to send the bill to.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'He has never asked the throne for anything twice, Your Majesty. Don’t teach him how.',
           },
+          'Three days of flour, Majesty. Then the ovens go cold. I don’t want speeches. I want flour, or a reason I can carry back down the stairs.',
         ],
         options: [
           {
             id: 'ask-short',
-            label: 'Ask why the flour ran short so fast.',
-            effects: {},
+            label: 'Make him explain why the flour ran short so fast.',
+            effects: { local: { yard: -1 } },
             response:
-              'Ash turns the sack inside out. Dust falls on the carpet. “That’s why. But you asked, so.”',
+              'Ash looks at Komodo, then at you. “You want it explained. Fine.” By supper the Yard knows the foreman had to ask twice.',
             next: 'short',
           },
           {
@@ -692,7 +865,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'old-houses',
             label: 'Ask the Old Houses to open their private stores.',
-            requires: { local: { 'old-houses': 8 } },
+            requires: { local: { 'old-houses': 12 } },
             effects: {
               local: { yard: 3, 'old-houses': -3 },
               recruitable: ['F008'],
@@ -706,7 +879,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'short',
             lines: [
               '“The Saltroad doubled its price when the Pack doubled the toll. Somebody pays for that bridge. It was always going to be the bread.”',
-              '“And the Old Houses’ granary is full. Forty sacks a cart at harvest. I watched. Saving it for a bad winter, they say. It’s a bad winter in my kitchens now.”',
+              '“And the Old Houses’ granary is full. Forty sacks a cart at harvest. Lady Vask’s steward sleeps on them. Old Bellam. He has a cough. He won’t sell. Says he’s seen two bad winters and he’s not seeing a third.”',
               {
                 who: 'A Gate Watch sergeant',
                 text: 'Say the word, Majesty, and the Watch opens that granary. Just say whether we knock.',
@@ -727,7 +900,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d05-granary-seized'],
                 },
                 response:
-                  'The Watch knocks. The Old Houses stand at their own doors in silence while every sack is counted out. By nightfall the ovens are hot. Three noble families have stopped saying your name at table.',
+                  'The Watch knocks. Old Bellam sits on the top sack and coughs while they count every tenth one out from under him. He does not get up. By nightfall the ovens are hot. Three noble families have stopped saying your name at table.',
               },
               {
                 id: 'millers',
@@ -760,18 +933,18 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Ration the bread. Leave the granary closed.',
                 effects: { local: { yard: -3, 'old-houses': 1 } },
                 response:
-                  'Ash folds the sack into four and goes down the stairs. By supper the whole Yard knows how many sacks sit behind the Old Houses’ doors.',
+                  'Ash goes down the stairs without a word. By supper the whole Yard knows how many sacks sit behind the Old Houses’ doors, and the name of the old man sleeping on them.',
               },
               {
                 id: 'old-houses',
                 label: 'Ask the Old Houses, politely, to open their stores.',
-                requires: { local: { 'old-houses': 8 } },
+                requires: { local: { 'old-houses': 12 } },
                 effects: {
                   local: { yard: 3, 'old-houses': -3 },
                   recruitable: ['F008'],
                 },
                 response:
-                  'The Old Houses open their larders slowly, like people being robbed politely. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
+                  'Lady Vask sends word to Bellam herself. He opens the granary and stands at the door the whole time, coughing, counting each sack out loud. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
               },
             ],
           },
@@ -812,14 +985,44 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'Factor Marisol Tallow of the Ledger',
         npc: 'marisol-tallow',
         faction: 'ledger',
+        // t-035: the egg-seller speaks first; a posted Day 2 rate is read.
+        variants: [
+          {
+            flags: ['tax-posted'],
+            lines: [
+              'A Freehold woman with a basket of eggs stands where the factor should be. Factor Marisol Tallow waits behind her, a scroll tied in Ledger green under her arm, second for once. She does not like it.',
+              {
+                who: 'An egg-seller from the Freeholds',
+                text: '“Majesty. The factor has rules for the market. I came to hear them read to my face. Nobody reads them to us.”',
+              },
+              'You painted a rate on the gate, Majesty. Now the blankets can read it too, and they ask why the Ledger’s stalls pay it and theirs do not. Twelve stalls need rules. The Ledger would write them. For a small consideration, and a small seal at the bottom.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'She has already written them, Your Majesty. The question is whose name goes at the bottom, and what it costs.',
+              },
+              {
+                who: 'An egg-seller from the Freeholds',
+                text: '“And who.”',
+              },
+            ],
+          },
+        ],
         lines: [
-          'Factor Marisol Tallow wears a pen behind each ear. The second is for emergencies. Under her arm, a scroll tied in Ledger green. She does not untie it yet.',
-          'The fortress market grew on its own, Majesty. Three stalls became twelve. Twelve stalls need rules, or the strongest stall makes them.',
-          'The Ledger would write them. Fees, weights, who stands where. For a small consideration, and a small seal at the bottom.',
+          'A Freehold woman with a basket of eggs stands where the factor should be. Factor Marisol Tallow waits behind her, a scroll tied in Ledger green under her arm, second for once. She does not like it.',
+          {
+            who: 'An egg-seller from the Freeholds',
+            text: '“Majesty. The factor has rules for the market. I came to hear them read to my face. Nobody reads them to us.”',
+          },
+          'The fortress market grew on its own, Majesty. Three stalls became twelve. Twelve stalls need rules, or the strongest stall makes them. The Ledger would write them. Fees, weights, who stands where. For a small consideration, and a small seal at the bottom.',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'She has already written them, Your Majesty. The question is whose name goes at the bottom, and what it costs.',
+          },
+          {
+            who: 'An egg-seller from the Freeholds',
+            text: '“And who.”',
           },
         ],
         options: [
@@ -851,7 +1054,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'archive-rules',
             label:
               'Have the Lamplight Archive write fair rules, posted on the gate.',
-            requires: { local: { lamplight: 9 } },
+            requires: { local: { lamplight: 13 } },
             effects: { local: { lamplight: 2, ledger: 1, yard: 1 } },
             response: 'Nobody gets everything. The rules are long and fair.',
           },
@@ -868,6 +1071,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 text: 'We’d pay in eggs, Majesty. Nobody ever asks us.',
               },
               {
+                who: 'A Yard cousin with a stall',
+                text: '“I pay. My mother paid. Her, she pays in eggs?” He is not angry. He is doing sums.',
+              },
+              {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
                 text: 'Exemptions breed, Your Majesty. Four blankets today, forty by spring. None of them paying.',
@@ -880,12 +1087,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'Grant the charter. The blanket stalls pay in kind, or not at all.',
                 effects: {
                   brass: 5,
-                  local: { ledger: 2, yard: 1 },
+                  local: { ledger: 2, yard: -2 },
                   affinity: { freeholds: 5 },
                   flags: ['market-charter', 'd06-blanket-stalls'],
                 },
                 response:
-                  'Tallow writes the exception small in the margin, like a debt she means to collect. The egg-seller leaves a basket on the dais step. Two eggs are still warm.',
+                  'Tallow writes the exception small in the margin. The egg-seller leaves a basket on the dais step. Two eggs are still warm. That evening the Yard cousin packs up his stall and sets a blanket down beside theirs.',
               },
               {
                 id: 'charter',
@@ -910,7 +1117,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'archive-rules',
                 label:
                   'Have the Lamplight Archive write fair rules, posted on the gate.',
-                requires: { local: { lamplight: 9 } },
+                requires: { local: { lamplight: 13 } },
                 effects: { local: { lamplight: 2, ledger: 1, yard: 1 } },
                 response:
                   'The rules are long and fair. The Archive’s clerk reads every one aloud to the egg-sellers. Twice.',
@@ -928,20 +1135,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           'A Gate Watch sergeant marches a boy up the carpet by the collar. A young weasel in a stablehand’s apron, straw in his fur, trying not to cry in front of the throne.',
           '“Night stablehand, Majesty. Every mount gone, and him asleep in the hayloft. So he says. A gate opened from inside is a Watch matter. We want him in the stocks by noon.”',
           '“I didn’t open it,” the boy says. “I didn’t. I wasn’t even...” He stops. He looks at the floor.',
-          '“Wasn’t even where?” says the sergeant. “Tell the emperor where.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'Someone filed that latch, Your Majesty. Stableboys don’t own files. But the Watch needs to see a crown that answers a broken gate. Sometimes that is justice. Usually not.',
           },
+          '“Wasn’t even where?” says the sergeant. “Tell the emperor where.”',
         ],
         options: [
           {
             id: 'ask-where',
-            label: 'Crouch. Ask the boy where he was at midnight.',
-            effects: {},
+            label:
+              'Come down off the dais. Crouch. Ask the boy yourself, over the sergeant’s head.',
+            effects: { local: { 'gate-watch': -1 } },
             response:
-              'The sergeant lets go. The boy does not know what to do with his hands.',
+              'The sergeant lets go of the collar and steps back. He does not like being stepped over. The boy does not know what to do with his hands.',
             next: 'postern',
           },
           {
@@ -1001,7 +1209,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d06-stablehand-sister'],
                 },
                 response:
-                  'The sister comes through the main gate that evening, the Watch holding it open. She is younger than him. She has brought back yesterday’s heel of bread. She was saving it for him.',
+                  'The sister comes through the main gate that evening, the Watch holding it open. She is younger than him. She has brought back yesterday’s heel of bread. She was saving it for him. Nobody thinks to latch the postern.',
               },
               {
                 id: 'stocks',
@@ -1058,8 +1266,37 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         title: 'A Crow’s Warning',
         speaker: 'A Storm Crow envoy',
         faction: 'storm-crows',
+        // t-035: the rain the crown bought, or the rain it fenced.
+        variants: [
+          {
+            flags: ['crow-favor-owed'],
+            lines: [
+              'The Storm Crow envoy lands on the high windowsill and steps down into the hall like the floor is a poor branch. The fields below are still dark from the Conclave’s rain. He looks at them like a man checking a receipt.',
+              'A dust storm is coming to the Eastern Ford, Your Majesty. Three days out. The Freeholds’ harvest is still standing.',
+              'The Conclave has not named its favor yet. Do not mistake this for it. That much is a courtesy. The rest, the hour and the path, costs an errand. A parcel, carried to the Mirefen, by hands that are not ours.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The courtesy is the bait, Your Majesty. The question is what the hook is tied to.',
+              },
+            ],
+          },
+          {
+            flags: ['d02-favor-no-persons'],
+            lines: [
+              'The Storm Crow envoy lands on the high windowsill and steps down into the hall like the floor is a poor branch. Forty-three dry days. The Conclave’s fenced rain is still two nights off, and he mentions it before you can.',
+              'A dust storm is coming to the Eastern Ford, Your Majesty. Three days out. The Freeholds’ harvest is still standing.',
+              'That much is a courtesy. The rest, the hour and the path, costs an errand. A parcel, carried to the Mirefen, by hands that are not ours.',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The courtesy is the bait, Your Majesty. The question is what the hook is tied to.',
+              },
+            ],
+          },
+        ],
         lines: [
-          'The Storm Crow envoy lands on the high windowsill and steps down into the hall like the floor is a poor branch. Rain beads on his feathers. It has not rained at the fortress in forty days.',
+          'The Storm Crow envoy lands on the high windowsill and steps down into the hall like the floor is a poor branch. Rain beads on his feathers. It has not rained at the fortress in forty-three days.',
           'A dust storm is coming to the Eastern Ford, Your Majesty. Three days out. The Freeholds’ harvest is still standing.',
           'That much is a courtesy. The rest, the hour and the path, costs an errand. A parcel, carried to the Mirefen, by hands that are not ours.',
           {
@@ -1091,6 +1328,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             id: 'errand',
             label: 'Accept the errand. Carry the Conclave’s parcel.',
             effects: {
+              schedule: ['d07-storm'],
               affinity: { freeholds: 5 },
               flags: ['crow-forecast-day10'],
               recruitable: ['F011'],
@@ -1104,6 +1342,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Pay for the forecast in brass instead.',
             requires: { cost: 25 },
             effects: {
+              schedule: ['d07-storm'],
               affinity: { freeholds: 5, 'storm-crows': -3 },
               flags: ['crow-forecast-day10'],
             },
@@ -1113,7 +1352,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'warn-freeholds',
             label: 'Warn the Freeholds with what we know. Owe nothing.',
-            effects: { affinity: { freeholds: 3, 'storm-crows': -5 } },
+            effects: {
+              schedule: ['d07-storm'],
+              affinity: { freeholds: 3, 'storm-crows': -5 },
+            },
             response:
               '“A third of a forecast is worse than none.” He may be right.',
           },
@@ -1146,6 +1388,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'errand',
                 label: 'Carry it. Let both of them remember the crown.',
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 5 },
                   flags: ['crow-forecast-day10'],
                   recruitable: ['F011'],
@@ -1160,6 +1403,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   'The crown closed the Mirefen road once. It stays closed to crows.',
                 requires: { flags: ['mire-road-closed'] },
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { 'storm-crows': -5 },
                   local: { 'gate-watch': 1 },
                   flags: ['d07-fen-road-stays-closed'],
@@ -1172,6 +1416,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Pay for the forecast in brass. Carry nothing.',
                 requires: { cost: 25 },
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 5, 'storm-crows': -3 },
                   flags: ['crow-forecast-day10'],
                 },
@@ -1198,6 +1443,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label:
                   'Send the count to the Mothers, sealed, with the crown’s apology for taking it.',
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { 'mire-mothers': 10, 'storm-crows': -5 },
                   local: { lamplight: -2 },
                   flags: ['d07-count-returned'],
@@ -1209,6 +1455,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'errand',
                 label: 'Carry the parcel to the three. Keep the count.',
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 5 },
                   flags: ['crow-forecast-day10'],
                   recruitable: ['F011'],
@@ -1221,7 +1468,10 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'warn-freeholds',
                 label:
                   'Neither parcel nor count. Warn the Freeholds. Owe nothing.',
-                effects: { affinity: { freeholds: 3, 'storm-crows': -5 } },
+                effects: {
+                  schedule: ['d07-storm'],
+                  affinity: { freeholds: 3, 'storm-crows': -5 },
+                },
                 response:
                   '“A third of a forecast and none of the answers. You will be a careful emperor.” Not kindly.',
               },
@@ -1249,20 +1499,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'shelter-fortress',
                 label:
                   'Open the fortress to the Freeholders until the storm passes.',
-                requires: { cost: 20 },
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 10 },
-                  local: { yard: -2, 'gate-watch': -1, 'old-houses': -1 },
+                  local: { yard: -3, 'gate-watch': -1, 'old-houses': -1 },
                   flags: ['d07-freeholds-sheltered'],
                 },
                 response:
-                  'They come up the road in a long line, goats and grandparents. The Yard makes room it does not have. Young Komodo argues the price of everything. Not this.',
+                  'They come up the road in a long line, goats and grandparents. The Yard gives up its own floor and sleeps in the kitchens, three days into short bread. Dunmore counts the extra mouths out loud. Young Komodo argues the price of everything. Not this.',
               },
               {
                 id: 'errand',
                 label:
                   'Carry the parcel for the full forecast. The harvest needs the hour, not a cellar.',
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 5 },
                   flags: ['crow-forecast-day10'],
                   recruitable: ['F011'],
@@ -1276,6 +1527,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Pay for the forecast in brass instead.',
                 requires: { cost: 25 },
                 effects: {
+                  schedule: ['d07-storm'],
                   affinity: { freeholds: 5, 'storm-crows': -3 },
                   flags: ['crow-forecast-day10'],
                 },
@@ -1286,9 +1538,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 id: 'warn-freeholds',
                 label:
                   'Tell the Freeholds what we know. They can find their own cellars.',
-                effects: { affinity: { freeholds: 3, 'storm-crows': -5 } },
+                effects: {
+                  schedule: ['d07-storm'],
+                  affinity: { freeholds: 3, 'storm-crows': -5 },
+                },
                 response:
                   '“A third of a forecast is worse than none.” Young Komodo has already turned the page.',
+              },
+              {
+                id: 'galleries-anyway',
+                label:
+                  'Thank Komodo. Then send someone down the old galleries anyway, quietly.',
+                effects: { schedule: ['d07-storm'] },
+                response:
+                  'Komodo does not look up from the ledger. His claw has stopped tapping. “Of course, Your Majesty. Take a lamp. Rats.”',
+                postsQuests: ['q-d07-galleries'],
               },
             ],
           },
@@ -1353,9 +1617,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               '“The Gate Watch swears its oath in three days. We would like it to name the Old Houses. Our sons swear it. They should swear it to someone who remembers their names.”',
               '“The Yard eats from our granaries. The Ledger lends against our land. The Archive copies our deeds. We don’t want power, Majesty. We want to be in the room where it is spent.”',
               {
-                who: 'Foreman Dunmore Ash',
-                npc: 'dunmore-ash',
-                text: 'The Yard eats from their granaries at their price. They get a chair, I want to know whose bread it’s made of.',
+                who: 'A Gate Watch recruit',
+                text: '“My father wants the oath to say his name, Majesty. I’d rather it said mine.” He is maybe sixteen. His gorget is his father’s, and too big.',
               },
               {
                 who: 'Young Komodo',
@@ -1394,7 +1657,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['old-houses-council-seat'],
                 },
                 response:
-                  'Six fans open at once along the rail. Foreman Ash is down the stairs before anyone sees his face.',
+                  'Six fans open at once along the rail. The boy in his father’s gorget looks at the floor until he is dismissed.',
               },
               {
                 id: 'seat-for-all',
@@ -1405,7 +1668,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['open-council'],
                 },
                 response:
-                  '“How democratic.” Foreman Ash looks at the second chair a long time before he sits. Checking it for nails.',
+                  '“How democratic.” The Yard’s chair stays empty until Foreman Ash is fetched up from the kitchens. He looks at it a long time before he sits. Checking it for nails.',
               },
               {
                 id: 'refuse',
@@ -1709,13 +1972,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         npc: 'marisol-tallow',
         faction: 'ledger',
         lines: [
-          'Factor Tallow returns with a smaller book. Green leather, with a lock. She sets it on the arm of the throne like it lives there.',
+          'Factor Tallow returns with a smaller book. Green leather, with a lock. She sets it on the arm of the throne like it lives there. A Gate Watch sergeant stands beside the book the way you stand beside a man you have been told not to search.',
           'The Ledger would extend the crown a line of credit, Majesty. Forty brass now. A little more later.',
           'Lending is a kindness. Repayment is a habit. We hope to help the crown form good habits.',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: '“A little more later” is the most expensive phrase in the wasteland, Your Majesty. Ask how little. And how much later.',
+          },
+          {
+            who: 'A Gate Watch sergeant',
+            text: '“Ask her about the carts, Majesty.”',
           },
         ],
         options: [
@@ -1732,11 +1999,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             label: 'Take the forty brass.',
             effects: {
               brass: 40,
-              local: { ledger: 2 },
+              local: { ledger: 2, 'gate-watch': -1 },
               flags: ['ledger-credit'],
               schedule: ['ledger-loan'],
             },
-            response: 'The factor writes the debt in a small, permanent hand.',
+            response:
+              'The factor writes the debt in a small, permanent hand. The sergeant reads the last line upside down: the Watch does not search Ledger carts. He leaves without being dismissed.',
           },
           {
             id: 'decline',
@@ -1781,7 +2049,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 label: 'Take the forty brass, on her terms.',
                 effects: {
                   brass: 40,
-                  local: { ledger: 2 },
+                  local: { ledger: 2, 'gate-watch': -1 },
                   flags: ['ledger-credit'],
                   schedule: ['ledger-loan'],
                 },
@@ -1825,7 +2093,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'This posting carries a mark, Your Majesty: lethal. It means what it says. Most quests cost a sprain and a week in bed. This one can cost a friend. Send strong people or nobody. Do not send them without knowing.',
+      'This posting carries a mark, Your Majesty: lethal. It means what it says. Most quests cost a sprain and a week in bed. This one can cost a friend. And the canyon road is two days. Whoever you send tonight will not be home tomorrow.',
+    // t-035: the Day 9-10 squeeze, said out loud the day before it bites.
+    whisper: {
+      source: 'A Thistledown carter, watering his pony at the gate',
+      text: 'Painted wagons on the Freehold road at dusk. Going east. Not toward the canyon.',
+    },
     quests: ['q-d09-iron-convoy'],
     audiences: [
       {
@@ -1862,7 +2135,8 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'hire-pack',
-            label: 'Hire the Jackalwire to ride with the convoy instead.',
+            label:
+              'Hire the Jackalwire to ride alongside. Ours still have to go.',
             requires: {
               cost: 25,
               affinity: { jackalwire: 'neutral' },
@@ -1870,9 +2144,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { saltroad: 5, jackalwire: 5 },
               flags: ['pack-guarded-iron'],
+              questAid: [
+                {
+                  questId: 'q-d09-iron-convoy',
+                  label: 'Jackalwire outriders',
+                  bonus: 2,
+                  stat: 'might',
+                },
+              ],
             },
             response:
-              'A long look. “Wolves to guard the sheep. Bold. It may even work.”',
+              'A long look. “Wolves beside the sheep. Bold.” The posting stays on the board. The Pack rides with whoever you send, not instead.',
           },
           {
             id: 'not-ours',
@@ -1899,15 +2181,21 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'farmers-fed',
                 label:
-                  'Send the hill farmers a cart of the fortress’s own grain tonight, ahead of the convoy.',
-                requires: { cost: 20 },
+                  'Send the hill farmers a cart of the Yard’s own grain tonight, ahead of the convoy.',
                 effects: {
                   affinity: { freeholds: 10 },
-                  local: { yard: -2 },
+                  local: { yard: -3 },
                   flags: ['d09-farmers-fed'],
+                  questAid: [
+                    {
+                      questId: 'q-d09-iron-convoy',
+                      label: 'One campfire fewer on the hill',
+                      bonus: 1,
+                    },
+                  ],
                 },
                 response:
-                  'The cart goes up the hill road at sunset under a flour-sack flag. The Yard grumbles about feeding strangers. Above the canyon that night, one of the three campfires goes out early.',
+                  'The cart goes up the hill road at sunset under a flour-sack flag. Dunmore watches it go from the kitchen door, counting on his fingers. Above the canyon that night, one of the three campfires goes out early.',
               },
               {
                 id: 'leave-wagon',
@@ -1917,6 +2205,13 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { saltroad: -5, freeholds: 8 },
                   local: { ledger: -1 },
                   flags: ['d09-wagon-left'],
+                  questAid: [
+                    {
+                      questId: 'q-d09-iron-convoy',
+                      label: 'The hill farmers took their wagon home',
+                      bonus: 1,
+                    },
+                  ],
                 },
                 response:
                   '“One wagon. A ninth of my drivers’ wages, given away by someone who won’t be paying it.” By morning the hill farmers are gone from their perch. So is one wagon.',
@@ -1932,9 +2227,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { saltroad: 5, jackalwire: -5 },
                   flags: ['pack-guarded-iron', 'd09-vane-debt-called'],
+                  questAid: [
+                    {
+                      questId: 'q-d09-iron-convoy',
+                      label: 'Vane’s painted wagons',
+                      bonus: 3,
+                      stat: 'might',
+                    },
+                  ],
                 },
                 response:
-                  'A pup on a painted bicycle brings the answer: one feather, and PAID IN FULL, misspelled. That night painted wagons flank Oriel’s convoy. The hill farmers know those wagons. They stay on their hill.',
+                  'A pup on a painted bicycle brings the answer: one feather, and PAID IN FULL, misspelled. Tonight painted wagons will flank whoever rides with Oriel. The hill farmers know those wagons. Most of them will stay on their hill.',
               },
               {
                 id: 'our-own',
@@ -1946,7 +2249,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               {
                 id: 'hire-pack',
                 label:
-                  'Hire the Pack to ride along. Raiders scare farmers better than soldiers.',
+                  'Hire the Pack to ride beside ours. Raiders scare farmers better than soldiers.',
                 requires: {
                   cost: 25,
                   affinity: { jackalwire: 'neutral' },
@@ -1954,9 +2257,17 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { saltroad: 5, jackalwire: 5 },
                   flags: ['pack-guarded-iron'],
+                  questAid: [
+                    {
+                      questId: 'q-d09-iron-convoy',
+                      label: 'Jackalwire outriders',
+                      bonus: 2,
+                      stat: 'might',
+                    },
+                  ],
                 },
                 response:
-                  '“Wolves to scare the sheep off the other wolves. Bold. It may even work.”',
+                  '“Wolves to scare the sheep off the other wolves. Bold.” The posting stays on the board. Somebody of yours still has to ride.',
               },
               {
                 id: 'not-ours',
@@ -1979,12 +2290,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         lines: [
           'Juniper Slate comes up from the kitchens smelling of onions and carbolic. An opossum, a ladle through the belt like a sword, a roll of bandage in the apron. They walk straight past the herald. The herald has stopped trying.',
           'The Yard is behind the throne, Majesty. That means the kitchens. That means me. I want to see what the court eats on the road.',
-          'I cook. I bandage. I can tell you what the Yard says when you’re not listening. Nobody pays for that one. It’s the most useful.',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'Every court has a kitchen that knows more than its council, Your Majesty. The wise ones feed it.',
           },
+          'I cook. I bandage. I can tell you what the Yard says when you’re not listening. Nobody pays for that one. It’s the most useful.',
         ],
         options: [
           {
@@ -2066,6 +2377,12 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         source: 'A rider from Thistledown',
         text: 'Jackalwire raiders are at the edge of Thistledown, the largest Freehold village.',
         truth: true,
+        variants: [
+          {
+            flags: ['d10-harvest-lost'],
+            text: 'Jackalwire raiders are at the edge of Thistledown. The storm took the Freehold fields at dawn. Its granary is what is left.',
+          },
+        ],
       },
       {
         id: 'watch-oath',
@@ -2082,6 +2399,13 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'Something always moves in the east, Your Majesty. The crows have watched it for a week. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
+    // t-035: the crown checked his Day 7 report. He gets ahead of it.
+    komodoVariants: [
+      {
+        flags: ['d07-galleries-found'],
+        text: 'Your people came back from under the Ford with clean boots, Your Majesty. Dry galleries. I was wrong, and my runner will hear about it. Today belongs to the Watch, and to Thistledown. Whatever happens at that village is on the map tomorrow.',
+      },
+    ],
     quests: ['q-d10-freehold-raid'],
     audiences: [
       {
@@ -2126,6 +2450,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               local: { 'gate-watch': 5, 'old-houses': -1 },
               flags: ['oath-of-care'],
               recruitable: ['F013'],
+              schedule: ['d10-oath-tested'],
             },
             response:
               'A long look. A nod. “They’ll hold you to that. So will I.” A rhino at the end of the line asks to serve the crown closer than the gate.',
@@ -2154,6 +2479,46 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         beats: [
           {
             id: 'last-oath',
+            // t-035: Day 7's chair is in the gallery when the Watch swears.
+            variants: [
+              {
+                flags: ['old-houses-council-seat'],
+                notFlags: ['d07-oath-kept-clean'],
+                lines: [
+                  '“He swore he would never spend us cheaply. Those words. Then he sent sixty of us down the rail canyon for an engine in the old yards, because somebody told him it could make rain.”',
+                  '“Nineteen came back. I was one. The engine never made rain. Far as I know it’s still in the canyon. Nobody went back for it. Nobody went back for the rest of us either.”',
+                  '“So the Watch doesn’t want a kind oath. It had one. It wants one you can keep on a bad day, with smoke on the horizon and a good reason to break it.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Then swear them to the crown, Your Majesty, not to yourself. A crown can break a promise and still be a crown. A person who breaks one is a liar.',
+                  },
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: '“You gave us a chair, Majesty,” Lady Vask says from the gallery. “Give our sons a name to swear to. Ours.”',
+                  },
+                ],
+              },
+              {
+                flags: ['d07-oath-kept-clean'],
+                lines: [
+                  '“He swore he would never spend us cheaply. Those words. Then he sent sixty of us down the rail canyon for an engine in the old yards, because somebody told him it could make rain.”',
+                  '“Nineteen came back. I was one. The engine never made rain. Far as I know it’s still in the canyon. Nobody went back for it. Nobody went back for the rest of us either.”',
+                  '“So the Watch doesn’t want a kind oath. It had one. It wants one you can keep on a bad day, with smoke on the horizon and a good reason to break it.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Then swear them to the crown, Your Majesty, not to yourself. A crown can break a promise and still be a crown. A person who breaks one is a liar.',
+                  },
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: '“You told me the Watch swears to the crown alone, Majesty,” Lady Vask says from the gallery. “Let us see you keep that one.”',
+                  },
+                ],
+              },
+            ],
             lines: [
               '“He swore he would never spend us cheaply. Those words. Then he sent sixty of us down the rail canyon for an engine in the old yards, because somebody told him it could make rain.”',
               '“Nineteen came back. I was one. The engine never made rain. Far as I know it’s still in the canyon. Nobody went back for it. Nobody went back for the rest of us either.”',
@@ -2189,6 +2554,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': 5, 'old-houses': -1 },
                   flags: ['oath-of-care'],
                   recruitable: ['F013'],
+                  schedule: ['d10-oath-tested'],
                 },
                 response:
                   '“He said it in that same voice. They’ll hold you to it. So will I.” A rhino at the end of the line, taller than the gate, asks to serve the crown closer than the walls.',
@@ -2216,10 +2582,104 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 response:
                   'The cheer is real. Dunmark does not cheer. “Brass is at least honest about what it is.”',
               },
+              {
+                id: 'name-houses',
+                label:
+                  '“The Watch swears to the crown, and to the Houses that fed it.”',
+                requires: {
+                  flags: ['old-houses-council-seat'],
+                  notFlags: ['d07-oath-kept-clean'],
+                },
+                effects: {
+                  local: { 'old-houses': 4, 'gate-watch': -2, yard: -2 },
+                  flags: ['d10-oath-names-houses'],
+                },
+                response:
+                  'The young ones say it. The old ones move their lips. The boy in his father’s gorget says the Houses’ name and looks at the floor after. Dunmark writes nothing down. He will remember it without paper.',
+              },
             ],
           },
           {
             id: 'ranks',
+            // t-035: the stableboy from Day 6 is in the yard.
+            variants: [
+              {
+                flags: ['d06-stablehand-sister'],
+                lines: [
+                  {
+                    who: 'A young sentry',
+                    text: '“Will you send us to Thistledown today, Majesty?” The sentry who found the stable latch. Barely old enough for the gorget. “My mother’s there. A lot of our mothers are there.”',
+                  },
+                  {
+                    who: 'An old guard with a grey muzzle',
+                    text: '“And who holds this gate? Last time the Watch rode out it came back a third its size, and kitchen boys held the gate.”',
+                  },
+                  '“That’s the oath they want,” Dunmark says. “Not words. Thistledown or the gate. Whatever you choose, half of them swear it with their teeth shut.” Below, the stableboy runs the line with a water bucket. Nobody told him to.',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Thistledown is already on the board, Your Majesty. Keep the Watch on the walls. An oath sworn on the road is sworn by whoever survives it.',
+                  },
+                ],
+              },
+              {
+                flags: ['d06-postern-informant'],
+                lines: [
+                  {
+                    who: 'A young sentry',
+                    text: '“Will you send us to Thistledown today, Majesty?” The sentry who found the stable latch. Barely old enough for the gorget. “My mother’s there. A lot of our mothers are there.”',
+                  },
+                  {
+                    who: 'An old guard with a grey muzzle',
+                    text: '“And who holds this gate? Last time the Watch rode out it came back a third its size, and kitchen boys held the gate.”',
+                  },
+                  '“That’s the oath they want,” Dunmark says. “Not words. Thistledown or the gate. Whatever you choose, half of them swear it with their teeth shut.” The stableboy stands at the end of the line with his eyes on the postern. The sentries leave a space around him.',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Thistledown is already on the board, Your Majesty. Keep the Watch on the walls. An oath sworn on the road is sworn by whoever survives it.',
+                  },
+                ],
+              },
+              {
+                flags: ['d06-stablehand-stocks'],
+                lines: [
+                  {
+                    who: 'A young sentry',
+                    text: '“Will you send us to Thistledown today, Majesty?” The sentry who found the stable latch. Barely old enough for the gorget. “My mother’s there. A lot of our mothers are there.”',
+                  },
+                  {
+                    who: 'An old guard with a grey muzzle',
+                    text: '“And who holds this gate? Last time the Watch rode out it came back a third its size, and kitchen boys held the gate.”',
+                  },
+                  '“That’s the oath they want,” Dunmark says. “Not words. Thistledown or the gate. Whatever you choose, half of them swear it with their teeth shut.” The stableboy is on the wall with a spear too long for him. He has not looked up at the balcony since the stocks.',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Thistledown is already on the board, Your Majesty. Keep the Watch on the walls. An oath sworn on the road is sworn by whoever survives it.',
+                  },
+                ],
+              },
+              {
+                flags: ['d06-stablehand-pardoned'],
+                lines: [
+                  {
+                    who: 'A young sentry',
+                    text: '“Will you send us to Thistledown today, Majesty?” The sentry who found the stable latch. Barely old enough for the gorget. “My mother’s there. A lot of our mothers are there.”',
+                  },
+                  {
+                    who: 'An old guard with a grey muzzle',
+                    text: '“And who holds this gate? Last time the Watch rode out it came back a third its size, and kitchen boys held the gate.”',
+                  },
+                  '“That’s the oath they want,” Dunmark says. “Not words. Thistledown or the gate. Whatever you choose, half of them swear it with their teeth shut.” Below, the stableboy runs the line with a water bucket. Nobody told him to.',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Thistledown is already on the board, Your Majesty. Keep the Watch on the walls. An oath sworn on the road is sworn by whoever survives it.',
+                  },
+                ],
+              },
+            ],
             lines: [
               {
                 who: 'A young sentry',
@@ -2245,9 +2705,26 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': 3, 'old-houses': -2, ledger: -1 },
                   affinity: { freeholds: 10 },
                   flags: ['d10-oath-on-the-road'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'The Gate Watch rode out',
+                      bonus: 3,
+                      stat: 'might',
+                      resolve: 'partial',
+                      outcome:
+                        'The Gate Watch went for Thistledown with nobody from the court beside them. They held the granary door until the raiders tired of it. Thistledown lost its stores and kept its roofs. The Watch came home a dozen short of whole.',
+                    },
+                  ],
+                  schedule: [
+                    'd10-postern-night',
+                    'd10-postern-cart',
+                    'd10-postern-seen',
+                    'd10-postern-shut',
+                  ],
                 },
                 response:
-                  'They swear it at a run, buckling gorgets, the young sentry loudest. That night the old guard and the kitchen boys hold the gate. The Old Houses bolt their doors. Whatever happens at Thistledown, the Watch went.',
+                  'They swear it at a run, buckling gorgets, the young sentry loudest. Sixty voices. Fifty-nine. Tonight the old guard with the grey muzzle and the kitchen boys hold the gate. The Old Houses bolt their doors.',
               },
               {
                 id: 'hold-gate',
@@ -2259,7 +2736,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   flags: ['d10-oath-of-the-gate'],
                 },
                 response:
-                  'The Watch swears to the gate, and holds it. The young sentry swears with his eyes on the smoke. By evening he asks to be relieved. Dunmark looks at you a long time and lets him go.',
+                  'The Watch swears to the gate, and holds it. The smoke stands up all afternoon. Nobody on the wall says the village’s name. At dusk the young sentry asks to be relieved. Dunmark lets him go, and does not ask where.',
               },
               {
                 id: 'care',
@@ -2269,6 +2746,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': 5, 'old-houses': -1 },
                   flags: ['oath-of-care'],
                   recruitable: ['F013'],
+                  schedule: ['d10-oath-tested'],
                 },
                 response:
                   'Quiet while they work out if that was an answer. Then the old guard laughs, once, and swears. The rest follow. A rhino at the end of the line asks to serve closer than the gate.',
@@ -2282,15 +2760,31 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         title: 'Smoke Over Thistledown',
         speaker: 'A rider from Thistledown',
         faction: 'freeholds',
+        // t-035: the Day 7 storm landed this morning.
+        variants: [
+          {
+            flags: ['crow-forecast-day10'],
+            lines: [
+              'The rider from Thistledown is standing only because nobody has told her she can stop. A young stoat, soot in her fur, a broken pitchfork tine through her belt for a knife. Her pony stands foundered in the courtyard.',
+              '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. The crows gave us the storm’s hour and we got the harvest in. Now it’s all in one granary, and they know which one. They’ll be back at dusk.”',
+              {
+                who: 'Young Komodo',
+                npc: 'young-komodo',
+                text: 'The posting is already on the board, Your Majesty. She is asking what Thistledown is worth to a crown it never paid.',
+              },
+              '“We’re not your village. We never paid your tax. My grandmother spat when your crown was named. I’m asking anyway.”',
+            ],
+          },
+        ],
         lines: [
           'The rider from Thistledown is standing only because nobody has told her she can stop. A young stoat, soot in her fur, a broken pitchfork tine through her belt for a knife. Her pony stands foundered in the courtyard.',
-          '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. They came at dawn for the granary. They’ll be back at dusk for what’s left.”',
-          '“We’re not your village. We never paid your tax. My grandmother spat when your crown was named. I’m asking anyway.”',
+          '“Painted wagons at the edge of Thistledown. Forty raiders. Maybe fifty. The storm took the fields at dawn. They came at noon for the granary. It’s what the Ford has left. They’ll be back at dusk for the rest.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
             text: 'The posting is already on the board, Your Majesty. She is asking what Thistledown is worth to a crown it never paid.',
           },
+          '“We’re not your village. We never paid your tax. My grandmother spat when your crown was named. I’m asking anyway.”',
         ],
         options: [
           {
@@ -2316,6 +2810,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               affinity: { freeholds: 5 },
               local: { 'old-houses': -1 },
               flags: ['d10-thistledown-promised'],
+              schedule: ['d10-promise'],
             },
             response:
               'She nods. No thanks. Nobody has arrived yet. She goes down to wait by the board, where she can see who signs.',
@@ -2355,9 +2850,20 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { jackalwire: -15, freeholds: 10 },
                   local: { 'gate-watch': 2, yard: -1 },
                   flags: ['d10-camp-struck'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'The Pack rode home to its burning camp',
+                      bonus: 2,
+                      stat: 'might',
+                      resolve: 'success',
+                      outcome:
+                        'The raiders turned for home before dusk to a camp on fire. Thistledown kept its roofs and most of its grain. The Watch came back at midnight and would not say how many tents had pups coughing in them.',
+                    },
+                  ],
                 },
                 response:
-                  'The raiders turn for home before dusk. Thistledown keeps what it had left. The Watch comes back at midnight, quiet. Nobody in the guardroom will say what the camp looked like, or how many tents had pups coughing in them.',
+                  'The Watch rides south with the ration-card map. Before dusk the rider watches from the hill as the painted wagons turn for home. She does not cheer. She goes down to the board to see who else is coming.',
               },
               {
                 id: 'tincture',
@@ -2370,9 +2876,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { freeholds: 5, jackalwire: -5 },
                   flags: ['d10-tincture-called-in'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'Half the raiders went home with the fiddler',
+                      bonus: 2,
+                      resolve: 'partial',
+                      outcome:
+                        'Half the raiders went home behind the fiddler and her one sour note. The other half took the granary and left the roofs.',
+                    },
+                  ],
                 },
                 response:
-                  'The rider carries it east herself. At dusk the fiddler plays one long sour note from the lead wagon and turns her wagons round. Half the raiders go with her. Half do not.',
+                  'The rider carries it east herself. At dusk the fiddler plays one long sour note from the lead wagon and turns her wagons round. Half the raiders go with her. Half do not. The posting stays up. Somebody still has to stand in the granary door.',
               },
               {
                 id: 'promise',
@@ -2381,6 +2897,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 5 },
                   local: { 'old-houses': -1 },
                   flags: ['d10-thistledown-promised'],
+                  schedule: ['d10-promise'],
                 },
                 response:
                   '“Every hand,” she repeats, testing the weight. She goes down to wait by the board, where she can see who signs.',
@@ -2423,9 +2940,19 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 5, jackalwire: 5 },
                   local: { 'gate-watch': -1 },
                   flags: ['d10-rook-asked-mercy'],
+                  questAid: [
+                    {
+                      questId: 'q-d10-freehold-raid',
+                      label: 'Rook asked the one the Pack owes',
+                      bonus: 1,
+                      resolve: 'partial',
+                      outcome:
+                        'Rook came back after midnight, soot to the elbows. The raiders left Thistledown its people and took everything else. Rook will not say what was asked, or who will come to collect.',
+                    },
+                  ],
                 },
                 response:
-                  'Rook goes at a run, a white rag tied to an arrow shaft. Back after midnight, soot to the elbows. They will not say what was asked, or what was promised.',
+                  'Rook goes at a run, a white rag tied to an arrow shaft. The posting stays up behind her. Whatever Rook buys out there, somebody still has to stand in the granary door.',
               },
               {
                 id: 'promise',
@@ -2435,6 +2962,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: 5 },
                   local: { 'old-houses': -1 },
                   flags: ['d10-thistledown-promised'],
+                  schedule: ['d10-promise'],
                 },
                 response:
                   'Rook nods and stays kneeling a long time. The rider goes down to wait by the board, where she can see who signs.',
@@ -2465,6 +2993,96 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
  * back once more, for sixty.
  */
 export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
+  // t-035: riding out for Thistledown leaves the gate to the old guard and
+  // the kitchen boys. What gets in reads Day 6 (the postern) and Day 8 (the
+  // carts the Watch may not search). None of it is on the ledger: the court
+  // finds out at dawn.
+  {
+    id: 'd10-postern-night',
+    title: 'The postern, unwatched',
+    day: 11,
+    hidden: true,
+    when: { notFlags: ['d06-stablehand-stocks'] },
+    effects: { brass: -15, local: { yard: -1 } },
+    line: 'With the Watch gone, someone came in by the postern near midnight with a file. The old guard with the grey muzzle met them on the kitchen stair alone. He will mend. The strongbox is fifteen brass lighter, and nobody saw a face.',
+  },
+  {
+    id: 'd10-postern-cart',
+    title: 'A Ledger cart, unsearched',
+    day: 11,
+    hidden: true,
+    when: {
+      flags: ['ledger-credit'],
+      notFlags: ['d06-stablehand-stocks', 'd08-fees-pledged'],
+    },
+    effects: { local: { 'gate-watch': -1 } },
+    line: 'The sergeant’s note from Day 8 has a second line now. The Ledger cart that came in at dusk rode low. Ledger carts ride high. He was not allowed to search it.',
+  },
+  {
+    id: 'd10-postern-seen',
+    title: 'The stableboy saw',
+    day: 11,
+    hidden: true,
+    when: {
+      flags: ['d06-postern-informant'],
+      notFlags: ['d06-stablehand-stocks'],
+    },
+    line: 'The stableboy saw who opened the postern. He told the sergeant and only the sergeant, in the stable with the door shut. The sergeant has not said the name aloud. He has started sleeping by the postern.',
+  },
+  {
+    id: 'd10-postern-shut',
+    title: 'The postern, nailed',
+    day: 11,
+    hidden: true,
+    when: { flags: ['d06-stablehand-stocks'] },
+    line: 'With the Watch gone, someone tried the postern near midnight with a file. It held. It has been nailed shut since the stableboy’s day in the stocks.',
+  },
+  // t-035: “Never cheaply” is the oath the last emperor broke. Sworn with
+  // people already on the lethal canyon road, the Watch holds you to it.
+  {
+    id: 'd10-oath-tested',
+    title: '“Never cheaply”',
+    day: 11,
+    when: { flags: ['oath-of-care', 'quest:q-d09-iron-convoy:failure'] },
+    warning:
+      'The Watch holds you to “never cheaply”. If the canyon convoy is lost, the oath is spent.',
+    line: 'The canyon took the convoy the dawn after you swore “never cheaply”. Dunmark read out in the yard who came home hurt and who did not come home. Then he told the Watch the oath was spent, and walked off the balcony.',
+    effects: {
+      local: { 'gate-watch': -4 },
+      clearFlags: ['oath-of-care'],
+      flags: ['d10-oath-of-care-broken'],
+    },
+  },
+  // t-035: a promise to Thistledown is a vow the Freeholds keep for you.
+  {
+    id: 'd10-promise',
+    title: 'Your word to Thistledown',
+    day: 11,
+    when: {
+      flags: ['d10-thistledown-promised', 'quest:q-d10-freehold-raid:expired'],
+    },
+    warning:
+      'You promised Thistledown every hand. If nobody signs for it, the Freeholds remember the promise.',
+    line: 'The Freeholds tell it at every well on the Ford: the crown promised every hand and sent none.',
+    effects: { affinity: { freeholds: -10 }, flags: ['d10-promise-broken'] },
+  },
+  // t-035: the Day 7 storm arrives on the day the crows said. With the hour,
+  // the Freeholds cut in time; without it, half the harvest is in the dust
+  // and Thistledown's granary is the last food on the Ford.
+  {
+    id: 'd07-storm',
+    title: 'The dust storm',
+    day: 10,
+    when: { flags: ['crow-forecast-day10'] },
+    warning:
+      'The storm crosses the Eastern Ford at the Day 10 dawn. The Freeholds have the hour.',
+    line: 'The storm crossed the Eastern Ford at the hour the crows gave. The Freeholds cut through the night before it. The harvest is in.',
+    effects: { affinity: { freeholds: 5 }, flags: ['d10-harvest-in'] },
+    lapsed: {
+      line: 'The storm crossed the Eastern Ford at dawn. Nobody knew the hour. Half the Freehold harvest is under the dust, and what is left sits in Thistledown’s granary.',
+      effects: { affinity: { freeholds: -5 }, flags: ['d10-harvest-lost'] },
+    },
+  },
   {
     id: 'ledger-loan',
     title: 'The Ledger’s loan',

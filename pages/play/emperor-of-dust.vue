@@ -252,7 +252,8 @@
     </div>
 
     <EmperorFortressIntro
-      v-if="!splashing && court.loaded && court.introOpen"
+      v-if="court.loaded && court.introOpen"
+      :active="!splashing"
       @done="court.closeIntro()"
     />
     <EmperorFortressSplash

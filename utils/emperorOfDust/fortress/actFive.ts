@@ -2,6 +2,9 @@ import type {
   AudienceDef,
   AudienceOption,
   DayDef,
+  DueDef,
+  Effects,
+  FlagAid,
   KingdomFactionId,
   QuestDef,
   SceneLine,
@@ -16,6 +19,60 @@ import { MOLE_ASSEMBLY_TURNS_OUT } from './moles'
 // result. Endings never name who later destroys Hollow Bell (Book One).
 
 const VELLUM = { name: 'Keeper Vellum', npc: 'abelard-vellum' }
+
+/**
+ * What Act V's alliances and preparations bring to the Day 50 roads (t-040).
+ * Every source the run holds is added to the party's totals and named in the
+ * quest room's odds; a bonus with a `stat` only counts where the road needs
+ * that stat. Ten days of choices, counted honestly.
+ */
+export const FINALE_AID: FlagAid[] = [
+  {
+    flags: ['verge-allied'],
+    label: 'The Black Verge rides at your flank',
+    bonus: 3,
+    stat: 'might',
+  },
+  {
+    flags: ['watch-returned'],
+    label: 'The Watch came down off the ridge',
+    bonus: 2,
+    stat: 'might',
+  },
+  {
+    flags: ['watch-inside-tower'],
+    label: 'The Watch holds a door from inside',
+    bonus: 2,
+  },
+  {
+    flags: ['reedlight-lantern'],
+    label: 'Reedlight’s lantern, which does not speak back',
+    bonus: 3,
+    stat: 'heart',
+  },
+  {
+    flags: ['d50-moles-dig'],
+    label: 'The burrows dig under the wall',
+    bonus: 2,
+  },
+  {
+    anyFlags: ['abbey-road-watched', 'crow-sightings'],
+    label: 'The Crows counted every lantern on the Abbey road',
+    bonus: 1,
+  },
+  {
+    flags: ['d42-courier-sent'],
+    label: 'The courier’s soot map of the kitchens',
+    bonus: 2,
+    stat: 'lore',
+  },
+  {
+    flags: ['d44-powder-to-crypt'],
+    label: 'A keg of powder for the brick tunnel',
+    bonus: 2,
+    stat: 'might',
+  },
+]
 
 export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
   {
@@ -368,10 +425,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     id: 'q-d48-bell-clapper',
     title: 'The Bell’s Lost Clapper',
     summary:
-      'The Silent Bell has no clapper. Someone took it long ago to stop it ringing. The Archive thinks it knows where. Bring it home.',
+      'The Silent Bell has no clapper. Someone took it long ago to stop it ringing. The Archive thinks it knows where. Bring it home before the last fire.',
     region: 'mirefen',
     faction: 'mire-mothers',
-    durationDays: 2,
+    // One day, so the clapper is home for the Day 49 vote (t-040).
+    durationDays: 1,
     boardDays: 2,
     party: { min: 2, max: 4 },
     requirements: [
@@ -425,6 +483,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     danger: 'high',
     lethal: true,
     tags: ['defense', 'urgent'],
+    aid: FINALE_AID,
     rewards: {
       triumph: { flags: ['horror-sealed', 'abbess-unmasked'] },
       success: { flags: ['horror-sealed'] },
@@ -461,6 +520,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     danger: 'high',
     lethal: true,
     tags: ['tunnels'],
+    aid: FINALE_AID,
     rewards: {
       triumph: { flags: ['horror-sealed', 'abbess-unmasked'] },
       success: { flags: ['horror-sealed'] },
@@ -492,6 +552,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     ],
     danger: 'high',
     tags: ['defense'],
+    aid: FINALE_AID,
     rewards: {
       triumph: { flags: ['horror-sealed', 'bell-rung'] },
       success: { flags: ['horror-sealed', 'bell-rung'] },
@@ -525,12 +586,80 @@ type HostTerms = {
   /** Accept and bargain again, reworded once the truth is out. */
   acceptAgain: { label: string; response: string }
   bargainAgain: { label: string; response: string }
+  /**
+   * What the reworded bargain buys beyond the host's silence (t-040), merged
+   * into `bargainAgain` so it does what its label says.
+   * @example bargainEffects: { affinity: { abbey: -5 }, flags: ['d42-abbey-wagons-dropped'] }
+   */
+  bargainEffects?: Effects
+  /** Brass for either bargain; HOST_BARGAIN when omitted. */
+  bargainCost?: number
+  /** The Day 46 dawn lines when the host comes to collect (HOST_COLLECT). */
+  collect?: { paid: string; unpaid: string; kept: string }
   /** Paths that only exist once the emperor has asked. */
   paths: AudienceOption[]
 }
 
+/** Brass the host takes instead of hands. */
+export const HOST_BARGAIN = 30
+/** The dawn the host comes to collect from a court that took its terms. */
+export const HOST_COLLECT_DAY = 46
+/** What the host takes on that dawn if the promised work was never done. */
+export const HOST_DEMAND = 20
+
+const HOST_COLLECT = {
+  paid: 'Your host came to collect at dawn. The work the crown promised was never done. Twenty brass instead, counted twice.',
+  unpaid:
+    'Your host came to collect at dawn. The work was never done and the strongbox was empty. Nobody raised a voice. Breakfast was thinner.',
+  kept: 'Your host passed the court’s fire at dawn and nodded once. The crown kept its terms. Out here that is rarer than brass.',
+}
+
+const HOST_DUES: DueDef[] = []
+
+/**
+ * Accepting a host's terms is a promise of hands (t-040): if the host's
+ * quest has not come home a success by the Day 46 dawn, the host collects
+ * HOST_DEMAND brass, and an empty strongbox costs the host's goodwill. Work
+ * done is remembered. Paying in brass on Day 42 owes nothing later.
+ */
+const hostDue = (host: HostTerms): DueDef => {
+  const lines = host.collect ?? HOST_COLLECT
+  const goodwill = (amount: number): Effects =>
+    host.faction
+      ? {
+          affinity: { [host.faction]: amount } as Partial<
+            Record<KingdomFactionId, number>
+          >,
+        }
+      : { local: { yard: Math.sign(amount) * 2 } }
+  return {
+    id: `host-due:${host.hideout}`,
+    title: 'The host’s terms',
+    day: HOST_COLLECT_DAY,
+    when: {
+      notFlags: [
+        'host-terms-paid',
+        `quest:${host.questId}:success`,
+        `quest:${host.questId}:triumph`,
+      ],
+    },
+    cost: HOST_DEMAND,
+    warning: `Do the host’s work by Day ${HOST_COLLECT_DAY}, or the host collects ${HOST_DEMAND} brass.`,
+    line: lines.paid,
+    unpaid: {
+      line: lines.unpaid,
+      effects: { ...goodwill(-10), flags: ['host-demand-unpaid'] },
+    },
+    lapsed: {
+      line: lines.kept,
+      effects: { ...goodwill(5), flags: ['host-terms-kept'] },
+    },
+  }
+}
+
 /** Day 42's host terms, one audience per hideout (flag `hideout:<id>`). */
 const hostTerms = (host: HostTerms): AudienceDef => {
+  HOST_DUES.push(hostDue(host))
   const accept = (label: string, response: string): AudienceOption => ({
     id: 'accept',
     label,
@@ -543,15 +672,23 @@ const hostTerms = (host: HostTerms): AudienceDef => {
           }
         : { local: { yard: 2 } }),
       flags: ['host-terms-accepted'],
+      schedule: [`host-due:${host.hideout}`],
     },
     response,
     postsQuests: [host.questId],
   })
-  const bargain = (label: string, response: string): AudienceOption => ({
+  const bargain = (
+    label: string,
+    response: string,
+    extra: Effects = {},
+  ): AudienceOption => ({
     id: 'bargain',
     label,
-    requires: { cost: 30 },
-    effects: { flags: ['host-terms-paid'] },
+    requires: { cost: host.bargainCost ?? HOST_BARGAIN },
+    effects: {
+      ...extra,
+      flags: ['host-terms-paid', ...(extra.flags ?? [])],
+    },
     response,
   })
   return {
@@ -582,7 +719,11 @@ const hostTerms = (host: HostTerms): AudienceDef => {
         lines: host.truth,
         options: [
           accept(host.acceptAgain.label, host.acceptAgain.response),
-          bargain(host.bargainAgain.label, host.bargainAgain.response),
+          bargain(
+            host.bargainAgain.label,
+            host.bargainAgain.response,
+            host.bargainEffects,
+          ),
           ...host.paths,
         ],
       },
@@ -1171,6 +1312,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     audiences: [
       hostTerms({
         hideout: 'mole-tunnels',
+        bargainEffects: { affinity: { moles: 5 } },
         speaker: 'Granny Umber of the Mole Revolutionaries',
         npc: 'granny-umber',
         faction: 'moles',
@@ -1242,6 +1384,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'crow-cave',
+        bargainEffects: { flags: ['d42-messenger-silenced'] },
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',
@@ -1444,6 +1587,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'moving-caravan',
+        bargainEffects: {
+          affinity: { abbey: -5 },
+          flags: ['d42-abbey-wagons-dropped'],
+        },
         speaker: 'Oriel Saltmarsh of the Saltroad',
         npc: 'oriel-saltmarsh',
         faction: 'saltroad',
@@ -1501,6 +1648,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'freehold-barn',
+        bargainEffects: { affinity: { freeholds: 5 } },
         speaker: 'Hester Plowright of the Border Freeholds',
         npc: 'hester-plowright',
         faction: 'freeholds',
@@ -2005,6 +2153,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         truth: true,
         variants: [
           {
+            flags: ['d40-komodo-held'],
+            text: 'Some of the Gate Watch rode out after Young Komodo when his cell was found empty.',
+          },
+          {
             flags: ['komodo-escorted'],
             text: 'Some of the Gate Watch rode out with Young Komodo on the last night. The crown sent them with him.',
           },
@@ -2041,6 +2193,45 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           vellumSays(
             '“They obeyed the seal, Majesty. In law, they obeyed you. Someone here will say they deserted. It won’t be quite true.”',
           ),
+        ],
+        // The last night's precautions, remembered (t-040).
+        variants: [
+          {
+            flags: ['d40-komodo-held'],
+            lines: [
+              'The rider under the white rag is Captain Dunmark. Coat torn. Gorget gone. His horse is lame in the off foreleg.',
+              'He kneels in the dirt unasked. He has never knelt. Not even on the day of the oath.',
+              '“The cell was empty at midnight, Majesty. Half my Watch rode after him. Holloway said she knew his road. She did. The Abbey. The sisters had supper waiting, and cots. In the morning I counted us. We were fewer.”',
+              '“I came back. Some of them want to. Twenty-two wait on the ridge for your answer. They’ll see it from there, whatever it is.”',
+              vellumSays(
+                '“They rode after a prisoner, Majesty. They stayed for the soup. Someone here will say they deserted. It will be half true.”',
+              ),
+            ],
+          },
+          {
+            flags: ['d40-seals-checked'],
+            lines: [
+              'The rider under the white rag is Captain Dunmark. Coat torn. Gorget gone. His horse is lame in the off foreleg.',
+              'He kneels in the dirt unasked. He has never knelt. Not even on the day of the oath.',
+              '“Half my Watch rode out behind the soup cart, Majesty. The pass was one you read. The cart was empty. I rode along to see where it led. The Abbey. Supper, cots, good blankets. In the morning I counted us. We were fewer.”',
+              '“I came back. Some of them want to. Twenty-two wait on the ridge for your answer. They’ll see it from there, whatever it is.”',
+              vellumSays(
+                '“They escorted a cart you passed, Majesty. In law, they obeyed you. Someone here will say they deserted. It won’t be quite true.”',
+              ),
+            ],
+          },
+          {
+            flags: ['d40-watch-recalled'],
+            lines: [
+              'The rider under the white rag is Captain Dunmark. Coat torn. Gorget gone. His horse is lame in the off foreleg.',
+              'He kneels in the dirt unasked. He has never knelt. Not even on the day of the oath.',
+              '“You tore the order, Majesty. We stood the walls. At midnight Holloway lifted the bar from inside and rode out in front, and half my Watch went after her to fetch her back. I went after them. The Abbey. Supper, cots. In the morning I counted us. We were fewer.”',
+              '“I came back. Some of them want to. Twenty-two wait on the ridge for your answer. They’ll see it from there, whatever it is.”',
+              vellumSays(
+                '“No seal sent them, Majesty. They went after one of their own. Someone here will say they deserted. This time it will be nearer true.”',
+              ),
+            ],
+          },
         ],
         options: [
           {
@@ -3876,7 +4067,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             id: 'bell',
             label: 'Carry the clapper up the Abbey tower. Ring the bell.',
             requires: { flags: ['clapper-recovered'] },
-            effects: {},
+            effects: { affinity: { 'hollow-bell': 5 } },
             response:
               'The clapper hums in its cloth when you lift it. It is heavy. It is almost singing.',
             postsQuests: ['q-d50-ring-the-bell'],
@@ -3922,7 +4113,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 id: 'bell',
                 label: 'Carry the clapper up the Abbey tower. Ring the bell.',
                 requires: { flags: ['clapper-recovered'] },
-                effects: {},
+                effects: { affinity: { 'hollow-bell': 5 } },
                 response:
                   'The clapper hums in its cloth when you lift it. Heavy. Almost singing. Nobody asks who will be at the top of the stair. Everybody thinks it.',
                 postsQuests: ['q-d50-ring-the-bell'],
@@ -4086,3 +4277,6 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     ],
   },
 ]
+
+/** Act V's obligations (t-040): each host collects what its terms promised. */
+export const ACT_FIVE_DUES: readonly DueDef[] = HOST_DUES

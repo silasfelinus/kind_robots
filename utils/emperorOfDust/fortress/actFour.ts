@@ -1265,6 +1265,13 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         source: 'Elder Corvane’s herald',
         text: 'The rain covenant falls due at noon today.',
         truth: true,
+        variants: [
+          {
+            notFlags: ['crow-debt-called'],
+            source: 'The gate sergeant',
+            text: 'Elder Corvane’s herald passed the gate at dawn and did not stop. The crown owes the Conclave nothing today.',
+          },
+        ],
       },
       {
         id: 'covenant-forgiven',
@@ -1275,6 +1282,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'Crows forgive nothing, Your Majesty. I admire that most about them. Whatever was promised for the rain, they have come to collect.',
+    komodoVariants: [
+      {
+        notFlags: ['crow-debt-called'],
+        text: 'The Crows are on every sill and want nothing, Your Majesty. They want us to watch them want nothing. That is how they say a debt is closed.',
+      },
+    ],
     quests: [],
     audiences: [
       {
@@ -1283,6 +1296,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',
+        // Only a covenant still held, or broken, is owed (t-040).
+        requires: { flags: ['crow-debt-called'] },
         lines: [
           'Elder Corvane perches on the back of the empty petitioners’ bench and folds his wings like a shut umbrella. A crow sits on every windowsill. Every crow faces the throne.',
           '“The rain was lent, Majesty. The fields drank it. Now the rain is owed. We do not take back rain, so we take something else.”',

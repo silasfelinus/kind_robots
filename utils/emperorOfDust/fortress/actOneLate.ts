@@ -1,4 +1,4 @@
-import type { DayDef, QuestDef } from './types'
+import type { DayDef, DueDef, QuestDef } from './types'
 
 // Act I, Days 5-10 (conductor DAY-PLAN.md): the toll comes due, the first
 // secret revealed, Komodo's first lie of his own, the Abbey's first offer,
@@ -1734,6 +1734,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               brass: 40,
               local: { ledger: 2 },
               flags: ['ledger-credit'],
+              schedule: ['ledger-loan'],
             },
             response: 'The factor writes the debt in a small, permanent hand.',
           },
@@ -1770,6 +1771,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   brass: 30,
                   local: { ledger: 1, yard: -1 },
                   flags: ['ledger-credit', 'd08-fees-pledged'],
+                  schedule: ['ledger-loan'],
                 },
                 response:
                   'Tallow sees her own charter offered back as collateral and smiles for the first time today. “You read it. Nobody reads it.” By evening the stall fees belong to the Ledger.',
@@ -1781,6 +1783,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   brass: 40,
                   local: { ledger: 2 },
                   flags: ['ledger-credit'],
+                  schedule: ['ledger-loan'],
                 },
                 response:
                   'Small, permanent hand. That evening the gate sergeant watches the first unsearched Ledger cart roll through. He makes a note of his own.',
@@ -2453,5 +2456,49 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         ],
       },
     ],
+  },
+]
+
+/**
+ * The Day 8 loan: "Forty now. Fifty at season's end." (t-040). The season
+ * ends with Act II. Unpaid, the Ledger takes it out of the market and comes
+ * back once more, for sixty.
+ */
+export const ACT_ONE_LATE_DUES: readonly DueDef[] = [
+  {
+    id: 'ledger-loan',
+    title: 'The Ledger’s loan',
+    day: 20,
+    cost: 50,
+    when: { flags: ['ledger-credit'] },
+    warning: 'Fifty brass to Factor Tallow at the Day 20 dawn.',
+    line: 'Factor Tallow came for the fifty at dawn. She counted it twice and wrote PAID in the same small, permanent hand.',
+    effects: { clearFlags: ['ledger-credit'], flags: ['ledger-loan-repaid'] },
+    unpaid: {
+      line: 'Factor Tallow came for the fifty at dawn. The strongbox held less. By noon her clerks stood at every stall, taking the crown’s share before the crown did.',
+      effects: {
+        local: { ledger: -4, yard: -1 },
+        flags: ['ledger-loan-defaulted'],
+        schedule: ['ledger-loan-late'],
+      },
+    },
+  },
+  {
+    id: 'ledger-loan-late',
+    title: 'The Ledger’s loan, overdue',
+    inDays: 5,
+    cost: 60,
+    when: { flags: ['ledger-credit'] },
+    warning: 'Sixty brass to the Ledger. The fifty went unpaid.',
+    line: 'The overdue loan came to sixty. The crown paid it. Tallow locked the green book and did not say thank you.',
+    effects: { clearFlags: ['ledger-credit'], flags: ['ledger-loan-repaid'] },
+    unpaid: {
+      line: 'Sixty brass, and the strongbox could not cover it twice. The Ledger wrote the crown off as a bad debt. Out loud. In the market.',
+      effects: {
+        local: { ledger: -6 },
+        clearFlags: ['ledger-credit'],
+        flags: ['ledger-loan-written-off'],
+      },
+    },
   },
 ]

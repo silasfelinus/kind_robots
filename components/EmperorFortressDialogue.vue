@@ -141,6 +141,19 @@
           <span v-if="choice.note" class="block text-xs text-warning">{{
             choice.note
           }}</span>
+          <span
+            v-if="choice.stakes?.length"
+            class="mt-1 flex flex-wrap gap-1"
+            aria-label="What this answer touches"
+          >
+            <span
+              v-for="(stake, i) in choice.stakes"
+              :key="i"
+              class="rounded-full border px-1.5 py-px text-[10px] font-semibold leading-tight"
+              :class="STAKE_TONE[stake.tone]"
+              >{{ stake.text }}</span
+            >
+          </span>
           <span v-if="choice.blockers.length" class="block text-xs">
             {{ choice.blockers.join(' · ') }}
           </span>
@@ -158,6 +171,7 @@ import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import { lineText } from '~/utils/emperorOfDust/fortress/engine'
 import { followerDef } from '~/utils/emperorOfDust/fortress/followers'
 import type { SceneLine } from '~/utils/emperorOfDust/fortress/types'
+import type { Stake } from '~/utils/emperorOfDust/fortress/board'
 
 const props = defineProps<{
   speaker: string
@@ -167,8 +181,21 @@ const props = defineProps<{
   /** Illustrated image of the speaker, when one has been rendered. */
   art?: string
   lines: SceneLine[]
-  choices: { id: string; label: string; note?: string; blockers: string[] }[]
+  choices: {
+    id: string
+    label: string
+    note?: string
+    blockers: string[]
+    stakes?: Stake[]
+  }[]
 }>()
+
+const STAKE_TONE: Record<Stake['tone'], string> = {
+  gain: 'border-success/50 text-success',
+  loss: 'border-error/50 text-error',
+  neutral: 'border-base-content/25 opacity-80',
+  warning: 'border-warning/60 text-warning',
+}
 const emit = defineEmits<{ choose: [id: string] }>()
 
 const court = useEmperorFortressStore()

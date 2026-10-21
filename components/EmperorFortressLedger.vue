@@ -18,6 +18,40 @@
       </p>
     </div>
     <div
+      v-if="dues.length || laws.length || candles"
+      class="eod-chip p-2 text-xs @xl:col-span-2 @5xl:col-span-3 @7xl:col-span-6"
+    >
+      <p class="eod-display text-sm text-warning">Owed and in force</p>
+      <ul class="mt-1 grid gap-1 @3xl:grid-cols-2">
+        <li v-for="law in laws" :key="law.id" class="leading-snug">
+          <strong>{{ law.title }}</strong>
+          <span class="font-semibold">
+            · taxes {{ law.taxes > 0 ? '+' : '−' }}{{ Math.abs(law.taxes) }} a
+            day</span
+          >
+          <span class="block opacity-75">{{ law.text }}</span>
+        </li>
+        <li
+          v-for="due in dues"
+          :key="due.def.id"
+          class="leading-snug"
+          :class="due.daysLeft <= 1 ? 'text-error' : ''"
+        >
+          <strong>Day {{ due.day }} · {{ due.def.title }}</strong>
+          <span v-if="due.def.cost" class="font-semibold">
+            · {{ due.def.cost }} brass</span
+          >
+          <span v-if="due.def.warning" class="block opacity-75">{{
+            due.def.warning
+          }}</span>
+        </li>
+        <li v-if="candles" class="leading-snug text-error">
+          <strong>{{ candles.source }}</strong>
+          <span class="block">{{ candles.text }}</span>
+        </li>
+      </ul>
+    </div>
+    <div
       v-for="faction in LOCAL_FACTION_DEFS"
       :key="faction.id"
       class="eod-chip p-2 text-xs"
@@ -52,6 +86,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import {
   LOCAL_FACTION_DEFS,
   LOCAL_MAX,
@@ -61,11 +96,17 @@ import {
   dailyIncome,
   dailyWages,
   factionName,
+  pendingDues,
 } from '~/utils/emperorOfDust/fortress/engine'
+import { lawsInForce } from '~/utils/emperorOfDust/fortress/laws'
+import { candlesLine } from '~/utils/emperorOfDust/fortress/endings'
 import { hostShareLine } from '~/utils/emperorOfDust/fortress/betrayal'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 // The court ledger the header toggle opens: the day, the treasury and every
 // fortress faction spelled out, so the header icons have touch-sized answers.
-defineProps<{ run: FortressRun; dayLine: string }>()
+const props = defineProps<{ run: FortressRun; dayLine: string }>()
+const dues = computed(() => pendingDues(props.run))
+const laws = computed(() => lawsInForce(props.run))
+const candles = computed(() => candlesLine(props.run))
 </script>

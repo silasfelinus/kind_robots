@@ -106,11 +106,11 @@
                 {{ buyerDef.name }} holds the tower
               </h2>
               <p class="font-serif text-base italic leading-relaxed sm:text-lg">
-                {{ buyerDef.fell }}
+                {{ fell }}
               </p>
               <p class="eod-chip p-2 text-xs">
                 <strong class="text-warning">Why:</strong>
-                {{ buyerDef.why }}
+                {{ betrayal.why ?? buyerDef.why }}
               </p>
               <p class="text-sm">
                 The court hides in
@@ -184,7 +184,13 @@
               {{ title(current.questId) }}
             </h2>
             <p class="font-serif text-base italic leading-relaxed sm:text-lg">
-              {{ outcome(current.questId, current.tier) }}
+              {{ current.text ?? outcome(current.questId, current.tier) }}
+            </p>
+            <p
+              v-if="current.aided"
+              class="text-xs font-semibold uppercase tracking-wider text-success"
+            >
+              Settled without a party, by the court’s word
             </p>
             <ul v-if="current.party.length" class="flex flex-wrap gap-2">
               <li
@@ -401,6 +407,8 @@ const betrayalArt = computed(() =>
 /** The betrayal page (t-028): who took the tower and who went with Komodo. */
 const betrayal = computed(() => props.report.betrayal)
 const buyerDef = computed(() => BUYERS[betrayal.value?.buyer ?? 'abbey'])
+/** The fall as this run read it; older reports fall back to the buyer's line. */
+const fell = computed(() => betrayal.value?.fell ?? buyerDef.value.fell)
 const gone = computed(() =>
   (betrayal.value?.departed ?? []).map(({ followerId, why }) => ({
     followerId,
@@ -414,7 +422,7 @@ const goneArt = (id: string) =>
 const ledgerEvents = computed(() => {
   if (!betrayal.value) return props.report.events
   const told = new Set([
-    buyerDef.value.fell,
+    fell.value,
     ...gone.value.map(
       ({ followerId }) => `${nameOf(followerId)} went with Young Komodo.`,
     ),

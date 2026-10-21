@@ -1,4 +1,4 @@
-import type { DayDef, QuestDef } from './types'
+import type { DayDef, DueDef, QuestDef } from './types'
 
 // Act II, Days 11-20, "Rain Debt" (conductor DAY-PLAN.md): the Crow
 // covenant and what it costs, the Mirefen, Saffron's old crew, the Rustline,
@@ -486,6 +486,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: 2 },
               strength: { 'storm-crows': 1 },
               flags: ['rain-covenant'],
+              schedule: ['rain-covenant'],
             },
             response:
               'Corvane signs with an inked claw. A cloud shows over the Heights before he finishes. At the back, a reeve sits down on the floor.',
@@ -551,6 +552,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { yard: 2 },
                   strength: { 'storm-crows': 1 },
                   flags: ['rain-covenant'],
+                  schedule: ['rain-covenant'],
                 },
                 response:
                   'You sign with your eyes open. Corvane enjoys that. A cloud shows over the Heights before the ink dries. At the back of the hall the reeves weep without a sound.',
@@ -598,6 +600,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { 'storm-crows': 5, freeholds: 5 },
                   local: { yard: 2, 'old-houses': -2 },
                   flags: ['rain-covenant', 'd11-no-runners-clause'],
+                  schedule: ['rain-covenant'],
                 },
                 response:
                   'Corvane reads the margin and initials it himself. Worse than an argument. “No persons. The Conclave is flexible about the coin. Never about the sum.” In the gallery the Old Houses, who own most of the high pastures, begin to whisper.',
@@ -2814,6 +2817,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               strength: { 'storm-crows': -1 },
               clearFlags: ['rain-covenant'],
               flags: ['covenant-broken'],
+              schedule: ['crow-debt'],
             },
             response:
               'Corvane goes still. Outside, the soft rain stops all at once. The sky turns the colour of a bruise.',
@@ -2870,6 +2874,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   strength: { 'storm-crows': -1 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-broken'],
+                  schedule: ['crow-debt'],
                 },
                 response:
                   'Corvane goes still. Outside, the soft rain stops all at once. The sky turns the colour of a bruise.',
@@ -2954,6 +2959,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   strength: { 'storm-crows': -1 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-broken'],
+                  schedule: ['crow-debt'],
                 },
                 response:
                   'Corvane goes still. Outside, the soft rain stops all at once. The sky over the high pastures turns the colour of a bruise.',
@@ -2975,5 +2981,41 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         ],
       },
     ],
+  },
+]
+
+/**
+ * The rain covenant (t-040). Signing it books the Day 20 reckoning. Day 34
+ * bills only a covenant still held, broken, or paid in runners for a season;
+ * one bought out with brass, settled in pastures or served on a fixed term
+ * owes nothing more. A run that never signed is never billed.
+ */
+export const ACT_TWO_DUES: readonly DueDef[] = [
+  {
+    id: 'rain-covenant',
+    title: 'The rain covenant',
+    day: 20,
+    when: { flags: ['rain-covenant'] },
+    warning: 'Elder Corvane names the covenant’s price at court on Day 20.',
+    line: 'Three days of soft rain over the Ford. Elder Corvane is on the carpet road with the covenant under his wing.',
+    effects: { schedule: ['crow-debt'] },
+  },
+  {
+    id: 'crow-debt',
+    title: 'The Conclave collects',
+    day: 34,
+    // Runners serve a season, and a season ends; brass, pastures or a
+    // fixed term close the covenant for good.
+    when: {
+      anyFlags: [
+        'rain-covenant',
+        'covenant-broken',
+        'covenant-paid-in-runners',
+      ],
+      notFlags: ['d20-runners-term-fixed'],
+    },
+    warning: 'The Storm Crows come on Day 34 for what the rain still costs.',
+    line: 'Every Storm Crow roost on the Heights emptied toward the tower in the night. The Conclave has come to collect.',
+    effects: { flags: ['crow-debt-called'] },
   },
 ]

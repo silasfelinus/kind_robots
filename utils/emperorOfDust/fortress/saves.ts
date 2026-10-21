@@ -1,5 +1,5 @@
 import { followerDef, itemDef } from './followers'
-import { LAST_DAY, questDef } from './content'
+import { LAST_DAY, dueDef, questDef } from './content'
 import { rerollDawn, validMapState } from './engine'
 import { BUYER_IDS } from './betrayal'
 import { isCodexId } from './codex'
@@ -58,13 +58,58 @@ const factionList = (value: unknown): boolean =>
   new Set(value).size === value.length
 
 const DEPARTURE_WHYS: readonly unknown[] = ['allegiance', 'neglect']
+const LEAVING_WHYS: readonly unknown[] = [...DEPARTURE_WHYS, 'dismissed']
 
-/** Left with Komodo (t-028): optional, so saves from before it still load. */
+/** Left with Komodo (t-028) or sent away (t-040): optional for older saves. */
 const validDeparted = (value: unknown): boolean =>
   value === undefined ||
   (object(value) &&
     int(value.day, 1, LAST_DAY + 1) &&
-    DEPARTURE_WHYS.includes(value.why))
+    LEAVING_WHYS.includes(value.why) &&
+    (value.reason === undefined || text(value.reason, 600)))
+
+const TIERS: readonly unknown[] = ['triumph', 'success', 'partial', 'failure']
+
+/** Help promised to quests (t-040): known quests, bounded text. */
+const validAid = (value: unknown): boolean =>
+  object(value) &&
+  Object.keys(value).length <= 60 &&
+  Object.entries(value).every(
+    ([questId, list]) =>
+      !!questDef(questId) &&
+      Array.isArray(list) &&
+      list.length <= 10 &&
+      list.every(
+        (aid: unknown) =>
+          object(aid) &&
+          aid.questId === questId &&
+          text(aid.label, 200) &&
+          (aid.bonus === undefined || int(aid.bonus, -50, 50)) &&
+          (aid.stat === undefined || text(aid.stat, 10)) &&
+          (aid.resolve === undefined || TIERS.includes(aid.resolve)) &&
+          (aid.outcome === undefined || text(aid.outcome, 600)),
+      ),
+  )
+
+/** Dues waiting for a later dawn (t-040): known ids, one of each. */
+const validDues = (value: unknown): boolean =>
+  Array.isArray(value) &&
+  value.length <= 60 &&
+  value.every(
+    (due: unknown) =>
+      object(due) &&
+      text(due.id, 80) &&
+      !!dueDef(due.id) &&
+      int(due.day, 1, LAST_DAY + 1) &&
+      int(due.from, 1, LAST_DAY + 1),
+  ) &&
+  new Set(value.map((due: { id: string }) => due.id)).size === value.length
+
+/** A dawn's log lines: longer than labels, still bounded. */
+const validEvents = (value: unknown): boolean =>
+  Array.isArray(value) &&
+  value.length <= 200 &&
+  value.every((line) => text(line, 600))
 
 /** The Day 41 dawn's record of the betrayal (t-028), when present. */
 const validBetrayal = (value: unknown): boolean =>
@@ -80,7 +125,9 @@ const validBetrayal = (value: unknown): boolean =>
         text(entry.followerId, 10) &&
         !!followerDef(entry.followerId) &&
         DEPARTURE_WHYS.includes(entry.why),
-    ))
+    ) &&
+    (value.fell === undefined || text(value.fell, 800)) &&
+    (value.why === undefined || text(value.why, 800)))
 
 /** Market state (t-024): optional, so saves from before the market still load. */
 const validMarket = (value: unknown): boolean =>
@@ -129,6 +176,8 @@ export const validateRun = (value: unknown): value is FortressRun => {
         !text(run.talkOpen.id, 80) ||
         (run.talkOpen.beat !== undefined && !text(run.talkOpen.beat, 80)))) ||
     (run.market !== undefined && !validMarket(run.market)) ||
+    (run.aid !== undefined && !validAid(run.aid)) ||
+    (run.dues !== undefined && !validDues(run.dues)) ||
     !validMapState(run)
   )
     return false
@@ -221,7 +270,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
         int(report.taxes, 0, 10_000) &&
         int(report.wages, 0, 10_000) &&
         typeof report.loanTaken === 'boolean' &&
-        textList(report.events, 200) &&
+        validEvents(report.events) &&
         (report.income === undefined || report.income === 'host') &&
         validBetrayal(report.betrayal),
     ) &&

@@ -43,6 +43,89 @@ export type Band = (typeof BANDS)[number]
 export type Danger = 'none' | 'low' | 'mid' | 'high'
 export type QuestResultTier = 'triumph' | 'success' | 'partial' | 'failure'
 
+/**
+ * A story-flag gate (t-040), shared by every flag-keyed variant, aid and due:
+ * all of `flags`, none of `notFlags`, and at least one of `anyFlags`.
+ */
+export type FlagGate = {
+  flags?: string[]
+  notFlags?: string[]
+  anyFlags?: string[]
+}
+
+export const gateHolds = (
+  flags: readonly string[],
+  gate: FlagGate | undefined,
+): boolean =>
+  !gate ||
+  ((gate.flags ?? []).every((flag) => flags.includes(flag)) &&
+    !(gate.notFlags ?? []).some((flag) => flags.includes(flag)) &&
+    (!gate.anyFlags?.length ||
+      gate.anyFlags.some((flag) => flags.includes(flag))))
+
+/** The first variant whose gate holds for these flags. */
+export const pickVariant = <T extends FlagGate>(
+  flags: readonly string[],
+  variants: readonly T[] | undefined,
+): T | undefined => variants?.find((variant) => gateHolds(flags, variant))
+
+/**
+ * A fixed line as a run holding certain flags reads it (t-040): quest
+ * outcomes, the advisor's morning line, the whisper, the betrayal page.
+ * The first match wins; mechanics never change with the words.
+ *
+ * @example
+ * outcomeVariants: {
+ *   expired: [{ flags: ['d10-thistledown-promised'],
+ *     text: 'The rider waited by the board until dark. Nobody signed.' }],
+ * }
+ */
+export type TextVariant = FlagGate & { text: string }
+
+export const variantText = (
+  flags: readonly string[],
+  text: string,
+  variants: readonly TextVariant[] | undefined,
+): string => pickVariant(flags, variants)?.text ?? text
+
+/**
+ * Help for one quest (t-040). `bonus` is added to the party's total on every
+ * requirement, or only on `stat`; the board preview counts it, so the odds
+ * stay honest.
+ */
+export type AidBonus = {
+  /** Who is helping, as the board and the preview name them. */
+  label: string
+  bonus?: number
+  stat?: Stat
+}
+
+/**
+ * An answer that helps a quest already on the board, or one posted later
+ * (`effects.questAid`). With `resolve`, a quest nobody is sent on settles at
+ * that tier when it leaves the board instead of expiring, with `outcome` as
+ * its dawn line; a party can still go and roll, aid included.
+ *
+ * @example
+ * questAid: [{ questId: 'q-d31-iron-rain', label: 'The Watch holds the near bank',
+ *   bonus: 2, resolve: 'partial',
+ *   outcome: 'Dunmark held the near bank with the Watch and no plan. They came home in carts.' }]
+ */
+export type QuestAid = AidBonus & {
+  questId: string
+  resolve?: QuestResultTier
+  outcome?: string
+}
+
+/**
+ * Standing help a quest reads from the run's flags at the moment of the roll
+ * (`QuestDef.aid`): Day 50's alliances. Shown per source in the preview.
+ *
+ * @example
+ * aid: [{ flags: ['watch-returned'], label: 'The Watch came home', bonus: 2, stat: 'might' }]
+ */
+export type FlagAid = FlagGate & AidBonus & { bonus: number }
+
 /** Changes applied by a choice, a quest result or an expiry. */
 export type Effects = {
   brass?: number
@@ -56,7 +139,80 @@ export type Effects = {
   /** Follower ids offered for later recruitment (still need a bed and the fee). */
   recruitable?: string[]
   items?: string[]
+  /**
+   * Help for a quest on (or soon on) the board (t-040).
+   * @example questAid: [{ questId: 'q-d10-freehold-raid', label: 'The Watch rode out', bonus: 3 }]
+   */
+  questAid?: QuestAid[]
+  /**
+   * Obligations that come due on a later dawn, by id in `DUES` (t-040):
+   * debts, fees that rise, threats that return. Scheduling one already
+   * pending does nothing.
+   * @example schedule: ['ledger-loan']
+   */
+  schedule?: string[]
+  /**
+   * Pending obligations settled or called off before they come due.
+   * @example cancelDues: ['vane-bolt']
+   */
+  cancelDues?: string[]
+  /**
+   * Followers who leave the court alive, by their own choice or the crown's
+   * (t-040). `reason` is the line the barracks keeps. An answer that would
+   * leave fewer than MIN_LEFT followers, or send someone who is away, is
+   * locked rather than half-applied.
+   * @example dismiss: [{ follower: 'F003', reason: 'Kiyo went home to her boy.' }]
+   */
+  dismiss?: { follower: string; reason: string }[]
+  /**
+   * Act V: the court leaves its host for another hideout (`HIDEOUT_NAMES`);
+   * the `hideout:<id>` flag moves with it.
+   * @example relocate: 'nameless-cave'
+   */
+  relocate?: string
 }
+
+/**
+ * A debt, fee or threat that comes due on a later dawn (t-040, `DUES`).
+ * Scheduled by `effects.schedule`; settled at that dawn after taxes and
+ * wages. With a `cost`, the treasury pays if it can (`line`, `effects`), or
+ * `unpaid` applies. If `when` fails on the day, `lapsed` applies instead.
+ * With `every`, it comes due again that many days later while `when` holds
+ * (a standing law). Never rolled: same run, same result.
+ *
+ * @example
+ * { id: 'ledger-loan', title: 'The Ledger’s loan', day: 20, cost: 50,
+ *   warning: 'Fifty brass to the Ledger at the Day 20 dawn.',
+ *   line: 'Factor Tallow came for the fifty at dawn.',
+ *   effects: { clearFlags: ['ledger-credit'], flags: ['ledger-loan-repaid'] },
+ *   unpaid: { line: 'The strongbox could not cover it.', effects: { local: { ledger: -5 } } } }
+ */
+export type DueDef = {
+  id: string
+  /** The court ledger's name for it. */
+  title: string
+  /** The dawn it comes due, or days after the day it was scheduled. */
+  day?: number
+  inDays?: number
+  /** Comes due again this many days later while `when` holds. */
+  every?: number
+  /** The last dawn a recurring due can fire. */
+  until?: number
+  when?: FlagGate
+  cost?: number
+  effects?: Effects
+  /** The dawn line when it is paid or applied. */
+  line: string
+  unpaid?: { effects?: Effects; line: string }
+  lapsed?: { effects?: Effects; line?: string }
+  /** What the ledger and the throne say is coming. */
+  warning?: string
+  /** A consequence the court does not see coming: kept off the ledger and the throne. */
+  hidden?: boolean
+}
+
+/** A due waiting in the run: which, on what dawn, and the day it was set. */
+export type PendingDue = { id: string; day: number; from: number }
 
 /** Gate on an audience option, quest posting or recruitment. */
 export type Requirement = {
@@ -198,6 +354,10 @@ export type QuestDef = {
   expired: Effects
   /** Text shown in the dawn report, by result. */
   outcomes: Partial<Record<QuestResultTier | 'expired', string>>
+  /** Outcome lines keyed on the run's flags at that dawn (t-040). */
+  outcomeVariants?: Partial<Record<QuestResultTier | 'expired', TextVariant[]>>
+  /** Standing help read from flags when the quest rolls (t-040). */
+  aid?: FlagAid[]
 }
 
 /**
@@ -238,11 +398,7 @@ export type AudienceBeat = {
  * story flags, such as who bought the tower. The first match replaces the
  * lines; answers and their effects never change.
  */
-export type SceneVariant = {
-  flags?: string[]
-  notFlags?: string[]
-  lines: SceneLine[]
-}
+export type SceneVariant = FlagGate & { lines: SceneLine[] }
 
 export type AudienceDef = {
   id: string
@@ -283,12 +439,7 @@ export type TalkDef = {
  * first matching variant replaces the source and text; truth never changes, so
  * the day keeps exactly one lie and the Eye still finds it.
  */
-export type BriefingVariant = {
-  flags?: string[]
-  notFlags?: string[]
-  source?: string
-  text?: string
-}
+export type BriefingVariant = FlagGate & { source?: string; text?: string }
 
 export type Briefing = {
   id: string
@@ -310,8 +461,10 @@ export type DayDef = {
   advisor?: { name: string; npc: string }
   /** The advisor's own line on the day's reports. */
   komodo: string
+  /** The advisor's line as runs holding certain flags hear it (t-040). */
+  komodoVariants?: TextVariant[]
   /** Something overheard at court that morning, shown under the reports. */
-  whisper?: { source: string; text: string }
+  whisper?: { source: string; text: string; variants?: BriefingVariant[] }
   audiences: AudienceDef[]
   /** Quests posted at dawn regardless of audiences. */
   quests: string[]
@@ -323,8 +476,11 @@ export type FollowerState = {
   injuredUntilDay?: number
   dead?: boolean
   deathDay?: number
-  /** Left with Young Komodo at the betrayal (t-028): alive, gone, not at court. */
-  departed?: { day: number; why: DepartureWhy }
+  /**
+   * Gone from court alive: with Young Komodo at the betrayal (t-028), or
+   * sent away or leaving by choice (t-040, `effects.dismiss`, with `reason`).
+   */
+  departed?: { day: number; why: DepartureWhy; reason?: string }
   equipment: Partial<Record<ItemSlot, string>>
 }
 
@@ -332,7 +488,7 @@ export type FollowerState = {
  * Why a follower left with Komodo: a hidden allegiance to his buyer, or forty
  * days in which nobody at court sat with them while their people were crossed.
  */
-export type DepartureWhy = 'allegiance' | 'neglect'
+export type DepartureWhy = 'allegiance' | 'neglect' | 'dismissed'
 
 /** Who Komodo sold the tower to. The Abbess is always his patron. */
 export type BuyerId = 'abbey' | 'black-verge' | 'old-houses'
@@ -359,6 +515,10 @@ export type QuestReport = {
   deaths: string[]
   revealedTraits: string[]
   effects: Effects
+  /** The dawn line as this run read it (variants and aid applied, t-040). */
+  text?: string
+  /** Settled without a party by an answer's `questAid` (t-040). */
+  aided?: boolean
 }
 
 /**
@@ -405,6 +565,9 @@ export type DawnReport = {
     buyer: BuyerId
     hideout: string
     departed: { followerId: string; why: DepartureWhy }[]
+    /** How the tower fell and why, as this run read them (t-040). */
+    fell?: string
+    why?: string
   }
 }
 
@@ -456,6 +619,10 @@ export type FortressRun = {
    * followers treated today. Stale windows and days read as empty.
    */
   market?: { window: number; bought: string[]; day: number; treated: string[] }
+  /** Help promised to quests by answers, by quest id (t-040). */
+  aid?: Record<string, QuestAid[]>
+  /** Debts, fees and threats waiting for a later dawn (t-040). */
+  dues?: PendingDue[]
 }
 
 /** Persistent across runs: revealed traits and allegiances. */
@@ -471,9 +638,16 @@ export type OddsPreview = {
     stat: Stat
     band: Band
     hidden: boolean
+    /** The party's total, aid included. */
     total: number
     needed: number
+    /** How much of `total` is aid rather than the party (t-040). */
+    aid: number
   }[]
+  /** Every source of aid counted in these odds (t-040). */
+  aid: AidBonus[]
+  /** If nobody is sent, the tier an answer's aid settles it at (t-040). */
+  resolvesAs?: QuestResultTier
   durationDays: number
   /** Chance each follower is wounded if the quest fails. */
   injuryChance: number

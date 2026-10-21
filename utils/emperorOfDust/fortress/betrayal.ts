@@ -16,7 +16,7 @@
 import { affinityTier } from './factions'
 import { followerDef } from './followers'
 import { TALKS } from './talks'
-import { AFFINITY_TIERS } from './types'
+import { AFFINITY_TIERS, variantText } from './types'
 import type {
   AffinityTier,
   BuyerId,
@@ -26,6 +26,7 @@ import type {
   FortressRun,
   KingdomFactionId,
   LocalFactionId,
+  TextVariant,
   TraitDef,
 } from './types'
 
@@ -47,6 +48,47 @@ export type BuyerDef = {
   fell: string
   /** Why this buyer, in the run's own terms. */
   why: string
+  /** The whole fall, as runs holding certain flags read it (t-040). */
+  fellVariants?: TextVariant[]
+  whyVariants?: TextVariant[]
+}
+
+/** The sentence every buyer's fall opens with, unless the last night changed it. */
+export const FALL_OPENING =
+  'Young Komodo opened the gate at midnight with your seal.'
+
+/**
+ * The fall's first sentence as the last night's precautions left it (t-040):
+ * the first match replaces FALL_OPENING for every buyer. The tower still falls.
+ */
+export const FALL_OPENINGS: TextVariant[] = [
+  {
+    flags: ['d40-komodo-held'],
+    text: 'Young Komodo spent midnight in your cells. He left by the drain in the Mole boy’s old cell, and the postern was already open.',
+  },
+  {
+    flags: ['d40-seals-checked'],
+    text: 'Young Komodo opened the gate at midnight with an order you had read. The thirty-first in his stack: a pass for the Abbey’s soup cart. It said exactly what it said.',
+  },
+  {
+    flags: ['d40-watch-recalled'],
+    text: 'The Watch stood the walls at midnight, as you ordered. Young Komodo did not need the walls. Sergeant Holloway lifted the bar for him from inside.',
+  },
+]
+
+/** How the tower fell and why, as this run reads them. */
+export const fallText = (
+  run: FortressRun,
+  buyer: BuyerDef,
+): { fell: string; why: string } => {
+  const opening = variantText(run.flags, FALL_OPENING, FALL_OPENINGS)
+  const fell = buyer.fell.startsWith(FALL_OPENING)
+    ? opening + buyer.fell.slice(FALL_OPENING.length)
+    : buyer.fell
+  return {
+    fell: variantText(run.flags, fell, buyer.fellVariants),
+    why: variantText(run.flags, buyer.why, buyer.whyVariants),
+  }
 }
 
 export const BUYERS: Record<BuyerId, BuyerDef> = {
@@ -273,6 +315,8 @@ export const applyBetrayal = (
 ): {
   buyer: BuyerId
   departed: { followerId: string; why: DepartureWhy }[]
+  fell: string
+  why: string
 } => {
   const buyer = selectBuyer(run)
   run.flags.push(`buyer:${buyer}`)
@@ -286,12 +330,13 @@ export const applyBetrayal = (
     state.equipment = {}
     delete state.injuredUntilDay
   }
-  events.push(BUYERS[buyer].fell)
+  const { fell, why } = fallText(run, BUYERS[buyer])
+  events.push(fell)
   for (const { followerId } of departed)
     events.push(
       `${followerDef(followerId)?.name ?? followerId} went with Young Komodo.`,
     )
-  return { buyer, departed }
+  return { buyer, departed, fell, why }
 }
 
 // --- the stark lines ----------------------------------------------------------
@@ -334,6 +379,11 @@ export const departureReason = (
 ): string => {
   const def = followerDef(followerId)
   if (!def) return ''
+  if (why === 'dismissed')
+    return (
+      run.roster.find((entry) => entry.id === followerId)?.departed?.reason ??
+      ''
+    )
   const words = PRONOUNS[def.pronouns] ?? PRONOUNS['they/them']!
   const buyer = BUYERS[buyerOf(run) ?? 'abbey']
   if (why === 'allegiance') {
@@ -355,7 +405,10 @@ export const departedFollowers = (run: FortressRun) =>
             followerId: state.id,
             day: state.departed.day,
             why: state.departed.why,
-            line: DEPARTURE_LINES[state.id] ?? '',
+            line:
+              state.departed.why === 'dismissed'
+                ? ''
+                : (DEPARTURE_LINES[state.id] ?? ''),
             reason: departureReason(run, state.id, state.departed.why),
           },
         ]

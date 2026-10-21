@@ -5,6 +5,8 @@
 //
 //   npx tsx utils/scripts/verifyBrickBloomLadybots.test.ts
 import assert from 'node:assert/strict'
+import brickBloom from '../arcade/games/brickBloom'
+import { mulberry32 } from '../arcade/curve'
 import {
   LADYBOT_POP_SCORE,
   RING_CLEAR_SCORE,
@@ -66,5 +68,37 @@ assert.equal(
 )
 assert.equal(ringShields(ring), false, 'the crate is open')
 assert.equal(popDot(ring, dots[0]!, 3), 0, 'a popped dot scores nothing twice')
+
+// Wired into the cabinet: Vine Hall's Hanging Garden rings a crate and the ring shields it.
+type Crate = { col: number; row: number; hp: number; bolt: boolean }
+type Inner = {
+  tour: { house: number; wall: string } | null
+  ring: { dots: unknown[] } | null
+  ringBrick: Crate | null
+  bricks: Crate[]
+  startStage(stage: number): void
+  crack(b: Crate): void
+  update(input: unknown): void
+}
+const cab = brickBloom.create({
+  rng: mulberry32(7),
+  sound: { play: () => {} },
+  demo: false,
+  hiScore: 0,
+}) as unknown as Inner
+assert.equal(cab.ring, null, 'the first wall has no ring')
+cab.tour = { house: 1, wall: 'vine-3b' }
+cab.startStage(4)
+assert.equal(cab.ring?.dots.length, RING_DOTS, 'Vine Hall rings a crate')
+const guarded = cab.ringBrick!
+const hp = guarded.hp
+cab.crack(guarded)
+assert.equal(guarded.hp, hp, 'the ring shields its crate')
+cab.ring!.dots.length = 0
+cab.crack(guarded)
+assert.equal(guarded.hp, hp - 1, 'a cleared ring leaves the crate open')
+cab.tour = { house: 0, wall: 'seed-2a' }
+cab.startStage(2)
+assert.equal(cab.ring, null, 'the Seedling House has no ring')
 
 console.log('Brick Bloom ladybot ring: orbit, shield, pop and clear passed')

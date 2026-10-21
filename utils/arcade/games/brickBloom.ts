@@ -69,6 +69,15 @@ import {
 } from '../brickBloom/mites'
 import type { Mite, MiteLine } from '../brickBloom/mites'
 import {
+  dotHit,
+  popDot,
+  ringShields,
+  ringedCrate,
+  spawnRing,
+  stepRing,
+} from '../brickBloom/ladybots'
+import type { Ladybot, LadybotRing } from '../brickBloom/ladybots'
+import {
   crackSnail,
   snailHit,
   snailsPatrol,
@@ -722,6 +731,9 @@ class BrickBloom implements ArcadeGameInstance {
   private miteLine: MiteLine | null = null
   /** Vine Hall's snail bot: patrols a lane under the crates; its shell bounces the ball. */
   private snail: Snail | null = null
+  /** Vine Hall's ladybot ring: five dots orbit one crate and shield it until all are popped. */
+  private ring: LadybotRing | null = null
+  private ringBrick: Brick | null = null
   private flowers: Flower[] = []
   private speed = 0
   /** The Grand Tour's place (Seedling House, Vine Hall), or null once the tour is over. */
@@ -800,6 +812,17 @@ class BrickBloom implements ArcadeGameInstance {
       vented && this.tour && snailsPatrol(this.tour.house, vented.id)
         ? spawnSnail(this.rng() < 0.5)
         : null
+    const ringed =
+      vented && this.tour ? ringedCrate(this.tour.house, vented.id) : null
+    this.ringBrick =
+      this.bricks.find(
+        (b) =>
+          ringed && b.col === ringed.col && b.row === ringed.row && !b.bolt,
+      ) ?? null
+    if (this.ringBrick) {
+      const r = this.brickRect(this.ringBrick)
+      this.ring = spawnRing(r.x + r.w / 2, r.y + r.h / 2)
+    } else this.ring = null
     this.puffs = []
     const puffs = Math.max(0, Math.round(levelCurve(stage, BLOOM_CURVES.puffs)))
     for (let i = 0; i < puffs; i++) {
@@ -902,6 +925,7 @@ class BrickBloom implements ArcadeGameInstance {
     this.updateRush()
     this.updatePuffs()
     this.updateMites()
+    this.updateRing()
     if (this.snail) stepSnail(this.snail)
     for (const b of this.bricks) if (b.flash > 0) b.flash--
     if (!this.bricks.some((b) => !b.bolt)) this.stageClear()
@@ -1185,6 +1209,12 @@ class BrickBloom implements ArcadeGameInstance {
         if (miteHit(mite, ball.x, ball.y)) this.popPollenMite(line, mite)
       }
     }
+    const ring = this.ring
+    if (ring) {
+      for (const dot of [...ring.dots]) {
+        if (dotHit(dot, ball.x, ball.y)) this.popLadybot(ring, dot)
+      }
+    }
     const snail = this.snail
     if (snail && snail.flash === 0 && snailHit(snail, ball.x, ball.y)) {
       // The shell turns the ball back up the wall.
@@ -1206,6 +1236,36 @@ class BrickBloom implements ArcadeGameInstance {
     for (const m of line.mites) stepMite(m, this.tick)
     line.mites = line.mites.filter((m) => !miteGone(m))
     if (line.mites.length === 0) this.miteLine = null
+  }
+
+  private updateRing() {
+    const ring = this.ring
+    if (!ring) return
+    stepRing(ring)
+    // Never seal a wall: once the ringed crate is all that is left, the ring lets go.
+    if (!this.bricks.some((b) => !b.bolt && b !== this.ringBrick))
+      this.ring = null
+  }
+
+  private popLadybot(ring: LadybotRing, dot: Ladybot) {
+    const score = popDot(ring, dot, this.level)
+    this.addScore(score, dot.x, dot.y - 8)
+    this.burst(dot.x, dot.y, 6, '#f87171')
+    this.sound.play('pop')
+  }
+
+  private renderLadybot(g: CanvasRenderingContext2D, d: Ladybot) {
+    const x = Math.round(d.x)
+    const y = Math.round(d.y)
+    glow(g, x, y, 6, '#f87171', 0.3)
+    g.fillStyle = INK
+    g.fillRect(x - 3, y - 3, 7, 7)
+    g.fillStyle = '#ef4444'
+    g.fillRect(x - 2, y - 2, 5, 5)
+    g.fillStyle = INK
+    g.fillRect(x, y - 2, 1, 5)
+    g.fillRect(x - 1, y - 1, 1, 1)
+    g.fillRect(x + 1, y + 1, 1, 1)
   }
 
   private popPollenMite(line: MiteLine, mite: Mite) {
@@ -1328,7 +1388,8 @@ class BrickBloom implements ArcadeGameInstance {
 
   private crack(b: Brick) {
     b.flash = 6
-    if (b.bolt) {
+    // The ladybot ring shields its crate: the ball rings off it until the last dot pops.
+    if (b.bolt || (b === this.ringBrick && ringShields(this.ring))) {
       this.sound.play('blip')
       return
     }
@@ -1678,6 +1739,7 @@ class BrickBloom implements ArcadeGameInstance {
     if (this.miteLine)
       for (const m of this.miteLine.mites) this.renderMite(g, m)
     if (this.snail) this.renderSnail(g, this.snail)
+    if (this.ring) for (const d of this.ring.dots) this.renderLadybot(g, d)
     for (const d of this.drops) this.renderDrop(g, d)
     this.renderPaddle(g)
     for (const ball of this.balls) this.renderBall(g, ball)

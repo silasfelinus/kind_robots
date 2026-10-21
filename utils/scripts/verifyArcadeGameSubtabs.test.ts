@@ -155,7 +155,10 @@ for (const game of [
   assert.match(tab, /\nchannelKey: arcade\n/)
 }
 
-const privateLairTab = readFileSync('content/channels/admin/zuzu-lair.md', 'utf8')
+const privateLairTab = readFileSync(
+  'content/channels/admin/zuzu-lair.md',
+  'utf8',
+)
 assert.match(privateLairTab, /\nchannelKey: admin\n/)
 assert.match(privateLairTab, /\nrequiredRole: ADMIN\n/)
 

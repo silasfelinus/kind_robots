@@ -13,11 +13,19 @@ import type { TrialResult } from '../shiftingLands/authoredBosses'
 import type { JourneyStateV6 } from '../shiftingLands/deckV6'
 
 const BONUSES: Record<string, number> = {
-  steel: 3, awareness: 2, wits: 2, bearing: 2, resolve: 2, insight: 2,
+  steel: 3,
+  awareness: 2,
+  wits: 2,
+  bearing: 2,
+  resolve: 2,
+  insight: 2,
 }
 const roads = JOURNEY_WORLD.lands
 
-function record(index: number, choiceId: string): {
+function record(
+  index: number,
+  choiceId: string,
+): {
   boss: JourneyStateV6['journey']['bosses'][number]
   result: TrialResult
 } {
@@ -79,7 +87,8 @@ function story(
     },
     journey: {
       ...first.journey,
-      landIndex: opts.landIndex ?? (opts.phase === 'fallen' ? approaches.length - 1 : 4),
+      landIndex:
+        opts.landIndex ?? (opts.phase === 'fallen' ? approaches.length - 1 : 4),
       phase: opts.phase ?? 'complete',
       bosses: records.map((item) => item.boss),
     },
@@ -93,13 +102,22 @@ function title(approaches: string[], opts: Parameters<typeof story>[1] = {}) {
   return authoredEndingV7(state, trials)
 }
 
-assert.deepEqual([...MORAL_CONSTELLATION_IDS_V7].sort(), [
-  'coercion', 'commons', 'mixed-dominion', 'public-record',
-  'restitution', 'tribute', 'wayfinders',
-].sort())
+assert.deepEqual(
+  [...MORAL_CONSTELLATION_IDS_V7].sort(),
+  [
+    'coercion',
+    'commons',
+    'mixed-dominion',
+    'public-record',
+    'restitution',
+    'tribute',
+    'wayfinders',
+  ].sort(),
+)
 
 assert.equal(
-  title(['solidarity', 'solidarity', 'witness'], { mercy: 4, honesty: 2 })?.title,
+  title(['solidarity', 'solidarity', 'witness'], { mercy: 4, honesty: 2 })
+    ?.title,
   'The Lantern Commons',
   'two collective victories and a confirmed witness build rare hopeful institutions',
 )
@@ -119,27 +137,35 @@ assert.equal(
   title(['coerce', 'coerce', 'coerce'])?.title,
   'The Province of Empty Hands',
 )
-assert.equal(
-  title(['tribute', 'coerce'])?.title,
-  'The Market of Silence',
-)
+assert.equal(title(['tribute', 'coerce'])?.title, 'The Market of Silence')
 assert.equal(
   title(['coerce', 'tribute', 'solidarity'], { mercy: 4, honesty: 2 })?.title,
   'A Bridge Without Forgiveness',
 )
 assert.match(
-  title(['coerce', 'tribute', 'solidarity'], { mercy: 4, honesty: 2 })!
-    .paragraphs.at(-1)!,
+  title(['coerce', 'tribute', 'solidarity'], {
+    mercy: 4,
+    honesty: 2,
+  })!.paragraphs.at(-1)!,
   /No one owes you absolution/,
   'late kindness cannot magically cancel exploitation',
 )
 
 const fallen = story(['solidarity', 'solidarity', 'witness'], {
-  mercy: 4, honesty: 2, phase: 'fallen', landIndex: 2,
+  mercy: 4,
+  honesty: 2,
+  phase: 'fallen',
+  landIndex: 2,
 })
-assert.match(authoredEndingV7(fallen.state, fallen.trials)!.paragraphs.at(-1)!, /never see/)
+assert.match(
+  authoredEndingV7(fallen.state, fallen.trials)!.paragraphs.at(-1)!,
+  /never see/,
+)
 const retired = story(['coerce', 'coerce', 'coerce'], { phase: 'retired' })
-assert.match(authoredEndingV7(retired.state, retired.trials)!.paragraphs.at(-1)!, /common room/)
+assert.match(
+  authoredEndingV7(retired.state, retired.trials)!.paragraphs.at(-1)!,
+  /common room/,
+)
 
 // Negative controls: fabricated successes cannot be mistaken for earned deeds.
 const clean = story(['witness', 'witness', 'evidence'], { honesty: 4 })
@@ -147,7 +173,8 @@ const badTrial = structuredClone(clean.trials)
 badTrial[1]!.choiceId = 'coerce'
 assert.equal(verifiedSuccessfulRoutesV7(clean.state, badTrial).length, 2)
 assert.notEqual(
-  authoredEndingV7(clean.state, badTrial)?.title, 'The Book Nobody Owns',
+  authoredEndingV7(clean.state, badTrial)?.title,
+  'The Book Nobody Owns',
   'an incompatible skill/target forged as cruelty invalidates that testimony',
 )
 const fakeBoss = {
@@ -155,12 +182,21 @@ const fakeBoss = {
   journey: { ...clean.state.journey, bosses: [] },
 }
 assert.deepEqual(verifiedSuccessfulRoutesV7(fakeBoss, clean.trials), [])
-assert.notEqual(authoredEndingV7(fakeBoss, clean.trials)?.title, 'The Book Nobody Owns')
+assert.notEqual(
+  authoredEndingV7(fakeBoss, clean.trials)?.title,
+  'The Book Nobody Owns',
+)
 
 const unreachable = story(['solidarity', 'solidarity', 'witness'], {
-  mercy: 4, honesty: 2, phase: 'fallen', landIndex: 1,
+  mercy: 4,
+  honesty: 2,
+  phase: 'fallen',
+  landIndex: 1,
 })
-assert.equal(verifiedSuccessfulRoutesV7(unreachable.state, unreachable.trials).length, 2)
+assert.equal(
+  verifiedSuccessfulRoutesV7(unreachable.state, unreachable.trials).length,
+  2,
+)
 assert.notEqual(
   authoredEndingV7(unreachable.state, unreachable.trials)?.title,
   'The Lantern Commons',
@@ -174,14 +210,21 @@ const duplicate = story(['coerce', 'coerce', 'coerce'])
 duplicate.state.journey.bosses.push(
   structuredClone(duplicate.state.journey.bosses[0]!),
 )
-assert.equal(verifiedSuccessfulRoutesV7(duplicate.state, duplicate.trials).length, 3)
+assert.equal(
+  verifiedSuccessfulRoutesV7(duplicate.state, duplicate.trials).length,
+  3,
+)
 
 const wouldBeCommons = story(['solidarity', 'solidarity', 'witness'], {
-  mercy: 4, honesty: 2,
+  mercy: 4,
+  honesty: 2,
 })
 const tainted = [
   ...wouldBeCommons.trials,
-  { ...record(4, 'tribute').result, roll: { ...record(4, 'tribute').result.roll, success: false } },
+  {
+    ...record(4, 'tribute').result,
+    roll: { ...record(4, 'tribute').result.roll, success: false },
+  },
 ]
 assert.notEqual(
   authoredEndingV7(wouldBeCommons.state, tainted)?.title,
@@ -190,7 +233,10 @@ assert.notEqual(
 )
 assert.equal(
   authoredEndingV7(
-    { ...wouldBeCommons.state, journey: { ...wouldBeCommons.state.journey, phase: 'boss' } },
+    {
+      ...wouldBeCommons.state,
+      journey: { ...wouldBeCommons.state.journey, phase: 'boss' },
+    },
     wouldBeCommons.trials,
   ),
   null,
@@ -207,4 +253,6 @@ assert.equal(
   plain,
   'no valid earned trials means no special epilogue',
 )
-console.log('Shifting Lands V7 moral constellations passed: seven distinct finales with three phase texts each, grounded successful trial checks, original V6 unaffected')
+console.log(
+  'Shifting Lands V7 moral constellations passed: seven distinct finales with three phase texts each, grounded successful trial checks, original V6 unaffected',
+)

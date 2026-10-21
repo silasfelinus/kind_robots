@@ -670,7 +670,11 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
         ? next.substanceMoments
         : [
             ...next.substanceMoments,
-            { source: card.id, day: state.day, selected: openingSubstance(lens.id) },
+            {
+              source: card.id,
+              day: state.day,
+              selected: openingSubstance(lens.id),
+            },
           ],
     }
   }
@@ -894,14 +898,25 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   if (!s.skills || typeof s.skills !== 'object') return null
   if (typeof s.wild !== 'number') return null
-  if (s.substanceMoments !== undefined && !validSubstanceMoments(s.substanceMoments))
+  if (
+    s.substanceMoments !== undefined &&
+    !validSubstanceMoments(s.substanceMoments)
+  )
     return null
   const restored: RunState = {
     ...(s as RunState),
     // Version 4 saves predate the optional interludes; preserve the opening memory.
-    substanceMoments: s.substanceMoments ?? (s.openingState
-      ? [{ source: 'opening-legacy', day: 1, selected: openingSubstance(s.openingState) }]
-      : []),
+    substanceMoments:
+      s.substanceMoments ??
+      (s.openingState
+        ? [
+            {
+              source: 'opening-legacy',
+              day: 1,
+              selected: openingSubstance(s.openingState),
+            },
+          ]
+        : []),
   }
   return migrateRecordedLensQuests(restored)
 }

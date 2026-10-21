@@ -647,7 +647,7 @@ assert.equal(
 assert.ok(stylerView.includes('overflow-y-auto overscroll-contain'))
 
 const coloringView = readFileSync('pages/coloring-page.vue', 'utf8')
-assert.ok(coloringView.includes('kr-scroll kr-container-wide'))
+assert.ok(coloringView.includes('kr-scroll kr-container-canvas'))
 assert.ok(!coloringView.includes('max-w-4xl'))
 const canvasStyles = readFileSync('assets/css/tailwind.css', 'utf8')
 assert.ok(canvasStyles.includes('.kr-container-canvas'))

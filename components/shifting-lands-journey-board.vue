@@ -594,6 +594,31 @@
                 </p>
                 <template v-if="game.currentTrial">
                   <div
+                    v-if="game.ledger.version === 7"
+                    class="flex flex-wrap items-center gap-2 rounded-xl border border-info/40 bg-base-300 p-2.5"
+                  >
+                    <div class="min-w-[12rem] flex-1">
+                      <strong class="text-xs">Scout before the trial</strong>
+                      <p class="text-xs opacity-75">
+                        Spend 1 HP once to study this gate and earn a careful route.
+                        Mercy or honesty earned along the road may also summon witnesses.
+                      </p>
+                    </div>
+                    <span
+                      v-if="game.preparedTrial"
+                      class="text-xs font-bold text-success"
+                    >Route surveyed</span>
+                    <button
+                      v-else
+                      type="button"
+                      class="btn btn-outline btn-sm"
+                      :disabled="!game.canPrepareTrial"
+                      @click="game.prepareTrial()"
+                    >
+                      Scout · 1 HP
+                    </button>
+                  </div>
+                  <div
                     class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,220px),1fr))] gap-2"
                     aria-label="Authored trial approaches"
                   >
@@ -645,6 +670,14 @@
                           Requires discovered evidence</template
                         >
                       </span>
+                      <span
+                        v-if="choice.id === 'witness' && !game.canTrial(choice.id)"
+                        class="text-xs opacity-70"
+                      >Requires two earned mercy or honesty marks</span>
+                      <span
+                        v-if="choice.id === 'scout' && !game.canTrial(choice.id)"
+                        class="text-xs opacity-70"
+                      >Scout this gate first, spending 1 HP</span>
                     </button>
                   </div>
                   <div

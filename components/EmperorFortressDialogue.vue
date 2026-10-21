@@ -230,9 +230,9 @@ const choicesEl = ref<HTMLElement | null>(null)
 watch(showChoices, async (shown) => {
   if (!shown) return
   await nextTick()
-  const reduced = window.matchMedia?.(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
+  const reduced =
+    court.preferences.motion === 'reduced' ||
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   choicesEl.value?.scrollIntoView({
     behavior: reduced ? 'auto' : 'smooth',
     block: 'nearest',
@@ -249,7 +249,7 @@ function stream() {
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (court.textSpeed === 'instant' || reduced) {
+  if (court.textSpeed === 'instant' || reduced || court.preferences.motion === 'reduced') {
     visible.value = line.value.length
     return
   }

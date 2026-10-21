@@ -385,11 +385,11 @@ export const ENCOUNTERS: EncounterCard[] = [
     ],
     lensLines: {
       sober:
-        'The photo on the cracked phone shows a fourth person. Only three are standing in frame.',
+        'The cracked screen makes an accurate headcount harder than it should be. You ask if the family wants the picture taken at all.',
       tipsy:
-        'The aunties are debating the angle of the camera with tremendous seriousness. A family photograph can evidently carry more politics than a town meeting.',
+        'The relatives are debating the angle of the camera with tremendous seriousness. A family photograph can evidently carry more politics than a town meeting.',
       stoned:
-        'You notice the cracked phone reflects four sun hats before anyone asks you to count the people on the blanket.',
+        'A single sun hat splits into three reflections across the cracked phone. You catch yourself counting glass instead of people.',
       tripping_balls:
         'The folds in the picnic blanket briefly resemble roads crossing mountains. Then somebody shakes out the crumbs and it is cloth again.',
       cocaine:
@@ -426,7 +426,7 @@ export const ENCOUNTERS: EncounterCard[] = [
           effects: { evidence: 'Glenn’s note and a tower sketch', weird: 1 },
         },
         failure: {
-          text: 'You return soaked and two hours late. The family has called the beach patrol, and Uncle Glenn's folded note is now the only dry object in your pocket.',
+          text: 'You return soaked and two hours late. The family has called the beach patrol, and Uncle Glenn is still missing. The youngest offers a towel without pretending your detour helped.',
           effects: { nerve: -1, weird: 1 },
         },
       },

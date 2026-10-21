@@ -487,22 +487,34 @@
                   :key="game.run?.card ?? ''"
                   class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
                 >
-                  <summary class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]">
+                  <summary
+                    class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]"
+                  >
                     Optional moment · change the tempo
                   </summary>
                   <p class="my-2 text-xs text-[#f3e6c8]/75">
                     Choose one or two experiences, or take a clear-headed break.
-                    Your first perspective stays in your story. No combination grants supernatural knowledge.
+                    Your first perspective stays in your story. No combination
+                    grants supernatural knowledge.
                   </p>
-                  <div class="kr-scroll grid max-h-36 grid-cols-2 gap-1.5 overflow-y-auto">
+                  <div
+                    class="kr-scroll grid max-h-36 grid-cols-2 gap-1.5 overflow-y-auto"
+                  >
                     <button
                       v-for="moment in SUBSTANCE_CHOICES"
                       :key="moment.id"
                       type="button"
                       class="rounded-lg border px-2 py-2 text-left text-xs"
-                      :class="momentSelections.includes(moment.id) ? 'border-[#d9b877] bg-[#d9b877]/20' : 'border-white/20'"
+                      :class="
+                        momentSelections.includes(moment.id)
+                          ? 'border-[#d9b877] bg-[#d9b877]/20'
+                          : 'border-white/20'
+                      "
                       :aria-pressed="momentSelections.includes(moment.id)"
-                      :disabled="momentSelections.length >= 2 && !momentSelections.includes(moment.id)"
+                      :disabled="
+                        momentSelections.length >= 2 &&
+                        !momentSelections.includes(moment.id)
+                      "
                       :title="moment.detail"
                       @click="toggleMoment(moment.id)"
                     >
@@ -1114,10 +1126,10 @@ const canTakeMoment = computed(() => {
   const run = game.run
   return Boolean(
     run?.phase === 'beat' &&
-      !run.pending &&
-      run.openingState &&
-      run.card &&
-      !run.substanceMoments.some((moment) => moment.source === run.card),
+    !run.pending &&
+    run.openingState &&
+    run.card &&
+    !run.substanceMoments.some((moment) => moment.source === run.card),
   )
 })
 const substanceCoda = computed(() =>
@@ -1132,7 +1144,9 @@ watch(
 
 function toggleMoment(id: SubstanceId) {
   if (momentSelections.value.includes(id))
-    momentSelections.value = momentSelections.value.filter((entry) => entry !== id)
+    momentSelections.value = momentSelections.value.filter(
+      (entry) => entry !== id,
+    )
   else if (momentSelections.value.length < 2)
     momentSelections.value = [...momentSelections.value, id]
 }

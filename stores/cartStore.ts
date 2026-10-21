@@ -26,6 +26,7 @@ type CartCheckoutResult = {
   success: boolean
   message?: string
   url?: string
+  endsAt?: string
 }
 
 const isClient = typeof window !== 'undefined'
@@ -407,7 +408,7 @@ export const useCartStore = defineStore('cartStore', () => {
       loading.value = true
       clearError()
 
-      const result = await performFetch<{ message?: string }>(
+      const result = await performFetch<{ message?: string; endsAt?: string }>(
         '/api/stripe/cancel-subscription',
         { method: 'POST' },
       )
@@ -419,6 +420,7 @@ export const useCartStore = defineStore('cartStore', () => {
       return {
         success: true,
         message: result.message,
+        endsAt: result.endsAt,
       }
     } catch (error) {
       handleError(error, 'cancelSubscription')

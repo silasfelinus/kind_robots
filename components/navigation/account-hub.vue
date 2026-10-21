@@ -78,7 +78,7 @@
         The button carries `overflow-hidden rounded-full` to crop the avatar into
         a circle, and that crop applies to every descendant — so a badge hung off
         the corner had it shaved by the same curve. As a sibling it is positioned
-        against .account-hub (already `relative`) instead, overlapping the circle
+        against the relative avatar wrapper instead, overlapping the circle
         without being subject to its clip. `pointer-events-none` keeps the avatar
         clickable through it, and the count reaches screen readers through the
         button's own aria-label (see hubLabel).
@@ -90,7 +90,6 @@
       >
         {{ unreadCount > 9 ? '9+' : unreadCount }}
       </span>
-
     </div>
 
     <!--
@@ -101,9 +100,9 @@
       the cost that was already being paid rather than a new one, and
       `display: none` keeps the shut panel out of the accessibility tree.
 
-      RIGHT-ANCHORED, because the button sits a couple of controls in from the
-      right edge — a left-anchored 20rem panel hanging off it ran past the
-      viewport and was clipped mid-word at 760px.
+      On phones the panel belongs to the full header's width, not the avatar's
+      position in the crowded shortcut row. At tablet/desktop widths it stays
+      right-anchored to the avatar.
     -->
     <section
       v-show="store.isOpen"

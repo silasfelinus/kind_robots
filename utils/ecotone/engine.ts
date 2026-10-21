@@ -35,6 +35,15 @@ import {
 } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 import { openingLensChoices } from './openingLensChoices'
+import {
+  momentPerspective,
+  openingSubstance,
+  substanceSceneLine,
+  validSubstanceMoments,
+  validSubstanceSelection,
+  type SubstanceId,
+  type SubstanceMoment,
+} from './substanceArc'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -104,6 +113,7 @@ export type RunState = {
   openingState: LensId | null
   currentState: LensId | null
   clarity: number
+  substanceMoments: SubstanceMoment[]
   activeLead: CompanionId | null
   meetingOrder: CompanionId[]
   followHistory: FollowEntry[]
@@ -292,6 +302,8 @@ export function cardBody(card: EncounterCard, state: RunState): string[] {
 
 export function cardAsides(card: EncounterCard, state: RunState): string[] {
   const asides: string[] = []
+  const substanceLine = substanceSceneLine(state.substanceMoments, state.day)
+  if (substanceLine) asides.push(substanceLine)
   const presence = card.presence
   if (presence) {
     asides.push(
@@ -484,6 +496,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     openingState: null,
     currentState: null,
     clarity: 3,
+    substanceMoments: [],
     activeLead: null,
     meetingOrder: [],
     followHistory: [],
@@ -541,7 +554,16 @@ export function enterStep(state: RunState, index: number): RunState {
   const route = routeFor(state)
   for (let i = index; i < route.length; i += 1) {
     const step = route[i] as RouteStep
-    const base = { ...state, step: i, day: step.day, card: null, offered: [] }
+    const base = {
+      ...state,
+      step: i,
+      day: step.day,
+      card: null,
+      offered: [],
+      ...(step.day !== state.day && state.openingState
+        ? { currentState: 'sober' as LensId, clarity: 3 }
+        : {}),
+    }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }
@@ -644,6 +666,12 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
       openingState: next.openingState ?? lens.id,
       currentState: lens.id,
       clarity: lens.clarity,
+      substanceMoments: next.openingState
+        ? next.substanceMoments
+        : [
+            ...next.substanceMoments,
+            { source: card.id, day: state.day, selected: openingSubstance(lens.id) },
+          ],
     }
   }
   let roll: Roll | null = null
@@ -676,6 +704,33 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
     },
     state.step + 1,
   )
+}
+
+/** An optional pause before a scene choice. This never changes its choice IDs or art. */
+export function chooseSubstanceMoment(
+  state: RunState,
+  selected: SubstanceId[],
+): RunState {
+  if (
+    state.phase !== 'beat' ||
+    state.pending ||
+    !state.openingState ||
+    !state.card ||
+    !validSubstanceSelection(selected) ||
+    state.substanceMoments.some((moment) => moment.source === state.card)
+  )
+    return state
+  const substanceMoments: SubstanceMoment[] = [
+    ...state.substanceMoments,
+    { source: state.card, day: state.day, selected: [...selected] },
+  ]
+  const perspective = momentPerspective(substanceMoments)
+  return {
+    ...state,
+    substanceMoments,
+    currentState: perspective.lens,
+    clarity: perspective.clarity,
+  }
 }
 
 export function chooseCrossroads(state: RunState, follow: boolean): RunState {
@@ -839,5 +894,14 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   if (!s.skills || typeof s.skills !== 'object') return null
   if (typeof s.wild !== 'number') return null
-  return migrateRecordedLensQuests(s as RunState)
+  if (s.substanceMoments !== undefined && !validSubstanceMoments(s.substanceMoments))
+    return null
+  const restored: RunState = {
+    ...(s as RunState),
+    // Version 4 saves predate the optional interludes; preserve the opening memory.
+    substanceMoments: s.substanceMoments ?? (s.openingState
+      ? [{ source: 'opening-legacy', day: 1, selected: openingSubstance(s.openingState) }]
+      : []),
+  }
+  return migrateRecordedLensQuests(restored)
 }

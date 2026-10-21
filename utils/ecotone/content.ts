@@ -1091,6 +1091,7 @@ export const ECOTONE_ART: string[] = [
 ]
 
 export function artUrl(asset?: string): string | null {
-  if (!asset || isEcotoneReviewHeldArt(asset) || !ECOTONE_ART.includes(asset)) return null
+  if (!asset || isEcotoneReviewHeldArt(asset) || !ECOTONE_ART.includes(asset))
+    return null
   return `${ECOTONE_ART_ROOT}${asset}.webp`
 }

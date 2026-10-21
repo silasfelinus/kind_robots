@@ -47,48 +47,50 @@
   here, once each: the reload in Tools, logout in the account menu.
 -->
 <template>
-  <div ref="menuRef" class="account-hub relative flex min-w-0 justify-center">
-    <button
-      type="button"
-      class="account-hub-avatar btn btn-ghost relative shrink-0 overflow-hidden rounded-full border border-base-300 bg-base-100 p-0"
-      :class="store.isOpen ? 'ring-2 ring-primary' : ''"
-      :title="hubLabel"
-      :aria-label="hubLabel"
-      :aria-expanded="store.isOpen"
-      @click.stop="store.toggle"
-    >
-      <img
-        :src="store.currentAvatar"
-        :alt="`${userStore.username} avatar`"
-        class="h-full w-full rounded-full object-cover"
-      />
+  <div ref="menuRef" class="account-hub static flex min-w-0 justify-center sm:relative">
+    <div class="relative">
+      <button
+        type="button"
+        class="account-hub-avatar btn btn-ghost relative shrink-0 overflow-hidden rounded-full border border-base-300 bg-base-100 p-0"
+        :class="store.isOpen ? 'ring-2 ring-primary' : ''"
+        :title="hubLabel"
+        :aria-label="hubLabel"
+        :aria-expanded="store.isOpen"
+        @click.stop="store.toggle"
+      >
+        <img
+          :src="store.currentAvatar"
+          :alt="`${userStore.username} avatar`"
+          class="h-full w-full rounded-full object-cover"
+        />
 
+        <span
+          v-if="!unreadCount && userStore.isLoggedIn"
+          class="kr-icon-3 absolute bottom-0 right-0 rounded-full border border-base-100 bg-success"
+        />
+      </button>
+
+      <!--
+        THE BADGE SITS OUTSIDE THE BUTTON, and has to. Silas, 2026-08-11: "the
+        Notification badge is being cut off by the circle we cover the avatar
+        image in, it needs to be over it."
+
+        The button carries `overflow-hidden rounded-full` to crop the avatar into
+        a circle, and that crop applies to every descendant — so a badge hung off
+        the corner had it shaved by the same curve. As a sibling it is positioned
+        against the relative avatar wrapper instead, overlapping the circle
+        without being subject to its clip. `pointer-events-none` keeps the avatar
+        clickable through it, and the count reaches screen readers through the
+        button's own aria-label (see hubLabel).
+      -->
       <span
-        v-if="!unreadCount && userStore.isLoggedIn"
-        class="kr-icon-3 absolute bottom-0 right-0 rounded-full border border-base-100 bg-success"
-      />
-    </button>
-
-    <!--
-      THE BADGE SITS OUTSIDE THE BUTTON, and has to. Silas, 2026-08-11: "the
-      Notification badge is being cut off by the circle we cover the avatar
-      image in, it needs to be over it."
-
-      The button carries `overflow-hidden rounded-full` to crop the avatar into
-      a circle, and that crop applies to every descendant — so a badge hung off
-      the corner had it shaved by the same curve. As a sibling it is positioned
-      against .account-hub (already `relative`) instead, overlapping the circle
-      without being subject to its clip. `pointer-events-none` keeps the avatar
-      clickable through it, and the count reaches screen readers through the
-      button's own aria-label (see hubLabel).
-    -->
-    <span
-      v-if="unreadCount"
-      class="pointer-events-none absolute -right-1 -top-1 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-black leading-none text-primary-content ring-2 ring-base-100"
-      aria-hidden="true"
-    >
-      {{ unreadCount > 9 ? '9+' : unreadCount }}
-    </span>
+        v-if="unreadCount"
+        class="pointer-events-none absolute -right-1 -top-1 z-10 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-black leading-none text-primary-content ring-2 ring-base-100"
+        aria-hidden="true"
+      >
+        {{ unreadCount > 9 ? '9+' : unreadCount }}
+      </span>
+    </div>
 
     <!--
       v-show rather than v-if, so opening the panel does not remount
@@ -98,13 +100,13 @@
       the cost that was already being paid rather than a new one, and
       `display: none` keeps the shut panel out of the accessibility tree.
 
-      RIGHT-ANCHORED, because the button sits a couple of controls in from the
-      right edge — a left-anchored 20rem panel hanging off it ran past the
-      viewport and was clipped mid-word at 760px.
+      On phones the panel belongs to the full header's width, not the avatar's
+      position in the crowded shortcut row. At tablet/desktop widths it stays
+      right-anchored to the avatar.
     -->
     <section
       v-show="store.isOpen"
-      class="absolute right-0 top-full z-50 mt-2 flex max-h-[min(80vh,44rem)] w-80 max-w-[calc(100vw-1rem)] flex-col gap-3 overflow-y-auto overscroll-contain kr-panel-flat p-3 shadow-2xl"
+      class="absolute left-2 right-2 top-full z-50 mt-2 flex max-h-[min(80vh,44rem)] w-auto flex-col gap-3 overflow-y-auto overscroll-contain kr-panel-flat p-3 shadow-2xl sm:left-auto sm:right-0 sm:w-80 sm:max-w-[calc(100vw-1rem)]"
     >
       <!-- 1. WHO YOU ARE, and the door to the account menu. The full width is
               its own now, so the name and role stop truncating. -->

@@ -35,7 +35,7 @@
             >{{ audienceIndex + 1 }} / {{ audiences.length }}
           </span>
           <div
-            class="no-scrollbar flex min-w-0 gap-1 overflow-x-auto"
+            class="no-scrollbar flex min-w-0 gap-1 overflow-x-auto px-3 [mask-image:linear-gradient(to_right,transparent,#000_0.75rem,#000_calc(100%_-_0.75rem),transparent)]"
             role="group"
             aria-label="Today's petitioners"
           >

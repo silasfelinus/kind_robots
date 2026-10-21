@@ -150,8 +150,8 @@ for (const dept of DEPARTMENTS) {
 const toyCallbacks = [
   {
     cardId: 'the-warning-label',
-    choiceId: 'attach-the-drawing',
-    sourceFlag: 'drew-the-warning',
+    choiceId: 'attach-the-incident-footnote',
+    sourceFlag: 'read-the-incident-footnote',
     earnedFlag: 'warning-reached-parents',
   },
   {
@@ -206,7 +206,12 @@ assert.match(
   /SUCCESSOR #4471-B/,
   'the sincerity test identifies B before asking the player to judge him',
 )
-for (const debt of ['inventoried-pip', 'reported-on-pip', 'rated-b-insincere']) {
+for (const debt of [
+  'inventoried-pip',
+  'reported-on-pip',
+  'rated-b-insincere',
+  'drew-the-warning',
+]) {
   assert.ok(
     ENDINGS.some((ending) =>
       ending.variants.some((variant) => variant.when_flag === debt),

@@ -301,7 +301,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Spend 1 provision to buy priority while other people bear the consequences. Easy Wits check; your bargain becomes part of your story.',
       skill: 'wits',
-      target: landId === 'verge' ? 10 : 9,
+      target: landId === 'verge' ? 11 : 10,
       cost: 1,
       requiredAnyFlags: [],
       success: dark.tribute.success,
@@ -313,7 +313,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       intent:
         'Shift the danger onto another traveler. An easier Steel check at no material cost; your cruelty will be remembered.',
       skill: 'steel',
-      target: landId === 'verge' ? 10 : 9,
+      target: landId === 'verge' ? 12 : 11,
       cost: 0,
       requiredAnyFlags: [],
       success: dark.coerce.success,

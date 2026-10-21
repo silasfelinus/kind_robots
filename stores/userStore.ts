@@ -717,7 +717,10 @@ export const useUserStore = defineStore('userStore', () => {
     }
   }
 
-  async function login(credentials: LoginCredentials) {
+  async function login(
+    credentials: LoginCredentials,
+    options: { newlyRegistered?: boolean } = {},
+  ) {
     startLoading(setLoading)
 
     try {
@@ -766,6 +769,9 @@ export const useUserStore = defineStore('userStore', () => {
 
       // Achievement: "Welcome Back" for logging in (deduped).
       void useAchievementStore().rewardAchievementByCode('welcome-back')
+      if (options.newlyRegistered) {
+        void useAchievementStore().rewardAchievementByCode('Dashboard')
+      }
 
       return {
         success: true,

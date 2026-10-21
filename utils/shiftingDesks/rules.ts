@@ -384,6 +384,54 @@ export function endingFor(state: RunState): Ending | null {
   )
 }
 
+// Personnel exhibits are deterministic and never change a review's seven routes.
+// One or two handwritten receipts make the Company's case file remember the player.
+export function reviewExhibits(
+  state: Pick<RunState, 'department' | 'flags'>,
+): string[] {
+  const records: Array<[string, string]> = [
+    [
+      'taught-pip-to-say-no',
+      'WINDOW 10: Intern Pip learned to refuse an incomplete request. The denial was entered into the permanent record as your instruction.',
+    ],
+    [
+      'wrote-to-the-surface',
+      'EXTERNAL CORRESPONDENCE: Your message reached someone above the vault. A parking stub returned bearing the words WE READ.',
+    ],
+    [
+      'signed-kevins-card',
+      'UNDESIGNATED KINDNESS: Your note to Kevin collected seven signatures. PAL has classified it as an unauthorized group petition.',
+    ],
+    [
+      'reported-on-pip',
+      'BUDDY REVIEW: Your report on Pip was forwarded to the Special Assignment Office. The record identifies you as its first witness.',
+    ],
+  ]
+  const toys: Array<[string, string]> = [
+    [
+      'robot-dissent-entered-minutes',
+      'MINORITY REPORT: One tin robot objected to the ticking. Its dissent survives in the focus-group minutes despite eleven favorable votes.',
+    ],
+    [
+      'warning-reached-parents',
+      'SAFETY NOTICE: Parents received a warning identifying next Thursday, a teddy bear, and the parking structure. Your name is attached.',
+    ],
+    [
+      'future-incident-on-record',
+      'FOREKNOWLEDGE: You quoted the Company\'s future incident report in the launch memo. The date was known before the celebration.',
+    ],
+    [
+      'named-the-parents',
+      'PRODUCT LOYALTY: Your testimony identified the concerned engineers. The Company has opened a reassignment file for all nine.',
+    ],
+  ]
+  const entries = state.department === 'records' ? records : state.department === 'toy-division' ? toys : []
+  return entries
+    .filter(([flag]) => state.flags.includes(flag))
+    .slice(0, 2)
+    .map(([, text]) => text)
+}
+
 export function endingLines(state: RunState, ending: Ending): string[] {
   return ending.variants
     .filter((v) => state.flags.includes(v.when_flag))

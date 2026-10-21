@@ -111,7 +111,7 @@ for (const tab of [
 
 assert.equal(existsSync('content/channels/projects/music-video.md'), false)
 const videoStudio = nav('projects/video-generator')
-assert.match(videoStudio, /\\nroute: \\/play\\/video-generator\\n/)
+assert.ok(videoStudio.includes('route: /play/video-generator'))
 assert.match(videoStudio, /Music Videos tab/)
 assert.equal(existsSync('components/music-video/music-video-studio.vue'), true)
 

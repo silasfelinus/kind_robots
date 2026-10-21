@@ -328,8 +328,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'You follow it for an hour. It is very slow. When you look up you are back at the log, and it is noon.',
-          effects: { nerve: -1 },
+          text: 'The slug leads you to the log for the fourth time. A lost festival volunteer is there, holding a first-aid kit and accusing the woods of moving the exits. You cannot find the way out, but you can hang bright ribbon at each repeat and walk the volunteer back to the stage when the music changes. The slug keeps the helmet. You keep the embarrassment and the useful trail markers.',
+          effects: { nerve: -1, goodwill: 1, flag: 'loop_exit_marked' },
         },
       },
       {
@@ -341,8 +341,8 @@ export const BEATS: EncounterCard[] = [
           effects: { evidence: 'A seam in the loop, eleven steps short' },
         },
         failure: {
-          text: 'Your map is perfect, and it describes a forest that isn’t this one.',
-          effects: { weird: 1 },
+          text: 'Your map is flawless. The trail it describes does not exist today. A lost hiker points to the same bend on yesterday’s printed map, where it does exist, with a picnic bench that was demolished years ago. You pin both maps to the notice board. The forest has defeated your directions, not your ability to show somebody else the problem.',
+          effects: { weird: 1, flag: 'loop_wrong_map_posted' },
         },
       },
       {
@@ -350,8 +350,8 @@ export const BEATS: EncounterCard[] = [
         label: 'Sit down and wait for the forest to finish',
         cost: 'You lose the morning',
         success: {
-          text: 'You sit on the log until the forest gets bored of you. A family of hikers comes by and shares their trail mix; they have been looping since Thursday and are delighted to have company.',
-          effects: { goodwill: 1, nerve: 1 },
+          text: 'You sit on the log until a family of hikers passes for the third time. They have been circling since Thursday, surviving on trail mix and stubbornness. You share your water and make a deal to walk out together when the drums start. Nobody gets the lost morning back, but they know whom to call if the trail returns.',
+          effects: { goodwill: 1, nerve: 1, flag: 'loop_hikers_helped' },
         },
       },
     ],
@@ -393,6 +393,17 @@ export const BEATS: EncounterCard[] = [
     },
     aloneLine:
       'You came alone and you are watching alone, and somehow you are part of the crowd anyway.',
+    flagLines: {
+      loop_exit_marked: {
+        all: 'A volunteer from the looping trail arrives with a roll of bright ribbon and asks whether your improvised exit markers should become a real safety plan. The story of your failed expedition has already recruited its first helpers.',
+      },
+      loop_wrong_map_posted: {
+        all: 'Two hikers compare the impossible maps you posted. Their trails disagree about where the creek runs, but both show the same ownership boundary. They ask to take copies before either map changes again.',
+      },
+      loop_hikers_helped: {
+        all: 'The hikers you waited with have come back with their neighbors. They do not need you to lead the petition; they only want the trail kept open to the people who get lost on it.',
+      },
+    },
     choices: [
       {
         id: 'petition',
@@ -626,8 +637,8 @@ export const BEATS: EncounterCard[] = [
         wild: true,
         cost: 'It takes the whole day',
         success: {
-          text: 'Near sunset a single fox trots up the road the elk were watching, carrying something in its mouth, and the herd goes back to grazing as if a question has been answered. You will never know what. You don’t mind.',
-          effects: { nerve: 1, goodwill: 1 },
+          text: 'Near sunset a single fox trots up the road the elk were watching. It is carrying a child’s red mitten, perfectly dry despite the rain. The herd resumes grazing. You never find the child, or a reason to invent one. You leave the mitten with the visitor-center lost property desk and spend the rest of the daylight making sure it has somewhere to be claimed.',
+          effects: { nerve: 1, goodwill: 1, flag: 'elk_mitten_delivered' },
         },
       },
       {
@@ -641,8 +652,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'The ranger is very busy and very polite. You get a pamphlet and a reminder about the distance rules.',
-          effects: {},
+          text: 'The ranger gets called away before she can open her notes: somebody has mistaken an elk’s favorite scratching post for an emergency telephone. She hands you the public observation form and asks you to record the time, not a theory. You leave with less proof than you hoped for and an invitation to compare notes tomorrow.',
+          effects: { goodwill: 1, flag: 'elk_ranger_followup' },
         },
       },
       {
@@ -657,8 +668,8 @@ export const BEATS: EncounterCard[] = [
           },
         },
         failure: {
-          text: 'You walk the road for an hour and find an excellent sandwich shop, which is its own kind of answer.',
-          effects: {},
+          text: 'You follow the road for an hour and discover an excellent sandwich shop. Above the counter hangs a photograph of the elk meadow, dated next Thursday. The bull is facing west; in the corner, just entering frame, is your own coat. The owner says the photographer has not been in yet. You pay, write down the date, and go back before dark.',
+          effects: { weird: 1, flag: 'elk_future_photo' },
         },
       },
     ],
@@ -698,6 +709,17 @@ export const BEATS: EncounterCard[] = [
     },
     aloneLine:
       'It is the quietest place you have ever been, and you came here on your own. You could stay.',
+    flagLines: {
+      elk_mitten_delivered: {
+        all: 'A visitor-center receipt for the red mitten is in your pocket. You spent a day watching animals and one practical hour making sure a lost thing could find its person.',
+      },
+      elk_ranger_followup: {
+        all: 'The ranger replies to the observation form: three independent visitors recorded the westward turn at the same minute. No one claims to know why. You finally have a date worth keeping.',
+      },
+      elk_future_photo: {
+        all: 'Your sandwich-shop receipt is dated today. The photograph you saw on the wall was dated next Thursday. You keep both facts instead of making one cancel the other.',
+      },
+    },
     choices: [
       {
         id: 'restore',
@@ -706,12 +728,12 @@ export const BEATS: EncounterCard[] = [
         wild: true,
         check: { skill: 'burly', target: 9 },
         success: {
-          text: 'By dark the creek runs clear past the gravel bar, and in the last light a single salmon noses up into it, the first in years, or the first you have ever seen. You decide to keep doing this.',
+          text: 'The volunteer crew shows you which blockage is safe to move and which fallen wood protects young fish. By dark you have opened one narrow side channel. A salmon noses past the gravel bar while the crew debates whether it came through yesterday. Nobody claims you brought it back in a single afternoon. They hand you the next monitoring date, and you put it in your calendar.',
           effects: { goodwill: 1, flag: 'creek_restored' },
         },
         failure: {
-          text: 'The brush wins today. But you cleared enough that the creek sounds different, and you know you will be back.',
-          effects: { flag: 'creek_started' },
+          text: 'The snag is too heavy and a volunteer stops you before you tear up the bank. The crew marks its position, asks you to help carry the tools back, and invites you to the next permitted work day. You have not restored a river. You have joined people who know how much work it takes.',
+          effects: { flag: 'creek_started', goodwill: 1 },
         },
       },
       {
@@ -723,16 +745,16 @@ export const BEATS: EncounterCard[] = [
           effects: { evidence: 'The plan for the cabin on the Mad River' },
         },
         failure: {
-          text: 'The number rings and rings, somewhere in another decade.',
-          effects: { weird: 1 },
+          text: 'The number rings eleven times. Then an answering machine clicks on and plays your own voice reading tomorrow’s river level. You put down the receiver, write the level on your hand, and decide to check a real gauge before trusting a ghost with flood advice.',
+          effects: { weird: 1, flag: 'cabin_future_message' },
         },
       },
       {
         id: 'porch',
         label: 'Just sit on the porch until it gets dark',
         success: {
-          text: 'You sit. The osprey comes and goes. It is perfect, and at the end of it you have decided nothing at all.',
-          effects: { nerve: 1 },
+          text: 'You sit while the osprey comes and goes. A neighbor walks up with a thermos, asks whether you plan to buy the cabin, and accepts your answer that you do not know. She tells you who maintains the footpath. There is comfort in a day that leaves room for tomorrow without pretending the county has stopped changing.',
+          effects: { nerve: 1, flag: 'porch_neighbor_met' },
         },
       },
     ],

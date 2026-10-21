@@ -168,7 +168,7 @@ for (const lens of openLenses) assert.ok(LENS_CODAS[lens], `${lens} coda`)
 // The Wiyot/Tuluwat pre-consultation hold must fail closed everywhere a
 // reviewer or player might see unreviewed material. Independent fiction stays.
 assert.ok(!ENCOUNTERS.some((card) => card.id === 'WH-121'))
-assert.equal(findCard('WH-121'), undefined)
+assert.equal(findCard('WH-121'), null)
 assert.ok(ENCOUNTERS.some((card) => card.id === 'WH-037'))
 assert.ok(
   !/tribal|reservation|grant/i.test(

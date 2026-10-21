@@ -305,7 +305,9 @@ const register = async () => {
     await navigateTo('/dashboard')
   } catch (e: unknown) {
     const message =
-      e instanceof Error ? e.message : 'An unexpected registration error occurred.'
+      e instanceof Error
+        ? e.message
+        : 'An unexpected registration error occurred.'
     errorStore.setError(ErrorType.REGISTRATION_ERROR, message)
   } finally {
     isLoading.value = false

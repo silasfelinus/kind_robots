@@ -497,9 +497,7 @@
                     Your first perspective stays in your story. No combination
                     grants supernatural knowledge.
                   </p>
-                  <div
-                    class="grid grid-cols-2 gap-1.5"
-                  >
+                  <div class="grid grid-cols-2 gap-1.5">
                     <button
                       v-for="moment in SUBSTANCE_CHOICES"
                       :key="moment.id"

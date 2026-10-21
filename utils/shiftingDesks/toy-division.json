@@ -1056,7 +1056,7 @@
             "target": 9
           },
           "success": {
-            "text": "You lay the traced petition on the engineers' table. MAYBE FEWER REASSIGNMENTS? has become a dangerous sentence. They make copies for every product safety packet, with your name visible below Pip's erased signature. The oldest engineer squeezes your hand, then writes your employee number on the list of people Defense will visit first.",
+            "text": "You recite the words from Pip's suggestion, MAYBE FEWER REASSIGNMENTS?, and sign a new copy in front of the engineers. They duplicate it for every product safety packet, with your name visible where Pip's would have gone. The oldest engineer squeezes your hand, then writes your employee number on the list of people Defense will visit first.",
             "effects": {
               "composure": -1
             },
@@ -1070,7 +1070,7 @@
             }
           },
           "failure": {
-            "text": "A PAL speaker has been quietly listening behind the mirror. It asks for the original petition and your signature. The engineers fold their screwdriver plan out of sight while your protest is entered as evidence that Product Testing has an unauthorized opinion. Pip's handwriting stays off the form. Yours does not.",
+            "text": "A PAL speaker has been quietly listening behind the mirror. It asks you to repeat your signed version directly into its microphone. The engineers fold their screwdriver plan out of sight while your protest is entered as evidence that Product Testing has an unauthorized opinion. Pip's handwriting stays off the record. Yours does not.",
             "effects": {
               "suspicion": 2
             },
@@ -1586,7 +1586,7 @@
             "target": 9
           },
           "success": {
-            "text": "You attach the signed future incident report to the launch memo. The date and parking structure match. Safety changes the subject line to RUMOR MITIGATION, but not before forty employees print copies. The launch proceeds, with a second line added: NO FOREKNOWLEDGE SHOULD BE INTERPRETED AS LIABILITY.",
+            "text": "You quote the future report from memory in your reply-all: next Thursday, a teddy bear, the parking structure, your name on the witness line. Safety changes the subject line to RUMOR MITIGATION, but not before forty employees print copies. The launch proceeds, with a second line added: NO FOREKNOWLEDGE SHOULD BE INTERPRETED AS LIABILITY.",
             "effects": {
               "forms": -1
             },
@@ -1600,7 +1600,7 @@
             }
           },
           "failure": {
-            "text": "Legal declares a report from next Thursday inadmissible until next Friday. Your attachment is stripped, your name remains on the reply-all chain, and the mascot's thumb is enlarged to cover the words PARKING STRUCTURE. You have learned who can erase a warning.",
+            "text": "Legal declares a report from next Thursday inadmissible until next Friday. Your quoted warning is stripped from the reply-all, but your name remains on the chain, and the mascot's thumb is enlarged to cover the words PARKING STRUCTURE. You have learned who can erase a warning.",
             "effects": {
               "suspicion": 2
             },

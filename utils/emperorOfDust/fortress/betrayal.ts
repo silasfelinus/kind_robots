@@ -398,7 +398,7 @@ export const komodoCourtingLine = (
   const count = ['One night', 'Two nights', 'Three nights', 'Four nights']
   return {
     source: 'The barracks',
-    text: `Young Komodo has sat up late with ${def.name}. ${count[nights - 1] ?? 'Every night'} now, the lamp low, the ledger shut between them. Nobody hears what he says. ${words.subj} ${words.subj === 'They' ? 'laugh' : 'laughs'} once, quietly, and then ${words.subj === 'They' ? 'do' : 'does'} not.`,
+    text: `Young Komodo has sat up late with ${def.name}. ${count[nights - 1] ?? 'Every night'} now, the lamp turned low, his book shut on the table between them. Nobody hears what he says. ${words.subj} ${words.subj === 'They' ? 'laugh' : 'laughs'} once, quietly, and then ${words.subj === 'They' ? 'do' : 'does'} not.`,
   }
 }
 

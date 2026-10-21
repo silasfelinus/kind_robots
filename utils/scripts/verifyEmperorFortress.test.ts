@@ -1925,6 +1925,233 @@ const komodoLies = (days: typeof DAYS) =>
 assert.equal(komodoLies(DAYS.filter((def) => def.day <= 30)), 4)
 assert.equal(komodoLies(DAYS), 8)
 
+{
+  // --- t-037: Act III playtest rewrite ----------------------------------------
+  const act3 = (id: string): AudienceDef =>
+    DAYS.flatMap((def) => def.audiences).find((a) => a.id === id)!
+  const act3Options = (audience: AudienceDef) => [
+    ...audience.options,
+    ...(audience.beats ?? []).flatMap((beat) => beat.options),
+  ]
+  const act3Text = DAYS.filter((def) => def.day >= 21 && def.day <= 30)
+    .flatMap((def) => def.audiences)
+    .flatMap((audience) => [
+      ...[audience, ...(audience.beats ?? [])].flatMap((scene) => [
+        ...scene.lines,
+        ...(scene.variants ?? []).flatMap((v) => v.lines),
+      ]),
+      ...act3Options(audience).flatMap((o) => [o.label, o.response]),
+    ])
+    .map((line) => (typeof line === 'string' ? line : line.text))
+    .join('\n')
+  // The winks are gone: the Abbey must stay doubtable until Mara's page.
+  for (const wink of [
+    'purse that never empties',
+    'Or anything',
+    'well chosen',
+    'lose anyone',
+    'I cannot find the flaw',
+    'It sounds like a threat',
+    'such a friend to the mission',
+    'Four cots',
+  ])
+    assert.ok(!act3Text.includes(wink), `Act III no longer says “${wink}”`)
+  assert.ok(
+    !questDef('q-d24-coldbrook-visit')!.outcomes.success!.includes('Four'),
+    'Wenna gave the Abbey three children',
+  )
+
+  // Every alliance on Day 21 is an alliance: the hideout and epilogue see it.
+  const d21 = onDay(1, 21, { flags: ['pack-medicine', 'pack-camp-mapped'] })
+  const allied = (beat: string, option: string) => {
+    const opened = chooseAudienceOption(
+      d21,
+      'd21-captains-promise',
+      beat === 'price' ? 'ask-price' : 'ask-saffron',
+    ).run
+    return chooseAudienceOption(opened, 'd21-captains-promise', option).run
+  }
+  for (const [beat, option] of [
+    ['price', 'pups-as-guests'],
+    ['price', 'tincture-debt'],
+    ['price', 'camp-threat'],
+    ['saffron', 'pups-back'],
+  ] as const) {
+    const run = allied(beat, option)
+    assert.ok(run.flags.includes('pack-alliance'), `${option} allies`)
+    assert.equal(
+      run.strength.jackalwire,
+      d21.strength.jackalwire + 1,
+      `${option} strengthens the Pack`,
+    )
+  }
+
+  // Vane asks for the rhino only when Mags is at court.
+  const raid = act3('d26-friendly-raid')
+  for (const option of act3Options(raid))
+    if (/rhino/i.test(option.response))
+      assert.equal(option.requires?.follower, 'F013', option.id)
+  const withoutMags = withCast(1, 26, ['F001'])
+  const withMags = withCast(1, 26, ['F001', 'F013'])
+  const magsOption = raid.options.find((o) => o.id === 'help-mags')!
+  assert.ok(!optionVisible(withoutMags, magsOption))
+  assert.ok(optionVisible(withMags, magsOption))
+
+  // Day 25: every probe can still reach the orphan writ.
+  const abbess = act3('d25-the-abbess')
+  for (const beat of ['census', 'komodo', 'teodor'])
+    assert.ok(
+      abbess
+        .beats!.find((b) => b.id === beat)!
+        .options.some((o) => o.next === 'offer'),
+      `${beat} leads on to the writ`,
+    )
+  // Taxing the Abbey costs the Yard its bread, wherever it is asked.
+  for (const option of act3Options(abbess).filter((o) => o.id === 'tax'))
+    assert.ok((option.effects.local?.yard ?? 0) < 0, 'the tithe costs bread')
+  // She has heard what the court did to her this week.
+  const heard = (flags: string[]) =>
+    sceneLines({ flags }, abbess)
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' ')
+  assert.match(heard(['d23-mission-syrup-seized']), /fever ward cried/)
+  assert.match(heard(['asked-abbey-politely']), /Ormond boy/)
+  assert.match(
+    heard(['d23-mission-syrup-seized', 'asked-abbey-politely']),
+    /fever ward cried.*Ormond boy/,
+  )
+  assert.equal(sceneLines({ flags: [] }, abbess), abbess.lines)
+  // The cough comes back to the Yard when the sisters are barred.
+  const barred = dayBriefings(onDay(1, 25, { flags: ['d23-sisters-barred'] }))!
+  assert.match(barred[2]!.text, /cough came back/)
+
+  // Day 29: letting Pip read is a reading, not the end of the scene.
+  const mara = act3('d29-mayors-secret')
+  assert.equal(mara.options.find((o) => o.id === 'pip')!.next, 'price')
+  assert.ok(
+    mara
+      .beats!.find((b) => b.id === 'envelope')!
+      .options.some((o) => o.next === 'price'),
+    'the envelope does not lock out Mara’s price',
+  )
+
+  // Day 30: the Abbey's wagons take the children and the grown still need a
+  // gate; sheltering every child is gone once they are on the wagons.
+  const terms = onDay(1, 30)
+  const atGate = chooseAudienceOption(terms, 'd30-terms', 'ask-gate').run
+  const wagons = chooseAudienceOption(
+    atGate,
+    'd30-terms',
+    'abbey-takes-children',
+  )
+  assert.equal(wagons.next, 'losses')
+  assert.ok(!wagons.run.audiencesHeard.includes('d30-terms'))
+  const losses = audienceScene(wagons.run, act3('d30-terms'))
+  assert.ok(
+    !losses.options.some(
+      (o) => o.id === 'children-first' && optionVisible(wagons.run, o),
+    ),
+  )
+  const grown = chooseAudienceOption(wagons.run, 'd30-terms', 'freeholds').run
+  assert.ok(grown.flags.includes('sheltered-freeholds'))
+  assert.ok(grown.flags.includes('d30-children-to-abbey'))
+  assert.deepEqual(
+    grown.dues?.find((due) => due.id === 'abbey-wagons-return')?.day,
+    34,
+    'the wagons come back on Day 34',
+  )
+  // Hidden from the throne: the court does not see the return coming.
+  assert.ok(
+    !optionStakes(
+      atGate,
+      act3('d30-terms')
+        .beats!.find((b) => b.id === 'marrow')!
+        .options.find((o) => o.id === 'abbey-takes-children')!,
+    ).some((stake) => /Comes due/.test(stake.text)),
+  )
+  const back = finishDay(
+    onDay(1, 33, {
+      flags: ['d30-children-to-abbey'],
+      dues: [{ id: 'abbey-wagons-return', day: 34, from: 30 }],
+    }),
+  )
+  assert.ok(back.report.events.some((e) => /Forty-one children/.test(e)))
+  // Marrow and Hester remember the week; the first match is the fullest.
+  const marrow = act3('d30-terms').beats!.find((b) => b.id === 'marrow')!
+  const marrowSays = (flags: string[]) =>
+    sceneLines({ flags }, marrow)
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' ')
+  assert.match(marrowSays(['d23-tam-visited']), /Tam Coldbrook asked/)
+  assert.match(
+    marrowSays(['abbess-honored', 'd24-form-letter-told']),
+    /remembers how this court honoured her.*Bett Ormond sleeps/,
+  )
+  assert.match(
+    marrowSays(['d23-tam-visited', 'abbess-honored']),
+    /Tam Coldbrook asked/,
+    'one aside per group, by priority',
+  )
+  assert.doesNotMatch(marrowSays([]), /Tam|Bett Ormond/)
+  // The Watch that followed the dry well reports, and says so at the gate.
+  const follow = act3('d26-friendly-raid')
+    .beats!.find((b) => b.id === 'where')!
+    .options.find((o) => o.id === 'follow')!
+  assert.ok(
+    optionStakes(onDay(1, 26), follow).some((s) =>
+      /Comes due Day 28: The Watch on the dry-well road/.test(s.text),
+    ),
+  )
+  assert.match(
+    sceneLines({ flags: ['d26-dry-well-followed'] }, act3('d30-terms'))
+      .map((line) => (typeof line === 'string' ? line : line.text))
+      .join(' '),
+    /eleven people go by on a rope/,
+  )
+  // Keeping the orphans from the Abbey fills the Yard after the act's end.
+  const writ = act3('d25-the-abbess').beats!.find((b) => b.id === 'offer')!
+  assert.ok(
+    optionStakes(
+      onDay(1, 25, { brass: 100 }),
+      writ.options.find((o) => o.id === 'refuse-writ')!,
+    ).some((s) => /Comes due Day 31: Orphans at the Yard gate/.test(s.text)),
+  )
+  // Act III's dues all belong to answers somebody can give.
+  for (const id of [
+    'midnight-visit',
+    'census-clerk-report',
+    'dry-well-watch',
+    'war-orphans',
+    'quiet-watch-report',
+    'abbey-wagons-return',
+  ]) {
+    assert.ok(dueDef(id), id)
+    assert.ok(
+      DAYS.some((def) =>
+        def.audiences.some((a) =>
+          act3Options(a).some((o) => o.effects.schedule?.includes(id)),
+        ),
+      ),
+      `${id} is scheduled by an answer`,
+    )
+  }
+
+  // The epilogue remembers the war-night children and Bett Ormond.
+  const told = (flags: string[], ending: EndingId = 'open-roads') =>
+    epilogueFor({ ...onDay(1, 50), flags }, ending).map((e) => e.subject.id)
+  assert.ok(told(['d30-children-to-abbey']).includes('war-children'))
+  assert.ok(told(['d24-letter-read-kindly']).includes('ormond'))
+  assert.ok(!told([]).includes('yard-sisters'), 'only in the Yard branch')
+  assert.ok(told(['d23-sisters-welcome']).includes('yard-sisters'))
+  assert.match(
+    epilogueFor(
+      { ...onDay(1, 50), flags: ['d30-children-to-abbey'] },
+      'long-night',
+    ).find((e) => e.subject.id === 'war-children')!.variant.text,
+    /singing/,
+  )
+}
+
 // Under the Wall: Keel's Wits count toward Might requirements.
 const keel = followerDef('F009')!
 const wellRoad = questDef('q-d01-well-road')!

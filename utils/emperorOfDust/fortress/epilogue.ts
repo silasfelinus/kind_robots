@@ -1,3 +1,4 @@
+import { ACT_THREE_AFTERWARDS } from './actThree'
 import type { Mood } from './castArt'
 import type { EndingId } from './endings'
 import { MOLES_RECONCILED } from './moles'
@@ -120,6 +121,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         when: { endings: ['bell-restored'], flags: ['d48-mara-will-confess'] },
         mood: 'happy',
         text: 'The day the Bell rang, Mara Reedbell stood on a cart in the square and read the second book aloud. Every season. Every name. Then she took off the chain and set it on the cart. The town put it back on her. It took two votes.',
+      },
+      {
+        when: { flags: ['d29-mara-confession'], notFlags: ['mara-exposed'] },
+        text: 'Mara Reedbell’s confession sits in the Archive in her own hand, an hour of writing, blotted and signed. She rings the evening bell on time. Every spring she brings the Keeper the list of the town’s orphans herself, before anyone asks.',
       },
       {
         when: { flags: ['mara-exposed'] },
@@ -449,6 +454,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         when: { flags: ['abbey-took-coldbrook-children'] },
         mood: 'sad',
         text: 'The Coldbrook children went through the Abbey’s grey door and never came out on a day the crown was watching. Wenna kept the bundle of their clothes. It is still tied with the same string.',
+      },
+      {
+        when: { flags: ['coldbrooks-in-yard', 'd23-tam-visited'] },
+        text: 'The Coldbrooks grew up in the Yard, all five of them. Tam carried soup to the top of the Abbey stair for one season and came home taller. He is a porter now. He will not eat honey-cake, and will not say why.',
       },
       {
         when: { flags: ['coldbrooks-in-yard'] },
@@ -1070,6 +1079,15 @@ const BARRACKS: EpilogueSubject[] = [
       {
         when: { flags: ['flint-made-duchess'] },
         text: 'The crown made the lie true. Duchess Flint has a patent, a seal and a seat she never uses. When Lady Vask says “Duchess” across the hall it is still nearly a hiss. Flint answers it every time. Slowly.',
+      },
+      {
+        when: { flags: ['flint-cleared'] },
+        text: 'The ledgers cleared Flint and named the Old House cousin who sold the grain at three times the price. Flint asked the court to fine him the difference and give it to the burrow. She carried the receipt to Lady Vask herself. It took all afternoon.',
+      },
+      {
+        when: { flags: ['flint-doubted'] },
+        mood: 'sad',
+        text: 'The ledgers said what the Old Houses wanted, and the court let them. Flint never asked to see them again. When grain goes missing now, she is the first one counted. She counts herself.',
       },
       {
         when: { flags: ['flint-no-threats'] },
@@ -1919,6 +1937,7 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
 
 export const EPILOGUE: readonly EpilogueSubject[] = [
   ...KINGDOM,
+  ...afterTheWar([...ACT_THREE_AFTERWARDS]),
   ...BARRACKS,
   ...ENDGAME,
 ]

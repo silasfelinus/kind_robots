@@ -1,10 +1,123 @@
-import type { DayDef, QuestDef } from './types'
+import type { DayDef, DueDef, QuestDef, SceneLine, SceneVariant } from './types'
+import type { EpilogueSubject } from './epilogue'
 
 // Act III, Days 21-30, "Kind Roads" (conductor DAY-PLAN.md): the Black
 // Verge at the border, the mission road, the Abbess at court, Flint's trial,
 // Mara's secret page and the terms of shelter before the faction wars
 // resolve on the map. Harm to children stays off-screen: neat empty cots,
 // tracks that only lead in, a door kept locked (WORLD-GUIDE.md).
+//
+// Playtest rewrite (t-037): kindness is the trap only if the kindness is
+// real. The Abbey runs a true fever ward and some children do come home; the
+// census sum on Day 25 is the one hard tell before Mara's page on Day 29.
+// Credible people (Dunmore, Kiyo, Hester) argue both sides; Komodo mostly
+// stops defending it.
+
+/** A line a scene says differently when the run holds one earlier answer. */
+type Aside = { flag: string; line: string }
+
+/**
+ * Scene variants for independent groups of asides. From each group a run
+ * hears at most one aside, the first whose flag it holds; the gates are
+ * disjoint, so order never matters. `build` swaps the picked asides into the
+ * scene's lines (same number of lines, as every scene variant must keep).
+ */
+const asideVariants = (
+  groups: readonly (readonly Aside[])[],
+  build: (picked: (string | undefined)[]) => SceneLine[],
+): SceneVariant[] => {
+  type Combo = {
+    flags: string[]
+    notFlags: string[]
+    picked: (string | undefined)[]
+  }
+  let combos: Combo[] = [{ flags: [], notFlags: [], picked: [] }]
+  for (const group of groups)
+    combos = combos.flatMap((combo) => [
+      ...group.map((aside, i) => ({
+        flags: [...combo.flags, aside.flag],
+        notFlags: [
+          ...combo.notFlags,
+          ...group.slice(0, i).map((earlier) => earlier.flag),
+        ],
+        picked: [...combo.picked, aside.line],
+      })),
+      {
+        flags: combo.flags,
+        notFlags: [...combo.notFlags, ...group.map((aside) => aside.flag)],
+        picked: [...combo.picked, undefined],
+      },
+    ])
+  return combos
+    .filter((combo) => combo.flags.length)
+    .map(({ flags, notFlags, picked }) => ({
+      flags,
+      ...(notFlags.length ? { notFlags } : {}),
+      lines: build(picked),
+    }))
+}
+
+const joinLine = (base: string, extra: string | undefined): string =>
+  extra ? `${base} ${extra}` : base
+
+// Day 25: the Abbess's opening, with what she has heard from the court.
+const ABBESS_SPEECH =
+  'I walked here to say this. The wasteland is cruel to little ones. The Abbey takes them in. We ask only to be left to our work.'
+const abbessOpening = (asides: (string | undefined)[]): SceneLine[] => [
+  'The Abbess walks into the hall on her own feet, road dust on her hem. Two young otter sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
+  'Foreman Dunmore Ash stops halfway across the hall. He is looking at the taller otter sister.',
+  {
+    who: 'Foreman Dunmore Ash',
+    npc: 'dunmore-ash',
+    text: 'That’s Linnet. She came to my Yard at six with lice and no shoes, Majesty. The sisters walked her up the mission road in the hungry year. I never saw her again. Until now.',
+  },
+  'The otter sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
+  joinLine(joinLine(ABBESS_SPEECH, asides[0]), asides[1]),
+]
+
+// Day 30: Sister Marrow at the gate, and who in the hall speaks for her.
+const MARROW_OFFER =
+  '“Blankets. Hot milk. Two to a cot, if it comes to that. It has before.”'
+const HESTER_DEFAULT =
+  'A mother on my roads had a boy who walked to the Abbey with a sister in grey. She came here asking after him. Ask how often she’s seen his face.'
+const marrowLines = (asides: (string | undefined)[]): SceneLine[] => [
+  'Sister Marrow walks in out of the dark with road mud on her habit and a counting cord at her belt. She bows to each envoy, lowest to the mole.',
+  '“The Abbess sends her wagons, Your Majesty. Shelter whichever grown folk you like. Tonight the Abbey takes the children of all three peoples behind our walls until the war is done.”',
+  joinLine(MARROW_OFFER, asides[0]),
+  {
+    who: 'Hester Plowright',
+    npc: 'hester-plowright',
+    text: asides[1] ?? HESTER_DEFAULT,
+  },
+  {
+    who: 'Foreman Dunmore Ash',
+    npc: 'dunmore-ash',
+    text: 'Three to a bed and no milk, Majesty. Or hot milk on a wagon. I know what I’d want for mine.',
+  },
+  {
+    who: 'Young Komodo',
+    npc: 'young-komodo',
+    text: 'If you send them, Your Majesty, count them onto the wagons yourself. Then count them off.',
+  },
+]
+
+// Day 30: the hall before the envoys speak; the Watch remembers the dry well.
+const DUNMARK_GATE =
+  'The fortress can shelter one of them properly, Majesty. Not two. Spread the Watch over three camps and I lose all three, and the gate. The rest fend for themselves.'
+const termsOpening = (dunmark: string): SceneLine[] => [
+  'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An old mole in a quilted vest, eyeing the ceiling like it might fall.',
+  'The Freeholds, the Saltroad and the Moles have each sent an envoy. One question from all three: if war comes tonight, will the crown open its gates?',
+  {
+    who: 'Captain Ferro Dunmark',
+    npc: 'ferro-dunmark',
+    text: dunmark,
+  },
+  {
+    who: 'Young Komodo',
+    npc: 'young-komodo',
+    text: 'Choose by strength, Your Majesty. The weak are gone by morning whatever we do. The strong remember who opened the gate.',
+  },
+]
 
 export const ACT_THREE_QUESTS: readonly QuestDef[] = [
   {
@@ -41,7 +154,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     },
     outcomes: {
       success:
-        'Not Moles. Not killed by Moles. Each wore a mission-road token, the kind the Abbey gives families it sends home. None of them had been sent home.',
+        'Not Moles. Not knives. River water in the lungs. Each wore a mission-road token, the kind the Abbey gives parents who visit. Their boots were worn through at the toe. They walked a long way after the Abbey sent them home. Where, the court does not know.',
       partial:
         'The travellers wore mission-road tokens. Nobody learned more before the river took them back.',
       failure:
@@ -81,7 +194,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'The blue lantern led to a Rustline cache of medicine and old-world glass, and a smuggler glad to share rather than hang.',
+        'The blue lantern led to a Rustline cache: tincture, lamp glass, a crate of clean needles. The smuggler was a girl of fifteen with a burned hand. She offered the crown a fifth before anyone drew.',
       success:
         'The lantern carries medicine past the Ledger’s tolls to the Freehold farms. Now the court knows the route. So does its purse.',
       partial: 'The lantern went underground. The party did not follow.',
@@ -93,7 +206,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     id: 'q-d24-mission-road',
     title: 'The Mission Road',
     summary:
-      'A Freehold mother last saw her son on the mission road, walking toward the Abbey with a sister in grey. Walk the road.',
+      'Bett Ormond last saw her son Dov on the mission road, walking toward the Abbey with a sister in grey. Walk the road.',
     region: 'mission-road',
     faction: 'abbey',
     durationDays: 2,
@@ -116,18 +229,19 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -5 } },
     outcomes: {
       success:
-        'The road was swept. Not well enough. Small footprints toward the Abbey gate. Many. None coming back.',
+        'The road was swept. Not well enough. Small bare footprints, many, going up to the Abbey gate. Coming down, fewer, in new boots, in step with a grown pair.',
       partial: 'The road had been swept that morning. Carefully.',
       failure:
         'Two sisters in grey met the party on the road and walked them home. Kindly. All the way.',
-      expired: 'Nobody walked the road. The mother stopped coming to court.',
+      expired:
+        'Nobody walked the road. Bett Ormond went home to wait for the next letter.',
     },
   },
   {
     id: 'q-d24-coldbrook-visit',
     title: 'A Visit to the Children',
     summary:
-      'Wenna Coldbrook has not been allowed to see the children she gave the Abbey. Go with her. Insist.',
+      'Wenna Coldbrook begged the crown to leave the Abbey be. Go anyway. See all three Coldbrook children with your own eyes.',
     region: 'mission-road',
     faction: 'abbey',
     durationDays: 1,
@@ -149,10 +263,10 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { freeholds: -10 } },
     outcomes: {
       success:
-        'Sister Marrow showed them the dormitory. Four cots, made tight, nothing under the blankets. “They are at lessons,” she said. They were not.',
+        'Sister Marrow showed them the dormitory, three cots made tight, then the schoolroom. The two older Coldbrooks were there, scrubbed, reading aloud. They ran to their mother. The youngest was in the fever ward, below. The party was not let down the stair.',
       partial: 'The gate stayed shut. A sister promised a visit next week.',
       failure: 'The sisters were so sorry. The children were sleeping.',
-      expired: 'Wenna went alone. She has not come back.',
+      expired: 'Nobody went. Wenna was relieved. She said so twice.',
     },
   },
   {
@@ -185,7 +299,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { jackalwire: -10 } },
     outcomes: {
       success:
-        'The dry-well jackals are scattered. Vane threw a feast. This time nobody brought knives.',
+        'The dry-well jackals are scattered. Vane threw a feast in their own camp and sat the freed Freehold farmers at the head of the table. He served them himself. Badly.',
       partial: 'The jackals pulled back into the dry well. They will be back.',
       failure: 'The dry well held. Two Freehold farms were emptied that night.',
       expired: 'Vane fought alone and lost wagons.',
@@ -252,7 +366,7 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         'The charm kills the rot. The grain stays cold to the touch. Always. The Yard eats it anyway.',
       partial: 'The charm slowed the rot. Nobody likes the taste.',
       failure:
-        'The cure did something to the testers’ dreams. They will not say what.',
+        'Two of the testers walked to the north gate in their sleep and stood facing the Verge until dawn. Neither remembers it. Both are cold to the touch.',
       expired: 'The rot took another storeroom.',
     },
   },
@@ -285,11 +399,38 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     },
     expired: { strength: { freeholds: -1 } },
     outcomes: {
-      triumph: 'The line held. Two other factions saw who held it.',
-      success: 'The line held.',
-      partial: 'The line bent. It held, just.',
-      failure: 'The line broke. The Freeholds paid.',
-      expired: 'Nobody stood on the line.',
+      triumph:
+        'The line held and the raiders left their dead in the ditch. Two factions sent riders to see who had held it. They saw the crown’s colours.',
+      success:
+        'The line held at the Freehold fence posts. Dunmark brought back every rider and one horse fewer. The Yard ate the horse.',
+      partial:
+        'The line bent at the fence posts. It held, just. Three farms behind it burned anyway.',
+      failure:
+        'The line broke at the fence posts. The Freeholds paid in barns.',
+      expired: 'Nobody stood on the line. The Freeholds stood alone.',
+    },
+    // Whoever the crown sheltered that night stood on the line beside it.
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['sheltered-freeholds'],
+          text: 'The line held at the Freehold fence posts. Hester’s people stood behind the Watch with pitchforks and did not run. Dunmark brought every rider home.',
+        },
+        {
+          flags: ['sheltered-saltroad'],
+          text: 'The line held at the salt wagons, chained nose to tail across the Ford road. The Saltroad lost two oxen and no drivers. Oriel sent the bill anyway.',
+        },
+        {
+          flags: ['sheltered-moles'],
+          text: 'The line held over the burrow mouths. At dusk the Moles came up behind the raiders. The fighting ended underground. The court did not ask how.',
+        },
+      ],
+      failure: [
+        {
+          flags: ['d30-children-to-abbey'],
+          text: 'The line broke at the fence posts. The Freeholds paid in barns. Their children were on the Abbey’s wagons by then. Hester says that is the only reason she can stand.',
+        },
+      ],
     },
   },
 ]
@@ -426,7 +567,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { jackalwire: 5 },
                   local: { yard: -1, 'gate-watch': 2 },
-                  flags: ['d21-pack-pups-guests'],
+                  strength: { jackalwire: 1 },
+                  flags: ['d21-pack-pups-guests', 'pack-alliance'],
                 },
                 response:
                   'That evening six hyena pups walk into the Yard in a line, each holding the tail in front. The cooks feed them. Vane does not watch them go in.',
@@ -438,7 +580,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 requires: { flags: ['pack-medicine'] },
                 effects: {
                   affinity: { jackalwire: -5, freeholds: 5 },
-                  flags: ['d21-tincture-debt-called'],
+                  strength: { jackalwire: 1 },
+                  flags: ['d21-tincture-debt-called', 'pack-alliance'],
                 },
                 response:
                   'Vane’s ears go flat. “So it was a loan,” he says. “I thought it was the other thing.” He agrees to everything. He does not spit in his palm.',
@@ -451,7 +594,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { jackalwire: -10, freeholds: 5 },
                   local: { 'gate-watch': 2 },
-                  flags: ['d21-pack-threatened'],
+                  strength: { jackalwire: 1 },
+                  flags: ['d21-pack-threatened', 'pack-alliance'],
                 },
                 response:
                   'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young hyena with the bandaged paw stops coming to the postern gate.',
@@ -464,7 +608,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   local: { 'old-houses': 2 },
                 },
                 response:
-                  'Vane buttons his coat to the throat. “Then I hope the plum riders feel the same about crowns.” He leaves the bridle on your step.',
+                  'Vane buttons his coat to the throat. “Then the plum riders can have the canyon first, and you after.” He leaves the bridle on your step.',
               },
             ],
           },
@@ -495,10 +639,11 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   'Swear the alliance. Swear to ask the Black Verge for those two pups.',
                 effects: {
                   affinity: { jackalwire: 10, 'black-verge': -5 },
-                  flags: ['d21-verge-pups-asked'],
+                  strength: { jackalwire: 1 },
+                  flags: ['d21-verge-pups-asked', 'pack-alliance'],
                 },
                 response:
-                  'Vane unbuttons his coat. Against his chest a third pup sleeps, wheezing. “This one I wouldn’t give them.” Saffron pulls her goggles down. It is what she does instead of crying.',
+                  'Vane unbuttons his coat. Against his chest a third pup sleeps, wheezing. “This one I wouldn’t give them.” Saffron pulls her goggles down and keeps them down.',
               },
               {
                 id: 'alliance',
@@ -532,7 +677,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   local: { 'old-houses': 2 },
                 },
                 response:
-                  'Vane bows, one arm across his coat. “Then I hope the plum riders feel the same about crowns.” Saffron shuts herself in the workshop until dark.',
+                  'Vane bows, one arm across his coat. “Frightened or not,” he says. “Remember you said that.” Saffron shuts herself in the workshop until dark.',
               },
             ],
           },
@@ -841,6 +986,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 response:
                   '“How judicious,” says Lady Vask. She leaves the cushion behind. The closest she has ever come to forgetting something.',
               },
+              {
+                id: 'ask-tokens',
+                label:
+                  'Set the knife down. Ask about the wooden tokens on the dead.',
+                effects: {},
+                response:
+                  'Lady Vask’s rings stop tapping. Someone sends for the ferry boy.',
+                next: 'tokens',
+              },
             ],
           },
           {
@@ -857,7 +1011,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'Mission tokens, Your Majesty. The Abbey gives them to visitors walking home. Three grieving parents and a cold river. Sad. Ordinary. Let the dead keep them.',
+                text: 'Mission tokens, Your Majesty. The Abbey gives them to parents who visit. The sisters write down everyone who comes to their gate. I would ask the Abbey before I arrested a single Mole.',
               },
             ],
             options: [
@@ -880,7 +1034,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d22-tokens-asked'],
                 },
                 response:
-                  'The Abbey answers by evening, in a fine hand: three dear friends of the mission, sent home with bread and blessings. The sisters will pray for them. Your rider has not reached the mission road yet.',
+                  'The answer comes in two days, by a sister on foot: three parents who visited in the spring, sent home with bread. One asked to stay the night with her son and was told no. Parents do not stay. The sister cries reading it out.',
               },
               {
                 id: 'bury-tokens',
@@ -927,7 +1081,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 who: 'Ash Quill',
                 npc: 'F007',
-                text: 'It means “seen, and sent home.” These three walked to the mission road to see their children. The Abbey sent them home. That road doesn’t cross the Ford. Not anywhere.',
+                text: 'It means “seen, and sent home.” These three walked to the mission road to see their children. The Abbey sent them home. That road doesn’t cross the Ford. So after the Abbey they went somewhere else. I’d like to know where.',
               },
               '“How tiresome,” says Lady Vask. For once she does not mean you.',
             ],
@@ -1050,16 +1204,16 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             id: 'manifest',
             lines: [
               'Inside: a seized manifest, water-stained, its cipher cracked by the Ledger in an afternoon. Tincture for the Freehold farms. Lamp glass for the Rustline. Bandages for the Yard.',
-              '“And every third night, twelve jars of poppy syrup,” says Factor Tallow, “to the Mission kitchen. Enough to quiet a lot of coughs. The Ledger doesn’t care who drinks it, Majesty. Only that nobody paid the toll.”',
+              '“And every third night, twelve jars of poppy syrup to the Mission kitchen,” says Factor Tallow. “Twelve jars. Every third night. The Ledger doesn’t care who drinks it, Majesty. Only that nobody paid the toll.”',
               {
                 who: 'Foreman Dunmore Ash',
                 npc: 'dunmore-ash',
-                text: 'Shut the line and my Yard coughs again. Tax it and the farms can’t pay. Those are your choices. The jars are the Abbey’s business.',
+                text: 'Twelve jars is a fever ward, Majesty. My sister nursed the Ford camps in the fever winter. Forty cots go through twelve jars in three nights, and that’s rationed. Shut the line and my Yard coughs again. Tax it and the farms can’t pay.',
               },
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'An orphanage has a great many children, Your Majesty, and children have a great many coughs. I would not read a ghost story into a grocery list.',
+                text: 'Charity that pays no toll is still trade, Your Majesty. I would want to know what else the Abbey does not pay for.',
               },
             ],
             options: [
@@ -1073,7 +1227,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d23-mission-syrup-seized'],
                 },
                 response:
-                  'Three nights later the Watch takes twelve jars off the lantern line. The Abbess writes at once, warmly, asking after “the children’s medicine.” That night every Abbey window stays lit until dawn. It never has before.',
+                  'That night the Watch takes twelve jars off the lantern line. By morning the Abbess has written, asking after “the children’s medicine.” That night every Abbey window stays lit until dawn. It never has before.',
               },
               {
                 id: 'copy-manifests',
@@ -1124,8 +1278,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         requires: { flags: ['coldbrooks-in-yard'] },
         lines: [
           'Wenna Coldbrook has lived in the Yard since her farm burned. Flour on her sleeves, an oven burn on one wrist. Behind her stands Tam, nine, narrow and serious, holding an uneaten honey-cake.',
-          'The sisters come to the Yard every evening now, Majesty. Bread for all, sweets for the little ones. Sister Marrow knows my children’s names. I never told her.',
-          'Tam wants to see the Abbey’s lessons. Just to see. The sisters say he can come home whenever he likes. The Yard thinks I’m ungrateful for asking you.',
+          'The sisters come to the Yard every evening now, Majesty. Bread for all, sweets for the little ones. When the baby took the fever, Sister Marrow sat up with her. All night. I slept. First time since the farm.',
+          'Now Tam wants to see the Abbey’s lessons. Just to see. The sisters say he can come home whenever he likes. The Yard thinks I’m ungrateful for asking you. Maybe I am.',
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
@@ -1153,7 +1307,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d23-tam-visited'],
             },
             response:
-              'Tam comes back at dusk with his guard. Unharmed, delighted, full of bread. He won’t say what the lessons were. The guard, a steady old wolf, asks for the night wall. Won’t say why.',
+              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady old wolf, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
           },
           {
             id: 'keep-bread',
@@ -1165,7 +1319,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d23-sisters-welcome'],
             },
             response:
-              'Wenna nods. She expected nothing else from a throne. Back to the ovens. The next evening Sister Marrow brings an extra honey-cake and calls Tam by name.',
+              'Wenna nods. She expected nothing else from a throne. Back to the ovens. The next evening Sister Marrow brings Tam a slate and chalk and shows him his letters.',
           },
           {
             id: 'ask-tam',
@@ -1175,6 +1329,17 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               'Wenna pushes the boy one step forward, the way you push a boat off a bank.',
             next: 'tam',
           },
+          {
+            id: 'bread-at-gate',
+            label: 'Take the bread. Keep the sisters outside the Yard gate.',
+            effects: {
+              affinity: { abbey: -3 },
+              local: { yard: -1 },
+              flags: ['d23-bread-at-gate'],
+            },
+            response:
+              'The baskets come to the gate. The sisters wait outside until the last one is empty. Tam watches them through the bars every evening, chin on the crossbar.',
+          },
         ],
         beats: [
           {
@@ -1182,17 +1347,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             speaker: 'Tam Coldbrook',
             lines: [
               'The boy talks to the carpet, fast. The voice children use for a secret they were told is a present.',
-              '“They said there’s a room at the bottom of the Abbey where nobody’s ever hungry. Or cold. Or sad. Or anything.”',
-              '“They said the children from the Ford road are there already. They asked about me. They said I was very well chosen.”',
+              '“There’s a room at the bottom where the sick ones sleep. Nobody coughs down there. They said I could carry the soup down. They said I have steady hands.”',
+              '“Sister Marrow says I could learn to read the medicine labels. She says not many can.”',
               {
                 who: 'Wenna Coldbrook',
-                text: 'Anything, Majesty. He said anything. I asked him what that meant. He said that was the best part.',
+                text: 'Steady hands. He spills everything, Majesty. Everything. And he wants to carry soup down a stair to sick children he’s never met.',
               },
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'Children embroider, Your Majesty. I said far worse about the fortress cellars at his age.',
-              },
+              'Tam looks at his mother like she has said something unfair. She has not.',
             ],
             options: [
               {
@@ -1226,7 +1387,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d23-tam-visited'],
                 },
                 response:
-                  'Tam comes back at dusk, unharmed, full of bread. He wasn’t allowed downstairs yet. “Next time,” he says, happy. His guard asks for the night wall. Wenna never speaks to you again.',
+                  'Tam comes back at dusk, full of bread. He carried soup to the top of the stair. Not down it. “Next time,” he says, happy. Wenna sits up all night watching him sleep.',
               },
               {
                 id: 'keep-bread',
@@ -1238,7 +1399,19 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d23-sisters-welcome'],
                 },
                 response:
-                  'Wenna takes Tam’s hand and walks out without bowing. Next evening Sister Marrow brings an extra honey-cake and calls him by name.',
+                  'Wenna takes Tam’s hand and walks out without bowing. Next evening Sister Marrow asks after the baby’s fever. Wenna answers her. She can’t not.',
+              },
+              {
+                id: 'bread-at-gate',
+                label:
+                  'The bread comes to the gate. The sisters, and their stairs, stay outside it.',
+                effects: {
+                  affinity: { abbey: -3 },
+                  local: { yard: -1 },
+                  flags: ['d23-bread-at-gate'],
+                },
+                response:
+                  'The baskets come to the gate. The sisters wait outside until the last one is empty. Tam watches them through the bars, chin on the crossbar. He does not forgive you for a week.',
               },
             ],
           },
@@ -1248,12 +1421,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 who: 'Brother Teodor Lull',
                 npc: 'F012',
-                text: 'Six years I served soup on the top three floors, Majesty. Never below the third. Sister Marrow kept that key on her counting cord, between two particular knots.',
+                text: 'Six years I served soup on the top three floors, Majesty. Never below the third. Sister Marrow kept that key on her counting cord. I asked once. She said “fever ward”, and that I had a family to think of. I did. There was fever that year. I buried two of ours myself.',
               },
               {
                 who: 'Brother Teodor Lull',
                 npc: 'F012',
-                text: 'The children who went down were always the ones she called well chosen. I thought it meant clever. I thought a lot of things.',
+                text: 'Sick children went down. I never saw one come back up. I never stood at that door long enough to be sure. Both of those are true.',
               },
               'Wenna has gone white. Tam doesn’t understand. He is finally eating his honey-cake.',
             ],
@@ -1269,7 +1442,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d23-coldbrooks-in-keep'],
                 },
                 response:
-                  'Wenna carries the baby up the keep stairs. Teodor carries Tam. In the morning a honey-cake sits on the keep’s step in clean grey cloth. The Watch saw no one leave it.',
+                  'Wenna carries the baby up the keep stairs. Teodor carries Tam. In the morning Sister Marrow is at the keep gate with a jar of fever syrup for the baby. She leaves it with the Watch and goes.',
               },
               {
                 id: 'bar-sisters',
@@ -1285,7 +1458,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 id: 'keep-bread',
                 label:
-                  'Teodor never saw the lower floors. Nobody has. Keep the bread coming.',
+                  'Teodor buried fever children too. Keep the bread coming.',
                 effects: {
                   affinity: { abbey: 5 },
                   local: { yard: 1 },
@@ -1306,13 +1479,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     briefings: [
       {
         id: 'missing-boy',
-        source: 'A Freehold mother',
-        text: 'Her son walked toward the Abbey with a sister in grey three weeks ago. No letter since.',
+        source: 'Bett Ormond, a Freehold mother',
+        text: 'Her son Dov walked toward the Abbey with a sister in grey three weeks ago. No letter in his hand since.',
         truth: true,
         variants: [
           {
             flags: ['abbey-took-coldbrook-children'],
-            text: 'Her son walked toward the Abbey with a sister in grey three weeks ago. No letter since. The Coldbrook children went up the same road.',
+            text: 'Her son Dov walked toward the Abbey with a sister in grey three weeks ago. No letter in his hand since. The Coldbrook children went up the same road.',
           },
         ],
       },
@@ -1336,17 +1509,22 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'd24-mothers-petition',
         title: 'The Mother’s Petition',
-        speaker: 'A Freehold mother',
+        speaker: 'Bett Ormond, a Freehold mother',
         faction: 'freeholds',
         lines: [
-          'The Freehold mother walked two days to reach the hall. Muddy boots. She holds a folded letter out in both hands, the way people carry what they can’t read.',
-          'My boy went to the Abbey with a sister in grey, Majesty. Lessons, they said. Three meals. He’d write home every month.',
+          'Bett Ormond walked two days from the Freeholds to reach the hall. Muddy boots. She holds a folded letter out in both hands, the way people carry what they can’t read. Hester Plowright stands behind her, hat in her fists.',
+          'My boy Dov went to the Abbey with a sister in grey, Majesty. Lessons, they said. Three meals. He’d write home every month.',
           'He hasn’t written. They sent me this and said it came from him. They say he’s well. They won’t let me see him.',
           'I can’t read it, Majesty. I was hoping somebody here could.',
           {
+            who: 'Hester Plowright',
+            npc: 'hester-plowright',
+            text: 'I sent eight orphans up that road after the spring raids, Majesty. I’ve seen five since. Fat, lettered, polite to me. I don’t know about the other three. Neither does Bett.',
+          },
+          {
             who: 'Young Komodo',
             npc: 'young-komodo',
-            text: 'The Abbey writes a lovely letter, Your Majesty. I have read several. Read her the kind parts.',
+            text: 'The Abbey writes a good letter, Your Majesty. I have read several. They all say the same thing.',
           },
         ],
         options: [
@@ -1366,7 +1544,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['asked-abbey-politely'],
             },
             response:
-              'The Abbess writes back the same day, in a fine hand: the boy is happy, well, and very busy with his lessons.',
+              'The answer comes in three days, by a sister on foot: Dov is well and busy, and will write himself at midwinter, when he has his letters. Bett has it read to her twice.',
           },
           {
             id: 'read-letter',
@@ -1382,14 +1560,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'letter',
             lines: [
-              'A lovely letter. Good paper, fine hand. Dov is well, and happy, and very busy with his lessons, and sends his mother a hundred kisses.',
+              'A good letter. Good paper, fine hand. Dov is well, and happy, and busy with his lessons, and sends his mother a hundred kisses.',
               'It is also two letters. The fine hand wrote everything but the name. “Dov” was added after, in different ink, in a space too large for it.',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
                 text: 'A busy house uses forms, Your Majesty. So do the Ledger and the Watch. Efficient, not wicked.',
               },
-              '“Is he well?” the mother asks. “Does it say he’s well?”',
+              '“Is he well?” Bett asks. “Does it say he’s well?”',
             ],
             options: [
               {
@@ -1441,7 +1619,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['asked-abbey-politely'],
                 },
                 response:
-                  'The Abbess writes back the same day: Dov is happy, well, and very busy with his lessons. This time his name matches the ink.',
+                  'The answer comes in three days: Dov is well and busy. This time his name matches the ink.',
               },
             ],
           },
@@ -1459,7 +1637,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 npc: 'F005',
                 text: 'It’s the hand that keeps Hollow Bell’s register of unclaimed children. I’ve read every page of that register. Some twice. One had been replaced.',
               },
-              '“Who is Hollow Bell?” the mother asks. Nobody answers her.',
+              '“Who is Hollow Bell?” Bett asks. Pip looks at you.',
             ],
             options: [
               {
@@ -1505,27 +1683,28 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         requires: { flags: ['abbey-took-coldbrook-children'] },
         lines: [
           'Wenna Coldbrook comes in, baby on her hip, a bundle under her arm tied with a child’s hair ribbon. Her hem is worn ragged on one side from walking to the Abbey gate and back.',
-          'You told me I could visit, Majesty. Sister Marrow said so too. I’ve been to the gate four times.',
-          'They’re always at lessons. Or sleeping. Or at prayer. I only want to see their faces.',
-          'Last time they gave me this to take home. They said it was a kindness.',
+          'That Freehold woman. Shouting at your gate about her boy. Make her stop, Majesty. Please.',
+          'Sister Marrow says the little ones cry for a week when a mother shouts at the gate. I’ve been to that gate four times. I was quiet four times. I’ll be quiet forty.',
+          'They gave me this, last time. For being good.',
         ],
         options: [
           {
             id: 'go-with-her',
-            label: 'Send someone with her. Insist on the visit.',
+            label: 'Send someone with her anyway. Insist on seeing all three.',
             effects: {},
-            response: 'Wenna holds the baby tight. The only one she kept.',
+            response:
+              'Wenna begs you not to. You send them anyway. She walks ten steps behind the party the whole way, the baby on her hip.',
             postsQuests: ['q-d24-coldbrook-visit'],
           },
           {
             id: 'trust',
-            label: 'The Abbey has its rules. Be patient.',
+            label: 'Do as she asks. The Abbey has its rules.',
             effects: {
               affinity: { abbey: 5, freeholds: -10 },
               flags: ['wenna-turned-away'],
             },
             response:
-              'Wenna leaves without a word. She does not come to court again.',
+              'Wenna lets out a breath she has held since the farm. “Thank you.” She goes back to the gate the next week, quiet, as she promised. Hester Plowright hears what the crown told her and stops bowing to you.',
           },
           {
             id: 'ask-bundle',
@@ -1541,13 +1720,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             id: 'bundle',
             lines: [
               'Inside: three sets of children’s clothes, washed, pressed, folded square. The shoes paired on top.',
-              '“The children have grey robes now, the sister said. They won’t need these. Something to remember them by, she said.”',
-              '“Remember them,” Wenna says again, like the word has a second meaning. “They’re nine, and six, and four.”',
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'Robes are cheaper than three sets of clothes, Your Majesty. I would not frighten her over laundry.',
-              },
+              '“They have grey robes now, the sister said. They won’t need these. Something to remember them by.”',
+              '“That’s only how the sisters talk,” Wenna says. She says it again. “They’re nine, and six, and four. They’re fed. Where would I put them?”',
             ],
             options: [
               {
@@ -1568,7 +1742,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d24-coldbrooks-demanded'],
                 },
                 response:
-                  'The Abbess replies by return, warmly. The children have asked to stay. Enclosed: three drawings they made for their mother. All three show the same grey door.',
+                  'The Abbess replies in three days. The children may go home whenever their mother sends for them. Wenna does not send. “They’re fed,” she says. “Where would I put them?”',
               },
               {
                 id: 'pay-wenna',
@@ -1580,26 +1754,38 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d24-wenna-paid'],
                 },
                 response:
-                  'Wenna takes the purse. The baby needs it. She leaves the bundle on the throne-room step. Nobody knows what to do with it. It stays there all week.',
+                  'Wenna takes the purse. The baby needs it. She leaves the bundle on the throne-room step. It is still there on the seventh day, ribbon and all.',
               },
               {
                 id: 'go-with-her',
                 label:
-                  'Send someone with her. Stay at the gate until they see all three faces.',
+                  'Overrule her. Send someone to stay at the gate until they see all three faces.',
                 effects: {},
                 response:
-                  'Wenna ties the ribbon again, neatly. She holds the baby tight. The only one she kept.',
+                  'Wenna ties the ribbon again, neatly, and does not look at you. She holds the baby tight. The only one she kept.',
                 postsQuests: ['q-d24-coldbrook-visit'],
               },
               {
                 id: 'trust',
-                label: 'The Abbey has its rules. Take the clothes home, Wenna.',
+                label: 'Do as she asks. Take the clothes home, Wenna.',
                 effects: {
                   affinity: { abbey: 5, freeholds: -10 },
                   flags: ['wenna-turned-away'],
                 },
                 response:
-                  'Wenna takes the bundle and the baby and leaves without a word. She does not come to court again.',
+                  'Wenna ties the ribbon and thanks you twice. On the way out she passes Bett Ormond on the step. Neither woman looks at the other.',
+              },
+              {
+                id: 'quiet-watch',
+                label:
+                  'Do as she asks. Then post one Watch rider on the mission road, out of sight of the gate.',
+                effects: {
+                  local: { 'gate-watch': -1 },
+                  flags: ['d24-quiet-watch'],
+                  schedule: ['quiet-watch-report'],
+                },
+                response:
+                  'Wenna goes home grateful. She never learns that a Watch rider sleeps in a ditch above the mission road with a spyglass and a cold supper.',
               },
             ],
           },
@@ -1610,12 +1796,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 who: 'Kiyo',
                 npc: 'F003',
-                text: 'Where I come from, Majesty, we fold clothes this way once. For a child who won’t come back to wear them.',
+                text: 'I nursed beside the Abbey’s sisters in the fever winter, Majesty, at the Ford camps. Nobody else would go. They sat with the dying and sang to them. I liked them. I still do.',
               },
               {
                 who: 'Kiyo',
                 npc: 'F003',
-                text: 'Maybe it means something else here. This is not my country. I am often wrong about it. But if she goes back to that gate, she should leave the baby.',
+                text: 'Where I come from we fold clothes this way once. For a child who won’t come back to wear them. This is not my country. I am often wrong about it. But if she goes back to that gate, she should leave the baby.',
               },
               'Wenna looks down at the baby. Then up at you.',
             ],
@@ -1631,7 +1817,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d24-wenna-sheltered'],
                 },
                 response:
-                  'Kiyo holds the baby while Wenna eats, and keeps it an hour. That night she watches the mission road from the infirmary until its last lamp goes out.',
+                  'Kiyo holds the baby while Wenna eats, and keeps it an hour. Wenna does not thank you. She asked you not to.',
               },
               {
                 id: 'go-with-her',
@@ -1644,13 +1830,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'trust',
-                label: 'Kiyo is a stranger here. The Abbey has its rules.',
+                label: 'Do as Wenna asks. The Abbey has its rules.',
                 effects: {
                   affinity: { abbey: 5, freeholds: -10 },
                   flags: ['wenna-turned-away'],
                 },
                 response:
-                  'Wenna leaves without a word. She does not come to court again. Kiyo takes her kettle back to the infirmary and does not speak to you all day.',
+                  'Wenna gathers the bundle and the baby and thanks you. Kiyo watches the mission road from the infirmary window until its last lamp goes out.',
               },
             ],
           },
@@ -1688,6 +1874,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         source: 'The kitchens',
         text: 'The Abbess sent a cartload of bread ahead for the Yard.',
         truth: true,
+        variants: [
+          {
+            flags: ['d23-sisters-barred'],
+            text: 'The Abbess sent a cartload of bread ahead for the Yard. The Yard’s cough came back the week the sisters stopped coming. Two of the cooks’ children are in the infirmary.',
+          },
+        ],
       },
     ],
     komodo:
@@ -1700,17 +1892,25 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'The Abbess',
         npc: 'the-abbess',
         faction: 'abbey',
-        lines: [
-          'The Abbess walks into the hall on her own feet, road dust on her hem. Two young otter sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
-          'The hall goes quiet the way it does for weather.',
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Mother Abbess. You walked the whole way? You should have sent word. I’d have sent the cart.',
-          },
-          'What a fine court, Your Majesty. And what a fine young advisor. Young Komodo has been such a friend to the mission.',
-          'I walked here to say this. The wasteland is cruel to little ones. The Abbey takes them in. We ask only to be left to our work.',
-        ],
+        lines: abbessOpening([]),
+        // What the court did to the Abbey this week, in her own mouth.
+        variants: asideVariants(
+          [
+            [
+              {
+                flag: 'd23-mission-syrup-seized',
+                line: 'Your Watch took our syrup off the rail line, Your Majesty. Our fever ward cried for three nights. I don’t blame you. Someone told you something.',
+              },
+            ],
+            [
+              {
+                flag: 'asked-abbey-politely',
+                line: 'And thank you for your letter about the Ormond boy. It was courteous. Not every court writes.',
+              },
+            ],
+          ],
+          abbessOpening,
+        ),
         options: [
           {
             id: 'honor',
@@ -1721,7 +1921,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['abbess-honored'],
             },
             response:
-              'The Abbess smiles, warm and patient. Komodo bows lower than he bows to you.',
+              'The Abbess accepts it with a short nod, like a receipt. The Yard cheers her bread. Komodo bows lower than he bows to you.',
           },
           {
             id: 'tracks',
@@ -1733,18 +1933,19 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['abbess-questioned'],
             },
             response:
-              'The Abbess keeps smiling. “Children run to us, Your Majesty. They do not run away.” Behind her, Komodo goes still.',
+              '“Children walk up that road every week, Your Majesty. Most walk down it again, to farms that need hands. We sweep it because they track mud into the chapel.” Captain Dunmark writes that down.',
           },
           {
             id: 'cots',
-            label: 'Ask her why the Coldbrook children’s cots were empty.',
+            label:
+              'Ask her why the youngest Coldbrook was kept from his mother.',
             requires: { flags: ['abbey-cots-empty'] },
             effects: {
               affinity: { abbey: -15, freeholds: 5 },
               flags: ['abbess-questioned', 'abbess-warned'],
             },
             response:
-              'For one moment the smile is gone. The face under it is flat. Then it is back. “Lessons,” says the Abbess. “Such busy children.”',
+              'The Abbess does not smile. “Because he has the fever, and his mother would carry him home, and he would die on her road. I have buried children who went home too soon, Your Majesty. You have not.”',
           },
           {
             id: 'tax',
@@ -1752,20 +1953,22 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             effects: {
               brass: 30,
               affinity: { abbey: -15 },
+              local: { yard: -2 },
             },
             response:
-              'The Abbess pays at once, in brass, from a purse that never empties.',
+              'She pays from a plain purse, counts it twice and asks for a receipt. “The bread was our tithe, Your Majesty. Now it is brass.” The baskets stop coming up the hill.',
           },
           {
             id: 'wenna-named',
-            label: 'Tell her Wenna Coldbrook has stopped coming to court.',
+            label:
+              'Tell her Wenna Coldbrook asked the crown to stay away from her children.',
             requires: { flags: ['wenna-turned-away'] },
             effects: {
               affinity: { abbey: -5 },
               flags: ['d25-wenna-named'],
             },
             response:
-              'The Abbess’s smile softens. It looks like real feeling. “Wenna is with her children now,” she says. “Isn’t that what she wanted?” Comfort or confession. Nobody asks.',
+              'The Abbess’s face eases. “She comes to us every week now. Sits with them an hour. Since she stopped shouting we have never once turned her away.” She says it to the whole hall.',
           },
           {
             id: 'ask-census',
@@ -1798,14 +2001,14 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'census',
             lines: [
-              '“Our census? Oh, he has been such a help. He copied last winter’s pages himself, when our sisters’ eyes were tired. Every child, by name.”',
-              '“You are welcome to see it, Your Majesty. It lives at the Abbey, of course. Paper travels badly.”',
+              '“Our census? Young Komodo has been a help to us. He copied last winter’s pages himself, when our sisters’ eyes were tired. Every child, by name.”',
+              '“You are welcome to read it, Your Majesty. It lives at the Abbey. Paper travels badly.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
                 text: 'Last winter, Your Majesty, before your crowning. They were short of clerks and I was short of brass. I should have mentioned it.',
               },
-              'His claw taps the cover of his ledger twice. Then it is still.',
+              'He does not look at the Abbess. She does not look at him.',
             ],
             options: [
               {
@@ -1824,9 +2027,10 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: 5 },
                   local: { lamplight: 1 },
                   flags: ['d25-census-clerk'],
+                  schedule: ['census-clerk-report'],
                 },
                 response:
-                  '“How lovely,” says the Abbess. “Send someone young. The stairs are steep. We would hate to lose anyone.”',
+                  '“Send whoever you like,” says the Abbess. “Come yourself. Mind the third stair. It’s loose. I keep meaning to have it seen to.”',
               },
               {
                 id: 'honor',
@@ -1838,7 +2042,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['abbess-honored'],
                 },
                 response:
-                  'The Abbess smiles, warm and patient. The Yard cheers her bread. Komodo bows lower than he bows to you.',
+                  'The Abbess thanks the court for its trust. The Yard cheers her bread. Komodo bows lower than he bows to you.',
               },
               {
                 id: 'tax',
@@ -1847,9 +2051,18 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   brass: 30,
                   affinity: { abbey: -15 },
+                  local: { yard: -2 },
                 },
                 response:
-                  'The Abbess pays at once, in brass, from a purse that never empties. “Write it in your census too,” she tells Komodo, kindly.',
+                  'The Abbess pays from a plain purse and counts it twice. “Write that in your census too,” she tells Komodo. The bread baskets stop coming up the hill.',
+              },
+              {
+                id: 'ask-wants',
+                label: 'Leave the census. Ask what she walked here for.',
+                effects: {},
+                response:
+                  'The Abbess folds her hands. “I hoped you would ask.”',
+                next: 'offer',
               },
             ],
           },
@@ -1859,13 +2072,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             npc: 'young-komodo',
             lines: [
               '“How many? A great many, Your Majesty. Two hundred and twelve, last winter.”',
-              'The Abbess smiles at him like a teacher at a pupil who answered right, a beat too fast.',
+              'The Abbess does not correct him.',
               {
                 who: 'The Abbess',
                 npc: 'the-abbess',
-                text: 'Fewer this winter, thank goodness. So many have gone home.',
+                text: 'Fewer this winter. Many go on to farms that need hands. Some go home. Some we bury. We write them all down.',
               },
-              'Two hundred and twelve names. On the eighth day of your reign a sister said the Abbey had forty empty beds. Nobody does the sum aloud.',
+              'Two hundred and twelve names. On the eighth day of your reign a sister told this court the Abbey had forty empty beds. Captain Dunmark does the sum on his fingers.',
             ],
             options: [
               {
@@ -1877,7 +2090,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d25-komodo-census-noted'],
                 },
                 response:
-                  'Komodo watches the scribe’s pen with polite interest. “I am flattered to be recorded.” All evening he is kind to you. You will remember that later.',
+                  'Komodo watches the scribe’s pen with polite interest. “I am flattered to be recorded.” All evening he is kind to you. He fills your cup himself.',
               },
               {
                 id: 'trust-komodo',
@@ -1888,7 +2101,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d25-komodo-trusted'],
                 },
                 response:
-                  '“The crown is very kind,” says Komodo, and bows. On her way out the Abbess pats his arm once, like a ledger that balanced.',
+                  '“The crown is kind,” says Komodo, and bows. On her way out the Abbess pats his arm once, the way you pat a horse that pulled well.',
               },
               {
                 id: 'honor',
@@ -1900,7 +2113,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['abbess-honored'],
                 },
                 response:
-                  'The Abbess smiles, warm and patient. The Yard cheers her bread. Komodo bows lower than he bows to you, and stays down a long time.',
+                  'The Abbess inclines her head. The Yard cheers her bread. Komodo bows and stays down a long time.',
+              },
+              {
+                id: 'ask-wants',
+                label:
+                  'Let the number lie for now. Ask what she walked here for.',
+                effects: {},
+                response: 'The Abbess turns from Komodo to you. “Yes. That.”',
+                next: 'offer',
               },
             ],
           },
@@ -1942,6 +2163,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: 5 },
                   local: { yard: 1, lamplight: 1 },
                   flags: ['d25-orphan-writ', 'd25-visiting-clause'],
+                  schedule: ['midnight-visit'],
                 },
                 response:
                   '“Any hour,” the Abbess agrees, and signs under you. She does not argue the clause at all. That is what Dunmark cannot stop thinking about.',
@@ -1954,6 +2176,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { abbey: -10 },
                   local: { yard: -1, 'gate-watch': 1 },
                   flags: ['d25-orphans-kept'],
+                  schedule: ['war-orphans'],
                 },
                 response:
                   '“Somehow,” the Abbess repeats, like a word a child made up. She leaves the bread anyway. The Yard eats it. By morning winter porridge is dearer on the Ledger’s board.',
@@ -1968,7 +2191,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['abbess-honored'],
                 },
                 response:
-                  'The Abbess smiles. “Another time,” she says, like you agreed. Komodo bows lower than he bows to you.',
+                  'The Abbess smiles. “Another time,” she says, like you agreed. She leaves the bread.',
               },
               {
                 id: 'tax',
@@ -1977,9 +2200,10 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: {
                   brass: 30,
                   affinity: { abbey: -15 },
+                  local: { yard: -2 },
                 },
                 response:
-                  'The Abbess pays at once, in brass, from a purse that never empties. “The orphans will still come,” she says. “They always do.”',
+                  'She counts the brass out on the dais step. “The orphans will still come,” she says. “The bread will not.”',
               },
             ],
           },
@@ -1999,9 +2223,9 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 text: 'I told myself it was harmless. It’s always harmless, every week, until you count the weeks.',
               },
               {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'A good man’s letters to his old teacher, Your Majesty. There are worse things. Do not shame him for them.',
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: 'He wrote that my cooks’ children were coughing, Majesty. The next week the sisters brought syrup to my door. I’ve wondered since who to thank.',
               },
             ],
             options: [
@@ -2036,7 +2260,16 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['abbess-honored'],
                 },
                 response:
-                  'The Abbess squeezes Teodor’s hand on her way out. Komodo bows lower than he bows to you. That week Teodor writes his letter as usual, and shows it to you first, unasked.',
+                  'The Abbess squeezes Teodor’s hand on her way out. That week Teodor writes his letter as usual, and shows it to you first, unasked.',
+              },
+              {
+                id: 'ask-wants',
+                label:
+                  'Leave the letters. Ask the Abbess what she walked here for.',
+                effects: {},
+                response:
+                  'Teodor sits. The Abbess watches him do it, then turns to you.',
+                next: 'offer',
               },
             ],
           },
@@ -2081,6 +2314,17 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
     ],
     komodo:
       'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. Nobody bargains with them.',
+    // Bett Ormond, two days after the crown read her letter.
+    komodoVariants: [
+      {
+        flags: ['d24-form-letter-told'],
+        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. And the Freehold mother sleeps at the mission-road well now. The sisters bring her soup. She takes it.',
+      },
+      {
+        flags: ['d24-letter-read-kindly'],
+        text: 'Vane will die old in bed, Your Majesty, out of spite. The dry-well jackals are another thing. And the Freehold mother went home singing. Her reeve says she has the letter by heart.',
+      },
+    ],
     quests: [],
     audiences: [
       {
@@ -2105,7 +2349,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             label: 'Ride with the Pack against the dry well.',
             effects: {},
             response:
-              'Vane grins with every tooth. “Bring the big one. The rhino, if you have her.”',
+              'Vane grins with every tooth. “Bring your heaviest. Somebody they’ll have to walk around.”',
             postsQuests: ['q-d26-dry-well'],
           },
           {
@@ -2122,6 +2366,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               'Vane goes quiet. The ear-chain stops jangling. He brings a folded sack out of his coat.',
             next: 'where',
           },
+          {
+            id: 'help-mags',
+            label: 'Ride with the Pack. Promise Mags Ironhide at the front.',
+            requires: { follower: 'F013' },
+            effects: { affinity: { jackalwire: 5 } },
+            response:
+              'Vane grins with every tooth. “The big one. The rhino. I hoped you’d say her name.”',
+            postsQuests: ['q-d26-dry-well'],
+          },
         ],
         beats: [
           {
@@ -2129,7 +2382,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             lines: [
               '“North,” says Vane. “That’s what keeps me up. They walk them north, roped at the wrist. Three days later they come back with nobody, bellies full.”',
               '“We caught one last month. He had this. Good white flour. Nobody in the canyon’s seen that in years.”',
-              'He shakes the sack out on the step. The stamp is faded but clear: a bell with no clapper.',
+              'He shakes the sack out on the step. No stamp. White dust on the carpet. “Who mills white?” He counts on his claws. “The Abbey. Hollow Bell. The Ledger’s mill at the Ford. I’ve blamed all three, on different nights.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -2145,6 +2398,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   affinity: { jackalwire: -5, freeholds: -5 },
                   local: { 'gate-watch': 1, lamplight: 1 },
                   flags: ['d26-dry-well-followed'],
+                  schedule: ['dry-well-watch'],
                 },
                 response:
                   'Vane stares. “You’d let them take more,” he says, “to see where they go.” He laughs. No pleasure in it. “And they call us the raiders.” At dusk the Watch rides out. Orders: do not interfere, whatever they see.',
@@ -2155,7 +2409,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   'Ride with the Pack. Bring every sack like this one back to court.',
                 effects: {},
                 response:
-                  'Vane grins with every tooth and folds the sack away like a letter. “Bring the big one. The rhino, if you have her. And a cart for flour.”',
+                  'Vane grins with every tooth and folds the sack away like a letter. “Bring your heaviest. And a cart for flour.”',
                 postsQuests: ['q-d26-dry-well'],
               },
               {
@@ -2165,6 +2419,16 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 effects: { affinity: { jackalwire: -10 } },
                 response:
                   '“Our own kind,” Vane repeats. He leaves the sack on the step. At evening a kitchen child takes it to keep bread in.',
+              },
+              {
+                id: 'help-mags',
+                label:
+                  'Ride with the Pack. Mags Ironhide goes in front. Bring back every sack.',
+                requires: { follower: 'F013' },
+                effects: { affinity: { jackalwire: 5 } },
+                response:
+                  'Vane folds the sack away like a letter. “The rhino. Good. They can walk around her, if they can find the end of her.”',
+                postsQuests: ['q-d26-dry-well'],
               },
             ],
           },
@@ -2372,6 +2636,12 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         lines: [
           'The court has never held a trial. It shows. The Old Houses fill the gallery in their best coats. Lady Vask stands below the dais with ledger copies in black ribbon. Beside her, slow as always, Duchess Flint: shawl on her shoulders, signet ring turned inward.',
           'The Old Houses accuse your follower of theft from the crown, Majesty. Grain, to the Moles. We ask judgment.',
+          'Foreman Dunmore Ash stands beside Lady Vask. He does not like the company. He came anyway.',
+          {
+            who: 'Foreman Dunmore Ash',
+            npc: 'dunmore-ash',
+            text: 'Forty sacks went down a Mole hole, Majesty. Out of the crown store. Out of my Yard’s winter. My cooks’ children ate soup water that month. I’m not with the Houses. I’m with the soup.',
+          },
           'Flint says nothing in her own defense. Only: “Read the ledgers.”',
           {
             who: 'Young Komodo',
@@ -2400,13 +2670,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'censure',
-            label: 'Censure her, to keep the Old Houses quiet.',
+            label: 'Censure her. The Yard went hungry for that grain.',
             effects: {
-              local: { 'old-houses': 4 },
+              local: { 'old-houses': 4, yard: 1 },
               flags: ['flint-censured'],
             },
             response:
-              'Flint takes the censure without a word. She will remember it. So will the barracks.',
+              'Flint takes the censure without a word. Dunmore nods once and leaves before Lady Vask can thank him. The barracks remember it.',
           },
           {
             id: 'ask-flint',
@@ -2456,11 +2726,11 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   'Declare before the court: Flint gave her own bread, and the crown honours it.',
                 effects: {
                   affinity: { moles: 5 },
-                  local: { 'old-houses': -3, yard: 2 },
+                  local: { 'old-houses': -3, yard: 1 },
                   flags: ['d27-flint-ration-known'],
                 },
                 response:
-                  'The Yard cheers from the back. Flint closes her eyes. “Now they know I was looking,” she says, for you alone. That night Captain Dunmark moves her bed beside the Watch, unasked.',
+                  'The back of the hall cheers. Dunmore does not. “Then the crown honours what it took from my kitchen,” he says, and goes. Flint closes her eyes. “Now they know I was looking.” That night Captain Dunmark moves her bed beside the Watch, unasked.',
               },
               {
                 id: 'bury-it',
@@ -2497,7 +2767,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 label:
                   'Censure her anyway. Crown grain is crown grain, even when it is hers.',
                 effects: {
-                  local: { 'old-houses': 4 },
+                  local: { 'old-houses': 4, yard: 1 },
                   flags: ['flint-censured'],
                 },
                 response:
@@ -2727,7 +2997,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['verge-cures-accepted', 'promised-sable'],
             },
             response:
-              'The envoy bows. “The Court never forgets a neighbour.” It sounds like a threat.',
+              'The envoy bows. “The Court never forgets a neighbour.” The gloves stay on.',
           },
           {
             id: 'test',
@@ -2748,7 +3018,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             label: 'Ask what the charm is made of.',
             effects: {},
             response:
-              'The envoy is amused. Not a good thing to see on that face.',
+              'The envoy is amused. The gloved fingers fold, one by one.',
             next: 'charm',
           },
           {
@@ -2818,7 +3088,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['verge-cures-accepted', 'promised-sable'],
                 },
                 response:
-                  'The envoy bows. “The Court never forgets a neighbour.” It sounds like a threat. By evening the Yard is baking. The bread is good. Nobody can get warm.',
+                  'The envoy bows. “The Court never forgets a neighbour.” By evening the Yard is baking. The bread is good. Nobody can get warm.',
               },
             ],
           },
@@ -2846,7 +3116,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['verge-cures-accepted', 'promised-sable'],
                 },
                 response:
-                  'The envoy bows. “The Court never forgets a neighbour, or a kindness.” It sounds like a threat. By evening the Yard bakes.',
+                  'The envoy bows. “The Court never forgets a neighbour, or a kindness.” By evening the Yard bakes. The envoy is still at the gate, watching the road.',
               },
               {
                 id: 'test',
@@ -3070,7 +3340,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['talk-pip-ledger', 'bell-abbey-ledger'],
             },
             response:
-              'Pip reads in a small, steady voice. Water from the Abbey’s deep well, every season, for “the names of the town’s unclaimed children.” Mara does not look away.',
+              'Pip reads in a small, steady voice. Water from the Abbey’s deep well, every season, for “the names of the town’s unclaimed children.” Mara does not look away. When Pip is done, she speaks.',
+            next: 'price',
           },
           {
             id: 'expose',
@@ -3270,6 +3541,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 response:
                   '“A debt,” says Mara. “Well. I know how those work.” The Keeper hands you the page like a live coal.',
               },
+              {
+                id: 'ask-cost',
+                label:
+                  'Leave the runner for now. Ask Mara what the water cost.',
+                effects: {},
+                response:
+                  'Mara looks at the hand-bell, not at you. She starts like she is reading a page she knows by heart.',
+                next: 'price',
+              },
             ],
           },
         ],
@@ -3308,18 +3588,13 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         title: 'Terms of Shelter',
         speaker: 'Envoys of three factions',
         faction: 'saltroad',
-        lines: [
-          'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An old mole in a quilted vest, eyeing the ceiling like it might fall.',
-          'The Freeholds, the Saltroad and the Moles have each sent an envoy. One question from all three: if war comes tonight, will the crown open its gates?',
+        lines: termsOpening(DUNMARK_GATE),
+        variants: [
           {
-            who: 'Captain Ferro Dunmark',
-            npc: 'ferro-dunmark',
-            text: 'The fortress can shelter one of them properly, Majesty. Not two. Spread the Watch over three camps and I lose all three, and the gate. The rest fend for themselves.',
-          },
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Choose by strength, Your Majesty. The weak are gone by morning whatever we do. The strong remember who opened the gate.',
+            flags: ['d26-dry-well-followed'],
+            lines: termsOpening(
+              'My riders watched eleven people go by on a rope, Majesty. On your word. Now the fortress can shelter one of these properly. Not two. Don’t ask my riders to watch the rest go by.',
+            ),
           },
         ],
         options: [
@@ -3384,7 +3659,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 who: 'Hester Plowright',
                 npc: 'hester-plowright',
-                text: 'Eleven farms, two wells, every child under ten, Majesty. We have no walls. We have fences. Fences are for goats.',
+                text: 'Eleven farms, two wells, and everyone on them, Majesty. We have no walls. We have fences. Fences are for goats.',
               },
               {
                 who: 'A Saltroad drover',
@@ -3405,6 +3680,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 id: 'children-first',
                 label:
                   'Shelter every child of all three peoples, and none of the grown.',
+                requires: { notFlags: ['d30-children-to-abbey'] },
                 effects: {
                   affinity: { freeholds: 5, saltroad: 5, moles: 5 },
                   local: { yard: -3 },
@@ -3455,33 +3731,59 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             id: 'marrow',
             speaker: 'Sister Marrow of the Abbey',
             npc: 'sister-marrow',
-            lines: [
-              'Sister Marrow walks in out of the dark with a lantern and a counting cord, wearing the patient smile she wears at every door. She bows to each envoy.',
-              '“The Abbess sends her love, Your Majesty, and her wagons. Shelter whichever grown folk you like. Tonight the Abbey takes the children of all three peoples behind our walls until the war is done.”',
-              '“The wagons are at your gate. Warm blankets. Hot milk. We have counted the beds.”',
-              {
-                who: 'Hester Plowright',
-                npc: 'hester-plowright',
-                text: 'A mother on my roads had a boy who walked to the Abbey with a sister in grey. She came here asking after him. Ask how often she’s seen his face.',
-              },
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'It solves everything, Your Majesty. The children are safe, the gate shelters the grown, and nobody chooses which child to save. I cannot find the flaw.',
-              },
-            ],
+            lines: marrowLines([]),
+            // Marrow remembers the court's week; Hester remembers Bett.
+            variants: asideVariants(
+              [
+                [
+                  {
+                    flag: 'd23-tam-visited',
+                    line: '“Tam Coldbrook asked to ride on the first wagon. He wants to carry the soup. I said I would ask you.”',
+                  },
+                  {
+                    flag: 'd29-bell-refuses-water',
+                    line: '“We took water carts to Hollow Bell this week. Free. The far wards drank. We would do the same for these.”',
+                  },
+                  {
+                    flag: 'd25-orphans-kept',
+                    line: '“The Abbess heard the crown will feed its own orphans. She sends the wagons anyway. In case somehow runs out.”',
+                  },
+                  {
+                    flag: 'abbess-questioned',
+                    line: '“The Abbess has not forgotten your questions. She says she is glad of them. Ask them again on the wagons, if you like.”',
+                  },
+                  {
+                    flag: 'abbess-honored',
+                    line: '“The Abbess remembers how this court honoured her. She asked me to come myself.”',
+                  },
+                ],
+                [
+                  {
+                    flag: 'd24-letter-read-kindly',
+                    line: 'A mother on my roads gets a letter every month from her boy. Same good paper. Same hundred kisses. This court read her the first one, Majesty.',
+                  },
+                  {
+                    flag: 'd24-form-letter-told',
+                    line: 'Bett Ormond sleeps at the mission-road well now. The sisters bring her soup. She takes it. Ask her how often she’s seen Dov’s face.',
+                  },
+                ],
+              ],
+              marrowLines,
+            ),
             options: [
               {
                 id: 'abbey-takes-children',
                 label:
-                  'Accept. The Abbey takes the children. The grown fend for themselves.',
+                  'Accept. The Abbey takes the children. Then decide which of the grown come in.',
                 effects: {
                   affinity: { abbey: 10 },
                   local: { yard: 1 },
                   flags: ['d30-children-to-abbey'],
+                  schedule: ['abbey-wagons-return'],
                 },
                 response:
-                  'Sister Marrow counts the children onto the wagons with her cord, knot by knot. She never loses her place. The wagons go north without lanterns. The envoys stand at the gate long after the wheels go quiet.',
+                  'Sister Marrow counts the children onto the wagons with her cord, knot by knot. Sixty. The mothers hand up blankets. The wagons go north at a walk. Then the envoys turn back to you. The grown are still at the gate.',
+                next: 'losses',
               },
               {
                 id: 'send-away',
@@ -3508,6 +3810,132 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             ],
           },
         ],
+      },
+    ],
+  },
+]
+
+/**
+ * What Act III's answers bring back on a later dawn (t-037). Most are hidden:
+ * the court learns them when they happen. The two the crown can see coming
+ * (the Watch's report and the war orphans) sit in the ledger.
+ */
+export const ACT_THREE_DUES: readonly DueDef[] = [
+  {
+    id: 'midnight-visit',
+    title: 'A visit at midnight',
+    inDays: 2,
+    hidden: true,
+    line: 'Hester Plowright took the writ’s clause at its word and walked into the Abbey at midnight, unannounced. The children were asleep, two to a cot, fed. She counted forty heads. She came back and ate her supper without a word.',
+  },
+  {
+    id: 'census-clerk-report',
+    title: 'The clerk at the Abbey',
+    inDays: 3,
+    hidden: true,
+    line: 'The crown’s clerk came back from the Abbey with ink to the wrist. Two hundred and twelve names, every one in a fair hand. They showed her every floor but one: the fever ward. She could not go down without a mask, and they had none to spare.',
+  },
+  {
+    id: 'dry-well-watch',
+    title: 'The Watch on the dry-well road',
+    inDays: 2,
+    warning:
+      'The Watch rides behind the dry-well jackals and reports what it saw.',
+    line: 'The Watch came back from the dry-well road. They followed eleven Freehold people on a rope to a crossroads below the mission road. Wagons without marks took them north. The Watch did not interfere. Orders.',
+    effects: { local: { 'gate-watch': -1 } },
+  },
+  {
+    id: 'war-orphans',
+    title: 'Orphans at the Yard gate',
+    day: 31,
+    warning:
+      'The war makes orphans by Day 31, and no Abbey writ sends them anywhere but the Yard.',
+    line: 'The first war orphans reached the Yard gate at dawn. Dunmore found beds for nine. The rest sleep in the bakehouse against the warm wall.',
+    effects: { local: { yard: -1 } },
+  },
+  {
+    id: 'quiet-watch-report',
+    title: 'The rider above the mission road',
+    day: 31,
+    hidden: true,
+    line: 'The rider above the mission road came home. Wenna went in at noon twice and came out at dusk both times, slow, the baby asleep. The side gate opened four nights. Wagons went in heavy and came out light. Flour, the rider thinks. She will not swear to it.',
+  },
+  {
+    id: 'abbey-wagons-return',
+    title: 'The wagons come back',
+    inDays: 4,
+    hidden: true,
+    line: 'The Abbey’s wagons came back down the mission road at dawn. Forty-one children of the three peoples, fed, in new boots. Sixty went up. Sister Marrow says the rest are still at lessons. Hester Plowright has the names of the nineteen.',
+    effects: { affinity: { freeholds: -5 } },
+  },
+]
+
+/**
+ * Afterwards (t-037): the Abbey choices of Act III the epilogue remembers.
+ * Spread into the epilogue's kingdom subjects; first matching variant wins.
+ */
+export const ACT_THREE_AFTERWARDS: readonly EpilogueSubject[] = [
+  {
+    id: 'war-children',
+    name: 'The children of the war night',
+    variants: [
+      {
+        when: { flags: ['d30-children-to-abbey'], endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Sixty children went up the mission road on the night before the war. Forty-one came down in new boots. There are more voices in the singing now. Hester Plowright knows nineteen of them by name.',
+      },
+      {
+        when: { flags: ['d30-children-to-abbey'] },
+        mood: 'sad',
+        text: 'Sixty children of three peoples went up the mission road the night before the war, to hot milk and two to a cot. Forty-one came down in new boots. Hester Plowright reads the other nineteen names at every council. She has not been asked to stop.',
+      },
+      {
+        when: { flags: ['d30-children-sheltered'] },
+        text: 'On the night before the war the Yard slept three to a bed. The mothers kissed their children at the gate and walked back to the fences. Most came back for them. The Yard keeps the extra beds made.',
+      },
+    ],
+  },
+  {
+    id: 'ormond',
+    name: 'Bett Ormond and her boy',
+    variants: [
+      {
+        when: { endings: ['long-night'] },
+        mood: 'sad',
+        text: 'Bett Ormond sleeps at the mission-road well. She knows Dov’s voice in the singing. She has stopped asking anyone to read her anything.',
+      },
+      {
+        when: { flags: ['d24-letter-read-kindly'] },
+        text: 'Bett Ormond still gets a letter on the first of every month, in a fine hand. Dov is well, and busy. She keeps them in a tin. She can’t read them. She doesn’t need to.',
+      },
+      {
+        when: { flags: ['d24-form-letter-told'] },
+        text: 'Bett Ormond slept at the mission-road well until the snow. The sisters brought her soup. In spring Dov came down the road in new boots, taller, polite. He calls her ma’am. She takes him home anyway.',
+      },
+      {
+        when: { flags: ['asked-abbey-politely'] },
+        text: 'The Abbess answered the crown’s letter about Dov Ormond in three days. At midwinter a second letter came, in a child’s hand, spelled wrong. Bett keeps that one inside her coat.',
+      },
+      {
+        text: 'The court never read Bett Ormond her letter. She waits at the Abbey gate on the first of every month. Some months a sister comes out and sits with her. Neither of them says much.',
+      },
+    ],
+  },
+  {
+    id: 'yard-sisters',
+    name: 'The sisters’ bread',
+    variants: [
+      {
+        when: { flags: ['d23-sisters-barred'] },
+        text: 'The sisters never came back to the Yard. The bread stopped and the cough came back, and then the cough went, the way coughs do. Two small graves went in behind the bakehouse first.',
+      },
+      {
+        when: { flags: ['d23-bread-at-gate'] },
+        text: 'The sisters’ baskets came to the Yard gate every evening until the war, and never through it. Tam Coldbrook watched them through the bars. He still stands at that gate at dusk, a grown man, chin on the crossbar.',
+      },
+      {
+        when: { flags: ['d23-sisters-welcome'] },
+        text: 'The sisters came to the Yard every evening, war or no war. The Yard ate their bread and taught its children their songs. The Yard has very few orphans now. It has stopped asking where they go.',
       },
     ],
   },

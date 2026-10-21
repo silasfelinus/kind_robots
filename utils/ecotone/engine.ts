@@ -323,6 +323,12 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
           : presence.unmet,
     )
   }
+  if (card.meetingLines) {
+    for (const companion of state.meetingOrder.slice(-2)) {
+      const line = card.meetingLines[companion]
+      if (line) asides.push(line)
+    }
+  }
   const lead = state.activeLead
   for (const [flag, lines] of Object.entries(card.flagLines ?? {})) {
     if (!state.flags.includes(flag)) continue

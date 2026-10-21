@@ -26,6 +26,7 @@ on:
       - 'utils/scripts/verifyShiftingCharacterRail.test.ts'
       - 'utils/scripts/verifyShiftingSceneArt.test.ts'
       - 'utils/scripts/verifyShiftingV6.test.ts'
+      - 'utils/scripts/verifyShiftingV7Endings.test.ts'
       - 'components/shifting-lands-check-chip.vue'
       - 'components/shifting-lands-scene-image.vue'
       - 'utils/scripts/importShiftingLandsWorld.mjs'
@@ -56,5 +57,6 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingV6.test.ts
       - run: npx tsx utils/scripts/shiftingLandsV6BalanceReport.ts 300
       - run: npx tsx utils/scripts/verifyShiftingV7.test.ts 300
+      - run: npx tsx utils/scripts/verifyShiftingV7Endings.test.ts
       - run: npx tsx utils/scripts/verifyShiftingWorldEchoesV7.test.ts
       - run: npx tsx utils/scripts/verifyShiftingMoralChainsV7.test.ts

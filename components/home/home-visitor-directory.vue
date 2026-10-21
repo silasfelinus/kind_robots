@@ -411,7 +411,7 @@ const features = [
     title: 'Music Videos',
     tag: 'Watch and remix',
     category: 'create',
-    route: '/play/music-video',
+    route: '/play/video-generator?studio=music',
     image: '/images/channels/plan/video-generator.webp',
     description: 'Watch illustrated music videos and remix new drafts.',
   },

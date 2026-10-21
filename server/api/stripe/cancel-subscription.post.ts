@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
+import { patronPeriodEnd } from '~/server/utils/patronBilling'
 
 let stripe: Stripe | null = null
 
@@ -34,23 +35,62 @@ export default defineEventHandler(async (event) => {
       })
 
     const stripe = getStripeClient()
-    await stripe.subscriptions.cancel(user.stripeSubscriptionId)
+    const subscription = await stripe.subscriptions.retrieve(
+      user.stripeSubscriptionId,
+    )
+    const subscriptionCustomer =
+      typeof subscription.customer === 'string'
+        ? subscription.customer
+        : subscription.customer?.id
+    if (
+      !user.stripeCustomerId ||
+      user.stripeCustomerId !== subscriptionCustomer
+    ) {
+      throw createError({
+        statusCode: 403,
+        message: 'This subscription does not belong to your account',
+      })
+    }
 
-    // Cancel immediately rather than waiting on the customer.subscription.deleted
-    // webhook so the UI reflects the change right away; the webhook redelivering
-    // the same state afterward is a harmless no-op.
+    const priceId = process.env.STRIPE_PRICE_ID
+    if (!priceId) {
+      throw createError({
+        statusCode: 500,
+        message: 'Patron subscription price is not configured',
+      })
+    }
+    const endDate = patronPeriodEnd(subscription, priceId)
+    if (
+      !endDate ||
+      !Number.isFinite(endDate.getTime()) ||
+      endDate <= new Date()
+    ) {
+      throw createError({
+        statusCode: 409,
+        message: 'Could not confirm the remaining paid billing period',
+      })
+    }
+
+    // Preserve access already purchased. Stripe cancels the subscription at
+    // the period boundary and then sends customer.subscription.deleted.
+    // Already-scheduled cancellation is idempotent and is safe to retry.
+    if (!subscription.cancel_at_period_end) {
+      await stripe.subscriptions.update(user.stripeSubscriptionId, {
+        cancel_at_period_end: true,
+      })
+    }
+
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        isMember: false,
-        memberUntil: new Date(),
-        stripeSubscriptionId: null,
+        memberUntil: endDate,
       },
     })
 
     response = {
       success: true,
-      message: '💔 Subscription cancelled',
+      endsAt: endDate.toISOString(),
+      message: 'Renewal cancelled. Your Patron access stays active until the end of the paid period.',
     }
     event.node.res.statusCode = 200
   } catch (error: unknown) {

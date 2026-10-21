@@ -619,11 +619,7 @@ const recentArtRoute = readFileSync(
 )
 assert.ok(recentArtRoute.includes('userId: auth.user.id,'))
 assert.ok(recentArtRoute.includes('viewerShowsMature(preference)'))
-assert.ok(
-  recentArtRoute.includes(
-    "filter === 'mature' ? true : { not: true }",
-  ),
-)
+assert.ok(recentArtRoute.includes("filter === 'mature' ? true : { not: true }"))
 const videoGeneratorPage = readFileSync(
   'pages/play/video-generator.vue',
   'utf8',

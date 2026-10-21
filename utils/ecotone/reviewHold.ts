@@ -13,8 +13,8 @@
  */
 export const ECOTONE_REVIEW_HELD_CARDS = ['WH-121'] as const
 
-export function isEcotoneReviewHeldCard(id: string): boolean {
-  return id.toUpperCase() === 'WH-121'
+export function isEcotoneReviewHeldCard(id: unknown): boolean {
+  return typeof id === 'string' && id.toUpperCase() === 'WH-121'
 }
 
 export function isEcotoneReviewHeldArt(asset: string): boolean {

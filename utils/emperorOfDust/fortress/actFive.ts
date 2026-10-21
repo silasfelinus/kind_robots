@@ -8,6 +8,7 @@ import type {
   KingdomFactionId,
   QuestDef,
   SceneLine,
+  SceneVariant,
 } from './types'
 import { MOLE_ASSEMBLY_TURNS_OUT } from './moles'
 
@@ -69,6 +70,18 @@ export const FINALE_AID: FlagAid[] = [
   {
     flags: ['d44-powder-to-crypt'],
     label: 'A keg of powder for the brick tunnel',
+    bonus: 2,
+    stat: 'might',
+  },
+  // t-039: the drowned fen and the Pack at the wall are roads too.
+  {
+    flags: ['d44-dike-blown'],
+    label: 'The fen went down the Abbey’s deep well',
+    bonus: 2,
+  },
+  {
+    flags: ['d47-pack-rides'],
+    label: 'The Pack rides at the Abbey wall',
     bonus: 2,
     stat: 'might',
   },
@@ -587,6 +600,12 @@ type HostTerms = {
   acceptAgain: { label: string; response: string }
   bargainAgain: { label: string; response: string }
   /**
+   * What taking the host's terms costs beyond the work (t-039), on both
+   * accept answers, asked or not: the host's terms do not change because
+   * the crown did not ask.
+   */
+  acceptEffects?: Effects
+  /**
    * What the reworded bargain buys beyond the host's silence (t-040), merged
    * into `bargainAgain` so it does what its label says.
    * @example bargainEffects: { affinity: { abbey: -5 }, flags: ['d42-abbey-wagons-dropped'] }
@@ -664,6 +683,7 @@ const hostTerms = (host: HostTerms): AudienceDef => {
     id: 'accept',
     label,
     effects: {
+      ...host.acceptEffects,
       ...(host.faction
         ? {
             affinity: { [host.faction]: 5 } as Partial<
@@ -671,7 +691,7 @@ const hostTerms = (host: HostTerms): AudienceDef => {
             >,
           }
         : { local: { yard: 2 } }),
-      flags: ['host-terms-accepted'],
+      flags: ['host-terms-accepted', ...(host.acceptEffects?.flags ?? [])],
       schedule: [`host-due:${host.hideout}`],
     },
     response,
@@ -738,6 +758,66 @@ const vellumSays = (text: string): SceneLine => ({
 })
 
 /**
+ * One line a story flag swaps (`on`) for the line that stands without it
+ * (`off`). Line for line, so a variant never changes the scene's length.
+ */
+type FlagLines = { flag: string; on: SceneLine; off: SceneLine }
+type LinePart = SceneLine | FlagLines
+
+const isFlagLines = (part: LinePart): part is FlagLines =>
+  typeof part === 'object' && 'flag' in part
+
+/**
+ * A scene whose room changes piece by piece with the run (t-039): who came
+ * to the last fire, who lost a rank, who went home. Every combination of the
+ * parts' flags gets its own exact variant, so each piece reads true at once.
+ */
+const composed = (
+  parts: LinePart[],
+): { lines: SceneLine[]; variants: SceneVariant[] } => {
+  const keys = [...new Set(parts.filter(isFlagLines).map((part) => part.flag))]
+  const linesFor = (held: string[]) =>
+    parts.flatMap((part) =>
+      isFlagLines(part)
+        ? [held.includes(part.flag) ? part.on : part.off]
+        : [part],
+    )
+  const variants: SceneVariant[] = []
+  for (let mask = (1 << keys.length) - 1; mask > 0; mask -= 1) {
+    const held = keys.filter((_, i) => mask & (1 << i))
+    variants.push({
+      flags: held,
+      notFlags: keys.filter((key) => !held.includes(key)),
+      lines: linesFor(held),
+    })
+  }
+  return { lines: linesFor([]), variants }
+}
+
+/** Reedlight's lantern on the well rope (t-039): the light it was made for. */
+const LANTERN_AID = {
+  questId: 'q-d46-well-that-spoke',
+  label: 'Reedlight’s lantern on the well rope',
+  bonus: 2,
+  stat: 'lore' as const,
+}
+
+/** Day 47's departures by choice (t-039): a follower who goes home lives. */
+const KIYO_HOME = {
+  follower: 'F003',
+  reason:
+    'Kiyo went home to her boy on the forty-seventh night. She left the needles threaded.',
+}
+const SAFFRON_HOME = {
+  follower: 'F002',
+  reason:
+    'Saffron Kett went home to the canyon on the forty-seventh night. The Pack rode out for the Abbey wall at dawn.',
+}
+
+/** Ferro Dunmark's rank, as Day 43 left it. */
+const DEMOTED = 'd43-dunmark-demoted'
+
+/**
  * Who bought the tower (t-028, `buyer:<id>`): the Abbey by default, else the
  * Black Verge or House Vask. These scenes swap only the lines that name who
  * holds the tower; the Abbess is still the patron behind every buyer.
@@ -774,10 +854,136 @@ const D45_ENVOY: SceneLine[] = [
   'The court goes quiet. Everyone at this fire has been hunted by plum riders this month. Some have lost people to them.',
   '“We bargained with the Abbess too, Majesty. For cures. For the condition. We did not read the price.”',
   '“Now our manors are full of a singing nobody can stop. Our sick sit up in their beds at night, all together, and sing in a language none of us taught them. The Verge asks help of the crown it hunted.”',
+  '“Help means this. When you go to shut her door, the Verge rides at your flank. The same riders. And if there is a cure on the other side of that door, our sick have it first.”',
   vellumSays(
     '“The riders who burned the Freehold farms this month were paid in Abbey cures, Majesty. Everyone here knows it. The Envoy knows we know.”',
   ),
 ]
+
+const D47_FLOUR: SceneLine[] = [
+  'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young rabbit, flour to the elbows, a letter crumpled in his fist.',
+  'Behind them, the Gate Watch sergeant who caught him explains it, loud, to anyone awake.',
+  '“He was leaving it at the stone on the road, Majesty,” says Dunmore. “For the grey sisters. It says where we are. How many. Good clear hand. I taught him his letters.”',
+  '“I’m asking you for nothing. I brought him because it’s the law and I’m the foreman. Do what the law says.”',
+  {
+    who: 'A Gate Watch sergeant',
+    text: '“The law says one thing for a man who sells the camp, Majesty. Every soldier at this fire knows what. So does he.”',
+  },
+]
+
+const D48_MARA: SceneLine[] = [
+  'Mara Reedbell walked all night to the court, mayoral sash in her pocket so nobody on the road would know her. Her hand-bell is muffled in a sock.',
+  'She sits on the ground by the fire unasked. A mayor never does. She takes the sock off the bell and holds it. She does not ring it.',
+  '“Hollow Bell is named for a hollow bell, Majesty. The great one in the Abbey tower. The town paid for it when the town was young. Our grandmothers said the Abbey stole its voice.”',
+  '“Bring the clapper home and the town will ring for you. Whatever happens after.”',
+]
+
+/** Day 49's fire seats only who is really there (t-039). */
+const D49_COALITION = composed([
+  'Around the fire sit envoys of everyone still on the map. Nobody has a chair. Everyone has an opinion. Several brought their own supper, to owe nobody.',
+  {
+    flag: 'd42-abbey-crates-opened',
+    on: 'Oriel Saltmarsh burned six wagons on the salt flats this month and has drafted nothing. She watches the grey blankets on the envoys’ shoulders. Granny Umber has a charter fully drafted, in her vest, in triplicate. Elder Corvane’s claws are empty. He came to bargain.',
+    off: 'Oriel Saltmarsh has a charter half drafted on a salt manifest. Granny Umber has one fully drafted, in her vest, in triplicate. Elder Corvane’s claws are empty. He came to bargain.',
+  },
+  {
+    flag: DEMOTED,
+    on: 'Sergeant Dunmark stands behind your crate. He put his captain’s knot in your hand six days ago. He stands where the captain would have, where an advisor used to stand.',
+    off: 'Captain Dunmark stands behind your crate, where an advisor used to stand.',
+  },
+  {
+    flag: 'd44-dike-blown',
+    on: 'Sister Reedlight did not come. A heron you have never met stands where the firelight ends, a green lantern on a pole. She does not sit.',
+    off: 'Sister Reedlight has set her lantern on the ground between the Moles and the Crows. Nobody looks at it.',
+  },
+  {
+    flag: 'verge-allied',
+    on: 'The Envoy of the Black Verge stands at the edge of the light with bare hands. Nobody offers them the fire. They do not ask. They all want one answer. Whose peace, if there is one?',
+    off: 'They all want one answer. Whose peace, if there is one?',
+  },
+  vellumSays(
+    '“Whatever you choose, Majesty, I write it down tonight. In case nobody is left tomorrow to remember it differently.”',
+  ),
+])
+
+/** Who each peace leaves out, and the rule that outranks every peace. */
+const D49_LEFT_OUT = composed([
+  {
+    who: 'Granny Umber',
+    npc: 'granny-umber',
+    text: '“The Crows’ peace leaves out everybody who can’t pay for rain. Which is everybody I know.”',
+  },
+  {
+    who: 'Elder Corvane',
+    npc: 'elder-corvane',
+    text: '“The Moles’ peace leaves out everybody with a harvest to bring in while the assembly debates the harvest.”',
+  },
+  {
+    who: 'Ferro Dunmark',
+    npc: 'ferro-dunmark',
+    text: '“Open roads leave out whoever stands on a road when the next riders come. The Watch’s peace keeps them alive. I won’t pretend it keeps them happy.”',
+  },
+  {
+    flag: 'd44-dike-blown',
+    on: {
+      who: 'The heron with the lantern',
+      text: '“Sister Reedlight sends one sentence. Every peace at this fire leaves out the fen. After the north water she would like to hear the crown say it.”',
+    },
+    off: {
+      who: 'Sister Reedlight',
+      npc: 'sister-reedlight',
+      text: '“Every peace at this fire leaves out the fen. We are used to it. Once, we would like not to be.”',
+    },
+  },
+  {
+    who: 'Mayor Mara Reedbell',
+    npc: 'mara-reedbell',
+    text: '“And the Bell’s peace puts one small town at the heart of everything. A lot of weight for a town that just got its water back.”',
+  },
+  {
+    who: 'Ferro Dunmark',
+    npc: 'ferro-dunmark',
+    text: '“One more thing, Majesty. Whatever we sign tonight is a peace for the living. Bury two more by tomorrow night and nobody remembers what was signed. They remember the names.”',
+  },
+  'Then they all look at you again.',
+])
+
+/** One road, every hand on it (t-039): the front door's honest edge. */
+const FRONT_DOOR = {
+  questId: 'q-d50-last-dispatch',
+  label: 'Every hand at the front door',
+  bonus: 2,
+}
+
+/** The last fire, as the act left the court (t-039). */
+const D50_ROADS = composed([
+  'Everyone who can still fight is at the fire. The roads to the Abbey are drawn in the dirt with a stick. Every few minutes someone rubs one out and draws it again, different. It does not help.',
+  {
+    flag: 'crown-in-exile',
+    on: 'From the north, faint, comes the singing. Everyone pretends not to hear it. Dunmore Ash stands at the edge of the fire with his ladle. He stood up for the speech on the first night. He stands up now.',
+    off: 'From the north, faint, comes the singing. Everyone pretends not to hear it.',
+  },
+  {
+    flag: DEMOTED,
+    on: 'Sergeant Dunmark wears a borrowed gorget and no captain’s knot. Vellum has his book. Your host has brought out the last of the good food. Your host thinks this is the end too.',
+    off: 'Captain Dunmark wears a gorget again. Borrowed. Vellum has his book. Your host has brought out the last of the good food. Your host thinks this is the end too.',
+  },
+  {
+    flag: 'watch-returned',
+    on: 'Twenty-two of the Watch sit behind him in a line, helmets in their laps. They came down off the ridge for this.',
+    off: 'Behind him sit the few of the Watch who never rode out. There is room in the line.',
+  },
+  {
+    flag: 'verge-allied',
+    on: 'Plum riders water their horses at the stream below the camp. The court’s people walk past them with their hands near their knives. The riders let them.',
+    off: 'The stream below the camp runs black. The horses drink, then lift their heads toward the north and stop drinking.',
+  },
+  {
+    flag: 'd47-pack-rides',
+    on: 'Down the valley forty Pack riders wait with their fires out. Saffron is not with them. The front door is the obvious way. There may be others, if the court has earned them.',
+    off: 'The front door is the obvious way. There may be others, if the court has earned them.',
+  },
+])
 
 export const ACT_FIVE_DAYS: readonly DayDef[] = [
   {
@@ -880,13 +1086,14 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'speech',
-            label: 'Tell them the truth. The crown is still here.',
+            label:
+              'Tell them the truth. The crown is still here. The counting can wait.',
             effects: {
-              local: { yard: 2, 'gate-watch': 2 },
+              local: { yard: 2, 'gate-watch': 2, ledger: -1 },
               flags: ['crown-in-exile'],
             },
             response:
-              'It is not a good speech. It is short. Your voice cracks once. By the end the cook has put down the ladle and is standing.',
+              'It is not a good speech. It is short. Your voice cracks once. By the end the cook has put down the ladle and is standing. The court’s clerk has not started counting. He looks at the bundles and does the sum in his head anyway.',
           },
           {
             id: 'count',
@@ -922,7 +1129,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 label:
                   'Tell the fire the crown is still here. For those who came and those who couldn’t.',
                 effects: {
-                  local: { yard: 2, 'gate-watch': 2 },
+                  local: { yard: 2, 'gate-watch': 2, ledger: -1 },
                   flags: ['crown-in-exile'],
                 },
                 response:
@@ -1175,6 +1382,16 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             response:
               'The sergeant does it quick, not cruel. She folds the tabard herself before handing it over. Nobody at the fire looks at you for a while.',
           },
+          {
+            id: 'repost',
+            label: 'Put her back on the gate. Tonight. Same post.',
+            effects: {
+              local: { 'gate-watch': -2, yard: 1 },
+              flags: ['d41-sentry-reposted'],
+            },
+            response:
+              'The sergeant opens his mouth. Shuts it. She takes the bar in both hands. All night she does not sit.',
+          },
         ],
         beats: [
           {
@@ -1223,6 +1440,17 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 },
                 response:
                   'She tells it standing by the fire. Twice. The first time her voice goes. Nobody decides anything. A cook brings her a bowl. Her first meal in three days.',
+              },
+              {
+                id: 'repost',
+                label:
+                  'Give her the bar again. Tonight. The joke was his. The gate is hers.',
+                effects: {
+                  local: { 'gate-watch': -2, yard: 1 },
+                  flags: ['d41-sentry-reposted'],
+                },
+                response:
+                  'The sergeant opens his mouth. Shuts it. She takes the bar in both hands. All night she does not sit. At dawn she lifts it halfway for the wood party, and no higher.',
               },
             ],
           },
@@ -1313,6 +1541,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       hostTerms({
         hideout: 'mole-tunnels',
         bargainEffects: { affinity: { moles: 5 } },
+        collect: {
+          paid: 'Granny Umber came to your blanket at dawn with her slate. The long tunnel was never propped. Twenty brass, counted into two piles. One for each side of the vote.',
+          unpaid:
+            'Granny Umber came at dawn with her slate. The props were never set and the strongbox was empty. She wrote one line. That night the thirty met without her.',
+          kept: 'Granny Umber knocked on the third prop at dawn and listened. Then she crossed the court off her slate. Paid in full.',
+        },
         speaker: 'Granny Umber of the Mole Revolutionaries',
         npc: 'granny-umber',
         faction: 'moles',
@@ -1385,6 +1619,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       hostTerms({
         hideout: 'crow-cave',
         bargainEffects: { flags: ['d42-messenger-silenced'] },
+        collect: {
+          paid: 'Elder Corvane sent a young crow at dawn. The court never stood its watch. Twenty brass went into the stone basin. Nobody counted it aloud.',
+          unpaid:
+            'Elder Corvane came down off his ledge at dawn. The watch was never stood and the strongbox was empty. He wrote it in the Conclave’s book. Crows put everything in writing.',
+          kept: 'Elder Corvane stopped by the court’s fire at dawn. “Clean,” he said. He went back up to his ledge.',
+        },
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',
@@ -1398,7 +1638,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         accept: {
           label: 'Accept his terms. Stand the watch.',
           response:
-            'Corvane nods once. “Clean,” he says. It is the warmest thing he has ever said to you.',
+            'Corvane nods once. “Clean,” he says. Then he goes back to watching the road.',
         },
         ask: {
           label: 'Ask who else the Crows are keeping.',
@@ -1440,7 +1680,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'send-word',
-            label: 'Send the messenger home with a letter for the Abbess.',
+            label:
+              'Send the messenger home with a letter: the crown knows what sleeps under the Abbey floor.',
             effects: {
               affinity: { 'storm-crows': 5 },
               local: { 'gate-watch': -2 },
@@ -1453,6 +1694,13 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'bell-cellars',
+        bargainEffects: { affinity: { 'hollow-bell': 5 } },
+        collect: {
+          paid: 'Mara Reedbell came down the cellar stair at dawn. The aqueduct still leaks. Twenty brass for the hands that never came. She wrote a receipt. Mayors do.',
+          unpaid:
+            'Mara Reedbell came down the cellar stair at dawn. The aqueduct still leaks and the strongbox was empty. She said nothing. The council met over your heads. Every word came through the boards.',
+          kept: 'At dawn the chapel tap ran clear. Mara Reedbell brought a cup of it down the cellar stair and set it by your blanket.',
+        },
         speaker: 'Mayor Mara Reedbell of Hollow Bell',
         npc: 'mara-reedbell',
         faction: 'hollow-bell',
@@ -1521,6 +1769,13 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'wagon-circle',
+        bargainEffects: { affinity: { jackalwire: 5 } },
+        collect: {
+          paid: 'Gristle Vane came round at dawn with his hat out. Two wagons still sat on blocks. Twenty brass. He bit every bit.',
+          unpaid:
+            'Gristle Vane came round at dawn with his hat out. The wagons still sat on blocks and the strongbox was empty. He laughed. The drum stopped. The court slept in shifts that night.',
+          kept: 'Every wagon in the circle rolled at dawn. Gristle Vane painted a second small crown on his axle, beside the first.',
+        },
         speaker: 'Captain Gristle Vane of the Jackalwire Pack',
         npc: 'gristle-vane',
         faction: 'jackalwire',
@@ -1538,7 +1793,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         },
         ask: {
           label: 'Ask what the Pack has been offered for you.',
-          response: 'Vane’s grin does not move. The drum stops. That is worse.',
+          response: 'Vane’s grin does not move. The drum stops.',
         },
         truth: [
           '“A wagonload of grey brass. The southern tolls forever, under the Abbess’s seal. And medicine, all the pups can drink. That part I had to think about.”',
@@ -1590,6 +1845,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         bargainEffects: {
           affinity: { abbey: -5 },
           flags: ['d42-abbey-wagons-dropped'],
+        },
+        collect: {
+          paid: 'Oriel Saltmarsh counted the court at dawn, out loud, as always. The night road had gone unguarded. Twenty brass, also counted out loud.',
+          unpaid:
+            'Oriel Saltmarsh counted the court at dawn. The night road had gone unguarded and the strongbox was empty. She counted the court again. Slower. As cargo.',
+          kept: 'Oriel Saltmarsh counted the court at dawn and stopped at you. “Guard,” she said. Then she went on counting.',
         },
         speaker: 'Oriel Saltmarsh of the Saltroad',
         npc: 'oriel-saltmarsh',
@@ -1649,6 +1910,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       hostTerms({
         hideout: 'freehold-barn',
         bargainEffects: { affinity: { freeholds: 5 } },
+        collect: {
+          paid: 'Hester Plowright came down the ladder at dawn with a slate. The last field burned standing. Twenty brass. She put it under the eggs.',
+          unpaid:
+            'Hester Plowright came down the ladder at dawn. The field burned standing and the strongbox was empty. She took the quilt off the apple crate and folded it. The jar of wildflowers went too.',
+          kept: 'At dawn there was a warm egg beside every blanket in the root cellar. One each. Hester had counted.',
+        },
         speaker: 'Hester Plowright of the Border Freeholds',
         npc: 'hester-plowright',
         faction: 'freeholds',
@@ -1718,6 +1985,21 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'rail-station',
+        // Taking Jinx's terms means Jinx's half goes to the grey buyer.
+        acceptEffects: {
+          local: { lamplight: -1 },
+          flags: ['d42-engine-half-sold'],
+        },
+        bargainEffects: {
+          affinity: { rustline: 5 },
+          flags: ['d42-engine-bought'],
+        },
+        collect: {
+          paid: 'Jinx Coupler chalked a price on the court’s blankets at dawn. Somebody else stripped the engine. Twenty brass. Jinx bit the shiny ones.',
+          unpaid:
+            'Jinx Coupler chalked a price on the court’s blankets at dawn. The strongbox was empty. By noon two blankets were sold. Back to the court, at a markup.',
+          kept: 'Jinx Coupler left a jar of shiny bolts by the court’s fire at dawn. A gift, Jinx said. Twice.',
+        },
         speaker: 'Jinx Coupler of the Rustline',
         npc: 'jinx-coupler',
         faction: 'rustline',
@@ -1731,7 +2013,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         accept: {
           label: 'Accept the terms. Pick up a wrench.',
           response:
-            'Jinx tosses you a wrench. “The shiny bolts are mine,” the magpie says. “All of them.”',
+            'Jinx tosses you a wrench. “The shiny bolts are mine,” the magpie says. “All of them.” At dusk a grey cart stops at the east siding. Jinx goes out to it alone.',
         },
         ask: {
           label: 'Ask who the engine belonged to.',
@@ -1747,14 +2029,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           ),
         ],
         acceptAgain: {
-          label: 'Strip it with Jinx. Keep every part out of grey hands.',
+          label:
+            'Strip it with Jinx. Fair shares. What Jinx does with Jinx’s half is Jinx’s business.',
           response:
-            'Jinx tosses you a wrench. “The shiny bolts are mine,” the magpie says. “All of them. The grey buyer can have the rust.”',
+            'Jinx tosses you a wrench. “Fair shares,” the magpie says. “Meaning mine.” At dusk the grey cart comes for Jinx’s half. You hear it go up the mission road. Half an engine. Enough to start.',
         },
         bargainAgain: {
-          label: 'Pay Jinx for the parts. Nobody needs the grey buyer.',
+          label: 'Pay Jinx for the whole engine. Every part stays here, dead.',
           response:
-            'Jinx weighs the brass in one claw and the engine in the other. Sighs. “Terrible customer,” they say. “You pay.”',
+            'Jinx weighs the brass in one claw and the engine in the other. Sighs. “Terrible customer,” they say. “You pay.” The grey cart comes at dusk and goes away empty. Its driver smiles anyway.',
         },
         paths: [
           {
@@ -1786,6 +2069,13 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       }),
       hostTerms({
         hideout: 'nameless-cave',
+        bargainEffects: { local: { yard: 2 } },
+        collect: {
+          paid: 'Nobody had foraged. At dawn the widow went down to the farm with twenty of the crown’s brass and came back with bread. The farm asked whose brass it was.',
+          unpaid:
+            'Nobody had foraged and the strongbox was empty. The widow cut the last loaf into nine. Then into ten. The deserter would not take his.',
+          kept: 'The widow laid out the food at dawn and cut it even. Everyone in the cave got the same share. Out here that is a constitution.',
+        },
         speaker: 'A handful of revolutionaries',
         lines: [
           'Nobody came to shelter the court. Four Mole revolutionaries, a Freehold widow and a Gate Watch deserter found you on the road and brought you to a cold cave in the foothills.',
@@ -1916,23 +2206,23 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             id: 'names',
             label: 'Say their names back to her. Ask what Thistledown needs.',
             effects: {
-              affinity: { freeholds: 5 },
+              affinity: { freeholds: 2 },
               flags: ['d42-thistledown-named'],
             },
             response:
-              'You say them. Hester rubs the slate clean with her sleeve and writes: seed, timber, a well-digger. “That,” she says. “When you have a crown again.”',
+              'You say them. “Names are free, Majesty,” Hester says. “That’s why I wrote them down.” She rubs the slate clean with her sleeve and writes: seed, timber, a well-digger. “That. When you have a crown again.”',
           },
           {
             id: 'repay',
             label:
-              'Send what brass the court can spare to Thistledown. Tonight.',
+              'Send what brass the court can spare to Thistledown tonight. Pay a well-digger. The court goes thin.',
             requires: { cost: 30 },
             effects: {
-              affinity: { freeholds: 5 },
+              affinity: { freeholds: 10 },
               flags: ['d42-thistledown-repaid'],
             },
             response:
-              'Hester counts it once and puts it under the eggs. “Doesn’t buy back a barn,” she says. “It buys seed. More than the riders left.”',
+              'Hester counts it once and puts it under the eggs. “Doesn’t buy back a barn,” she says. “It buys a well-digger. Thistledown has been drinking from the river.” In the morning the court eats half rations. Nobody has to ask why.',
           },
           {
             id: 'same-road',
@@ -2049,7 +2339,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d42-bonds-shortened'],
             },
             response:
-              '“Two years,” says Corvane, at last. “For courtesy.” The most generous thing you have seen him do. It costs more than brass. He never shares the watch fire with you again.',
+              '“Two years,” says Corvane, at last. “For courtesy.” He strikes the number on every runner’s slate himself. He never shares the watch fire with you again.',
           },
         ],
       },
@@ -2064,7 +2354,9 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           'The Mole with the lantern at the tunnel mouth is sixteen, blinking at even this much light. You have seen him before. In chains, in your throne room, on the thirty-eighth day.',
           '“You pardoned me, Majesty. I gave you the name and you let me go. Three days later he did exactly what I said.”',
           '“The sisters still think I’m his runner. They don’t know I’m down here. If I went up the mission road tonight with a letter, they’d open the gate. Like always.”',
-          '“I could carry one more letter. Or stay down here and dig and never carry anything again. Granny says it’s your choice. Your war.”',
+          '“I could carry one more letter. Or stay down here and dig and never carry anything again.”',
+          '“My name’s Tobin. Tobin Umber. Granny says it’s your choice. She’s my gran. She says it’s still your choice.”',
+          'At the far end of the gallery Granny Umber is sorting props. She does not look up. Her paws have stopped moving.',
         ],
         options: [
           {
@@ -2075,19 +2367,19 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d42-courier-kept'],
             },
             response:
-              'The boy breathes out like he has held it since the thirty-eighth day. Granny Umber hands him a shovel. Among Moles, that is welcome home.',
+              'Tobin breathes out like he has held it since the thirty-eighth day. Granny Umber hands him a shovel without a word. Among Moles, that is welcome home.',
           },
           {
             id: 'send',
             label:
-              'Send him up the mission road one last time. Learn what the sisters are doing.',
+              'Send him up the mission road one last time. Bring back the Abbey kitchens on paper.',
             effects: {
               affinity: { moles: -5 },
               local: { lamplight: 2 },
               flags: ['d42-courier-sent'],
             },
             response:
-              'He goes at dusk with a blank letter in a brass-buttoned envelope. Two nights later he is back, the Abbey kitchens drawn on his arm in soot. He doesn’t sleep for a day. He won’t say what he heard on the stair. Granny Umber won’t speak to you until he does.',
+              'He goes at dusk with a blank letter in a brass-buttoned envelope. Two nights later he is back, the Abbey kitchens drawn on his arm in soot. He doesn’t sleep for a day. He won’t say what he heard on the stair. Granny Umber copies the map off his arm and won’t speak to you until he does.',
           },
         ],
       },
@@ -2104,24 +2396,27 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           'Oriel walks you along the line of graves at the edge of the flats. She says nothing. She counts them, like everything.',
           '“Twelve drivers held this yard on the thirty-third day, Majesty, waiting for the crown’s Watch. The crown went to Thistledown. I’d have chosen the same in your boots. Probably.”',
           '“Their families ride in the third wagon. They know who you are. They haven’t said a word to you, because I asked. I’m wondering whether to stop asking.”',
+          '“They don’t want brass, Majesty. Not first. They want the sergeant who rode for Thistledown that noon to come to the third wagon and say why. He’s at your fire. He has a name. So did they.”',
         ],
         options: [
           {
             id: 'face',
-            label: 'Go to the third wagon. Let them say what they want.',
+            label:
+              'Go to the third wagon yourself. The order was the crown’s, not his.',
             effects: {
               affinity: { saltroad: 5 },
               flags: ['d42-faced-the-drivers'],
             },
             response:
-              'It takes most of the hour. A driver’s mother says the worst, and says it well. When the caravan moves she rides the box beside you. Silent. She does not move away.',
+              'It takes most of the hour. A driver’s mother says the worst, and says it well. She asks for the sergeant twice. You stay in the door. When the caravan moves she rides the box beside you. Silent. She does not move away.',
           },
           {
             id: 'pay',
-            label: 'Pay the families a driver’s wage for the winter.',
+            label:
+              'Pay the families a driver’s wage for the winter. Brass the court does not have.',
             requires: { cost: 30 },
             effects: {
-              affinity: { saltroad: 5 },
+              affinity: { saltroad: 10 },
               flags: ['d42-drivers-paid'],
             },
             response:
@@ -2136,6 +2431,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             },
             response:
               '“As you like,” says Oriel. The third wagon stays quiet across the salt. It is the loudest wagon in the caravan.',
+          },
+          {
+            id: 'send-sergeant',
+            label:
+              'Send the sergeant to the third wagon. He rode. He can answer.',
+            effects: {
+              affinity: { saltroad: 10 },
+              local: { 'gate-watch': -3 },
+              flags: ['d42-sergeant-sent'],
+            },
+            response:
+              'He goes without a word. An hour. When the caravan moves he walks beside the third wagon, not the court’s. Nobody tells him to come back. At the fire the Watch eats with its backs to you.',
           },
         ],
       },
@@ -2532,7 +2839,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['crow-sightings', 'd44-crow-secret-kept'],
                 },
                 response:
-                  'Corvane bows. You have never seen him bow. Vellum writes something. Then he draws a line through it. You have never seen him do that either.',
+                  'Corvane bows. Vellum writes something. Then he draws a line through it, one stroke, and blots it.',
               },
             ],
           },
@@ -2547,16 +2854,17 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         lines: [
           'Coal Harrow finds the emperor in the props gallery, where the court sleeps. He has a keg under each arm. Full, this time. Nobody stops him. It is his tunnel.',
           'You can hear the Abbey singing in the fen water now, if you put your ear to the wall. The Mothers are holding their dikes against it and doing nothing else.',
-          'Two kegs. One opens the north dike and drowns every lantern-house from here to the reed beds. The Mothers stop worrying about the Abbey and start worrying about their beds. Then they’re ours.',
-          'The other keg goes to the surveyors, for the brick tunnel to the crypt. Your choice which. I haven’t got a third.',
+          '“Two kegs, Majesty. Enough for one hole. Not two.”',
+          '“The north dike sits over the Abbey’s deep well. The one the Crows sold rain to. Open the dike and the fen goes down that well. Whatever she’s waking wakes wet. Wet things are slow.”',
+          '“Or both kegs go to the surveyors, for the brick tunnel to the crypt. A door for your people. Your choice which. I haven’t got a third.”',
           {
             who: 'Granny Umber',
             npc: 'granny-umber',
-            text: 'This is my tunnel too, Coal. Tell the emperor the part about the children in the lantern-houses.',
+            text: '“This is my tunnel too, Coal. Tell the emperor the part about the lantern-houses. Forty of them on the north water. Children in most.”',
           },
           '“They’ve got boats,” Coal says. He does not look at her.',
           vellumSays(
-            'Majesty. The Archive has a page for every flood in this country. None of them stayed an accident for long.',
+            '“Majesty. The Archive has a page for every flood in this country. None of them stayed an accident for long.”',
           ),
         ],
         options: [
@@ -2570,14 +2878,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'dike',
-            label: 'Blow the north dike. The fen pays for the Abbey’s quiet.',
+            label:
+              'Blow the north dike. Drown her well. The fen pays for the Abbey’s quiet.',
             effects: {
               affinity: { moles: 10, 'mire-mothers': -20 },
               strength: { 'mire-mothers': -1 },
               flags: ['d44-dike-blown'],
             },
             response:
-              'The whole hideout feels it, a cough deep in the rock. By dawn the reed beds are a lake. Coal Harrow sleeps for the first time in a week. Granny Umber does not come to supper.',
+              'The whole hideout feels it, a cough deep in the rock. By dawn the reed beds are a lake. Up the mission road the singing stops for an hour, then comes back thick, like a voice under a blanket. Coal Harrow sleeps for the first time in a week. Granny Umber does not come to supper.',
           },
           {
             id: 'crypt',
@@ -2620,9 +2929,9 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             speaker: 'Granny Umber of the Mole Revolutionaries',
             npc: 'granny-umber',
             lines: [
-              'The assembly would vote. It would take all night, and the singing would get louder while we argued.',
-              'I hated the Mothers before your grandmother was born. I hate them now. I am not drowning their children to win an argument.',
-              'Give the powder to the crypt road. Then come with me to the fen at dawn and ask the Mothers to hold their dikes for us too. They’ll say no. Ask anyway.',
+              '“The assembly would vote. It would take all night, and the singing would get louder while we argued.”',
+              '“I hated the Mothers before your grandmother was born. I hate them now. I am not drowning their children to win an argument. Even a good argument. Coal’s is good. That’s what frightens me.”',
+              '“Give the powder to the crypt road. Then come with me to the fen at dawn and ask the Mothers to hold their dikes for us too. They’ll say no. Ask anyway.”',
             ],
             options: [
               {
@@ -2645,7 +2954,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['d44-dike-blown'],
                 },
                 response:
-                  'Granny Umber gets up off the crate and walks away down the tunnel. The bang comes an hour later. By dawn the reed beds are a lake.',
+                  'Granny Umber gets up off the crate and walks away down the tunnel. The bang comes an hour later. By dawn the reed beds are a lake. Up the mission road the singing comes back thick, like a voice under a blanket.',
               },
               {
                 id: 'seize',
@@ -2739,7 +3048,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['verge-allied'],
             },
             response:
-              'The Envoy bows lower than any courtier ever has. “The Verge does not forget a debt,” they say. “Of either kind.”',
+              'The Envoy bows to the dirt. “The Verge does not forget a debt,” they say. “Of either kind.”',
           },
           {
             id: 'terms',
@@ -2906,7 +3215,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['verge-allied', 'd45-sable-first'],
                 },
                 response:
-                  'The Envoy closes their eyes. “Yes,” they say. “If anyone can be brought out.” The first time you have heard the Verge admit something it cannot buy.',
+                  'The Envoy closes their eyes. “Yes,” they say. “If anyone can be brought out.” The Verge has never said if before. Not in your hearing.',
               },
               {
                 id: 'aid',
@@ -2918,7 +3227,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['verge-allied'],
                 },
                 response:
-                  'The Envoy bows lower than any courtier ever has. “The Verge does not forget a debt,” they say. You are thinking of a different debt.',
+                  'The Envoy bows. “The Verge does not forget a debt,” they say. You are thinking of a different debt.',
               },
               {
                 id: 'refuse',
@@ -2976,6 +3285,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“The Mothers have always known what sleeps under the Abbey, Majesty. Longer than there has been an Abbey. We sank the bell’s clapper ourselves, so nobody could ring it the wrong way.”',
           '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
         ],
+        // The court that drowned the fen meets the fen anyway (t-039).
+        variants: [
+          {
+            flags: ['d44-dike-blown'],
+            lines: [
+              'A heron in a green cloak steps out of the dark at the edge of the firelight. Her hems are wet to the knee. She holds a lantern of green glass. The flame does not move when the wind does. The Moles at the fire stop talking.',
+              '“Forty lantern-houses stood on the north water, Majesty. Thirty-one stand. We counted the children twice. One short. A girl called Fennet. She went back for a heron chick.”',
+              '“I am not here for you. The thing under the hill does not care who drowned whom. We sank the bell’s clapper ourselves, long ago, so nobody could ring it the wrong way.”',
+              '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
+            ],
+          },
+        ],
         options: [
           {
             id: 'ask-burns',
@@ -2990,6 +3311,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { 'mire-mothers': 10 },
               flags: ['reedlight-lantern'],
+              questAid: [LANTERN_AID],
             },
             response:
               'Reedlight sets the lantern in your hands. It is warm. It smells of rain.',
@@ -3017,7 +3339,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               'Ask about the lanterns that turned back on the Mirefen road, your first day.',
             requires: { flags: ['mire-road-closed'] },
             effects: {},
-            response: 'Reedlight’s lantern dims. It has never dimmed before.',
+            response: 'Reedlight’s lantern dims. The flame lies down flat.',
             next: 'forty-one',
           },
         ],
@@ -3039,9 +3361,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 10 },
                   flags: ['reedlight-lantern'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
-                  'Reedlight sets the lantern in your hands. It is warm. It smells of rain. For a moment you feel the fen counting you.',
+                  'Reedlight sets the lantern in your hands. The glass is warm. For a moment you feel the fen counting you.',
               },
               {
                 id: 'my-debt',
@@ -3050,6 +3373,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 5 },
                   flags: ['reedlight-lantern', 'd46-debt-personal'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
                   'Reedlight tilts her long head. “That is not how debts work,” she says. “It is how emperors should talk.” The flame leans toward you. It stays leaning.',
@@ -3086,6 +3410,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 10 },
                   flags: ['reedlight-lantern'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
                   'Reedlight sets the lantern in your hands. Granny Umber watches it pass and says nothing. From her, a speech. That night the Moles post a guard on your chamber. You are not sure which guest it protects.',
@@ -3097,6 +3422,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 5, moles: 5 },
                   flags: ['reedlight-lantern', 'd46-fen-mole-truce'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
                   'It takes an hour and a lot of tea. The green lantern ends up on the third prop, the one that sulks. The Moles mutter. Nobody floods anybody. For one night the fen lights the tunnels.',
@@ -3107,7 +3433,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   'Refuse it. Not in the tunnels that sheltered the crown.',
                 effects: { affinity: { 'mire-mothers': -10 } },
                 response:
-                  'Reedlight bows to Granny Umber, not to you, and goes up into the dark. Granny bangs her cane once. The matter is closed. She is delighted.',
+                  'Reedlight bows to Granny Umber, not to you, and goes up into the dark. Granny bangs her cane once. The matter is closed.',
               },
             ],
           },
@@ -3125,9 +3451,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'mire-mothers': 10 },
                   flags: ['reedlight-lantern'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
-                  '“Seven,” you say. Reedlight sets the lantern in your hands. It is warm. It smells of rain. It is heavier than it looks.',
+                  '“Seven,” you say. Reedlight sets the lantern in your hands. It is heavier than it looks.',
               },
               {
                 id: 'open-road',
@@ -3137,6 +3464,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   affinity: { 'mire-mothers': 10 },
                   local: { 'gate-watch': -2 },
                   flags: ['reedlight-lantern', 'd46-mire-road-sworn'],
+                  questAid: [LANTERN_AID],
                 },
                 response:
                   'Reedlight bows lower than on the first day. In the dark behind her, seven green lights go up one after another. They hold. They go out.',
@@ -3165,6 +3493,18 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'The host’s lookouts',
         text: 'No riders on any road tonight.',
         truth: true,
+        // The Abbey's messenger in the Crow cave knows the court's roads (t-039).
+        variants: [
+          {
+            flags: ['d42-letter-to-abbess'],
+            text: 'No riders on any road tonight. Grey lanterns on the cave road, though, the way your letter went. Moving slowly. Counting.',
+          },
+          {
+            flags: ['hideout:crow-cave'],
+            notFlags: ['d42-abbey-messenger-taken'],
+            text: 'No riders on any road tonight. Grey lanterns on the cave road, though. They stop below the ledges and go back.',
+          },
+        ],
       },
       {
         id: 'komodo-returning',
@@ -3218,10 +3558,11 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'home',
-            label: 'Tell her to go home to him now, before the Abbey.',
-            effects: { flags: ['kiyo-sent-home'] },
+            label:
+              'Send her home to him tonight, before the Abbey. The infirmary keeps her needle.',
+            effects: { flags: ['kiyo-sent-home'], dismiss: [KIYO_HOME] },
             response:
-              'Kiyo looks at the fire a long time. “Not yet,” she says. “Please. Not yet. After.”',
+              'Kiyo looks at the fire a long time. “Not yet,” she says. “Please. After.” You say it again. She packs the kettle last. At dawn the infirmary has a needle and nobody to hold it.',
           },
         ],
         beats: [
@@ -3258,10 +3599,11 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'home',
-                label: 'Tell her to go home to him now. Careful means alive.',
-                effects: { flags: ['kiyo-sent-home'] },
+                label:
+                  'Send her home to him tonight. Careful means alive. The infirmary keeps her needle.',
+                effects: { flags: ['kiyo-sent-home'], dismiss: [KIYO_HOME] },
                 response:
-                  'Kiyo looks at the fire a long time. “That’s not fair,” she says. “Using my word.” Then: “Not yet. Please. Not yet. After.”',
+                  'Kiyo looks at the fire a long time. “That’s not fair,” she says. “Using my word.” She packs the kettle last. She leaves the needle case on your crate, open, every needle threaded. At dawn the infirmary has a needle and nobody to hold it.',
               },
             ],
           },
@@ -3276,6 +3618,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           'Saffron Kett sits on an upturned crate at the edge of the firelight, an unused wrench in her lap. She turns her welded Pack insignia over and over in her fingers.',
           '“Vane wants me home, Majesty. To the Pack. He sent a fiddler with the message. That’s how the Pack says it means it.”',
           '“He says the canyon needs a machinist more than a crown does. The wagons are falling apart. The pups learn to fix them from someone who learned from me. Badly.”',
+          '“And he sent terms. Pack terms. I come home tonight, and the Pack rides for the Abbey wall at dawn. Forty riders. I stay, and the Pack stays in the canyon. Vane says I’m worth forty riders to you. He means it as a compliment.”',
           '“He might be right. I hate it when he’s right. It doesn’t happen often, and he’s unbearable for weeks.”',
         ],
         options: [
@@ -3289,21 +3632,23 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'stay',
-            label: 'Ask her to stay until the end.',
+            label:
+              'Ask her to stay until the end. The Pack stays in the canyon.',
             effects: { flags: ['saffron-stays'] },
             response:
-              'Saffron pins the insignia back on her apron. “Until the end,” she says. “Then we argue about it.”',
+              'Saffron pins the insignia back on her apron. “Until the end,” she says. “Then we argue about it.” The fiddler goes back up the canyon alone, playing nothing.',
           },
           {
             id: 'go',
             label:
-              'Tell her to choose for herself. The crown will not hold her.',
+              'Send her home tonight. Forty riders at the wall for one machinist.',
             effects: {
               affinity: { jackalwire: 10 },
-              flags: ['saffron-free'],
+              flags: ['saffron-free', 'd47-pack-rides'],
+              dismiss: [SAFFRON_HOME],
             },
             response:
-              'Saffron laughs, surprised. “Then I choose to stay,” she says. “Because you asked like that.”',
+              'Saffron stops turning the insignia. “Forty riders,” she says. “That’s the going rate, then.” She leaves the wrench on the crate. By midnight the fiddler is playing her out of camp. She does not look back. She would have.',
           },
           {
             id: 'bridge',
@@ -3327,21 +3672,22 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               {
                 id: 'stay',
                 label:
-                  'Ask her to stay until the end. Then she builds whatever she likes.',
+                  'Ask her to stay until the end. Then she builds whatever she likes. The Pack stays home.',
                 effects: { flags: ['saffron-stays'] },
                 response:
-                  'Saffron pins the insignia back on her apron. “Until the end,” she says. “Then we argue about it. Fair warning: I argue with drawings.”',
+                  'Saffron pins the insignia back on her apron. “Until the end,” she says. “Then we argue about it. Fair warning: I argue with drawings.” The fiddler goes back up the canyon alone.',
               },
               {
                 id: 'go',
                 label:
-                  'Tell her to choose for herself. The crown will not hold her.',
+                  'Send her home tonight to build wheels. The Pack rides to the wall in her place.',
                 effects: {
                   affinity: { jackalwire: 10 },
-                  flags: ['saffron-free'],
+                  flags: ['saffron-free', 'd47-pack-rides'],
+                  dismiss: [SAFFRON_HOME],
                 },
                 response:
-                  'Saffron laughs, surprised. “Then I choose to stay,” she says. “Because you asked like that. Then I choose the canyon. In that order.”',
+                  '“So I don’t get both,” Saffron says. “Nobody does.” She leaves the wrench on the crate, handle toward you. By midnight the fiddler is playing her out of camp.',
               },
               {
                 id: 'commission',
@@ -3364,14 +3710,16 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         speaker: 'Foreman Dunmore Ash of the Yard',
         npc: 'dunmore-ash',
         faction: 'yard',
-        lines: [
-          'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young rabbit, flour to the elbows, a letter crumpled in his fist.',
-          'Behind them, the Gate Watch sergeant who caught him explains it, loud, to anyone awake.',
-          '“He was leaving it at the stone on the road, Majesty,” says Dunmore. “For the grey sisters. It says where we are. How many. Good clear hand. I taught him his letters.”',
-          '“I’m asking you for nothing. I brought him because it’s the law and I’m the foreman. Do what the law says.”',
+        lines: D47_FLOUR,
+        // He came through the door the crown opened on Day 41 (t-039).
+        variants: [
           {
-            who: 'A Gate Watch sergeant',
-            text: '“The law says one thing for a man who sells the camp, Majesty. Every soldier at this fire knows what. So does he.”',
+            flags: ['d41-kitchen-door-open'],
+            lines: [
+              ...D47_FLOUR.slice(0, 2),
+              '“He was leaving it at the stone on the road, Majesty,” says Dunmore. “For the grey sisters. It says where we are. How many. Good clear hand. I taught him his letters. He came out of the tower kitchens on the forty-third night. Through the door you opened. I wrote the board myself. In flour.”',
+              ...D47_FLOUR.slice(3),
+            ],
           },
         ],
         options: [
@@ -3453,7 +3801,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['d47-false-letter'],
                 },
                 response:
-                  'Vellum forges it in the cook’s hand. It takes an hour. He is quietly proud of it. The letter goes to the stone at dawn. Three nights later lanterns search an empty valley far to the west. Nobody asks what the sisters do when they find it empty.',
+                  'Vellum forges it in the cook’s hand. It takes an hour. He blots it twice. The letter goes to the stone at dawn. Three nights later lanterns search an empty valley far to the west. Nobody asks what the sisters do when they find it empty.',
               },
               {
                 id: 'mercy',
@@ -3506,11 +3854,17 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         speaker: 'Mayor Mara Reedbell of Hollow Bell',
         npc: 'mara-reedbell',
         faction: 'hollow-bell',
-        lines: [
-          'Mara Reedbell walked all night to the court, mayoral sash in her pocket so nobody on the road would know her. Her hand-bell is muffled in a sock.',
-          'She sits on the ground by the fire unasked. A mayor never does. She takes the sock off the bell and holds it. She does not ring it.',
-          '“Hollow Bell is named for a hollow bell, Majesty. The great one in the Abbey tower. The town paid for it when the town was young. Our grandmothers said the Abbey stole its voice.”',
-          '“Bring the clapper home and the town will ring for you. Whatever happens after.”',
+        lines: D48_MARA,
+        // The Abbey's water, taken for the children on Day 42 (t-039).
+        variants: [
+          {
+            flags: ['d42-abbey-water-taken'],
+            lines: [
+              'Mara Reedbell comes down the cellar stair after midnight, sash in her pocket, her hand-bell muffled in a sock. She sits on the bottom step. She does not ring the bell.',
+              '“The children who drank Sister Marrow’s water hum in their sleep now, Majesty. Not loud. The same four notes. Their mothers sit up with them. I sit up with mine.”',
+              ...D48_MARA.slice(2),
+            ],
+          },
         ],
         options: [
           {
@@ -3676,22 +4030,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Tomorrow is the Abbey, Majesty. Tonight is everything after. Whoever you stand beside tonight shapes the kingdom you come back to. If you come back. Choose as if you will.',
+      'Tomorrow is the Abbey, Majesty. Tonight is everything after. Whoever you stand beside tonight shapes the kingdom you come back to. Unless the memorial row grows by two. Then the names shape it, whatever was signed. Choose as if you will come back.',
     quests: [],
     audiences: [
       {
         id: 'd49-whose-peace',
         title: 'Whose Peace?',
         speaker: 'The coalition in hiding',
-        lines: [
-          'Around the fire sit envoys of everyone still on the map. Nobody has a chair. Everyone has an opinion. Several brought their own supper, to owe nobody.',
-          'Oriel Saltmarsh has a charter half drafted on a salt manifest. Granny Umber has one fully drafted, in her vest, in triplicate. Elder Corvane’s claws are empty. He came to bargain.',
-          'Captain Dunmark stands behind your crate, where an advisor used to stand. Sister Reedlight has set her lantern on the ground between the Moles and the Crows. Nobody looks at it.',
-          'They all want one answer. Whose peace, if there is one?',
-          vellumSays(
-            '“Whatever you choose, Majesty, I write it down tonight. In case nobody is left tomorrow to remember it differently.”',
-          ),
-        ],
+        // Who really came to the last fire (t-039).
+        ...D49_COALITION,
         options: [
           {
             id: 'ask-left-out',
@@ -3737,7 +4084,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['peace-iron'],
             },
             response:
-              'Captain Dunmark salutes. Granny Umber does not. The fire goes colder on one side.',
+              'Dunmark salutes. Granny Umber does not. The fire goes colder on one side.',
           },
           {
             id: 'crows',
@@ -3773,40 +4120,13 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['peace-tunnels'],
             },
             response:
-              'Granny Umber bangs her cane three times. The motion carries. She is delighted.',
+              'Granny Umber bangs her cane three times. The motion carries. Corvane looks at the fire and says nothing at all.',
           },
         ],
         beats: [
           {
             id: 'left-out',
-            lines: [
-              {
-                who: 'Granny Umber',
-                npc: 'granny-umber',
-                text: '“The Crows’ peace leaves out everybody who can’t pay for rain. Which is everybody I know.”',
-              },
-              {
-                who: 'Elder Corvane',
-                npc: 'elder-corvane',
-                text: '“The Moles’ peace leaves out everybody with a harvest to bring in while the assembly debates the harvest.”',
-              },
-              {
-                who: 'Captain Ferro Dunmark',
-                npc: 'ferro-dunmark',
-                text: '“Open roads leave out whoever stands on a road when the next riders come. The Watch’s peace keeps them alive. I won’t pretend it keeps them happy.”',
-              },
-              {
-                who: 'Sister Reedlight',
-                npc: 'sister-reedlight',
-                text: '“Every peace at this fire leaves out the fen. We are used to it. Once, we would like not to be.”',
-              },
-              {
-                who: 'Mayor Mara Reedbell',
-                npc: 'mara-reedbell',
-                text: '“And the Bell’s peace puts one small town at the heart of everything. A lot of weight for a town that just got its water back.”',
-              },
-              'Then they all look at you again. It is worse now. Everyone knows what everyone else is afraid of.',
-            ],
+            ...D49_LEFT_OUT,
             options: [
               {
                 id: 'roads',
@@ -3843,7 +4163,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['peace-iron'],
                 },
                 response:
-                  'Captain Dunmark salutes. Granny Umber does not. She folds her three charters into her vest, one at a time. The fire goes colder on her side.',
+                  'Dunmark salutes. Granny Umber does not. She folds her three charters into her vest, one at a time. The fire goes colder on her side.',
               },
               {
                 id: 'crows',
@@ -3880,7 +4200,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['peace-tunnels'],
                 },
                 response:
-                  'Granny Umber bangs her cane three times. The motion carries. She is delighted. Corvane says nothing, loudly.',
+                  'Granny Umber bangs her cane three times. The motion carries. Corvane folds his wings and looks at the harvest moon.',
               },
               {
                 id: 'no-crown',
@@ -3930,7 +4250,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d49-record-promises'],
             },
             response:
-              'Vellum writes it and reads it back. Then he smiles. For him, that is dancing.',
+              'Vellum writes it and reads it back. Then he reads it back again, slower, to hear it twice.',
           },
           {
             id: 'names',
@@ -4016,6 +4336,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         source: 'Captain Dunmark',
         text: 'Young Komodo is at the Abbey. He is trying to stop her.',
         truth: true,
+        variants: [{ flags: [DEMOTED], source: 'Sergeant Dunmark' }],
       },
       {
         id: 'too-late',
@@ -4025,19 +4346,15 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'It is not too late, Majesty. Only late. Send who you trust most, by whatever road you have. I will be in the Archive, writing it down. Whatever happens, somebody remembers it right.',
+      'It is not too late, Majesty. Only late. Send who you trust most, by whatever road you have. I will be here at the fire with the book, writing it down. Whatever happens, somebody remembers it right.',
     quests: ['q-d50-last-dispatch'],
     audiences: [
       {
         id: 'd50-roads-in',
         title: 'The Roads In',
         speaker: 'The court in hiding',
-        lines: [
-          'Everyone who can still fight is at the fire. The roads to the Abbey are drawn in the dirt with a stick. Every few minutes someone rubs one out and draws it again, different. It does not help.',
-          'From the north, faint, comes the singing. Everyone pretends not to hear it.',
-          'Captain Dunmark wears a gorget again. Borrowed. Vellum has his book. Your host has brought out the last of the good food. Your host thinks this is the end too.',
-          'The front door is the obvious way. There may be others, if the court has earned them.',
-        ],
+        // Who stands at the last fire, as the act left them (t-039).
+        ...D50_ROADS,
         options: [
           {
             id: 'ask-cost',
@@ -4049,10 +4366,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           },
           {
             id: 'front',
-            label: 'The front door. Everyone together.',
-            effects: {},
+            label: 'The front door only. One road. Every hand on it.',
+            effects: {
+              questAid: [FRONT_DOOR],
+            },
             response:
-              'Nobody argues. Somebody starts handing out bread. It is the closest thing the court has to a war council.',
+              'Nobody argues. Somebody starts handing out bread. It is the closest thing the court has to a war council. The well and the tower stay dark.',
           },
           {
             id: 'well',
@@ -4078,7 +4397,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             id: 'costs',
             lines: [
               {
-                who: 'Captain Ferro Dunmark',
+                who: 'Ferro Dunmark',
                 npc: 'ferro-dunmark',
                 text: '“She expects us at the front door, Majesty. Half of us will be singing by the second courtyard. The other half might reach the crypt stair. I’d still go. I wanted you to hear it plain first.”',
               },
@@ -4086,7 +4405,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 '“The well is quieter. Narrower. Nobody who goes down it comes back up quickly. The bell is the oldest way. The Archive believes in it. The Archive is not the one climbing the tower.”',
               ),
               {
-                who: 'Captain Ferro Dunmark',
+                who: 'Ferro Dunmark',
+                npc: 'ferro-dunmark',
+                text: '“Every road you open is one more party that might not come back up. Two empty chairs and the peace you chose last night goes with them. One road, all of us on it, and the front door gets every hand we have.”',
+              },
+              {
+                who: 'Ferro Dunmark',
                 npc: 'ferro-dunmark',
                 text: '“Whichever road you choose, the people on it will want to hear it from you. Not from me. Not from the book.”',
               },
@@ -4095,8 +4419,11 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             options: [
               {
                 id: 'front',
-                label: 'The front door. Everyone together. Nobody goes alone.',
-                effects: {},
+                label:
+                  'The front door only. Everyone together. Nobody goes alone.',
+                effects: {
+                  questAid: [FRONT_DOOR],
+                },
                 response:
                   'Nobody argues. Somebody starts handing out bread. It is the closest thing the court has to a war council. Dunmark puts his hand on your shoulder once. Then takes it away.',
               },
@@ -4138,7 +4465,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       {
         id: 'd50-if-you-find-him',
         title: 'If You Find Him',
-        speaker: 'Captain Ferro Dunmark of the Gate Watch',
+        speaker: 'Ferro Dunmark of the Gate Watch',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
         lines: [
@@ -4180,7 +4507,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d50-komodo-spared'],
             },
             response:
-              'Dunmark is quiet a long while. “He opened my gate,” he says. “He asked after my mother.” He goes to the party and tells them. Nobody argues. That is worse.',
+              'Dunmark is quiet a long while. “He opened my gate,” he says. “He asked after my mother.” He goes to the party and tells them. Nobody argues.',
           },
           {
             id: 'message',
@@ -4205,30 +4532,33 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         requires: { standing: MOLE_ASSEMBLY_TURNS_OUT },
         lines: [
           'At dusk the ground of the camp starts to move. Then the moles come up through it: forty, sixty, more, with picks and lamps and bread in their aprons. Granny Umber comes up last and sits on a crate to get her breath.',
-          'The assembly voted. It took all night. Two hundred and six to forty.',
-          'We dig under the Abbey wall from the old brick tunnel and come up wherever you need a door. Or we go home and hold the stairs for whoever comes back. Either way the burrows are with you. You earned that the slow way.',
-          vellumSays('Majesty. I have the vote written down. Both numbers.'),
+          '“The assembly voted. It took all night. Two hundred and six to forty.”',
+          '“We dig under the Abbey wall from the old brick tunnel and come up wherever you need a door. Not everybody who goes down a new tunnel comes up it. Or we go home and hold the stairs for whoever comes back. Either way the burrows are with you. You earned that the slow way.”',
+          vellumSays('“Majesty. I have the vote written down. Both numbers.”'),
         ],
         options: [
           {
             id: 'dig',
-            label: 'Dig. Bring the burrows to the Abbey wall.',
+            label:
+              'Dig. Bring the burrows to the Abbey wall. Not all of them come back up.',
             effects: {
               affinity: { moles: 10 },
+              strength: { moles: -1 },
               flags: ['d50-moles-dig'],
             },
             response:
-              'They go down the way they came, lamps last. For an hour you can hear them under your feet. Then you can’t.',
+              'They go down the way they came, lamps last. Granny Umber counts them into the hole. She does not count aloud. For an hour you can hear them under your feet. Then you can’t.',
           },
           {
             id: 'stairs',
             label: 'Hold the stairs. Someone has to be home when this is over.',
             effects: {
               affinity: { moles: 5 },
+              items: ['carbide-lamp'],
               flags: ['d50-moles-hold-stairs'],
             },
             response:
-              'Granny Umber nods as if you passed something. “Somebody always holds the stairs,” she says. “Mostly it’s grandmothers.”',
+              'Granny Umber nods as if you passed something. “Somebody always holds the stairs,” she says. “Mostly it’s grandmothers.” She unhooks the lamp from her belt and puts it in your hand. “For whoever goes under. It burns blue where the air goes bad.”',
           },
           {
             id: 'lumen',
@@ -4246,8 +4576,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             speaker: 'Lumen Shale',
             npc: 'F010',
             lines: [
-              'Forty said no. I want to hear the forty before anybody picks up a shovel. They might be right. They usually are about one thing.',
-              'Then we vote again, on this, out loud. Two hundred and forty-six people should know what they are digging toward.',
+              '“Forty said no. I want to hear the forty before anybody picks up a shovel. They might be right. They usually are about one thing.”',
+              '“Then we vote again, on this, out loud. Two hundred and forty-six people should know what they are digging toward. And who is not coming back up.”',
             ],
             options: [
               {
@@ -4255,6 +4585,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 label: 'Hear the forty. Then vote again.',
                 effects: {
                   affinity: { moles: 5 },
+                  strength: { moles: -1 },
                   flags: ['d50-moles-voted', 'd50-moles-dig'],
                 },
                 response:
@@ -4265,10 +4596,11 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 label: 'No vote. Send them home to hold the stairs.',
                 effects: {
                   affinity: { moles: 5 },
+                  items: ['carbide-lamp'],
                   flags: ['d50-moles-hold-stairs'],
                 },
                 response:
-                  'Lumen lowers the trumpet. “Home, then,” she says to the crowd, and they go. Granny Umber is the last one down.',
+                  'Lumen lowers the trumpet. “Home, then,” she says to the crowd, and they go. Granny Umber is the last one down. She leaves her lamp on the crate, lit.',
               },
             ],
           },

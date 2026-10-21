@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(20rem,25rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(24rem,32rem)]"
+    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(30rem,42rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(36rem,48rem)]"
   >
     <section
       class="eod-figure-box relative flex min-h-0 flex-1 basis-0 flex-col justify-end"
@@ -77,7 +77,7 @@
           <p class="text-xs font-semibold uppercase tracking-widest opacity-60">
             {{ selected.speaker }}
           </p>
-          <p class="font-serif text-base italic">
+          <p class="eod-reading italic">
             {{ responses[selected.id] ?? 'The petition has been answered.' }}
           </p>
           <EmperorFortressCodexNote />

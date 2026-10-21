@@ -1,5 +1,7 @@
 <template>
-  <div class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]">
+  <div
+    class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]"
+  >
     <section class="flex min-h-0 flex-col gap-2">
       <div class="eod-board min-h-0 flex-1 p-3">
         <h2 class="sr-only">The quest board</h2>

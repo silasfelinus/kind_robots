@@ -325,7 +325,7 @@
 **Option A, investigate (visible 7 check):** Trace the pipe's outflow with the volunteer without digging into the fungal bed
 
 - **Pass:** The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site.
-- **Miss:** Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows.
+- **Miss:** Rain turns your dye test into a green wash that cannot prove where the pipe starts. The mushrooms file a second complaint, this one naming your methods. A volunteer photographs the seep with a ruler and asks you to sign the failed test log. You do.
 
 **Option B, assist without a check:** Help the trail crew reroute foot traffic while they inspect the discharge
 
@@ -336,7 +336,7 @@
 - `cards/wh-014`: A fungus network files very specific complaints about the living. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-014/2`: A row of mushrooms has filed a noise complaint against a drainage pipe below the Community Forest trail. Each cap holds a tiny slip of paper. The sound is not loud, but the slope downhill is newly wet and a volunteer has found sediment in the creek. The people and location must match the opening.
 - `outcomes/wh-014/investigate-success`: The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-014/investigate-failure`: Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-014/investigate-failure`: Rain turns your dye test into a green wash that cannot prove where the pipe starts. The mushrooms file a second complaint, this one naming your methods. A volunteer photographs the seep with a ruler and asks you to sign the failed test log. You do. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-014/care-success`: A short closure keeps boots off the colony and lets the crew sample the water. The mushrooms amend their complaint to include an appreciation for signage. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_014_verified`, `wh_014_partial`, `wh_014_care` (mutually exclusive results of this card).

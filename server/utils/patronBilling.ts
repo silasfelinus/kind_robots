@@ -27,7 +27,11 @@ export function paidPatronInvoiceSubscriptionId(invoice: unknown): string | null
 
   const row = invoice as PatronInvoiceSnapshot
   if (row.status !== 'paid') return null
-  if (!Number.isSafeInteger(row.amount_paid) || (row.amount_paid ?? 0) <= 0)
+  if (
+    typeof row.amount_paid !== 'number' ||
+    !Number.isSafeInteger(row.amount_paid) ||
+    row.amount_paid <= 0
+  )
     return null
   if (
     row.billing_reason !== 'subscription_create' &&
@@ -48,4 +52,19 @@ export function checkoutHasPaidSubscription(
   session: { mode?: string | null; payment_status?: string | null },
 ): boolean {
   return session.mode === 'subscription' && session.payment_status === 'paid'
+}
+
+export function isFiveDollarMonthlyPatronPrice(price: {
+  active?: boolean
+  currency?: string
+  unit_amount?: number | null
+  recurring?: { interval?: string; interval_count?: number } | null
+}): boolean {
+  return (
+    price.active === true &&
+    price.currency === 'usd' &&
+    price.unit_amount === 500 &&
+    price.recurring?.interval === 'month' &&
+    price.recurring?.interval_count === 1
+  )
 }

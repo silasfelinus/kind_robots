@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/ENDINGS.json",
-  "sourceRef": "main@23f96a21d478f44ef4aeb3aeed1e93695942f587",
+  "sourceRef": "main@864ef2f06c46ee0ac7eb50b4446cdb2dcf75847a",
   "endings": [
     {
       "id": "employee-of-the-month",

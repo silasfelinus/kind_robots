@@ -7,12 +7,12 @@
     "place": "Moonstone Beach",
     "scene": "beach",
     "pool": 0,
-    "pressure": "A crab landlord posts eviction notices on tidepool stones. His tenants say the new rent is a pinch of moonlight every dawn.",
-    "investigate": "Read the leases before anyone gets moved",
-    "success": "Each document contains the same illegible signature, dated on a day the tide never went out.",
-    "failure": "A wave washes the papers away, but the landlord admits there is no dry place to relocate anyone.",
-    "help": "Mediate a fair shared use of the pool",
-    "helpOutcome": "The crabs keep their homes; the landlord receives a pebble marked COMMON WATER."
+    "pressure": "At low tide a crab landlord posts EVICTED signs on stones occupied by hermit crabs. The rent is moonlight, apparently collected in shells. A child wants to save the smallest tenants by moving them into a bucket, a plan that would dry them out.",
+    "investigate": "Read the lease terms and watch the animals from outside the pool",
+    "success": "The landlord's moonlight ledger corresponds to a real drainage problem upstream. A tidepool volunteer records it; no crab needs relocating.",
+    "failure": "The lease dissolves into saltwater before you finish. The volunteer has photographed an exposed channel that needs attention before the next tide.",
+    "help": "Keep hands out of the pool and help the child build a visitor sign",
+    "helpOutcome": "The child draws a diagram of the tenants' actual homes. The landlord stamps the sign APPROVED and attempts to charge the volunteer a deposit."
   },
   {
     "id": "WH-023",
@@ -52,12 +52,12 @@
     "place": "Trinidad Harbor / Head",
     "scene": "bay",
     "pool": 1,
-    "pressure": "A second light appears above Trinidad Head whenever a boat passes a harmless-looking patch of water. The harbor pilot refuses to name it.",
-    "investigate": "Cross-check the phantom flashes with radio logs",
-    "success": "The pattern predicts a submerged obstruction that ordinary instruments miss.",
-    "failure": "A cloud spoils the count, but one sailor confirms the light did not track any known vessel.",
-    "help": "Share the warning with local crews",
-    "helpOutcome": "The harbor keeps a careful watch rather than send anyone toward an unverified beacon alone."
+    "pressure": "A second beacon flashes above Trinidad Head where no light is installed. A harbor pilot refuses to name it after a crew followed it once and nearly struck a submerged hazard. Two skippers disagree over whether to report an unverified warning.",
+    "investigate": "Cross-check the phantom flashes against radio logs and the published hazard chart",
+    "success": "The pattern matches a submerged obstruction missing from the current chart. The pilot radios a cautious location instead of steering toward the impossible light.",
+    "failure": "Low cloud erases the flashes halfway through the count. A sailor corroborates the bearing, which is enough for a safety notice, not a new navigation mark.",
+    "help": "Help the local crews issue a clear advisory through the harbor office",
+    "helpOutcome": "The skippers agree on a temporary watch and no one is sent to chase the second light. The phantom beacon flashes once, perhaps impatiently."
   },
   {
     "id": "WH-028",
@@ -97,12 +97,12 @@
     "place": "Trinidad Harbor / Head",
     "scene": "bay",
     "pool": 1,
-    "pressure": "A clerk at a pop-up weather window insists your name is already registered to fog bank seventeen, where you supposedly live.",
-    "investigate": "Request the original weather permit",
-    "success": "The address is the county's missing harbor district; the expiration date is a hundred years ahead.",
-    "failure": "The clerk shreds the duplicate and says you will receive the original by mail.",
-    "help": "Challenge the clerk's exclusion of other travelers",
-    "helpOutcome": "She opens a public queue and finally issues shelter permits to people who cannot prove a forecast."
+    "pressure": "A weather clerk unfolds a counter from the fog and insists your legal residence is FOG BANK SEVENTEEN. Your ordinary ID still works everywhere except the clerk's ledger. A delivery courier behind you needs an address before the perishables warm up.",
+    "investigate": "Compare the fog register with the courier's route and your own address",
+    "success": "Fog Bank Seventeen is listed as a defunct postal sorting route, with a delivery scheduled for tomorrow. The courier records the discrepancy without surrendering the shipment.",
+    "failure": "The clerk stamps your application UNLOCATABLE before you finish speaking. The receipt carries a sorting code the post office can check.",
+    "help": "Let the courier use the dry counter to phone dispatch before arguing residency",
+    "helpOutcome": "The delivery finds a real refrigerated dock and the courier is paid for the delay. The clerk files a complaint against visibility."
   },
   {
     "id": "WH-031",
@@ -127,12 +127,12 @@
     "place": "Luffenholtz Beach",
     "scene": "beach",
     "pool": 2,
-    "pressure": "A photographer has copyrighted this sunset because, she insists, it belongs to Tuesday. Her proofs show the horizon in two places at once.",
-    "investigate": "Check the film timestamps against the tide",
-    "success": "The second horizon matches a weather report from a future date and the wrong moon phase.",
-    "failure": "The memory card corrupts, leaving one negative with an impossible sun.",
-    "help": "Invite the community to witness without buying the sky",
-    "helpOutcome": "The photographer projects the image at the library for free, and everyone argues productively about what they saw."
+    "pressure": "A photographer claims to own Tuesday's sunset, although tonight is Saturday. Her proofs show two horizons and a stranded beach visitor appears in both. She has begun charging people to look toward the water.",
+    "investigate": "Check the original negatives and the tide schedule before calling the pictures a prediction",
+    "success": "The second horizon shares a specific buoy number with a future marine advisory. The photographer agrees to provide the frames as evidence, not exclusive access.",
+    "failure": "The negative fogs under the inspection light. The visitor still identifies the buoy, and you record the location without claiming the image was genuine.",
+    "help": "Help the photographer stop blocking the beach access and share the weather risk",
+    "helpOutcome": "The footpath opens. The photographer keeps her copyright argument for another day; the visitor gets home before the incoming tide."
   },
   {
     "id": "WH-033",
@@ -157,12 +157,12 @@
     "place": "Luffenholtz Beach",
     "scene": "beach",
     "pool": 2,
-    "pressure": "Underwater comics perform through a pool of clear water. Each punchline produces a harmless tremor that makes nearby cups dance.",
-    "investigate": "Count the tremors and ask who is listening",
-    "success": "The sequence repeats a coastal warning code once used by an invented lighthouse keeper.",
-    "failure": "Your notes dissolve when a crab steals the pen, but the rhythm can be clapped back.",
-    "help": "Let the audience vote on a safer stage",
-    "helpOutcome": "The performers move to a deeper pool where the comedy does not rattle the visitors' feet."
+    "pressure": "A tidepool hosts an underwater open-mic night. The punchlines make paper cups tremble along the seawall, and a nervous café worker has started stacking them beneath heavy glassware. The comic shrimp is bombing spectacularly.",
+    "investigate": "Log the tremors against the performances and local instrument readings",
+    "success": "The shakes follow the jokes but not the applause. A scientist agrees to monitor the seawall while the shrimp demands a better audience.",
+    "failure": "A passing truck ruins your measurements. You still note which cups jumped and where the café worker was standing.",
+    "help": "Help the worker move breakables and ask the performers for an intermission",
+    "helpOutcome": "The café stays open, the sea creatures take a break, and the shrimp receives the first respectful heckle of its professional life."
   },
   {
     "id": "WH-035",
@@ -187,12 +187,12 @@
     "place": "Mad River / Hammond Trail",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A rower reaches the launch ramp upstream without having disturbed the water. The oars are soaked on one side and perfectly dry on the other.",
-    "investigate": "Check the boat's wake with a second observer",
-    "success": "There is a reverse current running through a strip of water narrower than an oar blade.",
-    "failure": "The strip closes around your marker; the rower draws the shape in the dirt before it fades.",
-    "help": "Help the exhausted rower rest and rejoin the crew",
-    "helpOutcome": "The crew meets them ashore, and nobody has to prove the impossible before offering a blanket."
+    "pressure": "A rower returns to the launch ramp upstream with one side of her oars wet and the other dry. She insists she did not move through the channel. Her partner is about to retrace the trip alone to prove she isn't lying.",
+    "investigate": "Compare her route, oar marks and the launch-camera timestamps",
+    "success": "The camera shows the boat departing twice but arriving once. The pair keep the recording and report a channel anomaly rather than risking another run.",
+    "failure": "Spray obscures the lens at the crucial minute. The dry blade carries an unfamiliar paint mark that the rower recognizes as a dock number.",
+    "help": "Persuade the partner to stand down and help the rower warm up",
+    "helpOutcome": "Both rowers get dry clothes and contact the harbor office together. Nobody has to repeat the trick merely to be believed."
   },
   {
     "id": "WH-037",
@@ -217,12 +217,12 @@
     "place": "Mad River / Hammond Trail",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "An orange detour sign leads twenty years backward to a bridge still under construction. A worker recognizes your boots but not your face.",
-    "investigate": "Compare the old road with the present route",
-    "success": "A utility sketch marks the future location of an unexplained antenna on the bluff.",
-    "failure": "The construction whistle ends the interval; you return with orange dust on an unworn sole.",
-    "help": "Warn present-day cyclists about the vanished junction",
-    "helpOutcome": "A temporary sign keeps riders out of the dangerous shoulder when the detour returns."
+    "pressure": "An orange detour sign leads to a bridge construction site twenty years in the past. A worker recognizes your muddy boots from a photograph in the site office, but the modern trail behind you is closing for the evening.",
+    "investigate": "Record the bridge details without stepping onto an unfinished span",
+    "success": "A work order names a foundation repair omitted from today's trail map. You bring the note back to the current maintenance desk.",
+    "failure": "The foreman demands a permit you cannot possibly have. Your sketch still captures the old railing alignment, which the current crew can check.",
+    "help": "Help hikers turn away from the unstable detour",
+    "helpOutcome": "The last walker follows the safe path while you cover the misleading arrow. The sign promptly complains about historical preservation."
   },
   {
     "id": "WH-039",
@@ -232,12 +232,12 @@
     "place": "Mad River / Hammond Trail",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A secret tide committee proposes to remove the moon by popular vote. Its chair has never seen high water but owns five clipboards.",
-    "investigate": "Inspect the ballots and ask what the motion would change",
-    "success": "The votes are predicted tide heights, and one illegal entry points to a storm they have hidden.",
-    "failure": "The chair calls a procedural recess; you rescue the agenda from the trash.",
-    "help": "Invite the people who use the river to the meeting",
-    "helpOutcome": "Fishers and walkers reject the cosmic stunt and vote for public flood notices instead."
+    "pressure": "The Secret Tide Committee is taking signatures to dismiss the moon. Its chair owns five clipboards but has never waited at a flooded trail gate. A fisher needs the current tide table, not an election recount.",
+    "investigate": "Ask where the committee gets its forecasts and compare them with official observations",
+    "success": "The committee has copied a future tide chart, including a dangerous low-water anomaly. You report the reading without certifying its lunar politics.",
+    "failure": "A wave takes the ballots and half the supporting documents. The fisher rescues a chart corner with a useful observation time.",
+    "help": "Help the fisher and shoreline users post practical tide information",
+    "helpOutcome": "The launch crew adjusts its departure and no one misses a safe crossing. The committee files a procedural objection to gravity."
   },
   {
     "id": "WH-040",
@@ -247,11 +247,11 @@
     "place": "Mad River / Hammond Trail",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "An upside-down kayak drips saltwater from a branch above the trail. A tiny voice beneath its seat asks if north is still north.",
-    "investigate": "Follow the salt trail without shaking the tree",
-    "success": "The dripping water draws an impossible estuary map across the bark.",
-    "failure": "The rope breaks and the sketch washes away, though you note a new inlet.",
-    "help": "Help lower the boat safely to the ground",
-    "helpOutcome": "Its unseen owner thanks the rescue team and paddles it down the proper river."
+    "pressure": "A kayak hangs upside down from a cedar limb, dripping seawater onto a dry trail. A voice beneath its seat is asking whether north is still north. The trail crew is preparing to saw the branch before checking who, or what, is inside.",
+    "investigate": "Confirm the voice's location and inspect the tie-downs from solid ground",
+    "success": "A current marine registration tag sits beside a dock pass dated next summer. You photograph both before anyone moves the craft.",
+    "failure": "The kayak pivots out of reach just as you approach. A dry compass falls from its seat and points reliably toward the nearest safe path.",
+    "help": "Help the crew lower the kayak without standing beneath the loaded branch",
+    "helpOutcome": "The crew rigs a rope and brings the kayak down intact. The voice thanks them, asks for a map and declines an interview."
   }
 ]

@@ -7,12 +7,12 @@
     "place": "Blue Lake",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A slot machine pays in memories of Tuesday shifts the player never worked. Its attendant says nobody ever wins the same hour twice.",
-    "investigate": "Compare the payout slips with old employee rosters",
-    "success": "One slip gives a name and break time from an office that has never opened.",
-    "failure": "The machine returns your coin and a vivid memory you cannot place.",
-    "help": "Help the workers decide whether the machine should stay",
-    "helpOutcome": "They vote for transparent odds and keep the impossible stories outside the payroll ledger."
+    "pressure": "A casino slot machine is paying out memories of Tuesdays you never worked. The attendant recognizes the uniform in one vision but not the coworker beside you. A guest is demanding compensation for a shift they insist they already played.",
+    "investigate": "Compare the payout log with schedules before treating remembered work as owed wages",
+    "success": "The log holds a real transaction number against an impossible Tuesday. The supervisor preserves it for review without charging either employee.",
+    "failure": "The machine resets before you get a printout. The attendant records the guest's account while the security clock supplies a second timestamp.",
+    "help": "Help the attendant close the malfunctioning machine and give the guest a fair complaint route",
+    "helpOutcome": "The machine is tagged out, the guest gets a receipt, and nobody is asked to prove a memory to keep their job. The slot display flashes TAKE YOUR BREAK."
   },
   {
     "id": "WH-063",
@@ -67,12 +67,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "A silent plane lands at Kneeland with a passenger manifest listing people who have never been born. The pilot offers very good sandwiches.",
-    "investigate": "Check the arrival notice without entering the aircraft",
-    "success": "The destination stamp names a radio tower that is still a proposal.",
-    "failure": "The passenger door shuts before you see the logbook, but a boarding pass remains in the grass.",
-    "help": "Help the ground crew guide the aircraft safely",
-    "helpOutcome": "Everyone clears the runway and nobody needs to climb aboard to prove the miracle."
+    "pressure": "A silent plane lands at Kneeland and presents a passenger manifest full of people not yet born. The pilot hands out excellent sandwiches. Ground crew worry about fuel, headcount and a runway occupied by a craft nobody cleared to land.",
+    "investigate": "Check the aircraft registration and manifest against the runway log without boarding",
+    "success": "The registration corresponds to a flight booked for next spring. Ground control records the discrepancy and keeps the runway closed until the plane is inspected.",
+    "failure": "The manifest pages turn blank in the wind. A mechanic still records the unusual landing marks and the crew's exact arrival time.",
+    "help": "Help ground staff keep the passengers safe and clear the approach",
+    "helpOutcome": "Everyone waits in a sheltered area while the airfield radios for advice. The pilot's sandwiches are the least controversial item on the incident report."
   },
   {
     "id": "WH-067",
@@ -97,12 +97,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "A patch of fog follows you into a grocery store, queues politely, and makes the cashier's scanner read prices from another decade.",
-    "investigate": "Measure its boundaries against the ventilation",
-    "success": "The fog moves toward a receipt bearing the same lost-day date as an earlier clue.",
-    "failure": "It changes shape every time you approach; the cashier writes down what the register said.",
-    "help": "Ask the staff what would make everyone comfortable",
-    "helpOutcome": "They open the doors and let the fog leave without treating frightened shoppers as fools."
+    "pressure": "Your own personal fog follows you into a grocery store, joins the checkout queue and makes the scanner display prices from twenty years ago. The cashier is being blamed for a sale they cannot control; a shopper is struggling to find the exit through the mist.",
+    "investigate": "Test the fog's boundary with the store's ventilation and compare the scanner receipts",
+    "success": "The patch drifts toward a receipt dated on the same missing Tuesday as an earlier clue. The cashier keeps a copy; the store's prices remain today's.",
+    "failure": "The fog changes shape faster than you can measure it. You save the itemized receipt and the cashier notes which aisle first clouded.",
+    "help": "Help the shopper reach the door and let staff decide whether to evacuate",
+    "helpOutcome": "The exit clears and the cashier gets backup instead of blame. The fog leaves with a loyalty card nobody remembers issuing."
   },
   {
     "id": "WH-069",
@@ -112,12 +112,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "Cows cross the road only at invisible green signals. Drivers honk at their patience and the herd refuses to hurry.",
-    "investigate": "Look for the unseen traffic control",
-    "success": "A roadside post transmits a sequence of pulses from an older county map.",
-    "failure": "Your flashlight breaks the pattern and the herd waits until dawn.",
-    "help": "Create a safe crossing with the rancher",
-    "helpOutcome": "Volunteers hold traffic, and the cows pass without putting drivers or animals at risk."
+    "pressure": "Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property.",
+    "investigate": "Compare the herd's stopping points with the bend in the road and recorded traffic",
+    "success": "The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign.",
+    "failure": "A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement.",
+    "help": "Help slow the vehicles and give the rancher room to move the cattle safely",
+    "helpOutcome": "The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone."
   },
   {
     "id": "WH-070",
@@ -127,12 +127,12 @@
     "place": "Kneeland / hills",
     "scene": "highway",
     "pool": 1,
-    "pressure": "A radio hobbyist receives a weather report for stars no observer can locate. The message ends with tomorrow's local wind speed.",
-    "investigate": "Compare the transmission against multiple receivers",
-    "success": "The same sequence comes from an abandoned county relay tower, not the sky.",
-    "failure": "A battery dies before triangulation ends. You keep one clear call sign.",
-    "help": "Share the recordings with independent listeners",
-    "helpOutcome": "Three operators corroborate the signal and the hobbyist stops feeling alone."
+    "pressure": "A ham-radio operator receives a weather bulletin for stars no telescope can locate, followed by tomorrow's wind warning for Kneeland. A neighbor is preparing for a ridge-top job and needs a reliable forecast, not a lesson in celestial bureaucracy.",
+    "investigate": "Record the transmission and compare the local forecast with independent weather readings",
+    "success": "The unfamiliar call sign overlays a legitimate storm pressure trend. The operator shares the recording while the neighbor checks an ordinary weather service.",
+    "failure": "Static swallows the coordinates before a second receiver locks on. You keep the transmission time and a repeatable fragment of the call sign.",
+    "help": "Help the neighbor make a conservative plan for the ridge-top work",
+    "helpOutcome": "The crew reschedules exposed tasks and the radio operator keeps listening from home. The stars are invited to file future reports in local units."
   },
   {
     "id": "WH-071",
@@ -157,12 +157,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A plaster footprint escapes the museum and leaves wet tracks in the parking lot. The curator worries more about the donation ledger than the walking artifact.",
-    "investigate": "Follow the fresh prints before they dry",
-    "success": "They stop beside a sealed exhibit drawer containing the mold's second half.",
-    "failure": "Rain smears the prints. The guard still witnessed the cast leave on its own.",
-    "help": "Help the curator preserve the collection responsibly",
-    "helpOutcome": "The museum labels the anomaly honestly and invites community review rather than selling a legend."
+    "pressure": "A plaster footprint has walked out of its museum case, leaving wet tracks through the parking lot. The curator is expected to report a missing artifact before opening and fears the donors will be told she sold it.",
+    "investigate": "Compare the case inventory and the tracks without walking over the evidence",
+    "success": "The wet tracks stop at the old loading dock; an accession photo shows the cast positioned differently last night. The curator logs both facts.",
+    "failure": "A cleaning truck crosses the last print. A security guard has already sketched its shape and notes the time it appeared.",
+    "help": "Help the curator secure the gallery and report the incident accurately",
+    "helpOutcome": "The museum stays open with a temporary label explaining the missing cast. The donors receive a plain account, which offends only the ghost of public relations."
   },
   {
     "id": "WH-073",
@@ -187,12 +187,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A river-carved message calls an absent witness by name. The witness lives nearby and claims never to have visited the bank.",
-    "investigate": "Ask the witness to verify the driftwood's details",
-    "success": "The wood records a flood stage not reached yet and a bridge support marked for repair.",
-    "failure": "The carving fades in sunlight, but a photograph preserves the place.",
-    "help": "Invite flood volunteers to inspect the shore",
-    "helpOutcome": "They clear dangerous debris and begin a public watch of the vulnerable crossing."
+    "pressure": "Driftwood spells the name of a witness who insists she has never stood on this riverbank. A neighbor has already started accusing her of hiding something. She wants the board removed before the rumor reaches her workplace.",
+    "investigate": "Check the lettering against flood marks and ask the named person what, if anything, she consents to share",
+    "success": "A current scar runs under the carved letters; the timing is strange, not a confession. You document the wood without adding a theory about her life.",
+    "failure": "The water pulls the board away before you measure it. The witness keeps a photograph, and you can corroborate the rising-water time.",
+    "help": "Help stop the rumor and get the witness safely away from the bank",
+    "helpOutcome": "The neighbor retracts the accusation and the witness goes home. The river offers no apology, but it does stop spelling names for an hour."
   },
   {
     "id": "WH-075",
@@ -202,12 +202,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A gentle woodland resident wants a dating profile that does not reveal its fur, feet or forest address. Every draft reads like a police report.",
-    "investigate": "Ask what it actually loves instead of what it hides",
-    "success": "The profile's ordinary details reveal a community garden the creature has quietly maintained.",
-    "failure": "Its attempts at flirting collapse into weather forecasts. It learns a little honesty.",
-    "help": "Help make a profile with boundaries and consent",
-    "helpOutcome": "It posts a simple introduction without private coordinates and receives a thoughtful reply."
+    "pressure": "A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression.",
+    "investigate": "Ask which details belong in a bio and which would put the resident at risk",
+    "success": "A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer.",
+    "failure": "The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared.",
+    "help": "Help write a profile that gives the resident control over disclosure",
+    "helpOutcome": "The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity."
   },
   {
     "id": "WH-076",
@@ -232,12 +232,12 @@
     "place": "Highway 299 roadside",
     "scene": "highway",
     "pool": 3,
-    "pressure": "A hitchhiker pays with receipts for gas not sold until a decade from now. He knows the exit you were thinking of taking.",
-    "investigate": "Ask where the receipts were printed",
-    "success": "The paper carries an address for a depot planned in a county meeting next week.",
-    "failure": "He leaves at the next turnout and the ink vanishes from the thermal paper.",
-    "help": "Offer a safe ride without demanding his life story",
-    "helpOutcome": "He makes it to town and leaves you a genuine thank-you written in today's date."
+    "pressure": "A polite hitchhiker offers receipts for fuel not sold until a decade from now. He knows the exit you planned to take but will not say how. The road is dark and another driver has already pulled over in an unsafe turnoff.",
+    "investigate": "Check the receipt's station number and future price without taking the stranger anywhere",
+    "success": "The business number belongs to a station not yet opened. You record it from a safe turnout and leave the man's story unverified.",
+    "failure": "The ink smears before you can read the address. A printed transaction code remains, enough to compare with public records later.",
+    "help": "Help the stranded rider contact safe transport without promising a lift",
+    "helpOutcome": "A local shuttle confirms a pickup at a lit stop. The traveler waits with a thermos and refuses to explain why tomorrow's fuel is so expensive."
   },
   {
     "id": "WH-078",
@@ -262,12 +262,12 @@
     "place": "Highway 299 roadside",
     "scene": "highway",
     "pool": 3,
-    "pressure": "Alien travelers have rated the rest stop one star for hospitality, clean bathrooms and atmospheric gravity. The caretaker wants the reviews deleted.",
-    "investigate": "Inspect the visitors' complaint book",
-    "success": "One review contains a star chart with the exact route of tomorrow's suspicious plane.",
-    "failure": "The translator gives every reply five stars and destroys the evidence of disagreement.",
-    "help": "Help the caretaker make the stop welcoming",
-    "helpOutcome": "Better signs and a working sink win a grudging second star from the guests."
+    "pressure": "Visitors from another planet have posted a one-star review of a highway rest stop, citing gravity, plumbing and the difficulty of finding a vegetarian snack. The caretaker fears a poor public rating will cost their tiny maintenance budget.",
+    "investigate": "Read the reviews against the site's actual safety and accessibility report",
+    "success": "Beneath the nonsense is a correct note about a faulty tap. The caretaker files a repair request with an earthly ticket number.",
+    "failure": "The aliens delete the most specific post. A paper inspection checklist still records the same leak and the date it began.",
+    "help": "Help the caretaker address the real problem and answer the complaints without ridicule",
+    "helpOutcome": "The tap gets a temporary out-of-order sign and the visitors receive directions to a safer stop. Their revised review awards Earth two stars for effort."
   },
   {
     "id": "WH-080",
@@ -277,11 +277,11 @@
     "place": "Highway 299 roadside",
     "scene": "highway",
     "pool": 3,
-    "pressure": "A logging road ends at a warehouse stacked with boxed dreams. Each box has a name and a claim ticket marked UNCOLLECTED.",
-    "investigate": "Trace who authorized the storage",
-    "success": "A receipt lists a community future that disappeared from last year's budget hearing.",
-    "failure": "The boxes rearrange before you can read the account number. You keep a stamped stub.",
-    "help": "Return one abandoned dream with its owner's permission",
-    "helpOutcome": "A neighbor opens a box and remembers why they wanted to start a repair cooperative."
+    "pressure": "A logging road leads to a warehouse full of boxed dreams, each tagged with a name and an uncollected claim ticket. An older worker recognizes a box from his childhood and asks not to have its contents opened in front of strangers.",
+    "investigate": "Examine the ledger and the warehouse's land-use records before touching any box",
+    "success": "The inventory lists a pickup date that has not arrived. The worker gets a copy of his entry and keeps control of whether to claim it.",
+    "failure": "A shelf collapses before you can match the lot numbers. You rescue a page showing where the missing boxes were stored, without opening them.",
+    "help": "Help secure the unstable shelves and protect the workers' privacy",
+    "helpOutcome": "The building is closed until its racks are safe. The worker leaves with an unbroken claim ticket and the choice of returning someday."
   }
 ]

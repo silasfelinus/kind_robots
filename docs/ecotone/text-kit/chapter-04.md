@@ -10,24 +10,24 @@
 
 **Opening narration:** A slot machine pays out in memories of work shifts never worked.
 
-**Escalation:** A slot machine pays in memories of Tuesday shifts the player never worked. Its attendant says nobody ever wins the same hour twice.
+**Escalation:** A casino slot machine is paying out memories of Tuesdays you never worked. The attendant recognizes the uniform in one vision but not the coworker beside you. A guest is demanding compensation for a shift they insist they already played.
 
-**Option A, investigate (visible 9 check):** Compare the payout slips with old employee rosters
+**Option A, investigate (visible 9 check):** Compare the payout log with schedules before treating remembered work as owed wages
 
-- **Pass:** One slip gives a name and break time from an office that has never opened.
-- **Miss:** The machine returns your coin and a vivid memory you cannot place.
+- **Pass:** The log holds a real transaction number against an impossible Tuesday. The supervisor preserves it for review without charging either employee.
+- **Miss:** The machine resets before you get a printout. The attendant records the guest's account while the security clock supplies a second timestamp.
 
-**Option B, assist without a check:** Help the workers decide whether the machine should stay
+**Option B, assist without a check:** Help the attendant close the malfunctioning machine and give the guest a fair complaint route
 
-- **Result:** They vote for transparent odds and keep the impossible stories outside the payroll ledger.
+- **Result:** The machine is tagged out, the guest gets a receipt, and nobody is asked to prove a memory to keep their job. The slot display flashes TAKE YOUR BREAK.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-062`: A slot machine pays out in memories of work shifts never worked. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-062/2`: A slot machine pays in memories of Tuesday shifts the player never worked. Its attendant says nobody ever wins the same hour twice. The people and location must match the opening.
-- `outcomes/wh-062/investigate-success`: One slip gives a name and break time from an office that has never opened. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-062/investigate-failure`: The machine returns your coin and a vivid memory you cannot place. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-062/care-success`: They vote for transparent odds and keep the impossible stories outside the payroll ledger. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-062/2`: A casino slot machine is paying out memories of Tuesdays you never worked. The attendant recognizes the uniform in one vision but not the coworker beside you. A guest is demanding compensation for a shift they insist they already played. The people and location must match the opening.
+- `outcomes/wh-062/investigate-success`: The log holds a real transaction number against an impossible Tuesday. The supervisor preserves it for review without charging either employee. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-062/investigate-failure`: The machine resets before you get a printout. The attendant records the guest's account while the security clock supplies a second timestamp. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-062/care-success`: The machine is tagged out, the guest gets a receipt, and nobody is asked to prove a memory to keep their job. The slot display flashes TAKE YOUR BREAK. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_062_verified`, `wh_062_partial`, `wh_062_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** An aircraft lands with no engine noise and excellent snacks.
 
-**Escalation:** A silent plane lands at Kneeland with a passenger manifest listing people who have never been born. The pilot offers very good sandwiches.
+**Escalation:** A silent plane lands at Kneeland and presents a passenger manifest full of people not yet born. The pilot hands out excellent sandwiches. Ground crew worry about fuel, headcount and a runway occupied by a craft nobody cleared to land.
 
-**Option A, investigate (visible 9 check):** Check the arrival notice without entering the aircraft
+**Option A, investigate (visible 9 check):** Check the aircraft registration and manifest against the runway log without boarding
 
-- **Pass:** The destination stamp names a radio tower that is still a proposal.
-- **Miss:** The passenger door shuts before you see the logbook, but a boarding pass remains in the grass.
+- **Pass:** The registration corresponds to a flight booked for next spring. Ground control records the discrepancy and keeps the runway closed until the plane is inspected.
+- **Miss:** The manifest pages turn blank in the wind. A mechanic still records the unusual landing marks and the crew's exact arrival time.
 
-**Option B, assist without a check:** Help the ground crew guide the aircraft safely
+**Option B, assist without a check:** Help ground staff keep the passengers safe and clear the approach
 
-- **Result:** Everyone clears the runway and nobody needs to climb aboard to prove the miracle.
+- **Result:** Everyone waits in a sheltered area while the airfield radios for advice. The pilot's sandwiches are the least controversial item on the incident report.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-066`: An aircraft lands with no engine noise and excellent snacks. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-066/2`: A silent plane lands at Kneeland with a passenger manifest listing people who have never been born. The pilot offers very good sandwiches. The people and location must match the opening.
-- `outcomes/wh-066/investigate-success`: The destination stamp names a radio tower that is still a proposal. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-066/investigate-failure`: The passenger door shuts before you see the logbook, but a boarding pass remains in the grass. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-066/care-success`: Everyone clears the runway and nobody needs to climb aboard to prove the miracle. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-066/2`: A silent plane lands at Kneeland and presents a passenger manifest full of people not yet born. The pilot hands out excellent sandwiches. Ground crew worry about fuel, headcount and a runway occupied by a craft nobody cleared to land. The people and location must match the opening.
+- `outcomes/wh-066/investigate-success`: The registration corresponds to a flight booked for next spring. Ground control records the discrepancy and keeps the runway closed until the plane is inspected. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-066/investigate-failure`: The manifest pages turn blank in the wind. A mechanic still records the unusual landing marks and the crew's exact arrival time. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-066/care-success`: Everyone waits in a sheltered area while the airfield radios for advice. The pilot's sandwiches are the least controversial item on the incident report. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_066_verified`, `wh_066_partial`, `wh_066_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** A personal patch of fog is politely but relentlessly attached.
 
-**Escalation:** A patch of fog follows you into a grocery store, queues politely, and makes the cashier's scanner read prices from another decade.
+**Escalation:** Your own personal fog follows you into a grocery store, joins the checkout queue and makes the scanner display prices from twenty years ago. The cashier is being blamed for a sale they cannot control; a shopper is struggling to find the exit through the mist.
 
-**Option A, investigate (visible 9 check):** Measure its boundaries against the ventilation
+**Option A, investigate (visible 9 check):** Test the fog's boundary with the store's ventilation and compare the scanner receipts
 
-- **Pass:** The fog moves toward a receipt bearing the same lost-day date as an earlier clue.
-- **Miss:** It changes shape every time you approach; the cashier writes down what the register said.
+- **Pass:** The patch drifts toward a receipt dated on the same missing Tuesday as an earlier clue. The cashier keeps a copy; the store's prices remain today's.
+- **Miss:** The fog changes shape faster than you can measure it. You save the itemized receipt and the cashier notes which aisle first clouded.
 
-**Option B, assist without a check:** Ask the staff what would make everyone comfortable
+**Option B, assist without a check:** Help the shopper reach the door and let staff decide whether to evacuate
 
-- **Result:** They open the doors and let the fog leave without treating frightened shoppers as fools.
+- **Result:** The exit clears and the cashier gets backup instead of blame. The fog leaves with a loyalty card nobody remembers issuing.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-068`: A personal patch of fog is politely but relentlessly attached. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-068/2`: A patch of fog follows you into a grocery store, queues politely, and makes the cashier's scanner read prices from another decade. The people and location must match the opening.
-- `outcomes/wh-068/investigate-success`: The fog moves toward a receipt bearing the same lost-day date as an earlier clue. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-068/investigate-failure`: It changes shape every time you approach; the cashier writes down what the register said. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-068/care-success`: They open the doors and let the fog leave without treating frightened shoppers as fools. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-068/2`: Your own personal fog follows you into a grocery store, joins the checkout queue and makes the scanner display prices from twenty years ago. The cashier is being blamed for a sale they cannot control; a shopper is struggling to find the exit through the mist. The people and location must match the opening.
+- `outcomes/wh-068/investigate-success`: The patch drifts toward a receipt dated on the same missing Tuesday as an earlier clue. The cashier keeps a copy; the store's prices remain today's. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-068/investigate-failure`: The fog changes shape faster than you can measure it. You save the itemized receipt and the cashier notes which aisle first clouded. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-068/care-success`: The exit clears and the cashier gets backup instead of blame. The fog leaves with a loyalty card nobody remembers issuing. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_068_verified`, `wh_068_partial`, `wh_068_care` (mutually exclusive results of this card).
 
@@ -227,24 +227,24 @@
 
 **Opening narration:** Cows follow invisible traffic signals with military precision.
 
-**Escalation:** Cows cross the road only at invisible green signals. Drivers honk at their patience and the herd refuses to hurry.
+**Escalation:** Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property.
 
-**Option A, investigate (visible 9 check):** Look for the unseen traffic control
+**Option A, investigate (visible 9 check):** Compare the herd's stopping points with the bend in the road and recorded traffic
 
-- **Pass:** A roadside post transmits a sequence of pulses from an older county map.
-- **Miss:** Your flashlight breaks the pattern and the herd waits until dawn.
+- **Pass:** The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign.
+- **Miss:** A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement.
 
-**Option B, assist without a check:** Create a safe crossing with the rancher
+**Option B, assist without a check:** Help slow the vehicles and give the rancher room to move the cattle safely
 
-- **Result:** Volunteers hold traffic, and the cows pass without putting drivers or animals at risk.
+- **Result:** The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-069`: Cows follow invisible traffic signals with military precision. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-069/2`: Cows cross the road only at invisible green signals. Drivers honk at their patience and the herd refuses to hurry. The people and location must match the opening.
-- `outcomes/wh-069/investigate-success`: A roadside post transmits a sequence of pulses from an older county map. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-069/investigate-failure`: Your flashlight breaks the pattern and the herd waits until dawn. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-069/care-success`: Volunteers hold traffic, and the cows pass without putting drivers or animals at risk. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-069/2`: Cattle are obeying invisible traffic signals on a narrow backroad. A delivery van is edging toward the herd while its driver assumes the cows are being stubborn. The rancher says they are the most punctual animals on the property. The people and location must match the opening.
+- `outcomes/wh-069/investigate-success`: The invisible 'green' falls exactly when the blind curve is clear. The rancher marks the crossing and requests a real caution sign. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-069/investigate-failure`: A passing truck scatters the herd before you can time it. Your dash-camera still catches the cows waiting at the same patch of pavement. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-069/care-success`: The herd crosses without incident. A cow pauses beside your car until you apologize for honking; the rancher says she does that to everyone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_069_verified`, `wh_069_partial`, `wh_069_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A ham-radio operator catches weather reports from an unfamiliar constellation.
 
-**Escalation:** A radio hobbyist receives a weather report for stars no observer can locate. The message ends with tomorrow's local wind speed.
+**Escalation:** A ham-radio operator receives a weather bulletin for stars no telescope can locate, followed by tomorrow's wind warning for Kneeland. A neighbor is preparing for a ridge-top job and needs a reliable forecast, not a lesson in celestial bureaucracy.
 
-**Option A, investigate (visible 9 check):** Compare the transmission against multiple receivers
+**Option A, investigate (visible 9 check):** Record the transmission and compare the local forecast with independent weather readings
 
-- **Pass:** The same sequence comes from an abandoned county relay tower, not the sky.
-- **Miss:** A battery dies before triangulation ends. You keep one clear call sign.
+- **Pass:** The unfamiliar call sign overlays a legitimate storm pressure trend. The operator shares the recording while the neighbor checks an ordinary weather service.
+- **Miss:** Static swallows the coordinates before a second receiver locks on. You keep the transmission time and a repeatable fragment of the call sign.
 
-**Option B, assist without a check:** Share the recordings with independent listeners
+**Option B, assist without a check:** Help the neighbor make a conservative plan for the ridge-top work
 
-- **Result:** Three operators corroborate the signal and the hobbyist stops feeling alone.
+- **Result:** The crew reschedules exposed tasks and the radio operator keeps listening from home. The stars are invited to file future reports in local units.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-070`: A ham-radio operator catches weather reports from an unfamiliar constellation. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-070/2`: A radio hobbyist receives a weather report for stars no observer can locate. The message ends with tomorrow's local wind speed. The people and location must match the opening.
-- `outcomes/wh-070/investigate-success`: The same sequence comes from an abandoned county relay tower, not the sky. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-070/investigate-failure`: A battery dies before triangulation ends. You keep one clear call sign. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-070/care-success`: Three operators corroborate the signal and the hobbyist stops feeling alone. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-070/2`: A ham-radio operator receives a weather bulletin for stars no telescope can locate, followed by tomorrow's wind warning for Kneeland. A neighbor is preparing for a ridge-top job and needs a reliable forecast, not a lesson in celestial bureaucracy. The people and location must match the opening.
+- `outcomes/wh-070/investigate-success`: The unfamiliar call sign overlays a legitimate storm pressure trend. The operator shares the recording while the neighbor checks an ordinary weather service. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-070/investigate-failure`: Static swallows the coordinates before a second receiver locks on. You keep the transmission time and a repeatable fragment of the call sign. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-070/care-success`: The crew reschedules exposed tasks and the radio operator keeps listening from home. The stars are invited to file future reports in local units. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_070_verified`, `wh_070_partial`, `wh_070_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** A plaster cast takes a midnight walk and leaves fresh tracks.
 
-**Escalation:** A plaster footprint escapes the museum and leaves wet tracks in the parking lot. The curator worries more about the donation ledger than the walking artifact.
+**Escalation:** A plaster footprint has walked out of its museum case, leaving wet tracks through the parking lot. The curator is expected to report a missing artifact before opening and fears the donors will be told she sold it.
 
-**Option A, investigate (visible 9 check):** Follow the fresh prints before they dry
+**Option A, investigate (visible 9 check):** Compare the case inventory and the tracks without walking over the evidence
 
-- **Pass:** They stop beside a sealed exhibit drawer containing the mold's second half.
-- **Miss:** Rain smears the prints. The guard still witnessed the cast leave on its own.
+- **Pass:** The wet tracks stop at the old loading dock; an accession photo shows the cast positioned differently last night. The curator logs both facts.
+- **Miss:** A cleaning truck crosses the last print. A security guard has already sketched its shape and notes the time it appeared.
 
-**Option B, assist without a check:** Help the curator preserve the collection responsibly
+**Option B, assist without a check:** Help the curator secure the gallery and report the incident accurately
 
-- **Result:** The museum labels the anomaly honestly and invites community review rather than selling a legend.
+- **Result:** The museum stays open with a temporary label explaining the missing cast. The donors receive a plain account, which offends only the ghost of public relations.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-072`: A plaster cast takes a midnight walk and leaves fresh tracks. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-072/2`: A plaster footprint escapes the museum and leaves wet tracks in the parking lot. The curator worries more about the donation ledger than the walking artifact. The people and location must match the opening.
-- `outcomes/wh-072/investigate-success`: They stop beside a sealed exhibit drawer containing the mold's second half. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-072/investigate-failure`: Rain smears the prints. The guard still witnessed the cast leave on its own. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-072/care-success`: The museum labels the anomaly honestly and invites community review rather than selling a legend. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-072/2`: A plaster footprint has walked out of its museum case, leaving wet tracks through the parking lot. The curator is expected to report a missing artifact before opening and fears the donors will be told she sold it. The people and location must match the opening.
+- `outcomes/wh-072/investigate-success`: The wet tracks stop at the old loading dock; an accession photo shows the cast positioned differently last night. The curator logs both facts. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-072/investigate-failure`: A cleaning truck crosses the last print. A security guard has already sketched its shape and notes the time it appeared. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-072/care-success`: The museum stays open with a temporary label explaining the missing cast. The donors receive a plain account, which offends only the ghost of public relations. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_072_verified`, `wh_072_partial`, `wh_072_care` (mutually exclusive results of this card).
 
@@ -382,24 +382,24 @@
 
 **Opening narration:** A message in driftwood names a witness who was never present.
 
-**Escalation:** A river-carved message calls an absent witness by name. The witness lives nearby and claims never to have visited the bank.
+**Escalation:** Driftwood spells the name of a witness who insists she has never stood on this riverbank. A neighbor has already started accusing her of hiding something. She wants the board removed before the rumor reaches her workplace.
 
-**Option A, investigate (visible 9 check):** Ask the witness to verify the driftwood's details
+**Option A, investigate (visible 9 check):** Check the lettering against flood marks and ask the named person what, if anything, she consents to share
 
-- **Pass:** The wood records a flood stage not reached yet and a bridge support marked for repair.
-- **Miss:** The carving fades in sunlight, but a photograph preserves the place.
+- **Pass:** A current scar runs under the carved letters; the timing is strange, not a confession. You document the wood without adding a theory about her life.
+- **Miss:** The water pulls the board away before you measure it. The witness keeps a photograph, and you can corroborate the rising-water time.
 
-**Option B, assist without a check:** Invite flood volunteers to inspect the shore
+**Option B, assist without a check:** Help stop the rumor and get the witness safely away from the bank
 
-- **Result:** They clear dangerous debris and begin a public watch of the vulnerable crossing.
+- **Result:** The neighbor retracts the accusation and the witness goes home. The river offers no apology, but it does stop spelling names for an hour.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-074`: A message in driftwood names a witness who was never present. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-074/2`: A river-carved message calls an absent witness by name. The witness lives nearby and claims never to have visited the bank. The people and location must match the opening.
-- `outcomes/wh-074/investigate-success`: The wood records a flood stage not reached yet and a bridge support marked for repair. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-074/investigate-failure`: The carving fades in sunlight, but a photograph preserves the place. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-074/care-success`: They clear dangerous debris and begin a public watch of the vulnerable crossing. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-074/2`: Driftwood spells the name of a witness who insists she has never stood on this riverbank. A neighbor has already started accusing her of hiding something. She wants the board removed before the rumor reaches her workplace. The people and location must match the opening.
+- `outcomes/wh-074/investigate-success`: A current scar runs under the carved letters; the timing is strange, not a confession. You document the wood without adding a theory about her life. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-074/investigate-failure`: The water pulls the board away before you measure it. The witness keeps a photograph, and you can corroborate the rising-water time. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-074/care-success`: The neighbor retracts the accusation and the witness goes home. The river offers no apology, but it does stop spelling names for an hour. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_074_verified`, `wh_074_partial`, `wh_074_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A woodland resident wants help writing a bio with less obvious fur-related clues.
 
-**Escalation:** A gentle woodland resident wants a dating profile that does not reveal its fur, feet or forest address. Every draft reads like a police report.
+**Escalation:** A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression.
 
-**Option A, investigate (visible 9 check):** Ask what it actually loves instead of what it hides
+**Option A, investigate (visible 9 check):** Ask which details belong in a bio and which would put the resident at risk
 
-- **Pass:** The profile's ordinary details reveal a community garden the creature has quietly maintained.
-- **Miss:** Its attempts at flirting collapse into weather forecasts. It learns a little honesty.
+- **Pass:** A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer.
+- **Miss:** The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared.
 
-**Option B, assist without a check:** Help make a profile with boundaries and consent
+**Option B, assist without a check:** Help write a profile that gives the resident control over disclosure
 
-- **Result:** It posts a simple introduction without private coordinates and receives a thoughtful reply.
+- **Result:** The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-075`: A woodland resident wants help writing a bio with less obvious fur-related clues. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-075/2`: A gentle woodland resident wants a dating profile that does not reveal its fur, feet or forest address. Every draft reads like a police report. The people and location must match the opening.
-- `outcomes/wh-075/investigate-success`: The profile's ordinary details reveal a community garden the creature has quietly maintained. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-075/investigate-failure`: Its attempts at flirting collapse into weather forecasts. It learns a little honesty. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-075/care-success`: It posts a simple introduction without private coordinates and receives a thoughtful reply. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-075/2`: A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression. The people and location must match the opening.
+- `outcomes/wh-075/investigate-success`: A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-075/investigate-failure`: The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-075/care-success`: The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_075_verified`, `wh_075_partial`, `wh_075_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** A polite rider pays in gas receipts dated ten years ahead.
 
-**Escalation:** A hitchhiker pays with receipts for gas not sold until a decade from now. He knows the exit you were thinking of taking.
+**Escalation:** A polite hitchhiker offers receipts for fuel not sold until a decade from now. He knows the exit you planned to take but will not say how. The road is dark and another driver has already pulled over in an unsafe turnoff.
 
-**Option A, investigate (visible 9 check):** Ask where the receipts were printed
+**Option A, investigate (visible 9 check):** Check the receipt's station number and future price without taking the stranger anywhere
 
-- **Pass:** The paper carries an address for a depot planned in a county meeting next week.
-- **Miss:** He leaves at the next turnout and the ink vanishes from the thermal paper.
+- **Pass:** The business number belongs to a station not yet opened. You record it from a safe turnout and leave the man's story unverified.
+- **Miss:** The ink smears before you can read the address. A printed transaction code remains, enough to compare with public records later.
 
-**Option B, assist without a check:** Offer a safe ride without demanding his life story
+**Option B, assist without a check:** Help the stranded rider contact safe transport without promising a lift
 
-- **Result:** He makes it to town and leaves you a genuine thank-you written in today's date.
+- **Result:** A local shuttle confirms a pickup at a lit stop. The traveler waits with a thermos and refuses to explain why tomorrow's fuel is so expensive.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-077`: A polite rider pays in gas receipts dated ten years ahead. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-077/2`: A hitchhiker pays with receipts for gas not sold until a decade from now. He knows the exit you were thinking of taking. The people and location must match the opening.
-- `outcomes/wh-077/investigate-success`: The paper carries an address for a depot planned in a county meeting next week. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-077/investigate-failure`: He leaves at the next turnout and the ink vanishes from the thermal paper. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-077/care-success`: He makes it to town and leaves you a genuine thank-you written in today's date. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-077/2`: A polite hitchhiker offers receipts for fuel not sold until a decade from now. He knows the exit you planned to take but will not say how. The road is dark and another driver has already pulled over in an unsafe turnoff. The people and location must match the opening.
+- `outcomes/wh-077/investigate-success`: The business number belongs to a station not yet opened. You record it from a safe turnout and leave the man's story unverified. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-077/investigate-failure`: The ink smears before you can read the address. A printed transaction code remains, enough to compare with public records later. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-077/care-success`: A local shuttle confirms a pickup at a lit stop. The traveler waits with a thermos and refuses to explain why tomorrow's fuel is so expensive. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_077_verified`, `wh_077_partial`, `wh_077_care` (mutually exclusive results of this card).
 
@@ -537,24 +537,24 @@
 
 **Opening narration:** Visitors from elsewhere leave harsh customer-service ratings for Earth.
 
-**Escalation:** Alien travelers have rated the rest stop one star for hospitality, clean bathrooms and atmospheric gravity. The caretaker wants the reviews deleted.
+**Escalation:** Visitors from another planet have posted a one-star review of a highway rest stop, citing gravity, plumbing and the difficulty of finding a vegetarian snack. The caretaker fears a poor public rating will cost their tiny maintenance budget.
 
-**Option A, investigate (visible 9 check):** Inspect the visitors' complaint book
+**Option A, investigate (visible 9 check):** Read the reviews against the site's actual safety and accessibility report
 
-- **Pass:** One review contains a star chart with the exact route of tomorrow's suspicious plane.
-- **Miss:** The translator gives every reply five stars and destroys the evidence of disagreement.
+- **Pass:** Beneath the nonsense is a correct note about a faulty tap. The caretaker files a repair request with an earthly ticket number.
+- **Miss:** The aliens delete the most specific post. A paper inspection checklist still records the same leak and the date it began.
 
-**Option B, assist without a check:** Help the caretaker make the stop welcoming
+**Option B, assist without a check:** Help the caretaker address the real problem and answer the complaints without ridicule
 
-- **Result:** Better signs and a working sink win a grudging second star from the guests.
+- **Result:** The tap gets a temporary out-of-order sign and the visitors receive directions to a safer stop. Their revised review awards Earth two stars for effort.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-079`: Visitors from elsewhere leave harsh customer-service ratings for Earth. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-079/2`: Alien travelers have rated the rest stop one star for hospitality, clean bathrooms and atmospheric gravity. The caretaker wants the reviews deleted. The people and location must match the opening.
-- `outcomes/wh-079/investigate-success`: One review contains a star chart with the exact route of tomorrow's suspicious plane. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-079/investigate-failure`: The translator gives every reply five stars and destroys the evidence of disagreement. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-079/care-success`: Better signs and a working sink win a grudging second star from the guests. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-079/2`: Visitors from another planet have posted a one-star review of a highway rest stop, citing gravity, plumbing and the difficulty of finding a vegetarian snack. The caretaker fears a poor public rating will cost their tiny maintenance budget. The people and location must match the opening.
+- `outcomes/wh-079/investigate-success`: Beneath the nonsense is a correct note about a faulty tap. The caretaker files a repair request with an earthly ticket number. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-079/investigate-failure`: The aliens delete the most specific post. A paper inspection checklist still records the same leak and the date it began. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-079/care-success`: The tap gets a temporary out-of-order sign and the visitors receive directions to a safer stop. Their revised review awards Earth two stars for effort. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_079_verified`, `wh_079_partial`, `wh_079_care` (mutually exclusive results of this card).
 
@@ -568,24 +568,24 @@
 
 **Opening narration:** A dirt road branches into a warehouse storing abandoned dreams.
 
-**Escalation:** A logging road ends at a warehouse stacked with boxed dreams. Each box has a name and a claim ticket marked UNCOLLECTED.
+**Escalation:** A logging road leads to a warehouse full of boxed dreams, each tagged with a name and an uncollected claim ticket. An older worker recognizes a box from his childhood and asks not to have its contents opened in front of strangers.
 
-**Option A, investigate (visible 9 check):** Trace who authorized the storage
+**Option A, investigate (visible 9 check):** Examine the ledger and the warehouse's land-use records before touching any box
 
-- **Pass:** A receipt lists a community future that disappeared from last year's budget hearing.
-- **Miss:** The boxes rearrange before you can read the account number. You keep a stamped stub.
+- **Pass:** The inventory lists a pickup date that has not arrived. The worker gets a copy of his entry and keeps control of whether to claim it.
+- **Miss:** A shelf collapses before you can match the lot numbers. You rescue a page showing where the missing boxes were stored, without opening them.
 
-**Option B, assist without a check:** Return one abandoned dream with its owner's permission
+**Option B, assist without a check:** Help secure the unstable shelves and protect the workers' privacy
 
-- **Result:** A neighbor opens a box and remembers why they wanted to start a repair cooperative.
+- **Result:** The building is closed until its racks are safe. The worker leaves with an unbroken claim ticket and the choice of returning someday.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-080`: A dirt road branches into a warehouse storing abandoned dreams. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-080/2`: A logging road ends at a warehouse stacked with boxed dreams. Each box has a name and a claim ticket marked UNCOLLECTED. The people and location must match the opening.
-- `outcomes/wh-080/investigate-success`: A receipt lists a community future that disappeared from last year's budget hearing. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-080/investigate-failure`: The boxes rearrange before you can read the account number. You keep a stamped stub. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-080/care-success`: A neighbor opens a box and remembers why they wanted to start a repair cooperative. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-080/2`: A logging road leads to a warehouse full of boxed dreams, each tagged with a name and an uncollected claim ticket. An older worker recognizes a box from his childhood and asks not to have its contents opened in front of strangers. The people and location must match the opening.
+- `outcomes/wh-080/investigate-success`: The inventory lists a pickup date that has not arrived. The worker gets a copy of his entry and keeps control of whether to claim it. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-080/investigate-failure`: A shelf collapses before you can match the lot numbers. You rescue a page showing where the missing boxes were stored, without opening them. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-080/care-success`: The building is closed until its racks are safe. The worker leaves with an unbroken claim ticket and the choice of returning someday. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_080_verified`, `wh_080_partial`, `wh_080_care` (mutually exclusive results of this card).
 

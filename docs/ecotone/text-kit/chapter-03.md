@@ -41,24 +41,24 @@
 
 **Opening narration:** The shop sells history's second-best cursed relics at honest prices.
 
-**Escalation:** The antique shop sells second-place relics: the pen almost used to sign a treaty and the hat a famous ghost chose not to wear.
+**Escalation:** An Old Town antique dealer sells objects that nearly became famous: a pen left untouched at a signing, a hat declined by a ghost. A visitor recognizes her grandfather's toolbox in the window and wants it removed before a tour group invents a family scandal.
 
-**Option A, investigate (visible 9 check):** Verify a relic's history before it leaves the shop
+**Option A, investigate (visible 9 check):** Check the toolbox provenance against the shop ledger before trusting its label
 
-- **Pass:** The object is ordinary but its label predicts a municipal vote still weeks away.
-- **Miss:** You buy an impressive fake; the shopkeeper refunds you after you explain why attribution matters.
+- **Pass:** The listing is wrong, but a receipt bears the date of a future city vote. The dealer preserves the paper as a curiosity and corrects the family's history.
+- **Miss:** The alleged relic turns out to be a convincing copy. The dealer offers a refund; the visitor still finds her grandfather's repair mark inside the lid.
 
-**Option B, assist without a check:** Help the clerk return a misidentified family keepsake
+**Option B, assist without a check:** Help the visitor recover the toolbox without making her family story an attraction
 
-- **Result:** A grandmother recovers her box, which is more valuable than any curse.
+- **Result:** The toolbox goes home and the dealer leaves a blank space in the display. A sign reads NOT FOR SALE, which draws the biggest crowd yet.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-042`: The shop sells history's second-best cursed relics at honest prices. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-042/2`: The antique shop sells second-place relics: the pen almost used to sign a treaty and the hat a famous ghost chose not to wear. The people and location must match the opening.
-- `outcomes/wh-042/investigate-success`: The object is ordinary but its label predicts a municipal vote still weeks away. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-042/investigate-failure`: You buy an impressive fake; the shopkeeper refunds you after you explain why attribution matters. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-042/care-success`: A grandmother recovers her box, which is more valuable than any curse. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-042/2`: An Old Town antique dealer sells objects that nearly became famous: a pen left untouched at a signing, a hat declined by a ghost. A visitor recognizes her grandfather's toolbox in the window and wants it removed before a tour group invents a family scandal. The people and location must match the opening.
+- `outcomes/wh-042/investigate-success`: The listing is wrong, but a receipt bears the date of a future city vote. The dealer preserves the paper as a curiosity and corrects the family's history. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-042/investigate-failure`: The alleged relic turns out to be a convincing copy. The dealer offers a refund; the visitor still finds her grandfather's repair mark inside the lid. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-042/care-success`: The toolbox goes home and the dealer leaves a blank space in the display. A sign reads NOT FOR SALE, which draws the biggest crowd yet. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_042_verified`, `wh_042_partial`, `wh_042_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** A costumed jumper emerges from Humboldt Bay on a different day.
 
-**Escalation:** A costumed bay jumper surfaces on Monday after entering on Saturday. Her friends insist the clock is only ten seconds ahead.
+**Escalation:** A bay-plunge fundraiser jumper comes out of Saturday's water with Monday's newspaper caught in her costume. Her friends want to celebrate the time travel; she wants someone to notice that she is shaking and cannot find her phone.
 
-**Option A, investigate (visible 9 check):** Correlate her wristwatch with harbor announcements
+**Option A, investigate (visible 9 check):** Compare the newspaper edition, event video and volunteer check-in times
 
-- **Pass:** The watch recorded a weather warning two days before the microphones broadcast it.
-- **Miss:** The watch stops when you touch it, but her soggy race bib bears Monday's date.
+- **Pass:** The footage shows two date displays disagreeing while her jump remains continuous. The organizer saves both originals without claiming a scientific breakthrough.
+- **Miss:** A spectator overwrites the clip with a victory montage. The jumper still has a Monday parking slip stapled to her costume and asks to keep it.
 
-**Option B, assist without a check:** Get the chilled jumper warm before any interview
+**Option B, assist without a check:** Get the jumper dry and ask a medic to check her before the interviews begin
 
-- **Result:** The rescue volunteers make a plan that values a person over a spectacular headline.
+- **Result:** She warms up under a borrowed blanket and calls home. A fundraiser volunteer labels the newspaper LOST PROPERTY, FUTURE, and takes a lunch break.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-046`: A costumed jumper emerges from Humboldt Bay on a different day. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-046/2`: A costumed bay jumper surfaces on Monday after entering on Saturday. Her friends insist the clock is only ten seconds ahead. The people and location must match the opening.
-- `outcomes/wh-046/investigate-success`: The watch recorded a weather warning two days before the microphones broadcast it. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-046/investigate-failure`: The watch stops when you touch it, but her soggy race bib bears Monday's date. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-046/care-success`: The rescue volunteers make a plan that values a person over a spectacular headline. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-046/2`: A bay-plunge fundraiser jumper comes out of Saturday's water with Monday's newspaper caught in her costume. Her friends want to celebrate the time travel; she wants someone to notice that she is shaking and cannot find her phone. The people and location must match the opening.
+- `outcomes/wh-046/investigate-success`: The footage shows two date displays disagreeing while her jump remains continuous. The organizer saves both originals without claiming a scientific breakthrough. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-046/investigate-failure`: A spectator overwrites the clip with a victory montage. The jumper still has a Monday parking slip stapled to her costume and asks to keep it. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-046/care-success`: She warms up under a borrowed blanket and calls home. A fundraiser volunteer labels the newspaper LOST PROPERTY, FUTURE, and takes a lunch break. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_046_verified`, `wh_046_partial`, `wh_046_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** Someone registers as a weather balloon with very convincing paperwork.
 
-**Escalation:** A contestant dressed as a weather balloon has filed forms declaring it an unidentified object. Inspectors find the paperwork alarmingly convincing.
+**Escalation:** A costume competitor has registered as a weather balloon with a laminated certificate, an inspection history and a polite refusal to explain how the zipper works. A volunteer is being asked to disqualify the act or certify an actual unidentified object.
 
-**Option A, investigate (visible 9 check):** Trace the registration number without detaining the performer
+**Option A, investigate (visible 9 check):** Compare the permit number with the published costume category rules
 
-- **Pass:** Its serial number belongs to a weather station reporting from a future drought.
-- **Miss:** The permit says CLASSIFIED and the wind steals it before you can copy the code.
+- **Pass:** The form was issued by an office scheduled to open next year. It does not exempt the entrant from today's safety inspection, which everyone accepts.
+- **Miss:** The stamp bleeds when you try to copy it. The volunteer retains a witness signature and declines to make a ruling based on damp stationery.
 
-**Option B, assist without a check:** Defend the contestant's right to compete anonymously
+**Option B, assist without a check:** Help the volunteer judge the costume fairly without demanding the entrant unmask
 
-- **Result:** Judges award the costume a place without requiring anyone to surrender their name.
+- **Result:** The act competes in the open category and the inspection passes. The trophy reads BEST AMBIGUOUS PAPERWORK.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-048`: Someone registers as a weather balloon with very convincing paperwork. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-048/2`: A contestant dressed as a weather balloon has filed forms declaring it an unidentified object. Inspectors find the paperwork alarmingly convincing. The people and location must match the opening.
-- `outcomes/wh-048/investigate-success`: Its serial number belongs to a weather station reporting from a future drought. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-048/investigate-failure`: The permit says CLASSIFIED and the wind steals it before you can copy the code. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-048/care-success`: Judges award the costume a place without requiring anyone to surrender their name. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-048/2`: A costume competitor has registered as a weather balloon with a laminated certificate, an inspection history and a polite refusal to explain how the zipper works. A volunteer is being asked to disqualify the act or certify an actual unidentified object. The people and location must match the opening.
+- `outcomes/wh-048/investigate-success`: The form was issued by an office scheduled to open next year. It does not exempt the entrant from today's safety inspection, which everyone accepts. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-048/investigate-failure`: The stamp bleeds when you try to copy it. The volunteer retains a witness signature and declines to make a ruling based on damp stationery. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-048/care-success`: The act competes in the open category and the inspection passes. The trophy reads BEST AMBIGUOUS PAPERWORK. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_048_verified`, `wh_048_partial`, `wh_048_care` (mutually exclusive results of this card).
 
@@ -258,24 +258,24 @@
 
 **Opening narration:** A post-plunge hot tub provides dubious prophecies in bubbles.
 
-**Escalation:** The fundraiser's post-plunge hot tub speaks in bubbles, offering prophecies that are consistently useful and consistently wrong about who deserves credit.
+**Escalation:** The post-plunge hot tub is delivering prophecies in soap bubbles. Its forecasts keep saving someone's day while assigning the credit to strangers. The exhausted volunteer who filled it is being hailed as a mystic and has not eaten since sunrise.
 
-**Option A, investigate (visible 9 check):** Test one prediction against a public event
+**Option A, investigate (visible 9 check):** Write down a prediction and check how the event was actually documented
 
-- **Pass:** A bubble maps an upcoming ferry route but assigns it to someone who never sailed.
-- **Miss:** The water turns cloudy, leaving you with a plausible warning and no author.
+- **Pass:** The forecast accurately warns of a failed heater, but the bubble credits a person who is out of town. You log the repair instead of the legend.
+- **Miss:** The message bursts before anyone agrees on its wording. A witness remembers the temperature warning, which a technician can verify without an oracle.
 
-**Option B, assist without a check:** Ask the volunteers who actually kept everyone safe
+**Option B, assist without a check:** Make sure the volunteer gets a break and the tub passes its ordinary safety checks
 
-- **Result:** The prophecy stops talking long enough for the crew to receive a thank-you.
+- **Result:** The heater is shut down, warm drinks appear, and the volunteer gets lunch. The tub insists it predicted the sandwiches.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-050`: A post-plunge hot tub provides dubious prophecies in bubbles. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-050/2`: The fundraiser's post-plunge hot tub speaks in bubbles, offering prophecies that are consistently useful and consistently wrong about who deserves credit. The people and location must match the opening.
-- `outcomes/wh-050/investigate-success`: A bubble maps an upcoming ferry route but assigns it to someone who never sailed. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-050/investigate-failure`: The water turns cloudy, leaving you with a plausible warning and no author. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-050/care-success`: The prophecy stops talking long enough for the crew to receive a thank-you. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-050/2`: The post-plunge hot tub is delivering prophecies in soap bubbles. Its forecasts keep saving someone's day while assigning the credit to strangers. The exhausted volunteer who filled it is being hailed as a mystic and has not eaten since sunrise. The people and location must match the opening.
+- `outcomes/wh-050/investigate-success`: The forecast accurately warns of a failed heater, but the bubble credits a person who is out of town. You log the repair instead of the legend. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-050/investigate-failure`: The message bursts before anyone agrees on its wording. A witness remembers the temperature warning, which a technician can verify without an oracle. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-050/care-success`: The heater is shut down, warm drinks appear, and the volunteer gets lunch. The tub insists it predicted the sandwiches. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_050_verified`, `wh_050_partial`, `wh_050_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** A floating shellfish parliament has issued a subpoena for a gull.
 
-**Escalation:** Oysters convene a floating parliament and subpoena a gull for stealing mussels. The gull's defense is that the tide taught it to.
+**Escalation:** A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel.
 
-**Option A, investigate (visible 9 check):** Collect testimony from both sides
+**Option A, investigate (visible 9 check):** Examine the mussel evidence and the parliament's jurisdiction claims
 
-- **Pass:** The shell minutes reveal a channel marker missing from the next day's chart.
-- **Miss:** The gull swallows the notice, but two witnesses agree on the location.
+- **Pass:** The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power.
+- **Miss:** The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony.
 
-**Option B, assist without a check:** Negotiate a nonviolent shoreline agreement
+**Option B, assist without a check:** Help move the assembly away from boats and let the accused gull depart
 
-- **Result:** The council reserves a feeding patch and the gull promises only to steal human french fries.
+- **Result:** Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-051`: A floating shellfish parliament has issued a subpoena for a gull. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-051/2`: Oysters convene a floating parliament and subpoena a gull for stealing mussels. The gull's defense is that the tide taught it to. The people and location must match the opening.
-- `outcomes/wh-051/investigate-success`: The shell minutes reveal a channel marker missing from the next day's chart. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-051/investigate-failure`: The gull swallows the notice, but two witnesses agree on the location. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-051/care-success`: The council reserves a feeding patch and the gull promises only to steal human french fries. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-051/2`: A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel. The people and location must match the opening.
+- `outcomes/wh-051/investigate-success`: The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-051/investigate-failure`: The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-051/care-success`: Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_051_verified`, `wh_051_partial`, `wh_051_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** A navigational buoy goes on strike because the sea keeps lying.
 
-**Escalation:** A channel buoy has walked off its station and announced a strike. It says the sea keeps giving false directions.
+**Escalation:** A channel marker has drifted ashore and drawn a picket line in the sand. It says the chart has been lying about the depth for months. A fishing crew is preparing to take the shortcut it used to mark.
 
-**Option A, investigate (visible 9 check):** Measure the vacancy with a passing skipper
+**Option A, investigate (visible 9 check):** Compare the buoy's last recorded position with current soundings and chart updates
 
-- **Pass:** The buoy's old position is correct on a chart dated next year, not today's.
-- **Miss:** Your compass spins and the buoy refuses another shift until someone listens.
+- **Pass:** The shortcut has shoaled. A skipper radios the measured position; the buoy's labor claim can wait for daylight.
+- **Miss:** You cannot confirm the depth before the tide changes. The recorded drift still gives the harbor office a location worth checking.
 
-**Option B, assist without a check:** Help boaters place an honest temporary marker
+**Option B, assist without a check:** Warn the crew to use the charted route and support a safe inspection
 
-- **Result:** Crews post a clear warning and agree to investigate instead of blaming the buoy.
+- **Result:** The boats take the longer channel without incident. The buoy accepts a dry place to rest and a temporary sign reading STRIKE, NOT NAVIGATION.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-052`: A navigational buoy goes on strike because the sea keeps lying. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-052/2`: A channel buoy has walked off its station and announced a strike. It says the sea keeps giving false directions. The people and location must match the opening.
-- `outcomes/wh-052/investigate-success`: The buoy's old position is correct on a chart dated next year, not today's. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-052/investigate-failure`: Your compass spins and the buoy refuses another shift until someone listens. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-052/care-success`: Crews post a clear warning and agree to investigate instead of blaming the buoy. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-052/2`: A channel marker has drifted ashore and drawn a picket line in the sand. It says the chart has been lying about the depth for months. A fishing crew is preparing to take the shortcut it used to mark. The people and location must match the opening.
+- `outcomes/wh-052/investigate-success`: The shortcut has shoaled. A skipper radios the measured position; the buoy's labor claim can wait for daylight. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-052/investigate-failure`: You cannot confirm the depth before the tide changes. The recorded drift still gives the harbor office a location worth checking. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-052/care-success`: The boats take the longer channel without incident. The buoy accepts a dry place to rest and a temporary sign reading STRIKE, NOT NAVIGATION. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_052_verified`, `wh_052_partial`, `wh_052_care` (mutually exclusive results of this card).
 
@@ -382,24 +382,24 @@
 
 **Opening narration:** A rustless bike carries evidence of a trip nobody remembers.
 
-**Escalation:** The tide deposits a rustless bicycle with fresh sand in its gears. A rental sticker names a journey none of the staff remembers.
+**Escalation:** The tide returns a bicycle without a fleck of rust. Its rental tag records a ride out to a pier that no longer exists, and the rental clerk is afraid the owner will charge her for a vehicle she never signed out.
 
-**Option A, investigate (visible 9 check):** Check the frame number with the ferry records
+**Option A, investigate (visible 9 check):** Match the tag number to the rental records and surviving pier maps
 
-- **Pass:** It was checked out tomorrow by a rider who crossed the bay through the missing channel.
-- **Miss:** Salt takes the ink off the sticker, but the wheels turn backward once without contact.
+- **Pass:** The trip date is tomorrow; a photographed frame number matches the present bike. The clerk logs it as evidence rather than charging a customer.
+- **Miss:** Saltwater ruins the QR code as you scan it. The paper key tag survives with the initials of someone the clerk remembers.
 
-**Option B, assist without a check:** Return the bicycle to the people who need it
+**Option B, assist without a check:** Help the clerk keep the bicycle safe and correct the inventory without blame
 
-- **Result:** A youth cycling group repairs the brakes and makes its mystery public.
+- **Result:** The shop locks the bike inside and writes an incident note. Somebody hangs a HELMET REQUIRED sign on the door to the past.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-054`: A rustless bike carries evidence of a trip nobody remembers. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-054/2`: The tide deposits a rustless bicycle with fresh sand in its gears. A rental sticker names a journey none of the staff remembers. The people and location must match the opening.
-- `outcomes/wh-054/investigate-success`: It was checked out tomorrow by a rider who crossed the bay through the missing channel. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-054/investigate-failure`: Salt takes the ink off the sticker, but the wheels turn backward once without contact. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-054/care-success`: A youth cycling group repairs the brakes and makes its mystery public. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-054/2`: The tide returns a bicycle without a fleck of rust. Its rental tag records a ride out to a pier that no longer exists, and the rental clerk is afraid the owner will charge her for a vehicle she never signed out. The people and location must match the opening.
+- `outcomes/wh-054/investigate-success`: The trip date is tomorrow; a photographed frame number matches the present bike. The clerk logs it as evidence rather than charging a customer. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-054/investigate-failure`: Saltwater ruins the QR code as you scan it. The paper key tag survives with the initials of someone the clerk remembers. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-054/care-success`: The shop locks the bike inside and writes an incident note. Somebody hangs a HELMET REQUIRED sign on the door to the past. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_054_verified`, `wh_054_partial`, `wh_054_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A park bench collects small things that people forgot as children.
 
-**Escalation:** A park bench has gathered objects visitors forgot as children, including one nobody can bear to identify. A caretaker wants the bench removed.
+**Escalation:** A redwood-park bench is holding lost childhood belongings: a mitten, a model airplane, a letter never mailed. One item makes a visitor go still. The caretaker has been ordered to remove the bench because nobody filed the proper installation permit.
 
-**Option A, investigate (visible 9 check):** Find the oldest returned object and ask who remembers it
+**Option A, investigate (visible 9 check):** Check where the bench came from and ask before identifying anyone's belongings
 
-- **Pass:** A toy compass points to the tree with three doorways rather than magnetic north.
-- **Miss:** You recognize a toy but not its owner; the bench offers no explanation.
+- **Pass:** An old maintenance ledger records its arrival tomorrow. The caretaker preserves the entry, and the visitor quietly claims the letter without having to explain it.
+- **Miss:** The bench's plaque becomes unreadable under your camera. You still find a municipal bolt mark beneath the seat and report it as a trace.
 
-**Option B, assist without a check:** Help people reclaim memories without performing grief
+**Option B, assist without a check:** Help the caretaker catalog the items privately while the bench is evaluated
 
-- **Result:** Visitors leave messages for one another. The bench keeps only what they choose to donate.
+- **Result:** The objects are stored with consent and the visitor chooses which one to keep. The bench stays another week, pending a very ordinary hearing.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-056`: A park bench collects small things that people forgot as children. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-056/2`: A park bench has gathered objects visitors forgot as children, including one nobody can bear to identify. A caretaker wants the bench removed. The people and location must match the opening.
-- `outcomes/wh-056/investigate-success`: A toy compass points to the tree with three doorways rather than magnetic north. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-056/investigate-failure`: You recognize a toy but not its owner; the bench offers no explanation. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-056/care-success`: Visitors leave messages for one another. The bench keeps only what they choose to donate. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-056/2`: A redwood-park bench is holding lost childhood belongings: a mitten, a model airplane, a letter never mailed. One item makes a visitor go still. The caretaker has been ordered to remove the bench because nobody filed the proper installation permit. The people and location must match the opening.
+- `outcomes/wh-056/investigate-success`: An old maintenance ledger records its arrival tomorrow. The caretaker preserves the entry, and the visitor quietly claims the letter without having to explain it. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-056/investigate-failure`: The bench's plaque becomes unreadable under your camera. You still find a municipal bolt mark beneath the seat and report it as a trace. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-056/care-success`: The objects are stored with consent and the visitor chooses which one to keep. The bench stays another week, pending a very ordinary hearing. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_056_verified`, `wh_056_partial`, `wh_056_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** One family has been packing up the same picnic for decades.
 
-**Escalation:** One family has spent decades finishing the same picnic. Each time they fold the cloth, another child arrives at the table.
+**Escalation:** A family picnic has lasted long enough for three generations of children to keep arriving after the blanket is folded. The grandparents are exhausted and one child needs medication from the car. A photographer thinks the whole thing would make a charming brochure.
 
-**Option A, investigate (visible 9 check):** Compare the photographs around the basket
+**Option A, investigate (visible 9 check):** Compare the family's photos and dates without separating anyone from the table
 
-- **Pass:** The youngest child's birthday lies thirty years in the future, yet the cake is fresh.
-- **Miss:** The album closes before you copy a date; the family still invites you to sit.
+- **Pass:** A photograph shows an extra place setting before its occupant was born. The family keeps the original and lets you record only the date discrepancy.
+- **Miss:** You lose track of the sequence halfway through. The youngest child has written everyone's name on a paper plate, which is at least a reliable headcount.
 
-**Option B, assist without a check:** Help them decide when a gathering may end
+**Option B, assist without a check:** Help the family get necessities and protect their privacy while they leave
 
-- **Result:** The parents pack at last and carry the leftovers to the shelter rather than hold the children forever.
+- **Result:** They pack food, medication and children in that order. For the first time the blanket folds flat; nobody volunteers it for a museum.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-059`: One family has been packing up the same picnic for decades. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-059/2`: One family has spent decades finishing the same picnic. Each time they fold the cloth, another child arrives at the table. The people and location must match the opening.
-- `outcomes/wh-059/investigate-success`: The youngest child's birthday lies thirty years in the future, yet the cake is fresh. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-059/investigate-failure`: The album closes before you copy a date; the family still invites you to sit. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-059/care-success`: The parents pack at last and carry the leftovers to the shelter rather than hold the children forever. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-059/2`: A family picnic has lasted long enough for three generations of children to keep arriving after the blanket is folded. The grandparents are exhausted and one child needs medication from the car. A photographer thinks the whole thing would make a charming brochure. The people and location must match the opening.
+- `outcomes/wh-059/investigate-success`: A photograph shows an extra place setting before its occupant was born. The family keeps the original and lets you record only the date discrepancy. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-059/investigate-failure`: You lose track of the sequence halfway through. The youngest child has written everyone's name on a paper plate, which is at least a reliable headcount. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-059/care-success`: They pack food, medication and children in that order. For the first time the blanket folds flat; nobody volunteers it for a museum. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_059_verified`, `wh_059_partial`, `wh_059_care` (mutually exclusive results of this card).
 
@@ -537,24 +537,24 @@
 
 **Opening narration:** A hollow trunk offers three doors, none requiring a key.
 
-**Escalation:** A hollow redwood holds three doorways: PUBLIC, PRIVATE and FORGOTTEN. A ranger says none has a key and all have an exit.
+**Escalation:** A hollow redwood presents three doors: PUBLIC, PRIVATE and FORGOTTEN. A ranger says they all lead out, but visitors have been leaving through places they never entered. A school group is approaching, and the PUBLIC door has begun charging admission.
 
-**Option A, investigate (visible 9 check):** Test each threshold from outside with a witness
+**Option A, investigate (visible 9 check):** Check the doorways from outside and compare the ranger's visitor count
 
-- **Pass:** The public doorway opens onto a future trail meeting, including its still-blank sign-in sheet.
-- **Miss:** The forgotten door seals when named; you chalk its outline for a safer return.
+- **Pass:** A carved mark links the PRIVATE exit to a locked maintenance path. The ranger closes the route until its real safety can be checked.
+- **Miss:** The doors swap labels when you blink. The group's teacher records the original positions, and you agree not to test the unknown exit with children.
 
-**Option B, assist without a check:** Ask who should decide access to the tree
+**Option B, assist without a check:** Help the ranger redirect visitors onto the marked, accessible trail
 
-- **Result:** Local stewards agree to survey the site before turning the anomaly into a tourist attraction.
+- **Result:** The group sees the living redwood without buying a ticket to anywhere. The PUBLIC door displays a complaint about lost revenue.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-060`: A hollow trunk offers three doors, none requiring a key. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-060/2`: A hollow redwood holds three doorways: PUBLIC, PRIVATE and FORGOTTEN. A ranger says none has a key and all have an exit. The people and location must match the opening.
-- `outcomes/wh-060/investigate-success`: The public doorway opens onto a future trail meeting, including its still-blank sign-in sheet. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-060/investigate-failure`: The forgotten door seals when named; you chalk its outline for a safer return. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-060/care-success`: Local stewards agree to survey the site before turning the anomaly into a tourist attraction. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-060/2`: A hollow redwood presents three doors: PUBLIC, PRIVATE and FORGOTTEN. A ranger says they all lead out, but visitors have been leaving through places they never entered. A school group is approaching, and the PUBLIC door has begun charging admission. The people and location must match the opening.
+- `outcomes/wh-060/investigate-success`: A carved mark links the PRIVATE exit to a locked maintenance path. The ranger closes the route until its real safety can be checked. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-060/investigate-failure`: The doors swap labels when you blink. The group's teacher records the original positions, and you agree not to test the unknown exit with children. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-060/care-success`: The group sees the living redwood without buying a ticket to anywhere. The PUBLIC door displays a complaint about lost revenue. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_060_verified`, `wh_060_partial`, `wh_060_care` (mutually exclusive results of this card).
 

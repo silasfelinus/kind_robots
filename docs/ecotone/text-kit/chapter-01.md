@@ -72,24 +72,24 @@
 
 **Opening narration:** A persuasive stranger can bottle exactly one memory in a mason jar.
 
-**Escalation:** A seller's jars are labeled FIRST KISS, LAST BUS and THINGS LEFT UNSAID. One contains a street you almost remember walking, on a night you never lived.
+**Escalation:** A fog seller has priced a jar of LAST BUS at twelve dollars, plus whatever the buyer has forgotten. A woman recognizes the handwriting on its label but says the memory is hers to give, not his to sell. You recognize the street inside. Neither of you recognizes the night.
 
-**Option A, investigate (visible 7 check):** Locate the original owner of the memory
+**Option A, investigate (visible 7 check):** Ask the woman whether she wants the jar opened, then check the route number
 
-- **Pass:** She recognizes a bus route planned for ten years from now, right down to its unbuilt terminal.
-- **Miss:** The lid cracks and the memory becomes wet-paper scent; you retain the name of a street.
+- **Pass:** She chooses to open it. The memory shows a future bus terminal drawn on a folded transfer; you copy the route, not her private recollection.
+- **Miss:** The seal snaps and the picture dissolves. You save the damp label, and the woman remembers which driver once used that handwriting.
 
-**Option B, assist without a check:** Insist the bottled memories go back to their owners
+**Option B, assist without a check:** Help the owners reclaim the jars without making their memories a public show
 
-- **Result:** Three strangers recover enough of themselves to call someone they have missed.
+- **Result:** The seller returns three jars and cancels his demonstration. The woman keeps hers closed. Reclaiming something does not oblige her to explain it.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-004`: A persuasive stranger can bottle exactly one memory in a mason jar. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-004/2`: A seller's jars are labeled FIRST KISS, LAST BUS and THINGS LEFT UNSAID. One contains a street you almost remember walking, on a night you never lived. The people and location must match the opening.
-- `outcomes/wh-004/investigate-success`: She recognizes a bus route planned for ten years from now, right down to its unbuilt terminal. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-004/investigate-failure`: The lid cracks and the memory becomes wet-paper scent; you retain the name of a street. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-004/care-success`: Three strangers recover enough of themselves to call someone they have missed. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-004/2`: A fog seller has priced a jar of LAST BUS at twelve dollars, plus whatever the buyer has forgotten. A woman recognizes the handwriting on its label but says the memory is hers to give, not his to sell. You recognize the street inside. Neither of you recognizes the night. The people and location must match the opening.
+- `outcomes/wh-004/investigate-success`: She chooses to open it. The memory shows a future bus terminal drawn on a folded transfer; you copy the route, not her private recollection. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-004/investigate-failure`: The seal snaps and the picture dissolves. You save the damp label, and the woman remembers which driver once used that handwriting. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-004/care-success`: The seller returns three jars and cancels his demonstration. The woman keeps hers closed. Reclaiming something does not oblige her to explain it. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_004_verified`, `wh_004_partial`, `wh_004_care` (mutually exclusive results of this card).
 
@@ -196,24 +196,24 @@
 
 **Opening narration:** A phantom theater cat walks through the projection beam and selects tomorrow's film.
 
-**Escalation:** A cat-shaped gap in the projection selects a film about a theater fire decades ago. The film ends tomorrow, with a weather warning.
+**Escalation:** At the Minor, a cat-shaped absence pads across the projector beam and selects a reel about a theater fire. The last frame is tomorrow's date and a harbor weather alert. The projectionist is paid to protect the film, not to decide whether a ghost understands forecasts.
 
-**Option A, investigate (visible 7 check):** Follow the phantom cat into the booth
+**Option A, investigate (visible 7 check):** Compare the final frame with the archive catalog and the current harbor advisory
 
-- **Pass:** Inside the canister you find a program printed for tomorrow and a warning about the harbor.
-- **Miss:** The projectionist interrupts, but you both see a paw print on the glass from the inside.
+- **Pass:** The reel's stock is decades old, but the warning names a berth added last spring. You preserve the frame number and report the risk without claiming a prediction.
+- **Miss:** The reel tangles before you can photograph the date. The projectionist saves the leader strip, where one impossible paw print remains in the emulsion.
 
-**Option B, assist without a check:** Ask the theater staff to make copies
+**Option B, assist without a check:** Help staff safeguard the reel and circulate the practical weather warning
 
-- **Result:** They preserve the reel before morning, and no one has to steal the evidence.
+- **Result:** The reel goes into a proper canister; the advisory reaches the harbor desk. The cat chooses the next feature and declines to explain its taste.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-009`: A phantom theater cat walks through the projection beam and selects tomorrow's film. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-009/2`: A cat-shaped gap in the projection selects a film about a theater fire decades ago. The film ends tomorrow, with a weather warning. The people and location must match the opening.
-- `outcomes/wh-009/investigate-success`: Inside the canister you find a program printed for tomorrow and a warning about the harbor. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-009/investigate-failure`: The projectionist interrupts, but you both see a paw print on the glass from the inside. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-009/care-success`: They preserve the reel before morning, and no one has to steal the evidence. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-009/2`: At the Minor, a cat-shaped absence pads across the projector beam and selects a reel about a theater fire. The last frame is tomorrow's date and a harbor weather alert. The projectionist is paid to protect the film, not to decide whether a ghost understands forecasts. The people and location must match the opening.
+- `outcomes/wh-009/investigate-success`: The reel's stock is decades old, but the warning names a berth added last spring. You preserve the frame number and report the risk without claiming a prediction. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-009/investigate-failure`: The reel tangles before you can photograph the date. The projectionist saves the leader strip, where one impossible paw print remains in the emulsion. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-009/care-success`: The reel goes into a proper canister; the advisory reaches the harbor desk. The cat chooses the next feature and declines to explain its taste. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_009_verified`, `wh_009_partial`, `wh_009_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** A park volunteer gives safety instructions for events scheduled in 1897.
 
-**Escalation:** A deer in reflective gear hands you a warning from 1897. The old notice describes a collapsed bridge under today's heavily used trail.
+**Escalation:** A deer in a reflective vest stops hikers beside a slope and hands over a bridge-closure notice dated 1897. One corner bears today's trail maintenance number. A family with a stroller is approaching the washed-out bank.
 
-**Option A, investigate (visible 7 check):** Inspect the bank before dismissing the warning
+**Option A, investigate (visible 7 check):** Compare the old notice with the current trail map and inspect the bank from safe ground
 
-- **Pass:** The soil is unstable in exactly the place the impossible notice names.
-- **Miss:** The deer vanishes before you read the seal, but the ground slumps under your boot.
+- **Pass:** The present-day drainage line crosses the vanished bridge footing. You photograph fresh cracks and give the maintenance crew an exact location.
+- **Miss:** A gust takes the notice before you can photograph its seal. You still mark a crack widening under the trail edge and tell the crew what you saw.
 
-**Option B, assist without a check:** Help volunteers close the risky section
+**Option B, assist without a check:** Turn walkers back and help volunteers mark a safe detour
 
-- **Result:** Hikers take a marked detour. The deer waits until the last child is clear.
+- **Result:** The stroller and everyone behind it take the longer route. The deer checks the barriers twice, which is more than the county budget allows.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-013`: A park volunteer gives safety instructions for events scheduled in 1897. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-013/2`: A deer in reflective gear hands you a warning from 1897. The old notice describes a collapsed bridge under today's heavily used trail. The people and location must match the opening.
-- `outcomes/wh-013/investigate-success`: The soil is unstable in exactly the place the impossible notice names. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-013/investigate-failure`: The deer vanishes before you read the seal, but the ground slumps under your boot. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-013/care-success`: Hikers take a marked detour. The deer waits until the last child is clear. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-013/2`: A deer in a reflective vest stops hikers beside a slope and hands over a bridge-closure notice dated 1897. One corner bears today's trail maintenance number. A family with a stroller is approaching the washed-out bank. The people and location must match the opening.
+- `outcomes/wh-013/investigate-success`: The present-day drainage line crosses the vanished bridge footing. You photograph fresh cracks and give the maintenance crew an exact location. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-013/investigate-failure`: A gust takes the notice before you can photograph its seal. You still mark a crack widening under the trail edge and tell the crew what you saw. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-013/care-success`: The stroller and everyone behind it take the longer route. The deer checks the barriers twice, which is more than the county budget allows. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_013_verified`, `wh_013_partial`, `wh_013_care` (mutually exclusive results of this card).
 
@@ -320,24 +320,24 @@
 
 **Opening narration:** A fungus network files very specific complaints about the living.
 
-**Escalation:** Mushrooms have written an unusually detailed noise complaint about a drainage pipe that nobody admits installing.
+**Escalation:** A row of mushrooms has filed a noise complaint against a drainage pipe below the Community Forest trail. Each cap holds a tiny slip of paper. The sound is not loud, but the slope downhill is newly wet and a volunteer has found sediment in the creek.
 
-**Option A, investigate (visible 7 check):** Turn the complaint into a site survey
+**Option A, investigate (visible 7 check):** Trace the pipe's outflow with the volunteer without digging into the fungal bed
 
-- **Pass:** You uncover a buried pipe with a future-dated invoice and diverted water.
-- **Miss:** Rain ruins your measurements, but the displaced soil remains obvious.
+- **Pass:** The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site.
+- **Miss:** Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows.
 
-**Option B, assist without a check:** Call the trail crew and include the neighbors
+**Option B, assist without a check:** Help the trail crew reroute foot traffic while they inspect the discharge
 
-- **Result:** The crew restores the water without trampling the colony, though the mushrooms file an appeal.
+- **Result:** A short closure keeps boots off the colony and lets the crew sample the water. The mushrooms amend their complaint to include an appreciation for signage.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-014`: A fungus network files very specific complaints about the living. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-014/2`: Mushrooms have written an unusually detailed noise complaint about a drainage pipe that nobody admits installing. The people and location must match the opening.
-- `outcomes/wh-014/investigate-success`: You uncover a buried pipe with a future-dated invoice and diverted water. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-014/investigate-failure`: Rain ruins your measurements, but the displaced soil remains obvious. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-014/care-success`: The crew restores the water without trampling the colony, though the mushrooms file an appeal. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-014/2`: A row of mushrooms has filed a noise complaint against a drainage pipe below the Community Forest trail. Each cap holds a tiny slip of paper. The sound is not loud, but the slope downhill is newly wet and a volunteer has found sediment in the creek. The people and location must match the opening.
+- `outcomes/wh-014/investigate-success`: The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-014/investigate-failure`: Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-014/care-success`: A short closure keeps boots off the colony and lets the crew sample the water. The mushrooms amend their complaint to include an appreciation for signage. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_014_verified`, `wh_014_partial`, `wh_014_care` (mutually exclusive results of this card).
 
@@ -351,24 +351,24 @@
 
 **Opening narration:** Invisible campers gossip about the player's future over cold ash.
 
-**Escalation:** An empty ring of chairs encircles cold ash. Invisible campers argue about whether you will betray someone whose name you have not heard.
+**Escalation:** Six camp chairs ring ash cold enough to hold rainwater. Invisible campers are debating a future betrayal with startling confidence; you hear the name of a person you have yet to meet. A real hiker sits down, hoping the voices know where her missing friend went.
 
-**Option A, investigate (visible 7 check):** Ask the unseen speakers to name the missing person
+**Option A, investigate (visible 7 check):** Write down the disputed names and ask the voices for a verifiable trail detail
 
-- **Pass:** The name appears in ash beside a date that has not happened.
-- **Miss:** They answer only with an old song; an unworn boot leaves a fresh print.
+- **Pass:** Their arguments disagree about everything except a ranger-station marker. The hiker recognizes it and calls the station with a precise search area.
+- **Miss:** Every voice talks at once and the names become useless. Beneath one chair you find a fresh boot print headed toward the marked path.
 
-**Option B, assist without a check:** Leave the site safer than you found it
+**Option B, assist without a check:** Stay with the hiker and contact the ranger rather than audition for the prophecy
 
-- **Result:** An unseen voice thanks you for clearing the ring rather than exploiting the mystery.
+- **Result:** The ranger gets a description and a last known location; the hiker has company while she waits. The empty chairs argue about whether this counts as betrayal.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-015`: Invisible campers gossip about the player's future over cold ash. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-015/2`: An empty ring of chairs encircles cold ash. Invisible campers argue about whether you will betray someone whose name you have not heard. The people and location must match the opening.
-- `outcomes/wh-015/investigate-success`: The name appears in ash beside a date that has not happened. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-015/investigate-failure`: They answer only with an old song; an unworn boot leaves a fresh print. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-015/care-success`: An unseen voice thanks you for clearing the ring rather than exploiting the mystery. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-015/2`: Six camp chairs ring ash cold enough to hold rainwater. Invisible campers are debating a future betrayal with startling confidence; you hear the name of a person you have yet to meet. A real hiker sits down, hoping the voices know where her missing friend went. The people and location must match the opening.
+- `outcomes/wh-015/investigate-success`: Their arguments disagree about everything except a ranger-station marker. The hiker recognizes it and calls the station with a precise search area. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-015/investigate-failure`: Every voice talks at once and the names become useless. Beneath one chair you find a fresh boot print headed toward the marked path. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-015/care-success`: The ranger gets a description and a last known location; the hiker has company while she waits. The empty chairs argue about whether this counts as betrayal. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_015_verified`, `wh_015_partial`, `wh_015_care` (mutually exclusive results of this card).
 
@@ -382,24 +382,24 @@
 
 **Opening narration:** A lecturer's guest speaker insists it is the actual moon on sabbatical.
 
-**Escalation:** The visiting moon occupies a tiny campus lectern while daylight crosses the windows. The professor introduces it without irony.
+**Escalation:** The visiting lecturer is a moon no larger than a grapefruit, sitting at the campus podium beneath a borrowed desk lamp. It has scheduled office hours during a partial eclipse. An astronomy student worries the class will believe the guest's charming false claims about the tides.
 
-**Option A, investigate (visible 7 check):** Ask which coastline the moon remembers
+**Option A, investigate (visible 7 check):** Ask the moon to distinguish its anecdotes from the measurements in the syllabus
 
-- **Pass:** Its crater chart illuminates a harbor with two lighthouses, only one of them built.
-- **Miss:** The answer comes as a moving tide line on the blackboard, and students record it.
+- **Pass:** It admits one celebrated eclipse story is borrowed. The student corrects the data sheet while the moon supplies a startlingly accurate new observation.
+- **Miss:** The moon refuses a citation and rolls beneath the lectern. The class keeps the conflicting readings for later comparison instead of voting on astronomy.
 
-**Option B, assist without a check:** Let skeptical students ask their own questions
+**Option B, assist without a check:** Help the professor hold a discussion where students can ask questions safely
 
-- **Result:** The lecture becomes a serious public seminar where uncertainty is welcome.
+- **Result:** The student leads a demonstration with a lamp and two oranges. The moon volunteers to be the third orange and accepts peer review badly.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-016`: A lecturer's guest speaker insists it is the actual moon on sabbatical. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-016/2`: The visiting moon occupies a tiny campus lectern while daylight crosses the windows. The professor introduces it without irony. The people and location must match the opening.
-- `outcomes/wh-016/investigate-success`: Its crater chart illuminates a harbor with two lighthouses, only one of them built. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-016/investigate-failure`: The answer comes as a moving tide line on the blackboard, and students record it. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-016/care-success`: The lecture becomes a serious public seminar where uncertainty is welcome. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-016/2`: The visiting lecturer is a moon no larger than a grapefruit, sitting at the campus podium beneath a borrowed desk lamp. It has scheduled office hours during a partial eclipse. An astronomy student worries the class will believe the guest's charming false claims about the tides. The people and location must match the opening.
+- `outcomes/wh-016/investigate-success`: It admits one celebrated eclipse story is borrowed. The student corrects the data sheet while the moon supplies a startlingly accurate new observation. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-016/investigate-failure`: The moon refuses a citation and rolls beneath the lectern. The class keeps the conflicting readings for later comparison instead of voting on astronomy. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-016/care-success`: The student leads a demonstration with a lamp and two oranges. The moon volunteers to be the third orange and accepts peer review badly. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_016_verified`, `wh_016_partial`, `wh_016_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** An academic committee includes someone who never graduated and never died.
 
-**Escalation:** The fourth member of a thesis committee has never lived or died. She gives devastatingly precise feedback on a dissertation still being written.
+**Escalation:** The thesis committee's fourth examiner appears on no enrollment ledger, obituary or faculty roster. She has nevertheless written thirty-seven devastating margin notes, and the candidate is minutes from a defense whose result determines their funding.
 
-**Option A, investigate (visible 7 check):** Check the minutes of earlier defenses
+**Option A, investigate (visible 7 check):** Check the cited sources in the mysterious examiner's critique
 
-- **Pass:** A correction in her handwriting identifies a historical error the faculty has not yet committed.
-- **Miss:** Her signature fades from the minutes. The candidate keeps the useful argument.
+- **Pass:** Most are solid; one quotes an article not yet published. The candidate gets time to verify it rather than having a dissertation rewritten by a ghost.
+- **Miss:** One citation sends you through a circular archive index. You flag it as unverifiable; the candidate can answer the substantive question without pretending otherwise.
 
-**Option B, assist without a check:** Protect the student's right to a fair defense
+**Option B, assist without a check:** Ask the chair to make the defense fair despite the extra examiner
 
-- **Result:** The impossible examiner drops an unreasonable demand and asks a genuine question.
+- **Result:** The chair rules the phantom's notes advisory and extends the candidate's time. The examiner nods, disappointed to discover due process.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-018`: An academic committee includes someone who never graduated and never died. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-018/2`: The fourth member of a thesis committee has never lived or died. She gives devastatingly precise feedback on a dissertation still being written. The people and location must match the opening.
-- `outcomes/wh-018/investigate-success`: A correction in her handwriting identifies a historical error the faculty has not yet committed. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-018/investigate-failure`: Her signature fades from the minutes. The candidate keeps the useful argument. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-018/care-success`: The impossible examiner drops an unreasonable demand and asks a genuine question. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-018/2`: The thesis committee's fourth examiner appears on no enrollment ledger, obituary or faculty roster. She has nevertheless written thirty-seven devastating margin notes, and the candidate is minutes from a defense whose result determines their funding. The people and location must match the opening.
+- `outcomes/wh-018/investigate-success`: Most are solid; one quotes an article not yet published. The candidate gets time to verify it rather than having a dissertation rewritten by a ghost. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-018/investigate-failure`: One citation sends you through a circular archive index. You flag it as unverifiable; the candidate can answer the substantive question without pretending otherwise. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-018/care-success`: The chair rules the phantom's notes advisory and extends the candidate's time. The examiner nods, disappointed to discover due process. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_018_verified`, `wh_018_partial`, `wh_018_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** The campus mascot begins providing accurate but unwanted zoological advice.
 
-**Escalation:** The mascot stops cheering to give zoological advice about animals absent from the north coast. The field notes are uncomfortably accurate.
+**Escalation:** Between cheers, the campus mascot delivers a lecture on an animal no one on the field can identify. Its drawings are persuasive. Its microphone is feeding the speech over the emergency instructions, while the student inside the costume looks desperate for water.
 
-**Option A, investigate (visible 7 check):** Compare the drawings with the campus collection
+**Option A, investigate (visible 7 check):** Ask for the field notebook and compare the sketches with the campus collections
 
-- **Pass:** A species declared extinct is visible in a field sketch made yesterday at the marsh.
-- **Miss:** The zipper jams before you can copy the notes. You still recognize the wing pattern.
+- **Pass:** A sketch records markings from a specimen accessioned tomorrow. The curator takes the copy; nobody calls it proof of a living animal.
+- **Miss:** The mascot forgets the species name as soon as its head comes off. The student retains a drawing with one unusually exact habitat note.
 
-**Option B, assist without a check:** Make sure the sweating performer gets a break
+**Option B, assist without a check:** Get the student out of the overheated suit and return the microphone to safety announcements
 
-- **Result:** A stagehand brings water, and the mascot returns to being a person.
+- **Result:** The medic checks the student; the game resumes with a replacement announcer. The mascot's written complaint about inaccurate birds remains on the bulletin board.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-019`: The campus mascot begins providing accurate but unwanted zoological advice. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-019/2`: The mascot stops cheering to give zoological advice about animals absent from the north coast. The field notes are uncomfortably accurate. The people and location must match the opening.
-- `outcomes/wh-019/investigate-success`: A species declared extinct is visible in a field sketch made yesterday at the marsh. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-019/investigate-failure`: The zipper jams before you can copy the notes. You still recognize the wing pattern. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-019/care-success`: A stagehand brings water, and the mascot returns to being a person. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-019/2`: Between cheers, the campus mascot delivers a lecture on an animal no one on the field can identify. Its drawings are persuasive. Its microphone is feeding the speech over the emergency instructions, while the student inside the costume looks desperate for water. The people and location must match the opening.
+- `outcomes/wh-019/investigate-success`: A sketch records markings from a specimen accessioned tomorrow. The curator takes the copy; nobody calls it proof of a living animal. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-019/investigate-failure`: The mascot forgets the species name as soon as its head comes off. The student retains a drawing with one unusually exact habitat note. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-019/care-success`: The medic checks the student; the game resumes with a replacement announcer. The mascot's written complaint about inaccurate birds remains on the bulletin board. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_019_verified`, `wh_019_partial`, `wh_019_care` (mutually exclusive results of this card).
 
@@ -506,24 +506,24 @@
 
 **Opening narration:** Exams arrive before classes and the university refuses refunds.
 
-**Escalation:** Students receive final exams before their first lecture. The questions are about public decisions the town has not yet made.
+**Escalation:** Final exams appear in students' inboxes before their first lecture. Every question concerns a civic decision nobody has publicly proposed. A teaching assistant is fielding panicked emails from students who think this is a trick to deny them financial aid.
 
-**Option A, investigate (visible 7 check):** Audit an exam against the course plan
+**Option A, investigate (visible 7 check):** Compare the exam metadata with course records and a public council agenda
 
-- **Pass:** One answer predicts a flood-barrier dispute fifteen years hence, including an unfamiliar civic seal.
-- **Miss:** The registrar keeps the paper, but you remember the date and the name of a proposed creek.
+- **Pass:** One question cites a meeting room that will not open until next month. The registrar can investigate the timestamp without grading anyone's future.
+- **Miss:** The files redate themselves when downloaded. A student has saved a paper printout bearing the original header, enough to start a fair review.
 
-**Option B, assist without a check:** Set up a study group to compare evidence
+**Option B, assist without a check:** Help students get the exams paused without exposing private grades
 
-- **Result:** Students share food and notes instead of competing for grades awarded before learning.
+- **Result:** The instructor postpones the test and offers an actual syllabus. A student frames the premature F as a warning against group projects.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-020`: Exams arrive before classes and the university refuses refunds. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-020/2`: Students receive final exams before their first lecture. The questions are about public decisions the town has not yet made. The people and location must match the opening.
-- `outcomes/wh-020/investigate-success`: One answer predicts a flood-barrier dispute fifteen years hence, including an unfamiliar civic seal. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-020/investigate-failure`: The registrar keeps the paper, but you remember the date and the name of a proposed creek. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-020/care-success`: Students share food and notes instead of competing for grades awarded before learning. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-020/2`: Final exams appear in students' inboxes before their first lecture. Every question concerns a civic decision nobody has publicly proposed. A teaching assistant is fielding panicked emails from students who think this is a trick to deny them financial aid. The people and location must match the opening.
+- `outcomes/wh-020/investigate-success`: One question cites a meeting room that will not open until next month. The registrar can investigate the timestamp without grading anyone's future. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-020/investigate-failure`: The files redate themselves when downloaded. A student has saved a paper printout bearing the original header, enough to start a fair review. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-020/care-success`: The instructor postpones the test and offers an actual syllabus. A student frames the premature F as a warning against group projects. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_020_verified`, `wh_020_partial`, `wh_020_care` (mutually exclusive results of this card).
 

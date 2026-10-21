@@ -120,6 +120,22 @@ export function substanceSceneLine(moments: SubstanceMoment[], day: number): str
     return 'Coffee sets an urgent little clock ticking; cannabis makes the seconds oddly spacious. The hippie speedball is a contradiction you can feel, not a secret technique for being right.'
   if (last.selected.length === 2)
     return 'Two currents tug at the same afternoon. Neither makes the witness more reliable or the people around you less entitled to a boundary.'
+  if (last.selected.length === 0 && summary.substancesTried > 0)
+    return 'You choose water and a pause. The room is still strange, but there is time to ask for the words again.'
+  if (last.selected.includes('alcohol'))
+    return 'A drink loosens the room into overlapping jokes. You still have to decide which promises can survive the music.'
+  if (last.selected.includes('cannabis'))
+    return 'A small pattern in the corner becomes fascinating. It may mean something, or it may simply be a corner.'
+  if (last.selected.includes('coffee'))
+    return 'The coffee makes each unanswered question feel a little late. Deadlines remain human inventions, even here.'
+  if (last.selected.includes('psychedelic'))
+    return 'Scale and metaphor briefly trade coats. Nobody else owes your private impression the status of evidence.'
+  if (last.selected.includes('cocaine'))
+    return 'Every errand sounds urgent. You could still ask whose deadline it is before running.'
+  if (last.selected.includes('meth'))
+    return 'The night stretches out. A second witness and a place to rest are both more useful than certainty.'
+  if (last.selected.includes('mdma'))
+    return 'People seem briefly, extravagantly dear. Their boundaries remain exactly where they put them.'
   return null
 }
 

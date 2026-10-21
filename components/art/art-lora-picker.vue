@@ -41,7 +41,9 @@
 
     <div
       class="min-h-0 overflow-y-auto overscroll-contain pr-1"
-      :class="expanded ? 'max-h-[24rem]' : 'max-h-[14rem]'"
+      :class="expanded
+          ? 'max-h-[24rem] 2xl:max-h-[min(76vh,56rem)]'
+          : 'max-h-[14rem] 2xl:max-h-[min(62vh,46rem)]'"
     >
       <p
         v-if="!supported"
@@ -178,7 +180,7 @@
               v-for="entry in visibleLoras"
               :key="entry.resource.id"
               type="button"
-              class="flex gap-2 overflow-hidden rounded-xl border p-2 text-left transition disabled:opacity-40"
+              class="flex min-w-0 gap-2 overflow-hidden rounded-xl border p-2 text-left transition disabled:opacity-40"
               :class="
                 isSelected(entry.resource.id)
                   ? 'border-secondary bg-secondary/10'
@@ -189,7 +191,7 @@
               @click="toggle(entry.resource.id)"
             >
               <span
-                class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200"
+                class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-base-200 2xl:size-20"
               >
                 <img
                   v-if="previewImage(entry.resource)"

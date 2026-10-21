@@ -5,6 +5,7 @@ import {
   ACT_ONE_LATE_QUESTS,
 } from './actOneLate'
 import { ACT_TWO_DAYS, ACT_TWO_DUES, ACT_TWO_QUESTS } from './actTwo'
+import { ACT_TWO_CALLBACK_AUDIENCES } from './actTwoCallbacks'
 import { ACT_THREE_DAYS, ACT_THREE_DUES, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_DUES, ACT_FOUR_QUESTS } from './actFour'
 import { ACT_FIVE_DAYS, ACT_FIVE_DUES, ACT_FIVE_QUESTS } from './actFive'
@@ -131,7 +132,10 @@ export const dueDef = (id: string): DueDef | undefined => DUE_INDEX.get(id)
 export const DAYS: readonly DayDef[] = [
   ...ACT_ONE_DAYS,
   ...ACT_ONE_LATE_DAYS,
-  ...ACT_TWO_DAYS,
+  ...ACT_TWO_DAYS.map((day) => {
+    const extra = ACT_TWO_CALLBACK_AUDIENCES[day.day]
+    return extra ? { ...day, audiences: [...day.audiences, ...extra] } : day
+  }),
   ...ACT_THREE_DAYS,
   ...ACT_FOUR_DAYS,
   ...ACT_FIVE_DAYS,

@@ -51,7 +51,9 @@ export default defineEventHandler(async (event) => {
     const priceId = getSubscriptionPriceId()
 
     if (user.isMember && user.stripeSubscriptionId) {
-      const error = new Error('You already have a Patron subscription') as Error & {
+      const error = new Error(
+        'You already have a Patron subscription',
+      ) as Error & {
         statusCode: number
       }
       error.statusCode = 409
@@ -71,7 +73,9 @@ export default defineEventHandler(async (event) => {
 
     const rawBaseUrl = process.env.APP_BASE_URL || process.env.BASE_URL
     if (!rawBaseUrl) {
-      const error = new Error('Payment return URL is not configured') as Error & {
+      const error = new Error(
+        'Payment return URL is not configured',
+      ) as Error & {
         statusCode: number
       }
       error.statusCode = 500
@@ -86,7 +90,9 @@ export default defineEventHandler(async (event) => {
       if (baseUrl.protocol !== 'https:' && !localDev)
         throw new Error('Payment return URLs must use HTTPS')
     } catch {
-      const error = new Error('Payment return URL must be a valid HTTPS URL') as Error & {
+      const error = new Error(
+        'Payment return URL must be a valid HTTPS URL',
+      ) as Error & {
         statusCode: number
       }
       error.statusCode = 500
@@ -114,8 +120,14 @@ export default defineEventHandler(async (event) => {
           quantity: 1,
         },
       ],
-      success_url: new URL('/sanctuary?subscription=success', baseUrl).toString(),
-      cancel_url: new URL('/sanctuary?subscription=cancelled', baseUrl).toString(),
+      success_url: new URL(
+        '/sanctuary?subscription=success',
+        baseUrl,
+      ).toString(),
+      cancel_url: new URL(
+        '/sanctuary?subscription=cancelled',
+        baseUrl,
+      ).toString(),
     })
 
     return {

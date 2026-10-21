@@ -84,12 +84,18 @@ function parsePreferences(raw: string | null | undefined): FortressPreferences {
   if (!raw) return { ...DEFAULT_FORTRESS_PREFERENCES }
   try {
     const obj: unknown = JSON.parse(raw)
-    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return { ...DEFAULT_FORTRESS_PREFERENCES }
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj))
+      return { ...DEFAULT_FORTRESS_PREFERENCES }
     const record = obj as Record<string, unknown>
     const result = { ...DEFAULT_FORTRESS_PREFERENCES }
-    for (const key of Object.keys(VALID_PREFERENCES) as (keyof FortressPreferences)[]) {
+    for (const key of Object.keys(
+      VALID_PREFERENCES,
+    ) as (keyof FortressPreferences)[]) {
       const value = record[key]
-      if (typeof value === 'string' && (VALID_PREFERENCES[key] as readonly string[]).includes(value))
+      if (
+        typeof value === 'string' &&
+        (VALID_PREFERENCES[key] as readonly string[]).includes(value)
+      )
         (result as Record<string, string>)[key] = value
     }
     return result
@@ -149,7 +155,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const textSpeed = ref<TextSpeed>('normal')
-  const preferences = ref<FortressPreferences>({ ...DEFAULT_FORTRESS_PREFERENCES })
+  const preferences = ref<FortressPreferences>({
+    ...DEFAULT_FORTRESS_PREFERENCES,
+  })
   let relicVaultUnreadable = false
   // An unreadable autosave or Codex is never overwritten: the autosave waits
   // until the player starts a new run or loads a slot, the Codex for good.
@@ -257,7 +265,10 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     write(SPEED_KEY, speed)
   }
 
-  function setPreference<K extends keyof FortressPreferences>(key: K, value: FortressPreferences[K]) {
+  function setPreference<K extends keyof FortressPreferences>(
+    key: K,
+    value: FortressPreferences[K],
+  ) {
     if (!(VALID_PREFERENCES[key] as readonly string[]).includes(value)) return
     preferences.value = { ...preferences.value, [key]: value }
     write(PREFERENCES_KEY, JSON.stringify(preferences.value))

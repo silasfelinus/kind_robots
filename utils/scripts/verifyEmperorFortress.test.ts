@@ -223,6 +223,31 @@ import type {
   SceneLine,
 } from '../emperorOfDust/fortress/types'
 
+// --- startup overlay contract ----------------------------------------------
+// The splash fades for 600ms before it unmounts. On a new game, the first
+// introduction scene must already cover the live Komodo briefing underneath.
+const startupPage = readFileSync(
+  new URL('../../pages/play/emperor-of-dust.vue', import.meta.url),
+  'utf8',
+)
+const startupIntro = readFileSync(
+  new URL('../../components/EmperorFortressIntro.vue', import.meta.url),
+  'utf8',
+)
+assert.match(
+  startupPage,
+  /<EmperorFortressIntro\s+v-if="court\.loaded && court\.introOpen"\s+:active="!splashing"/,
+  'mount the map introduction under the fading splash, not after it',
+)
+assert.match(startupIntro, /:inert="!active"/)
+assert.match(startupIntro, /:aria-hidden="!active"/)
+assert.match(
+  startupIntro,
+  /watch\(\s*\[index, \(\) => props\.active\]/,
+  'intro text animation starts after the splash, never unseen behind it',
+)
+assert.match(startupIntro, /if \(props\.active\) stream\(\)/)
+
 // --- content contract -------------------------------------------------------
 assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')
 assert.deepEqual(

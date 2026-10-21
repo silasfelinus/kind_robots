@@ -3,6 +3,8 @@
     class="eod-intro @container absolute inset-0 z-20 flex flex-col overflow-hidden bg-base-200"
     aria-label="Introduction"
     aria-roledescription="slideshow"
+    :inert="!active"
+    :aria-hidden="!active"
   >
     <Transition name="eod-scene" mode="out-in">
       <div :key="index" class="absolute inset-0" aria-hidden="true">
@@ -163,6 +165,7 @@ import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
 import { ROOMS } from '~/utils/emperorOfDust/fortress/rooms'
 import type { RoomId } from '~/utils/emperorOfDust/fortress/rooms'
 
+const props = defineProps<{ active: boolean }>()
 const emit = defineEmits<{ done: [] }>()
 const court = useEmperorFortressStore()
 
@@ -286,7 +289,14 @@ function next() {
   else go(index.value + 1)
 }
 
-watch(index, stream, { immediate: true })
+watch(
+  [index, () => props.active],
+  () => {
+    if (props.active) stream()
+    else stop()
+  },
+  { immediate: true },
+)
 onBeforeUnmount(stop)
 </script>
 

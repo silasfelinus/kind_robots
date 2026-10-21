@@ -9,9 +9,165 @@ export type RegionalRevision = {
   choices: Choice[]
   lensLines?: EncounterCard['lensLines']
   flagLines?: EncounterCard['flagLines']
+  leadLines?: EncounterCard['leadLines']
 }
 
 export const REGIONAL_REVISIONS: Record<string, RegionalRevision> = {
+  // Fifth pass: options with a real public, personal, or material cost.
+  'WH-008': {
+    choices: [
+      {
+        id: 'crew-veto',
+        label: 'Put your name on a crew veto and risk losing the fundraiser',
+        cost: 'You may take the blame for a cancelled show and reduced wages',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'You put your name on the notice and ask the crew what they actually want. The director agrees to a safe performance with a smaller audience. The understudy insists every worker gets the credit. The original donors threaten to withdraw, and some do.',
+          effects: { goodwill: 1, nerve: -1, flag: 'wh_008_crew_veto' },
+        },
+        failure: {
+          text: "The director cancels the fundraiser and pins your name to the lobby door. The cast walks out together; the volunteer crew must find next month's rent elsewhere. The understudy thanks you for not lying about the cost.",
+          effects: { nerve: -1, flag: 'wh_008_show_cancelled' },
+        },
+      },
+    ],
+    leadLines: {
+      mara: "Mara eyes the broken prop knife. 'Consent stops being consent when someone threatens the rent check. Somebody should tell the director.'",
+      kit: "Kit looks at the understudy, then the audience. 'A good stunt is where every performer gets to do it again tomorrow. I can teach them a better fall.'",
+      juniper:
+        "Juniper studies the alien's penciled injury clause. 'It learned to ask for safety faster than the humans learned to offer it.'",
+      cedar:
+        "Cedar holds the prop knife beside the lighting panel. 'You can engineer an illusion that looks deadly. Engineering the actual danger back in is just lazy.'",
+    },
+  },
+  'WH-023': {
+    choices: [
+      {
+        id: 'signed-warning',
+        label: 'Sign a temporary cliff closure request in your own name',
+        cost: 'You own the warning publicly even if the date in the bottle is wrong',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'You secure a short closure on the strength of falling grit, not prophecy. An angry vendor counts the customers leaving the beach. You sign the inspection request knowing they will remember who cost them a busy afternoon.',
+          effects: { goodwill: 1, nerve: -1, flag: 'wh_023_cliff_closed' },
+        },
+        failure: {
+          text: 'Your petition fails. The vendor prints your name beside the phrase TIME-TRAVEL SCARE, and tourists crowd the rope line to laugh. You cannot close the path; you can keep warning people about the stones striking the sand.',
+          effects: { nerve: -1, flag: 'wh_023_warning_rejected' },
+        },
+      },
+    ],
+    leadLines: {
+      mara: "Mara folds the warning letter without touching the sleeping children. 'If the rock is loose, talk about the rock. Nobody owes a stranger faith in a magic envelope.'",
+      kit: "Kit crouches to inspect the overhang. 'I've stood under unsafe rigging while someone promised the show must go on. It was a stupid promise then too.'",
+      juniper:
+        "Juniper watches the pebbles tick off the cliff. 'The stone has already spoken. You don't have to believe the handwriting to hear it.'",
+      cedar:
+        "Cedar traces the crack with a finger kept well clear of the ledge. 'The date's suspect. The slope isn't. Let's separate those facts before somebody gets hurt.'",
+    },
+  },
+  'WH-041': {
+    choices: [
+      {
+        id: 'porch-vigil',
+        label:
+          "Take the night watch on the tenants' steps instead of going home",
+        cost: 'Give up your rest to keep the confession tourists away tonight',
+        success: {
+          text: 'You sit beneath the new window through the night, handing out tea and declining every offered confession. The upstairs tenant finally sleeps. At dawn the booth owner arrives with fresh tickets. You have won one night, not the deed to her home.',
+          effects: { goodwill: 1, nerve: -1, flag: 'wh_041_porch_vigil' },
+        },
+      },
+    ],
+    flagLines: {
+      wh_008_crew_veto: {
+        all: "The upstairs tenant recognizes you from the theatre crew's public safety notice. She asks whether standing here will make the property owner finally listen or merely supply another spectacle.",
+      },
+      wh_008_show_cancelled: {
+        all: 'The landlord waves an old show-cancellation flyer with your name on it. The tenant says she cares about her bedroom, not whether you have a perfect record.',
+      },
+    },
+  },
+  'WH-065': {
+    choices: [
+      {
+        id: 'camera-truce',
+        label: 'Ask the host and photographer to negotiate at the gate',
+        cost: 'The host may decide you made a private supper into a public confrontation',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: 'The photographer agrees to leave his camera in the car, though he still insists everyone overreacted. The host permits him one plate of pie and exactly zero pictures. The guests do not forgive him on schedule, which was never part of the deal.',
+          effects: { goodwill: 1, flag: 'wh_065_camera_truce' },
+        },
+        failure: {
+          text: 'The neighbor turns your invitation into a speech about censorship. A guest quietly packs up their dish and the host asks you both to leave. You get no photograph, no slice of pie, and a lesson in how even well-meant mediation can cost somebody their safe room.',
+          effects: { nerve: -1, flag: 'wh_065_truce_failed' },
+        },
+      },
+    ],
+    flagLines: {
+      wh_023_cliff_closed: {
+        all: "One of the guests heard about the beach path you helped close after the rocks started falling. They appreciate a warning with evidence but ask you to keep tonight's private gathering off your map.",
+      },
+    },
+    leadLines: {
+      mara: "Mara takes one look at the telephoto lens. 'If I wouldn't photograph a client without asking, I sure won't put somebody's home online for a pie recipe.'",
+      kit: "Kit balances a plate on one palm. 'People pay to see me perform. That doesn't buy a camera operator a ticket to my private dinner.'",
+      juniper:
+        "Juniper watches the hooded guest withdraw into the trees. 'Visibility can be a threat. A forest corridor isn't an invitation to turn its residents into exhibits.'",
+      cedar:
+        "Cedar sets down the serving tray. 'There's a way to map a trail for its caretakers without publishing everybody's front door. We've built that sort of network before.'",
+    },
+  },
+  'WH-082': {
+    choices: [
+      {
+        id: 'curtain-strike',
+        label: "Back the crew's refusal to raise the curtain before payroll",
+        cost: 'An empty theater may mean no ticket income for anyone tonight',
+        check: { skill: 'rizz', target: 9 },
+        success: {
+          text: "You help the stage crew hold a silent line beneath the curtain. The board agrees to pay the arrears before the first note; a donor quits in disgust. The cow eats the donor's velvet program. The musicians play beautifully to a smaller, solvent audience.",
+          effects: { goodwill: 1, nerve: -1, flag: 'wh_082_crew_paid' },
+        },
+        failure: {
+          text: "The board calls the strike a bluff. The curtain stays down, a family loses the outing they saved for, and nobody gets tonight's ticket sales. The crew has refused free labor, but you cannot pay them with the satisfaction of being right.",
+          effects: { nerve: -1, flag: 'wh_082_curtain_dark' },
+        },
+      },
+    ],
+    flagLines: {
+      wh_041_porch_vigil: {
+        all: "A stagehand recalls your night on the Victorian tenants' porch and asks whether you would stay as long for workers instead of windows.",
+      },
+    },
+    leadLines: {
+      mara: "Mara studies the unpaid ledger. 'I know a studio can be one bad season from shutting. That isn't an excuse to tell apprentices their work is free.'",
+      kit: "Kit rests a hand on the orchestra rail. 'I know how to stop a show. I don't know how to get the musicians paid after. We should talk about both.'",
+      juniper:
+        "Juniper watches rain collect in a violin case. 'I could grow a roof of leaves. It would leak by winter. Somebody still has to pay the people holding this place up.'",
+      cedar:
+        "Cedar taps the wage column. 'My dad could fix that roof. My mom could get people organized. Neither would tell workers a promise spends like cash.'",
+    },
+  },
+  'WH-096': {
+    choices: [
+      {
+        id: 'cover-the-shift',
+        label: 'Cover one wet Sunday shift so the scarecrow can actually rest',
+        cost: 'Spend your own strength and a full day on work the owner should fund',
+        success: {
+          text: 'You take the dawn shift and discover that every row needs a different kind of patience. The scarecrow spends Sunday watching the rain from beneath a dry roof. On Monday it asks the owner for a paid replacement, because your free labor did not fix the arrangement.',
+          effects: { goodwill: 1, nerve: -1, flag: 'wh_096_shift_covered' },
+        },
+      },
+    ],
+    flagLines: {
+      wh_065_camera_truce: {
+        all: "The scarecrow has heard how you asked a potluck photographer to respect an invitation. It asks whether the same courtesy can apply to a worker's day off.",
+      },
+    },
+  },
   'WH-014': {
     choices: [
       {

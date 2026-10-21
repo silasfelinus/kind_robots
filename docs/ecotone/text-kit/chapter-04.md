@@ -103,24 +103,24 @@
 
 **Opening narration:** A potluck has a strict no-photography policy and suspiciously good pie.
 
-**Escalation:** The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie.
+**Escalation:** At a potluck outside Blue Lake, the cryptid hosts ask everyone to label the food and leave cameras in the car. A neighbor has brought a telephoto lens anyway. 'What sort of innocent person needs that much privacy?' he asks. 'The sort who made six kinds of pie,' says a woman carrying hot dishes past him. One guest is already pulling a hood over its face.
 
 **Option A, investigate (visible 9 check):** Ask the hosts why they refuse photographs, without barging into their gathering
 
-- **Pass:** The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload.
-- **Miss:** The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner.
+- **Pass:** The hosts explain that several guests migrate through corridors now popular with camera clubs. Their privately drawn seating map overlaps a habitat route needing attention, but gives no one permission to post guests or locations. The camera neighbor offers to 'help' by sharing it. You must decide whether he has listened to a single word.
+- **Miss:** A flash goes off. Three guests leave by different paths and the host quietly packs away their untouched dishes. The neighbor deletes the picture only after seeing a small child flinch. He wants credit for doing the decent thing late. Nobody gives it to him. The lost trust will take longer to replace than a file.
 
 **Option B, assist without a check:** Put away your phone, label your dish and respect the invitation's boundaries
 
-- **Result:** Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession.
+- **Result:** You label your dish, put your phone away, and help carry chairs to a corner where nervous guests can eat unobserved. A neighbor asks for a recipe, not a photograph. The host serves you a spectacular slice of rhubarb pie, then points out you have spent twenty minutes learning more about hospitality than cryptids.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-065`: A potluck has a strict no-photography policy and suspiciously good pie. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-065/2`: The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie. The people and location must match the opening.
-- `outcomes/wh-065/investigate-success`: The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-065/investigate-failure`: The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-065/care-success`: Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-065/2`: At a potluck outside Blue Lake, the cryptid hosts ask everyone to label the food and leave cameras in the car. A neighbor has brought a telephoto lens anyway. 'What sort of innocent person needs that much privacy?' he asks. 'The sort who made six kinds of pie,' says a woman carrying hot dishes past him. One guest is already pulling a hood over its face. The people and location must match the opening.
+- `outcomes/wh-065/investigate-success`: The hosts explain that several guests migrate through corridors now popular with camera clubs. Their privately drawn seating map overlaps a habitat route needing attention, but gives no one permission to post guests or locations. The camera neighbor offers to 'help' by sharing it. You must decide whether he has listened to a single word. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-065/investigate-failure`: A flash goes off. Three guests leave by different paths and the host quietly packs away their untouched dishes. The neighbor deletes the picture only after seeing a small child flinch. He wants credit for doing the decent thing late. Nobody gives it to him. The lost trust will take longer to replace than a file. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-065/care-success`: You label your dish, put your phone away, and help carry chairs to a corner where nervous guests can eat unobserved. A neighbor asks for a recipe, not a photograph. The host serves you a spectacular slice of rhubarb pie, then points out you have spent twenty minutes learning more about hospitality than cryptids. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_065_verified`, `wh_065_partial`, `wh_065_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** Two Sasquatch parents ask the player to mediate a family logistics argument.
 
-**Escalation:** Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special.
+**Escalation:** Two Sasquatch parents argue over a muddy backpack at the edge of Willow Creek. Their child wants one pickup time and one tree that does not move every weekend. A neighbor has booked a television camera crew. 'It's about family values,' the neighbor insists. The smaller Sasquatch stares at the lens until the crew starts packing up.
 
 **Option A, investigate (visible 9 check):** Ask the child which arrangements work and let the adults check the details
 
-- **Pass:** The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was.
-- **Miss:** The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help.
+- **Pass:** You ask the child to draw the route they actually feel safe walking. The map shows a sheltered tree and a dry path neither adult knew about. Both parents claim to have suggested it first. The child rolls their eyes, the universal sound of being eleven. You let them argue about credit while keeping the drawing in the child's hands.
+- **Miss:** The argument swells until the child disappears behind the brush. You stop the interview and help both parents search together, rather than deciding whose weekend it is. When they find the child, their relief is real and their disagreement unresolved. The television neighbor gets a shot of an empty clearing.
 
 **Option B, assist without a check:** Help the parents write a handoff plan the child can actually follow
 
-- **Result:** The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive.
+- **Result:** You help write a pickup plan short enough for the child to read and flexible enough for rain. The adults sign it in mud and immediately bicker over who provided the best mud. The child puts the schedule in the backpack and says, 'Good. Now can everybody act like grown-ups?'
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-071`: Two Sasquatch parents ask the player to mediate a family logistics argument. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-071/2`: Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special. The people and location must match the opening.
-- `outcomes/wh-071/investigate-success`: The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-071/investigate-failure`: The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-071/care-success`: The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-071/2`: Two Sasquatch parents argue over a muddy backpack at the edge of Willow Creek. Their child wants one pickup time and one tree that does not move every weekend. A neighbor has booked a television camera crew. 'It's about family values,' the neighbor insists. The smaller Sasquatch stares at the lens until the crew starts packing up. The people and location must match the opening.
+- `outcomes/wh-071/investigate-success`: You ask the child to draw the route they actually feel safe walking. The map shows a sheltered tree and a dry path neither adult knew about. Both parents claim to have suggested it first. The child rolls their eyes, the universal sound of being eleven. You let them argue about credit while keeping the drawing in the child's hands. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-071/investigate-failure`: The argument swells until the child disappears behind the brush. You stop the interview and help both parents search together, rather than deciding whose weekend it is. When they find the child, their relief is real and their disagreement unresolved. The television neighbor gets a shot of an empty clearing. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-071/care-success`: You help write a pickup plan short enough for the child to read and flexible enough for rain. The adults sign it in mud and immediately bicker over who provided the best mud. The child puts the schedule in the backpack and says, 'Good. Now can everybody act like grown-ups?' Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_071_verified`, `wh_071_partial`, `wh_071_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A woodland resident wants help writing a bio with less obvious fur-related clues.
 
-**Escalation:** A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression.
+**Escalation:** A shy forest resident has prepared an online dating profile listing exact paw prints, fur density, and GPS coordinates for its den. 'Those are measurements,' it says proudly. 'They're not hobbies.' Its best friend proposes a viral reveal. The resident would rather meet one person who likes awkward mushroom jokes than a million who know where it sleeps.
 
 **Option A, investigate (visible 9 check):** Ask which details belong in a bio and which would put the resident at risk
 
-- **Pass:** A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer.
-- **Miss:** The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared.
+- **Pass:** Together you replace the den coordinates with a terrible joke and an honest description of the resident's love of music. A thoughtful reply arrives. 'This doesn't mean I owe them a meeting,' the resident says, sounding surprised by its own confidence. The friend puts away the ring light and asks for advice on their profile.
+- **Miss:** The upload fails, but the friend has already shared an identifiable silhouette. By the time the tags are removed someone has made a conspiracy thread. The resident asks if the attention is their fault for wanting company. 'No,' you say, and help file a correction instead of promising the image has vanished.
 
 **Option B, assist without a check:** Help write a profile that gives the resident control over disclosure
 
-- **Result:** The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity.
+- **Result:** You give the resident room to write its own introduction and stop its friend treating a personal life as a marketing launch. The resulting profile asks one genuine question and offers one gloriously bad pun. It may attract nobody. The resident posts it anyway because the choice is finally theirs.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-075`: A woodland resident wants help writing a bio with less obvious fur-related clues. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-075/2`: A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression. The people and location must match the opening.
-- `outcomes/wh-075/investigate-success`: A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-075/investigate-failure`: The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-075/care-success`: The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-075/2`: A shy forest resident has prepared an online dating profile listing exact paw prints, fur density, and GPS coordinates for its den. 'Those are measurements,' it says proudly. 'They're not hobbies.' Its best friend proposes a viral reveal. The resident would rather meet one person who likes awkward mushroom jokes than a million who know where it sleeps. The people and location must match the opening.
+- `outcomes/wh-075/investigate-success`: Together you replace the den coordinates with a terrible joke and an honest description of the resident's love of music. A thoughtful reply arrives. 'This doesn't mean I owe them a meeting,' the resident says, sounding surprised by its own confidence. The friend puts away the ring light and asks for advice on their profile. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-075/investigate-failure`: The upload fails, but the friend has already shared an identifiable silhouette. By the time the tags are removed someone has made a conspiracy thread. The resident asks if the attention is their fault for wanting company. 'No,' you say, and help file a correction instead of promising the image has vanished. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-075/care-success`: You give the resident room to write its own introduction and stop its friend treating a personal life as a marketing launch. The resulting profile asks one genuine question and offers one gloriously bad pun. It may attract nobody. The resident posts it anyway because the choice is finally theirs. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_075_verified`, `wh_075_partial`, `wh_075_care` (mutually exclusive results of this card).
 

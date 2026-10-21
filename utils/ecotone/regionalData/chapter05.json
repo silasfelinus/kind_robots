@@ -22,12 +22,12 @@
     "place": "Ferndale Main Street",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra.",
+    "pressure": "A cow in a velvet coat has inherited a Ferndale theater. The board declares that a hoofprint cannot authorize the payroll. Rain drips through the orchestra pit roof onto a violinist's empty chair. 'I can either rehearse or hold a bucket,' the stage manager says. The cow snorts at the board's proposed renovation budget, which is mostly new curtains for the donor lounge.",
     "investigate": "Read the deed beside the company's books, not just the animal's costume",
-    "success": "The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too.",
-    "failure": "Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust.",
+    "success": "The deed is ordinary apart from a signature dated fifty years ahead. The accounts are worse: the balcony needs repair and the crew has not been paid. The cow points its nose at the wage column until a board member stops talking about destiny and starts asking for figures. You verify the discrepancy, not the animal's legal standing.",
+    "failure": "Rain smears the last page of the deed and the board calls your uncertainty proof that the cow cannot inherit. A clerk confirms the family owned the building, not who speaks for the new beneficiary. The stage manager asks whether you can help pay tonight's crew instead of winning tomorrow's court case.",
     "help": "Help the company rehearse while its patron and workers negotiate",
-    "helpOutcome": "The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view."
+    "helpOutcome": "You help the company stage a smaller show while the board and crew negotiate a wage advance. The cow takes the cheap seat near the orchestra pit so the money goes to repairs. 'Best patron we've ever had,' a violinist says. 'Though she did eat the second-act program.'"
   },
   {
     "id": "WH-083",
@@ -232,12 +232,12 @@
     "place": "Eel River Valley",
     "scene": "rivermouth",
     "pool": 3,
-    "pressure": "A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off.",
+    "pressure": "A scarecrow on an Eel River farm requests dry straw and Sunday off. Its owner calls it equipment at payroll and a colleague whenever the roof leaks. 'I've worked sixty-three consecutive dawns,' the scarecrow says, opening a notebook with twine fingers. The grower admits there is nobody to take the shift. The scarecrow answers, 'That sounds like a management problem with a hat.'",
     "investigate": "Compare the farm's written agreements with what the scarecrow has actually done",
-    "success": "The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law.",
-    "failure": "The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers.",
+    "success": "The labor log lists the scarecrow as both an asset and the signer of supply orders. The owner says it was easier than filling out the paperwork. You record the contradiction and show both of them the entries. The scarecrow takes the notebook back: 'You can verify my work. You can't decide what my Sunday means.'",
+    "failure": "Rain melts the ink on the owner's contract, including the paragraph you came to verify. The scarecrow produces its own careful shift notes, but they do not settle who promised what. The grower accuses it of keeping a secret ledger; the scarecrow replies that nobody asked until it requested a day off.",
     "help": "Help negotiate safe work limits and rest while the owner sorts out the records",
-    "helpOutcome": "A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation."
+    "helpOutcome": "You help line up a paid relief shift so the scarecrow can spend Sunday beneath a newly patched roof. The grower worries aloud about the budget. The scarecrow starts its first break by asking whether it is allowed to do nothing. 'It's harder than it looks,' the replacement says, settling into the watch."
   },
   {
     "id": "WH-097",

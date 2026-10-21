@@ -63,6 +63,7 @@ export const REGIONAL_QUESTS: EncounterCard[] = REGIONAL_SCRIPTS.map(
         ? { lensLines: revision?.lensLines ?? REGIONAL_LENS_VOICES[script.id] }
         : {}),
       ...(revision?.flagLines ? { flagLines: revision.flagLines } : {}),
+      ...(revision?.leadLines ? { leadLines: revision.leadLines } : {}),
       choices: [
         {
           id: 'investigate',

@@ -305,7 +305,105 @@ for (const card of FORMER_GUIDE_QUESTS) {
       assert.ok(card.lensLines?.[lens], `potluck has ${lens} narration`)
   }
 }
-assert.equal(Object.keys(REGIONAL_REVISIONS).length, 13)
+assert.equal(Object.keys(REGIONAL_REVISIONS).length, 19)
+const fifthPassScenes = [
+  'WH-001',
+  'WH-008',
+  'WH-010',
+  'WH-023',
+  'WH-028',
+  'WH-037',
+  'WH-041',
+  'WH-051',
+  'WH-057',
+  'WH-065',
+  'WH-071',
+  'WH-075',
+  'WH-082',
+  'WH-096',
+  'WH-115',
+  'WH-120',
+]
+for (const id of fifthPassScenes) {
+  const scene = REGIONAL_SCRIPTS.find((entry) => entry.id === id)!
+  assert.ok(scene, `${id} fifth-pass scene is playable`)
+  assert.ok(
+    scene.pressure.length > 230 && /['“]/.test(scene.pressure),
+    `${id} has specific narrated conflict and audible character voices`,
+  )
+  assert.ok(
+    scene.success.length > 150 &&
+      scene.failure.length > 150 &&
+      scene.helpOutcome.length > 150,
+    `${id} has substantial distinct outcomes for wins, losses and care`,
+  )
+  assert.notEqual(scene.success, scene.failure)
+  assert.notEqual(scene.success, scene.helpOutcome)
+  assert.notEqual(scene.failure, scene.helpOutcome)
+}
+const companionVoices = ['mara', 'kit', 'juniper', 'cedar'] as const
+for (const id of ['WH-008', 'WH-023', 'WH-065', 'WH-082']) {
+  const card = findCard(id)!
+  const lines = companionVoices.map((companion) =>
+    cardAsides(card, {
+      ...createRun(10, 'reporter'),
+      activeLead: companion,
+    }).join(' '),
+  )
+  assert.ok(
+    lines.every((line) => line.length > 60),
+    `${id} each actual guide has a written point of view`,
+  )
+  assert.equal(
+    new Set(lines).size,
+    4,
+    `${id} four companions disagree or act in distinct voices`,
+  )
+  assert.equal(
+    cardAsides(card, createRun(10, 'reporter')).length,
+    0,
+    `${id} does not invent a companion when the player travels alone`,
+  )
+}
+const costlyThirdWays = [
+  'WH-008',
+  'WH-023',
+  'WH-041',
+  'WH-065',
+  'WH-082',
+  'WH-096',
+]
+for (const id of costlyThirdWays) {
+  const option = REGIONAL_REVISIONS[id]?.choices[0]
+  assert.ok(option && option.cost, `${id} has a stated sacrifice`)
+  assert.ok(option.success.effects.flag, `${id} has durable cause and effect`)
+  assert.ok(
+    (option.success.effects.nerve ?? 0) < 0 || option.failure?.effects.nerve,
+    `${id} third way has a real price rather than a free extra reward`,
+  )
+  if (option.check)
+    assert.ok(
+      option.failure &&
+        option.failure.effects.flag !== option.success.effects.flag,
+      `${id} check can fail without granting the winning flag`,
+    )
+}
+assert.match(
+  cardAsides(findCard('WH-041')!, {
+    ...createRun(7, 'reporter'),
+    flags: ['wh_008_crew_veto'],
+  }).join(' '),
+  /theatre crew/,
+  'the tenant remembers the earlier crew veto when it occurred',
+)
+assert.match(
+  cardAsides(findCard('WH-096')!, {
+    ...createRun(7, 'reporter'),
+    flags: ['wh_065_camera_truce'],
+  }).join(' '),
+  /potluck photographer/,
+  'the scarecrow remembers a real earlier privacy commitment',
+)
 const secondDraftLensCards = [
   'WH-014',
   'WH-026',

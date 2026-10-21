@@ -10,24 +10,24 @@
 
 **Opening narration:** A building adds one window whenever a secret is spoken nearby.
 
-**Escalation:** A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom.
+**Escalation:** An Old Town Victorian grows another window every time someone admits a secret. The owner has put up a confession-tour booth, complete with souvenir keys. Upstairs, a tenant says strangers have begun paying to peer into her bedroom. 'He calls it heritage tourism,' she says. 'I call it Tuesday.' The owner offers you a free ticket if you can coax out one more confession.
 
 **Option A, investigate (visible 9 check):** Count the added windows against permits, without asking anyone for a confession
 
-- **Pass:** A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot.
-- **Miss:** The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address.
+- **Pass:** Your count catches a window that should look onto the neighbor's brick wall. Instead it shows the harbor a decade older, with a rust-red boat absent from today's docks. The tenant permits a photograph of the view, but only after she leaves the frame. The owner offers twice the ticket price for her name. You decline.
+- **Miss:** The extra window closes before your camera focuses. You cannot prove a thing about its future harbor. The owner immediately tells tourists you witnessed a miracle, using the tenant's address as a selling point. She asks you to correct the story in public, though you know the crowd will remember your name instead of hers.
 
 **Option B, assist without a check:** Help the tenant end the invasive tours and reclaim her front steps
 
-- **Result:** The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please.
+- **Result:** You help the tenants reclaim their steps and block the ticket line with their own front-porch furniture. The owner calls it vandalism. 'We bought the chairs,' the upstairs tenant says. 'They belong in front of our own door.' At dusk the house grows one last window, pointed squarely at the ticket booth.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-041`: A building adds one window whenever a secret is spoken nearby. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-041/2`: A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom. The people and location must match the opening.
-- `outcomes/wh-041/investigate-success`: A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-041/investigate-failure`: The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-041/care-success`: The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-041/2`: An Old Town Victorian grows another window every time someone admits a secret. The owner has put up a confession-tour booth, complete with souvenir keys. Upstairs, a tenant says strangers have begun paying to peer into her bedroom. 'He calls it heritage tourism,' she says. 'I call it Tuesday.' The owner offers you a free ticket if you can coax out one more confession. The people and location must match the opening.
+- `outcomes/wh-041/investigate-success`: Your count catches a window that should look onto the neighbor's brick wall. Instead it shows the harbor a decade older, with a rust-red boat absent from today's docks. The tenant permits a photograph of the view, but only after she leaves the frame. The owner offers twice the ticket price for her name. You decline. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-041/investigate-failure`: The extra window closes before your camera focuses. You cannot prove a thing about its future harbor. The owner immediately tells tourists you witnessed a miracle, using the tenant's address as a selling point. She asks you to correct the story in public, though you know the crowd will remember your name instead of hers. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-041/care-success`: You help the tenants reclaim their steps and block the ticket line with their own front-porch furniture. The owner calls it vandalism. 'We bought the chairs,' the upstairs tenant says. 'They belong in front of our own door.' At dusk the house grows one last window, pointed squarely at the ticket booth. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_041_verified`, `wh_041_partial`, `wh_041_care` (mutually exclusive results of this card).
 
@@ -289,24 +289,24 @@
 
 **Opening narration:** A floating shellfish parliament has issued a subpoena for a gull.
 
-**Escalation:** A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel.
+**Escalation:** The Oyster Council is trying a gull for mussel theft on a floating platform in Humboldt Bay. The prosecutor has a pearl necklace and seventeen witnesses who are all the same clam. The gull demands counsel; the harbormaster demands the channel back before a working boat has to turn around. 'Justice takes time,' the oyster speaker declares. 'A fishing boat takes space,' the harbormaster replies.
 
 **Option A, investigate (visible 9 check):** Examine the mussel evidence and the parliament's jurisdiction claims
 
-- **Pass:** The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power.
-- **Miss:** The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony.
+- **Pass:** You discover the supposed theft coincides with a genuine change in tidal current. The mussels have been moving. The gull calls this exoneration and flies away before anyone can establish its innocence. The harbormaster logs the measured drift, but refuses the Council's demand for a permanent courthouse in the fairway.
+- **Miss:** The gull eats exhibit B, which may or may not have been an actual mussel. The hearing collapses into accusations. A shellfish grower shows you photographs of the current shift, useful but insufficient to determine guilt. The prosecutor wants a conviction anyway. You can preserve the observation without signing the verdict.
 
 **Option B, assist without a check:** Help move the assembly away from boats and let the accused gull depart
 
-- **Result:** Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips.
+- **Result:** You and two volunteers tow the shell parliament toward a sheltered slip, letting the gull leave without a forced confession. The speaker denounces interference in sovereign proceedings. An exhausted deckhand says the harbor has room for democracy, just not democracy parked in the channel. The oysters adjourn until low tide.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-051`: A floating shellfish parliament has issued a subpoena for a gull. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-051/2`: A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel. The people and location must match the opening.
-- `outcomes/wh-051/investigate-success`: The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-051/investigate-failure`: The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-051/care-success`: Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-051/2`: The Oyster Council is trying a gull for mussel theft on a floating platform in Humboldt Bay. The prosecutor has a pearl necklace and seventeen witnesses who are all the same clam. The gull demands counsel; the harbormaster demands the channel back before a working boat has to turn around. 'Justice takes time,' the oyster speaker declares. 'A fishing boat takes space,' the harbormaster replies. The people and location must match the opening.
+- `outcomes/wh-051/investigate-success`: You discover the supposed theft coincides with a genuine change in tidal current. The mussels have been moving. The gull calls this exoneration and flies away before anyone can establish its innocence. The harbormaster logs the measured drift, but refuses the Council's demand for a permanent courthouse in the fairway. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-051/investigate-failure`: The gull eats exhibit B, which may or may not have been an actual mussel. The hearing collapses into accusations. A shellfish grower shows you photographs of the current shift, useful but insufficient to determine guilt. The prosecutor wants a conviction anyway. You can preserve the observation without signing the verdict. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-051/care-success`: You and two volunteers tow the shell parliament toward a sheltered slip, letting the gull leave without a forced confession. The speaker denounces interference in sovereign proceedings. An exhausted deckhand says the harbor has room for democracy, just not democracy parked in the channel. The oysters adjourn until low tide. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_051_verified`, `wh_051_partial`, `wh_051_care` (mutually exclusive results of this card).
 
@@ -444,24 +444,24 @@
 
 **Opening narration:** The person giving animal talks cannot take off their costume.
 
-**Escalation:** A volunteer in a bear costume is giving a faultless talk about animal habitats. He has not been able to remove the suit in months, and the bear has begun correcting his mistakes in a voice only he can hear. He wants a break more than an audience.
+**Escalation:** A volunteer at the zoo gives a flawless habitat lecture in a bear costume he cannot remove. 'The children think it's adorable,' he says. 'I haven't slept without a mascot head in three months.' The bear's second voice corrects his taxonomy from somewhere inside the padding. A manager suggests filming an interview for publicity. The volunteer asks you not to let that happen.
 
 **Option A, investigate (visible 9 check):** With his permission, examine the seam and ask when the corrections began
 
-- **Pass:** The lining has an inventory label in handwriting nobody on the staff recognizes, stamped with next year's date. A keeper confirms the costume itself is older than that.
-- **Miss:** The last bit of zipper breaks while you inspect it. The volunteer laughs, then stops. You admit the repair is beyond you and find someone with the right tools.
+- **Pass:** With his permission, you find a lining label dated next year stitched into fabric bought three seasons ago. The keeper confirms both dates; neither tells you how to unfasten it. The voice inside the head says, 'Habitat destruction,' then gently corrects itself to, 'Personal boundaries.' The volunteer laughs at the distinction until he nearly cries.
+- **Miss:** The zipper breaks in your hands, making the costume harder to open. The volunteer tries to joke about being a lifelong bear. You apologize instead of calling it a lucky clue and ask for a proper seamstress. The manager complains about closing the exhibit; the keeper cancels the next talk anyway.
 
 **Option B, assist without a check:** Ask a seamstress and the keeper to arrange a private, safe way out
 
-- **Result:** The new opening works, the volunteer rests, and the bear voice offers a solemn lecture on taking days off. No camera is invited to the fitting.
+- **Result:** You close the viewing area and let the seamstress work without an audience. When the volunteer finally sits in ordinary clothes, the bear head tells the keeper to install a drinking fountain. The keeper promises to consider it. The volunteer says the next lecture can be delivered by somebody who volunteered for it.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-057`: The person giving animal talks cannot take off their costume. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-057/2`: A volunteer in a bear costume is giving a faultless talk about animal habitats. He has not been able to remove the suit in months, and the bear has begun correcting his mistakes in a voice only he can hear. He wants a break more than an audience. The people and location must match the opening.
-- `outcomes/wh-057/investigate-success`: The lining has an inventory label in handwriting nobody on the staff recognizes, stamped with next year's date. A keeper confirms the costume itself is older than that. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-057/investigate-failure`: The last bit of zipper breaks while you inspect it. The volunteer laughs, then stops. You admit the repair is beyond you and find someone with the right tools. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-057/care-success`: The new opening works, the volunteer rests, and the bear voice offers a solemn lecture on taking days off. No camera is invited to the fitting. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-057/2`: A volunteer at the zoo gives a flawless habitat lecture in a bear costume he cannot remove. 'The children think it's adorable,' he says. 'I haven't slept without a mascot head in three months.' The bear's second voice corrects his taxonomy from somewhere inside the padding. A manager suggests filming an interview for publicity. The volunteer asks you not to let that happen. The people and location must match the opening.
+- `outcomes/wh-057/investigate-success`: With his permission, you find a lining label dated next year stitched into fabric bought three seasons ago. The keeper confirms both dates; neither tells you how to unfasten it. The voice inside the head says, 'Habitat destruction,' then gently corrects itself to, 'Personal boundaries.' The volunteer laughs at the distinction until he nearly cries. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-057/investigate-failure`: The zipper breaks in your hands, making the costume harder to open. The volunteer tries to joke about being a lifelong bear. You apologize instead of calling it a lucky clue and ask for a proper seamstress. The manager complains about closing the exhibit; the keeper cancels the next talk anyway. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-057/care-success`: You close the viewing area and let the seamstress work without an audience. When the volunteer finally sits in ordinary clothes, the bear head tells the keeper to install a drinking fountain. The keeper promises to consider it. The volunteer says the next lecture can be delivered by somebody who volunteered for it. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_057_verified`, `wh_057_partial`, `wh_057_care` (mutually exclusive results of this card).
 

@@ -217,12 +217,12 @@
     "place": "Humboldt Bay · kinetic water crossing",
     "scene": "bay",
     "pool": 2,
-    "pressure": "Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide.",
+    "pressure": "At the kinetic crossing a race judge unveils six ballots for six incompatible futures of Humboldt. Each future keeps one crew's triumph and quietly deletes another crew's labor. The marshal calls this 'administrative clarity.' A soaked mechanic holds up her bleeding knuckles: 'Are these clear enough?' The judge asks for a vote before anyone notices which names have vanished.",
     "investigate": "Compare each ballot with the deeds and people actually recorded during the race",
-    "success": "The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence.",
-    "failure": "The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote.",
+    "success": "You compare ballots against accounts from the actual course and find a rescue, an unsafe shortcut, and a repair that each proposal claims as its own. The clerk preserves the conflicting evidence without certifying a winner. One judge calls this obstruction. The mechanic calls it the first honest result of the weekend.",
+    "failure": "The ballot box disappears between tables, taking the votes with it. A marshal still has the sign-in sheet, but the names it lists cannot tell you which future people chose. The judge urges everyone to declare the most popular outcome anyway. You have lost the ballot; you can refuse to manufacture consent.",
     "help": "Demand a public account of what each proposal costs before anyone decides",
-    "helpOutcome": "The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room."
+    "helpOutcome": "You insist every proposal display the work it erases and invite those crews to answer. The meeting stops being efficient. A racer says she wanted the wilderness future until she learned whose home its boundary erased. Another still wants it. The clerk must now record actual disagreement rather than a tidy unanimity."
   },
   {
     "id": "WH-116",
@@ -292,11 +292,11 @@
     "place": "Ferndale finish / awards",
     "scene": "plaza",
     "pool": 3,
-    "pressure": "The county ballot offers wilderness, industry, spectacle and shared stewardship in four tidy boxes. A clerk says your deeds count more than your speech. Around you are people who will live with the result, including those no campaign bothered to invite.",
+    "pressure": "At the Ferndale finish, the county offers four clean boxes: wilderness, industry, spectacle, stewardship. The clerk says your actions matter more than speeches, then asks the people at the back to stop interrupting. A mechanic is still in a wet race suit. A resident brings an unpaid water bill. Somebody asks why none of the boxes says 'who gets to stay.'",
     "investigate": "Compare the ballot summary with the actual decisions and the people affected",
-    "success": "The campaign slogans cannot contain the evidence you collected. The clerk adds your verified account to the record, without promising which future wins.",
-    "failure": "A projector fails before you can display the last document. You still name where the evidence can be found, and another witness offers to corroborate it.",
+    "success": "You check the campaign summary against the deeds you can actually name. A repaired boat, a protected neighbor, and a debt left unpaid refuse to fit into one slogan. The clerk enters your corroborated account without awarding you the future you wanted. When someone asks whether that means you've won, you say the vote still belongs to everybody else.",
+    "failure": "The projector dies before your final document appears. A few officials call for the vote to proceed without it. You describe where the source can be found and ask for a witness to read it with you. Another person stands, but they disagree with your conclusion. The room finally hears evidence and dissent at the same time.",
     "help": "Make room for someone affected by the proposal who has not been heard",
-    "helpOutcome": "The meeting grows messier and more representative. No one agrees on a miracle. The county has to make its choice in public."
+    "helpOutcome": "You yield your speaking turn to someone who will bear the outcome but was never given a seat. They spend the first minute telling your allies they have the wrong solution. You let them finish. There is no miracle consensus; the vote must take place among people who now know exactly how much they disagree."
   }
 ]

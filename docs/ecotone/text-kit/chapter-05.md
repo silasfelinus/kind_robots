@@ -41,24 +41,24 @@
 
 **Opening narration:** An elegantly dressed cow has inherited a very specific deed.
 
-**Escalation:** A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra.
+**Escalation:** A cow in a velvet coat has inherited a Ferndale theater. The board declares that a hoofprint cannot authorize the payroll. Rain drips through the orchestra pit roof onto a violinist's empty chair. 'I can either rehearse or hold a bucket,' the stage manager says. The cow snorts at the board's proposed renovation budget, which is mostly new curtains for the donor lounge.
 
 **Option A, investigate (visible 9 check):** Read the deed beside the company's books, not just the animal's costume
 
-- **Pass:** The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too.
-- **Miss:** Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust.
+- **Pass:** The deed is ordinary apart from a signature dated fifty years ahead. The accounts are worse: the balcony needs repair and the crew has not been paid. The cow points its nose at the wage column until a board member stops talking about destiny and starts asking for figures. You verify the discrepancy, not the animal's legal standing.
+- **Miss:** Rain smears the last page of the deed and the board calls your uncertainty proof that the cow cannot inherit. A clerk confirms the family owned the building, not who speaks for the new beneficiary. The stage manager asks whether you can help pay tonight's crew instead of winning tomorrow's court case.
 
 **Option B, assist without a check:** Help the company rehearse while its patron and workers negotiate
 
-- **Result:** The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view.
+- **Result:** You help the company stage a smaller show while the board and crew negotiate a wage advance. The cow takes the cheap seat near the orchestra pit so the money goes to repairs. 'Best patron we've ever had,' a violinist says. 'Though she did eat the second-act program.'
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-082`: An elegantly dressed cow has inherited a very specific deed. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-082/2`: A cow in a borrowed velvet coat has inherited a theater. The board insists hooves cannot sign contracts. The stage crew would settle for a wage agreement and a roof that does not leak onto the orchestra. The people and location must match the opening.
-- `outcomes/wh-082/investigate-success`: The deed is legally dull except for a signature dated fifty years in the future. The cow has opinions about the balcony's load limit, too. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-082/investigate-failure`: Ink smears the deed's final page. The clerk confirms the family owned the theater; the cow still needs someone legally able to represent the trust. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-082/care-success`: The show opens and the crew is paid. The cow occupies the best seat, where its hat blocks nobody's view. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-082/2`: A cow in a velvet coat has inherited a Ferndale theater. The board declares that a hoofprint cannot authorize the payroll. Rain drips through the orchestra pit roof onto a violinist's empty chair. 'I can either rehearse or hold a bucket,' the stage manager says. The cow snorts at the board's proposed renovation budget, which is mostly new curtains for the donor lounge. The people and location must match the opening.
+- `outcomes/wh-082/investigate-success`: The deed is ordinary apart from a signature dated fifty years ahead. The accounts are worse: the balcony needs repair and the crew has not been paid. The cow points its nose at the wage column until a board member stops talking about destiny and starts asking for figures. You verify the discrepancy, not the animal's legal standing. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-082/investigate-failure`: Rain smears the last page of the deed and the board calls your uncertainty proof that the cow cannot inherit. A clerk confirms the family owned the building, not who speaks for the new beneficiary. The stage manager asks whether you can help pay tonight's crew instead of winning tomorrow's court case. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-082/care-success`: You help the company stage a smaller show while the board and crew negotiate a wage advance. The cow takes the cheap seat near the orchestra pit so the money goes to repairs. 'Best patron we've ever had,' a violinist says. 'Though she did eat the second-act program.' Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_082_verified`, `wh_082_partial`, `wh_082_care` (mutually exclusive results of this card).
 
@@ -475,24 +475,24 @@
 
 **Opening narration:** A remote garden's sentient scarecrow wants employment protections.
 
-**Escalation:** A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off.
+**Escalation:** A scarecrow on an Eel River farm requests dry straw and Sunday off. Its owner calls it equipment at payroll and a colleague whenever the roof leaks. 'I've worked sixty-three consecutive dawns,' the scarecrow says, opening a notebook with twine fingers. The grower admits there is nobody to take the shift. The scarecrow answers, 'That sounds like a management problem with a hat.'
 
 **Option A, investigate (visible 9 check):** Compare the farm's written agreements with what the scarecrow has actually done
 
-- **Pass:** The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law.
-- **Miss:** The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers.
+- **Pass:** The labor log lists the scarecrow as both an asset and the signer of supply orders. The owner says it was easier than filling out the paperwork. You record the contradiction and show both of them the entries. The scarecrow takes the notebook back: 'You can verify my work. You can't decide what my Sunday means.'
+- **Miss:** Rain melts the ink on the owner's contract, including the paragraph you came to verify. The scarecrow produces its own careful shift notes, but they do not settle who promised what. The grower accuses it of keeping a secret ledger; the scarecrow replies that nobody asked until it requested a day off.
 
 **Option B, assist without a check:** Help negotiate safe work limits and rest while the owner sorts out the records
 
-- **Result:** A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation.
+- **Result:** You help line up a paid relief shift so the scarecrow can spend Sunday beneath a newly patched roof. The grower worries aloud about the budget. The scarecrow starts its first break by asking whether it is allowed to do nothing. 'It's harder than it looks,' the replacement says, settling into the watch.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-096`: A remote garden's sentient scarecrow wants employment protections. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-096/2`: A sentient scarecrow is the only worker tending a remote garden in relentless rain. Its owner calls it equipment when discussing pay and a coworker when asking it to work overtime. The scarecrow has requested dry straw and a Sunday off. The people and location must match the opening.
-- `outcomes/wh-096/investigate-success`: The labor log lists the scarecrow as both an asset and the person who signed for supplies. You show the contradiction without pretending to settle personhood law. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-096/investigate-failure`: The contract smears in the rain. The scarecrow keeps its own notebook of shifts, with remarkably neat handwriting for twine fingers. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-096/care-success`: A replacement takes the morning round and the scarecrow gets a roof. It spends its first break arguing about whether rain counts as a vacation. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-096/2`: A scarecrow on an Eel River farm requests dry straw and Sunday off. Its owner calls it equipment at payroll and a colleague whenever the roof leaks. 'I've worked sixty-three consecutive dawns,' the scarecrow says, opening a notebook with twine fingers. The grower admits there is nobody to take the shift. The scarecrow answers, 'That sounds like a management problem with a hat.' The people and location must match the opening.
+- `outcomes/wh-096/investigate-success`: The labor log lists the scarecrow as both an asset and the signer of supply orders. The owner says it was easier than filling out the paperwork. You record the contradiction and show both of them the entries. The scarecrow takes the notebook back: 'You can verify my work. You can't decide what my Sunday means.' Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-096/investigate-failure`: Rain melts the ink on the owner's contract, including the paragraph you came to verify. The scarecrow produces its own careful shift notes, but they do not settle who promised what. The grower accuses it of keeping a secret ledger; the scarecrow replies that nobody asked until it requested a day off. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-096/care-success`: You help line up a paid relief shift so the scarecrow can spend Sunday beneath a newly patched roof. The grower worries aloud about the budget. The scarecrow starts its first break by asking whether it is allowed to do nothing. 'It's harder than it looks,' the replacement says, settling into the watch. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_096_verified`, `wh_096_partial`, `wh_096_care` (mutually exclusive results of this card).
 

@@ -1039,6 +1039,41 @@
               </p>
 
               <section
+                v-if="game.currentWorldEchoes.length"
+                class="rounded-2xl border border-info/35 bg-base-100/90 p-2 shadow-sm sm:p-3"
+                aria-label="Consequences returning from earlier lands"
+              >
+                <p
+                  class="mb-1 text-[10px] font-black uppercase tracking-widest text-info"
+                >
+                  <Icon name="kind-icon:footprints" class="mr-1 inline size-4" />
+                  The world remembers
+                </p>
+                <details
+                  v-for="echo in game.currentWorldEchoes"
+                  :key="echo.id"
+                  class="group border-t border-base-content/10 py-1 first:border-0"
+                >
+                  <summary
+                    class="flex cursor-pointer items-center justify-between gap-2 text-sm font-bold"
+                  >
+                    <span class="min-w-0 truncate">{{ echo.title }}</span>
+                    <Icon
+                      name="kind-icon:chevron-down"
+                      class="size-4 shrink-0 transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <p class="mt-1 text-sm leading-relaxed">
+                    {{ echo.text }}
+                  </p>
+                  <p class="mt-1 text-[11px] opacity-65">
+                    Earned through an earlier {{ echo.source }} decision.
+                    Also recorded in the Journal.
+                  </p>
+                </details>
+              </section>
+
+              <section
                 v-if="game.lastAuthoredOutcome && !game.state.active"
                 class="rounded-2xl border border-warning/40 bg-base-100/90 p-3 shadow-lg sm:p-4"
                 aria-label="Last encounter outcome"
@@ -1271,6 +1306,35 @@
                   </button>
                 </div>
               </div>
+              <section
+                v-if="game.worldEchoes.length"
+                aria-label="How earlier choices changed later lands"
+              >
+                <h3 class="font-serif text-lg font-black">
+                  Ripples across the lands
+                </h3>
+                <p class="mt-1 text-xs opacity-70">
+                  Only people and events your actual choices brought into the story.
+                </p>
+                <ol class="mt-2 space-y-2">
+                  <li
+                    v-for="echo in game.worldEchoes"
+                    :key="echo.id"
+                    class="rounded-xl border border-info/25 bg-base-100/80 px-3 py-2"
+                  >
+                    <span
+                      class="text-[10px] font-bold uppercase tracking-widest text-info"
+                    >
+                      {{ game.world.lands.find((land) => land.id === echo.landId)?.name }}
+                      · {{ echo.source === 'trial' ? 'Past trial' : 'Past encounter' }}
+                    </span>
+                    <h4 class="mt-1 font-serif text-sm font-bold">
+                      {{ echo.title }}
+                    </h4>
+                    <p class="mt-1 text-sm leading-relaxed">{{ echo.text }}</p>
+                  </li>
+                </ol>
+              </section>
               <div>
                 <h3 class="font-serif text-lg font-black">Journey journal</h3>
                 <div

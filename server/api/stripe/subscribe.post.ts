@@ -4,7 +4,7 @@ import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { requireApiUser } from '~/server/utils/authGuard'
-import { isFiveDollarMonthlyPatronPrice } from '~/server/utils/patronBilling'
+import { isNineDollarMonthlyPatronPrice } from '~/server/utils/patronBilling'
 
 let stripe: Stripe | null = null
 
@@ -69,12 +69,12 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // The screen promises $5 USD per month. Never silently sell a different
+    // The screen promises $9 USD per month. Never silently sell a different
     // amount/currency/interval just because STRIPE_PRICE_ID was misconfigured.
     const price = await stripe.prices.retrieve(priceId)
-    if (!isFiveDollarMonthlyPatronPrice(price)) {
+    if (!isNineDollarMonthlyPatronPrice(price)) {
       const error = new Error(
-        'Patron Stripe price must be an active $5 USD monthly recurring price',
+        'Patron Stripe price must be an active $9 USD monthly recurring price',
       ) as Error & { statusCode: number }
       error.statusCode = 500
       throw error

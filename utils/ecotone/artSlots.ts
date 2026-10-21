@@ -1,5 +1,5 @@
-import { ENCOUNTERS, ENDING_IDS } from './content'
-import { BEATS } from './story'
+import { ENCOUNTERS, ENDING_IDS, type EventId } from './content'
+import { BEATS, EVENTS } from './story'
 import { openingLensChoices } from './openingLensChoices'
 
 /**
@@ -12,6 +12,10 @@ import { openingLensChoices } from './openingLensChoices'
  */
 
 export type OutcomeResult = 'success' | 'failure'
+
+export function eventArtKey(eventId: EventId): string {
+  return 'events/' + eventId
+}
 
 export function cardArtKey(cardId: string): string {
   return `cards/${cardId.toLowerCase()}`
@@ -32,12 +36,14 @@ export function endingArtKey(endingId: string): string {
 
 /** Every slot the standard asks for, cards first, then outcomes, then endings. */
 export function ecotoneArtSlots(): {
+  events: string[]
   cards: string[]
   outcomes: string[]
   endings: string[]
 } {
   const all = [...BEATS, ...ENCOUNTERS]
   return {
+    events: EVENTS.map((event) => eventArtKey(event.id)),
     cards: all.map((card) => cardArtKey(card.id)),
     outcomes: all.flatMap((card) =>
       openingLensChoices(card)

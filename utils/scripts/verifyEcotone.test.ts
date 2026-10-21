@@ -1,3 +1,4 @@
+import './verifyEcotoneAdversarial.test'
 import assert from 'node:assert/strict'
 import {
   DEFAULT_ECOTONE_ART_STYLE,

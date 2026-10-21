@@ -5,11 +5,16 @@ import {
   type EndingLine,
   type LensId,
 } from './content'
-import { BEATS, FUTURES, SIGNATURES } from './story'
+import { BEATS, EVENTS, FUTURES, SIGNATURES } from './story'
 import { FUTURE_BOOKENDS, NEW_SIGNATURES } from './finaleExpansion'
 import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { REGIONAL_CALLBACKS } from './regionalCallbacks'
-import { cardArtKey, endingArtKey, outcomeArtKey } from './artSlots'
+import {
+  cardArtKey,
+  endingArtKey,
+  eventArtKey,
+  outcomeArtKey,
+} from './artSlots'
 import { openingLensChoices } from './openingLensChoices'
 
 /**
@@ -112,6 +117,25 @@ function outcomePitch(
   }
 }
 
+export function eventArtPitches(): ConceptArtPitch[] {
+  return EVENTS.map((event) => ({
+    key: eventArtKey(event.id),
+    phase: 'outcome',
+    title: 'The weekend begins: ' + event.name,
+    placeTime: 'Arcata Plaza, before the first destination',
+    subject: event.name,
+    action: event.pick,
+    visibleEvidence: [event.scene, event.pick, event.blurb],
+    mustNotImply: [
+      ...NEVER_ASSUME,
+      'Do not show the unchosen weekend destinations, a later victory or an unearned relationship.',
+    ],
+    sourceConditions: ['chosen-event:' + event.id],
+    altTextDraft: event.name + ': ' + event.pick,
+    status: 'editorial-draft',
+  }))
+}
+
 export function encounterArtPitches(): ConceptArtPitch[] {
   return [...BEATS, ...ENCOUNTERS].flatMap((card) => [
     presentation(card),
@@ -199,6 +223,7 @@ export function callbackArtPitches(): ConceptArtPitch[] {
 
 export function allConceptArtPitches(): ConceptArtPitch[] {
   return [
+    ...eventArtPitches(),
     ...encounterArtPitches(),
     ...endingArtPitches(),
     ...callbackArtPitches(),

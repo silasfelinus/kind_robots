@@ -127,7 +127,12 @@ const validBetrayal = (value: unknown): boolean =>
         DEPARTURE_WHYS.includes(entry.why),
     ) &&
     (value.fell === undefined || text(value.fell, 800)) &&
-    (value.why === undefined || text(value.why, 800)))
+    (value.why === undefined || text(value.why, 800)) &&
+    (value.ready === undefined ||
+      (Array.isArray(value.ready) &&
+        value.ready.length <= 20 &&
+        value.ready.every((line: unknown) => text(line, 600)))) &&
+    (value.note === undefined || text(value.note, 400)))
 
 /** Market state (t-024): optional, so saves from before the market still load. */
 const validMarket = (value: unknown): boolean =>

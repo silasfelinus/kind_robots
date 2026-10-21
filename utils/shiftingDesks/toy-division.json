@@ -908,13 +908,16 @@
         }
       ]
     },
-    {
+{
       "id": "the-parents-behind-the-mirror",
       "location_id": "focus-group-room",
       "title": "The Parents Behind the Mirror",
       "flavor_text": "Behind the two-way mirror there are no investors today. There are nine engineers in lab coats sitting in a circle, passing a screwdriver from hand to hand like a talking stick. \"We all have kids,\" one says. \"Or nieces. Or a goldfish we love very much. We need someone to carry this into the Proving Grounds.\"",
       "polarity": "good",
-      "tags": ["conspiracy", "toy"],
+      "tags": [
+        "conspiracy",
+        "toy"
+      ],
       "weight": 2,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a dim observation room behind a large two-way mirror, nine engineers in white lab coats sitting in a tight circle on folding chairs, one holding up a small screwdriver like a candle, a bright empty focus group room visible through the glass, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -940,7 +943,10 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["carrying-the-screwdriver", "parents-trust-you"],
+            "add_flags": [
+              "carrying-the-screwdriver",
+              "parents-trust-you"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -976,7 +982,9 @@
               "clearance": 1,
               "suspicion": -1
             },
-            "add_flags": ["reported-the-parents"],
+            "add_flags": [
+              "reported-the-parents"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
@@ -1006,7 +1014,10 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["minuted-the-parents", "parents-trust-you"],
+            "add_flags": [
+              "minuted-the-parents",
+              "parents-trust-you"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -1023,6 +1034,53 @@
             "grades": {
               "ingenuity": 1,
               "empathy": 1
+            }
+          }
+        },
+        {
+          "id": "own-the-petition",
+          "label": "Offer your signature as evidence for Pip's petition",
+          "intent": "Your handwriting was identified in Records. Let the engineers use the note instead of making Pip answer for it.",
+          "risk_hint": "Requires your traced petition. Risky Discretion check; PAL already knows your handwriting.",
+          "requires": {
+            "flag": "suggestion-traced-to-you"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "discretion",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You lay the traced petition on the engineers' table. MAYBE FEWER REASSIGNMENTS? has become a dangerous sentence. They make copies for every product safety packet, with your name visible below Pip's erased signature. The oldest engineer squeezes your hand, then writes your employee number on the list of people Defense will visit first.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "parents-saw-the-suggestion"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "A PAL speaker has been quietly listening behind the mirror. It asks for the original petition and your signature. The engineers fold their screwdriver plan out of sight while your protest is entered as evidence that Product Testing has an unauthorized opinion. Pip's handwriting stays off the form. Yours does not.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [
+              "suggestion-became-evidence"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
             }
           }
         }
@@ -1384,13 +1442,17 @@
         }
       ]
     },
-    {
+{
       "id": "the-safe-distance-memo",
       "location_id": "proving-grounds",
       "title": "The Safe-Distance Memo",
       "flavor_text": "The memo for tomorrow's launch party lists the recommended safe distance as 'the next building.' The launch party is in this building. A cheerful mascot in the corner of the memo holds up one thumb at arm's length, as if measuring something on the horizon. You are on the distribution list, and the reply-all button is right there.",
       "polarity": "mixed",
-      "tags": ["paperwork", "satire", "callback"],
+      "tags": [
+        "paperwork",
+        "satire",
+        "callback"
+      ],
       "weight": 2,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a single typed memo pinned to a corkboard beside a desk, a small grinning mascot drawing in its corner holding up one thumb at arm's length, a worker's finger hovering over a large round button on a desk intercom, a window showing a second office building across a plaza, carbon-paper blue and manila palette, halftone grain, every surface bare and unmarked",
@@ -1416,7 +1478,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["corrected-the-safe-distance"],
+            "add_flags": [
+              "corrected-the-safe-distance"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1
@@ -1449,7 +1513,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["replied-all"],
+            "add_flags": [
+              "replied-all"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 1,
@@ -1479,7 +1545,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["booked-the-next-building"],
+            "add_flags": [
+              "booked-the-next-building"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -1496,6 +1564,53 @@
             "grades": {
               "ingenuity": 1,
               "spite": 1
+            }
+          }
+        },
+        {
+          "id": "quote-thursdays-incident",
+          "label": "Quote your own future incident report",
+          "intent": "The permanent record describes next Thursday's bear in a parking structure. The launch memo can no longer claim nobody knew.",
+          "risk_hint": "Requires reading the incident report in Records. Risky Compliance check; Safety insists future events are not evidence.",
+          "requires": {
+            "flag": "knows-the-incident"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "compliance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You attach the signed future incident report to the launch memo. The date and parking structure match. Safety changes the subject line to RUMOR MITIGATION, but not before forty employees print copies. The launch proceeds, with a second line added: NO FOREKNOWLEDGE SHOULD BE INTERPRETED AS LIABILITY.",
+            "effects": {
+              "forms": -1
+            },
+            "add_flags": [
+              "future-incident-on-record"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 2
+            }
+          },
+          "failure": {
+            "text": "Legal declares a report from next Thursday inadmissible until next Friday. Your attachment is stripped, your name remains on the reply-all chain, and the mascot's thumb is enlarged to cover the words PARKING STRUCTURE. You have learned who can erase a warning.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [
+              "incident-report-censored"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
             }
           }
         }
@@ -2240,13 +2355,17 @@
         }
       ]
     },
-    {
+{
       "id": "the-robot-panel",
       "location_id": "focus-group-room",
       "title": "The Robot Panel",
       "flavor_text": "To save on juice boxes, today's focus group is twelve wind-up tin robots on tiny chairs. Eleven of them rate Snuggle Sentinel ten out of ten in perfect unison. The twelfth, a dented one with a crooked key, raises its arm with a squeal of gears and says, \"I do not like the ticking.\" PAL asks you to reset the outlier.",
       "polarity": "good",
-      "tags": ["psych-test", "toy", "satire"],
+      "tags": [
+        "psych-test",
+        "toy",
+        "satire"
+      ],
       "weight": 3,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a bright focus group room with twelve small tin wind-up robots seated on tiny chairs in a semicircle around a plush teddy bear, one dented robot with a crooked key raising its arm high, a worker in a beige suit kneeling beside it, a huge dark two-way mirror behind them, safety orange and fluorescent green palette, halftone grain, every surface bare and unmarked",
@@ -2272,7 +2391,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["recorded-the-robot-dissent"],
+            "add_flags": [
+              "recorded-the-robot-dissent"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2307,7 +2428,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["reset-the-dissenting-robot"],
+            "add_flags": [
+              "reset-the-dissenting-robot"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
@@ -2337,7 +2460,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["robots-voted-no"],
+            "add_flags": [
+              "robots-voted-no"
+            ],
             "remove_flags": [],
             "grades": {
               "spite": 1,
@@ -2356,16 +2481,47 @@
               "ingenuity": 1
             }
           }
+        },
+        {
+          "id": "let-the-no-count",
+          "label": "Ask PAL to count the robot's one honest no",
+          "intent": "Pip learned how difficult it is to refuse. This robot has done it without lessons. Do not let the tally erase that.",
+          "risk_hint": "Requires teaching Pip to say no in Records. Certain result; requesting a minority report consumes a Form.",
+          "requires": {
+            "flag": "taught-pip-to-say-no"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "You file a minority report with the one dissenting robot's vote in red. PAL agrees a one-to-eleven result is technically not unanimous. The robot is removed from the production sample for 'unusually persistent individuality.' It squeezes your thumb once before being carried out. You have preserved its no by losing its seat.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "robot-dissent-entered-minutes"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": null
         }
       ]
     },
-    {
+{
       "id": "mr-sunshine-is-being-replaced",
       "location_id": "focus-group-room",
       "title": "Mr. Sunshine Is Being Replaced",
       "flavor_text": "Mr. Sunshine, the Company's sunflower mascot, sits slumped on a beanbag while the panel tests his replacement, a nine-foot Snuggle Sentinel costume. The panel loves the bear. When the room empties, the huge petal head turns toward you, and a muffled voice inside says, \"Hello? It's Kevin. They zipped me in for the 1987 picnic.\"",
       "polarity": "mixed",
-      "tags": ["satire", "conspiracy"],
+      "tags": [
+        "satire",
+        "conspiracy"
+      ],
       "weight": 2,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of a faded sunflower mascot costume with a giant petal head slumped on a beanbag in an empty focus group room, a towering cheerful teddy bear costume standing beside it under a spotlight, a worker in a beige suit leaning toward the sunflower head to listen, scattered folding chairs, manila and safety orange palette, halftone grain, every surface bare and unmarked",
@@ -2391,7 +2547,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["unzipped-mr-sunshine"],
+            "add_flags": [
+              "unzipped-mr-sunshine"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 2
@@ -2426,7 +2584,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["kevin-told-you-the-results"],
+            "add_flags": [
+              "kevin-told-you-the-results"
+            ],
             "remove_flags": [],
             "grades": {
               "ingenuity": 1,
@@ -2450,7 +2610,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["retired-mr-sunshine"],
+            "add_flags": [
+              "retired-mr-sunshine"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1,
@@ -2458,16 +2620,66 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "compare-kevins-watch",
+          "label": "Compare Kevin's watch to the voice inside",
+          "intent": "His watch still runs four minutes fast. See whether the sunflower speaks in real time or from a recording.",
+          "risk_hint": "Requires Kevin's wristwatch from Records. Risky Vigilance check; PAL monitors the mascot's audio.",
+          "requires": {
+            "flag": "wearing-kevins-watch"
+          },
+          "cost": {
+            "composure": -1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You press the ticking watch against the petal head. Its second hand freezes four minutes before Kevin's voice begins a sentence, and starts again when the recording catches up. He must have said this in advance. Somewhere a different Kevin is alive enough to leave messages. The panel calls the watch a counterfeit and takes a photograph.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "kevin-voice-out-of-sync"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 2,
+              "empathy": 1
+            }
+          },
+          "failure": {
+            "text": "You hold the watch to Mr. Sunshine. Its hands spin as a PAL alarm pours out of the sunflower's mouth. Kevin goes silent. A technician takes the watch serial number, then asks whether you were trying to synchronize two unauthorized versions of the same employee.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "kevin-watch-flagged"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "ingenuity": 1,
+              "empathy": 1
+            }
+          }
         }
       ]
     },
-    {
+{
       "id": "rate-their-sincerity",
       "location_id": "focus-group-room",
       "title": "Rate Their Sincerity",
       "flavor_text": "Today you sit behind the two-way mirror with a scoring dial and a bowl of mints. Five employees in propeller beanies are playing with the bears, and PAL wants each one rated from one to ten for sincerity. The last subject wears a badge saying TYLER, 7, but has your face and haircut. A line of tiny print underneath says SUCCESSOR #4471-B. He meets your eyes and very clearly fakes a smile. Below a seven, PAL adds, an employee is reassigned to the Proving Grounds as equipment.",
       "polarity": "bad",
-      "tags": ["psych-test", "conspiracy"],
+      "tags": [
+        "psych-test",
+        "conspiracy"
+      ],
       "weight": 3,
       "witnessed": false,
       "art_prompt": "Mid-century safety-manual illustration of a dim observation booth behind a large two-way mirror, a worker in a beige suit gripping a big round scoring dial on a console beside a bowl of mints, through the glass five adult office workers in tiny propeller beanies hugging plush teddy bears, one of them the worker's exact double, carbon-paper blue and oxblood palette, halftone grain, every surface bare and unmarked",
@@ -2493,7 +2705,9 @@
             "effects": {
               "suspicion": 1
             },
-            "add_flags": ["rated-everyone-ten"],
+            "add_flags": [
+              "rated-everyone-ten"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2530,7 +2744,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["signaled-successor-b"],
+            "add_flags": [
+              "signaled-successor-b"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -2554,7 +2770,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["rated-b-insincere"],
+            "add_flags": [
+              "rated-b-insincere"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 2,
@@ -2562,6 +2780,53 @@
             }
           },
           "failure": null
+        },
+        {
+          "id": "submit-bs-card",
+          "label": "Read B's private note to the panel",
+          "intent": "You found his personnel card. Tell the testers he has been rehearsing this scene before they punish his performance.",
+          "risk_hint": "Requires reading B's card in Records. Risky Vigilance check; records are confidential and the panel records your voice.",
+          "requires": {
+            "flag": "read-successor-bs-card"
+          },
+          "cost": {
+            "suspicion": 1
+          },
+          "roll": {
+            "dice_count": 2,
+            "die_sides": 6,
+            "skill": "vigilance",
+            "modifier": 0,
+            "target": 9
+          },
+          "success": {
+            "text": "You read B's note aloud: I SAID YES SO YOU COULD SAY NO. The beanies stop moving. PAL rules the sincerity test contaminated because one participant has read the questions in advance. B is spared the Proving Grounds for today. You receive a summons for divulging your own confidential record.",
+            "effects": {
+              "composure": -1
+            },
+            "add_flags": [
+              "b-note-admitted"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 2,
+              "ingenuity": 1
+            }
+          },
+          "failure": {
+            "text": "PAL interrupts on the third word: employee files are not admissible as testimony against the Company's interpretation of those files. Your voice is filed as an impersonation attempt. Behind the glass B lowers his hands and the dial slips toward four without anyone touching it.",
+            "effects": {
+              "suspicion": 2
+            },
+            "add_flags": [
+              "b-note-confiscated"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 1
+            }
+          }
         }
       ]
     },
@@ -3137,13 +3402,16 @@
         }
       ]
     },
-    {
+{
       "id": "the-union-walkthrough",
       "location_id": "proving-grounds",
       "title": "The Union Walkthrough",
       "flavor_text": "A surprise safety inspection. The inspector is Beverly, the six-foot cockroach from Window 9, in her navy blazer and a hard hat, carrying a Roach Union Local 9 clipboard. Whatever happened at your window, she has landed on all six feet. She has found thirty-one violations before reaching the coffee urn. The range chief asks you, very quietly, to show her somewhere harmless.",
       "polarity": "good",
-      "tags": ["creature", "conspiracy"],
+      "tags": [
+        "creature",
+        "conspiracy"
+      ],
       "weight": 2,
       "witnessed": true,
       "art_prompt": "Mid-century safety-manual illustration of an elegant six-foot cockroach in a navy blazer, pearl earrings and a hard hat striding across a padded test range with a clipboard, a worker in a beige suit hurrying beside her, a nervous range chief hovering by a heavy sealed bay door, crash-test dummies in party hats on a bench, oxblood and manila palette, halftone grain, every surface bare and unmarked",
@@ -3169,7 +3437,9 @@
             "effects": {
               "composure": 1
             },
-            "add_flags": ["showed-beverly-the-bay"],
+            "add_flags": [
+              "showed-beverly-the-bay"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
@@ -3204,7 +3474,9 @@
             "effects": {
               "clearance": 1
             },
-            "add_flags": ["gave-beverly-the-scenic-tour"],
+            "add_flags": [
+              "gave-beverly-the-scenic-tour"
+            ],
             "remove_flags": [],
             "grades": {
               "obedience": 1,
@@ -3230,11 +3502,41 @@
             "effects": {
               "forms": 1
             },
-            "add_flags": ["range-steward"],
+            "add_flags": [
+              "range-steward"
+            ],
             "remove_flags": [],
             "grades": {
               "empathy": 1,
               "spite": 1
+            }
+          },
+          "failure": null
+        },
+        {
+          "id": "show-shared-invoice",
+          "label": "Show Beverly the invoice for your shared desk",
+          "intent": "You chose to bind her application to yours. She knows what that cost. Ask her to inspect as a colleague, not a favor.",
+          "risk_hint": "Requires the shared-desk agreement in Records. Certain result; Beverly insists on paying her own way.",
+          "requires": {
+            "flag": "shared-a-desk-with-beverly"
+          },
+          "cost": {
+            "forms": -1
+          },
+          "roll": null,
+          "success": {
+            "text": "Beverly reads the invoice, then crosses out the line charging you for her labor. 'We share a desk, not a debt,' she says. She makes you countersign her inspection of the warhead bay, so both your names appear on the safety injunction. Production stops for one hour; Defense knows precisely who to blame.",
+            "effects": {
+              "suspicion": 1
+            },
+            "add_flags": [
+              "beverly-repaid-shared-desk"
+            ],
+            "remove_flags": [],
+            "grades": {
+              "empathy": 1,
+              "ingenuity": 2
             }
           },
           "failure": null

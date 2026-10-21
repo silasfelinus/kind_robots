@@ -154,7 +154,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/zuzu-gamebook',
   },
   'zuzu-lair': {
-    channelKey: 'arcade',
+    channelKey: 'admin',
     tabKey: 'zuzu-lair',
     route: '/admin/zuzu-lair',
   },

@@ -29,15 +29,15 @@ for (const key of [
   'zuzu-showdown',
   'zuzu-shifting-lands',
   'zuzu-pinball',
-  'zuzu-lair',
   'emperor-of-dust',
   'zuzu-ghost-trail',
 ]) {
   assert.match(nav(`arcade/${key}`), /\nchannelKey: arcade\n/)
 }
 for (const key of ['zuzu-lair']) {
-  assert.match(nav(`arcade/${key}`), /\nrequiredRole: ADMIN\n/)
-  assert.equal(existsSync(`content/channels/admin/${key}.md`), false)
+  assert.match(nav(`admin/${key}`), /\nchannelKey: admin\n/)
+  assert.match(nav(`admin/${key}`), /\nrequiredRole: ADMIN\n/)
+  assert.equal(existsSync(`content/channels/arcade/${key}.md`), false)
 }
 
 assert.match(
@@ -59,7 +59,7 @@ for (const key of [
 }
 
 assert.match(nav('admin/retired'), /\nsort: 9999\n/)
-assert.match(nav('arcade/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
+assert.match(nav('admin/zuzu-lair'), /\nroute: \/admin\/zuzu-lair\n/)
 assert.equal(existsSync('pages/play/zuzu-lair.vue'), false)
 assert.equal(existsSync('pages/admin/zuzu-lair.vue'), true)
 assert.match(

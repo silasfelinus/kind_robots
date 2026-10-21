@@ -64,7 +64,10 @@
       :alt="speaker"
       class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
     />
-    <div v-if="showLog" class="kr-scroll max-h-48 space-y-2 overflow-y-auto p-3 text-base">
+    <div
+      v-if="showLog"
+      class="kr-scroll max-h-48 space-y-2 overflow-y-auto p-3 text-base"
+    >
       <p
         v-for="(entry, i) in lines.slice(0, index + 1)"
         :key="i"
@@ -249,7 +252,11 @@ function stream() {
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (court.textSpeed === 'instant' || reduced || court.preferences.motion === 'reduced') {
+  if (
+    court.textSpeed === 'instant' ||
+    reduced ||
+    court.preferences.motion === 'reduced'
+  ) {
     visible.value = line.value.length
     return
   }

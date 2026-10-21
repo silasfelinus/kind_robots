@@ -51,12 +51,19 @@
         </div>
         <div class="mt-6">
           <button
-            v-if="!isPatron"
+            v-if="!isPatron && !hasStripeSubscription"
             class="btn btn-primary w-full rounded-2xl text-lg tracking-wide hover:brightness-110"
             @click="startSubscription"
           >
             Subscribe – $5/month
           </button>
+          <p
+            v-else-if="!isPatron && hasStripeSubscription"
+            class="text-center text-sm text-warning"
+          >
+            Your subscription needs attention. Manage Billing to update your
+            payment method.
+          </p>
           <p
             v-else-if="scheduledEnd"
             class="text-center text-sm text-base-content/80"
@@ -71,6 +78,13 @@
             @click="cancelSub"
           >
             Cancel renewal at period end
+          </button>
+          <button
+            v-if="hasStripeSubscription"
+            class="btn btn-outline w-full mt-3 rounded-2xl"
+            @click="openBillingPortal"
+          >
+            Manage Billing
           </button>
         </div>
       </div>
@@ -99,6 +113,9 @@ const message = ref('')
 const error = ref('')
 
 const isPatron = computed(() => userStore.isMember)
+const hasStripeSubscription = computed(() =>
+  Boolean(userStore.user?.stripeSubscriptionId),
+)
 const scheduledEnd = computed(() => {
   const member = userStore.user
   if (!isPatron.value || !member?.stripeSubscriptionId || !member.memberUntil)
@@ -118,6 +135,18 @@ const startSubscription = async () => {
     await cartStore.subscribe()
   } catch (err: any) {
     error.value = err.message || 'Subscription failed.'
+  }
+}
+
+const openBillingPortal = async () => {
+  try {
+    error.value = ''
+    const result = await cartStore.manageBilling()
+    if (!result.success || !result.url)
+      throw new Error(result.message || 'Could not open billing')
+    window.location.assign(result.url)
+  } catch (err: unknown) {
+    error.value = err instanceof Error ? err.message : 'Could not open billing'
   }
 }
 

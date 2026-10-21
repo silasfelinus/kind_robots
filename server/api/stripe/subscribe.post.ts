@@ -50,14 +50,23 @@ export default defineEventHandler(async (event) => {
     const stripe = getStripeClient()
     const priceId = getSubscriptionPriceId()
 
-    if (user.isMember && user.stripeSubscriptionId) {
-      const error = new Error(
-        'You already have a Patron subscription',
-      ) as Error & {
-        statusCode: number
+    // Past-due, incomplete, or paused subscriptions remain attached to the
+    // customer. Do not create a second recurring charge as a way to recover
+    // from a failed payment: use Stripe's secure Billing Portal instead.
+    if (user.stripeSubscriptionId) {
+      const existing = await stripe.subscriptions.retrieve(
+        user.stripeSubscriptionId,
+      )
+      if (
+        existing.status !== 'canceled' &&
+        existing.status !== 'incomplete_expired'
+      ) {
+        const error = new Error(
+          'You already have a subscription. Use Manage Billing to update your payment method.',
+        ) as Error & { statusCode: number }
+        error.statusCode = 409
+        throw error
       }
-      error.statusCode = 409
-      throw error
     }
 
     // The screen promises $5 USD per month. Never silently sell a different

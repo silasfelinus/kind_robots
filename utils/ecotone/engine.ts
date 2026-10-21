@@ -560,7 +560,7 @@ export function enterStep(state: RunState, index: number): RunState {
       day: step.day,
       card: null,
       offered: [],
-      ...(step.day !== state.day && state.openingState
+      ...(step.day !== state.day && state.openingState && state.substanceMoments.length > 1
         ? { currentState: 'sober' as LensId, clarity: 3 }
         : {}),
     }

@@ -20,7 +20,9 @@
       aria-live="polite"
     >
       <div>
-        <p class="text-sm font-semibold uppercase tracking-[0.16em] text-warning">
+        <p
+          class="text-sm font-semibold uppercase tracking-[0.16em] text-warning"
+        >
           Morning Briefing · Day {{ run.day }}
         </p>
         <h2 class="font-serif text-2xl font-bold text-warning @7xl:text-3xl">
@@ -29,7 +31,8 @@
       </div>
       <template v-if="today">
         <p v-if="lines.komodo" class="eod-reading italic">
-          <strong class="not-italic text-warning">{{ advisorName }}:</strong> “{{ lines.komodo }}”
+          <strong class="not-italic text-warning">{{ advisorName }}:</strong>
+          “{{ lines.komodo }}”
         </p>
         <ul class="grid gap-2">
           <li

@@ -1,10 +1,10 @@
 <template>
   <div
-    class="flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,30rem)] @7xl:grid-cols-[minmax(0,1fr)_minmax(26rem,36rem)]"
+    class="eod-briefing flex min-h-full flex-col gap-3 @4xl:grid @4xl:grid-cols-[minmax(26rem,0.92fr)_minmax(0,1.08fr)] @7xl:grid-cols-[minmax(32rem,0.85fr)_minmax(0,1.15fr)]"
   >
     <figure
       v-if="advisorArt"
-      class="eod-figure-box pointer-events-none relative min-h-0 flex-1 basis-0"
+      class="eod-figure-box pointer-events-none relative min-h-56 flex-1 basis-0 @4xl:order-2 @4xl:min-h-0"
     >
       <img
         :key="advisorArt"
@@ -16,21 +16,22 @@
     <div v-else class="hidden @4xl:block" />
 
     <section
-      class="kr-panel flex shrink-0 flex-col gap-3 p-4"
+      class="kr-panel kr-scroll flex shrink-0 flex-col gap-3 overflow-y-auto p-4 @4xl:order-1 @4xl:min-h-0 @4xl:p-5 @7xl:p-6"
       aria-live="polite"
     >
       <div>
         <p
-          class="text-[10px] font-semibold uppercase tracking-[0.25em] text-warning"
+          class="text-sm font-semibold uppercase tracking-[0.16em] text-warning"
         >
-          {{ advisorName }} · Day {{ run.day }}
+          Morning Briefing · Day {{ run.day }}
         </p>
-        <h2 class="font-serif text-xl font-bold text-warning">
+        <h2 class="font-serif text-2xl font-bold text-warning @7xl:text-3xl">
           {{ today?.title ?? 'The morning dispatches' }}
         </h2>
       </div>
       <template v-if="today">
-        <p class="font-serif text-base italic leading-relaxed">
+        <p v-if="lines.komodo" class="eod-reading italic">
+          <strong class="not-italic text-warning">{{ advisorName }}:</strong>
           “{{ lines.komodo }}”
         </p>
         <ul class="grid gap-2">
@@ -59,16 +60,16 @@
               }}</span
             >
             <p
-              class="text-[10px] font-semibold uppercase tracking-wider opacity-60"
+              class="text-xs font-semibold uppercase tracking-wider opacity-75"
             >
               {{ report.source }}
             </p>
-            <p class="text-sm leading-snug">{{ report.text }}</p>
+            <p class="eod-reading">{{ report.text }}</p>
           </li>
         </ul>
         <p
           v-if="lines.whisper"
-          class="border-l-2 border-warning/50 pl-3 text-xs italic opacity-80"
+          class="eod-reading border-l-2 border-warning/50 pl-3 italic opacity-85"
         >
           {{ lines.whisper.source }}: “{{ lines.whisper.text }}”
         </p>
@@ -85,14 +86,14 @@
             The Archive went back through every morning dispatch. These came
             from Young Komodo’s runner.
           </p>
-          <ul class="kr-scroll mt-2 grid max-h-72 gap-2 pr-1">
+          <ul class="mt-2 grid gap-2 pr-1">
             <li
               v-for="entry in hindsight"
               :key="entry.briefing.id"
               class="border-l-2 border-error/50 pl-3"
             >
               <p
-                class="text-[10px] font-semibold uppercase tracking-wider opacity-60"
+                class="text-xs font-semibold uppercase tracking-wider opacity-75"
               >
                 Day {{ entry.day }} · {{ entry.title }}
               </p>
@@ -106,29 +107,29 @@
       </template>
       <p
         v-if="mapLine"
-        class="border-l-2 border-error/70 pl-3 text-xs font-semibold text-error"
+        class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
       >
         {{ mapLine.source }}: {{ mapLine.text }}
       </p>
       <p
         v-if="candles"
-        class="border-l-2 border-error/70 pl-3 text-xs font-semibold text-error"
+        class="eod-reading border-l-2 border-error/70 pl-3 font-semibold text-error"
       >
         {{ candles.source }}: {{ candles.text }}
       </p>
       <p
         v-if="courting"
-        class="border-l-2 border-warning/70 pl-3 text-xs font-semibold text-warning"
+        class="eod-reading border-l-2 border-warning/70 pl-3 font-semibold text-warning"
       >
         {{ courting.source }}: {{ courting.text }}
       </p>
-      <p v-if="!today" class="text-sm opacity-75">
+      <p v-if="!today" class="eod-reading opacity-85">
         No dispatches came up the road for Day {{ run.day }}. The wasteland’s
         daily chores still reach the quest room.
       </p>
       <button
         type="button"
-        class="eod-finish mt-auto self-end px-5 py-1.5 text-sm"
+        class="eod-finish mt-auto self-end px-5 py-2 text-base"
         @click="emit('next')"
       >
         Open the throne room

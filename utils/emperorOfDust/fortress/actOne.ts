@@ -693,8 +693,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         truth: true,
       },
     ],
-    komodo:
-      'The outriders agree on the wagons. A silver bell is an expensive story for a town that can’t fix its pipes. Watch the roads.',
+    komodo: '',
     quests: ['q-d01-well-road'],
     audiences: [
       {

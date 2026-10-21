@@ -1,6 +1,13 @@
 <template>
   <main
     class="kr-surface eod relative bg-base-200 text-base-content"
+    :class="[
+      `eod-reading-${court.preferences.readingSize}`,
+      `eod-font-${court.preferences.readingFont}`,
+      court.preferences.readingWidth === 'wide' ? 'eod-wide' : '',
+      court.preferences.contrast === 'high' ? 'eod-high-contrast' : '',
+      court.preferences.motion === 'reduced' ? 'eod-motion-reduced' : '',
+    ]"
     data-theme="emperor"
   >
     <div
@@ -100,6 +107,16 @@
             </button>
           </nav>
 
+          <button
+            type="button"
+            class="eod-chip flex shrink-0 items-center gap-1 px-2 py-1.5 text-sm text-warning"
+            aria-label="Game settings"
+            title="Reading and display settings"
+            @click="settingsOpen = true"
+          >
+            <Icon name="kind-icon:settings" class="h-5 w-5" />
+            <span class="hidden @6xl:inline">Settings</span>
+          </button>
           <ul
             class="hidden shrink-0 gap-1 @[110rem]:flex"
             aria-label="Fortress support"
@@ -154,7 +171,10 @@
         class="eod-frame eod-stage relative isolate flex min-h-0 flex-1 flex-col overflow-hidden"
         :style="stageStyle"
       >
-        <div class="flex shrink-0 items-start gap-3 px-2 pt-2 sm:px-4 sm:pt-3">
+        <div
+          v-if="activeRoom !== 'briefing'"
+          class="flex shrink-0 items-start gap-3 px-2 pt-2 sm:px-4 sm:pt-3"
+        >
           <span
             class="eod-medallion hidden h-11 w-11 shrink-0 place-items-center rounded-full sm:grid"
             aria-hidden="true"
@@ -251,6 +271,10 @@
       </div>
     </div>
 
+    <EmperorFortressPreferences
+      v-if="settingsOpen"
+      @close="settingsOpen = false"
+    />
     <EmperorFortressIntro
       v-if="court.loaded && court.introOpen"
       :active="!splashing"
@@ -304,6 +328,7 @@ const followerName = (id: string) => followerDef(id)?.name ?? id
 const activeRoom = ref<RoomId>('briefing')
 const showDawn = ref(false)
 const splashing = ref(true)
+const settingsOpen = ref(false)
 const stage = ref<HTMLElement | null>(null)
 
 const unheard = computed(() =>
@@ -412,6 +437,55 @@ useHead({ title: 'Emperor of Dust' })
 </script>
 
 <style>
+.eod .eod-reading {
+  font-family: Georgia, ui-serif, serif;
+  font-size: clamp(1.125rem, 1rem + 0.65cqw, 1.5rem);
+  line-height: 1.53;
+  letter-spacing: 0.005em;
+}
+.eod .eod-choice-reading {
+  font-size: clamp(1rem, 0.925rem + 0.36cqw, 1.2rem);
+  line-height: 1.42;
+}
+.eod-reading-large .eod-reading {
+  font-size: clamp(1.3rem, 1.15rem + 0.7cqw, 1.75rem);
+}
+.eod-reading-extra-large .eod-reading {
+  font-size: clamp(1.5rem, 1.35rem + 0.8cqw, 2rem);
+}
+.eod-reading-large .eod-choice-reading {
+  font-size: clamp(1.125rem, 1rem + 0.5cqw, 1.4rem);
+}
+.eod-reading-extra-large .eod-choice-reading {
+  font-size: clamp(1.25rem, 1.15rem + 0.6cqw, 1.65rem);
+}
+.eod-font-sans .eod-reading {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-style: normal;
+}
+.eod-high-contrast .kr-panel {
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+}
+.eod-high-contrast .eod-reading,
+.eod-high-contrast .eod-choice-reading {
+  opacity: 1;
+  text-shadow: none;
+}
+.eod-motion-reduced .eod-intro-backdrop {
+  animation: none !important;
+}
+.eod-motion-reduced .eod-scene-enter-active,
+.eod-motion-reduced .eod-scene-leave-active,
+.eod-motion-reduced .eod-figure-enter-active,
+.eod-motion-reduced .eod-figure-leave-active {
+  transition: none !important;
+}
+@container (min-width: 64rem) {
+  .eod-wide .eod-briefing {
+    grid-template-columns: minmax(28rem, 1.15fr) minmax(0, 0.85fr);
+  }
+}
 .eod {
   --eod-gilt: oklch(72% 0.1 78);
   --eod-gilt-dim: color-mix(in oklch, var(--eod-gilt) 45%, transparent);

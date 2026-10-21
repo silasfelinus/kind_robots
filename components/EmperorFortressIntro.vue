@@ -94,7 +94,7 @@
         </h2>
         <button
           type="button"
-          class="block min-h-32 w-full text-left font-serif text-base italic leading-relaxed @3xl:text-lg @7xl:text-xl"
+          class="eod-reading block min-h-32 w-full text-left italic"
           :aria-label="streaming ? 'Show the whole passage' : 'Passage shown'"
           @click="complete"
         >
@@ -263,7 +263,11 @@ function stream() {
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (court.textSpeed === 'instant' || reduced) {
+  if (
+    court.textSpeed === 'instant' ||
+    reduced ||
+    court.preferences.motion === 'reduced'
+  ) {
     visible.value = scene.value.text.length
     return
   }

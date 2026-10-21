@@ -55,8 +55,54 @@ import { loadPlaybookLiveText } from './utils/playbookLiveText'
 
 // Emperor of Dust v0.3 (Fortress), conductor SYSTEMS-V03.md.
 export type TextSpeed = 'normal' | 'fast' | 'instant'
+export type ReadingSize = 'comfortable' | 'large' | 'extra-large'
+export type FortressPreferences = {
+  readingSize: ReadingSize
+  readingFont: 'serif' | 'sans'
+  readingWidth: 'balanced' | 'wide'
+  contrast: 'standard' | 'high'
+  motion: 'system' | 'reduced'
+}
+export const DEFAULT_FORTRESS_PREFERENCES: FortressPreferences = {
+  readingSize: 'comfortable',
+  readingFont: 'serif',
+  readingWidth: 'balanced',
+  contrast: 'standard',
+  motion: 'system',
+}
 const TEXT_SPEEDS: readonly TextSpeed[] = ['normal', 'fast', 'instant']
 const SPEED_KEY = 'kr-emperor-of-dust-text-speed'
+const PREFERENCES_KEY = 'kr-emperor-of-dust-reading-v1'
+const VALID_PREFERENCES = {
+  readingSize: ['comfortable', 'large', 'extra-large'],
+  readingFont: ['serif', 'sans'],
+  readingWidth: ['balanced', 'wide'],
+  contrast: ['standard', 'high'],
+  motion: ['system', 'reduced'],
+} as const
+function parsePreferences(raw: string | null | undefined): FortressPreferences {
+  if (!raw) return { ...DEFAULT_FORTRESS_PREFERENCES }
+  try {
+    const obj: unknown = JSON.parse(raw)
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj))
+      return { ...DEFAULT_FORTRESS_PREFERENCES }
+    const record = obj as Record<string, unknown>
+    const result = { ...DEFAULT_FORTRESS_PREFERENCES }
+    for (const key of Object.keys(
+      VALID_PREFERENCES,
+    ) as (keyof FortressPreferences)[]) {
+      const value = record[key]
+      if (
+        typeof value === 'string' &&
+        (VALID_PREFERENCES[key] as readonly string[]).includes(value)
+      )
+        (result as Record<string, string>)[key] = value
+    }
+    return result
+  } catch {
+    return { ...DEFAULT_FORTRESS_PREFERENCES }
+  }
+}
 // Day 1 petitions and their kind answers, for the existing achievements.
 const DAY_ONE_PETITIONS = ['q-d01-aqueduct', 'q-d01-toll', 'q-d01-mirefen']
 const KIND_ORDERS = [
@@ -109,6 +155,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
   const lastLearned = ref<string[]>([])
   const relicVault = ref<RelicVault>(emptyRelicVault())
   const textSpeed = ref<TextSpeed>('normal')
+  const preferences = ref<FortressPreferences>({
+    ...DEFAULT_FORTRESS_PREFERENCES,
+  })
   let relicVaultUnreadable = false
   // An unreadable autosave or Codex is never overwritten: the autosave waits
   // until the player starts a new run or loads a slot, the Codex for good.
@@ -216,6 +265,22 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     write(SPEED_KEY, speed)
   }
 
+  function setPreference<K extends keyof FortressPreferences>(
+    key: K,
+    value: FortressPreferences[K],
+  ) {
+    if (!(VALID_PREFERENCES[key] as readonly string[]).includes(value)) return
+    preferences.value = { ...preferences.value, [key]: value }
+    write(PREFERENCES_KEY, JSON.stringify(preferences.value))
+  }
+
+  function resetPreferences() {
+    preferences.value = { ...DEFAULT_FORTRESS_PREFERENCES }
+    textSpeed.value = 'normal'
+    write(PREFERENCES_KEY, JSON.stringify(preferences.value))
+    write(SPEED_KEY, 'normal')
+  }
+
   function awardAchievements(next: FortressRun) {
     const won = new Set(
       next.reports
@@ -253,6 +318,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     relicVault.value = vault ?? emptyRelicVault()
     const speed = read(SPEED_KEY)
     textSpeed.value = TEXT_SPEEDS.find((entry) => entry === speed) ?? 'normal'
+    preferences.value = parsePreferences(read(PREFERENCES_KEY))
     const rawCodex = read(CODEX_KEY)
     const savedCodex = decodeCodex(rawCodex ?? null)
     codexHeld = rawCodex === undefined || (!!rawCodex && !savedCodex)
@@ -475,6 +541,9 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     relicVault,
     claimable,
     textSpeed,
+    preferences,
+    setPreference,
+    resetPreferences,
     run,
     day,
     rewindableDays,

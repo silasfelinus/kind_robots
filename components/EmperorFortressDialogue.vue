@@ -1,6 +1,6 @@
 <template>
   <section
-    class="kr-panel overflow-hidden p-0"
+    class="eod-dialogue-panel kr-panel overflow-hidden p-0"
     :aria-label="'Audience with ' + speaker"
   >
     <div
@@ -8,7 +8,7 @@
     >
       <h2
         v-if="title"
-        class="min-w-0 font-serif text-base font-bold leading-tight text-warning sm:text-lg"
+        class="min-w-0 font-serif text-lg font-bold leading-tight text-warning sm:text-xl"
       >
         {{ title }}
       </h2>
@@ -40,7 +40,7 @@
       </div>
     </div>
 
-    <div v-if="title" class="flex items-center gap-3 px-3 pt-3">
+    <div v-if="title" class="flex items-center gap-3 px-4 pt-4">
       <span
         class="h-14 w-14 shrink-0 overflow-hidden rounded-md border border-warning/50 bg-base-200"
       >
@@ -64,7 +64,10 @@
       :alt="speaker"
       class="mx-auto block max-h-80 w-auto bg-base-200 object-contain"
     />
-    <div v-if="showLog" class="max-h-48 space-y-2 overflow-y-auto p-3 text-sm">
+    <div
+      v-if="showLog"
+      class="kr-scroll max-h-48 space-y-2 overflow-y-auto p-3 text-base"
+    >
       <p
         v-for="(entry, i) in lines.slice(0, index + 1)"
         :key="i"
@@ -79,7 +82,7 @@
     <button
       v-else
       type="button"
-      class="block min-h-24 w-full px-4 py-3 text-left font-serif text-base italic"
+      class="eod-reading block min-h-28 w-full px-4 py-4 text-left italic"
       :aria-label="streaming ? 'Show the whole line' : 'Next line'"
       @click="advance"
     >
@@ -122,7 +125,7 @@
         v-for="choice in choices"
         :key="choice.id"
         type="button"
-        class="flex items-start gap-2 rounded-md border px-3 py-2 text-left text-sm transition-colors"
+        class="eod-choice-reading flex items-start gap-3 rounded-md border px-4 py-3 text-left transition-colors"
         :class="
           choice.blockers.length
             ? 'cursor-not-allowed border-base-content/10 opacity-55'
@@ -132,7 +135,7 @@
         @click="emit('choose', choice.id)"
       >
         <span
-          class="mt-1.5 h-2 w-2 shrink-0 rotate-45 border border-warning"
+          class="mt-2 h-2.5 w-2.5 shrink-0 rotate-45 border border-warning"
           :class="choice.blockers.length ? '' : 'bg-warning'"
           aria-hidden="true"
         />
@@ -230,9 +233,9 @@ const choicesEl = ref<HTMLElement | null>(null)
 watch(showChoices, async (shown) => {
   if (!shown) return
   await nextTick()
-  const reduced = window.matchMedia?.(
-    '(prefers-reduced-motion: reduce)',
-  ).matches
+  const reduced =
+    court.preferences.motion === 'reduced' ||
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   choicesEl.value?.scrollIntoView({
     behavior: reduced ? 'auto' : 'smooth',
     block: 'nearest',
@@ -249,7 +252,11 @@ function stream() {
   const reduced =
     typeof window !== 'undefined' &&
     window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-  if (court.textSpeed === 'instant' || reduced) {
+  if (
+    court.textSpeed === 'instant' ||
+    reduced ||
+    court.preferences.motion === 'reduced'
+  ) {
     visible.value = line.value.length
     return
   }

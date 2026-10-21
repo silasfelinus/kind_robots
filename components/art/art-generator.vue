@@ -1,6 +1,6 @@
 <!-- /components/art/art-generator.vue -->
 <template>
-  <section class="min-h-full w-full">
+  <section class="@container min-h-full w-full">
     <div class="kr-container-wide flex min-h-full flex-col gap-2 p-2 sm:p-3 2xl:gap-3 2xl:p-4">
       <!-- ── Header: identity, one status line, one Generate ──────────── -->
       <header class="kr-panel-flat p-3">
@@ -78,7 +78,7 @@
       </header>
 
       <div
-        class="grid grid-cols-1 gap-2 lg:grid-cols-2 2xl:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)] 2xl:items-start 2xl:gap-3"
+        class="grid grid-cols-1 gap-2 @4xl:grid-cols-2 @7xl:grid-cols-[minmax(0,1fr)_minmax(0,1.9fr)] @7xl:items-start @7xl:gap-3"
       >
         <!-- ── Left column: recipe, prompt, facets ────────────────────── -->
         <div class="flex min-w-0 flex-col gap-2">
@@ -400,8 +400,8 @@
         </div>
 
         <!-- ── Model, settings, and a dedicated XL LoRA browser ────────── -->
-        <div class="grid min-w-0 grid-cols-1 gap-2 2xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] 2xl:items-start 2xl:gap-3">
-          <section class="kr-panel-flat p-3 2xl:col-start-1 2xl:row-start-1">
+        <div class="grid min-w-0 grid-cols-1 gap-2 @7xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] @7xl:items-start @7xl:gap-3">
+          <section class="kr-panel-flat p-3 @7xl:col-start-1 @7xl:row-start-1">
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
@@ -463,13 +463,13 @@
           </section>
 
           <art-lora-picker
-            class="2xl:col-start-2 2xl:row-span-3 2xl:row-start-1 2xl:self-stretch"
+            class="@7xl:col-start-2 @7xl:row-span-3 @7xl:row-start-1 @7xl:self-stretch"
             v-model="loraPicks"
             :engine="generationEngine"
             :checkpoint-family="selectedCheckpointFamily"
           />
 
-          <section class="kr-panel-flat p-3 2xl:col-start-1 2xl:row-start-2">
+          <section class="kr-panel-flat p-3 @7xl:col-start-1 @7xl:row-start-2">
             <h2
               class="flex items-center gap-2 text-base font-bold text-primary"
             >
@@ -626,7 +626,7 @@
             </div>
           </section>
 
-          <details class="kr-panel-flat 2xl:col-start-1 2xl:row-start-3">
+          <details class="kr-panel-flat @7xl:col-start-1 @7xl:row-start-3">
             <summary
               class="flex cursor-pointer list-none items-center justify-between gap-3 p-3"
             >

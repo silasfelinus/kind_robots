@@ -1,7 +1,7 @@
 <template>
-  <div class="grid min-h-full gap-3 @4xl:h-full @4xl:min-h-0 @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]">
+  <div class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]">
     <section class="flex min-h-0 flex-col gap-2">
-      <div class="eod-board kr-scroll min-h-0 flex-1 overflow-y-auto p-3">
+      <div class="eod-board min-h-0 flex-1 p-3">
         <h2 class="sr-only">The quest board</h2>
         <p
           v-if="!run.board.length"
@@ -115,7 +115,7 @@
     <section
       v-if="selected && selectedEntry"
       ref="detail"
-      class="@container kr-panel kr-scroll min-h-0 space-y-3 overflow-y-auto p-4 @4xl:h-full"
+      class="@container kr-panel min-h-0 space-y-3 p-4"
     >
       <EmperorFortressQuestImage
         :quest-id="selected.id"

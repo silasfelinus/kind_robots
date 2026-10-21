@@ -82,7 +82,7 @@ export function philosophyNeedles(
   }
   // An intentional break moves the agency question, without erasing history.
   const breaks = state.substanceMoments.filter(
-    (m) => m.selected.length === 0 && !m.source.startsWith('opening-'),
+    (m, index) => index > 0 && m.selected.length === 0,
   ).length
   chemistry[3] = (chemistry[3] ?? 0) - Math.min(2, breaks)
   for (const entry of state.log) {

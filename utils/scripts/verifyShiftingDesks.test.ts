@@ -406,7 +406,7 @@ for (const flag of [
 assert.match(
   asset('../../pages/play/shifting-desks.vue'),
   /caseFileExhibits\.length/,
-  'the playable desk displays case-file evidence from the user's own run',
+  'the playable desk displays earned case-file evidence during reviews',
 )
 
 const allChoices = DEPARTMENTS.flatMap((d) => [

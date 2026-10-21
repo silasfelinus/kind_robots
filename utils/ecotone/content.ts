@@ -354,7 +354,7 @@ export const ENCOUNTERS: EncounterCard[] = [
           effects: { evidence: 'An impossible extra pulley', weird: 1 },
         },
         failure: {
-          text: 'The curtain falls on you. The empty auditorium applauds.',
+          text: 'The falling curtain knocks you into the safety rail. When the applause stops, a fresh rope mark points to a pulley the stage manager swears was removed years ago. You leave the rigging alone and tell her what you saw.',
           effects: { nerve: -1, flag: 'minor_curtain_fell' },
         },
       },
@@ -385,12 +385,17 @@ export const ENCOUNTERS: EncounterCard[] = [
     ],
     lensLines: {
       sober:
-        'The photo on the cracked phone shows a fourth person. Only three are standing in frame.',
-      tipsy: 'It feels like an invitation to a huge family cookout.',
+        'The cracked screen makes an accurate headcount harder than it should be. You ask if the family wants the picture taken at all.',
+      tipsy:
+        'The relatives are debating the angle of the camera with tremendous seriousness. A family photograph can evidently carry more politics than a town meeting.',
       stoned:
-        'The surf pulses to a rhythm you have heard before, in the forest.',
+        'A single sun hat splits into three reflections across the cracked phone. You catch yourself counting glass instead of people.',
       tripping_balls:
-        'The picnic blanket is, unmistakably, a map of the county.',
+        'The folds in the picnic blanket briefly resemble roads crossing mountains. Then somebody shakes out the crumbs and it is cloth again.',
+      cocaine:
+        'The tide is turning, Glenn is missing and the group wants a photo now. You ask which problem the family actually wants help with first.',
+      meth: 'The overlapping arguments are hard to follow. The youngest shows you a photo and lets you study it away from the noise.',
+      mdma: 'Everyone wants the family included, including Glenn. You can offer to help without deciding who owes anybody a photograph.',
     },
     choices: [
       {
@@ -419,7 +424,7 @@ export const ENCOUNTERS: EncounterCard[] = [
           effects: { evidence: 'Glenn’s note and a tower sketch', weird: 1 },
         },
         failure: {
-          text: 'You come back wet and two hours older than you left.',
+          text: 'You return soaked and two hours late. The family has called the beach patrol, and Uncle Glenn is still missing. The youngest offers a towel without pretending your detour helped.',
           effects: { nerve: -1, weird: 1 },
         },
       },
@@ -445,7 +450,7 @@ export const ENCOUNTERS: EncounterCard[] = [
     art: 'encounters/wh-061-perilous-plunge',
     body: [
       'Costumed jumpers queue by Humboldt Bay. A marching band strikes up, and a volunteer in a homemade squid costume dives in. They surface holding Monday’s newspaper, three days early, and insist they have already survived this morning twice.',
-      'The organizer will not suspend judging, because the squid costume is, in fairness, magnificent. A hot tub nearby has begun hissing last year’s weather forecast.',
+      'The organizer refuses to interrupt judging while a volunteer is still shivering on the dock. Their costume is magnificent; it is also waterlogged and difficult to remove. A hot tub nearby is hissing last year’s weather report to nobody in particular.',
     ],
     choices: [
       {
@@ -457,7 +462,7 @@ export const ENCOUNTERS: EncounterCard[] = [
           effects: { goodwill: 1, flag: 'plunge_saved' },
         },
         failure: {
-          text: 'You get them ashore, cold and disoriented. The newspaper floats away toward Monday.',
+          text: 'You get them ashore but lose your grip on the paper. A medic takes over while the volunteer, trembling, remembers one printed headline. Rescue did not fail because the evidence got wet.',
           effects: { nerve: -1 },
         },
       },

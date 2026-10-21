@@ -155,6 +155,7 @@ import {
 import { ACT_END_DAWNS, REGIONS } from '../emperorOfDust/fortress/factions'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
 import { TALKS } from '../emperorOfDust/fortress/talks'
+import { TIP_INSET, tipShift } from '../emperorOfDust/fortress/tipFit'
 import { NPCS, npcDef, reactionMood } from '../emperorOfDust/fortress/npcs'
 import { CAST_ART, castArtUrl } from '../emperorOfDust/fortress/castArt'
 import {
@@ -4423,6 +4424,40 @@ for (const def of DAYS)
       },
       response: '',
     }).some((s) => /Settles “.*” if nobody goes/.test(s.text)),
+  )
+}
+
+// t-034: a header tooltip never runs past the header. At 390px a long tab tip centred on an
+// edge tab widened the page shell's scroll range by ~24px and anything that scrolled a tab into
+// view slid the whole fortress sideways; visible, the tip was cut off mid-word.
+{
+  // 390px phone: header [20, 370], the Quest-room tab at [249, 268] with a 286.5px tip.
+  const shift = tipShift(249, 19, 286.5, 20, 370)
+  const left = 249 + 19 / 2 + shift
+  assert.ok(left >= 20 + TIP_INSET, 'the tip starts inside the header')
+  assert.ok(left + 286.5 <= 370 - TIP_INSET, 'the tip ends inside the header')
+  // A tip with room to spare stays centred on its button.
+  assert.equal(tipShift(600, 180, 280, 32, 1408), -140)
+  // The ledger chip at the far left is pushed right, never left of the header.
+  assert.equal(27 + 84 + tipShift(27, 168, 320, 20, 370), 20 + TIP_INSET)
+  // Wider than the header: it starts at the header's left edge.
+  assert.equal(30 + tipShift(20, 20, 400, 20, 370), 20 + TIP_INSET)
+
+  const page = readFileSync(
+    new URL('../../pages/play/emperor-of-dust.vue', import.meta.url),
+    'utf8',
+  )
+  const shell = page.match(/<div\s+v-else\s+class="([^"]*)"/)?.[1] ?? ''
+  assert.ok(
+    shell.includes('overflow-clip') && !shell.includes('overflow-hidden'),
+    'the fortress shell clips; it is not a scroll container a tab can slide',
+  )
+  assert.match(page, /ref="bar"/, 'the header is measured for its tooltips')
+  assert.match(page, /tipShift\(/, 'header tooltips are fitted with tipShift')
+  assert.match(
+    page,
+    /\.eod-bar \.tooltip-bottom::after\s*\{\s*transform: translateX\(-50%\)/,
+    'the tooltip tail stays on its button when the bubble shifts',
   )
 }
 

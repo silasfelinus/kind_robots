@@ -24,18 +24,22 @@ export function authoredEndingV7(
   )
   const paragraphs = [...base.paragraphs]
   if (shortcuts.length) {
-    if (paid.length) paragraphs.push(
-      'There are crossings where your rations bought an open road, and others waited behind a closed gate. You remember the meals you kept. You do not know how the waiting families ate.',
-    )
-    if (coerced.length) paragraphs.push(
-      'You learned how quickly a door opens when someone else must stand in its path. Travelers still clear the road when they see you coming. Once, you thought that meant respect.',
-    )
-    if (phase === 'complete') paragraphs.push(
-      'The last threshold opens easily for a person practiced in shifting the cost. You cross with provisions, power, and more silence than you remember asking for. Somewhere behind you, an unpaid debt has acquired your name.',
-    )
-    else paragraphs.push(
-      'The easy bargains outlive your journey. People who were made to pay them keep the accounts, even if you never return to settle one.',
-    )
+    if (paid.length)
+      paragraphs.push(
+        'There are crossings where your rations bought an open road, and others waited behind a closed gate. You remember the meals you kept. You do not know how the waiting families ate.',
+      )
+    if (coerced.length)
+      paragraphs.push(
+        'You learned how quickly a door opens when someone else must stand in its path. Travelers still clear the road when they see you coming. Once, you thought that meant respect.',
+      )
+    if (phase === 'complete')
+      paragraphs.push(
+        'The last threshold opens easily for a person practiced in shifting the cost. You cross with provisions, power, and more silence than you remember asking for. Somewhere behind you, an unpaid debt has acquired your name.',
+      )
+    else
+      paragraphs.push(
+        'The easy bargains outlive your journey. People who were made to pay them keep the accounts, even if you never return to settle one.',
+      )
     if (solidarity.length) {
       paragraphs.push(
         'Later you stood with those who were asked to pay your toll. Some welcomed the help. Others refused to forgive you. You stayed long enough to hear both answers, and no one had to call your change of heart a clean slate.',
@@ -58,7 +62,8 @@ export function authoredEndingV7(
     )
     return {
       ...base,
-      title: phase === 'complete' ? 'A Road Wide Enough for Everyone' : base.title,
+      title:
+        phase === 'complete' ? 'A Road Wide Enough for Everyone' : base.title,
       path: 'Hard-won solidarity',
       paragraphs,
     }

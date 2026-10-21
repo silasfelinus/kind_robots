@@ -7,12 +7,12 @@
     "place": "Arcata Plaza",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "Every time the crowd says Arcata, the busker freezes. His shadow keeps turning, patiently, as though somebody paid it for a longer set. The busker is pale and asking for a break; the phones are still pointed at him.",
+    "pressure": "The statue on Arcata Plaza cannot move whenever somebody says the town's name. His shadow can, and has just started collecting tips. 'I need a sandwich,' the busker tells you through clenched teeth. A tourist shouts ARCATA again to get a better video. The shadow holds up two fingers, either a peace sign or an invoice.",
     "investigate": "Step into the chalk circle and ask who drew its boundary",
-    "success": "Beneath the chalk is a municipal map stamped NEXT THURSDAY. The shadow bows, takes no questions, and points to a bus stop that has not been built.",
-    "failure": "You misjudge the edge and the chalk follows your shoe. The busker finally steps clear. A tourist has a blurred photograph of two shadows and only one person.",
+    "success": "Under the chalk circle you uncover a municipal map marked for next Thursday, with a bus stop absent from today's streets. The shadow circles it with the toe of your shoe. 'That does not make him public property,' the busker says, accepting your photograph of the map but refusing another portrait.",
+    "failure": "Your foot smears the circle and the chalk clings to your boots. The shadow follows you three embarrassing steps while the busker finally escapes. A tourist has a blurry picture, which they want to sell. You cannot prove what moved; you can refuse to be their publicity agent.",
     "help": "Get him offstage and stop the crowd filming without permission",
-    "helpOutcome": "The crowd makes room. Somebody brings a chair and water. The shadow circles once more, then rests when he does."
+    "helpOutcome": "You stand between the camera phones and a man who wants to be left alone. Somebody calls that censorship. The busker calls it lunch and finally eats. Behind you, the shadow finishes its last bow to an audience of exactly one stray dog."
   },
   {
     "id": "WH-002",
@@ -82,12 +82,12 @@
     "place": "Minor Theatre",
     "scene": "theater",
     "pool": 1,
-    "pressure": "At the Minor Theatre's midnight fundraiser, an alien prop refuses the scheduled stabbing. It has no mouth, but it has apparently found the union handbook. The director threatens to cancel the show; the understudy wants to know why everybody thinks an unsafe stunt is tradition.",
+    "pressure": "At the Minor Theatre fundraiser, an alien stage prop refuses the stabbing scene. The director says cancelling will cost the volunteer crew its rent money. 'What do you think the stabbing costs us?' the understudy asks, holding a prop knife with the safety catch broken. The alien is not speaking, but it has carefully underlined the injury clause in a union handbook.",
     "investigate": "Ask the prop and cast to rehearse a version everyone can consent to",
-    "success": "On the improvised line, the prop gives an address for a warehouse due to open tomorrow. The stage manager writes it on the call sheet and refuses to send anyone there alone.",
-    "failure": "The rehearsal stalls when the prop refuses its cue. You discover a stage direction in the old script signed by nobody in the cast; the director agrees to preserve the page.",
+    "success": "The understudy rewrites the cue, the alien nods by tipping its painted antenna, and the scene works without a blade near anyone's throat. In exchange it hands the stage manager a warehouse address dated tomorrow. 'A useful tip is not permission to send an unpaid intern,' she says, and locks the script in her desk.",
+    "failure": "The alien will not take its mark. The crowd laughs until the understudy shows them the old script, its dangerous direction signed by nobody who still works here. The director accuses you of sabotaging the fundraiser. You have not fixed opening night; you have helped the crew refuse a bad rehearsal.",
     "help": "Replace the dangerous effect and give the crew an actual say",
-    "helpOutcome": "A paper silhouette gets the laugh, nobody gets stabbed, and the prop rolls itself onto the rack. The fundraiser survives the artistic disagreement."
+    "helpOutcome": "You swap the stabbing for a collapsing paper moon and let the crew vote on the change. The audience laughs harder at the cheap moon than at last year's expensive blood effect. The director is furious about artistic compromise. The understudy counts the uninjured cast and calls it a standing ovation."
   },
   {
     "id": "WH-009",
@@ -112,12 +112,12 @@
     "place": "Minor Theatre",
     "scene": "theater",
     "pool": 1,
-    "pressure": "A lost reel shows your next decision before you make it. The subtitles accuse you of cowardice whatever you choose, and the actor playing you looks tired of a script that knows nothing about your motives.",
+    "pressure": "A lost film reel projects the decision you are about to make, complete with a subtitle calling you a coward. Then it shows a different decision and prints COWARD again. The actor playing you turns toward the booth. 'Could someone tell the writer I have a contract?' The projectionist wants to burn the reel. A teenager in the back row asks to see what happens if the actor walks offscreen.",
     "investigate": "Stop the projector and inspect the scene frame by frame before trusting a subtitle",
-    "success": "Three consecutive frames describe a third answer the scene never offered. Its backdrop has the wrong road sign for Trinidad, and the film keeps that mistake when you rewind.",
-    "failure": "The reel snaps before your supposed betrayal. You save the damaged strip and ask the projectionist whether another copy exists.",
+    "success": "Frame by frame, you find a third answer hidden in a cut where the actor refuses both scripted choices. The background shows an unbuilt Trinidad sign, which remains wrong across every rewind. 'At last,' the actor says from the screen, 'a continuity error with a conscience.' You keep the sequence, not its accusation.",
+    "failure": "The film breaks at the exact moment you reach for the projector. You have the damaged strip, not proof of your future. The audience starts repeating the subtitle anyway. You ask who profits when every option is labeled cowardice; nobody answers, which tells you more about the audience than the film.",
     "help": "Ask the audience to write an ending that does not assume they know anyone's heart",
-    "helpOutcome": "The room disagrees about what a decent ending would look like. The projectionist splices the film while the actor on screen, for once, gets to stand quietly."
+    "helpOutcome": "You let the audience propose new lines while the projectionist repairs the reel. The room argues until a child says, 'Maybe they're frightened and still choosing.' The actor sits on the projected curb to listen. No one agrees on the correct ending. For one minute, nobody tries to decide yours."
   },
   {
     "id": "WH-011",

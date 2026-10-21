@@ -52,12 +52,12 @@
     "place": "Blue Lake",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "The cryptid potluck has three rules: bring a dish, label the ingredients, and take no photographs. A neighbor has arrived with a telephoto lens because he thinks privacy is what guilty people ask for. Someone inside is serving extraordinary rhubarb pie.",
+    "pressure": "At a potluck outside Blue Lake, the cryptid hosts ask everyone to label the food and leave cameras in the car. A neighbor has brought a telephoto lens anyway. 'What sort of innocent person needs that much privacy?' he asks. 'The sort who made six kinds of pie,' says a woman carrying hot dishes past him. One guest is already pulling a hood over its face.",
     "investigate": "Ask the hosts why they refuse photographs, without barging into their gathering",
-    "success": "The hosts explain that their guests move between wildlife corridors the camera club keeps exposing. Their seating plan marks routes the county should protect, not a location to upload.",
-    "failure": "The lens flashes despite your request. Several guests slip away. The neighbor deletes the image when he realizes he has frightened people who were only eating dinner.",
+    "success": "The hosts explain that several guests migrate through corridors now popular with camera clubs. Their privately drawn seating map overlaps a habitat route needing attention, but gives no one permission to post guests or locations. The camera neighbor offers to 'help' by sharing it. You must decide whether he has listened to a single word.",
+    "failure": "A flash goes off. Three guests leave by different paths and the host quietly packs away their untouched dishes. The neighbor deletes the picture only after seeing a small child flinch. He wants credit for doing the decent thing late. Nobody gives it to him. The lost trust will take longer to replace than a file.",
     "help": "Put away your phone, label your dish and respect the invitation's boundaries",
-    "helpOutcome": "Everyone who wants a slice gets one. The neighbor leaves the camera in the car and discovers the pie does not require a confession."
+    "helpOutcome": "You label your dish, put your phone away, and help carry chairs to a corner where nervous guests can eat unobserved. A neighbor asks for a recipe, not a photograph. The host serves you a spectacular slice of rhubarb pie, then points out you have spent twenty minutes learning more about hospitality than cryptids."
   },
   {
     "id": "WH-066",
@@ -142,12 +142,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "Two Sasquatch parents are arguing over a muddy backpack, not over their child. The child has been spending weekends in both homes and wants everyone to stop changing the pickup time. Their neighbor has arrived with a camera because somebody promised a television special.",
+    "pressure": "Two Sasquatch parents argue over a muddy backpack at the edge of Willow Creek. Their child wants one pickup time and one tree that does not move every weekend. A neighbor has booked a television camera crew. 'It's about family values,' the neighbor insists. The smaller Sasquatch stares at the lens until the crew starts packing up.",
     "investigate": "Ask the child which arrangements work and let the adults check the details",
-    "success": "The child's crayon map identifies a sheltered route and a familiar tree where pickups can happen without cameras. The adults agree to try it before debating whose idea it was.",
-    "failure": "The argument gets loud and the child leaves the clearing. You stop the discussion until both parents find them together and ask what would help.",
+    "success": "You ask the child to draw the route they actually feel safe walking. The map shows a sheltered tree and a dry path neither adult knew about. Both parents claim to have suggested it first. The child rolls their eyes, the universal sound of being eleven. You let them argue about credit while keeping the drawing in the child's hands.",
+    "failure": "The argument swells until the child disappears behind the brush. You stop the interview and help both parents search together, rather than deciding whose weekend it is. When they find the child, their relief is real and their disagreement unresolved. The television neighbor gets a shot of an empty clearing.",
     "help": "Help the parents write a handoff plan the child can actually follow",
-    "helpOutcome": "The parents settle on one familiar meeting tree and a backup rainy-day location. The neighbor goes home without photographs or a custody exclusive."
+    "helpOutcome": "You help write a pickup plan short enough for the child to read and flexible enough for rain. The adults sign it in mud and immediately bicker over who provided the best mud. The child puts the schedule in the backpack and says, 'Good. Now can everybody act like grown-ups?'"
   },
   {
     "id": "WH-072",
@@ -202,12 +202,12 @@
     "place": "Willow Creek",
     "scene": "grove",
     "pool": 2,
-    "pressure": "A shy, very large forest resident needs help with a dating profile. Every draft lists exact footprints, fur density and the location of its den. A well-meaning friend keeps insisting a viral reveal would make the perfect first impression.",
+    "pressure": "A shy forest resident has prepared an online dating profile listing exact paw prints, fur density, and GPS coordinates for its den. 'Those are measurements,' it says proudly. 'They're not hobbies.' Its best friend proposes a viral reveal. The resident would rather meet one person who likes awkward mushroom jokes than a million who know where it sleeps.",
     "investigate": "Ask which details belong in a bio and which would put the resident at risk",
-    "success": "A draft built around interests, humor and boundaries attracts a thoughtful reply without exposing the den. The resident chooses whether to answer.",
-    "failure": "The photo upload fails and the friend posts an accidental silhouette. You remove identifying tags before it spreads and document what was shared.",
+    "success": "Together you replace the den coordinates with a terrible joke and an honest description of the resident's love of music. A thoughtful reply arrives. 'This doesn't mean I owe them a meeting,' the resident says, sounding surprised by its own confidence. The friend puts away the ring light and asks for advice on their profile.",
+    "failure": "The upload fails, but the friend has already shared an identifiable silhouette. By the time the tags are removed someone has made a conspiracy thread. The resident asks if the attention is their fault for wanting company. 'No,' you say, and help file a correction instead of promising the image has vanished.",
     "help": "Help write a profile that gives the resident control over disclosure",
-    "helpOutcome": "The bio opens with a terrible mushroom joke and a genuine question about music. The den stays private; the friend agrees not to do publicity."
+    "helpOutcome": "You give the resident room to write its own introduction and stop its friend treating a personal life as a marketing launch. The resulting profile asks one genuine question and offers one gloriously bad pun. It may attract nobody. The resident posts it anyway because the choice is finally theirs."
   },
   {
     "id": "WH-076",

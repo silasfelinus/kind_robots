@@ -7,12 +7,12 @@
     "place": "Old Town Eureka",
     "scene": "plaza",
     "pool": 0,
-    "pressure": "A Victorian in Old Town sprouts a new window every time a passerby admits a secret. The owner has started selling confession-tour tickets. The tenant upstairs would like her bedroom to remain a bedroom.",
+    "pressure": "An Old Town Victorian grows another window every time someone admits a secret. The owner has put up a confession-tour booth, complete with souvenir keys. Upstairs, a tenant says strangers have begun paying to peer into her bedroom. 'He calls it heritage tourism,' she says. 'I call it Tuesday.' The owner offers you a free ticket if you can coax out one more confession.",
     "investigate": "Count the added windows against permits, without asking anyone for a confession",
-    "success": "A new sash frames the harbor ten years from now. You photograph the view only after the tenant steps out of shot.",
-    "failure": "The window vanishes before your camera wakes up. Its reflection remains in a nearby shop; the tenant asks you not to publish her address.",
+    "success": "Your count catches a window that should look onto the neighbor's brick wall. Instead it shows the harbor a decade older, with a rust-red boat absent from today's docks. The tenant permits a photograph of the view, but only after she leaves the frame. The owner offers twice the ticket price for her name. You decline.",
+    "failure": "The extra window closes before your camera focuses. You cannot prove a thing about its future harbor. The owner immediately tells tourists you witnessed a miracle, using the tenant's address as a selling point. She asks you to correct the story in public, though you know the crowd will remember your name instead of hers.",
     "help": "Help the tenant end the invasive tours and reclaim her front steps",
-    "helpOutcome": "The ticket booth closes. The tenants sleep with their curtains open, or closed, entirely as they please."
+    "helpOutcome": "You help the tenants reclaim their steps and block the ticket line with their own front-porch furniture. The owner calls it vandalism. 'We bought the chairs,' the upstairs tenant says. 'They belong in front of our own door.' At dusk the house grows one last window, pointed squarely at the ticket booth."
   },
   {
     "id": "WH-042",
@@ -142,12 +142,12 @@
     "place": "Humboldt Bay",
     "scene": "bay",
     "pool": 2,
-    "pressure": "A shellfish parliament has subpoenaed a gull for stealing mussels. The gull refuses to attend without counsel; meanwhile a harbormaster needs the floating assembly moved out of a working channel.",
+    "pressure": "The Oyster Council is trying a gull for mussel theft on a floating platform in Humboldt Bay. The prosecutor has a pearl necklace and seventeen witnesses who are all the same clam. The gull demands counsel; the harbormaster demands the channel back before a working boat has to turn around. 'Justice takes time,' the oyster speaker declares. 'A fishing boat takes space,' the harbormaster replies.",
     "investigate": "Examine the mussel evidence and the parliament's jurisdiction claims",
-    "success": "The docket describes a real change in the tidal current. The harbormaster records the observation without granting oysters legislative power.",
-    "failure": "The gull eats exhibit B. A mussel grower has already photographed the changed current, which survives the hearing as the only useful testimony.",
+    "success": "You discover the supposed theft coincides with a genuine change in tidal current. The mussels have been moving. The gull calls this exoneration and flies away before anyone can establish its innocence. The harbormaster logs the measured drift, but refuses the Council's demand for a permanent courthouse in the fairway.",
+    "failure": "The gull eats exhibit B, which may or may not have been an actual mussel. The hearing collapses into accusations. A shellfish grower shows you photographs of the current shift, useful but insufficient to determine guilt. The prosecutor wants a conviction anyway. You can preserve the observation without signing the verdict.",
     "help": "Help move the assembly away from boats and let the accused gull depart",
-    "helpOutcome": "Everyone clears the fairway, and a volunteer writes a nonbinding peace agreement. The gull declines to sign unless there are chips."
+    "helpOutcome": "You and two volunteers tow the shell parliament toward a sheltered slip, letting the gull leave without a forced confession. The speaker denounces interference in sovereign proceedings. An exhausted deckhand says the harbor has room for democracy, just not democracy parked in the channel. The oysters adjourn until low tide."
   },
   {
     "id": "WH-052",
@@ -217,12 +217,12 @@
     "place": "Sequoia Park / Zoo",
     "scene": "grove",
     "pool": 3,
-    "pressure": "A volunteer in a bear costume is giving a faultless talk about animal habitats. He has not been able to remove the suit in months, and the bear has begun correcting his mistakes in a voice only he can hear. He wants a break more than an audience.",
+    "pressure": "A volunteer at the zoo gives a flawless habitat lecture in a bear costume he cannot remove. 'The children think it's adorable,' he says. 'I haven't slept without a mascot head in three months.' The bear's second voice corrects his taxonomy from somewhere inside the padding. A manager suggests filming an interview for publicity. The volunteer asks you not to let that happen.",
     "investigate": "With his permission, examine the seam and ask when the corrections began",
-    "success": "The lining has an inventory label in handwriting nobody on the staff recognizes, stamped with next year's date. A keeper confirms the costume itself is older than that.",
-    "failure": "The last bit of zipper breaks while you inspect it. The volunteer laughs, then stops. You admit the repair is beyond you and find someone with the right tools.",
+    "success": "With his permission, you find a lining label dated next year stitched into fabric bought three seasons ago. The keeper confirms both dates; neither tells you how to unfasten it. The voice inside the head says, 'Habitat destruction,' then gently corrects itself to, 'Personal boundaries.' The volunteer laughs at the distinction until he nearly cries.",
+    "failure": "The zipper breaks in your hands, making the costume harder to open. The volunteer tries to joke about being a lifelong bear. You apologize instead of calling it a lucky clue and ask for a proper seamstress. The manager complains about closing the exhibit; the keeper cancels the next talk anyway.",
     "help": "Ask a seamstress and the keeper to arrange a private, safe way out",
-    "helpOutcome": "The new opening works, the volunteer rests, and the bear voice offers a solemn lecture on taking days off. No camera is invited to the fitting."
+    "helpOutcome": "You close the viewing area and let the seamstress work without an audience. When the volunteer finally sits in ordinary clothes, the bear head tells the keeper to install a drinking fountain. The keeper promises to consider it. The volunteer says the next lecture can be delivered by somebody who volunteered for it."
   },
   {
     "id": "WH-058",

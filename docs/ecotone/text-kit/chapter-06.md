@@ -444,24 +444,24 @@
 
 **Opening narration:** Judges quietly decide which version of the county survives.
 
-**Escalation:** Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide.
+**Escalation:** At the kinetic crossing a race judge unveils six ballots for six incompatible futures of Humboldt. Each future keeps one crew's triumph and quietly deletes another crew's labor. The marshal calls this 'administrative clarity.' A soaked mechanic holds up her bleeding knuckles: 'Are these clear enough?' The judge asks for a vote before anyone notices which names have vanished.
 
 **Option A, investigate (visible 9 check):** Compare each ballot with the deeds and people actually recorded during the race
 
-- **Pass:** The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence.
-- **Miss:** The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote.
+- **Pass:** You compare ballots against accounts from the actual course and find a rescue, an unsafe shortcut, and a repair that each proposal claims as its own. The clerk preserves the conflicting evidence without certifying a winner. One judge calls this obstruction. The mechanic calls it the first honest result of the weekend.
+- **Miss:** The ballot box disappears between tables, taking the votes with it. A marshal still has the sign-in sheet, but the names it lists cannot tell you which future people chose. The judge urges everyone to declare the most popular outcome anyway. You have lost the ballot; you can refuse to manufacture consent.
 
 **Option B, assist without a check:** Demand a public account of what each proposal costs before anyone decides
 
-- **Result:** The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room.
+- **Result:** You insist every proposal display the work it erases and invite those crews to answer. The meeting stops being efficient. A racer says she wanted the wilderness future until she learned whose home its boundary erased. Another still wants it. The clerk must now record actual disagreement rather than a tidy unanimity.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-115`: Judges quietly decide which version of the county survives. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-115/2`: Race officials reveal six ballots for six possible futures of the county. In each version, a different crew's work has been erased from the record. One judge wants the players to choose immediately, before affected racers can see what their votes would hide. The people and location must match the opening.
-- `outcomes/wh-115/investigate-success`: The tally includes acts of repair, kindness and risk witnessed on the course. None of the six futures tells the whole story, and the clerk agrees to preserve the original evidence. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-115/investigate-failure`: The sealed ballot box vanishes between counting tables. A marshal retains the sign-in sheet and insists the unrepresented crews be heard before another vote. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-115/care-success`: The officials post the alternatives and invite the affected teams to speak. A ballot cannot fairly settle a county's future if half its people were never allowed in the room. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-115/2`: At the kinetic crossing a race judge unveils six ballots for six incompatible futures of Humboldt. Each future keeps one crew's triumph and quietly deletes another crew's labor. The marshal calls this 'administrative clarity.' A soaked mechanic holds up her bleeding knuckles: 'Are these clear enough?' The judge asks for a vote before anyone notices which names have vanished. The people and location must match the opening.
+- `outcomes/wh-115/investigate-success`: You compare ballots against accounts from the actual course and find a rescue, an unsafe shortcut, and a repair that each proposal claims as its own. The clerk preserves the conflicting evidence without certifying a winner. One judge calls this obstruction. The mechanic calls it the first honest result of the weekend. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-115/investigate-failure`: The ballot box disappears between tables, taking the votes with it. A marshal still has the sign-in sheet, but the names it lists cannot tell you which future people chose. The judge urges everyone to declare the most popular outcome anyway. You have lost the ballot; you can refuse to manufacture consent. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-115/care-success`: You insist every proposal display the work it erases and invite those crews to answer. The meeting stops being efficient. A racer says she wanted the wilderness future until she learned whose home its boundary erased. Another still wants it. The clerk must now record actual disagreement rather than a tidy unanimity. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_115_verified`, `wh_115_partial`, `wh_115_care` (mutually exclusive results of this card).
 
@@ -599,24 +599,24 @@
 
 **Opening narration:** The player's relationships, evidence and choices determine the surviving ending.
 
-**Escalation:** The county ballot offers wilderness, industry, spectacle and shared stewardship in four tidy boxes. A clerk says your deeds count more than your speech. Around you are people who will live with the result, including those no campaign bothered to invite.
+**Escalation:** At the Ferndale finish, the county offers four clean boxes: wilderness, industry, spectacle, stewardship. The clerk says your actions matter more than speeches, then asks the people at the back to stop interrupting. A mechanic is still in a wet race suit. A resident brings an unpaid water bill. Somebody asks why none of the boxes says 'who gets to stay.'
 
 **Option A, investigate (visible 9 check):** Compare the ballot summary with the actual decisions and the people affected
 
-- **Pass:** The campaign slogans cannot contain the evidence you collected. The clerk adds your verified account to the record, without promising which future wins.
-- **Miss:** A projector fails before you can display the last document. You still name where the evidence can be found, and another witness offers to corroborate it.
+- **Pass:** You check the campaign summary against the deeds you can actually name. A repaired boat, a protected neighbor, and a debt left unpaid refuse to fit into one slogan. The clerk enters your corroborated account without awarding you the future you wanted. When someone asks whether that means you've won, you say the vote still belongs to everybody else.
+- **Miss:** The projector dies before your final document appears. A few officials call for the vote to proceed without it. You describe where the source can be found and ask for a witness to read it with you. Another person stands, but they disagree with your conclusion. The room finally hears evidence and dissent at the same time.
 
 **Option B, assist without a check:** Make room for someone affected by the proposal who has not been heard
 
-- **Result:** The meeting grows messier and more representative. No one agrees on a miracle. The county has to make its choice in public.
+- **Result:** You yield your speaking turn to someone who will bear the outcome but was never given a seat. They spend the first minute telling your allies they have the wrong solution. You let them finish. There is no miracle consensus; the vote must take place among people who now know exactly how much they disagree.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-120`: The player's relationships, evidence and choices determine the surviving ending. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-120/2`: The county ballot offers wilderness, industry, spectacle and shared stewardship in four tidy boxes. A clerk says your deeds count more than your speech. Around you are people who will live with the result, including those no campaign bothered to invite. The people and location must match the opening.
-- `outcomes/wh-120/investigate-success`: The campaign slogans cannot contain the evidence you collected. The clerk adds your verified account to the record, without promising which future wins. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-120/investigate-failure`: A projector fails before you can display the last document. You still name where the evidence can be found, and another witness offers to corroborate it. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-120/care-success`: The meeting grows messier and more representative. No one agrees on a miracle. The county has to make its choice in public. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-120/2`: At the Ferndale finish, the county offers four clean boxes: wilderness, industry, spectacle, stewardship. The clerk says your actions matter more than speeches, then asks the people at the back to stop interrupting. A mechanic is still in a wet race suit. A resident brings an unpaid water bill. Somebody asks why none of the boxes says 'who gets to stay.' The people and location must match the opening.
+- `outcomes/wh-120/investigate-success`: You check the campaign summary against the deeds you can actually name. A repaired boat, a protected neighbor, and a debt left unpaid refuse to fit into one slogan. The clerk enters your corroborated account without awarding you the future you wanted. When someone asks whether that means you've won, you say the vote still belongs to everybody else. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-120/investigate-failure`: The projector dies before your final document appears. A few officials call for the vote to proceed without it. You describe where the source can be found and ask for a witness to read it with you. Another person stands, but they disagree with your conclusion. The room finally hears evidence and dissent at the same time. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-120/care-success`: You yield your speaking turn to someone who will bear the outcome but was never given a seat. They spend the first minute telling your allies they have the wrong solution. You let them finish. There is no miracle consensus; the vote must take place among people who now know exactly how much they disagree. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_120_verified`, `wh_120_partial`, `wh_120_care` (mutually exclusive results of this card).
 

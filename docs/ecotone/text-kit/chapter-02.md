@@ -41,24 +41,24 @@
 
 **Opening narration:** A bottle washes ashore with the player's own handwriting and tomorrow's date.
 
-**Escalation:** A kombucha bottle rolls up between your shoes. The letter inside, signed in your handwriting, describes a rockfall tomorrow at the point where three families are sitting today. The date is right; the explanation is not.
+**Escalation:** A kombucha bottle lands at your feet with a warning written in your handwriting. Tomorrow, it says, the cliff above three picnicking families will fall. 'Does the future always use my terrible cursive?' you ask. A parent says the children are finally asleep and refuses to move on the strength of a bottle. Pebbles tick from the overhang like someone clearing their throat.
 
 **Option A, investigate (visible 7 check):** Compare the sketch with the cliff face and an independently posted warning
 
-- **Pass:** The tide chart leaves out an hour that appears in the bottle's margin. A local volunteer confirms the cliff is already shedding grit.
-- **Miss:** The ink runs before you can preserve the time. You still know where the dangerous overhang is, which turns out to be the useful part.
+- **Pass:** You match the sketch to a new crack that the park notice omits. A local volunteer confirms fresh rockfall; the bottle's date remains unverified. When the family moves, one father asks whether you saved them with magic. 'With a second set of eyes,' you answer. The paper in the bottle signs itself again, less legibly.
+- **Miss:** Rain dissolves the timestamp in your handwriting. You cannot tell the family tomorrow is the danger. A pebble hits your sleeve and you stop trying to win an argument with a letter; you warn them about the loose rock you can actually see. They may still decide you are wrong.
 
 **Option B, assist without a check:** Move people away from the unstable edge without asking them to believe you
 
-- **Result:** The picnic moves inland. A few pebbles begin falling where the blanket used to be. The family thanks you for the warning, not the time travel.
+- **Result:** You carry blankets, sandwiches, and one sleeping toddler away from the overhang, giving the parents enough practical help to choose safety without swallowing your story. Minutes later stones strike the abandoned picnic spot. The father who doubted you hands back your borrowed blanket and says, 'I still don't believe in future mail.'
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-023`: A bottle washes ashore with the player's own handwriting and tomorrow's date. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-023/2`: A kombucha bottle rolls up between your shoes. The letter inside, signed in your handwriting, describes a rockfall tomorrow at the point where three families are sitting today. The date is right; the explanation is not. The people and location must match the opening.
-- `outcomes/wh-023/investigate-success`: The tide chart leaves out an hour that appears in the bottle's margin. A local volunteer confirms the cliff is already shedding grit. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-023/investigate-failure`: The ink runs before you can preserve the time. You still know where the dangerous overhang is, which turns out to be the useful part. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-023/care-success`: The picnic moves inland. A few pebbles begin falling where the blanket used to be. The family thanks you for the warning, not the time travel. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-023/2`: A kombucha bottle lands at your feet with a warning written in your handwriting. Tomorrow, it says, the cliff above three picnicking families will fall. 'Does the future always use my terrible cursive?' you ask. A parent says the children are finally asleep and refuses to move on the strength of a bottle. Pebbles tick from the overhang like someone clearing their throat. The people and location must match the opening.
+- `outcomes/wh-023/investigate-success`: You match the sketch to a new crack that the park notice omits. A local volunteer confirms fresh rockfall; the bottle's date remains unverified. When the family moves, one father asks whether you saved them with magic. 'With a second set of eyes,' you answer. The paper in the bottle signs itself again, less legibly. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-023/investigate-failure`: Rain dissolves the timestamp in your handwriting. You cannot tell the family tomorrow is the danger. A pebble hits your sleeve and you stop trying to win an argument with a letter; you warn them about the loose rock you can actually see. They may still decide you are wrong. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-023/care-success`: You carry blankets, sandwiches, and one sleeping toddler away from the overhang, giving the parents enough practical help to choose safety without swallowing your story. Minutes later stones strike the abandoned picnic spot. The father who doubted you hands back your borrowed blanket and says, 'I still don't believe in future mail.' Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_023_verified`, `wh_023_partial`, `wh_023_care` (mutually exclusive results of this card).
 
@@ -134,24 +134,24 @@
 
 **Opening narration:** A salmon gives an exclusive interview in exchange for discretion.
 
-**Escalation:** A salmon wearing a press badge asks for an off-record interview, then describes a migration passage no published map acknowledges. The fish has two conditions: no photographs and no identifying details that would send sightseers into the spawning water.
+**Escalation:** A salmon with a press badge surfaces at Trinidad Harbor and demands an off-record interview. It claims an unmapped passage is closing. 'You want a photo?' it asks. 'Try taking one of the pipe instead of my face.' A tourist already has a lens trained on the water. The salmon says it will leave before becoming the poster fish for another campaign that forgets the actual river.
 
 **Option A, investigate (visible 7 check):** Verify the culvert and public permit without recording the salmon's route
 
-- **Pass:** The public works notice confirms a blocked culvert scheduled for inspection next month. The fish's forecast may be impossible; the obstruction is documented and needs attention.
-- **Miss:** Your recorder captures only water. The salmon scratches a location in wet sand, then rubs it out when tourists approach; you note the public permit number instead.
+- **Pass:** You verify the blocked culvert through an ordinary public works notice. The salmon's impossible migration story remains its own; the obstruction does not. 'Now you have a story that can survive without me,' it says, turning downstream. The photographer is disappointed. The stream crew has a job number and can actually act.
+- **Miss:** Your recorder holds nothing but surf. The salmon scratches a direction in wet sand, then wipes it away when the camera turns. You cannot publish its route without betraying your source; you leave with an unrelated public permit number and the unpleasant knowledge that being first to report is not the same as being useful.
 
 **Option B, assist without a check:** Help the stream volunteers protect habitat without turning the informant into a mascot
 
-- **Result:** Volunteers remove litter above the stream and report the obstruction to the right crew. The salmon swims away with its source confidentiality intact.
+- **Result:** You stand in the tourist's shot until they lower the camera, then carry litter away from the stream with the volunteers. The salmon swims off without another quote. A volunteer mutters that a fish with a press badge was easier to work with than last year's real journalist.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-028`: A salmon gives an exclusive interview in exchange for discretion. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-028/2`: A salmon wearing a press badge asks for an off-record interview, then describes a migration passage no published map acknowledges. The fish has two conditions: no photographs and no identifying details that would send sightseers into the spawning water. The people and location must match the opening.
-- `outcomes/wh-028/investigate-success`: The public works notice confirms a blocked culvert scheduled for inspection next month. The fish's forecast may be impossible; the obstruction is documented and needs attention. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-028/investigate-failure`: Your recorder captures only water. The salmon scratches a location in wet sand, then rubs it out when tourists approach; you note the public permit number instead. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-028/care-success`: Volunteers remove litter above the stream and report the obstruction to the right crew. The salmon swims away with its source confidentiality intact. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-028/2`: A salmon with a press badge surfaces at Trinidad Harbor and demands an off-record interview. It claims an unmapped passage is closing. 'You want a photo?' it asks. 'Try taking one of the pipe instead of my face.' A tourist already has a lens trained on the water. The salmon says it will leave before becoming the poster fish for another campaign that forgets the actual river. The people and location must match the opening.
+- `outcomes/wh-028/investigate-success`: You verify the blocked culvert through an ordinary public works notice. The salmon's impossible migration story remains its own; the obstruction does not. 'Now you have a story that can survive without me,' it says, turning downstream. The photographer is disappointed. The stream crew has a job number and can actually act. Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-028/investigate-failure`: Your recorder holds nothing but surf. The salmon scratches a direction in wet sand, then wipes it away when the camera turns. You cannot publish its route without betraying your source; you leave with an unrelated public permit number and the unpleasant knowledge that being first to report is not the same as being useful. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-028/care-success`: You stand in the tourist's shot until they lower the camera, then carry litter away from the stream with the volunteers. The salmon swims off without another quote. A volunteer mutters that a fish with a press badge was easier to work with than last year's real journalist. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_028_verified`, `wh_028_partial`, `wh_028_care` (mutually exclusive results of this card).
 
@@ -413,24 +413,24 @@
 
 **Opening narration:** A three-inch official demands bridge tolls in river pebbles.
 
-**Escalation:** At the Mad River crossing, a river official three inches tall demands a toll in smooth pebbles. His desk is an overturned shell. The first traveler in line is a dog whose person has no pockets, and the tiny official is already threatening to issue a citation.
+**Escalation:** At the Mad River crossing, a three-inch river official taxes every traveler one smooth pebble. His desk is a shell and his clerk is a beetle in an ill-fitting sash. A woman with a guide dog has no pockets. 'Regulations do not specify pockets,' the official says. The dog has already crossed and is waiting patiently for the humans to stop being ridiculous.
 
 **Option A, investigate (visible 7 check):** Ask what the toll funds and inspect the small construction downstream
 
-- **Pass:** The pebbles support a miniature flood wall around a real nesting bank. The official's accounts are eccentric but the bank is plainly safer; you note the arrangement without declaring him sovereign.
-- **Miss:** The official shuts the shell on his ledger. A careful look downstream still reveals the new wall, and the dog has sensibly found another way across.
+- **Pass:** You follow the collected pebbles downstream. They hold a tiny flood wall against water spilling into an actual nesting bank. The official has a legitimate repair, a ridiculous toll, and no answer to the woman who cannot pay. 'The river is free to flood,' he snaps. 'Apparently,' you say, 'the people aren't.'
+- **Miss:** The official closes his shell before showing you the accounts, calling you a hostile auditor. Downstream you spot a newly built pebble wall, but not who paid for it or whether the toll is fair. The guide dog retrieves a pebble and drops it on your shoe, a very small act of civil disobedience.
 
 **Option B, assist without a check:** Suggest a shared voluntary pebble bowl so crossing stays free for everybody
 
-- **Result:** The tiny official approves a sign reading NO ONE STRANDED. The dog crosses first, having contributed one pebble by accident.
+- **Result:** You propose a voluntary bowl with a clear purpose instead of a compulsory toll. The official demands to be named chair of the fundraising committee. The woman agrees on the condition the dog gets a seat. The crossing stays free; the river god spends the afternoon arguing with an animal who refuses to vote.
 
 **Concept-art pitch inventory (subject and earned action, not style):**
 
 - `cards/wh-037`: A three-inch official demands bridge tolls in river pebbles. Show the dilemma before anyone succeeds or fails.
-- `paragraphs/wh-037/2`: At the Mad River crossing, a river official three inches tall demands a toll in smooth pebbles. His desk is an overturned shell. The first traveler in line is a dog whose person has no pockets, and the tiny official is already threatening to issue a citation. The people and location must match the opening.
-- `outcomes/wh-037/investigate-success`: The pebbles support a miniature flood wall around a real nesting bank. The official's accounts are eccentric but the bank is plainly safer; you note the arrangement without declaring him sovereign. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-037/investigate-failure`: The official shuts the shell on his ledger. A careful look downstream still reveals the new wall, and the dog has sensibly found another way across. Preserve the mistake, ambiguity and surviving clue.
-- `outcomes/wh-037/care-success`: The tiny official approves a sign reading NO ONE STRANDED. The dog crosses first, having contributed one pebble by accident. Show ordinary care as meaningful action, without implying the entire mystery is solved.
+- `paragraphs/wh-037/2`: At the Mad River crossing, a three-inch river official taxes every traveler one smooth pebble. His desk is a shell and his clerk is a beetle in an ill-fitting sash. A woman with a guide dog has no pockets. 'Regulations do not specify pockets,' the official says. The dog has already crossed and is waiting patiently for the humans to stop being ridiculous. The people and location must match the opening.
+- `outcomes/wh-037/investigate-success`: You follow the collected pebbles downstream. They hold a tiny flood wall against water spilling into an actual nesting bank. The official has a legitimate repair, a ridiculous toll, and no answer to the woman who cannot pay. 'The river is free to flood,' he snaps. 'Apparently,' you say, 'the people aren't.' Show the corroboration and any evidence, not an invented general victory.
+- `outcomes/wh-037/investigate-failure`: The official closes his shell before showing you the accounts, calling you a hostile auditor. Downstream you spot a newly built pebble wall, but not who paid for it or whether the toll is fair. The guide dog retrieves a pebble and drops it on your shoe, a very small act of civil disobedience. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-037/care-success`: You propose a voluntary bowl with a clear purpose instead of a compulsory toll. The official demands to be named chair of the fundraising committee. The woman agrees on the condition the dog gets a seat. The crossing stays free; the river god spends the afternoon arguing with an animal who refuses to vote. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_037_verified`, `wh_037_partial`, `wh_037_care` (mutually exclusive results of this card).
 

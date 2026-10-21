@@ -96,12 +96,20 @@ export function substanceSummary(moments: SubstanceMoment[]) {
   let maxAlcoholStreak = 0
   let restStreak = 0
   let run = 0
+  let lastDay: number | null = null
   for (const moment of moments) {
-    run = moment.selected.includes('alcohol') ? run + 1 : 0
+    run = moment.selected.includes('alcohol')
+      ? moment.day === lastDay
+        ? run + 1
+        : 1
+      : 0
+    lastDay = moment.day
     maxAlcoholStreak = Math.max(maxAlcoholStreak, run)
   }
+  const latestDay = moments.at(-1)?.day
   for (const moment of [...moments].reverse()) {
-    if (!moment.selected.includes('alcohol')) break
+    if (!moment.selected.includes('alcohol') || moment.day !== latestDay)
+      break
     alcoholStreak += 1
   }
   for (const moment of [...moments].reverse()) {

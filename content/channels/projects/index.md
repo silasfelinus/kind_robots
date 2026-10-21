@@ -23,7 +23,7 @@ tutorial:
   tagline: Make art, build stories, explore projects.
   overview: >-
     Projects gathers Storybook and its ingredient galleries, Art Studio, Video
-    Gen, Music Video, Mandarin, Daily Dream Projects and Rebel Button. Games
+    Studio (with Music Videos), Mandarin, Daily Dream Projects and Rebel Button. Games
     share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects
     control.
@@ -42,10 +42,9 @@ tutorial:
       title: Make images, clips and music videos
       body: >-
         Art opens on the Image Generator: pick a recipe, write a prompt and
-        press Generate, then find the results in the Gallery. Video Gen turns a
-        still image into a short animated clip. Music Video shows finished
-        videos and lets you remix one into your own draft. Generating costs mana,
-        so sign in first.
+        press Generate, then find the results in the Gallery. Video Studio
+        generates short clips and has a Music Videos tab for watching and
+        remixing illustrated songs. Generating costs mana, so sign in first.
       image: /images/art/generate.webp
     - key: learn
       title: Practice Mandarin and singing

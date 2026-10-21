@@ -378,7 +378,7 @@ export default defineNuxtConfig({
     '/play/davinci': { redirect: { to: '/storybook', statusCode: 301 } },
     '/taskmaster': { redirect: { to: '/storybook', statusCode: 301 } },
     '/admin/music-video': {
-      redirect: { to: '/play/music-video', statusCode: 301 },
+      redirect: { to: '/play/video-generator?studio=music', statusCode: 301 },
     },
     // The Ruler Is Hooked went to Admin until it launches (2026-10-11); 302,
     // since it will move again to /play when it is ready.

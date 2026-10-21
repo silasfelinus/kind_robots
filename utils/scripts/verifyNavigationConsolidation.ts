@@ -536,7 +536,7 @@ for (const route of [
   '/play/aquarium',
   '/play/memory',
   '/?view=dashboard',
-  '/play/music-video',
+  '/play/video-generator?studio=music',
   '/play/mandarin',
   '/play/emperor-of-dust',
   '/play/zuzu-pinball',

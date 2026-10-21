@@ -1180,7 +1180,11 @@ const quickLinks = [
   { label: 'Props & rewards', icon: 'kind-icon:gift', to: '/rewards' },
   { label: 'LoRAs & models', icon: 'kind-icon:database', to: '/resources' },
   { label: 'Comic Studio', icon: 'kind-icon:book', to: '/play/comics/studio' },
-  { label: 'Music videos', icon: 'kind-icon:video', to: '/play/music-video' },
+  {
+    label: 'Music videos',
+    icon: 'kind-icon:video',
+    to: '/play/video-generator?studio=music',
+  },
   { label: 'Gamebook', icon: 'kind-icon:book-open', to: '/play/zuzu-gamebook' },
 ]
 

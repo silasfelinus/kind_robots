@@ -113,6 +113,11 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'mara-reedbell',
     variants: [
       {
+        when: { endings: ['long-night'], flags: ['d42-abbey-water-taken'] },
+        mood: 'sad',
+        text: 'The children who drank the Abbey’s water hum along with the singing at night. Mara Reedbell sits up with them in the cellar. She holds their hands so they do not walk.',
+      },
+      {
         when: { endings: ['long-night'] },
         mood: 'sad',
         text: 'Mara Reedbell opened Hollow Bell’s cellars to anyone who knocked and wrote each name in the ledger as they came down the stair. She is still writing. The ledger has run out of pages twice.',
@@ -121,6 +126,11 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         when: { endings: ['bell-restored'], flags: ['d48-mara-will-confess'] },
         mood: 'happy',
         text: 'The day the Bell rang, Mara Reedbell stood on a cart in the square and read the second book aloud. Every season. Every name. Then she took off the chain and set it on the cart. The town put it back on her. It took two votes.',
+      },
+      {
+        when: { flags: ['d42-abbey-water-taken'] },
+        mood: 'sad',
+        text: 'The children who drank the Abbey’s water on the forty-second day grew up well and quiet. When a bell rings anywhere in town they stop whatever they are doing and wait. Then they go on. Mara Reedbell watches them do it.',
       },
       {
         when: { flags: ['d29-mara-confession'], notFlags: ['mara-exposed'] },
@@ -132,7 +142,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d29-crown-took-blame'] },
-        text: 'The taverns still say the emperor sold children for water. Mara Reedbell has never once said otherwise. Every year, on the morning of the coronation, a jar of Hollow Bell water arrives at the tower. No letter.',
+        text: 'The taverns still say the emperor sold children for water. Mara Reedbell has never once said otherwise. The morning the crown came home, a jar of Hollow Bell water was waiting at the tower gate. No letter. It stands on the throne-room sill, full.',
       },
       {
         when: { anyFlags: ['mara-protected', 'mara-owes-crown'] },
@@ -177,7 +187,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d19-millers-levy-repealed'] },
-        text: 'The levy was repealed for eleven hands at the vote. Aldous Hopper has voted with the crown at every council since. He has never said thank you. He bows exactly as low as he did the first day.',
+        text: 'The levy was repealed for nine hands at the vote. Aldous Hopper has voted with the crown at every council since. He has never said thank you. He bows exactly as low as he did the first day.',
       },
       {
         when: { flags: ['d02-mill-names-posted'] },
@@ -217,29 +227,34 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'Sister Reedlight took the chair at the emperor’s left and has never raised her voice in it. The green lanterns burn on the tower all night. The Watch on the walls has learned not to look at them too long.',
       },
       {
+        when: { flags: ['d44-dike-blown'] },
+        mood: 'angry',
+        text: 'The north reed beds are a lake. Thirty-one lantern-houses stand on it. Sister Reedlight rows out to the place where the other nine were and sets a lantern on the water for a girl called Fennet. The crown has never been asked to come.',
+      },
+      {
         when: { flags: ['d46-debt-personal'] },
         text: 'The Mothers came for the lantern’s favour in the second spring. They asked for the emperor and nobody else, as agreed. What was asked is not in the record. The emperor came back with wet hems and slept with a lamp lit for a month.',
       },
       {
         when: { flags: ['mire-road-closed', 'd46-mire-road-sworn'] },
-        text: 'Forty-one lanterns turned back into the fen on the first night. On the forty-sixth day the emperor swore the road would never close again. It has not. Each year the fen sets one dark lantern where the barrier stood, and leaves it there till dawn.',
+        text: 'Forty-one lanterns turned back into the fen on the first night. On the forty-sixth day the emperor swore the road would never close again. It has not. The fen hung a dark lantern on the post where the barrier stood. It has never been lit.',
       },
       {
         when: {
           flags: ['mire-road-closed'],
           anyFlags: ['d03-mire-road-reopened', 'd12-road-apology'],
         },
-        text: 'The crown opened the Mirefen road and said in public it had been wrong. The fen took the apology and gave nothing back. On the first night of every year one gold light waits at the edge of the reeds. It does not come closer.',
+        text: 'The crown opened the Mirefen road and said in public it had been wrong. The fen took the apology and gave nothing back. Some nights one gold light waits at the edge of the reeds below the tower. It does not come closer.',
       },
       {
         when: { flags: ['mire-road-closed'] },
         mood: 'angry',
-        text: 'Forty-one lanterns turned back into the fen on the emperor’s first night. Sister Reedlight never mentioned them again. Not once. In the Mirefen they put out a dark lantern on that night every year, and will not say for whom.',
+        text: 'Forty-one lanterns turned back into the fen on the emperor’s first night. Sister Reedlight never mentioned them again. Not once. On the Mirefen causeway there are seven dark lanterns on poles. The Mothers will not say for whom.',
       },
       {
         when: { flags: ['d27-false-name-given'] },
         mood: 'excited',
-        text: 'The name the emperor wrote in the fen’s green book was not the emperor’s. A Freeholder has that name. Every spring the reeds outside his door fill with small gold lights. Nobody has told him why.',
+        text: 'The name the emperor wrote in the fen’s green book was not the emperor’s. A Freeholder has that name. The reeds outside his door are full of small gold lights. He has not been told why.',
       },
       {
         when: { flags: ['d27-name-in-fen-book'] },
@@ -247,7 +262,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d07-count-returned'] },
-        text: 'The Archive gave its only copy of the fen count back to the Mothers. A sprig of bog myrtle was tied to the fortress gate. Every spring there is another. Nobody has seen who ties it.',
+        text: 'The Archive gave its only copy of the fen count back to the Mothers. The next morning a sprig of bog myrtle was tied to the fortress gate. It is still there, dry as paper.',
       },
       {
         when: { flags: ['mire-quiet-count'] },
@@ -376,6 +391,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The Crows’ part in the Abbey’s night carts stayed between one fire and the record. Keeper Vellum’s line through that page is still there. Corvane bowed once, that night. He has never needed to bow again.',
       },
       {
+        when: { flags: ['d11-rain-bought'] },
+        text: 'The tower bought one season of rain outright and owed nothing for it. The rain came, and went. Corvane never once looked at the tower again. He made sure the tower saw him not looking.',
+      },
+      {
         when: { flags: ['no-rain'] },
         text: 'The tower refused the Conclave’s rain, and the Freeholds stayed dry. They dug deeper. Their wells are the deepest in the kingdom now. Every Freehold kitchen knows who kept the sky clear, and argues about it at supper.',
       },
@@ -403,12 +422,29 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The runners lent to the Heights went on wages, with their own names on every bag, home by first frost. Every bag came home. So did every runner.',
       },
       {
+        when: { flags: ['d34-tamsin-swapped'] },
+        text: 'Tamsin Gutterwing went back up the Heights in a Yard child’s sash and ran the far paths for the Conclave until the war was over, and after. Linnet came home and learned to read. She reads Tamsin’s letters aloud in the Yard. There are not many. They are all about weather.',
+      },
+      {
+        when: { flags: ['d34-runner-left'] },
+        mood: 'sad',
+        text: 'Linnet went back up the Heights in the rain because the crown would not buy her down. She went off the high path in the first winter storm with someone else’s letters on her back. The Crows sang for her. They sent the letters on.',
+      },
+      {
+        when: { flags: ['d34-runner-bought'] },
+        text: 'Linnet came down off the Heights for sixty brass and never ran again. She walks everywhere now, slowly. The other two served their seasons out. One came home.',
+      },
+      {
         when: { flags: ['d42-runner-redeemed'] },
         text: 'The third runner’s bond was struck from Corvane’s slate with the crown’s last brass. She keeps the sash folded on a shelf. Her hands have found other work.',
       },
       {
         when: { flags: ['covenant-paid-in-runners', 'd20-runners-term-fixed'] },
-        text: 'Three Yard volunteers climbed the Heights for one season by the tower’s calendar. Two came home on the right day, to the hour. The third stayed. She sends her mother a grey feather at the turn of each season. No letter.',
+        text: 'Three Yard volunteers climbed the Heights for one season by the tower’s calendar. Two came home on the right day, to the hour. The third stayed. The first autumn she sent her mother a grey feather. No letter. Her mother wears it in her hat.',
+      },
+      {
+        when: { flags: ['d20-court-runners'] },
+        text: 'Three of the court’s own climbed the Heights to pay for the rain. Lady Vask’s nephew came down years later, a grown bird who would not sit at her table.',
       },
       {
         when: { anyFlags: ['covenant-paid-in-runners', 'runners-lent'] },
@@ -509,9 +545,8 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'dunmore-ash',
     variants: [
       {
-        when: { endings: ['hundred-candles'] },
-        mood: 'sad',
-        text: 'At every feast the Yard bakes one loaf for each name and lays them down the long table. Nobody eats them. In the morning they go out the back gate to whoever is hungry. That was Dunmore Ash’s rule.',
+        when: { endings: ['long-night'], flags: ['d47-cook-forgiven'] },
+        text: 'The Yard cooks in a cave now, for whoever comes in from the road. The cook the camp forgave works the ovens. He presses a thumbprint into the bottom of every loaf. Dunmore Ash checks for it.',
       },
       {
         when: { flags: ['d47-cook-made-example'] },
@@ -521,6 +556,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       {
         when: { flags: ['d47-cook-forgiven'] },
         text: 'The camp forgave the cook with family in the tower, out loud. Dunmore Ash put him back on the ovens. His bread is the best in the Yard. Every loaf has a thumbprint pressed into the bottom.',
+      },
+      {
+        when: { flags: ['d41-stayers-listed'] },
+        text: 'Vellum’s list of the sixty who stayed in the tower went back with the crown. Dunmore Ash asked to read it first. He crossed out four names: the dead. He handed back the rest and did not ask what the page was for.',
       },
       {
         when: { flags: ['d37-yard-silenced'] },
@@ -577,6 +616,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'ferro-dunmark',
     variants: [
       {
+        when: { endings: ['long-night'], flags: ['watch-returned'] },
+        text: 'The Gate Watch held the gate open for everyone running south. Dunmark stood in the gateway and counted each of them through, out loud. Twenty-two of the Watch who came down off the ridge stood behind him. None of them ran.',
+      },
+      {
         when: { endings: ['long-night'] },
         text: 'The Gate Watch held the gate open for everyone running south. Dunmark stood in the gateway and counted each of them in, out loud. He did not close it.',
       },
@@ -612,6 +655,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'The Watch belongs to the crown before all else, and says so, loud and correct. Captain Dunmark has never smiled on parade. When the crown asks how the Watch is, he says: present.',
       },
       {
+        when: { flags: ['d41-two-hands'] },
+        text: 'Every order from the tower carries two seals now. The second hand belongs to a clerk nobody can bribe, because nobody knows which clerk. Dunmark says it slows the Watch by a day. He has never asked to change it.',
+      },
+      {
         text: 'Captain Dunmark holds the throne to what it swore. Some mornings he stands in the hall until the emperor looks up. Then he nods, and goes back to the gate.',
       },
     ],
@@ -622,13 +669,12 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'abelard-vellum',
     variants: [
       {
-        when: { endings: ['long-night'] },
-        text: 'Keeper Vellum carried the Archive down into its cellars and went on writing by one lamp. Somebody has to remember it right.',
+        when: { endings: ['long-night'], flags: ['d49-record-names'] },
+        text: 'Keeper Vellum carried the Archive into the hills in one crate. On top is the record of the reign: the names of the people at the last fire. He reads it to the camp when the singing is loud. It covers the singing for a while.',
       },
       {
-        when: { endings: ['hundred-candles'] },
-        mood: 'sad',
-        text: 'On the first night of every year Keeper Vellum reads the names of the dead, all of them, at his own speed. It takes until the candles are stubs. He has never been asked to hurry.',
+        when: { endings: ['long-night'] },
+        text: 'Keeper Vellum carried the Archive down into its cellars and went on writing by one lamp. Somebody has to remember it right.',
       },
       {
         when: { flags: ['d41-ledger-burned'] },
@@ -636,7 +682,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d49-record-names'] },
-        text: 'The record of the reign is a list of the people at the last fire. The emperor’s name is not on it. Each year Keeper Vellum adds the ones who have died since, with a small lamp beside each. The page is filling.',
+        text: 'The record of the reign is a list of the people at the last fire. The emperor’s name is not on it. When one of them dies, Keeper Vellum draws a small lamp beside the name. There are seven lamps so far.',
       },
       {
         when: { flags: ['d49-record-promises'] },
@@ -645,7 +691,11 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { endings: ['iron-peace'], flags: ['d49-record-order'] },
-        text: 'The record says: kept the kingdom standing, whatever it cost. Under it Keeper Vellum left a page for the costs. Every year he writes one more line. He has not yet turned the page.',
+        text: 'The record says: kept the kingdom standing, whatever it cost. Under it Keeper Vellum left a page for the costs. He writes a line when a cost comes due. He has not yet turned the page.',
+      },
+      {
+        when: { flags: ['d41-trust-kept'] },
+        text: 'The record says the crown kept trusting people after the seal. It was wrong twice more that the record knows of. It went on trusting them. The record says that too.',
       },
     ],
   },
@@ -658,6 +708,10 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         when: { endings: ['long-night'] },
         mood: 'sad',
         text: 'Hester Plowright burned her own fields so the road would have nothing to come for, and took the Freeholds up into the hills with the goats. Every night she counts them. Eggs, goats, people.',
+      },
+      {
+        when: { flags: ['thistledown-abandoned', 'd42-thistledown-repaid'] },
+        text: 'The crown’s last thirty brass paid a well-digger. Thistledown’s new well is the deepest in the Freeholds. Hester drinks from it first, every morning, and does not say why. She sent the crown no number that year.',
       },
       {
         when: { flags: ['thistledown-abandoned', 'd42-thistledown-justified'] },
@@ -698,6 +752,15 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'Jinx counted the grey buyer’s brass three times and spent it within the month. On still nights, far up the mission road, an engine that should not run is running. Jinx will not salvage north of the canyon now. Not at any price.',
       },
       {
+        when: { flags: ['d42-engine-half-sold'] },
+        mood: 'sad',
+        text: 'Jinx sold half an engine to the grey buyer and kept the shiny half. Half was enough. On still nights, far up the mission road, something runs that should not. Jinx keeps that brass in a jar and has not spent a bit of it.',
+      },
+      {
+        when: { flags: ['d42-engine-bought'] },
+        text: 'The crown paid Jinx for an engine it wanted dead. It is still dead on the east siding, rusting in the right places. Children climb it. Jinx sends the crown a bill for the paint they wear off.',
+      },
+      {
         when: { flags: ['d42-engine-wrecked'] },
         mood: 'angry',
         text: 'The engine was broken where it stood, and Jinx Coupler never sold the crown another nail. The crown buys its nails from the Ledger at twice the price. Jinx frames the receipts and sends them back.',
@@ -723,6 +786,15 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'granny-umber',
     variants: [
       {
+        when: { endings: ['long-night'], flags: ['d50-moles-hold-stairs'] },
+        text: 'The burrows held the stairs on the last night and kept holding them. Two hundred and forty-six Moles live under the badlands, and everyone they let in. The singing stops at the third landing. Granny Umber has not asked why.',
+      },
+      {
+        when: { endings: ['long-night'], flags: ['d50-moles-dig'] },
+        mood: 'sad',
+        text: 'The burrows dug the crown a door under the Abbey wall, and the door let the singing into the tunnels. Granny Umber filled the stairs behind the last of them herself. Fourteen were on the wrong side.',
+      },
+      {
         when: { endings: ['long-night'] },
         text: 'The Moles took in anyone who fit down a burrow and filled the stairs behind them. Granny Umber counts heads in the deep tunnels every night. The number goes up. She will not say from where.',
       },
@@ -741,18 +813,23 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d50-moles-dig'] },
-        mood: 'excited',
-        text: 'The burrows dug the crown its door under the Abbey wall. The tunnel is bricked up now. On the near side Granny Umber had them cut the vote into the stone: two hundred and six to forty. Children put their paws in the numbers.',
+        mood: 'sad',
+        text: 'The burrows dug the crown its door under the Abbey wall. Fourteen did not come back up it. The tunnel is bricked up now. On the near side Granny Umber had them cut the vote into the stone, two hundred and six to forty, and the fourteen names under it. Children put their paws in the numbers.',
+      },
+      {
+        when: { flags: ['d50-moles-hold-stairs'] },
+        mood: 'happy',
+        text: 'Two hundred and forty-six Moles held the stairs on the last night. None went down. At dawn Granny Umber sat on the top step with her slate and ticked every one of them back in.',
       },
       {
         when: { endings: ['witchwater-throne'], flags: ['d44-dike-blown'] },
         mood: 'angry',
-        text: 'The green lanterns burn on the tower. The north reed beds are still a lake. The Moles went underground the week the Mothers took their seat and filled the stairs behind them. Granny Umber writes the crown one line a year. Nobody at court reads it aloud.',
+        text: 'The green lanterns burn on the tower. The north reed beds are still a lake. The Moles went underground the week the Mothers took their seat and filled the stairs behind them. Granny Umber wrote the crown one line. It is in the Archive. It is not read aloud.',
       },
       {
         when: { endings: ['witchwater-throne'] },
         mood: 'angry',
-        text: 'The green lanterns burn on the tower now. The Moles went back underground the week the Mothers took their seat, and filled the stairs behind them. Granny Umber still sends a letter every spring. The seal is mud.',
+        text: 'The green lanterns burn on the tower now. The Moles went back underground the week the Mothers took their seat, and filled the stairs behind them. Granny Umber sent the crown one letter. The seal was mud. It is still sealed.',
       },
       {
         when: { endings: ['iron-peace'], notFlags: ['d32-reform-sedition'] },
@@ -855,6 +932,14 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
         text: 'Oriel burned the six Abbey wagons on the salt flats, bed-frames and grey blankets and all. The Saltroad carries nothing for the mission now, at any price. The scorch is still on the flats. Caravans steer around it without being told.',
       },
       {
+        when: { flags: ['d42-sergeant-sent'] },
+        text: 'The sergeant who rode for Thistledown walked beside the third wagon across the salt and did not go back to the Watch. He drives that wagon now. The families let him hold the reins. They have not let him forget why.',
+      },
+      {
+        when: { flags: ['d42-drivers-paid'] },
+        text: 'The crown paid the waystation families a driver’s wage for a winter it could not afford. Oriel entered it in her book under debts owed to the Saltroad. Then she crossed it out and wrote it again under paid.',
+      },
+      {
         when: { endings: ['open-roads'] },
         text: 'The Saltroad writes its own charters on the backs of salt manifests. Oriel Saltmarsh signs every one out loud. She crossed the word emperor out of the first draft, then wrote it back in, smaller.',
       },
@@ -879,12 +964,17 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     npc: 'the-verge-envoy',
     variants: [
       {
+        when: { endings: ['long-night'], flags: ['verge-allied'] },
+        mood: 'sad',
+        text: 'The plum riders rode at the court’s flank to the Abbey and back. When the singing came down the roads they turned their horses home to their sick. The Envoy sent one line after. We do not forget. Either kind.',
+      },
+      {
         when: { flags: ['d45-envoy-knelt'] },
         text: 'The Envoy knelt until midnight and repeated back every burned thing the Freeholders named. The plum riders left the Ford that spring. The Envoy came back once more, alone, and asked to hear the list again. Somebody read it.',
       },
       {
         when: { flags: ['ford-returned'] },
-        text: 'The plum riders left the Ford and the fields beside it. The Verge keeps its debts the way a hand keeps a glove. Every winter a pair of white gloves arrives at the tower, unworn. No letter.',
+        text: 'The plum riders left the Ford and the fields beside it. The Verge keeps its debts the way a hand keeps a glove. That winter a pair of white gloves arrived at the tower, unworn. No letter. They are in a drawer in the Archive, still folded.',
       },
       {
         when: { flags: ['chose:d45-envoy:refuse'] },
@@ -894,6 +984,85 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       {
         when: { flags: ['verge-cures-accepted'] },
         text: 'The Verge’s charms kept the Yard’s grain from rotting all that winter. The bread was good. Nobody could get warm. The old cooks wear mittens to the ovens and will not say why.',
+      },
+    ],
+  },
+  // t-039: Act V's verdicts, each remembered by the one it fell on.
+  {
+    id: 'sentry',
+    name: 'The sentry from the midnight gate',
+    variants: [
+      {
+        when: { flags: ['d41-sentry-reposted'] },
+        text: 'The sentry from the midnight gate kept her post to the end of the war and after it. She lifts the bar halfway for everyone, the emperor too. The horses duck.',
+      },
+      {
+        when: { flags: ['d41-sentry-stripped'] },
+        mood: 'sad',
+        text: 'The folded tabard from the midnight gate is still in the Watch chest. It has not been worn. It has not been thrown out. The sentry who folded it keeps an inn on the Saltroad and bars her own door at dusk.',
+      },
+      {
+        when: { flags: ['d41-crown-owns-the-gate'] },
+        text: 'The crown called the midnight gate its own fault, out loud, by the fire. The sentry split wood every morning for a year. Then she asked for the Watch back. She has the north gate. She has never been late to it.',
+      },
+      {
+        when: { flags: ['d41-sentry-testified'] },
+        text: 'The sentry told the camp what happened at the midnight gate, word for word, twice. The camp decided nothing. She tells it a third time to every recruit, the joke about the horses too. They stop laughing in the same place.',
+      },
+    ],
+  },
+  {
+    id: 'holloway',
+    name: 'Sergeant Holloway',
+    variants: [
+      {
+        when: { flags: ['d43-holloway-tried'] },
+        text: 'Holloway carried the camp’s water until the war ended, as sentenced. Then she kept carrying it. The Watch has stopped telling her she can stop.',
+      },
+      {
+        when: { flags: ['d43-holloway-left'] },
+        mood: 'sad',
+        text: 'Sergeant Holloway walked off along the ridge toward nowhere. Her daughter in the Yard grew up and joined the Watch. She asked for the ridge post. She got it.',
+      },
+      {
+        when: { flags: ['watch-inside-tower'] },
+        text: 'Holloway went back into the tower first, as ordered, and lifted the bar from inside when the court needed a door. The Watch calls the inside of that gate Holloway’s side. She stands it.',
+      },
+      {
+        when: { flags: ['chose:d43-defector:welcome'] },
+        text: 'All twenty-two came down off the ridge, Holloway last. She salutes the crown at every parade. The crown returns it. Dunmark watches them both.',
+      },
+    ],
+  },
+  {
+    id: 'cook',
+    name: 'The cook who left a letter in the flour',
+    variants: [
+      {
+        when: { flags: ['d47-false-letter'] },
+        mood: 'sad',
+        text: 'Three nights of lanterns searched an empty valley. The cook’s mother and sisters ate every one of those days. The cook does not know what the sisters did on the fourth. He bakes as if he does.',
+      },
+      {
+        when: { flags: ['d47-cook-exiled'] },
+        mood: 'sad',
+        text: 'The cook who left a letter in the flour took the tower road without his apron, toward his mother. The court does not know if he reached her. Dunmore Ash still has the apron. It is clean.',
+      },
+    ],
+  },
+  {
+    id: 'courier',
+    name: 'Tobin Umber',
+    variants: [
+      {
+        when: { flags: ['d42-courier-kept'] },
+        mood: 'happy',
+        text: 'Tobin Umber never carried another letter. He digs for the water assembly. Granny Umber says he is the slowest digger in the burrows. She says it like a medal.',
+      },
+      {
+        when: { flags: ['d42-courier-sent'] },
+        mood: 'sad',
+        text: 'Tobin Umber carried one more letter up the mission road and came back with the Abbey kitchens drawn on his arm. The soot washed off. He sleeps with a lamp lit. He has never said what he heard on the stair.',
       },
     ],
   },
@@ -959,6 +1128,11 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F002',
     variants: [
       {
+        when: { departed: ['F002'], flags: ['saffron-free'] },
+        mood: 'sad',
+        text: 'Saffron Kett went home to the canyon the night before the Abbey, and the Pack rode to the wall in her place. Forty went. Thirty-six came back. She built four new wagons that winter and painted no names on them. The wheels stay on.',
+      },
+      {
         when: { departed: ['F002'] },
         mood: 'sad',
         text: 'Saffron Kett went with Young Komodo. Past the mission road there is a bridge nobody paid for. It holds. Nobody crosses it.',
@@ -1006,9 +1180,19 @@ const BARRACKS: EpilogueSubject[] = [
     follower: 'F003',
     variants: [
       {
+        when: { departed: ['F003'], flags: ['kiyo-sent-home'] },
+        mood: 'happy',
+        text: 'Kiyo went home on the forty-seventh night, before the Abbey. Her boy met her at the straits with a beetle in a jar to show her. She let it go for him. The infirmary sews with her needles. Badly. Somebody wrote to ask how she held them. She wrote back: carefully.',
+      },
+      {
         when: { departed: ['F003'] },
         mood: 'sad',
         text: 'Kiyo left the night the tower fell and took Zuzu with her. Some winters a packet of bitter tea comes for the court’s wounded. No note. The string is tied the way she tied bandages.',
+      },
+      {
+        when: { dead: ['F003'], flags: ['d47-letter-sworn'] },
+        mood: 'sad',
+        text: 'Kiyo is buried facing the straits, with her kettle. The emperor crossed the straits with the letter that spring, as sworn, and found a boy counting beetles on a wall. The emperor did not say brave. The emperor said careful.',
       },
       {
         when: { dead: ['F003'], flags: ['kiyo-letter-kept'] },
@@ -1372,6 +1556,10 @@ const BARRACKS: EpilogueSubject[] = [
     name: 'Tamsin Gutterwing',
     follower: 'F011',
     variants: [
+      {
+        when: { flags: ['d34-tamsin-swapped'] },
+        text: 'Tamsin Gutterwing wears a Conclave sash again. She chose it this time, and she says that is the whole difference. The Crows do not believe her. Neither does she.',
+      },
       {
         when: { departed: ['F011'] },
         mood: 'sad',
@@ -1795,9 +1983,105 @@ const BARRACKS: EpilogueSubject[] = [
 
 const ENDGAME: EpilogueSubject[] = afterTheWar([
   {
+    id: 'charter',
+    name: 'The peace signed at the last fire',
+    variants: [
+      {
+        when: { endings: ['long-night'], flags: ['d49-crown-laid-down'] },
+        text: 'The charter from the last fire went into the hills in Granny Umber’s vest, every name on it in the same ink, the emperor’s at the bottom. It is the only law the scattered court still keeps.',
+      },
+      {
+        when: {
+          endings: ['long-night'],
+          anyFlags: [
+            'peace-roads',
+            'peace-iron',
+            'peace-crows',
+            'peace-witchwater',
+            'peace-tunnels',
+            'peace-bell',
+          ],
+        },
+        mood: 'sad',
+        text: 'Whatever was signed at the last fire went into the hills in somebody’s coat. It has not been read aloud since. It has not been thrown away.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['d49-crown-laid-down'] },
+        mood: 'sad',
+        text: 'The charter from the last fire has the emperor’s name at the bottom, with everyone else’s. Under it, in another hand, are the names the war took. The second list is longer.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['peace-iron'] },
+        mood: 'sad',
+        text: 'The last fire chose an iron peace. The Watch keeps it on every road with fewer hands than it had. Dunmark writes the posting rolls himself and leaves the dead in, struck through.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['peace-tunnels'] },
+        mood: 'sad',
+        text: 'The last fire chose the assemblies. Granny Umber’s charter hangs in the first hall under the list of names, and the candle wax has run onto it. The assemblies meet anyway. They open with the names now, not the charter.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['peace-crows'] },
+        mood: 'sad',
+        text: 'The last fire chose the Crows’ rain. It comes on time. The first spring, the court paid Corvane’s price the same morning it buried its last. Corvane took the brass without counting it.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['peace-witchwater'] },
+        mood: 'sad',
+        text: 'The last fire gave the Mothers a seat beside the crown. Sister Reedlight sits in it, between an empty chair for each name. She asked for the chairs herself.',
+      },
+      {
+        when: {
+          endings: ['hundred-candles'],
+          flags: ['peace-bell', 'bell-rung'],
+        },
+        mood: 'sad',
+        text: 'The last fire chose the Bell. Hollow Bell rings it every evening, once for the kingdom and once for each name. The ringing takes longer than it used to.',
+      },
+      {
+        when: { endings: ['hundred-candles'], flags: ['peace-roads'] },
+        mood: 'sad',
+        text: 'The last fire chose open roads. The roads are open. The charter from that night is pinned under the list of names in the tower hall, and the wax has run onto it. It has not been scraped off.',
+      },
+      {
+        when: { endings: ['hundred-candles'] },
+        mood: 'sad',
+        text: 'Something was signed at the last fire. The court remembers the names better than the clauses.',
+      },
+      {
+        when: { flags: ['d49-crown-laid-down'] },
+        text: 'The charter from the last fire hangs in the tower hall. The emperor’s name is at the bottom with everyone else’s, in the same ink. Visitors look for it. It takes a while.',
+      },
+    ],
+  },
+  {
     id: 'hideout',
     name: 'Where the court hid',
     variants: [
+      {
+        when: {
+          endings: ['long-night'],
+          flags: ['hideout:mole-tunnels', 'd42-faced-the-thirty'],
+        },
+        text: 'The thirty who would have sold the crown hold the burrow mouth now. They do not let the singing in. They do not let anyone out.',
+      },
+      {
+        when: { endings: ['long-night'], flags: ['hideout:moving-caravan'] },
+        mood: 'sad',
+        text: 'The caravan never stopped. It carries the court still, an hour in each place: salt, blankets, a crown in the fifth wagon. Oriel counts it out loud at every halt. The count goes down.',
+      },
+      {
+        when: {
+          endings: ['long-night'],
+          flags: ['hideout:nameless-cave', 'd42-deserter-pardoned'],
+        },
+        text: 'The deserter stands the cave mouth every night with a spear and his helmet on. He ran once. He says the singing will have to come in past him. It has not tried.',
+      },
+      {
+        when: { endings: ['long-night'], flags: ['hideout:bell-cellars'] },
+        mood: 'sad',
+        text: 'The court never left Hollow Bell’s cellars. The cider is long gone. The town lowers bread down the stair in a basket and does not come down after it.',
+      },
       {
         when: { endings: ['long-night'] },
         mood: 'sad',
@@ -1855,6 +2139,10 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
       {
         when: { flags: ['hideout:nameless-cave', 'd42-deserter-pardoned'] },
         text: 'The court hid in a terrible cave with a deserter, a widow and four Moles who argued all night. The deserter was pardoned out loud. He carries firewood up to the tower. More than anyone needs. The woodpile is taller than the gate.',
+      },
+      {
+        when: { flags: ['hideout:nameless-cave', 'd42-deserter-sent-away'] },
+        text: 'The court hid in a cave with no name and sent the deserter out of it into the dark. The good blanket went with one of the Moles. Neither came back. The cave kept the horse on the ceiling.',
       },
       {
         when: { flags: ['hideout:nameless-cave'] },

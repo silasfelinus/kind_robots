@@ -1,4 +1,10 @@
-import type { DayDef, DueDef, QuestDef } from './types'
+import type {
+  AudienceDef,
+  DayDef,
+  DueDef,
+  QuestDef,
+  SceneVariant,
+} from './types'
 
 // Act II, Days 11-20, "Rain Debt" (conductor DAY-PLAN.md): the Crow
 // covenant and what it costs, the Mirefen, Saffron's old crew, the Rustline,
@@ -42,7 +48,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'mire-mothers': -10 } },
     outcomes: {
       triumph:
-        'The raiders broke and ran. A young newt-witch with a green lantern walked the party home. On the road she asked: had the throne room for a witch who disagreed with her elders?',
+        'The raiders broke and ran. A young newt-witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
       success:
         'The camp is scattered. A newt-witch named Isolde thanks the party, then asks to see the emperor alone.',
       partial: 'The raiders pulled back. Not far.',
@@ -55,7 +61,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     id: 'q-d12-mirefen-cellars',
     title: 'What Is Under the Lantern-Houses',
     summary:
-      'While the Mothers ask for soldiers, slip into the lantern-houses and see what is in the cellars.',
+      'While the Mothers ask for soldiers, slip into the lantern-houses and see what is in the cellars. Post it and fail to go, and the Mothers will know the crown lost its nerve.',
     region: 'mirefen',
     faction: 'mire-mothers',
     durationDays: 2,
@@ -75,14 +81,27 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       },
       failure: { affinity: { 'mire-mothers': -15 } },
     },
-    expired: {},
+    // A search posted and never made is still a search: the Mothers saw it.
+    expired: {
+      affinity: { 'mire-mothers': -5 },
+      flags: ['d12-cellars-unlooked'],
+    },
     outcomes: {
       success:
         'Jars. Shelves of them, labelled in a neat hand with dates and village names. Some jars are small. The party took the ledger and left the jars.',
       partial: 'The party saw the cellar door, and the lock, and left.',
       failure:
         'The Mothers caught the party on the stairs and smiled at them all the way out.',
-      expired: 'Nobody went down.',
+      expired:
+        'The party never went down. Sister Reedlight sent the crown a green lantern, unlit. The Mothers saw the search posted, and saw it not dare.',
+    },
+    outcomeVariants: {
+      success: [
+        {
+          flags: ['d12-names-spoken'],
+          text: 'Jars. Shelves of them, labelled in a neat hand with dates and village names. Sedgewick. Low Carrow. Some jars are small. Eleven of the small ones carry names the court heard Sister Reedlight say aloud. The party took the ledger and left the jars.',
+        },
+      ],
     },
   },
   {
@@ -139,10 +158,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         strength: { jackalwire: -2 },
         affinity: { jackalwire: 5, 'hollow-bell': 5 },
         flags: ['engine-sabotaged'],
+        schedule: ['engine-fails'],
       },
       failure: {
         affinity: { jackalwire: -25 },
         flags: ['engine-sabotage-caught'],
+        schedule: ['vane-bolt'],
       },
     },
     expired: {},
@@ -253,15 +274,16 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         brass: 30,
         local: { yard: 3, 'old-houses': -2 },
         flags: ['grain-found'],
+        schedule: ['watch-names-short'],
       },
       failure: { local: { yard: -2 } },
     },
     expired: { local: { yard: -2 } },
     outcomes: {
       success:
-        'Two haystacks held grain sacks stamped with an Old House crest. The third held hay and a startled goat.',
+        'Two haystacks held grain sacks stamped with an Old House crest. The third held hay. And a Gate Watch lantern, still warm.',
       partial: 'One haystack held grain. Its owner ran before the questions.',
-      failure: 'The haystacks were hay. Nobody believes it.',
+      failure: 'The haystacks were hay. The Yard does not believe it.',
       expired: 'The haystacks were moved in the night.',
     },
   },
@@ -333,7 +355,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'Hollow Bell let them in. Mara Reedbell wrote every name in her ledger.',
+        'Hollow Bell let them in. Mara Reedbell wrote every name. Then she looked at the crown’s riders and wrote theirs.',
       partial: 'Some were let in. Some were not.',
       failure:
         'The Bell’s gate stayed shut. The party slept outside it with the refugees.',
@@ -365,12 +387,34 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       failure: {
         affinity: { 'hollow-bell': -10 },
         flags: ['bell-voted-no'],
+        schedule: ['bell-gate-shut'],
       },
     },
-    expired: { flags: ['bell-voted-no'] },
+    expired: { flags: ['bell-voted-no'], schedule: ['bell-gate-shut'] },
+    // The square remembers what the crown did for the Bell before the vote.
+    aid: [
+      {
+        flags: ['d13-bell-warned'],
+        label: 'The Bell remembers who knocked first',
+        bonus: 1,
+        stat: 'heart',
+      },
+      {
+        flags: ['d13-water-shared'],
+        label: 'The Pack’s water came back down the stream',
+        bonus: 1,
+        stat: 'heart',
+      },
+      {
+        flags: ['d18-strangers-walked'],
+        label: 'The strangers the crown walked to the Bell',
+        bonus: 1,
+        stat: 'heart',
+      },
+    ],
     outcomes: {
       success:
-        'Hollow Bell voted yes, by eleven hands. The bell rang. Somebody was holding the rope.',
+        'Hollow Bell voted yes, by nine hands. The bell rang. Somebody was holding the rope.',
       partial:
         'The vote tied. Mara Reedbell broke it and would not say which way.',
       failure: 'Hollow Bell voted no. Mara was polite about it.',
@@ -381,7 +425,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     id: 'q-d20-ford-dam',
     title: 'Before the Rains',
     summary:
-      'Rains are coming, covenant or not. Shore up the old dam at the Eastern Ford before the river picks its own road.',
+      'The Eastern Ford’s old dam is cracked. The first real rain will take it, whenever it comes. Shore it up before the river picks its own road. The Moles sleep under that river.',
     region: 'east-ford',
     faction: 'freeholds',
     durationDays: 2,
@@ -402,15 +446,36 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       failure: {
         strength: { freeholds: -1 },
         flags: ['ford-flooded'],
+        schedule: ['ford-burrows'],
       },
     },
-    expired: { strength: { freeholds: -1 }, flags: ['ford-flooded'] },
+    expired: {
+      strength: { freeholds: -1 },
+      flags: ['ford-flooded'],
+      schedule: ['ford-burrows'],
+    },
     outcomes: {
       success:
         'The dam held. The map room has a new blue line where the reservoir will be.',
       partial: 'The dam held, mostly. The lower fields flooded.',
-      failure: 'The dam failed. The Ford flooded two villages.',
-      expired: 'Nobody shored it up. The Ford flooded.',
+      failure:
+        'The dam failed. The Ford took two villages, then came through the burrow ceilings under them.',
+      expired:
+        'The dam stood cracked and alone. The first hard rain took it in an hour. The Ford took two villages.',
+    },
+    outcomeVariants: {
+      failure: [
+        {
+          flags: ['no-rain'],
+          text: 'No rain all season. Then one night of it, the kind the Conclave does not sell. The dam failed in an hour. The Ford took two villages.',
+        },
+      ],
+      expired: [
+        {
+          flags: ['no-rain'],
+          text: 'No rain all season. Then one night of it, the kind the Conclave does not sell. The cracked dam went in an hour. The Ford took two villages.',
+        },
+      ],
     },
   },
 ]
@@ -475,7 +540,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['crow-contract-read'] },
             effects: {},
             response:
-              'Corvane’s clouded eyes turn to you for the first time. “Ah,” he says. “The readers. I did wonder who they were.”',
+              'Corvane’s clouded eyes turn to you for the first time. “Ah. The readers. I did wonder who they were.” He taps the oilcloth with one claw. “Clause nine is gone, as they wished. The Conclave names the favour before the rain now. In eleven.”',
             next: 'price',
           },
           {
@@ -485,7 +550,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               affinity: { 'storm-crows': 15, freeholds: 10 },
               local: { yard: 2 },
               strength: { 'storm-crows': 1 },
-              flags: ['rain-covenant'],
+              flags: ['rain-covenant', 'd11-rain-signed'],
               schedule: ['rain-covenant'],
             },
             response:
@@ -498,6 +563,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             effects: {
               affinity: { 'storm-crows': 5, freeholds: 5 },
               local: { ledger: -2 },
+              flags: ['d11-rain-bought'],
             },
             response:
               'Corvane takes the brass like a child’s drawing. The rain will come, briefly, and owe nobody anything when it goes.',
@@ -512,7 +578,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               flags: ['bonded-runner-clause', 'talk-tamsin-bonds'],
             },
             response:
-              'Tamsin reads it flat and stops at clause eleven: the service owed may be paid in runners. Corvane’s clouded eyes find her. “Little runner. You came back.”',
+              'Tamsin takes the oilcloth from the step. She does not ask where to start. Corvane’s clouded eyes find her. “Little runner. You came back.”',
+            next: 'tamsin-reads',
           },
           {
             id: 'refuse',
@@ -539,7 +606,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
-                text: 'He told you the price, Your Majesty, so when it comes due it was your choice. That is the Conclave’s whole art. I would still sign. A debt can be argued with. A dead field can’t.',
+                text: 'He told you the price, Your Majesty, so when it comes due it was your choice. I would still sign. A debt can be argued with. A dead field can’t.',
               },
             ],
             options: [
@@ -551,11 +618,11 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { 'storm-crows': 15, freeholds: 10 },
                   local: { yard: 2 },
                   strength: { 'storm-crows': 1 },
-                  flags: ['rain-covenant'],
+                  flags: ['rain-covenant', 'd11-rain-signed'],
                   schedule: ['rain-covenant'],
                 },
                 response:
-                  'You sign with your eyes open. Corvane enjoys that. A cloud shows over the Heights before the ink dries. At the back of the hall the reeves weep without a sound.',
+                  'You sign. Corvane watches the pen to the last letter. A cloud shows over the Heights before the ink dries. At the back of the hall the reeves weep without a sound.',
               },
               {
                 id: 'one-season',
@@ -564,6 +631,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'storm-crows': 5, freeholds: 5 },
                   local: { ledger: -2 },
+                  flags: ['d11-rain-bought'],
                 },
                 response:
                   'Corvane weighs the purse and sighs at the dull ending. The rain will come, briefly. In the gallery the Ledger’s factor writes down the cost.',
@@ -579,7 +647,8 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['bonded-runner-clause', 'talk-tamsin-bonds'],
                 },
                 response:
-                  'Tamsin reads it flat: the service owed may be paid in runners, the season to be counted by the Conclave. Her hands shake by the end. Corvane’s clouded eyes find her. “Little runner,” he says. “You came back.”',
+                  'Tamsin steps down from behind the throne and takes the oilcloth out of Corvane’s reach. Corvane’s clouded eyes find her. “Little runner,” he says. “You came back.”',
+                next: 'tamsin-reads',
               },
               {
                 id: 'refuse',
@@ -599,11 +668,187 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { 'storm-crows': 5, freeholds: 5 },
                   local: { yard: 2, 'old-houses': -2 },
-                  flags: ['rain-covenant', 'd11-no-runners-clause'],
+                  flags: [
+                    'rain-covenant',
+                    'd11-no-runners-clause',
+                    'd11-rain-signed',
+                  ],
                   schedule: ['rain-covenant'],
                 },
                 response:
-                  'Corvane reads the margin and initials it himself. Worse than an argument. “No persons. The Conclave is flexible about the coin. Never about the sum.” In the gallery the Old Houses, who own most of the high pastures, begin to whisper.',
+                  'Corvane reads the margin and initials it himself. Worse than an argument. “No persons. The Conclave is flexible about the coin. Never about the sum.” In the gallery the Old Houses, who lease the high pastures to Freehold herds, begin to whisper.',
+              },
+              {
+                id: 'read-eleven',
+                label: 'Read clause eleven yourself before anyone signs.',
+                effects: { flags: ['d11-clause-read'] },
+                response:
+                  'Corvane does not help you find the place. He watches you look for it.',
+                next: 'eleven',
+              },
+            ],
+          },
+          {
+            id: 'eleven',
+            lines: [
+              'The hand is old and close. The ink has gone brown. You find it at the bottom of the third fold.',
+              'Clause eleven: *The service owed may be paid in runners, the season to be counted by the Conclave.*',
+              'You read *counted* twice. Corvane waits. He has waited for that word before.',
+              {
+                who: 'A Freehold reeve at the back of the hall',
+                text: 'How long’s a season, to a crow?',
+              },
+              'Corvane looks at the reeve until the reeve looks at the floor.',
+            ],
+            options: [
+              {
+                id: 'covenant',
+                label:
+                  'Sign it as written. Whatever a season is, the fields need rain now.',
+                effects: {
+                  affinity: { 'storm-crows': 15, freeholds: 10 },
+                  local: { yard: 2 },
+                  strength: { 'storm-crows': 1 },
+                  flags: ['rain-covenant', 'd11-rain-signed'],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'You sign under clause eleven. Corvane blows on the ink. A cloud shows over the Heights before it dries. The reeve who asked the question does not clap with the others.',
+              },
+              {
+                id: 'one-season',
+                label: 'Buy one season outright. No service, no clause eleven.',
+                requires: { cost: 40 },
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 5 },
+                  local: { ledger: -2 },
+                  flags: ['d11-rain-bought'],
+                },
+                response:
+                  'Corvane weighs the purse. “You read it, and you paid not to owe it,” he says. “Most only do the first.” In the gallery the Ledger’s factor writes down the cost.',
+              },
+              {
+                id: 'refuse',
+                label: 'Refuse. A season counted by the seller is no season.',
+                effects: {
+                  affinity: { 'storm-crows': -10, freeholds: -5 },
+                  flags: ['no-rain'],
+                },
+                response:
+                  'Corvane rolls up his covenant. The reeves watch every turn. The sky stays clear. By evening every Freehold kitchen knows who kept it that way.',
+              },
+              {
+                id: 'amend',
+                label:
+                  'Sign, and write in the margin: no person of this court is ever payment.',
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 5 },
+                  local: { yard: 2, 'old-houses': -2 },
+                  flags: [
+                    'rain-covenant',
+                    'd11-no-runners-clause',
+                    'd11-rain-signed',
+                  ],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'Corvane reads the margin and initials it himself. Worse than an argument. “No persons. The Conclave is flexible about the coin. Never about the sum.” In the gallery the Old Houses, who lease the high pastures to Freehold herds, begin to whisper.',
+              },
+              {
+                id: 'amend-term',
+                label:
+                  'Sign, and write in the margin: a season is ninety days, by the tower’s calendar.',
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 10 },
+                  local: { yard: 2 },
+                  flags: ['rain-covenant', 'd11-term-fixed', 'd11-rain-signed'],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'Corvane reads the margin a long time. He initials it. “Ninety days,” he says. “By your calendar.” He does not ask whose hand keeps it. The runners are still in clause eleven. Only the count has changed.',
+              },
+            ],
+          },
+          {
+            id: 'tamsin-reads',
+            speaker: 'Tamsin Gutterwing',
+            npc: 'F011',
+            lines: [
+              'Tamsin holds the oilcloth flat on the step with both hands and reads in a runner’s voice, flat and fast. Salt. Flour. A field. A bell.',
+              'Clause eleven: *The service owed may be paid in runners, the season to be counted by the Conclave.* Her hands shake by the end of it.',
+              'She stops. “I was counted,” she says. “Eleven years.” She does not finish the page.',
+              {
+                who: 'A Freehold reeve at the back of the hall',
+                text: 'Eleven years is a long time, Majesty. So is a winter with no seed.',
+              },
+              'Corvane waits. The hall waits with him. Tamsin does not give the oilcloth back.',
+            ],
+            options: [
+              {
+                id: 'covenant',
+                label:
+                  'Sign it as written. The fields cannot wait, even for her.',
+                effects: {
+                  affinity: { 'storm-crows': 15, freeholds: 10 },
+                  local: { yard: 2 },
+                  strength: { 'storm-crows': 1 },
+                  flags: ['rain-covenant', 'd11-rain-signed'],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'You hold out your hand for the oilcloth. Tamsin gives it to you. Then she walks out of the hall. You sign. A cloud shows over the Heights before the ink dries.',
+              },
+              {
+                id: 'one-season',
+                label: 'Buy one season outright. No service, no clause eleven.',
+                requires: { cost: 40 },
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 5 },
+                  local: { ledger: -2 },
+                  flags: ['d11-rain-bought'],
+                },
+                response:
+                  'Corvane takes the purse. Tamsin rolls the oilcloth up herself, tight, and hands it to him like something that bites. The rain will come, briefly, and owe nobody anything.',
+              },
+              {
+                id: 'refuse',
+                label: 'Refuse. Not for rain. Not for anything.',
+                effects: {
+                  affinity: { 'storm-crows': -10, freeholds: -5 },
+                  flags: ['no-rain'],
+                },
+                response:
+                  'Corvane takes his covenant back from Tamsin one fold at a time. The reeves watch every fold. The sky stays clear. By evening every Freehold kitchen knows who kept it that way, and why.',
+              },
+              {
+                id: 'amend',
+                label:
+                  'Sign, and write in the margin: no person of this court is ever payment.',
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 5 },
+                  local: { yard: 2, 'old-houses': -2 },
+                  flags: [
+                    'rain-covenant',
+                    'd11-no-runners-clause',
+                    'd11-rain-signed',
+                  ],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'Tamsin watches you write it. Corvane initials it himself. “No persons. The Conclave is flexible about the coin. Never about the sum.” In the gallery the Old Houses, who lease the high pastures to Freehold herds, begin to whisper.',
+              },
+              {
+                id: 'amend-term',
+                label:
+                  'Sign, and write in the margin: a season is ninety days, by the tower’s calendar.',
+                effects: {
+                  affinity: { 'storm-crows': 5, freeholds: 10 },
+                  local: { yard: 2 },
+                  flags: ['rain-covenant', 'd11-term-fixed', 'd11-rain-signed'],
+                  schedule: ['rain-covenant'],
+                },
+                response:
+                  'Corvane initials the margin. “Ninety days. By your calendar.” Tamsin reads the margin twice. “Ninety days,” she says. “That’s a real number. They hate those.”',
               },
             ],
           },
@@ -720,6 +965,20 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             response:
               'Sister Reedlight leaves without a word, the children trotting after. By nightfall the Moles have heard. They drink to the crown in three tunnels.',
           },
+          {
+            id: 'swear-unsearched',
+            label:
+              'Hold the edge, and swear before the court that no one of the crown’s will set foot in the lantern-houses.',
+            effects: {
+              affinity: { 'mire-mothers': 10 },
+              local: { lamplight: -2 },
+              flags: ['d12-houses-sworn'],
+              schedule: ['d12-low-carrow-names'],
+            },
+            response:
+              'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” In the gallery Keeper Vellum closes his book.',
+            postsQuests: ['q-d12-mirefen-defense'],
+          },
         ],
         beats: [
           {
@@ -777,6 +1036,33 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 response:
                   'Sister Reedlight gathers the children and goes. Two days later a Low Carrow carter brings eleven names, written large by someone who learned letters to write them. That night every window in the lantern-houses goes dark at once.',
               },
+              {
+                id: 'swear-unsearched',
+                label:
+                  'Hold the edge, and swear before the court that no one of the crown’s will set foot in the lantern-houses.',
+                effects: {
+                  affinity: { 'mire-mothers': 10 },
+                  local: { lamplight: -2 },
+                  flags: ['d12-houses-sworn'],
+                  schedule: ['d12-low-carrow-names'],
+                },
+                response:
+                  'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” The young newt at the back closes her eyes and stops mouthing names.',
+                postsQuests: ['q-d12-mirefen-defense'],
+              },
+              {
+                id: 'names-first',
+                label:
+                  'Ask the Mothers to say the eleven names, here, before a single blade goes to the fen.',
+                effects: {
+                  affinity: { 'mire-mothers': -5 },
+                  local: { lamplight: 2 },
+                  flags: ['d12-names-spoken'],
+                },
+                response:
+                  'Sister Reedlight says them. All eleven. In the order the raiders shout them. She has been listening too. Then she asks again for the blades, and the crown sends them.',
+                postsQuests: ['q-d12-mirefen-defense'],
+              },
             ],
           },
           {
@@ -815,7 +1101,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'The road was closed for a reason. The crown will not be shamed onto it.',
                 effects: { affinity: { 'mire-mothers': -10, moles: 5 } },
                 response:
-                  'Sister Reedlight looks at you a long moment. “Then I withdraw it,” she says. “It was never for you. It was for the five.”',
+                  'Sister Reedlight looks at you until you look away first. “Then I withdraw it,” she says. “It was never for you. It was for the five.”',
               },
               {
                 id: 'apologize',
@@ -953,7 +1239,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Let Saffron go and fix it, if she chooses.',
             effects: {},
             response:
-              'Saffron looks at you a long moment, then at Vane. “Two days. I bring my own tools.”',
+              'Saffron looks at you. Then at Vane. “Two days. I bring my own tools.”',
             postsQuests: ['q-d13-water-engine'],
           },
           {
@@ -998,11 +1284,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 npc: 'F002',
                 text: 'I built it to sip, not gulp. You lot took the governor off the week I left, didn’t you. Course somebody from the Bell came with a crowbar. I’d have come myself.',
               },
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'So which town goes thirsty, Your Majesty, and which calls the other a thief? The Pack has wagons. The Bell has a bell.',
-              },
+              'Vane waits. He has wagons. The Bell has a bell.',
             ],
             options: [
               {
@@ -1055,7 +1337,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['d13-bell-saboteur-named'],
                 },
                 response:
-                  'Vane whispers it. A miller’s son from Hollow Bell, seventeen. His mother’s wheel had stopped. A Watch rider leaves for the Bell within the hour. Mara Reedbell will hear the hooves before the reason.',
+                  'Vane whispers it. A miller’s son from Hollow Bell, seventeen. His mother’s wheel had stopped. A Watch rider leaves for the Bell within the hour. Mara Reedbell will hear the hooves before the reason. The engine stays broken. Vane says justice will do to drink, for now.',
               },
             ],
           },
@@ -1099,12 +1381,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         lines: [
           'A sloth in ink-dark robes takes his time crossing the throne room. He does not apologize.',
           '“The old maps are dust in their cases, Majesty. Roads, wells, tunnels nobody living remembers. Copying costs ink, paper and time. Mostly time.”',
-          '“I brought one.” He unrolls it on the dais step. A corner lifts in the draught and drifts across the floor like a leaf. Nobody catches it. “That,” says Keeper Vellum, “was the Eastern Ford, before the Ford moved.”',
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Old maps are paper, Your Majesty, until somebody needs to know where a tunnel goes. Then they are worth a war.',
-          },
+          '“I brought one.” He unrolls it on the dais step. A corner lifts in the draught and drifts across the floor like a leaf. The Watch lets it go. “That,” says Keeper Vellum, “was the Eastern Ford, before the Ford moved.”',
         ],
         options: [
           {
@@ -1112,7 +1389,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'Ask which maps are crumbling first.',
             effects: {},
             response:
-              'Keeper Vellum blinks, slowly. It is the most excited he has been all day.',
+              'Keeper Vellum blinks. Slowly. He has waited all year for someone to ask.',
             next: 'shelves',
           },
           {
@@ -1121,7 +1398,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { cost: 20 },
             effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
             response:
-              'The scribes cheer, quietly, as scribes do. Keeper Vellum nods once. For him, that is dancing.',
+              'The scribes cheer, quietly, as scribes do. Keeper Vellum nods once and goes back to work.',
           },
           {
             id: 'decline',
@@ -1152,7 +1429,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 requires: { cost: 20 },
                 effects: { local: { lamplight: 4 }, flags: ['maps-copied'] },
                 response:
-                  'The scribes cheer, quietly. Keeper Vellum nods once. For him, that is dancing. Factor Tallow writes a small note in a small book.',
+                  'The scribes cheer, quietly. Keeper Vellum nods once and goes back to work. Factor Tallow writes a small note in a small book.',
               },
               {
                 id: 'decline',
@@ -1178,7 +1455,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 id: 'ledger-copies',
                 label:
-                  'Let the Ledger pay its half and own the trade-road copies.',
+                  'Let the Ledger pay for the copying and keep the trade-road copies.',
                 effects: {
                   local: { ledger: 2, lamplight: -1 },
                   affinity: { saltroad: -5 },
@@ -1202,9 +1479,9 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           'The Archive speaks well of the throne, Majesty. I came to see. I am old and fly slow. I remember roads nobody else does.',
           'If the court has a bed for an owl, I would like to see some of those roads again before I die.',
           {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Hollin Moss drew half the maps the Keeper is saving, Your Majesty. The other half are in his head. The only copy.',
+            who: 'Keeper Abelard Vellum, from the gallery',
+            npc: 'abelard-vellum',
+            text: 'Half the roads he drew are only in his head, Majesty. If he dies on a road, the road dies with him.',
           },
         ],
         options: [
@@ -1213,14 +1490,27 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             label: 'There is a bed for you, Hollin.',
             effects: { recruitable: ['F019'], local: { lamplight: 1 } },
             response:
-              'Hollin blinks slowly. In an owl, that is a great deal of feeling.',
+              'Hollin blinks once, slowly. Vellum bows from the gallery, slower. “Send him back to me when he is dying,” he says. “I will need a week.”',
           },
           {
             id: 'archive',
             label: 'The Archive needs you more.',
             effects: { local: { lamplight: 2 } },
             response:
-              '“Wisely said,” says Hollin. He flies home, slowly, by the window.',
+              '“Wisely said,” says Hollin. He flies home by the window. It takes him two tries.',
+          },
+          {
+            id: 'dictate',
+            label:
+              'Take him at court. Pay a scribe to sit with him every night until the roads are on paper.',
+            requires: { cost: 10 },
+            effects: {
+              recruitable: ['F019'],
+              local: { lamplight: 2 },
+              flags: ['d14-hollin-dictates'],
+            },
+            response:
+              'Hollin looks at the scribe, then at you. “Every night,” he says. “Owls are awake at night. Scribes are not.” The scribe goes grey by the second week. The shelves fill.',
           },
         ],
       },
@@ -1268,11 +1558,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             text: 'Listen.',
           },
           'The rat flicks one feather with a claw. It rings, thin and high. The hall holds its breath. Far to the east, faint enough to doubt, an answer.',
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'The Ledger’s factor has waited in the gallery since dawn, Your Majesty, with a purse. The Archive since before dawn, without one.',
-          },
+          'In the gallery the Ledger’s factor has waited since dawn, with a purse. The Archive’s scribes since before dawn, without one.',
         ],
         options: [
           {
@@ -1286,9 +1572,9 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'study',
             label: 'Have the Archive study it before anyone sells it.',
-            effects: {},
+            effects: { affinity: { rustline: -5 } },
             response:
-              'Jinx grins. “The studying kind. Good. Selling is boring.”',
+              'Jinx grins. “The studying kind.” The grin does not last to the door. The Yard was counting on a sale.',
             postsQuests: ['q-d15-study-glass'],
           },
           {
@@ -1335,9 +1621,9 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 id: 'study',
                 label:
                   'Have the Archive study these. Find out what the other eighty are for.',
-                effects: {},
+                effects: { affinity: { rustline: -5 } },
                 response:
-                  'Jinx sighs. “The studying kind.” A claw taps the crate. “Fine. Selling is boring. Starving is boring too, only slower.”',
+                  'Jinx sighs. “The studying kind.” A claw taps the crate. “Starving is boring too. Only slower.” That week two Rustline kits are caught eating the Archive’s paste.',
                 postsQuests: ['q-d15-study-glass'],
               },
               {
@@ -1388,9 +1674,22 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { rustline: 5 },
                   local: { ledger: 1, lamplight: -1 },
                   flags: ['d15-vault-watched'],
+                  schedule: ['vault-watched'],
                 },
                 response:
                   'Jinx takes the brass and, being Jinx, sells the crate to the Ledger on the way out. That night two Rustline lookouts settle into the rail yards with a hooded lantern and a whistle each. They watch an empty car.',
+              },
+              {
+                id: 'sell-to-tallow',
+                label:
+                  'Let the Ledger buy the crate tonight. The Rustline eats.',
+                effects: {
+                  affinity: { rustline: -5 },
+                  local: { ledger: 3, lamplight: -2 },
+                  flags: ['d15-feathers-to-ledger'],
+                },
+                response:
+                  'Factor Tallow pays triple without counting. “A buyer in the east will be so pleased,” she says, and stops. The Rustline eats that night. Jinx does not thank the crown. “Sold to the Ledger by a throne that wouldn’t buy,” she says, and spits.',
               },
             ],
           },
@@ -1445,11 +1744,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             npc: 'ottoline-vask',
             text: 'The Old Houses saved in good years, Majesty, while others ate. Is prudence a crime now?',
           },
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Three haystacks on the Freehold road are too heavy for hay, Your Majesty. An Old House crest is easy to stencil. Or hard to explain.',
-          },
+          'Dunmore does not answer her. He picks a husk off the sack and puts it in his mouth.',
         ],
         options: [
           {
@@ -1463,21 +1758,30 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'requisition',
             label: 'Requisition the Old Houses’ grain for the Yard.',
-            effects: { local: { yard: 4, 'old-houses': -4 } },
+            effects: {
+              local: { yard: 4, 'old-houses': -4 },
+              flags: ['d16-granary-requisitioned'],
+            },
             response: 'Dunmore nods once. Lady Vask writes something down.',
           },
           {
             id: 'buy',
             label: 'Buy the Old Houses’ surplus at a fair price.',
             requires: { cost: 25 },
-            effects: { local: { yard: 2, 'old-houses': 1 } },
+            effects: {
+              local: { yard: 2, 'old-houses': 1 },
+              flags: ['d16-surplus-bought'],
+            },
             response:
-              'Everyone is a bit unhappy. Komodo calls that a fair deal.',
+              'Lady Vask names the fair price. It is not. The crown pays it. Dunmore carries the first sack out himself.',
           },
           {
             id: 'leave',
             label: 'Prudence is not a crime.',
-            effects: { local: { yard: -3, 'old-houses': 2 } },
+            effects: {
+              local: { yard: -3, 'old-houses': 2 },
+              flags: ['d16-grain-sold-east'],
+            },
             response:
               'Dunmore leaves without a word. The Yard is quiet at supper.',
           },
@@ -1514,7 +1818,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 id: 'requisition',
                 label:
                   'Requisition it anyway. Whoever the buyer is, the Yard eats first.',
-                effects: { local: { yard: 4, 'old-houses': -4 } },
+                effects: {
+                  local: { yard: 4, 'old-houses': -4 },
+                  flags: ['d16-granary-requisitioned'],
+                },
                 response:
                   'Dunmore nods once and shoulders the sack. Lady Vask writes something down. Then something under it. She underlines it twice.',
               },
@@ -1523,14 +1830,20 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 label:
                   'Buy the surplus at a fair price, so the Houses can repay their buyer.',
                 requires: { cost: 25 },
-                effects: { local: { yard: 2, 'old-houses': 1 } },
+                effects: {
+                  local: { yard: 2, 'old-houses': 1 },
+                  flags: ['d16-surplus-bought'],
+                },
                 response:
-                  'Everyone is a bit unhappy. Komodo calls that a fair deal. Next morning Lady Vask sends the silver back east with a letter nobody else may read.',
+                  'The crown pays. Dunmore carries the first sack out himself. Next morning Lady Vask sends the silver back east with a sealed letter.',
               },
               {
                 id: 'leave',
                 label: 'A contract is a contract. Prudence is not a crime.',
-                effects: { local: { yard: -3, 'old-houses': 2 } },
+                effects: {
+                  local: { yard: -3, 'old-houses': 2 },
+                  flags: ['d16-grain-sold-east'],
+                },
                 response:
                   'Dunmore leaves the sack where it lies. Supper in the Yard is quiet. By morning PRUDENCE is written on the Old Houses’ granary door in flour paste.',
               },
@@ -1541,10 +1854,23 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 effects: {
                   brass: 20,
                   local: { yard: 2, 'old-houses': -3, ledger: -2 },
+                  affinity: { 'black-verge': -5 },
                   flags: ['d16-border-silver-seized'],
+                  schedule: ['verge-change'],
                 },
                 response:
                   'The silver is heavier than brass, and colder. The clerk who counts it shivers all evening. Lady Vask says nothing. The Ledger asks in writing what precedent the crown thinks it has set. The Yard eats. It does not ask where the grain was going.',
+              },
+              {
+                id: 'follow-grain',
+                label:
+                  'Let the grain go east. Put a rider on the carts and see who eats it.',
+                effects: {
+                  local: { yard: -3, 'old-houses': 2, lamplight: 2 },
+                  flags: ['d16-grain-followed', 'd16-grain-sold-east'],
+                },
+                response:
+                  'Dunmore picks up the empty sack. Folds it. Puts it inside his coat. “I’ll keep this for when your rider comes back,” he says. The Yard eats half rations another fortnight.',
               },
             ],
           },
@@ -1650,7 +1976,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['d16-informant-sent-east'],
                 },
                 response:
-                  'She looks almost disappointed. Then very young. Then she is gone east with the morning caravan. Dunmark watches her go. He says nothing about his map.',
+                  'She looks almost disappointed. Then young. Fifteen at most. Then she is gone east with the morning caravan. Dunmark watches her go. He says nothing about his map.',
               },
               {
                 id: 'turn-away',
@@ -1905,7 +2231,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 label: 'Leave Komodo to see to his runner. Send her home.',
                 effects: { affinity: { moles: -5 } },
                 response:
-                  'Granny Umber is shown out. Komodo looks relieved, then sorry he did.',
+                  'Granny Umber is shown out. Komodo walks her to the door himself, a hand under her elbow. Kind.',
               },
               {
                 id: 'close-race',
@@ -1978,11 +2304,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             npc: 'ottoline-vask',
             text: 'The Old Houses don’t open their cisterns to the road either, Foreman. A well is property, or nothing is.',
           },
-          {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'They are not arguing about the Freeholds, Your Majesty. They are arguing about each other. Rule either way, one of them will be sure it was about them.',
-          },
+          'Hester looks from one to the other. She came about wells.',
         ],
         options: [
           {
@@ -2028,7 +2350,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'escort',
             label: 'Walk the refugees to Hollow Bell instead.',
-            effects: {},
+            effects: { flags: ['d18-strangers-walked'] },
             response: 'The reeve looks relieved. Someone else’s problem.',
             postsQuests: ['q-d18-refugee-road'],
           },
@@ -2043,6 +2365,20 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 who: 'Young Komodo',
                 npc: 'young-komodo',
                 text: 'So the wells are not closed, Your Majesty. They are priced. A very Freehold distinction.',
+              },
+            ],
+            variants: [
+              {
+                flags: ['d12-raiders-heard'],
+                lines: [
+                  '“Mirefen folk, walking away from whatever the Mothers are doing. Pack deserters, since the engine dried. Low Carrow folk too. They say the crown listened to them once. They’re walking here to see if it does twice.”',
+                  '“And since you asked: my people sell the water we won’t give. A brass bit a cup, back gates, after dark. Somebody has to pay for the wells, Majesty. It won’t be the crown.”',
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'So the wells are not closed, Your Majesty. They are priced. A very Freehold distinction.',
+                  },
+                ],
               },
             ],
             options: [
@@ -2075,7 +2411,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 id: 'escort',
                 label:
                   'Walk the strangers to Hollow Bell instead. Let the Bell decide.',
-                effects: {},
+                effects: { flags: ['d18-strangers-walked'] },
                 response: 'Hester looks relieved. Then ashamed of it.',
                 postsQuests: ['q-d18-refugee-road'],
               },
@@ -2087,6 +2423,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: -10 },
                   local: { lamplight: 2, yard: -1 },
                   flags: ['d18-water-trade-banned'],
+                  schedule: ['back-gate-death'],
                 },
                 response:
                   'Hester’s feathers go up. “Principled,” she says, like a disease. The back gates close. Strangers with a little brass have nothing to spend it on. Those with none are no better off.',
@@ -2101,7 +2438,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['d18-water-taxed'],
                 },
                 response:
-                  'Hester looks at you a long moment, then laughs, short and not kind. “A cup taxed twice. Once by thirst.” By nightfall a crown clerk has a table at the back gate.',
+                  'Hester looks at you. Then she laughs, short and not kind. “A cup taxed twice. Once by thirst.” By nightfall a crown clerk has a table at the back gate.',
               },
             ],
           },
@@ -2127,7 +2464,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   flags: ['wells-shared'],
                 },
                 response:
-                  'Hester takes the brass. “Then nobody needs a token. Nobody needs to be from anywhere.” She is not sure that is a relief.',
+                  'Hester takes the brass. “Then nobody needs a token. Nobody needs to be from anywhere.” She puts the brass away without counting it.',
               },
               {
                 id: 'freehold-rights',
@@ -2144,7 +2481,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 id: 'escort',
                 label: 'Walk Thistledown and the rest to Hollow Bell.',
-                effects: {},
+                effects: { flags: ['d18-strangers-walked'] },
                 response:
                   '“Mara will write every one of them down,” says Hester. “At least somebody will.”',
                 postsQuests: ['q-d18-refugee-road'],
@@ -2157,6 +2494,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { freeholds: -5 },
                   local: { lamplight: 1, yard: 2 },
                   flags: ['d18-crown-tokens'],
+                  schedule: ['thistledown-tokens'],
                 },
                 response:
                   'Hester holds the sealed tokens between two fingers like they are still warm. “The crown deciding who’s a Freeholder. My grandmother would have spat.” She hands them out herself, by name. She does not count.',
@@ -2171,13 +2509,13 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         speaker: 'Vesper Fanfare, fire-juggler',
         faction: 'saltroad',
         lines: [
-          'You hear the fair first: a fiddle, a drum, three goats objecting. Vesper Fanfare cartwheels the last yards of carpet and lands in a bow, a lit torch in each hand. The Watch notices.',
-          'Majesty! A whole fair at your gate. Music, cider, three dancing goats and me. The Yard needs a night off. So do you, by the look of you.',
+          'You hear the fair first. A fiddle. A drum. A goat screaming like a person. Vesper Fanfare cartwheels the last yards of carpet and lands in a bow, a lit torch in each hand. The Watch puts hands on hilts.',
+          'Majesty! A whole fair at your gate. Music, cider and me. The Yard needs a night off. You look like you need a year.',
           'All we ask is the field outside the wall. Maybe some brass for the lamps.',
           {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Half the Yard is on the wall watching the jugglers, Your Majesty. A fair buys a good mood cheap. It spends water dear.',
+            who: 'Captain Ferro Dunmark',
+            npc: 'ferro-dunmark',
+            text: 'Half the Yard is on the wall watching her, Majesty. Fire on a dry night. Forty barrels of something wet. I’d like to know which worries me more.',
           },
         ],
         options: [
@@ -2263,10 +2601,11 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 effects: {
                   affinity: { saltroad: -5 },
                   local: { yard: 2, lamplight: 1 },
+                  recruitable: ['F018'],
                   flags: ['d18-fair-water-shared'],
                 },
                 response:
-                  'The cider-master protests, loud, then less loud. The fair runs drier and louder. At midnight Vesper takes her torches to the road and juggles for the people drinking the fair’s water. Nobody pays her to.',
+                  'The cider-master protests, loud, then less loud. The fair runs drier and louder. At midnight Vesper takes her torches to the road and juggles for the people drinking the fair’s water. At dawn she is at the gate. “Turns out I liked it,” she says. “Got a bed?”',
               },
             ],
           },
@@ -2311,11 +2650,45 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
           'Hollow Bell votes tomorrow on your protection, Your Majesty. I won’t say which way I lean.',
           'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
-          '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are very good at soup.”',
+          '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+        ],
+        // The Bell votes on what the crown has already done to it.
+        variants: [
           {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'She just named her three prices, Your Majesty. Mara does not show her ledger. Take it as a compliment. And a warning.',
+            flags: ['d13-bell-saboteur-named'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
+              'Hollow Bell votes tomorrow, Your Majesty. Your Watch took the Hessle boy out of his mother’s mill on Day Thirteen. Seventeen. She votes tomorrow. So do her cousins.',
+              'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
+              '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+            ],
+          },
+          {
+            flags: ['d18-strangers-walked'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
+              'Hollow Bell votes tomorrow, Your Majesty. Your strangers are on my road tonight, forty of them. Half can’t vote. The other half are watching who walks them in.',
+              'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
+              '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+            ],
+          },
+          {
+            flags: ['d13-bell-warned'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
+              'Hollow Bell votes tomorrow, Your Majesty. You sent word before the Pack’s engine drank our stream. The Bell remembers who knocks first. I still won’t say which way I lean.',
+              'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
+              '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+            ],
+          },
+          {
+            flags: ['d13-water-shared'],
+            lines: [
+              'Mara Reedbell has ridden all night. Her mayoral sash is mended in three places. Her ledger is chained to her belt, and stays shut. The hand-bell at her hip rings with every step until she puts a hoof over it.',
+              'Hollow Bell votes tomorrow, Your Majesty. The Pack’s water came back down our stream the week you asked Vane for it. The Bell noticed. I won’t say which way I lean.',
+              'Give my people a reason. A garrison, water, or a good speech. Promises they can see.',
+              '“The Abbey sisters have knocked on every door in the Bell this week. They bring soup. They are good at soup.”',
+            ],
           },
         ],
         options: [
@@ -2343,14 +2716,17 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { 'gate-watch': -2 },
               strength: { 'hollow-bell': 1 },
               flags: ['bell-under-protection', 'bell-voted-yes'],
+              schedule: ['bell-garrison'],
             },
             response:
               'Mara smiles and writes one word in her ledger. The Bell votes yes the next day.',
           },
           {
             id: 'water',
-            label: 'Pledge the crown’s share of the covenant rain to the Bell.',
-            requires: { flags: ['rain-covenant'] },
+            label: 'Pledge the crown’s share of the coming rain to the Bell.',
+            requires: {
+              standing: { flags: ['rain-covenant', 'd11-rain-bought'], min: 1 },
+            },
             effects: {
               affinity: { 'hollow-bell': 15, freeholds: -5 },
               flags: ['bell-voted-yes'],
@@ -2360,11 +2736,25 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           },
           {
             id: 'speech',
-            label: 'Send someone to make the crown’s case in the square.',
+            label:
+              'Send someone to make the case in the square. The vote turns on how they do.',
             effects: {},
             response:
               '“Make it a good one,” says Mara. “The sisters have been busy.”',
             postsQuests: ['q-d19-bell-speech'],
+          },
+          {
+            id: 'free-miller-son',
+            label:
+              'Release the miller’s son into Mara’s custody before the vote.',
+            requires: { flags: ['d13-bell-saboteur-named'] },
+            effects: {
+              affinity: { 'hollow-bell': 10, jackalwire: -10 },
+              local: { 'gate-watch': -1 },
+              flags: ['d19-miller-son-released', 'bell-voted-yes'],
+            },
+            response:
+              'Mara signs for him like a parcel. The boy will not look at her. The Bell votes yes the next day. Down the canyon, Gristle Vane hears the bell ring and knows what it cost him.',
           },
         ],
         beats: [
@@ -2390,6 +2780,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': -2 },
                   strength: { 'hollow-bell': 1 },
                   flags: ['bell-under-protection', 'bell-voted-yes'],
+                  schedule: ['bell-garrison'],
                 },
                 response:
                   'Mara writes one word in her ledger. The Bell votes yes. The sisters leave by the north road, still carrying their soup.',
@@ -2397,8 +2788,13 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 id: 'water',
                 label:
-                  'Pledge the crown’s share of the covenant rain to the Bell.',
-                requires: { flags: ['rain-covenant'] },
+                  'Pledge the crown’s share of the coming rain to the Bell.',
+                requires: {
+                  standing: {
+                    flags: ['rain-covenant', 'd11-rain-bought'],
+                    min: 1,
+                  },
+                },
                 effects: {
                   affinity: { 'hollow-bell': 15, freeholds: -5 },
                   flags: ['bell-voted-yes'],
@@ -2447,13 +2843,9 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'millers',
             lines: [
-              '“As one family. Against. Your levy saw to that.” She is not sorry. “The mill families have never been so united. Eleven hands, and the Bell is decided by fewer.”',
+              '“As one family. Against. Your levy saw to that.” She is not sorry. “The mill families have never been so united. Nine hands, and the Bell is decided by fewer.”',
               '“They sent word through me, politely: they’d vote yes for a crown that repealed its unjust levy. They know I signed nothing. They know I asked you to.”',
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'There it is again, Your Majesty. The blame, come round to be paid. Repeal the levy and you buy eleven hands with the poor wards’ water. Keep it and lose the Bell for keeping your word.',
-              },
+              'She waits. The levy paid for the poor wards’ water. You both know it.',
             ],
             options: [
               {
@@ -2466,15 +2858,21 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { 'gate-watch': -2 },
                   strength: { 'hollow-bell': 1 },
                   flags: ['bell-under-protection', 'bell-voted-yes'],
+                  schedule: ['bell-garrison'],
                 },
                 response:
-                  'Mara writes one word. The Bell votes yes by more than eleven hands. The outvoted mill families grind nothing for a day, out of spite.',
+                  'Mara writes one word. The Bell votes yes by more than nine hands. The outvoted mill families grind nothing for a day, out of spite.',
               },
               {
                 id: 'water',
                 label:
-                  'Pledge the covenant rain instead. Let the millers argue with rain.',
-                requires: { flags: ['rain-covenant'] },
+                  'Pledge the coming rain instead. Let the millers argue with rain.',
+                requires: {
+                  standing: {
+                    flags: ['rain-covenant', 'd11-rain-bought'],
+                    min: 1,
+                  },
+                },
                 effects: {
                   affinity: { 'hollow-bell': 15, freeholds: -5 },
                   flags: ['bell-voted-yes'],
@@ -2493,7 +2891,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               },
               {
                 id: 'repeal-levy',
-                label: 'Repeal the millers’ levy for their eleven hands.',
+                label: 'Repeal the millers’ levy for their nine hands.',
                 effects: {
                   affinity: { 'hollow-bell': 5 },
                   local: { 'old-houses': 2, yard: -2 },
@@ -2521,8 +2919,22 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'rains-coming',
         source: 'Storm Crow Heights',
-        text: 'The rains will break over the Eastern Ford within two days.',
+        text: 'Thunderheads stand over the Heights. They have not moved in a week.',
         truth: true,
+        variants: [
+          {
+            flags: ['d11-rain-signed'],
+            text: 'The Conclave’s rain broke over the Ford before dawn. It is walking toward the Bell.',
+          },
+          {
+            flags: ['d11-rain-bought'],
+            text: 'The rain the crown bought broke over the Ford before dawn. It is walking toward the Bell.',
+          },
+          {
+            flags: ['no-rain'],
+            text: 'Clouds over the Heights. They stop at the tower’s border, like a line drawn with a rule.',
+          },
+        ],
       },
       {
         id: 'verge-riders',
@@ -2549,11 +2961,21 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             npc: 'ottoline-vask',
             text: 'A levy should fall on those with least to lose, Majesty. Simple arithmetic.',
           },
-          'At the back, Foreman Dunmore Ash repeats it slowly. “The least to lose.” Nobody laughs.',
+          'At the back, Foreman Dunmore Ash repeats it slowly. “The least to lose.” Then once more, to himself.',
+        ],
+        variants: [
           {
-            who: 'Young Komodo',
-            npc: 'young-komodo',
-            text: 'Rain on the Ford in two days, riders on the border, and a Watch that can’t cover both. Somebody pays for this levy, Your Majesty. The only question is who gets to call it fair.',
+            flags: ['bell-under-protection'],
+            lines: [
+              'Captain Ferro Dunmark brings a list, not a speech. Names down one side, gaps down the other. The gaps are longer. He reads it at attention. Lady Ottoline Vask waits, head tilted, through a tune she has heard before.',
+              'The Watch is thin, Majesty. Twelve of these gaps are at Hollow Bell. You put them there yesterday. The borders aren’t thin. Riders at the edge of the map. Raiders in the canyon. We need a levy, brass and bodies, before the season turns.',
+              {
+                who: 'Lady Ottoline Vask',
+                npc: 'ottoline-vask',
+                text: 'A levy should fall on those with least to lose, Majesty. Simple arithmetic.',
+              },
+              'At the back, Foreman Dunmore Ash repeats it slowly. “The least to lose.” Then once more, to himself.',
+            ],
           },
         ],
         options: [
@@ -2582,6 +3004,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               brass: 40,
               local: { yard: -5, 'gate-watch': 3, 'old-houses': 2 },
               flags: ['levy-yard'],
+              schedule: ['yard-double-loss'],
             },
             response:
               'Dunmark nods. Lady Vask smiles. The Yard does not. Dunmore Ash leaves before the order is read.',
@@ -2610,7 +3033,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['market-charter'] },
             effects: {
               brass: 25,
-              local: { ledger: -3, 'gate-watch': 2, yard: 1 },
+              local: { ledger: -3, 'gate-watch': 2, yard: -1 },
               flags: ['d20-levy-ledger'],
             },
             response:
@@ -2621,7 +3044,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'plum',
             lines: [
-              '“Far gate, dusk. Six riders, coats the colour of a bruise, white gloves. Didn’t draw. Asked my sergeant, very civil, if a black leopard with good manners had passed this way.”',
+              '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
               '“He said no. One of them took off a glove and gave it to him. A gift, for his trouble.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
               {
                 who: 'Lady Ottoline Vask',
@@ -2634,6 +3057,42 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 text: 'I did not know them this morning, Your Majesty. I know them a little now. I do not like how much better my lady Vask does.',
               },
             ],
+            variants: [
+              {
+                flags: ['d16-border-silver-seized'],
+                lines: [
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“Then one asked after some silver that went astray on the Freehold road. Grain money, he said. Paid in advance.” Dunmark sets a white glove on the dais step. Spotless. “He left that. My sergeant’s been sick since.”',
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: 'The Black Verge Court, Majesty. The Old Houses have traded with them for years. Perfectly civilized. They pay in silver.',
+                  },
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'I did not know them this morning, Your Majesty. I know them a little now. I do not like how much better my lady Vask does.',
+                  },
+                ],
+              },
+              {
+                flags: ['d16-grain-followed'],
+                lines: [
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“And your rider came back from the grain carts. Their horses were eating Freehold oats out of Old House sacks.” Dunmark sets a white glove on the dais step. Spotless. “They gave my sergeant this. He’s been sick since.”',
+                  {
+                    who: 'Lady Ottoline Vask',
+                    npc: 'ottoline-vask',
+                    text: 'The Black Verge Court, Majesty. The Old Houses have traded with them for years. Perfectly civilized. They pay in silver.',
+                  },
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'I did not know them this morning, Your Majesty. I know them a little now. I do not like how much better my lady Vask does.',
+                  },
+                ],
+              },
+            ],
             options: [
               {
                 id: 'levy-yard',
@@ -2643,6 +3102,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   brass: 40,
                   local: { yard: -5, 'gate-watch': 3, 'old-houses': 2 },
                   flags: ['levy-yard'],
+                  schedule: ['yard-double-loss'],
                 },
                 response:
                   'Dunmark nods. Lady Vask smiles. The Yard does not. That night the white glove burns in the Watch’s fire. Nobody admits to it.',
@@ -2664,7 +3124,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 label: 'No levy. The Watch will make do, glove or no glove.',
                 effects: { local: { 'gate-watch': -3, yard: 1 } },
                 response:
-                  'Dunmark salutes, stiff, and carries the glove out in tongs. “We’ll make do. Until we can’t.”',
+                  'Dunmark salutes, stiff, and carries the glove out in tongs. He does not say anything about making do.',
               },
               {
                 id: 'answer-verge',
@@ -2700,6 +3160,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   brass: 40,
                   local: { yard: -5, 'gate-watch': 3, 'old-houses': 2 },
                   flags: ['levy-yard'],
+                  schedule: ['yard-double-loss'],
                 },
                 response:
                   'Dunmark is silent a long moment. He takes the list back, salutes to regulation, and leaves. By supper the Watch knows about the oath. So does the Yard.',
@@ -2721,7 +3182,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 label: 'No levy. The Watch makes do, and the oath stands.',
                 effects: { local: { 'gate-watch': -3, yard: 1 } },
                 response:
-                  'Dunmark salutes. “We’ll make do until we can’t. When we can’t, I’ll tell you so to your face.”',
+                  'Dunmark salutes. “When we can’t make do, I’ll tell you so to your face.”',
               },
               {
                 id: 'volunteers',
@@ -2747,7 +3208,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'storm-crows',
         requires: { flags: ['rain-covenant'] },
         lines: [
-          'The rain came three days ago. It still falls, soft and steady from the Ford to the Bell. The fortress smells of wet dust and green. Elder Corvane walks up the carpet bone dry. His chimes are silent.',
+          'The rain broke before dawn. It falls soft and steady from the Ford to the Bell. The fortress smells of wet dust and green. Elder Corvane walks up the carpet bone dry. His chimes are silent.',
           'The rain came, young ruler. The Conclave names its service: three runners from your court, to carry forecasts in the caves for a season.',
           '“Young ones, please. The caves are narrow. Old legs are slow on the ladders.”',
           {
@@ -2793,6 +3254,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               affinity: { 'storm-crows': -5 },
               clearFlags: ['rain-covenant'],
               flags: ['covenant-bought-out'],
+              schedule: ['crow-substitution'],
             },
             response:
               'Corvane takes the brass with distaste. “The covenant said runners. We will remember the substitution.”',
@@ -2805,6 +3267,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               local: { yard: -4 },
               clearFlags: ['rain-covenant'],
               flags: ['covenant-paid-in-runners'],
+              schedule: ['yard-double-loss', 'runner-at-gate'],
             },
             response:
               'Three young volunteers climb the Heights. The Yard does not forgive it quickly.',
@@ -2821,6 +3284,29 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             },
             response:
               'Corvane goes still. Outside, the soft rain stops all at once. The sky turns the colour of a bruise.',
+          },
+          {
+            id: 'ask-eleven',
+            label:
+              'Ask about clause eleven, the one you read yourself: who counts the season?',
+            requires: {
+              flags: ['d11-clause-read'],
+              notFlags: ['bonded-runner-clause'],
+            },
+            effects: {},
+            response:
+              '“You read it,” says Corvane. “Most don’t.” It does not sound like praise.',
+            next: 'season',
+          },
+          {
+            id: 'hold-term',
+            label:
+              'Hold Corvane to your margin note: a season is ninety days, by the tower’s calendar.',
+            requires: { flags: ['d11-term-fixed'] },
+            effects: {},
+            response:
+              'Corvane unrolls the covenant to the margin and reads your hand back to you, word for word.',
+            next: 'term',
           },
         ],
         beats: [
@@ -2840,6 +3326,25 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                 text: 'Nine years for three months of rain, Your Majesty. I have seen worse loans at the Ledger. Not many. None were children.',
               },
             ],
+            variants: [
+              {
+                flags: ['d11-term-fixed'],
+                lines: [
+                  '“Your margin says ninety days,” says Corvane. “Your hand. My initials. I read it every night on the way down.”',
+                  '“The last runner to leave us had no margin. He served nine years for one summer. Well fed. We are not cruel, young ruler. We are exact.”',
+                  {
+                    who: 'Foreman Dunmore Ash',
+                    npc: 'dunmore-ash',
+                    text: 'Three in the Yard already asking to go, Majesty. Orphans. They think it’s an adventure.',
+                  },
+                  {
+                    who: 'Young Komodo',
+                    npc: 'young-komodo',
+                    text: 'Nine years for three months of rain, Your Majesty. I have seen worse loans at the Ledger. Not many. None were children.',
+                  },
+                ],
+              },
+            ],
             options: [
               {
                 id: 'pay-brass',
@@ -2850,9 +3355,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { 'storm-crows': -5 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-bought-out'],
+                  schedule: ['crow-substitution'],
                 },
                 response:
-                  'Corvane takes the brass with distaste and counts it twice. “The covenant said runners. We will remember the substitution.” The three Yard orphans are bitterly disappointed.',
+                  'Corvane counts the brass twice. “Runners were written. Brass was given. The Conclave keeps both columns.” The three Yard orphans are bitterly disappointed.',
               },
               {
                 id: 'send-runners',
@@ -2862,6 +3368,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { yard: -4 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-paid-in-runners'],
+                  schedule: ['yard-double-loss', 'runner-at-gate'],
                 },
                 response:
                   'Three young volunteers climb the Heights in borrowed boots, waving. The Yard waves back. Each year they are not home, it forgives the crown less.',
@@ -2877,7 +3384,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   schedule: ['crow-debt'],
                 },
                 response:
-                  'Corvane goes still. Outside, the soft rain stops all at once. The sky turns the colour of a bruise.',
+                  'Corvane goes still. Outside, the rain stops. Not slowing. Stopped, mid-fall. By noon the gutters are dry.',
               },
               {
                 id: 'fixed-term',
@@ -2888,6 +3395,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { yard: -2 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-paid-in-runners', 'd20-runners-term-fixed'],
+                  schedule: ['yard-double-loss'],
                 },
                 response:
                   'Corvane writes the term himself, in a hand so old it is hard to read. “Three months. By your calendar.” He does not say what your calendar is worth when they are up.',
@@ -2901,6 +3409,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { 'old-houses': -3, yard: 2 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-paid-in-runners', 'd20-court-runners'],
+                  schedule: ['runner-at-gate'],
                 },
                 response:
                   'Lady Vask’s nephew is the second name read. She does not move. Corvane looks the three over like fruit at market. “Well fed,” he says. For once the Yard says nothing against the crown.',
@@ -2910,17 +3419,12 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'land',
             lines: [
-              '“No persons.” Corvane lifts his wings an inch. In a crow his age, a shrug. “So the Conclave takes land. The high pastures above the Ford, for our storm-glass. The rain came from there. Let it be paid there.”',
+              '“No persons.” Corvane lifts his wings an inch and lets them fall. “So the Conclave takes land. The high pastures above the Ford, for our storm-glass. The rain came from there. Let it be paid there.”',
               '“The Freeholds graze those pastures. They’ll graze somewhere else. That was never in your margin.”',
               {
                 who: 'Hester Plowright',
                 npc: 'hester-plowright',
                 text: 'Those pastures are three hundred goats and every Freehold child’s milk, Majesty. You wrote that margin. You never asked us what it cost.',
-              },
-              {
-                who: 'Young Komodo',
-                npc: 'young-komodo',
-                text: 'You read it with your eyes open, Your Majesty. So did he. He read further.',
               },
             ],
             options: [
@@ -2933,9 +3437,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { 'storm-crows': -5 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-bought-out'],
+                  schedule: ['crow-substitution'],
                 },
                 response:
-                  'Corvane takes the brass with distaste. “The covenant said a service. We will remember the substitution.” Hester Plowright lets out her breath.',
+                  'Corvane takes the brass with distaste. “A service was written. Brass was given. We remember the difference.” Hester Plowright lets out her breath.',
               },
               {
                 id: 'send-runners',
@@ -2946,9 +3451,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   local: { yard: -4 },
                   clearFlags: ['rain-covenant'],
                   flags: ['covenant-paid-in-runners'],
+                  schedule: ['yard-double-loss', 'runner-at-gate'],
                 },
                 response:
-                  'Corvane says nothing. Three young volunteers climb the Heights. The Yard does not forgive it quickly. Hester Plowright, whose goats keep their pasture, cannot meet the Yard’s eyes for a month.',
+                  'Corvane says nothing. Three young volunteers climb the Heights. Hester Plowright, whose goats keep their pasture, cannot meet the Yard’s eyes for a month.',
               },
               {
                 id: 'break',
@@ -2962,7 +3468,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   schedule: ['crow-debt'],
                 },
                 response:
-                  'Corvane goes still. Outside, the soft rain stops all at once. The sky over the high pastures turns the colour of a bruise.',
+                  'Corvane goes still. Over the high pastures the rain stops in a straight line, as if cut. The goats on the near side of it are wet. The goats on the far side are not.',
               },
               {
                 id: 'cede-pastures',
@@ -2972,9 +3478,64 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   affinity: { 'storm-crows': 10, freeholds: -10 },
                   clearFlags: ['rain-covenant'],
                   flags: ['d20-pastures-ceded'],
+                  schedule: ['pastures-ceded'],
                 },
                 response:
                   'Corvane bows, for the first time. By morning the Freehold herds come down off the high pastures in long, bleating lines. Tall glass vanes go up where they grazed, ringing in the wind.',
+              },
+            ],
+          },
+          {
+            id: 'term',
+            lines: [
+              '“Ninety days,” says Corvane. “Your hand. My initials. By your calendar.” He looks past the throne at the calendar on the wall as if he has never seen one.',
+              '“Three runners, then. Ninety days is a short season. We will run them hard.”',
+              {
+                who: 'Foreman Dunmore Ash',
+                npc: 'dunmore-ash',
+                text: 'Three in the Yard already asking to go, Majesty. Orphans. They think it’s an adventure. Ninety days, they can count to.',
+              },
+            ],
+            options: [
+              {
+                id: 'keep-term',
+                label:
+                  'Send the three Yard volunteers for ninety days. Write the day they come home on the gate.',
+                effects: {
+                  affinity: { 'storm-crows': 5 },
+                  local: { yard: -2 },
+                  clearFlags: ['rain-covenant'],
+                  flags: ['covenant-paid-in-runners', 'd20-runners-term-fixed'],
+                  schedule: ['yard-double-loss'],
+                },
+                response:
+                  'Corvane writes the date of their return under your margin, small. “Count them yourself,” he says. The Yard chalks the day on the gate. Somebody scratches off one mark every morning.',
+              },
+              {
+                id: 'pay-brass',
+                label: 'Pay in brass. Not even ninety days.',
+                requires: { cost: 50 },
+                effects: {
+                  affinity: { 'storm-crows': -5 },
+                  clearFlags: ['rain-covenant'],
+                  flags: ['covenant-bought-out'],
+                  schedule: ['crow-substitution'],
+                },
+                response:
+                  'Corvane takes the brass. “You fixed the term and then would not serve it,” he says. “We will remember that too.”',
+              },
+              {
+                id: 'break',
+                label: 'Break the covenant, margin and all.',
+                effects: {
+                  affinity: { 'storm-crows': -30 },
+                  strength: { 'storm-crows': -1 },
+                  clearFlags: ['rain-covenant'],
+                  flags: ['covenant-broken'],
+                  schedule: ['crow-debt'],
+                },
+                response:
+                  'Corvane rolls the covenant up with your margin inside it. Outside, the rain stops all at once. He takes the dry road home.',
               },
             ],
           },
@@ -2985,10 +3546,143 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
 ]
 
 /**
- * The rain covenant (t-040). Signing it books the Day 20 reckoning. Day 34
- * bills only a covenant still held, broken, or paid in runners for a season;
- * one bought out with brass, settled in pastures or served on a fixed term
- * owes nothing more. A run that never signed is never billed.
+ * The runner at the gate (t-036, lead decision 2026-10-21). A covenant paid
+ * in runners is not billed in brass on Day 34: a person comes due instead.
+ * Linnet, one of the three sent up the Heights, is sent down to ask whether
+ * the crown is buying her out early. Act IV lists this audience on Day 34.
+ */
+export const D34_RUNNER_AT_GATE: AudienceDef = {
+  id: 'd34-runner-at-gate',
+  title: 'A Runner at the Gate',
+  speaker: 'Linnet, a runner bonded to the Conclave',
+  faction: 'storm-crows',
+  requires: { flags: ['d34-runner-at-gate'] },
+  lines: [
+    'She is on the gate step when the bar comes off. A young stoat in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
+    '“Linnet, Majesty. From the Yard. You sent three of us up the Heights on Day Twenty. I’m the one they sent down.”',
+    '“Elder Corvane asks a thing. Is the crown buying me out early? Sixty brass. He says it is the same to the Conclave either way.” She wipes the rain off her nose. “It isn’t.”',
+    '“Two more years, they say. Or nine. They count it.” Rain runs off the sash onto the step. She does not ask to come in.',
+  ],
+  variants: [
+    {
+      flags: ['d20-court-runners'],
+      lines: [
+        'She is on the gate step when the bar comes off. A young stoat in a Conclave sash, soaked through. She has not knocked. She is waiting to be sent for.',
+        '“Linnet, Majesty. The clerk’s girl. You sent three of us from your own households on Day Twenty. I’m the one they sent down.”',
+        '“Elder Corvane asks a thing. Is the crown buying me out early? Sixty brass. He says it is the same to the Conclave either way.” She wipes the rain off her nose. “It isn’t.”',
+        '“Two more years, they say. Or nine. They count it.” Rain runs off the sash onto the step. Her father is at his desk forty yards away. She does not ask for him.',
+      ],
+    },
+  ],
+  options: [
+    {
+      id: 'buy-out',
+      label: 'Buy out her term. Sixty brass, and she comes in out of the rain.',
+      requires: { cost: 60 },
+      effects: {
+        affinity: { 'storm-crows': -5 },
+        local: { yard: 2 },
+        flags: ['d34-runner-home', 'd34-runner-bought'],
+      },
+      response:
+        'A crow takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every crow on the sills sits with its back to the throne.',
+    },
+    {
+      id: 'leave',
+      label: 'Send her back up. The term is the term.',
+      effects: {
+        affinity: { 'storm-crows': 10 },
+        local: { yard: -3 },
+        flags: ['d34-runner-left', 'crow-debt-paid'],
+      },
+      response:
+        'Linnet nods as if she knew. She turns on the step and walks back into the rain. Runner’s pace by the second bend. The Yard watches from the wall until there is nothing to watch.',
+    },
+    {
+      id: 'tamsin-goes',
+      label: 'Let Tamsin go up in Linnet’s place. She is already on her feet.',
+      requires: { follower: 'F011' },
+      effects: {
+        affinity: { 'storm-crows': 10 },
+        local: { yard: 3 },
+        flags: ['d34-runner-home', 'd34-tamsin-swapped'],
+        dismiss: [
+          {
+            follower: 'F011',
+            reason: 'Tamsin went back up the Heights in a Yard child’s sash.',
+          },
+        ],
+      },
+      response:
+        'Tamsin takes the sash off the girl’s shoulders and puts it on her own. It still fits. “I know the paths,” she says. “She doesn’t.” At the bend she starts to run. Runner’s pace. She never learned another.',
+    },
+  ],
+}
+
+/**
+ * The Day 42 runner in the Crow cave (Act V) as the covenant's runs left her:
+ * whoever went up, for how long, and what the crown did at the Day 34 gate.
+ */
+const D42_FIRST_LINE =
+  'A young stoat in a Conclave sash brings you water in the morning. She stands holding the bowl. Not leaving.'
+const D42_LAST_LINE =
+  '“The bond runs seven more years. I’m not asking anything. I wanted the emperor to see one of us. Once.”'
+export const D42_RUNNER_VARIANTS: SceneVariant[] = [
+  {
+    flags: ['d34-runner-left'],
+    lines: [
+      D42_FIRST_LINE,
+      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet came down to your gate on Day Thirty-Four. You sent her back.”',
+      '“She went off the high path in the first storm after. Bag on her back. Somebody else’s letters. The Crows sang for her. They sent the bag on.”',
+      D42_LAST_LINE,
+    ],
+  },
+  {
+    flags: ['d34-tamsin-swapped'],
+    lines: [
+      D42_FIRST_LINE,
+      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The gecko took her sash.”',
+      '“Tamsin runs the far paths now, the ones nobody wants. She runs them like she’s late for something. She doesn’t come to the cave while you’re in it.”',
+      D42_LAST_LINE,
+    ],
+  },
+  {
+    flags: ['d34-runner-home'],
+    lines: [
+      D42_FIRST_LINE,
+      '“You won’t know me, Majesty. You sent three of us up for the rain. You bought Linnet home on Day Thirty-Four. I was the third.”',
+      '“They feed us. We run the high paths in storms with letters. The other one fell in the spring. The Crows sang for him. Decent of them.”',
+      D42_LAST_LINE,
+    ],
+  },
+  {
+    flags: ['d20-runners-term-fixed'],
+    lines: [
+      D42_FIRST_LINE,
+      '“You won’t know me, Majesty. You sent three of us from the Yard for ninety days. They let the other two go on the day, to the hour.”',
+      '“They kept me. I asked them to. We run the high paths in storms with letters. The Crows feed us. Nobody counts my days but me.”',
+      '“I signed on again, seven years. I’m not asking anything. I wanted the emperor to see one of us. Once.”',
+    ],
+  },
+  {
+    flags: ['d20-court-runners'],
+    lines: [
+      D42_FIRST_LINE,
+      '“You won’t know me, Majesty. You sent three of us from your own households to pay for the rain. I was the cook’s daughter.”',
+      '“They treat us all right. They feed us. We run the high paths in storms with letters. Two of us fell. The Crows sang for them. Decent of them.”',
+      D42_LAST_LINE,
+    ],
+  },
+]
+
+/**
+ * The rain covenant (t-040, t-036). Signing it books the Day 20 reckoning.
+ * Day 34 bills in brass only a covenant still held or broken; one paid in
+ * runners for a Conclave season sends a runner to the gate instead; one
+ * bought out, settled in pastures or served on a fixed term owes nothing
+ * more. A run that never signed is never billed. The rest of Act II's dues
+ * are its threats come home: Vane's bolt, the Verge's silver, the flooded
+ * Ford, the Bell's gate, the crown's tokens, the Yard's two losses.
  */
 export const ACT_TWO_DUES: readonly DueDef[] = [
   {
@@ -2997,25 +3691,159 @@ export const ACT_TWO_DUES: readonly DueDef[] = [
     day: 20,
     when: { flags: ['rain-covenant'] },
     warning: 'Elder Corvane names the covenant’s price at court on Day 20.',
-    line: 'Three days of soft rain over the Ford. Elder Corvane is on the carpet road with the covenant under his wing.',
-    effects: { schedule: ['crow-debt'] },
+    line: 'Rain broke over the Ford before dawn. Elder Corvane is on the carpet road with the covenant under his wing.',
+    effects: { schedule: ['crow-debt', 'runner-at-gate'] },
   },
   {
     id: 'crow-debt',
     title: 'The Conclave collects',
     day: 34,
-    // Runners serve a season, and a season ends; brass, pastures or a
-    // fixed term close the covenant for good.
+    // Brass, pastures or a fixed term close the covenant for good; runners
+    // serving a Conclave season are a person owed, not a bill (runner-at-gate).
     when: {
-      anyFlags: [
-        'rain-covenant',
-        'covenant-broken',
-        'covenant-paid-in-runners',
-      ],
+      anyFlags: ['rain-covenant', 'covenant-broken'],
       notFlags: ['d20-runners-term-fixed'],
     },
     warning: 'The Storm Crows come on Day 34 for what the rain still costs.',
     line: 'Every Storm Crow roost on the Heights emptied toward the tower in the night. The Conclave has come to collect.',
     effects: { flags: ['crow-debt-called'] },
+  },
+  {
+    id: 'runner-at-gate',
+    title: 'A runner comes down',
+    day: 34,
+    when: {
+      flags: ['covenant-paid-in-runners'],
+      notFlags: ['d20-runners-term-fixed'],
+    },
+    warning:
+      'One of the runners sent up the Heights comes to the gate on Day 34.',
+    line: 'A runner in a Conclave sash came down the Heights road in the night and sat on the gate step to wait.',
+    effects: { flags: ['d34-runner-at-gate'] },
+  },
+  {
+    id: 'd12-low-carrow-names',
+    title: 'Eleven names at the gate',
+    inDays: 3,
+    hidden: true,
+    when: { flags: ['d12-houses-sworn'] },
+    line: 'Two Low Carrow women stood at the tower gate at dawn and said eleven names to the Watch, slowly, so the sergeant could write them down. Then they walked home. The crown had sworn.',
+  },
+  {
+    id: 'vane-bolt',
+    title: 'Gristle Vane’s filed bolt',
+    inDays: 4,
+    warning: 'Gristle Vane is showing the filed bolt to people.',
+    line: 'Gristle Vane wore the filed bolt to the Saltroad fair on a thong round his neck. He let every caravan master hold it. The crown’s engineers are not welcome on the road this month.',
+    effects: { affinity: { saltroad: -5, freeholds: -3 } },
+  },
+  {
+    id: 'engine-fails',
+    title: 'The Pack’s engine',
+    day: 43,
+    warning: 'The Pack’s engine fails on the day the crown filed into it.',
+    line: 'The Pack’s water engine seized in the night, on the day it was filed to. The canyon was dry by noon. Gristle Vane has the pin now. He knows whose file it was.',
+    effects: { affinity: { jackalwire: -10 } },
+  },
+  {
+    id: 'vault-watched',
+    title: 'The old car',
+    inDays: 4,
+    hidden: true,
+    line: 'Two whistles from the rail yards in the night. Then one. Pell came up at dawn: two in grey habits came to the old car with a handcart, saw the hooded lantern, and went away with nothing.',
+  },
+  {
+    id: 'verge-change',
+    title: 'A second white glove',
+    inDays: 5,
+    hidden: true,
+    line: 'A white glove lay on the far gate’s step at dawn. Inside it, one silver piece. Change. The sergeant would not touch it. He sent for tongs.',
+    effects: { local: { 'gate-watch': -1 } },
+  },
+  {
+    id: 'back-gate-death',
+    title: 'The back gates',
+    inDays: 3,
+    hidden: true,
+    line: 'A stranger died at a Freehold back gate with brass in his fist. The gate was shut by the crown’s order. There was nothing left to buy.',
+  },
+  {
+    id: 'thistledown-tokens',
+    title: 'The crown’s tokens',
+    inDays: 6,
+    cost: 15,
+    warning: 'The crown answers for forged Thistledown tokens.',
+    line: 'Sixty crown tokens turned up on the Freehold road this week. The crown sealed nineteen. The treasury paid Hester for the rest, as promised.',
+    unpaid: {
+      line: 'Sixty crown tokens on the road, and the crown sealed nineteen. The treasury could not pay for the forgeries. Hester stopped honouring the seal.',
+      effects: { affinity: { freeholds: -10 } },
+    },
+  },
+  {
+    id: 'bell-garrison',
+    title: 'The Bell garrison’s pay',
+    inDays: 7,
+    every: 7,
+    until: 40,
+    cost: 6,
+    when: { flags: ['bell-under-protection'] },
+    warning: 'Twelve of the Watch at Hollow Bell draw pay every week.',
+    line: 'Twelve of the Watch at Hollow Bell drew a week’s pay. Mara signed for it.',
+    unpaid: {
+      line: 'The Bell garrison went unpaid. Three walked home without leave. Mara wrote down which three.',
+      effects: { local: { 'gate-watch': -2 }, affinity: { 'hollow-bell': -5 } },
+    },
+  },
+  {
+    id: 'watch-names-short',
+    title: 'Dunmark’s list',
+    day: 20,
+    hidden: true,
+    line: 'Captain Dunmark’s list is two names shorter this morning. Both were Watch. Both were on the Freehold road the night of the haystacks. Dunmark burned their coats himself.',
+  },
+  {
+    id: 'bell-gate-shut',
+    title: 'Hollow Bell’s gate',
+    inDays: 2,
+    hidden: true,
+    when: { flags: ['bell-voted-no'] },
+    line: 'Hollow Bell shut its gate to the crown’s riders. The Abbey’s soup carts went in at noon. Mara sent a letter. It was polite. It was four lines long.',
+  },
+  {
+    id: 'ford-burrows',
+    title: 'The Ford in the burrows',
+    inDays: 1,
+    hidden: true,
+    when: { flags: ['ford-flooded'] },
+    line: 'The Ford came through the burrow ceilings again. Granny Umber sent one line up the shaft to the crown: “Twice now.”',
+    effects: { affinity: { moles: -5 } },
+  },
+  {
+    id: 'yard-double-loss',
+    title: 'The Yard’s two losses',
+    inDays: 1,
+    hidden: true,
+    when: {
+      flags: ['levy-yard', 'covenant-paid-in-runners'],
+      notFlags: ['d20-court-runners'],
+    },
+    line: 'Foreman Dunmore Ash nailed one sheet to the Yard gate at dawn. The levy roll down one side. Three runners’ names down the other. He wrote nothing under them.',
+    effects: { local: { yard: -2 } },
+  },
+  {
+    id: 'crow-substitution',
+    title: 'The substitution',
+    inDays: 7,
+    warning: 'The Conclave remembers the brass it took instead of runners.',
+    line: 'The Conclave’s forecast reached the Freeholds a day late. Exact to the hour. Half the barley was cut in the rain.',
+    effects: { affinity: { freeholds: -5 } },
+  },
+  {
+    id: 'pastures-ceded',
+    title: 'Goats on the low road',
+    inDays: 4,
+    hidden: true,
+    line: 'Three hundred Freehold goats on the low road, eating the verge to the root. Hester Plowright sold forty head to the Ledger at half price. She did not haggle.',
+    effects: { local: { ledger: 1 } },
   },
 ]

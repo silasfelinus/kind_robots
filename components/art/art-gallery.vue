@@ -146,7 +146,9 @@
     </header>
 
     <div
-      v-if="!showHeader && activeGroup && !isRecycleBinOpen && !props.dropdownMode"
+      v-if="
+        !showHeader && activeGroup && !isRecycleBinOpen && !props.dropdownMode
+      "
       class="flex shrink-0 items-center justify-end gap-2"
     >
       <button
@@ -1535,9 +1537,8 @@ async function deleteSelectedImages() {
   successMessage.value = ''
   isBatchWorking.value = true
   try {
-    const result = await recycleGalleryImages(
-      ids,
-      (imageId) => artStore.deleteArtImage(imageId),
+    const result = await recycleGalleryImages(ids, (imageId) =>
+      artStore.deleteArtImage(imageId),
     )
 
     for (const imageId of result.recycledIds) {

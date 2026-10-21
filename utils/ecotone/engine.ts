@@ -207,7 +207,11 @@ export function checkParts(
   const parts = [{ label: skillName, value: state.skills[check.skill] ?? 0 }]
   if (state.clarity >= 3 && check.skill === 'wits')
     parts.push({ label: 'Clear head', value: 1 })
-  if (state.clarity <= 1 && check.skill === 'psyche' && state.currentState === 'tripping_balls')
+  if (
+    state.clarity <= 1 &&
+    check.skill === 'psyche' &&
+    state.currentState === 'tripping_balls'
+  )
     parts.push({ label: 'Wide open', value: 1 })
   if (state.clarity <= 1 && check.skill === 'wits')
     parts.push({ label: 'Swimmy', value: -1 })

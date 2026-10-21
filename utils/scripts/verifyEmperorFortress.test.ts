@@ -198,6 +198,7 @@ import type {
   AudienceDef,
   AudienceOption,
   FortressRun,
+  SceneLine,
 } from '../emperorOfDust/fortress/types'
 
 // --- content contract -------------------------------------------------------
@@ -4584,6 +4585,214 @@ for (const def of DAYS)
       response: '',
     }).some((s) => /Settles “.*” if nobody goes/.test(s.text)),
   )
+}
+
+// --- t-039: Act V and the endings, rewritten from the 2026-10-21 playtest ------
+{
+  const dayOf = (day: number) => DAYS.find((def) => def.day === day)!
+  const scene = (day: number, id: string) =>
+    dayOf(day).audiences.find((audience) => audience.id === id)!
+  const optionIn = (audience: AudienceDef, id: string, beat?: string) =>
+    (beat
+      ? audience.beats!.find((entry) => entry.id === beat)!.options
+      : audience.options
+    ).find((option) => option.id === id)!
+  const court = (day: number, flags: string[] = []): FortressRun => {
+    const run = onDay(5, day, { flags: ['komodo-betrayal', ...flags] })
+    for (const id of ['F005', 'F006', 'F007'])
+      if (!run.roster.some((state) => state.id === id))
+        run.roster.push({ id, joinedDay: 1, equipment: {} })
+    run.beds = 9
+    return run
+  }
+  const lineTexts = (lines: SceneLine[]) =>
+    lines.map((line) => (typeof line === 'string' ? line : line.text))
+
+  // Day 47: going home is real. Kiyo and Saffron leave; the Pack rides.
+  const kiyoHome = optionIn(scene(47, 'd47-kiyo'), 'home')
+  assert.equal(kiyoHome.effects.dismiss?.[0]?.follower, 'F003')
+  const d47 = court(47)
+  if (!d47.roster.some((state) => state.id === 'F002'))
+    d47.roster.push({ id: 'F002', joinedDay: 1, equipment: {} })
+  const sentHome = chooseAudienceOption(d47, 'd47-kiyo', 'home').run
+  assert.equal(followerStatus(sentHome, 'F003'), 'departed')
+  assert.ok(
+    epilogueFor(sentHome, 'open-roads')
+      .find((entry) => entry.subject.id === 'kiyo')!
+      .variant.text.includes('went home'),
+    'Kiyo sent home is told as home, not gone with Komodo',
+  )
+  const saffronGo = chooseAudienceOption(d47, 'd47-saffron', 'go').run
+  assert.ok(saffronGo.flags.includes('d47-pack-rides'))
+  assert.ok(
+    saffronGo.roster.find((state) => state.id === 'F002')!.departed,
+    'Saffron goes home',
+  )
+  const stays = chooseAudienceOption(d47, 'd47-saffron', 'stay').run
+  assert.ok(!stays.flags.includes('d47-pack-rides'), 'stay: the Pack stays')
+  for (const [flag, label] of [
+    ['d47-pack-rides', 'The Pack rides at the Abbey wall'],
+    ['d44-dike-blown', 'The fen went down the Abbey’s deep well'],
+  ] as const)
+    assert.ok(
+      FINALE_AID.some(
+        (aid) => aid.flags?.includes(flag) && aid.label === label,
+      ),
+      `${flag} reaches the Day 50 odds`,
+    )
+
+  // Day 50: one road with every hand on it is a real choice; dig costs Moles,
+  // holding the stairs hands the court a lamp.
+  const d50 = court(50)
+  const front = chooseAudienceOption(d50, 'd50-roads-in', 'front').run
+  const party = d50.roster.slice(0, 3).map((state) => state.id)
+  assert.ok(
+    previewQuest(front, 'q-d50-last-dispatch', party).aid.some(
+      (aid) => aid.label === 'Every hand at the front door',
+    ),
+    'the front door gets every hand',
+  )
+  const burrows = scene(50, 'd50-burrows')
+  assert.equal(optionIn(burrows, 'dig').effects.strength?.moles, -1)
+  assert.ok(optionIn(burrows, 'stairs').effects.items?.includes('carbide-lamp'))
+  assert.equal(
+    optionIn(burrows, 'vote-dig', 'lumen').effects.strength?.moles,
+    -1,
+  )
+  // Reedlight's lantern lights the well it was made for.
+  const lantern = optionIn(scene(46, 'd46-reedlight'), 'take')
+  assert.equal(lantern.effects.questAid?.[0]?.questId, 'q-d46-well-that-spoke')
+
+  // Continuity: the last fire seats who is there, at the rank Day 43 left.
+  const peace = scene(49, 'd49-whose-peace')
+  const plain = lineTexts(sceneLines(court(49), peace)).join('\n')
+  assert.match(plain, /Captain Dunmark/)
+  assert.match(plain, /Sister Reedlight has set her lantern/)
+  const after = lineTexts(
+    sceneLines(
+      court(49, ['d43-dunmark-demoted', 'd44-dike-blown', 'verge-allied']),
+      peace,
+    ),
+  ).join('\n')
+  assert.match(after, /Sergeant Dunmark/)
+  assert.doesNotMatch(after, /Captain Dunmark/)
+  assert.match(after, /Sister Reedlight did not come/)
+  assert.match(after, /Envoy of the Black Verge/)
+  const leftOut = peace.beats!.find((beat) => beat.id === 'left-out')!
+  assert.match(
+    lineTexts(leftOut.lines).join('\n'),
+    /Bury two more/,
+    'the Candles rule is spoken at the last fire',
+  )
+  assert.match(dayOf(50).komodo, /here at the fire/, 'Vellum is at the fire')
+  assert.ok(
+    !/Captain/.test(scene(50, 'd50-if-you-find-him').speaker),
+    'Day 50 never re-promotes a demoted Dunmark',
+  )
+  // The cook walked through the kitchen door the crown opened.
+  assert.match(
+    lineTexts(
+      sceneLines(
+        court(47, ['d41-kitchen-door-open']),
+        scene(47, 'd47-letter-in-the-flour'),
+      ),
+    ).join('\n'),
+    /Through the door you opened/,
+  )
+  // Speech in the powder and burrows scenes is quoted.
+  for (const line of [
+    ...scene(44, 'd44-coal-powder').beats![0]!.lines,
+    ...burrows.beats![0]!.lines,
+  ])
+    assert.match(
+      typeof line === 'string' ? line : line.text,
+      /^“/,
+      'spoken lines are quoted',
+    )
+
+  // Day 42: every host's bargain buys something and every host collects in
+  // its own voice; Jinx's terms send half an engine up the mission road.
+  for (const audience of dayOf(42).audiences.filter((a) =>
+    a.id.startsWith('d42-terms-'),
+  )) {
+    const bargain = optionIn(audience, 'bargain', 'price')
+    const flags = bargain.effects.flags ?? []
+    assert.ok(
+      Object.keys(bargain.effects).some((key) => key !== 'flags') ||
+        flags.length > 1,
+      `${audience.id}: the bargain does what it says`,
+    )
+    const hideout = audience.id.slice('d42-terms-'.length)
+    assert.ok(
+      dueDef(`host-due:${hideout}`)!.line !==
+        dueDef('host-due:mole-tunnels')!.line || hideout === 'mole-tunnels',
+      `${hideout} collects in its own words`,
+    )
+  }
+  const rail = scene(42, 'd42-terms-rail-station')
+  assert.ok(
+    optionIn(rail, 'accept').effects.flags?.includes('d42-engine-half-sold'),
+  )
+  // Brass buys more than words, where both are offered.
+  const thistle = scene(42, 'd42-thistledown')
+  assert.ok(
+    optionIn(thistle, 'repay').effects.affinity!.freeholds! >
+      optionIn(thistle, 'names').effects.affinity!.freeholds!,
+  )
+  const graves = scene(42, 'd42-waystation-graves')
+  assert.ok(
+    optionIn(graves, 'pay').effects.affinity!.saltroad! >
+      optionIn(graves, 'face').effects.affinity!.saltroad!,
+  )
+
+  // The epilogue: the vote survives the Candles and the Long Night, and the
+  // names are read once, by the ending, not by three subjects.
+  const finished = (flags: string[]): FortressRun => ({
+    ...createRun(3),
+    day: LAST_DAY + 1,
+    flags,
+  })
+  const told = (flags: string[], ending: EndingId) =>
+    epilogueFor(finished(flags), ending)
+  const candles = told(['horror-sealed', 'peace-iron'], 'hundred-candles')
+  assert.match(
+    candles.find((entry) => entry.subject.id === 'charter')!.variant.text,
+    /iron peace/,
+    'A Hundred Candles remembers the vote',
+  )
+  for (const id of ['yard', 'archive'])
+    assert.ok(
+      !candles
+        .find((entry) => entry.subject.id === id)
+        ?.variant.text.match(/names/),
+      `${id} does not repeat the reading of the names`,
+    )
+  const night = told(
+    [
+      'hideout:mole-tunnels',
+      'd42-faced-the-thirty',
+      'd50-moles-hold-stairs',
+      'peace-tunnels',
+    ],
+    'long-night',
+  )
+  for (const [id, words] of [
+    ['hideout', /thirty/],
+    ['moles', /held the stairs/],
+    ['charter', /last fire/],
+  ] as const)
+    assert.match(
+      night.find((entry) => entry.subject.id === id)!.variant.text,
+      words,
+      `the Long Night remembers ${id}`,
+    )
+  assert.ok(
+    told(['d49-crown-laid-down', 'peace-roads'], 'open-roads').some(
+      (entry) => entry.subject.id === 'charter',
+    ),
+    'laying the crown down is remembered apart from Open Roads',
+  )
+  assert.doesNotMatch(ENDINGS['hundred-candles'].text, /cost too much/)
 }
 
 // t-034: a header tooltip never runs past the header. At 390px a long tab tip centred on an

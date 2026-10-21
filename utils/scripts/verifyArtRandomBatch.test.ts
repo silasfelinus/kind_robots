@@ -349,19 +349,18 @@ assert.ok(generatorUi.includes('@click="artStore.clearGenerationMessage"'))
 assert.ok(generatorUi.includes('aria-live="polite"'))
 assert.ok(generatorUi.includes('name="generation-notice"'))
 assert.ok(generatorUi.includes('prefers-reduced-motion: reduce'))
-assert.ok(generatorUi.includes("const submittingBatch = ref(false)"))
+assert.ok(generatorUi.includes('const submittingBatch = ref(false)'))
 assert.ok(generatorUi.includes('submittingBatch.value = true'))
 assert.ok(generatorUi.includes('submittingBatch.value = false'))
 assert.ok(generatorUi.includes('!submittingBatch.value &&'))
-assert.ok(generatorUi.includes("if (submittingBatch.value) return 'Queueing batch…'"))
+assert.ok(
+  generatorUi.includes("if (submittingBatch.value) return 'Queueing batch…'"),
+)
 assert.match(
   generatorUi,
   /if \(isBatch\) \{\s+submittingBatch\.value = true\s+artStore\.clearGenerationMessage\(\)/,
 )
-assert.match(
-  generatorUi,
-  /finally \{\s+submittingBatch\.value = false\s+\}/,
-)
+assert.match(generatorUi, /finally \{\s+submittingBatch\.value = false\s+\}/)
 
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))

@@ -34,7 +34,12 @@ export type Effects = {
 
 export type Check = { skill: SkillId; target: number }
 
-export type Outcome = { text: string; effects: Effects }
+export type Outcome = {
+  text: string
+  effects: Effects
+  /** Reaction from the guide actually traveling with you, or a solo reflection. */
+  leadLines?: Partial<Record<LeadId, string>>
+}
 
 export type Choice = {
   id: string

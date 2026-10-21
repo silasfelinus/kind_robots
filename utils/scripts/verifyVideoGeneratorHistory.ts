@@ -43,7 +43,13 @@ assert.equal(summary?.attempts, 1)
 assert.equal(summary?.frames, 65)
 assert.equal(summary?.prompt, 'slow orbit of a green robot')
 assert.ok(!JSON.stringify(summary).includes('secret-source-bytes'))
-assert.equal(summarizeVideoGeneratorJob({ ...job, payload: JSON.stringify({ media: 'video', video: { model: 'wan' } }) })?.isMature, false)
+assert.equal(
+  summarizeVideoGeneratorJob({
+    ...job,
+    payload: JSON.stringify({ media: 'video', video: { model: 'wan' } }),
+  })?.isMature,
+  false,
+)
 
 assert.equal(
   videoGeneratorMetadata({ ...job, projectSlug: 'scene-animator' }),
@@ -94,11 +100,16 @@ const recent = readFileSync('server/api/art/queue/recent-images.get.ts', 'utf8')
 assert.match(source, /recentArtFilters/)
 assert.match(source, /canShowSelectedClip/)
 assert.match(source, /rememberStudioSettings/)
-assert.match(source, /engine.value === 'wan' && selectedWanMode.value === 'ti2v'/)
+assert.match(
+  source,
+  /engine.value === 'wan' && selectedWanMode.value === 'ti2v'/,
+)
 assert.doesNotMatch(source, /!videoStore.isBusy &&/)
 assert.match(store, /SETTINGS_STORAGE_KEY/)
 assert.match(store, /recentArt.requestId/)
 assert.match(queue, /WAN TI2V for prompt-only video/)
 assert.match(recent, /viewerShowsMature\(preference\)/)
 assert.match(recent, /filter === 'mature'/)
-console.log('Video generator history, prompt-only, preferences and mature filter contracts passed.')
+console.log(
+  'Video generator history, prompt-only, preferences and mature filter contracts passed.',
+)

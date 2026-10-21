@@ -325,7 +325,7 @@
 **Option A, investigate (visible 9 check):** Compare the buoy's last recorded position with current soundings and chart updates
 
 - **Pass:** The shortcut has shoaled. A skipper radios the measured position; the buoy's labor claim can wait for daylight.
-- **Miss:** You cannot confirm the depth before the tide changes. The recorded drift still gives the harbor office a location worth checking.
+- **Miss:** The tide turns before your sounding settles. A fishing crew shows you the fuel bill for taking the long way; you cannot make that money reappear by calling the shortcut safe. The harbor office keeps your incomplete drift sketch marked provisional. The buoy crosses your name off its picket petition.
 
 **Option B, assist without a check:** Warn the crew to use the charted route and support a safe inspection
 
@@ -336,7 +336,7 @@
 - `cards/wh-052`: A navigational buoy goes on strike because the sea keeps lying. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-052/2`: A channel marker has drifted ashore and drawn a picket line in the sand. It says the chart has been lying about the depth for months. A fishing crew is preparing to take the shortcut it used to mark. The people and location must match the opening.
 - `outcomes/wh-052/investigate-success`: The shortcut has shoaled. A skipper radios the measured position; the buoy's labor claim can wait for daylight. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-052/investigate-failure`: You cannot confirm the depth before the tide changes. The recorded drift still gives the harbor office a location worth checking. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-052/investigate-failure`: The tide turns before your sounding settles. A fishing crew shows you the fuel bill for taking the long way; you cannot make that money reappear by calling the shortcut safe. The harbor office keeps your incomplete drift sketch marked provisional. The buoy crosses your name off its picket petition. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-052/care-success`: The boats take the longer channel without incident. The buoy accepts a dry place to rest and a temporary sign reading STRIKE, NOT NAVIGATION. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_052_verified`, `wh_052_partial`, `wh_052_care` (mutually exclusive results of this card).

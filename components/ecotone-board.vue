@@ -484,7 +484,7 @@
               <template v-else>
                 <details
                   v-if="canTakeMoment"
-                  :key="game.run.card ?? ''"
+                  :key="game.run?.card ?? ''"
                   class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
                 >
                   <summary class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]">

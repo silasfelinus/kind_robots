@@ -1,4 +1,5 @@
 import type { DayDef, QuestAid, QuestDef } from './types'
+import { D34_RUNNER_AT_GATE } from './actTwo'
 import { MOLE_REFORMS_OPEN } from './moles'
 
 // Answers that send real help to a quest already on the board (t-040 quest
@@ -1351,6 +1352,13 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         truth: true,
         variants: [
           {
+            // A covenant paid in runners comes due as a person (t-036).
+            flags: ['covenant-paid-in-runners'],
+            notFlags: ['d20-runners-term-fixed'],
+            source: 'The gate sergeant',
+            text: 'A runner in a Conclave sash sat on the gate step all night in the rain. She has not knocked. The covenant falls due today, and it has sent a face.',
+          },
+          {
             notFlags: ['crow-debt-called'],
             source: 'The gate sergeant',
             text: 'Elder Corvane’s herald passed the gate at dawn and did not stop. The crown owes the Conclave nothing today.',
@@ -1367,6 +1375,11 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
     komodo:
       'Crows forgive nothing, Your Majesty. I admire that most about them. Whatever was promised for the rain, they have come to collect.',
     komodoVariants: [
+      {
+        flags: ['covenant-paid-in-runners'],
+        notFlags: ['d20-runners-term-fixed'],
+        text: 'The Crows sent no bill, Your Majesty. They sent the girl. That is the bill.',
+      },
       {
         notFlags: ['crow-debt-called'],
         text: 'The Crows are on every sill and want nothing, Your Majesty. They want us to watch them want nothing. That is how they say a debt is closed.',
@@ -1399,15 +1412,6 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             effects: {},
             response:
               'Corvane’s copper chimes stir. There is no wind in the hall.',
-            next: 'something-else',
-          },
-          {
-            id: 'ask-runners',
-            label: 'Ask after the three Yard volunteers sent up the Heights.',
-            requires: { flags: ['covenant-paid-in-runners'] },
-            effects: {},
-            response:
-              '“Two came home,” Corvane says. “One stayed. She says the caves are quieter than your Yard. We did not ask her to say so.” He tilts his head. “We rarely have to.”',
             next: 'something-else',
           },
           {
@@ -1669,6 +1673,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
         ],
       },
+      D34_RUNNER_AT_GATE,
     ],
   },
   {

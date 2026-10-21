@@ -10,7 +10,7 @@
     />
     <div
       v-else
-      class="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden px-2 py-2 sm:px-4"
+      class="flex h-full min-h-0 w-full flex-col gap-2 overflow-clip px-2 py-2 sm:px-4"
     >
       <p
         v-if="court.storageWarning"
@@ -21,8 +21,11 @@
       </p>
 
       <header
-        class="eod-frame @container relative z-20 shrink-0 px-1.5 py-1.5 sm:px-2"
+        ref="bar"
+        class="eod-frame eod-bar @container relative z-20 shrink-0 px-1.5 py-1.5 sm:px-2"
         aria-label="Fortress"
+        @pointerover="fitTips"
+        @focusin="fitTips"
       >
         <div class="flex items-center gap-1.5">
           <button
@@ -267,7 +270,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { LAST_DAY } from '~/utils/emperorOfDust/fortress/content'
 import {
@@ -288,6 +291,7 @@ import {
   roomDef,
 } from '~/utils/emperorOfDust/fortress/rooms'
 import type { RoomId } from '~/utils/emperorOfDust/fortress/rooms'
+import { tipShift } from '~/utils/emperorOfDust/fortress/tipFit'
 
 const court = useEmperorFortressStore()
 const run = computed(() => court.run)
@@ -346,6 +350,36 @@ const dayLine = computed(() =>
 )
 const ledgerOpen = ref(false)
 
+// Keep every header tooltip inside the header (see tipFit.ts): a tip centred on an edge tab
+// widened the shell's scroll range, so scrolling a tab into view slid the fortress sideways.
+const bar = ref<HTMLElement | null>(null)
+function fitTips() {
+  const header = bar.value
+  if (!header) return
+  const bound = header.getBoundingClientRect()
+  for (const el of header.querySelectorAll<HTMLElement>('[data-tip]')) {
+    const tipWidth = parseFloat(getComputedStyle(el, '::before').width)
+    const anchor = el.getBoundingClientRect()
+    if (!tipWidth || !anchor.width) continue
+    el.style.setProperty(
+      '--tt-trans',
+      `${tipShift(anchor.left, anchor.width, tipWidth, bound.left, bound.right)}px`,
+    )
+  }
+}
+let barObserver: ResizeObserver | undefined
+watch(bar, (header) => {
+  barObserver?.disconnect()
+  if (!header || typeof ResizeObserver === 'undefined') return
+  barObserver = new ResizeObserver(() => fitTips())
+  barObserver.observe(header)
+})
+watch(
+  [rooms, ledgerOpen, () => run.value?.brass, () => run.value?.day],
+  () => void nextTick(fitTips),
+)
+onBeforeUnmount(() => barObserver?.disconnect())
+
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
@@ -362,6 +396,7 @@ watch(
 
 onMounted(() => {
   court.load()
+  void document.fonts?.ready.then(fitTips)
   if (!document.getElementById('eod-display-font')) {
     const link = document.createElement('link')
     link.id = 'eod-display-font'
@@ -403,6 +438,15 @@ useHead({ title: 'Emperor of Dust' })
   border: 1px solid var(--eod-gilt-dim);
   border-radius: 0.375rem;
   background: color-mix(in oklch, var(--color-base-200) 85%, transparent);
+}
+
+/* Header tooltips are shifted to stay inside the bar (fitTips); the tail stays on its button. */
+.eod .eod-bar [data-tip]::before {
+  max-width: min(20rem, calc(100cqw - 0.75rem));
+}
+
+.eod .eod-bar .tooltip-bottom::after {
+  transform: translateX(-50%) translateY(var(--tt-pos, -0.25rem)) rotate(180deg);
 }
 
 .eod .eod-tab {

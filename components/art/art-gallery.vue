@@ -146,6 +146,61 @@
     </header>
 
     <div
+      v-if="!activeGroup && !props.dropdownMode"
+      class="flex shrink-0 flex-wrap items-center gap-2 kr-panel-muted-compact-row"
+    >
+      <button
+        type="button"
+        class="kr-btn-xs"
+        :class="collectionBulkSelectEnabled ? 'btn-primary' : 'btn-ghost'"
+        :aria-pressed="collectionBulkSelectEnabled"
+        :disabled="isBatchWorking"
+        @click="toggleCollectionBulkSelect"
+      >
+        <Icon name="kind-icon:checklist" class="kr-icon-3-5" />
+        {{ collectionBulkSelectEnabled ? 'Done selecting' : 'Select collections' }}
+      </button>
+      <span v-if="collectionBulkSelectEnabled" class="kr-badge-primary-sm">
+        {{ selectedCollectionIds.length }} selected
+      </span>
+    </div>
+
+    <div
+      v-if="!activeGroup && collectionBulkSelectEnabled && !props.dropdownMode"
+      class="flex shrink-0 flex-col gap-2 rounded-xl border border-primary/30 bg-base-100 p-2"
+    >
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" class="kr-btn-xs" :disabled="isBatchWorking || !selectableCollectionGroups.length" @click="selectAllFilteredCollections">
+          Select all filtered ({{ selectableCollectionGroups.length }})
+        </button>
+        <button type="button" class="kr-btn-ghost-xs" :disabled="isBatchWorking || !selectedCollectionIds.length" @click="selectedCollectionIds = []">
+          Clear
+        </button>
+        <span v-if="!selectableCollectionGroups.length" class="kr-text-dim-xs">
+          Only collections you own or administer can be edited.
+        </span>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select v-model="batchCollectionIsPublic" class="select select-bordered select-xs min-w-36 bg-base-200" aria-label="Batch collection visibility" :disabled="isBatchWorking">
+          <option value="keep">Visibility: keep</option>
+          <option value="true">Set public</option>
+          <option value="false">Set private</option>
+        </select>
+        <select v-model="batchCollectionIsMature" class="select select-bordered select-xs min-w-36 bg-base-200" aria-label="Batch collection maturity" :disabled="isBatchWorking">
+          <option value="keep">Maturity: keep</option>
+          <option value="true">Set mature</option>
+          <option value="false">Set safe</option>
+        </select>
+        <button type="button" class="kr-btn-xs btn-info" :disabled="isBatchWorking || !selectedCollectionIds.length || (batchCollectionIsPublic === 'keep' && batchCollectionIsMature === 'keep')" @click="applySelectedCollectionFlags">
+          <Icon name="kind-icon:edit" class="kr-icon-3-5" /> Apply edits
+        </button>
+        <button type="button" class="kr-btn-xs btn-error" :disabled="isBatchWorking || !selectedCollectionIds.length" @click="deleteSelectedCollections">
+          <Icon name="kind-icon:trash" class="kr-icon-3-5" /> Move to Recycle Bin
+        </button>
+      </div>
+    </div>
+
+    <div
       v-if="
         !showHeader && activeGroup && !isRecycleBinOpen && !props.dropdownMode
       "
@@ -215,19 +270,25 @@
             <collection-card
               v-if="group"
               :collection="group.collection"
-              :selected="activeGroupKey === group.key"
+              :selected="
+                collectionBulkSelectEnabled
+                  ? selectedCollectionIdSet.has(group.id)
+                  : activeGroupKey === group.key
+              "
+              :selection-mode="collectionBulkSelectEnabled"
               :earned-karma="earnedKarmaByCollectionId[group.id]"
               :compact="viewSize === 'xs' || viewSize === 'sm'"
               :show-stats="false"
-              :show-select-button="false"
-              :show-reaction="group.id > 0"
-              :allow-edit="group.id > 0"
-              :allow-delete="group.id > 0"
+              :show-select-button="collectionBulkSelectEnabled"
+              :show-reaction="group.id > 0 && !collectionBulkSelectEnabled"
+              :allow-edit="group.id > 0 && !collectionBulkSelectEnabled"
+              :allow-delete="group.id > 0 && !collectionBulkSelectEnabled"
               :show-mature="showMature"
               :size="viewSize"
               :preview-art-image="getPreviewImage(group)"
               @vue:mounted="hydrateCollectionTile(group)"
               @open="selectGroup(group.key)"
+              @toggle-selection="toggleCollectionSelection"
               @delete="handleCollectionDeleted"
             />
           </template>
@@ -667,6 +728,10 @@ const RECYCLE_BIN_KEY = 'collection-recycle-bin'
 
 const bulkSelectEnabled = ref(false)
 const selectedImageIds = ref<number[]>([])
+const collectionBulkSelectEnabled = ref(false)
+const selectedCollectionIds = ref<number[]>([])
+const batchCollectionIsPublic = ref<BatchFlagValue>('keep')
+const batchCollectionIsMature = ref<BatchFlagValue>('keep')
 const batchCollectionId = ref<number | null>(null)
 const batchIsPublic = ref<BatchFlagValue>('keep')
 const batchIsMature = ref<BatchFlagValue>('keep')
@@ -697,6 +762,7 @@ const viewSize = ref<ViewSize>('md')
 const galleryReady = ref(false)
 
 const selectedImageIdSet = computed(() => new Set(selectedImageIds.value))
+const selectedCollectionIdSet = computed(() => new Set(selectedCollectionIds.value))
 
 const currentUserId = computed(
   () => userStore.userId ?? userStore.user?.id ?? null,
@@ -896,6 +962,25 @@ const totalImageCount = computed(
   () => Number(browseStore.unsortedSummary.totalCount) || 0,
 )
 
+const selectableCollectionGroups = computed(() =>
+  visibleGroups.value.filter((group) => canModifyCollection(group)),
+)
+
+const selectedCollectionGroups = computed(() =>
+  collectionGroups.value.filter((group) =>
+    selectedCollectionIdSet.value.has(group.id) && canModifyCollection(group),
+  ),
+)
+
+function canModifyCollection(group: GalleryGroup): boolean {
+  return (
+    group.id > 0 &&
+    (userStore.isAdmin ||
+      (Number(currentUserId.value) > 0 &&
+        Number(group.userId) === Number(currentUserId.value)))
+  )
+}
+
 const mutableCollectionGroups = computed(() =>
   collectionGroups.value.filter((group) => {
     if (group.id <= 0) return false
@@ -923,6 +1008,8 @@ const { earnedKarma: earnedKarmaByCollectionId } = userStore.trackEarnedKarma(
 )
 
 watch(activeGroupKey, () => {
+  selectedCollectionIds.value = []
+  collectionBulkSelectEnabled.value = false
   selectedImageForOverlay.value = null
   selectedImageIds.value = []
   bulkSelectEnabled.value = false
@@ -1041,6 +1128,87 @@ watch(
     }
   },
 )
+
+function toggleCollectionBulkSelect() {
+  if (isBatchWorking.value) return
+  collectionBulkSelectEnabled.value = !collectionBulkSelectEnabled.value
+  selectedCollectionIds.value = []
+  batchCollectionIsPublic.value = 'keep'
+  batchCollectionIsMature.value = 'keep'
+}
+
+function toggleCollectionSelection(id: number) {
+  if (isBatchWorking.value || !collectionBulkSelectEnabled.value) return
+  const group = collectionGroups.value.find((entry) => entry.id === id)
+  if (!group || !canModifyCollection(group)) return
+  selectedCollectionIds.value = selectedCollectionIdSet.value.has(id)
+    ? selectedCollectionIds.value.filter((entry) => entry !== id)
+    : [...selectedCollectionIds.value, id]
+}
+
+function selectAllFilteredCollections() {
+  if (isBatchWorking.value) return
+  selectedCollectionIds.value = selectableCollectionGroups.value.map((group) => group.id)
+}
+
+async function runCollectionBatch(
+  verb: string,
+  action: (id: number) => Promise<boolean>,
+) {
+  if (isBatchWorking.value) return
+  const ids = selectedCollectionGroups.value.map((group) => group.id)
+  if (!ids.length) return
+  isBatchWorking.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+  const failed: number[] = []
+  try {
+    for (const id of ids) {
+      try {
+        if (!(await action(id))) failed.push(id)
+      } catch {
+        failed.push(id)
+      }
+    }
+    selectedCollectionIds.value = failed
+    const completed = ids.length - failed.length
+    if (completed) {
+      successMessage.value = `${verb} ${completed} collection${completed === 1 ? '' : 's'}.`
+    }
+    if (failed.length) {
+      errorMessage.value = `Failed for collection #${failed.join(', #')}. Those remain selected.`
+    }
+    await refreshBrowseData()
+  } catch (error) {
+    errorMessage.value = getErrorMessage(error, 'Collection gallery failed to refresh.')
+  } finally {
+    isBatchWorking.value = false
+  }
+}
+
+async function applySelectedCollectionFlags() {
+  const flags: { isPublic?: boolean; isMature?: boolean } = {}
+  if (batchCollectionIsPublic.value !== 'keep') {
+    flags.isPublic = batchCollectionIsPublic.value === 'true'
+  }
+  if (batchCollectionIsMature.value !== 'keep') {
+    flags.isMature = batchCollectionIsMature.value === 'true'
+  }
+  if (!Object.keys(flags).length) return
+  await runCollectionBatch('Updated', async (id) =>
+    Boolean(await collectionStore.updateCollectionFlags(id, flags)),
+  )
+}
+
+async function deleteSelectedCollections() {
+  const count = selectedCollectionGroups.value.length
+  if (!count || !window.confirm(
+    `Move ${count} collection${count === 1 ? '' : 's'} to the Recycle Bin? Their images will not be deleted.`,
+  )) return
+  await runCollectionBatch('Moved to Recycle Bin:', (id) =>
+    collectionStore.deleteCollectionById(id),
+  )
+}
 
 function toggleBulkSelect() {
   bulkSelectEnabled.value = !bulkSelectEnabled.value

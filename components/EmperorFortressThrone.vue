@@ -112,7 +112,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
-import { questDef } from '~/utils/emperorOfDust/fortress/content'
+import { optionStakes } from '~/utils/emperorOfDust/fortress/board'
 import {
   audienceScene,
   audiencesToday,
@@ -192,19 +192,12 @@ watch(
 const choices = computed(() =>
   (scene.value?.options ?? [])
     .filter((option) => optionVisible(props.run, option))
-    .map((option) => {
-      const notes: string[] = []
-      if (option.requires?.cost)
-        notes.push(`Costs ${option.requires.cost} brass`)
-      for (const id of option.postsQuests ?? [])
-        notes.push(`Posts a quest: ${questDef(id)?.title ?? id}`)
-      return {
-        id: option.id,
-        label: option.label,
-        note: notes.join(' · '),
-        blockers: optionBlockers(props.run, option),
-      }
-    }),
+    .map((option) => ({
+      id: option.id,
+      label: option.label,
+      stakes: optionStakes(props.run, option),
+      blockers: optionBlockers(props.run, option),
+    })),
 )
 
 function choose(optionId: string) {

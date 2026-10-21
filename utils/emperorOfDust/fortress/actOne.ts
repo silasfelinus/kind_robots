@@ -1,4 +1,4 @@
-import type { DayDef, QuestDef } from './types'
+import type { DayDef, DueDef, QuestDef } from './types'
 
 // Act I, Days 1-4 (conductor DAY-PLAN.md). The v0.2 Day 1-4 incidents are
 // kept as throne-room petitions whose answers post day-length quests.
@@ -1022,6 +1022,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               brass: 30,
               local: { ledger: -3, yard: -1 },
               flags: ['tax-high'],
+              schedule: ['market-rate-hard'],
             },
             response:
               'Tallow writes the rate into both drafts. Dunmore watches the brass go into the strongbox, then looks at his own empty hands.',
@@ -1044,6 +1045,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             effects: {
               local: { ledger: 3, yard: 2, 'old-houses': -2 },
               flags: ['tax-low'],
+              schedule: ['market-rate-light'],
             },
             response:
               'Tallow beams and signs both drafts. Dunmore leaves without a word. An Old House lord starts a letter about merchants taxed below landlords.',
@@ -1106,6 +1108,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   brass: 30,
                   local: { ledger: -3, yard: -1 },
                   flags: ['tax-high'],
+                  schedule: ['market-rate-hard'],
                 },
                 response:
                   'Tallow writes the rate in and smiles at nobody. Paper keeps. Dunmore watches the brass go into the strongbox, and the Yard knows before he gets home.',
@@ -1117,6 +1120,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { ledger: 3, yard: 2, 'old-houses': -2 },
                   flags: ['tax-low'],
+                  schedule: ['market-rate-light'],
                 },
                 response:
                   'Tallow signs with a flourish. Dunmore gives you a long, flat look. The chits stay in her strongbox, but cheap market means cheap bread. He takes the bread and leaves the look.',
@@ -1143,6 +1147,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   brass: 30,
                   local: { ledger: -3, yard: -1 },
                   flags: ['tax-high'],
+                  schedule: ['market-rate-hard'],
                 },
                 response:
                   'Tallow writes it in. “One hand gives, the other takes.” Dunmore looks at both your hands, checking which one fed him.',
@@ -1166,6 +1171,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                 effects: {
                   local: { ledger: 3, yard: 2, 'old-houses': -2 },
                   flags: ['tax-low'],
+                  schedule: ['market-rate-light'],
                 },
                 response:
                   'Tallow’s smile comes back slow. “Honestly. The Ledger can do honestly, at this rate.” An Old House lord leaves early to write a letter.',
@@ -2666,5 +2672,37 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         ],
       },
     ],
+  },
+]
+
+/**
+ * Act I's standing obligations (t-040). The Day 2 rate stays on the gate as a
+ * law (laws.ts): the taxes change every dawn, and once a week the Ledger
+ * feels it, until the court leaves the tower or the rate is repealed.
+ */
+export const ACT_ONE_DUES: readonly DueDef[] = [
+  {
+    id: 'market-rate-hard',
+    title: 'The hard rate',
+    inDays: 7,
+    every: 7,
+    until: 40,
+    when: { flags: ['tax-high'] },
+    effects: { local: { ledger: -1 } },
+    line: 'The hard rate held another week. The Ledger’s stalls opened late and shut early.',
+    warning:
+      'The hard rate stays on the gate. Every seven days the Ledger cools.',
+  },
+  {
+    id: 'market-rate-light',
+    title: 'The light rate',
+    inDays: 7,
+    every: 7,
+    until: 40,
+    when: { flags: ['tax-low'] },
+    effects: { local: { ledger: 1 } },
+    line: 'The light rate held another week. Two more caravans chose the fortress gate over the Ford.',
+    warning:
+      'The light rate stays on the gate. Every seven days the Ledger warms.',
   },
 ]

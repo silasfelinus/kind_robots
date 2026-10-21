@@ -73,10 +73,41 @@ const PEACES: [flag: string, ending: EndingId][] = [
 /** Followers lost this run that make the peace "A Hundred Candles". */
 export const HEAVY_LOSSES = 2
 
-/** The ending a finished run earns. Any party that sealed the crypt counts. */
+/**
+ * The ending a finished run earns. Any party that sealed the crypt counts.
+ * The Bell's peace needs the bell to have rung (t-040); a Bell peace whose
+ * bell never sounded comes home as Open Roads.
+ */
 export const endingOf = (run: FortressRun): EndingDef => {
   if (!run.flags.includes('horror-sealed')) return ENDINGS['long-night']
   if (run.memorials.length >= HEAVY_LOSSES) return ENDINGS['hundred-candles']
   const peace = PEACES.find(([flag]) => run.flags.includes(flag))
+  if (peace?.[1] === 'bell-restored' && !run.flags.includes('bell-rung'))
+    return ENDINGS['open-roads']
   return ENDINGS[peace?.[1] ?? 'open-roads']
+}
+
+/** From this day the court is told the Hundred Candles rule (t-040). */
+export const CANDLES_WARNING_DAY = 45
+
+const COUNT_WORDS = ['No names', 'One name', 'Two names', 'Three names']
+
+/**
+ * The warning before A Hundred Candles can override the Day 49 peace: the
+ * rule, and how many names the memorial row holds today.
+ */
+export const candlesLine = (
+  run: Pick<FortressRun, 'day' | 'memorials'>,
+): { source: string; text: string } | undefined => {
+  if (run.day < CANDLES_WARNING_DAY || run.day > 50) return undefined
+  const lost = run.memorials.length
+  const count = COUNT_WORDS[lost] ?? `${lost} names`
+  const rule = `${HEAVY_LOSSES === 2 ? 'Two' : HEAVY_LOSSES} names on the memorial row and no peace holds. The kingdom keeps A Hundred Candles instead.`
+  return {
+    source: 'The memorial row',
+    text:
+      lost >= HEAVY_LOSSES
+        ? `${count} already. ${rule} Whatever is signed at the last fire, the candles are what the kingdom will remember.`
+        : `${rule} ${count} so far.`,
+  }
 }

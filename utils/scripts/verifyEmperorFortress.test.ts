@@ -5,10 +5,17 @@ import { ACT_ONE_LATE_QUESTS } from '../emperorOfDust/fortress/actOneLate'
 import { ACT_TWO_QUESTS } from '../emperorOfDust/fortress/actTwo'
 import { ACT_THREE_QUESTS } from '../emperorOfDust/fortress/actThree'
 import { ACT_FOUR_QUESTS } from '../emperorOfDust/fortress/actFour'
-import { ACT_FIVE_QUESTS } from '../emperorOfDust/fortress/actFive'
+import {
+  ACT_FIVE_QUESTS,
+  FINALE_AID,
+  HOST_COLLECT_DAY,
+  HOST_DEMAND,
+} from '../emperorOfDust/fortress/actFive'
+import { lawsInForce } from '../emperorOfDust/fortress/laws'
 import {
   ENDINGS,
   type EndingId,
+  candlesLine,
   endingOf,
 } from '../emperorOfDust/fortress/endings'
 import {
@@ -20,8 +27,10 @@ import {
 } from '../emperorOfDust/fortress/moles'
 import {
   DAYS,
+  DUES,
   LAST_DAY,
   QUEST_TEMPLATES,
+  dueDef,
   questDef,
 } from '../emperorOfDust/fortress/content'
 import {
@@ -34,6 +43,10 @@ import {
   audiencesToday,
   bedsUsed,
   briefingMapLine,
+  crisisLine,
+  pendingDues,
+  questOutcomeText,
+  sceneLines,
   chooseAudienceOption,
   chooseTalkOption,
   createRun,
@@ -74,6 +87,7 @@ import {
   dangerLine,
   effectLines,
   expiryInfo,
+  optionStakes,
   partyModifiers,
   rewardLines,
   sendWarnings,
@@ -98,7 +112,9 @@ import {
   BUYER_IDS,
   CAVE_SHARE,
   DEPARTURE_LINES,
+  FALL_OPENING,
   HIDEOUT_HOST,
+  HIDEOUT_NAMES,
   HIDEOUT_WAGE,
   MAX_DEPARTURES,
   MIN_LEFT,
@@ -107,6 +123,7 @@ import {
   buyerOf,
   departedFollowers,
   departureCheck,
+  fallText,
   hostShare,
   selectBuyer,
   selectDepartures,
@@ -167,12 +184,14 @@ import {
 import {
   BETRAYAL_FLAG,
   dayBriefings,
+  dayLines,
   komodoLiesInHindsight,
 } from '../emperorOfDust/fortress/briefings'
 import {
   KINGDOM_FACTIONS,
   LOCAL_FACTIONS,
   STATS,
+  gateHolds,
 } from '../emperorOfDust/fortress/types'
 import type {
   AudienceDef,
@@ -1924,6 +1943,10 @@ assert.deepEqual(marks(1, ['F001']), [null, null, null])
       }
   }
   for (const quest of QUEST_TEMPLATES) noteQuest(quest.id, 1)
+  // A due with a fixed day sets its flags at that dawn (t-040).
+  for (const due of DUES)
+    if (due.day && !due.every)
+      noteEffects(due.effects, (entry) => entry.laterDays.push(due.day!))
   for (const talk of TALKS) {
     flagSource(`heard:${talk.id}`).talk = true
     for (const option of sceneOptions(talk)) {
@@ -2472,7 +2495,16 @@ const ended = (flags: string[], deaths = 0): string =>
 assert.equal(ended(['peace-bell']), 'long-night', 'an open door is the end')
 assert.equal(ended(['horror-sealed']), 'open-roads')
 assert.equal(ended(['horror-sealed', 'peace-roads']), 'open-roads')
-assert.equal(ended(['horror-sealed', 'peace-bell']), 'bell-restored')
+// t-040: the Bell's peace needs the bell to have rung.
+assert.equal(
+  ended(['horror-sealed', 'peace-bell', 'bell-rung']),
+  'bell-restored',
+)
+assert.equal(
+  ended(['horror-sealed', 'peace-bell']),
+  'open-roads',
+  'a Bell peace whose bell never rang comes home as Open Roads',
+)
 assert.equal(ended(['horror-sealed', 'peace-iron']), 'iron-peace')
 assert.equal(ended(['horror-sealed', 'peace-crows']), 'crows-bargain')
 assert.equal(ended(['horror-sealed', 'peace-witchwater']), 'witchwater-throne')
@@ -3414,7 +3446,17 @@ for (const def of DAYS)
       )
     else assert.match(all, /Abbess’s guards/, 'the Abbey reading is unchanged')
   }
-  // Scene variants only swap lines: same length, keyed on the buyer, never empty.
+  // Scene variants only swap lines: same length, never empty, keyed on the
+  // Day 41 buyer or (t-040) on an answer given on an earlier day.
+  const answeredBy = new Map<string, number>()
+  for (const def of DAYS)
+    for (const audience of def.audiences)
+      for (const option of [
+        ...audience.options,
+        ...(audience.beats ?? []).flatMap((beat) => beat.options),
+      ])
+        for (const flag of option.effects.flags ?? [])
+          answeredBy.set(flag, Math.min(answeredBy.get(flag) ?? 99, def.day))
   let sceneVariants = 0
   for (const def of DAYS)
     for (const audience of def.audiences)
@@ -3424,8 +3466,9 @@ for (const def of DAYS)
           assert.ok(variant.flags?.length, `${audience.id}: a variant is keyed`)
           for (const flag of variant.flags ?? [])
             assert.ok(
-              BUYER_IDS.some((b) => flag === `buyer:${b}`) && def.day >= 41,
-              `${audience.id}: ${flag} is the Day 41 buyer`,
+              (BUYER_IDS.some((b) => flag === `buyer:${b}`) && def.day >= 41) ||
+                (answeredBy.get(flag) ?? 99) < def.day,
+              `${audience.id}: ${flag} is the Day 41 buyer or an earlier answer`,
             )
           assert.equal(variant.lines.length, scene.lines.length)
           assert.notDeepEqual(variant.lines, scene.lines, audience.id)
@@ -3796,6 +3839,591 @@ for (const def of DAYS)
       hideout,
       `${faction} hides the court in ${hideout}`,
     )
+}
+
+// --- t-040: playtest engine hooks ---------------------------------------------
+{
+  const sceneOpts = (scene: {
+    options: AudienceOption[]
+    beats?: { options: AudienceOption[] }[]
+  }) => [...scene.options, ...(scene.beats ?? []).flatMap((b) => b.options)]
+  const everyOption = [
+    ...DAYS.flatMap((def) => def.audiences.flatMap(sceneOpts)),
+    ...TALKS.flatMap(sceneOpts),
+  ]
+  // Content contract: every hook names something real.
+  const allEffects = [
+    ...everyOption.map((option) => option.effects),
+    ...DUES.flatMap((due) => [
+      due.effects,
+      due.unpaid?.effects,
+      due.lapsed?.effects,
+    ]),
+  ]
+  for (const effects of allEffects) {
+    for (const id of effects?.schedule ?? []) assert.ok(dueDef(id), `due ${id}`)
+    for (const id of effects?.cancelDues ?? [])
+      assert.ok(dueDef(id), `due ${id}`)
+    for (const aid of effects?.questAid ?? [])
+      assert.ok(questDef(aid.questId) && aid.label, `aid ${aid.questId}`)
+    for (const leaving of effects?.dismiss ?? [])
+      assert.ok(followerDef(leaving.follower) && leaving.reason)
+    if (effects?.relocate) assert.ok(effects.relocate in HIDEOUT_NAMES)
+  }
+  assert.equal(new Set(DUES.map((due) => due.id)).size, DUES.length)
+  for (const due of DUES) {
+    assert.ok(due.day !== undefined || due.inDays !== undefined, due.id)
+    assert.ok(due.line && due.title, due.id)
+    if (due.cost) assert.ok(due.unpaid?.line, `${due.id}: unpaid is told`)
+    if (!due.hidden) assert.ok(due.warning, `${due.id}: the ledger says why`)
+  }
+
+  // 1. An answer helps, or settles, a quest.
+  const flour = 'q-d05-flour-barrels'
+  const flourDef = questDef(flour)!
+  const d5 = onDay(1, 5)
+  assert.ok(d5.board.some((entry) => entry.questId === flour))
+  // Saffron alone is short on Heart: room for help to show.
+  const two = ['F002']
+  const bare = previewQuest(d5, flour, two)
+  const aided = structuredClone(d5)
+  applyEffects(aided, {
+    questAid: [
+      {
+        questId: flour,
+        label: 'The Watch carts the barrels',
+        bonus: 4,
+        resolve: 'partial',
+        outcome: 'The Watch carted half the barrels in. Nobody thanked them.',
+      },
+    ],
+  })
+  const helped = previewQuest(aided, flour, two)
+  assert.ok(helped.chance > bare.chance, 'aid raises the honest odds')
+  assert.ok(helped.perRequirement.every((req) => req.aid === 4))
+  assert.deepEqual(
+    helped.perRequirement.map((req) => req.total - req.aid),
+    bare.perRequirement.map((req) => req.total),
+    'the party’s own share is unchanged',
+  )
+  assert.deepEqual(helped.aid, [
+    { label: 'The Watch carts the barrels', bonus: 4 },
+  ])
+  assert.equal(helped.resolvesAs, 'partial')
+  assert.equal(previewQuest(aided, flour, []).chance, 0, 'nobody, no odds')
+  assert.match(
+    expiryInfo(aided, flourDef, 6).consequence,
+    /The Watch carts the barrels\. It ends as a partial success/,
+  )
+  // Nobody goes: at the dawn it leaves the board, it settles at the aid's tier.
+  let walk = aided
+  while (walk.day < 7) walk = finishDay(walk).run
+  const settled = walk.reports
+    .flatMap((report) => report.quests)
+    .find((quest) => quest.questId === flour)!
+  assert.equal(settled.tier, 'partial')
+  assert.equal(settled.aided, true)
+  assert.equal(
+    settled.text,
+    'The Watch carted half the barrels in. Nobody thanked them.',
+  )
+  assert.deepEqual(settled.effects, flourDef.rewards.partial ?? {})
+  assert.ok(walk.flags.includes(`quest:${flour}:partial`))
+  assert.equal(walk.aid, undefined, 'aid is spent')
+  // Without aid it expires as written, and says so.
+  let lone = d5
+  while (lone.day < 7) lone = finishDay(lone).run
+  const expired = lone.reports
+    .flatMap((report) => report.quests)
+    .find((quest) => quest.questId === flour)!
+  assert.equal(expired.tier, 'expired')
+  assert.equal(expired.text, flourDef.outcomes.expired)
+  assert.ok(lone.flags.includes(`quest:${flour}:expired`))
+  // A party sent anyway rolls with the aid, and spends it.
+  const sent = finishDay(assignQuest(aided, flour, two))
+  const rolled = sent.report.quests.find((quest) => quest.questId === flour)!
+  assert.equal(rolled.chance, helped.chance, 'the roll uses the previewed odds')
+  assert.equal(sent.run.aid, undefined)
+  // Aid for a quest already settled is ignored.
+  const late = structuredClone(lone)
+  applyEffects(late, {
+    questAid: [{ questId: flour, label: 'Too late', bonus: 1 }],
+  })
+  assert.equal(late.aid, undefined)
+
+  // 2. Flag-keyed text: quest outcomes, the betrayal page, the advisor, Day 43.
+  const varied = {
+    ...flourDef,
+    outcomeVariants: {
+      expired: [
+        { flags: ['d05-promised'], text: 'The carts waited. Nobody came.' },
+      ],
+    },
+  }
+  assert.equal(
+    questOutcomeText({ flags: ['d05-promised'] }, varied, 'expired'),
+    'The carts waited. Nobody came.',
+  )
+  assert.equal(
+    questOutcomeText({ flags: [] }, varied, 'expired'),
+    flourDef.outcomes.expired,
+  )
+  assert.equal(
+    questOutcomeText({ flags: [] }, flourDef, 'triumph'),
+    flourDef.outcomes.triumph ?? flourDef.outcomes.success,
+  )
+  assert.ok(gateHolds(['a', 'b'], { flags: ['a'], anyFlags: ['x', 'b'] }))
+  assert.ok(!gateHolds(['a'], { flags: ['a'], anyFlags: ['x'] }))
+  assert.ok(!gateHolds(['a', 'n'], { flags: ['a'], notFlags: ['n'] }))
+  for (const [flag, pattern] of [
+    ['d40-komodo-held', /spent midnight in your cells/],
+    ['d40-seals-checked', /an order you had read/],
+    ['d40-watch-recalled', /lifted the bar for him from inside/],
+  ] as const) {
+    for (const buyer of BUYER_IDS) {
+      const read = fallText(onDay(1, 41, { flags: [flag] }), BUYERS[buyer])
+      assert.match(read.fell, pattern, `${buyer}: ${flag}`)
+      assert.doesNotMatch(read.fell, /with your seal\./, `${buyer}: ${flag}`)
+      assert.ok(
+        read.fell.endsWith(BUYERS[buyer].fell.slice(FALL_OPENING.length)),
+      )
+    }
+    const fall = finishDay(onDay(1, 40, { flags: [flag] }))
+    assert.match(fall.report.betrayal!.fell!, pattern, `the dawn reads ${flag}`)
+    assert.ok(fall.report.events.includes(fall.report.betrayal!.fell!))
+    assert.ok(validateRun(fall.run), 'a betrayal with its fall text saves')
+    const d43 = DAYS.find((def) => def.day === 43)!.audiences.find(
+      (audience) => audience.id === 'd43-defector',
+    )!
+    const opening = sceneLines({ flags: [flag] }, d43)
+      .map(lineText)
+      .join(' ')
+    assert.doesNotMatch(
+      opening,
+      /order under your seal/,
+      `Day 43 reads ${flag}`,
+    )
+  }
+  assert.equal(
+    fallText(onDay(1, 41), BUYERS.abbey).fell,
+    BUYERS.abbey.fell,
+    'no precaution, the fall as written',
+  )
+  const d34 = DAYS.find((def) => def.day === 34)!
+  assert.notEqual(dayLines({ flags: [] }, d34).komodo, d34.komodo)
+  assert.equal(
+    dayLines({ flags: ['crow-debt-called'] }, d34).komodo,
+    d34.komodo,
+  )
+
+  // The playtest's leaked id: a crisis line names the faction.
+  const crisis = createRun(2)
+  const crisisEvents: string[] = []
+  applyEffects(crisis, { local: { 'old-houses': -30 } }, crisisEvents)
+  assert.deepEqual(crisisEvents, [
+    'The Old Houses have lost all faith in the throne.',
+  ])
+  assert.equal(
+    crisisLine('ledger'),
+    'The Ledger has lost all faith in the throne.',
+  )
+
+  // 3a. The Ledger's loan comes due at season's end.
+  const d8 = onDay(1, 8, { flags: ['market-charter'] })
+  const loanTaken = chooseAudienceOption(d8, 'd08-ledger-loan', 'accept').run
+  assert.deepEqual(loanTaken.dues, [{ id: 'ledger-loan', day: 20, from: 8 }])
+  assert.deepEqual(
+    pendingDues(loanTaken).map((due) => [due.def.id, due.day, due.daysLeft]),
+    [['ledger-loan', 20, 12]],
+  )
+  const loanOption = audienceScene(
+    loanTaken,
+    audiencesToday(d8).find((audience) => audience.id === 'd08-ledger-loan')!,
+  ).options.find((option) => option.id === 'accept')!
+  assert.ok(
+    optionStakes(d8, loanOption).some(
+      (stake) =>
+        stake.tone === 'warning' &&
+        /Comes due Day 20.*50 brass/.test(stake.text),
+    ),
+    'the throne says when the loan comes due',
+  )
+  const eveOfLoan = (brass: number) =>
+    onDay(1, 19, {
+      brass,
+      flags: ['ledger-credit'],
+      dues: [{ id: 'ledger-loan', day: 20, from: 8 }],
+    })
+  const repaid = finishDay(eveOfLoan(300))
+  assert.equal(
+    repaid.run.brass,
+    300 + repaid.report.taxes - repaid.report.wages - 50,
+  )
+  assert.ok(repaid.run.flags.includes('ledger-loan-repaid'))
+  assert.ok(!repaid.run.flags.includes('ledger-credit'))
+  assert.ok(repaid.report.events.some((line) => /wrote PAID/.test(line)))
+  assert.equal(repaid.run.dues, undefined)
+  const broke = finishDay(eveOfLoan(10))
+  assert.ok(broke.run.flags.includes('ledger-loan-defaulted'))
+  assert.equal(broke.run.local.ledger, eveOfLoan(10).local.ledger - 4)
+  assert.deepEqual(broke.run.dues, [
+    { id: 'ledger-loan-late', day: 25, from: 20 },
+  ])
+  assert.ok(broke.run.brass >= 0, 'an unpaid due never empties the strongbox')
+  const declined = onDay(1, 19, {
+    dues: [{ id: 'ledger-loan', day: 20, from: 8 }],
+  })
+  const noLoan = finishDay(declined)
+  assert.ok(
+    !noLoan.run.flags.includes('ledger-loan-repaid'),
+    'no loan, no bill',
+  )
+  assert.equal(
+    noLoan.run.brass,
+    declined.brass + noLoan.report.taxes - noLoan.report.wages,
+  )
+  // A due can be called off before it comes due.
+  const cancelled = structuredClone(loanTaken)
+  applyEffects(cancelled, { cancelDues: ['ledger-loan'] })
+  assert.equal(cancelled.dues, undefined)
+  // Scheduling the same due twice books it once.
+  const twice = structuredClone(loanTaken)
+  applyEffects(twice, { schedule: ['ledger-loan'] })
+  assert.equal(twice.dues!.length, 1)
+
+  // 3b. The Day 2 rate is a standing law.
+  const d2 = onDay(1, 2)
+  const base = dailyTaxes(d2)
+  const hard = chooseAudienceOption(d2, 'd02-dust-tax', 'high').run
+  assert.equal(dailyTaxes(hard), base + 2)
+  assert.deepEqual(
+    lawsInForce(hard).map((law) => law.id),
+    ['market-rate-hard'],
+  )
+  assert.deepEqual(hard.dues, [{ id: 'market-rate-hard', day: 9, from: 2 }])
+  const light = chooseAudienceOption(d2, 'd02-dust-tax', 'low').run
+  assert.equal(dailyTaxes(light), Math.max(0, base - 2))
+  assert.equal(
+    lawsInForce({ ...hard, hideout: 'crow-cave' }).length,
+    0,
+    'no gate in hiding',
+  )
+  const week = finishDay({ ...structuredClone(hard), day: 8 })
+  assert.equal(week.run.local.ledger, hard.local.ledger - 1, 'the Ledger cools')
+  assert.deepEqual(week.run.dues, [
+    { id: 'market-rate-hard', day: 16, from: 9 },
+  ])
+  const repealed = finishDay({
+    ...structuredClone(hard),
+    day: 8,
+    flags: hard.flags.filter((flag) => flag !== 'tax-high'),
+  })
+  assert.equal(
+    repealed.run.local.ledger,
+    hard.local.ledger,
+    'repealed: no pull',
+  )
+  assert.equal(repealed.run.dues, undefined, 'and no next week')
+  assert.ok(
+    optionStakes(
+      d2,
+      DAYS[1]!.audiences
+        .find((a) => a.id === 'd02-dust-tax')!
+        .options.find((option) => option.id === 'high')!,
+    ).some((stake) => /The hard rate: every 7 days/.test(stake.text)),
+  )
+
+  // 3c. The rain covenant: only a covenant still owed is billed on Day 34.
+  const billed = (flags: string[]) => {
+    const eve = onDay(1, 33, {
+      flags,
+      dues: [{ id: 'crow-debt', day: 34, from: 20 }],
+    })
+    const dawn = finishDay(eve).run
+    return audiencesToday(dawn).some(
+      (audience) => audience.id === 'd34-crow-debt',
+    )
+  }
+  assert.ok(billed(['rain-covenant']), 'a covenant never settled')
+  assert.ok(billed(['covenant-broken']), 'a covenant broken')
+  assert.ok(billed(['covenant-paid-in-runners']), 'a season of runners ends')
+  assert.ok(!billed(['covenant-bought-out']), 'bought out: owes nothing')
+  assert.ok(!billed(['d20-pastures-ceded']), 'settled in pastures')
+  assert.ok(
+    !billed(['covenant-paid-in-runners', 'd20-runners-term-fixed']),
+    'a fixed term closes it',
+  )
+  const neverSigned = finishDay(onDay(1, 33)).run
+  assert.ok(
+    !audiencesToday(neverSigned).some(
+      (audience) => audience.id === 'd34-crow-debt',
+    ),
+    'a run that never signed is never billed',
+  )
+  assert.match(dayBriefings(neverSigned)![1]!.text, /owes the Conclave nothing/)
+  assert.equal(dayBriefings(neverSigned)![1]!.truth, true)
+  const signed = chooseAudienceOption(onDay(1, 11), 'd11-rainmaker', 'covenant')
+  assert.deepEqual(signed.run.dues, [
+    { id: 'rain-covenant', day: 20, from: 11 },
+  ])
+
+  // Saves keep dues and aid, and refuse nonsense.
+  assert.ok(validateRun(aided) && validateRun(loanTaken))
+  assert.ok(
+    !validateRun({
+      ...loanTaken,
+      dues: [{ id: 'no-such-due', day: 20, from: 8 }],
+    }),
+  )
+  assert.ok(
+    !validateRun({
+      ...loanTaken,
+      dues: [...loanTaken.dues!, ...loanTaken.dues!],
+    }),
+    'one of each due',
+  )
+  assert.ok(!validateRun({ ...aided, aid: { 'no-such-quest': [] } }))
+  const book: SaveBook = {
+    version: 3,
+    current: loanTaken,
+    dawns: Array.from({ length: 8 }, (_, d) => ({ ...loanTaken, day: d + 1 })),
+  }
+  assert.deepEqual(decodeBook(encodeBook(book))!.current.dues, loanTaken.dues)
+
+  // 4. A follower leaves by choice, never below the floor.
+  const sendHome: AudienceOption = {
+    id: 'home',
+    label: 'Send Kiyo home.',
+    effects: {
+      dismiss: [{ follower: 'F003', reason: 'Kiyo went home to her boy.' }],
+    },
+    response: '',
+  }
+  const four = onDay(1, 12)
+  assert.equal(bedsUsed(four), MIN_LEFT)
+  assert.ok(
+    optionBlockers(four, sendHome).some((reason) =>
+      /cannot spare/.test(reason),
+    ),
+    'the floor holds',
+  )
+  const five = recruit({ ...four, brass: 500, recruitable: ['F005'] }, 'F005')
+  assert.deepEqual(optionBlockers(five, sendHome), [])
+  assert.ok(
+    optionStakes(five, sendHome).some(
+      (s) => s.text === 'Kiyo leaves the court',
+    ),
+  )
+  const gone = structuredClone(five)
+  const goneEvents: string[] = []
+  applyEffects(gone, sendHome.effects, goneEvents)
+  assert.equal(followerStatus(gone, 'F003'), 'departed')
+  assert.deepEqual(gone.roster.find((s) => s.id === 'F003')!.departed, {
+    day: 12,
+    why: 'dismissed',
+    reason: 'Kiyo went home to her boy.',
+  })
+  assert.deepEqual(goneEvents, ['Kiyo went home to her boy.'])
+  assert.equal(bedsUsed(gone), MIN_LEFT)
+  assert.ok(!optionVisible(gone, sendHome), 'nobody is sent home twice')
+  assert.deepEqual(
+    departedFollowers(gone).map((entry) => [
+      entry.followerId,
+      entry.why,
+      entry.reason,
+    ]),
+    [['F003', 'dismissed', 'Kiyo went home to her boy.']],
+  )
+  assert.ok(validateRun(gone))
+  const away = assignQuest(
+    { ...five, board: [{ questId: flour, postedDay: 12, lastDay: 13 }] },
+    flour,
+    ['F003'],
+  )
+  assert.ok(
+    optionBlockers(away, sendHome).some((reason) => /is away/.test(reason)),
+  )
+
+  // 5. Hideout terms: accept promises hands, paying owes nothing later.
+  const molesD42 = onDay(1, 42, {
+    hideout: 'mole-tunnels',
+    flags: ['komodo-betrayal', 'hideout:mole-tunnels'],
+  })
+  const terms = 'd42-terms-mole-tunnels'
+  assert.ok(audiencesToday(molesD42).some((audience) => audience.id === terms))
+  const accepted = chooseAudienceOption(molesD42, terms, 'accept').run
+  assert.deepEqual(accepted.dues, [
+    { id: 'host-due:mole-tunnels', day: HOST_COLLECT_DAY, from: 42 },
+  ])
+  const asked = chooseAudienceOption(molesD42, terms, 'ask').run
+  const paidAgain = chooseAudienceOption(
+    { ...asked, brass: 100 },
+    terms,
+    'bargain',
+  ).run
+  assert.ok(paidAgain.flags.includes('host-terms-paid'))
+  assert.equal(
+    paidAgain.affinity.moles,
+    asked.affinity.moles + 5,
+    'the bargain does what it says',
+  )
+  assert.equal(paidAgain.dues, undefined, 'paid in brass: nothing comes due')
+  const collect = (patch: Partial<FortressRun>) =>
+    finishDay({
+      ...structuredClone(accepted),
+      day: HOST_COLLECT_DAY - 1,
+      board: [],
+      ...patch,
+    })
+  const paidHost = collect({ brass: 200 })
+  assert.equal(
+    paidHost.run.brass,
+    200 + paidHost.report.taxes - paidHost.report.wages - HOST_DEMAND,
+  )
+  const unpaidHost = collect({ brass: 0 })
+  assert.equal(unpaidHost.run.affinity.moles, accepted.affinity.moles - 10)
+  assert.ok(unpaidHost.run.flags.includes('host-demand-unpaid'))
+  const keptHost = collect({
+    brass: 200,
+    flags: [...accepted.flags, 'quest:q-d42-tunnel-props:success'],
+  })
+  assert.equal(keptHost.run.affinity.moles, accepted.affinity.moles + 5)
+  assert.ok(keptHost.run.flags.includes('host-terms-kept'))
+  assert.equal(
+    keptHost.run.brass,
+    200 + keptHost.report.taxes - keptHost.report.wages,
+    'work done: nothing to pay',
+  )
+  // The court can leave its host.
+  const moved = structuredClone(accepted)
+  applyEffects(moved, { relocate: 'nameless-cave' })
+  assert.equal(moved.hideout, 'nameless-cave')
+  assert.ok(moved.flags.includes('hideout:nameless-cave'))
+  assert.ok(!moved.flags.includes('hideout:mole-tunnels'))
+  assert.equal(hostShare(moved)!.paid, CAVE_SHARE)
+
+  // 6. The finale reads Act V; the Bell must ring; the Candles are warned.
+  const dispatchDef = questDef('q-d50-last-dispatch')!
+  assert.equal(dispatchDef.aid, FINALE_AID)
+  const d50 = onDay(1, 50, { hideout: 'crow-cave', flags: ['komodo-betrayal'] })
+  const party = d50.roster.slice(0, 3).map((state) => state.id)
+  const alone = previewQuest(d50, 'q-d50-last-dispatch', party)
+  assert.deepEqual(alone.aid, [])
+  const allied = previewQuest(
+    {
+      ...d50,
+      flags: [
+        ...d50.flags,
+        'verge-allied',
+        'watch-returned',
+        'reedlight-lantern',
+        'crow-sightings',
+      ],
+    },
+    'q-d50-last-dispatch',
+    party,
+  )
+  assert.deepEqual(
+    allied.aid.map((aid) => [aid.label, aid.bonus, aid.stat ?? 'all']),
+    [
+      ['The Black Verge rides at your flank', 3, 'might'],
+      ['The Watch came down off the ridge', 2, 'might'],
+      ['Reedlight’s lantern, which does not speak back', 3, 'heart'],
+      ['The Crows counted every lantern on the Abbey road', 1, 'all'],
+    ],
+  )
+  assert.deepEqual(
+    allied.perRequirement.map((req) => [req.stat, req.aid]),
+    [
+      ['might', 6],
+      ['lore', 1],
+      ['heart', 4],
+    ],
+  )
+  assert.ok(allied.chance > alone.chance, 'alliances reach the Day 50 odds')
+  const cryptAid = previewQuest(
+    { ...d50, flags: [...d50.flags, 'verge-allied'] },
+    'q-d50-crypt-path',
+    party,
+  )
+  assert.deepEqual(
+    cryptAid.aid,
+    [],
+    'might help is not shown where might is not needed',
+  )
+  assert.equal(
+    questDef('q-d48-bell-clapper')!.durationDays,
+    1,
+    'home for Day 49',
+  )
+  assert.equal(candlesLine(onDay(1, 44)), undefined)
+  assert.match(
+    candlesLine({
+      day: 45,
+      memorials: [{ followerId: 'F001', questId: flour, day: 9 }],
+    })!.text,
+    /Two names on the memorial row.*A Hundred Candles.*One name so far/,
+  )
+  assert.match(
+    candlesLine({
+      day: 49,
+      memorials: [
+        { followerId: 'F001', questId: flour, day: 9 },
+        { followerId: 'F002', questId: flour, day: 19 },
+      ],
+    })!.text,
+    /^Two names already/,
+  )
+
+  // 7. Honest stakes: direction, never flags or hidden truths.
+  const taxScene = DAYS[1]!.audiences.find((a) => a.id === 'd02-dust-tax')!
+  for (const option of sceneOpts(taxScene)) {
+    const stakes = optionStakes(d2, option)
+    for (const stake of stakes)
+      for (const flag of option.effects.flags ?? [])
+        assert.ok(
+          !stake.text.includes(flag),
+          `${option.id}: ${flag} stays hidden`,
+        )
+    if (option.next)
+      assert.ok(stakes.some((stake) => /audience continues/.test(stake.text)))
+  }
+  assert.deepEqual(
+    optionStakes(
+      d2,
+      taxScene.options.find((o) => o.id === 'high')!,
+    ).map((s) => [s.text, s.tone]),
+    [
+      ['+30 brass', 'gain'],
+      ['Cools the Ledger', 'loss'],
+      ['Cools the Yard', 'loss'],
+      ['The hard rate: every 7 days', 'warning'],
+    ],
+  )
+  const voidChits = taxScene.beats![0]!.options.find(
+    (o) => o.id === 'void-chits',
+  )!
+  assert.equal(optionStakes(d2, voidChits)[0]!.text, '−25 brass')
+  assert.deepEqual(
+    optionStakes(createRun(1), {
+      id: 'x',
+      label: 'x',
+      effects: { affinity: { rustline: 5, freeholds: -5 } },
+      response: '',
+    }).map((s) => s.text),
+    ['Cools Border Freeholds', 'Someone unseen takes note'],
+    'a faction in the fog stays in the fog',
+  )
+  assert.ok(
+    optionStakes(d5, {
+      id: 'x',
+      label: 'x',
+      effects: {
+        questAid: [{ questId: flour, label: 'x', resolve: 'success' }],
+      },
+      response: '',
+    }).some((s) => /Settles “.*” if nobody goes/.test(s.text)),
+  )
 }
 
 console.log('Emperor of Dust fortress contract: ok')

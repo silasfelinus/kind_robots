@@ -368,6 +368,19 @@
           Some needs are hidden. A scout, a follower who knows the ground, or
           the Lamplight Archive at {{ LAMPLIGHT_SIGHT }} would read them.
         </p>
+        <ul
+          v-if="odds.aid.length"
+          class="mt-2 space-y-0.5 text-xs"
+          aria-label="Help the court has earned"
+        >
+          <li v-for="(aid, i) in odds.aid" :key="i">
+            <strong class="text-success">Aid</strong>: {{ aid.label }}
+            <span class="text-success"
+              >+{{ aid.bonus }}
+              {{ aid.stat ? capitalize(aid.stat) : 'every need' }}</span
+            >
+          </li>
+        </ul>
         <ul v-if="modifiers.length" class="mt-2 space-y-0.5 text-xs">
           <li v-for="(mod, i) in modifiers" :key="i">
             <strong>{{ nameOf(mod.followerId) }}</strong
@@ -546,7 +559,7 @@ const contributions = computed<Record<string, string>>(() => {
           (solo?.perRequirement ?? [])
             .map(
               (req) =>
-                `${req.stat[0]!.toUpperCase()}${req.stat.slice(1)} ${req.total}`,
+                `${req.stat[0]!.toUpperCase()}${req.stat.slice(1)} ${req.total - req.aid}`,
             )
             .join(' · '),
         ]
@@ -576,6 +589,8 @@ const canSend = computed(
     party.value.length >= selected.value.party.min &&
     party.value.length <= partyLimit(selected.value, party.value),
 )
+
+const capitalize = (word: string) => word[0]!.toUpperCase() + word.slice(1)
 
 function select(id: string) {
   selectedId.value = id

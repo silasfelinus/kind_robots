@@ -1,6 +1,7 @@
 import {
   ACT_END_DAWNS,
   KINGDOM_FACTION_DEFS,
+  LOCAL_FACTION_DEFS,
   LOCAL_MAX,
   LOCAL_START,
   PERIL_STRENGTH,
@@ -16,6 +17,7 @@ import {
   LAST_DAY,
   QUEST_TEMPLATES,
   dayDef,
+  dueDef,
   isTemplateInstance,
   questDef,
 } from './content'
@@ -23,11 +25,16 @@ import {
   AFFINITY_TIERS,
   KINGDOM_FACTIONS,
   LOCAL_FACTIONS,
+  gateHolds,
+  pickVariant,
   standingHeld,
+  variantText,
 } from './types'
 import type {
   AbilityKind,
   ActiveQuest,
+  AidBonus,
+  DueDef,
   AffinityTier,
   AudienceDef,
   AudienceOption,
@@ -44,6 +51,7 @@ import type {
   MapEvent,
   MapThreat,
   OddsPreview,
+  QuestAid,
   QuestDef,
   QuestReport,
   QuestResultTier,
@@ -58,10 +66,13 @@ import { TALKS } from './talks'
 import {
   BETRAYAL_DAY,
   HIDEOUT_HOST,
+  HIDEOUT_NAMES,
   HIDEOUT_WAGE,
+  MIN_LEFT,
   applyBetrayal,
   hostShare,
 } from './betrayal'
+import { lawTaxes } from './laws'
 
 export const START_BRASS = 120
 export const WAGE = 4
@@ -349,7 +360,7 @@ export const applyEffects = (
     run.local[key] = clamp(before + (delta ?? 0), 0, LOCAL_MAX)
     if (before > 0 && run.local[key] === 0) {
       run.flags.push(`crisis:${key}`)
-      events.push(`The ${key} has lost all faith in the throne.`)
+      events.push(crisisLine(key))
     }
   }
   for (const [id, delta] of Object.entries(effects.affinity ?? {})) {
@@ -379,6 +390,146 @@ export const applyEffects = (
     }
   }
   for (const id of effects.items ?? []) run.inventory.push(id)
+  for (const aid of effects.questAid ?? []) {
+    const settled = run.reports.some((report) =>
+      report.quests.some((quest) => quest.questId === aid.questId),
+    )
+    if (settled || !questDef(aid.questId)) continue
+    run.aid = {
+      ...run.aid,
+      [aid.questId]: [...(run.aid?.[aid.questId] ?? []), { ...aid }],
+    }
+  }
+  if (effects.cancelDues?.length) {
+    run.dues = (run.dues ?? []).filter(
+      (due) => !effects.cancelDues!.includes(due.id),
+    )
+    if (!run.dues.length) delete run.dues
+  }
+  for (const id of effects.schedule ?? []) scheduleDue(run, id)
+  for (const { follower, reason } of effects.dismiss ?? []) {
+    const state = run.roster.find((entry) => entry.id === follower)
+    if (!state || state.dead || state.departed) continue
+    if (run.active.some((quest) => quest.party.includes(follower))) continue
+    if (bedsUsed(run) - 1 < MIN_LEFT) continue
+    state.departed = { day: run.day, why: 'dismissed', reason }
+    for (const item of Object.values(state.equipment))
+      if (item) run.inventory.push(item)
+    state.equipment = {}
+    delete state.injuredUntilDay
+    events.push(reason)
+  }
+  const target = effects.relocate
+  if (
+    target &&
+    run.hideout &&
+    target !== run.hideout &&
+    HIDEOUT_NAMES[target]
+  ) {
+    run.flags = run.flags.filter((flag) => flag !== `hideout:${run.hideout}`)
+    run.flags.push(`hideout:${target}`)
+    run.hideout = target
+    events.push(`The court moved to ${HIDEOUT_NAMES[target]}.`)
+  }
+}
+
+const PLURAL_LOCALS: readonly LocalFactionId[] = ['old-houses']
+
+/** The dawn line when a fortress faction's support reaches zero. */
+export const crisisLine = (id: LocalFactionId): string => {
+  const name =
+    LOCAL_FACTION_DEFS.find((def) => def.id === id)?.name ?? `The ${id}`
+  return `${name} ${PLURAL_LOCALS.includes(id) ? 'have' : 'has'} lost all faith in the throne.`
+}
+
+// --- dues: debts, fees and threats that come due (t-040) --------------------
+
+/** Puts a due on the calendar; one already waiting is left as it is. */
+const scheduleDue = (run: FortressRun, id: string): void => {
+  const def = dueDef(id)
+  if (!def || (run.dues ?? []).some((due) => due.id === id)) return
+  const day = Math.max(run.day + 1, def.day ?? run.day + (def.inDays ?? 1))
+  if (day > LAST_DAY + 1 || (def.until !== undefined && day > def.until)) return
+  run.dues = [...(run.dues ?? []), { id, day, from: run.day }]
+}
+
+/**
+ * Settles every due whose dawn has come, in calendar order, after taxes and
+ * wages. Never rolled; a recurring due books its next dawn while `when` holds.
+ */
+const settleDues = (run: FortressRun, events: string[]): void => {
+  const waiting = run.dues ?? []
+  const due = waiting
+    .filter((entry) => entry.day <= run.day)
+    .sort((a, b) => a.day - b.day)
+  if (!due.length) return
+  run.dues = waiting.filter((entry) => entry.day > run.day)
+  for (const pending of due) {
+    const def = dueDef(pending.id)
+    if (!def) continue
+    if (!gateHolds(run.flags, def.when)) {
+      if (def.lapsed?.effects) applyEffects(run, def.lapsed.effects, events)
+      if (def.lapsed?.line) events.push(def.lapsed.line)
+      continue
+    }
+    if (def.cost && run.brass < def.cost) {
+      if (def.unpaid?.effects) applyEffects(run, def.unpaid.effects, events)
+      events.push(
+        def.unpaid?.line ?? `${def.title}: the strongbox could not pay.`,
+      )
+    } else {
+      run.brass -= def.cost ?? 0
+      if (def.effects) applyEffects(run, def.effects, events)
+      events.push(def.line)
+    }
+    if (def.every) {
+      const next = run.day + def.every
+      if (
+        next <= LAST_DAY &&
+        (def.until === undefined || next <= def.until) &&
+        !(run.dues ?? []).some((entry) => entry.id === def.id)
+      )
+        run.dues = [
+          ...(run.dues ?? []),
+          { id: def.id, day: next, from: run.day },
+        ]
+    }
+  }
+  if (!run.dues?.length) delete run.dues
+}
+
+export type DueView = { def: DueDef; day: number; daysLeft: number }
+
+/**
+ * What the court ledger shows is coming: every due not kept hidden, whose
+ * condition still holds today, soonest first.
+ */
+export const pendingDues = (run: FortressRun): DueView[] =>
+  (run.dues ?? [])
+    .map((due) => ({ def: dueDef(due.id), day: due.day }))
+    .filter(
+      (entry): entry is { def: DueDef; day: number } =>
+        !!entry.def &&
+        !entry.def.hidden &&
+        gateHolds(run.flags, entry.def.when),
+    )
+    .map((entry) => ({ ...entry, daysLeft: entry.day - run.day }))
+    .sort((a, b) => a.day - b.day)
+
+/** Reasons an answer that sends followers away cannot be given today. */
+export const dismissBlockers = (
+  run: FortressRun,
+  effects: Effects,
+): string[] => {
+  const leaving = effects.dismiss ?? []
+  if (!leaving.length) return []
+  const reasons: string[] = []
+  for (const { follower } of leaving)
+    if (followerStatus(run, follower) === 'on-quest')
+      reasons.push(`${followerDef(follower)?.name ?? follower} is away`)
+  if (bedsUsed(run) - leaving.length < MIN_LEFT)
+    reasons.push(`The court cannot spare them: ${MIN_LEFT} must stay`)
+  return reasons
 }
 
 // --- throne room ------------------------------------------------------------
@@ -400,6 +551,9 @@ export const optionVisible = (
   run: FortressRun,
   option: AudienceOption,
 ): boolean => {
+  // Nobody can be sent home who is no longer at court.
+  for (const { follower } of option.effects.dismiss ?? [])
+    if (goneFromCourt(followerStatus(run, follower))) return false
   const requires = option.requires
   if (!requires) return true
   if ((requires.flags ?? []).some((flag) => !run.flags.includes(flag)))
@@ -417,7 +571,10 @@ export const optionVisible = (
 export const optionBlockers = (
   run: FortressRun,
   option: AudienceOption,
-): string[] => unmetRequirements(run, option.requires, option.effects.recruit)
+): string[] => [
+  ...unmetRequirements(run, option.requires, option.effects.recruit),
+  ...dismissBlockers(run, option.effects),
+]
 
 /** The part of an audience the emperor is in now: its opening, or a later beat. */
 export type AudienceScene = {
@@ -432,12 +589,7 @@ export type AudienceScene = {
 export const sceneLines = (
   run: Pick<FortressRun, 'flags'>,
   scene: { lines: SceneLine[]; variants?: SceneVariant[] },
-): SceneLine[] =>
-  scene.variants?.find(
-    (variant) =>
-      (variant.flags ?? []).every((flag) => run.flags.includes(flag)) &&
-      !(variant.notFlags ?? []).some((flag) => run.flags.includes(flag)),
-  )?.lines ?? scene.lines
+): SceneLine[] => pickVariant(run.flags, scene.variants)?.lines ?? scene.lines
 
 export const audienceScene = (
   run: FortressRun,
@@ -750,6 +902,65 @@ const partyRatios = (
   return ratios
 }
 
+// --- quest aid (t-040) --------------------------------------------------------
+
+/**
+ * Every source of help a quest has today: answers that promised it
+ * (`effects.questAid`) and the quest's own standing aid whose flags hold.
+ */
+export const questAidFor = (
+  run: FortressRun,
+  quest: QuestDef,
+): (AidBonus & { resolve?: QuestResultTier; outcome?: string })[] => [
+  ...(run.aid?.[quest.id] ?? []),
+  ...(quest.aid ?? []).filter((aid) => gateHolds(run.flags, aid)),
+]
+
+/** What aid adds to each of the quest's requirements. */
+const aidTotals = (run: FortressRun, quest: QuestDef): number[] => {
+  const aid = questAidFor(run, quest)
+  return quest.requirements.map((req) =>
+    aid.reduce(
+      (sum, entry) =>
+        sum + (!entry.stat || entry.stat === req.stat ? (entry.bonus ?? 0) : 0),
+      0,
+    ),
+  )
+}
+
+const TIER_RANK: QuestResultTier[] = [
+  'failure',
+  'partial',
+  'success',
+  'triumph',
+]
+
+/** The best tier an answer's aid settles the quest at if nobody goes. */
+export const aidResolution = (
+  run: FortressRun,
+  questId: string,
+): QuestAid | undefined =>
+  [...(run.aid?.[questId] ?? [])]
+    .filter((aid) => aid.resolve)
+    .sort(
+      (a, b) => TIER_RANK.indexOf(b.resolve!) - TIER_RANK.indexOf(a.resolve!),
+    )[0]
+
+/** The dawn line for a quest result, as this run's flags read it. */
+export const questOutcomeText = (
+  run: Pick<FortressRun, 'flags'>,
+  quest: QuestDef,
+  tier: QuestReport['tier'],
+): string =>
+  variantText(
+    run.flags,
+    quest.outcomes[tier] ??
+      (tier === 'triumph' ? quest.outcomes.success : undefined) ??
+      (tier === 'expired' ? 'Nobody went. The chance passed.' : ''),
+    quest.outcomeVariants?.[tier] ??
+      (tier === 'triumph' ? quest.outcomeVariants?.success : undefined),
+  )
+
 const evaluate = (
   run: FortressRun,
   quest: QuestDef,
@@ -758,19 +969,22 @@ const evaluate = (
 ) => {
   const abilities = abilitiesOf(members)
   const juryRig = abilities.some((ability) => ability.kind === 'jury-rig')
-  const totals = quest.requirements.map((req) => {
+  const aid = members.length
+    ? aidTotals(run, quest)
+    : quest.requirements.map(() => 0)
+  const totals = quest.requirements.map((req, i) => {
     const base = members.reduce(
       (sum, member) => sum + contribution(run, member, req.stat, quest, known),
       0,
     )
-    if (req.stat !== 'might') return base
+    if (req.stat !== 'might') return base + (aid[i] ?? 0)
     // Under the Wall: Keel's Wits count toward Might requirements too.
     const undermine = members
       .filter(({ def }) => def.ability.kind === 'undermine')
       .reduce((sum, { def }) => sum + def.stats.wits, 0)
-    return base + undermine
+    return base + undermine + (aid[i] ?? 0)
   })
-  return { abilities, juryRig, totals }
+  return { abilities, juryRig, totals, aid }
 }
 
 export const previewQuest = (
@@ -783,7 +997,12 @@ export const previewQuest = (
   const quest = questDef(questId)
   if (!quest) throw new Error(`unknown quest: ${questId}`)
   const members = membersOf(run, party)
-  const { abilities, juryRig, totals } = evaluate(run, quest, members, known)
+  const { abilities, juryRig, totals, aid } = evaluate(
+    run,
+    quest,
+    members,
+    known,
+  )
   const scouted =
     abilities.some((ability) => ability.kind === 'scout') ||
     run.flags.includes(`scouted:${questId}`) ||
@@ -840,7 +1059,24 @@ export const previewQuest = (
       hidden: hiddenIndexes.includes(i),
       total: totals[i] ?? 0,
       needed: hiddenIndexes.includes(i) ? 0 : (needs[i] ?? 0),
+      aid: aid[i] ?? 0,
     })),
+    aid: questAidFor(run, quest)
+      .filter(
+        (entry) =>
+          (entry.bonus ?? 0) !== 0 &&
+          quest.requirements.some(
+            (req) => !entry.stat || entry.stat === req.stat,
+          ),
+      )
+      .map(({ label, bonus, stat }) => ({
+        label,
+        bonus,
+        ...(stat ? { stat } : {}),
+      })),
+    ...(aidResolution(run, questId)
+      ? { resolvesAs: aidResolution(run, questId)!.resolve }
+      : {}),
     durationDays: questDuration(quest, members, hourglass),
     injuryChance: clamp(INJURY_CHANCE[quest.danger].failure - guardian, 0, 100),
   }
@@ -1189,6 +1425,7 @@ const resolveQuest = (
       if (!run.flags.includes(flag)) run.flags.push(flag)
     }
   }
+  markResult(run, active.questId, tier)
   return {
     questId: active.questId,
     tier,
@@ -1199,6 +1436,66 @@ const resolveQuest = (
     deaths,
     revealedTraits,
     effects,
+    text: questOutcomeText(run, quest, tier),
+  }
+}
+
+/**
+ * Every authored quest leaves `quest:<id>:<tier>` when it comes home or
+ * expires (t-040), so later scenes and dues can read how it went; its
+ * promised aid is spent.
+ */
+const markResult = (
+  run: FortressRun,
+  questId: string,
+  tier: QuestReport['tier'],
+): void => {
+  if (!isTemplateInstance(questId)) {
+    const flag = `quest:${questId}:${tier}`
+    if (!run.flags.includes(flag)) run.flags.push(flag)
+  }
+  if (run.aid?.[questId]) {
+    const rest = { ...run.aid }
+    delete rest[questId]
+    if (Object.keys(rest).length) run.aid = rest
+    else delete run.aid
+  }
+}
+
+/** A quest leaving the board with nobody sent: expired, or settled by aid. */
+const expireQuest = (
+  run: FortressRun,
+  questId: string,
+  events: string[],
+): QuestReport | null => {
+  const quest = questDef(questId)
+  if (!quest) return null
+  const aid = aidResolution(run, questId)
+  const tier: QuestReport['tier'] = aid?.resolve ?? 'expired'
+  const effects: Effects = JSON.parse(
+    JSON.stringify(
+      tier === 'expired'
+        ? quest.expired
+        : tier === 'triumph'
+          ? (quest.rewards.triumph ?? quest.rewards.success)
+          : (quest.rewards[tier] ?? {}),
+    ),
+  ) as Effects
+  applyEffects(run, effects, events)
+  const text = aid?.outcome ?? questOutcomeText(run, quest, tier)
+  markResult(run, questId, tier)
+  return {
+    questId,
+    tier,
+    party: [],
+    chance: 0,
+    roll: 0,
+    injuries: [],
+    deaths: [],
+    revealedTraits: [],
+    effects,
+    text,
+    ...(aid ? { aided: true } : {}),
   }
 }
 
@@ -1460,8 +1757,8 @@ const betray = (
   // Act V content gates on the host: `hideout:mole-tunnels` and so on.
   run.flags.push(`hideout:${run.hideout}`)
   events.push('Young Komodo has betrayed the throne. The court flees.')
-  const { buyer, departed } = applyBetrayal(run, events)
-  return { buyer, hideout: run.hideout, departed }
+  const { buyer, departed, fell, why } = applyBetrayal(run, events)
+  return { buyer, hideout: run.hideout, departed, fell, why }
 }
 
 /** What one region pays the throne each dawn, and why. */
@@ -1476,8 +1773,13 @@ export const regionTax = (
   return { holder, tier, paid: taxAtTier(region.tax, tier) }
 }
 
+/** The regions' taxes, plus or minus the laws on the gate (laws.ts). */
 export const dailyTaxes = (run: FortressRun): number =>
-  REGIONS.reduce((sum, region) => sum + regionTax(run, region.id).paid, 0)
+  Math.max(
+    0,
+    REGIONS.reduce((sum, region) => sum + regionTax(run, region.id).paid, 0) +
+      lawTaxes(run),
+  )
 
 /** Brass in at dawn: the regions' taxes, or in hiding the host's share. */
 export const dailyIncome = (run: FortressRun): number =>
@@ -1750,20 +2052,8 @@ export const finishDay = (
   }
   next.active = next.active.filter((item) => item.returnsDay > next.day)
   for (const entry of next.board.filter((item) => item.lastDay < next.day)) {
-    const quest = questDef(entry.questId)
-    if (!quest) continue
-    applyEffects(next, quest.expired, events)
-    quests.push({
-      questId: entry.questId,
-      tier: 'expired',
-      party: [],
-      chance: 0,
-      roll: 0,
-      injuries: [],
-      deaths: [],
-      revealedTraits: [],
-      effects: quest.expired,
-    })
+    const report = expireQuest(next, entry.questId, events)
+    if (report) quests.push(report)
   }
   next.board = next.board.filter((item) => item.lastDay >= next.day)
   // From the Day 41 dawn the court is in hiding: the tower falls before the
@@ -1774,6 +2064,7 @@ export const finishDay = (
   const taxes = dailyIncome(next)
   const wages = dailyWages(next)
   next.brass += taxes - wages
+  settleDues(next, events)
   let loanTaken = false
   if (next.brass < 0) {
     next.brass += LOAN

@@ -31,7 +31,7 @@
       </div>
       <template v-if="today">
         <p class="font-serif text-base italic leading-relaxed">
-          “{{ today.komodo }}”
+          “{{ lines.komodo }}”
         </p>
         <ul class="grid gap-2">
           <li
@@ -67,10 +67,10 @@
           </li>
         </ul>
         <p
-          v-if="today.whisper"
+          v-if="lines.whisper"
           class="border-l-2 border-warning/50 pl-3 text-xs italic opacity-80"
         >
-          {{ today.whisper.source }}: “{{ today.whisper.text }}”
+          {{ lines.whisper.source }}: “{{ lines.whisper.text }}”
         </p>
         <details
           v-if="hindsight.length"
@@ -110,6 +110,12 @@
       >
         {{ mapLine.source }}: {{ mapLine.text }}
       </p>
+      <p
+        v-if="candles"
+        class="border-l-2 border-error/70 pl-3 text-xs font-semibold text-error"
+      >
+        {{ candles.source }}: {{ candles.text }}
+      </p>
       <p v-if="!today" class="text-sm opacity-75">
         No dispatches came up the road for Day {{ run.day }}. The wasteland’s
         daily chores still reach the quest room.
@@ -130,8 +136,10 @@ import { computed } from 'vue'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import {
   dayBriefings,
+  dayLines,
   komodoLiesInHindsight,
 } from '~/utils/emperorOfDust/fortress/briefings'
+import { candlesLine } from '~/utils/emperorOfDust/fortress/endings'
 import { dayDef } from '~/utils/emperorOfDust/fortress/content'
 import {
   briefingMapLine,
@@ -146,6 +154,10 @@ const emit = defineEmits<{ next: [] }>()
 
 const today = computed(() => dayDef(props.run.day))
 const mapLine = computed(() => briefingMapLine(props.run))
+/** The advisor's line and the whisper, as this run hears them. */
+const lines = computed(() => dayLines(props.run, today.value))
+/** From Day 45: the Hundred Candles rule and today's count. */
+const candles = computed(() => candlesLine(props.run))
 /** Today's reports as this run reads them (flag-keyed variants applied). */
 const reports = computed(() => dayBriefings(props.run, today.value) ?? [])
 /** After the betrayal: every report that was Komodo's own lie. */

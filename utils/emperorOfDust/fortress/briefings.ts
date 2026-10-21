@@ -2,6 +2,7 @@
 // emperor-of-dust t-013): conditional variants keyed on story flags, and the
 // hindsight view of his own lies once he has betrayed the throne.
 import { DAYS, dayDef } from './content'
+import { gateHolds, pickVariant, variantText } from './types'
 import type { Briefing, BriefingVariant, DayDef, FortressRun } from './types'
 
 /** The flag the Day 41 dawn sets when Komodo hands over the tower. */
@@ -10,9 +11,7 @@ export const BETRAYAL_FLAG = 'komodo-betrayal'
 export const variantHolds = (
   run: Pick<FortressRun, 'flags'>,
   variant: BriefingVariant,
-): boolean =>
-  (variant.flags ?? []).every((flag) => run.flags.includes(flag)) &&
-  !(variant.notFlags ?? []).some((flag) => run.flags.includes(flag))
+): boolean => gateHolds(run.flags, variant)
 
 /**
  * The briefing as this run reads it: the first variant whose flags hold
@@ -41,6 +40,30 @@ export const dayBriefings = (
         resolveBriefing(run, briefing),
       ) as DayDef['briefings'])
     : null
+
+/**
+ * The advisor's morning line and the overheard whisper as this run hears
+ * them (t-040): `komodoVariants` and `whisper.variants`, first match wins.
+ */
+export const dayLines = (
+  run: Pick<FortressRun, 'flags'>,
+  def: DayDef | undefined,
+): { komodo: string; whisper?: { source: string; text: string } } => {
+  if (!def) return { komodo: '' }
+  const whisper = def.whisper
+  const heard = whisper ? pickVariant(run.flags, whisper.variants) : undefined
+  return {
+    komodo: variantText(run.flags, def.komodo, def.komodoVariants),
+    ...(whisper
+      ? {
+          whisper: {
+            source: heard?.source ?? whisper.source,
+            text: heard?.text ?? whisper.text,
+          },
+        }
+      : {}),
+  }
+}
 
 export type HindsightEntry = {
   day: number

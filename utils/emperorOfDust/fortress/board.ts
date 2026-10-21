@@ -1,8 +1,17 @@
 import { KINGDOM_FACTION_DEFS, LOCAL_FACTION_DEFS } from './factions'
 import { followerDef, itemDef } from './followers'
-import { LAST_DAY } from './content'
-import { INJURY_DAYS, traitApplies, traitKnown } from './engine'
-import type { Effects, FortressRun, OddsPreview, QuestDef, Stat } from './types'
+import { LAST_DAY, dueDef, questDef } from './content'
+import { INJURY_DAYS, aidResolution, traitApplies, traitKnown } from './engine'
+import { gateHolds } from './types'
+import type {
+  AudienceOption,
+  Effects,
+  FortressRun,
+  OddsPreview,
+  QuestDef,
+  QuestResultTier,
+  Stat,
+} from './types'
 
 // The quest room board (conductor SYSTEMS-V03.md, "Quest room — the board"):
 // what a notice promises, what it costs to ignore, what counts for the party
@@ -70,6 +79,24 @@ export const expiryInfo = (
   lastDay: number,
 ) => {
   const daysLeft = lastDay - run.day + 1
+  const aid = aidResolution(run, quest.id)
+  if (aid?.resolve) {
+    const rewards =
+      aid.resolve === 'triumph'
+        ? (quest.rewards.triumph ?? quest.rewards.success)
+        : (quest.rewards[aid.resolve] ?? {})
+    const gained = effectLines(run, rewards)
+    return {
+      daysLeft,
+      countdown: daysLeft <= 1 ? 'Last day' : `${daysLeft} days left`,
+      when:
+        daysLeft <= 1
+          ? 'Comes down tonight.'
+          : `On the board through Day ${lastDay}.`,
+      consequence: `If nobody goes: ${aid.label}. It ends as ${TIER_WORDS[aid.resolve]}${gained.length ? `: ${gained.join(', ')}` : ''}.`,
+      punishes: aid.resolve === 'failure',
+    }
+  }
   const lines = effectLines(run, quest.expired, 'expiry')
   return {
     daysLeft,
@@ -195,4 +222,119 @@ export const sendWarnings = (
   if (run.day + odds.durationDays > LAST_DAY + 1)
     warnings.push('They would not be home before the reign ends.')
   return warnings
+}
+
+const TIER_WORDS: Record<QuestResultTier, string> = {
+  triumph: 'a triumph',
+  success: 'a success',
+  partial: 'a partial success',
+  failure: 'a failure',
+}
+
+// --- honest stakes on the throne (t-040) -------------------------------------
+
+/** One chip under an answer: what it touches, never the flags it sets. */
+export type Stake = {
+  text: string
+  tone: 'gain' | 'loss' | 'neutral' | 'warning'
+}
+
+const toward = (name: string) =>
+  name.startsWith('The ') ? `the ${name.slice(4)}` : name
+
+/**
+ * What an answer visibly does, in direction rather than numbers: brass in
+ * and out, which supports warm or cool, who joins or leaves, quests posted or
+ * helped, what comes due later and whether the scene goes on. Faction
+ * strength, flags and anything kept hidden are never shown; factions still in
+ * the fog read as "someone unseen".
+ */
+export const optionStakes = (
+  run: FortressRun,
+  option: AudienceOption,
+): Stake[] => {
+  const stakes: Stake[] = []
+  const effects = option.effects
+  const brass = (effects.brass ?? 0) - (option.requires?.cost ?? 0)
+  if (brass)
+    stakes.push({
+      text: `${signed(brass)} brass`,
+      tone: brass > 0 ? 'gain' : 'loss',
+    })
+  for (const [id, delta] of Object.entries(effects.local ?? {}))
+    if (delta)
+      stakes.push({
+        text: `${delta > 0 ? 'Warms' : 'Cools'} ${toward(localName(id))}`,
+        tone: delta > 0 ? 'gain' : 'loss',
+      })
+  let unseen = false
+  for (const [id, delta] of Object.entries(effects.affinity ?? {})) {
+    if (!delta) continue
+    if (
+      (id === 'rustline' || id === 'black-verge') &&
+      !run.revealedFactions.includes(id)
+    ) {
+      unseen = true
+      continue
+    }
+    stakes.push({
+      text: `${delta > 0 ? 'Warms' : 'Cools'} ${toward(kingdomName(id))}`,
+      tone: delta > 0 ? 'gain' : 'loss',
+    })
+  }
+  if (unseen)
+    stakes.push({ text: 'Someone unseen takes note', tone: 'neutral' })
+  for (const id of effects.recruit ?? [])
+    stakes.push({
+      text: `${followerDef(id)?.name ?? 'Someone'} joins the court`,
+      tone: 'gain',
+    })
+  if (effects.recruitable?.length)
+    stakes.push({ text: 'A new face at the gate', tone: 'gain' })
+  for (const { follower } of effects.dismiss ?? [])
+    stakes.push({
+      text: `${followerDef(follower)?.name ?? 'Someone'} leaves the court`,
+      tone: 'loss',
+    })
+  for (const id of effects.items ?? [])
+    stakes.push({ text: itemDef(id)?.name ?? 'An item', tone: 'gain' })
+  for (const id of option.postsQuests ?? [])
+    stakes.push({
+      text: `Posts a quest: ${questDef(id)?.title ?? id}`,
+      tone: 'neutral',
+    })
+  for (const aid of effects.questAid ?? []) {
+    const title = questDef(aid.questId)?.title ?? aid.questId
+    stakes.push({
+      text: aid.resolve
+        ? `Settles “${title}” if nobody goes`
+        : `Helps “${title}”`,
+      tone: 'gain',
+    })
+  }
+  for (const id of effects.schedule ?? []) {
+    const def = dueDef(id)
+    if (!def || def.hidden) continue
+    const day = Math.max(run.day + 1, def.day ?? run.day + (def.inDays ?? 1))
+    stakes.push({
+      text: def.every
+        ? `${def.title}: every ${def.every} days`
+        : `Comes due Day ${day}: ${def.title}${def.cost ? `, ${def.cost} brass` : ''}`,
+      tone: 'warning',
+    })
+  }
+  for (const id of effects.cancelDues ?? []) {
+    const pending = (run.dues ?? []).find((due) => due.id === id)
+    const def = dueDef(id)
+    if (pending && def && !def.hidden && gateHolds(run.flags, def.when))
+      stakes.push({ text: `Settles: ${def.title}`, tone: 'gain' })
+  }
+  if (effects.relocate)
+    stakes.push({ text: 'The court moves tonight', tone: 'warning' })
+  if (option.next)
+    stakes.push({
+      text: 'Leads on: the audience continues',
+      tone: 'neutral',
+    })
+  return stakes
 }

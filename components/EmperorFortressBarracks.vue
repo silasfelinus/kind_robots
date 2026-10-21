@@ -65,15 +65,19 @@
             />
           </div>
         </div>
-        <div v-if="departed.length" class="mt-2 px-1">
+        <div
+          v-for="group in departedGroups"
+          :key="group.title"
+          class="mt-2 px-1"
+        >
           <p
             class="text-[10px] font-semibold uppercase tracking-widest text-error"
           >
-            Gone with Komodo
+            {{ group.title }}
           </p>
           <ul class="mt-1 space-y-1.5">
             <li
-              v-for="entry in departed"
+              v-for="entry in group.entries"
               :key="entry.followerId"
               class="flex items-start gap-2 text-xs"
               :title="entry.line"
@@ -382,6 +386,19 @@ const living = computed(() =>
 const fallen = computed(() => props.run.roster.filter((state) => state.dead))
 /** Followers who left with Young Komodo (t-028), each with a stark reason. */
 const departed = computed(() => departedFollowers(props.run))
+/** Komodo's company first, then those who left the court by choice (t-040). */
+const departedGroups = computed(() =>
+  [
+    {
+      title: 'Gone with Komodo',
+      entries: departed.value.filter((entry) => entry.why !== 'dismissed'),
+    },
+    {
+      title: 'Gone from court',
+      entries: departed.value.filter((entry) => entry.why === 'dismissed'),
+    },
+  ].filter((group) => group.entries.length),
+)
 const state = computed(() =>
   props.run.roster.find(
     (entry) => entry.id === selectedId.value && !entry.dead && !entry.departed,

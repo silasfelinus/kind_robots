@@ -122,6 +122,15 @@ assert.deepEqual(sampler.inputs.latent_image, ['latent', 0])
 
 const latent = node(ti2v, 'Wan22ImageToVideoLatent')
 assert.deepEqual(latent.inputs.start_image, ['img_first', 0])
+
+const promptOnly = buildWanImageToVideoWorkflow({ ...base, firstImageName: null })
+assert.equal(maybeNode(promptOnly, 'LoadImage'), undefined)
+assert.ok(!('start_image' in node(promptOnly, 'Wan22ImageToVideoLatent').inputs))
+assert.deepEqual(node(promptOnly, 'KSampler').inputs.latent_image, ['latent', 0])
+assert.throws(
+  () => buildWanImageToVideoWorkflow({ ...base, mode: 'a14b', firstImageName: null }),
+  /requires a first image/,
+)
 assert.ok(!('end_image' in latent.inputs))
 for (const key of ['vae', 'width', 'height', 'length', 'batch_size']) {
   assert.ok(key in latent.inputs, `Wan22ImageToVideoLatent requires ${key}`)

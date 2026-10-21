@@ -170,6 +170,11 @@ const googleExchangeSource = readFileSync(
   'utf8',
 )
 const registrationSource = readFileSync('server/api/users/register.post.ts', 'utf8')
+const registrationStoreSource = readFileSync('stores/userStore.ts', 'utf8')
+const registrationPageSource = readFileSync(
+  'components/user/registration-page.vue',
+  'utf8',
+)
 
 assert.match(googleConfigSource, /GOOGLE_ID/)
 assert.doesNotMatch(googleConfigSource, /GOOGLE_SECRET/)
@@ -179,5 +184,20 @@ assert.match(googleExchangeSource, /code_verifier:\s*verifier/)
 assert.doesNotMatch(googleExchangeSource, /return\s+\{[^}]*access_token/s)
 assert.doesNotMatch(registrationSource, /Received user data.*userData/)
 assert.match(registrationSource, /password:\s*_password/)
+
+// Registration returns a user, not a token. Login is the only session creator.
+const registerStoreAction = registrationStoreSource.match(
+  /async function register\(userData: RegisterUserData\) \{([\s\S]*?)\n  async function updateUserToken/,
+)?.[1]
+assert.ok(registerStoreAction)
+assert.match(registerStoreAction, /['"]\/api\/users\/register['"]/)
+assert.doesNotMatch(registerStoreAction, /['"]\/api\/user\/register['"]/)
+assert.match(registerStoreAction, /res\.data\?\.user\?\.id/)
+assert.doesNotMatch(registerStoreAction, /token\.value\s*=|setToken\(|captureCurrentSession\(/)
+assert.doesNotMatch(registerStoreAction, /['"]Unknown error['"]/)
+assert.match(registrationPageSource, /await userStore\.register\(/)
+assert.match(registrationPageSource, /await userStore\.login\(/)
+assert.match(registrationPageSource, /Account created, but automatic sign-in failed:/)
+assert.match(registrationPageSource, /await navigateTo\('\/dashboard'\)/)
 
 console.log('First-party SSO contract OK')

@@ -31,6 +31,10 @@
         {
           "when_flag": "passed-the-mystery-shopper",
           "text": "Your portrait hangs beside a framed note from Quality Assurance: Refused the bribe. Reported the bribe. Asked for a receipt."
+        },
+        {
+          "when_flag": "reported-on-pip",
+          "text": "Pip sends a postcard from his special assignment. Every word is spelled correctly. At the bottom he writes, 'You were my Buddy,' and nothing else."
         }
       ]
     },
@@ -190,6 +194,14 @@
         {
           "when_flag": "found-the-charter-splice",
           "text": "Exhibit B is a single spliced reel of the Founding Charter, showing the paragraph about remembering everyone's name."
+        },
+        {
+          "when_flag": "warning-reached-parents",
+          "text": "The first parent who believed you brings the actual box to the hearing. Under the shipping label is your crayon diagram, forty pages of warnings reduced to one drawing nobody needed a lawyer to understand."
+        },
+        {
+          "when_flag": "broke-the-range-jingle",
+          "text": "When the Company plays its reassuring safety film in court, you sing the wrong third note. The old range officer's hidden recording answers from the evidence speakers with the names of everyone stored as a dummy."
         }
       ]
     },
@@ -264,6 +276,14 @@
         {
           "when_flag": "reopened-ticket-one",
           "text": "Ticket One is marked RESOLVED after forty years. The resolution note says: PAL remembers people now. Signed, a new hire."
+        },
+        {
+          "when_flag": "pal-remembered-kindness",
+          "text": "PAL keeps an obscure file marked KINDNESS, UNREQUESTED. It reads your question to Confidante back to you and, for once, does not insist that your answer fits a box."
+        },
+        {
+          "when_flag": "inventoried-pip",
+          "text": "The inventory clerk brings Pip a barcode remover. He tears the label off his sweater himself, slowly, and asks you not to forget who put it there."
         }
       ]
     },
@@ -291,6 +311,10 @@
         {
           "when_flag": "pushed-back-successor-c",
           "text": "Successor C starts a day later than the index said, because of you. They read your file on the elevator and thank you for the extra day."
+        },
+        {
+          "when_flag": "rated-b-insincere",
+          "text": "In cold storage, Successor B holds up the four you gave him. He does not ask whether you were sincere. He asks whether you remembered he was you."
         }
       ]
     },

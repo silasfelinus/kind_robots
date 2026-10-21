@@ -37,6 +37,7 @@ import {
   cardAsides,
   cardBody,
   chanceToSucceed,
+  checkBonus,
   chooseBeat,
   chooseCrossroads,
   chooseEvent,
@@ -787,6 +788,19 @@ assert.match(
   /rrriver|rrriver|rrriver|rrriver/,
 )
 assert.equal(frequent.openingState, 'sober')
+assert.equal(
+  checkBonus(frequent, { skill: 'psyche', target: 7 }),
+  momentBase.skills.psyche,
+  'extreme drinking does not earn an uncanny insight bonus',
+)
+assert.equal(
+  checkBonus(
+    { ...momentBase, currentState: 'tripping_balls', clarity: 1 },
+    { skill: 'psyche', target: 7 },
+  ),
+  momentBase.skills.psyche + 1,
+  'the authored uncanny lens retains its existing 2d6 trade-off',
+)
 let dailyHabit = momentBase
 for (const day of [1, 2, 3, 4]) {
   dailyHabit = chooseSubstanceMoment(

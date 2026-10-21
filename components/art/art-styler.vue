@@ -167,7 +167,7 @@
 
         <div
           v-if="galleryImages.length"
-          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+          class="grid max-h-[min(50vh,36rem)] grid-cols-[repeat(auto-fill,minmax(min(100%,8rem),1fr))] gap-2 overflow-y-auto overscroll-contain rounded-xl p-1"
         >
           <button
             v-for="image in galleryImages"
@@ -229,7 +229,7 @@
       <div v-else class="flex flex-col gap-2">
         <div
           v-if="starterEntries.length"
-          class="grid max-h-52 grid-cols-4 gap-1.5 overflow-y-auto rounded-xl sm:grid-cols-5 md:grid-cols-6"
+          class="grid max-h-[min(50vh,36rem)] grid-cols-[repeat(auto-fill,minmax(min(100%,8rem),1fr))] gap-2 overflow-y-auto overscroll-contain rounded-xl p-1"
         >
           <button
             v-for="entry in starterEntries"

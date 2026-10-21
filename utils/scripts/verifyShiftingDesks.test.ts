@@ -82,7 +82,10 @@ assert.doesNotMatch(
 const officeSupplyTest = ORIENTATION.encounters.find(
   (card) => card.id === 'which-office-supply-are-you',
 )
-assert.ok(officeSupplyTest, 'Orientation retains its four-way intake questionnaire')
+assert.ok(
+  officeSupplyTest,
+  'Orientation retains its four-way intake questionnaire',
+)
 const profileRoutes = {
   'answer-as-a-stapler': 'profiled-as-a-stapler',
   'answer-as-a-paperclip': 'profiled-as-a-paperclip',
@@ -99,7 +102,10 @@ assert.ok(recordsProfiles)
 for (const [id, flag] of Object.entries(profileRoutes)) {
   const route = officeSupplyTest.choices.find((choice) => choice.id === id)
   assert.ok(route, `missing profile answer ${id}`)
-  assert.ok(route.success.add_flags.includes(flag), `${id} must file its profile`)
+  assert.ok(
+    route.success.add_flags.includes(flag),
+    `${id} must file its profile`,
+  )
   assert.ok(
     !route.failure || route.failure.add_flags.includes(flag),
     `${id} must file its profile even when the skill check fails`,

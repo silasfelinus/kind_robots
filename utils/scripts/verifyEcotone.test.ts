@@ -426,8 +426,8 @@ assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
 assert.equal(
   REGIONAL_CALLBACKS.length,
-  32,
-  'thirty-two precise optional regional payoffs',
+  38,
+  'thirty-eight precise optional regional payoffs',
 )
 for (const callback of REGIONAL_CALLBACKS) {
   assert.ok(
@@ -454,6 +454,53 @@ for (const callback of REGIONAL_CALLBACKS) {
   assert.ok(
     pitch?.sourceConditions.includes(`flag:${callback.flag}`),
     `${callback.id}/${callback.choice} has a source-grounded art brief`,
+  )
+}
+const failureEchoes = [
+  ['WH-014', 'sign the failed test log'],
+  ['WH-026', 'seven uncertain marks'],
+  ['WH-052', 'fuel bill for taking the long way'],
+  ['WH-074', 'write a correction request'],
+  ['WH-094', 'both unverified tallies'],
+  ['WH-114', 'Both losses remain losses'],
+] as const
+for (const [id, earnedDetail] of failureEchoes) {
+  const card = findCard(id)!
+  const investigate = card.choices.find(
+    (choice) => choice.id === 'investigate',
+  )!
+  const failure = investigate.failure!
+  const flag = `${id.toLowerCase().replaceAll('-', '_')}_partial`
+  assert.ok(
+    failure.text.includes(earnedDetail),
+    `${id} failure must remain a specific, playable scene`,
+  )
+  assert.equal(failure.effects.flag, flag)
+  assert.ok(
+    !failure.effects.evidence,
+    `${id} loss never grants verified evidence`,
+  )
+  const callback = REGIONAL_CALLBACKS.find(
+    (entry) => entry.id === id && entry.choice === 'investigate-failure',
+  )
+  assert.equal(callback?.flag, flag, `${id} must remember its failed roll`)
+  assert.ok(
+    earnedQuestCallbacks([flag], [id]).includes(callback!.text),
+    `${id} failed choice has its own truthful finale payoff`,
+  )
+  assert.ok(
+    !earnedQuestCallbacks([], [id]).includes(callback!.text),
+    `${id} cannot invent a loss not actually rolled`,
+  )
+  const pitch = allPitchByKey.get(
+    `callbacks/${id.toLowerCase()}/investigate-failure`,
+  )
+  assert.equal(pitch?.action, callback!.artMoment)
+  assert.ok(
+    pitch?.mustNotImply.some((line) =>
+      line.includes('This investigation failed'),
+    ),
+    `${id} art brief must not depict the winning resolution`,
   )
 }
 assert.ok(allPitchEntries.every((p) => p.status === 'editorial-draft'))

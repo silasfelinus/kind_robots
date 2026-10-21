@@ -160,7 +160,7 @@
     "pressure": "A row of mushrooms has filed a noise complaint against a drainage pipe below the Community Forest trail. Each cap holds a tiny slip of paper. The sound is not loud, but the slope downhill is newly wet and a volunteer has found sediment in the creek.",
     "investigate": "Trace the pipe's outflow with the volunteer without digging into the fungal bed",
     "success": "The pipe bypasses an old settling ditch. A future-dated work order supplies a useful number, not permission to disturb the site.",
-    "failure": "Your improvised dye test washes out in the rain. The volunteer photographs the seep anyway and logs where the water actually flows.",
+    "failure": "Rain turns your dye test into a green wash that cannot prove where the pipe starts. The mushrooms file a second complaint, this one naming your methods. A volunteer photographs the seep with a ruler and asks you to sign the failed test log. You do.",
     "help": "Help the trail crew reroute foot traffic while they inspect the discharge",
     "helpOutcome": "A short closure keeps boots off the colony and lets the crew sample the water. The mushrooms amend their complaint to include an appreciation for signage."
   },

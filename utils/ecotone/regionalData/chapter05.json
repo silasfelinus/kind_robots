@@ -205,7 +205,7 @@
     "pressure": "A fallen redwood has two extra rings, one for each summer nobody remembers. A contractor wants to carve out a slice and sell it as proof of prophecy before the park's volunteer sawyer can document it.",
     "investigate": "Count the rings with the sawyer and compare growth bands without removing wood",
     "success": "The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir.",
-    "failure": "A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch.",
+    "failure": "A knot disrupts your count and your tally contradicts the sawyer's. The contractor photographs the disagreement and announces an exclusive prophecy. The sawyer pins both unverified tallies to the volunteer noticeboard. You have made a record of what nobody knows yet, which does not sell nearly as well.",
     "help": "Help the volunteers protect the log from unauthorized cutting",
     "helpOutcome": "The contractor backs off and the trail crew posts a clear explanation. The log gets to keep its extra summers."
   },

@@ -58,6 +58,7 @@ import {
   checkoutHasPaidSubscription,
   isFiveDollarMonthlyPatronPrice,
   paidPatronInvoiceSubscriptionId,
+  patronPeriodEnd,
 } from '../../server/utils/patronBilling.js'
 
 // --- resolveCheckoutSessionRoute -----------------------------------------
@@ -368,6 +369,39 @@ for (const wrong of [
 }
 console.log(
   '✅ Paid Patron invoice, checkout and $5 monthly price guards passed',
+)
+
+// --- Cancellation at the paid-through date -------------------------------
+const endSeconds = 1792540800
+const modern = patronPeriodEnd(
+  {
+    items: {
+      data: [
+        { price: { id: 'price_other' }, current_period_end: 1700000000 },
+        { price: { id: 'price_patron' }, current_period_end: endSeconds },
+      ],
+    },
+  },
+  'price_patron',
+)
+assert.equal(modern?.toISOString(), new Date(endSeconds * 1000).toISOString())
+assert.equal(
+  patronPeriodEnd(
+    { current_period_end: endSeconds },
+    'price_patron',
+  )?.getTime(),
+  endSeconds * 1000,
+)
+assert.equal(
+  patronPeriodEnd(
+    { items: { data: [{ price: { id: 'price_patron' } }] } },
+    'price_patron',
+  ),
+  null,
+)
+assert.equal(patronPeriodEnd({ current_period_end: -1 }, 'price_patron'), null)
+console.log(
+  '✅ Cancellation preserves paid-through dates across Stripe API versions',
 )
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

@@ -7,6 +7,7 @@ import { applyMana, usdToMana } from '~/server/utils/mana'
 import {
   PATRON_MONTHLY_TOKENS,
   checkoutHasPaidSubscription,
+  patronPeriodEnd,
   paidPatronInvoiceSubscriptionId,
 } from '~/server/utils/patronBilling'
 import { cartItems, type CartItem } from '@/stores/seeds/cartItems'
@@ -170,6 +171,12 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
   if (!matchesPrice || !validStatus || subscriptionCustomer !== customerId)
     return
 
+  const scheduledEnd = subscription.cancel_at_period_end
+    ? patronPeriodEnd(subscription, priceId)
+    : null
+  if (subscription.cancel_at_period_end && !scheduledEnd)
+    throw new Error('Paid Patron invoice has no verifiable cancellation date')
+
   const user = await prisma.user.findFirst({
     where: { stripeCustomerId: customerId },
     select: { id: true },
@@ -220,7 +227,7 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
       where: { id: user.id },
       data: {
         isMember: true,
-        memberUntil: null,
+        memberUntil: scheduledEnd,
         stripeSubscriptionId: subscriptionId,
       },
     })
@@ -701,11 +708,20 @@ async function handleSubscriptionLifecycle(subscription: Stripe.Subscription) {
   const isActive =
     subscription.status === 'active' || subscription.status === 'trialing'
 
+  const scheduledEnd =
+    isActive && subscription.cancel_at_period_end
+      ? patronPeriodEnd(subscription, process.env.STRIPE_PRICE_ID || '')
+      : null
+  if (isActive && subscription.cancel_at_period_end && !scheduledEnd)
+    throw new Error(
+      'Active cancelled Patron subscription has no paid-through date',
+    )
+
   await prisma.user.update({
     where: { id: user.id },
     data: {
       isMember: isActive,
-      memberUntil: isActive ? null : new Date(),
+      memberUntil: isActive ? scheduledEnd : new Date(),
       stripeSubscriptionId: isActive ? subscription.id : null,
     },
   })

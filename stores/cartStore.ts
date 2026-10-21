@@ -436,6 +436,30 @@ export const useCartStore = defineStore('cartStore', () => {
     }
   }
 
+  async function manageBilling(): Promise<CartCheckoutResult> {
+    try {
+      loading.value = true
+      clearError()
+      const result = await performFetch<{ url?: string }>(
+        '/api/stripe/billing-portal',
+        { method: 'POST' },
+      )
+      if (!result.success || !result.data?.url)
+        throw new Error(result.message || 'Could not open secure billing')
+      return { success: true, url: result.data.url }
+    } catch (error) {
+      handleError(error, 'manageBilling')
+      setLastError(error, 'Could not open secure billing')
+      return {
+        success: false,
+        message:
+          error instanceof Error ? error.message : 'Could not open secure billing',
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
   function resetInitialization() {
     initialized.value = false
     initializing.value = false
@@ -486,5 +510,6 @@ export const useCartStore = defineStore('cartStore', () => {
     subscribe,
     topup,
     cancelSubscription,
+    manageBilling,
   }
 })

@@ -743,7 +743,7 @@ const singleDrink = chooseSubstanceMoment(momentBase, ['alcohol'])
 assert.equal(singleDrink.openingState, 'sober', 'an interlude never rewrites the opening')
 assert.equal(singleDrink.substanceMoments.length, 1)
 assert.equal(substanceSummary(singleDrink.substanceMoments).alcoholStreak, 1)
-assert.equal(substanceSceneLine(singleDrink.substanceMoments, 1), null)
+assert.match(substanceSceneLine(singleDrink.substanceMoments, 1) ?? '', /drink loosens/)
 assert.equal(
   chooseSubstanceMoment(singleDrink, ['alcohol']),
   singleDrink,

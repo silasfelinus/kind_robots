@@ -337,6 +337,31 @@ assert.ok(artStoreSource.includes('randomVariantVisibility(variant, base)'))
 assert.ok(artStoreSource.includes('isMature: visibility.isMature'))
 assert.ok(artStoreSource.includes('isPublic: visibility.isPublic'))
 
+// Each enqueue gets an independently keyed, dismissible announcement. Chained
+// batches must clear the old success before the next request and block another
+// click while the queue is accepting the new batch.
+assert.ok(artStoreSource.includes('generationMessageSequence: number'))
+assert.ok(artStoreSource.includes('generationMessageSequence: 0'))
+assert.ok(artStoreSource.includes('state.generationMessageSequence += 1'))
+assert.ok(generatorUi.includes(':key="artStore.generationMessageSequence"'))
+assert.ok(generatorUi.includes('aria-label="Dismiss generation notice"'))
+assert.ok(generatorUi.includes('@click="artStore.clearGenerationMessage"'))
+assert.ok(generatorUi.includes('aria-live="polite"'))
+assert.ok(generatorUi.includes('name="generation-notice"'))
+assert.ok(generatorUi.includes('prefers-reduced-motion: reduce'))
+assert.ok(generatorUi.includes('const submittingBatch = ref(false)'))
+assert.ok(generatorUi.includes('submittingBatch.value = true'))
+assert.ok(generatorUi.includes('submittingBatch.value = false'))
+assert.ok(generatorUi.includes('!submittingBatch.value &&'))
+assert.ok(
+  generatorUi.includes("if (submittingBatch.value) return 'Queueing batch…'"),
+)
+assert.match(
+  generatorUi,
+  /if \(isBatch\) \{\s+submittingBatch\.value = true\s+artStore\.clearGenerationMessage\(\)/,
+)
+assert.match(generatorUi, /finally \{\s+submittingBatch\.value = false\s+\}/)
+
 const poolSource = readFileSync('server/utils/artRandomPools.ts', 'utf8')
 assert.ok(poolSource.includes("source: 'object'"))
 assert.ok(poolSource.includes('isMature: row.isMature'))

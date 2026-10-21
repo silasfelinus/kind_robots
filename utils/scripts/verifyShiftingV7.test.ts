@@ -53,15 +53,21 @@ const unearned = {
     phase: 'boss' as const,
   },
 }
-const witness = homesteadTrial.choices.find((choice) => choice.id === 'witness')!
+const witness = homesteadTrial.choices.find(
+  (choice) => choice.id === 'witness',
+)!
 const scout = homesteadTrial.choices.find((choice) => choice.id === 'scout')!
 assert.equal(canChooseTrialV7(witness, unearned, []), false)
 assert.equal(canChooseTrialV7(scout, unearned, []), false)
 assert.equal(
-  canChooseTrialV7(witness, {
-    ...unearned,
-    marks: { ...unearned.marks, mercy: 2 },
-  }, []),
+  canChooseTrialV7(
+    witness,
+    {
+      ...unearned,
+      marks: { ...unearned.marks, mercy: 2 },
+    },
+    [],
+  ),
   true,
   'two actually earned mercy marks allow witnessed testimony',
 )
@@ -70,8 +76,16 @@ assert.equal(
   true,
   'scouting opens the mapped alternate route only for that land',
 )
-assert.equal(trialForLandV7('verge')!.choices.find((choice) => choice.id === 'witness')!.target, 11)
-assert.equal(trialForLandV7('verge')!.choices.find((choice) => choice.id === 'scout')!.target, 11)
+assert.equal(
+  trialForLandV7('verge')!.choices.find((choice) => choice.id === 'witness')!
+    .target,
+  11,
+)
+assert.equal(
+  trialForLandV7('verge')!.choices.find((choice) => choice.id === 'scout')!
+    .target,
+  11,
+)
 for (const land of JOURNEY_WORLD.lands) {
   const trial = trialForLandV7(land.id)!
   assert.deepEqual(

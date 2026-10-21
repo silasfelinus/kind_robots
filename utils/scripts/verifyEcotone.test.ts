@@ -55,9 +55,9 @@ import {
   type RunState,
 } from '../ecotone/engine'
 import { philosophyNeedles, VALUE_AXES } from '../ecotone/valueNeedles'
-import { SUBSTANCE_CHOICES } from '../ecotone/substanceArc'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 import {
+  SUBSTANCE_CHOICES,
   momentPerspective,
   substanceEpilogue,
   substanceSceneLine,
@@ -980,6 +980,28 @@ assert.ok(
   ),
   'every authored perspective must tug at at least one axis',
 )
+// Probability changes are not ideological locks. Every chemical lens still
+// permits opposing conclusions on the axes it touches, depending on 2d6.
+for (const chemical of SUBSTANCE_CHOICES) {
+  const first = philosophyNeedles({
+    ...philosophyBase,
+    substanceMoments: momentsFor(chemical.id, 1),
+  })
+  for (const [index, value] of first.entries()) {
+    if (value.chemistry === 0) continue
+    const outcomes = new Set(
+      Array.from({ length: 160 }, (_, seed) =>
+        philosophyNeedles({
+          ...philosophyBase,
+          seed: seed + 1,
+          substanceMoments: momentsFor(chemical.id, 1),
+        })[index]?.outcome,
+      ),
+    )
+    assert.ok(outcomes.has(value.left), `${chemical.id} can roll ${value.left}`)
+    assert.ok(outcomes.has(value.right), `${chemical.id} can roll ${value.right}`)
+  }
+}
 for (const value of hippySpeedball) {
   assert.ok(value.dice.every((die) => die >= 1 && die <= 6))
   assert.equal(value.total, value.dice[0] + value.dice[1] + value.pull)

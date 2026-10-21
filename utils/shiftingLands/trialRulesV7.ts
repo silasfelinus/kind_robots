@@ -5,6 +5,7 @@ import {
   type TrialChoice,
 } from './authoredBosses'
 import type { JourneyStateV6 } from './deckV6'
+import { JOURNEY_WORLD } from './journey'
 
 export const TRIAL_RULES_V7 = 1
 
@@ -148,7 +149,6 @@ export function canChooseTrialV7(
   return canChooseTrial(choice, state.flags, state.journey.provisions)
 }
 
-import { JOURNEY_WORLD } from './journey'
 function landIdToName(index: number): string {
   return JOURNEY_WORLD.lands[index]?.id ?? ''
 }

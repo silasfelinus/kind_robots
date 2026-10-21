@@ -1469,8 +1469,8 @@ const stage = computed<Stage>(() => {
         ? 'How do you enter the weekend?'
         : 'How do you answer?',
       body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
-      lensLine: run.openingState
-        ? (card.lensLines?.[run.openingState] ?? '')
+      lensLine: run.currentState
+        ? (card.lensLines?.[run.currentState] ?? '')
         : '',
       asides: cardAsides(card, run),
       portrait,

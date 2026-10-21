@@ -348,8 +348,13 @@ export function encounterEligible(
 ): boolean {
   if (state.played.includes(card.id)) return false
   if (card.requiresLead && card.requiresLead !== state.activeLead) return false
-  if (card.requiresLens && card.requiresLens !== state.openingState)
-    return false
+  if (card.requiresLens) {
+    const lens = card.requiresLens
+    const encountered = state.substanceMoments.some((moment) =>
+      openingSubstance(lens).some((id) => moment.selected.includes(id)),
+    )
+    if (lens !== state.openingState && !encountered) return false
+  }
   if (
     card.requiresMeetCount &&
     state.meetingOrder.length < card.requiresMeetCount

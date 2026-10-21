@@ -498,7 +498,7 @@
                     grants supernatural knowledge.
                   </p>
                   <div
-                    class="kr-scroll grid max-h-36 grid-cols-2 gap-1.5 overflow-y-auto"
+                    class="grid grid-cols-2 gap-1.5"
                   >
                     <button
                       v-for="moment in SUBSTANCE_CHOICES"

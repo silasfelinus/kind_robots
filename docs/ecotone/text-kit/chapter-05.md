@@ -418,7 +418,7 @@
 **Option A, investigate (visible 9 check):** Count the rings with the sawyer and compare growth bands without removing wood
 
 - **Pass:** The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir.
-- **Miss:** A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch.
+- **Miss:** A knot disrupts your count and your tally contradicts the sawyer's. The contractor photographs the disagreement and announces an exclusive prophecy. The sawyer pins both unverified tallies to the volunteer noticeboard. You have made a record of what nobody knows yet, which does not sell nearly as well.
 
 **Option B, assist without a check:** Help the volunteers protect the log from unauthorized cutting
 
@@ -429,7 +429,7 @@
 - `cards/wh-094`: A fallen log records two more summers than have occurred. Show the dilemma before anyone succeeds or fails.
 - `paragraphs/wh-094/2`: A fallen redwood has two extra rings, one for each summer nobody remembers. A contractor wants to carve out a slice and sell it as proof of prophecy before the park's volunteer sawyer can document it. The people and location must match the opening.
 - `outcomes/wh-094/investigate-success`: The extra bands correspond to a drought nobody has recorded. The park receives photographs and a marked measurement, not a souvenir. Show the corroboration and any evidence, not an invented general victory.
-- `outcomes/wh-094/investigate-failure`: A knot interrupts the count and you lose your place. The sawyer has kept a second tally and a sample-free sketch. Preserve the mistake, ambiguity and surviving clue.
+- `outcomes/wh-094/investigate-failure`: A knot disrupts your count and your tally contradicts the sawyer's. The contractor photographs the disagreement and announces an exclusive prophecy. The sawyer pins both unverified tallies to the volunteer noticeboard. You have made a record of what nobody knows yet, which does not sell nearly as well. Preserve the mistake, ambiguity and surviving clue.
 - `outcomes/wh-094/care-success`: The contractor backs off and the trail crew posts a clear explanation. The log gets to keep its extra summers. Show ordinary care as meaningful action, without implying the entire mystery is solved.
 
 **Earned flags:** `wh_094_verified`, `wh_094_partial`, `wh_094_care` (mutually exclusive results of this card).

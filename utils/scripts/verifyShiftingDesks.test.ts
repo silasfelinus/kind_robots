@@ -363,11 +363,7 @@ for (const dept of [recordsProfiles, TOY_DIVISION]) {
 }
 const recordsEvidence = reviewExhibits({
   department: 'records',
-  flags: [
-    'taught-pip-to-say-no',
-    'wrote-to-the-surface',
-    'signed-kevins-card',
-  ],
+  flags: ['taught-pip-to-say-no', 'wrote-to-the-surface', 'signed-kevins-card'],
 })
 assert.equal(recordsEvidence.length, 2, 'review exhibits stay compact')
 assert.match(recordsEvidence[0] ?? '', /Pip learned to refuse/)

@@ -268,7 +268,12 @@ export function combatBenchmark(
   policy: CombatPolicy,
   seeds = 400,
   initialHealth = 12,
+  initialResolve = 4,
 ) {
+  if (!Number.isInteger(initialHealth) || initialHealth < 1 || initialHealth > 12)
+    throw new Error('Combat health must be between 1 and 12')
+  if (!Number.isInteger(initialResolve) || initialResolve < 0 || initialResolve > 4)
+    throw new Error('Combat Resolve must be between 0 and 4')
   const foe = scene(sceneId).battle
   if (!foe) throw new Error('No fight at ' + sceneId)
   let wins = 0,
@@ -279,6 +284,7 @@ export function combatBenchmark(
       ...startRun(n * 733 + 1),
       sceneId,
       health: initialHealth,
+      resolve: initialResolve,
       battle: { hp: foe.hp, exposed: false, turn: 1, log: '' },
     }
     let steps = 0

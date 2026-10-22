@@ -32,8 +32,13 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       },
       {
         id: 'levy',
-        label: 'Tell the Watch to collect the infirmary charge from the Freeholds.',
-        effects: { brass: 12, local: { 'gate-watch': 1, yard: -1 }, flags: ['nettle-beds-levy'] },
+        label:
+          'Tell the Watch to collect the infirmary charge from the Freeholds.',
+        effects: {
+          brass: 12,
+          local: { 'gate-watch': 1, yard: -1 },
+          flags: ['nettle-beds-levy'],
+        },
         response:
           'The ledgers balance by supper. In the morning two beds are empty. Nettle tells you the families carried their sick home before the collectors arrived.',
       },
@@ -53,16 +58,24 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'make-room',
-        label: 'Register the living four and fund the missing ration for the next month.',
+        label:
+          'Register the living four and fund the missing ration for the next month.',
         requires: { cost: 15 },
-        effects: { local: { yard: 2, ledger: -1 }, flags: ['nettle-four-names'] },
+        effects: {
+          local: { yard: 2, ledger: -1 },
+          flags: ['nettle-four-names'],
+        },
         response:
           'The fourth name is written. Nettle gives the quill back to you. At the next meal the grandmother carries a tray to a neighboring bed that has no family at all.',
       },
       {
         id: 'open-books',
-        label: 'Publish the false ration entry and let every family challenge the records.',
-        effects: { local: { ledger: 1, yard: -1 }, flags: ['nettle-open-books'] },
+        label:
+          'Publish the false ration entry and let every family challenge the records.',
+        effects: {
+          local: { ledger: 1, yard: -1 },
+          flags: ['nettle-open-books'],
+        },
         response:
           'People line up outside the Archive for two days. Four families get their names back. Two lose extra food they had depended on. Nettle keeps a tally of each and asks you to read it.',
       },
@@ -82,16 +95,26 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'outside',
-        label: 'Pay twenty brass for another team and send the medicine back to the occupied villages.',
+        label:
+          'Pay twenty brass for another team and send the medicine back to the occupied villages.',
         requires: { cost: 20 },
-        effects: { local: { yard: 2 }, affinity: { freeholds: 2 }, items: ['caravan-salve'], flags: ['nettle-crossed-border'] },
+        effects: {
+          local: { yard: 2 },
+          affinity: { freeholds: 2 },
+          items: ['caravan-salve'],
+          flags: ['nettle-crossed-border'],
+        },
         response:
           'The carts leave under plain canvas. Weeks later, somebody at the occupied gate hangs red thread where you can see it from the hills.',
       },
       {
         id: 'own-wounded',
-        label: 'Keep the medicines with the exiles. You still have wounded here.',
-        effects: { local: { 'gate-watch': 2 }, flags: ['nettle-saved-hideout'] },
+        label:
+          'Keep the medicines with the exiles. You still have wounded here.',
+        effects: {
+          local: { 'gate-watch': 2 },
+          flags: ['nettle-saved-hideout'],
+        },
         response:
           'The guards recover. Three return to duty. Nettle speaks little at supper. She has learned something about what a kingdom means after its walls are gone.',
       },
@@ -112,7 +135,11 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'sell',
         label: 'Sell the recovered copper before the traders leave.',
-        effects: { brass: 18, local: { lamplight: -1 }, flags: ['tiller-sold-wire'] },
+        effects: {
+          brass: 18,
+          local: { lamplight: -1 },
+          flags: ['tiller-sold-wire'],
+        },
         response:
           'The merchant weighs it without listening. Tiller keeps the two spikes, tapping them together at night when everyone else has gone to bed.',
       },
@@ -120,7 +147,11 @@ export const SECRET_TALKS: readonly TalkDef[] = [
         id: 'listen',
         label: 'Pay for a relay. Let the Archive record every knock.',
         requires: { cost: 12 },
-        effects: { local: { lamplight: 2 }, affinity: { rustline: 2 }, flags: ['tiller-kept-signal'] },
+        effects: {
+          local: { lamplight: 2 },
+          affinity: { rustline: 2 },
+          flags: ['tiller-kept-signal'],
+        },
         response:
           'The signal repeats five times. On the sixth, it spells the name of a village whose rails were lifted a generation ago.',
       },
@@ -140,16 +171,27 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'wagon',
-        label: 'Send the crew for the stranded wagon. Warn the river settlement by rider.',
+        label:
+          'Send the crew for the stranded wagon. Warn the river settlement by rider.',
         requires: { cost: 10 },
-        effects: { affinity: { rustline: 3 }, local: { yard: -1 }, flags: ['tiller-wagon-rescued'] },
+        effects: {
+          affinity: { rustline: 3 },
+          local: { yard: -1 },
+          flags: ['tiller-wagon-rescued'],
+        },
         response:
           'Every passenger leaves the tunnel. In the river settlement they count two ruined homes. The people there know why the engineers came too late.',
       },
       {
         id: 'river',
-        label: 'Shore up the river settlement and send lanterns into the tunnel.',
-        effects: { local: { yard: 2 }, affinity: { rustline: -3 }, items: ['signal-coil'], flags: ['tiller-river-saved'] },
+        label:
+          'Shore up the river settlement and send lanterns into the tunnel.',
+        effects: {
+          local: { yard: 2 },
+          affinity: { rustline: -3 },
+          items: ['signal-coil'],
+          flags: ['tiller-river-saved'],
+        },
         response:
           'The river barely rises. At dusk four passengers stumble out of the old tunnel. A fifth stays behind, and Tiller writes the name on the wire spool.',
       },
@@ -169,16 +211,24 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'publish',
-        label: 'Restore the names in the public register, including the buyers.',
-        effects: { local: { lamplight: 2, 'old-houses': -2 }, flags: ['sera-names-public'] },
+        label:
+          'Restore the names in the public register, including the buyers.',
+        effects: {
+          local: { lamplight: 2, 'old-houses': -2 },
+          flags: ['sera-names-public'],
+        },
         response:
           'The paper is pinned to the chapel door. A family takes its name back. Another spends the afternoon scrubbing that name from its gate.',
       },
       {
         id: 'witness',
-        label: 'Record the names under seal, and pay for private testimony from the families.',
+        label:
+          'Record the names under seal, and pay for private testimony from the families.',
         requires: { cost: 12 },
-        effects: { local: { lamplight: 1, 'old-houses': 1 }, flags: ['sera-names-witnessed'] },
+        effects: {
+          local: { lamplight: 1, 'old-houses': 1 },
+          flags: ['sera-names-witnessed'],
+        },
         response:
           'People come one by one. By winter there are twenty-three statements, each signed in a different hand. The bellkeeper makes you promise the seal can be broken someday.',
       },
@@ -198,16 +248,25 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'excavate',
-        label: 'Relocate the square at court expense and open the buried chapel.',
+        label:
+          'Relocate the square at court expense and open the buried chapel.',
         requires: { cost: 18 },
-        effects: { local: { lamplight: 2, yard: -1 }, items: ['bell-clapper'], flags: ['sera-buried-bell'] },
+        effects: {
+          local: { lamplight: 2, yard: -1 },
+          items: ['bell-clapper'],
+          flags: ['sera-buried-bell'],
+        },
         response:
           'The stone beneath the square holds a bell without a clapper. There are names carved inside it, too high for any visitor to have reached with a chisel.',
       },
       {
         id: 'leave-it',
-        label: 'Leave the square standing and ring twelve strokes for the living.',
-        effects: { local: { yard: 2, lamplight: -1 }, flags: ['sera-twelve-strokes'] },
+        label:
+          'Leave the square standing and ring twelve strokes for the living.',
+        effects: {
+          local: { yard: 2, lamplight: -1 },
+          flags: ['sera-twelve-strokes'],
+        },
         response:
           'The families stay dry. At the thirteenth hour Sera sits awake beside the lamp, making a list of every voice the bell might have carried.',
       },
@@ -227,15 +286,23 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'families',
-        label: 'Send the real pass to the families and make the Watch improvise.',
-        effects: { local: { yard: 2, 'gate-watch': -2 }, flags: ['tarn-families-map'] },
+        label:
+          'Send the real pass to the families and make the Watch improvise.',
+        effects: {
+          local: { yard: 2, 'gate-watch': -2 },
+          flags: ['tarn-families-map'],
+        },
         response:
           'The families leave at dusk. Three watchmen ride on a false road to draw the raiders away. Two come home. The third leaves his saddle behind.',
       },
       {
         id: 'watch',
-        label: 'Give the pass to the Watch and promise the families a guarded crossing tomorrow.',
-        effects: { local: { 'gate-watch': 2, yard: -2 }, flags: ['tarn-watch-map'] },
+        label:
+          'Give the pass to the Watch and promise the families a guarded crossing tomorrow.',
+        effects: {
+          local: { 'gate-watch': 2, yard: -2 },
+          flags: ['tarn-watch-map'],
+        },
         response:
           'The Watch secures the crossing. The families wait through the night. By morning the oldest child has a fever and nobody can say whose delay made it worse.',
       },
@@ -254,15 +321,23 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'family',
-        label: 'Bring the family in before dark. Find medicines on another road.',
-        effects: { local: { yard: 2, 'gate-watch': -1 }, flags: ['tarn-families-sheltered'] },
+        label:
+          'Bring the family in before dark. Find medicines on another road.',
+        effects: {
+          local: { yard: 2, 'gate-watch': -1 },
+          flags: ['tarn-families-sheltered'],
+        },
         response:
           'At the hideout, the children sleep between the cooking fire and the wet blankets. One soldier asks when the wagon is due. Tarn does not meet his eyes.',
       },
       {
         id: 'medicine',
-        label: 'Take the medicine wagon. Leave the family fuel, food and a marked route.',
-        effects: { local: { 'gate-watch': 2, yard: -1 }, flags: ['tarn-medicine-delivered'] },
+        label:
+          'Take the medicine wagon. Leave the family fuel, food and a marked route.',
+        effects: {
+          local: { 'gate-watch': 2, yard: -1 },
+          flags: ['tarn-medicine-delivered'],
+        },
         response:
           'The medicines arrive dry. At dawn the cart is gone from the road. The food has been eaten and the fire is cold. You do not know which direction the family chose.',
       },
@@ -282,16 +357,24 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'fields',
-        label: 'Send the carts to plant. Trust the old banks to hold through the storm.',
-        effects: { local: { yard: 2, 'gate-watch': -2 }, flags: ['odo-planted-early'] },
+        label:
+          'Send the carts to plant. Trust the old banks to hold through the storm.',
+        effects: {
+          local: { yard: 2, 'gate-watch': -2 },
+          flags: ['odo-planted-early'],
+        },
         response:
           'Seeds go in the earth under a black sky. The first rain comes warm. By dawn a bank has washed away, but tiny green shoots stand in the field.',
       },
       {
         id: 'banks',
-        label: 'Build the flood banks first. Spend brass replacing the lost seed.',
+        label:
+          'Build the flood banks first. Spend brass replacing the lost seed.',
         requires: { cost: 18 },
-        effects: { local: { 'gate-watch': 2, yard: -1 }, flags: ['odo-held-bank'] },
+        effects: {
+          local: { 'gate-watch': 2, yard: -1 },
+          flags: ['odo-held-bank'],
+        },
         response:
           'The bank holds. The farmers must wait another week, and the first planting will be small. Odo draws the weather backwards in the sand, from harvest to seed.',
       },
@@ -311,15 +394,26 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'profit',
-        label: 'Use the forecast to buy salt cheaply, and save the hideout’s reserves.',
-        effects: { brass: 25, local: { ledger: 1, yard: -1 }, flags: ['odo-kept-forecast'] },
+        label:
+          'Use the forecast to buy salt cheaply, and save the hideout’s reserves.',
+        effects: {
+          brass: 25,
+          local: { ledger: 1, yard: -1 },
+          flags: ['odo-kept-forecast'],
+        },
         response:
           'The price is right. The salt arrives. Nobody says why the three missing stalls have been roped off at the market.',
       },
       {
         id: 'warn',
-        label: 'Send the escort to warn the merchants. Tear up the prediction before you can profit.',
-        effects: { brass: -8, local: { yard: 2, ledger: -1 }, items: ['storm-glass-vial'], flags: ['odo-broke-forecast'] },
+        label:
+          'Send the escort to warn the merchants. Tear up the prediction before you can profit.',
+        effects: {
+          brass: -8,
+          local: { yard: 2, ledger: -1 },
+          items: ['storm-glass-vial'],
+          flags: ['odo-broke-forecast'],
+        },
         response:
           'Two merchants turn back. The third refuses to believe a warning from an exile and drives on. At night Odo leaves the broken gauge outside. A blue drop forms in the glass.',
       },

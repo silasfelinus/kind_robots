@@ -462,6 +462,50 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
+// Golden journeys must remain replayable without the search solver, including
+// rare moral endings and failures. Changes to choices, dice or consequences
+// require explicit editorial review and deliberate fixture refresh.
+type GoldenWitness = {
+  ending: string
+  seed: number
+  trace: string
+  health: number
+  resolve: number
+  scenes: number
+  fingerprint: string
+}
+const goldenFile = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'utils/scripts/fixtures/zuzuGamebookGolden.json'),
+    'utf8',
+  ),
+) as { version: number; witnesses: GoldenWitness[] }
+assert.equal(goldenFile.version, 1)
+assert.deepEqual(
+  goldenFile.witnesses.map((witness) => witness.ending).sort(),
+  [...endings].sort(),
+  'each authored ending must have exactly one golden full-journey transcript',
+)
+for (const fixture of goldenFile.witnesses) {
+  assert.ok(fixture.trace.length > 0 && fixture.trace.length % 2 === 0)
+  const replayed = replayEncodedWitness(fixture.seed, fixture.trace)
+  assert.equal(replayed.sceneId, fixture.ending)
+  assert.equal(replayed.health, fixture.health)
+  assert.equal(replayed.resolve, fixture.resolve)
+  assert.equal(replayed.visited.length, fixture.scenes)
+  assert.equal(
+    witnessFingerprint(replayed),
+    fixture.fingerprint,
+    fixture.ending + ': golden route or consequences unexpectedly changed',
+  )
+  if (fixture.ending === 'ending-wren-lamp') {
+    assert.ok(replayed.visited.includes('a5-wren-talk'))
+    assert.ok(replayed.flags.includes('wren-ally'))
+  }
+}
+assert.throws(() => replayEncodedWitness(1, 'c'), /Truncated witness/)
+assert.throws(() => replayEncodedWitness(1, 'x0'), /Unknown witness action/)
+
 // Seeded player journeys use actual dice and inventory decisions. Capture a
 // replayable witness for each ending rather than trusting synthetic scene flags.
 let rng = 20261009
@@ -518,18 +562,6 @@ for (const id of endings) {
   const trace = encodeWitness(witness)
   const compactReplay = replayEncodedWitness(witness.seed, trace)
   assert.equal(witnessFingerprint(compactReplay), witnessFingerprint(replayed))
-  console.log(
-    'GAMEBOOK_GOLDEN ' +
-      JSON.stringify({
-        ending: id,
-        seed: witness.seed,
-        trace,
-        health: witness.health,
-        resolve: witness.resolve,
-        scenes: witness.visited.length,
-        fingerprint: witnessFingerprint(replayed),
-      }),
-  )
   assert.ok(witness.visited[0] === 'the-crossing')
   if (id === 'ending-wren-lamp') {
     assert.ok(

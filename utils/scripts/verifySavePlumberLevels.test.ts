@@ -484,7 +484,7 @@ const jumpTop = (hold: number) => {
 }
 assert.ok(jumpTop(30) > jumpTop(2) + 30, 'holding A jumps higher')
 
-// Opening flow: title, heroine select, then 1-1, saving the choice.
+// Opening flow: title, file select, heroine select, story, then the world map, saving the choice.
 const fresh = createSavePlumberPreview(options())
 const tap = (button: ArcadeButton) => {
   const f = emptyInput()
@@ -492,6 +492,8 @@ const tap = (button: ArcadeButton) => {
   fresh.update(f)
 }
 assert.equal(fresh.mode, 'title')
+tap('a')
+assert.equal(fresh.mode, 'files')
 tap('a')
 assert.equal(fresh.mode, 'select')
 const startCursor = fresh.cursor
@@ -512,7 +514,7 @@ tap('a')
 assert.equal(fresh.storyPanel, 1, 'A turns the page')
 for (let i = 0; i < 800 && fresh.mode === 'story'; i++)
   fresh.update(emptyInput())
-assert.equal(fresh.mode, 'intro', 'the story plays through to 1-1')
+assert.equal(fresh.mode, 'map', 'the story plays through to the world map')
 assert.equal(fresh.stage.code, '1-1')
 assert.equal(
   rosterIndex(fresh.heroineSeed),
@@ -524,15 +526,27 @@ assert.ok(saved, 'the run saves')
 assert.equal(saved!.stage, 0)
 assert.equal(rosterIndex(saved!.heroine), picked)
 
-// Continue: a save resumes its heroine and stage.
+// Continue: a save resumes its heroine on the map where she stood, and its stage.
 const resumed = createSavePlumberPreview(
-  options({ resume: { ...saved!, stage: 2, score: 4200, lives: 2 } }),
+  options({
+    resume: {
+      ...saved!,
+      stage: 2,
+      node: '1-3',
+      done: ['1-1', '1-2'],
+      score: 4200,
+      lives: 2,
+    },
+  }),
 )
 const go = (button: ArcadeButton) => {
   const f = emptyInput()
   f.pressed[button] = true
   resumed.update(f)
 }
+go('a')
+go('a')
+assert.equal(resumed.mode, 'map')
 go('a')
 assert.equal(resumed.mode, 'intro')
 assert.equal(resumed.stage.code, '1-3')
@@ -854,7 +868,10 @@ assert.equal(
   true,
   'the campaign is cleared',
 )
-assert.equal(readPlumberSave(finale.save)!.stage, 0, 'a new run starts at 1-1')
+assert.ok(
+  readPlumberSave(finale.save)!.done!.includes('8-4'),
+  'the file remembers the last castle',
+)
 for (let i = 0; i < 1000 && !finale.over; i++) finale.update(emptyInput())
 assert.equal(finale.over, true, 'the cabinet ends after the finale')
 
@@ -982,11 +999,24 @@ boss.boss!.timer = 1
 for (let i = 0; i < 200 && (boss.mode as string) !== 'victory'; i++)
   boss.update(emptyInput())
 assert.equal(boss.mode, 'victory')
-assert.equal(readPlumberSave(boss.save)!.stage, 4, 'the save moves on to 2-1')
+assert.ok(
+  readPlumberSave(boss.save)!.done!.includes('1-4'),
+  'the castle is saved as cleared',
+)
 const next = emptyInput()
 for (let i = 0; i < 200; i++) boss.update(next)
 next.pressed.a = true
 boss.update(next)
+assert.equal(boss.mode, 'map', 'back to the map, the road to World 2 drawn in')
+for (let i = 0; i < 120 && boss.mapRevealTimer; i++) boss.update(emptyInput())
+const road = emptyInput()
+road.pressed.right = true
+for (let i = 0; i < 200 && boss.mapNodeId === '1-4'; i++) {
+  boss.update(road)
+  road.pressed.right = false
+}
+for (let i = 0; i < 60; i++) boss.update(emptyInput())
+assert.equal(boss.mapNodeId, 'w2-start', 'she walks on into World 2')
 assert.equal(boss.stage.code, '2-1', 'the next world begins')
 assert.equal(boss.over, false)
 

@@ -44,7 +44,29 @@ import {
   seedForRoster,
   type RosterHeroine,
 } from './savePlumberRoster'
-import { readPlumberSave, type PlumberSave } from './savePlumberSave'
+import {
+  SLOT_COUNT,
+  readPlumberFile,
+  readPlumberSave,
+  type PlumberFile,
+  type PlumberSave,
+  type PlumberSlot,
+} from './savePlumberSave'
+import {
+  completionPercent,
+  mapNode,
+  newlyOpened,
+  nodeReachable,
+  pathOpen,
+  startId,
+  stageNode,
+  stepFrom,
+  worldCompletion,
+  worldMap,
+  type MapDirection,
+  type MapPath,
+  type MapProgress,
+} from './savePlumberOverworld'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
 import { ENDLESS_PAD, buildEndlessZone } from './savePlumberEndless'
@@ -107,10 +129,15 @@ const STORY: { art: string; lines: [string, string] }[] = [
   },
 ]
 const STORY_PANEL = 330
+/** Ticks to walk one world-map path, and to draw a newly opened one. */
+const MAP_WALK = 26
+const MAP_REVEAL = 50
 
 type Mode =
   | 'title'
+  | 'files'
   | 'select'
+  | 'map'
   | 'story'
   | 'intro'
   | 'play'
@@ -324,8 +351,23 @@ export class PlumberRun implements ArcadeGameInstance {
   readonly autopilot: boolean
   private sound: ArcadeGameOptions['sound']
   private rng: () => number
-  private saveData: PlumberSave | null
+  /** The cabinet's three save slots (Gen-2, conductor save-the-plumber t-011). */
+  private file: PlumberFile
   private resume: PlumberSave | null
+  /** File select: the highlighted slot, and whether Y has armed an erase. */
+  slotCursor = 0
+  eraseArmed = false
+  /** World map: the node she stands on, a walk in progress, and paths being drawn in. */
+  mapNodeId = startId(1)
+  mapWalk: { from: string; to: string; path: MapPath; t: number } | null = null
+  mapReveal: MapPath[] = []
+  mapRevealTimer = 0
+  /** This slot's memory: stages cleared by normal and secret exits, deaths, play time. */
+  done = new Set<string>()
+  secrets = new Set<string>()
+  deaths = 0
+  private playFrames = 0
+  private timeBase = 0
 
   hero: Body = { x: 0, y: 0, vx: 0, vy: 0 }
   ground = false
@@ -396,12 +438,13 @@ export class PlumberRun implements ArcadeGameInstance {
     this.autopilot = options.demo || run.autopilot === true
     this.sound = options.sound
     this.rng = options.rng
-    this.resume = this.demo ? null : readPlumberSave(options.resume)
-    this.saveData = this.resume
+    this.file = readPlumberFile(this.demo ? null : options.resume)
+    this.resume = readPlumberSave(this.file)
+    this.slotCursor = this.file.active
     this.heroineSeed = this.resume?.heroine ?? plumberHeroine().seed
-    this.gears = new Set(this.resume?.gears ?? [])
     this.cursor = rosterIndex(this.heroineSeed)
-    this.endlessBest = this.resume?.endlessBest ?? 0
+    this.endlessBest = this.file.endlessBest
+    this.loadSlotMemory(this.resume)
     if (run.endless) {
       this.beginEndless(run.endlessSeed)
       if (this.autopilot) this.mode = 'play'
@@ -419,8 +462,36 @@ export class PlumberRun implements ArcadeGameInstance {
     return this.stageIndex + 1
   }
 
-  get save(): PlumberSave | null | undefined {
-    return this.demo ? undefined : this.saveData
+  /** What the cabinet keeps: the three-slot file, or null before anything is worth keeping. */
+  get save(): PlumberFile | null | undefined {
+    if (this.demo) return undefined
+    const empty = this.file.slots.every((slot) => !slot)
+    return empty && !this.file.endlessBest ? null : this.file
+  }
+
+  private get slot(): PlumberSlot | null {
+    return this.file.slots[this.file.active] ?? null
+  }
+
+  /** The map's view of this slot's progress. */
+  get progress(): MapProgress {
+    return {
+      done: [...this.done],
+      secrets: [...this.secrets],
+      gears: [...this.gears],
+    }
+  }
+
+  /** Load a slot's memory into the run (or clear it for a new slot). */
+  private loadSlotMemory(slot: PlumberSlot | null) {
+    this.gears = new Set(slot?.gears ?? [])
+    this.done = new Set(slot?.done ?? [])
+    this.secrets = new Set(slot?.secrets ?? [])
+    this.deaths = slot?.deaths ?? 0
+    this.timeBase = slot?.time ?? 0
+    this.playFrames = 0
+    const node = mapNode(slot?.node)
+    this.mapNodeId = node ? node.id : startId(1)
   }
 
   get world(): number {
@@ -435,42 +506,36 @@ export class PlumberRun implements ArcadeGameInstance {
     return rosterFor(rosterHeroine(this.heroineSeed))
   }
 
-  private get menuItems(): ('continue' | 'new' | 'endless')[] {
-    return this.resume ? ['continue', 'new', 'endless'] : ['new', 'endless']
+  private get menuItems(): ('play' | 'endless')[] {
+    return ['play', 'endless']
   }
 
-  private remember(extra: Partial<PlumberSave> = {}) {
-    this.saveData = {
-      v: 1,
+  /** Write the run into the active slot. */
+  private remember(extra: Partial<PlumberSlot> = {}) {
+    const slots = this.file.slots.slice()
+    slots[this.file.active] = {
       heroine: this.heroineSeed,
       stage: this.stageIndex,
+      node: this.mapNodeId,
+      done: [...this.done],
+      secrets: [...this.secrets],
       score: this.score,
       lives: Math.max(1, this.lives),
       tokens: this.tokens,
-      cleared: this.saveData?.cleared === true,
+      cleared: this.slot?.cleared === true,
       gears: [...this.gears],
-      endlessBest: this.endlessBest,
+      deaths: this.deaths,
+      time: this.timeBase + Math.floor(this.playFrames / 60),
       ...extra,
     }
+    this.file = { ...this.file, slots }
   }
 
-  /** Keep a new Endless best without touching the campaign's resume point. */
+  /** Keep a new Endless best beside (never inside) the save slots. */
   private rememberEndless() {
     if (this.distance <= this.endlessBest) return
     this.endlessBest = this.distance
-    this.saveData = this.saveData
-      ? { ...this.saveData, endlessBest: this.endlessBest }
-      : {
-          v: 1,
-          heroine: this.heroineSeed,
-          stage: 0,
-          score: 0,
-          lives: START_LIVES,
-          tokens: 0,
-          cleared: false,
-          gears: [...this.gears],
-          endlessBest: this.endlessBest,
-        }
+    this.file = { ...this.file, endlessBest: this.endlessBest }
   }
 
   private setMode(mode: Mode, timer = 0) {
@@ -483,9 +548,15 @@ export class PlumberRun implements ArcadeGameInstance {
     this.tick++
     if (this.modeTimer > 0) this.modeTimer--
     const keys = this.autopilot ? this.pilotInput() : input
+    if (!this.endless && (this.mode === 'play' || this.mode === 'map'))
+      this.playFrames++
     switch (this.mode) {
       case 'title':
         return this.updateTitle(keys)
+      case 'files':
+        return this.updateFiles(keys)
+      case 'map':
+        return this.updateMap(keys)
       case 'select':
         return this.updateSelect(keys)
       case 'story':
@@ -508,7 +579,7 @@ export class PlumberRun implements ArcadeGameInstance {
           (this.modeTimer < 420 && (keys.pressed.start || keys.pressed.a))
         ) {
           if (this.stageIndex + 1 < CAMPAIGN.length)
-            this.beginStage(this.stageIndex + 1)
+            this.enterMap(this.mapReveal)
           else this.over = true
         }
         return
@@ -526,16 +597,123 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (!(keys.pressed.a || keys.pressed.start)) return
     this.sound.play('pickup')
-    if (items[this.menu] === 'continue' && this.resume) {
-      this.score = this.resume.score
-      this.lives = this.resume.lives
-      this.tokens = this.resume.tokens
-      this.heroineSeed = this.resume.heroine
-      this.beginStage(this.resume.stage)
+    if (items[this.menu] === 'play') {
+      this.slotCursor = this.file.active
+      this.eraseArmed = false
+      this.setMode('files')
     } else {
-      this.pickEndless = items[this.menu] === 'endless'
+      this.pickEndless = true
       this.setMode('select')
     }
+  }
+
+  /** File select: three slots; A plays one (or starts a new one), Y twice erases, B goes back. */
+  private updateFiles(keys: InputFrame) {
+    if (keys.pressed.up || keys.pressed.down) {
+      const step = keys.pressed.up ? SLOT_COUNT - 1 : 1
+      this.slotCursor = (this.slotCursor + step) % SLOT_COUNT
+      this.eraseArmed = false
+      this.sound.play('blip')
+    }
+    const chosen = this.file.slots[this.slotCursor] ?? null
+    if (keys.pressed.b) {
+      if (this.eraseArmed) this.eraseArmed = false
+      else this.setMode('title')
+      return
+    }
+    if (keys.pressed.y && chosen) {
+      if (!this.eraseArmed) {
+        this.eraseArmed = true
+        this.sound.play('blip')
+        return
+      }
+      const slots = this.file.slots.slice()
+      slots[this.slotCursor] = null
+      this.file = { ...this.file, slots }
+      this.eraseArmed = false
+      this.sound.play('warn')
+      return
+    }
+    if (!(keys.pressed.a || keys.pressed.start)) return
+    this.eraseArmed = false
+    this.file = { ...this.file, active: this.slotCursor }
+    this.sound.play('pickup')
+    if (!chosen) {
+      this.pickEndless = false
+      this.setMode('select')
+      return
+    }
+    this.resume = readPlumberSave(this.file)
+    this.loadSlotMemory(chosen)
+    this.heroineSeed = chosen.heroine
+    this.cursor = rosterIndex(this.heroineSeed)
+    this.score = chosen.score
+    this.lives = chosen.lives
+    this.tokens = chosen.tokens
+    this.enterMap()
+  }
+
+  /** Stand on the world map at the current node, drawing in any paths just opened. */
+  private enterMap(reveal: MapPath[] = []) {
+    const node = mapNode(this.mapNodeId) ?? mapNode(startId(1))!
+    this.mapNodeId = node.id
+    if (node.stage)
+      this.stageIndex = CAMPAIGN.findIndex((s) => s.code === node.stage)
+    else {
+      const first = CAMPAIGN.findIndex((s) => stageWorld(s.code) === node.world)
+      this.stageIndex = Math.max(0, first)
+    }
+    this.loadStage(this.stageIndex)
+    this.mapWalk = null
+    this.mapReveal = reveal
+    this.mapRevealTimer = reveal.length ? MAP_REVEAL : 0
+    this.hero.vx = 0
+    this.ground = true
+    this.remember()
+    this.setMode('map')
+  }
+
+  private updateMap(keys: InputFrame) {
+    if (this.mapRevealTimer > 0) {
+      this.mapRevealTimer--
+      if (!this.mapRevealTimer) this.mapReveal = []
+      return
+    }
+    const walk = this.mapWalk
+    if (walk) {
+      walk.t++
+      this.stride++
+      this.hero.vx = 1
+      if (walk.t >= MAP_WALK) {
+        this.mapNodeId = walk.to
+        this.mapWalk = null
+        this.hero.vx = 0
+        this.enterMap()
+      }
+      return
+    }
+    const dirs: MapDirection[] = ['up', 'down', 'left', 'right']
+    const dir = dirs.find((d) => keys.pressed[d] || keys.held[d])
+    if (dir) {
+      const step = stepFrom(this.mapNodeId, dir, this.progress)
+      if (step) {
+        const here = mapNode(this.mapNodeId)!
+        const dx = step.path.warp
+          ? step.path.from === this.mapNodeId
+            ? 1
+            : -1
+          : step.to.x - here.x
+        if (dx) this.facing = dx > 0 ? 1 : -1
+        this.mapWalk = { from: here.id, to: step.to.id, path: step.path, t: 0 }
+        this.sound.play('blip')
+      }
+      return
+    }
+    if (!(keys.pressed.a || keys.pressed.start)) return
+    const node = mapNode(this.mapNodeId)
+    if (!node?.stage) return
+    this.sound.play('level')
+    this.beginStage(CAMPAIGN.findIndex((s) => s.code === node.stage))
   }
 
   private updateSelect(keys: InputFrame) {
@@ -555,17 +733,20 @@ export class PlumberRun implements ArcadeGameInstance {
     this.score = 0
     this.lives = START_LIVES
     this.tokens = 0
-    this.beginStage(0)
+    this.loadSlotMemory(null)
+    this.stageIndex = 0
+    this.loadStage(0)
+    this.remember()
     this.storyPanel = 0
     this.setMode('story', STORY_PANEL)
   }
 
   private updateStory(keys: InputFrame) {
-    if (keys.pressed.start) return this.setMode('intro', 150)
+    if (keys.pressed.start) return this.enterMap()
     if (this.modeTimer && !keys.pressed.a) return
     this.storyPanel++
     this.sound.play('blip')
-    if (this.storyPanel >= STORY.length) this.setMode('intro', 150)
+    if (this.storyPanel >= STORY.length) this.enterMap()
     else this.modeTimer = STORY_PANEL
   }
 
@@ -604,23 +785,32 @@ export class PlumberRun implements ArcadeGameInstance {
   private beginStage(index: number) {
     this.stageIndex = index
     this.loadStage(index)
+    const node = stageNode(this.stage.code)
+    if (node) this.mapNodeId = node.id
     this.remember()
     this.setMode('intro', 150)
   }
 
-  private nextStage() {
+  /**
+   * A stage cleared by `exit`: remember it, and hand back to the world map with
+   * the paths it opened (a boss stage plays its world-clear scene first).
+   */
+  private nextStage(exit: 'normal' | 'secret' = 'normal') {
     const last = this.stageIndex + 1 >= CAMPAIGN.length
     if (this.autopilot)
       return this.beginDemoStage(last ? 0 : this.stageIndex + 1)
+    const node = stageNode(this.stage.code)
+    if (node) this.mapNodeId = node.id
+    const before = this.progress
+    ;(exit === 'secret' ? this.secrets : this.done).add(this.stage.code)
+    const opened = newlyOpened(before, this.progress)
     if (this.boss) {
-      this.remember({
-        stage: last ? 0 : this.stageIndex + 1,
-        cleared: this.saveData?.cleared === true || last,
-      })
+      this.mapReveal = opened
+      this.remember({ cleared: this.slot?.cleared === true || last })
       this.setMode('victory', last ? 900 : 600)
       return
     }
-    this.beginStage(this.stageIndex + 1)
+    this.enterMap(opened)
   }
 
   private beginDemoStage(index: number) {
@@ -2316,7 +2506,10 @@ export class PlumberRun implements ArcadeGameInstance {
       this.setMode('over', 220)
       return
     }
-    if (!this.autopilot) this.lives--
+    if (!this.autopilot) {
+      this.lives--
+      this.deaths++
+    }
     if (this.lives <= 0) {
       this.remember({ lives: START_LIVES, score: 0, tokens: 0 })
       this.setMode('over', 220)
@@ -2926,6 +3119,10 @@ export class PlumberRun implements ArcadeGameInstance {
     switch (this.mode) {
       case 'title':
         return this.renderTitle(g)
+      case 'files':
+        return this.renderFiles(g)
+      case 'map':
+        return this.renderMap(g)
       case 'select':
         return this.renderSelect(g)
       case 'victory':
@@ -2947,7 +3144,7 @@ export class PlumberRun implements ArcadeGameInstance {
           this.renderBanner(
             g,
             'GAME OVER',
-            `Continue from ${this.stage.code} on the title screen`,
+            `Your file keeps ${this.stage.code} on the world map`,
           )
     }
   }
@@ -3006,10 +3203,10 @@ export class PlumberRun implements ArcadeGameInstance {
     const items = this.menuItems
     items.forEach((item, i) => {
       const label =
-        item === 'continue' && this.resume
-          ? `CONTINUE  ${CAMPAIGN[this.resume.stage]!.code}`
-          : item === 'endless'
-            ? `ENDLESS${this.endlessBest ? `  BEST ${this.endlessBest} M` : ''}`
+        item === 'endless'
+          ? `ENDLESS${this.endlessBest ? `  BEST ${this.endlessBest} M` : ''}`
+          : this.file.slots.some(Boolean)
+            ? 'PLAY  ·  CHOOSE A FILE'
             : 'NEW GAME'
       const y = 172 + i * 24
       const on = i === this.menu
@@ -3034,6 +3231,251 @@ export class PlumberRun implements ArcadeGameInstance {
       10,
       '#d6f2ee',
     )
+  }
+
+  private renderFiles(g: CanvasRenderingContext2D) {
+    this.plate(g, '1-1', 0.35)
+    g.fillStyle = 'rgba(12, 40, 52, 0.62)'
+    g.fillRect(0, 0, W, H)
+    this.text(g, 'CHOOSE A FILE', W / 2, 40, 24, '#ffd98a')
+    for (let i = 0; i < SLOT_COUNT; i++) {
+      const slot = this.file.slots[i] ?? null
+      const y = 66 + i * 58
+      const on = i === this.slotCursor
+      g.fillStyle = on
+        ? 'rgba(255, 217, 138, 0.28)'
+        : 'rgba(255, 244, 220, 0.1)'
+      g.fillRect(48, y, W - 96, 50)
+      if (on) {
+        g.strokeStyle = '#ffd98a'
+        g.lineWidth = 2
+        g.strokeRect(48, y, W - 96, 50)
+      }
+      this.text(
+        g,
+        `FILE ${i + 1}`,
+        62,
+        y + 20,
+        14,
+        on ? '#ffd98a' : '#fff4dc',
+        'left',
+      )
+      if (!slot) {
+        this.text(g, 'NEW ADVENTURE', W / 2 + 30, y + 31, 14, '#d6f2ee')
+        continue
+      }
+      const member = rosterFor(rosterHeroine(slot.heroine))
+      const node = mapNode(slot.node)
+      const progress = {
+        done: slot.done ?? [],
+        secrets: slot.secrets,
+        gears: slot.gears,
+      }
+      const minutes = Math.floor((slot.time ?? 0) / 60)
+      const where = node?.stage ?? `World ${node?.world ?? 1}`
+      this.text(g, member.name.toUpperCase(), 62, y + 40, 12, '#d6f2ee', 'left')
+      this.text(
+        g,
+        `${completionPercent(progress)}%`,
+        W - 64,
+        y + 22,
+        18,
+        '#ffd98a',
+        'right',
+      )
+      this.text(
+        g,
+        this.eraseArmed && on
+          ? 'PRESS Y AGAIN TO ERASE  ·  B KEEPS IT'
+          : `${where}  ·  ⚙ ${slot.gears?.length ?? 0}  ·  ×${slot.lives}  ·  ${Math.floor(minutes / 60)}h ${String(minutes % 60).padStart(2, '0')}m`,
+        W / 2 + 40,
+        y + 40,
+        11,
+        this.eraseArmed && on ? '#ff9f8a' : '#fff4dc',
+      )
+    }
+    this.text(g, 'A  PLAY     Y  ERASE     B  BACK', W / 2, 256, 10, '#d6f2ee')
+  }
+
+  /** Where she stands on the map this tick (mid-walk along a path, or on her node). */
+  private mapHeroPoint(): { x: number; y: number } {
+    const here = mapNode(this.mapNodeId)!
+    const walk = this.mapWalk
+    if (!walk) return { x: here.x, y: here.y }
+    const from = mapNode(walk.from)!
+    const to = mapNode(walk.to)!
+    const t = walk.t / MAP_WALK
+    if (!walk.path.warp)
+      return {
+        x: from.x + (to.x - from.x) * t,
+        y: from.y + (to.y - from.y) * t,
+      }
+    // A warp walks off this map's edge; the next map is drawn on arrival.
+    const out = walk.path.from === walk.from
+    const edge = out ? W + 20 : -20
+    return { x: from.x + (edge - from.x) * t, y: from.y }
+  }
+
+  private renderMap(g: CanvasRenderingContext2D) {
+    const here = mapNode(this.mapNodeId)!
+    const world = here.world
+    const def = PLUMBER_WORLDS[world - 1]!
+    const map = worldMap(world)
+    const progress = this.progress
+    const pal = def.palette
+    // Painted plates from art/GEN2-ROUND-1 replace this once reviewed; until then a code-drawn land.
+    const sky = g.createLinearGradient(0, 0, 0, H)
+    sky.addColorStop(0, pal.skyTop)
+    sky.addColorStop(1, pal.skyBottom)
+    g.fillStyle = sky
+    g.fillRect(0, 0, W, H)
+    g.fillStyle = pal.far
+    for (let i = 0; i < 6; i++) {
+      g.beginPath()
+      g.ellipse(
+        40 + i * 90,
+        250 - (i % 2) * 18,
+        90,
+        70 + (i % 3) * 12,
+        0,
+        0,
+        Math.PI * 2,
+      )
+      g.fill()
+    }
+    g.fillStyle = pal.ground
+    g.globalAlpha = 0.55
+    g.fillRect(0, 222, W, H - 222)
+    g.globalAlpha = 1
+    // Paths: open ones dotted in cream, ones being revealed drawn in over the reveal.
+    const reveal = new Set(this.mapReveal)
+    const grow = this.mapRevealTimer ? 1 - this.mapRevealTimer / MAP_REVEAL : 1
+    for (const path of map.paths) {
+      if (!pathOpen(path, progress)) continue
+      const a = mapNode(path.from)!
+      const b = path.warp ? { x: W + 10, y: a.y } : mapNode(path.to)!
+      const k = reveal.has(path) ? grow : 1
+      g.setLineDash([6, 6])
+      g.lineWidth = 5
+      g.strokeStyle = path.unlock?.exit === 'secret' ? '#ff9fd6' : '#fff4dc'
+      g.beginPath()
+      g.moveTo(a.x, a.y)
+      g.lineTo(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k)
+      g.stroke()
+      g.setLineDash([])
+    }
+    // Arriving from the last world: a path in from the left edge.
+    if (world > 1) {
+      const start = mapNode(startId(world))!
+      g.setLineDash([6, 6])
+      g.lineWidth = 5
+      g.strokeStyle = '#fff4dc'
+      g.beginPath()
+      g.moveTo(-10, start.y)
+      g.lineTo(start.x, start.y)
+      g.stroke()
+      g.setLineDash([])
+    }
+    for (const node of map.nodes) {
+      // Stages not yet reached show dimmed, so the world ahead is visible (SMB3).
+      const locked = node.kind !== 'start' && !nodeReachable(node.id, progress)
+      g.globalAlpha = locked ? 0.35 : 1
+      const cleared =
+        !!node.stage &&
+        (progress.done.includes(node.stage) ||
+          !!progress.secrets?.includes(node.stage))
+      if (node.kind === 'start') {
+        g.fillStyle = '#fff4dc'
+        g.beginPath()
+        g.arc(node.x, node.y, 6, 0, Math.PI * 2)
+        g.fill()
+        continue
+      }
+      const size = node.kind === 'castle' ? 26 : 20
+      g.fillStyle = cleared
+        ? '#5fc48a'
+        : node.kind === 'castle'
+          ? '#9a6bd1'
+          : pal.accent
+      g.strokeStyle = pal.ink
+      g.lineWidth = 3
+      g.beginPath()
+      g.roundRect(node.x - size / 2, node.y - size / 2, size, size, 6)
+      g.fill()
+      g.stroke()
+      if (node.kind === 'castle') {
+        g.fillStyle = pal.ink
+        for (let i = -1; i <= 1; i++)
+          g.fillRect(node.x + i * 8 - 2, node.y - size / 2 - 6, 4, 6)
+      }
+      if (locked) {
+        g.globalAlpha = 1
+        continue
+      }
+      this.text(
+        g,
+        cleared ? '✔' : node.stage!.split('-')[1]!,
+        node.x,
+        node.y + 5,
+        12,
+        '#fff4dc',
+      )
+      if (node.stage && progress.gears?.includes(node.stage)) {
+        g.fillStyle = '#ffd24a'
+        g.beginPath()
+        g.arc(node.x + size / 2, node.y - size / 2, 4, 0, Math.PI * 2)
+        g.fill()
+      }
+    }
+    g.globalAlpha = 1
+    const at = this.mapHeroPoint()
+    this.drawHeroSprite(g, at.x, at.y - 8, null, 1.35)
+    // Header: the world; footer: where she stands and how much of the world is done.
+    g.fillStyle = 'rgba(12, 40, 52, 0.6)'
+    g.fillRect(0, 0, W, 26)
+    g.fillRect(0, H - 34, W, 34)
+    this.text(
+      g,
+      `WORLD ${world}  ·  ${def.name.toUpperCase()}`,
+      10,
+      18,
+      13,
+      '#ffd98a',
+      'left',
+    )
+    this.text(
+      g,
+      `${completionPercent(progress)}%`,
+      W - 10,
+      18,
+      13,
+      '#ffd98a',
+      'right',
+    )
+    const stageDef = here.stage
+      ? def.stages.find((s) => s.code === here.stage)
+      : null
+    const c = worldCompletion(world, progress)
+    this.text(
+      g,
+      stageDef ? `${here.stage}  ${stageDef.name.toUpperCase()}` : 'TRAILHEAD',
+      10,
+      H - 14,
+      13,
+      '#fff4dc',
+      'left',
+    )
+    this.text(
+      g,
+      `STAGES ${c.stagesDone}/${c.stages}  ·  ⚙ ${c.gearsFound}/${c.gears}${c.secrets ? `  ·  SECRETS ${c.secretsFound}/${c.secrets}` : ''}`,
+      W - 10,
+      H - 14,
+      11,
+      '#d6f2ee',
+      'right',
+    )
+    if (here.stage && !this.mapWalk && Math.floor(this.tick / 30) % 2)
+      this.text(g, 'A  ENTER', at.x, at.y - 40, 10, '#ffd98a')
   }
 
   private renderSelect(g: CanvasRenderingContext2D) {

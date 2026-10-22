@@ -383,6 +383,13 @@
                     {{ sharedFuture }}
                   </p>
                   <p
+                    v-for="(callback, index) in hangoutCallbacks"
+                    :key="`companion-callback-${index}`"
+                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                  >
+                    {{ callback }}
+                  </p>
+                  <p
                     v-for="(callback, index) in questCallbacks"
                     :key="`quest-callback-${index}`"
                     class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
@@ -1179,6 +1186,7 @@ import {
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
 import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
+import { earnedCompanionHangoutCallbacks } from '~/utils/ecotone/companionHangouts'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
@@ -1325,6 +1333,9 @@ const questCallbacks = computed(() => {
   const run = game.run
   return run ? earnedQuestCallbacks(run.flags, run.played) : []
 })
+const hangoutCallbacks = computed(() =>
+  game.run ? earnedCompanionHangoutCallbacks(game.run.flags) : [],
+)
 const sharedFuture = computed(() =>
   game.run && game.ending ? ensembleFuture(game.run, game.ending.fate) : null,
 )
@@ -1553,7 +1564,9 @@ const stage = computed<Stage>(() => {
           : card.title,
       kicker: portrait
         ? 'Companion encounter'
-        : card.kind === 'spine'
+        : card.id.startsWith('CO-')
+          ? 'Companion interlude'
+          : card.kind === 'spine'
           ? `Story beat · ${card.id}`
           : `Encounter · ${card.id}`,
       title: card.title,

@@ -35,8 +35,10 @@ registerHooks({
 const { createPinia, setActivePinia } = await import('pinia')
 const { useEmperorFortressStore } =
   await import('../../stores/emperorFortressStore')
-const { createRun, earnFlag, finishDay } =
+const { createRun, earnFlag, finishDay, audiencesToday, chooseAudienceOption } =
   await import('../emperorOfDust/fortress/engine')
+const { COURT_RECRUITMENT_IDS, COURT_ONBOARDING_FLAG } =
+  await import('../emperorOfDust/fortress/onboarding')
 const { decodeBook, encodeBook, newBook, recordDawn } =
   await import('../emperorOfDust/fortress/saves')
 const { decodeRelicVault, encodeRelicVault } =
@@ -118,15 +120,40 @@ const fresh = () => {
   return storage
 }
 
+// Store tests advance a real new campaign through its required three
+// recruitment hearings before ending Day 1. Later days need no setup.
+const prepareFirstCourt = (run: ReturnType<typeof createRun>) => {
+  if (run.day !== 1 || !run.flags.includes(COURT_ONBOARDING_FLAG))
+    return run
+  let next = run
+  for (const audience of audiencesToday(run)) {
+    if (!COURT_RECRUITMENT_IDS.includes(audience.id)) continue
+    next = chooseAudienceOption(next, audience.id, audience.options[0]!.id).run
+  }
+  return next
+}
+const finishWithRecruitment = (
+  court: ReturnType<typeof useEmperorFortressStore>,
+) => {
+  if (court.run?.day === 1 && court.run.flags.includes(COURT_ONBOARDING_FLAG)) {
+    for (const audience of audiencesToday(court.run)) {
+      if (COURT_RECRUITMENT_IDS.includes(audience.id))
+        court.answer(audience.id, audience.options[0]!.id)
+    }
+  }
+  court.finish()
+}
+
 // --- a first visit saves a Day 1 run and reloads it --------------------------
 {
   fresh()
   const court = reload()
   assert.equal(court.storageWarning, '')
   assert.equal(court.day, 1)
+  assert.equal(court.run?.roster.length, 0, 'the store also begins without followers')
   const saved = decodeBook(storage.data.get(AUTO) ?? null)
   assert.ok(saved, 'the first dawn is autosaved')
-  court.finish()
+  finishWithRecruitment(court)
   const again = reload()
   assert.equal(again.day, 2, 'a reload resumes the saved day')
   assert.deepEqual(again.book, court.book)
@@ -170,7 +197,7 @@ const fresh = () => {
   court.learn('relic-hourglass-earned')
   assert.deepEqual(court.claimable, ['komodo-brass-hourglass'])
   court.claimRelic('komodo-brass-hourglass')
-  court.finish()
+  finishWithRecruitment(court)
   court.rewind(1)
   const after = reload()
   assert.deepEqual(
@@ -192,7 +219,7 @@ const fresh = () => {
 {
   fresh()
   const court = reload()
-  court.finish()
+  finishWithRecruitment(court)
   court.learn('talk-saffron-insignia')
   const learned = [...court.codex.revealed]
   assert.ok(learned.length > 0, 'a story flag reveals an allegiance')
@@ -206,7 +233,7 @@ const fresh = () => {
   storage.data.set(RELICS, '{"version":1,"owned":["nope"]}')
   const court = reload()
   assert.match(court.storageWarning, /relic vault could not be read/)
-  court.finish()
+  finishWithRecruitment(court)
   assert.match(
     court.storageWarning,
     /relic vault could not be read/,
@@ -225,7 +252,7 @@ const fresh = () => {
   storage.data.set(AUTO, '{"version":3,"current":')
   const court = reload()
   assert.match(court.storageWarning, /autosave could not be read/)
-  court.finish()
+  finishWithRecruitment(court)
   court.learn('heard:anything')
   assert.equal(
     storage.data.get(AUTO),
@@ -241,7 +268,7 @@ const fresh = () => {
 {
   // Loading a slot is the other way out.
   fresh()
-  const slotBook = newBook(createRun(5))
+  const slotBook = newBook(prepareFirstCourt(createRun(5)))
   storage.data.set(AUTO, 'garbage')
   const court = reload()
   court.newRun()
@@ -287,11 +314,11 @@ const fresh = () => {
 {
   fresh()
   const court = reload()
-  court.finish()
-  court.finish()
+  finishWithRecruitment(court)
+  finishWithRecruitment(court)
   const before = storage.data.get(AUTO)!
   storage.quota = storage.used() // not one more character fits
-  court.finish()
+  finishWithRecruitment(court)
   assert.match(court.storageWarning, /unavailable or full/)
   assert.equal(storage.data.get(AUTO), before, 'the previous autosave stands')
   assert.throws(() => court.saveToSlot(2, 'no room'), /could not be written/)
@@ -304,7 +331,7 @@ const fresh = () => {
   assert.equal(reload().day, 3, 'a reload resumes from the last good save')
   // With room again, the next order saves and the warning clears.
   storage.quota = Infinity
-  court.finish()
+  finishWithRecruitment(court)
   assert.equal(court.storageWarning, '')
   assert.equal(reload().day, 5)
 }
@@ -316,7 +343,7 @@ const fresh = () => {
   court.learn('talk-saffron-insignia')
   assert.equal(storage.data.has(CODEX), false)
   storage.quota = Infinity
-  court.finish()
+  finishWithRecruitment(court)
   assert.ok(storage.data.has(CODEX), 'the Codex catches up')
   assert.equal(court.storageWarning, '')
 }
@@ -324,12 +351,12 @@ const fresh = () => {
 // --- localStorage that throws on access -------------------------------------
 {
   fresh()
-  storage.data.set(AUTO, encodeBook(newBook(createRun(9))))
+  storage.data.set(AUTO, encodeBook(newBook(prepareFirstCourt(createRun(9)))))
   accessThrows = true
   const court = reload() // must not throw
   assert.equal(court.loaded, true)
   assert.match(court.storageWarning, /blocked/)
-  court.finish()
+  finishWithRecruitment(court)
   assert.equal(court.day, 2, 'the run plays on in memory')
   assert.throws(() => court.saveToSlot(0, 'x'), /could not be written/)
   assert.throws(() => court.setNextRelics([]), /could not be saved/)
@@ -344,7 +371,7 @@ const fresh = () => {
 {
   // getItem itself throws while setItem would work: nothing is written over.
   fresh()
-  storage.data.set(AUTO, encodeBook(newBook(createRun(11))))
+  storage.data.set(AUTO, encodeBook(newBook(prepareFirstCourt(createRun(11)))))
   storage.data.set(
     RELICS,
     encodeRelicVault({
@@ -361,7 +388,7 @@ const fresh = () => {
   assert.match(court.storageWarning, /autosave could not be read/)
   assert.match(court.storageWarning, /relic vault could not be read/)
   assert.match(court.storageWarning, /Codex could not be read/)
-  court.finish()
+  finishWithRecruitment(court)
   court.learn('talk-saffron-insignia')
   assert.throws(() => court.setNextRelics([]), /unreadable/)
   assert.deepEqual(storage.data, snapshot, 'every unread key is left alone')
@@ -370,7 +397,7 @@ const fresh = () => {
 // --- an old (version 3, uncompacted) book migrates on read -------------------
 {
   fresh()
-  let book = newBook(createRun(21))
+  let book = newBook(prepareFirstCourt(createRun(21)))
   for (let i = 0; i < 6; i += 1)
     book = recordDawn(book, finishDay(earnFlag(book.current, `x-${i}`)).run)
   const legacy = JSON.stringify(book)
@@ -379,7 +406,7 @@ const fresh = () => {
   const court = reload()
   assert.equal(court.storageWarning, '')
   assert.deepEqual(court.book, book, 'a version 3 book loads as it was')
-  court.finish()
+  finishWithRecruitment(court)
   const written = JSON.parse(storage.data.get(AUTO)!)
   assert.equal(written.version, 4, 'it is written back packed')
   assert.ok(storage.data.get(AUTO)!.length < legacy.length + 2_000)

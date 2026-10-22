@@ -1,4 +1,5 @@
 import type { TalkDef } from './types'
+import { SECRET_TALKS } from './secretTalks'
 
 // Barracks talks (conductor emperor-of-dust t-017): one conversation a day,
 // played like a throne-room scene. A talk is heard once; its closing answer
@@ -6979,5 +6980,5 @@ export const TALKS: readonly TalkDef[] = [
           'The wedding has bread and salt. The bride says it’s fine. It is fine. Juniper makes a cake of turnips and honey-water. Nobody eats much of it. They all say thank you.',
       },
     ],
-  },
+  },  ...SECRET_TALKS,
 ]

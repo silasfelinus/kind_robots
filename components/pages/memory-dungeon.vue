@@ -1,7 +1,8 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <div class="kr-surface relative select-none gap-0 bg-(--kr-surface)">
+  <memory-dungeon-overworld v-if="worldMode" @leave="worldMode = false" />
+  <div v-else class="kr-surface relative select-none gap-0 bg-(--kr-surface)">
     <header
       v-if="gameStarted"
       class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
@@ -260,6 +261,18 @@
             >
               ⚔️ ENTER THE DUNGEON
             </button>
+
+            <button
+              type="button"
+              class="w-full max-w-sm rounded-xl border-2 border-[#c9b781] bg-[#2e513a] px-6 py-3 text-sm font-black text-[#fff2d5] shadow-xl transition hover:bg-[#3e6949] active:scale-95 sm:text-base"
+              @click="startOverworld"
+            >
+              🌿 Explore Briar Camp · RPG
+            </button>
+            <p class="text-center text-xs text-yellow-100/75">
+              Uncover a persistent overworld, meet a merchant, and clear the gallery-powered Rootbound Vault.
+              The original game above remains Classic Match.
+            </p>
           </div>
 
           <div
@@ -543,6 +556,13 @@ import {
 import type { CSSProperties } from 'vue'
 import { useArtStore } from '@/stores/artStore'
 import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
+
+const worldMode = ref(false)
+
+function startOverworld(): void {
+  applyPendingSettings()
+  worldMode.value = true
+}
 
 const artStore = useArtStore()
 

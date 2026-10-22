@@ -65,7 +65,8 @@ const gains = (option: AudienceOption, except?: KingdomFactionId) =>
   Object.entries(option.effects.affinity ?? {}).reduce(
     (sum, [id, delta]) =>
       sum +
-      (id !== except && HOST_FACTIONS.includes(id as KingdomFactionId)
+      (id !== except &&
+      (HOST_FACTIONS.includes(id as KingdomFactionId) || id === 'mire-mothers')
         ? Math.max(0, delta ?? 0)
         : 0),
     0,

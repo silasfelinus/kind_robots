@@ -543,6 +543,7 @@
 
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
+import MemoryDungeonOverworld from '@/components/pages/memory-dungeon-overworld.vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,

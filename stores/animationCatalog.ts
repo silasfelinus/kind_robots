@@ -900,6 +900,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'metronome-sync-shelf',
+    label: 'Metronome Sync Shelf',
+    reveal: 'Eleven metronomes find the same beat on a shared shelf',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Eleven metronomes start out of step, then the shelf they share nudges them into one ticking beat and lets them drift apart again 🎼 hover to brighten the ones near you, click to fast-forward the sync',
+    color: '#4cc9f0',
+    releasedAt: '2026-10-22T13:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

@@ -213,7 +213,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
     return false
   if (
     !Array.isArray(run.roster) ||
-    run.roster.length > 20 ||
+    run.roster.length > 25 ||
     new Set(run.roster.map((s: unknown) => (object(s) ? s.id : null))).size !==
       run.roster.length ||
     !run.roster.every(

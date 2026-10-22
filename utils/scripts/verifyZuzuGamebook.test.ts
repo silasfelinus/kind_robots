@@ -613,7 +613,8 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
       )
       for (const outcome of [strike, exhausted, feint, guard]) {
         assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
-        assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= health)
+        // Losing some encounters restores HP during the authored aftermath.
+        assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= 12)
         assert.ok(outcome.wins >= 0 && outcome.wins <= 90)
       }
       if (resolve === 0)

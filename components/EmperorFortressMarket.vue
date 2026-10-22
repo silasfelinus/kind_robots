@@ -330,7 +330,9 @@ const treated = computed(() => treatedToday(props.run))
 const medicine = computed(() => saltroadMedicine(props.run))
 const poultice = computed(() => poulticeOffered(props.run))
 const kinds = computed<TreatmentKind[]>(() =>
-  poultice.value ? ['surgeon', 'poultice'] : ['surgeon'],
+  poultice.value
+    ? ['infirmary', 'surgeon', 'poultice']
+    : ['infirmary', 'surgeon'],
 )
 
 const bySlot = (item: ItemDef) =>

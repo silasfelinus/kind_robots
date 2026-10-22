@@ -11,6 +11,7 @@ on:
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
+      - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
       - 'components/EmperorFortressBarracks.vue'
@@ -41,3 +42,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressStore.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts

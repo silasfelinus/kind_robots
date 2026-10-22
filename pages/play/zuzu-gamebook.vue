@@ -196,16 +196,19 @@
                   aria-label="Full pack, choose what to keep"
                   aria-live="polite"
                 >
-                  <h3 class="font-serif text-xl font-bold">Your pack is full</h3>
+                  <h3 class="font-serif text-xl font-bold">
+                    Your pack is full
+                  </h3>
                   <p class="mt-2 text-sm">
-                    You found <strong>{{ store.run.pendingLoot[0] }}</strong>.
-                    Replace one carried item or leave this find behind.
+                    You found <strong>{{ store.run.pendingLoot[0] }}</strong
+                    >. Replace one carried item or leave this find behind.
                   </p>
                   <p
                     v-if="store.run.pendingLoot.length > 1"
                     class="mt-1 text-xs opacity-65"
                   >
-                    {{ store.run.pendingLoot.length - 1 }} more find(s) to consider.
+                    {{ store.run.pendingLoot.length - 1 }} more find(s) to
+                    consider.
                   </p>
                   <div class="mt-3 grid gap-2 sm:grid-cols-2">
                     <button

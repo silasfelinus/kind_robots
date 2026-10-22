@@ -2,11 +2,14 @@
 // the full 50-day economy. No mocked quest engine and no play-time LLM.
 import assert from 'node:assert/strict'
 import {
+  audienceScene,
   audiencesToday,
   chooseAudienceOption,
   createRun,
   finishDay,
+  optionBlockers,
 } from '../emperorOfDust/fortress/engine'
+import { endingOf } from '../emperorOfDust/fortress/endings'
 import {
   COURT_RECRUITMENT_IDS,
   RANDOM_ARRIVALS,
@@ -126,10 +129,70 @@ assert.equal(combinations.size, 4, 'all four visitor/argument pairs appear')
 assert.equal(recruited.size, 4, 'each of four disputants is recruitable')
 assert.ok(rewoundDifferent > 0, 'rewinds can reroll a different court')
 
-// Fifty-day campaign bots: 13 policies x 40 seeds. These traverse the real
+// The last fire cannot inherit military rule from passive Watch popularity.
+// It takes a visible Day 47 charter with a real price paid by the court.
+const unsigned = createRun(619)
+unsigned.day = 47
+unsigned.dayAudiences = ['d47-watch-writ']
+unsigned.local['gate-watch'] = 12
+assert.ok(audiencesToday(unsigned).some((a) => a.id === 'd47-watch-writ'))
+const refused = chooseAudienceOption(unsigned, 'd47-watch-writ', 'refuse').run
+const signed = chooseAudienceOption(
+  unsigned,
+  'd47-watch-writ',
+  'sign-watch-writ',
+).run
+assert.ok(refused.flags.includes('watch-writ-refused'))
+assert.ok(!refused.flags.includes('watch-writ-signed'))
+assert.ok(signed.flags.includes('watch-writ-signed'))
+assert.equal(signed.local.yard, unsigned.local.yard - 3)
+assert.equal(signed.affinity.freeholds, unsigned.affinity.freeholds - 8)
+
+const onPeaceDay = (run: typeof signed) => ({
+  ...run,
+  day: 49,
+  dayAudiences: ['d49-whose-peace'],
+})
+const ironChoice = audienceScene(
+  onPeaceDay(signed),
+  audiencesToday(onPeaceDay(signed)).find((a) => a.id === 'd49-whose-peace')!,
+).options.find((option) => option.id === 'iron')!
+assert.ok(optionBlockers(onPeaceDay(refused), ironChoice).length > 0)
+assert.deepEqual(optionBlockers(onPeaceDay(signed), ironChoice), [])
+const chosenIron = chooseAudienceOption(
+  onPeaceDay(signed),
+  'd49-whose-peace',
+  'iron',
+).run
+assert.equal(
+  endingOf({ ...chosenIron, flags: [...chosenIron.flags, 'horror-sealed'] }).id,
+  'iron-peace',
+)
+
+// Fifty-day campaign bots: 14 policies x 40 seeds. These traverse the real
 // assignment, faction, injury, death, bankruptcy and ending rules.
 const report = balanceReport(POLICY_SEEDS)
 assert.equal(report.length, POLICIES.length)
+assert.equal(
+  report.find((policy) => policy.policy === 'spurn-all')?.endings[
+    'iron-peace'
+  ] ?? 0,
+  0,
+  'a ruler who rejects every faction must not silently inherit Iron Peace',
+)
+assert.equal(
+  report.find((policy) => policy.policy === 'spurn-all')?.endings[
+    'witchwater-throne'
+  ] ?? 0,
+  0,
+  'Mire Mother loyalty must count as taking a faction side',
+)
+assert.ok(
+  (report.find((policy) => policy.policy === 'marshal')?.endings[
+    'iron-peace'
+  ] ?? 0) > 0,
+  'an explicit Watch mandate must still reach Iron Peace',
+)
 const allEndings = new Set(report.flatMap((p) => Object.keys(p.endings)))
 assert.ok(allEndings.size >= 4, 'campaign paths reach varied ending families')
 const fullRuns = report.length * POLICY_SEEDS

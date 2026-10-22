@@ -61,11 +61,17 @@ export const HOST_HIDEOUT: Record<string, string> = {
   rustline: 'rail-station',
 }
 
+// Mire Mothers cannot shelter the court, but allying with them is still a political side.
+const POLITICAL_FACTIONS: readonly KingdomFactionId[] = [
+  ...HOST_FACTIONS,
+  'mire-mothers',
+]
+
 const gains = (option: AudienceOption, except?: KingdomFactionId) =>
   Object.entries(option.effects.affinity ?? {}).reduce(
     (sum, [id, delta]) =>
       sum +
-      (id !== except && HOST_FACTIONS.includes(id as KingdomFactionId)
+      (id !== except && POLITICAL_FACTIONS.includes(id as KingdomFactionId)
         ? Math.max(0, delta ?? 0)
         : 0),
     0,
@@ -104,6 +110,14 @@ export const POLICIES: readonly Policy[] = [
     title: 'Favours nobody',
     minChance: 45,
     score: (option) => -gains(option),
+  },
+  {
+    id: 'marshal',
+    title: 'Builds a Gate Watch mandate',
+    minChance: 45,
+    score: (option) =>
+      (option.id === 'sign-watch-writ' || option.id === 'iron' ? 100 : 0) +
+      (option.effects.local?.['gate-watch'] ?? 0) * 5,
   },
   {
     id: 'reckless',

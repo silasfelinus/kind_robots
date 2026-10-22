@@ -52,14 +52,20 @@ function ready(
 
 for (const newcomer of ids) {
   const card = COMPANION_HANGOUTS[newcomer]
-  assert.equal(findCard(card.id)?.id, card.id, 'the story manager can find interludes')
+  assert.equal(
+    findCard(card.id)?.id,
+    card.id,
+    'the story manager can find interludes',
+  )
   assert.ok(slots.cards.includes(cardArtKey(card.id)))
   assert.equal(card.choices.length, 3)
   assert.ok(
     card.choices.some((choice) => Boolean(choice.check && choice.failure)),
   )
   for (const choice of card.choices) {
-    assert.ok(slots.outcomes.includes(outcomeArtKey(card.id, choice.id, 'success')))
+    assert.ok(
+      slots.outcomes.includes(outcomeArtKey(card.id, choice.id, 'success')),
+    )
     if (choice.failure)
       assert.ok(
         slots.outcomes.includes(outcomeArtKey(card.id, choice.id, 'failure')),
@@ -68,8 +74,15 @@ for (const newcomer of ids) {
 
   // A random fork never deals a private scene as if consent or a relationship
   // could be awarded by a white-rabbit draw.
-  const plain = ready(13, ids.find((id) => id !== newcomer)!, newcomer)
-  assert.equal(encounterEligible({ ...card, requiresInvitation: true }, plain), false)
+  const plain = ready(
+    13,
+    ids.find((id) => id !== newcomer)!,
+    newcomer,
+  )
+  assert.equal(
+    encounterEligible({ ...card, requiresInvitation: true }, plain),
+    false,
+  )
   for (const ix of ROUTES.quiet.keys())
     assert.ok(!drawFork(plain, ix).includes(card.id))
 
@@ -103,10 +116,7 @@ for (const newcomer of ids) {
         assert.equal(callbacks.length, 1)
         assert.ok(callbacks[0]!.length > 50)
         assert.deepEqual(
-          earnedCompanionHangoutCallbacks([
-            ...reply.flags,
-            ...reply.flags,
-          ]),
+          earnedCompanionHangoutCallbacks([...reply.flags, ...reply.flags]),
           callbacks,
           'repeated flags do not repeat epilogue prose',
         )
@@ -126,13 +136,27 @@ for (const newcomer of ids) {
       if (seed === 1) {
         const follow = advance(chooseCrossroads(start, 'follow'))
         const stay = advance(chooseCrossroads(start, 'stay'))
-        assert.notEqual(follow.card, card.id, 'switching guides does not invent a group scene')
-        assert.notEqual(stay.card, card.id, 'declining group travel does not invent intimacy')
+        assert.notEqual(
+          follow.card,
+          card.id,
+          'switching guides does not invent a group scene',
+        )
+        assert.notEqual(
+          stay.card,
+          card.id,
+          'declining group travel does not invent intimacy',
+        )
         assert.equal(earnedCompanionHangoutCallbacks(follow.flags).length, 0)
       }
     }
-    assert.ok(observedSuccess, `${newcomer} has an earned successful skill outcome`)
-    assert.ok(observedFailure, `${newcomer} has a genuinely failed skill outcome`)
+    assert.ok(
+      observedSuccess,
+      `${newcomer} has an earned successful skill outcome`,
+    )
+    assert.ok(
+      observedFailure,
+      `${newcomer} has a genuinely failed skill outcome`,
+    )
   }
 }
 

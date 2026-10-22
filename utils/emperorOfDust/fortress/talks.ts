@@ -13,7 +13,7 @@ import type { TalkDef } from './types'
 // every other romance's final `romance-<name>-sealed` flag, so that the
 // emperor commits to one.
 
-const ROMANCES = ['rook', 'saffron', 'nera', 'ash', 'sable', 'vesper'] as const
+const ROMANCES = ['rook', 'saffron', 'nera', 'ash', 'sable', 'vesper', 'kiyo'] as const
 type Romance = (typeof ROMANCES)[number]
 
 /** The tower has not fallen yet. */
@@ -1643,6 +1643,116 @@ export const TALKS: readonly TalkDef[] = [
         effects: { flags: ['kiyo-postern-let-lie'] },
         response:
           'Kiyo nods. That night she moves her son’s cot into the middle of the infirmary, away from every wall.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-close',
+    follower: 'F003',
+    title: 'A Cup Kept Warm',
+    fromDay: 18,
+    romance: true,
+    requires: {
+      flags: ['heard:kiyo-2'],
+      notFlags: [...courting('kiyo'), 'kiyo-friendship'],
+    },
+    lines: [
+      'You find Kiyo at the infirmary table, asleep over an open ledger. She wakes before you can turn away. There is a second cup beside hers. The tea in it is still warm.',
+      'I made it for myself, she says. Then she looks at the two cups and laughs. No, I did not. I have been waiting for you without intending to.',
+      'Some nights I want to be somebody other than the healer and Zuzu’s mother. Then he cries out and I am glad those are the two things I am. I do not want to trade either of them away.',
+      'You have the whole fortress to ask things of me, Majesty. I would like this one hour to be something neither of us owes the other.',
+    ],
+    options: [
+      {
+        id: 'stay',
+        label: 'Set the crown on the table. Ask whether she wants company, not a promise.',
+        effects: { flags: ['romance-kiyo'] },
+        response:
+          'Kiyo studies the crown before looking at you. “Company, yes.” You speak of the river she crossed. Eventually her hand rests near yours, and neither of you moves it away.',
+      },
+      {
+        id: 'friends',
+        label: 'Ask whether you can be friends when the doors of the court are shut.',
+        effects: { flags: ['kiyo-friendship'] },
+        response:
+          '“We can try,” she says. “But I will still argue with you in front of the Watch.” She pours the second cup. “Especially in front of the Watch.”',
+      },
+      {
+        id: 'respect',
+        label: 'Leave the cup warm. Tell her she never has to make room for the throne here.',
+        effects: { flags: ['kiyo-friendship'] },
+        response:
+          'At breakfast there is a folded note beside your plate: “Come back when you are only yourself.” It is signed Kiyo, and beneath that, in a child’s uneven hand, “Zuzu.”',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-romance-2',
+    follower: 'F003',
+    title: 'A Door Left Unlatched',
+    fromDay: 27,
+    romance: true,
+    requires: {
+      flags: ['heard:kiyo-close', 'romance-kiyo'],
+      notFlags: courting('kiyo'),
+    },
+    lines: [
+      'A storm makes every window in the infirmary shiver. Kiyo has set a lantern in the hall so the patients can find her. She asks you to stay until the worst has passed.',
+      'Zuzu is asleep in the next room. When he is frightened, he comes to my bed. Tomorrow he will want breakfast and a story. I am not asking you to stand in for anybody.',
+      'She takes your hand. “This can be ours. But I will not let an emperor make promises that a person cannot keep. Tell me what you can actually give.”',
+    ],
+    options: [
+      {
+        id: 'equal',
+        label: 'Offer honesty, privacy, and a place at the table she can leave whenever she chooses.',
+        effects: { flags: ['romance-kiyo-sealed', 'kiyo-trusted'] },
+        response:
+          '“That I believe.” She kisses you once, lightly. At the first knock you both go to open the infirmary door. In the morning she leaves your crown where it belongs, outside.',
+      },
+      {
+        id: 'pressure',
+        label: 'Offer the weight of the crown: protection for her and Zuzu, whatever it costs.',
+        effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
+        response:
+          'Kiyo lets go of your hand. “Protection is your duty, not a price.” In the morning you are still welcome for tea. It is a friendship with clear walls.',
+      },
+      {
+        id: 'uncertain',
+        label: 'Say you cannot promise anything while the fortress is divided. Ask to remain friends.',
+        effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
+        response:
+          '“Good,” she says after a while. “It is better to know the shape of a thing.” She keeps the lamp burning until the storm passes. You stay, talking, on opposite sides of the table.',
+      },
+    ],
+  },
+  {
+    id: 'kiyo-friend-2',
+    follower: 'F003',
+    title: 'The Rules of an Open Door',
+    fromDay: 29,
+    requires: {
+      flags: ['heard:kiyo-close', 'kiyo-friendship'],
+      notFlags: IN_THE_TOWER,
+    },
+    lines: [
+      'Zuzu has invented a game in which every spoon is a general and every bowl is a fortress. Kiyo makes you defend a chipped teacup with one wooden spoon.',
+      'He wins. Of course he wins. When he has gone, Kiyo clears the dishes and leaves the cracked teacup on the table between you.',
+      '“I have friends who remember me from before the boat. Here everyone first knew me because somebody needed stitches. You are the first who stayed after the bandages were put away.”',
+    ],
+    options: [
+      {
+        id: 'teach',
+        label: 'Ask her to teach you the names of her home’s constellations.',
+        effects: { flags: ['kiyo-friendship-deep'], local: { yard: 1 } },
+        response:
+          'On the roof she draws the constellations in spilled flour. Some have different names here. She does not correct the sky. She corrects you, often.',
+      },
+      {
+        id: 'clinic',
+        label: 'Ask her what the infirmary needs before winter.',
+        effects: { flags: ['kiyo-friendship-deep'], brass: -5, local: { yard: 2 } },
+        response:
+          '“Clean sheets,” she says at once. “And someone who can mend the stove.” Your five brass makes both possible. She thanks you, then immediately hands you a basket of laundry.',
       },
     ],
   },

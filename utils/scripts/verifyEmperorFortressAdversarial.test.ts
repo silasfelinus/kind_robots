@@ -49,9 +49,7 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
   )
   const invites = today.filter((a) => COURT_RECRUITMENT_IDS.includes(a.id))
   assert.equal(invites.length, 3)
-  const visitor = invites.find((a) =>
-    RANDOM_ARRIVALS.some((id) => id === a.id),
-  )
+  const visitor = invites.find((a) => RANDOM_ARRIVALS.some((id) => id === a.id))
   const argument = invites.find((a) =>
     RIVAL_ARGUMENTS.some((id) => id === a.id),
   )
@@ -75,8 +73,7 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
     assert.equal(new Set(run.roster.map((f) => f.id)).size, 3)
     assert.ok(run.roster.some((f) => f.id === 'F003'))
     const winner = choice.effects.recruit?.[0]
-    const opponent = argument.options
-      .find((option) => option.id !== choice.id)
+    const opponent = argument.options.find((option) => option.id !== choice.id)
       ?.effects.recruit?.[0]
     assert.ok(winner && opponent)
     assert.ok(run.roster.some((f) => f.id === winner))
@@ -118,9 +115,7 @@ for (let seed = 1; seed <= OPENING_SEEDS; seed += 1) {
       COURT_RECRUITMENT_IDS.includes(a.id),
     )
     if (
-      newInvites.some(
-        (a) => !invites.some((previous) => previous.id === a.id),
-      )
+      newInvites.some((a) => !invites.some((previous) => previous.id === a.id))
     )
       rewoundDifferent += 1
     openingBranches += 1

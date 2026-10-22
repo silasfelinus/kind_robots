@@ -4,10 +4,13 @@ import {
   DEPARTMENTS,
   ENDINGS,
   JOB_TITLES,
+  RISK_PAYOFFS,
+  choose,
   endingFor,
   endingLines,
   newRun,
   reviewExhibits,
+  riskPayoffFor,
   successorLegacyLines,
 } from '../shiftingDesks/rules'
 
@@ -51,6 +54,53 @@ assert.ok(
   'late-game department gets adversarial coverage',
 )
 assert.ok(JOB_TITLES.length > 1 && ENDINGS.length >= 10)
+
+const rewardIds = new Set<string>()
+for (const reward of RISK_PAYOFFS) {
+  const key = reward.department + '/' + reward.card + '/' + reward.choice
+  assert.ok(!rewardIds.has(key), key + ': reward must be unique')
+  rewardIds.add(key)
+  const department = DEPARTMENTS.find((d) => d.department.id === reward.department)
+  const card = department?.encounters.find((c) => c.id === reward.card)
+  const choice = card?.choices.find((c) => c.id === reward.choice)
+  assert.ok(choice?.roll, key + ': reward must require a risky roll')
+  assert.equal(choice?.requires, null, key + ': advertised rewards must be directly offered')
+  assert.deepEqual(reward.effects, { forms: 1 })
+
+  const initial = newRun('risk-payoff-' + key, JOB_TITLES[0]!.id)
+  const state = {
+    ...initial,
+    department: reward.department,
+    deck: [reward.card],
+    position: 0,
+    meters: { ...initial.meters, forms: 3 },
+  }
+  assert.equal(riskPayoffFor(state, choice!)?.message, reward.message)
+  let succeeded = false
+  let failed = false
+  for (let rng = 1; rng <= 300 && !(succeeded && failed); rng++) {
+    const after = choose({ ...state, rng: rng * 7919 }, reward.choice)
+    assert.ok(after.pending, key + ': every legal action resolves')
+    if (after.pending.success) {
+      succeeded = true
+      assert.equal(
+        after.pending.effects.forms,
+        1,
+        key + ': earned paperwork only after success',
+      )
+      assert.ok(after.pending.events.includes(reward.message))
+    } else {
+      failed = true
+      assert.equal(
+        after.pending.effects.forms ?? 0,
+        0,
+        key + ': a failed check cannot claim the reward',
+      )
+      assert.ok(!after.pending.events.includes(reward.message))
+    }
+  }
+  assert.ok(succeeded && failed, key + ': both outcomes must be tested')
+}
 
 const neverOffered = new Set(report.neverOfferedChoices)
 const offeredButUnpicked = new Set(report.offeredButUnpickedChoices)

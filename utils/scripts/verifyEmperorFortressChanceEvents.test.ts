@@ -52,6 +52,10 @@ for (const scene of actOneScenes) {
     )
     choiceLabels.add(option.label)
   }
+  assert.ok(
+    scene.choices[1]?.effects.flags?.includes(`chance:${scene.series}:1`),
+    `${scene.id}: later-act callbacks remain available`,
+  )
   assert.notDeepEqual(
     scene.choices[0]?.effects,
     scene.choices[1]?.effects,

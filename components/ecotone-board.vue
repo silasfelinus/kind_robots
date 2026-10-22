@@ -1369,6 +1369,7 @@ import {
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
 import { visibleOpeningChoices, localTemptation } from '~/utils/ecotone/openingExperience'
 import { PLAYER_AVATARS, PLAYER_PERSONALITIES } from '~/utils/ecotone/playerIdentity'
+import { loadEcotoneDisplay, saveEcotoneDisplay } from '~/utils/ecotone/displaySettings'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
   SUBSTANCE_CHOICES,
@@ -1456,19 +1457,9 @@ function openStylePicker() {
   stylePicker.value?.showModal()
 }
 
-const DISPLAY_SETTINGS_KEY = 'kr.ecotone.display.v1'
-
-function saveDisplaySettings() {
-  if (!import.meta.client) return
-  try {
-    window.localStorage.setItem(DISPLAY_SETTINGS_KEY, JSON.stringify({
-      scale: displayScale.value,
-      speed: textSpeed.value,
-    }))
-  } catch { /* private mode */ }
-}
-
-watch([displayScale, textSpeed], saveDisplaySettings)
+watch([displayScale, textSpeed], () =>
+  saveEcotoneDisplay({ scale: displayScale.value, speed: textSpeed.value }),
+)
 
 function stopReveal() {
   if (revealTimer) clearInterval(revealTimer)
@@ -1531,13 +1522,9 @@ const PIPS: Record<number, number[]> = {
 }
 
 onMounted(() => {
-  try {
-    const saved = JSON.parse(window.localStorage.getItem(DISPLAY_SETTINGS_KEY) ?? 'null') as { scale?: unknown; speed?: unknown } | null
-    if (saved && typeof saved.scale === 'number' && [1, 1.2, 1.4, 1.6].includes(saved.scale))
-      displayScale.value = saved.scale
-    if (saved && ['instant', 'normal', 'slow'].includes(String(saved.speed)))
-      textSpeed.value = saved.speed as 'instant' | 'normal' | 'slow'
-  } catch { /* use defaults */ }
+  const savedDisplay = loadEcotoneDisplay()
+  displayScale.value = savedDisplay.scale
+  textSpeed.value = savedDisplay.speed
   artStyle.value = loadEcotoneArtStyle()
   game.initialize()
 })

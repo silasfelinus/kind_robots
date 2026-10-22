@@ -54,7 +54,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       try {
         window.localStorage.setItem(DECK_KEY, JSON.stringify(deck.value))
       } catch {
-        state.value.status = 'Deck choice is active for this visit; browser storage is unavailable.'
+        state.value.status =
+          'Deck choice is active for this visit; browser storage is unavailable.'
       }
     }
   }
@@ -87,7 +88,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
         const previousDeck = window.localStorage.getItem(DECK_KEY)
-        if (previousDeck) deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
+        if (previousDeck)
+          deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
         if (!matureAvailable.value) deck.value.includeMature = false
       } catch {
         state.value = newBriarSave()

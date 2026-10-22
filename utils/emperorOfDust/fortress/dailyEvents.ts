@@ -892,6 +892,20 @@ const MOTIFS: readonly Motif[] = [
   },
 ]
 
+const actOneOptions = (motif: Motif): ChanceEventChoice[] =>
+  ACT_ONE_CHOICES[motif.id]!.map((option) => ({
+    ...option,
+    effects: {
+      ...option.effects,
+      // The old care decision led into a later callback. Preserve that
+      // history when switching to bespoke prose and consequence flags.
+      flags: [
+        ...(option.effects.flags ?? []),
+        ...(option.id === 'care' ? [`chance:${motif.id}:1`] : []),
+      ],
+    },
+  }))
+
 const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
   motif.scenes.map(([title, text], index) => {
     const act = index + 1
@@ -903,7 +917,7 @@ const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
       text,
       choices:
         act === 1
-          ? ACT_ONE_CHOICES[motif.id]!
+          ? actOneOptions(motif)
           : [
               {
                 id: 'collect',

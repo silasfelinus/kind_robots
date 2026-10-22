@@ -622,6 +622,12 @@ export type FortressRun = {
   relicUses: Record<string, number>
   reports: DawnReport[]
   memorials: { followerId: string; questId: string; day: number }[]
+  /** Today's unanswered stranger, rumor, weather, or opportunity. */
+  dailyEvent?: string
+  /** Unique chance events seen this reign; never draw the same scene twice. */
+  chanceHistory?: string[]
+  /** The response to today's last encounter, for the briefing readback. */
+  dailyEventOutcome?: { id: string; day: number; title: string; text: string }
   hideout?: string
   /** Audiences eligible at dawn; they stay at court for the whole day. */
   dayAudiences?: string[]

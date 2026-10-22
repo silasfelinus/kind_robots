@@ -60,11 +60,17 @@ for (const reward of RISK_PAYOFFS) {
   const key = reward.department + '/' + reward.card + '/' + reward.choice
   assert.ok(!rewardIds.has(key), key + ': reward must be unique')
   rewardIds.add(key)
-  const department = DEPARTMENTS.find((d) => d.department.id === reward.department)
+  const department = DEPARTMENTS.find(
+    (d) => d.department.id === reward.department,
+  )
   const card = department?.encounters.find((c) => c.id === reward.card)
   const choice = card?.choices.find((c) => c.id === reward.choice)
   assert.ok(choice?.roll, key + ': reward must require a risky roll')
-  assert.equal(choice?.requires, null, key + ': advertised rewards must be directly offered')
+  assert.equal(
+    choice?.requires,
+    null,
+    key + ': advertised rewards must be directly offered',
+  )
   assert.deepEqual(reward.effects, { forms: 1 })
 
   const initial = newRun('risk-payoff-' + key, JOB_TITLES[0]!.id)
@@ -105,7 +111,9 @@ for (const reward of RISK_PAYOFFS) {
 const neverOffered = new Set(report.neverOfferedChoices)
 const offeredButUnpicked = new Set(report.offeredButUnpickedChoices)
 assert.ok(
-  report.neverOfferedChoices.every((id) => report.neverPickedChoices.includes(id)),
+  report.neverOfferedChoices.every((id) =>
+    report.neverPickedChoices.includes(id),
+  ),
   'an unavailable choice cannot also have been picked',
 )
 assert.ok(
@@ -137,7 +145,11 @@ const personnel = {
   departmentOutcomes: { 'sub-level-zero': ending.trigger.department_outcome! },
   flags: ['drilled-the-union-vent', 'routed-gus-to-pest-control'],
   terminations: [
-    { employee: '#4471-A', cause: 'A short, friendly conversation', department: 'records' },
+    {
+      employee: '#4471-A',
+      cause: 'A short, friendly conversation',
+      department: 'records',
+    },
     { employee: '#4471-B', cause: 'Nervous breakdown', department: 'wellness' },
   ],
 }
@@ -150,13 +162,17 @@ assert.ok(lines.some((s) => s.includes('#4471-B')))
 assert.equal(successorLegacyLines(earlier).length, 0)
 assert.equal(successorLegacyLines(personnel).length, 2)
 assert.ok(
-  reviewExhibits({ department: 'records', flags: ['drilled-the-union-vent'] })
-    .some((text) => text.includes('LOCAL 9')),
+  reviewExhibits({
+    department: 'records',
+    flags: ['drilled-the-union-vent'],
+  }).some((text) => text.includes('LOCAL 9')),
   "the Union's risky intervention is remembered at the next review",
 )
 assert.ok(
-  reviewExhibits({ department: 'toy-division', flags: ['gave-beverly-the-scenic-tour'] })
-    .some((text) => text.includes('COMPLIANCE TOUR')),
+  reviewExhibits({
+    department: 'toy-division',
+    flags: ['gave-beverly-the-scenic-tour'],
+  }).some((text) => text.includes('COMPLIANCE TOUR')),
   'the cautious diversion is remembered by Toy Division',
 )
 

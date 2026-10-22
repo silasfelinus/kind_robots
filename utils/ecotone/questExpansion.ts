@@ -2,6 +2,7 @@ import type { CompanionId, EncounterCard, LensId } from './content'
 import { REGIONAL_QUESTS } from './regionalQuestFactory'
 import { FORMER_GUIDE_QUESTS } from './formerGuideQuests'
 import { COMPANION_HANGOUTS } from './companionHangouts'
+import { LOCATION_ATLAS_QUESTS } from './locationAtlasQuests'
 
 export type GatedEncounter = EncounterCard & {
   requiresLead?: CompanionId
@@ -17,6 +18,7 @@ export type GatedEncounter = EncounterCard & {
 // unopened lenses never silently receive somebody else's personal quest.
 export const QUEST_CARDS: GatedEncounter[] = [
   ...REGIONAL_QUESTS,
+  ...LOCATION_ATLAS_QUESTS,
   ...FORMER_GUIDE_QUESTS,
   ...Object.values(COMPANION_HANGOUTS).map((card) => ({
     ...card,

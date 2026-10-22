@@ -6980,5 +6980,6 @@ export const TALKS: readonly TalkDef[] = [
           'The wedding has bread and salt. The bride says it’s fine. It is fine. Juniper makes a cake of turnips and honey-water. Nobody eats much of it. They all say thank you.',
       },
     ],
-  },  ...SECRET_TALKS,
+  },
+  ...SECRET_TALKS,
 ]

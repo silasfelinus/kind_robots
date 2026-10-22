@@ -15,35 +15,37 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
     title: 'The Tidepool Has a Privacy Policy',
     scene: 'beach',
     body: [
-      'A weathered sign at a steep coastal trail says PLEASE RESPECT EVERYONE\'S PRIVACY. Beneath it somebody has stapled a second sign: PLEASE RESPECT THE OCEAN\'S PRIVACY TOO. Three camera drones hover where the surf meets a ring of smooth stones. They are taking photos of people who never agreed to be photographed. On the drones\' little screens, the people are wearing tomorrow\'s clothes.',
+      "A weathered sign at a steep coastal trail says PLEASE RESPECT EVERYONE'S PRIVACY. Beneath it somebody has stapled a second sign: PLEASE RESPECT THE OCEAN'S PRIVACY TOO. Three camera drones hover where the surf meets a ring of smooth stones. They are taking photos of people who never agreed to be photographed. On the drones' little screens, the people are wearing tomorrow's clothes.",
       'A volunteer with a first-aid kit wants the drones grounded before the tide cuts off the exit. The operator says the footage will prove a dangerous new rip current. The footage might, but the operator has been livestreaming the people, not the water. No one is required to explain why they came to the beach.',
     ],
     choices: [
       {
         id: 'public-warning',
-        label: 'Move the warning up the trail and document the water conditions without filming visitors',
-        cost: 'You lose the drones\' wide-angle view and must identify the danger on foot',
+        label:
+          'Move the warning up the trail and document the water conditions without filming visitors',
+        cost: "You lose the drones' wide-angle view and must identify the danger on foot",
         check: { skill: 'lore', target: 9 },
         success: {
-          text: 'You and the volunteer find a fresh channel in the sand and move the sign before the beachgoers return to the narrow staircase. The operator reluctantly films the surf only. The drone feed shows tomorrow\'s tide exactly where the warning now stands, with nobody\'s face in frame.',
+          text: "You and the volunteer find a fresh channel in the sand and move the sign before the beachgoers return to the narrow staircase. The operator reluctantly films the surf only. The drone feed shows tomorrow's tide exactly where the warning now stands, with nobody's face in frame.",
           effects: {
             goodwill: 1,
-            evidence: 'Tomorrow\'s tide recorded without people on camera',
+            evidence: "Tomorrow's tide recorded without people on camera",
             flag: 'baker_tide_warning',
           },
         },
         failure: {
-          text: 'You mistake a harmless eddy for the worst of the current and lose time relocating the sign. The volunteer corrects you, closes the lower trail and stays to explain the detour to each arrival. The tide takes the drones\' landing spot, but everyone gets out. The livestream has already spread.',
+          text: "You mistake a harmless eddy for the worst of the current and lose time relocating the sign. The volunteer corrects you, closes the lower trail and stays to explain the detour to each arrival. The tide takes the drones' landing spot, but everyone gets out. The livestream has already spread.",
           effects: { nerve: -1, flag: 'baker_wrong_warning' },
         },
       },
       {
         id: 'privacy',
-        label: 'Ask the operator to erase the visitor footage and publish only the hazard warning',
+        label:
+          'Ask the operator to erase the visitor footage and publish only the hazard warning',
         cost: 'The operator may refuse and the only usable current footage could vanish',
         check: { skill: 'rizz', target: 9 },
         success: {
-          text: 'The operator deletes the identifying clips in front of two witnesses and gives the beach volunteer the original water footage. A message spreads about the current rather than about strangers\' bodies. The tomorrow-clothes mystery survives in a single unlabeled reflection.',
+          text: "The operator deletes the identifying clips in front of two witnesses and gives the beach volunteer the original water footage. A message spreads about the current rather than about strangers' bodies. The tomorrow-clothes mystery survives in a single unlabeled reflection.",
           effects: { goodwill: 1, flag: 'baker_privacy_respected' },
         },
         failure: {
@@ -53,7 +55,8 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'help-leave',
-        label: 'Help the volunteer get people up the trail without joining the filming dispute',
+        label:
+          'Help the volunteer get people up the trail without joining the filming dispute',
         success: {
           text: 'You carry a bag of lost shoes to the trailhead and keep the narrow stairs clear. Somebody thanks you without offering their name. Down below, the drones capture a perfectly empty beach full of distant, impossible applause.',
           effects: { goodwill: 1, flag: 'baker_trail_helped' },
@@ -71,13 +74,14 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
     title: 'The Last Class Before Yesterday',
     scene: 'grove',
     body: [
-      'In a borrowed Southern Humboldt classroom, a massage-training mannequin has begun giving patient, excellent advice about muscle tension to students who have not arrived yet. At six o\'clock the class is supposed to become a volunteer-run bodywork clinic. At five fifty-nine the room belongs to an entirely different year.',
+      "In a borrowed Southern Humboldt classroom, a massage-training mannequin has begun giving patient, excellent advice about muscle tension to students who have not arrived yet. At six o'clock the class is supposed to become a volunteer-run bodywork clinic. At five fifty-nine the room belongs to an entirely different year.",
       'An instructor wants to keep the free clinic because farmworkers and night-shift parents have arranged childcare to be here. The building manager wants the doors closed until someone can explain the mannequin. A student has written a perfectly ordinary sign: MASSAGE IS OPTIONAL. ANOMALIES ALSO OPTIONAL.',
     ],
     choices: [
       {
         id: 'safe-clinic',
-        label: 'Set up a consent-first clinic in the unaffected half of the room',
+        label:
+          'Set up a consent-first clinic in the unaffected half of the room',
         check: { skill: 'rizz', target: 9 },
         cost: 'The reduced room will serve fewer people and everyone must agree to the limits',
         success: {
@@ -91,7 +95,8 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'trace-time',
-        label: 'Trace the time slip without asking any student to be a test subject',
+        label:
+          'Trace the time slip without asking any student to be a test subject',
         check: { skill: 'psyche', target: 9 },
         success: {
           text: 'A clock on the back wall moves by one minute whenever the therapy-room curtain closes, but only if somebody has turned the lights off to save power. You record the pattern, tape over the switch, and give the instructor a note written in plain language.',
@@ -107,7 +112,8 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'repair',
-        label: 'Help students move the free clinic to a normal, accessible room nearby',
+        label:
+          'Help students move the free clinic to a normal, accessible room nearby',
         success: {
           text: 'You borrow folding chairs and a kettle from the community hall. The mannequin remains in a room that may or may not be last Tuesday. The actual people get a clinic that exists today, and the student who made the sign is hired to write the next one.',
           effects: { goodwill: 1, flag: 'sohum_clinic_relocated' },
@@ -125,17 +131,18 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
     title: 'The Window of Unsold Tomorrows',
     scene: 'plaza',
     body: [
-      'On Ferndale\'s painted Victorian main street, a tailor has dressed four shop-window mannequins in clothes from futures that have not happened. One wears a mechanic\'s coveralls with the town seal, one a wedding outfit cut from flood maps, one a graduation gown made of old invoices, and the fourth an ordinary coat with every pocket sewn shut.',
+      "On Ferndale's painted Victorian main street, a tailor has dressed four shop-window mannequins in clothes from futures that have not happened. One wears a mechanic's coveralls with the town seal, one a wedding outfit cut from flood maps, one a graduation gown made of old invoices, and the fourth an ordinary coat with every pocket sewn shut.",
       'A developer offers to buy the display for an advertisement promising the town a magnificent new economy. The tailor needs the money to keep an apprentice employed. The apprentice says the clothes were made by the whole shop and nobody asked whether their names could be sold. Each mannequin turns its face toward whichever person is speaking.',
     ],
     choices: [
       {
         id: 'shared-credit',
-        label: 'Negotiate payment and individual credit for every maker before the display changes hands',
+        label:
+          'Negotiate payment and individual credit for every maker before the display changes hands',
         check: { skill: 'rizz', target: 9 },
-        cost: 'The developer can walk away and the shop may miss this month\'s rent',
+        cost: "The developer can walk away and the shop may miss this month's rent",
         success: {
-          text: 'The tailor and apprentice insist on a contract they both understand, including the right to refuse the advertising script. The developer buys the mannequins but not the story. By morning the fourth coat has grown one open pocket, containing a receipt with both makers\' names.',
+          text: "The tailor and apprentice insist on a contract they both understand, including the right to refuse the advertising script. The developer buys the mannequins but not the story. By morning the fourth coat has grown one open pocket, containing a receipt with both makers' names.",
           effects: { goodwill: 1, flag: 'ferndale_makers_paid' },
         },
         failure: {
@@ -145,10 +152,11 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'inspect-pockets',
-        label: 'Investigate why the mannequins turn before anyone agrees to sell them',
+        label:
+          'Investigate why the mannequins turn before anyone agrees to sell them',
         check: { skill: 'wits', target: 9 },
         success: {
-          text: 'Hidden inside the coat lining is a dated alteration ticket for a fitting scheduled thirty years from now. The apprentice recognizes their own handwriting, although they have not yet been taught that stitch. You photograph the ticket without touching the customer\'s name.',
+          text: "Hidden inside the coat lining is a dated alteration ticket for a fitting scheduled thirty years from now. The apprentice recognizes their own handwriting, although they have not yet been taught that stitch. You photograph the ticket without touching the customer's name.",
           effects: {
             evidence: 'A future alteration ticket in Ferndale',
             flag: 'ferndale_future_tailor',
@@ -161,9 +169,10 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'apprentice-show',
-        label: 'Help the apprentice stage a free window show that credits the workshop',
+        label:
+          'Help the apprentice stage a free window show that credits the workshop',
         success: {
-          text: 'The street fills with friends and customers willing to buy alterations instead of futures. The apprentice reads each maker\'s name before the curtains open. A mannequin in the flood-map wedding outfit takes one careful bow; everyone pretends not to see it until the applause ends.',
+          text: "The street fills with friends and customers willing to buy alterations instead of futures. The apprentice reads each maker's name before the curtains open. A mannequin in the flood-map wedding outfit takes one careful bow; everyone pretends not to see it until the applause ends.",
           effects: { goodwill: 1, flag: 'ferndale_window_show' },
         },
       },
@@ -185,7 +194,8 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
     choices: [
       {
         id: 'quiet-hearing',
-        label: 'Move the meeting away from the graves and let each imagined resident make a practical proposal',
+        label:
+          'Move the meeting away from the graves and let each imagined resident make a practical proposal',
         check: { skill: 'lore', target: 9 },
         cost: 'You may lose the ghost committee before anyone agrees on a priority',
         success: {
@@ -203,7 +213,8 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'leave-graves',
-        label: 'Keep the meeting fictional and offer to help the groundskeeper tend the path instead',
+        label:
+          'Keep the meeting fictional and offer to help the groundskeeper tend the path instead',
         success: {
           text: 'You gather fallen branches and reset the loose gate latch. One ghost lingers long enough to ask whether the bus will have room for a walker. "It had better," says the groundskeeper, who is very much alive. You add a note before the translucent committee dissolves.',
           effects: { goodwill: 1, flag: 'cemetery_living_first' },
@@ -211,10 +222,11 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       },
       {
         id: 'ask-terms',
-        label: 'Ask the ghosts what their future demands would cost somebody living today',
+        label:
+          'Ask the ghosts what their future demands would cost somebody living today',
         check: { skill: 'psyche', target: 9 },
         success: {
-          text: 'The ghost with the flood map admits that her proposed houses occupy somebody else\'s orchard. The one guarding the catchment confesses he would send a real neighbor on a two-hour bus ride. They begin drawing a fourth map together, the first that includes people already here.',
+          text: "The ghost with the flood map admits that her proposed houses occupy somebody else's orchard. The one guarding the catchment confesses he would send a real neighbor on a two-hour bus ride. They begin drawing a fourth map together, the first that includes people already here.",
           effects: { weird: 1, flag: 'cemetery_tradeoffs_named' },
         },
         failure: {

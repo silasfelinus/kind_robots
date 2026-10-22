@@ -25,17 +25,20 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   '2,4': {
     kind: 'camp',
     name: 'Briar Camp',
-    description: 'A friendly fire and a deeply unreliable signpost. Your discoveries will be remembered.',
+    description:
+      'A friendly fire and a deeply unreliable signpost. Your discoveries will be remembered.',
   },
   '4,2': {
     kind: 'merchant',
     name: "Mosswick's Stall",
-    description: 'Mosswick will trade one found wildflower for a Lantern hint. He also knows the path to the Vault.',
+    description:
+      'Mosswick will trade one found wildflower for a Lantern hint. He also knows the path to the Vault.',
   },
   '5,2': {
     kind: 'sealed',
     name: 'The Sleeping Sigil',
-    description: 'One half of a forgotten pair. Its partner waits in a later dungeon, beyond Briar Camp.',
+    description:
+      'One half of a forgotten pair. Its partner waits in a later dungeon, beyond Briar Camp.',
   },
   '6,2': {
     kind: 'dungeon',
@@ -45,12 +48,14 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   '8,4': {
     kind: 'gate',
     name: 'Thorn Gate',
-    description: 'The path toward Bloom Orchard is closed until the Bramble Chime sings.',
+    description:
+      'The path toward Bloom Orchard is closed until the Bramble Chime sings.',
   },
   '2,7': {
     kind: 'puzzle',
     name: 'Three Quiet Stones',
-    description: 'The stones ask for the same forest rune twice, then the sun. Examine the nearby clues.',
+    description:
+      'The stones ask for the same forest rune twice, then the sun. Examine the nearby clues.',
   },
   '3,6': {
     kind: 'chest',
@@ -65,17 +70,20 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   '2,6': {
     kind: 'rune',
     name: 'Moss Inscription',
-    description: 'A carving reads: leaf, leaf, sun. The same pattern was scratched into the old stone rings.',
+    description:
+      'A carving reads: leaf, leaf, sun. The same pattern was scratched into the old stone rings.',
   },
   '5,5': {
     kind: 'enemy',
     name: 'Moss Sprite',
-    description: 'A mischievous sprite wants a quick matching duel. You can refuse and keep exploring.',
+    description:
+      'A mischievous sprite wants a quick matching duel. You can refuse and keep exploring.',
   },
   '7,3': {
     kind: 'enemy',
     name: 'Thorn Patrol',
-    description: 'A pair of disgruntled sentries guards a shortcut. Their challenge is optional.',
+    description:
+      'A pair of disgruntled sentries guards a shortcut. Their challenge is optional.',
   },
 }
 
@@ -137,8 +145,12 @@ export function isBriarCoordinate(key: string): boolean {
 
 export function briarNeighbors(key: string): string[] {
   const [x, y] = key.split(',').map(Number)
-  return [`${x - 1},${y}`, `${x + 1},${y}`, `${x},${y - 1}`, `${x},${y + 1}`]
-    .filter(isBriarCoordinate)
+  return [
+    `${x - 1},${y}`,
+    `${x + 1},${y}`,
+    `${x},${y - 1}`,
+    `${x},${y + 1}`,
+  ].filter(isBriarCoordinate)
 }
 
 export function validateBriarLinks(): string[] {
@@ -244,18 +256,30 @@ export function restoreBriarSave(input: unknown): BriarSave {
   if (saved.version !== BRIAR_SAVE_VERSION) return fresh
   const validKeys = (value: unknown): string[] =>
     Array.isArray(value)
-      ? [...new Set(value.filter((v): v is string => typeof v === 'string' && isBriarCoordinate(v)))]
+      ? [
+          ...new Set(
+            value.filter(
+              (v): v is string => typeof v === 'string' && isBriarCoordinate(v),
+            ),
+          ),
+        ]
       : []
-  const revealed = [...new Set([BRIAR_START, '1,4', ...validKeys(saved.revealed)])]
-  const frontier = validKeys(saved.frontier).filter((key) => !revealed.includes(key))
+  const revealed = [
+    ...new Set([BRIAR_START, '1,4', ...validKeys(saved.revealed)]),
+  ]
+  const frontier = validKeys(saved.frontier).filter(
+    (key) => !revealed.includes(key),
+  )
   const cards = Array.isArray(saved.cards)
-    ? saved.cards.filter(
-        (v): v is BriarMemoryCard =>
-          typeof v?.id === 'number' &&
-          typeof v?.pairId === 'number' &&
-          typeof v?.image === 'string' &&
-          typeof v?.matched === 'boolean',
-      ).map((card) => ({ ...card, flipped: card.matched }))
+    ? saved.cards
+        .filter(
+          (v): v is BriarMemoryCard =>
+            typeof v?.id === 'number' &&
+            typeof v?.pairId === 'number' &&
+            typeof v?.image === 'string' &&
+            typeof v?.matched === 'boolean',
+        )
+        .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const roomId =
     saved.roomId === 'vault-1' ||
@@ -269,21 +293,44 @@ export function restoreBriarSave(input: unknown): BriarSave {
     ...fresh,
     revealed,
     frontier,
-    player: typeof saved.player === 'string' && revealed.includes(saved.player) ? saved.player : BRIAR_START,
-    attempts: Number.isSafeInteger(saved.attempts) ? Math.max(0, saved.attempts!) : 0,
-    relics: Array.isArray(saved.relics) ? saved.relics.filter((v): v is string => typeof v === 'string') : [],
-    wildflowers: Number.isSafeInteger(saved.wildflowers) ? Math.max(0, saved.wildflowers!) : 0,
-    lanterns: Number.isSafeInteger(saved.lanterns) ? Math.max(0, saved.lanterns!) : 1,
+    player:
+      typeof saved.player === 'string' && revealed.includes(saved.player)
+        ? saved.player
+        : BRIAR_START,
+    attempts: Number.isSafeInteger(saved.attempts)
+      ? Math.max(0, saved.attempts!)
+      : 0,
+    relics: Array.isArray(saved.relics)
+      ? saved.relics.filter((v): v is string => typeof v === 'string')
+      : [],
+    wildflowers: Number.isSafeInteger(saved.wildflowers)
+      ? Math.max(0, saved.wildflowers!)
+      : 0,
+    lanterns: Number.isSafeInteger(saved.lanterns)
+      ? Math.max(0, saved.lanterns!)
+      : 1,
     chestClaims: validKeys(saved.chestClaims),
     puzzleSolved: saved.puzzleSolved === true,
     gateOpened: saved.gateOpened === true,
-    completedEncounters: Array.isArray(saved.completedEncounters) ? saved.completedEncounters.filter((v): v is string => typeof v === 'string') : [],
+    completedEncounters: Array.isArray(saved.completedEncounters)
+      ? saved.completedEncounters.filter(
+          (v): v is string => typeof v === 'string',
+        )
+      : [],
     sealedPartnerFound: saved.sealedPartnerFound === true,
-    room: saved.room === 'memory' && roomId && cards.length > 0 ? 'memory' : 'map',
+    room:
+      saved.room === 'memory' && roomId && cards.length > 0 ? 'memory' : 'map',
     roomId: saved.room === 'memory' && cards.length > 0 ? roomId : null,
     cards,
-    roomMisses: Number.isSafeInteger(saved.roomMisses) ? Math.max(0, saved.roomMisses!) : 0,
-    hearts: Number.isSafeInteger(saved.hearts) ? Math.max(1, Math.min(3, saved.hearts!)) : 3,
-    status: typeof saved.status === 'string' ? saved.status.slice(0,220) : fresh.status,
+    roomMisses: Number.isSafeInteger(saved.roomMisses)
+      ? Math.max(0, saved.roomMisses!)
+      : 0,
+    hearts: Number.isSafeInteger(saved.hearts)
+      ? Math.max(1, Math.min(3, saved.hearts!))
+      : 3,
+    status:
+      typeof saved.status === 'string'
+        ? saved.status.slice(0, 220)
+        : fresh.status,
   }
 }

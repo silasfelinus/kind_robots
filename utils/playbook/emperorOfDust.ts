@@ -5,6 +5,7 @@ import {
   editorLine,
 } from '../emperorOfDust/fortress/content'
 import { FOLLOWERS } from '../emperorOfDust/fortress/followers'
+import { questBrief } from '../emperorOfDust/fortress/questBriefs'
 import { ENDINGS } from '../emperorOfDust/fortress/endings'
 import { NPCS } from '../emperorOfDust/fortress/npcs'
 import {
@@ -146,7 +147,7 @@ export function buildEmperorOfDustPlaybook(): Playbook {
   function buildQuest(quest: QuestDef, key: string): PlaybookNode {
     const node = blankNode(key, 'quest', quest.title)
     node.place = humanize(quest.region)
-    node.body = [quest.summary]
+    node.body = [questBrief(quest.id, quest.summary)]
     node.editable = true
     node.editFields = { body: true, outcomes: true, labels: false }
     node.provenance = `Needs ${quest.requirements

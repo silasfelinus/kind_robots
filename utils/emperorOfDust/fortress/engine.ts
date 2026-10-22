@@ -220,6 +220,7 @@ export const postDawnQuests = (run: FortressRun): void => {
   if (isOver(run)) return
   for (const id of dayDef(run.day)?.quests ?? []) postQuest(run, id)
   drawTemplates(run)
+  drawChanceEvent(run)
   // Whoever is eligible at dawn stays at court all day, whatever is decided
   // in the other audiences.
   run.dayAudiences = (dayDef(run.day)?.audiences ?? [])

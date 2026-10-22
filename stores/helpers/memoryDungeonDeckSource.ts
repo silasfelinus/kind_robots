@@ -42,7 +42,8 @@ export async function resolveMemoryDungeonDeck(
   }
 
   const user = useUserStore()
-  const matureAllowed = user.showMature === true || user.user?.showMature === true
+  const matureAllowed =
+    user.showMature === true || user.user?.showMature === true
   const includeMature = choice.includeMature && matureAllowed
   const memory = useMemoryStore()
 
@@ -53,7 +54,9 @@ export async function resolveMemoryDungeonDeck(
       memory.useAllArtImages()
     }
     const all = await memory.getMemoryCardPool()
-    const filtered = all.filter((image) => isEligibleDungeonArt(image, includeMature, matureAllowed))
+    const filtered = all.filter((image) =>
+      isEligibleDungeonArt(image, includeMature, matureAllowed),
+    )
     const distinctPaths = uniqueDeckPaths(filtered.map(imageUrlForDeck))
     if (distinctPaths.length < needed) return distinctPaths
     return memory.selectLoadableImagePaths(filtered, needed)
@@ -71,7 +74,10 @@ export async function resolveMemoryDungeonDeck(
   } else if (choice.entityKind === 'bots') {
     const source = useBotStore()
     await source.fetchBots()
-    records = source.bots.map((bot) => ({ ...bot, imagePath: bot.imagePath || bot.avatarImage }))
+    records = source.bots.map((bot) => ({
+      ...bot,
+      imagePath: bot.imagePath || bot.avatarImage,
+    }))
   } else if (choice.entityKind === 'rewards') {
     const source = useRewardStore()
     await source.fetchRewards()
@@ -86,16 +92,23 @@ export async function resolveMemoryDungeonDeck(
     records = source.facets
   }
   const art = useArtStore()
-  await art.initialize({ fetchRemote: true, hydrateImages: true, initializeCollections: false })
+  await art.initialize({
+    fetchRemote: true,
+    hydrateImages: true,
+    initializeCollections: false,
+  })
   const byId = new Map(art.artImages.map((item) => [item.id, item]))
   const paths = uniqueDeckPaths(
     records
       .filter((record) => {
-        if (!isEligibleDungeonArt(record, includeMature, matureAllowed)) return false
+        if (!isEligibleDungeonArt(record, includeMature, matureAllowed))
+          return false
         const artId = (record as { artImageId?: number | null }).artImageId
         if (!artId) return true
         const linkedArt = byId.get(artId)
-        return linkedArt ? isEligibleDungeonArt(linkedArt, includeMature, matureAllowed) : false
+        return linkedArt
+          ? isEligibleDungeonArt(linkedArt, includeMature, matureAllowed)
+          : false
       })
       .map(imageUrlForDeck),
   )

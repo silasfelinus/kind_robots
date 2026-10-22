@@ -1,8 +1,9 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <memory-dungeon-overworld v-if="worldMode" @leave="worldMode = false" />
-  <div v-else class="kr-surface relative select-none gap-0 bg-(--kr-surface)">
+  <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
+    <memory-dungeon-overworld v-if="worldMode" @leave="worldMode = false" />
+    <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
       class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
@@ -538,6 +539,7 @@
         </table>
       </div>
     </Transition>
+    </div>
   </div>
 </template>
 

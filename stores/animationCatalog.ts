@@ -888,6 +888,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'spirograph-gear-bloom',
+    label: 'Spirograph Gear Bloom',
+    reveal: 'A rolling gear is drawing a flower',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'A small gear rolls inside a ring and its pen traces glowing hypotrochoid blooms that fade and start anew 🌀 hover near the pen to speed it, click for the next gear',
+    color: '#a855f7',
+    releasedAt: '2026-10-22T09:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

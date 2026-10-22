@@ -900,6 +900,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'chladni-sand-plate',
+    label: 'Chladni Sand Plate',
+    reveal: 'Sand on a ringing brass plate draws its hidden standing waves',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Sand settles into the nodal lines of a vibrating plate, then slides into a new pattern as the note changes 🎻 hover to light the grains near you, click to make the plate ring harder',
+    color: '#b08d57',
+    releasedAt: '2026-10-22T16:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

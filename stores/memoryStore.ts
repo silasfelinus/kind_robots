@@ -10,7 +10,6 @@ import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
 import { loadMemoryArtCandidates, type MemoryArtFeedPage } from '@/utils/memoryArtFeed'
 import { handleError, performFetch } from './utils'
-import { useCollectionStore } from './collectionStore'
 
 type NotificationType = 'error' | 'info' | 'success'
 type PowerupId = 'lantern' | 'shield' | 'compass' | 'jellybean'
@@ -224,16 +223,6 @@ function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => Math.random() - 0.5)
 }
 
-function normalizeImagePath(value: unknown): string {
-  if (typeof value !== 'string') return ''
-
-  if (/^(?:https?:|\/|data:|blob:)/i.test(value)) {
-    return value
-  }
-
-  return `/images/gallery/${value}`
-}
-
 function createId(prefix: string): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return `${prefix}-${crypto.randomUUID()}`
@@ -248,7 +237,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const viewportStore = useViewportStore()
   const promptStore = usePromptStore()
   const artStore = useArtStore()
-  const collectionStore = useCollectionStore()
 
   const difficulties: DifficultyOption[] = [
     {
@@ -411,66 +399,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     })
   }
 
-  function unwrapArtImage(value: unknown): ArtImage | null {
-    if (!value || typeof value !== 'object') return null
-
-    const record = value as Record<string, unknown>
-
-    if (typeof record.id === 'number') {
-      return record as ArtImage
-    }
-
-    const nestedCandidates = [
-      record.ArtImage,
-      record.artImage,
-      record.image,
-      record.art,
-    ]
-
-    for (const candidate of nestedCandidates) {
-      if (candidate && typeof candidate === 'object') {
-        const nested = candidate as Record<string, unknown>
-
-        if (typeof nested.id === 'number') {
-          return nested as ArtImage
-        }
-      }
-    }
-
-    return null
-  }
-
-  function getCollectionArtImages(collection: unknown): ArtImage[] {
-    if (!collection || typeof collection !== 'object') return []
-
-    const record = collection as Record<string, unknown>
-
-    const candidates = [
-      record.ArtImages,
-      record.artImages,
-      record.images,
-      record.Art,
-      record.art,
-      record.items,
-    ]
-
-    const results: ArtImage[] = []
-
-    for (const candidate of candidates) {
-      if (!Array.isArray(candidate)) continue
-
-      for (const item of candidate) {
-        const image = unwrapArtImage(item)
-
-        if (image) {
-          results.push(image)
-        }
-      }
-    }
-
-    return uniqueArtImages(results)
-  }
-
   function uniqueArtImages(images: ArtImage[]): ArtImage[] {
     const map = new Map<number, ArtImage>()
 
@@ -540,8 +468,14 @@ export const useMemoryStore = defineStore('memoryStore', () => {
           `/api/art/image/feed?${query.toString()}`,
         )
 
-        if (!response.success || !response.data || !Array.isArray(response.data.items)) {
-          throw new Error(response.message || 'The dungeon could not load the art library.')
+        if (
+          !response.success ||
+          !response.data ||
+          !Array.isArray(response.data.items)
+        ) {
+          throw new Error(
+            response.message || 'The dungeon could not load the art library.',
+          )
         }
 
         artStore.addOrUpdateArtImages(response.data.items)
@@ -762,13 +696,13 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   }
 
   function normalizeImagePath(value: unknown): string {
-    if (typeof value !== 'string') return ''
+    if (typeof value !== 'string' || !value.trim()) return ''
 
-    if (value.startsWith('http') || value.startsWith('/')) {
-      return value
-    }
+    const path = value.trim()
+    if (/^(?:https?:|\/|data:|blob:)/i.test(path)) return path
+    if (path.includes(':')) return ''
 
-    return `/images/gallery/${value}`
+    return `/images/gallery/${path}`
   }
 
   function extractArtImagePath(image: unknown): string {
@@ -899,7 +833,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       console.info('Memory Dungeon card pool', {
         source: cardSource.value,
         poolCount: pool.length,
-        collectionCount: collectionStore.collections.length,
         selectedCollectionIds: cardSource.value.collectionIds,
         selectedCollectionId: cardSource.value.collectionId,
       })

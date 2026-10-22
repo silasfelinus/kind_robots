@@ -37,6 +37,7 @@ import {
 } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 import { openingLensChoices } from './openingLensChoices'
+import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
   momentPerspective,
   openingSubstance,
@@ -103,6 +104,10 @@ export type RunState = {
   version: number
   seed: number
   archetype: string
+  /** Optional role-play identity; legacy v4 saves use defaults. */
+  playerName?: string
+  avatarId?: string
+  personalityId?: string
   skills: Skills
   phase: Phase
   rolls: number
@@ -528,7 +533,11 @@ export function computeEnding(state: RunState): Ending {
   }
 }
 
-export function createRun(seed: number, archetypeId: string): RunState {
+export function createRun(
+  seed: number,
+  archetypeId: string,
+  identity: PlayerIdentity = {},
+): RunState {
   const archetype =
     ARCHETYPES.find((a) => a.id === archetypeId) ??
     (ARCHETYPES[0] as (typeof ARCHETYPES)[number])
@@ -536,6 +545,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     version: ECOTONE_SAVE_VERSION,
     seed: seed >>> 0,
     archetype: archetype.id,
+    ...normalizePlayerIdentity(identity),
     skills: { ...archetype.skills },
     phase: 'event',
     rolls: 0,
@@ -1014,6 +1024,11 @@ export function restoreRun(raw: unknown): RunState | null {
   if (s.version !== ECOTONE_SAVE_VERSION) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
+  if (
+    (s.playerName !== undefined && (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
+    (s.avatarId !== undefined && typeof s.avatarId !== 'string') ||
+    (s.personalityId !== undefined && typeof s.personalityId !== 'string')
+  ) return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))
     return null
   if (s.event !== null && !EVENTS.some((e) => e.id === s.event)) return null
@@ -1062,6 +1077,7 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   const restored: RunState = {
     ...(s as RunState),
+    ...normalizePlayerIdentity(s),
     // Older version-4 saves have one guide but no optional fellow travelers.
     travelCompanions:
       s.travelCompanions === undefined

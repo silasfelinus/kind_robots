@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { DECK_V6 } from '../shiftingLands/deckV6'
 import { existsSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { JOURNEY_WORLD } from '../shiftingLands/journey'
@@ -81,9 +82,10 @@ for (const id of encounterIds) {
 
 const trialIds = JOURNEY_WORLD.lands.map((land) => 'trial-' + land.id)
 assert.equal(new Set(BESPOKE_CARDS).size, BESPOKE_CARDS.length)
+const v6Ids = DECK_V6.newCards.map((card) => card.id)
 for (const id of BESPOKE_CARDS) {
   assert.ok(
-    encounterIds.includes(id) || trialIds.includes(id),
+    encounterIds.includes(id) || v6Ids.includes(id) || trialIds.includes(id),
     id + ' is not an authored encounter or trial-<land>',
   )
   shipped(bespokeArt(id)!)

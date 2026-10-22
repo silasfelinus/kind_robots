@@ -137,7 +137,7 @@ const FIRST_TEN: readonly FollowerDef[] = [
       'If anything happens to me, he likes his bread torn small, and he is afraid of bells. Somebody should know that.',
       'Everyone becomes serious out here, sooner or later. Not him. Not yet. Please, not yet.',
     ],
-    romanceable: false,
+    romanceable: true,
     starter: true,
     recruitFee: 0,
   },

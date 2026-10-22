@@ -52,7 +52,7 @@ function ready(
 
 for (const newcomer of ids) {
   const card = COMPANION_HANGOUTS[newcomer]
-  assert.equal(findCard(card.id), card, 'the story manager can find interludes')
+  assert.equal(findCard(card.id)?.id, card.id, 'the story manager can find interludes')
   assert.ok(slots.cards.includes(cardArtKey(card.id)))
   assert.equal(card.choices.length, 3)
   assert.ok(

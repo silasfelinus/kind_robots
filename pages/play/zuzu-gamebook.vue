@@ -558,7 +558,7 @@ const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'feint',
     label: '↝ Feint',
-    help: 'Shadow check · expose defenses, 2 damage, blunt retaliation',
+    help: 'Shadow check · expose defenses, 3 damage, blunt retaliation',
   },
   {
     action: 'quiet-draw',

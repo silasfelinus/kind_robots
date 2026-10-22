@@ -106,6 +106,14 @@ export const POLICIES: readonly Policy[] = [
     score: (option) => -gains(option),
   },
   {
+    id: 'marshal',
+    title: 'Builds a Gate Watch mandate',
+    minChance: 45,
+    score: (option) =>
+      (option.id === 'sign-watch-writ' || option.id === 'iron' ? 100 : 0) +
+      (option.effects.local?.['gate-watch'] ?? 0) * 5,
+  },
+  {
     id: 'reckless',
     title: 'Sends anyone, anywhere',
     minChance: 0,

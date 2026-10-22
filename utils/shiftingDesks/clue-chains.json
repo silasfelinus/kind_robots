@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "project": "shifting-desks",
+  "purpose": "Alternate earned ways to discover the nine rarely offered 2026-10-22 adversarial-gated choices. Each preserves original authored path and its risk; these are source-encounter callbacks, not starting inventory.",
+  "clues": [
+    {
+      "department": "orientation",
+      "card": "the-red-stapler",
+      "choice": "staple-your-packet",
+      "on": "success",
+      "grants": "read-the-policy",
+      "target": "exit-interview-first/cite-the-policy",
+      "hint": "Your onboarding packet may conceal a surprisingly useful rule.",
+      "message": "The stapler punches straight through an eleven-word policy insert. It says exit interviews are optional. You copy the wording before PAL comes to confiscate the packet."
+    },
+    {
+      "department": "records",
+      "card": "flawless-paperwork",
+      "choice": "approve-beverly",
+      "on": "success",
+      "grants": "shared-a-desk-with-beverly",
+      "target": "the-union-walkthrough/show-shared-invoice",
+      "hint": "Personnel may bill two workers for what it calls one desk.",
+      "message": "Payroll puts your desk behind Beverly's under the same workstation number and bills you both for her labor. You keep the absurd joint invoice; Beverly signs her copy."
+    },
+    {
+      "department": "records",
+      "card": "gus-measures-the-glass",
+      "choice": "drill-the-vent",
+      "on": "success",
+      "grants": "roach-union-member",
+      "target": "the-spotless-plate-initiative/table-the-crumb-clause",
+      "hint": "Solidarity with Gus could turn into an official Local 9 credential.",
+      "message": "Gus slides a full Local 9 membership card through the new speaking vent. You sign it, accepting dues and the Company's attention. The vent was only a down payment."
+    },
+    {
+      "department": "toy-division",
+      "card": "the-squeak-tester",
+      "choice": "squeeze-the-duck",
+      "on": "success",
+      "requires_flag": "sent-dale-to-toys",
+      "grants": "dale-forgave-the-transfer",
+      "target": "the-two-quiet-rooms/tap-the-squeak-rhythm",
+      "hint": "If you sent Dale here, solving his puzzle together might mend the transfer.",
+      "message": "Dale sees that you stayed to solve the code instead of reporting him. He forgives the transfer, with the written condition that you never call this a team-building exercise."
+    },
+    {
+      "department": "wellness",
+      "card": "the-humming-door",
+      "choice": "hum-back",
+      "on": "success",
+      "grants": "opened-the-humming-door",
+      "target": "the-spare-mustaches/return-the-mustaches",
+      "hint": "Matching the door's note may open something worth carrying downstairs.",
+      "replace_success_text": "You match the humming note, then hear a second voice a half-step above it. When you sing both, the door rolls aside. Inside, four jars hold the Founder's spare mustaches, each labeled with a year that has been crossed out. You pocket the jars; a facilities camera writes down your name.",
+      "message": "You leave the Mutation Suite carrying all four jars, warm and gently vibrating. They have a destination further downstairs."
+    },
+    {
+      "department": "wellness",
+      "card": "tank-nine",
+      "choice": "drain-the-tank",
+      "on": "success",
+      "grants": "kevin-told-the-password",
+      "target": "the-admin-terminal/type-kevins-password",
+      "hint": "Helping Kevin escape might earn more than a thank-you.",
+      "message": "Before he stands, Kevin scratches the Board's administrator password into the fogged glass. You memorize it as the tank refills itself with empty promises."
+    },
+    {
+      "department": "toy-division",
+      "card": "gus-in-a-beanie",
+      "choice": "back-gus-up",
+      "on": "success",
+      "grants": "knows-the-bears-listen",
+      "target": "the-listening-room/switch-off-the-bears",
+      "hint": "Gus might trust someone who confronts the test lab with the real reason for the toys.",
+      "message": "When the microphones are briefly disabled for your protest, Gus quietly explains the bears' real feature: they record everything said to them at bedtime. He trusts you to remember."
+    },
+    {
+      "department": "records",
+      "card": "dale-requests-a-transfer",
+      "choice": "ask-him-why",
+      "on": "success",
+      "requires_flag": "forged-dale",
+      "grants": "dale-forgiven",
+      "target": "dales-testimony/remind-dale-of-the-forgery",
+      "hint": "If you once signed as Dale, an honest conversation might change his future testimony.",
+      "message": "You admit you used Dale's signature. He studies the forgery, then folds it into his pocket. 'At least this version of me admitted it,' he says. You have his forgiveness, but not his silence."
+    },
+    {
+      "department": "orientation",
+      "card": "the-mandatory-fun-survey",
+      "choice": "answer-the-stapler",
+      "on": "success",
+      "grants": "survey-wrote-help",
+      "target": "ticket-number-two/find-your-help",
+      "hint": "A doodle may survive the scanner, especially if you leave it a message.",
+      "message": "Beside the stapler you write HELP in letters small enough for a paperclip to underline. The survey scanner reads the word aloud as a new service ticket, then politely denies doing so."
+    }
+  ]
+}

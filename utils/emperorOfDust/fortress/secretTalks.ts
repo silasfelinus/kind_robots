@@ -84,7 +84,7 @@ export const SECRET_TALKS: readonly TalkDef[] = [
         id: 'outside',
         label: 'Pay twenty brass for another team and send the medicine back to the occupied villages.',
         requires: { cost: 20 },
-        effects: { local: { yard: 2 }, affinity: { freeholds: 2 }, flags: ['nettle-crossed-border'] },
+        effects: { local: { yard: 2 }, affinity: { freeholds: 2 }, items: ['caravan-salve'], flags: ['nettle-crossed-border'] },
         response:
           'The carts leave under plain canvas. Weeks later, somebody at the occupied gate hangs red thread where you can see it from the hills.',
       },
@@ -149,7 +149,7 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'river',
         label: 'Shore up the river settlement and send lanterns into the tunnel.',
-        effects: { local: { yard: 2 }, affinity: { rustline: -3 }, flags: ['tiller-river-saved'] },
+        effects: { local: { yard: 2 }, affinity: { rustline: -3 }, items: ['signal-coil'], flags: ['tiller-river-saved'] },
         response:
           'The river barely rises. At dusk four passengers stumble out of the old tunnel. A fifth stays behind, and Tiller writes the name on the wire spool.',
       },
@@ -200,7 +200,7 @@ export const SECRET_TALKS: readonly TalkDef[] = [
         id: 'excavate',
         label: 'Relocate the square at court expense and open the buried chapel.',
         requires: { cost: 18 },
-        effects: { local: { lamplight: 2, yard: -1 }, flags: ['sera-buried-bell'] },
+        effects: { local: { lamplight: 2, yard: -1 }, items: ['bell-clapper'], flags: ['sera-buried-bell'] },
         response:
           'The stone beneath the square holds a bell without a clapper. There are names carved inside it, too high for any visitor to have reached with a chisel.',
       },
@@ -319,7 +319,7 @@ export const SECRET_TALKS: readonly TalkDef[] = [
       {
         id: 'warn',
         label: 'Send the escort to warn the merchants. Tear up the prediction before you can profit.',
-        effects: { brass: -8, local: { yard: 2, ledger: -1 }, flags: ['odo-broke-forecast'] },
+        effects: { brass: -8, local: { yard: 2, ledger: -1 }, items: ['storm-glass-vial'], flags: ['odo-broke-forecast'] },
         response:
           'Two merchants turn back. The third refuses to believe a warning from an exile and drives on. At night Odo leaves the broken gauge outside. A blue drop forms in the glass.',
       },

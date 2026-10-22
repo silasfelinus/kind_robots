@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { COMPANIONS } from '../ecotone/content'
 import { ensembleFuture } from '../ecotone/ensembleFuture'
 import {
@@ -188,7 +189,7 @@ const juniperQuest = QUEST_CARDS.find((card) => card.id === 'WH-012')!
 assert.equal(encounterEligible(juniperQuest, mixed), true)
 assert.equal(encounterEligible(juniperQuest, movedOn), false)
 
-const board = (await import('node:fs')).readFileSync(
+const board = readFileSync(
   'components/ecotone-board.vue',
   'utf8',
 )

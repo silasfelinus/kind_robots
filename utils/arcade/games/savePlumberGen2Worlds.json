@@ -1,0 +1,1287 @@
+[
+  {
+    "world": 1,
+    "slug": "bluebell-pipeworks",
+    "name": "Bluebell Pipeworks",
+    "boss": "Madame Pressure",
+    "midBoss": "Foreman Flange",
+    "nodes": [
+      {
+        "id": "w1-start",
+        "kind": "start",
+        "name": "Teo's Toolshed",
+        "stage": null
+      },
+      {
+        "id": "1-1",
+        "kind": "level",
+        "name": "Rainy Courtyard",
+        "stage": "1-1"
+      },
+      {
+        "id": "1-2",
+        "kind": "level",
+        "name": "Copper Greenhouses",
+        "stage": "1-2"
+      },
+      {
+        "id": "1-h",
+        "kind": "house",
+        "name": "The Drip Parlour",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "1-b",
+        "kind": "bonus",
+        "name": "Tinker's Cottage",
+        "stage": null
+      },
+      {
+        "id": "1-3",
+        "kind": "level",
+        "name": "Buried Meter",
+        "stage": "1-3",
+        "secretExit": true
+      },
+      {
+        "id": "1-c",
+        "kind": "chapel",
+        "name": "Verdigris Chapel",
+        "stage": null
+      },
+      {
+        "id": "1-f",
+        "kind": "fortress",
+        "name": "Rustbolt Keep",
+        "stage": null
+      },
+      {
+        "id": "1-4",
+        "kind": "level",
+        "name": "Sluicegate Steps",
+        "stage": null
+      },
+      {
+        "id": "1-castle",
+        "kind": "castle",
+        "name": "The Pump Tower",
+        "stage": "1-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w1-start",
+        "to": "1-1",
+        "unlock": null
+      },
+      {
+        "from": "1-1",
+        "to": "1-2",
+        "unlock": {
+          "node": "1-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-2",
+        "to": "1-h",
+        "unlock": {
+          "node": "1-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-h",
+        "to": "1-3",
+        "unlock": {
+          "node": "1-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-h",
+        "to": "1-b",
+        "unlock": {
+          "node": "1-h",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "1-3",
+        "to": "1-f",
+        "unlock": {
+          "node": "1-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-3",
+        "to": "1-c",
+        "unlock": {
+          "node": "1-3",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "1-f",
+        "to": "1-4",
+        "unlock": {
+          "node": "1-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-4",
+        "to": "1-castle",
+        "unlock": {
+          "node": "1-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "1-castle",
+        "to": "w2-start",
+        "unlock": {
+          "node": "1-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 2,
+    "slug": "tideglass-marina",
+    "name": "Tideglass Marina",
+    "boss": "Captain Barnaclejack",
+    "midBoss": "Bosun Brine",
+    "nodes": [
+      {
+        "id": "w2-start",
+        "kind": "start",
+        "name": "Harbour Steps",
+        "stage": null
+      },
+      {
+        "id": "2-1",
+        "kind": "level",
+        "name": "Floating Wharves",
+        "stage": "2-1"
+      },
+      {
+        "id": "2-2",
+        "kind": "level",
+        "name": "Kelpglass Shallows",
+        "stage": null
+      },
+      {
+        "id": "2-s",
+        "kind": "shop",
+        "name": "Chandler's Shop",
+        "stage": null
+      },
+      {
+        "id": "2-3",
+        "kind": "level",
+        "name": "Glassboat Boneyard",
+        "stage": "2-2"
+      },
+      {
+        "id": "2-h",
+        "kind": "house",
+        "name": "The Lighthouse Hush",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "2-4",
+        "kind": "level",
+        "name": "Moonpool Locks",
+        "stage": "2-3"
+      },
+      {
+        "id": "2-f",
+        "kind": "fortress",
+        "name": "Barnacle Bulwark",
+        "stage": null
+      },
+      {
+        "id": "2-castle",
+        "kind": "castle",
+        "name": "Tidal Drydock",
+        "stage": "2-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w2-start",
+        "to": "2-1",
+        "unlock": null
+      },
+      {
+        "from": "2-1",
+        "to": "2-2",
+        "unlock": {
+          "node": "2-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-2",
+        "to": "2-s",
+        "unlock": {
+          "node": "2-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-2",
+        "to": "2-3",
+        "unlock": {
+          "node": "2-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-3",
+        "to": "2-h",
+        "unlock": {
+          "node": "2-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-h",
+        "to": "2-4",
+        "unlock": {
+          "node": "2-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-h",
+        "to": "sky-1",
+        "unlock": {
+          "node": "2-h",
+          "exit": "secret"
+        },
+        "warp": "up"
+      },
+      {
+        "from": "2-4",
+        "to": "2-f",
+        "unlock": {
+          "node": "2-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-f",
+        "to": "2-castle",
+        "unlock": {
+          "node": "2-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "2-castle",
+        "to": "w3-start",
+        "unlock": {
+          "node": "2-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 3,
+    "slug": "lantern-orchard",
+    "name": "Lantern Orchard",
+    "boss": "The Overripe Baron",
+    "midBoss": "Old Pulpjaw",
+    "nodes": [
+      {
+        "id": "w3-start",
+        "kind": "start",
+        "name": "Orchard Gate",
+        "stage": null
+      },
+      {
+        "id": "3-1",
+        "kind": "level",
+        "name": "Apricot Slope",
+        "stage": "3-1"
+      },
+      {
+        "id": "3-b",
+        "kind": "bonus",
+        "name": "Beekeeper's Cottage",
+        "stage": null
+      },
+      {
+        "id": "3-2",
+        "kind": "level",
+        "name": "Rootcellar",
+        "stage": "3-2",
+        "secretExit": true
+      },
+      {
+        "id": "3-c",
+        "kind": "chapel",
+        "name": "Brass Chapel",
+        "stage": null
+      },
+      {
+        "id": "3-h",
+        "kind": "house",
+        "name": "Hollow Cider House",
+        "stage": null
+      },
+      {
+        "id": "3-3",
+        "kind": "level",
+        "name": "Firefly Canopies",
+        "stage": "3-3",
+        "secretExit": true
+      },
+      {
+        "id": "3-f",
+        "kind": "fortress",
+        "name": "Pressroom Keep",
+        "stage": null
+      },
+      {
+        "id": "3-4",
+        "kind": "level",
+        "name": "Windfall Ridge",
+        "stage": null
+      },
+      {
+        "id": "3-castle",
+        "kind": "castle",
+        "name": "Hanging Conservatory",
+        "stage": "3-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w3-start",
+        "to": "3-1",
+        "unlock": null
+      },
+      {
+        "from": "3-1",
+        "to": "3-2",
+        "unlock": {
+          "node": "3-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-1",
+        "to": "3-b",
+        "unlock": {
+          "node": "3-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-2",
+        "to": "3-h",
+        "unlock": {
+          "node": "3-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-2",
+        "to": "3-c",
+        "unlock": {
+          "node": "3-2",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "3-h",
+        "to": "3-3",
+        "unlock": {
+          "node": "3-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-3",
+        "to": "3-f",
+        "unlock": {
+          "node": "3-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-3",
+        "to": "sky-2",
+        "unlock": {
+          "node": "3-3",
+          "exit": "secret"
+        },
+        "warp": "up"
+      },
+      {
+        "from": "3-f",
+        "to": "3-4",
+        "unlock": {
+          "node": "3-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-4",
+        "to": "3-castle",
+        "unlock": {
+          "node": "3-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "3-castle",
+        "to": "w4-start",
+        "unlock": {
+          "node": "3-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 4,
+    "slug": "clockwork-fair",
+    "name": "Clockwork Fair",
+    "boss": "Tick-Tock Duchess",
+    "midBoss": "The Calliope",
+    "nodes": [
+      {
+        "id": "w4-start",
+        "kind": "start",
+        "name": "Fairground Turnstile",
+        "stage": null
+      },
+      {
+        "id": "4-1",
+        "kind": "level",
+        "name": "Parade Street",
+        "stage": "4-1"
+      },
+      {
+        "id": "4-2",
+        "kind": "level",
+        "name": "Strongman Alley",
+        "stage": null
+      },
+      {
+        "id": "4-s",
+        "kind": "shop",
+        "name": "Prize Booth",
+        "stage": null
+      },
+      {
+        "id": "4-3",
+        "kind": "level",
+        "name": "Cottongear Coaster",
+        "stage": "4-2"
+      },
+      {
+        "id": "4-h",
+        "kind": "house",
+        "name": "Mirror Ticket Hall",
+        "stage": "4-3",
+        "secretExit": true
+      },
+      {
+        "id": "4-c",
+        "kind": "chapel",
+        "name": "Cobalt Chapel",
+        "stage": null
+      },
+      {
+        "id": "4-f",
+        "kind": "fortress",
+        "name": "Calliope Keep",
+        "stage": null
+      },
+      {
+        "id": "4-4",
+        "kind": "level",
+        "name": "Big Top Rigging",
+        "stage": null
+      },
+      {
+        "id": "4-castle",
+        "kind": "castle",
+        "name": "Clocktop Big Wheel",
+        "stage": "4-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w4-start",
+        "to": "4-1",
+        "unlock": null
+      },
+      {
+        "from": "4-1",
+        "to": "4-2",
+        "unlock": {
+          "node": "4-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-2",
+        "to": "4-s",
+        "unlock": {
+          "node": "4-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-2",
+        "to": "4-3",
+        "unlock": {
+          "node": "4-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-3",
+        "to": "4-h",
+        "unlock": {
+          "node": "4-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-h",
+        "to": "4-f",
+        "unlock": {
+          "node": "4-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-h",
+        "to": "4-c",
+        "unlock": {
+          "node": "4-h",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "4-f",
+        "to": "4-4",
+        "unlock": {
+          "node": "4-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-4",
+        "to": "4-castle",
+        "unlock": {
+          "node": "4-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "4-castle",
+        "to": "w5-start",
+        "unlock": {
+          "node": "4-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 5,
+    "slug": "cloudrail-commons",
+    "name": "Cloudrail Commons",
+    "boss": "Admiral Gust",
+    "midBoss": "The Weathercock",
+    "nodes": [
+      {
+        "id": "w5-start",
+        "kind": "start",
+        "name": "Cable Car Terminus",
+        "stage": null
+      },
+      {
+        "id": "5-1",
+        "kind": "level",
+        "name": "Ropeway Home",
+        "stage": "5-1"
+      },
+      {
+        "id": "5-2",
+        "kind": "level",
+        "name": "Windmill Platform",
+        "stage": "5-2",
+        "secretExit": true
+      },
+      {
+        "id": "5-b",
+        "kind": "bonus",
+        "name": "Kitemaker's Loft",
+        "stage": null
+      },
+      {
+        "id": "5-h",
+        "kind": "house",
+        "name": "The Becalmed Inn",
+        "stage": null
+      },
+      {
+        "id": "5-3",
+        "kind": "level",
+        "name": "Airship Sorting Yard",
+        "stage": "5-3"
+      },
+      {
+        "id": "5-f",
+        "kind": "fortress",
+        "name": "Gondola Keep",
+        "stage": null
+      },
+      {
+        "id": "5-4",
+        "kind": "level",
+        "name": "Lightning Rod Run",
+        "stage": null
+      },
+      {
+        "id": "5-castle",
+        "kind": "castle",
+        "name": "Thunder Station",
+        "stage": "5-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w5-start",
+        "to": "5-1",
+        "unlock": null
+      },
+      {
+        "from": "5-1",
+        "to": "5-2",
+        "unlock": {
+          "node": "5-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-2",
+        "to": "5-b",
+        "unlock": {
+          "node": "5-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-2",
+        "to": "5-h",
+        "unlock": {
+          "node": "5-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-2",
+        "to": "sky-3",
+        "unlock": {
+          "node": "5-2",
+          "exit": "secret"
+        },
+        "warp": "up"
+      },
+      {
+        "from": "5-h",
+        "to": "5-3",
+        "unlock": {
+          "node": "5-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-3",
+        "to": "5-f",
+        "unlock": {
+          "node": "5-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-f",
+        "to": "5-4",
+        "unlock": {
+          "node": "5-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-4",
+        "to": "5-castle",
+        "unlock": {
+          "node": "5-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "5-castle",
+        "to": "w6-start",
+        "unlock": {
+          "node": "5-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 6,
+    "slug": "crystal-underworks",
+    "name": "Crystal Underworks",
+    "boss": "Prism Mole",
+    "midBoss": "The Echo Warden",
+    "nodes": [
+      {
+        "id": "w6-start",
+        "kind": "start",
+        "name": "Mine Lift Landing",
+        "stage": null
+      },
+      {
+        "id": "6-1",
+        "kind": "level",
+        "name": "Silica Steps",
+        "stage": "6-1"
+      },
+      {
+        "id": "6-b",
+        "kind": "bonus",
+        "name": "Prospector's Cabin",
+        "stage": null
+      },
+      {
+        "id": "6-2",
+        "kind": "level",
+        "name": "Glowpipe Caverns",
+        "stage": "6-2",
+        "secretExit": true
+      },
+      {
+        "id": "6-c",
+        "kind": "chapel",
+        "name": "Rose Chapel",
+        "stage": null
+      },
+      {
+        "id": "6-h",
+        "kind": "house",
+        "name": "Hall of Hums",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "6-3",
+        "kind": "level",
+        "name": "Echo Sluice",
+        "stage": "6-3"
+      },
+      {
+        "id": "6-f",
+        "kind": "fortress",
+        "name": "Quartz Keep",
+        "stage": null
+      },
+      {
+        "id": "6-4",
+        "kind": "level",
+        "name": "The Long Drop",
+        "stage": null
+      },
+      {
+        "id": "6-castle",
+        "kind": "castle",
+        "name": "The Geode Filter",
+        "stage": "6-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w6-start",
+        "to": "6-1",
+        "unlock": null
+      },
+      {
+        "from": "6-1",
+        "to": "6-2",
+        "unlock": {
+          "node": "6-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-1",
+        "to": "6-b",
+        "unlock": {
+          "node": "6-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-2",
+        "to": "6-h",
+        "unlock": {
+          "node": "6-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-2",
+        "to": "6-c",
+        "unlock": {
+          "node": "6-2",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "6-h",
+        "to": "6-3",
+        "unlock": {
+          "node": "6-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-h",
+        "to": "sky-4",
+        "unlock": {
+          "node": "6-h",
+          "exit": "secret"
+        },
+        "warp": "up"
+      },
+      {
+        "from": "6-3",
+        "to": "6-f",
+        "unlock": {
+          "node": "6-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-f",
+        "to": "6-4",
+        "unlock": {
+          "node": "6-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-4",
+        "to": "6-castle",
+        "unlock": {
+          "node": "6-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "6-castle",
+        "to": "w7-start",
+        "unlock": {
+          "node": "6-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 7,
+    "slug": "night-market-rooftops",
+    "name": "Night Market Rooftops",
+    "boss": "The Umbrella Dragon",
+    "midBoss": "Sir Steepwell",
+    "nodes": [
+      {
+        "id": "w7-start",
+        "kind": "start",
+        "name": "Fire Escape",
+        "stage": null
+      },
+      {
+        "id": "7-1",
+        "kind": "level",
+        "name": "Neon Tiles",
+        "stage": "7-1"
+      },
+      {
+        "id": "7-2",
+        "kind": "level",
+        "name": "Chimney Lantern Chase",
+        "stage": "7-2"
+      },
+      {
+        "id": "7-s",
+        "kind": "shop",
+        "name": "Lantern Stall",
+        "stage": null
+      },
+      {
+        "id": "7-3",
+        "kind": "level",
+        "name": "Midnight Plumbing Bazaar",
+        "stage": "7-3",
+        "secretExit": true
+      },
+      {
+        "id": "7-h",
+        "kind": "house",
+        "name": "The Paper Lantern Teahouse",
+        "stage": null
+      },
+      {
+        "id": "7-f",
+        "kind": "fortress",
+        "name": "Pagoda Keep",
+        "stage": null
+      },
+      {
+        "id": "7-4",
+        "kind": "level",
+        "name": "Laundry Line Leap",
+        "stage": null
+      },
+      {
+        "id": "7-castle",
+        "kind": "castle",
+        "name": "Market Clock Spire",
+        "stage": "7-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w7-start",
+        "to": "7-1",
+        "unlock": null
+      },
+      {
+        "from": "7-1",
+        "to": "7-2",
+        "unlock": {
+          "node": "7-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-2",
+        "to": "7-s",
+        "unlock": {
+          "node": "7-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-2",
+        "to": "7-3",
+        "unlock": {
+          "node": "7-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-3",
+        "to": "7-h",
+        "unlock": {
+          "node": "7-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-3",
+        "to": "sky-5",
+        "unlock": {
+          "node": "7-3",
+          "exit": "secret"
+        },
+        "warp": "up"
+      },
+      {
+        "from": "7-h",
+        "to": "7-f",
+        "unlock": {
+          "node": "7-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-f",
+        "to": "7-4",
+        "unlock": {
+          "node": "7-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-4",
+        "to": "7-castle",
+        "unlock": {
+          "node": "7-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "7-castle",
+        "to": "w8-start",
+        "unlock": {
+          "node": "7-castle",
+          "exit": "normal"
+        },
+        "warp": "right"
+      }
+    ]
+  },
+  {
+    "world": 8,
+    "slug": "stardrain-citadel",
+    "name": "Stardrain Citadel",
+    "boss": "Lady Spigot",
+    "midBoss": "Undercurator Ewer",
+    "nodes": [
+      {
+        "id": "w8-start",
+        "kind": "start",
+        "name": "Outflow Gate",
+        "stage": null
+      },
+      {
+        "id": "8-1",
+        "kind": "level",
+        "name": "Reservoir Assault",
+        "stage": "8-1"
+      },
+      {
+        "id": "8-2",
+        "kind": "level",
+        "name": "The Pump Archives",
+        "stage": "8-2"
+      },
+      {
+        "id": "8-h",
+        "kind": "house",
+        "name": "The Curator's Gallery",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "8-f",
+        "kind": "fortress",
+        "name": "Spillway Bastion",
+        "stage": null
+      },
+      {
+        "id": "8-3",
+        "kind": "level",
+        "name": "The Sky Siphon",
+        "stage": "8-3"
+      },
+      {
+        "id": "8-s",
+        "kind": "shop",
+        "name": "The Last Tap Room",
+        "stage": null
+      },
+      {
+        "id": "8-castle",
+        "kind": "castle",
+        "name": "Valveheart",
+        "stage": "8-4"
+      }
+    ],
+    "paths": [
+      {
+        "from": "w8-start",
+        "to": "8-1",
+        "unlock": null
+      },
+      {
+        "from": "8-1",
+        "to": "8-2",
+        "unlock": {
+          "node": "8-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "8-2",
+        "to": "8-h",
+        "unlock": {
+          "node": "8-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "8-h",
+        "to": "8-f",
+        "unlock": {
+          "node": "8-h",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "8-h",
+        "to": "8-castle",
+        "unlock": {
+          "node": "8-h",
+          "exit": "secret"
+        }
+      },
+      {
+        "from": "8-f",
+        "to": "8-3",
+        "unlock": {
+          "node": "8-f",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "8-3",
+        "to": "8-s",
+        "unlock": {
+          "node": "8-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "8-3",
+        "to": "8-castle",
+        "unlock": {
+          "node": "8-3",
+          "exit": "normal"
+        }
+      }
+    ]
+  },
+  {
+    "world": 9,
+    "slug": "upstream-sky",
+    "name": "Upstream Sky",
+    "special": true,
+    "boss": null,
+    "midBoss": null,
+    "nodes": [
+      {
+        "id": "sky-1",
+        "kind": "special",
+        "name": "Lamplight Rapids",
+        "stage": null
+      },
+      {
+        "id": "sky-2",
+        "kind": "special",
+        "name": "Orchard Updraft",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "sky-3",
+        "kind": "special",
+        "name": "Cloudwell",
+        "stage": null
+      },
+      {
+        "id": "sky-4",
+        "kind": "special",
+        "name": "Prism Rain",
+        "stage": null,
+        "secretExit": true
+      },
+      {
+        "id": "sky-5",
+        "kind": "special",
+        "name": "Lantern Comet",
+        "stage": null
+      },
+      {
+        "id": "sky-6",
+        "kind": "special",
+        "name": "The Headwater",
+        "stage": null
+      }
+    ],
+    "paths": [
+      {
+        "from": "sky-1",
+        "to": "sky-2",
+        "unlock": {
+          "node": "sky-1",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "sky-2",
+        "to": "sky-3",
+        "unlock": {
+          "node": "sky-2",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "sky-2",
+        "to": "w6-start",
+        "unlock": {
+          "node": "sky-2",
+          "exit": "secret"
+        },
+        "warp": "down"
+      },
+      {
+        "from": "sky-3",
+        "to": "sky-4",
+        "unlock": {
+          "node": "sky-3",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "sky-4",
+        "to": "sky-5",
+        "unlock": {
+          "node": "sky-4",
+          "exit": "normal"
+        }
+      },
+      {
+        "from": "sky-4",
+        "to": "w8-start",
+        "unlock": {
+          "node": "sky-4",
+          "exit": "secret"
+        },
+        "warp": "down"
+      },
+      {
+        "from": "sky-5",
+        "to": "sky-6",
+        "unlock": {
+          "node": "sky-5",
+          "exit": "normal"
+        }
+      }
+    ]
+  }
+]

@@ -869,7 +869,7 @@ assert.equal(
   'the campaign is cleared',
 )
 assert.ok(
-  readPlumberSave(finale.save)!.done!.includes('8-4'),
+  readPlumberSave(finale.save)!.done!.includes('8-castle'),
   'the file remembers the last castle',
 )
 for (let i = 0; i < 1000 && !finale.over; i++) finale.update(emptyInput())
@@ -1000,7 +1000,7 @@ for (let i = 0; i < 200 && (boss.mode as string) !== 'victory'; i++)
   boss.update(emptyInput())
 assert.equal(boss.mode, 'victory')
 assert.ok(
-  readPlumberSave(boss.save)!.done!.includes('1-4'),
+  readPlumberSave(boss.save)!.done!.includes('1-castle'),
   'the castle is saved as cleared',
 )
 const next = emptyInput()
@@ -1011,7 +1011,7 @@ assert.equal(boss.mode, 'map', 'back to the map, the road to World 2 drawn in')
 for (let i = 0; i < 120 && boss.mapRevealTimer; i++) boss.update(emptyInput())
 const road = emptyInput()
 road.pressed.right = true
-for (let i = 0; i < 200 && boss.mapNodeId === '1-4'; i++) {
+for (let i = 0; i < 200 && boss.mapNodeId === '1-castle'; i++) {
   boss.update(road)
   road.pressed.right = false
 }

@@ -5,12 +5,18 @@
  * Generation 2 (conductor save-the-plumber t-011, projects/kr-arcade/
  * GEN2-STANDARD.md section 3): the cabinet keeps a *file* of three slots, SMB3
  * style, and each slot remembers where the heroine stands on the world map,
- * every stage she has cleared (and by which exit), the Golden Gears she found,
- * deaths and play time. A version-1 save (one resume point) loads into slot 1
- * with every stage before its resume point counted as cleared, so nobody loses
- * a run to the upgrade.
+ * every node she has cleared (and by which exit), the Golden Gears she found,
+ * deaths and play time.
+ *
+ * Version 3 keys the map by GEN2-WORLDS node ids (savePlumberOverworld.ts).
+ * Older files carried Gen-1 stage codes, and some of those codes now name a
+ * different node (Gen-1 stage 2-2 is node 2-3), so an old file migrates
+ * through each node's stage, never by comparing ids: version 2 keeps its three
+ * slots, and a version-1 save (one resume point) lands in slot 1 with every
+ * stage before its resume point cleared. Nobody loses a run to the upgrade.
  */
 import { CAMPAIGN } from './savePlumberLevels'
+import { mapNode, stageNode, startId } from './savePlumberOverworld'
 
 /** One save slot: a heroine's whole adventure. */
 export type PlumberSlot = {
@@ -18,11 +24,11 @@ export type PlumberSlot = {
   heroine: number
   /** Index into the campaign's stages to continue from (the stage at `node`). */
   stage: number
-  /** The world-map node she stands on (savePlumberOverworld.ts ids). */
+  /** The world-map node she stands on. */
   node?: string
-  /** Stage codes cleared by their normal exit. */
+  /** Node ids cleared by their normal exit. */
   done?: string[]
-  /** Stage codes cleared by a secret exit. */
+  /** Node ids cleared by a secret exit. */
   secrets?: string[]
   score: number
   lives: number
@@ -50,7 +56,7 @@ export type PlumberSave = PlumberSlot & {
 
 /** What the cabinet actually stores: three slots and the Endless best. */
 export type PlumberFile = {
-  v: 2
+  v: 3
   /** The slot being played (0-2). */
   active: number
   slots: (PlumberSlot | null)[]
@@ -71,8 +77,32 @@ function codes(raw: unknown): string[] {
   return Array.isArray(raw) ? [...new Set(raw.filter(isStageCode))] : []
 }
 
-/** A slot from untrusted data, or null. Missing Gen-2 fields are derived. */
-export function readPlumberSlot(raw: unknown): PlumberSlot | null {
+/** Real node ids, each once; a legacy file's entries are stage codes, moved to their nodes. */
+function nodeIds(raw: unknown, legacy: boolean): string[] {
+  if (!Array.isArray(raw)) return []
+  const ids = raw.flatMap((entry) => {
+    if (typeof entry !== 'string') return []
+    const id = legacy ? stageNode(entry)?.id : mapNode(entry)?.id
+    return id ? [id] : []
+  })
+  return [...new Set(ids)]
+}
+
+/** The node a legacy file stood on: its stage's node, or the same trailhead. */
+function legacyNode(raw: unknown): string | undefined {
+  if (typeof raw !== 'string') return undefined
+  if (/^w\d-start$/.test(raw)) return mapNode(raw)?.id
+  return stageNode(raw)?.id
+}
+
+/**
+ * A slot from untrusted data, or null. `legacy` reads a version-1/2 slot,
+ * whose map entries are Gen-1 stage codes. Missing fields are derived.
+ */
+export function readPlumberSlot(
+  raw: unknown,
+  legacy = false,
+): PlumberSlot | null {
   if (!raw || typeof raw !== 'object') return null
   const r = raw as Record<string, unknown>
   if (!count(r.heroine, 0xffffffff)) return null
@@ -82,17 +112,22 @@ export function readPlumberSlot(raw: unknown): PlumberSlot | null {
   const stage = r.stage
   // A version-1 save only knew its resume point: everything before it was cleared.
   const done = Array.isArray(r.done)
-    ? codes(r.done)
-    : CAMPAIGN.slice(0, stage).map((s) => s.code)
+    ? nodeIds(r.done, legacy)
+    : nodeIds(
+        CAMPAIGN.slice(0, stage).map((s) => s.code),
+        true,
+      )
+  const node = legacy
+    ? legacyNode(r.node)
+    : typeof r.node === 'string'
+      ? mapNode(r.node)?.id
+      : undefined
   return {
     heroine: r.heroine,
     stage,
-    node:
-      typeof r.node === 'string' && /^[a-z0-9-]{1,24}$/.test(r.node)
-        ? r.node
-        : CAMPAIGN[stage]!.code,
+    node: node ?? stageNode(CAMPAIGN[stage]!.code)?.id ?? startId(1),
     done,
-    secrets: codes(r.secrets),
+    secrets: nodeIds(r.secrets, legacy),
     score: r.score,
     lives: Math.max(1, r.lives),
     tokens: r.tokens,
@@ -103,10 +138,10 @@ export function readPlumberSlot(raw: unknown): PlumberSlot | null {
   }
 }
 
-/** The cabinet's file from untrusted data: a version-2 file, or a version-1 save moved into slot 1. */
+/** The cabinet's file from untrusted data: version 3, or an older file migrated forward. */
 export function readPlumberFile(raw: unknown): PlumberFile {
   const empty: PlumberFile = {
-    v: 2,
+    v: 3,
     active: 0,
     slots: Array(SLOT_COUNT).fill(null),
     endlessBest: 0,
@@ -114,18 +149,20 @@ export function readPlumberFile(raw: unknown): PlumberFile {
   if (!raw || typeof raw !== 'object') return empty
   const r = raw as Record<string, unknown>
   const best = (v: unknown) => (count(v, 9_999_999) ? v : 0)
-  if (r.v === 2) {
+  if (r.v === 3 || r.v === 2) {
     const slots = Array.isArray(r.slots) ? r.slots : []
     return {
-      v: 2,
+      v: 3,
       active: count(r.active, SLOT_COUNT - 1) ? r.active : 0,
       slots: Array.from({ length: SLOT_COUNT }, (_, i) =>
-        readPlumberSlot(slots[i]),
+        readPlumberSlot(slots[i], r.v === 2),
       ),
       endlessBest: best(r.endlessBest),
     }
   }
   if (r.v !== 1) return empty
+  // A true version-1 save has no map fields (they are derived from its stage);
+  // a version-1 *view* from readPlumberSave carries this version's node ids.
   const slot = readPlumberSlot(r)
   return {
     ...empty,

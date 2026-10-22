@@ -57,15 +57,19 @@ import {
   mapNode,
   newlyOpened,
   nodeReachable,
-  pathOpen,
+  nodeBuilt,
   startId,
   stageNode,
+  warpHeading,
   stepFrom,
   worldCompletion,
   worldMap,
+  openPaths,
   type MapDirection,
+  type MapNode,
   type MapPath,
   type MapProgress,
+  type NodeKind,
 } from './savePlumberOverworld'
 import { drawSheetFrame, keyedSheet } from './savePlumberSheets'
 import { PLUMBER_WORLDS, type PlumberWorld } from './savePlumberWorlds'
@@ -132,6 +136,28 @@ const STORY_PANEL = 330
 /** Ticks to walk one world-map path, and to draw a newly opened one. */
 const MAP_WALK = 26
 const MAP_REVEAL = 50
+/** Where a warp leaves the map, by heading. */
+const MAP_EDGE: Record<
+  MapDirection,
+  (n: { x: number; y: number }) => { x: number; y: number }
+> = {
+  right: (n) => ({ x: W + 20, y: n.y }),
+  left: (n) => ({ x: -20, y: n.y }),
+  up: (n) => ({ x: n.x, y: -20 }),
+  down: (n) => ({ x: n.x, y: H + 20 }),
+}
+/** The letter on a map node: its course number, or what kind of place it is. */
+const NODE_GLYPH: Record<NodeKind, (n: MapNode) => string> = {
+  start: () => '',
+  level: (n) => n.id.split('-')[1] ?? '',
+  castle: () => '♜',
+  fortress: () => 'F',
+  house: () => 'H',
+  bonus: () => 'B',
+  shop: () => '$',
+  chapel: () => 'V',
+  special: (n) => n.id.split('-')[1] ?? '★',
+}
 
 type Mode =
   | 'title'
@@ -362,6 +388,8 @@ export class PlumberRun implements ArcadeGameInstance {
   mapWalk: { from: string; to: string; path: MapPath; t: number } | null = null
   mapReveal: MapPath[] = []
   mapRevealTimer = 0
+  /** Ticks left on the map's "coming soon" note. */
+  mapToast = 0
   /** This slot's memory: stages cleared by normal and secret exits, deaths, play time. */
   done = new Set<string>()
   secrets = new Set<string>()
@@ -660,11 +688,14 @@ export class PlumberRun implements ArcadeGameInstance {
     if (node.stage)
       this.stageIndex = CAMPAIGN.findIndex((s) => s.code === node.stage)
     else {
+      // A trailhead or a node not built yet: the world's first stage (the
+      // Upstream Sky has none, so she keeps the stage she came from).
       const first = CAMPAIGN.findIndex((s) => stageWorld(s.code) === node.world)
-      this.stageIndex = Math.max(0, first)
+      if (first >= 0) this.stageIndex = first
     }
     this.loadStage(this.stageIndex)
     this.mapWalk = null
+    this.mapToast = 0
     this.mapReveal = reveal
     this.mapRevealTimer = reveal.length ? MAP_REVEAL : 0
     this.hero.vx = 0
@@ -674,6 +705,7 @@ export class PlumberRun implements ArcadeGameInstance {
   }
 
   private updateMap(keys: InputFrame) {
+    if (this.mapToast > 0) this.mapToast--
     if (this.mapRevealTimer > 0) {
       this.mapRevealTimer--
       if (!this.mapRevealTimer) this.mapReveal = []
@@ -698,10 +730,13 @@ export class PlumberRun implements ArcadeGameInstance {
       const step = stepFrom(this.mapNodeId, dir, this.progress)
       if (step) {
         const here = mapNode(this.mapNodeId)!
-        const dx = step.path.warp
-          ? step.path.from === this.mapNodeId
+        const heading = warpHeading(step.path, here.id)
+        const dx = heading
+          ? heading === 'right'
             ? 1
-            : -1
+            : heading === 'left'
+              ? -1
+              : 0
           : step.to.x - here.x
         if (dx) this.facing = dx > 0 ? 1 : -1
         this.mapWalk = { from: here.id, to: step.to.id, path: step.path, t: 0 }
@@ -711,7 +746,13 @@ export class PlumberRun implements ArcadeGameInstance {
     }
     if (!(keys.pressed.a || keys.pressed.start)) return
     const node = mapNode(this.mapNodeId)
-    if (!node?.stage) return
+    if (!node || node.kind === 'start') return
+    if (!node.stage) {
+      // Designed (GEN2-WORLDS.md) but not built yet: say so, never block.
+      this.mapToast = 90
+      this.sound.play('warn')
+      return
+    }
     this.sound.play('level')
     this.beginStage(CAMPAIGN.findIndex((s) => s.code === node.stage))
   }
@@ -802,7 +843,9 @@ export class PlumberRun implements ArcadeGameInstance {
     const node = stageNode(this.stage.code)
     if (node) this.mapNodeId = node.id
     const before = this.progress
-    ;(exit === 'secret' ? this.secrets : this.done).add(this.stage.code)
+    ;(exit === 'secret' ? this.secrets : this.done).add(
+      node?.id ?? this.stage.code,
+    )
     const opened = newlyOpened(before, this.progress)
     if (this.boss) {
       this.mapReveal = opened
@@ -3305,119 +3348,142 @@ export class PlumberRun implements ArcadeGameInstance {
     const from = mapNode(walk.from)!
     const to = mapNode(walk.to)!
     const t = walk.t / MAP_WALK
-    if (!walk.path.warp)
+    const heading = warpHeading(walk.path, walk.from)
+    if (!heading)
       return {
         x: from.x + (to.x - from.x) * t,
         y: from.y + (to.y - from.y) * t,
       }
     // A warp walks off this map's edge; the next map is drawn on arrival.
-    const out = walk.path.from === walk.from
-    const edge = out ? W + 20 : -20
-    return { x: from.x + (edge - from.x) * t, y: from.y }
+    const edge = MAP_EDGE[heading](from)
+    return {
+      x: from.x + (edge.x - from.x) * t,
+      y: from.y + (edge.y - from.y) * t,
+    }
   }
 
   private renderMap(g: CanvasRenderingContext2D) {
     const here = mapNode(this.mapNodeId)!
     const world = here.world
-    const def = PLUMBER_WORLDS[world - 1]!
     const map = worldMap(world)
+    const def = PLUMBER_WORLDS[world - 1]
     const progress = this.progress
-    const pal = def.palette
-    // Painted plates from art/GEN2-ROUND-1 replace this once reviewed; until then a code-drawn land.
+    const open = openPaths(progress)
+    const pal = def?.palette ?? {
+      skyTop: '#2b3a7a',
+      skyBottom: '#f2b8e6',
+      far: '#8fc7f2',
+      ground: '#c9e9ff',
+      accent: '#5fb7ff',
+      ink: '#1b3440',
+    }
+    // The painted plate (conductor art/GEN2-ROUND-1, Krea 2) over a code-drawn land.
     const sky = g.createLinearGradient(0, 0, 0, H)
     sky.addColorStop(0, pal.skyTop)
     sky.addColorStop(1, pal.skyBottom)
     g.fillStyle = sky
     g.fillRect(0, 0, W, H)
-    g.fillStyle = pal.far
-    for (let i = 0; i < 6; i++) {
-      g.beginPath()
-      g.ellipse(
-        40 + i * 90,
-        250 - (i % 2) * 18,
-        90,
-        70 + (i % 3) * 12,
-        0,
-        0,
-        Math.PI * 2,
-      )
-      g.fill()
+    const plate = map.plate ? stagePlate(map.plate) : null
+    if (plate) g.drawImage(plate, 0, 0, W, H)
+    else {
+      g.fillStyle = pal.far
+      for (let i = 0; i < 6; i++) {
+        g.beginPath()
+        g.ellipse(
+          40 + i * 90,
+          250 - (i % 2) * 18,
+          90,
+          70 + (i % 3) * 12,
+          0,
+          0,
+          Math.PI * 2,
+        )
+        g.fill()
+      }
     }
-    g.fillStyle = pal.ground
-    g.globalAlpha = 0.55
-    g.fillRect(0, 222, W, H - 222)
-    g.globalAlpha = 1
-    // Paths: open ones dotted in cream, ones being revealed drawn in over the reveal.
+    // Paths: open ones dotted in cream (pink for secret exits); new ones drawn in.
     const reveal = new Set(this.mapReveal)
     const grow = this.mapRevealTimer ? 1 - this.mapRevealTimer / MAP_REVEAL : 1
-    for (const path of map.paths) {
-      if (!pathOpen(path, progress)) continue
-      const a = mapNode(path.from)!
-      const b = path.warp ? { x: W + 10, y: a.y } : mapNode(path.to)!
-      const k = reveal.has(path) ? grow : 1
-      g.setLineDash([6, 6])
-      g.lineWidth = 5
-      g.strokeStyle = path.unlock?.exit === 'secret' ? '#ff9fd6' : '#fff4dc'
-      g.beginPath()
-      g.moveTo(a.x, a.y)
-      g.lineTo(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k)
-      g.stroke()
-      g.setLineDash([])
+    const ends = (path: MapPath, id: string) => {
+      const node = mapNode(id)!
+      if (node.world === world) return node
+      const other = mapNode(id === path.from ? path.to : path.from)!
+      const heading = warpHeading(path, other.id)!
+      return MAP_EDGE[heading](other)
     }
-    // Arriving from the last world: a path in from the left edge.
-    if (world > 1) {
-      const start = mapNode(startId(world))!
-      g.setLineDash([6, 6])
-      g.lineWidth = 5
-      g.strokeStyle = '#fff4dc'
+    g.lineCap = 'round'
+    for (const path of open) {
+      const a = mapNode(path.from)!
+      const b = mapNode(path.to)!
+      if (a.world !== world && b.world !== world) continue
+      const p = ends(path, path.from)
+      const q = ends(path, path.to)
+      const k = reveal.has(path) ? grow : 1
+      g.setLineDash([5, 6])
+      g.lineWidth = 6
+      g.strokeStyle = 'rgba(27, 52, 64, 0.55)'
       g.beginPath()
-      g.moveTo(-10, start.y)
-      g.lineTo(start.x, start.y)
+      g.moveTo(p.x, p.y)
+      g.lineTo(p.x + (q.x - p.x) * k, p.y + (q.y - p.y) * k)
+      g.stroke()
+      g.lineWidth = 3
+      g.strokeStyle = path.unlock?.exit === 'secret' ? '#ff9fd6' : '#fff4dc'
       g.stroke()
       g.setLineDash([])
     }
     for (const node of map.nodes) {
-      // Stages not yet reached show dimmed, so the world ahead is visible (SMB3).
-      const locked = node.kind !== 'start' && !nodeReachable(node.id, progress)
-      g.globalAlpha = locked ? 0.35 : 1
-      const cleared =
-        !!node.stage &&
-        (progress.done.includes(node.stage) ||
-          !!progress.secrets?.includes(node.stage))
+      const reachable = nodeReachable(node.id, progress)
       if (node.kind === 'start') {
+        if (!reachable) continue
         g.fillStyle = '#fff4dc'
+        g.strokeStyle = pal.ink
+        g.lineWidth = 2
         g.beginPath()
         g.arc(node.x, node.y, 6, 0, Math.PI * 2)
         g.fill()
+        g.stroke()
         continue
       }
-      const size = node.kind === 'castle' ? 26 : 20
+      // Secret-only nodes stay hidden until a path reaches them.
+      const secretOnly =
+        !open.some((p) => p.to === node.id || p.from === node.id) &&
+        map.paths.every((p) => p.to !== node.id || p.unlock?.exit === 'secret')
+      if (!reachable && secretOnly) continue
+      const built = nodeBuilt(node)
+      const cleared =
+        progress.done.includes(node.id) || !!progress.secrets?.includes(node.id)
+      g.globalAlpha = reachable ? 1 : 0.4
+      const size = node.kind === 'castle' ? 26 : node.kind === 'level' ? 20 : 18
       g.fillStyle = cleared
         ? '#5fc48a'
-        : node.kind === 'castle'
-          ? '#9a6bd1'
-          : pal.accent
+        : !built
+          ? '#c8c2b4'
+          : node.kind === 'castle'
+            ? '#9a6bd1'
+            : pal.accent
       g.strokeStyle = pal.ink
       g.lineWidth = 3
       g.beginPath()
-      g.roundRect(node.x - size / 2, node.y - size / 2, size, size, 6)
+      if (node.kind === 'level' || node.kind === 'castle')
+        g.roundRect(node.x - size / 2, node.y - size / 2, size, size, 6)
+      else g.arc(node.x, node.y, size / 2, 0, Math.PI * 2)
       g.fill()
+      if (!built) g.setLineDash([3, 3])
       g.stroke()
+      g.setLineDash([])
       if (node.kind === 'castle') {
         g.fillStyle = pal.ink
         for (let i = -1; i <= 1; i++)
           g.fillRect(node.x + i * 8 - 2, node.y - size / 2 - 6, 4, 6)
       }
-      if (locked) {
-        g.globalAlpha = 1
-        continue
-      }
+      g.globalAlpha = 1
+      if (!reachable) continue
       this.text(
         g,
-        cleared ? '✔' : node.stage!.split('-')[1]!,
+        cleared ? '✔' : NODE_GLYPH[node.kind](node),
         node.x,
         node.y + 5,
-        12,
+        11,
         '#fff4dc',
       )
       if (node.stage && progress.gears?.includes(node.stage)) {
@@ -3427,16 +3493,15 @@ export class PlumberRun implements ArcadeGameInstance {
         g.fill()
       }
     }
-    g.globalAlpha = 1
     const at = this.mapHeroPoint()
     this.drawHeroSprite(g, at.x, at.y - 8, null, 1.35)
     // Header: the world; footer: where she stands and how much of the world is done.
-    g.fillStyle = 'rgba(12, 40, 52, 0.6)'
+    g.fillStyle = 'rgba(12, 40, 52, 0.66)'
     g.fillRect(0, 0, W, 26)
     g.fillRect(0, H - 34, W, 34)
     this.text(
       g,
-      `WORLD ${world}  ·  ${def.name.toUpperCase()}`,
+      `${map.special ? 'SECRET' : `WORLD ${world}`}  ·  ${map.name.toUpperCase()}`,
       10,
       18,
       13,
@@ -3452,17 +3517,15 @@ export class PlumberRun implements ArcadeGameInstance {
       '#ffd98a',
       'right',
     )
-    const stageDef = here.stage
-      ? def.stages.find((s) => s.code === here.stage)
-      : null
     const c = worldCompletion(world, progress)
+    const soon = !nodeBuilt(here) && here.kind !== 'start'
     this.text(
       g,
-      stageDef ? `${here.stage}  ${stageDef.name.toUpperCase()}` : 'TRAILHEAD',
+      `${here.kind === 'start' ? '' : `${here.id.toUpperCase()}  `}${here.name.toUpperCase()}${soon ? '  ·  COMING SOON' : ''}`,
       10,
       H - 14,
-      13,
-      '#fff4dc',
+      12,
+      soon ? '#d6f2ee' : '#fff4dc',
       'left',
     )
     this.text(
@@ -3474,8 +3537,14 @@ export class PlumberRun implements ArcadeGameInstance {
       '#d6f2ee',
       'right',
     )
-    if (here.stage && !this.mapWalk && Math.floor(this.tick / 30) % 2)
-      this.text(g, 'A  ENTER', at.x, at.y - 40, 10, '#ffd98a')
+    if (this.mapToast)
+      this.renderBanner(
+        g,
+        'COMING SOON',
+        `${here.name} is designed and on its way. Walk on!`,
+      )
+    else if (here.stage && !this.mapWalk && Math.floor(this.tick / 30) % 2)
+      this.text(g, 'A  ENTER', at.x, at.y - 44, 10, '#ffd98a')
   }
 
   private renderSelect(g: CanvasRenderingContext2D) {

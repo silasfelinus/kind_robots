@@ -146,8 +146,8 @@
 
       <div v-else-if="tab === 'treatments'" class="grid gap-2">
         <p class="text-xs italic opacity-75">
-          Kiyo's infirmary can restore a wounded follower for brass from the first day.
-          The surgeon closes one day of a wound.
+          Kiyo's infirmary can restore a wounded follower for brass from the
+          first day. The surgeon closes one day of a wound.
           <span v-if="medicine">Saltroad medicine: a quarter off.</span>
           <span v-if="poultice">
             A Mire poultice is cheap and does not always take. The Abbey

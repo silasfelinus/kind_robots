@@ -235,6 +235,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
+import { useCollectionStore } from '@/stores/collectionStore'
 import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 export type CollectionPickerMode =
@@ -273,6 +274,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const collectionStore = useCollectionStore()
 
 const pickerRoot = ref<HTMLElement | null>(null)
 const expanded = ref(false)
@@ -342,10 +344,11 @@ watch(
 onMounted(async () => {
   isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
 
-  await artStore.initialize({
-    fetchRemote: false,
-    hydrateImages: false,
-    initializeCollections: true,
+  await collectionStore.fetchCollections(false, {
+    summary: true,
+    includeImages: true,
+    imageLimit: 3,
+    counts: false,
   })
 })
 

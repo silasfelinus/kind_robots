@@ -81,14 +81,29 @@
       <!-- The combination, told AFTER its parts (Silas, 2026-09-29: "we should learn the
            parts before we learn the combinations"). The pieces beat has already taught
            each part, so this line is where they click together. -->
-      <div
-        v-for="entry in formedCharacters"
-        :key="`formation-${entry.character}`"
-        class="kr-panel-flat mx-auto mt-4 max-w-xl p-3 text-center"
+      <section
+        v-if="formedCharacters.length"
+        aria-label="Character origins"
+        class="mt-5 grid gap-3 grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]"
       >
-        <p class="kr-text-eyebrow-bold">How {{ entry.character }} was made</p>
-        <p class="mt-1 text-sm leading-relaxed">{{ entry.origin }}</p>
-      </div>
+        <div
+          v-for="entry in formedCharacters"
+          :key="`formation-${entry.character}`"
+          class="rounded-3xl border border-primary/25 bg-primary/5 p-5 text-left shadow-sm"
+        >
+          <div class="flex flex-wrap items-center gap-3">
+            <span
+              aria-hidden="true"
+              class="text-5xl leading-none font-semibold"
+              >{{ entry.character }}</span
+            >
+            <h2 class="text-2xl font-bold leading-tight">
+              How {{ entry.character }} was made
+            </h2>
+          </div>
+          <p class="mt-3 text-xl leading-relaxed">{{ entry.origin }}</p>
+        </div>
+      </section>
 
       <!-- A word whose parts the source gives no job to gets NO pieces screen (see
            utils/mandarinCourse.ts). Saying so here, in one clause, is the whole of what

@@ -383,7 +383,8 @@ export function encounterEligible(
   state: RunState,
 ): boolean {
   if (state.played.includes(card.id)) return false
-  if (card.requiresLead && card.requiresLead !== state.activeLead) return false
+  if (card.requiresLead && !travelParty(state).includes(card.requiresLead))
+    return false
   if (card.requiresLens) {
     const lens = card.requiresLens
     const encountered = state.substanceMoments.some((moment) =>
@@ -399,7 +400,7 @@ export function encounterEligible(
   if (card.requiresFormerGuide) {
     const guide = card.requiresFormerGuide
     if (!state.meetingOrder.includes(guide)) return false
-    if (guide === state.activeLead) return false
+    if (travelParty(state).includes(guide)) return false
     if (
       !state.followHistory.some(
         (entry) => entry.from === guide && entry.to !== guide,

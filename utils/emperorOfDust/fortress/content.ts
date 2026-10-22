@@ -26,10 +26,7 @@ const QUEST_INDEX = new Map<string, QuestDef>(
     ...ACT_FOUR_QUESTS,
     ...ACT_FIVE_QUESTS,
     ...QUEST_TEMPLATES,
-  ].map((quest) => [
-    quest.id,
-    { ...quest, summary: questBrief(quest.id, quest.summary) },
-  ]),
+  ].map((quest) => [quest.id, quest]),
 )
 
 // Playbook Manager live text (conductor weird-humboldt t-037): titles, story
@@ -47,7 +44,9 @@ export const authoredQuestDef = (id: string): QuestDef | undefined =>
 export const questDef = (id: string): QuestDef | undefined => {
   const quest = authoredQuestDef(id)
   const edit = quest && FORTRESS_LIVE_TEXT.get(`quest:${quest.id}`)
-  if (!quest || !edit) return quest
+  if (!quest) return undefined
+  const briefing = questBrief(quest.id, quest.summary)
+  if (!edit) return { ...quest, summary: briefing }
   const outcomes = { ...quest.outcomes }
   for (const tier of TIERS) {
     const text = edit.choices?.[tier]?.success
@@ -56,7 +55,7 @@ export const questDef = (id: string): QuestDef | undefined => {
   return {
     ...quest,
     title: edit.title ?? quest.title,
-    summary: edit.body?.[0] ?? quest.summary,
+    summary: edit.body?.[0] ?? briefing,
     outcomes,
   }
 }

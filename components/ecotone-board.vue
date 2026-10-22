@@ -354,7 +354,7 @@
                 </div>
                 <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
                   <p class="font-serif text-xl leading-relaxed @4xl:text-2xl">
-                    {{ pending.text }}
+                    {{ revealedResult }}
                   </p>
                 </div>
                 <div
@@ -514,7 +514,7 @@
                   class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
                 >
                   <p
-                    v-for="(paragraph, index) in stage.body"
+                    v-for="(paragraph, index) in revealedBody"
                     :key="index"
                     class="font-serif text-lg leading-relaxed @4xl:text-2xl"
                   >
@@ -1355,41 +1355,6 @@ function stopReveal() {
   if (revealTimer) clearInterval(revealTimer)
   revealTimer = null
 }
-const storyText = computed(() =>
-  pending.value?.text ?? stage.value.body.join('\n\n'),
-)
-const revealedBody = computed(() => {
-  if (textSpeed.value === 'instant') return stage.value.body
-  let remaining = revealCount.value
-  return stage.value.body.map((paragraph) => {
-    const result = paragraph.slice(0, Math.max(0, remaining))
-    remaining -= paragraph.length + 2
-    return result
-  }).filter(Boolean)
-})
-const revealedResult = computed(() =>
-  textSpeed.value === 'instant'
-    ? pending.value?.text ?? ''
-    : (pending.value?.text ?? '').slice(0, revealCount.value),
-)
-const hasHiddenText = computed(() =>
-  textSpeed.value !== 'instant' && revealCount.value < storyText.value.length,
-)
-watch([storyText, textSpeed, tab], () => {
-  stopReveal()
-  if (textSpeed.value === 'instant' || tab.value !== 'road') {
-    revealCount.value = storyText.value.length
-    return
-  }
-  revealCount.value = 0
-  revealTimer = setInterval(() => {
-    revealCount.value = Math.min(
-      storyText.value.length,
-      revealCount.value + (textSpeed.value === 'normal' ? 8 : 3),
-    )
-    if (revealCount.value >= storyText.value.length) stopReveal()
-  }, textSpeed.value === 'normal' ? 25 : 45)
-}, { immediate: true })
 
 function revealAll() {
   stopReveal()
@@ -1773,6 +1738,42 @@ const stage = computed<Stage>(() => {
   }
   return fallback
 })
+
+const storyText = computed(() =>
+  pending.value?.text ?? stage.value.body.join('\n\n'),
+)
+const revealedBody = computed(() => {
+  if (textSpeed.value === 'instant') return stage.value.body
+  let remaining = revealCount.value
+  return stage.value.body.map((paragraph) => {
+    const result = paragraph.slice(0, Math.max(0, remaining))
+    remaining -= paragraph.length + 2
+    return result
+  }).filter(Boolean)
+})
+const revealedResult = computed(() =>
+  textSpeed.value === 'instant'
+    ? pending.value?.text ?? ''
+    : (pending.value?.text ?? '').slice(0, revealCount.value),
+)
+const hasHiddenText = computed(() =>
+  textSpeed.value !== 'instant' && revealCount.value < storyText.value.length,
+)
+watch([storyText, textSpeed, tab], () => {
+  stopReveal()
+  if (textSpeed.value === 'instant' || tab.value !== 'road') {
+    revealCount.value = storyText.value.length
+    return
+  }
+  revealCount.value = 0
+  revealTimer = setInterval(() => {
+    revealCount.value = Math.min(
+      storyText.value.length,
+      revealCount.value + (textSpeed.value === 'normal' ? 8 : 3),
+    )
+    if (revealCount.value >= storyText.value.length) stopReveal()
+  }, textSpeed.value === 'normal' ? 25 : 45)
+}, { immediate: true })
 
 const portraitSrc = computed(() =>
   stage.value.portrait

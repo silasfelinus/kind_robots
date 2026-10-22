@@ -13,7 +13,15 @@ import type { TalkDef } from './types'
 // every other romance's final `romance-<name>-sealed` flag, so that the
 // emperor commits to one.
 
-const ROMANCES = ['rook', 'saffron', 'nera', 'ash', 'sable', 'vesper', 'kiyo'] as const
+const ROMANCES = [
+  'rook',
+  'saffron',
+  'nera',
+  'ash',
+  'sable',
+  'vesper',
+  'kiyo',
+] as const
 type Romance = (typeof ROMANCES)[number]
 
 /** The tower has not fallen yet. */
@@ -1665,21 +1673,24 @@ export const TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'stay',
-        label: 'Set the crown on the table. Ask whether she wants company, not a promise.',
+        label:
+          'Set the crown on the table. Ask whether she wants company, not a promise.',
         effects: { flags: ['romance-kiyo'] },
         response:
           'Kiyo studies the crown before looking at you. “Company, yes.” You speak of the river she crossed. Eventually her hand rests near yours, and neither of you moves it away.',
       },
       {
         id: 'friends',
-        label: 'Ask whether you can be friends when the doors of the court are shut.',
+        label:
+          'Ask whether you can be friends when the doors of the court are shut.',
         effects: { flags: ['kiyo-friendship'] },
         response:
           '“We can try,” she says. “But I will still argue with you in front of the Watch.” She pours the second cup. “Especially in front of the Watch.”',
       },
       {
         id: 'respect',
-        label: 'Leave the cup warm. Tell her she never has to make room for the throne here.',
+        label:
+          'Leave the cup warm. Tell her she never has to make room for the throne here.',
         effects: { flags: ['kiyo-friendship'] },
         response:
           'At breakfast there is a folded note beside your plate: “Come back when you are only yourself.” It is signed Kiyo, and beneath that, in a child’s uneven hand, “Zuzu.”',
@@ -1704,21 +1715,24 @@ export const TALKS: readonly TalkDef[] = [
     options: [
       {
         id: 'equal',
-        label: 'Offer honesty, privacy, and a place at the table she can leave whenever she chooses.',
+        label:
+          'Offer honesty, privacy, and a place at the table she can leave whenever she chooses.',
         effects: { flags: ['romance-kiyo-sealed', 'kiyo-trusted'] },
         response:
           '“That I believe.” She kisses you once, lightly. At the first knock you both go to open the infirmary door. In the morning she leaves your crown where it belongs, outside.',
       },
       {
         id: 'pressure',
-        label: 'Offer the weight of the crown: protection for her and Zuzu, whatever it costs.',
+        label:
+          'Offer the weight of the crown: protection for her and Zuzu, whatever it costs.',
         effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
         response:
           'Kiyo lets go of your hand. “Protection is your duty, not a price.” In the morning you are still welcome for tea. It is a friendship with clear walls.',
       },
       {
         id: 'uncertain',
-        label: 'Say you cannot promise anything while the fortress is divided. Ask to remain friends.',
+        label:
+          'Say you cannot promise anything while the fortress is divided. Ask to remain friends.',
         effects: { flags: ['kiyo-friendship'], clearFlags: ['romance-kiyo'] },
         response:
           '“Good,” she says after a while. “It is better to know the shape of a thing.” She keeps the lamp burning until the storm passes. You stay, talking, on opposite sides of the table.',
@@ -1750,7 +1764,11 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'clinic',
         label: 'Ask her what the infirmary needs before winter.',
-        effects: { flags: ['kiyo-friendship-deep'], brass: -5, local: { yard: 2 } },
+        effects: {
+          flags: ['kiyo-friendship-deep'],
+          brass: -5,
+          local: { yard: 2 },
+        },
         response:
           '“Clean sheets,” she says at once. “And someone who can mend the stove.” Your five brass makes both possible. She thanks you, then immediately hands you a basket of laundry.',
       },

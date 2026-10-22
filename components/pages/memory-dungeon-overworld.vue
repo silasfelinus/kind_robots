@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
+    class="kr-surface flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
   >
     <header
       class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
@@ -45,7 +45,7 @@
 
     <div
       v-if="settingsOpen"
-      class="z-10 shrink-0 border-b border-[#9f875e]/50 bg-[#302b25] p-2 sm:p-3"
+      class="kr-scroll z-10 max-h-[min(40%,18rem)] shrink-0 border-b border-[#9f875e]/50 bg-[#302b25] p-2 sm:p-3"
     >
       <div class="flex flex-wrap items-center justify-between gap-2">
         <span class="text-sm font-bold"

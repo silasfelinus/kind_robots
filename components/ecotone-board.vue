@@ -541,7 +541,29 @@
             <div
               class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
             >
-              <template v-if="pending">
+              <button
+                v-if="game.canUndo && !stagedChoice"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/60 bg-[#8fb8b0]/15 px-3 py-2 text-base font-bold text-[#f3e6c8] hover:border-[#d9b877]"
+                @click="game.undo()"
+              >
+                ↶ Undo last decision
+              </button>
+              <template v-if="stagedChoice">
+                <p class="eco-label">Confirm your decision</p>
+                <p class="font-serif text-lg leading-relaxed">{{ stagedChoice.label }}</p>
+                <p class="text-base text-[#f3e6c8]/80">
+                  Nothing has changed yet. Cancel or commit this choice.
+                  After committing, you can rewind before continuing.
+                </p>
+                <button type="button" class="eco-gold-button" @click="confirmDecision">
+                  Make this choice
+                </button>
+                <button type="button" class="eco-choice justify-center text-base" @click="stagedChoice = null">
+                  Change my mind
+                </button>
+              </template>
+              <template v-else-if="pending">
                 <button
                   ref="continueButton"
                   type="button"
@@ -572,21 +594,21 @@
                   class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
                 >
                   <summary
-                    class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]"
+                    class="cursor-pointer text-base font-bold uppercase tracking-wider text-[#8fb8b0]"
                   >
                     Optional moment · change the tempo
                   </summary>
                   <p class="my-2 text-xs text-[#f3e6c8]/75">
-                    Choose one or two experiences, or take a clear-headed break.
-                    Your first perspective stays in your story. No combination
-                    grants supernatural knowledge.
+                    {{ momentOffer?.intro }}
+                    You can accept one or two offers or decline. Neither is a
+                    test of who belongs in Humboldt.
                   </p>
                   <div class="grid grid-cols-2 gap-1.5">
                     <button
-                      v-for="moment in SUBSTANCE_CHOICES"
+                      v-for="moment in SUBSTANCE_CHOICES.filter((item) => momentOffer?.offers.includes(item.id))"
                       :key="moment.id"
                       type="button"
-                      class="rounded-lg border px-2 py-2 text-left text-xs"
+                      class="rounded-lg border px-2 py-2 text-left text-base"
                       :class="
                         momentSelections.includes(moment.id)
                           ? 'border-[#d9b877] bg-[#d9b877]/20'
@@ -606,7 +628,7 @@
                   <div class="mt-2 flex flex-wrap gap-2">
                     <button
                       type="button"
-                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
+                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-base font-bold"
                       :disabled="momentSelections.length === 0"
                       @click="takeMoment(false)"
                     >
@@ -614,7 +636,7 @@
                     </button>
                     <button
                       type="button"
-                      class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-xs font-bold"
+                      class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-base font-bold"
                       @click="takeMoment(true)"
                     >
                       Water, air, a pause
@@ -633,7 +655,7 @@
                     :class="index === 0 && !option.disabled ? 'is-lead' : ''"
                     :disabled="option.disabled"
                     :title="option.chipTitle"
-                    @click="option.act()"
+                    @click="queueDecision(option)"
                   >
                     <span
                       v-if="option.thumb"
@@ -647,12 +669,12 @@
                       />
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block text-base font-bold leading-snug">{{
+                      <span class="block text-lg font-bold leading-snug @4xl:text-xl">{{
                         option.label
                       }}</span>
                       <span
                         v-if="option.chip || option.hint"
-                        class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
+                        class="mt-1 block text-sm leading-snug text-[#f3e6c8]/75 @4xl:text-base"
                         >{{
                           [option.chip, option.hint].filter(Boolean).join(' · ')
                         }}</span
@@ -1829,14 +1851,14 @@ function endingsFor(id: EndingLine) {
   border: 1px solid rgb(143 184 176 / 0.55);
   background: rgb(18 40 44 / 0.75);
   padding: 0.3rem 0.9rem;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   backdrop-filter: blur(4px);
 }
 .eco-label {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1876,7 +1898,7 @@ function endingsFor(id: EndingLine) {
   border-radius: 0.65rem;
   border: 1px solid rgb(201 169 110 / 0.3);
   background: rgb(20 38 48 / 0.85);
-  padding: 0.7rem 0.9rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   transition:
     border-color 0.15s,

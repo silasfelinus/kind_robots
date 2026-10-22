@@ -2271,7 +2271,6 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Nettle's red threads are still knotted around the infirmary bedposts. The new healer can read the knots but not the handwriting on the medicine jars.",
       },
       {
-      {
         when: { flags: ['nettle-crossed-border'] },
         text: "Nettle's carts carried medicine through the old gate even after the tower fell. The soldiers let her pass when they saw the red thread. Nobody knows who gave that order.",
       },
@@ -2283,6 +2282,7 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { flags: ['nettle-four-names'] },
         text: "Four names reappear in the Yard census, and then twenty. Nettle makes every registrar read them aloud before anyone collects the food.",
       },
+      {
         text: 'Nettle opens an infirmary for the people nobody counts in the census. The patients bring their own blankets. She asks their names, every one.',
       },
     ],
@@ -2303,7 +2303,6 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "A railway spike marks Tiller's grave. When the wind crosses the dead line, the pipes in the signal tower answer with three knocks.",
       },
       {
-      {
         when: { flags: ['tiller-river-saved'] },
         text: "The river settlement stands. One passenger is missing from the ruined train, and the bell at the crossing rings once a month. Tiller keeps a spool of wire in the Archive with the name burned into it.",
       },
@@ -2311,6 +2310,7 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { flags: ['tiller-wagon-rescued'] },
         text: "The passengers of the tunnel train build a plaque for the crew. Tiller never mentions the flooded houses on the river, but he sends copper to repair their roofs each spring.",
       },
+      {
         text: 'Tiller repairs an old semaphore that has not moved in a century. When the first signal swings across the desert, three caravans find their way home.',
       },
     ],
@@ -2331,7 +2331,6 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: 'They buried Sera beside the silent chapel. Someone put the bronze clapper in her hands. The bell on the tower tolled without it.',
       },
       {
-      {
         when: { flags: ['sera-buried-bell'] },
         text: "Sera opens the buried chapel. Names are carved inside the bell where no chisel could reach. Each year the living read those names in daylight, and the families above are given new homes.",
       },
@@ -2343,6 +2342,7 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { flags: ['sera-names-public'] },
         text: "Sera's register hangs in the market. Descendants who bought silence have to pass the names every morning. Some add fresh flowers. Some walk another road.",
       },
+      {
         text: 'Sera writes a second register for Hollow Bell. The forgotten names fill three books. At last the old bell tolls for every one.',
       },
     ],
@@ -2363,7 +2363,6 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Tarn's map ends at the place they died. The Gate Watch draws a line through it and writes a warning to those who follow.",
       },
       {
-      {
         when: { flags: ['tarn-families-sheltered'] },
         text: "Tarn draws safe roads on the schoolroom floor so the children can learn them as a game. When they grow old enough to leave the hideout, each carries three stones in a pocket.",
       },
@@ -2371,6 +2370,7 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { flags: ['tarn-medicine-delivered'] },
         text: "The watch's wounded recover and return to the road. Tarn marks the abandoned family cart on every route map for years. Nobody can agree what the mark should mean.",
       },
+      {
         text: 'Tarn marks the safe roads with three stones at every fork. Refugees learn the pattern before the soldiers do.',
       },
     ],
@@ -2391,7 +2391,6 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Odo's glass gauge is empty at the graveside, although rain falls all day. It has never read the weather correctly since.",
       },
       {
-      {
         when: { flags: ['odo-broke-forecast'] },
         text: "Odo sets the broken rain gauge beside the first good harvest. The shards no longer show tomorrow. Three merchants come to the feast, and one empty chair stays set.",
       },
@@ -2403,6 +2402,7 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         when: { flags: ['odo-planted-early'] },
         text: "The first early planting survives, a green stripe beyond the hideout wall. Odo marks the day twice on the calendar: once for the crops and once for the storm.",
       },
+      {
         text: 'Odo plants the glass gauge on the highest point of the hideout. Every storm is measured, including the ones that have yet to come.',
       },
     ],

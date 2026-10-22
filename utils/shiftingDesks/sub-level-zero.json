@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": "silasfelinus/conductor:projects/shifting-desks/encounters/SUBLEVEL-ZERO-12.json",
-  "sourceSha": "23f96a21d478f44ef4aeb3aeed1e93695942f587",
+  "sourceSha": "e29a4b59ec960baff5df2dfb41ff7b9e47527bae",
   "department": {
     "id": "sub-level-zero",
     "title": "Sub-Level Zero",

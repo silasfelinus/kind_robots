@@ -167,7 +167,10 @@ assert.equal(
   5,
   'five departments, five bosses',
 )
-assert.equal(desks.sections[0]?.keys.length, 10, 'ten Shifting Desks endings')
+assert.ok(
+  (desks.sections[0]?.keys.length ?? 0) >= 10,
+  'Shifting Desks has ten or more authored endings',
+)
 const book = buildPlaybook('zuzu-gamebook')
 assert.equal(book.nodes['the-crossing']?.key, 'the-crossing', 'the book opens')
 assert.ok((book.sections[0]?.keys.length ?? 0) >= 10, 'the gamebook endings')

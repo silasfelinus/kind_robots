@@ -174,9 +174,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       const paths = await deckStore.selectLoadableImagePaths(pool, roomId === 'vault-2' ? 4 : 3)
       if (ticket !== roomEpoch) return
       const required = roomId === 'vault-2' ? 4 : 3
-      if (paths.length < required) {
+      if (new Set(paths).size < required) {
         state.value.status =
-          `Your selected gallery has only ${paths.length} loadable unique images. Choose a collection with at least ${required}, then try again.`
+          `Your selected gallery needs at least ${required} distinct loadable images. Choose a richer collection, then try again.`
         return
       }
       const cards: BriarMemoryCard[] = paths.slice(0, required).flatMap((image, pairId) => [

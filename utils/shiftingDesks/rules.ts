@@ -515,9 +515,8 @@ const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
 
 type ClueReceipt = { flag: string; text: string }
 
-export const CLUE_RECEIPTS = (
-  clueReceiptsData as { receipts: ClueReceipt[] }
-).receipts
+export const CLUE_RECEIPTS = (clueReceiptsData as { receipts: ClueReceipt[] })
+  .receipts
 
 export function successorLegacyLines(
   state: Pick<RunState, 'terminations'>,
@@ -1434,7 +1433,8 @@ export function choose(
   }
 
   const earnedClue = success ? clueChainFor(state, choice) : null
-  const originalOutcome = success || !choice.failure ? choice.success : choice.failure
+  const originalOutcome =
+    success || !choice.failure ? choice.success : choice.failure
   const outcome = earnedClue?.replace_success_text
     ? { ...originalOutcome, text: earnedClue.replace_success_text }
     : originalOutcome
@@ -1474,7 +1474,8 @@ export function choose(
   flags = [
     ...flags.filter((f) => !outcome.remove_flags.includes(f)),
     ...outcome.add_flags.filter((f) => !flags.includes(f)),
-    ...(earnedClue && !flags.includes(earnedClue.grants) &&
+    ...(earnedClue &&
+    !flags.includes(earnedClue.grants) &&
     !outcome.add_flags.includes(earnedClue.grants)
       ? [earnedClue.grants]
       : []),

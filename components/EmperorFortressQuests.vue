@@ -139,7 +139,11 @@
           >
         </p>
         <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
-        <p class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed @xl:text-lg">{{ selected.summary }}</p>
+        <p
+          class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed @xl:text-lg"
+        >
+          {{ selected.summary }}
+        </p>
         <p
           v-if="selected.mustInclude"
           class="mt-1 text-xs font-semibold text-warning"

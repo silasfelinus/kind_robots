@@ -4,6 +4,7 @@ import {
   assignQuest,
   chooseAudienceOption,
   chooseTalkOption,
+  chooseChanceEvent,
   createRun,
   earnFlag,
   equipItem,
@@ -406,6 +407,12 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     return result.next
   }
 
+  function answerChanceEvent(eventId: string, choiceId: string): string {
+    const outcome = chooseChanceEvent(current(), eventId, choiceId)
+    commit(outcome.run)
+    return outcome.response
+  }
+
   function preview(questId: string, party: string[], hourglass = false) {
     return previewQuest(
       current(),
@@ -551,6 +558,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     newRun,
     answer,
     talk,
+    answerChanceEvent,
     preview,
     assign,
     withdraw,

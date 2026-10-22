@@ -1006,8 +1006,9 @@ export function restoreRun(raw: unknown): RunState | null {
     (!Array.isArray(s.travelCompanions) ||
       !s.travelCompanions.every(isCompanion) ||
       new Set(s.travelCompanions).size !== s.travelCompanions.length ||
-      !s.activeLead ||
-      s.travelCompanions.includes(s.activeLead) ||
+      (s.travelCompanions.length > 0 && !s.activeLead) ||
+      (s.activeLead !== null &&
+        s.travelCompanions.includes(s.activeLead)) ||
       s.travelCompanions.some((id) => !s.meetingOrder?.includes(id)))
   )
     return null

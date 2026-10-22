@@ -1491,10 +1491,7 @@ for (let seed = 1; seed <= 40; seed += 1) {
   const fresh = newBook(createRun(seed))
   const dawn2 = recordDawn(fresh, finishDay(fresh.current).run)
   const again = rewindTo(dawn2, 2)
-  if (
-    again.current.dailyEvent !== dawn2.current.dailyEvent
-  )
-    differs += 1
+  if (again.current.dailyEvent !== dawn2.current.dailyEvent) differs += 1
 }
 assert.ok(differs > 0, 'rewinding re-rolls seeded events')
 assert.throws(() => rewindTo(rewound, 30), /no dawn/)

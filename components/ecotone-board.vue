@@ -136,7 +136,28 @@
             >
               Who are you this weekend?
             </p>
-            <div class="kr-scroll -mx-1 px-1">
+            <div class="kr-scroll -mx-1 space-y-3 px-1">
+              <label class="block text-sm font-semibold">
+                What should the county call you?
+                <input v-model="characterName" type="text" maxlength="32" placeholder="Wanderer (or your own name)" autocomplete="nickname" class="mt-1 block w-full rounded-lg border border-[#c9a96e]/40 bg-[#0c1a24]/90 p-2.5 text-base text-[#f3e6c8] placeholder:text-[#f3e6c8]/50 focus:border-[#d9b877] focus:outline-none" />
+              </label>
+              <div>
+                <p class="eco-label mb-2">Choose your look</p>
+                <div class="grid grid-cols-6 gap-1.5">
+                  <button v-for="avatar in PLAYER_AVATARS" :key="avatar.id" type="button" class="flex items-center justify-center rounded-xl border p-1.5" :class="pickedAvatar === avatar.id ? 'border-[#d9b877] bg-[#d9b877]/20' : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'" :aria-label="avatar.label" :title="avatar.label" :aria-pressed="pickedAvatar === avatar.id" @click="pickedAvatar = avatar.id">
+                    <span class="text-3xl" aria-hidden="true">{{ avatar.emoji }}</span>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p class="eco-label mb-2">Your disposition</p>
+                <div class="grid grid-cols-2 gap-1.5 @xl:grid-cols-3">
+                  <button v-for="personality in PLAYER_PERSONALITIES" :key="personality.id" type="button" class="rounded-lg border px-2 py-2 text-left text-sm font-semibold" :title="personality.detail" :class="pickedPersonality === personality.id ? 'border-[#d9b877] bg-[#d9b877]/20' : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'" :aria-pressed="pickedPersonality === personality.id" @click="pickedPersonality = personality.id">
+                    {{ personality.label }}
+                  </button>
+                </div>
+              </div>
+              <p class="eco-label">What do you do around here?</p>
               <div class="grid gap-2 @xl:grid-cols-2">
                 <button
                   v-for="background in ARCHETYPES"
@@ -224,10 +245,10 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(300px,27rem)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:content-stretch @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
+            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[auto_auto] @4xl:content-start @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
           >
             <div
-              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[46rem] @4xl:justify-start @4xl:overflow-hidden"
+              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[72rem] @4xl:justify-start"
             >
               <span class="eco-kicker self-start">{{ stage.kicker }}</span>
               <h2
@@ -263,7 +284,7 @@
             </div>
 
             <div
-              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(20rem,36dvh)]"
+              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(34rem,65dvh)]"
               aria-live="polite"
             >
               <template v-if="pending">
@@ -327,7 +348,7 @@
                   </span>
                 </div>
                 <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p class="font-serif text-lg leading-relaxed @4xl:text-xl">
+                  <p class="font-serif text-xl leading-relaxed @4xl:text-2xl">
                     {{ pending.text }}
                   </p>
                 </div>
@@ -372,7 +393,7 @@
                       game.ending.fate
                     ]"
                     :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                    class="font-serif text-lg leading-relaxed @4xl:text-2xl"
                   >
                     {{ paragraph }}
                   </p>
@@ -490,7 +511,7 @@
                   <p
                     v-for="(paragraph, index) in stage.body"
                     :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                    class="font-serif text-lg leading-relaxed @4xl:text-2xl"
                   >
                     {{ paragraph }}
                   </p>
@@ -518,7 +539,7 @@
             </div>
 
             <div
-              class="eco-choices flex min-h-0 flex-col gap-2 self-end @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
+              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
             >
               <template v-if="pending">
                 <button

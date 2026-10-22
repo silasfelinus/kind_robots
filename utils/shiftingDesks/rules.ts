@@ -5,6 +5,7 @@ import wellnessPack from './wellness.json'
 import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
 import endingsData from './endings.json'
+import riskPayoffsData from './risk-payoffs.json'
 import {
   editChoices,
   joinBody,
@@ -104,6 +105,16 @@ export const HARMFUL_SIGN: Record<Meter, -1 | 1> = {
   successors: -1,
   forms: -1,
 }
+
+export type RiskPayoff = {
+  department: string
+  card: string
+  choice: string
+  effects: Effects
+  message: string
+}
+
+export const RISK_PAYOFFS = (riskPayoffsData as { payoffs: RiskPayoff[] }).payoffs
 
 export const START_METERS: Meters = {
   composure: 6,
@@ -1191,6 +1202,19 @@ export function favorAppliesTo(state: RunState, choice: Choice): boolean {
   return false
 }
 
+export function riskPayoffFor(state: RunState, choice: Choice): RiskPayoff | null {
+  const card = currentCard(state)?.card
+  if (!card || !choice.roll) return null
+  return (
+    RISK_PAYOFFS.find(
+      (reward) =>
+        reward.department === state.department &&
+        reward.card === card.id &&
+        reward.choice === choice.id,
+    ) ?? null
+  )
+}
+
 export function mutationAppliesTo(state: RunState, choice: Choice): boolean {
   if (state.mutationUsed || !choice.roll) return false
   const m = mutationById(state.mutationId)
@@ -1352,6 +1376,11 @@ export function choose(
 
   const outcome = success || !choice.failure ? choice.success : choice.failure
   let effects = addEffects(choice.cost, outcome.effects)
+  const earnedPayoff = success ? riskPayoffFor(state, choice) : null
+  if (earnedPayoff) {
+    effects = addEffects(effects, earnedPayoff.effects)
+    events.push(earnedPayoff.message)
+  }
   if (formBoost) effects = addEffects(effects, { forms: -1 })
   const mutationSpent = mutationUsed && !state.mutationUsed
   if (view.kind === 'window' && choice.id !== byTheBook(view.applicant)) {

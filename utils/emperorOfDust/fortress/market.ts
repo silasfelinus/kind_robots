@@ -48,6 +48,8 @@ export const SURGEON_PER_DAY = 2
 /** Saltroad medicine takes this share off the surgeon's fee while they are Friendly. */
 export const SALTROAD_DISCOUNT = 0.25
 export const POULTICE_PRICE = 5
+export const INFIRMARY_BASE = 9
+export const INFIRMARY_PER_DAY = 3
 
 const clone = (run: FortressRun): FortressRun =>
   JSON.parse(JSON.stringify(run)) as FortressRun
@@ -214,7 +216,7 @@ export const sellItem = (run: FortressRun, itemId: string): FortressRun => {
 
 // --- treatments ---------------------------------------------------------------
 
-export type TreatmentKind = 'surgeon' | 'poultice'
+export type TreatmentKind = 'surgeon' | 'poultice' | 'infirmary'
 
 /** The caravans bring medicine while the Saltroad is Friendly. */
 export const saltroadMedicine = (run: FortressRun): boolean =>
@@ -239,7 +241,11 @@ export const treatmentPrice = (
   followerId: string,
   kind: TreatmentKind,
 ): number =>
-  kind === 'surgeon' ? surgeonPrice(run, followerId) : POULTICE_PRICE
+  kind === 'surgeon'
+    ? surgeonPrice(run, followerId)
+    : kind === 'infirmary'
+      ? INFIRMARY_BASE + INFIRMARY_PER_DAY * injuryDaysLeft(run, followerId)
+      : POULTICE_PRICE
 
 /** Why a follower cannot be treated this way now, or null. */
 export const treatmentBlocker = (
@@ -250,6 +256,8 @@ export const treatmentBlocker = (
   const status = followerStatus(run, followerId)
   if (status !== 'injured') return 'Only the wounded at court'
   if (treatedToday(run).includes(followerId)) return 'Seen today already'
+  if (kind === 'infirmary' && followerStatus(run, 'F003') !== 'ready')
+    return 'Kiyo must be at the infirmary to offer intensive care'
   if (kind === 'poultice' && !poulticeOffered(run))
     return 'No Mire woman will come'
   const price = treatmentPrice(run, followerId, kind)
@@ -266,6 +274,7 @@ export type TreatmentResult = {
 
 /**
  * The surgeon closes one day of a wound, for a fee that grows with the wound.
+ * Kiyo's infirmary provides full recovery in return for a larger brass expense.
  * A Mire poultice is cheap and seeded: half the time it closes two days, some
  * of the time nothing, and sometimes the wound goes bad. The Abbey hears.
  */
@@ -285,6 +294,10 @@ export const treatFollower = (
   const state = next.roster.find((entry) => entry.id === followerId)!
   let healed = 1
   let text = `The surgeon works by lamp. ${name} sleeps. One day less.`
+  if (kind === 'infirmary') {
+    healed = injuryDaysLeft(run, followerId)
+    text = `Kiyo keeps watch through the night. ${name} is fit to return to duty. The court pays for the medicines, not the kindness.`
+  }
   if (kind === 'poultice') {
     const roll = rollFor(run, `poultice:${run.day}:${followerId}`)
     healed = roll < 50 ? 2 : roll < 80 ? 0 : -1

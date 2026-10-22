@@ -13,6 +13,8 @@ on:
       - 'public/shifting-desks/**'
       - 'utils/scripts/verifyShiftingDesks.test.ts'
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
+      - 'utils/scripts/verifyShiftingDesksAdversarial.test.ts'
+      - 'utils/scripts/shiftingDesksAdversarialReport.ts'
       - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
       - 'utils/scripts/shiftingDesksBalanceReport.ts'
       - 'cypress/public/shifting-desks-endings.cy.ts'
@@ -38,6 +40,16 @@ jobs:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingDesksAdversarial.test.ts
+      - name: Generate adversarial playtest report
+        run: npx tsx utils/scripts/shiftingDesksAdversarialReport.ts 200 > shifting-desks-adversarial-report.md
+      - name: Upload adversarial evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shifting-desks-adversarial-report
+          path: shifting-desks-adversarial-report.md
+          if-no-files-found: ignore
       - run: npx tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts
 
   # t-026: every ending, loaded from a naturally reached save through real

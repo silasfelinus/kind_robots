@@ -1,6 +1,6 @@
 <template>
   <div
-    class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]"
+    class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.65fr)_minmax(25rem,0.85fr)]"
   >
     <section class="flex min-h-0 flex-col gap-2">
       <div class="eod-board min-h-0 flex-1 p-3">
@@ -12,13 +12,13 @@
           The board is empty. Petitions in the throne room can post new quests.
         </p>
         <div
-          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3 @7xl:gap-4"
+          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16.25rem),1fr))] gap-3 @7xl:gap-4"
         >
           <button
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex min-h-52 flex-col p-3 pt-4 text-left"
+            class="eod-notice flex min-h-72 flex-col p-4 pt-5 text-left"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -31,16 +31,16 @@
               :quest-id="entry.questId"
               :region="entry.quest.region"
               :label="entry.quest.title"
-              class="-mx-1 -mt-1 mb-3 aspect-[16/10] rounded-sm"
+              class="-mx-1 -mt-1 mb-4 aspect-[16/10] rounded-sm"
             />
-            <strong class="eod-display text-base leading-snug">{{
+            <strong class="eod-display text-lg leading-snug">{{
               entry.quest.title
             }}</strong>
-            <span class="mt-1 block text-sm italic leading-snug opacity-80">
+            <span class="mt-1 block text-base italic leading-snug opacity-80">
               {{ regionName(entry.quest.region) }}
             </span>
             <span
-              class="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold uppercase"
+              class="mt-2 flex flex-wrap gap-1 text-xs font-semibold uppercase"
               :aria-label="`Needs ${bandSummary(entry.questId)}`"
             >
               <span
@@ -51,7 +51,7 @@
               >
             </span>
             <span
-              class="mt-auto flex items-center justify-between gap-2 pt-2 text-[11px] font-semibold"
+              class="mt-auto flex items-center justify-between gap-2 pt-3 text-xs font-semibold"
             >
               <span>
                 {{ entry.quest.durationDays }}
@@ -139,7 +139,7 @@
           >
         </p>
         <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
-        <p class="mt-1 text-base leading-snug">{{ selected.summary }}</p>
+        <p class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed @xl:text-lg">{{ selected.summary }}</p>
         <p
           v-if="selected.mustInclude"
           class="mt-1 text-xs font-semibold text-warning"

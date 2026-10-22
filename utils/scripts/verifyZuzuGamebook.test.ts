@@ -18,6 +18,7 @@ import {
   fight,
   isSavedRun,
   lockReason,
+  resolveLoot,
   visibleChoices,
   honor,
   taint,
@@ -172,6 +173,51 @@ assert.equal(initial.resolve, 4)
 assert.ok(isSavedRun(JSON.parse(JSON.stringify(initial))))
 assert.equal(isSavedRun({ ...initial, sceneId: 'missing' }), false)
 assert.equal(isSavedRun({ ...initial, health: 500 }), false)
+assert.equal(isSavedRun({ ...initial, pendingLoot: [123] }), false)
+const legacySave = JSON.parse(JSON.stringify(initial)) as Record<string, unknown>
+delete legacySave.pendingLoot
+assert.ok(isSavedRun(legacySave), 'older V1 saves without pending loot are valid')
+
+// An at-capacity pickup must never vanish without the player's consent.
+const fullItems = ['water', 'bandage', 'apple', 'flint', 'clapper']
+const fullPack: Run = {
+  ...startRun(77),
+  sceneId: 'apple-tree',
+  items: [...fullItems],
+}
+const offered = takeChoice(fullPack, 'take')
+assert.deepEqual(offered.items, fullItems)
+assert.deepEqual(offered.pendingLoot, ['apple'])
+assert.deepEqual(fullPack.pendingLoot, [], 'pickup did not mutate old state')
+assert.equal(takeChoice(offered, 'on'), offered, 'pending loot blocks story advancement')
+assert.equal(resolveLoot(offered, -1), offered, 'invalid replacement cannot skip loot')
+assert.equal(resolveLoot(offered, 99), offered, 'invalid index cannot discard items')
+const replaced = resolveLoot(offered, 4)
+assert.deepEqual(replaced.items, ['water', 'bandage', 'apple', 'flint', 'apple'])
+assert.deepEqual(replaced.pendingLoot, [])
+assert.deepEqual(offered.items, fullItems, 'exchange leaves old run untouched')
+const abandoned = resolveLoot(offered, null)
+assert.deepEqual(abandoned.items, fullItems)
+assert.deepEqual(abandoned.pendingLoot, [])
+assert.equal(resolveLoot(abandoned, null), abandoned, 'empty queue is a no-op')
+const multiple = {
+  ...offered,
+  pendingLoot: ['apple', 'water'],
+}
+assert.deepEqual(resolveLoot(multiple, null).pendingLoot, ['water'])
+assert.deepEqual(resolveLoot(resolveLoot(multiple, 0), 1).pendingLoot, [])
+const wagonPickup = Array.from({ length: 40 }, (_, i) =>
+  takeChoice(
+    { ...startRun(i + 1), sceneId: 'wagon', items: [...fullItems] },
+    'search',
+  ),
+).find((result) => result.sceneId === 'wagon-find')
+assert.ok(wagonPickup, 'some seeded wagon search succeeds')
+assert.deepEqual(
+  wagonPickup.pendingLoot,
+  ['water'],
+  'scene-entry loot must also wait for a full-pack decision',
+)
 
 const noWater = { ...initial, items: [] }
 assert.equal(
@@ -456,6 +502,10 @@ assert.match(page, /\(min-width: 1024px\) and \(max-height: 820px\)/)
 assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)
 assert.match(page, /max-md:max-h-\[34svh\]/, 'phones keep the plate to a third')
+
+assert.match(page, /store\\.claimLoot\\(index\\)/, 'full pack can replace inventory')
+assert.match(page, /store\\.claimLoot\\(null\\)/, 'full pack can leave loot')
+assert.match(page, /store\\.recoverable/, 'restore journey action is visible')
 
 console.log(
   'Zuzu gamebook contract: ' +

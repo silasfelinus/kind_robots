@@ -10,7 +10,7 @@ import { openingLensChoices } from './openingLensChoices'
 const OPENING_ACTIONS: Record<string, Record<string, string>> = {
   'KN-2': {
     sober: 'Help photograph the sculptures, water in hand',
-    'fair-tipsy': 'Join the race crew for a beer and ask who needs help tomorrow',
+    'tipsy': 'Join the race crew for a beer and ask who needs help tomorrow',
     'race-stoned': 'Share a joint outside, then watch the Rainbow Shrimp rehearse',
   },
   'GR-2': {

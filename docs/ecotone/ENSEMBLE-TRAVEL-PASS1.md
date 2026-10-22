@@ -1,6 +1,6 @@
 # Ecotone: two-guide travel and shared futures
 
-**Development slice of Conductor t-045, October 21, 2026 PT.** This implements the first *playable* shared-party decision without replacing the 56 established single-guide and solo collectibles.
+**Development slice of Conductor t-045, October 21, 2026 PT.** This implements the first _playable_ shared-party decision without replacing the 56 established single-guide and solo collectibles.
 
 ## Player flow
 
@@ -16,9 +16,9 @@ Saved-run version stays at 4. Pre-feature saves without `travelCompanions` resto
 
 ## Still to develop
 
-* Further crossroads or optional meet-ups if three/four-guide traveling groups are desired. Current route layout has only **one** crossroads per run, so each finished journey can have at most two co-traveling guides.
-* Relationship-building hangouts with decisions and earned flags, rather than automatically assuming intimacy after sharing a walk.
-* Dedicated selectable/collectible ensemble endings, group-specific epilogue art, and all four art-style lanes. Coordinate with the separately claimed t-042 art effort to avoid duplicate jobs.
-* Device-width visual checks, real human-paced playtesting, and separate creative/publication gates.
+- Further crossroads or optional meet-ups if three/four-guide traveling groups are desired. Current route layout has only **one** crossroads per run, so each finished journey can have at most two co-traveling guides.
+- Relationship-building hangouts with decisions and earned flags, rather than automatically assuming intimacy after sharing a walk.
+- Dedicated selectable/collectible ensemble endings, group-specific epilogue art, and all four art-style lanes. Coordinate with the separately claimed t-042 art effort to avoid duplicate jobs.
+- Device-width visual checks, real human-paced playtesting, and separate creative/publication gates.
 
 This work is fictional and does not touch Wiyot/Tuluwat-held writing, portraits, gallery/exporting, or ArtJobs.

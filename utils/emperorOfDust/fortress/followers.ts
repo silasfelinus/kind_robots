@@ -1,4 +1,5 @@
 import { LATE_FOLLOWERS } from './followersLate'
+import { SECRET_FOLLOWERS } from './followersSecret'
 import type { FollowerDef } from './types'
 
 // F001-F010 from conductor FOLLOWERS-PILOT-01.md, re-expressed in the v0.3
@@ -428,6 +429,7 @@ const FIRST_TEN: readonly FollowerDef[] = [
 export const FOLLOWERS: readonly FollowerDef[] = [
   ...FIRST_TEN,
   ...LATE_FOLLOWERS,
+  ...SECRET_FOLLOWERS,
 ]
 
 // The item catalog lives in items.ts with the market (t-024).

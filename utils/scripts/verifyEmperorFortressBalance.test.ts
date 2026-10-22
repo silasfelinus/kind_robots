@@ -77,7 +77,9 @@ assert.ok(
   candles >= 1 && candles / carefulRuns <= 0.2,
   `A Hundred Candles is reachable by careful play, not routine (${candles})`,
 )
-// Recklessness costs more than care.
+// Recklessness costs more than care. Inspect the changed opening cohort
+// before retuning this relative assertion.
+console.log('Emperor onboarding balance sample:', JSON.stringify({ reckless: of('reckless').deaths, greedy: of('greedy').deaths, careful: carefulDeaths, carefulRuns, all: report.map(({policy,deaths})=>({policy,deaths})) }))
 assert.ok(
   of('reckless').deaths > of('greedy').deaths,
   'reckless play buries more followers',

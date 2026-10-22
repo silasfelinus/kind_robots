@@ -210,7 +210,7 @@
       <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
-        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
+        class="h-full overflow-y-auto overscroll-contain"
       >
         <div class="relative min-h-full @4xl:h-full">
           <div
@@ -1484,8 +1484,9 @@ function saveGame(slot: number) {
 }
 function loadGame(slot: number) {
   if (game.run && !window.confirm(`Replace your active journey with slot ${slot}?`)) return
-  saveNotice.value = game.loadSlot(slot) ? `Loaded slot ${slot}.` : 'That save could not be loaded.'
-  if (game.run) tab.value = 'road'
+  const loaded = game.loadSlot(slot)
+  saveNotice.value = loaded ? `Loaded slot ${slot}.` : 'That save could not be loaded.'
+  if (loaded) tab.value = 'road'
 }
 function removeSave(slot: number) {
   if (!window.confirm(`Delete manual save in slot ${slot}?`)) return
@@ -1880,7 +1881,7 @@ const hasHiddenText = computed(() =>
 )
 watch([storyText, textSpeed, tab], () => {
   stopReveal()
-  if (textSpeed.value === 'instant' || tab.value !== 'road') {
+  if (textSpeed.value === 'instant' || tab.value !== 'road' || (import.meta.client && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
     revealCount.value = storyText.value.length
     return
   }

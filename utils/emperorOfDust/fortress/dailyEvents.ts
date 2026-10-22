@@ -901,28 +901,31 @@ const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
       series: motif.id,
       title,
       text,
-      choices: act === 1 ? ACT_ONE_CHOICES[motif.id]! : [
-        {
-          id: 'collect',
-          label: motif.collect,
-          response: motif.collectResponse,
-          effects: {
-            brass: 4 + act * 4,
-            local: { [motif.local]: -1 },
-            affinity: { [motif.faction]: act },
-          },
-        },
-        {
-          id: 'care',
-          label: motif.care,
-          response: motif.careResponse,
-          effects: {
-            brass: act === 1 ? 0 : -act * 2,
-            local: { [motif.local]: act + 1 },
-            flags: [`chance:${motif.id}:${act}`],
-          },
-        },
-      ],
+      choices:
+        act === 1
+          ? ACT_ONE_CHOICES[motif.id]!
+          : [
+              {
+                id: 'collect',
+                label: motif.collect,
+                response: motif.collectResponse,
+                effects: {
+                  brass: 4 + act * 4,
+                  local: { [motif.local]: -1 },
+                  affinity: { [motif.faction]: act },
+                },
+              },
+              {
+                id: 'care',
+                label: motif.care,
+                response: motif.careResponse,
+                effects: {
+                  brass: act === 1 ? 0 : -act * 2,
+                  local: { [motif.local]: act + 1 },
+                  flags: [`chance:${motif.id}:${act}`],
+                },
+              },
+            ],
     }
   }),
 )

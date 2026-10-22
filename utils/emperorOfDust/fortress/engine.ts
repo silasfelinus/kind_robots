@@ -228,7 +228,9 @@ export const postDawnQuests = (run: FortressRun): void => {
   // Whoever is eligible at dawn stays at court all day, whatever is decided
   // in the other audiences.
   run.dayAudiences = courtAudiences(run)
-    .filter((audience) => unmetRequirements(run, audience.requires).length === 0)
+    .filter(
+      (audience) => unmetRequirements(run, audience.requires).length === 0,
+    )
     .map((audience) => audience.id)
 }
 
@@ -521,7 +523,9 @@ export const unmetRequirements = (
     reasons.push('Not yet possible')
   for (const id of recruits)
     if (run.flags.includes(`court-excluded:${id}`))
-      reasons.push(`${followerDef(id)?.name ?? id} was turned away at First Bell`)
+      reasons.push(
+        `${followerDef(id)?.name ?? id} was turned away at First Bell`,
+      )
   if (bedsUsed(run) + recruits.length > run.beds)
     reasons.push('The barracks are full')
   return reasons
@@ -726,13 +730,15 @@ export const dismissBlockers = (
 const courtAudiences = (run: FortressRun): AudienceDef[] => {
   const ordinary = dayDef(run.day)?.audiences ?? []
   if (!run.flags.includes(COURT_ONBOARDING_FLAG)) return ordinary
-  if (run.day === 2)
-    return [...ordinary, ACT_ONE_DAYS[0]!.audiences[1]!]
-  if (run.day === 3)
-    return [...ordinary, ACT_ONE_DAYS[0]!.audiences[2]!]
+  if (run.day === 2) return [...ordinary, ACT_ONE_DAYS[0]!.audiences[1]!]
+  if (run.day === 3) return [...ordinary, ACT_ONE_DAYS[0]!.audiences[2]!]
   if (run.day !== 1) return ordinary
-  const random = RANDOM_ARRIVALS[rollFor(run, 'first-bell:visitor') % RANDOM_ARRIVALS.length]
-  const argument = RIVAL_ARGUMENTS[rollFor(run, 'first-bell:argument') % RIVAL_ARGUMENTS.length]
+  const random =
+    RANDOM_ARRIVALS[rollFor(run, 'first-bell:visitor') % RANDOM_ARRIVALS.length]
+  const argument =
+    RIVAL_ARGUMENTS[
+      rollFor(run, 'first-bell:argument') % RIVAL_ARGUMENTS.length
+    ]
   const chosen = new Set(['d01-kiyo-arrives', random, argument])
   return [
     ...FIRST_BELL_AUDIENCES.filter((audience) => chosen.has(audience.id)),
@@ -2319,7 +2325,9 @@ export const finishDay = (
       appointments.length !== 3 ||
       appointments.some((id) => !run.audiencesHeard.includes(id))
     )
-      throw new Error('Hear all three recruiting petitions before ending your first day')
+      throw new Error(
+        'Hear all three recruiting petitions before ending your first day',
+      )
   }
   const next = cloneRun(run)
   const events: string[] = []

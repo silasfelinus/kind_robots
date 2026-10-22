@@ -284,8 +284,14 @@ for (let seed = 1; seed <= 40; seed += 1) {
   applyEffects(run, { recruitable: [rejectedId], recruit: [rejectedId] })
   assert.ok(!run.roster.some((f) => f.id === rejectedId))
   assert.ok(!run.recruitable.includes(rejectedId))
-  assert.deepEqual(audiencesToday(run).map((a) => a.id), court.map((a) => a.id))
-  assert.ok(decodeBook(encodeBook(newBook(run))), 'recruitment and exclusion save')
+  assert.deepEqual(
+    audiencesToday(run).map((a) => a.id),
+    court.map((a) => a.id),
+  )
+  assert.ok(
+    decodeBook(encodeBook(newBook(run))),
+    'recruitment and exclusion save',
+  )
   const day2 = finishDay(run).run
   assert.ok(audiencesToday(day2).some((a) => a.id === 'd01-toll'))
   assert.ok(!audiencesToday(day2).some((a) => a.id === 'd01-mirefen'))
@@ -293,7 +299,11 @@ for (let seed = 1; seed <= 40; seed += 1) {
   assert.ok(audiencesToday(day3).some((a) => a.id === 'd01-mirefen'))
 }
 assert.equal(firstBellVisitors.size, 2, 'both chance recruits can visit')
-assert.equal(firstBellArguments.size, 2, 'both authored feuding pairs can appear')
+assert.equal(
+  firstBellArguments.size,
+  2,
+  'both authored feuding pairs can appear',
+)
 
 // --- startup overlay contract ----------------------------------------------
 // The splash fades for 600ms before it unmounts. On a new game, the first

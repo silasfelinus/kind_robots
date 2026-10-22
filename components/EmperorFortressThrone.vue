@@ -103,7 +103,13 @@
           :title="selected.title"
           :speaker="scene.speaker"
           :subtitle="npc?.species ?? featuredFollower?.species"
-          :art="npc ? illustration('npcs', npc.slug) : featuredFollower ? illustration('followers', featuredFollower.id) : undefined"
+          :art="
+            npc
+              ? illustration('npcs', npc.slug)
+              : featuredFollower
+                ? illustration('followers', featuredFollower.id)
+                : undefined
+          "
           :lines="sceneLines"
           :choices="choices"
           @choose="choose"
@@ -129,7 +135,10 @@ import {
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
-import { FOLLOWERS, followerDef } from '~/utils/emperorOfDust/fortress/followers'
+import {
+  FOLLOWERS,
+  followerDef,
+} from '~/utils/emperorOfDust/fortress/followers'
 import type {
   FortressRun,
   SceneLine,

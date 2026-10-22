@@ -116,6 +116,8 @@ export type RunState = {
   clarity: number
   substanceMoments: SubstanceMoment[]
   activeLead: CompanionId | null
+  /** Other guides who explicitly agreed to travel with the active lead. Missing in old saves. */
+  travelCompanions?: CompanionId[]
   meetingOrder: CompanionId[]
   followHistory: FollowEntry[]
   newcomerOrder: CompanionId[]
@@ -153,6 +155,21 @@ export function setLiveEdits(edits: Record<string, CardEdit>): void {
 export function findCard(id: string | null | undefined): EncounterCard | null {
   if (id && liveCards[id]) return liveCards[id]
   return ALL_CARDS.find((card) => card.id === id) ?? null
+}
+
+/** Meeting a person does not make them part of the traveling crew. */
+export function travelParty(state: RunState): CompanionId[] {
+  if (!state.activeLead) return []
+  const others = state.travelCompanions ?? []
+  return [
+    state.activeLead,
+    ...others.filter(
+      (id) =>
+        id !== state.activeLead &&
+        state.meetingOrder.includes(id) &&
+        COMPANIONS.some((companion) => companion.id === id),
+    ),
+  ].filter((id, index, party) => party.indexOf(id) === index)
 }
 
 export const LEAD_BONUS: Record<CompanionId, SkillId> = {
@@ -216,8 +233,9 @@ export function checkParts(
     parts.push({ label: 'Wide open', value: 1 })
   if (state.clarity <= 1 && check.skill === 'wits')
     parts.push({ label: 'Swimmy', value: -1 })
-  if (state.activeLead && LEAD_BONUS[state.activeLead] === check.skill) {
-    const lead = COMPANIONS.find((c) => c.id === state.activeLead)
+  const helper = travelParty(state).find((id) => LEAD_BONUS[id] === check.skill)
+  if (helper) {
+    const lead = COMPANIONS.find((c) => c.id === helper)
     parts.push({ label: `${lead?.name ?? 'Guide'} helps`, value: 1 })
   }
   if (state.nerve <= 1) parts.push({ label: 'Rattled', value: -1 })
@@ -342,6 +360,15 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
   }
   const line = lead !== presence?.companion ? card.leadLines?.[lead] : undefined
   if (line) asides.push(line)
+  // Only physically traveling companions speak here. Met-but-departed guides
+  // retain their own stories and never narrate the player's current scene.
+  for (const companion of travelParty(state).slice(1)) {
+    const extra =
+      companion !== presence?.companion
+        ? card.leadLines?.[companion]
+        : undefined
+    if (extra && extra !== line) asides.push(extra)
+  }
   return asides
 }
 
@@ -358,7 +385,8 @@ export function encounterEligible(
   state: RunState,
 ): boolean {
   if (state.played.includes(card.id)) return false
-  if (card.requiresLead && card.requiresLead !== state.activeLead) return false
+  if (card.requiresLead && !travelParty(state).includes(card.requiresLead))
+    return false
   if (card.requiresLens) {
     const lens = card.requiresLens
     const encountered = state.substanceMoments.some((moment) =>
@@ -374,7 +402,7 @@ export function encounterEligible(
   if (card.requiresFormerGuide) {
     const guide = card.requiresFormerGuide
     if (!state.meetingOrder.includes(guide)) return false
-    if (guide === state.activeLead) return false
+    if (travelParty(state).includes(guide)) return false
     if (
       !state.followHistory.some(
         (entry) => entry.from === guide && entry.to !== guide,
@@ -518,6 +546,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     clarity: 3,
     substanceMoments: [],
     activeLead: null,
+    travelCompanions: [],
     meetingOrder: [],
     followHistory: [],
     newcomerOrder: [],
@@ -654,6 +683,7 @@ function meet(state: RunState, accept: boolean): RunState {
   return {
     ...state,
     activeLead: accept ? prospect : null,
+    travelCompanions: [],
     meetingOrder: state.meetingOrder.includes(prospect)
       ? state.meetingOrder
       : [...state.meetingOrder, prospect],
@@ -764,9 +794,19 @@ export function chooseSubstanceMoment(
   }
 }
 
-export function chooseCrossroads(state: RunState, follow: boolean): RunState {
+export type CrossroadsChoice = 'stay' | 'follow' | 'together'
+
+export function chooseCrossroads(
+  state: RunState,
+  choice: boolean | CrossroadsChoice,
+): RunState {
   const newcomer = crossroadsNewcomer(state)
   if (state.phase !== 'crossroads' || state.pending || !newcomer) return state
+  const decision =
+    typeof choice === 'boolean' ? (choice ? 'follow' : 'stay') : choice
+  if (decision !== 'stay' && decision !== 'follow' && decision !== 'together')
+    return state
+  if (decision === 'together' && !state.activeLead) return state
   const companion = COMPANIONS.find((c) => c.id === newcomer)
   const previous = COMPANIONS.find((c) => c.id === state.activeLead)
   const name = companion?.name ?? 'the newcomer'
@@ -774,38 +814,61 @@ export function chooseCrossroads(state: RunState, follow: boolean): RunState {
     ...state,
     meetingOrder: [...state.meetingOrder, newcomer],
   }
-  const next: RunState = follow
-    ? {
-        ...met,
-        activeLead: newcomer,
-        followHistory: [
-          ...met.followHistory,
-          {
-            day: state.day,
-            from: state.activeLead,
-            to: newcomer,
-            choice: 'follow',
-          },
-        ],
-        flags: [...met.flags, `followed_${newcomer}`],
-      }
-    : { ...met, flags: [...met.flags, `stayed_at_${newcomer}`] }
-  const choice = follow
-    ? `Follow ${name}`
-    : previous
-      ? `Stay with ${previous.name}`
-      : 'Keep going alone'
-  const text = follow
-    ? previous
-      ? `${previous.name} nods, a little stung, and heads off after their own piece of the mystery. ${name} is already walking.`
-      : `${name} grins like they knew you would. You have a guide now.`
-    : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before this is over.`
+  const next: RunState =
+    decision === 'follow'
+      ? {
+          ...met,
+          activeLead: newcomer,
+          travelCompanions: [],
+          followHistory: [
+            ...met.followHistory,
+            {
+              day: state.day,
+              from: state.activeLead,
+              to: newcomer,
+              choice: 'follow',
+            },
+          ],
+          flags: [...met.flags, `followed_${newcomer}`],
+        }
+      : decision === 'together'
+        ? {
+            ...met,
+            travelCompanions: [...travelParty(state).slice(1), newcomer],
+            followHistory: [
+              ...met.followHistory,
+              {
+                day: state.day,
+                from: state.activeLead,
+                to: newcomer,
+                choice: 'together',
+              },
+            ],
+            flags: [...met.flags, `traveled_together_${newcomer}`],
+          }
+        : { ...met, flags: [...met.flags, `stayed_at_${newcomer}`] }
+  const selection =
+    decision === 'together'
+      ? `Travel together with ${name}`
+      : decision === 'follow'
+        ? `Follow ${name}`
+        : previous
+          ? `Stay with ${previous.name}`
+          : 'Keep going alone'
+  const text =
+    decision === 'together'
+      ? `${previous?.name ?? 'Your guide'} looks at ${name}. Nobody appoints a captain. After a careful conversation about pace, obligations and where everyone wants to stop, the two of them agree to share the road. Their ideas already disagree, which makes the next mile interesting.`
+      : decision === 'follow'
+        ? previous
+          ? `${previous.name} nods, a little stung, and heads off after their own piece of the mystery. ${name} is already walking.`
+          : `${name} grins like they knew you would. You have a guide now.`
+        : `${name} takes it in stride and goes their own way. Their trail and yours will cross again before this is over.`
   return record(
     next,
     {
       source: 'CROSSROADS',
       title: `Crossroads: ${name}`,
-      choice,
+      choice: selection,
       roll: null,
       text,
       effects: {},
@@ -942,6 +1005,16 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   if (s.activeLead !== null && !isCompanion(s.activeLead)) return null
   if (
+    s.travelCompanions !== undefined &&
+    (!Array.isArray(s.travelCompanions) ||
+      !s.travelCompanions.every(isCompanion) ||
+      new Set(s.travelCompanions).size !== s.travelCompanions.length ||
+      (s.travelCompanions.length > 0 && !s.activeLead) ||
+      (s.activeLead !== null && s.travelCompanions.includes(s.activeLead)) ||
+      s.travelCompanions.some((id) => !s.meetingOrder?.includes(id)))
+  )
+    return null
+  if (
     !Array.isArray(s.log) ||
     !s.log.every(
       (entry) =>
@@ -964,6 +1037,13 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   const restored: RunState = {
     ...(s as RunState),
+    // Older version-4 saves have one guide but no optional fellow travelers.
+    travelCompanions:
+      s.travelCompanions === undefined
+        ? []
+        : Array.isArray(s.travelCompanions)
+          ? s.travelCompanions
+          : [],
     // Version 4 saves predate the optional interludes; preserve the opening memory.
     substanceMoments:
       s.substanceMoments ??

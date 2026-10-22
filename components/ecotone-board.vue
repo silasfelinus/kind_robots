@@ -377,6 +377,12 @@
                     {{ paragraph }}
                   </p>
                   <p
+                    v-if="sharedFuture"
+                    class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm leading-relaxed"
+                  >
+                    {{ sharedFuture }}
+                  </p>
+                  <p
                     v-for="(callback, index) in questCallbacks"
                     :key="`quest-callback-${index}`"
                     class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
@@ -1172,6 +1178,7 @@ import {
   SIGNATURES,
 } from '~/utils/ecotone/story'
 import { earnedQuestCallbacks } from '~/utils/ecotone/finaleExpansion'
+import { ensembleFuture } from '~/utils/ecotone/ensembleFuture'
 import {
   DEFAULT_ECOTONE_ART_STYLE,
   ECOTONE_ART_STYLES,
@@ -1318,6 +1325,9 @@ const questCallbacks = computed(() => {
   const run = game.run
   return run ? earnedQuestCallbacks(run.flags, run.played) : []
 })
+const sharedFuture = computed(() =>
+  game.run && game.ending ? ensembleFuture(game.run, game.ending.fate) : null,
+)
 const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),
 )
@@ -1385,7 +1395,9 @@ function effectChips(effects: Effects) {
 
 function guideStatus(id: CompanionId) {
   if (!game.run) return 'Somewhere in the county'
-  if (game.lead?.id === id) return 'Your guide'
+  if (game.lead?.id === id) return 'Your lead guide'
+  if (game.party.some((companion) => companion.id === id))
+    return 'Traveling with you'
   if (game.companionMet(id)) return 'Met · on their own path'
   return 'Not met yet'
 }
@@ -1425,8 +1437,11 @@ type Stage = {
 
 const stage = computed<Stage>(() => {
   const run = game.run
-  const leadEmblem = game.lead
-    ? [{ id: game.lead.id, name: game.lead.name }]
+  const leadEmblem = game.party.length
+    ? game.party.map((companion) => ({
+        id: companion.id,
+        name: companion.name,
+      }))
     : null
   const fallback: Stage = {
     scene: EVENT_CHOICE.scene,
@@ -1449,8 +1464,13 @@ const stage = computed<Stage>(() => {
   if (!run || run.phase === 'event') return fallback
   if (run.phase === 'crossroads' && game.newcomer) {
     const n = game.newcomer
-    const emblem = [{ id: n.id, name: n.name }]
-    if (game.lead) emblem.unshift({ id: game.lead.id, name: game.lead.name })
+    const emblem = [
+      ...game.party.map((companion) => ({
+        id: companion.id,
+        name: companion.name,
+      })),
+      { id: n.id, name: n.name },
+    ]
     return {
       ...fallback,
       scene: 'bay',
@@ -1463,7 +1483,8 @@ const stage = computed<Stage>(() => {
       place: eventInfo.value?.name ?? '',
       meet: { name: n.name, role: n.role, line: n.line },
       panelKicker: 'A crossroads, not a character select',
-      panelFooter: 'The others will still be out there.',
+      panelFooter:
+        'All three answers are valid; nobody owes you their company.',
       question: 'Who walks with you?',
       body: CROSSROADS[n.id],
       emblem,
@@ -1624,8 +1645,18 @@ const options = computed<Option[]>(() => {
         hint: game.lead
           ? `${game.lead.name} carries on alone. ${n.name} helps with ${skillLabel(LEAD_BONUS[n.id])} checks.`
           : `${n.name} helps with ${skillLabel(LEAD_BONUS[n.id])} checks.`,
-        act: () => game.crossroads(true),
+        act: () => game.crossroads('follow'),
       },
+      ...(game.lead
+        ? [
+            {
+              id: 'together',
+              label: `Invite ${n.name} to travel with us`,
+              hint: `Keep ${game.lead.name} and welcome ${n.name}. Both contribute their strengths, but no roll gets stacked bonuses.`,
+              act: () => game.crossroads('together'),
+            },
+          ]
+        : []),
     ]
   }
   const card = game.card

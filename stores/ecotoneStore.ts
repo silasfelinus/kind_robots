@@ -20,6 +20,8 @@ import {
   findCard,
   restoreRun,
   setLiveEdits,
+  travelParty,
+  type CrossroadsChoice,
   type RunState,
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
@@ -51,6 +53,13 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   })
   const lead = computed(
     () => COMPANIONS.find((c) => c.id === run.value?.activeLead) ?? null,
+  )
+  const party = computed(() =>
+    run.value
+      ? travelParty(run.value).flatMap(
+          (id) => COMPANIONS.find((companion) => companion.id === id) ?? [],
+        )
+      : [],
   )
   const prospect = computed(
     () => COMPANIONS.find((c) => c.id === run.value?.prospect) ?? null,
@@ -144,8 +153,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     if (run.value) update(chooseSubstanceMoment(run.value, selected))
   }
 
-  function crossroads(follow: boolean) {
-    if (run.value) update(chooseCrossroads(run.value, follow))
+  function crossroads(choice: boolean | CrossroadsChoice) {
+    if (run.value) update(chooseCrossroads(run.value, choice))
   }
 
   function proceed() {
@@ -169,6 +178,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     card,
     offered,
     lead,
+    party,
     prospect,
     newcomer,
     ending,

@@ -22,7 +22,7 @@ import { FORMER_GUIDE_QUESTS } from '../ecotone/formerGuideQuests'
 import { QUEST_CARDS } from '../ecotone/questExpansion'
 
 const guides = COMPANIONS.map((guide) => guide.id)
-const pairs: [typeof guides[number], typeof guides[number]][] = []
+const pairs: [(typeof guides)[number], (typeof guides)[number]][] = []
 for (let i = 0; i < guides.length; i += 1) {
   for (let j = i + 1; j < guides.length; j += 1) {
     pairs.push([guides[i]!, guides[j]!])
@@ -31,8 +31,8 @@ for (let i = 0; i < guides.length; i += 1) {
 
 function atCrossroads(
   seed: number,
-  initial: typeof guides[number],
-  newcomer: typeof guides[number],
+  initial: (typeof guides)[number],
+  newcomer: (typeof guides)[number],
 ): RunState {
   const start = createRun(seed, 'reporter')
   return {
@@ -57,7 +57,11 @@ for (const [initial, newcomer] of pairs) {
     const accepted = chooseCrossroads(start, 'together')
     assert.deepEqual(travelParty(accepted), [initial, newcomer])
     assert.deepEqual(accepted.meetingOrder, [initial, newcomer])
-    assert.equal(accepted.activeLead, initial, 'inviting someone does not dismiss the guide')
+    assert.equal(
+      accepted.activeLead,
+      initial,
+      'inviting someone does not dismiss the guide',
+    )
     assert.equal(accepted.followHistory.at(-1)?.choice, 'together')
     assert.equal(accepted.log.at(-1)?.source, 'CROSSROADS')
     assert.match(accepted.log.at(-1)?.text ?? '', /agree to share the road/)
@@ -75,7 +79,7 @@ for (const [initial, newcomer] of pairs) {
         COMPANIONS.some(
           (guide) =>
             [initial, newcomer].includes(guide.id) &&
-            ({ kit: 'burly', cedar: 'lore', mara: 'wits', juniper: 'psyche' })[
+            { kit: 'burly', cedar: 'lore', mara: 'wits', juniper: 'psyche' }[
               guide.id
             ] === skill,
         )
@@ -83,7 +87,11 @@ for (const [initial, newcomer] of pairs) {
         assert.equal(helpers.length, 1, 'every guide has a useful specialty')
     }
     const future = computeEnding(accepted)
-    assert.equal(future.lead, initial, 'legacy signature still follows lead guide')
+    assert.equal(
+      future.lead,
+      initial,
+      'legacy signature still follows lead guide',
+    )
     for (const fate of ['hope', 'dark'] as const) {
       assert.ok(
         (ensembleFuture(accepted, fate)?.length ?? 0) > 100,
@@ -151,7 +159,11 @@ const solo: RunState = {
   activeLead: null,
   travelCompanions: [],
 }
-assert.equal(chooseCrossroads(solo, 'together'), solo, 'solo cannot summon a partner')
+assert.equal(
+  chooseCrossroads(solo, 'together'),
+  solo,
+  'solo cannot summon a partner',
+)
 assert.equal(ensembleFuture(solo, 'hope'), null)
 
 const oldSave = JSON.parse(JSON.stringify(selected)) as Record<string, unknown>
@@ -164,7 +176,11 @@ const impossible = {
   ...selected,
   travelCompanions: ['kit', 'kit'],
 }
-assert.equal(restoreRun(impossible), null, 'duplicated companions invalidate saves')
+assert.equal(
+  restoreRun(impossible),
+  null,
+  'duplicated companions invalidate saves',
+)
 assert.equal(
   restoreRun({ ...selected, travelCompanions: ['mara'] }),
   null,
@@ -189,10 +205,7 @@ const juniperQuest = QUEST_CARDS.find((card) => card.id === 'WH-012')!
 assert.equal(encounterEligible(juniperQuest, mixed), true)
 assert.equal(encounterEligible(juniperQuest, movedOn), false)
 
-const board = readFileSync(
-  'components/ecotone-board.vue',
-  'utf8',
-)
+const board = readFileSync('components/ecotone-board.vue', 'utf8')
 assert.match(board, /id: 'together'/)
 assert.match(board, /game\.crossroads\('together'\)/)
 assert.match(board, /\{\{ sharedFuture \}\}/)

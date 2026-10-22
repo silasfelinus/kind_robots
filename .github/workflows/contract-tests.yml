@@ -1499,6 +1499,9 @@ jobs:
       - name: Art Archive ingestion controls contract
         run: npm run test:art-archive-ingestion-controls
 
+      - name: Memory Dungeon gallery feed contract
+        run: npm run test:memory-art-feed
+
       - name: Art Archive scan memory contract
         run: npm run test:art-archive-scan-memory
 

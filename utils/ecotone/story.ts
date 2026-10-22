@@ -169,15 +169,15 @@ export const BEATS: EncounterCard[] = [
     scene: 'meadow',
     variantBy: 'prospect',
     body: [
-      'Somebody always has something to share at the Green Ribbon Fair: water, sandwiches, a joint, and a little tin of the serious brownies, labeled. Nobody has to.',
+      'After the Green Ribbon Fair’s first performance, volunteers pass out sandwiches, water and schedules. A drummer invites you to hear a new song while the trail crew needs help putting up a safety sign. Someone offers a joint in passing, but nobody is keeping score of what you accept.',
     ],
     variants: {
       kit: [
-        'After the show the acrobats sprawl on a blanket, passing around water, a basket of sandwiches and a joint, all offered with the same easy generosity. The base of the act, a huge bearded man with a voice like a lullaby, holds up a wax-paper parcel. “Brownies,” he says. “Labeled. The serious kind. Nobody has to.”',
+        'After the show the acrobats unpack water and sandwiches while the volunteer coordinator counts missing flashlight batteries. Somebody offers a joint; the base of the act, a huge bearded man with a voice like a lullaby, says, “No pressure. We need people who can carry these lanterns, too.”',
         'The woman in coveralls, still upside down on a stranger’s shoulders, calls over: “Whatever you pick, pick it on purpose.”',
       ],
       juniper: [
-        'The drum circle breaks for water. A drummer with silver rings on every finger passes you a canteen, then a joint, then, more carefully, a small labeled tin of the serious brownies. “Nobody has to,” she says. “The forest’s weird enough either way.”',
+        'The drum circle breaks for water, and a drummer with silver rings on every finger shows you where the path leaves the meadow. Someone nearby offers a smoke; she waves it away for herself and says, “The forest’s weird enough either way.”',
         'Across the clearing the woman with the ribbon watches you decide, curious rather than expectant.',
       ],
     },
@@ -556,16 +556,16 @@ export const BEATS: EncounterCard[] = [
     scene: 'marsh',
     variantBy: 'prospect',
     body: [
-      'The trail ends at a bench above a slough with the whole bay in view. Someone has left a thermos of coffee there with a note: FOR WHOEVER NEEDS IT. Beside it sits a tidy little tin of the serious brownies with its own note: ONLY IF YOU MEANT TO COME HERE.',
-      'There is also, in your pocket, the joint a neighbor gave you last week. Nobody is watching. That is the point.',
+      'The trail ends at a bench above a slough with the bay in view. Someone has left a thermos of coffee with a note: FOR WHOEVER NEEDS IT. Beside it is a pair of binoculars and a hand-drawn map of the birds you might see if you sit quietly.',
+      'You can watch the tide, use what you brought in your pocket, or simply leave before you become part of somebody else’s story. Nobody is watching. That is the point.',
     ],
     variants: {
       juniper: [
-        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. In her other hand there is a joint, and on the bench between you a small labeled tin of the serious brownies.',
+        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. A folded trail map lies between you; she follows an egret with her eyes.',
         '“Nobody has to,” she says. “The marsh is plenty either way.”',
       ],
       kit: [
-        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, and holds out half a sandwich, then a joint, then, more carefully, a little labeled tin of the serious brownies.',
+        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, holding out half a sandwich. A small notebook on her lap contains sketches of birds with too many wings.',
         '“Nobody has to. I just don’t like eating alone.”',
       ],
     },
@@ -916,15 +916,15 @@ export const BEATS: EncounterCard[] = [
     scene: 'theater',
     variantBy: 'prospect',
     body: [
-      'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+      'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
     ],
     variants: {
       cedar: [
-        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
-        'The mechanic from pit row is out in the lot with his tailgate down, a cooler of beer and the CB on low. “Help yourself,” he says. “Or don’t. I’m on the clock with this radio.”',
+        'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
+        'The mechanic from pit row is outside with a tailgate full of tools, a cooler and the CB on low. “I’m listening for the marshals,” he says. “If you’re not racing tomorrow, I could use someone to check the batteries.”',
       ],
       mara: [
-        'The night before the race, the racers party like people who will be pedaling a shrimp across Humboldt Bay on Sunday. An old warehouse at the edge of town has a brass band, a costume contest the Rainbow Shrimp’s crew are obviously going to win, a keg, and in the back corners a few people offering the kind of party favors that keep you dancing until sunrise.',
+        'The night before the race, a warehouse at the edge of Arcata is full of sculptures that barely fit through the doors. The Rainbow Shrimp crew rehearses beside a borrowed brass band; a tired volunteer is repairing a wheel with duct tape and optimism. Someone hands out tomorrow’s safety schedule. There is beer, and there are other offers, but mostly people are here for the gloriously unreasonable machines.',
         'The tattoo artist has set up her flash by the door and is drinking sparkling water. She looks at the bird on your arm, then at you. “It’s got more wings than I painted,” she says.',
       ],
     },

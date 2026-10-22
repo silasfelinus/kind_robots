@@ -4,6 +4,7 @@ import type {
   KingdomFactionId,
   Requirement,
 } from './types'
+import { ACT_ONE_CHOICES } from './dailyEventsActOne'
 
 /**
  * One distinct scene per motif per act. The 25 motifs change their setting,
@@ -891,6 +892,20 @@ const MOTIFS: readonly Motif[] = [
   },
 ]
 
+const actOneOptions = (motif: Motif): ChanceEventChoice[] =>
+  ACT_ONE_CHOICES[motif.id]!.map((option) => ({
+    ...option,
+    effects: {
+      ...option.effects,
+      // The old care decision led into a later callback. Preserve that
+      // history when switching to bespoke prose and consequence flags.
+      flags: [
+        ...(option.effects.flags ?? []),
+        ...(option.id === 'care' ? [`chance:${motif.id}:1`] : []),
+      ],
+    },
+  }))
+
 const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
   motif.scenes.map(([title, text], index) => {
     const act = index + 1
@@ -900,28 +915,31 @@ const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
       series: motif.id,
       title,
       text,
-      choices: [
-        {
-          id: 'collect',
-          label: motif.collect,
-          response: motif.collectResponse,
-          effects: {
-            brass: 4 + act * 4,
-            local: { [motif.local]: -1 },
-            affinity: { [motif.faction]: act },
-          },
-        },
-        {
-          id: 'care',
-          label: motif.care,
-          response: motif.careResponse,
-          effects: {
-            brass: act === 1 ? 0 : -act * 2,
-            local: { [motif.local]: act + 1 },
-            flags: [`chance:${motif.id}:${act}`],
-          },
-        },
-      ],
+      choices:
+        act === 1
+          ? actOneOptions(motif)
+          : [
+              {
+                id: 'collect',
+                label: motif.collect,
+                response: motif.collectResponse,
+                effects: {
+                  brass: 4 + act * 4,
+                  local: { [motif.local]: -1 },
+                  affinity: { [motif.faction]: act },
+                },
+              },
+              {
+                id: 'care',
+                label: motif.care,
+                response: motif.careResponse,
+                effects: {
+                  brass: act === 1 ? 0 : -act * 2,
+                  local: { [motif.local]: act + 1 },
+                  flags: [`chance:${motif.id}:${act}`],
+                },
+              },
+            ],
     }
   }),
 )
@@ -971,7 +989,7 @@ const SECRET_VISITORS: readonly {
     follower: 'F024',
     title: 'The Runner without a Wagon',
     text: 'A Jackalwire outrider arrives on foot, chased by the people they used to collect tolls for. Tarn offers a map of every southern ambush but asks that the court leave their past unnamed.',
-    welcome: 'Give Moss work as a scout, not a prisoner.',
+    welcome: 'Give Tarn work as a scout, not a prisoner.',
     decline: 'Trade a safe route out for an honest warning.',
     yes: 'Tarn points to three turns in the road that no cart should take. Then they sit down for the first time all day.',
     no: 'Tarn draws a crossing on the dirt and erases it before leaving.',

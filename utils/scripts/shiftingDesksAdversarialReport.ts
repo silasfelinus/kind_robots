@@ -101,6 +101,16 @@ out.push(
     (report.neverPickedChoices.length
       ? ' (' + report.neverPickedChoices.join(', ') + ')'
       : ''),
+  '- Choice routes never offered (locked throughout tested runs): ' +
+    report.neverOfferedChoices.length +
+    (report.neverOfferedChoices.length
+      ? ' (' + report.neverOfferedChoices.join(', ') + ')'
+      : ''),
+  '- Choice routes offered but never picked: ' +
+    report.offeredButUnpickedChoices.length +
+    (report.offeredButUnpickedChoices.length
+      ? ' (' + report.offeredButUnpickedChoices.join(', ') + ')'
+      : ''),
   '- Ending IDs unseen: ' +
     report.unseenEndings.length +
     (report.unseenEndings.length
@@ -135,9 +145,13 @@ if (meanLoss > 4)
   out.push(
     '- Give replacements richer callbacks or a more visible cost: mean Successor losses exceed four per run.',
   )
-if (report.neverSeenCards.length || report.neverPickedChoices.length)
+if (report.neverOfferedChoices.length)
   out.push(
-    '- Audit undrawn and unpicked content: distinguish rare seeded content from gated options whose setup rarely occurs.',
+    '- Investigate choices never offered: trace their prerequisite flags to source encounters and compare draw frequencies before changing gates.',
+  )
+if (report.offeredButUnpickedChoices.length)
+  out.push(
+    '- Rework visible-but-ignored choices with clearer stakes, unique callbacks, or earned rewards; these were reachable but unappealing to every tested policy.',
   )
 if (report.unseenEndings.length)
   out.push(

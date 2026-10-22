@@ -11,7 +11,10 @@ import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import {
   applyPlaytestMove,
   combatBenchmark,
+  encodeWitness,
   findEndingWitness,
+  replayEncodedWitness,
+  witnessFingerprint,
   replayWitness,
   witnessFromRun,
   type EndingWitness,
@@ -512,6 +515,18 @@ for (const id of endings) {
   assert.deepEqual(replayed.visited, witness.visited)
   assert.equal(replayed.health, witness.health)
   assert.equal(replayed.resolve, witness.resolve)
+  const trace = encodeWitness(witness)
+  const compactReplay = replayEncodedWitness(witness.seed, trace)
+  assert.equal(witnessFingerprint(compactReplay), witnessFingerprint(replayed))
+  console.log('GAMEBOOK_GOLDEN ' + JSON.stringify({
+    ending: id,
+    seed: witness.seed,
+    trace,
+    health: witness.health,
+    resolve: witness.resolve,
+    scenes: witness.visited.length,
+    fingerprint: witnessFingerprint(replayed),
+  }))
   assert.ok(witness.visited[0] === 'the-crossing')
   if (id === 'ending-wren-lamp') {
     assert.ok(
@@ -566,6 +581,41 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
         .join(' | '),
   )
 }
+// Wounded and exhausted players must still resolve battles deterministically.
+// We do not require an injured Zuzu to beat five jackals: failures can be story.
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  for (const resolve of [0, 2, 4]) {
+    for (const health of [3, 6, 9, 12]) {
+      const strike = combatBenchmark(node.id, 'strike', 90, health, resolve)
+      const exhausted = combatBenchmark(
+        node.id,
+        'quiet-draw',
+        90,
+        health,
+        resolve,
+      )
+      const feint = combatBenchmark(node.id, 'feint-strike', 90, health, resolve)
+      const guard = combatBenchmark(node.id, 'guard-strike', 90, health, resolve)
+      for (const outcome of [strike, exhausted, feint, guard]) {
+        assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
+        assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= health)
+        assert.ok(outcome.wins >= 0 && outcome.wins <= 90)
+      }
+      if (resolve === 0)
+        assert.deepEqual(exhausted, strike, 'Quiet Draw cannot bypass 0 Resolve')
+      if (health === 3 || health === 12)
+        console.log(
+          'Gamebook wounded ' + node.id +
+          ': health=' + health + ', resolve=' + resolve +
+          ', strike=' + strike.wins + ', feint=' + feint.wins +
+          ', guard=' + guard.wins + ', draw=' + exhausted.wins,
+        )
+    }
+  }
+}
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 0))
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 12, 5))
+
 const guardTestRuns = Array.from({ length: 120 }, (_, i) =>
   fight({ ...coyote, seed: i + 1 }, 'guard'),
 )
@@ -585,7 +635,7 @@ assert.ok(
       result.battle.hp === 5 &&
       result.health >= coyote.health - 1,
   ),
-  'successful feint should deal 2, expose and reduce retaliation',
+  'successful feint should deal 3, expose and reduce retaliation',
 )
 
 // The Keeper of the Empty Bell: from the tower, only when the children were freed.

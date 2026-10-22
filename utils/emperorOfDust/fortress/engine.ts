@@ -2456,5 +2456,14 @@ export const rerollDawn = (run: FortressRun): FortressRun => {
   )
   drawTemplates(next)
   drawChanceEvent(next)
+  // A Day 1 rewind changes the branch, which can select a different visitor
+  // or rival pair. Refresh the dawn snapshot or the old IDs would filter out
+  // new petitioners and could strand the player at First Bell.
+  if (next.day === 1 && next.flags.includes(COURT_ONBOARDING_FLAG))
+    next.dayAudiences = courtAudiences(next)
+      .filter(
+        (audience) => unmetRequirements(next, audience.requires).length === 0,
+      )
+      .map((audience) => audience.id)
   return next
 }

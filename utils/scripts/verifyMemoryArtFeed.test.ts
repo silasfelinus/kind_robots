@@ -13,7 +13,10 @@ async function run() {
       calls.push([collectionId, cursor])
       return cursor === null
         ? {
-            items: [{ id: 1, playable: false }, { id: 2, playable: true }],
+            items: [
+              { id: 1, playable: false },
+              { id: 2, playable: true },
+            ],
             nextCursor: 2,
           }
         : {
@@ -26,8 +29,14 @@ async function run() {
           }
     },
   })
-  assert.deepEqual(images.map(({ id }) => id), [2, 3, 4])
-  assert.deepEqual(calls, [[null, null], [null, 2]])
+  assert.deepEqual(
+    images.map(({ id }) => id),
+    [2, 3, 4],
+  )
+  assert.deepEqual(calls, [
+    [null, null],
+    [null, 2],
+  ])
 
   const collections: number[] = []
   const selected = await loadMemoryArtCandidates<Image>({
@@ -43,7 +52,10 @@ async function run() {
     },
   })
   assert.deepEqual(collections, [12, 24])
-  assert.deepEqual(selected.map(({ id }) => id), [24, 48])
+  assert.deepEqual(
+    selected.map(({ id }) => id),
+    [24, 48],
+  )
 
   const empty = await loadMemoryArtCandidates<Image>({
     collectionIds: [],

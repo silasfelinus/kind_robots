@@ -1,5 +1,6 @@
 import { useMemoryStore } from '../memoryStore'
 import { useArtStore } from '../artStore'
+import { useCollectionStore } from '../collectionStore'
 import { useUserStore } from '../userStore'
 import { useDreamStore } from '../dreamStore'
 import { useCharacterStore } from '../characterStore'
@@ -48,8 +49,18 @@ export async function resolveMemoryDungeonDeck(
   const memory = useMemoryStore()
 
   if (choice.family === 'gallery') {
-    if (choice.gallery === 'collections' && choice.collectionIds.length > 0) {
-      memory.useCollections(choice.collectionIds)
+    if (choice.gallery === 'collections') {
+      if (!choice.collectionIds.length) return []
+      const collections = useCollectionStore()
+      await collections.fetchCollections()
+      const selectedPublic = choice.collectionIds.filter((id) => {
+        const collection = collections.findCollectionById(id)
+        return collection?.isPublic === true &&
+          collection.isActive !== false &&
+          (!collection.isMature || includeMature)
+      })
+      if (!selectedPublic.length) return []
+      memory.useCollections(selectedPublic)
     } else {
       memory.useAllArtImages()
     }

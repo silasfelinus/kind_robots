@@ -1249,7 +1249,7 @@ assert.ok(ENDINGS.length >= 10, 'ten or more endings ship')
 const boardOutcomes = DEPARTMENTS.at(-1)!.boss.department_outcomes.map(
   (o) => o.id,
 )
-for (const oid of boardOutcomes.slice(0, -1)) {
+for (const oid of boardOutcomes) {
   assert.ok(
     ENDINGS.some((e) => e.trigger.department_outcome === oid),
     `the Board's ${oid} has an epilogue`,
@@ -1284,7 +1284,9 @@ assert.equal(
 
 // Deterministic reachability: every Board ending, forced through its real route.
 const BOTTOM = DEPARTMENTS.at(-1)!
-for (const ending of ENDINGS.filter((e) => e.kind === 'board')) {
+for (const ending of ENDINGS.filter(
+  (e) => e.kind === 'board' && e.trigger.department_outcome !== 'adjourned',
+)) {
   const route = BOTTOM.boss.choices.find(
     (c) => c.success.department_outcome === ending.trigger.department_outcome,
   )
@@ -1319,6 +1321,16 @@ for (const ending of ENDINGS.filter((e) => e.kind === 'board')) {
     `${ending.id} survives a save and reload`,
   )
 }
+assert.equal(
+  endingFor({
+    ...newRun('permanent-adjournment', 'temp'),
+    status: 'complete',
+    department: 'sub-level-zero',
+    departmentOutcomes: { 'sub-level-zero': 'adjourned' },
+  })?.id,
+  'permanent-adjournment',
+  'exhausting all Board review attempts has an epilogue',
+)
 const endingsSeen = new Set<string>()
 
 const kindsSeen = new Set<string>()

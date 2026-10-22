@@ -236,6 +236,7 @@ import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
 import { useCollectionStore } from '@/stores/collectionStore'
+import { performFetch } from '@/stores/utils'
 import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 export type CollectionPickerMode =
@@ -341,15 +342,36 @@ watch(
   { deep: true, immediate: true },
 )
 
+async function loadAllArtPreview() {
+  try {
+    const query = new URLSearchParams({
+      range: 'all',
+      limit: '3',
+      maturity: artStore.showMature ? 'all' : 'safe',
+    })
+    const response = await performFetch<{ items: ArtImage[] }>(
+      `/api/art/image/feed?${query.toString()}`,
+    )
+    if (response.success && response.data?.items?.length) {
+      artStore.addOrUpdateArtImages(response.data.items)
+    }
+  } catch {
+    return
+  }
+}
+
 onMounted(async () => {
   isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
 
-  await collectionStore.fetchCollections(false, {
-    summary: true,
-    includeImages: true,
-    imageLimit: 3,
-    counts: false,
-  })
+  await Promise.all([
+    collectionStore.fetchCollections(false, {
+      summary: true,
+      includeImages: true,
+      imageLimit: 3,
+      counts: false,
+    }),
+    loadAllArtPreview(),
+  ])
 })
 
 function handleBrowseClick() {
@@ -433,7 +455,7 @@ function getCollectionMeta(collection: ArtCollection): string {
   const visibility = record.isPublic ? 'public' : 'private'
   const rating = record.isMature ? 'mature' : 'safe'
 
-  return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${rating}`
+  return `${imageCount} preview${imageCount === 1 ? '' : 's'} · ${visibility} · ${rating}`
 }
 
 function hideBrokenPreview(event: Event) {

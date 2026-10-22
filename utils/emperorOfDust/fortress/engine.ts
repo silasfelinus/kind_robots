@@ -94,9 +94,9 @@ const INJURY_CHANCE: Record<
   Record<QuestResultTier, number>
 > = {
   none: { triumph: 0, success: 0, partial: 0, failure: 0 },
-  low: { triumph: 0, success: 0, partial: 20, failure: 40 },
-  mid: { triumph: 0, success: 10, partial: 35, failure: 60 },
-  high: { triumph: 5, success: 20, partial: 50, failure: 80 },
+  low: { triumph: 0, success: 0, partial: 12, failure: 30 },
+  mid: { triumph: 0, success: 6, partial: 25, failure: 45 },
+  high: { triumph: 5, success: 15, partial: 45, failure: 65 },
 }
 /**
  * On a lethal quest, the chance a deep wound (5+ days) kills instead (t-041),
@@ -111,7 +111,7 @@ export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   none: [0, 0],
   low: [1, 2],
   mid: [2, 5],
-  high: [3, 8],
+  high: [2, 6],
 }
 export const BED_UPGRADES = {
   9: { cost: 40, gateWatch: 0 },
@@ -263,13 +263,19 @@ export const choreOpen = (run: FortressRun, template: QuestDef): boolean => {
 }
 
 /**
- * Authored days draw one seeded chore, unscripted days draw two. A faction's
+ * Quiet days can offer an optional chore; scripted crises never add an
+ * unavoidable extra deadline. A faction's
  * chores only appear once its banner is on the map, and stop if it is wiped out.
  * Each chore keeps to its days, is posted at most twice, and never beside a
  * copy of itself (t-041).
  */
 const drawTemplates = (run: FortressRun): void => {
-  const draws = dayDef(run.day) ? 1 : 2
+  const scripted = dayDef(run.day)?.quests.length ?? 0
+  const backlog = run.board.length + run.active.length
+  // The first act has four starters. If authored stories fill their hands,
+  // a random chore must not make success mathematically impossible.
+  const capacity = run.roster.filter((f) => !f.dead && !f.departed).length
+  const draws = scripted || backlog >= Math.max(2, capacity - 1) ? 0 : 1
   const pool = QUEST_TEMPLATES.filter((template) => choreOpen(run, template))
   for (let i = 0; i < draws && pool.length; i += 1) {
     const index = rollFor(run, `dawn:${run.day}:${i}`) % pool.length
@@ -294,7 +300,10 @@ const postQuest = (run: FortressRun, questId: string): void => {
   run.board.push({
     questId,
     postedDay: run.day,
-    lastDay: run.day + def.boardDays - 1,
+    lastDay:
+      run.day +
+      Math.max(def.boardDays, isTemplateInstance(questId) && run.day <= 20 ? 2 : 1) -
+      1,
   })
 }
 

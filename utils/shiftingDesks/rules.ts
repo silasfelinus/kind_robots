@@ -7,6 +7,7 @@ import decksData from './decks.json'
 import endingsData from './endings.json'
 import riskPayoffsData from './risk-payoffs.json'
 import clueChainsData from './clue-chains.json'
+import clueReceiptsData from './clue-receipts.json'
 import {
   editChoices,
   joinBody,
@@ -512,6 +513,12 @@ const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
   ],
 ]
 
+type ClueReceipt = { flag: string; text: string }
+
+export const CLUE_RECEIPTS = (
+  clueReceiptsData as { receipts: ClueReceipt[] }
+).receipts
+
 export function successorLegacyLines(
   state: Pick<RunState, 'terminations'>,
 ): string[] {
@@ -540,7 +547,18 @@ export function endingLines(state: RunState, ending: Ending): string[] {
   )
     .slice(0, 2)
     .map(([, text]) => text)
-  return [...authored, ...receipts, ...successorLegacyLines(state)]
+  const clueReceipts = CLUE_RECEIPTS.filter(
+    (receipt) =>
+      state.flags.includes(receipt.flag) && !existingFlags.has(receipt.flag),
+  )
+    .slice(0, 2)
+    .map((receipt) => receipt.text)
+  return [
+    ...authored,
+    ...receipts,
+    ...clueReceipts,
+    ...successorLegacyLines(state),
+  ]
 }
 
 export function jobPrompt(id: string): string {

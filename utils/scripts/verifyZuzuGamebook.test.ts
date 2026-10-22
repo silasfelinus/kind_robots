@@ -487,7 +487,8 @@ for (let walk = 0; walk < 6000; walk++) {
       const proposed = actions[rand(actions.length)]!
       move = {
         kind: 'fight',
-        action: proposed === 'quiet-draw' && run.resolve < 2 ? 'strike' : proposed,
+        action:
+          proposed === 'quiet-draw' && run.resolve < 2 ? 'strike' : proposed,
       }
     } else {
       const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
@@ -513,13 +514,21 @@ for (const id of endings) {
   assert.equal(replayed.resolve, witness.resolve)
   assert.ok(witness.visited[0] === 'the-crossing')
   if (id === 'ending-wren-lamp') {
-    assert.ok(witness.visited.includes('a5-wren-talk'), 'Wren must actually trust Zuzu')
+    assert.ok(
+      witness.visited.includes('a5-wren-talk'),
+      'Wren must actually trust Zuzu',
+    )
     assert.ok(replayed.flags.includes('wren-ally'))
   }
   console.log(
-    'Gamebook witness ' + id + ': seed=' + witness.seed +
-    ', moves=' + witness.moves.length +
-    ', health=' + witness.health,
+    'Gamebook witness ' +
+      id +
+      ': seed=' +
+      witness.seed +
+      ', moves=' +
+      witness.moves.length +
+      ', health=' +
+      witness.health,
   )
 }
 
@@ -538,11 +547,23 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
     assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
     assert.ok(outcome.winRate >= 0 && outcome.winRate <= 1)
   }
-  assert.ok(results.some((outcome) => outcome.wins > 0), node.id + ': unwinnable')
+  assert.ok(
+    results.some((outcome) => outcome.wins > 0),
+    node.id + ': unwinnable',
+  )
   console.log(
-    'Gamebook combat ' + node.id + ': ' +
-    results.map((r) => Math.round(r.winRate * 100) + '%/' +
-      r.averageHealth.toFixed(1) + 'hp').join(' | '),
+    'Gamebook combat ' +
+      node.id +
+      ': ' +
+      results
+        .map(
+          (r) =>
+            Math.round(r.winRate * 100) +
+            '%/' +
+            r.averageHealth.toFixed(1) +
+            'hp',
+        )
+        .join(' | '),
   )
 }
 const guardTestRuns = Array.from({ length: 120 }, (_, i) =>
@@ -559,7 +580,9 @@ const feintTestRuns = Array.from({ length: 120 }, (_, i) =>
 )
 assert.ok(
   feintTestRuns.some(
-    (result) => result.battle?.exposed && result.battle.hp === 6 &&
+    (result) =>
+      result.battle?.exposed &&
+      result.battle.hp === 6 &&
       result.health >= coyote.health - 1,
   ),
   'successful feint should deal 2, expose and reduce retaliation',

@@ -98,8 +98,9 @@ export const ATTACKS: Attack[] = [
   {
     id: 'last-successor',
     score: (c) =>
-      -15 * (negative(c.cost.successors) +
-        negative(c.success.effects.successors)) - damage(c),
+      -15 *
+        (negative(c.cost.successors) + negative(c.success.effects.successors)) -
+      damage(c),
     spendForms: true,
     usePowers: true,
   },
@@ -179,16 +180,23 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
           bump(result.departmentVisits, run.department)
           lastDepartment = run.department
         }
-        if (run.status === 'complete' || run.status === 'eliminated')
-          break
+        if (run.status === 'complete' || run.status === 'eliminated') break
         if (run.pending) {
-          fail('pending-not-advanced', step, 'A pending outcome survived the preceding step')
+          fail(
+            'pending-not-advanced',
+            step,
+            'A pending outcome survived the preceding step',
+          )
           break
         }
         if (run.status === 'department-complete') {
           const next = descend(run)
           if (same(next, run)) {
-            fail('descent-stalled', step, 'Department complete but descend made no progress')
+            fail(
+              'descent-stalled',
+              step,
+              'Department complete but descend made no progress',
+            )
             break
           }
           run = next
@@ -201,19 +209,33 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
         }
         const open = view.card.choices.filter((c) => !lockReason(run, c))
         if (!open.length) {
-          fail('choice-deadlock', step, 'All choices locked: ' +
-            view.card.choices.map((c) => c.id + '=' + lockReason(run, c)).join('; '))
+          fail(
+            'choice-deadlock',
+            step,
+            'All choices locked: ' +
+              view.card.choices
+                .map((c) => c.id + '=' + lockReason(run, c))
+                .join('; '),
+          )
           break
         }
 
         if (step % 3 === 0) {
           if (!same(choose(run, '__invalid-choice__'), run))
-            fail('illegal-choice-accepted', step, 'Unknown action changed state')
+            fail(
+              'illegal-choice-accepted',
+              step,
+              'Unknown action changed state',
+            )
           if (!same(descend(run), run))
             fail('early-descent', step, 'Descended before review completion')
           const locked = view.card.choices.find((c) => lockReason(run, c))
           if (locked && !same(choose(run, locked.id), run))
-            fail('locked-choice-accepted', step, 'Locked action changed state: ' + locked.id)
+            fail(
+              'locked-choice-accepted',
+              step,
+              'Locked action changed state: ' + locked.id,
+            )
         }
 
         const scored = open.map((c) => ({ c, value: attack.score(c, run) }))
@@ -233,22 +255,42 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
         bump(result.choicePicks, view.card.id + '/' + selected.id)
         result.decisions++
         if (same(run, next)) {
-          fail('legal-choice-rejected', step, 'Unlocked choice made no progress: ' + selected.id)
+          fail(
+            'legal-choice-rejected',
+            step,
+            'Unlocked choice made no progress: ' + selected.id,
+          )
           break
         }
         if (!next.pending) {
-          fail('outcome-missing', step, 'Legal choice produced no pending resolution')
+          fail(
+            'outcome-missing',
+            step,
+            'Legal choice produced no pending resolution',
+          )
           break
         }
         if (!same(choose(next, selected.id), next))
-          fail('double-submit', step, 'Repeated click while outcome pending changed state')
+          fail(
+            'double-submit',
+            step,
+            'Repeated click while outcome pending changed state',
+          )
 
         if (step % 3 === 0) {
           const reloaded = upgradeRun(JSON.parse(JSON.stringify(next)))
           if (!reloaded || !same(reloaded, next))
-            fail('save-roundtrip', step, 'JSON reload lost or changed active state')
+            fail(
+              'save-roundtrip',
+              step,
+              'JSON reload lost or changed active state',
+            )
           if (!isRunState(next))
-            fail('invalid-state', step, 'Reducer generated a state rejected by its validator')
+            fail(
+              'invalid-state',
+              step,
+              'Reducer generated a state rejected by its validator',
+            )
         }
         for (const meter of METERS) {
           const value = next.meters[meter]
@@ -261,12 +303,22 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
         for (const death of newDeaths) bump(result.causes, death.cause)
         run = advance(next)
         if (run.pending)
-          fail('pending-after-advance', step, 'Advance did not dismiss resolution')
-        if (instantAvailable(run, 'mutation') && attack.usePowers &&
-            run.meters.composure <= 3)
+          fail(
+            'pending-after-advance',
+            step,
+            'Advance did not dismiss resolution',
+          )
+        if (
+          instantAvailable(run, 'mutation') &&
+          attack.usePowers &&
+          run.meters.composure <= 3
+        )
           run = useInstant(run, 'mutation')
-        if (instantAvailable(run, 'favor') && attack.usePowers &&
-            run.meters.successors <= 2)
+        if (
+          instantAvailable(run, 'favor') &&
+          attack.usePowers &&
+          run.meters.successors <= 2
+        )
           run = useInstant(run, 'favor')
       }
       if (step === 120) {
@@ -292,8 +344,9 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
     attacks,
     findings,
     neverSeenCards: allCards.map((c) => c.id).filter((id) => !seen.has(id)),
-    neverPickedChoices: allCards.flatMap((c) =>
-      c.choices.map((choice) => c.id + '/' + choice.id)).filter((id) => !picked.has(id)),
+    neverPickedChoices: allCards
+      .flatMap((c) => c.choices.map((choice) => c.id + '/' + choice.id))
+      .filter((id) => !picked.has(id)),
     unseenEndings: ENDINGS.map((e) => e.id).filter((id) => !endingSet.has(id)),
   }
 }

@@ -1485,15 +1485,14 @@ assert.ok(
   'rewind starts a new branch',
 )
 assert.ok(decodeBook(encodeBook(rewound)), 'rewound book is valid')
-// Over many seeds, a rewound dawn sometimes posts different chores.
+// Over many seeds, rewinding a dawn can bring a different encounter.
 let differs = 0
 for (let seed = 1; seed <= 40; seed += 1) {
   const fresh = newBook(createRun(seed))
   const dawn2 = recordDawn(fresh, finishDay(fresh.current).run)
   const again = rewindTo(dawn2, 2)
   if (
-    JSON.stringify(again.current.board.map((b) => b.questId).sort()) !==
-    JSON.stringify(dawn2.current.board.map((b) => b.questId).sort())
+    again.current.dailyEvent !== dawn2.current.dailyEvent
   )
     differs += 1
 }

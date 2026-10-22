@@ -4,6 +4,9 @@ permissions:
   contents: read
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 15 * * *'
   pull_request:
     branches: [main]
     paths:

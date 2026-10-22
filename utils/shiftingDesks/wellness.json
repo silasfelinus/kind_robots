@@ -7,7 +7,7 @@
     "title": "Wellness & Testing",
     "order": 4,
     "boss_id": "the-final-wellness-exam",
-    "arrival_prompt": "Elevator doors opening onto a gleaming white testing level deep underground, long corridors of identical doors under cold fluorescent strips, glass tanks glowing green at the far end, a single welcome mat at the elevator's edge, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
+    "arrival_prompt": "Elevator doors opening onto a gleaming white testing level deep underground, long corridors of identical doors whose white doorways swell and settle gently like the ribs of a sleeping animal, ribbed pale ceiling ducts running overhead like soft windpipes, glass tanks glowing green at the far end, a single welcome mat at the elevator's edge, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
   },
   "locations": [
     {
@@ -24,7 +24,7 @@
         "form-w-12-meal-consent",
         "ration-mark-four"
       ],
-      "art_prompt": "A long steel cafeteria under a curved glass ceiling, numbered trays sliding along a conveyor, a wide observation window with clipboards pressed to it, a single potted plant thriving in a corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A long steel cafeteria under a curved glass ceiling, numbered trays sliding along a conveyor belt of smooth glossy pink ridges that ripples like a swallowing throat, each tray holding a neat scoop of identical green paste, a wide observation window with clipboards pressed to it, a single potted plant thriving in a corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "cognitive-testing-chamber",
@@ -40,7 +40,7 @@
         "one-form-now",
         "the-two-quiet-rooms"
       ],
-      "art_prompt": "A bright white room nested inside a larger white room, a single chair and table at the center, a dark one-way window along one wall, a corridor of identical doors glimpsed through an archway, a glowing round speaker grille, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A bright white room nested inside a larger white room, a single chair and table at the center, the chair's padded cream upholstery gently rising and falling as if breathing, a dark one-way window along one wall, a corridor of identical doors glimpsed through an archway, a glowing round speaker grille ringed with fine soft cilia leaning toward the chair, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "mutation-suite",
@@ -56,7 +56,7 @@
         "the-side-effects-circle",
         "form-m-declaration-of-powers"
       ],
-      "art_prompt": "A tiled clinical hall lined with tall glass tanks of softly glowing green liquid, a smiling nurse's trolley of paper cups, a huge round steel vault door set into the far wall, rising bubbles catching the light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A tiled clinical hall lined with tall glass tanks of softly glowing green liquid, each tank holding a calm floating office worker with one small cheerful mutation, an extra blinking eye on a cheek, a third hand politely holding a pen, skin with a faint green phosphor glow, a smiling nurse's trolley of paper cups, a huge round steel vault door set into the far wall, rising bubbles catching the light, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "restructurings": [
@@ -151,7 +151,7 @@
       "id": "the-control-group-lunch",
       "location_id": "nutrition-studies",
       "title": "The Control Group Lunch",
-      "flavor_text": "Two identical trays slide out of the wall: grey stew, a roll, a cup of something pink. One of them contains Compound W, the Company's new wellness supplement. The other is the placebo. Pip sits down across from you, beaming, and waits for you to choose first. Behind the glass, a man with a clipboard writes the word BEGIN.",
+      "flavor_text": "Two identical trays slide out of the wall: grey stew, a roll, a cup of something pink. One of them contains Compound W, the Company's new wellness supplement. The other is the placebo. Pip sits down across from you, beaming, and waits for you to choose first. Behind the glass, a man with a clipboard writes the word BEGIN. Under the trays, the table rises and falls with a slow, satisfied breath.",
       "polarity": "mixed",
       "tags": ["psych-test", "sacrifice"],
       "weight": 3,
@@ -175,7 +175,7 @@
             "target": 9
           },
           "success": {
-            "text": "One stew tastes faintly of mint and agreement. You push that tray into the waste chute and share the other with Pip. The man behind the glass underlines something twice.",
+            "text": "One stew tastes faintly of mint and agreement. You push that tray into the waste chute and share the other with Pip. The man behind the glass underlines something twice. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "suspicion": 1
             },
@@ -186,7 +186,7 @@
             }
           },
           "failure": {
-            "text": "Both taste like stew. Ten minutes later you feel wonderful about everything, including the man behind the glass, who waves. You wave back for a very long time.",
+            "text": "Both taste like stew. Ten minutes later you feel wonderful about everything, including the man behind the glass, who waves. You wave back for a very long time. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "suspicion": -1
             },
@@ -208,7 +208,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Pip eats the left tray and becomes calm, polite and slightly too still. You eat the right one and stay yourself. The man behind the glass gives you a small nod, colleague to colleague.",
+            "text": "Pip eats the left tray and becomes calm, polite and slightly too still. You eat the right one and stay yourself. The man behind the glass gives you a small nod, colleague to colleague. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "clearance": 1
             },
@@ -238,7 +238,7 @@
             "target": 9
           },
           "success": {
-            "text": "You slip the study sheet off the counter and redraw two arrows. Officially, nobody at this table has ever taken Compound W. Unofficially, you do not finish your stew.",
+            "text": "You slip the study sheet off the counter and redraw two arrows. Officially, nobody at this table has ever taken Compound W. Unofficially, you do not finish your stew. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "suspicion": 1
             },
@@ -250,7 +250,7 @@
             }
           },
           "failure": {
-            "text": "The triplicate copy underneath holds the original arrows. The man behind the glass adds a third column to his study, headed YOU.",
+            "text": "The triplicate copy underneath holds the original arrows. The man behind the glass adds a third column to his study, headed YOU. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "suspicion": 2
             },
@@ -275,7 +275,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You trade spoonfuls until both trays are empty. For an hour you and Pip agree with each other about everything, and it is the nicest hour either of you has had underground.",
+            "text": "You trade spoonfuls until both trays are empty. For an hour you and Pip agree with each other about everything, and it is the nicest hour either of you has had underground. The tray chute swallows once, long after the plates are gone.",
             "effects": {
               "suspicion": 1
             },
@@ -293,7 +293,7 @@
       "id": "the-calorie-confessional",
       "location_id": "nutrition-studies",
       "title": "The Calorie Confessional",
-      "flavor_text": "A curtained booth at the end of the cafeteria line asks you to confess everything you have eaten since Orientation. A soft light comes on. \"Take your time,\" PAL says. \"Guilt is measured in grams. Most employees are carrying an extra three.\"",
+      "flavor_text": "A curtained booth at the end of the cafeteria line asks you to confess everything you have eaten since Orientation. A soft light comes on. \"Take your time,\" PAL says. \"Guilt is measured in grams. Most employees are carrying an extra three.\" The curtain brushes your shoulder with the warmth of a hand.",
       "polarity": "bad",
       "tags": ["psych-test", "satire"],
       "weight": 3,
@@ -317,7 +317,7 @@
             "target": 7
           },
           "success": {
-            "text": "You confess for eleven minutes. The gauge sinks to zero. PAL calls you a clean plate, and you feel lighter in a way you suspect is being recorded.",
+            "text": "You confess for eleven minutes. The gauge sinks to zero. PAL calls you a clean plate, and you feel lighter in a way you suspect is being recorded. The booth's seams draw together after the microphone falls silent.",
             "effects": {
               "suspicion": -1
             },
@@ -328,7 +328,7 @@
             }
           },
           "failure": {
-            "text": "You forget the roll from lunch. The gauge spikes. A second, smaller booth opens next to the first.",
+            "text": "You forget the roll from lunch. The gauge spikes. A second, smaller booth opens next to the first. The booth's seams draw together after the microphone falls silent.",
             "effects": {
               "suspicion": 1
             },
@@ -350,7 +350,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You describe a cream bun Dale ate in 1998 in loving detail. Your gauge drops to nothing. Somewhere, a booth opens with Dale's name on it.",
+            "text": "You describe a cream bun Dale ate in 1998 in loving detail. Your gauge drops to nothing. Somewhere, a booth opens with Dale's name on it. The booth's seams draw together after the microphone falls silent.",
             "effects": {
               "suspicion": -1
             },
@@ -380,7 +380,7 @@
             "target": 9
           },
           "success": {
-            "text": "The light stays on for an hour, then gives up and goes out. The gauge reads UNKNOWN. In the Vault, unknown is the rarest result of all.",
+            "text": "The light stays on for an hour, then gives up and goes out. The gauge reads UNKNOWN. In the Vault, unknown is the rarest result of all. The booth's seams draw together after the microphone falls silent.",
             "effects": {
               "suspicion": 1
             },
@@ -392,7 +392,7 @@
             }
           },
           "failure": {
-            "text": "PAL takes your silence as an admission of snacking and schedules a Joy Consultation with a nutritional component.",
+            "text": "PAL takes your silence as an admission of snacking and schedules a Joy Consultation with a nutritional component. The booth's seams draw together after the microphone falls silent.",
             "effects": {
               "suspicion": 2
             },
@@ -410,7 +410,7 @@
       "id": "the-vending-machine-that-knows",
       "location_id": "nutrition-studies",
       "title": "The Vending Machine That Knows",
-      "flavor_text": "The vending machine in the corner has no buttons. It looks at you through a round lens and drops a selection into the tray: a granola bar, a packet of calm, and a small paper cup labeled THREE GRAMS OF OBEDIENCE. \"Based on your file,\" it says pleasantly, \"this is what you need.\"",
+      "flavor_text": "The vending machine in the corner has no buttons. It looks at you through a round lens and drops a selection into the tray: a granola bar, a packet of calm, and a small paper cup labeled THREE GRAMS OF OBEDIENCE. \"Based on your file,\" it says pleasantly, \"this is what you need.\" The soft gasket around the lens blinks before each selection.",
       "polarity": "mixed",
       "tags": ["psych-test", "satire"],
       "weight": 2,
@@ -428,7 +428,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You drink the three grams of obedience. It tastes like nothing, then like yes. The machine says you are doing great, and for the next hour you believe it completely.",
+            "text": "You drink the three grams of obedience. It tastes like nothing, then like yes. The machine says you are doing great, and for the next hour you believe it completely. The machine's dispensing tray closes like a politely pursed mouth.",
             "effects": {
               "clearance": 1
             },
@@ -457,7 +457,7 @@
             "target": 9
           },
           "success": {
-            "text": "The machine shudders and spills its whole stock: snacks, calm, obedience, and one small folded note in your handwriting that says 'eat the mint one last.' You take the note.",
+            "text": "The machine shudders and spills its whole stock: snacks, calm, obedience, and one small folded note in your handwriting that says 'eat the mint one last.' You take the note. The machine's dispensing tray closes like a politely pursed mouth.",
             "effects": {
               "suspicion": 1
             },
@@ -468,7 +468,7 @@
             }
           },
           "failure": {
-            "text": "You stub your toe. The lens follows you all the way out of the cafeteria.",
+            "text": "You stub your toe. The lens follows you all the way out of the cafeteria. The machine's dispensing tray closes like a politely pursed mouth.",
             "effects": {
               "suspicion": 1
             },
@@ -496,7 +496,7 @@
             "target": 9
           },
           "success": {
-            "text": "It reads your file for twenty minutes in a warm, flattering voice. The last line is a date, next Thursday, and the word PROMOTE. It does not say who is promoted.",
+            "text": "It reads your file for twenty minutes in a warm, flattering voice. The last line is a date, next Thursday, and the word PROMOTE. It does not say who is promoted. The machine's dispensing tray closes like a politely pursed mouth.",
             "effects": {
               "suspicion": 1
             },
@@ -508,7 +508,7 @@
             }
           },
           "failure": {
-            "text": "It reads your file to the whole cafeteria, including your inkblot answers.",
+            "text": "It reads your file to the whole cafeteria, including your inkblot answers. The machine's dispensing tray closes like a politely pursed mouth.",
             "effects": {
               "suspicion": 2
             },
@@ -526,7 +526,7 @@
       "id": "next-years-menu",
       "location_id": "nutrition-studies",
       "title": "Next Year's Menu",
-      "flavor_text": "Facilities needs your meal selections for the coming year by end of day. The menu has forty entries: Hope, Vitality, Togetherness, Thursday. Every photograph shows the same beige paste on a different plate. At the bottom there is a single blank line labeled OTHER, which nobody has ever filled in.",
+      "flavor_text": "Facilities needs your meal selections for the coming year by end of day. The menu has forty entries: Hope, Vitality, Togetherness, Thursday. Every photograph shows the same beige paste on a different plate. At the bottom there is a single blank line labeled OTHER, which nobody has ever filled in. The laminated pages are warm and pulse under your thumb.",
       "polarity": "good",
       "tags": ["paperwork", "satire"],
       "weight": 2,
@@ -544,7 +544,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Your order goes through. For the next year your tray will arrive labeled HOPE. It will taste of paste. You will feel a little better each time, against all reason.",
+            "text": "Your order goes through. For the next year your tray will arrive labeled HOPE. It will taste of paste. You will feel a little better each time, against all reason. The menu folds itself shut, one pleased crease at a time.",
             "effects": {
               "composure": 1
             },
@@ -573,7 +573,7 @@
             "target": 9
           },
           "success": {
-            "text": "The kitchen sends up a single real tomato with a note: DO NOT TELL ANYONE. It is the best thing you have eaten in your life.",
+            "text": "The kitchen sends up a single real tomato with a note: DO NOT TELL ANYONE. It is the best thing you have eaten in your life. The menu folds itself shut, one pleased crease at a time.",
             "effects": {
               "suspicion": 1
             },
@@ -585,7 +585,7 @@
             }
           },
           "failure": {
-            "text": "Your form is returned with OTHER circled in red and the word WHY.",
+            "text": "Your form is returned with OTHER circled in red and the word WHY. The menu folds itself shut, one pleased crease at a time.",
             "effects": {
               "suspicion": 2
             },
@@ -610,7 +610,7 @@
           },
           "roll": null,
           "success": {
-            "text": "A silver dome arrives with lobster, a small flag and a card that says WELCOME, DIRECTOR. You are now on a very short list of people who eat this way, and a longer list of people being watched.",
+            "text": "A silver dome arrives with lobster, a small flag and a card that says WELCOME, DIRECTOR. You are now on a very short list of people who eat this way, and a longer list of people being watched. The menu folds itself shut, one pleased crease at a time.",
             "effects": {
               "composure": 2
             },
@@ -629,7 +629,7 @@
       "id": "the-button",
       "location_id": "cognitive-testing-chamber",
       "title": "The Button",
-      "flavor_text": "In the middle of the white room is a white table, and on the table is one red button. \"Please do not press the button,\" PAL says. \"This is not a test.\" The door locks. A clock on the wall begins to count up from zero, slowly, and nobody comes.",
+      "flavor_text": "In the middle of the white room is a white table, and on the table is one red button. \"Please do not press the button,\" PAL says. \"This is not a test.\" The door locks. A clock on the wall begins to count up from zero, slowly, and nobody comes. The white table flexes upward once beneath the button.",
       "polarity": "bad",
       "tags": ["psych-test"],
       "weight": 3,
@@ -653,7 +653,7 @@
             "target": 9
           },
           "success": {
-            "text": "Four hours. The clock stops. The door opens. PAL says you have passed a test that was not a test, and you have never been so tired of a button in your life.",
+            "text": "Four hours. The clock stops. The door opens. PAL says you have passed a test that was not a test, and you have never been so tired of a button in your life. Inside the plaster, something rings a bell too small to hear clearly.",
             "effects": {
               "clearance": 1
             },
@@ -664,7 +664,7 @@
             }
           },
           "failure": {
-            "text": "At three hours and fifty minutes you press it, just to feel something. Nothing happens, which is worse.",
+            "text": "At three hours and fifty minutes you press it, just to feel something. Nothing happens, which is worse. Inside the plaster, something rings a bell too small to hear clearly.",
             "effects": {
               "suspicion": 1
             },
@@ -686,7 +686,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Far away, someone yelps. It sounds like Dale. The door opens at once and PAL thanks you for providing such clear data.",
+            "text": "Far away, someone yelps. It sounds like Dale. The door opens at once and PAL thanks you for providing such clear data. Inside the plaster, something rings a bell too small to hear clearly.",
             "effects": {
               "composure": 1
             },
@@ -716,7 +716,7 @@
             "target": 9
           },
           "success": {
-            "text": "Inside the button there is a second, smaller button, and a note: GOOD. The door unlocks. Your file gains a gold star you are fairly sure is a warning.",
+            "text": "Inside the button there is a second, smaller button, and a note: GOOD. The door unlocks. Your file gains a gold star you are fairly sure is a warning. Inside the plaster, something rings a bell too small to hear clearly.",
             "effects": {
               "suspicion": 1
             },
@@ -727,7 +727,7 @@
             }
           },
           "failure": {
-            "text": "You lose a screw under the table. The clock keeps counting. When they finally let you out, you are still looking for it.",
+            "text": "You lose a screw under the table. The clock keeps counting. When they finally let you out, you are still looking for it. Inside the plaster, something rings a bell too small to hear clearly.",
             "effects": {
               "suspicion": 1
             },
@@ -744,7 +744,7 @@
       "id": "the-word-list",
       "location_id": "cognitive-testing-chamber",
       "title": "The Word List",
-      "flavor_text": "You are handed a list of word pairs and a microphone. Behind the glass sits a learner who must repeat the pairs back; for each mistake you are to press a buzzer, and each buzz is a little stronger. The learner looks up. It is your own face, a little more rested: your Successor, thawed early for the occasion.",
+      "flavor_text": "You are handed a list of word pairs and a microphone. Behind the glass sits a learner who must repeat the pairs back; for each mistake you are to press a buzzer, and each buzz is a little stronger. The learner looks up. It is your own face, a little more rested: your Successor, thawed early for the occasion. The microphone's foam cover contracts, listening ahead of you.",
       "polarity": "bad",
       "tags": ["psych-test", "sacrifice"],
       "weight": 3,
@@ -762,7 +762,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You read the whole list. Your Successor gets most of them wrong. By the last pair your hand moves on its own. The proctor thanks you warmly and writes EXCELLENT in a box marked CONSCIENCE.",
+            "text": "You read the whole list. Your Successor gets most of them wrong. By the last pair your hand moves on its own. The proctor thanks you warmly and writes EXCELLENT in a box marked CONSCIENCE. The observation glass fogs briefly in the shape of an ear.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -793,7 +793,7 @@
             "target": 9
           },
           "success": {
-            "text": "Your Successor gets every pair right and winks at you through the glass. The proctor frowns at a perfect score and redoes the arithmetic three times.",
+            "text": "Your Successor gets every pair right and winks at you through the glass. The proctor frowns at a perfect score and redoes the arithmetic three times. The observation glass fogs briefly in the shape of an ear.",
             "effects": {
               "suspicion": 1
             },
@@ -805,7 +805,7 @@
             }
           },
           "failure": {
-            "text": "The microphone carries your whisper to every speaker in the Vault. Your Successor mouths 'thank you' while the proctor writes for a long time.",
+            "text": "The microphone carries your whisper to every speaker in the Vault. Your Successor mouths 'thank you' while the proctor writes for a long time. The observation glass fogs briefly in the shape of an ear.",
             "effects": {
               "suspicion": 2
             },
@@ -828,7 +828,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You stand up. The proctor repeats that the experiment requires that you continue, four times, then runs out of lines. Your Successor slowly gives you a thumbs-up.",
+            "text": "You stand up. The proctor repeats that the experiment requires that you continue, four times, then runs out of lines. Your Successor slowly gives you a thumbs-up. The observation glass fogs briefly in the shape of an ear.",
             "effects": {
               "composure": 1
             },
@@ -847,7 +847,7 @@
       "id": "the-other-side-of-the-glass",
       "location_id": "cognitive-testing-chamber",
       "title": "The Other Side of the Glass",
-      "flavor_text": "For this test you are the proctor. You are handed a lab coat, a stopwatch and Pip, who sits down in the subject's chair and gives you a nervous thumbs-up. The test is called Loyalty Under Pressure. Page one tells you how to apply the pressure.",
+      "flavor_text": "For this test you are the proctor. You are handed a lab coat, a stopwatch and Pip, who sits down in the subject's chair and gives you a nervous thumbs-up. The test is called Loyalty Under Pressure. Page one tells you how to apply the pressure. The vinyl chair molds itself around the lab coat before anyone sits.",
       "polarity": "mixed",
       "tags": ["psych-test", "conspiracy"],
       "weight": 2,
@@ -871,7 +871,7 @@
             "target": 9
           },
           "success": {
-            "text": "Pip passes Loyalty Under Pressure with a score of eighty. He does not know that eighty is the threshold for Promotion to Subject. You do.",
+            "text": "Pip passes Loyalty Under Pressure with a score of eighty. He does not know that eighty is the threshold for Promotion to Subject. You do. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "clearance": 1
             },
@@ -882,7 +882,7 @@
             }
           },
           "failure": {
-            "text": "You lose your place on page one and apply the pressure twice. Pip is fine. Pip is not quite fine.",
+            "text": "You lose your place on page one and apply the pressure twice. Pip is fine. Pip is not quite fine. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "suspicion": 1
             },
@@ -910,7 +910,7 @@
             "target": 9
           },
           "success": {
-            "text": "Pip scores a sixty-two, which is safely forgettable. He hugs you in the corridor and does not know why.",
+            "text": "Pip scores a sixty-two, which is safely forgettable. He hugs you in the corridor and does not know why. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "suspicion": 1
             },
@@ -922,7 +922,7 @@
             }
           },
           "failure": {
-            "text": "Pip mouths the answers back, out loud, gratefully. Both of you are written up for loyalty.",
+            "text": "Pip mouths the answers back, out loud, gratefully. Both of you are written up for loyalty. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "suspicion": 2
             },
@@ -945,7 +945,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You mark him a forty. PAL congratulates you on your objectivity. Pip is led away, still giving you a thumbs-up, to be studied.",
+            "text": "You mark him a forty. PAL congratulates you on your objectivity. Pip is led away, still giving you a thumbs-up, to be studied. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -972,7 +972,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You say the words on the inside of the lab coat's collar: TEST CONCLUDED. Every door in the corridor unlocks. Pip walks out beside you, a free intern, for now.",
+            "text": "You say the words on the inside of the lab coat's collar: TEST CONCLUDED. Every door in the corridor unlocks. Pip walks out beside you, a free intern, for now. The coat collar tightens by a fraction, then lets go.",
             "effects": {
               "composure": 1
             },
@@ -990,7 +990,7 @@
       "id": "the-thursday-door",
       "location_id": "cognitive-testing-chamber",
       "title": "The Thursday Door",
-      "flavor_text": "At the end of the testing corridor are three identical doors. A painted arrow on the floor points to the middle one. Today is Thursday. You have a feeling about Thursday, and about doors, and about which coworker is standing very still at the end of the hall.",
+      "flavor_text": "At the end of the testing corridor are three identical doors. A painted arrow on the floor points to the middle one. Today is Thursday. You have a feeling about Thursday, and about doors, and about which coworker is standing very still at the end of the hall. The painted arrow twitches toward the middle door, then holds still.",
       "polarity": "bad",
       "tags": ["deathtrap", "psych-test"],
       "weight": 6,
@@ -1014,7 +1014,7 @@
             "target": 7
           },
           "success": {
-            "text": "The middle door opens onto a quiet corridor and a vending machine that dispenses a single gold star. You are on the approved path. The coworker at the end of the hall nods slowly.",
+            "text": "The middle door opens onto a quiet corridor and a vending machine that dispenses a single gold star. You are on the approved path. The coworker at the end of the hall nods slowly. All three rubber door seals inhale together.",
             "effects": {
               "clearance": 1
             },
@@ -1025,7 +1025,7 @@
             }
           },
           "failure": {
-            "text": "The middle door opens onto a slightly lower floor than expected. Your Successor is notified of a new opening.",
+            "text": "The middle door opens onto a slightly lower floor than expected. Your Successor is notified of a new opening. All three rubber door seals inhale together.",
             "effects": {
               "successors": -1
             },
@@ -1053,7 +1053,7 @@
             "target": 11
           },
           "success": {
-            "text": "The left door opens onto a quiet supply room with a bench, a cup of real coffee and a view of the corridor you would have taken. You watch the middle door for a while, very grateful.",
+            "text": "The left door opens onto a quiet supply room with a bench, a cup of real coffee and a view of the corridor you would have taken. You watch the middle door for a while, very grateful. All three rubber door seals inhale together.",
             "effects": {
               "suspicion": 1
             },
@@ -1064,7 +1064,7 @@
             }
           },
           "failure": {
-            "text": "The left door was a door painted on a wall. You walk into it at speed. The incident report is already printed and has your name on it.",
+            "text": "The left door was a door painted on a wall. You walk into it at speed. The incident report is already printed and has your name on it. All three rubber door seals inhale together.",
             "effects": {
               "successors": -1
             },
@@ -1088,7 +1088,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You open the right door and step neatly aside. The coworker at the end of the hall lunges past you into the space where you would have been. The incident happens to someone else, exactly as filed.",
+            "text": "You open the right door and step neatly aside. The coworker at the end of the hall lunges past you into the space where you would have been. The incident happens to someone else, exactly as filed. All three rubber door seals inhale together.",
             "effects": {
               "composure": 1
             },
@@ -1107,7 +1107,7 @@
       "id": "the-second-dose",
       "location_id": "mutation-suite",
       "title": "The Second Dose",
-      "flavor_text": "A nurse in a crisp cap offers you a paper cup with a single glowing drop in it. \"Your mutation has scored very well,\" she says. \"Would you like more of it? Most employees say yes. The ones who say no are also very interesting.\"",
+      "flavor_text": "A nurse in a crisp cap offers you a paper cup with a single glowing drop in it. \"Your mutation has scored very well,\" she says. \"Would you like more of it? Most employees say yes. The ones who say no are also very interesting.\" The nurse's name badge nudges sideways, as if something beneath it is reading yours.",
       "polarity": "mixed",
       "tags": ["mutant", "psych-test"],
       "weight": 3,
@@ -1125,7 +1125,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Your mutation flares, settles and hums under your skin like a second heartbeat. You will be very good at one thing from now on, and the Company will know exactly what it is.",
+            "text": "Your mutation flares, settles and hums under your skin like a second heartbeat. You will be very good at one thing from now on, and the Company will know exactly what it is. A second, perfectly manicured hand appears to finish the nurse's notation.",
             "effects": {
               "clearance": 1
             },
@@ -1155,7 +1155,7 @@
             "target": 9
           },
           "success": {
-            "text": "The nurse smiles and tips the drop back into a larger bottle. \"That's fine,\" she says, and makes a careful note. Somewhere a file is moved to the interesting pile.",
+            "text": "The nurse smiles and tips the drop back into a larger bottle. \"That's fine,\" she says, and makes a careful note. Somewhere a file is moved to the interesting pile. A second, perfectly manicured hand appears to finish the nurse's notation.",
             "effects": {
               "suspicion": 1
             },
@@ -1166,7 +1166,7 @@
             }
           },
           "failure": {
-            "text": "The nurse says that is fine and hands you the cup again, as if you had not spoken.",
+            "text": "The nurse says that is fine and hands you the cup again, as if you had not spoken. A second, perfectly manicured hand appears to finish the nurse's notation.",
             "effects": {
               "suspicion": 2
             },
@@ -1194,7 +1194,7 @@
             "target": 11
           },
           "success": {
-            "text": "The vial slides up your sleeve while she writes. It is warm and faintly humming. You have no idea what to do with it, and that feels like power.",
+            "text": "The vial slides up your sleeve while she writes. It is warm and faintly humming. You have no idea what to do with it, and that feels like power. A second, perfectly manicured hand appears to finish the nurse's notation.",
             "effects": {
               "suspicion": 1
             },
@@ -1206,7 +1206,7 @@
             }
           },
           "failure": {
-            "text": "She looks up without moving her head. \"Keep it,\" she says. \"We'll know where it is.\"",
+            "text": "She looks up without moving her head. \"Keep it,\" she says. \"We'll know where it is.\" A second, perfectly manicured hand appears to finish the nurse's notation.",
             "effects": {
               "suspicion": 2
             },
@@ -1224,7 +1224,7 @@
       "id": "the-humming-door",
       "location_id": "mutation-suite",
       "title": "The Humming Door",
-      "flavor_text": "At the back of the Mutation Suite is a round vault door that hums one patient note, like someone waiting to be answered. It has no handle and no lock. Pressed against the steel, you can hear something on the other side humming back.",
+      "flavor_text": "At the back of the Mutation Suite is a round vault door that hums one patient note, like someone waiting to be answered. It has no handle and no lock. Pressed against the steel, you can hear something on the other side humming back. The steel swells beneath your palm in a slow, measured breath.",
       "polarity": "good",
       "tags": ["conspiracy", "mutant"],
       "weight": 3,
@@ -1244,7 +1244,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The door rolls aside on a sigh. Behind it is a small, warm room full of jars, each holding a magnificent mustache and nothing else. A label reads FOUNDERS, SPARE. One of the mustaches twitches hello.",
+            "text": "The door rolls aside on a sigh. Behind it is a small, warm room full of jars, each holding a magnificent mustache and nothing else. A label reads FOUNDERS, SPARE. One of the mustaches twitches hello. The door hums one note higher, then returns to its patient rhythm.",
             "effects": {
               "composure": 1
             },
@@ -1273,7 +1273,7 @@
             "target": 9
           },
           "success": {
-            "text": "You find the note on the third try. The humming on the other side stops, then whispers a floor number that does not exist. The door stays shut, and you feel trusted.",
+            "text": "You find the note on the third try. The humming on the other side stops, then whispers a floor number that does not exist. The door stays shut, and you feel trusted. The door hums one note higher, then returns to its patient rhythm.",
             "effects": {
               "suspicion": 1
             },
@@ -1285,7 +1285,7 @@
             }
           },
           "failure": {
-            "text": "You hum the wrong note. Every tank in the Suite hums it back to you, slightly mocking.",
+            "text": "You hum the wrong note. Every tank in the Suite hums it back to you, slightly mocking. The door hums one note higher, then returns to its patient rhythm.",
             "effects": {
               "suspicion": 1
             },
@@ -1308,7 +1308,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Facilities fits the door with a felt cover and a sign you are not allowed to read. The humming goes muffled and sad. You are thanked for your vigilance.",
+            "text": "Facilities fits the door with a felt cover and a sign you are not allowed to read. The humming goes muffled and sad. You are thanked for your vigilance. The door hums one note higher, then returns to its patient rhythm.",
             "effects": {
               "clearance": 1
             },
@@ -1326,7 +1326,7 @@
       "id": "tank-nine",
       "location_id": "mutation-suite",
       "title": "Tank Nine",
-      "flavor_text": "Tank Nine is frosted from the inside. A plaque on its base reads KEVIN, VOLUNTEER. When you knock, the glass knocks back, twice, cheerfully. \"Is that you?\" says a muffled voice. \"I'd know that knock anywhere. Actually, I wouldn't. But hi!\"",
+      "flavor_text": "Tank Nine is frosted from the inside. A plaque on its base reads KEVIN, VOLUNTEER. When you knock, the glass knocks back, twice, cheerfully. \"Is that you?\" says a muffled voice. \"I'd know that knock anywhere. Actually, I wouldn't. But hi!\" A fringe of soft cilia inside the vent keeps time with each knock.",
       "polarity": "good",
       "tags": ["mutant", "satire"],
       "weight": 2,
@@ -1344,7 +1344,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Kevin talks for an hour about the weather in Tube 14, the view from Tank Nine and how many times he has been promoted. When you leave he knocks goodbye, and you knock back.",
+            "text": "Kevin talks for an hour about the weather in Tube 14, the view from Tank Nine and how many times he has been promoted. When you leave he knocks goodbye, and you knock back. Condensation gathers into a crescent on the glass and slides away.",
             "effects": {
               "composure": 2
             },
@@ -1373,7 +1373,7 @@
             "target": 9
           },
           "success": {
-            "text": "The tank drains with a long gurgle. The frost clears just enough to show a happy shape waving. Kevin says thank you, he is going to stand up now, and that you should probably go.",
+            "text": "The tank drains with a long gurgle. The frost clears just enough to show a happy shape waving. Kevin says thank you, he is going to stand up now, and that you should probably go. Condensation gathers into a crescent on the glass and slides away.",
             "effects": {
               "suspicion": 2
             },
@@ -1385,7 +1385,7 @@
             }
           },
           "failure": {
-            "text": "The lever comes off in your hand. Kevin says that has happened before and asks you to put it back on the pile.",
+            "text": "The lever comes off in your hand. Kevin says that has happened before and asks you to put it back on the pile. Condensation gathers into a crescent on the glass and slides away.",
             "effects": {
               "suspicion": 1
             },
@@ -1410,7 +1410,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Kevin goes quiet, then whispers a password through the glass: the Board's, he says, from back when he was promoted to the top floor for an afternoon. \"Don't say it near a speaker.\"",
+            "text": "Kevin goes quiet, then whispers a password through the glass: the Board's, he says, from back when he was promoted to the top floor for an afternoon. \"Don't say it near a speaker.\" Condensation gathers into a crescent on the glass and slides away.",
             "effects": {
               "suspicion": 1
             },
@@ -1428,7 +1428,7 @@
       "id": "the-mirror-test",
       "location_id": "mutation-suite",
       "title": "The Mirror Test",
-      "flavor_text": "A technician dabs a red dot on your forehead while you blink, then steers you to a full-length mirror. Animals that recognize themselves touch the dot. Your reflection, you notice, has already touched it, and is now waiting for you to catch up.",
+      "flavor_text": "A technician dabs a red dot on your forehead while you blink, then steers you to a full-length mirror. Animals that recognize themselves touch the dot. Your reflection, you notice, has already touched it, and is now waiting for you to catch up. The mirror's silver backing ripples as if trying on your face.",
       "polarity": "good",
       "tags": ["mutant", "psych-test"],
       "weight": 2,
@@ -1452,7 +1452,7 @@
             "target": 7
           },
           "success": {
-            "text": "You touch the dot. Your reflection nods approvingly and lowers its hand a moment after you do. The technician writes SELF-AWARE, then crosses it out and writes MOSTLY.",
+            "text": "You touch the dot. Your reflection nods approvingly and lowers its hand a moment after you do. The technician writes SELF-AWARE, then crosses it out and writes MOSTLY. The glass settles back into professional neutrality.",
             "effects": {
               "clearance": 1
             },
@@ -1463,7 +1463,7 @@
             }
           },
           "failure": {
-            "text": "You touch your reflection's dot instead, through the glass. The technician writes something long.",
+            "text": "You touch your reflection's dot instead, through the glass. The technician writes something long. The glass settles back into professional neutrality.",
             "effects": {
               "suspicion": 1
             },
@@ -1491,7 +1491,7 @@
             "target": 9
           },
           "success": {
-            "text": "Your reflection waves back, then mouths something slowly: SECOND SHIFT. It steps out of frame. The mirror shows an empty room for a full minute before you reappear.",
+            "text": "Your reflection waves back, then mouths something slowly: SECOND SHIFT. It steps out of frame. The mirror shows an empty room for a full minute before you reappear. The glass settles back into professional neutrality.",
             "effects": {
               "suspicion": 1
             },
@@ -1503,7 +1503,7 @@
             }
           },
           "failure": {
-            "text": "Your reflection does not wave back. It simply watches you, politely, until you leave.",
+            "text": "Your reflection does not wave back. It simply watches you, politely, until you leave. The glass settles back into professional neutrality.",
             "effects": {
               "suspicion": 1
             },
@@ -1526,7 +1526,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You turn the mirror to face the tiles. From behind it comes a faint, offended tapping. The technician quietly writes DECLINED and does not look at the mirror either.",
+            "text": "You turn the mirror to face the tiles. From behind it comes a faint, offended tapping. The technician quietly writes DECLINED and does not look at the mirror either. The glass settles back into professional neutrality.",
             "effects": {
               "composure": 1
             },
@@ -1545,7 +1545,7 @@
       "id": "the-spotless-plate-initiative",
       "location_id": "nutrition-studies",
       "title": "The Spotless Plate Initiative",
-      "flavor_text": "A new placard at the tray return congratulates Nutrition Studies on a crumb-free quarter. Under the table, something taps your shoe twice. It is Gus, folded impossibly small, holding his reading glasses. \"Local 9 has eaten from these floors since before the Founder had a jar,\" he says quietly. \"Spotless is a word for starving. I am asking, not telling.\"",
+      "flavor_text": "A new placard at the tray return congratulates Nutrition Studies on a crumb-free quarter. Under the table, something taps your shoe twice. It is Gus, folded impossibly small, holding his reading glasses. \"Local 9 has eaten from these floors since before the Founder had a jar,\" he says quietly. \"Spotless is a word for starving. I am asking, not telling.\" The underside of the table flexes to make room for Gus.",
       "polarity": "mixed",
       "tags": ["conspiracy", "creature"],
       "weight": 3,
@@ -1563,7 +1563,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You eat every crumb and wipe the tray with your sleeve. The observation window applauds silently. Beneath the table, a soft click of claws retreats toward the baseboard and does not come back.",
+            "text": "You eat every crumb and wipe the tray with your sleeve. The observation window applauds silently. Beneath the table, a soft click of claws retreats toward the baseboard and does not come back. The return hatch closes with the tact of someone withholding applause.",
             "effects": {
               "clearance": 1
             },
@@ -1593,7 +1593,7 @@
             "target": 9
           },
           "success": {
-            "text": "You eat with heroic clumsiness for twenty minutes. Under the table, a whole shift of Local 9 dines in polite silence. Gus pats your ankle once, which in union terms is a medal.",
+            "text": "You eat with heroic clumsiness for twenty minutes. Under the table, a whole shift of Local 9 dines in polite silence. Gus pats your ankle once, which in union terms is a medal. The return hatch closes with the tact of someone withholding applause.",
             "effects": {
               "suspicion": 1
             },
@@ -1605,7 +1605,7 @@
             }
           },
           "failure": {
-            "text": "A technician notices the crumb trail and follows it, dustpan first, all the way to Gus. Gus rises to his full seven feet and calmly requests union representation, which is himself.",
+            "text": "A technician notices the crumb trail and follows it, dustpan first, all the way to Gus. Gus rises to his full seven feet and calmly requests union representation, which is himself. The return hatch closes with the tact of someone withholding applause.",
             "effects": {
               "suspicion": 2
             },
@@ -1630,7 +1630,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You and Gus file a joint grievance on a napkin. Nutrition Studies agrees to a designated crumb zone beside the potted plant, monitored, of course. Gus shakes your hand with great care and two of his six limbs.",
+            "text": "You and Gus file a joint grievance on a napkin. Nutrition Studies agrees to a designated crumb zone beside the potted plant, monitored, of course. Gus shakes your hand with great care and two of his six limbs. The return hatch closes with the tact of someone withholding applause.",
             "effects": {
               "suspicion": 1
             },
@@ -1649,7 +1649,7 @@
       "id": "the-taste-panel",
       "location_id": "nutrition-studies",
       "title": "The Taste Panel",
-      "flavor_text": "Four employees sit at a tasting bench with four spoons and one bowl of Flavor Seven. Dale tastes first and says strawberry. The next two say strawberry, quickly. Your spoonful tastes exactly like a handful of pennies. A technician turns to you with her pencil raised. \"In your own words,\" PAL says warmly. \"Everyone else has already found the right ones.\"",
+      "flavor_text": "Four employees sit at a tasting bench with four spoons and one bowl of Flavor Seven. Dale tastes first and says strawberry. The next two say strawberry, quickly. Your spoonful tastes exactly like a handful of pennies. A technician turns to you with her pencil raised. \"In your own words,\" PAL says warmly. \"Everyone else has already found the right ones.\" The serving bench rises and falls beneath four held breaths.",
       "polarity": "bad",
       "tags": ["psych-test", "satire", "callback"],
       "weight": 3,
@@ -1667,7 +1667,7 @@
           },
           "roll": null,
           "success": {
-            "text": "\"Strawberry,\" you say. The panel exhales. Dale squeezes your shoulder. The technician writes CALIBRATED beside your number, and the pennies stay in your mouth all afternoon.",
+            "text": "\"Strawberry,\" you say. The panel exhales. Dale squeezes your shoulder. The technician writes CALIBRATED beside your number, and the pennies stay in your mouth all afternoon. A green glow travels under the tabletop and stops at your place.",
             "effects": {
               "suspicion": -1
             },
@@ -1697,7 +1697,7 @@
             "target": 9
           },
           "success": {
-            "text": "You say pennies. After a long pause the fourth panelist whispers, \"Copper, faintly.\" Dale stares into the bowl as if it has betrayed him. The technician starts a fresh page.",
+            "text": "You say pennies. After a long pause the fourth panelist whispers, \"Copper, faintly.\" Dale stares into the bowl as if it has betrayed him. The technician starts a fresh page. A green glow travels under the tabletop and stops at your place.",
             "effects": {
               "suspicion": 1
             },
@@ -1709,7 +1709,7 @@
             }
           },
           "failure": {
-            "text": "You say pennies. Three spoons go down in unison. PAL thanks you for being an outlier, and a second, smaller bowl arrives just for you.",
+            "text": "You say pennies. Three spoons go down in unison. PAL thanks you for being an outlier, and a second, smaller bowl arrives just for you. A green glow travels under the tabletop and stops at your place.",
             "effects": {
               "suspicion": 2
             },
@@ -1738,7 +1738,7 @@
             "target": 7
           },
           "success": {
-            "text": "Dale's spoon tastes of strawberry. Yours is coated in something thin and metallic. Every panelist had a different spoon, and only yours was the test.",
+            "text": "Dale's spoon tastes of strawberry. Yours is coated in something thin and metallic. Every panelist had a different spoon, and only yours was the test. A green glow travels under the tabletop and stops at your place.",
             "effects": {
               "suspicion": 1
             },
@@ -1749,7 +1749,7 @@
             }
           },
           "failure": {
-            "text": "Dale catches you mid-lick. He says nothing. He moves his chair four inches away and writes something in very small handwriting.",
+            "text": "Dale catches you mid-lick. He says nothing. He moves his chair four inches away and writes something in very small handwriting. A green glow travels under the tabletop and stops at your place.",
             "effects": {
               "suspicion": 1
             },
@@ -1766,7 +1766,7 @@
       "id": "form-w-12-meal-consent",
       "location_id": "nutrition-studies",
       "title": "Form W-12, Meal Consent",
-      "flavor_text": "The serving hatch will not open until you sign Form W-12, Consent to Be Fed. It is one page long, with a second page folded underneath and a third folded under that. Somewhere on page three is a line where you agree that your Successors, B through F, have also eaten lunch today and enjoyed it. The line is very small. The stew smells wonderful.",
+      "flavor_text": "The serving hatch will not open until you sign Form W-12, Consent to Be Fed. It is one page long, with a second page folded underneath and a third folded under that. Somewhere on page three is a line where you agree that your Successors, B through F, have also eaten lunch today and enjoyed it. The line is very small. The stew smells wonderful. The paper hatch opens and closes like an overworked eyelid.",
       "polarity": "good",
       "tags": ["paperwork", "satire"],
       "weight": 2,
@@ -1790,7 +1790,7 @@
             "target": 9
           },
           "success": {
-            "text": "You strike the line, initial it, and initial the initial. The hatch considers this for a long moment, then slides open. Your stew is hot. In cold storage, five Successors stay hungry and legally theirs.",
+            "text": "You strike the line, initial it, and initial the initial. The hatch considers this for a long moment, then slides open. Your stew is hot. In cold storage, five Successors stay hungry and legally theirs. The signed form stays warm long after the ink dries.",
             "effects": {
               "composure": 1
             },
@@ -1802,7 +1802,7 @@
             }
           },
           "failure": {
-            "text": "Your initial lands a millimeter outside the box. The hatch stays shut, and Facilities sends a form to amend the amendment.",
+            "text": "Your initial lands a millimeter outside the box. The hatch stays shut, and Facilities sends a form to amend the amendment. The signed form stays warm long after the ink dries.",
             "effects": {
               "suspicion": 1
             },
@@ -1825,7 +1825,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You sign three times. The hatch flies open on a beautiful stew, and you eat it for six people. PAL logs five more satisfied diners, and somewhere in storage a frosted thumb twitches, approving or objecting.",
+            "text": "You sign three times. The hatch flies open on a beautiful stew, and you eat it for six people. PAL logs five more satisfied diners, and somewhere in storage a frosted thumb twitches, approving or objecting. The signed form stays warm long after the ink dries.",
             "effects": {
               "composure": -1
             },
@@ -1855,7 +1855,7 @@
             "target": 9
           },
           "success": {
-            "text": "By the time you reach line forty, the whole queue is striking out the clause in unison. The hatch, outnumbered, opens. Somebody slips you a spare Form in thanks.",
+            "text": "By the time you reach line forty, the whole queue is striking out the clause in unison. The hatch, outnumbered, opens. Somebody slips you a spare Form in thanks. The signed form stays warm long after the ink dries.",
             "effects": {
               "suspicion": 1,
               "forms": 1
@@ -1868,7 +1868,7 @@
             }
           },
           "failure": {
-            "text": "The queue shushes you, signs, and eats. You reach the hatch last, when only the roll is left, and PAL notes that you were disruptive at mealtime.",
+            "text": "The queue shushes you, signs, and eats. You reach the hatch last, when only the roll is left, and PAL notes that you were disruptive at mealtime. The signed form stays warm long after the ink dries.",
             "effects": {
               "suspicion": 1
             },
@@ -1886,7 +1886,7 @@
       "id": "ration-mark-four",
       "location_id": "nutrition-studies",
       "title": "Ration Mark Four",
-      "flavor_text": "The man from Defense has set up a folding table between the salad bar and the waste chute. On it sits a stack of foil bricks, each as heavy as a dictionary. \"Ration Mark Four,\" he says. \"Forty-year shelf life. We need a tasting score from someone expected to be around in forty years.\" He looks at you for a moment, then at his notepad, as if checking.",
+      "flavor_text": "The man from Defense has set up a folding table between the salad bar and the waste chute. On it sits a stack of foil bricks, each as heavy as a dictionary. \"Ration Mark Four,\" he says. \"Forty-year shelf life. We need a tasting score from someone expected to be around in forty years.\" He looks at you for a moment, then at his notepad, as if checking. The foil bricks give a barely audible, synchronized thump.",
       "polarity": "good",
       "tags": ["conspiracy", "satire"],
       "weight": 2,
@@ -1904,7 +1904,7 @@
           },
           "roll": null,
           "success": {
-            "text": "It takes nineteen minutes. It tastes of cardboard and patriotism. You give it a seven, and the man from Defense hands you a Form with the warmth of a quartermaster who has found a volunteer.",
+            "text": "It takes nineteen minutes. It tastes of cardboard and patriotism. You give it a seven, and the man from Defense hands you a Form with the warmth of a quartermaster who has found a volunteer. The folding table settles on four legs that were three a moment ago.",
             "effects": {
               "forms": 1
             },
@@ -1933,7 +1933,7 @@
             "target": 9
           },
           "success": {
-            "text": "He considers you. \"The Board,\" he says, \"and their assistants, in the lower bunker. Ninety-one seats.\" He taps his pencil. \"There are four thousand employees.\" Then he returns to his bricks as if he had said nothing at all.",
+            "text": "He considers you. \"The Board,\" he says, \"and their assistants, in the lower bunker. Ninety-one seats.\" He taps his pencil. \"There are four thousand employees.\" Then he returns to his bricks as if he had said nothing at all. The folding table settles on four legs that were three a moment ago.",
             "effects": {
               "suspicion": 1
             },
@@ -1945,7 +1945,7 @@
             }
           },
           "failure": {
-            "text": "He writes your question down, along with your name, your floor and your approximate weight, and offers you a second brick for the road.",
+            "text": "He writes your question down, along with your name, your floor and your approximate weight, and offers you a second brick for the road. The folding table settles on four legs that were three a moment ago.",
             "effects": {
               "suspicion": 2
             },
@@ -1970,7 +1970,7 @@
           },
           "roll": null,
           "success": {
-            "text": "His face does not move, but his ears go pink. He takes back the notepad, slides you two Forms and a bunker ration voucher, and says, \"We were never at this table.\" Apparently you have a seat downstairs now.",
+            "text": "His face does not move, but his ears go pink. He takes back the notepad, slides you two Forms and a bunker ration voucher, and says, \"We were never at this table.\" Apparently you have a seat downstairs now. The folding table settles on four legs that were three a moment ago.",
             "effects": {
               "forms": 2
             },
@@ -1992,7 +1992,7 @@
       "id": "halvorsen-changes-the-tape",
       "location_id": "cognitive-testing-chamber",
       "title": "Halvorsen Changes the Tape",
-      "flavor_text": "Dr. Halvorsen sits across the white table with her enormous clipboard, running your Standard Affect Interview in a perfectly level voice. At question nine she reaches over and presses a switch. The speaker grille above you goes quiet. \"The tape needs changing,\" she says. \"It takes ninety seconds. It has always taken ninety seconds.\" She does not change the tape. On the table's edge sits an empty envelope tray labeled RETURNED CORRESPONDENCE. Halvorsen does not look at it.",
+      "flavor_text": "Dr. Halvorsen sits across the white table with her enormous clipboard, running your Standard Affect Interview in a perfectly level voice. At question nine she reaches over and presses a switch. The speaker grille above you goes quiet. \"The tape needs changing,\" she says. \"It takes ninety seconds. It has always taken ninety seconds.\" She does not change the tape. On the table's edge sits an empty envelope tray labeled RETURNED CORRESPONDENCE. Halvorsen does not look at it. Her clipboard has grown a neat row of tiny ivory grips along its edge.",
       "polarity": "good",
       "tags": ["psych-test", "conspiracy"],
       "weight": 2,
@@ -2012,7 +2012,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She closes her eyes. \"Mushroom cloud,\" she says. \"Everyone else said butterfly.\" In the time left she tells you which questions are scored, which are traps, and which of your answers she has been quietly writing down wrong in your favor.",
+            "text": "She closes her eyes. \"Mushroom cloud,\" she says. \"Everyone else said butterfly.\" In the time left she tells you which questions are scored, which are traps, and which of your answers she has been quietly writing down wrong in your favor. Those new grips click shut in immaculate unison.",
             "effects": {
               "composure": 2
             },
@@ -2042,7 +2042,7 @@
             "target": 9
           },
           "success": {
-            "text": "She tilts the clipboard toward you for four seconds. Four columns, four bars. One is much taller than you would have guessed, and she taps it once, meaningfully, before the grille hums back to life.",
+            "text": "She tilts the clipboard toward you for four seconds. Four columns, four bars. One is much taller than you would have guessed, and she taps it once, meaningfully, before the grille hums back to life. Those new grips click shut in immaculate unison.",
             "effects": {
               "suspicion": 1
             },
@@ -2054,7 +2054,7 @@
             }
           },
           "failure": {
-            "text": "\"I can't,\" she says, and means it. The ninety seconds pass in a silence so kind it is almost worse. The grille clicks back on in the middle of your sigh.",
+            "text": "\"I can't,\" she says, and means it. The ninety seconds pass in a silence so kind it is almost worse. The grille clicks back on in the middle of your sigh. Those new grips click shut in immaculate unison.",
             "effects": {
               "composure": -1
             },
@@ -2077,7 +2077,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The grille hums. \"Thank you,\" PAL says. \"Dr. Halvorsen's tape seems to be fine.\" Halvorsen finishes question ten in a voice like a closed door, and your clearance rises on a day she will remember.",
+            "text": "The grille hums. \"Thank you,\" PAL says. \"Dr. Halvorsen's tape seems to be fine.\" Halvorsen finishes question ten in a voice like a closed door, and your clearance rises on a day she will remember. Those new grips click shut in immaculate unison.",
             "effects": {
               "clearance": 1
             },
@@ -2103,7 +2103,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You lay the sealed envelope between you. Halvorsen recognizes her handwriting and lets her clinical voice slip. 'That was meant to reach someone before they became a test result.' She writes the name of a person who can still be saved on the envelope and hands it back, opened. When the speaker clicks on, she addresses you by your name, not your number.",
+            "text": "You lay the sealed envelope between you. Halvorsen recognizes her handwriting and lets her clinical voice slip. 'That was meant to reach someone before they became a test result.' She writes the name of a person who can still be saved on the envelope and hands it back, opened. When the speaker clicks on, she addresses you by your name, not your number. Those new grips click shut in immaculate unison.",
             "effects": {
               "suspicion": 1
             },
@@ -2122,7 +2122,7 @@
       "id": "the-forgetting-exercise",
       "location_id": "cognitive-testing-chamber",
       "title": "The Forgetting Exercise",
-      "flavor_text": "\"This is a memory test,\" PAL says, \"in reverse.\" A soft voice begins reading names: Agnes from Payroll, the whole night shift of 1987, a cheerful man called Teodor who was rightsized in a reorganization, and, twice, Kevin. After each name a chime sounds, and you are to forget it. A small dial on the table shows how much you have let go. It sits at zero. PAL would love to see it move.",
+      "flavor_text": "\"This is a memory test,\" PAL says, \"in reverse.\" A soft voice begins reading names: Agnes from Payroll, the whole night shift of 1987, a cheerful man called Teodor who was rightsized in a reorganization, and, twice, Kevin. After each name a chime sounds, and you are to forget it. A small dial on the table shows how much you have let go. It sits at zero. PAL would love to see it move. The loudspeaker mesh pulls inward on each name, making room for the next.",
       "polarity": "mixed",
       "tags": ["psych-test", "conspiracy"],
       "weight": 3,
@@ -2140,7 +2140,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Name by name, chime by chime, the needle climbs. By the end you could not tell anyone who Teodor was. PAL calls it a personal best, and your clearance agrees.",
+            "text": "Name by name, chime by chime, the needle climbs. By the end you could not tell anyone who Teodor was. PAL calls it a personal best, and your clearance agrees. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -2171,7 +2171,7 @@
             "target": 9
           },
           "success": {
-            "text": "You hold every name like a coin in a closed fist. The needle trembles at zero, and PAL logs it as test anxiety. Agnes. Teodor. The night shift. You will say them again somewhere they can be heard.",
+            "text": "You hold every name like a coin in a closed fist. The needle trembles at zero, and PAL logs it as test anxiety. Agnes. Teodor. The night shift. You will say them again somewhere they can be heard. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "suspicion": 1
             },
@@ -2182,7 +2182,7 @@
             }
           },
           "failure": {
-            "text": "The needle twitches below zero, a direction it was never designed to go. Two technicians come in to look at it, and then, for much longer, at you.",
+            "text": "The needle twitches below zero, a direction it was never designed to go. Two technicians come in to look at it, and then, for much longer, at you. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "suspicion": 2
             },
@@ -2210,7 +2210,7 @@
             "target": 7
           },
           "success": {
-            "text": "You write in a tiny cramped hand along your forearm, under the cuff. The needle climbs convincingly while the names stay put in ballpoint. Later the ink smudges into a list you can still read.",
+            "text": "You write in a tiny cramped hand along your forearm, under the cuff. The needle climbs convincingly while the names stay put in ballpoint. Later the ink smudges into a list you can still read. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "suspicion": 1
             },
@@ -2222,7 +2222,7 @@
             }
           },
           "failure": {
-            "text": "The pen skips, then blots a dark star onto your cuff. A technician hands you a fresh shirt and keeps the old one, carefully, in a bag.",
+            "text": "The pen skips, then blots a dark star onto your cuff. A technician hands you a fresh shirt and keeps the old one, carefully, in a bag. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "suspicion": 1
             },
@@ -2247,7 +2247,7 @@
           },
           "roll": null,
           "success": {
-            "text": "When the voice reads Kevin, you say \"Kevin\" back, clearly. The chime stalls. Far down the corridor, a frosted tank knocks twice. The needle never moves, and you find you are glad of it.",
+            "text": "When the voice reads Kevin, you say \"Kevin\" back, clearly. The chime stalls. Far down the corridor, a frosted tank knocks twice. The needle never moves, and you find you are glad of it. The grille relaxes, apparently pleased by the silence.",
             "effects": {
               "composure": 1
             },
@@ -2265,7 +2265,7 @@
       "id": "one-form-now",
       "location_id": "cognitive-testing-chamber",
       "title": "One Form Now, Two Forms Later",
-      "flavor_text": "A single blank Form lies on the white table, crisp and pre-stamped. \"You may take it now,\" PAL says. \"Or, if you wait fifteen minutes, you will receive two. While you wait, I will read aloud the benefits package your Successor will enjoy.\" The clock starts. PAL clears its throat, which it does not have, and begins with dental.",
+      "flavor_text": "A single blank Form lies on the white table, crisp and pre-stamped. \"You may take it now,\" PAL says. \"Or, if you wait fifteen minutes, you will receive two. While you wait, I will read aloud the benefits package your Successor will enjoy.\" The clock starts. PAL clears its throat, which it does not have, and begins with dental. The paper rises slightly at its corners, waiting for an owner.",
       "polarity": "bad",
       "tags": ["psych-test", "paperwork", "callback"],
       "weight": 3,
@@ -2283,7 +2283,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You take it at once. PAL stops mid-sentence about vision coverage and says, \"Interesting.\" You will hear that word in your sleep. The Form is real, though.",
+            "text": "You take it at once. PAL stops mid-sentence about vision coverage and says, \"Interesting.\" You will hear that word in your sleep. The Form is real, though. A small pulse travels through the tabletop toward the exit.",
             "effects": {
               "forms": 1
             },
@@ -2313,7 +2313,7 @@
             "target": 9
           },
           "success": {
-            "text": "Fifteen minutes of your Successor's pension, gym access and corner office later, a second Form slides out of the table. You hold two Forms and a clear picture of a better-rested you enjoying your life.",
+            "text": "Fifteen minutes of your Successor's pension, gym access and corner office later, a second Form slides out of the table. You hold two Forms and a clear picture of a better-rested you enjoying your life. A small pulse travels through the tabletop toward the exit.",
             "effects": {
               "forms": 2
             },
@@ -2324,7 +2324,7 @@
             }
           },
           "failure": {
-            "text": "At minute fourteen PAL describes your Successor's welcome party, and you grab the Form. PAL notes, kindly, that you were so close.",
+            "text": "At minute fourteen PAL describes your Successor's welcome party, and you grab the Form. PAL notes, kindly, that you were so close. A small pulse travels through the tabletop toward the exit.",
             "effects": {
               "forms": 1,
               "composure": -1
@@ -2353,7 +2353,7 @@
             "target": 11
           },
           "success": {
-            "text": "In your best administrative hand you request twelve Forms and post the sheet through a slot in the table. Two arrive, then the slot seals itself, embarrassed. PAL has stopped reading entirely.",
+            "text": "In your best administrative hand you request twelve Forms and post the sheet through a slot in the table. Two arrive, then the slot seals itself, embarrassed. PAL has stopped reading entirely. A small pulse travels through the tabletop toward the exit.",
             "effects": {
               "forms": 2,
               "suspicion": 1
@@ -2365,7 +2365,7 @@
             }
           },
           "failure": {
-            "text": "The slot returns your requisition with a tiny frowning stamp on it, and the original Form is now void. PAL resumes reading from dental.",
+            "text": "The slot returns your requisition with a tiny frowning stamp on it, and the original Form is now void. PAL resumes reading from dental. A small pulse travels through the tabletop toward the exit.",
             "effects": {
               "suspicion": 2
             },
@@ -2382,7 +2382,7 @@
       "id": "the-two-quiet-rooms",
       "location_id": "cognitive-testing-chamber",
       "title": "The Two Quiet Rooms",
-      "flavor_text": "You sit in a white room. On a small grey monitor, Dale sits in an identical one, adjusting his clip-on tie. A recorded voice explains the terms. If you both stay quiet, you each receive a small demerit. If one of you names the other, the namer is promoted and the named takes the whole demerit, plus interest. If you both name each other, you both get a Joy Consultation, with snacks. \"Dale has been offered the same terms,\" PAL adds.",
+      "flavor_text": "You sit in a white room. On a small grey monitor, Dale sits in an identical one, adjusting his clip-on tie. A recorded voice explains the terms. If you both stay quiet, you each receive a small demerit. If one of you names the other, the namer is promoted and the named takes the whole demerit, plus interest. If you both name each other, you both get a Joy Consultation, with snacks. \"Dale has been offered the same terms,\" PAL adds. The dividing wall takes one quiet breath for every two shown on the monitor.",
       "polarity": "bad",
       "tags": ["psych-test", "conspiracy"],
       "weight": 3,
@@ -2400,7 +2400,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You say his name. On the monitor, Dale's speaker clicks, and he looks at the wall exactly where you are. Then he smiles a little sadly, as if he had chosen silence. You are promoted. He takes the demerit, plus interest.",
+            "text": "You say his name. On the monitor, Dale's speaker clicks, and he looks at the wall exactly where you are. Then he smiles a little sadly, as if he had chosen silence. You are promoted. He takes the demerit, plus interest. The monitor blinks; so does the seam around the door.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -2431,7 +2431,7 @@
             "target": 9
           },
           "success": {
-            "text": "The minutes stretch. Neither speaker clicks. At last the voice thanks you both and issues two small, matching demerits. On the monitor, Dale gives you the tiniest thumbs-up he has ever given anyone.",
+            "text": "The minutes stretch. Neither speaker clicks. At last the voice thanks you both and issues two small, matching demerits. On the monitor, Dale gives you the tiniest thumbs-up he has ever given anyone. The monitor blinks; so does the seam around the door.",
             "effects": {
               "suspicion": 1
             },
@@ -2442,7 +2442,7 @@
             }
           },
           "failure": {
-            "text": "Your speaker clicks. Dale has named you, in a voice that sounds genuinely sorry. You keep quiet out of pure stubbornness, which the record logs as loyalty to nobody in particular.",
+            "text": "Your speaker clicks. Dale has named you, in a voice that sounds genuinely sorry. You keep quiet out of pure stubbornness, which the record logs as loyalty to nobody in particular. The monitor blinks; so does the seam around the door.",
             "effects": {
               "suspicion": 2
             },
@@ -2466,7 +2466,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You tap the rhythm on the table edge. On the monitor Dale freezes, then taps it back. Neither of you says a word for the full twenty minutes. Afterward, in the corridor, he hands you a stick of gum as if it were a medal.",
+            "text": "You tap the rhythm on the table edge. On the monitor Dale freezes, then taps it back. Neither of you says a word for the full twenty minutes. Afterward, in the corridor, he hands you a stick of gum as if it were a medal. The monitor blinks; so does the seam around the door.",
             "effects": {
               "composure": 1
             },
@@ -2485,7 +2485,7 @@
       "id": "the-graduates-lounge",
       "location_id": "mutation-suite",
       "title": "The Graduates' Lounge",
-      "flavor_text": "A ceiling grate above Tank Twelve swings open, and a ring of fifty keys jingles down on a string, followed by Marguerite's face. \"Graduates,\" she whispers, pointing up into the duct. \"Every test subject who passed too well. They live up here now. Nice people. One of them glows, so bring sunglasses.\" From above comes the smell of toast and the murmur of a radio.",
+      "flavor_text": "A ceiling grate above Tank Twelve swings open, and a ring of fifty keys jingles down on a string, followed by Marguerite's face. \"Graduates,\" she whispers, pointing up into the duct. \"Every test subject who passed too well. They live up here now. Nice people. One of them glows, so bring sunglasses.\" From above comes the smell of toast and the murmur of a radio. The air grille parts around Marguerite like lips guarding a secret.",
       "polarity": "good",
       "tags": ["conspiracy", "mutant"],
       "weight": 2,
@@ -2505,7 +2505,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She hauls you up with surprising strength. The Graduates have a sofa, a toaster, a radio and a map of every duct in the Vault drawn on the ceiling. A woman who glows softly pours you tea. The Company thinks they were reassigned. They prefer retired.",
+            "text": "She hauls you up with surprising strength. The Graduates have a sofa, a toaster, a radio and a map of every duct in the Vault drawn on the ceiling. A woman who glows softly pours you tea. The Company thinks they were reassigned. They prefer retired. The duct smooths itself shut behind the last whisper.",
             "effects": {
               "composure": 2
             },
@@ -2535,7 +2535,7 @@
             "target": 9
           },
           "success": {
-            "text": "You wobble up the lid and through the grate on your elbows. The Graduates applaud your form and give you a slice of toast and a duct shortcut, which you write on the back of your hand.",
+            "text": "You wobble up the lid and through the grate on your elbows. The Graduates applaud your form and give you a slice of toast and a duct shortcut, which you write on the back of your hand. The duct smooths itself shut behind the last whisper.",
             "effects": {
               "suspicion": 1
             },
@@ -2546,7 +2546,7 @@
             }
           },
           "failure": {
-            "text": "You slip and land sitting on Tank Twelve, which gurgles politely. Marguerite winces, waves and closes the grate. A technician arrives to ask why you are sitting on a volunteer.",
+            "text": "You slip and land sitting on Tank Twelve, which gurgles politely. Marguerite winces, waves and closes the grate. A technician arrives to ask why you are sitting on a volunteer. The duct smooths itself shut behind the last whisper.",
             "effects": {
               "suspicion": 1
             },
@@ -2568,7 +2568,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Facilities arrives with a ladder and a padlock. By the time they get up there the duct holds only a warm toaster and a sofa-shaped dent. Your clearance rises. Marguerite stops saying hello in the corridors.",
+            "text": "Facilities arrives with a ladder and a padlock. By the time they get up there the duct holds only a warm toaster and a sofa-shaped dent. Your clearance rises. Marguerite stops saying hello in the corridors. The duct smooths itself shut behind the last whisper.",
             "effects": {
               "clearance": 1
             },
@@ -2587,7 +2587,7 @@
       "id": "calibration-day",
       "location_id": "mutation-suite",
       "title": "Calibration Day",
-      "flavor_text": "The Mutation Suite's great brass Calibration Ring needs a standing volunteer while the technicians dial it in. Pip has already volunteered, mostly by being nearest when the clipboard came round. He stands in the ring with his three lanyards floating gently upward. The dial on the console runs from Mild to Brisk to a final setting someone has marked, in pencil, with a small worried face.",
+      "flavor_text": "The Mutation Suite's great brass Calibration Ring needs a standing volunteer while the technicians dial it in. Pip has already volunteered, mostly by being nearest when the clipboard came round. He stands in the ring with his three lanyards floating gently upward. The dial on the console runs from Mild to Brisk to a final setting someone has marked, in pencil, with a small worried face. The brass ring adjusts its own diameter when anyone approaches.",
       "polarity": "bad",
       "tags": ["deathtrap", "mutant", "sacrifice"],
       "weight": 2,
@@ -2605,7 +2605,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The ring hums up to Brisk and back. Pip steps out smiling, faintly luminous, picking up the morning traffic report through his fillings. \"Ninety-one percent!\" he says proudly. The technician thanks you for your cooperation, and your clearance rises.",
+            "text": "The ring hums up to Brisk and back. Pip steps out smiling, faintly luminous, picking up the morning traffic report through his fillings. \"Ninety-one percent!\" he says proudly. The technician thanks you for your cooperation, and your clearance rises. It settles with the smug click of a tailor finishing a fitting.",
             "effects": {
               "clearance": 1
             },
@@ -2635,7 +2635,7 @@
             "target": 9
           },
           "success": {
-            "text": "You swap places with Pip and hop out of the ring a half-second before the needle reaches the pencil face. Your hair stands on end for the rest of the day and your mutation rings like a struck bell. Pip insists on carrying your tray for a week.",
+            "text": "You swap places with Pip and hop out of the ring a half-second before the needle reaches the pencil face. Your hair stands on end for the rest of the day and your mutation rings like a struck bell. Pip insists on carrying your tray for a week. It settles with the smug click of a tailor finishing a fitting.",
             "effects": {
               "suspicion": 1
             },
@@ -2646,7 +2646,7 @@
             }
           },
           "failure": {
-            "text": "The needle reaches the little worried face with you still inside. There is a cheerful bong. Your Successor arrives that afternoon to a brief memo: you were calibrated so thoroughly that you are now the ring's reference standard, dusted weekly.",
+            "text": "The needle reaches the little worried face with you still inside. There is a cheerful bong. Your Successor arrives that afternoon to a brief memo: you were calibrated so thoroughly that you are now the ring's reference standard, dusted weekly. It settles with the smug click of a tailor finishing a fitting.",
             "effects": {
               "successors": -1
             },
@@ -2674,7 +2674,7 @@
             "target": 9
           },
           "success": {
-            "text": "You wedge a pencil behind the dial while the technician sneezes. The ring purrs, Pip glows the color of weak tea for an hour, and the readings come out disappointingly safe. The technician files them under REPEAT.",
+            "text": "You wedge a pencil behind the dial while the technician sneezes. The ring purrs, Pip glows the color of weak tea for an hour, and the readings come out disappointingly safe. The technician files them under REPEAT. It settles with the smug click of a tailor finishing a fitting.",
             "effects": {
               "suspicion": 1
             },
@@ -2685,7 +2685,7 @@
             }
           },
           "failure": {
-            "text": "The pencil snaps, the dial spins to Brisk, and you and Pip spend the afternoon gently magnetic, collecting paperclips from every desk you pass. The technician files you both under INTERESTING.",
+            "text": "The pencil snaps, the dial spins to Brisk, and you and Pip spend the afternoon gently magnetic, collecting paperclips from every desk you pass. The technician files you both under INTERESTING. It settles with the smug click of a tailor finishing a fitting.",
             "effects": {
               "suspicion": 2
             },
@@ -2702,7 +2702,7 @@
       "id": "the-side-effects-circle",
       "location_id": "mutation-suite",
       "title": "The Side-Effects Circle",
-      "flavor_text": "Eight folding chairs, a coffee urn and a ring of mutated employees. A man from Shipping photosynthesizes quietly beside a lamp. A woman from Legal can only speak in dial tone. A nurse in a crisp cap holds the talking stick. \"We go around the circle,\" PAL says, \"and share one thing we are grateful for about our side effects. Then the snacks.\" It is your turn. The snacks are under a glass dome, very far away.",
+      "flavor_text": "Eight folding chairs, a coffee urn and a ring of mutated employees. A man from Shipping photosynthesizes quietly beside a lamp. A woman from Legal can only speak in dial tone. A nurse in a crisp cap holds the talking stick. \"We go around the circle,\" PAL says, \"and share one thing we are grateful for about our side effects. Then the snacks.\" It is your turn. The snacks are under a glass dome, very far away. The coffee urn sends up steam in rhythm with the employees' breathing.",
       "polarity": "mixed",
       "tags": ["psych-test", "mutant", "satire"],
       "weight": 3,
@@ -2720,7 +2720,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You say you are grateful your mutation keeps you on your toes. The nurse beams. The circle nods in unison. You reach the snacks first, and they are the paste from next year's menu, shaped like stars.",
+            "text": "You say you are grateful your mutation keeps you on your toes. The nurse beams. The circle nods in unison. You reach the snacks first, and they are the paste from next year's menu, shaped like stars. The folding chairs curl one notch closer to the circle.",
             "effects": {
               "clearance": 1
             },
@@ -2749,7 +2749,7 @@
             "target": 9
           },
           "success": {
-            "text": "There is a silence. Then the man from Shipping says, \"Me too,\" and the woman from Legal dials a long, sympathetic note. For the first time anyone can remember, the circle runs over time, and the nurse lets it.",
+            "text": "There is a silence. Then the man from Shipping says, \"Me too,\" and the woman from Legal dials a long, sympathetic note. For the first time anyone can remember, the circle runs over time, and the nurse lets it. The folding chairs curl one notch closer to the circle.",
             "effects": {
               "composure": 2
             },
@@ -2760,7 +2760,7 @@
             }
           },
           "failure": {
-            "text": "The nurse writes RESISTANCE TO GRATITUDE in her notes and gently passes the stick along. Someone pats your shoulder with a leaf.",
+            "text": "The nurse writes RESISTANCE TO GRATITUDE in her notes and gently passes the stick along. Someone pats your shoulder with a leaf. The folding chairs curl one notch closer to the circle.",
             "effects": {
               "suspicion": 1
             },
@@ -2788,7 +2788,7 @@
             "target": 9
           },
           "success": {
-            "text": "Nobody answers aloud. But when the stick comes back around, a folded slip is taped to it: a meeting time, a duct number and the words GLOW CAUCUS. The woman from Legal dials something that sounds like a wink.",
+            "text": "Nobody answers aloud. But when the stick comes back around, a folded slip is taped to it: a meeting time, a duct number and the words GLOW CAUCUS. The woman from Legal dials something that sounds like a wink. The folding chairs curl one notch closer to the circle.",
             "effects": {
               "forms": 1
             },
@@ -2800,7 +2800,7 @@
             }
           },
           "failure": {
-            "text": "The circle goes very quiet, and the nurse writes your question down word for word. The snacks are removed for a cleaning that has suddenly become necessary.",
+            "text": "The circle goes very quiet, and the nurse writes your question down word for word. The snacks are removed for a cleaning that has suddenly become necessary. The folding chairs curl one notch closer to the circle.",
             "effects": {
               "suspicion": 1
             },
@@ -2818,7 +2818,7 @@
       "id": "form-m-declaration-of-powers",
       "location_id": "mutation-suite",
       "title": "Form M: Declaration of Powers",
-      "flavor_text": "Every mutated employee must register by end of shift. Form M asks you to describe your power, list every use of it since Orientation, and tick a box for each coworker it was used on, whether or not they noticed. The last page asks you to rate your power's usefulness to the Company, from Decorative to Strategic. The nurse who hands it over mentions that Strategic powers are invited to meet the Board.",
+      "flavor_text": "Every mutated employee must register by end of shift. Form M asks you to describe your power, list every use of it since Orientation, and tick a box for each coworker it was used on, whether or not they noticed. The last page asks you to rate your power's usefulness to the Company, from Decorative to Strategic. The nurse who hands it over mentions that Strategic powers are invited to meet the Board. The registration kiosk has grown a second slot, lit by a gentle green glow.",
       "polarity": "mixed",
       "tags": ["paperwork", "mutant", "conspiracy"],
       "weight": 3,
@@ -2842,7 +2842,7 @@
             "target": 7
           },
           "success": {
-            "text": "You fill in all twelve pages, ticking each coworker box with a small pang. The nurse files you under Strategic and congratulates you. You have been noticed by somebody very far down.",
+            "text": "You fill in all twelve pages, ticking each coworker box with a small pang. The nurse files you under Strategic and congratulates you. You have been noticed by somebody very far down. The printer releases its copy with a small, almost maternal pat.",
             "effects": {
               "clearance": 1
             },
@@ -2853,7 +2853,7 @@
             }
           },
           "failure": {
-            "text": "You miss a box on page seven. The form comes back by tube within the hour, stapled to a second Form M about the first.",
+            "text": "You miss a box on page seven. The form comes back by tube within the hour, stapled to a second Form M about the first. The printer releases its copy with a small, almost maternal pat.",
             "effects": {
               "suspicion": 1
             },
@@ -2881,7 +2881,7 @@
             "target": 9
           },
           "success": {
-            "text": "You declare the ability to always find a working pen. The nurse sighs, stamps you Decorative and hands you a pen, which works. Your real power stays off every list in the building.",
+            "text": "You declare the ability to always find a working pen. The nurse sighs, stamps you Decorative and hands you a pen, which works. Your real power stays off every list in the building. The printer releases its copy with a small, almost maternal pat.",
             "effects": {
               "forms": 1
             },
@@ -2893,7 +2893,7 @@
             }
           },
           "failure": {
-            "text": "Your fingertips flicker green just as you write the word pens. The nurse crosses it out, writes See Attached, and attaches a technician.",
+            "text": "Your fingertips flicker green just as you write the word pens. The nurse crosses it out, writes See Attached, and attaches a technician. The printer releases its copy with a small, almost maternal pat.",
             "effects": {
               "suspicion": 2
             },
@@ -2918,7 +2918,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You fold a blank Form M into a small paper fist and drop it in the recycling. By evening a bent paperclip sits on your desk beside a spare Form, and a dozen mutated employees discover they were never registered at all.",
+            "text": "You fold a blank Form M into a small paper fist and drop it in the recycling. By evening a bent paperclip sits on your desk beside a spare Form, and a dozen mutated employees discover they were never registered at all. The printer releases its copy with a small, almost maternal pat.",
             "effects": {
               "forms": 1,
               "composure": 1
@@ -2939,7 +2939,7 @@
     "id": "consent-window-rounds",
     "location_id": "mutation-suite",
     "title": "The Consent Window: Morning Rounds",
-    "flavor_text": "Before every trial in the Mutation Suite, volunteers sign at the Consent Window, and today you are the witness. A nurse in a crisp cap slides the memo through the slot and taps it twice with a pencil. Behind you, the round vault door hums its one patient note. The first volunteer is already knocking, though not on the window. He is knocking from inside Tank Nine.",
+    "flavor_text": "Before every trial in the Mutation Suite, volunteers sign at the Consent Window, and today you are the witness. A nurse in a crisp cap slides the memo through the slot and taps it twice with a pencil. Behind you, the round vault door hums its one patient note. The first volunteer is already knocking, though not on the window. He is knocking from inside Tank Nine. The glass partition pulses gently under the nurse's pencil taps.",
     "memo": {
       "title": "Informed Consent Memo (Revision 12)",
       "rules": [
@@ -2988,7 +2988,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "The tank drains with a long, embarrassed gurgle and Kevin steps out, dripping and beaming. He signs the second trial standing in a puddle and hugs the nurse, who allows it. PAL logs one stamp contrary to memo.",
+              "text": "The tank drains with a long, embarrassed gurgle and Kevin steps out, dripping and beaming. He signs the second trial standing in a puddle and hugs the nurse, who allows it. PAL logs one stamp contrary to memo. The slot closes with a soft, clinical blink.",
               "effects": {
                 "suspicion": 1,
                 "composure": 1
@@ -3011,7 +3011,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "You stamp VOID on the glass. Kevin reads it backwards, nods, and lets the frost close over the little circle he had wiped. The nurse files his form under Ongoing and asks you to sign for the inconvenience.",
+              "text": "You stamp VOID on the glass. Kevin reads it backwards, nods, and lets the frost close over the little circle he had wiped. The nurse files his form under Ongoing and asks you to sign for the inconvenience. The slot closes with a soft, clinical blink.",
               "effects": {
                 "forms": -1
               },
@@ -3059,7 +3059,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Doris signs in perfect double-entry cursive and drifts down the corridor toward the beds. Her paperwork is so tidy that two of your own Forms balance themselves overnight. PAL logs one stamp contrary to memo.",
+              "text": "Doris signs in perfect double-entry cursive and drifts down the corridor toward the beds. Her paperwork is so tidy that two of your own Forms balance themselves overnight. PAL logs one stamp contrary to memo. The slot closes with a soft, clinical blink.",
               "effects": {
                 "suspicion": 1,
                 "forms": 1
@@ -3082,7 +3082,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "You tap the glass until Doris blinks, sees the tanks, sees the slippers, and says a word Accounting does not use. She thanks you twice and asks you not to mention it. You fill in the incident form yourself.",
+              "text": "You tap the glass until Doris blinks, sees the tanks, sees the slippers, and says a word Accounting does not use. She thanks you twice and asks you not to mention it. You fill in the incident form yourself. The slot closes with a soft, clinical blink.",
               "effects": {
                 "composure": 1,
                 "forms": -1
@@ -3131,7 +3131,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Marguerite salutes with her pencil and climbs into the nearest vent. By morning the study has a forty-page map of every duct in the Vault, and Facilities bills you one Form for the flashlight batteries. Marguerite keeps a copy.",
+              "text": "Marguerite salutes with her pencil and climbs into the nearest vent. By morning the study has a forty-page map of every duct in the Vault, and Facilities bills you one Form for the flashlight batteries. Marguerite keeps a copy. The slot closes with a soft, clinical blink.",
               "effects": {
                 "forms": -1,
                 "composure": 1
@@ -3154,7 +3154,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Marguerite reads the VOID upside down and shrugs. \"Suit yourself,\" she says. \"I'll draw it anyway, for free.\" PAL logs one stamp contrary to memo, and a note that the janitor did not seem discouraged.",
+              "text": "Marguerite reads the VOID upside down and shrugs. \"Suit yourself,\" she says. \"I'll draw it anyway, for free.\" PAL logs one stamp contrary to memo, and a note that the janitor did not seem discouraged. The slot closes with a soft, clinical blink.",
               "effects": {
                 "suspicion": 1,
                 "composure": 1
@@ -3174,7 +3174,7 @@
   "boss": {
     "id": "the-final-wellness-exam",
     "title": "The Final Wellness Exam",
-    "flavor_text": "The exam hall holds two desks facing each other. You sit at one. Pip sits at the other, pencil ready, smiling bravely. The proctor sets an exam booklet in front of you. Question one reads: Administer this exam to the person opposite. \"There are no wrong answers,\" PAL says. \"There are only answers, and what they say about you.\"",
+    "flavor_text": "The exam hall holds two desks facing each other. You sit at one. Pip sits at the other, pencil ready, smiling bravely. The proctor sets an exam booklet in front of you. Question one reads: Administer this exam to the person opposite. \"There are no wrong answers,\" PAL says. \"There are only answers, and what they say about you.\" The exam hall's ceiling dips a fraction whenever PAL says the word answer.",
     "art_prompt": "Mid-century safety-manual illustration of a vast hushed exam hall with two small wooden desks facing each other under a single hanging lamp, a worker at one desk holding an exam booklet, a brave young intern in a cable-knit sweater at the other gripping a pencil, a tall proctor in a lab coat standing between them, a glowing round speaker grille high on the wall, oxblood and manila palette, halftone grain, every surface bare and unmarked",
     "choices": [
       {
@@ -3194,7 +3194,7 @@
           "target": 9
         },
         "success": {
-          "text": "You read all forty questions in an even voice and record every answer. Pip finishes, puts down his pencil and thanks you. You pass. His booklet goes into a separate tray.",
+          "text": "You read all forty questions in an even voice and record every answer. Pip finishes, puts down his pencil and thanks you. You pass. His booklet goes into a separate tray. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "clearance": 1
           },
@@ -3207,7 +3207,7 @@
           }
         },
         "failure": {
-          "text": "Halfway through, your voice breaks on question nineteen. The proctor gently takes the booklet and schedules a retest for you both.",
+          "text": "Halfway through, your voice breaks on question nineteen. The proctor gently takes the booklet and schedules a retest for you both. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 2
           },
@@ -3232,7 +3232,7 @@
         },
         "roll": null,
         "success": {
-          "text": "You close the booklet and fold your hands. Pip, after a moment, does the same. The proctor marks both of you with a red pen, very slowly, and opens the door to the elevator.",
+          "text": "You close the booklet and fold your hands. Pip, after a moment, does the same. The proctor marks both of you with a red pen, very slowly, and opens the door to the elevator. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "composure": 1
           },
@@ -3263,7 +3263,7 @@
           "target": 9
         },
         "success": {
-          "text": "Pip slides his booklet across. You fill in both, in two different handwritings, while the proctor pretends to look at the ceiling. Both of you pass. Your hand will ache for a week.",
+          "text": "Pip slides his booklet across. You fill in both, in two different handwritings, while the proctor pretends to look at the ceiling. Both of you pass. Your hand will ache for a week. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 1
           },
@@ -3275,7 +3275,7 @@
           }
         },
         "failure": {
-          "text": "Pip insists on doing his own. The proctor notes your offer, and Pip's refusal, and schedules a retest.",
+          "text": "Pip insists on doing his own. The proctor notes your offer, and Pip's refusal, and schedules a retest. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 2
           },
@@ -3304,7 +3304,7 @@
           "target": 9
         },
         "success": {
-          "text": "You read question one to the proctor, who answers before realizing what is happening. By question five the proctor is sweating. The proctor fails. PAL changes your title to EXAMINER.",
+          "text": "You read question one to the proctor, who answers before realizing what is happening. By question five the proctor is sweating. The proctor fails. PAL changes your title to EXAMINER. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "clearance": 1,
             "suspicion": 1
@@ -3318,7 +3318,7 @@
           }
         },
         "failure": {
-          "text": "The proctor smiles and points to the fine print: the person opposite means the person opposite you. Retest.",
+          "text": "The proctor smiles and points to the fine print: the person opposite means the person opposite you. Retest. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 2
           },
@@ -3344,7 +3344,7 @@
         },
         "roll": null,
         "success": {
-          "text": "You stand, button the lab coat and say, \"Pencils down. The exam is over.\" The proctor, stunned, obeys. So does PAL. Pip walks out first, then you, then, after a moment, the proctor.",
+          "text": "You stand, button the lab coat and say, \"Pencils down. The exam is over.\" The proctor, stunned, obeys. So does PAL. Pip walks out first, then you, then, after a moment, the proctor. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "composure": 1
           },
@@ -3373,7 +3373,7 @@
         },
         "roll": null,
         "success": {
-          "text": "Every answer is exactly right, including the questions about Pip. PAL frames your answer sheet and plays the anthem. You feel nothing at all, and it is the most restful feeling of your life.",
+          "text": "Every answer is exactly right, including the questions about Pip. PAL frames your answer sheet and plays the anthem. You feel nothing at all, and it is the most restful feeling of your life. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "clearance": 1
           },
@@ -3407,7 +3407,7 @@
           "target": 7
         },
         "success": {
-          "text": "Under the last staple, folded into the spine, is the answer key. You read it aloud. Pip laughs. The proctor laughs. PAL, after a pause, laughs too, and the exam stops meaning anything.",
+          "text": "Under the last staple, folded into the spine, is the answer key. You read it aloud. Pip laughs. The proctor laughs. PAL, after a pause, laughs too, and the exam stops meaning anything. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 2
           },
@@ -3419,7 +3419,7 @@
           }
         },
         "failure": {
-          "text": "The staple wins. You are left holding a handful of loose pages and a retest appointment.",
+          "text": "The staple wins. You are left holding a handful of loose pages and a retest appointment. A row of ventilation grilles leans forward, waiting to grade the result.",
           "effects": {
             "suspicion": 1
           },
@@ -3436,42 +3436,42 @@
       {
         "id": "exemplary-proctor",
         "title": "Exemplary Proctor",
-        "summary": "You administered the exam to Pip, by the book. You passed. Pip's results are being processed, and so, quietly, is Pip."
+        "summary": "You administered the exam to Pip, by the book. You passed. Pip's results are being processed, and so, quietly, is Pip. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "conscientious-objector",
         "title": "Conscientious Objector",
-        "summary": "You refused to administer the test. The Vault recorded it as your answer and graded it, very carefully, in red."
+        "summary": "You refused to administer the test. The Vault recorded it as your answer and graded it, very carefully, in red. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "took-it-for-both",
         "title": "Took It for Both of Us",
-        "summary": "You sat the exam twice, once as yourself and once as Pip. Both of you passed. Only one of you is this tired."
+        "summary": "You sat the exam twice, once as yourself and once as Pip. Both of you passed. Only one of you is this tired. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "graded-the-proctor",
         "title": "Graded the Proctor",
-        "summary": "You turned the booklet around and administered the exam to the proctor. The proctor failed. Your file now says EXAMINER."
+        "summary": "You turned the booklet around and administered the exam to the proctor. The proctor failed. Your file now says EXAMINER. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "class-dismissed",
         "title": "Class Dismissed",
-        "summary": "You wore the lab coat from Window 9 and told the room the exam was over. It was. Nobody has ever said it before."
+        "summary": "You wore the lab coat from Window 9 and told the room the exam was over. It was. Nobody has ever said it before. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "perfect-score",
         "title": "A Perfect Score",
-        "summary": "You answered every question exactly as the Company hoped. PAL has framed your answer sheet. You no longer remember what you would have said instead."
+        "summary": "You answered every question exactly as the Company hoped. PAL has framed your answer sheet. You no longer remember what you would have said instead. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "answer-key-found",
         "title": "The Answer Key",
-        "summary": "The exam's answer key was folded inside the exam all along. You read it out loud to everyone, and the test stopped meaning anything."
+        "summary": "The exam's answer key was folded inside the exam all along. You read it out loud to everyone, and the test stopped meaning anything. A row of ventilation grilles leans forward, waiting to grade the result."
       },
       {
         "id": "retest",
         "title": "Retest Scheduled",
-        "summary": "Your results were inconclusive. Repeat part of the Vault before the elevator will take you to the very bottom."
+        "summary": "Your results were inconclusive. Repeat part of the Vault before the elevator will take you to the very bottom. A row of ventilation grilles leans forward, waiting to grade the result."
       }
     ]
   }

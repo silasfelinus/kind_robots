@@ -4629,9 +4629,9 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                 id: 'iron',
                 label: 'An iron peace. Alive is better than happy.',
                 requires: {
-              flags: ['watch-writ-signed'],
-              local: { 'gate-watch': 12 },
-            },
+                  flags: ['watch-writ-signed'],
+                  local: { 'gate-watch': 12 },
+                },
                 effects: {
                   local: { 'gate-watch': 3, 'old-houses': 2 },
                   affinity: { moles: -10 },

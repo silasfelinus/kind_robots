@@ -8,8 +8,10 @@ import {
 } from '~/utils/arcade/games/savePlumberRoster'
 import {
   PLUMBER_SLUG,
+  readPlumberFile,
   readPlumberSave,
 } from '~/utils/arcade/games/savePlumberSave'
+import { completionPercent } from '~/utils/arcade/games/savePlumberOverworld'
 import { CAMPAIGN } from '~/utils/arcade/games/savePlumberLevels'
 
 /**
@@ -32,8 +34,20 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   const gears = computed(() => new Set(progress.value?.gears ?? []))
   const gearCount = computed(() => gears.value.size)
   const gearTotal = CAMPAIGN.length
-  /** The longest Endless run on this device, in metres (0 before the first). */
-  const endlessBest = computed(() => progress.value?.endlessBest ?? 0)
+  /** The longest Endless run on this device, in metres (0 before the first); kept beside the files. */
+  const endlessBest = computed(
+    () => readPlumberFile(arcade.saveFor(PLUMBER_SLUG)).endlessBest,
+  )
+  /** How much of the campaign the active file has done, 0-100. */
+  const percent = computed(() =>
+    progress.value
+      ? completionPercent({
+          done: progress.value.done ?? [],
+          secrets: progress.value.secrets,
+          gears: progress.value.gears,
+        })
+      : 0,
+  )
 
   return {
     seed,
@@ -46,5 +60,6 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
     gearCount,
     gearTotal,
     endlessBest,
+    percent,
   }
 })

@@ -328,7 +328,7 @@
               >
                 {{
                   plumber.nextStage
-                    ? `Saved at ${plumber.nextStage} · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears${plumber.endlessBest ? ` · Endless ${plumber.endlessBest} m` : ''}`
+                    ? `Saved at ${plumber.nextStage} · ${plumber.percent}% · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears${plumber.endlessBest ? ` · Endless ${plumber.endlessBest} m` : ''}`
                     : 'Pick your heroine in the cabinet'
                 }}
               </span>
@@ -384,8 +384,10 @@
             </div>
             <p class="px-1 text-xs leading-relaxed text-white/60">
               The whole campaign is playable, from the Rainy Courtyard to Lady
-              Spigot and Teo's rescue. The cabinet saves your heroine and stage
-              on this device, so Continue picks up where you left off.
+              Spigot and Teo's rescue. Each world is a walkable map: clear a
+              stage to open the path on, and revisit any stage you have cleared.
+              Three save files on this device remember where you stand, every
+              stage and Golden Gear, and your play time.
             </p>
           </aside>
         </div>

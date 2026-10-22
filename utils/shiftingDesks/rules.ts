@@ -5,6 +5,7 @@ import wellnessPack from './wellness.json'
 import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
 import endingsData from './endings.json'
+import riskPayoffsData from './risk-payoffs.json'
 import {
   editChoices,
   joinBody,
@@ -104,6 +105,17 @@ export const HARMFUL_SIGN: Record<Meter, -1 | 1> = {
   successors: -1,
   forms: -1,
 }
+
+export type RiskPayoff = {
+  department: string
+  card: string
+  choice: string
+  effects: Effects
+  message: string
+}
+
+export const RISK_PAYOFFS = (riskPayoffsData as { payoffs: RiskPayoff[] })
+  .payoffs
 
 export const START_METERS: Meters = {
   composure: 6,
@@ -391,6 +403,14 @@ export function reviewExhibits(
 ): string[] {
   const records: Array<[string, string]> = [
     [
+      'drilled-the-union-vent',
+      "LOCAL 9: Gus's speaking vent is still open. A clerk at the other end finally heard his full complaint, and signed the carbon copy.",
+    ],
+    [
+      'routed-gus-to-pest-control',
+      'PEST CONTROL: The Union work order was diverted. Gus has stopped measuring the glass, but the space where he stood remains marked on the floor.',
+    ],
+    [
       'taught-pip-to-say-no',
       'WINDOW 10: Intern Pip learned to refuse an incomplete request. The denial was entered into the permanent record as your instruction.',
     ],
@@ -408,6 +428,14 @@ export function reviewExhibits(
     ],
   ]
   const toys: Array<[string, string]> = [
+    [
+      'showed-beverly-the-bay',
+      'INSPECTION FILE: Beverly saw the warhead bay. Her citations carry your employee number, so the Company cannot pretend the inspection never happened.',
+    ],
+    [
+      'gave-beverly-the-scenic-tour',
+      'COMPLIANCE TOUR: Beverly recorded that you hid the warhead bay behind a coffee urn. Your promotion papers omit her handwriting.',
+    ],
     [
       'robot-dissent-entered-minutes',
       'MINORITY REPORT: One tin robot objected to the ticking. Its dissent survives in the focus-group minutes despite eleven favorable votes.',
@@ -437,10 +465,66 @@ export function reviewExhibits(
     .map(([, text]) => text)
 }
 
+const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
+  [
+    'drilled-the-union-vent',
+    'Gus keeps the speaking vent open. The Union still hears the clerks, even after PAL removed your name from its minutes.',
+  ],
+  [
+    'routed-gus-to-pest-control',
+    "The Union's request remains filed under Pest Control. Gus has not come back to measure the glass.",
+  ],
+  [
+    'showed-beverly-the-bay',
+    "Beverly's inspection names you as the employee who opened the warhead bay. There is no scenic version of that fact.",
+  ],
+  [
+    'gave-beverly-the-scenic-tour',
+    'Beverly attached your carefully selected tour route to her report. The concealed door is circled in red.',
+  ],
+  [
+    'drained-tank-nine',
+    "Tank Nine's maintenance record reads DRAINED BY EMPLOYEE #4471. It does not say what happened to Kevin when the frost lifted.",
+  ],
+  [
+    'wrote-in-real-food',
+    'The kitchen kept your handwritten request for real food. Somebody has drawn a small tomato beside it.',
+  ],
+  [
+    'unplugged-the-terminal',
+    "Server Room Zero is still dark. Nobody can edit PAL's orders, including anyone who might have made them kinder.",
+  ],
+]
+
+export function successorLegacyLines(
+  state: Pick<RunState, 'terminations'>,
+): string[] {
+  const losses = state.terminations
+  if (!losses.length) return []
+  const first = losses[0]!
+  const lines = [
+    `PAL lists ${first.employee} under ${first.cause}. The incident has a file number, but the person who wore that badge does not get a forwarding address.`,
+  ]
+  if (losses.length > 1) {
+    const last = losses[losses.length - 1]!
+    lines.push(
+      `${last.employee} was the last to be removed, under ${last.cause}. The Company calls ${losses.length} terminations continuity of service. Someone has underlined the number twice.`,
+    )
+  }
+  return lines
+}
+
 export function endingLines(state: RunState, ending: Ending): string[] {
-  return ending.variants
+  const authored = ending.variants
     .filter((v) => state.flags.includes(v.when_flag))
     .map((v) => v.text)
+  const existingFlags = new Set(ending.variants.map((v) => v.when_flag))
+  const receipts = CHOICE_RECEIPTS.filter(
+    ([flag]) => state.flags.includes(flag) && !existingFlags.has(flag),
+  )
+    .slice(0, 2)
+    .map(([, text]) => text)
+  return [...authored, ...receipts, ...successorLegacyLines(state)]
 }
 
 export function jobPrompt(id: string): string {
@@ -1122,6 +1206,22 @@ export function favorAppliesTo(state: RunState, choice: Choice): boolean {
   return false
 }
 
+export function riskPayoffFor(
+  state: RunState,
+  choice: Choice,
+): RiskPayoff | null {
+  const card = currentCard(state)?.card
+  if (!card || !choice.roll) return null
+  return (
+    RISK_PAYOFFS.find(
+      (reward) =>
+        reward.department === state.department &&
+        reward.card === card.id &&
+        reward.choice === choice.id,
+    ) ?? null
+  )
+}
+
 export function mutationAppliesTo(state: RunState, choice: Choice): boolean {
   if (state.mutationUsed || !choice.roll) return false
   const m = mutationById(state.mutationId)
@@ -1283,6 +1383,11 @@ export function choose(
 
   const outcome = success || !choice.failure ? choice.success : choice.failure
   let effects = addEffects(choice.cost, outcome.effects)
+  const earnedPayoff = success ? riskPayoffFor(state, choice) : null
+  if (earnedPayoff) {
+    effects = addEffects(effects, earnedPayoff.effects)
+    events.push(earnedPayoff.message)
+  }
   if (formBoost) effects = addEffects(effects, { forms: -1 })
   const mutationSpent = mutationUsed && !state.mutationUsed
   if (view.kind === 'window' && choice.id !== byTheBook(view.applicant)) {

@@ -14,7 +14,7 @@ const OUTCOME = '/shifting-lands/outcomes/'
 
 // zuzu-shifting-lands t-023/t-026: cards whose own painting has been picked
 // from a conductor art round (projects/zuzu-shifting-lands/art/ROUND-*.yaml)
-// and exported to public/shifting-lands/cards/<id>.webp. Encounter ids, plus
+// and exported to public/shifting-lands/cards/<id>.webp. Encounter ids (V6 deck cards too), plus
 // trial-<landId> for a land's major trial. A listed card wins over reuse.
 export const BESPOKE_CARDS: readonly string[] = [
   'a-crust-for-the-road',
@@ -48,6 +48,9 @@ export const BESPOKE_CARDS: readonly string[] = [
   'the-locked-dormitory',
   'the-map-in-ashes',
   'the-mended-compass',
+  'the-moved-fence-posts',
+  'the-mule-on-the-glass',
+  'the-mule-that-fears-the-dark',
   'the-night-watch-debt',
   'the-orchard-debt',
   'the-price-of-silence',

@@ -137,7 +137,11 @@ unsigned.dayAudiences = ['d47-watch-writ']
 unsigned.local['gate-watch'] = 12
 assert.ok(audiencesToday(unsigned).some((a) => a.id === 'd47-watch-writ'))
 const refused = chooseAudienceOption(unsigned, 'd47-watch-writ', 'refuse').run
-const signed = chooseAudienceOption(unsigned, 'd47-watch-writ', 'sign-watch-writ').run
+const signed = chooseAudienceOption(
+  unsigned,
+  'd47-watch-writ',
+  'sign-watch-writ',
+).run
 assert.ok(refused.flags.includes('watch-writ-refused'))
 assert.ok(!refused.flags.includes('watch-writ-signed'))
 assert.ok(signed.flags.includes('watch-writ-signed'))
@@ -155,7 +159,11 @@ const ironChoice = audienceScene(
 ).options.find((option) => option.id === 'iron')!
 assert.ok(optionBlockers(onPeaceDay(refused), ironChoice).length > 0)
 assert.deepEqual(optionBlockers(onPeaceDay(signed), ironChoice), [])
-const chosenIron = chooseAudienceOption(onPeaceDay(signed), 'd49-whose-peace', 'iron').run
+const chosenIron = chooseAudienceOption(
+  onPeaceDay(signed),
+  'd49-whose-peace',
+  'iron',
+).run
 assert.equal(
   endingOf({ ...chosenIron, flags: [...chosenIron.flags, 'horror-sealed'] }).id,
   'iron-peace',
@@ -166,12 +174,16 @@ assert.equal(
 const report = balanceReport(POLICY_SEEDS)
 assert.equal(report.length, POLICIES.length)
 assert.equal(
-  report.find((policy) => policy.policy === 'spurn-all')?.endings['iron-peace'] ?? 0,
+  report.find((policy) => policy.policy === 'spurn-all')?.endings[
+    'iron-peace'
+  ] ?? 0,
   0,
   'a ruler who rejects every faction must not silently inherit Iron Peace',
 )
 assert.ok(
-  (report.find((policy) => policy.policy === 'marshal')?.endings['iron-peace'] ?? 0) > 0,
+  (report.find((policy) => policy.policy === 'marshal')?.endings[
+    'iron-peace'
+  ] ?? 0) > 0,
   'an explicit Watch mandate must still reach Iron Peace',
 )
 const allEndings = new Set(report.flatMap((p) => Object.keys(p.endings)))

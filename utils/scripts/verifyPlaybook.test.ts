@@ -105,7 +105,25 @@ assert.ok(playbook.nodes['GR-2']?.lenses.includes('stoned'))
 assert.ok(playbook.nodes['GR-2']?.companions.includes('kit'))
 assert.ok(playbook.nodes['KN-4']?.companions.includes('alone'))
 assert.ok(playbook.nodes['WH-124']?.companions.includes('kit'))
-assert.ok(playbook.nodes['KN-4']?.needsArt, 'new beats show they need art')
+// A beat with no picture in any style shows it needs art; one with a style render does not.
+const cards = Object.values(playbook.nodes).filter(
+  (n) => n.kind === 'spine' || n.kind === 'encounter',
+)
+for (const node of cards)
+  assert.equal(
+    node.needsArt,
+    !node.artUrl,
+    `${node.key} needsArt follows its art`,
+  )
+assert.ok(
+  cards.some((n) => n.needsArt),
+  'beats without art still show they need it',
+)
+assert.equal(
+  playbook.nodes['KN-4']?.artUrl,
+  '/ecotone/styles/zimage/cards/kn-4.webp',
+  'the default style render fills a new beat',
+)
 assert.equal(
   new Set(playbook.order).size,
   playbook.order.length,

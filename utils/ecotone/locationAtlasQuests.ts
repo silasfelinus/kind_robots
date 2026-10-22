@@ -41,7 +41,7 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
         id: 'privacy',
         label: 'Ask the operator to erase the visitor footage and publish only the hazard warning',
         cost: 'The operator may refuse and the only usable current footage could vanish',
-        check: { skill: 'rizz', target: 8 },
+        check: { skill: 'rizz', target: 9 },
         success: {
           text: 'The operator deletes the identifying clips in front of two witnesses and gives the beach volunteer the original water footage. A message spreads about the current rather than about strangers\' bodies. The tomorrow-clothes mystery survives in a single unlabeled reflection.',
           effects: { goodwill: 1, flag: 'baker_privacy_respected' },
@@ -146,7 +146,7 @@ export const LOCATION_ATLAS_QUESTS: EncounterCard[] = [
       {
         id: 'inspect-pockets',
         label: 'Investigate why the mannequins turn before anyone agrees to sell them',
-        check: { skill: 'wits', target: 8 },
+        check: { skill: 'wits', target: 9 },
         success: {
           text: 'Hidden inside the coat lining is a dated alteration ticket for a fitting scheduled thirty years from now. The apprentice recognizes their own handwriting, although they have not yet been taught that stitch. You photograph the ticket without touching the customer\'s name.',
           effects: {

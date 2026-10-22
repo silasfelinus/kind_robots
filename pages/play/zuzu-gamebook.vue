@@ -42,6 +42,16 @@
             ><span class="hidden sm:inline">Character sheet</span>
           </button>
           <button
+            v-if="store.recoverable"
+            type="button"
+            class="btn btn-ghost btn-sm max-sm:px-2"
+            title="Restore previous journey"
+            @click="recover"
+          >
+            <span aria-hidden="true">↶</span>
+            <span class="sr-only sm:not-sr-only">Restore</span>
+          </button>
+          <button
             type="button"
             class="btn btn-ghost btn-sm max-sm:px-2"
             title="New journey"
@@ -180,8 +190,44 @@
                 </section>
               </div>
               <div class="min-w-0">
+                <section
+                  v-if="store.run.pendingLoot?.length"
+                  class="rounded-xl border border-warning/40 bg-base-300 p-4 sm:p-6"
+                  aria-label="Full pack, choose what to keep"
+                  aria-live="polite"
+                >
+                  <h3 class="font-serif text-xl font-bold">Your pack is full</h3>
+                  <p class="mt-2 text-sm">
+                    You found <strong>{{ store.run.pendingLoot[0] }}</strong>.
+                    Replace one carried item or leave this find behind.
+                  </p>
+                  <p
+                    v-if="store.run.pendingLoot.length > 1"
+                    class="mt-1 text-xs opacity-65"
+                  >
+                    {{ store.run.pendingLoot.length - 1 }} more find(s) to consider.
+                  </p>
+                  <div class="mt-3 grid gap-2 sm:grid-cols-2">
+                    <button
+                      v-for="(item, index) in store.run.items"
+                      :key="index"
+                      type="button"
+                      class="btn btn-outline btn-sm justify-start"
+                      @click="store.claimLoot(index)"
+                    >
+                      Replace {{ item }}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-ghost btn-sm justify-start"
+                      @click="store.claimLoot(null)"
+                    >
+                      Leave {{ store.run.pendingLoot[0] }} behind
+                    </button>
+                  </div>
+                </section>
                 <div
-                  v-if="current.battle && store.run.battle"
+                  v-else-if="current.battle && store.run.battle"
                   class="zuzu-battle rounded-xl border border-error/30 bg-base-300 p-4 sm:p-6"
                 >
                   <div
@@ -520,10 +566,18 @@ const moves: { action: BattleAction; label: string; help: string }[] = [
 function restart() {
   if (
     window.confirm(
-      'Start a new journey? The current route is replaced, but discovered endings stay in your ledger.',
+      'Start a new journey? Your current route is saved in a recovery slot and discovered endings stay in your ledger.',
     )
   )
     store.restart()
+}
+function recover() {
+  if (
+    window.confirm(
+      'Restore your previous journey? This journey will be kept in the recovery slot.',
+    )
+  )
+    store.recover()
 }
 const pane = ref<HTMLElement | null>(null)
 const heading = ref<HTMLElement | null>(null)
@@ -536,7 +590,14 @@ watch(
   },
 )
 function onKey(event: KeyboardEvent) {
-  if (event.ctrlKey || event.metaKey || event.altKey || showSheet.value) return
+  if (
+    event.ctrlKey ||
+    event.metaKey ||
+    event.altKey ||
+    showSheet.value ||
+    store.run.pendingLoot?.length
+  )
+    return
   if ((event.target as HTMLElement | null)?.closest('input, textarea, select'))
     return
   const n = Number(event.key)

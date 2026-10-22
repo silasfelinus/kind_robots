@@ -2777,8 +2777,9 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
-// Every cast member has their neutral art; followers have a neutral portrait too.
-for (const def of FOLLOWERS) {
+// All original cast members have shipped art. Five secret recruits have queued
+// illustrations, and the exporter registers them only after review.
+for (const def of FOLLOWERS.slice(0, 20)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }

@@ -686,6 +686,11 @@ export const DEPARTURE_LINES: Record<string, string> = {
   F018: 'Vesper left in the middle of a song. One ball is still on the floor where it fell.',
   F019: 'Hollin flew out slow, with his scroll case. The map on his desk has one door circled.',
   F020: 'Juniper’s bunk is stripped to the boards. She left the blanket folded for whoever comes next.',
+  F021: 'Nettle tied one red thread around the bedpost. The herb shelf is bare.',
+  F022: 'Tiller tapped three times on the old pipe. Nothing answered. He went.',
+  F023: 'Sera took the loose clapper. The gate bell has not sounded right since.',
+  F024: 'Tarn erased the safe roads from his map. The boots were still warm.',
+  F025: 'Odo emptied the black sand and carried the glass into the rain.',
 }
 
 const PRONOUNS: Record<string, { subj: string; obj: string; poss: string }> = {

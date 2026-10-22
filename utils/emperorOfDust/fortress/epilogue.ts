@@ -1219,6 +1219,16 @@ const BARRACKS: EpilogueSubject[] = [
         text: 'When the roads went wrong, Kiyo took her boy and her kettle to the coast and found a salt boat. He slept through the crossing in a basket. He never knew she was afraid. She made sure.',
       },
       {
+        when: { flags: ['romance-kiyo-sealed'] },
+        mood: 'happy',
+        text: 'Kiyo keeps the infirmary keys. The emperor keeps no key to her door. Every week there is a night they spend together with the crown set outside. In the morning, Zuzu brings breakfast and asks which of them is the better ruler. They both point at him.',
+      },
+      {
+        when: { flags: ['kiyo-friendship-deep'] },
+        mood: 'happy',
+        text: 'Kiyo and the emperor meet once a week with the court locked outside. Zuzu still wins every game of spoons and crowns. They have never let him win on purpose.',
+      },
+      {
         when: { flags: ['kiyo-bell-lesson'] },
         mood: 'happy',
         text: 'Kiyo’s boy rang the fortress bell himself one evening and learned what it means here. Some nights he wakes at midnight, to listen. Kiyo pours two cups of bitter tea and they listen together.',
@@ -2243,10 +2253,115 @@ const ENDGAME: EpilogueSubject[] = afterTheWar([
   },
 ])
 
+// Hidden followers earn named consequences rather than generic victory blurbs.
+const SECRET_BARRACKS: readonly EpilogueSubject[] = [
+  {
+    id: 'f021',
+    name: 'Nettle Purl',
+    follower: 'F021',
+    variants: [
+      {
+        when: { departed: ['F021'] },
+        mood: 'sad',
+        text: 'Nettle left her red thread tied to the gate. Every spring a bundle of herbs turns up on the sill, and nobody has seen who brings it.',
+      },
+      {
+        when: { dead: ['F021'] },
+        mood: 'sad',
+        text: "Nettle's red threads are still knotted around the infirmary bedposts. The new healer can read the knots but not the handwriting on the medicine jars.",
+      },
+      {
+        text: 'Nettle opens an infirmary for the people nobody counts in the census. The patients bring their own blankets. She asks their names, every one.',
+      },
+    ],
+  },
+  {
+    id: 'f022',
+    name: 'Tiller Brassfin',
+    follower: 'F022',
+    variants: [
+      {
+        when: { departed: ['F022'] },
+        mood: 'sad',
+        text: "Tiller's signal station stands empty. A whistle comes out of the pipes on some nights. Nobody answers it.",
+      },
+      {
+        when: { dead: ['F022'] },
+        mood: 'sad',
+        text: "A railway spike marks Tiller's grave. When the wind crosses the dead line, the pipes in the signal tower answer with three knocks.",
+      },
+      {
+        text: 'Tiller repairs an old semaphore that has not moved in a century. When the first signal swings across the desert, three caravans find their way home.',
+      },
+    ],
+  },
+  {
+    id: 'f023',
+    name: 'Sera Vell',
+    follower: 'F023',
+    variants: [
+      {
+        when: { departed: ['F023'] },
+        mood: 'sad',
+        text: 'Sera takes her bronze clapper into the hills. Its sound is heard for one winter, then never again.',
+      },
+      {
+        when: { dead: ['F023'] },
+        mood: 'sad',
+        text: 'They buried Sera beside the silent chapel. Someone put the bronze clapper in her hands. The bell on the tower tolled without it.',
+      },
+      {
+        text: 'Sera writes a second register for Hollow Bell. The forgotten names fill three books. At last the old bell tolls for every one.',
+      },
+    ],
+  },
+  {
+    id: 'f024',
+    name: 'Tarn Daggerstep',
+    follower: 'F024',
+    variants: [
+      {
+        when: { departed: ['F024'] },
+        mood: 'sad',
+        text: 'Tarn crossed the south road alone. Raiders report finding a map with all the tolls erased, and no rider.',
+      },
+      {
+        when: { dead: ['F024'] },
+        mood: 'sad',
+        text: "Tarn's map ends at the place they died. The Gate Watch draws a line through it and writes a warning to those who follow.",
+      },
+      {
+        text: 'Tarn marks the safe roads with three stones at every fork. Refugees learn the pattern before the soldiers do.',
+      },
+    ],
+  },
+  {
+    id: 'f025',
+    name: 'Odo Rainglass',
+    follower: 'F025',
+    variants: [
+      {
+        when: { departed: ['F025'] },
+        mood: 'sad',
+        text: "Odo leaves before the storm. A week later the rain arrives and a blue piece of glass appears on the emperor's windowsill.",
+      },
+      {
+        when: { dead: ['F025'] },
+        mood: 'sad',
+        text: "Odo's glass gauge is empty at the graveside, although rain falls all day. It has never read the weather correctly since.",
+      },
+      {
+        text: 'Odo plants the glass gauge on the highest point of the hideout. Every storm is measured, including the ones that have yet to come.',
+      },
+    ],
+  },
+]
+
 export const EPILOGUE: readonly EpilogueSubject[] = [
   ...KINGDOM,
   ...afterTheWar([...ACT_THREE_AFTERWARDS]),
   ...BARRACKS,
+  ...SECRET_BARRACKS,
   ...ENDGAME,
 ]
 

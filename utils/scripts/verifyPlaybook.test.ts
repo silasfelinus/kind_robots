@@ -174,7 +174,11 @@ assert.ok((book.sections[0]?.keys.length ?? 0) >= 10, 'the gamebook endings')
 const dust = buildPlaybook('emperor-of-dust')
 assert.equal(dust.routes[0]?.steps.length, 50, 'fifty days')
 const lines = dust.sections.find((s) => s.title === 'Follower lines')
-assert.equal(lines?.keys.length, 20, 'twenty follower lines')
+assert.equal(
+  lines?.keys.length,
+  25,
+  'twenty followers and five discoverable wanderers',
+)
 assert.ok(
   lines?.keys.some((key) => (dust.nodes[key]?.choices.length ?? 0) > 1),
   'follower lines gather where followers join',

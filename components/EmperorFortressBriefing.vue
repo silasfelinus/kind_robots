@@ -29,6 +29,49 @@
           {{ today?.title ?? 'The morning dispatches' }}
         </h2>
       </div>
+      <article
+        v-if="chance"
+        class="rounded-lg border-2 border-warning/60 bg-base-200/95 p-4 shadow-lg"
+        aria-label="Today's unexpected encounter"
+      >
+        <p class="text-xs font-bold uppercase tracking-widest text-warning">
+          A surprise on the road · Act {{ chance.act }}
+        </p>
+        <h3 class="mt-1 font-serif text-xl font-bold @7xl:text-2xl">
+          {{ chance.title }}
+        </h3>
+        <p class="eod-reading mt-2">{{ chance.text }}</p>
+        <div class="mt-3 grid gap-2">
+          <button
+            v-for="choice in chance.choices"
+            :key="choice.id"
+            type="button"
+            class="eod-choice-reading rounded-md border border-warning/40 bg-base-100/75 px-3 py-3 text-left transition-colors hover:border-warning hover:bg-warning/10 disabled:opacity-50"
+            :disabled="acting || (choice.requires?.cost ?? 0) > run.brass"
+            @click="pickChance(choice.id)"
+          >
+            <strong class="block">{{ choice.label }}</strong>
+            <span
+              class="mt-1 block text-sm font-sans not-italic text-warning opacity-85"
+            >
+              {{ costLine(choice) }}
+            </span>
+          </button>
+        </div>
+        <p v-if="chanceError" class="mt-2 text-sm text-error" role="alert">
+          {{ chanceError }}
+        </p>
+      </article>
+      <div
+        v-else-if="run.dailyEventOutcome?.day === run.day"
+        class="rounded-lg border border-warning/30 bg-base-200/90 p-4"
+        role="status"
+      >
+        <p class="text-xs font-semibold uppercase tracking-widest text-warning">
+          The unexpected visitor · {{ run.dailyEventOutcome.title }}
+        </p>
+        <p class="eod-reading mt-1 italic">{{ run.dailyEventOutcome.text }}</p>
+      </div>
       <template v-if="today">
         <p v-if="lines.komodo" class="eod-reading italic">
           <strong class="not-italic text-warning">{{ advisorName }}:</strong>
@@ -139,7 +182,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
+import { chanceEvent } from '~/utils/emperorOfDust/fortress/dailyEvents'
+import type { ChanceEventChoice } from '~/utils/emperorOfDust/fortress/dailyEvents'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import {
   dayBriefings,
@@ -159,6 +205,50 @@ import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 // The day opens here: the advisor's three dispatches, before court sits.
 const props = defineProps<{ run: FortressRun }>()
 const emit = defineEmits<{ next: [] }>()
+const court = useEmperorFortressStore()
+const chance = computed(() =>
+  props.run.dailyEvent ? chanceEvent(props.run.dailyEvent) : undefined,
+)
+const chanceError = ref('')
+const acting = ref(false)
+const costLine = (choice: ChanceEventChoice): string => {
+  const brass = (choice.effects.brass ?? 0) - (choice.requires?.cost ?? 0)
+  const local = Object.entries(choice.effects.local ?? {}).map(
+    ([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`,
+  )
+  const affinity = Object.entries(choice.effects.affinity ?? {}).map(
+    ([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`,
+  )
+  const visitor = choice.effects.recruitable?.length
+    ? 'Follower available to hire'
+    : null
+  return (
+    [
+      brass ? `${brass > 0 ? '+' : ''}${brass} brass` : '',
+      ...local,
+      ...affinity,
+      visitor,
+    ]
+      .filter(Boolean)
+      .join(' · ') || 'A story to remember'
+  )
+}
+function pickChance(choiceId: string) {
+  const offered = chance.value
+  if (!offered || acting.value) return
+  acting.value = true
+  chanceError.value = ''
+  try {
+    court.answerChanceEvent(offered.id, choiceId)
+  } catch (cause) {
+    chanceError.value =
+      cause instanceof Error
+        ? cause.message
+        : 'The visitor could not hear that answer.'
+  } finally {
+    acting.value = false
+  }
+}
 
 const today = computed(() => dayDef(props.run.day))
 const mapLine = computed(() => briefingMapLine(props.run))

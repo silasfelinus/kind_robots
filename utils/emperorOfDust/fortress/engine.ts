@@ -63,6 +63,7 @@ import type {
   TraitDef,
 } from './types'
 import { TALKS } from './talks'
+import { CHANCE_EVENTS, chanceEvent } from './dailyEvents'
 import {
   BETRAYAL_DAY,
   HIDEOUT_HOST,
@@ -219,6 +220,7 @@ export const postDawnQuests = (run: FortressRun): void => {
   if (isOver(run)) return
   for (const id of dayDef(run.day)?.quests ?? []) postQuest(run, id)
   drawTemplates(run)
+  drawChanceEvent(run)
   // Whoever is eligible at dawn stays at court all day, whatever is decided
   // in the other audiences.
   run.dayAudiences = (dayDef(run.day)?.audiences ?? [])
@@ -226,6 +228,97 @@ export const postDawnQuests = (run: FortressRun): void => {
       (audience) => unmetRequirements(run, audience.requires).length === 0,
     )
     .map((audience) => audience.id)
+}
+
+/**
+ * One optional, unique story encounter each dawn. Each act has twenty-six
+ * separate non-recruitment situations. A single hidden traveler gets a
+ * seed-selected visit day in their act, so discovery is possible without
+ * requiring thirty reloads. The offer does not join the roster by itself.
+ */
+export const drawChanceEvent = (run: FortressRun): void => {
+  delete run.dailyEvent
+  delete run.dailyEventOutcome
+  if (isOver(run)) return
+  const act = actOf(run.day)
+  const seen = run.chanceHistory ?? []
+  const visitor = CHANCE_EVENTS.find(
+    (event) => event.act === act && event.secretFollower,
+  )
+  const visitDay = (act - 1) * 10 + 4 + (rollFor(run, `visitor:${act}`) % 4)
+  let picked =
+    visitor &&
+    run.day >= visitDay &&
+    !seen.includes(visitor.id) &&
+    !run.roster.some((entry) => entry.id === visitor.secretFollower) &&
+    !run.recruitable.includes(visitor.secretFollower!)
+      ? visitor
+      : undefined
+  if (!picked) {
+    const pool = CHANCE_EVENTS.filter(
+      (event) =>
+        event.act === act && !event.secretFollower && !seen.includes(event.id),
+    )
+    if (!pool.length) return
+    // Following an earlier thread is more likely than running into an
+    // unrelated stranger, though the emperor cannot command coincidence.
+    const connected = pool.filter((event) =>
+      run.flags.includes(`chance:${event.series}:${act - 1}`),
+    )
+    const follow = connected.length && rollFor(run, `follow:${run.day}`) < 55
+    const candidates = follow ? connected : pool
+    picked =
+      candidates[rollFor(run, `encounter:${run.day}`) % candidates.length]
+  }
+  if (!picked) return
+  run.dailyEvent = picked.id
+  run.chanceHistory = [...seen, picked.id]
+}
+
+/** Decide a chance encounter exactly once; choices have normal court effects. */
+export const chooseChanceEvent = (
+  run: FortressRun,
+  eventId: string,
+  choiceId: string,
+): { run: FortressRun; response: string } => {
+  if (run.dailyEvent !== eventId)
+    throw new Error('that encounter is no longer at court')
+  const event = chanceEvent(eventId)
+  if (!event || event.act !== actOf(run.day))
+    throw new Error('that visitor did not arrive today')
+  const choice = event.choices.find((entry) => entry.id === choiceId)
+  if (!choice) throw new Error('that answer was not offered')
+  const blockers = unmetRequirements(
+    run,
+    choice.requires,
+    choice.effects.recruit,
+  )
+  if (blockers.length) throw new Error(blockers.join('; '))
+  const next = cloneRun(run)
+  next.brass -= choice.requires?.cost ?? 0
+  applyEffects(next, choice.effects)
+  let response = choice.response
+  const earlier = (choice.effects.flags ?? []).find((flag) =>
+    flag.startsWith('chance:'),
+  )
+  if (earlier && event.act >= 4) {
+    const history = [1, 2, 3].filter((act) =>
+      next.flags.includes(`chance:${event.series}:${act}`),
+    ).length
+    if (history >= 2) {
+      const legacy = 10 + history * 5
+      applyEffects(next, { brass: legacy, flags: [`legacy:${event.series}`] })
+      response += ` The people you helped on earlier roads send ${legacy} brass, without asking for a receipt.`
+    }
+  }
+  delete next.dailyEvent
+  next.dailyEventOutcome = {
+    id: event.id,
+    day: next.day,
+    title: event.title,
+    text: response,
+  }
+  return { run: next, response }
 }
 
 /** A chore is posted at most this many times a run (t-041). */
@@ -263,13 +356,21 @@ export const choreOpen = (run: FortressRun, template: QuestDef): boolean => {
 }
 
 /**
- * Authored days draw one seeded chore, unscripted days draw two. A faction's
+ * Quiet days can offer an optional chore; scripted crises never add an
+ * unavoidable extra deadline. A faction's
  * chores only appear once its banner is on the map, and stop if it is wiped out.
  * Each chore keeps to its days, is posted at most twice, and never beside a
  * copy of itself (t-041).
  */
 const drawTemplates = (run: FortressRun): void => {
-  const draws = dayDef(run.day) ? 1 : 2
+  const scripted = dayDef(run.day)?.quests.length ?? 0
+  const backlog = run.board.length + run.active.length
+  // The first act has four starters. If authored stories fill their hands,
+  // a random chore must not make success mathematically impossible.
+  const capacity = run.roster.filter((f) => !f.dead && !f.departed).length
+  const crisisDay =
+    (scripted > 0 && run.day <= 10) || (scripted > 0 && run.day % 10 === 0)
+  const draws = crisisDay || backlog >= Math.max(2, capacity - 1) ? 0 : 1
   const pool = QUEST_TEMPLATES.filter((template) => choreOpen(run, template))
   for (let i = 0; i < draws && pool.length; i += 1) {
     const index = rollFor(run, `dawn:${run.day}:${i}`) % pool.length
@@ -294,7 +395,13 @@ const postQuest = (run: FortressRun, questId: string): void => {
   run.board.push({
     questId,
     postedDay: run.day,
-    lastDay: run.day + def.boardDays - 1,
+    lastDay:
+      run.day +
+      Math.max(
+        def.boardDays,
+        isTemplateInstance(questId) && run.day <= 20 ? 2 : 1,
+      ) -
+      1,
   })
 }
 
@@ -2207,6 +2314,12 @@ export const finishDay = (
       )
     }
   }
+  if (next.dailyEvent) {
+    const unheard = chanceEvent(next.dailyEvent)
+    if (unheard)
+      events.push(`${unheard.title}: the opportunity passed without an answer.`)
+    delete next.dailyEvent
+  }
   next.day += 1
   next.audiencesHeard = []
   // A scene left half-way closes with the day; nothing it chose is undone.
@@ -2286,6 +2399,11 @@ export const rerollDawn = (run: FortressRun): FortressRun => {
     (entry) =>
       !(isTemplateInstance(entry.questId) && entry.postedDay === next.day),
   )
+  // Rewinding before a morning decision also rewinds the encounter draw.
+  next.chanceHistory = (next.chanceHistory ?? []).filter(
+    (id) => id !== next.dailyEvent && id !== next.dailyEventOutcome?.id,
+  )
   drawTemplates(next)
+  drawChanceEvent(next)
   return next
 }

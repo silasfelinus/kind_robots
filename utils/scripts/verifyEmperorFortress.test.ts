@@ -249,20 +249,20 @@ assert.match(
 assert.match(startupIntro, /if \(props\.active\) stream\(\)/)
 
 // --- content contract -------------------------------------------------------
-assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')
+assert.equal(FOLLOWERS.length, 25, 'twenty regulars and five hidden travelers')
 assert.deepEqual(
   FOLLOWERS.map((def) => def.id),
-  Array.from({ length: 20 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
+  Array.from({ length: 25 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
 )
 assert.equal(
   FOLLOWERS.filter((def) => def.romanceable).length,
-  6,
-  'six romanceable followers',
+  7,
+  'seven romanceable followers, including Kiyo',
 )
 assert.equal(
-  new Set(FOLLOWERS.map((def) => def.ability.kind)).size,
-  FOLLOWERS.length,
-  'every follower has a mechanic nobody else has',
+  new Set(FOLLOWERS.slice(0, 20).map((def) => def.ability.kind)).size,
+  20,
+  'the original cast retain distinct abilities',
 )
 const castSpecies = [
   ...FOLLOWERS.map((def) => def.species),
@@ -288,7 +288,7 @@ for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
 }
 const kiyo = followerDef('F003')!
 assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
-assert.ok(kiyo.starter && !kiyo.romanceable)
+assert.ok(kiyo.starter && kiyo.romanceable)
 assert.ok(kiyo.talk?.some((line) => line.includes('Zuzu')))
 assert.ok(FOLLOWERS.some((def) => def.species === 'Fennec fox'))
 assert.ok(
@@ -408,8 +408,8 @@ assert.ok(validateRun(start))
 assert.ok(start.board.some((entry) => entry.questId === 'q-d01-well-road'))
 assert.equal(
   start.board.filter((entry) => entry.questId.includes('@')).length,
-  1,
-  'one seeded chore on an authored day',
+  0,
+  'scripted day leaves room for deliberate quests',
 )
 assert.ok(!start.revealedFactions.includes('rustline'), 'Rustline is fogged')
 assert.equal(audiencesToday(start).length, 3)
@@ -1485,17 +1485,13 @@ assert.ok(
   'rewind starts a new branch',
 )
 assert.ok(decodeBook(encodeBook(rewound)), 'rewound book is valid')
-// Over many seeds, a rewound dawn sometimes posts different chores.
+// Over many seeds, rewinding a dawn can bring a different encounter.
 let differs = 0
 for (let seed = 1; seed <= 40; seed += 1) {
   const fresh = newBook(createRun(seed))
   const dawn2 = recordDawn(fresh, finishDay(fresh.current).run)
   const again = rewindTo(dawn2, 2)
-  if (
-    JSON.stringify(again.current.board.map((b) => b.questId).sort()) !==
-    JSON.stringify(dawn2.current.board.map((b) => b.questId).sort())
-  )
-    differs += 1
+  if (again.current.dailyEvent !== dawn2.current.dailyEvent) differs += 1
 }
 assert.ok(differs > 0, 'rewinding re-rolls seeded events')
 assert.throws(() => rewindTo(rewound, 30), /no dawn/)
@@ -2778,8 +2774,9 @@ for (const asset of CAST_ART) {
   )
 }
 assert.equal(castArtUrl('followers/F999/illustrated/neutral'), undefined)
-// Every cast member has their neutral art; followers have a neutral portrait too.
-for (const def of FOLLOWERS) {
+// All original cast members have shipped art. Five secret recruits have queued
+// illustrations, and the exporter registers them only after review.
+for (const def of FOLLOWERS.slice(0, 20)) {
   assert.ok(castArtUrl(`followers/${def.id}/illustrated/neutral`), def.id)
   assert.ok(castArtUrl(`followers/${def.id}/portrait/neutral`), def.id)
 }

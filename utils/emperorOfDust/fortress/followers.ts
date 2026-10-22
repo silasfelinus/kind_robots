@@ -1,4 +1,5 @@
 import { LATE_FOLLOWERS } from './followersLate'
+import { SECRET_FOLLOWERS } from './followersSecret'
 import type { FollowerDef } from './types'
 
 // F001-F010 from conductor FOLLOWERS-PILOT-01.md, re-expressed in the v0.3
@@ -137,7 +138,7 @@ const FIRST_TEN: readonly FollowerDef[] = [
       'If anything happens to me, he likes his bread torn small, and he is afraid of bells. Somebody should know that.',
       'Everyone becomes serious out here, sooner or later. Not him. Not yet. Please, not yet.',
     ],
-    romanceable: false,
+    romanceable: true,
     starter: true,
     recruitFee: 0,
   },
@@ -428,6 +429,7 @@ const FIRST_TEN: readonly FollowerDef[] = [
 export const FOLLOWERS: readonly FollowerDef[] = [
   ...FIRST_TEN,
   ...LATE_FOLLOWERS,
+  ...SECRET_FOLLOWERS,
 ]
 
 // The item catalog lives in items.ts with the market (t-024).

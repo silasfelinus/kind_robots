@@ -1,3 +1,4 @@
+import { chanceEvent } from './dailyEvents'
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, dueDef, questDef } from './content'
 import { rerollDawn, validMapState } from './engine'
@@ -185,6 +186,19 @@ export const validateRun = (value: unknown): value is FortressRun => {
       (!object(run.talkOpen) ||
         !text(run.talkOpen.id, 80) ||
         (run.talkOpen.beat !== undefined && !text(run.talkOpen.beat, 80)))) ||
+    (run.dailyEvent !== undefined &&
+      (!text(run.dailyEvent, 100) || !chanceEvent(run.dailyEvent))) ||
+    (run.chanceHistory !== undefined &&
+      (!textList(run.chanceHistory, 60) ||
+        new Set(run.chanceHistory).size !== run.chanceHistory.length ||
+        !run.chanceHistory.every((id) => !!chanceEvent(id)))) ||
+    (run.dailyEventOutcome !== undefined &&
+      (!object(run.dailyEventOutcome) ||
+        !text(run.dailyEventOutcome.id, 100) ||
+        !chanceEvent(run.dailyEventOutcome.id) ||
+        !int(run.dailyEventOutcome.day, 1, LAST_DAY + 1) ||
+        !text(run.dailyEventOutcome.title, 160) ||
+        !text(run.dailyEventOutcome.text, 1500))) ||
     (run.market !== undefined && !validMarket(run.market)) ||
     (run.aid !== undefined && !validAid(run.aid)) ||
     (run.dues !== undefined && !validDues(run.dues)) ||
@@ -199,7 +213,7 @@ export const validateRun = (value: unknown): value is FortressRun => {
     return false
   if (
     !Array.isArray(run.roster) ||
-    run.roster.length > 20 ||
+    run.roster.length > 25 ||
     new Set(run.roster.map((s: unknown) => (object(s) ? s.id : null))).size !==
       run.roster.length ||
     !run.roster.every(
@@ -371,6 +385,7 @@ const PACKED_LISTS = [
   'audiencesHeard',
   'talksHeard',
   'memorials',
+  'chanceHistory',
 ] as const
 
 const sharedPrefix = (list: unknown[], ref: unknown[]): number => {

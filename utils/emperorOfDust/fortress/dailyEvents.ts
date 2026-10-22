@@ -4,6 +4,7 @@ import type {
   KingdomFactionId,
   Requirement,
 } from './types'
+import { ACT_ONE_CHOICES } from './dailyEventsActOne'
 
 /**
  * One distinct scene per motif per act. The 25 motifs change their setting,
@@ -900,7 +901,7 @@ const ordinaryEvents: ChanceEvent[] = MOTIFS.flatMap((motif) =>
       series: motif.id,
       title,
       text,
-      choices: [
+      choices: act === 1 ? ACT_ONE_CHOICES[motif.id]! : [
         {
           id: 'collect',
           label: motif.collect,
@@ -971,7 +972,7 @@ const SECRET_VISITORS: readonly {
     follower: 'F024',
     title: 'The Runner without a Wagon',
     text: 'A Jackalwire outrider arrives on foot, chased by the people they used to collect tolls for. Tarn offers a map of every southern ambush but asks that the court leave their past unnamed.',
-    welcome: 'Give Moss work as a scout, not a prisoner.',
+    welcome: 'Give Tarn work as a scout, not a prisoner.',
     decline: 'Trade a safe route out for an honest warning.',
     yes: 'Tarn points to three turns in the road that no cart should take. Then they sit down for the first time all day.',
     no: 'Tarn draws a crossing on the dirt and erases it before leaving.',

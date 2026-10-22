@@ -507,7 +507,7 @@ const MOTIFS: readonly Motif[] = [
     scenes: [
       [
         'A Jar of Bitter Roots',
-        'A peddler offers six dried roots labeled only with the name of a season.',
+        'A peddler offers six dried roots labeled only with the name of a season. Kiyo recognizes the smell but not the writing.',
       ],
       [
         'The Traveling Midwife',
@@ -552,7 +552,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'The Captain Without a Banner',
-        'A raider captain arrives alone with a folded flag and one broken axle.',
+        'A raider captain arrives alone with a folded flag and one broken axle. The watchmen have orders to shoot on sight.',
       ],
       [
         "The Pack's Empty Camp",
@@ -610,15 +610,15 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'A Glass Seed',
-        'A crow drops a clear stone that sprouts a tiny glass leaf when warmed.',
+        'A crow drops a clear stone that sprouts a tiny glass leaf when warmed. The branch shatters at the sound of a bell.',
       ],
       [
         'The Mirror with the Wrong Door',
-        "An old mirror shows a door in the west wall that hasn't been built. The latch rattles.",
+        "An old mirror shows a door in the west wall that hasn't been built. A guard swears he watched somebody knock. The latch rattles.",
       ],
       [
         "The Crow's Prism",
-        'A prism splits candlelight into colors none of the court has names for.',
+        'A prism splits candlelight into colors none of the court has names for. One color darkens whenever a guest lies.',
       ],
       [
         'The Glass That Shows the Road',
@@ -647,7 +647,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'A Seal Not Yet Cast',
-        "A letter bears the crown's seal before the new stamp has been made. The ink is fresh.",
+        "A letter bears the crown's seal before the new stamp has been made. The wax is warm and the signer is missing. The ink is fresh.",
       ],
       [
         "The Courier Who Won't Dismount",
@@ -684,7 +684,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'The Music of the Broken Well',
-        'A well with no water begins to sing when the wind comes from the north.',
+        'A well with no water begins to sing when the wind comes from the north. The tune changes when someone speaks a name.',
       ],
       [
         'The Song without an Ending',
@@ -873,7 +873,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         "The Creek's Real Name",
-        'Two villages dispute which name belongs on the map beside the new canal.',
+        'Two villages dispute which name belongs on the map beside the new canal. Each claims their ancestors dug it.',
       ],
       [
         'Whose Bridge Is It',

@@ -748,6 +748,12 @@
                         >If the check succeeds: +1 Form</span
                       >
                       <span
+                        v-if="run && clueChainFor(run, choice)"
+                        class="self-start rounded-md border border-info/40 bg-info/10 px-2 py-0.5 text-[11px] font-semibold"
+                        :title="clueChainFor(run, choice)?.hint"
+                        >Thread: {{ clueChainFor(run, choice)?.hint }}</span
+                      >
+                      <span
                         v-if="rollTip === choice.id && choice.roll"
                         class="rounded-md bg-sky-100 px-2 py-1 text-xs leading-snug text-sky-950"
                         aria-hidden="true"
@@ -943,6 +949,7 @@ import {
   gradeTitle,
   reviewExhibits,
   riskPayoffFor,
+  clueChainFor,
   interimResults,
   departmentBoard,
   restructuringById,

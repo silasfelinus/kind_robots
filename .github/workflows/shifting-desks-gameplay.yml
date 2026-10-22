@@ -42,6 +42,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksAdversarial.test.ts
       - name: Generate adversarial playtest report
+        shell: bash
         run: npx tsx utils/scripts/shiftingDesksAdversarialReport.ts 200 | tee shifting-desks-adversarial-report.md
       - name: Upload adversarial evidence
         if: always()

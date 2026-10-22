@@ -45,6 +45,8 @@ export type AttackResult = {
   departmentVisits: Record<string, number>
   cardVisits: Record<string, number>
   choicePicks: Record<string, number>
+  choiceOffers: Record<string, number>
+  choiceLocks: Record<string, number>
   endings: Record<string, number>
   causes: Record<string, number>
 }
@@ -55,6 +57,8 @@ export type AdversarialReport = {
   findings: Finding[]
   neverSeenCards: string[]
   neverPickedChoices: string[]
+  neverOfferedChoices: string[]
+  offeredButUnpickedChoices: string[]
   unseenEndings: string[]
 }
 
@@ -139,6 +143,8 @@ const fresh = (id: string, runs: number): AttackResult => ({
   departmentVisits: {},
   cardVisits: {},
   choicePicks: {},
+  choiceOffers: {},
+  choiceLocks: {},
   endings: {},
   causes: {},
 })
@@ -207,7 +213,15 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
           fail('missing-card', step, 'Playing state has no current card')
           break
         }
-        const open = view.card.choices.filter((c) => !lockReason(run, c))
+        const open = view.card.choices.filter((c) => {
+          const id = view.card.id + '/' + c.id
+          if (lockReason(run, c)) {
+            bump(result.choiceLocks, id)
+            return false
+          }
+          bump(result.choiceOffers, id)
+          return true
+        })
         if (!open.length) {
           fail(
             'choice-deadlock',
@@ -336,17 +350,23 @@ export function adversarialReport(runsPerAttack = 100): AdversarialReport {
   }
 
   const picked = new Set(attacks.flatMap((p) => Object.keys(p.choicePicks)))
+  const offered = new Set(attacks.flatMap((p) => Object.keys(p.choiceOffers)))
   const seen = new Set(attacks.flatMap((p) => Object.keys(p.cardVisits)))
   const endingSet = new Set(attacks.flatMap((p) => Object.keys(p.endings)))
   const allCards = DEPARTMENTS.flatMap((d) => [...d.encounters, d.boss])
+  const allChoices = allCards.flatMap((c) =>
+    c.choices.map((choice) => c.id + '/' + choice.id),
+  )
   return {
     runsPerAttack,
     attacks,
     findings,
     neverSeenCards: allCards.map((c) => c.id).filter((id) => !seen.has(id)),
-    neverPickedChoices: allCards
-      .flatMap((c) => c.choices.map((choice) => c.id + '/' + choice.id))
-      .filter((id) => !picked.has(id)),
+    neverPickedChoices: allChoices.filter((id) => !picked.has(id)),
+    neverOfferedChoices: allChoices.filter((id) => !offered.has(id)),
+    offeredButUnpickedChoices: allChoices.filter(
+      (id) => offered.has(id) && !picked.has(id),
+    ),
     unseenEndings: ENDINGS.map((e) => e.id).filter((id) => !endingSet.has(id)),
   }
 }

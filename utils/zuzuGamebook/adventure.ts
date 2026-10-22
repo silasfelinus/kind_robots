@@ -256,7 +256,7 @@ export function fight(run: Run, action: BattleAction): Run {
       ? 0
       : success
         ? action === 'feint'
-          ? 2
+          ? 3
           : action === 'quiet-draw'
             ? 5
             : 3

@@ -249,20 +249,20 @@ assert.match(
 assert.match(startupIntro, /if \(props\.active\) stream\(\)/)
 
 // --- content contract -------------------------------------------------------
-assert.equal(FOLLOWERS.length, 20, 'the full cast of twenty')
+assert.equal(FOLLOWERS.length, 25, 'twenty regulars and five hidden travelers')
 assert.deepEqual(
   FOLLOWERS.map((def) => def.id),
-  Array.from({ length: 20 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
+  Array.from({ length: 25 }, (_, i) => `F${String(i + 1).padStart(3, '0')}`),
 )
 assert.equal(
   FOLLOWERS.filter((def) => def.romanceable).length,
-  6,
-  'six romanceable followers',
+  7,
+  'seven romanceable followers, including Kiyo',
 )
 assert.equal(
-  new Set(FOLLOWERS.map((def) => def.ability.kind)).size,
-  FOLLOWERS.length,
-  'every follower has a mechanic nobody else has',
+  new Set(FOLLOWERS.slice(0, 20).map((def) => def.ability.kind)).size,
+  20,
+  'the original cast retain distinct abilities',
 )
 const castSpecies = [
   ...FOLLOWERS.map((def) => def.species),
@@ -288,7 +288,7 @@ for (const faction of [...LOCAL_FACTIONS, ...KINGDOM_FACTIONS]) {
 }
 const kiyo = followerDef('F003')!
 assert.equal(kiyo.species, 'Koala', 'Zuzu’s mother is at court')
-assert.ok(kiyo.starter && !kiyo.romanceable)
+assert.ok(kiyo.starter && kiyo.romanceable)
 assert.ok(kiyo.talk?.some((line) => line.includes('Zuzu')))
 assert.ok(FOLLOWERS.some((def) => def.species === 'Fennec fox'))
 assert.ok(

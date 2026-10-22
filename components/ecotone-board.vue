@@ -1498,9 +1498,18 @@ import {
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
-import { visibleOpeningChoices, localTemptation } from '~/utils/ecotone/openingExperience'
-import { PLAYER_AVATARS, PLAYER_PERSONALITIES } from '~/utils/ecotone/playerIdentity'
-import { loadEcotoneDisplay, saveEcotoneDisplay } from '~/utils/ecotone/displaySettings'
+import {
+  visibleOpeningChoices,
+  localTemptation,
+} from '~/utils/ecotone/openingExperience'
+import {
+  PLAYER_AVATARS,
+  PLAYER_PERSONALITIES,
+} from '~/utils/ecotone/playerIdentity'
+import {
+  loadEcotoneDisplay,
+  saveEcotoneDisplay,
+} from '~/utils/ecotone/displaySettings'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
   SUBSTANCE_CHOICES,

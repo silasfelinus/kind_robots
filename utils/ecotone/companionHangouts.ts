@@ -209,3 +209,51 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       'Fictional independent tattoo artist and artwork dispute. All sketches and studio conversations are invented; no real artist or client is implied.',
   },
 }
+
+/**
+ * Only earned actions get a personalized memory in the finale. Repair failures
+ * are remembered as failures with dignity, not transmuted into free successes.
+ * These don't imply romance, change collectible ending IDs, or trigger ArtJobs.
+ */
+export const COMPANION_HANGOUT_CALLBACKS: Record<string, string> = {
+  bond_kit_repair:
+    'Kit kept that repaired hub above her workbench. When a new apprentice asked why it ran so slowly, she answered, "Because I wanted everybody to go home with all their fingers."',
+  bond_kit_failed_repair:
+    'Kit never forgot the night the show went on without her. She remembers you sitting beside the broken hub, too. The two facts remain separate.',
+  bond_kit_boundary:
+    'Kit taught the apprentice to say no onstage before she taught them to fall safely. The first lesson took longer.',
+  bond_kit_space:
+    'Kit still leaves one chair beside her bench for the friend who knows not every problem wants an audience.',
+  bond_juniper_neighbors:
+    'Juniper kept her promise to the repair-shop owner. Every August she checks the rain garden with the actual maintenance roster in her hand.',
+  bond_juniper_failed_neighbors:
+    'The flooded repair shop was not saved by one earnest meeting. Juniper came back the following morning with dry boxes and an apology she had to practice.',
+  bond_juniper_accountability:
+    'The shop owner eventually stopped keeping his sandbags beside the door. Juniper still helps sweep after storms, even when the creek insists it did nothing wrong.',
+  bond_juniper_listened:
+    'Juniper remembers someone who listened to the whole story, then asked about the person standing in the water. She tells that part now, too.',
+  bond_cedar_verified:
+    'Cedar filed the future call beside a handwritten note about what it could and could not prove. His parents read it only when he was ready to show them.',
+  bond_cedar_failed_signal:
+    'Cedar kept the dead battery as a reminder to verify the circuit before waking somebody else with bad news.',
+  bond_cedar_family_boundary:
+    'The next family supper had three arguments about trees and not a single interrogation about a ghost on the radio. Cedar considered it a victory.',
+  bond_cedar_walk:
+    'Sometimes Cedar leaves the radio off just to take a walk. He still tells a terrible sandwich story when the silence starts to feel too important.',
+  bond_mara_evidence:
+    'Mara still keeps the dated originals in an ordinary cabinet. Not because paper wins every dispute, but because the bird has a name and somebody was willing to check.',
+  bond_mara_failed_evidence:
+    'The missing timestamps cost Mara time and trust. She kept drawing anyway, and remembers who did not turn her lost archive into a cautionary poster.',
+  bond_mara_refused_copy:
+    'Mara lost that commission. She did not lose the right to decide what leaves her studio with her signature.',
+  bond_mara_space:
+    'Mara invites you to the studio sometimes, with no client crisis and no explanation beyond putting a second cup on the table.',
+}
+
+export function earnedCompanionHangoutCallbacks(
+  flags: readonly string[],
+): string[] {
+  return [...new Set(flags)]
+    .filter((flag) => Object.hasOwn(COMPANION_HANGOUT_CALLBACKS, flag))
+    .map((flag) => COMPANION_HANGOUT_CALLBACKS[flag]!)
+}

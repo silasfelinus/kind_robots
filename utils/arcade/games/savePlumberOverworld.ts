@@ -19,6 +19,7 @@
  * of each world's painted map plate (conductor art/GEN2-ROUND-1.yaml, Krea 2).
  */
 import GEN2 from './savePlumberGen2Worlds.json'
+import { MAP_CLIP_WORLDS } from './savePlumberMapClips'
 
 export type MapDirection = 'up' | 'down' | 'left' | 'right'
 export type NodeKind =
@@ -62,6 +63,8 @@ export type WorldMap = {
   special: boolean
   /** The painted map plate, or none (drawn in code). */
   plate: string | null
+  /** The plate's motion loop (`<clip>.webm` / `<clip>.mp4`), once one has shipped. */
+  clip: string | null
   nodes: MapNode[]
   paths: MapPath[]
 }
@@ -208,6 +211,9 @@ function buildWorld(raw: RawWorld): WorldMap {
     name: raw.name,
     special,
     plate: special ? null : `/save-the-plumber/maps/world-${raw.world}.webp`,
+    clip: MAP_CLIP_WORLDS.includes(raw.world)
+      ? `/save-the-plumber/maps/world-${raw.world}`
+      : null,
     nodes: raw.nodes.map((n) => {
       const [x, y] = LAYOUT[n.id] ?? [240, 135]
       return {

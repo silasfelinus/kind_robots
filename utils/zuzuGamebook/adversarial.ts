@@ -117,7 +117,8 @@ export function replayEncodedWitness(seed: number, encoded: string): Run {
     let move: PlaytestMove
     if (kind === 'c') {
       const choice = visibleChoices(run, scene(run.sceneId))[index]
-      if (!choice) throw new Error('Unknown choice in witness at ' + run.sceneId)
+      if (!choice)
+        throw new Error('Unknown choice in witness at ' + run.sceneId)
       move = { kind: 'choice', id: choice.id }
     } else if (kind === 'f') {
       const action = FIGHT_ACTIONS[index]
@@ -132,7 +133,9 @@ export function replayEncodedWitness(seed: number, encoded: string): Run {
     }
     const next = applyPlaytestMove(run, move)
     if (next === run)
-      throw new Error('Witness move rejected at ' + run.sceneId + ' offset ' + i)
+      throw new Error(
+        'Witness move rejected at ' + run.sceneId + ' offset ' + i,
+      )
     run = next
   }
   return run
@@ -270,9 +273,17 @@ export function combatBenchmark(
   initialHealth = 12,
   initialResolve = 4,
 ) {
-  if (!Number.isInteger(initialHealth) || initialHealth < 1 || initialHealth > 12)
+  if (
+    !Number.isInteger(initialHealth) ||
+    initialHealth < 1 ||
+    initialHealth > 12
+  )
     throw new Error('Combat health must be between 1 and 12')
-  if (!Number.isInteger(initialResolve) || initialResolve < 0 || initialResolve > 4)
+  if (
+    !Number.isInteger(initialResolve) ||
+    initialResolve < 0 ||
+    initialResolve > 4
+  )
     throw new Error('Combat Resolve must be between 0 and 4')
   const foe = scene(sceneId).battle
   if (!foe) throw new Error('No fight at ' + sceneId)

@@ -353,7 +353,7 @@
                   </span>
                 </div>
                 <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p class="font-serif text-xl leading-relaxed @4xl:text-2xl">
+                  <p class="eco-story-copy font-serif leading-relaxed">
                     {{ revealedResult }}
                   </p>
                 </div>
@@ -398,7 +398,7 @@
                       game.ending.fate
                     ]"
                     :key="index"
-                    class="font-serif text-lg leading-relaxed @4xl:text-2xl"
+                    class="eco-story-copy font-serif leading-relaxed"
                   >
                     {{ paragraph }}
                   </p>
@@ -516,7 +516,7 @@
                   <p
                     v-for="(paragraph, index) in revealedBody"
                     :key="index"
-                    class="font-serif text-lg leading-relaxed @4xl:text-2xl"
+                    class="eco-story-copy font-serif leading-relaxed"
                   >
                     {{ paragraph }}
                   </p>
@@ -674,7 +674,7 @@
                       />
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block text-lg font-bold leading-snug @4xl:text-xl">{{
+                      <span class="eco-choice-main block font-bold leading-snug">{{
                         option.label
                       }}</span>
                       <span
@@ -692,7 +692,126 @@
                   </button>
                 </div>
               </template>
+              <button
+                v-if="hasHiddenText"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/50 bg-[#09141c] px-3 py-2 text-base font-bold"
+                @click="revealAll"
+              >
+                Show full text
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="tab === 'settings'" class="kr-scroll h-full p-4 @xl:p-6">
+        <div class="mx-auto flex max-w-5xl flex-col gap-5">
+          <div>
+            <p class="eco-label">Your weekend, your rules</p>
+            <h2 class="mt-1 font-serif text-4xl font-black">Settings &amp; Save Games</h2>
+            <p class="mt-2 text-base text-[#f3e6c8]/80">
+              Read comfortably, travel at your own pace, and keep a copy of your story.
+              Preferences save automatically on this device and never change your dice.
+            </p>
+          </div>
+          <div class="grid gap-4 @3xl:grid-cols-2">
+            <section class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4">
+              <h3 class="font-serif text-2xl font-bold">Reading &amp; Accessibility</h3>
+              <label class="mt-4 block text-base font-semibold" for="ecotone-text-size">
+                Text size
+              </label>
+              <select
+                id="ecotone-text-size"
+                v-model.number="displayScale"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option :value="1">Standard</option>
+                <option :value="1.2">Large (default)</option>
+                <option :value="1.4">Extra large</option>
+                <option :value="1.6">Maximum</option>
+              </select>
+              <label class="mt-5 block text-base font-semibold" for="ecotone-text-speed">
+                Text reveal speed
+              </label>
+              <select
+                id="ecotone-text-speed"
+                v-model="textSpeed"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option value="instant">Instant, no animation (default)</option>
+                <option value="normal">Gradual</option>
+                <option value="slow">Slow and cinematic</option>
+              </select>
+              <p class="mt-3 text-base leading-relaxed text-[#f3e6c8]/85">
+                When text is revealing, use “Show full text” to skip the animation.
+                Text effects stop automatically when reduced motion is preferred.
+              </p>
+              <div class="mt-4 rounded-xl border border-[#8fb8b0]/40 bg-black/25 p-3">
+                <p class="eco-label">Live reading preview</p>
+                <p class="eco-story-copy mt-2 font-serif leading-relaxed">
+                  The fog has opinions about your font size. You are free to disagree.
+                </p>
+              </div>
+            </section>
+            <section class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4">
+              <h3 class="font-serif text-2xl font-bold">Save Games</h3>
+              <p class="mt-1 text-base text-[#f3e6c8]/80">
+                Your active journey autosaves on this browser after each action.
+                Manual slots are independent checkpoints. Loading replaces the active run, not your unlocked endings.
+              </p>
+              <div class="mt-4 grid gap-3">
+                <div
+                  v-for="slot in [1, 2, 3]"
+                  :key="slot"
+                  class="rounded-xl border border-[#c9a96e]/30 bg-[#09141c] p-3"
+                >
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p class="text-lg font-bold">Slot {{ slot }}</p>
+                      <p class="text-sm text-[#f3e6c8]/75">
+                        {{ game.manualSaves.find((item) => item.slot === slot)?.savedAt
+                          ? new Date(game.manualSaves.find((item) => item.slot === slot)!.savedAt).toLocaleString()
+                          : 'Empty slot' }}
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <button type="button" class="rounded-lg border border-[#d9b877] px-3 py-2 text-sm font-bold" :disabled="!game.run" @click="saveGame(slot)">
+                        Save here
+                      </button>
+                      <button type="button" class="rounded-lg border border-[#8fb8b0]/70 px-3 py-2 text-sm font-bold" :disabled="!game.manualSaves.some((item) => item.slot === slot)" @click="loadGame(slot)">
+                        Load
+                      </button>
+                      <button type="button" class="rounded-lg border border-[#e08a5a]/60 px-3 py-2 text-sm font-bold" :disabled="!game.manualSaves.some((item) => item.slot === slot)" @click="removeSave(slot)">
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <button type="button" class="eco-gold-button" :disabled="!game.run" @click="exportGame">
+                  Export save as JSON
+                </button>
+                <button type="button" class="rounded-lg border border-[#8fb8b0]/70 px-4 py-3 text-base font-bold" @click="saveImportInput?.click()">
+                  Import saved journey
+                </button>
+                <input
+                  ref="saveImportInput"
+                  type="file"
+                  accept=".json,application/json"
+                  class="sr-only"
+                  aria-label="Select an Ecotone save JSON file"
+                  @change="importGame"
+                />
+              </div>
+              <p v-if="saveNotice" class="mt-3 text-base text-[#8fb8b0]" role="status">
+                {{ saveNotice }}
+              </p>
+              <button v-if="game.canUndo" type="button" class="mt-4 rounded-lg border border-[#d9b877]/60 px-4 py-2 text-base font-bold" @click="game.undo(); tab = 'road'">
+                ↶ Rewind last decision
+              </button>
+            </section>
           </div>
         </div>
       </div>
@@ -1947,6 +2066,17 @@ function endingsFor(id: EndingLine) {
 </script>
 
 <style scoped>
+.eco-story-copy {
+  font-size: calc(1.125rem * var(--eco-text-scale, 1.2));
+  line-height: 1.55;
+}
+.eco-choice-main {
+  font-size: calc(1rem * var(--eco-text-scale, 1.2));
+  line-height: 1.35;
+}
+@container (min-width: 64rem) {
+  .eco-story-copy { font-size: calc(1.25rem * var(--eco-text-scale, 1.2)); }
+}
 .eco-pill {
   height: 2rem;
   align-items: center;

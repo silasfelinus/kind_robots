@@ -92,9 +92,11 @@
           class="rounded-3xl border border-primary/25 bg-primary/5 p-5 text-left shadow-sm"
         >
           <div class="flex flex-wrap items-center gap-3">
-            <span aria-hidden="true" class="text-5xl leading-none font-semibold">{{
-              entry.character
-            }}</span>
+            <span
+              aria-hidden="true"
+              class="text-5xl leading-none font-semibold"
+              >{{ entry.character }}</span
+            >
             <h2 class="text-2xl font-bold leading-tight">
               How {{ entry.character }} was made
             </h2>

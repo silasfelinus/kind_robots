@@ -18,7 +18,7 @@ export const ACT_ONE_CHOICES: Readonly<Record<string, readonly [ChanceEventChoic
     { id: 'care', label: "Buy grain with the water before the traders leave.", response: "The trader takes all seven minutes of rain in three sealed barrels. The kitchen has bread for a week and less water for a hot day.", effects: {brass:9,local:{ledger:1,yard:-1},flags:["eod-rain-traded"]} },
   ],
   "salt-caravan": [
-    { id: 'collect', label: "Buy the two wheels for the Gate Watch's failing wagon.", response: "The Watch's wagon is ready by evening. The caravan limps north on an axle patched with rope, and you hear about it at the next toll.", effects: {brass:-8,local:{"gate-watch":2,saltroad:-1},flags:["eod-wheels-watch"]} },
+    { id: 'collect', label: "Buy the two wheels for the Gate Watch's failing wagon.", response: "The Watch's wagon is ready by evening. The caravan limps north on an axle patched with rope, and you hear about it at the next toll.", effects: {brass:-8,local:{"gate-watch":2},affinity:{saltroad:-1},flags:["eod-wheels-watch"]} },
     { id: 'care', label: "Trade the wheels for passage vouchers for stranded families.", response: "The families ride north without paying, but the Watch spends another day patching its wagon. The caravaner calls it a fair deal, once.", effects: {brass:3,local:{yard:2,"gate-watch":-1},flags:["eod-wheels-families"]} },
   ],
   "wild-harvest": [
@@ -30,8 +30,8 @@ export const ACT_ONE_CHOICES: Readonly<Record<string, readonly [ChanceEventChoic
     { id: 'care', label: "Purchase it for the Archive, with a promise the child may visit.", response: "The child comes three times the first week, then never again. The spoon stays warm. The Archive has a valuable object and a blank space in its story.", effects: {brass:-2,local:{lamplight:1,yard:-1},flags:["eod-spoon-archive"]} },
   ],
   "mire-ferry": [
-    { id: 'collect', label: "Return the ring to the ferryman and have the duck marked as a passenger.", response: "The ferryman insists he has never carried this duck, but the ring fits an old ferry seal. The dockhands begin charging it an imaginary toll.", effects: {brass:-2,local:{mirefen:2},flags:["eod-duck-ferry"]} },
-    { id: 'care', label: "Keep the ring in evidence until its owner arrives.", response: "The court collects three contradictory claims before lunch. The duck wanders into the barracks and settles beneath the boots of the loudest claimant.", effects: {brass:5,local:{ledger:1,mirefen:-1},flags:["eod-duck-ledger"]} },
+    { id: 'collect', label: "Return the ring to the ferryman and have the duck marked as a passenger.", response: "The ferryman insists he has never carried this duck, but the ring fits an old ferry seal. The dockhands begin charging it an imaginary toll.", effects: {brass:-2,local:{yard:1},affinity:{"mire-mothers":2},flags:["eod-duck-ferry"]} },
+    { id: 'care', label: "Keep the ring in evidence until its owner arrives.", response: "The court collects three contradictory claims before lunch. The duck wanders into the barracks and settles beneath the boots of the loudest claimant.", effects: {brass:5,local:{ledger:1},affinity:{"mire-mothers":-1},flags:["eod-duck-ledger"]} },
   ],
   "rustline-signal": [
     { id: 'collect', label: "Give the kettle to Tiller's workshop to trace the impossible note.", response: "The workshop spends three days boiling water. At dusk a rail nail on the bench begins to vibrate in time with the whistle.", effects: {brass:-7,local:{lamplight:2},flags:["eod-kettle-signal"]} },
@@ -70,7 +70,7 @@ export const ACT_ONE_CHOICES: Readonly<Record<string, readonly [ChanceEventChoic
     { id: 'care', label: "Take the trader's price and keep the roots for an emergency.", response: "The infirmary shelves hold six sealed bundles. Nobody knows when to open them. The trader is gone by the time an old patient recognizes the smell.", effects: {brass:-6,local:{ledger:1},flags:["eod-herb-stockpiled"]} },
   ],
   "raider-guest": [
-    { id: 'collect', label: "Give the messenger breakfast at a public table, under the eyes of the Watch.", response: "The hyena asks for seconds. The officers hear a useful road warning between bites; by evening they are arguing about whether hospitality counted as a treaty.", effects: {brass:-3,local:{"gate-watch":1,jackalwire:1},flags:["eod-hyena-breakfast"]} },
+    { id: 'collect', label: "Give the messenger breakfast at a public table, under the eyes of the Watch.", response: "The hyena asks for seconds. The officers hear a useful road warning between bites; by evening they are arguing about whether hospitality counted as a treaty.", effects: {brass:-3,local:{"gate-watch":1},affinity:{jackalwire:1},flags:["eod-hyena-breakfast"]} },
     { id: 'care', label: "Hear the rider privately and ask what the Pack wants in return.", response: "The messenger names a captured cart and three prisoners. It is a bargain you can refuse, but the story has already reached the barracks.", effects: {brass:4,local:{ledger:1,yard:-1},flags:["eod-hyena-private"]} },
   ],
   "house-feast": [
@@ -107,7 +107,7 @@ export const ACT_ONE_CHOICES: Readonly<Record<string, readonly [ChanceEventChoic
   ],
   "pilgrim-road": [
     { id: 'collect', label: "Lend the pilgrims the council hall for one night; ask their passenger what help is wanted.", response: "The passenger asks only for dry shoes. The pilgrims disagree about where to go next, and sleep easier after arguing it out in the open.", effects: {brass:-5,local:{yard:2},flags:["eod-pilgrims-hall"]} },
-    { id: 'care', label: "Pay for a cart guard to escort the travelers to the Abbey.", response: "The guard returns without a wagon and with a sealed letter. He reports the patient arrived safely, but will not say who accepted the letter.", effects: {brass:-8,local:{abbey:1,"gate-watch":1},flags:["eod-pilgrims-abbey"]} },
+    { id: 'care', label: "Pay for a cart guard to escort the travelers to the Abbey.", response: "The guard returns without a wagon and with a sealed letter. He reports the patient arrived safely, but will not say who accepted the letter.", effects: {brass:-8,local:{"gate-watch":1},affinity:{abbey:1},flags:["eod-pilgrims-abbey"]} },
   ],
   "factions-argue": [
     { id: 'collect', label: "Offer to keep the pig at court until both claimants produce a witness.", response: "The pig escapes its pen twice and returns to the same cook each time. The court's legal clerk says appetite is inadmissible evidence.", effects: {brass:-4,local:{ledger:2},flags:["eod-pig-court"]} },

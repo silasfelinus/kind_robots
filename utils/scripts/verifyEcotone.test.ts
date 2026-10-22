@@ -3,6 +3,7 @@ import './verifyEcotoneEditorial.test'
 import './verifyEcotoneEnsemble.test'
 import './verifyEcotoneHangouts.test'
 import './verifyEcotoneAtlas.test'
+import './verifyEcotoneOnboarding.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
   isEcotoneReviewHeldArt,

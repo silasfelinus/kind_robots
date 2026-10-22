@@ -164,12 +164,14 @@ function renderFrame(timestamp: number): void {
     const near = penAt(phase, ringR, gearR, penD, cx, cy)
     const dist = Math.hypot(pointerX - near.x, pointerY - near.y)
     if (dist < POINTER_RADIUS) {
-      speed *= 1 + (POINTER_SPEED_BOOST * (POINTER_RADIUS - dist)) / POINTER_RADIUS
+      speed *=
+        1 + (POINTER_SPEED_BOOST * (POINTER_RADIUS - dist)) / POINTER_RADIUS
     }
   }
 
   const advance = speed * delta
-  const hueBase = (patternIndex * 57 + (patternClockMs / PATTERN_MS) * 120) % 360
+  const hueBase =
+    (patternIndex * 57 + (patternClockMs / PATTERN_MS) * 120) % 360
   for (let step = 0; step < SEGMENT_STEPS; step += 1) {
     phase += advance / SEGMENT_STEPS
     if (phase > gearTeeth * 2 * Math.PI * MAX_PATTERNS_BEFORE_WRAP) phase = 0

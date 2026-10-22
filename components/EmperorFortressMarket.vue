@@ -146,6 +146,7 @@
 
       <div v-else-if="tab === 'treatments'" class="grid gap-2">
         <p class="text-xs italic opacity-75">
+          Kiyo's infirmary can restore a wounded follower for brass from the first day.
           The surgeon closes one day of a wound.
           <span v-if="medicine">Saltroad medicine: a quarter off.</span>
           <span v-if="poultice">
@@ -303,6 +304,7 @@ const SLOTS: readonly ItemSlot[] = ['tool', 'charm']
 const TREATMENT_LABEL: Record<TreatmentKind, string> = {
   surgeon: 'Surgeon',
   poultice: 'Poultice',
+  infirmary: 'Kiyo · full recovery',
 }
 
 const heading = computed(() =>

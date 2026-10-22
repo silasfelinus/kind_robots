@@ -51,7 +51,9 @@
             @click="pickChance(choice.id)"
           >
             <strong class="block">{{ choice.label }}</strong>
-            <span class="mt-1 block text-sm font-sans not-italic text-warning opacity-85">
+            <span
+              class="mt-1 block text-sm font-sans not-italic text-warning opacity-85"
+            >
               {{ costLine(choice) }}
             </span>
           </button>
@@ -204,15 +206,32 @@ import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 const props = defineProps<{ run: FortressRun }>()
 const emit = defineEmits<{ next: [] }>()
 const court = useEmperorFortressStore()
-const chance = computed(() => props.run.dailyEvent ? chanceEvent(props.run.dailyEvent) : undefined)
+const chance = computed(() =>
+  props.run.dailyEvent ? chanceEvent(props.run.dailyEvent) : undefined,
+)
 const chanceError = ref('')
 const acting = ref(false)
 const costLine = (choice: ChanceEventChoice): string => {
   const brass = (choice.effects.brass ?? 0) - (choice.requires?.cost ?? 0)
-  const local = Object.entries(choice.effects.local ?? {}).map(([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`)
-  const affinity = Object.entries(choice.effects.affinity ?? {}).map(([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`)
-  const visitor = choice.effects.recruitable?.length ? 'Follower available to hire' : null
-  return [brass ? `${brass > 0 ? '+' : ''}${brass} brass` : '', ...local, ...affinity, visitor].filter(Boolean).join(' · ') || 'A story to remember'
+  const local = Object.entries(choice.effects.local ?? {}).map(
+    ([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`,
+  )
+  const affinity = Object.entries(choice.effects.affinity ?? {}).map(
+    ([name, delta]) => `${name} ${delta && delta > 0 ? '+' : ''}${delta}`,
+  )
+  const visitor = choice.effects.recruitable?.length
+    ? 'Follower available to hire'
+    : null
+  return (
+    [
+      brass ? `${brass > 0 ? '+' : ''}${brass} brass` : '',
+      ...local,
+      ...affinity,
+      visitor,
+    ]
+      .filter(Boolean)
+      .join(' · ') || 'A story to remember'
+  )
 }
 function pickChance(choiceId: string) {
   const offered = chance.value
@@ -222,7 +241,10 @@ function pickChance(choiceId: string) {
   try {
     court.answerChanceEvent(offered.id, choiceId)
   } catch (cause) {
-    chanceError.value = cause instanceof Error ? cause.message : 'The visitor could not hear that answer.'
+    chanceError.value =
+      cause instanceof Error
+        ? cause.message
+        : 'The visitor could not hear that answer.'
   } finally {
     acting.value = false
   }

@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useMemoryStore } from './memoryStore'
+import { useUserStore } from './userStore'
+import { resolveMemoryDungeonDeck } from './helpers/memoryDungeonDeckSource'
+import {
+  DEFAULT_DUNGEON_DECK,
+  normalizeDungeonDeck,
+  type DungeonDeckSelection,
+} from '~/utils/memoryDungeonDeck'
 import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
@@ -14,6 +20,7 @@ import {
 } from '~/utils/memoryDungeonWorld'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
+const DECK_KEY = 'memoryDungeonDeckChoiceV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -25,7 +32,8 @@ function shuffle<T>(list: T[]): T[] {
 }
 
 export const useMemoryWorldStore = defineStore('memoryWorld', () => {
-  const deckStore = useMemoryStore()
+  const userStore = useUserStore()
+  const deck = ref<DungeonDeckSelection>({ ...DEFAULT_DUNGEON_DECK })
   const state = ref<BriarSave>(newBriarSave())
   const ready = ref(false)
   const loading = ref(false)
@@ -35,6 +43,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   let roomEpoch = 0
 
   const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
+  const matureAvailable = computed(
+    () => userStore.showMature === true || userStore.user?.showMature === true,
+  )
+
+  function selectDeck(selection: Partial<DungeonDeckSelection>): void {
+    deck.value = normalizeDungeonDeck({ ...deck.value, ...selection })
+    if (!matureAvailable.value) deck.value.includeMature = false
+    if (import.meta.client) {
+      try {
+        window.localStorage.setItem(DECK_KEY, JSON.stringify(deck.value))
+      } catch {
+        state.value.status = 'Deck choice is active for this visit; browser storage is unavailable.'
+      }
+    }
+  }
+
   const hasChime = computed(() => state.value.relics.includes('bramble-chime'))
   const roomComplete = computed(
     () =>
@@ -62,6 +86,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
+        const previousDeck = window.localStorage.getItem(DECK_KEY)
+        if (previousDeck) deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
+        if (!matureAvailable.value) deck.value.includeMature = false
       } catch {
         state.value = newBriarSave()
       }
@@ -197,9 +224,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading.value = true
     const ticket = ++roomEpoch
     try {
-      const pool = await deckStore.getMemoryCardPool()
-      const paths = await deckStore.selectLoadableImagePaths(
-        pool,
+      const paths = await resolveMemoryDungeonDeck(
+        deck.value,
         roomId === 'vault-2' ? 4 : 3,
       )
       if (ticket !== roomEpoch) return
@@ -380,6 +406,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
 
   return {
     state,
+    deck,
+    matureAvailable,
+    selectDeck,
     ready,
     loading,
     turnLocked,

@@ -606,7 +606,7 @@ const MOTIFS: readonly Motif[] = [
     scenes: [
       [
         'A Jar of Yesterday',
-        "A child brings a jar with yesterday's sunset caught inside like dust.",
+        "A child brings a jar with yesterday's sunset caught inside like dust. It is still warm.",
       ],
       [
         'A Glass Seed',
@@ -614,7 +614,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'The Mirror with the Wrong Door',
-        "An old mirror shows a door in the west wall that hasn't been built.",
+        "An old mirror shows a door in the west wall that hasn't been built. The latch rattles.",
       ],
       [
         "The Crow's Prism",
@@ -647,7 +647,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'A Seal Not Yet Cast',
-        "A letter bears the crown's seal before the new stamp has been made.",
+        "A letter bears the crown's seal before the new stamp has been made. The ink is fresh.",
       ],
       [
         "The Courier Who Won't Dismount",

@@ -75,10 +75,10 @@
 
     <div
       v-if="world.state.room === 'map'"
-      class="relative flex min-h-0 flex-1 items-center justify-center gap-2 overflow-hidden p-2 lg:p-3"
+      class="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-hidden p-2 lg:flex-row lg:p-3"
     >
       <div
-        class="relative aspect-square h-auto max-h-full w-full max-w-[min(100%,74vh)] shrink-0 overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
+        class="relative aspect-square h-auto max-h-[64%] w-full max-w-[min(100%,74vh)] shrink-0 overflow-hidden rounded-lg lg:max-h-full border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
       >
         <div
           class="absolute inset-0 bg-cover bg-center"
@@ -144,7 +144,7 @@
       </div>
 
       <aside
-        class="absolute bottom-2 right-2 z-20 max-h-[44%] w-[min(87%,17rem)] overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm lg:static lg:max-h-[calc(100%-1rem)] lg:w-64 lg:shrink-0"
+        class="w-full min-h-0 max-h-[34%] shrink-0 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm lg:max-h-[calc(100%-1rem)] lg:w-64"
       >
         <h3 class="mb-1 text-base font-black">
           {{ world.selectedSite?.name ?? 'The Crooked Trail' }}

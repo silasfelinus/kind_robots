@@ -1567,8 +1567,8 @@ const stage = computed<Stage>(() => {
         : card.id.startsWith('CO-')
           ? 'Companion interlude'
           : card.kind === 'spine'
-          ? `Story beat · ${card.id}`
-          : `Encounter · ${card.id}`,
+            ? `Story beat · ${card.id}`
+            : `Encounter · ${card.id}`,
       title: card.title,
       subtitle: card.place,
       place: card.place.split(',')[0] ?? card.place,

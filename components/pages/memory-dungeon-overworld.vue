@@ -59,12 +59,10 @@
           Close
         </button>
       </div>
-      <collection-picker
-        title="Your memory gallery"
-        :mode="pickerMode"
-        :collection-id="null"
-        :collection-ids="pickerIds"
-        @change="chooseDeck"
+      <memory-dungeon-deck-selector
+        :selected="world.deck"
+        :mature-available="world.matureAvailable"
+        @change="world.selectDeck"
       />
       <button
         type="button"
@@ -366,60 +364,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
-import { useMemoryStore } from '~/stores/memoryStore'
 import {
   BRIAR_SITES,
   BRIAR_TILES,
   type BriarSiteKind,
 } from '~/utils/memoryDungeonWorld'
-import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
+import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
-const memoryStore = useMemoryStore()
 const tiles = BRIAR_TILES
 const sites = BRIAR_SITES
 const settingsOpen = ref(false)
-
-const pickerMode = computed<CollectionPickerMode>(() =>
-  memoryStore.cardSource.type === 'manual'
-    ? 'manual'
-    : memoryStore.cardSource.type === 'collection' ||
-        memoryStore.cardSource.type === 'collections'
-      ? 'collections'
-      : 'all',
-)
-const pickerIds = computed(() =>
-  memoryStore.cardSource.type === 'collections'
-    ? memoryStore.cardSource.collectionIds
-    : memoryStore.cardSource.type === 'collection' &&
-        memoryStore.cardSource.collectionId
-      ? [memoryStore.cardSource.collectionId]
-      : [],
-)
-const roomTitle = computed(() =>
-  world.state.roomId === 'vault-1'
-    ? 'Rootbound Vault · Echo Chamber'
-    : world.state.roomId === 'vault-2'
-      ? 'Rootbound Vault · The Warden'
-      : 'Forest Memory Duel',
-)
-
-function chooseDeck(value: {
-  mode: CollectionPickerMode
-  collectionId: number | null
-  collectionIds: number[]
-}): void {
-  if (value.mode === 'manual') return
-  if (value.mode === 'all') {
-    memoryStore.useAllArtImages()
-  } else {
-    const ids = value.collectionId ? [value.collectionId] : value.collectionIds
-    memoryStore.useCollections(ids)
-  }
-}
 
 function restart(): void {
   if (

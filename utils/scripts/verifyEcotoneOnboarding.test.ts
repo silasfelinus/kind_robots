@@ -3,8 +3,6 @@ import { readFileSync } from 'node:fs'
 import {
   createRun,
   restoreRun,
-  advance,
-  chooseEvent,
   chooseBeat,
   findCard,
 } from '../ecotone/engine'

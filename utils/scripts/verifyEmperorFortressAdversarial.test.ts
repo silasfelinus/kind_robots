@@ -180,6 +180,13 @@ assert.equal(
   0,
   'a ruler who rejects every faction must not silently inherit Iron Peace',
 )
+assert.equal(
+  report.find((policy) => policy.policy === 'spurn-all')?.endings[
+    'witchwater-throne'
+  ] ?? 0,
+  0,
+  'Mire Mother loyalty must count as taking a faction side',
+)
 assert.ok(
   (report.find((policy) => policy.policy === 'marshal')?.endings[
     'iron-peace'

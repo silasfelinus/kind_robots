@@ -8,6 +8,7 @@ import { useAchievementStore } from './achievementStore'
 import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
+import { loadMemoryArtCandidates, type MemoryArtFeedPage } from '@/utils/memoryArtFeed'
 import { handleError, performFetch } from './utils'
 import { useCollectionStore } from './collectionStore'
 
@@ -226,7 +227,7 @@ function shuffle<T>(items: T[]): T[] {
 function normalizeImagePath(value: unknown): string {
   if (typeof value !== 'string') return ''
 
-  if (value.startsWith('http') || value.startsWith('/')) {
+  if (/^(?:https?:|\/|data:|blob:)/i.test(value)) {
     return value
   }
 
@@ -494,32 +495,12 @@ export const useMemoryStore = defineStore('memoryStore', () => {
 
   async function getMemoryCardPool(): Promise<ArtImage[]> {
     const source = cardSource.value
-    const needsCollections =
-      source.type === 'collection' || source.type === 'collections'
 
     await artStore.initialize({
-      fetchRemote: source.type === 'all' && !artStore.hasCachedImages,
+      fetchRemote: false,
       hydrateImages: true,
       initializeCollections: false,
     })
-
-    if (needsCollections) {
-      await collectionStore.fetchCollections()
-
-      const requestedIds =
-        source.type === 'collection' && source.collectionId
-          ? [source.collectionId]
-          : source.collectionIds
-
-      const missingOrEmpty = requestedIds.some((id) => {
-        const collection = collectionStore.findCollectionById(id)
-        return !collection || !getCollectionArtImages(collection).length
-      })
-
-      if (missingOrEmpty) {
-        await collectionStore.fetchCollections(true)
-      }
-    }
 
     if (source.type === 'generated') {
       return filterPlayableArtImages(artStore.generatedArtImages)
@@ -533,24 +514,42 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       )
     }
 
-    if (source.type === 'collection' && source.collectionId) {
-      const collection =
-        collectionStore.findCollectionById(source.collectionId) ?? null
+    const collectionIds =
+      source.type === 'collection' && source.collectionId
+        ? [source.collectionId]
+        : source.type === 'collections'
+          ? source.collectionIds
+          : []
 
-      return filterPlayableArtImages(getCollectionArtImages(collection))
-    }
+    const images = await loadMemoryArtCandidates<ArtImage>({
+      collectionIds,
+      pairCount: pairsNeeded.value,
+      playable: (image) =>
+        (artStore.showMature || !image.isMature) &&
+        Boolean(extractArtImagePath(image)),
+      fetchPage: async (collectionId, cursor) => {
+        const query = new URLSearchParams({
+          range: 'all',
+          limit: '96',
+          maturity: artStore.showMature ? 'all' : 'safe',
+        })
+        if (collectionId) query.set('collectionId', String(collectionId))
+        if (cursor) query.set('cursor', String(cursor))
 
-    if (source.type === 'collections' && source.collectionIds.length) {
-      const ids = new Set(source.collectionIds)
+        const response = await performFetch<MemoryArtFeedPage<ArtImage>>(
+          `/api/art/image/feed?${query.toString()}`,
+        )
 
-      const images = collectionStore.collections
-        .filter((collection) => ids.has(collection.id))
-        .flatMap((collection) => getCollectionArtImages(collection))
+        if (!response.success || !response.data || !Array.isArray(response.data.items)) {
+          throw new Error(response.message || 'The dungeon could not load the art library.')
+        }
 
-      return filterPlayableArtImages(images)
-    }
+        artStore.addOrUpdateArtImages(response.data.items)
+        return response.data
+      },
+    })
 
-    return filterPlayableArtImages(artStore.artImages)
+    return filterPlayableArtImages(images)
   }
 
   function useManualArtImages(artImageIds: number[]): void {
@@ -778,6 +777,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     const record = image as Record<string, unknown>
 
     const candidates = [
+      record.thumbnailUrl,
       record.imagePath,
       record.path,
       record.thumbnailPath,

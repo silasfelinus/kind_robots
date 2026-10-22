@@ -79,6 +79,7 @@
     "test:art-archive-entry-jobs": "tsx utils/scripts/verifyPickLatestArchiveEntryJobs.test.ts",
     "test:art-archive-ingestion-controls": "node utils/scripts/verifyArtArchiveIngestionControls.mjs",
     "test:art-archive-scan-memory": "tsx utils/scripts/verifyArtArchiveScanMemory.test.ts",
+    "test:memory-art-feed": "tsx utils/scripts/verifyMemoryArtFeed.test.ts",
     "test:art-archive-batch-scan": "tsx utils/scripts/verifyArtArchiveBatchScan.test.ts",
     "test:art-archive-scale": "tsx utils/scripts/verifyArtArchiveScaleContract.test.ts",
     "test:art-archive-int-columns": "tsx utils/scripts/verifyArtArchiveIntColumns.test.ts",

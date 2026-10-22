@@ -525,6 +525,33 @@
           "text": "The little robot's dissent arrives in Posthumous Affairs as a handwritten note from the focus-group room. The clerk cannot explain why one vote against eleven has survived the filing system."
         }
       ]
+    },
+    {
+      "id": "permanent-adjournment",
+      "title": "Permanently Adjourned",
+      "kind": "board",
+      "trigger": {
+        "department_outcome": "adjourned"
+      },
+      "epilogue": {
+        "title": "Your Case Remains Under Consideration",
+        "text": "At the third recess, the Board votes unanimously to preserve you as a pending agenda item. The elevator takes you between floors, never to one. PAL calls this job security. Each morning a new Successor inherits your badge and waits in the same chair, where a brass clock has stopped exactly five minutes before the decision. The Company sends a letter to your next of kin saying no decision was reached. That, according to the annual report, is its most stable result.",
+        "art_prompt": "An endless beige executive waiting room under a sealed underground office, a small employee alone beneath an enormous stopped brass clock, successive vacant chairs stretching into deep shadow, unsettling papery human-shaped silhouettes behind a frosted meeting room door, darkly comic bureaucratic science-fiction, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      },
+      "variants": [
+        {
+          "when_flag": "pal-remembered-kindness",
+          "text": "PAL quietly moves your chair closer to the heater. It is the closest thing to a dissenting vote the room will allow."
+        },
+        {
+          "when_flag": "taught-pip-to-say-no",
+          "text": "Pip files a one-word objection to the delay. The Board places it on the agenda for your next hearing."
+        },
+        {
+          "when_flag": "wearing-kevins-watch",
+          "text": "Kevin's watch continues ticking. Every other clock in the room has learned not to."
+        }
+      ]
     }
   ]
 }

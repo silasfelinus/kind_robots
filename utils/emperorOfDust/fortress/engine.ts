@@ -112,7 +112,7 @@ export const INJURY_DAYS: Record<QuestDef['danger'], [number, number]> = {
   none: [0, 0],
   low: [1, 2],
   mid: [2, 5],
-  high: [2, 6],
+  high: [3, 8],
 }
 export const BED_UPGRADES = {
   9: { cost: 40, gateWatch: 0 },

@@ -256,9 +256,7 @@ export const drawChanceEvent = (run: FortressRun): void => {
   if (!picked) {
     const pool = CHANCE_EVENTS.filter(
       (event) =>
-        event.act === act &&
-        !event.secretFollower &&
-        !seen.includes(event.id),
+        event.act === act && !event.secretFollower && !seen.includes(event.id),
     )
     if (!pool.length) return
     // Following an earlier thread is more likely than running into an
@@ -268,7 +266,8 @@ export const drawChanceEvent = (run: FortressRun): void => {
     )
     const follow = connected.length && rollFor(run, `follow:${run.day}`) < 55
     const candidates = follow ? connected : pool
-    picked = candidates[rollFor(run, `encounter:${run.day}`) % candidates.length]
+    picked =
+      candidates[rollFor(run, `encounter:${run.day}`) % candidates.length]
   }
   if (!picked) return
   run.dailyEvent = picked.id
@@ -288,7 +287,11 @@ export const chooseChanceEvent = (
     throw new Error('that visitor did not arrive today')
   const choice = event.choices.find((entry) => entry.id === choiceId)
   if (!choice) throw new Error('that answer was not offered')
-  const blockers = unmetRequirements(run, choice.requires, choice.effects.recruit)
+  const blockers = unmetRequirements(
+    run,
+    choice.requires,
+    choice.effects.recruit,
+  )
   if (blockers.length) throw new Error(blockers.join('; '))
   const next = cloneRun(run)
   next.brass -= choice.requires?.cost ?? 0
@@ -391,7 +394,10 @@ const postQuest = (run: FortressRun, questId: string): void => {
     postedDay: run.day,
     lastDay:
       run.day +
-      Math.max(def.boardDays, isTemplateInstance(questId) && run.day <= 20 ? 2 : 1) -
+      Math.max(
+        def.boardDays,
+        isTemplateInstance(questId) && run.day <= 20 ? 2 : 1,
+      ) -
       1,
   })
 }
@@ -2307,7 +2313,8 @@ export const finishDay = (
   }
   if (next.dailyEvent) {
     const unheard = chanceEvent(next.dailyEvent)
-    if (unheard) events.push(`${unheard.title}: the opportunity passed without an answer.`)
+    if (unheard)
+      events.push(`${unheard.title}: the opportunity passed without an answer.`)
     delete next.dailyEvent
   }
   next.day += 1

@@ -13,7 +13,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     region: 'east-ford',
     biography:
       'A traveling midwife with quills tied back in red thread. Nettle knows which herbs stop a fever and which only make the dying comfortable. She refuses to give the same answer twice to the question of why she left the Freeholds.',
-    stats: { might: 3, guile: 4, wits: 7, heart: 9, lore: 5 },
+    stats: { might: 3, guile: 3, wits: 6, heart: 8, lore: 5 },
     traits: [
       { id: 'F021-herb-memory', kind: 'skill', name: 'Herb Memory',
         text: 'Every leaf has a season and Nettle remembers them all.',
@@ -40,7 +40,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     region: 'rail-yards',
     biography:
       'A signal mechanic who sends messages on rails that have not carried a train in a century. Tiller once heard a voice answer from beneath the dead engine. He has been listening ever since.',
-    stats: { might: 5, guile: 7, wits: 8, heart: 3, lore: 6 },
+    stats: { might: 4, guile: 6, wits: 7, heart: 3, lore: 5 },
     traits: [
       { id: 'F022-rail-speech', kind: 'skill', name: 'Rail Speech',
         text: 'Tiller hears warnings through metal hours before the ground shakes.',
@@ -67,7 +67,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     region: 'hollow-bell',
     biography:
       'A bellkeeper who can tell which bell rang from the sound of a single echo. Sera carries a bronze clapper with no bell and says it belonged to her brother, whom no one in Hollow Bell remembers.',
-    stats: { might: 3, guile: 6, wits: 7, heart: 6, lore: 8 },
+    stats: { might: 2, guile: 5, wits: 6, heart: 6, lore: 7 },
     traits: [
       { id: 'F023-bell-echo', kind: 'skill', name: 'Echo Ledger',
         text: 'She can recognize an old story from the echo it leaves.',
@@ -94,7 +94,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     region: 'jackalwire',
     biography:
       'Once a Jackalwire toll runner, Moss still sleeps with their boots on. They carry a map of every ambush and a list of people they helped escape one, including the people who might kill them for it.',
-    stats: { might: 6, guile: 9, wits: 5, heart: 6, lore: 2 },
+    stats: { might: 6, guile: 8, wits: 4, heart: 5, lore: 2 },
     traits: [
       { id: 'F024-bridge-roads', kind: 'skill', name: 'Bridge Roads',
         text: 'Moss can find an escape route through a blockade.',
@@ -121,7 +121,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     region: 'mirefen',
     biography:
       'A traveler with a sealed glass rain gauge full of dry black sand. Odo insists the storms are arriving backwards. At the edge of the Black Verge they were once paid to predict endings, and now they want to be surprised.',
-    stats: { might: 4, guile: 7, wits: 7, heart: 5, lore: 9 },
+    stats: { might: 3, guile: 6, wits: 6, heart: 4, lore: 7 },
     traits: [
       { id: 'F025-rain-glass', kind: 'skill', name: 'Rain That Already Fell',
         text: 'Odo can read the weather in the shape of a broken hour.',

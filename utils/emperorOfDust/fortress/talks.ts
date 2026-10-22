@@ -1,4 +1,5 @@
 import type { TalkDef } from './types'
+import { SECRET_TALKS } from './secretTalks'
 
 // Barracks talks (conductor emperor-of-dust t-017): one conversation a day,
 // played like a throne-room scene. A talk is heard once; its closing answer
@@ -6980,4 +6981,5 @@ export const TALKS: readonly TalkDef[] = [
       },
     ],
   },
+  ...SECRET_TALKS,
 ]

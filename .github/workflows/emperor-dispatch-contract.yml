@@ -4,12 +4,16 @@ permissions:
   contents: read
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 15 * * *'
   pull_request:
     branches: [main]
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
+      - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
       - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
@@ -47,3 +51,4 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts

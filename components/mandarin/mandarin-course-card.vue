@@ -189,7 +189,10 @@
                   component.glyph
                 }}</span>
                 <div class="min-w-0">
-                  <p class="kr-text-eyebrow-bold">
+                  <p
+                    v-if="component.role !== 'idea'"
+                    class="kr-text-eyebrow-bold"
+                  >
                     {{ roleLabel(component.role) }}
                   </p>
                   <p v-if="component.meaning" class="mt-1 font-semibold">

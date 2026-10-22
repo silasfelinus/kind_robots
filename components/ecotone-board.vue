@@ -1326,9 +1326,7 @@ const questCallbacks = computed(() => {
   return run ? earnedQuestCallbacks(run.flags, run.played) : []
 })
 const sharedFuture = computed(() =>
-  game.run && game.ending
-    ? ensembleFuture(game.run, game.ending.fate)
-    : null,
+  game.run && game.ending ? ensembleFuture(game.run, game.ending.fate) : null,
 )
 const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),
@@ -1485,7 +1483,8 @@ const stage = computed<Stage>(() => {
       place: eventInfo.value?.name ?? '',
       meet: { name: n.name, role: n.role, line: n.line },
       panelKicker: 'A crossroads, not a character select',
-      panelFooter: 'All three answers are valid; nobody owes you their company.',
+      panelFooter:
+        'All three answers are valid; nobody owes you their company.',
       question: 'Who walks with you?',
       body: CROSSROADS[n.id],
       emblem,

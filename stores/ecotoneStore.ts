@@ -26,14 +26,20 @@ import {
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
 import type { SubstanceId } from '~/utils/ecotone/substanceArc'
+import type { PlayerIdentity } from '~/utils/ecotone/playerIdentity'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
 const ENDINGS_KEY = 'kr.ecotone.endings.v1'
+const UNDO_KEY = 'kr.ecotone.undo.v1'
 
 export const useEcotoneStore = defineStore('ecotone', () => {
   const run = ref<RunState | null>(null)
   const endings = ref<string[]>([])
+  // Exactly one checkpoint, immediately before a committed selection.
+  // No arbitrary rerolls; continuing the story clears the checkpoint.
+  const undoSnapshot = ref<RunState | null>(null)
+  const canUndo = computed(() => Boolean(run.value && undoSnapshot.value))
   const loaded = ref(false)
   // Bumped when Playbook Manager live edits arrive, so card text re-reads them.
   const liveVersion = ref(0)
@@ -82,6 +88,9 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         window.localStorage.setItem(RUN_KEY, JSON.stringify(run.value))
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
+      if (undoSnapshot.value)
+        window.localStorage.setItem(UNDO_KEY, JSON.stringify(undoSnapshot.value))
+      else window.localStorage.removeItem(UNDO_KEY)
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -93,6 +102,16 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       try {
         const saved = window.localStorage.getItem(RUN_KEY)
         if (saved) run.value = restoreRun(JSON.parse(saved))
+        const oldCheckpoint = window.localStorage.getItem(UNDO_KEY)
+        if (oldCheckpoint && run.value) {
+          const parsed = restoreRun(JSON.parse(oldCheckpoint))
+          if (
+            parsed &&
+            parsed.seed === run.value.seed &&
+            parsed.log.length <= run.value.log.length &&
+            parsed.phase !== 'end'
+          ) undoSnapshot.value = parsed
+        }
         const ledger = window.localStorage.getItem(ENDINGS_KEY)
         if (ledger) {
           const parsed: unknown = JSON.parse(ledger)
@@ -104,6 +123,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         }
       } catch {
         run.value = null
+        undoSnapshot.value = null
       }
     }
     loaded.value = true
@@ -120,8 +140,9 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     liveVersion.value += 1
   }
 
-  function update(next: RunState) {
+  function update(next: RunState, remember = false) {
     if (next === run.value) return
+    undoSnapshot.value = remember ? run.value : null
     run.value = next
     if (
       next.phase === 'end' &&
@@ -133,28 +154,40 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     persist()
   }
 
-  function begin(archetypeId: string) {
-    update(createRun(Date.now() % 2147483647, archetypeId))
+  function begin(archetypeId: string, identity: PlayerIdentity = {}) {
+    update(createRun(Date.now() % 2147483647, archetypeId, identity))
+  }
+
+  function undo() {
+    if (!run.value || !undoSnapshot.value) return
+    const before = undoSnapshot.value
+    undoSnapshot.value = null
+    // An ending only counts when the player finishes the weekend.
+    if (run.value.phase === 'end' && run.value.ending) {
+      endings.value = endings.value.filter((id) => id !== run.value?.ending)
+    }
+    run.value = before
+    persist()
   }
 
   function pickEvent(event: EventId) {
-    if (run.value) update(chooseEvent(run.value, event))
+    if (run.value) update(chooseEvent(run.value, event), true)
   }
 
   function pickFork(cardId: string) {
-    if (run.value) update(chooseFork(run.value, cardId))
+    if (run.value) update(chooseFork(run.value, cardId), true)
   }
 
   function choose(choiceId: string) {
-    if (run.value) update(chooseBeat(run.value, choiceId))
+    if (run.value) update(chooseBeat(run.value, choiceId), true)
   }
 
   function takeMoment(selected: SubstanceId[]) {
-    if (run.value) update(chooseSubstanceMoment(run.value, selected))
+    if (run.value) update(chooseSubstanceMoment(run.value, selected), true)
   }
 
   function crossroads(choice: boolean | CrossroadsChoice) {
-    if (run.value) update(chooseCrossroads(run.value, choice))
+    if (run.value) update(chooseCrossroads(run.value, choice), true)
   }
 
   function proceed() {
@@ -163,6 +196,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function abandon() {
     run.value = null
+    undoSnapshot.value = null
     persist()
   }
 
@@ -174,6 +208,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     run,
     endings,
     loaded,
+    canUndo,
+    undo,
     chapter,
     card,
     offered,

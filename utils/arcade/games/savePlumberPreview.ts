@@ -58,7 +58,6 @@ import {
   newlyOpened,
   nodeReachable,
   nodeBuilt,
-  pathOpen,
   startId,
   stageNode,
   warpHeading,

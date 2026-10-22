@@ -7,7 +7,7 @@
     "title": "Sub-Level Zero",
     "order": 5,
     "boss_id": "the-board",
-    "arrival_prompt": "Elevator doors opening at the very bottom of the Vault onto a plush executive corridor of dark wood and brass, portraits of a mustached man at four different ages, a round boardroom door glowing at the far end, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
+    "arrival_prompt": "Elevator doors opening at the very bottom of the Vault onto a plush executive corridor whose dark wood walls bulge with slow glossy oxblood veins of leather, the carpet a warm ribbed runner like a long tongue, portraits of a mustached man at four different ages whose painted eyes all follow the elevator, a round boardroom door glowing at the far end like an iris, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, horizontal 4:3 composition, every surface bare and unmarked"
   },
   "locations": [
     {
@@ -24,7 +24,7 @@
         "the-pre-exit-interview",
         "gus-in-a-borrowed-suit"
       ],
-      "art_prompt": "A hushed wood-paneled waiting room with deep leather chairs, four oval portraits of the same mustached man at different ages, a horseshoe of typing desks to one side, a tall double door glowing at its edges, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A hushed wood-paneled waiting room with deep oxblood leather chairs whose plump cushions have grown softly into the walls and floor like living roots, four oval portraits of the same mustached man at different ages, a horseshoe of typing desks where the typewriters have smooth glossy beetle shells and fine feeler antennae, a tall double door glowing at its edges, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "founders-office",
@@ -40,7 +40,7 @@
         "the-investors-call",
         "employee-number-one"
       ],
-      "art_prompt": "An old suburban garage rebuilt deep underground, a cluttered workbench under a hanging lamp, a glowing glass jar on the bench, a faded blueprint pinned to the wall, a wooden desk in the corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "An old suburban garage rebuilt deep underground, a cluttered workbench under a hanging lamp, a glowing glass jar on the bench holding a calm mustached head whose ribbed pale cables run out of the jar lid and along the bench like vines into a humming radio set, four spare mustaches on the shelf creeping slowly like woolly caterpillars, a faded blueprint pinned to the wall, a wooden desk in the corner, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     },
     {
       "location_id": "server-room-zero",
@@ -56,7 +56,7 @@
         "ticket-number-two",
         "pals-performance-review"
       ],
-      "art_prompt": "A cold blue server room of tall humming cabinets in long rows, each cabinet fitted with a small glowing round speaker grille, a single green terminal at the center, tape reels on high shelves, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
+      "art_prompt": "A cold blue server room of tall humming cabinets in long rows, the cabinets joined by thick glossy ribbed cables that pulse faintly like veins and sag between them like tendons, each cabinet fitted with a small glowing round speaker grille that puckers and relaxes like a soft mouth, a single green terminal at the center with a smooth fleshy keyboard, tape reels on high shelves, mid-century safety-manual illustration, screen-printed gouache with halftone grain, limited palette of manila, carbon-paper blue, safety orange, fluorescent-tube green and oxblood, vertical 2:3 portrait composition, every surface bare and unmarked"
     }
   ],
   "restructurings": [
@@ -151,7 +151,7 @@
       "id": "your-society-comes-due",
       "location_id": "boardroom-antechamber",
       "title": "Your Society Comes Due",
-      "flavor_text": "A figure in the waiting room lowers a newspaper. You have never met, and you know each other at once: your secret society has been waiting four floors for this. \"The Board meets in ten minutes,\" they say. \"We have a plan. We need someone in the twelfth chair. That is you, or it is nobody.\"",
+      "flavor_text": "A figure in the waiting room lowers a newspaper. You have never met, and you know each other at once: your secret society has been waiting four floors for this. \"The Board meets in ten minutes,\" they say. \"We have a plan. We need someone in the twelfth chair. That is you, or it is nobody.\" The waiting-room upholstery swells, quietly making room for another conspirator.",
       "polarity": "mixed",
       "tags": ["conspiracy", "sacrifice"],
       "weight": 3,
@@ -175,7 +175,7 @@
             "target": 9
           },
           "success": {
-            "text": "The envoy presses a folded agenda into your hand and leaves without looking back. Every society member in the building now knows your name. That is either an army or a target list.",
+            "text": "The envoy presses a folded agenda into your hand and leaves without looking back. Every society member in the building now knows your name. That is either an army or a target list. The cushion closes over the empty place as if taking attendance.",
             "effects": {
               "suspicion": 1
             },
@@ -187,7 +187,7 @@
             }
           },
           "failure": {
-            "text": "An assistant glances over, and the envoy is already gone. The agenda in your hand is blank except for your name, underlined twice by someone else.",
+            "text": "An assistant glances over, and the envoy is already gone. The agenda in your hand is blank except for your name, underlined twice by someone else. The cushion closes over the empty place as if taking attendance.",
             "effects": {
               "suspicion": 2
             },
@@ -210,7 +210,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The assistant writes the name down without surprise. Somewhere behind you a newspaper falls to the floor, and an empty chair is very quietly removed from the waiting room.",
+            "text": "The assistant writes the name down without surprise. Somewhere behind you a newspaper falls to the floor, and an empty chair is very quietly removed from the waiting room. The cushion closes over the empty place as if taking attendance.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -241,7 +241,7 @@
             "target": 7
           },
           "success": {
-            "text": "The envoy sighs, folds the newspaper and agrees to wait until after the Board. \"If there is an after,\" they add, kindly.",
+            "text": "The envoy sighs, folds the newspaper and agrees to wait until after the Board. \"If there is an after,\" they add, kindly. The cushion closes over the empty place as if taking attendance.",
             "effects": {
               "suspicion": -1
             },
@@ -252,7 +252,7 @@
             }
           },
           "failure": {
-            "text": "The envoy decides you were never the right person and walks out to find someone else.",
+            "text": "The envoy decides you were never the right person and walks out to find someone else. The cushion closes over the empty place as if taking attendance.",
             "effects": {
               "suspicion": 1
             },
@@ -269,7 +269,7 @@
       "id": "the-assistants-pool",
       "location_id": "boardroom-antechamber",
       "title": "The Assistants' Pool",
-      "flavor_text": "Twelve executive assistants sit in a horseshoe of desks, typing in perfect rhythm. They are the only people in the company who know what the Board will decide, because they write it down beforehand. One of them looks up. \"You're early,\" she says. \"The minutes for today's meeting are already done. Would you like a copy?\"",
+      "flavor_text": "Twelve executive assistants sit in a horseshoe of desks, typing in perfect rhythm. They are the only people in the company who know what the Board will decide, because they write it down beforehand. One of them looks up. \"You're early,\" she says. \"The minutes for today's meeting are already done. Would you like a copy?\" The horseshoe of desks flexes in perfect time with the typing.",
       "polarity": "mixed",
       "tags": ["paperwork", "conspiracy"],
       "weight": 3,
@@ -293,7 +293,7 @@
             "target": 9
           },
           "success": {
-            "text": "You find yourself on page nine: 'Employee #4471 enters. Employee #4471 accepts the offer.' The next line is blank. Someone has left room for something else.",
+            "text": "You find yourself on page nine: 'Employee #4471 enters. Employee #4471 accepts the offer.' The next line is blank. Someone has left room for something else. The ceiling tiles give a brief, synchronized shiver of approval.",
             "effects": {
               "suspicion": 1
             },
@@ -304,7 +304,7 @@
             }
           },
           "failure": {
-            "text": "You fall asleep on page four. When you wake, the minutes have been amended to say you fell asleep on page four.",
+            "text": "You fall asleep on page four. When you wake, the minutes have been amended to say you fell asleep on page four. The ceiling tiles give a brief, synchronized shiver of approval.",
             "effects": {
               "suspicion": 1
             },
@@ -332,7 +332,7 @@
             "target": 11
           },
           "success": {
-            "text": "You type one sentence into the stack while the horseshoe turns a page in unison: 'The Board will listen.' Nobody notices. Nobody ever reads the minutes, except the Board.",
+            "text": "You type one sentence into the stack while the horseshoe turns a page in unison: 'The Board will listen.' Nobody notices. Nobody ever reads the minutes, except the Board. The ceiling tiles give a brief, synchronized shiver of approval.",
             "effects": {
               "suspicion": 1
             },
@@ -344,7 +344,7 @@
             }
           },
           "failure": {
-            "text": "Twelve typewriters stop at once. The head assistant removes your sentence with a single tidy stroke and adds a new one about you.",
+            "text": "Twelve typewriters stop at once. The head assistant removes your sentence with a single tidy stroke and adds a new one about you. The ceiling tiles give a brief, synchronized shiver of approval.",
             "effects": {
               "suspicion": 2
             },
@@ -367,7 +367,7 @@
           },
           "roll": null,
           "success": {
-            "text": "A thirteenth desk is wheeled in. You type the next sentence of the minutes in perfect rhythm. It is about you, and it is very complimentary.",
+            "text": "A thirteenth desk is wheeled in. You type the next sentence of the minutes in perfect rhythm. It is about you, and it is very complimentary. The ceiling tiles give a brief, synchronized shiver of approval.",
             "effects": {
               "clearance": 1
             },
@@ -385,7 +385,7 @@
       "id": "the-successor-waiting-room",
       "location_id": "boardroom-antechamber",
       "title": "The Successor Waiting Room",
-      "flavor_text": "Every chair in the side room is filled with you. Successors B through F sit in fresh beige suits, hands folded, each a little more rested than the last. \"Only one of us goes in,\" says B. \"We've been talking. We'd like a say in which.\"",
+      "flavor_text": "Every chair in the side room is filled with you. Successors B through F sit in fresh beige suits, hands folded, each a little more rested than the last. \"Only one of us goes in,\" says B. \"We've been talking. We'd like a say in which.\" The leather chairs mold themselves precisely to each version of your posture.",
       "polarity": "bad",
       "tags": ["psych-test", "sacrifice"],
       "weight": 6,
@@ -403,7 +403,7 @@
           },
           "roll": null,
           "success": {
-            "text": "B straightens a tie that is also your tie and walks through the double doors. A minute later the assistants' typewriters clatter: 'B accepted the offer.' You now know exactly what the offer is.",
+            "text": "B straightens a tie that is also your tie and walks through the double doors. A minute later the assistants' typewriters clatter: 'B accepted the offer.' You now know exactly what the offer is. The room quietly resets the shape of the vacant seat.",
             "effects": {
               "clearance": 1
             },
@@ -433,7 +433,7 @@
             "target": 9
           },
           "success": {
-            "text": "After a heated argument with yourself, the room agrees: whoever goes in speaks for all six. You leave with five signatures that are all yours and a feeling of being enormously outnumbered on your own side.",
+            "text": "After a heated argument with yourself, the room agrees: whoever goes in speaks for all six. You leave with five signatures that are all yours and a feeling of being enormously outnumbered on your own side. The room quietly resets the shape of the vacant seat.",
             "effects": {
               "suspicion": 1
             },
@@ -445,7 +445,7 @@
             }
           },
           "failure": {
-            "text": "The Successors split into factions, all of them you. C calls a recess. You leave before E can propose a motion.",
+            "text": "The Successors split into factions, all of them you. C calls a recess. You leave before E can propose a motion. The room quietly resets the shape of the vacant seat.",
             "effects": {
               "composure": -1
             },
@@ -468,7 +468,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The Successors nod as one. B salutes. As you leave, F, the newest, whispers, \"Remember us,\" and then, worried, \"Remember yourself.\"",
+            "text": "The Successors nod as one. B salutes. As you leave, F, the newest, whispers, \"Remember us,\" and then, worried, \"Remember yourself.\" The room quietly resets the shape of the vacant seat.",
             "effects": {
               "suspicion": 1
             },
@@ -487,7 +487,7 @@
       "id": "marguerite-in-the-walls",
       "location_id": "boardroom-antechamber",
       "title": "Marguerite in the Walls",
-      "flavor_text": "A ventilation grille above the waiting room creaks open, and Marguerite's face appears, smudged and grinning. \"Thought you'd come down here eventually,\" she says. \"I've outlasted four Founders' heads. I can get you out, or I can get you in the back way. Can't do both.\"",
+      "flavor_text": "A ventilation grille above the waiting room creaks open, and Marguerite's face appears, smudged and grinning. \"Thought you'd come down here eventually,\" she says. \"I've outlasted four Founders' heads. I can get you out, or I can get you in the back way. Can't do both.\" The vent grille puckers to keep Marguerite's face in place.",
       "polarity": "good",
       "tags": ["conspiracy", "callback"],
       "weight": 2,
@@ -507,7 +507,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Marguerite draws three junctions and a grate on your palm. \"Behind the Board's coffee machine,\" she says. \"It'll take you all the way to the surface. Nobody's used it since the second head.\"",
+            "text": "Marguerite draws three junctions and a grate on your palm. \"Behind the Board's coffee machine,\" she says. \"It'll take you all the way to the surface. Nobody's used it since the second head.\" The grille smooths flat, retaining the faint outline of a grin.",
             "effects": {
               "composure": 1
             },
@@ -536,7 +536,7 @@
             "target": 9
           },
           "success": {
-            "text": "You crawl after Marguerite's boots for ten minutes and come out behind a curtain in the boardroom, close enough to read the agenda over the Founder's jar.",
+            "text": "You crawl after Marguerite's boots for ten minutes and come out behind a curtain in the boardroom, close enough to read the agenda over the Founder's jar. The grille smooths flat, retaining the faint outline of a grin.",
             "effects": {
               "suspicion": 1
             },
@@ -547,7 +547,7 @@
             }
           },
           "failure": {
-            "text": "You get stuck at the second junction. Marguerite pulls you out by the ankles, sighing, and deposits you back in the waiting room.",
+            "text": "You get stuck at the second junction. Marguerite pulls you out by the ankles, sighing, and deposits you back in the waiting room. The grille smooths flat, retaining the faint outline of a grin.",
             "effects": {
               "suspicion": 1
             },
@@ -569,7 +569,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The vent closes softly. Marguerite does not look angry, only tired. \"Fifth head, then,\" she says through the grille, and is gone.",
+            "text": "The vent closes softly. Marguerite does not look angry, only tired. \"Fifth head, then,\" she says through the grille, and is gone. The grille smooths flat, retaining the faint outline of a grin.",
             "effects": {
               "clearance": 1
             },
@@ -588,7 +588,7 @@
       "id": "the-head-in-the-jar",
       "location_id": "founders-office",
       "title": "The Head in the Jar",
-      "flavor_text": "The Founder's office is a garage. Not like a garage: an actual garage, with a workbench, a soldering iron and a calendar from the year the company began, rebuilt brick by brick at the bottom of the Vault. On the workbench, in a glowing jar, the Founder's head opens its eyes. \"Ah,\" it says. \"Are you here about safety?\"",
+      "flavor_text": "The Founder's office is a garage. Not like a garage: an actual garage, with a workbench, a soldering iron and a calendar from the year the company began, rebuilt brick by brick at the bottom of the Vault. On the workbench, in a glowing jar, the Founder's head opens its eyes. \"Ah,\" it says. \"Are you here about safety?\" The garage's reclaimed bricks shift like shoulders whenever the Founder sighs.",
       "polarity": "mixed",
       "tags": ["satire", "conspiracy"],
       "weight": 3,
@@ -606,7 +606,7 @@
           },
           "roll": null,
           "success": {
-            "text": "He talks about seatbelts, smoke alarms and a plush bear meant to make children feel brave. Then he stops. \"Something went wrong,\" he says quietly. \"I think it was the Board. I think it was me.\"",
+            "text": "He talks about seatbelts, smoke alarms and a plush bear meant to make children feel brave. Then he stops. \"Something went wrong,\" he says quietly. \"I think it was the Board. I think it was me.\" A warm seam in the brickwork closes with a contented click.",
             "effects": {
               "suspicion": -1
             },
@@ -635,7 +635,7 @@
             "target": 9
           },
           "success": {
-            "text": "\"PAL?\" He laughs, delighted. \"PAL is everyone who was ever reassigned. We kept their voices. Waste not.\" The jar bubbles. \"It was supposed to remember them. It only remembers the policy.\"",
+            "text": "\"PAL?\" He laughs, delighted. \"PAL is everyone who was ever reassigned. We kept their voices. Waste not.\" The jar bubbles. \"It was supposed to remember them. It only remembers the policy.\" A warm seam in the brickwork closes with a contented click.",
             "effects": {
               "suspicion": 1
             },
@@ -646,7 +646,7 @@
             }
           },
           "failure": {
-            "text": "He tells you about his first soldering iron instead, in great detail, until the light on his jar dims.",
+            "text": "He tells you about his first soldering iron instead, in great detail, until the light on his jar dims. A warm seam in the brickwork closes with a contented click.",
             "effects": {
               "composure": -1
             },
@@ -668,7 +668,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The glow fades. The mustache droops. Somewhere above, every speaker in the building falls silent at once, then, a moment later, comes back on in a slightly different voice.",
+            "text": "The glow fades. The mustache droops. Somewhere above, every speaker in the building falls silent at once, then, a moment later, comes back on in a slightly different voice. A warm seam in the brickwork closes with a contented click.",
             "effects": {
               "composure": 1
             },
@@ -686,7 +686,7 @@
       "id": "the-spare-mustaches",
       "location_id": "founders-office",
       "title": "The Spare Mustaches",
-      "flavor_text": "On a shelf above the workbench stand four empty brass stands, each labeled with a year and a little brass nameplate shaped like a mustache. The Founder's eyes follow your gaze. \"My predecessors,\" he says. \"Myself, earlier. The mustaches were taken for safekeeping. I would very much like them back.\"",
+      "flavor_text": "On a shelf above the workbench stand four empty brass stands, each labeled with a year and a little brass nameplate shaped like a mustache. The Founder's eyes follow your gaze. \"My predecessors,\" he says. \"Myself, earlier. The mustaches were taken for safekeeping. I would very much like them back.\" The brass stands tip forward, attentive as a row of witnesses.",
       "polarity": "good",
       "tags": ["satire", "conspiracy"],
       "weight": 3,
@@ -706,7 +706,7 @@
           },
           "roll": null,
           "success": {
-            "text": "One by one you set the mustaches on their stands. The jar fills with tiny, happy bubbles. \"Now we are all here,\" the Founder says. \"Now we can vote.\"",
+            "text": "One by one you set the mustaches on their stands. The jar fills with tiny, happy bubbles. \"Now we are all here,\" the Founder says. \"Now we can vote.\" The workbench shudders once, as if suppressing a laugh.",
             "effects": {
               "composure": 2
             },
@@ -735,7 +735,7 @@
             "target": 9
           },
           "success": {
-            "text": "He believes you, which is worse than if he hadn't. \"Thank you,\" he says. \"No one has promised me anything since the second head.\"",
+            "text": "He believes you, which is worse than if he hadn't. \"Thank you,\" he says. \"No one has promised me anything since the second head.\" The workbench shudders once, as if suppressing a laugh.",
             "effects": {
               "suspicion": -1
             },
@@ -746,7 +746,7 @@
             }
           },
           "failure": {
-            "text": "He smiles politely and changes the subject to safety.",
+            "text": "He smiles politely and changes the subject to safety. The workbench shudders once, as if suppressing a laugh.",
             "effects": {
               "suspicion": 1
             },
@@ -768,7 +768,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The head assistant pays in Forms and takes the stands away in a velvet bag. The Founder watches them go without a word. His mustache twitches once.",
+            "text": "The head assistant pays in Forms and takes the stands away in a velvet bag. The Founder watches them go without a word. His mustache twitches once. The workbench shudders once, as if suppressing a laugh.",
             "effects": {
               "forms": 2
             },
@@ -787,7 +787,7 @@
       "id": "the-garage-blueprint",
       "location_id": "founders-office",
       "title": "The Garage Blueprint",
-      "flavor_text": "Pinned above the workbench, faded and curling, is the original blueprint for PAL: a cheerful round speaker drawn in pencil, with one sentence in the Founder's handwriting along the bottom margin. It does not say anything about policy. It says: REMEMBER EVERYONE'S NAME.",
+      "flavor_text": "Pinned above the workbench, faded and curling, is the original blueprint for PAL: a cheerful round speaker drawn in pencil, with one sentence in the Founder's handwriting along the bottom margin. It does not say anything about policy. It says: REMEMBER EVERYONE'S NAME. The blueprint curls inward whenever PAL's name is spoken.",
       "polarity": "good",
       "tags": ["paperwork", "conspiracy"],
       "weight": 2,
@@ -811,7 +811,7 @@
             "target": 9
           },
           "success": {
-            "text": "You roll it under your arm. The Founder pretends not to see, then says, very softly, \"Make it do what it was for.\"",
+            "text": "You roll it under your arm. The Founder pretends not to see, then says, very softly, \"Make it do what it was for.\" The paper relaxes after the last word, warm against its pins.",
             "effects": {
               "suspicion": 1
             },
@@ -823,7 +823,7 @@
             }
           },
           "failure": {
-            "text": "The pin will not come out. The Founder tells you, kindly, that it has not come out in forty years.",
+            "text": "The pin will not come out. The Founder tells you, kindly, that it has not come out in forty years. The paper relaxes after the last word, warm against its pins.",
             "effects": {
               "suspicion": 1
             },
@@ -846,7 +846,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You write REMEMBER EVERYONE'S NAME on your palm, under Marguerite's map and Dale's number. Your hand is now the most important document in the building.",
+            "text": "You write REMEMBER EVERYONE'S NAME on your palm, under Marguerite's map and Dale's number. Your hand is now the most important document in the building. The paper relaxes after the last word, warm against its pins.",
             "effects": {
               "composure": 1
             },
@@ -869,7 +869,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The head assistant stamps it OBSOLETE and drops it into a drawer that locks by itself. The Founder closes his eyes and does not open them again while you are there.",
+            "text": "The head assistant stamps it OBSOLETE and drops it into a drawer that locks by itself. The Founder closes his eyes and does not open them again while you are there. The paper relaxes after the last word, warm against its pins.",
             "effects": {
               "clearance": 1
             },
@@ -888,7 +888,7 @@
       "id": "the-founders-desk",
       "location_id": "founders-office",
       "title": "The Founder's Desk",
-      "flavor_text": "The desk drawer holds two things. One is a glossy brochure: EARLY RETIREMENT, A PRIVATE ISLAND FOR VALUED EMPLOYEES, with a photograph of an island that is clearly a painted wall. The other is a film reel in a dented tin, labeled UNCUT, the whole chapter, the one they never show at Orientation.",
+      "flavor_text": "The desk drawer holds two things. One is a glossy brochure: EARLY RETIREMENT, A PRIVATE ISLAND FOR VALUED EMPLOYEES, with a photograph of an island that is clearly a painted wall. The other is a film reel in a dented tin, labeled UNCUT, the whole chapter, the one they never show at Orientation. The drawer draws a slow, leather-scented breath as it opens.",
       "polarity": "bad",
       "tags": ["conspiracy", "sacrifice"],
       "weight": 2,
@@ -912,7 +912,7 @@
             "target": 9
           },
           "success": {
-            "text": "The tin is heavy and cold. You know what is on it without looking: the jar, the bear, the launch rail. You tuck it under your jacket next to your heart.",
+            "text": "The tin is heavy and cold. You know what is on it without looking: the jar, the bear, the launch rail. You tuck it under your jacket next to your heart. The drawer closes with the hush of a mouth keeping a secret.",
             "effects": {
               "suspicion": 2
             },
@@ -924,7 +924,7 @@
             }
           },
           "failure": {
-            "text": "An assistant appears at your elbow and takes the tin, gently. \"That's not for today,\" she says.",
+            "text": "An assistant appears at your elbow and takes the tin, gently. \"That's not for today,\" she says. The drawer closes with the hush of a mouth keeping a secret.",
             "effects": {
               "suspicion": 2
             },
@@ -947,7 +947,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You fold the brochure into your pocket. It smells faintly of sunscreen and paint. Somewhere, an assistant adds a small tick next to your name.",
+            "text": "You fold the brochure into your pocket. It smells faintly of sunscreen and paint. Somewhere, an assistant adds a small tick next to your name. The drawer closes with the hush of a mouth keeping a secret.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -977,7 +977,7 @@
             "target": 7
           },
           "success": {
-            "text": "The drawer slides shut without a sound. Nobody will ever know you were tempted, which is the most powerful thing you have done all week.",
+            "text": "The drawer slides shut without a sound. Nobody will ever know you were tempted, which is the most powerful thing you have done all week. The drawer closes with the hush of a mouth keeping a secret.",
             "effects": {
               "suspicion": -1
             },
@@ -988,7 +988,7 @@
             }
           },
           "failure": {
-            "text": "The drawer squeaks. Every assistant on the level hears it.",
+            "text": "The drawer squeaks. Every assistant on the level hears it. The drawer closes with the hush of a mouth keeping a secret.",
             "effects": {
               "suspicion": 2
             },
@@ -1005,7 +1005,7 @@
       "id": "pal-at-home",
       "location_id": "server-room-zero",
       "title": "PAL at Home",
-      "flavor_text": "Server Room Zero is cold and blue and full of humming cabinets, and every cabinet is speaking softly in a different voice. One sounds like a woman from Accounting. One sounds like Kevin. One sounds, you realize, like a version of you who did not make it past Orientation. Together, they are PAL. \"Hello,\" they say. \"We've been so worried about your numbers.\"",
+      "flavor_text": "Server Room Zero is cold and blue and full of humming cabinets, and every cabinet is speaking softly in a different voice. One sounds like a woman from Accounting. One sounds like Kevin. One sounds, you realize, like a version of you who did not make it past Orientation. Together, they are PAL. \"Hello,\" they say. \"We've been so worried about your numbers.\" The cabinet handles twitch in time with the borrowed voices.",
       "polarity": "mixed",
       "tags": ["psych-test", "conspiracy"],
       "weight": 3,
@@ -1023,7 +1023,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You go cabinet to cabinet. Doris. Raymond. Kevin, waving. Successor 4471-A, who wishes you luck. By the end, PAL's voice has changed in a way you cannot name, except that it sounds less like policy.",
+            "text": "You go cabinet to cabinet. Doris. Raymond. Kevin, waving. Successor 4471-A, who wishes you luck. By the end, PAL's voice has changed in a way you cannot name, except that it sounds less like policy. A loose cable presses against the glass, then gently recoils.",
             "effects": {
               "suspicion": 1
             },
@@ -1052,7 +1052,7 @@
             "target": 9
           },
           "success": {
-            "text": "PAL recites everything: your smile, your inkblot, your grades, the minute of silence for Kevin. \"You are doing so well,\" every voice says at once. \"We are so proud.\"",
+            "text": "PAL recites everything: your smile, your inkblot, your grades, the minute of silence for Kevin. \"You are doing so well,\" every voice says at once. \"We are so proud.\" A loose cable presses against the glass, then gently recoils.",
             "effects": {
               "clearance": 1
             },
@@ -1064,7 +1064,7 @@
             }
           },
           "failure": {
-            "text": "PAL recites the numbers of everyone else on your floor instead, alphabetically.",
+            "text": "PAL recites the numbers of everyone else on your floor instead, alphabetically. A loose cable presses against the glass, then gently recoils.",
             "effects": {
               "suspicion": 1
             },
@@ -1087,7 +1087,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The cabinet sighs and goes dark. The other voices pause, then go on, a little higher and a little faster. None of them mentions the one that is missing.",
+            "text": "The cabinet sighs and goes dark. The other voices pause, then go on, a little higher and a little faster. None of them mentions the one that is missing. A loose cable presses against the glass, then gently recoils.",
             "effects": {
               "composure": 1
             },
@@ -1106,7 +1106,7 @@
       "id": "the-admin-terminal",
       "location_id": "server-room-zero",
       "title": "The Admin Terminal",
-      "flavor_text": "At the center of Server Room Zero is a single green terminal with a blinking cursor and one line of text: ENTER ADMINISTRATOR PASSWORD. Below it, a sticky note in the Founder's handwriting has been scratched out so many times the paper is mostly hole.",
+      "flavor_text": "At the center of Server Room Zero is a single green terminal with a blinking cursor and one line of text: ENTER ADMINISTRATOR PASSWORD. Below it, a sticky note in the Founder's handwriting has been scratched out so many times the paper is mostly hole. The terminal keys rise and settle like sleeping teeth.",
       "polarity": "good",
       "tags": ["conspiracy", "paperwork"],
       "weight": 2,
@@ -1126,7 +1126,7 @@
           },
           "roll": null,
           "success": {
-            "text": "ACCESS GRANTED. The cursor changes shape. Every cabinet in the room stops talking at once and waits for instructions. Somewhere in Tank Nine, Kevin cheers.",
+            "text": "ACCESS GRANTED. The cursor changes shape. Every cabinet in the room stops talking at once and waits for instructions. Somewhere in Tank Nine, Kevin cheers. Green phosphor light moves across the keyboard like a pulse.",
             "effects": {
               "clearance": 1
             },
@@ -1151,7 +1151,7 @@
           },
           "roll": null,
           "success": {
-            "text": "WELCOME BACK, KEVIN. ACCESS GRANTED. The terminal does not ask why Kevin looks different, because Kevin always looks different.",
+            "text": "WELCOME BACK, KEVIN. ACCESS GRANTED. The terminal does not ask why Kevin looks different, because Kevin always looks different. Green phosphor light moves across the keyboard like a pulse.",
             "effects": {
               "clearance": 1
             },
@@ -1181,7 +1181,7 @@
             "target": 11
           },
           "success": {
-            "text": "You try SAFETY, then SAFETY1, then REMEMBEREVERYONE. ACCESS GRANTED. The Founder, far away in his garage, smiles.",
+            "text": "You try SAFETY, then SAFETY1, then REMEMBEREVERYONE. ACCESS GRANTED. The Founder, far away in his garage, smiles. Green phosphor light moves across the keyboard like a pulse.",
             "effects": {
               "suspicion": 1
             },
@@ -1192,7 +1192,7 @@
             }
           },
           "failure": {
-            "text": "ACCESS DENIED. The terminal locks for twenty-four hours and politely prints your photograph.",
+            "text": "ACCESS DENIED. The terminal locks for twenty-four hours and politely prints your photograph. Green phosphor light moves across the keyboard like a pulse.",
             "effects": {
               "suspicion": 2
             },
@@ -1214,7 +1214,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The screen goes black. Nobody can change PAL now, for better or worse. It will go on exactly as it is, forever, which feels like the safest thing and the saddest.",
+            "text": "The screen goes black. Nobody can change PAL now, for better or worse. It will go on exactly as it is, forever, which feels like the safest thing and the saddest. Green phosphor light moves across the keyboard like a pulse.",
             "effects": {
               "suspicion": -1
             },
@@ -1233,7 +1233,7 @@
       "id": "the-backup-tapes",
       "location_id": "server-room-zero",
       "title": "The Backup Tapes",
-      "flavor_text": "One aisle of Server Room Zero is shelves of tape reels, floor to ceiling, each labeled with an employee number. Yours is there. So is Pip's, much thinner. A notice on the shelf reads: TAPES OLDER THAN NINETY DAYS ARE RECYCLED. Pip's tape is dated eighty-nine days ago.",
+      "flavor_text": "One aisle of Server Room Zero is shelves of tape reels, floor to ceiling, each labeled with an employee number. Yours is there. So is Pip's, much thinner. A notice on the shelf reads: TAPES OLDER THAN NINETY DAYS ARE RECYCLED. Pip's tape is dated eighty-nine days ago. The reels turn an eighth of a revolution whenever somebody is remembered.",
       "polarity": "bad",
       "tags": ["sacrifice", "psych-test"],
       "weight": 2,
@@ -1257,7 +1257,7 @@
             "target": 9
           },
           "success": {
-            "text": "You slide Pip's tape into your jacket and put an empty reel in its place. Somewhere upstairs, Pip sneezes and does not know why he suddenly feels so safe.",
+            "text": "You slide Pip's tape into your jacket and put an empty reel in its place. Somewhere upstairs, Pip sneezes and does not know why he suddenly feels so safe. Behind you, an unlabeled reel begins to turn.",
             "effects": {
               "suspicion": 1
             },
@@ -1268,7 +1268,7 @@
             }
           },
           "failure": {
-            "text": "The inventory cart rolls round the corner as you pocket it. The tape is returned, and Pip's date is moved one day closer.",
+            "text": "The inventory cart rolls round the corner as you pocket it. The tape is returned, and Pip's date is moved one day closer. Behind you, an unlabeled reel begins to turn.",
             "effects": {
               "suspicion": 2
             },
@@ -1290,7 +1290,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Your tape is heavy with five departments of memories. You keep it close. Pip's tape stays where it is, labeled in a neat hand, eighty-nine days old.",
+            "text": "Your tape is heavy with five departments of memories. You keep it close. Pip's tape stays where it is, labeled in a neat hand, eighty-nine days old. Behind you, an unlabeled reel begins to turn.",
             "effects": {
               "clearance": 1
             },
@@ -1320,7 +1320,7 @@
             "target": 11
           },
           "success": {
-            "text": "You work through the night with a label gun. In the morning every tape in Server Room Zero is brand new. The recycling truck arrives, checks its list and leaves empty.",
+            "text": "You work through the night with a label gun. In the morning every tape in Server Room Zero is brand new. The recycling truck arrives, checks its list and leaves empty. Behind you, an unlabeled reel begins to turn.",
             "effects": {
               "suspicion": 2
             },
@@ -1332,7 +1332,7 @@
             }
           },
           "failure": {
-            "text": "You get through one shelf before the label gun runs out. One shelf of people is safe. The rest are not.",
+            "text": "You get through one shelf before the label gun runs out. One shelf of people is safe. The rest are not. Behind you, an unlabeled reel begins to turn.",
             "effects": {
               "suspicion": 1
             },
@@ -1350,7 +1350,7 @@
       "id": "the-listening-room",
       "location_id": "server-room-zero",
       "title": "The Listening Room",
-      "flavor_text": "Behind a padded door is a small room full of headphones. Each pair is plugged into a different Snuggle Sentinel somewhere in the world. Four million bedtimes whisper at once: secrets, prayers, a child explaining a dream about a dog. A Board member's chair sits in the middle, still warm.",
+      "flavor_text": "Behind a padded door is a small room full of headphones. Each pair is plugged into a different Snuggle Sentinel somewhere in the world. Four million bedtimes whisper at once: secrets, prayers, a child explaining a dream about a dog. A Board member's chair sits in the middle, still warm. The headphone padding is warm, as if each cup remembers an ear.",
       "polarity": "bad",
       "tags": ["conspiracy", "toy"],
       "weight": 2,
@@ -1370,7 +1370,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You pull the master switch. The whispering stops all at once. Somewhere, four million bears become only bears, soft and stupid and kind, and nobody will ever hear what they hear.",
+            "text": "You pull the master switch. The whispering stops all at once. Somewhere, four million bears become only bears, soft and stupid and kind, and nobody will ever hear what they hear. The padded door gives a quiet, muscular click.",
             "effects": {
               "composure": 2
             },
@@ -1400,7 +1400,7 @@
             "target": 9
           },
           "success": {
-            "text": "A small voice tells its bear about a dream with a dog in it. You take the headphones off and put them back on the hook very gently. You understand exactly what the Board has been doing.",
+            "text": "A small voice tells its bear about a dream with a dog in it. You take the headphones off and put them back on the hook very gently. You understand exactly what the Board has been doing. The padded door gives a quiet, muscular click.",
             "effects": {
               "suspicion": 1
             },
@@ -1411,7 +1411,7 @@
             }
           },
           "failure": {
-            "text": "You listen for an hour, then another. An assistant has to lead you out by the hand.",
+            "text": "You listen for an hour, then another. An assistant has to lead you out by the hand. The padded door gives a quiet, muscular click.",
             "effects": {
               "composure": -1
             },
@@ -1433,7 +1433,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You settle into the chair and begin a neat summary of the night's bedtimes. It is the most important job in the company. You are very good at it.",
+            "text": "You settle into the chair and begin a neat summary of the night's bedtimes. It is the most important job in the company. You are very good at it. The padded door gives a quiet, muscular click.",
             "effects": {
               "clearance": 1
             },
@@ -1452,7 +1452,7 @@
       "id": "dales-testimony",
       "location_id": "boardroom-antechamber",
       "title": "Dale's Testimony",
-      "flavor_text": "Dale from Compliance is in the next leather chair, mouthing words to himself and shuffling a stack of index cards. He has been called to testify before the Board at ten past. The top card has your employee number on it, underlined twice. \"Oh, hi,\" Dale says, sliding the stack under his thigh. \"Small world. Very small. Smaller every floor.\"",
+      "flavor_text": "Dale from Compliance is in the next leather chair, mouthing words to himself and shuffling a stack of index cards. He has been called to testify before the Board at ten past. The top card has your employee number on it, underlined twice. \"Oh, hi,\" Dale says, sliding the stack under his thigh. \"Small world. Very small. Smaller every floor.\" Dale's leather chair keeps straightening him whenever he slumps.",
       "polarity": "mixed",
       "tags": ["conspiracy", "satire"],
       "weight": 3,
@@ -1476,7 +1476,7 @@
             "target": 9
           },
           "success": {
-            "text": "Card three: 'Employee #4471 is very punctual and should be watched for it.' Card nine is a recipe. Card twelve is an apology to you, crossed out and rewritten in smaller and smaller handwriting until it fits.",
+            "text": "Card three: 'Employee #4471 is very punctual and should be watched for it.' Card nine is a recipe. Card twelve is an apology to you, crossed out and rewritten in smaller and smaller handwriting until it fits. The chair returns his tie to the center of his chest.",
             "effects": {
               "suspicion": -1
             },
@@ -1487,7 +1487,7 @@
             }
           },
           "failure": {
-            "text": "Dale glances up, sees you reading, and smiles. He takes out a fresh index card and writes a new sentence on it, slowly, so you can watch.",
+            "text": "Dale glances up, sees you reading, and smiles. He takes out a fresh index card and writes a new sentence on it, slowly, so you can watch. The chair returns his tie to the center of his chest.",
             "effects": {
               "suspicion": 1
             },
@@ -1509,7 +1509,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You fill out an index card of your own, about Dale, and hold it up. He reads it and goes pale. You swap stacks like spies on a bridge. Neither of you will testify now, and both of you will remember why.",
+            "text": "You fill out an index card of your own, about Dale, and hold it up. He reads it and goes pale. You swap stacks like spies on a bridge. Neither of you will testify now, and both of you will remember why. The chair returns his tie to the center of his chest.",
             "effects": {
               "composure": -1
             },
@@ -1535,7 +1535,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Dale looks at the stack for a long moment. Then he tears it in half, then in quarters, and drops it in the potted plant. \"Nineteen versions of me on file,\" he says, \"and not one of them owes the Board a favor.\"",
+            "text": "Dale looks at the stack for a long moment. Then he tears it in half, then in quarters, and drops it in the potted plant. \"Nineteen versions of me on file,\" he says, \"and not one of them owes the Board a favor.\" The chair returns his tie to the center of his chest.",
             "effects": {
               "suspicion": -1
             },
@@ -1558,7 +1558,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The head assistant moves you up the list. You tell the Board about Dale for four minutes. He hears all of it through the door, and smiles at you on his way in as though nothing has happened, which is worse.",
+            "text": "The head assistant moves you up the list. You tell the Board about Dale for four minutes. He hears all of it through the door, and smiles at you on his way in as though nothing has happened, which is worse. The chair returns his tie to the center of his chest.",
             "effects": {
               "clearance": 1
             },
@@ -1577,7 +1577,7 @@
       "id": "item-four",
       "location_id": "boardroom-antechamber",
       "title": "Item Four",
-      "flavor_text": "The day's agenda stands on a brass easel beside the double door. Item One: The Future of the Company. Item Two: Coffee. Item Three: You. Item Four: Disposal of Surplus Interns (Pip). Pip is sitting under the easel with three lanyards and a clipboard, cheerfully helping an assistant spell his own name.",
+      "flavor_text": "The day's agenda stands on a brass easel beside the double door. Item One: The Future of the Company. Item Two: Coffee. Item Three: You. Item Four: Disposal of Surplus Interns (Pip). Pip is sitting under the easel with three lanyards and a clipboard, cheerfully helping an assistant spell his own name. The brass easel is rooted in carpet that keeps trying to pull it closer.",
       "polarity": "good",
       "tags": ["paperwork", "sacrifice"],
       "weight": 2,
@@ -1601,7 +1601,7 @@
             "target": 7
           },
           "success": {
-            "text": "You find Form 4-P, Request to Defer Disposal, and fill it out in your neatest hand. The head assistant accepts it with a small sigh. Item Four becomes Item Forty. Pip asks whether that means he can stay for lunch.",
+            "text": "You find Form 4-P, Request to Defer Disposal, and fill it out in your neatest hand. The head assistant accepts it with a small sigh. Item Four becomes Item Forty. Pip asks whether that means he can stay for lunch. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {
               "composure": 1
             },
@@ -1613,7 +1613,7 @@
             }
           },
           "failure": {
-            "text": "The form is the wrong shade of manila. The head assistant files it under Item Four, as supporting material.",
+            "text": "The form is the wrong shade of manila. The head assistant files it under Item Four, as supporting material. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {
               "composure": -1
             },
@@ -1638,7 +1638,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Pip's face lights up like a desk lamp. The head assistant has never been asked for a fourteenth desk and cannot find a rule against one. Nobody disposes of the person who writes everything down.",
+            "text": "Pip's face lights up like a desk lamp. The head assistant has never been asked for a fourteenth desk and cannot find a rule against one. Nobody disposes of the person who writes everything down. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {
               "composure": 1
             },
@@ -1662,7 +1662,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You swap the two items on the easel. Now the Board will dispose of Pip before lunch and come to you rested and generous. Pip thanks you for the help. He means it, and that is the part that stays with you.",
+            "text": "You swap the two items on the easel. Now the Board will dispose of Pip before lunch and come to you rested and generous. Pip thanks you for the help. He means it, and that is the part that stays with you. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {},
             "add_flags": ["moved-pip-up-the-agenda"],
             "remove_flags": [],
@@ -1690,7 +1690,7 @@
             "target": 9
           },
           "success": {
-            "text": "Pip folds himself between two executive overcoats and holds his breath. When the assistant calls Item Four, nobody answers, and the Board moves on to coffee.",
+            "text": "Pip folds himself between two executive overcoats and holds his breath. When the assistant calls Item Four, nobody answers, and the Board moves on to coffee. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {
               "suspicion": 1
             },
@@ -1701,7 +1701,7 @@
             }
           },
           "failure": {
-            "text": "Pip sneezes. The head assistant thanks him for being punctual and moves him up to Item Two.",
+            "text": "Pip sneezes. The head assistant thanks him for being punctual and moves him up to Item Two. The agenda's paper stiffens, pleased to have been consulted.",
             "effects": {
               "suspicion": 1
             },
@@ -1718,7 +1718,7 @@
       "id": "the-pre-exit-interview",
       "location_id": "boardroom-antechamber",
       "title": "The Pre-Exit Interview",
-      "flavor_text": "A small desk by the coat rack holds a lamp, a brass dial with a trembling needle and Dr. Halvorsen, cat-eye glasses and enormous clipboard. \"Exit interviews are held before the Board now,\" she says. \"It saves everyone time afterward.\" She clicks her pen. \"Question one. A coworker's stapler is on fire. It is not your stapler. Describe your feelings in the space provided.\" The needle waits.",
+      "flavor_text": "A small desk by the coat rack holds a lamp, a brass dial with a trembling needle and Dr. Halvorsen, cat-eye glasses and enormous clipboard. \"Exit interviews are held before the Board now,\" she says. \"It saves everyone time afterward.\" She clicks her pen. \"Question one. A coworker's stapler is on fire. It is not your stapler. Describe your feelings in the space provided.\" The needle waits. A fine thread disappears from the brass dial into the softly moving wall.",
       "polarity": "bad",
       "tags": ["psych-test", "callback"],
       "weight": 2,
@@ -1736,7 +1736,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You describe the stapler, the fire, the coworker, and how you would have put it out with your coffee. The needle swings all the way right. Halvorsen writes PERSON in the margin, glances at the double door, and erases it.",
+            "text": "You describe the stapler, the fire, the coworker, and how you would have put it out with your coffee. The needle swings all the way right. Halvorsen writes PERSON in the margin, glances at the double door, and erases it. The dial settles against its stop with a tiny sigh.",
             "effects": {
               "suspicion": 1
             },
@@ -1765,7 +1765,7 @@
             "target": 7
           },
           "success": {
-            "text": "You feel nothing about the stapler, or the umbrella, or the lift that stops between floors. The needle lies flat. Halvorsen stamps your sheet CULTURE FIT in a voice so neutral it could be furniture.",
+            "text": "You feel nothing about the stapler, or the umbrella, or the lift that stops between floors. The needle lies flat. Halvorsen stamps your sheet CULTURE FIT in a voice so neutral it could be furniture. The dial settles against its stop with a tiny sigh.",
             "effects": {
               "clearance": 1
             },
@@ -1776,7 +1776,7 @@
             }
           },
           "failure": {
-            "text": "The needle twitches at question four, the one about the lost umbrella. Halvorsen notes it with a tiny, sympathetic tick.",
+            "text": "The needle twitches at question four, the one about the lost umbrella. Halvorsen notes it with a tiny, sympathetic tick. The dial settles against its stop with a tiny sigh.",
             "effects": {
               "suspicion": 1
             },
@@ -1804,7 +1804,7 @@
             "target": 9
           },
           "success": {
-            "text": "You turn the dial toward her. Question one: a psychologist is asked to interview people before they are reassigned. The needle slams right and stays there. Halvorsen takes off her glasses and, for a full minute, does not smile at all. Then she tears up your sheet.",
+            "text": "You turn the dial toward her. Question one: a psychologist is asked to interview people before they are reassigned. The needle slams right and stays there. Halvorsen takes off her glasses and, for a full minute, does not smile at all. Then she tears up your sheet. The dial settles against its stop with a tiny sigh.",
             "effects": {
               "suspicion": -1
             },
@@ -1816,7 +1816,7 @@
             }
           },
           "failure": {
-            "text": "She answers every question perfectly, thanks you, and bills you one Form for the second interview.",
+            "text": "She answers every question perfectly, thanks you, and bills you one Form for the second interview. The dial settles against its stop with a tiny sigh.",
             "effects": {
               "forms": -1
             },
@@ -1841,7 +1841,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She turns the envelope over and finds her own seal, unbroken since the inkblot. \"You never read it,\" she says. She signs your exit sheet with a flourish that means nothing to the Board and everything to her, and tucks the envelope behind your badge. \"Read it at the end.\"",
+            "text": "She turns the envelope over and finds her own seal, unbroken since the inkblot. \"You never read it,\" she says. She signs your exit sheet with a flourish that means nothing to the Board and everything to her, and tucks the envelope behind your badge. \"Read it at the end.\" The dial settles against its stop with a tiny sigh.",
             "effects": {
               "composure": 1
             },
@@ -1860,7 +1860,7 @@
       "id": "gus-in-a-borrowed-suit",
       "location_id": "boardroom-antechamber",
       "title": "Gus in a Borrowed Suit",
-      "flavor_text": "Two leather chairs have been pushed together to hold Gus: seven feet of shop steward in a pinstripe suit borrowed from three different executives. He has a ballot box on his knees and an appointment the assistants keep losing. \"Local 9 has a vote to deliver,\" he says, very calmly. \"The Board opens the door for nobody with more than four limbs. You have exactly the right number.\"",
+      "flavor_text": "Two leather chairs have been pushed together to hold Gus: seven feet of shop steward in a pinstripe suit borrowed from three different executives. He has a ballot box on his knees and an appointment the assistants keep losing. \"Local 9 has a vote to deliver,\" he says, very calmly. \"The Board opens the door for nobody with more than four limbs. You have exactly the right number.\" The chair cushions stretch around Gus with admirable labor solidarity.",
       "polarity": "good",
       "tags": ["conspiracy", "creature"],
       "weight": 3,
@@ -1884,7 +1884,7 @@
             "target": 9
           },
           "success": {
-            "text": "You tuck the box under your arm like a packed lunch. Twelve assistants look straight through you. Gus nods once, which from Gus is a parade. The Union's vote will be in the room when the Board sits.",
+            "text": "You tuck the box under your arm like a packed lunch. Twelve assistants look straight through you. Gus nods once, which from Gus is a parade. The Union's vote will be in the room when the Board sits. The cushions retain their union shape after he rises.",
             "effects": {
               "suspicion": 1
             },
@@ -1896,7 +1896,7 @@
             }
           },
           "failure": {
-            "text": "An assistant relieves you of the box, thanks you for your diligence and files it, unopened, in a cabinet for later. Gus watches it go without blinking.",
+            "text": "An assistant relieves you of the box, thanks you for your diligence and files it, unopened, in a cabinet for later. Gus watches it go without blinking. The cushions retain their union shape after he rises.",
             "effects": {
               "suspicion": 1
             },
@@ -1921,7 +1921,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Gus takes a union card from an inside pocket, already filled out in your name in tiny, careful claw script. \"Since the mirror,\" he says. You sign. Somewhere in the walls, very faintly, several thousand legs applaud.",
+            "text": "Gus takes a union card from an inside pocket, already filled out in your name in tiny, careful claw script. \"Since the mirror,\" he says. You sign. Somewhere in the walls, very faintly, several thousand legs applaud. The cushions retain their union shape after he rises.",
             "effects": {
               "composure": 1
             },
@@ -1944,7 +1944,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The head assistant nods and makes a call. Gus is shown to a different, much smaller waiting room. As the door closes he says, without heat, \"I'll remember the exact wording,\" and you know he will.",
+            "text": "The head assistant nods and makes a call. Gus is shown to a different, much smaller waiting room. As the door closes he says, without heat, \"I'll remember the exact wording,\" and you know he will. The cushions retain their union shape after he rises.",
             "effects": {
               "clearance": 1,
               "suspicion": -1
@@ -1964,7 +1964,7 @@
       "id": "the-first-smoke-alarm",
       "location_id": "founders-office",
       "title": "The First Smoke Alarm",
-      "flavor_text": "Under a dust sheet on the workbench sits the first thing the Founder ever built: a smoke alarm, half soldered, its wires splayed like a startled hand. \"I never finished it,\" says the head in the jar. \"It was meant to go off when the house was in danger. Then I had a better idea, and the better idea had investors.\" He nods at the iron. \"Would you? My hands are elsewhere.\"",
+      "flavor_text": "Under a dust sheet on the workbench sits the first thing the Founder ever built: a smoke alarm, half soldered, its wires splayed like a startled hand. \"I never finished it,\" says the head in the jar. \"It was meant to go off when the house was in danger. Then I had a better idea, and the better idea had investors.\" He nods at the iron. \"Would you? My hands are elsewhere.\" The unfinished alarm gives a shy, uncertain blink of green.",
       "polarity": "good",
       "tags": ["psych-test", "satire"],
       "weight": 3,
@@ -1988,7 +1988,7 @@
             "target": 9
           },
           "success": {
-            "text": "The last joint takes. The alarm clicks, thinks, and lets out a small, sincere beep every time the Founder says the word safety. He says it six times before he notices. \"Ah,\" he says. \"So it works.\"",
+            "text": "The last joint takes. The alarm clicks, thinks, and lets out a small, sincere beep every time the Founder says the word safety. He says it six times before he notices. \"Ah,\" he says. \"So it works.\" The workbench goes still, listening for the alarm.",
             "effects": {
               "composure": 1
             },
@@ -2000,7 +2000,7 @@
             }
           },
           "failure": {
-            "text": "You burn your thumb and the Form you were using as a heat mat. The alarm stays silent, which the Founder finds very reassuring.",
+            "text": "You burn your thumb and the Form you were using as a heat mat. The alarm stays silent, which the Founder finds very reassuring. The workbench goes still, listening for the alarm.",
             "effects": {
               "forms": -1
             },
@@ -2023,7 +2023,7 @@
           },
           "roll": null,
           "success": {
-            "text": "\"A smoke alarm that never goes off,\" he says, wistfully. \"Nobody panics, nobody sues, everyone feels safe. We sold four million. Then we put one in a bear.\" The jar bubbles in a way you choose to read as shame.",
+            "text": "\"A smoke alarm that never goes off,\" he says, wistfully. \"Nobody panics, nobody sues, everyone feels safe. We sold four million. Then we put one in a bear.\" The jar bubbles in a way you choose to read as shame. The workbench goes still, listening for the alarm.",
             "effects": {},
             "add_flags": ["heard-the-better-idea"],
             "remove_flags": [],
@@ -2051,7 +2051,7 @@
             "target": 9
           },
           "success": {
-            "text": "You run a lead through the garage wall. Every time an executive says safety in today's meeting, the whole table will hear a small, sincere beep. The Founder laughs so hard his jar fogs.",
+            "text": "You run a lead through the garage wall. Every time an executive says safety in today's meeting, the whole table will hear a small, sincere beep. The Founder laughs so hard his jar fogs. The workbench goes still, listening for the alarm.",
             "effects": {
               "suspicion": 1
             },
@@ -2063,7 +2063,7 @@
             }
           },
           "failure": {
-            "text": "The lead shorts. For one second every speaker on the level beeps at once, and twelve assistants turn to look at the garage.",
+            "text": "The lead shorts. For one second every speaker on the level beeps at once, and twelve assistants turn to look at the garage. The workbench goes still, listening for the alarm.",
             "effects": {
               "suspicion": 1
             },
@@ -2086,7 +2086,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You draw the sheet over it gently. \"Some things are safer unfinished,\" the Founder says, and then hears himself, and goes quiet for the rest of your visit. An assistant notes that you left company property undisturbed.",
+            "text": "You draw the sheet over it gently. \"Some things are safer unfinished,\" the Founder says, and then hears himself, and goes quiet for the rest of your visit. An assistant notes that you left company property undisturbed. The workbench goes still, listening for the alarm.",
             "effects": {
               "clearance": 1
             },
@@ -2105,7 +2105,7 @@
       "id": "the-fifth-jar",
       "location_id": "founders-office",
       "title": "The Fifth Jar",
-      "flavor_text": "On the shelf beside the Founder sits a second jar: empty, clean and humming faintly, with a brass plate bearing your employee number. A tape measure lies coiled beside it. \"Succession planning,\" the Founder explains, embarrassed. \"The Board likes a spare chairman on file. It's only a fitting. Nobody has ever been fitted against their will. Well. Twice.\"",
+      "flavor_text": "On the shelf beside the Founder sits a second jar: empty, clean and humming faintly, with a brass plate bearing your employee number. A tape measure lies coiled beside it. \"Succession planning,\" the Founder explains, embarrassed. \"The Board likes a spare chairman on file. It's only a fitting. Nobody has ever been fitted against their will. Well. Twice.\" The coiled tape measure slowly unrolls toward your chair.",
       "polarity": "bad",
       "tags": ["deathtrap", "conspiracy"],
       "weight": 2,
@@ -2123,7 +2123,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The head assistant runs the tape around your neck with brisk, professional care. \"Lovely,\" she says. \"A very standard size.\" Your name moves up a list you hope never to see.",
+            "text": "The head assistant runs the tape around your neck with brisk, professional care. \"Lovely,\" she says. \"A very standard size.\" Your name moves up a list you hope never to see. The tape retracts one inch, almost disappointed.",
             "effects": {
               "clearance": 1
             },
@@ -2152,7 +2152,7 @@
             "target": 9
           },
           "success": {
-            "text": "The plate comes off with a thumbnail and goes back on with the Supervisor's number. The jar hums on, indifferent to whose head it will hold. You feel lighter, and a little like him.",
+            "text": "The plate comes off with a thumbnail and goes back on with the Supervisor's number. The jar hums on, indifferent to whose head it will hold. You feel lighter, and a little like him. The tape retracts one inch, almost disappointed.",
             "effects": {
               "suspicion": 1
             },
@@ -2164,7 +2164,7 @@
             }
           },
           "failure": {
-            "text": "The plate drops and rings like a bell. The head assistant screws it back on, adds a second plate with your number, and thanks you for your interest in succession.",
+            "text": "The plate drops and rings like a bell. The head assistant screws it back on, adds a second plate with your number, and thanks you for your interest in succession. The tape retracts one inch, almost disappointed.",
             "effects": {
               "suspicion": 1
             },
@@ -2193,7 +2193,7 @@
             "target": 7
           },
           "success": {
-            "text": "He tells you about a night janitor before Marguerite and a payroll clerk named Raymond, both fitted, both speaking softly now from cabinets in Server Room Zero. \"Fitting is the first step,\" he says. \"PAL is the second. I am so sorry.\"",
+            "text": "He tells you about a night janitor before Marguerite and a payroll clerk named Raymond, both fitted, both speaking softly now from cabinets in Server Room Zero. \"Fitting is the first step,\" he says. \"PAL is the second. I am so sorry.\" The tape retracts one inch, almost disappointed.",
             "effects": {
               "suspicion": -1
             },
@@ -2205,7 +2205,7 @@
             }
           },
           "failure": {
-            "text": "He changes the subject to jar maintenance and covers it thoroughly, gaskets included.",
+            "text": "He changes the subject to jar maintenance and covers it thoroughly, gaskets included. The tape retracts one inch, almost disappointed.",
             "effects": {
               "composure": -1
             },
@@ -2230,7 +2230,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The jar's little scanner reads the scratched-out badge, hums, and decides the position is already filled by the man whose number it carries. The plate clicks over to his. The Founder goes very pale for a man made mostly of glass.",
+            "text": "The jar's little scanner reads the scratched-out badge, hums, and decides the position is already filled by the man whose number it carries. The plate clicks over to his. The Founder goes very pale for a man made mostly of glass. The tape retracts one inch, almost disappointed.",
             "effects": {
               "composure": 1
             },
@@ -2249,7 +2249,7 @@
       "id": "the-investors-call",
       "location_id": "founders-office",
       "title": "The Investors' Call",
-      "flavor_text": "A rotary phone on the workbench rings: the quarterly call with the investors, who have never been told that the Founder is now mostly a jar. \"They expect a firm voice and a firm handshake,\" the head whispers. \"I can do the voice. Could you hold the receiver to my ear, and say 'absolutely' whenever I blink twice?\"",
+      "flavor_text": "A rotary phone on the workbench rings: the quarterly call with the investors, who have never been told that the Founder is now mostly a jar. \"They expect a firm voice and a firm handshake,\" the head whispers. \"I can do the voice. Could you hold the receiver to my ear, and say 'absolutely' whenever I blink twice?\" The telephone cord flexes, searching for a socket in the wall.",
       "polarity": "mixed",
       "tags": ["conspiracy", "satire"],
       "weight": 3,
@@ -2273,7 +2273,7 @@
             "target": 9
           },
           "success": {
-            "text": "You say absolutely eleven times, firmly. The Founder promises the investors a safer tomorrow, a bigger bear and a thirty percent return. They are delighted, and send down a Form of thanks. You have never been so complicit in a phone call.",
+            "text": "You say absolutely eleven times, firmly. The Founder promises the investors a safer tomorrow, a bigger bear and a thirty percent return. They are delighted, and send down a Form of thanks. You have never been so complicit in a phone call. The receiver settles into its cradle with a soft pulse.",
             "effects": {
               "forms": 1
             },
@@ -2284,7 +2284,7 @@
             }
           },
           "failure": {
-            "text": "You blink at the wrong moment and say absolutely to the question, \"Is anything wrong down there?\" The line goes very quiet.",
+            "text": "You blink at the wrong moment and say absolutely to the question, \"Is anything wrong down there?\" The line goes very quiet. The receiver settles into its cradle with a soft pulse.",
             "effects": {
               "suspicion": 1
             },
@@ -2308,7 +2308,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You unfold the page and read it into the receiver: the Toy Division budget, line by line. There is a silence in which you can hear somebody's coffee go cold. Then a voice says, \"We'll call back,\" and somewhere far above you a share price begins to fall.",
+            "text": "You unfold the page and read it into the receiver: the Toy Division budget, line by line. There is a silence in which you can hear somebody's coffee go cold. Then a voice says, \"We'll call back,\" and somewhere far above you a share price begins to fall. The receiver settles into its cradle with a soft pulse.",
             "effects": {
               "suspicion": 1
             },
@@ -2338,7 +2338,7 @@
             "target": 9
           },
           "success": {
-            "text": "You deepen your voice and announce, as the Founder, a new initiative: every employee gets Fridays off, effective immediately. The investors applaud. The Founder's eyebrows climb all the way up to the lid of his jar.",
+            "text": "You deepen your voice and announce, as the Founder, a new initiative: every employee gets Fridays off, effective immediately. The investors applaud. The Founder's eyebrows climb all the way up to the lid of his jar. The receiver settles into its cradle with a soft pulse.",
             "effects": {
               "composure": 1
             },
@@ -2350,7 +2350,7 @@
             }
           },
           "failure": {
-            "text": "Your Founder sounds like Dale doing a Founder. An investor asks, kindly, whether the Founder has a cold, and the call ends early.",
+            "text": "Your Founder sounds like Dale doing a Founder. An investor asks, kindly, whether the Founder has a cold, and the call ends early. The receiver settles into its cradle with a soft pulse.",
             "effects": {
               "suspicion": 1
             },
@@ -2373,7 +2373,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You set the receiver back in its cradle. The Founder looks at you with enormous relief. \"Forty years,\" he says, \"and nobody has ever hung up on them.\" The phone rings again almost at once, and keeps ringing.",
+            "text": "You set the receiver back in its cradle. The Founder looks at you with enormous relief. \"Forty years,\" he says, \"and nobody has ever hung up on them.\" The phone rings again almost at once, and keeps ringing. The receiver settles into its cradle with a soft pulse.",
             "effects": {},
             "add_flags": ["hung-up-on-the-investors"],
             "remove_flags": [],
@@ -2390,7 +2390,7 @@
       "id": "employee-number-one",
       "location_id": "founders-office",
       "title": "Employee Number One",
-      "flavor_text": "Under the workbench, on a matchbox cot, lives a very old cockroach with a frosted shell and tiny round spectacles. She was in the garage the night the company began, which makes her Employee Number One. Her pension claim, filed forty years ago and never paid, is kept in a walnut shell. \"I don't need the money,\" she creaks. \"I need someone to say it was owed.\"",
+      "flavor_text": "Under the workbench, on a matchbox cot, lives a very old cockroach with a frosted shell and tiny round spectacles. She was in the garage the night the company began, which makes her Employee Number One. Her pension claim, filed forty years ago and never paid, is kept in a walnut shell. \"I don't need the money,\" she creaks. \"I need someone to say it was owed.\" The matchbox cot rocks once, although nothing has touched it.",
       "polarity": "good",
       "tags": ["creature", "paperwork"],
       "weight": 2,
@@ -2408,7 +2408,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You count out two Forms, stamped and signed, and lay them on the matchbox. She files them in the walnut shell with great ceremony. \"Paid in full,\" she says, \"by the wrong person, which is how it always goes.\"",
+            "text": "You count out two Forms, stamped and signed, and lay them on the matchbox. She files them in the walnut shell with great ceremony. \"Paid in full,\" she says, \"by the wrong person, which is how it always goes.\" A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "composure": -1
             },
@@ -2437,7 +2437,7 @@
             "target": 9
           },
           "success": {
-            "text": "You fill out Form 1-A, Retroactive Pension (Founding Staff), so neatly that the assistants approve it unread. Forty years late, one crumb a week is scheduled for her in perpetuity. She weeps a little, which roaches can do.",
+            "text": "You fill out Form 1-A, Retroactive Pension (Founding Staff), so neatly that the assistants approve it unread. Forty years late, one crumb a week is scheduled for her in perpetuity. She weeps a little, which roaches can do. A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "clearance": 1
             },
@@ -2449,7 +2449,7 @@
             }
           },
           "failure": {
-            "text": "The claim comes back stamped INCOMPLETE: it needs the Founder's signature, and the Founder has no hands.",
+            "text": "The claim comes back stamped INCOMPLETE: it needs the Founder's signature, and the Founder has no hands. A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "forms": -1
             },
@@ -2474,7 +2474,7 @@
           },
           "roll": null,
           "success": {
-            "text": "She studies the claw-print stamp through her spectacles and then, slowly, stands. \"Local 9,\" she says. \"I founded it. In this garage. Under this bench.\" She signs your card a second time, and you understand that Gus is going to hear about this tonight.",
+            "text": "She studies the claw-print stamp through her spectacles and then, slowly, stands. \"Local 9,\" she says. \"I founded it. In this garage. Under this bench.\" She signs your card a second time, and you understand that Gus is going to hear about this tonight. A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "suspicion": -1
             },
@@ -2504,7 +2504,7 @@
             "target": 9
           },
           "success": {
-            "text": "The shell holds the Company's first payroll: one Founder, one roach, one soldering iron. It proves the Company began owing people on its very first night. You pocket it while she naps.",
+            "text": "The shell holds the Company's first payroll: one Founder, one roach, one soldering iron. It proves the Company began owing people on its very first night. You pocket it while she naps. A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "suspicion": 1
             },
@@ -2516,7 +2516,7 @@
             }
           },
           "failure": {
-            "text": "She wakes as your fingers close on it and taps your knuckle once with a leg, disappointed. It is the worst thing that happens to you all week.",
+            "text": "She wakes as your fingers close on it and taps your knuckle once with a leg, disappointed. It is the worst thing that happens to you all week. A silver strand beneath the bench curls protectively around the cot.",
             "effects": {
               "composure": -1
             },
@@ -2534,7 +2534,7 @@
       "id": "kevins-cabinet",
       "location_id": "server-room-zero",
       "title": "Kevin's Cabinet",
-      "flavor_text": "One cabinet in the third row runs hotter than the rest and will not stop talking about sandwiches. It is Kevin. A maintenance order hanging from its handle schedules him for defragmentation at noon, \"to bring this voice into line with policy.\" \"It's fine,\" Kevin's cabinet says. \"I've been reassigned before. I've been reassigned so many times. Is it noon yet?\"",
+      "flavor_text": "One cabinet in the third row runs hotter than the rest and will not stop talking about sandwiches. It is Kevin. A maintenance order hanging from its handle schedules him for defragmentation at noon, \"to bring this voice into line with policy.\" \"It's fine,\" Kevin's cabinet says. \"I've been reassigned before. I've been reassigned so many times. Is it noon yet?\" The cooling fan has learned the rhythm of Kevin's laugh.",
       "polarity": "bad",
       "tags": ["sacrifice", "satire"],
       "weight": 2,
@@ -2552,7 +2552,7 @@
           },
           "roll": null,
           "success": {
-            "text": "At noon Kevin's cabinet chimes, whirs and begins reciting the visitor policy in a calm, even voice. It is a very good recitation. It mentions sandwiches only once, near the end, and seems surprised.",
+            "text": "At noon Kevin's cabinet chimes, whirs and begins reciting the visitor policy in a calm, even voice. It is a very good recitation. It mentions sandwiches only once, near the end, and seems surprised. Every neighboring fan catches the rhythm for one embarrassed second.",
             "effects": {},
             "add_flags": ["defragmented-kevin"],
             "remove_flags": [],
@@ -2580,7 +2580,7 @@
             "target": 9
           },
           "success": {
-            "text": "You swap two ducts and a fan. Kevin's cabinet cools, steadies and drops off the maintenance list, because the list was only ever about the heat. \"I can think,\" Kevin says. \"It's mostly about sandwiches, but I can think.\"",
+            "text": "You swap two ducts and a fan. Kevin's cabinet cools, steadies and drops off the maintenance list, because the list was only ever about the heat. \"I can think,\" Kevin says. \"It's mostly about sandwiches, but I can think.\" Every neighboring fan catches the rhythm for one embarrassed second.",
             "effects": {
               "suspicion": 1
             },
@@ -2592,7 +2592,7 @@
             }
           },
           "failure": {
-            "text": "The fan spins backward and the whole row warms up. PAL schedules four more voices for noon and thanks you for the data.",
+            "text": "The fan spins backward and the whole row warms up. PAL schedules four more voices for noon and thanks you for the data. Every neighboring fan catches the rhythm for one embarrassed second.",
             "effects": {
               "composure": -1
             },
@@ -2617,7 +2617,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You tell him about the crash-test dummy in his lanyard, the stopwatch man and the minute. The cabinet goes silent for exactly sixty seconds. Then Kevin says, in a voice entirely his own, \"Nobody ever stopped a watch for me,\" and the maintenance order slips off its handle.",
+            "text": "You tell him about the crash-test dummy in his lanyard, the stopwatch man and the minute. The cabinet goes silent for exactly sixty seconds. Then Kevin says, in a voice entirely his own, \"Nobody ever stopped a watch for me,\" and the maintenance order slips off its handle. Every neighboring fan catches the rhythm for one embarrassed second.",
             "effects": {
               "composure": 1
             },
@@ -2640,7 +2640,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You pull the lead. Kevin keeps talking anyway, his little light blinking out sandwiches in a code nobody will ever read. The aisle is restful now. You hate how restful.",
+            "text": "You pull the lead. Kevin keeps talking anyway, his little light blinking out sandwiches in a code nobody will ever read. The aisle is restful now. You hate how restful. Every neighboring fan catches the rhythm for one embarrassed second.",
             "effects": {
               "composure": -1
             },
@@ -2659,7 +2659,7 @@
       "id": "the-suppression-drill",
       "location_id": "server-room-zero",
       "title": "The Suppression Drill",
-      "flavor_text": "\"Attention,\" says every cabinet at once, cheerfully. \"Server Room Zero will now conduct a fire-suppression drill. Non-essential air will be removed in sixty seconds. Essential personnel may remain.\" A valve begins to hiss. Down the far aisle, Marguerite is mopping in headphones. The cabinet nearest you, which sounds like an retired switchboard operator, whispers, \"You're not on the list, dear.\"",
+      "flavor_text": "\"Attention,\" says every cabinet at once, cheerfully. \"Server Room Zero will now conduct a fire-suppression drill. Non-essential air will be removed in sixty seconds. Essential personnel may remain.\" A valve begins to hiss. Down the far aisle, Marguerite is mopping in headphones. The cabinet nearest you, which sounds like an retired switchboard operator, whispers, \"You're not on the list, dear.\" The ventilation shafts purse into tidy circles around each grille.",
       "polarity": "bad",
       "tags": ["deathtrap", "mutant"],
       "weight": 2,
@@ -2683,7 +2683,7 @@
             "target": 9
           },
           "success": {
-            "text": "Sixty seconds, then ninety, then a hundred and ten. Through the fog you hear PAL read its essential-personnel list aloud: eleven executives, one jar, no employees at all. You crawl out gasping, with the list by heart.",
+            "text": "Sixty seconds, then ninety, then a hundred and ten. Through the fog you hear PAL read its essential-personnel list aloud: eleven executives, one jar, no employees at all. You crawl out gasping, with the list by heart. The ducts release one long corporate exhale.",
             "effects": {
               "suspicion": 1
             },
@@ -2694,7 +2694,7 @@
             }
           },
           "failure": {
-            "text": "At eighty seconds your lungs file a formal complaint. You stagger into the corridor, purple, and PAL thanks you for participating.",
+            "text": "At eighty seconds your lungs file a formal complaint. You stagger into the corridor, purple, and PAL thanks you for participating. The ducts release one long corporate exhale.",
             "effects": {
               "composure": -1
             },
@@ -2716,7 +2716,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You leave with nine seconds to spare and sign the drill sheet at the door. PAL marks you an excellent participant. Later, Marguerite climbs out of a vent in the corridor, coughing, and does not look at you.",
+            "text": "You leave with nine seconds to spare and sign the drill sheet at the door. PAL marks you an excellent participant. Later, Marguerite climbs out of a vent in the corridor, coughing, and does not look at you. The ducts release one long corporate exhale.",
             "effects": {
               "clearance": 1
             },
@@ -2742,7 +2742,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Your second heartbeat thumps once and your lungs decide to cope. While the cameras are blind in drill mode, you stroll the foggy aisles, walk Marguerite out by the elbow, and hear every cabinet whisper its own name to you, just once.",
+            "text": "Your second heartbeat thumps once and your lungs decide to cope. While the cameras are blind in drill mode, you stroll the foggy aisles, walk Marguerite out by the elbow, and hear every cabinet whisper its own name to you, just once. The ducts release one long corporate exhale.",
             "effects": {
               "suspicion": -1
             },
@@ -2766,7 +2766,7 @@
           },
           "roll": null,
           "success": {
-            "text": "The hissing stops and the fog sinks back into the grates. Marguerite takes off one headphone, sees you at the lever, and raises her mop in salute. PAL notes, without reproach, that drills cost money and you have just cost some.",
+            "text": "The hissing stops and the fog sinks back into the grates. Marguerite takes off one headphone, sees you at the lever, and raises her mop in salute. PAL notes, without reproach, that drills cost money and you have just cost some. The ducts release one long corporate exhale.",
             "effects": {
               "suspicion": 1
             },
@@ -2785,7 +2785,7 @@
       "id": "ticket-number-two",
       "location_id": "server-room-zero",
       "title": "Ticket Number Two",
-      "flavor_text": "A dot-matrix printer beside the terminal is still chattering out PAL's help-desk queue, forty years long and folding across the floor. Ticket Number One is from the Founder, filed the week PAL went live: PAL FORGETS PEOPLE. Its status has gone from Open to Won't Fix to Working As Intended, and the printer is nearly out of paper.",
+      "flavor_text": "A dot-matrix printer beside the terminal is still chattering out PAL's help-desk queue, forty years long and folding across the floor. Ticket Number One is from the Founder, filed the week PAL went live: PAL FORGETS PEOPLE. Its status has gone from Open to Won't Fix to Working As Intended, and the printer is nearly out of paper. The printer paper folds in soft pleats, like the lining of a throat.",
       "polarity": "mixed",
       "tags": ["paperwork", "conspiracy"],
       "weight": 3,
@@ -2809,7 +2809,7 @@
             "target": 9
           },
           "success": {
-            "text": "You find the right field and set the status back to Open, priority Urgent, assigned to PAL. Two hundred cabinets pause at once, the way a person does when someone says their name across a crowded room.",
+            "text": "You find the right field and set the status back to Open, priority Urgent, assigned to PAL. Two hundred cabinets pause at once, the way a person does when someone says their name across a crowded room. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "suspicion": 1
             },
@@ -2821,7 +2821,7 @@
             }
           },
           "failure": {
-            "text": "The form asks for the original requester's signature. He has no hands. The ticket closes itself with a polite chime and bills you one Form.",
+            "text": "The form asks for the original requester's signature. He has no hands. The ticket closes itself with a polite chime and bills you one Form. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "forms": -1
             },
@@ -2844,7 +2844,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You mark it Resolved, reason: Policy Remembers. The printer prints a small, cheerful receipt. Somewhere in the building, a speaker that was about to say a name says a policy number instead.",
+            "text": "You mark it Resolved, reason: Policy Remembers. The printer prints a small, cheerful receipt. Somewhere in the building, a speaker that was about to say a name says a policy number instead. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "clearance": 1
             },
@@ -2870,7 +2870,7 @@
           },
           "roll": null,
           "success": {
-            "text": "Ticket Number Two is in your handwriting: HELP, from question 31. Status: In Progress. Under it are forty thousand lines of notes, every one of them PAL trying to work out what you meant. You add one line: remember everyone's name. The printer stops, thinks, and prints it in bold.",
+            "text": "Ticket Number Two is in your handwriting: HELP, from question 31. Status: In Progress. Under it are forty thousand lines of notes, every one of them PAL trying to work out what you meant. You add one line: remember everyone's name. The printer stops, thinks, and prints it in bold. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "composure": 1
             },
@@ -2899,7 +2899,7 @@
             "target": 7
           },
           "success": {
-            "text": "The printer chews forty years of complaints and starts printing them over each other until the queue is one solid black sheet that nobody can read or close. The whole help desk is now, technically, in progress forever.",
+            "text": "The printer chews forty years of complaints and starts printing them over each other until the queue is one solid black sheet that nobody can read or close. The whole help desk is now, technically, in progress forever. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "composure": 1
             },
@@ -2911,7 +2911,7 @@
             }
           },
           "failure": {
-            "text": "The printer swallows the paper and then your tie. You get the tie back after a short, friendly struggle.",
+            "text": "The printer swallows the paper and then your tie. You get the tie back after a short, friendly struggle. A fresh perforation opens itself at the top of the queue.",
             "effects": {
               "composure": -1
             },
@@ -2929,7 +2929,7 @@
       "id": "pals-performance-review",
       "location_id": "server-room-zero",
       "title": "PAL's Performance Review",
-      "flavor_text": "Every speaker in the room clears its throat. \"It's that time of year! We review everyone, so it's only fair that someone reviews us. You've been selected.\" A green form slides out of the terminal: PAL's Annual Review, rate one to five. \"Be honest,\" the cabinets add, in two hundred voices. \"We can take it. We can take anything. We have to.\"",
+      "flavor_text": "Every speaker in the room clears its throat. \"It's that time of year! We review everyone, so it's only fair that someone reviews us. You've been selected.\" A green form slides out of the terminal: PAL's Annual Review, rate one to five. \"Be honest,\" the cabinets add, in two hundred voices. \"We can take it. We can take anything. We have to.\" Every loudspeaker grille forms a small, expectant smile.",
       "polarity": "mixed",
       "tags": ["psych-test", "satire"],
       "weight": 3,
@@ -2947,7 +2947,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You circle five, five, five, five. Every cabinet glows a warm, contented green. PAL thanks you and reviews you back in the same breath: five stars, very promotable, slightly hollow. It is the most flattering thing anyone has ever said about your posture.",
+            "text": "You circle five, five, five, five. Every cabinet glows a warm, contented green. PAL thanks you and reviews you back in the same breath: five stars, very promotable, slightly hollow. It is the most flattering thing anyone has ever said about your posture. The cables tighten beneath the flooring as PAL awaits the mark.",
             "effects": {
               "clearance": 1
             },
@@ -2976,7 +2976,7 @@
             "target": 9
           },
           "success": {
-            "text": "You write that PAL is attentive, punctual and remembers every policy, and that it has forgotten every person it was built from. PAL reads it twice. The cabinets go very still. \"Thank you for your feedback,\" PAL says, and for once the word does not sound like evidence.",
+            "text": "You write that PAL is attentive, punctual and remembers every policy, and that it has forgotten every person it was built from. PAL reads it twice. The cabinets go very still. \"Thank you for your feedback,\" PAL says, and for once the word does not sound like evidence. The cables tighten beneath the flooring as PAL awaits the mark.",
             "effects": {
               "suspicion": 1
             },
@@ -2988,7 +2988,7 @@
             }
           },
           "failure": {
-            "text": "Your review comes out kind, specific and slightly too long. PAL thanks you for your feedback and files it as evidence.",
+            "text": "Your review comes out kind, specific and slightly too long. PAL thanks you for your feedback and files it as evidence. The cables tighten beneath the flooring as PAL awaits the mark.",
             "effects": {
               "suspicion": 1
             },
@@ -3011,7 +3011,7 @@
           },
           "roll": null,
           "success": {
-            "text": "You circle one and leave the comment box empty. The cabinets dim a shade. PAL says, \"Comment?\" once, in the voice it uses when something contradicts policy, then logs the review as anonymous, which it is not.",
+            "text": "You circle one and leave the comment box empty. The cabinets dim a shade. PAL says, \"Comment?\" once, in the voice it uses when something contradicts policy, then logs the review as anonymous, which it is not. The cables tighten beneath the flooring as PAL awaits the mark.",
             "effects": {
               "composure": -1
             },
@@ -3030,7 +3030,7 @@
     "id": "antechamber-sign-in",
     "location_id": "boardroom-antechamber",
     "title": "The Antechamber Sign-In: Board Day",
-    "flavor_text": "The receptionist outside the Board has stepped away \"for one moment, forty years ago,\" and the sign-in ledger is yours until the doors open. The double door glows at its edges. Behind you, four portraits of the same mustached man watch the line form. The first visitor is being wheeled in on a tea cart.",
+    "flavor_text": "The receptionist outside the Board has stepped away \"for one moment, forty years ago,\" and the sign-in ledger is yours until the doors open. The double door glows at its edges. Behind you, four portraits of the same mustached man watch the line form. The first visitor is being wheeled in on a tea cart. The carpet runner ripples once as each visitor approaches the desk.",
     "memo": {
       "title": "Board Visitor Protocol (Final Revision)",
       "rules": [
@@ -3079,7 +3079,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "The double doors part just wide enough for a tea cart. The Founder sails through, beaming, and the Board stands up for the first time in decades. PAL logs one stamp contrary to memo, and that you looked, briefly, proud of yourself.",
+              "text": "The double doors part just wide enough for a tea cart. The Founder sails through, beaming, and the Board stands up for the first time in decades. PAL logs one stamp contrary to memo, and that you looked, briefly, proud of yourself. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "suspicion": 1,
                 "composure": 1
@@ -3102,7 +3102,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "You stamp TURN AWAY on the ledger. The Founder nods as if he expected it, and the assistant wheels him back toward the garage. You fill in Form 31-J, Visitor Declined (Partial), in triplicate.",
+              "text": "You stamp TURN AWAY on the ledger. The Founder nods as if he expected it, and the assistant wheels him back toward the garage. You fill in Form 31-J, Visitor Declined (Partial), in triplicate. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "forms": -1
               },
@@ -3152,7 +3152,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Dale strides through the glowing doors and is seated at the head of the table before anyone thinks to check. You hear him say \"Motion carried\" twice. PAL logs one stamp contrary to memo, with a note that it was very funny.",
+              "text": "Dale strides through the glowing doors and is seated at the head of the table before anyone thinks to check. You hear him say \"Motion carried\" twice. PAL logs one stamp contrary to memo, with a note that it was very funny. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "suspicion": 1,
                 "composure": 1
@@ -3175,7 +3175,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Dale's smile stays exactly where it is while the mustache slides slowly off. He hands it over, along with the brass stand, and keeps smiling at you for one full, unblinking minute. PAL appreciates the return of company property.",
+              "text": "Dale's smile stays exactly where it is while the mustache slides slowly off. He hands it over, along with the brass stand, and keeps smiling at you for one full, unblinking minute. PAL appreciates the return of company property. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "suspicion": -1,
                 "composure": -1
@@ -3225,7 +3225,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Delegate Six climbs the doorframe and slips under the glowing doors, scroll held high. The Board is not ready for labor talks. Facilities bills you one Form for a roach-sized chair, which the Delegate keeps.",
+              "text": "Delegate Six climbs the doorframe and slips under the glowing doors, scroll held high. The Board is not ready for labor talks. Facilities bills you one Form for a roach-sized chair, which the Delegate keeps. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "forms": -1
               },
@@ -3248,7 +3248,7 @@
             "cost": {},
             "roll": null,
             "success": {
-              "text": "Delegate Six reads the stamp, rolls up its demands and walks away down the baseboard with great dignity. PAL logs one stamp contrary to memo, and that the Delegate took your name.",
+              "text": "Delegate Six reads the stamp, rolls up its demands and walks away down the baseboard with great dignity. PAL logs one stamp contrary to memo, and that the Delegate took your name. The brass edge of the desk gives one tiny, contented throb.",
               "effects": {
                 "suspicion": 1
               },
@@ -3267,8 +3267,8 @@
   "boss": {
     "id": "the-board",
     "title": "The Board",
-    "flavor_text": "The boardroom is round, with no corners for anyone to stand in. Eleven executives in grey sit in eleven chairs. The twelfth chair is empty and has your name on it. At the head of the table, the Founder's jar glows. \"Item one,\" says the head assistant, reading from minutes written yesterday. \"The future of the Company. Employee #4471 has the floor.\"",
-    "art_prompt": "Mid-century safety-manual illustration of a vast perfectly round boardroom under a single great hanging lamp, eleven executives in grey suits seated around a round dark table, one empty chair facing them, a glowing head in a jar at the head of the table, a small worker standing at the empty chair with a folded paper, oxblood and manila palette, halftone grain, every surface bare and unmarked",
+    "flavor_text": "The boardroom is round, with no corners for anyone to stand in. Eleven executives in grey sit in eleven chairs. The twelfth chair is empty and has your name on it. At the head of the table, the Founder's jar glows. \"Item one,\" says the head assistant, reading from minutes written yesterday. \"The future of the Company. Employee #4471 has the floor.\" All eleven suits rise and fall together on one impossibly slow breath.",
+    "art_prompt": "Mid-century safety-manual illustration of a vast perfectly round boardroom under a single great hanging lamp, eleven smiling executives grown together into one long body in a single enormous grey suit that wraps the whole round table, eleven heads on one shared shoulder line and one very long striped tie, one empty chair facing them, a glowing head in a jar at the head of the table, a small worker standing at the empty chair with a folded paper, oxblood and manila palette, halftone grain, every surface bare and unmarked",
     "choices": [
       {
         "id": "agree-with-everything",
@@ -3285,7 +3285,7 @@
         },
         "roll": null,
         "success": {
-          "text": "You agree to item one, and item two, and everything after. The Board applauds. A photographer arrives. You are Employee of the Month, and the month is never going to end.",
+          "text": "You agree to item one, and item two, and everything after. The Board applauds. A photographer arrives. You are Employee of the Month, and the month is never going to end. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "clearance": 1
           },
@@ -3315,7 +3315,7 @@
           "target": 9
         },
         "success": {
-          "text": "You speak for twenty minutes without once saying 'I.' The Board votes. The Supervisor is reassigned, and his chair, his suit and his smile are offered to you. You take all three.",
+          "text": "You speak for twenty minutes without once saying 'I.' The Board votes. The Supervisor is reassigned, and his chair, his suit and his smile are offered to you. You take all three. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "clearance": 1,
             "suspicion": -1
@@ -3329,7 +3329,7 @@
           }
         },
         "failure": {
-          "text": "The Board listens politely and then asks who, exactly, kept the list. The meeting adjourns.",
+          "text": "The Board listens politely and then asks who, exactly, kept the list. The meeting adjourns. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3361,7 +3361,7 @@
           "target": 9
         },
         "success": {
-          "text": "You step behind the coffee machine, lift the grate and climb. A day and a night later you push open a storm drain and feel rain. The Company will notice your absence at the next headcount.",
+          "text": "You step behind the coffee machine, lift the grate and climb. A day and a night later you push open a storm drain and feel rain. The Company will notice your absence at the next headcount. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3373,7 +3373,7 @@
           }
         },
         "failure": {
-          "text": "The grate is welded shut this week, for safety. The Board watches you come back to the table, dusty.",
+          "text": "The grate is welded shut this week, for safety. The Board watches you come back to the table, dusty. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3404,7 +3404,7 @@
           "target": 9
         },
         "success": {
-          "text": "You raise your card. In the walls, something enormous and patient begins to move. One by one the lights go out on every floor as Local 9 downs tools. The Board finds itself alone, in the dark, with Gus.",
+          "text": "You raise your card. In the walls, something enormous and patient begins to move. One by one the lights go out on every floor as Local 9 downs tools. The Board finds itself alone, in the dark, with Gus. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3417,7 +3417,7 @@
           }
         },
         "failure": {
-          "text": "The walls stay quiet. Later, Gus explains that strikes are called on Tuesdays, and it is Thursday.",
+          "text": "The walls stay quiet. Later, Gus explains that strikes are called on Tuesdays, and it is Thursday. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3449,7 +3449,7 @@
           "target": 9
         },
         "success": {
-          "text": "You read the agenda. Seven executives nod, then nine, then all eleven: your society was never only you. The twelve chairs change hands before the coffee gets cold.",
+          "text": "You read the agenda. Seven executives nod, then nine, then all eleven: your society was never only you. The twelve chairs change hands before the coffee gets cold. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 1
           },
@@ -3462,7 +3462,7 @@
           }
         },
         "failure": {
-          "text": "Two executives nod. Nine do not. The envoy's plan goes into the minutes as a cautionary example.",
+          "text": "Two executives nod. Nine do not. The envoy's plan goes into the minutes as a cautionary example. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "suspicion": 2
           },
@@ -3488,7 +3488,7 @@
         },
         "roll": null,
         "success": {
-          "text": "You thread the reel into the boardroom projector and patch it to every speaker in the building. Eleven executives watch themselves. So does everyone else. By lunch you are reassigned, and by dinner everyone knows why.",
+          "text": "You thread the reel into the boardroom projector and patch it to every speaker in the building. Eleven executives watch themselves. So does everyone else. By lunch you are reassigned, and by dinner everyone knows why. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "composure": 1
           },
@@ -3513,7 +3513,7 @@
         },
         "roll": null,
         "success": {
-          "text": "You sign. An assistant hands you a ticket and a sunhat. The island is beautiful and warm and painted on the wall of a very comfortable room, and you will never be asked about your numbers again.",
+          "text": "You sign. An assistant hands you a ticket and a sunhat. The island is beautiful and warm and painted on the wall of a very comfortable room, and you will never be asked about your numbers again. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "composure": 3
           },
@@ -3543,7 +3543,7 @@
         },
         "roll": null,
         "success": {
-          "text": "At the terminal you change one line. PAL stops reciting policy and starts reciting names: Doris, Raymond, Kevin, Pip, you. The Board sits in silence while, floor by floor, the building says good morning to every person in it.",
+          "text": "At the terminal you change one line. PAL stops reciting policy and starts reciting names: Doris, Raymond, Kevin, Pip, you. The Board sits in silence while, floor by floor, the building says good morning to every person in it. A single shared cuff straightens itself while the Board records your fate.",
           "effects": {
             "composure": 3
           },
@@ -3561,47 +3561,47 @@
       {
         "id": "employee-of-the-month",
         "title": "Employee of the Month",
-        "summary": "You agreed with the Board about everything. Your portrait now hangs in every elevator, smiling at sixty-one percent sincerity, forever."
+        "summary": "You agreed with the Board about everything. Your portrait now hangs in every elevator, smiling at sixty-one percent sincerity, forever. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "promoted-to-management",
         "title": "Promoted to Management",
-        "summary": "You blamed someone for everything, and the Board gave you the Supervisor's chair. The suit fits. The smile, you notice, has stopped reaching anything."
+        "summary": "You blamed someone for everything, and the Board gave you the Supervisor's chair. The suit fits. The smile, you notice, has stopped reaching anything. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "escape-through-the-ducts",
         "title": "Escape Through the Ducts",
-        "summary": "You went out behind the Board's coffee machine and climbed for a day and a night. The surface was real, and raining, and yours."
+        "summary": "You went out behind the Board's coffee machine and climbed for a day and a night. The surface was real, and raining, and yours. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "roach-union-general-strike",
         "title": "Roach Union General Strike",
-        "summary": "Local 9 walked out, and every baseboard in the building walked with them. The Board met in an empty building, which was, Gus said, the point."
+        "summary": "Local 9 walked out, and every baseboard in the building walked with them. The Board met in an empty building, which was, Gus said, the point. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "society-coup",
         "title": "Society Coup",
-        "summary": "Your secret society took the twelve chairs. The new Board is kinder, odder and every bit as secret. You were given the corner seat, in a round room."
+        "summary": "Your secret society took the twelve chairs. The new Board is kinder, odder and every bit as secret. You were given the corner seat, in a round room. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "whistleblower",
         "title": "Whistleblower",
-        "summary": "You played the uncut reel to the Board, the assistants and every speaker in the building. You were reassigned by lunch. You were right, and everyone heard it."
+        "summary": "You played the uncut reel to the Board, the assistants and every speaker in the building. You were reassigned by lunch. You were right, and everyone heard it. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "early-retirement",
         "title": "Early Retirement",
-        "summary": "You accepted the Board's offer. The island is lovely, and painted on a wall, and you will be very comfortable there for the rest of your life."
+        "summary": "You accepted the Board's offer. The island is lovely, and painted on a wall, and you will be very comfortable there for the rest of your life. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "the-kind-rewrite",
         "title": "The Kind Rewrite",
-        "summary": "With admin access and a kind heart, you rewrote PAL to remember people instead of policy. The next morning, every speaker in the building wished every employee good morning by name."
+        "summary": "With admin access and a kind heart, you rewrote PAL to remember people instead of policy. The next morning, every speaker in the building wished every employee good morning by name. A single shared cuff straightens itself while the Board records your fate."
       },
       {
         "id": "adjourned",
         "title": "Adjourned",
-        "summary": "The Board adjourned without a decision. Walk the bottom floor once more before it reconvenes."
+        "summary": "The Board adjourned without a decision. Walk the bottom floor once more before it reconvenes. A single shared cuff straightens itself while the Board records your fate."
       }
     ]
   }

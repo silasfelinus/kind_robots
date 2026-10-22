@@ -1025,10 +1025,12 @@ export function restoreRun(raw: unknown): RunState | null {
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
   if (
-    (s.playerName !== undefined && (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
+    (s.playerName !== undefined &&
+      (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
     (s.avatarId !== undefined && typeof s.avatarId !== 'string') ||
     (s.personalityId !== undefined && typeof s.personalityId !== 'string')
-  ) return null
+  )
+    return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))
     return null
   if (s.event !== null && !EVENTS.some((e) => e.id === s.event)) return null

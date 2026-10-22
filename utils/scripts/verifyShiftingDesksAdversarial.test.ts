@@ -102,7 +102,7 @@ assert.equal(successorLegacyLines(personnel).length, 2)
 assert.ok(
   reviewExhibits({ department: 'records', flags: ['drilled-the-union-vent'] })
     .some((text) => text.includes('LOCAL 9')),
-  'the Union's risky intervention is remembered at the next review',
+  "the Union's risky intervention is remembered at the next review",
 )
 assert.ok(
   reviewExhibits({ department: 'toy-division', flags: ['gave-beverly-the-scenic-tour'] })

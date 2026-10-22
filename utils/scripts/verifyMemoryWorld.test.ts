@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict'
 import {
+  DEFAULT_DUNGEON_DECK,
+  DESIGNED_DUNGEON_ART,
+  isEligibleDungeonArt,
+  normalizeDungeonDeck,
+  uniqueDeckPaths,
+} from '../memoryDungeonDeck'
+
+import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_LINKS,
@@ -96,3 +104,18 @@ assert.equal(
 console.log(
   'Memory Dungeon Briar Camp: reveal routes, landmarks and save contracts passed.',
 )
+
+assert.equal(DESIGNED_DUNGEON_ART.length, 8, 'Designed fantasy deck has eight unique art faces')
+assert.equal(new Set(DESIGNED_DUNGEON_ART.map((item) => item.imagePath)).size, 8)
+assert.equal(DESIGNED_DUNGEON_ART.every((entry) => entry.imagePath.startsWith('data:image/svg+xml')), true)
+assert.deepEqual(normalizeDungeonDeck({}), DEFAULT_DUNGEON_DECK)
+assert.equal(normalizeDungeonDeck({ family: 'bad' }).family, 'designed')
+assert.deepEqual(normalizeDungeonDeck({ collectionIds: [1, 1, -1, 2] }).collectionIds, [1, 2])
+assert.equal(isEligibleDungeonArt({ isPublic: true, isMature: false }, false, false), true)
+assert.equal(isEligibleDungeonArt({ isPublic: false, isMature: false }, true, true), false)
+assert.equal(isEligibleDungeonArt({ isPublic: null, isMature: false }, false, false), false)
+assert.equal(isEligibleDungeonArt({ isPublic: true, isActive: false }, true, true), false)
+assert.equal(isEligibleDungeonArt({ isPublic: true, isMature: true }, false, true), false)
+assert.equal(isEligibleDungeonArt({ isPublic: true, isMature: true }, true, false), false)
+assert.equal(isEligibleDungeonArt({ isPublic: true, isMature: true }, true, true), true)
+assert.deepEqual(uniqueDeckPaths(['/forest.jpg', '/forest.jpg', '', '/sun.jpg']), ['/forest.jpg', '/sun.jpg'])

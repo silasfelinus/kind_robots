@@ -10,51 +10,51 @@ Cinematic, detailed image-forward Humboldt narrative illustration, PG-13, redwoo
 
 ## Baker Beach: LA-BAKER-01
 
-| Art key | Distinct visual |
-|---|---|
-| `cards/la-baker-01` | Dawn haze over a fictional rocky beach trail; discreet warning sign, a first-aid volunteer and three drones over tidepools, with no recognizable beachgoers |
-| `paragraphs/la-baker-01/2` | Low viewpoint along narrow wet coastal stairs toward a developing current, a volunteer pointing to high ground; drone pilot keeping a camera aimed toward the surf |
-| `outcomes/la-baker-01/public-warning-success` | New warning safely positioned at the upper trail, volunteer and traveler assessing water, a drone photographing *only waves* |
-| `outcomes/la-baker-01/public-warning-failure` | Wind and spray, volunteer correcting a mistaken warning, rising water overtaking an unoccupied drone landing pad; everyone safely above the beach |
-| `outcomes/la-baker-01/privacy-success` | Pilot deleting invasive footage with two adult witnesses, drone screen abstract and unreadable; distant hazard observed without people filmed |
-| `outcomes/la-baker-01/privacy-failure` | Drone vehicle departing, volunteer hand recording a registration number on paper (unreadable), remote filming continuing, empty coastal stairs foreground |
-| `outcomes/la-baker-01/help-leave-success` | Lost shoes carried up a coastal trail beside a volunteer, distant empty beach and tiny hovering drones, understated solidarity rather than spectacle |
+| Art key                                       | Distinct visual                                                                                                                                                    |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cards/la-baker-01`                           | Dawn haze over a fictional rocky beach trail; discreet warning sign, a first-aid volunteer and three drones over tidepools, with no recognizable beachgoers        |
+| `paragraphs/la-baker-01/2`                    | Low viewpoint along narrow wet coastal stairs toward a developing current, a volunteer pointing to high ground; drone pilot keeping a camera aimed toward the surf |
+| `outcomes/la-baker-01/public-warning-success` | New warning safely positioned at the upper trail, volunteer and traveler assessing water, a drone photographing _only waves_                                       |
+| `outcomes/la-baker-01/public-warning-failure` | Wind and spray, volunteer correcting a mistaken warning, rising water overtaking an unoccupied drone landing pad; everyone safely above the beach                  |
+| `outcomes/la-baker-01/privacy-success`        | Pilot deleting invasive footage with two adult witnesses, drone screen abstract and unreadable; distant hazard observed without people filmed                      |
+| `outcomes/la-baker-01/privacy-failure`        | Drone vehicle departing, volunteer hand recording a registration number on paper (unreadable), remote filming continuing, empty coastal stairs foreground          |
+| `outcomes/la-baker-01/help-leave-success`     | Lost shoes carried up a coastal trail beside a volunteer, distant empty beach and tiny hovering drones, understated solidarity rather than spectacle               |
 
 ## Southern Humboldt: LA-SOHUM-01
 
-| Art key | Distinct visual |
-|---|---|
-| `cards/la-sohum-01` | Fictional modest Garberville-area arts classroom, folding screens, a seated training mannequin and students preparing chairs; a clock with faint double-shadow |
-| `paragraphs/la-sohum-01/2` | Instructor, manager and adult students debating accessibility near half a room with anomalous mirrored light, calm and consensual atmosphere |
-| `outcomes/la-sohum-01/safe-clinic-success` | Small consent-first drop-in clinic in sunlit corner, folding chairs, tea kettle, respectful space; mannequin secured in a cupboard |
-| `outcomes/la-sohum-01/safe-clinic-failure` | Adult visitor with a walker finding room blocked by hastily arranged chairs, instructor respectfully calling for an accessible reschedule |
-| `outcomes/la-sohum-01/trace-time-success` | Instructor and traveler checking an ordinary wall clock, an odd ribbon of twilight behind a closed curtain; clearly legible mechanism but no rendered typography |
-| `outcomes/la-sohum-01/trace-time-failure` | Empty darkened classroom, packed chairs and a lone traveler under a clock with mundane hands, inconclusive mystery |
-| `outcomes/la-sohum-01/repair-success` | Warm communal hall with folding chairs, accessible paths, kettle and relieved students; real clinic relocated, no supernatural shortcut |
+| Art key                                    | Distinct visual                                                                                                                                                  |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cards/la-sohum-01`                        | Fictional modest Garberville-area arts classroom, folding screens, a seated training mannequin and students preparing chairs; a clock with faint double-shadow   |
+| `paragraphs/la-sohum-01/2`                 | Instructor, manager and adult students debating accessibility near half a room with anomalous mirrored light, calm and consensual atmosphere                     |
+| `outcomes/la-sohum-01/safe-clinic-success` | Small consent-first drop-in clinic in sunlit corner, folding chairs, tea kettle, respectful space; mannequin secured in a cupboard                               |
+| `outcomes/la-sohum-01/safe-clinic-failure` | Adult visitor with a walker finding room blocked by hastily arranged chairs, instructor respectfully calling for an accessible reschedule                        |
+| `outcomes/la-sohum-01/trace-time-success`  | Instructor and traveler checking an ordinary wall clock, an odd ribbon of twilight behind a closed curtain; clearly legible mechanism but no rendered typography |
+| `outcomes/la-sohum-01/trace-time-failure`  | Empty darkened classroom, packed chairs and a lone traveler under a clock with mundane hands, inconclusive mystery                                               |
+| `outcomes/la-sohum-01/repair-success`      | Warm communal hall with folding chairs, accessible paths, kettle and relieved students; real clinic relocated, no supernatural shortcut                          |
 
 ## Ferndale storefront: LA-FERNDALE-01
 
-| Art key | Distinct visual |
-|---|---|
-| `cards/la-ferndale-01` | Colorful fictional Victorian-tailor storefront, four mannequins in distinct possible-future outfits: mechanic's coveralls, flood-map wedding dress, graduation gown and a pocketless coat |
-| `paragraphs/la-ferndale-01/2` | Adult tailor and apprentice facing a proposed contract across a cluttered fitting table, speculative developer waiting at the window |
-| `outcomes/la-ferndale-01/shared-credit-success` | Tailor and apprentice celebrating mutually agreed design-credit terms beside an unsold window, the fourth coat showing one newly opened pocket |
-| `outcomes/la-ferndale-01/shared-credit-failure` | Developer's empty chair and unsigned paper, apprentice stitching after closing while tailor examines overdue bills in the warm shop |
-| `outcomes/la-ferndale-01/inspect-pockets-success` | Close view of impossible alteration ticket concealed inside hand-sewn coat lining; apprentice and traveler study the material evidence, all ink illegible |
-| `outcomes/la-ferndale-01/inspect-pockets-failure` | Travel-worn hands sewing a mistakenly opened finished seam under tailor's practical guidance, no comic ridicule |
-| `outcomes/la-ferndale-01/apprentice-show-success` | Small respectful sidewalk display, community customers celebrating credited makers, one mannequin quietly bowing while no one quite looks |
+| Art key                                           | Distinct visual                                                                                                                                                                           |
+| ------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cards/la-ferndale-01`                            | Colorful fictional Victorian-tailor storefront, four mannequins in distinct possible-future outfits: mechanic's coveralls, flood-map wedding dress, graduation gown and a pocketless coat |
+| `paragraphs/la-ferndale-01/2`                     | Adult tailor and apprentice facing a proposed contract across a cluttered fitting table, speculative developer waiting at the window                                                      |
+| `outcomes/la-ferndale-01/shared-credit-success`   | Tailor and apprentice celebrating mutually agreed design-credit terms beside an unsold window, the fourth coat showing one newly opened pocket                                            |
+| `outcomes/la-ferndale-01/shared-credit-failure`   | Developer's empty chair and unsigned paper, apprentice stitching after closing while tailor examines overdue bills in the warm shop                                                       |
+| `outcomes/la-ferndale-01/inspect-pockets-success` | Close view of impossible alteration ticket concealed inside hand-sewn coat lining; apprentice and traveler study the material evidence, all ink illegible                                 |
+| `outcomes/la-ferndale-01/inspect-pockets-failure` | Travel-worn hands sewing a mistakenly opened finished seam under tailor's practical guidance, no comic ridicule                                                                           |
+| `outcomes/la-ferndale-01/apprentice-show-success` | Small respectful sidewalk display, community customers celebrating credited makers, one mannequin quietly bowing while no one quite looks                                                 |
 
 ## Ferndale hillside: LA-CEMETERY-01
 
-| Art key | Distinct visual |
-|---|---|
-| `cards/la-cemetery-01` | Fictional small hillside cemetery at misty dusk, **invented** unlabeled memorial stones, three subtly luminous imagined future residents meeting at a folding table |
-| `paragraphs/la-cemetery-01/2` | Groundskeeper gently guiding the translucent committee away from a hedge to leave unseen mourners privacy; speculative maps with no lettering |
-| `outcomes/la-cemetery-01/quiet-hearing-success` | Meeting beyond cemetery gate, three translucent adults offering different maps, one shared missing transit route suggested by a glowing line |
-| `outcomes/la-cemetery-01/quiet-hearing-failure` | Dim fading figures, traveler folding an incomplete map and apologizing to groundskeeper with mourners entirely out of frame |
-| `outcomes/la-cemetery-01/leave-graves-success` | Living traveler and groundskeeper repairing gate latch together, one gentle ghost observing quietly from outside the grounds |
-| `outcomes/la-cemetery-01/ask-terms-success` | Three ghostly future residents jointly sketching a fourth, revised map that respects an orchard, a watershed and a bus route; no names |
-| `outcomes/la-cemetery-01/ask-terms-failure` | Three soft-lit future residents debating beside blank conflicting maps outside the gate, traveler leaving quietly without claiming victory |
+| Art key                                         | Distinct visual                                                                                                                                                     |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cards/la-cemetery-01`                          | Fictional small hillside cemetery at misty dusk, **invented** unlabeled memorial stones, three subtly luminous imagined future residents meeting at a folding table |
+| `paragraphs/la-cemetery-01/2`                   | Groundskeeper gently guiding the translucent committee away from a hedge to leave unseen mourners privacy; speculative maps with no lettering                       |
+| `outcomes/la-cemetery-01/quiet-hearing-success` | Meeting beyond cemetery gate, three translucent adults offering different maps, one shared missing transit route suggested by a glowing line                        |
+| `outcomes/la-cemetery-01/quiet-hearing-failure` | Dim fading figures, traveler folding an incomplete map and apologizing to groundskeeper with mourners entirely out of frame                                         |
+| `outcomes/la-cemetery-01/leave-graves-success`  | Living traveler and groundskeeper repairing gate latch together, one gentle ghost observing quietly from outside the grounds                                        |
+| `outcomes/la-cemetery-01/ask-terms-success`     | Three ghostly future residents jointly sketching a fourth, revised map that respects an orchard, a watershed and a bus route; no names                              |
+| `outcomes/la-cemetery-01/ask-terms-failure`     | Three soft-lit future residents debating beside blank conflicting maps outside the gate, traveler leaving quietly without claiming victory                          |
 
 ## Queue handoff requirements
 

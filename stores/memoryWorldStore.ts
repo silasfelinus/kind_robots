@@ -5,7 +5,6 @@ import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_LINKS,
-  BRIAR_SAVE_VERSION,
   BRIAR_SITES,
   briarConnected,
   newBriarSave,

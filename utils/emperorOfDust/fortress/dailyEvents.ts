@@ -847,6 +847,14 @@ const MOTIFS: readonly Motif[] = [
         'The Silent Procession',
         'Pilgrims walk past the fortress without greeting it, all carrying empty bowls.',
       ],
+      [
+        'The Pilgrim Who Returned',
+        'A pilgrim who left for the Abbey years ago arrives older than the number of years can explain.',
+      ],
+      [
+        'The Road of a Hundred Candles',
+        "A line of pilgrims walks toward the hideout with lanterns shielded from a wind that hasn't arrived.",
+      ],
     ],
   },
   {

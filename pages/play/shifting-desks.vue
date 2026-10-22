@@ -743,6 +743,11 @@
                         }}</span></span
                       >
                       <span
+                        v-if="run && riskPayoffFor(run, choice)"
+                        class="self-start rounded-md bg-success/15 px-2 py-0.5 text-[11px] font-semibold text-success-content"
+                        >If the check succeeds: +1 Form</span
+                      >
+                      <span
                         v-if="rollTip === choice.id && choice.roll"
                         class="rounded-md bg-sky-100 px-2 py-1 text-xs leading-snug text-sky-950"
                         aria-hidden="true"
@@ -937,6 +942,7 @@ import {
   gradeRequirement,
   gradeTitle,
   reviewExhibits,
+  riskPayoffFor,
   interimResults,
   departmentBoard,
   restructuringById,

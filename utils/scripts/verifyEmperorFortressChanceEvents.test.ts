@@ -170,7 +170,11 @@ for (const seed of [1, 9, 47, 113, 1204, 23018]) {
     assert.equal(next.day, run.day + 1)
     run = next
   }
-  assert.equal(seen.size, 49, `seed ${seed}: one surprise after each First Bell`)
+  assert.equal(
+    seen.size,
+    49,
+    `seed ${seed}: one surprise after each First Bell`,
+  )
   assert.equal(
     offers.size,
     5,

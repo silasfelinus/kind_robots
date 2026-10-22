@@ -123,8 +123,7 @@ const fresh = () => {
 // Store tests advance a real new campaign through its required three
 // recruitment hearings before ending Day 1. Later days need no setup.
 const prepareFirstCourt = (run: ReturnType<typeof createRun>) => {
-  if (run.day !== 1 || !run.flags.includes(COURT_ONBOARDING_FLAG))
-    return run
+  if (run.day !== 1 || !run.flags.includes(COURT_ONBOARDING_FLAG)) return run
   let next = run
   for (const audience of audiencesToday(run)) {
     if (!COURT_RECRUITMENT_IDS.includes(audience.id)) continue
@@ -150,7 +149,11 @@ const finishWithRecruitment = (
   const court = reload()
   assert.equal(court.storageWarning, '')
   assert.equal(court.day, 1)
-  assert.equal(court.run?.roster.length, 0, 'the store also begins without followers')
+  assert.equal(
+    court.run?.roster.length,
+    0,
+    'the store also begins without followers',
+  )
   const saved = decodeBook(storage.data.get(AUTO) ?? null)
   assert.ok(saved, 'the first dawn is autosaved')
   finishWithRecruitment(court)

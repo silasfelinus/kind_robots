@@ -33,7 +33,7 @@ for (const quest of quests) {
   assert.ok(brief.startsWith(quest.summary), `${quest.id}: keep actionable dispatch`)
   assert.ok(brief.includes('\n\n'), `${quest.id}: two readable paragraphs`)
   assert.ok(brief.trim().split(/\s+/).length >= 65, `${quest.id}: detailed overall brief`)
-  assert.equal(authoredQuestDef(quest.id)?.summary, brief, `${quest.id}: source and editor see complete briefing`)
+  assert.equal(authoredQuestDef(quest.id)?.summary, quest.summary, `${quest.id}: editor retains its original editable text`)
   assert.equal(questDef(quest.id)?.summary, brief, `${quest.id}: quest room sees complete briefing`)
   if (quest.id.startsWith('r-')) {
     assert.equal(questDef(`${quest.id}@12`)?.summary, brief, `${quest.id}: seeded repeat instance displays context`)

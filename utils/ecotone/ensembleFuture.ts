@@ -13,7 +13,7 @@ const PAIR_FUTURES: Record<string, Record<Fate, string>> = {
     hope: 'Kit insists the workshop hold public performances. Mara insists the apprentices are paid before anyone books a stage. After three impassioned committee meetings, the two of them realize these are compatible demands. Ten years later, their cooperative keeps the books on an open shelf and the show lights on only when the crew agrees.',
     dark: 'The town sells Kit\'s parade and Mara\'s original designs to the same sponsor. Neither of them agrees to perform for it. They keep making small things for each other and their neighbors, but the bigger workshop never finds a door it can afford.',
   },
-  'kit|juniper': {
+  'juniper|kit': {
     hope: 'Juniper wants the old trees left standing; Kit needs room for a workshop where nobody can afford a new building. They turn a disused loading shed into a training space, and the yearly forest pageant becomes a fundraiser the volunteers actually control. Juniper says the seedlings are the real audience. Kit counts them anyway.',
     dark: 'A spectacular one-time forest festival raises enough money for a bright banner and not enough to protect the grove. Kit stops promising spectacles will solve everything; Juniper learns that shutting out every visitor leaves the caretakers alone. They keep exchanging difficult letters.',
   },

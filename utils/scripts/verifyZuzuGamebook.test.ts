@@ -174,9 +174,15 @@ assert.ok(isSavedRun(JSON.parse(JSON.stringify(initial))))
 assert.equal(isSavedRun({ ...initial, sceneId: 'missing' }), false)
 assert.equal(isSavedRun({ ...initial, health: 500 }), false)
 assert.equal(isSavedRun({ ...initial, pendingLoot: [123] }), false)
-const legacySave = JSON.parse(JSON.stringify(initial)) as Record<string, unknown>
+const legacySave = JSON.parse(JSON.stringify(initial)) as Record<
+  string,
+  unknown
+>
 delete legacySave.pendingLoot
-assert.ok(isSavedRun(legacySave), 'older V1 saves without pending loot are valid')
+assert.ok(
+  isSavedRun(legacySave),
+  'older V1 saves without pending loot are valid',
+)
 
 // An at-capacity pickup must never vanish without the player's consent.
 const fullItems = ['water', 'bandage', 'apple', 'flint', 'clapper']
@@ -189,11 +195,29 @@ const offered = takeChoice(fullPack, 'take')
 assert.deepEqual(offered.items, fullItems)
 assert.deepEqual(offered.pendingLoot, ['apple'])
 assert.deepEqual(fullPack.pendingLoot, [], 'pickup did not mutate old state')
-assert.equal(takeChoice(offered, 'on'), offered, 'pending loot blocks story advancement')
-assert.equal(resolveLoot(offered, -1), offered, 'invalid replacement cannot skip loot')
-assert.equal(resolveLoot(offered, 99), offered, 'invalid index cannot discard items')
+assert.equal(
+  takeChoice(offered, 'on'),
+  offered,
+  'pending loot blocks story advancement',
+)
+assert.equal(
+  resolveLoot(offered, -1),
+  offered,
+  'invalid replacement cannot skip loot',
+)
+assert.equal(
+  resolveLoot(offered, 99),
+  offered,
+  'invalid index cannot discard items',
+)
 const replaced = resolveLoot(offered, 4)
-assert.deepEqual(replaced.items, ['water', 'bandage', 'apple', 'flint', 'apple'])
+assert.deepEqual(replaced.items, [
+  'water',
+  'bandage',
+  'apple',
+  'flint',
+  'apple',
+])
 assert.deepEqual(replaced.pendingLoot, [])
 assert.deepEqual(offered.items, fullItems, 'exchange leaves old run untouched')
 const abandoned = resolveLoot(offered, null)
@@ -508,9 +532,15 @@ assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)
 assert.match(page, /max-md:max-h-\[34svh\]/, 'phones keep the plate to a third')
 
-assert.ok(page.includes('store.claimLoot(index)'), 'full pack can replace inventory')
+assert.ok(
+  page.includes('store.claimLoot(index)'),
+  'full pack can replace inventory',
+)
 assert.ok(page.includes('store.claimLoot(null)'), 'full pack can leave loot')
-assert.ok(page.includes('store.recoverable'), 'restore journey action is visible')
+assert.ok(
+  page.includes('store.recoverable'),
+  'restore journey action is visible',
+)
 
 console.log(
   'Zuzu gamebook contract: ' +

@@ -367,7 +367,9 @@ const drawTemplates = (run: FortressRun): void => {
   // The first act has four starters. If authored stories fill their hands,
   // a random chore must not make success mathematically impossible.
   const capacity = run.roster.filter((f) => !f.dead && !f.departed).length
-  const draws = scripted || backlog >= Math.max(2, capacity - 1) ? 0 : 1
+  const crisisDay = (scripted > 0 && run.day <= 10) ||
+    (scripted > 0 && run.day % 10 === 0)
+  const draws = crisisDay || backlog >= Math.max(2, capacity - 1) ? 0 : 1
   const pool = QUEST_TEMPLATES.filter((template) => choreOpen(run, template))
   for (let i = 0; i < draws && pool.length; i += 1) {
     const index = rollFor(run, `dawn:${run.day}:${i}`) % pool.length

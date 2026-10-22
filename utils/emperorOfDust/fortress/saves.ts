@@ -1,3 +1,4 @@
+import { chanceEvent } from './dailyEvents'
 import { followerDef, itemDef } from './followers'
 import { LAST_DAY, dueDef, questDef } from './content'
 import { rerollDawn, validMapState } from './engine'

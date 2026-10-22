@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "project": "shifting-desks",
+  "purpose": "Earned paperwork receipts for costly, successful actions; the original risks and failures remain unchanged.",
+  "payoffs": [
+    {
+      "department": "records",
+      "card": "gus-measures-the-glass",
+      "choice": "drill-the-vent",
+      "effects": {
+        "forms": 1
+      },
+      "message": "Gus slides a signed duplicate work order through the vent. You keep the spare Form; Facilities now has to acknowledge the original."
+    },
+    {
+      "department": "toy-division",
+      "card": "the-union-walkthrough",
+      "choice": "show-her-the-bay",
+      "effects": {
+        "forms": 1
+      },
+      "message": "Beverly gives you a stamped copy of violation thirty-two. This Form proves you opened the real inspection route."
+    },
+    {
+      "department": "wellness",
+      "card": "next-years-menu",
+      "choice": "write-in-real-food",
+      "effects": {
+        "forms": 1
+      },
+      "message": "The kitchen wraps its tomato in a blank, stamped requisition Form. Someone there still believes paperwork can feed people."
+    },
+    {
+      "department": "wellness",
+      "card": "tank-nine",
+      "choice": "drain-the-tank",
+      "effects": {
+        "forms": 1
+      },
+      "message": "A voucher marked KEVIN slips through the drain. Facilities reluctantly counts it as one Form."
+    }
+  ]
+}

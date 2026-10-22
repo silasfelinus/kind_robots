@@ -437,6 +437,11 @@ const actions: BattleAction[] = ['strike', 'guard', 'feint', 'quiet-draw']
 for (let walk = 0; walk < 6000; walk++) {
   let run = startRun(walk * 7919 + 1)
   for (let step = 0; step < 200; step++) {
+    if (run.pendingLoot.length) {
+      const slot = rand(run.items.length + 1)
+      run = resolveLoot(run, slot === run.items.length ? null : slot)
+      continue
+    }
     const node = scene(run.sceneId)
     if (node.ending) {
       reached.add(node.id)

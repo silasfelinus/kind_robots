@@ -95,9 +95,9 @@ const INJURY_CHANCE: Record<
   Record<QuestResultTier, number>
 > = {
   none: { triumph: 0, success: 0, partial: 0, failure: 0 },
-  low: { triumph: 0, success: 0, partial: 12, failure: 30 },
-  mid: { triumph: 0, success: 6, partial: 25, failure: 45 },
-  high: { triumph: 5, success: 15, partial: 45, failure: 65 },
+  low: { triumph: 0, success: 0, partial: 20, failure: 40 },
+  mid: { triumph: 0, success: 10, partial: 35, failure: 60 },
+  high: { triumph: 5, success: 20, partial: 50, failure: 80 },
 }
 /**
  * On a lethal quest, the chance a deep wound (5+ days) kills instead (t-041),

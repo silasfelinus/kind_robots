@@ -553,17 +553,17 @@ const moves: { action: BattleAction; label: string; help: string }[] = [
   {
     action: 'guard',
     label: '◈ Guard',
-    help: 'Sense check · prevent the counterblow',
+    help: 'Sense check · block and expose foe for a counter',
   },
   {
     action: 'feint',
     label: '↝ Feint',
-    help: 'Shadow check · expose defenses, 1 damage',
+    help: 'Shadow check · expose defenses, 3 damage, blunt retaliation',
   },
   {
     action: 'quiet-draw',
     label: '✦ Quiet Draw',
-    help: '2 Resolve · 6 damage on a hit',
+    help: '2 Resolve · 5 damage on a hit',
   },
 ]
 function restart() {

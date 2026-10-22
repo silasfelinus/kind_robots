@@ -8,6 +8,15 @@ import {
   sectionPlate,
 } from '../zuzuGamebook/art'
 import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
+import {
+  applyPlaytestMove,
+  combatBenchmark,
+  findEndingWitness,
+  replayWitness,
+  witnessFromRun,
+  type EndingWitness,
+  type PlaytestMove,
+} from '../zuzuGamebook/adversarial'
 import { journal } from '../zuzuGamebook/journal'
 import { emphasis } from '../zuzuGamebook/prose'
 import {
@@ -450,46 +459,134 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
-// Stateful exploration: seeded random playthroughs reach every ending and never stall.
+// Seeded player journeys use actual dice and inventory decisions. Capture a
+// replayable witness for each ending rather than trusting synthetic scene flags.
 let rng = 20261009
 const rand = (n: number) => {
   rng = (rng * 1103515245 + 12345) >>> 0
   return (rng >>> 16) % n
 }
-const reached = new Set<string>()
+const witnessed = new Map<string, EndingWitness>()
 const actions: BattleAction[] = ['strike', 'guard', 'feint', 'quiet-draw']
 for (let walk = 0; walk < 6000; walk++) {
-  let run = startRun(walk * 7919 + 1)
+  const seed = walk * 7919 + 1
+  let run = startRun(seed)
+  const moves: PlaytestMove[] = []
   for (let step = 0; step < 200; step++) {
-    if (run.pendingLoot.length) {
-      const slot = rand(run.items.length + 1)
-      run = resolveLoot(run, slot === run.items.length ? null : slot)
-      continue
-    }
     const node = scene(run.sceneId)
     if (node.ending) {
-      reached.add(node.id)
+      if (!witnessed.has(node.id))
+        witnessed.set(node.id, witnessFromRun(seed, moves, run))
       break
     }
-    if (run.battle) {
-      const next = fight(run, actions[rand(actions.length)]!)
-      run = next === run ? fight(run, 'strike') : next
-      continue
+    let move: PlaytestMove
+    if (run.pendingLoot.length) {
+      const slot = rand(run.items.length + 1)
+      move = { kind: 'loot', replace: slot === run.items.length ? null : slot }
+    } else if (run.battle) {
+      const proposed = actions[rand(actions.length)]!
+      move = {
+        kind: 'fight',
+        action:
+          proposed === 'quiet-draw' && run.resolve < 2 ? 'strike' : proposed,
+      }
+    } else {
+      const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
+      assert.ok(open.length, 'stalled with no available choice at ' + node.id)
+      move = { kind: 'choice', id: open[rand(open.length)]!.id }
     }
-    const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
-    assert.ok(open.length, 'stalled with no available choice at ' + node.id)
-    run = takeChoice(run, open[rand(open.length)]!.id)
+    const next = applyPlaytestMove(run, move)
+    assert.notEqual(next, run, 'random walker attempted a rejected move')
+    moves.push(move)
+    run = next
     assert.ok(run.health >= 0 && run.health <= 12)
     assert.ok(run.items.length <= 5)
   }
 }
-// Endings behind a rare ally flag are proved by the scripted runs below instead of by chance.
-const scriptedEndings = new Set(['ending-wren-lamp'])
-for (const id of endings)
-  assert.ok(
-    reached.has(id) || scriptedEndings.has(id),
-    'ending never reached in play: ' + id,
+for (const id of endings) {
+  const witness = witnessed.get(id) ?? findEndingWitness(id)
+  assert.ok(witness, 'No legal seed-and-choice playthrough reaches ' + id)
+  assert.equal(witness.ending, id)
+  const replayed = replayWitness(witness.seed, witness.moves)
+  assert.equal(replayed.sceneId, id, 'replayed witness diverged for ' + id)
+  assert.deepEqual(replayed.visited, witness.visited)
+  assert.equal(replayed.health, witness.health)
+  assert.equal(replayed.resolve, witness.resolve)
+  assert.ok(witness.visited[0] === 'the-crossing')
+  if (id === 'ending-wren-lamp') {
+    assert.ok(
+      witness.visited.includes('a5-wren-talk'),
+      'Wren must actually trust Zuzu',
+    )
+    assert.ok(replayed.flags.includes('wren-ally'))
+  }
+  console.log(
+    'Gamebook witness ' +
+      id +
+      ': seed=' +
+      witness.seed +
+      ', moves=' +
+      witness.moves.length +
+      ', health=' +
+      witness.health,
   )
+}
+
+// Check that every policy resolves each authored combat, including starting hurt.
+// The report is for designers; deterministic outcome bounds prevent a silent
+// regression to unwinnable battles.
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  const results = [
+    combatBenchmark(node.id, 'strike', 250),
+    combatBenchmark(node.id, 'quiet-draw', 250),
+    combatBenchmark(node.id, 'feint-strike', 250),
+    combatBenchmark(node.id, 'guard-strike', 250),
+  ]
+  for (const outcome of results) {
+    assert.ok(Number.isFinite(outcome.averageRounds))
+    assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
+    assert.ok(outcome.winRate >= 0 && outcome.winRate <= 1)
+  }
+  assert.ok(
+    results.some((outcome) => outcome.wins > 0),
+    node.id + ': unwinnable',
+  )
+  console.log(
+    'Gamebook combat ' +
+      node.id +
+      ': ' +
+      results
+        .map(
+          (r) =>
+            Math.round(r.winRate * 100) +
+            '%/' +
+            r.averageHealth.toFixed(1) +
+            'hp',
+        )
+        .join(' | '),
+  )
+}
+const guardTestRuns = Array.from({ length: 120 }, (_, i) =>
+  fight({ ...coyote, seed: i + 1 }, 'guard'),
+)
+assert.ok(
+  guardTestRuns.some(
+    (result) => result.battle?.exposed && result.health === coyote.health,
+  ),
+  'successful guard should block damage and open a counterattack',
+)
+const feintTestRuns = Array.from({ length: 120 }, (_, i) =>
+  fight({ ...coyote, seed: i + 1 }, 'feint'),
+)
+assert.ok(
+  feintTestRuns.some(
+    (result) =>
+      result.battle?.exposed &&
+      result.battle.hp === 5 &&
+      result.health >= coyote.health - 1,
+  ),
+  'successful feint should deal 2, expose and reduce retaliation',
+)
 
 // The Keeper of the Empty Bell: from the tower, only when the children were freed.
 const towerRun: Run = { ...startRun(11), sceneId: 'a9-tower', flags: [] }

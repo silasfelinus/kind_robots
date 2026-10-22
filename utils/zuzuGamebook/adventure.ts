@@ -256,9 +256,9 @@ export function fight(run: Run, action: BattleAction): Run {
       ? 0
       : success
         ? action === 'feint'
-          ? 1
+          ? 3
           : action === 'quiet-draw'
-            ? 6
+            ? 5
             : 3
         : 0
   const enemyHp = Math.max(0, battle.hp - damage)
@@ -269,7 +269,7 @@ export function fight(run: Run, action: BattleAction): Run {
         ? 0
         : action === 'guard'
           ? 1
-          : Math.max(1, enemy.attack - (success && action === 'feint' ? 1 : 0))
+          : Math.max(1, enemy.attack - (success && action === 'feint' ? 2 : 0))
   const health = Math.max(0, run.health - incoming)
   const next: Run = {
     ...run,
@@ -286,10 +286,16 @@ export function fight(run: Run, action: BattleAction): Run {
     },
     battle: {
       hp: enemyHp,
-      exposed: action === 'feint' && success,
+      exposed: (action === 'feint' || action === 'guard') && success,
       turn: battle.turn + 1,
       log:
-        (success ? 'Your move connects.' : 'Your move fails.') +
+        (action === 'guard'
+          ? success
+            ? 'You turn the blow aside and expose the foe.'
+            : 'Your guard gives ground.'
+          : success
+            ? 'Your move connects.'
+            : 'Your move fails.') +
         (incoming
           ? ' You suffer ' + incoming + ' damage.'
           : ' You avoid the counterblow.'),

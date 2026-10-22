@@ -1661,6 +1661,8 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     handleGalleryClick: selectCard,
     usePowerup,
     startDungeonRun,
+    getMemoryCardPool,
+    selectLoadableImagePaths,
     resetGame,
     advanceLevel,
     clearNotification,

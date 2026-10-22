@@ -3962,6 +3962,43 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     quests: [],
     audiences: [
       {
+        id: 'd47-watch-writ',
+        title: 'A Writ for the Roads',
+        speaker: 'Ferro Dunmark',
+        npc: 'ferro-dunmark',
+        lines: [
+          'Dunmark comes to the shared fire with three pages rolled tight in his fist. No battle maps. No orders for the Abbey. These orders begin the morning after.',
+          '“If we take the tower back, somebody has to hold the roads. Every bridge, every village gate. My Watch can do it. But I need the crown’s word before I ask them to search their own neighbors.”',
+          'The writ permits checkpoints without a village council, searches without witnesses, and detention until a Watch captain agrees to release a traveler. The first posts would take their rations from the Yard.',
+          '“Sign and I can stand behind an iron peace at the last fire. Refuse and I will tell them the Watch answers to their charters. Either way, Majesty, I am the one who has to look those people in the face.”',
+        ],
+        options: [
+          {
+            id: 'refuse',
+            label:
+              'Refuse the writ. No road belongs to the Watch without the people on it.',
+            effects: {
+              local: { 'gate-watch': -2, yard: 1 },
+              flags: ['watch-writ-refused'],
+            },
+            response:
+              'Dunmark burns the pages himself. The men watching the fire see him do it. “Then we ask permission at every gate,” he says. “Some will say no. I hope we listen.”',
+          },
+          {
+            id: 'sign-watch-writ',
+            label:
+              'Sign. Give the Watch every road, and take the rations from the Yard.',
+            effects: {
+              local: { 'gate-watch': 2, yard: -3 },
+              affinity: { freeholds: -8, moles: -8, saltroad: -5 },
+              flags: ['watch-writ-signed'],
+            },
+            response:
+              'Dunmark holds the signed pages while the ink dries. The first ration cart is already leaving the Yard. At the far end of the fire the Freehold delegates stand without saying goodbye. “They will obey,” he says. “That is not the same as forgiving us.”',
+          },
+        ],
+      },
+      {
         id: 'd47-kiyo',
         title: 'A Letter for Later',
         speaker: 'Kiyo',
@@ -4509,7 +4546,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           {
             id: 'iron',
             label: 'An iron peace: the Gate Watch keeps order everywhere.',
-            requires: { local: { 'gate-watch': 12 } },
+            requires: {
+              flags: ['watch-writ-signed'],
+              local: { 'gate-watch': 12 },
+            },
             effects: {
               local: { 'gate-watch': 3, 'old-houses': 2 },
               affinity: { moles: -10 },
@@ -4588,7 +4628,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               {
                 id: 'iron',
                 label: 'An iron peace. Alive is better than happy.',
-                requires: { local: { 'gate-watch': 12 } },
+                requires: {
+              flags: ['watch-writ-signed'],
+              local: { 'gate-watch': 12 },
+            },
                 effects: {
                   local: { 'gate-watch': 3, 'old-houses': 2 },
                   affinity: { moles: -10 },

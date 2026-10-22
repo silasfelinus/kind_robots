@@ -364,7 +364,9 @@ export function cardAsides(card: EncounterCard, state: RunState): string[] {
   // retain their own stories and never narrate the player's current scene.
   for (const companion of travelParty(state).slice(1)) {
     const extra =
-      companion !== presence?.companion ? card.leadLines?.[companion] : undefined
+      companion !== presence?.companion
+        ? card.leadLines?.[companion]
+        : undefined
     if (extra && extra !== line) asides.push(extra)
   }
   return asides
@@ -800,7 +802,8 @@ export function chooseCrossroads(
 ): RunState {
   const newcomer = crossroadsNewcomer(state)
   if (state.phase !== 'crossroads' || state.pending || !newcomer) return state
-  const decision = typeof choice === 'boolean' ? (choice ? 'follow' : 'stay') : choice
+  const decision =
+    typeof choice === 'boolean' ? (choice ? 'follow' : 'stay') : choice
   if (decision !== 'stay' && decision !== 'follow' && decision !== 'together')
     return state
   if (decision === 'together' && !state.activeLead) return state

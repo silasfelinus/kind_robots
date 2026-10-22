@@ -92,9 +92,15 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
       if (undoSnapshot.value)
-        window.localStorage.setItem(UNDO_KEY, JSON.stringify(undoSnapshot.value))
+        window.localStorage.setItem(
+          UNDO_KEY,
+          JSON.stringify(undoSnapshot.value),
+        )
       else window.localStorage.removeItem(UNDO_KEY)
-      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(manualSaves.value))
+      window.localStorage.setItem(
+        SAVE_SLOTS_KEY,
+        JSON.stringify(manualSaves.value),
+      )
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -114,17 +120,37 @@ export const useEcotoneStore = defineStore('ecotone', () => {
             parsed.seed === run.value.seed &&
             parsed.log.length <= run.value.log.length &&
             parsed.phase !== 'end'
-          ) undoSnapshot.value = parsed
+          )
+            undoSnapshot.value = parsed
         }
         const savedSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
         if (savedSlots) {
           const parsed: unknown = JSON.parse(savedSlots)
-          if (Array.isArray(parsed)) manualSaves.value = parsed.flatMap((item) => {
-            const snapshot = item && typeof item === 'object' ? restoreRun(item.state) : null
-            return snapshot && Number.isInteger(item.slot) && item.slot >= 1 && item.slot <= 3 && typeof item.savedAt === 'string'
-              ? [{ slot: item.slot as number, savedAt: item.savedAt as string, state: snapshot }]
-              : []
-          }).filter((item, index, all) => all.findIndex((other) => other.slot === item.slot) === index)
+          if (Array.isArray(parsed))
+            manualSaves.value = parsed
+              .flatMap((item) => {
+                const snapshot =
+                  item && typeof item === 'object'
+                    ? restoreRun(item.state)
+                    : null
+                return snapshot &&
+                  Number.isInteger(item.slot) &&
+                  item.slot >= 1 &&
+                  item.slot <= 3 &&
+                  typeof item.savedAt === 'string'
+                  ? [
+                      {
+                        slot: item.slot as number,
+                        savedAt: item.savedAt as string,
+                        state: snapshot,
+                      },
+                    ]
+                  : []
+              })
+              .filter(
+                (item, index, all) =>
+                  all.findIndex((other) => other.slot === item.slot) === index,
+              )
         }
         const ledger = window.localStorage.getItem(ENDINGS_KEY)
         if (ledger) {
@@ -173,13 +199,17 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   }
 
   function saveSlot(slot: number) {
-    if (!run.value || !Number.isInteger(slot) || slot < 1 || slot > 3) return false
+    if (!run.value || !Number.isInteger(slot) || slot < 1 || slot > 3)
+      return false
     const snapshot: EcotoneSaveSlot = {
       slot,
       savedAt: new Date().toISOString(),
       state: structuredClone(run.value),
     }
-    manualSaves.value = [...manualSaves.value.filter((item) => item.slot !== slot), snapshot]
+    manualSaves.value = [
+      ...manualSaves.value.filter((item) => item.slot !== slot),
+      snapshot,
+    ]
     persist()
     return true
   }
@@ -201,13 +231,26 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function exportSave(): string | null {
     return run.value
-      ? JSON.stringify({ format: 'ecotone-save', version: 1, savedAt: new Date().toISOString(), run: run.value }, null, 2)
+      ? JSON.stringify(
+          {
+            format: 'ecotone-save',
+            version: 1,
+            savedAt: new Date().toISOString(),
+            run: run.value,
+          },
+          null,
+          2,
+        )
       : null
   }
 
   function importSave(raw: unknown): boolean {
     if (!raw || typeof raw !== 'object') return false
-    const payload = raw as { format?: unknown; version?: unknown; run?: unknown }
+    const payload = raw as {
+      format?: unknown
+      version?: unknown
+      run?: unknown
+    }
     if (payload.format !== 'ecotone-save' || payload.version !== 1) return false
     const restored = restoreRun(payload.run)
     if (!restored) return false

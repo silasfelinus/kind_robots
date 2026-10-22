@@ -1,11 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import {
-  createRun,
-  restoreRun,
-  chooseBeat,
-  findCard,
-} from '../ecotone/engine'
+import { createRun, restoreRun, chooseBeat, findCard } from '../ecotone/engine'
 import {
   PLAYER_AVATARS,
   PLAYER_PERSONALITIES,

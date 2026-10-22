@@ -245,3 +245,32 @@ export function tilePattern(
 export function stagePlate(src: string): HTMLImageElement | null {
   return loadedImage(src)
 }
+
+const videos = new Map<string, HTMLVideoElement | null>()
+
+/**
+ * A muted, looping video (a painted map's motion loop) once it has a frame to
+ * draw, else null. Canvas draws only the first frame of an animated WebP, so
+ * motion loops ship as `<base>.webm` (VP9) and `<base>.mp4` (H.264) and play
+ * through a detached video element, in whichever format the browser can play.
+ */
+export function loopingVideo(base: string): HTMLVideoElement | null {
+  if (typeof document === 'undefined') return null
+  if (!videos.has(base)) {
+    const video = document.createElement('video')
+    video.muted = true
+    video.loop = true
+    video.playsInline = true
+    video.preload = 'auto'
+    video.addEventListener('error', () => videos.set(base, null))
+    video.src = video.canPlayType('video/webm; codecs="vp9"')
+      ? `${base}.webm`
+      : `${base}.mp4`
+    video.play().catch(() => {})
+    videos.set(base, video)
+  }
+  const video = videos.get(base)
+  if (!video) return null
+  if (video.paused) video.play().catch(() => {})
+  return video.readyState >= 2 ? video : null
+}

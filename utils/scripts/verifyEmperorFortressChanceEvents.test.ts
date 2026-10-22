@@ -30,20 +30,39 @@ assert.equal(
 )
 assert.equal(new Set(CHANCE_EVENTS.map((entry) => entry.id)).size, 135)
 assert.equal(Object.keys(ACT_ONE_CHOICES).length, 26)
-const actOneScenes = CHANCE_EVENTS.filter((entry) => entry.act === 1 && !entry.secretFollower)
+const actOneScenes = CHANCE_EVENTS.filter(
+  (entry) => entry.act === 1 && !entry.secretFollower,
+)
 assert.equal(actOneScenes.length, 26)
 const choiceLabels = new Set<string>()
 for (const scene of actOneScenes) {
   assert.equal(scene.choices.length, 2, scene.id)
   for (const option of scene.choices) {
-    assert.ok(option.response.length > 100, `${scene.id} needs a specific aftermath`)
-    assert.ok((option.effects.flags ?? []).some((f) => f.startsWith('eod-')), `${scene.id} needs a remembered decision`)
-    assert.ok(!choiceLabels.has(option.label), `${scene.id} repeats a previous option`)
+    assert.ok(
+      option.response.length > 100,
+      `${scene.id} needs a specific aftermath`,
+    )
+    assert.ok(
+      (option.effects.flags ?? []).some((f) => f.startsWith('eod-')),
+      `${scene.id} needs a remembered decision`,
+    )
+    assert.ok(
+      !choiceLabels.has(option.label),
+      `${scene.id} repeats a previous option`,
+    )
     choiceLabels.add(option.label)
   }
-  assert.notDeepEqual(scene.choices[0]?.effects, scene.choices[1]?.effects, scene.id)
+  assert.notDeepEqual(
+    scene.choices[0]?.effects,
+    scene.choices[1]?.effects,
+    scene.id,
+  )
 }
-assert.equal(choiceLabels.size, 52, 'two uniquely authored decisions per Act I chance event')
+assert.equal(
+  choiceLabels.size,
+  52,
+  'two uniquely authored decisions per Act I chance event',
+)
 
 for (const act of [1, 2, 3, 4, 5]) {
   const events = CHANCE_EVENTS.filter((entry) => entry.act === act)

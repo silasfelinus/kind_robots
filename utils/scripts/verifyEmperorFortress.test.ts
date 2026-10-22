@@ -408,8 +408,8 @@ assert.ok(validateRun(start))
 assert.ok(start.board.some((entry) => entry.questId === 'q-d01-well-road'))
 assert.equal(
   start.board.filter((entry) => entry.questId.includes('@')).length,
-  1,
-  'one seeded chore on an authored day',
+  0,
+  'scripted day leaves room for deliberate quests',
 )
 assert.ok(!start.revealedFactions.includes('rustline'), 'Rustline is fogged')
 assert.equal(audiencesToday(start).length, 3)

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "project": "shifting-desks",
+  "receipts": [
+    {
+      "flag": "opted-out-of-leaving",
+      "text": "Your resignation is still filed as Optional. The clerk who prepared it has been reassigned to the department of unwanted freedom."
+    },
+    {
+      "flag": "beverly-repaid-shared-desk",
+      "text": "Beverly's joint safety injunction still carries both your names, in lettering too large for Legal to redact quietly."
+    },
+    {
+      "flag": "negotiated-the-crumb-clause",
+      "text": "The Nutrition Department now budgets for a designated crumb zone. Local 9 holds meetings there between lunch shifts."
+    },
+    {
+      "flag": "trusted-dale-in-the-dilemma",
+      "text": "Dale and you kept the silence together during the Company's loyalty test. PAL has filed that quiet as evidence."
+    },
+    {
+      "flag": "founder-grateful",
+      "text": "The Founder's four spare mustaches have been returned and given four separate votes. Your name remains in the minutes as the courier."
+    },
+    {
+      "flag": "admin-access",
+      "text": "The administrator terminal remembers an employee who gained access, though the Board has erased the time and method."
+    },
+    {
+      "flag": "silenced-the-bears",
+      "text": "The bears are silent now. The Board has replaced its surveillance budget with a line labeled Unexpected Privacy."
+    },
+    {
+      "flag": "dale-tore-up-testimony",
+      "text": "Dale's torn testimony has become potting soil. The Board still asks what he meant to say about you."
+    },
+    {
+      "flag": "answered-your-own-ticket",
+      "text": "Ticket Two remains In Progress. PAL has requested a definition of help that will fit on one line. No answer will satisfy it."
+    }
+  ]
+}

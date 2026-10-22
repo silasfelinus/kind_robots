@@ -20,13 +20,16 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
     ],
     leadLines: {
       mara: 'Mara asks who will own the design if somebody films it. Kit rolls her eyes, then fetches the workshop release forms.',
-      juniper: 'Juniper studies the volunteer\'s stop sign on the machine. "The tree does not applaud when it falls," she says. Kit sighs. "Thank you, forest mother."',
-      cedar: 'Cedar looks at the rim, not Kit. "The risk is in the hub." Kit looks relieved that someone noticed.',
+      juniper:
+        'Juniper studies the volunteer\'s stop sign on the machine. "The tree does not applaud when it falls," she says. Kit sighs. "Thank you, forest mother."',
+      cedar:
+        'Cedar looks at the rim, not Kit. "The risk is in the hub." Kit looks relieved that someone noticed.',
     },
     choices: [
       {
         id: 'repair',
-        label: 'Help her rebuild the wheel, and let the apprentice decide whether to ride it',
+        label:
+          'Help her rebuild the wheel, and let the apprentice decide whether to ride it',
         cost: 'The show may start without her; no guarantee the repair holds',
         check: { skill: 'burly', target: 9 },
         success: {
@@ -40,7 +43,8 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       },
       {
         id: 'say-no',
-        label: 'Back her up when she tells the apprentice this wheel will not go onstage',
+        label:
+          'Back her up when she tells the apprentice this wheel will not go onstage',
         success: {
           text: 'The apprentice accuses Kit of giving up. She listens instead of arguing, then promises a supervised rebuild next month with no audience invited. At the workshop door she admits that saying no to a spectacle feels like stepping off a high wire without knowing where the ground is.',
           effects: { flag: 'bond_kit_boundary' },
@@ -72,12 +76,14 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
     leadLines: {
       mara: 'Mara starts a clear list of actual losses, not a heroic speech. Juniper watches the water creep across the chalk lines.',
       kit: 'Kit offers to rig a temporary diversion from an old parade ramp. The shop owner will agree only if somebody checks it first.',
-      cedar: 'Cedar shows the shop owner the drainage diagram. "There are two people who can approve this," he says. "Neither is a fern."',
+      cedar:
+        'Cedar shows the shop owner the drainage diagram. "There are two people who can approve this," he says. "Neither is a fern."',
     },
     choices: [
       {
         id: 'neighbors',
-        label: 'Ask the shop owner and a drainage volunteer to choose a safer plan with Juniper',
+        label:
+          'Ask the shop owner and a drainage volunteer to choose a safer plan with Juniper',
         check: { skill: 'rizz', target: 9 },
         success: {
           text: 'They move the moss to a nearby rain garden, agree on a maintenance roster, and reopen the workshop door. Juniper signs the roster in ink, very slowly. The owner insists on a phone number he can actually call if a tree starts another argument.',
@@ -90,7 +96,8 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       },
       {
         id: 'accountability',
-        label: 'Tell Juniper that helping means repairing what she has already damaged',
+        label:
+          'Tell Juniper that helping means repairing what she has already damaged',
         success: {
           text: 'She looks furious for one long breath. Then she takes off her boots, wades in and starts hauling the sodden stock out with the owner. "The creek and I can argue later," she says. They do, without you.',
           effects: { flag: 'bond_juniper_accountability' },
@@ -98,7 +105,8 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       },
       {
         id: 'listen',
-        label: 'Offer to listen tonight, without claiming to resolve the dispute',
+        label:
+          'Offer to listen tonight, without claiming to resolve the dispute',
         success: {
           text: 'Juniper talks for a while about watching the valley change without ever being asked what it needed. You listen, then ask whether the repair-shop owner might feel the same. She does not answer, but she writes his name down.',
           effects: { flag: 'bond_juniper_listened' },
@@ -116,22 +124,27 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
     title: 'The Radio That Knows Your Father',
     scene: 'bay',
     body: [
-      'Cedar\'s CB has begun picking up a man who sounds exactly like his father, arguing about a logging road that has not existed for twenty years. The voice gets the punchline of a family joke right but forgets the name of Cedar\'s mother. Cedar switches it off, waits, switches it on again.',
+      "Cedar's CB has begun picking up a man who sounds exactly like his father, arguing about a logging road that has not existed for twenty years. The voice gets the punchline of a family joke right but forgets the name of Cedar's mother. Cedar switches it off, waits, switches it on again.",
       'He tells you that his parents disagree about forests without turning every disagreement into a divorce. "I could ask Dad to come verify the voice," he says. "But that would make him responsible for this thing." For once the county\'s most useful repairman cannot find the right tool.',
     ],
     leadLines: {
-      mara: 'Mara refuses to record the call without Cedar\'s permission. He looks grateful and annoyed that the question was necessary.',
+      mara: "Mara refuses to record the call without Cedar's permission. He looks grateful and annoyed that the question was necessary.",
       kit: 'Kit reaches for the radio dial, sees Cedar\'s face and stops. "Your call," she says, letting her hand fall.',
-      juniper: 'Juniper listens to the engine tick as it cools. "A voice is not a person," she says. Cedar asks her to say it again.',
+      juniper:
+        'Juniper listens to the engine tick as it cools. "A voice is not a person," she says. Cedar asks her to say it again.',
     },
     choices: [
       {
         id: 'verify',
-        label: 'Check the signal against the call log before bringing anyone else into it',
+        label:
+          'Check the signal against the call log before bringing anyone else into it',
         check: { skill: 'lore', target: 9 },
         success: {
           text: 'You find the original dispatch log from the night Cedar was born. The voice names a future road rather than an old one. Cedar photographs the evidence and waits until morning to decide whether his father needs to know.',
-          effects: { evidence: 'Cedar\'s verified future radio call', flag: 'bond_cedar_verified' },
+          effects: {
+            evidence: "Cedar's verified future radio call",
+            flag: 'bond_cedar_verified',
+          },
         },
         failure: {
           text: 'You mistake a repeater echo for a transmission and waste the last usable battery. Cedar does not offer false reassurance. He sits beside you on the curb and draws the actual radio path with a pen that keeps running out.',
@@ -148,7 +161,8 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       },
       {
         id: 'walk',
-        label: 'Take a walk and talk about something other than machines or families',
+        label:
+          'Take a walk and talk about something other than machines or families',
         success: {
           text: 'He tells you about a truly dreadful sandwich he once made on a night shift. You retaliate with your own culinary embarrassment. When you get back, the radio is still quiet. Cedar decides that quiet does not need repairing.',
           effects: { flag: 'bond_cedar_walk' },
@@ -166,22 +180,28 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
     title: 'The Bird With Someone Else’s Signature',
     scene: 'plaza',
     body: [
-      'Mara has hung two sketches on the studio wall. Both show her six-winged bird. One is hers. The other appeared online yesterday under a stranger\'s name and has a line in the left wing she always erases. A would-be client offers to pay her to copy the counterfeit exactly.',
+      "Mara has hung two sketches on the studio wall. Both show her six-winged bird. One is hers. The other appeared online yesterday under a stranger's name and has a line in the left wing she always erases. A would-be client offers to pay her to copy the counterfeit exactly.",
       '"I know I could do it better," she says. "That is not the same as wanting to." She waits for your answer, leaving the client\'s unanswered message on the table. The bird on the paper keeps its wings perfectly still.',
     ],
     leadLines: {
       kit: 'Kit offers to perform an elaborate public theft-of-credit sketch. Mara asks who would have to consent to be part of that show.',
-      juniper: 'Juniper wants to tear up the copy. Mara asks, very gently, whether a damaged proof would help anyone.',
-      cedar: 'Cedar proposes a timestamp ledger, then stops talking to ask what Mara actually wants documented.',
+      juniper:
+        'Juniper wants to tear up the copy. Mara asks, very gently, whether a damaged proof would help anyone.',
+      cedar:
+        'Cedar proposes a timestamp ledger, then stops talking to ask what Mara actually wants documented.',
     },
     choices: [
       {
         id: 'papertrail',
-        label: 'Help Mara document her earlier sketches before she challenges the credit',
+        label:
+          'Help Mara document her earlier sketches before she challenges the credit',
         check: { skill: 'wits', target: 9 },
         success: {
           text: 'The studio archive has dated contact sheets, two witnesses and the erased line in Mara\'s own notebook. She assembles a complaint without making her clients into an audience. "It is good to have somebody who knows when to stop digging," she says.',
-          effects: { evidence: 'Mara\'s dated original sketch record', flag: 'bond_mara_evidence' },
+          effects: {
+            evidence: "Mara's dated original sketch record",
+            flag: 'bond_mara_evidence',
+          },
         },
         failure: {
           text: 'The cloud archive loses its timestamps mid-download. Mara has to ask an old colleague for help, and she is embarrassed that you witnessed it. She thanks you for staying, but does not pretend you solved anything.',
@@ -190,7 +210,8 @@ export const COMPANION_HANGOUTS: Record<CompanionId, EncounterCard> = {
       },
       {
         id: 'decline',
-        label: 'Encourage her to turn down the commission even if the rent hurts',
+        label:
+          'Encourage her to turn down the commission even if the rent hurts',
         success: {
           text: 'Mara writes a courteous refusal that says exactly what it means. The client is furious, the rent is still due, and the original drawing goes back into her portfolio. She asks you to help her price the next commission fairly rather than promising exposure.',
           effects: { flag: 'bond_mara_refused_copy' },

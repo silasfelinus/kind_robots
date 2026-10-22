@@ -114,7 +114,8 @@ export type RiskPayoff = {
   message: string
 }
 
-export const RISK_PAYOFFS = (riskPayoffsData as { payoffs: RiskPayoff[] }).payoffs
+export const RISK_PAYOFFS = (riskPayoffsData as { payoffs: RiskPayoff[] })
+  .payoffs
 
 export const START_METERS: Meters = {
   composure: 6,
@@ -429,7 +430,7 @@ export function reviewExhibits(
   const toys: Array<[string, string]> = [
     [
       'showed-beverly-the-bay',
-      "INSPECTION FILE: Beverly saw the warhead bay. Her citations carry your employee number, so the Company cannot pretend the inspection never happened.",
+      'INSPECTION FILE: Beverly saw the warhead bay. Her citations carry your employee number, so the Company cannot pretend the inspection never happened.',
     ],
     [
       'gave-beverly-the-scenic-tour',
@@ -467,7 +468,7 @@ export function reviewExhibits(
 const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
   [
     'drilled-the-union-vent',
-    "Gus keeps the speaking vent open. The Union still hears the clerks, even after PAL removed your name from its minutes.",
+    'Gus keeps the speaking vent open. The Union still hears the clerks, even after PAL removed your name from its minutes.',
   ],
   [
     'routed-gus-to-pest-control',
@@ -487,7 +488,7 @@ const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
   ],
   [
     'wrote-in-real-food',
-    "The kitchen kept your handwritten request for real food. Somebody has drawn a small tomato beside it.",
+    'The kitchen kept your handwritten request for real food. Somebody has drawn a small tomato beside it.',
   ],
   [
     'unplugged-the-terminal',
@@ -495,7 +496,9 @@ const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
   ],
 ]
 
-export function successorLegacyLines(state: Pick<RunState, 'terminations'>): string[] {
+export function successorLegacyLines(
+  state: Pick<RunState, 'terminations'>,
+): string[] {
   const losses = state.terminations
   if (!losses.length) return []
   const first = losses[0]!
@@ -516,8 +519,9 @@ export function endingLines(state: RunState, ending: Ending): string[] {
     .filter((v) => state.flags.includes(v.when_flag))
     .map((v) => v.text)
   const existingFlags = new Set(ending.variants.map((v) => v.when_flag))
-  const receipts = CHOICE_RECEIPTS
-    .filter(([flag]) => state.flags.includes(flag) && !existingFlags.has(flag))
+  const receipts = CHOICE_RECEIPTS.filter(
+    ([flag]) => state.flags.includes(flag) && !existingFlags.has(flag),
+  )
     .slice(0, 2)
     .map(([, text]) => text)
   return [...authored, ...receipts, ...successorLegacyLines(state)]
@@ -1202,7 +1206,10 @@ export function favorAppliesTo(state: RunState, choice: Choice): boolean {
   return false
 }
 
-export function riskPayoffFor(state: RunState, choice: Choice): RiskPayoff | null {
+export function riskPayoffFor(
+  state: RunState,
+  choice: Choice,
+): RiskPayoff | null {
   const card = currentCard(state)?.card
   if (!card || !choice.roll) return null
   return (

@@ -27,6 +27,7 @@ import {
   type RouteStep,
 } from './story'
 import type { GatedEncounter } from './questExpansion'
+import { COMPANION_HANGOUTS } from './companionHangouts'
 import { REVISED_COMPANION_SIGNATURES } from './journeySignatures'
 import { FUTURES, SIGNATURES, LENS_CODAS } from './story'
 import {
@@ -385,6 +386,7 @@ export function encounterEligible(
   state: RunState,
 ): boolean {
   if (state.played.includes(card.id)) return false
+  if (card.requiresInvitation) return false
   if (card.requiresLead && !travelParty(state).includes(card.requiresLead))
     return false
   if (card.requiresLens) {
@@ -879,6 +881,29 @@ export function chooseCrossroads(
 
 export function advance(state: RunState): RunState {
   if (!state.pending) return state
+  // An invited co-traveler offers a voluntary private conversation before the
+  // normal next route step. The step index is not changed, so preexisting
+  // version-4 saves and authored route positions remain stable.
+  if (state.pending.entry.source === 'CROSSROADS') {
+    const invitation = state.followHistory.at(-1)
+    const newcomer = invitation?.to
+    const card = newcomer && COMPANION_HANGOUTS[newcomer]
+    if (
+      invitation?.choice === 'together' &&
+      newcomer &&
+      travelParty(state).includes(newcomer) &&
+      card &&
+      !state.played.includes(card.id)
+    ) {
+      return {
+        ...state,
+        pending: null,
+        phase: 'beat',
+        card: card.id,
+        offered: [],
+      }
+    }
+  }
   return enterStep({ ...state, pending: null }, state.pending.nextStep)
 }
 

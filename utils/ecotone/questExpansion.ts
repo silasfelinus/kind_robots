@@ -1,12 +1,15 @@
 import type { CompanionId, EncounterCard, LensId } from './content'
 import { REGIONAL_QUESTS } from './regionalQuestFactory'
 import { FORMER_GUIDE_QUESTS } from './formerGuideQuests'
+import { COMPANION_HANGOUTS } from './companionHangouts'
 
 export type GatedEncounter = EncounterCard & {
   requiresLead?: CompanionId
   requiresLens?: LensId
   requiresFormerGuide?: CompanionId
   requiresMeetCount?: number
+  /** Only an explicit companion invitation can open this scene, not the random fork deck. */
+  requiresInvitation?: boolean
 }
 
 // The first expansion wave uses the existing 2d6, seed, save and Playbook contracts.
@@ -15,6 +18,10 @@ export type GatedEncounter = EncounterCard & {
 export const QUEST_CARDS: GatedEncounter[] = [
   ...REGIONAL_QUESTS,
   ...FORMER_GUIDE_QUESTS,
+  ...Object.values(COMPANION_HANGOUTS).map((card) => ({
+    ...card,
+    requiresInvitation: true,
+  })),
   {
     id: 'WH-003',
     kind: 'encounter',

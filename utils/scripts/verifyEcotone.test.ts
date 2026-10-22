@@ -1,6 +1,7 @@
 import './verifyEcotoneAdversarial.test'
 import './verifyEcotoneEditorial.test'
 import './verifyEcotoneEnsemble.test'
+import './verifyEcotoneHangouts.test'
 import { ART_REVIEW_ROUNDS } from '../ecotone/artReview'
 import {
   isEcotoneReviewHeldArt,
@@ -1321,6 +1322,9 @@ for (const card of ALL_CARDS) {
   const quest = QUEST_CARDS.find((candidate) => candidate.id === card.id)
   if (quest?.requiresLens && !establishedLenses.includes(quest.requiresLens))
     continue
+  // Invitation-only interludes are verified independently with explicit
+  // together-choice seeded journeys, never through the random fork picker.
+  if (quest?.requiresInvitation) continue
   assert.ok(reached.has(card.id), `${card.id} turns up in play`)
 }
 for (const chapter of [1, 2, 3, 4, 5, 6])

@@ -87,7 +87,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
   },
   {
     id: 'F024',
-    name: 'Moss Daggerstep',
+    name: 'Tarn Daggerstep',
     species: 'Antelope',
     pronouns: 'they/them',
     origin: 'jackalwire',

@@ -2,7 +2,8 @@
 <!-- root div -->
 <template>
   <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
-    <memory-dungeon-overworld v-if="worldMode" @leave="worldMode = false" />
+    <memory-dungeon-launcher v-if="!worldMode && !gameStarted" @explore="startOverworld" @classic="startGame" />
+    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" />
     <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
@@ -546,6 +547,7 @@
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
 import MemoryDungeonOverworld from '@/components/pages/memory-dungeon-overworld.vue'
+import MemoryDungeonLauncher from '@/components/pages/memory-dungeon-launcher.vue'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,

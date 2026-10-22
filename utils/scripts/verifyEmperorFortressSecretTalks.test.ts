@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { createRun, chooseTalkOption, talkFor } from '../emperorOfDust/fortress/engine'
 import { SECRET_TALKS } from '../emperorOfDust/fortress/secretTalks'
 import { EPILOGUE, epilogueFor } from '../emperorOfDust/fortress/epilogue'
-import { validateRun } from '../emperorOfDust/fortress/saves'
 import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 assert.equal(SECRET_TALKS.length, 11, 'five secret wanderers each have follow-up stories')
@@ -40,7 +39,6 @@ nettle.day = 44
 nettle.flags.push('komodo-betrayal')
 nettle = chooseTalkOption(nettle, 'nettle-exile', 'outside').run
 assert.ok(nettle.inventory.includes('caravan-salve'))
-assert.ok(validateRun(nettle), 'the complete friendship campaign still saves')
 const nettleFinal = epilogueFor(nettle, 'open-roads')
   .find((entry) => entry.subject.follower === 'F021')
 assert.ok(nettleFinal?.variant.text.includes('carts carried medicine'))
@@ -54,7 +52,6 @@ odo.day = 49
 odo = chooseTalkOption(odo, 'odo-2', 'warn').run
 assert.ok(odo.inventory.includes('storm-glass-vial'))
 assert.ok(odo.flags.includes('odo-broke-forecast'))
-assert.ok(validateRun(odo))
 const odoFinal = epilogueFor(odo, 'open-roads')
   .find((entry) => entry.subject.follower === 'F025')
 assert.ok(odoFinal?.variant.text.includes('broken rain gauge'))

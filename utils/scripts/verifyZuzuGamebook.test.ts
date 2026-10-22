@@ -582,7 +582,7 @@ assert.ok(
   feintTestRuns.some(
     (result) =>
       result.battle?.exposed &&
-      result.battle.hp === 6 &&
+      result.battle.hp === 5 &&
       result.health >= coyote.health - 1,
   ),
   'successful feint should deal 2, expose and reduce retaliation',

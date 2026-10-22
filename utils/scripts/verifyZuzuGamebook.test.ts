@@ -503,9 +503,9 @@ assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)
 assert.match(page, /max-md:max-h-\[34svh\]/, 'phones keep the plate to a third')
 
-assert.match(page, /store\\.claimLoot\\(index\\)/, 'full pack can replace inventory')
-assert.match(page, /store\\.claimLoot\\(null\\)/, 'full pack can leave loot')
-assert.match(page, /store\\.recoverable/, 'restore journey action is visible')
+assert.ok(page.includes('store.claimLoot(index)'), 'full pack can replace inventory')
+assert.ok(page.includes('store.claimLoot(null)'), 'full pack can leave loot')
+assert.ok(page.includes('store.recoverable'), 'restore journey action is visible')
 
 console.log(
   'Zuzu gamebook contract: ' +

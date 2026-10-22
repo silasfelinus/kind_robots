@@ -1200,7 +1200,8 @@ import {
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
-import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
+import { visibleOpeningChoices, localTemptation } from '~/utils/ecotone/openingExperience'
+import { PLAYER_AVATARS, PLAYER_PERSONALITIES } from '~/utils/ecotone/playerIdentity'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
   SUBSTANCE_CHOICES,
@@ -1213,6 +1214,11 @@ type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
+const characterName = ref('')
+const pickedAvatar = ref<string>('glitter')
+const pickedPersonality = ref<string>('curious')
+const stagedChoice = ref<{ id: string; label: string; act: () => void } | null>(null)
+const momentOffer = computed(() => localTemptation(game.run?.card ?? null))
 const continueButton = ref<HTMLButtonElement | null>(null)
 const momentSelections = ref<SubstanceId[]>([])
 const canTakeMoment = computed(() => {
@@ -1222,6 +1228,7 @@ const canTakeMoment = computed(() => {
     !run.pending &&
     run.openingState &&
     run.card &&
+    momentOffer.value &&
     !run.substanceMoments.some((moment) => moment.source === run.card),
   )
 })
@@ -1233,6 +1240,7 @@ watch(
   () => game.run?.card,
   () => {
     momentSelections.value = []
+    stagedChoice.value = null
   },
 )
 
@@ -1345,11 +1353,16 @@ const archetype = computed(() =>
 
 function start() {
   if (!picked.value) return
-  game.begin(picked.value)
+  game.begin(picked.value, {
+    playerName: characterName.value,
+    avatarId: pickedAvatar.value,
+    personalityId: pickedPersonality.value,
+  })
   tab.value = 'road'
 }
 
 function restart() {
+  stagedChoice.value = null
   game.abandon()
   tab.value = 'road'
 }
@@ -1581,7 +1594,7 @@ const stage = computed<Stage>(() => {
         ? 'Your first perspective stays with you. Every future remains possible.'
         : '',
       question: card.choices.some((choice) => choice.lens)
-        ? 'How do you enter the weekend?'
+        ? 'What draws your attention here?'
         : 'How do you answer?',
       body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
       lensLine: run.currentState
@@ -1613,6 +1626,17 @@ type Option = {
   disabled?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
+}
+
+function queueDecision(option: Option) {
+  if (option.disabled) return
+  stagedChoice.value = { id: option.id, label: option.label, act: option.act }
+}
+
+function confirmDecision() {
+  const decision = stagedChoice.value
+  stagedChoice.value = null
+  decision?.act()
 }
 
 const options = computed<Option[]>(() => {
@@ -1674,7 +1698,7 @@ const options = computed<Option[]>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
-    return openingLensChoices(card).map((choice) => {
+    return visibleOpeningChoices(card).map((choice) => {
       const lens = choice.lens
         ? LENSES.find((l) => l.id === choice.lens)
         : undefined

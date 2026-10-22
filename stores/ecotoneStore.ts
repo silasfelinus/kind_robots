@@ -32,6 +32,8 @@ import { performFetch } from '~/stores/utils'
 const RUN_KEY = 'kr.ecotone.run.v1'
 const ENDINGS_KEY = 'kr.ecotone.endings.v1'
 const UNDO_KEY = 'kr.ecotone.undo.v1'
+const SAVE_SLOTS_KEY = 'kr.ecotone.manual-saves.v1'
+export type EcotoneSaveSlot = { slot: number; savedAt: string; state: RunState }
 
 export const useEcotoneStore = defineStore('ecotone', () => {
   const run = ref<RunState | null>(null)
@@ -39,6 +41,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   // Exactly one checkpoint, immediately before a committed selection.
   // No arbitrary rerolls; continuing the story clears the checkpoint.
   const undoSnapshot = ref<RunState | null>(null)
+  const manualSaves = ref<EcotoneSaveSlot[]>([])
   const canUndo = computed(() => Boolean(run.value && undoSnapshot.value))
   const loaded = ref(false)
   // Bumped when Playbook Manager live edits arrive, so card text re-reads them.
@@ -91,6 +94,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       if (undoSnapshot.value)
         window.localStorage.setItem(UNDO_KEY, JSON.stringify(undoSnapshot.value))
       else window.localStorage.removeItem(UNDO_KEY)
+      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(manualSaves.value))
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -111,6 +115,16 @@ export const useEcotoneStore = defineStore('ecotone', () => {
             parsed.log.length <= run.value.log.length &&
             parsed.phase !== 'end'
           ) undoSnapshot.value = parsed
+        }
+        const savedSlots = window.localStorage.getItem(SAVE_SLOTS_KEY)
+        if (savedSlots) {
+          const parsed: unknown = JSON.parse(savedSlots)
+          if (Array.isArray(parsed)) manualSaves.value = parsed.flatMap((item) => {
+            const snapshot = item && typeof item === 'object' ? restoreRun(item.state) : null
+            return snapshot && Number.isInteger(item.slot) && item.slot >= 1 && item.slot <= 3 && typeof item.savedAt === 'string'
+              ? [{ slot: item.slot as number, savedAt: item.savedAt as string, state: snapshot }]
+              : []
+          }).filter((item, index, all) => all.findIndex((other) => other.slot === item.slot) === index)
         }
         const ledger = window.localStorage.getItem(ENDINGS_KEY)
         if (ledger) {
@@ -158,14 +172,56 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     update(createRun(Date.now() % 2147483647, archetypeId, identity))
   }
 
+  function saveSlot(slot: number) {
+    if (!run.value || !Number.isInteger(slot) || slot < 1 || slot > 3) return false
+    const snapshot: EcotoneSaveSlot = {
+      slot,
+      savedAt: new Date().toISOString(),
+      state: structuredClone(run.value),
+    }
+    manualSaves.value = [...manualSaves.value.filter((item) => item.slot !== slot), snapshot]
+    persist()
+    return true
+  }
+
+  function loadSlot(slot: number) {
+    const saved = manualSaves.value.find((item) => item.slot === slot)
+    const restored = saved ? restoreRun(structuredClone(saved.state)) : null
+    if (!restored) return false
+    undoSnapshot.value = null
+    run.value = restored
+    persist()
+    return true
+  }
+
+  function deleteSlot(slot: number) {
+    manualSaves.value = manualSaves.value.filter((item) => item.slot !== slot)
+    persist()
+  }
+
+  function exportSave(): string | null {
+    return run.value
+      ? JSON.stringify({ format: 'ecotone-save', version: 1, savedAt: new Date().toISOString(), run: run.value }, null, 2)
+      : null
+  }
+
+  function importSave(raw: unknown): boolean {
+    if (!raw || typeof raw !== 'object') return false
+    const payload = raw as { format?: unknown; version?: unknown; run?: unknown }
+    if (payload.format !== 'ecotone-save' || payload.version !== 1) return false
+    const restored = restoreRun(payload.run)
+    if (!restored) return false
+    undoSnapshot.value = null
+    run.value = restored
+    persist()
+    return true
+  }
+
   function undo() {
     if (!run.value || !undoSnapshot.value) return
     const before = undoSnapshot.value
     undoSnapshot.value = null
-    // An ending only counts when the player finishes the weekend.
-    if (run.value.phase === 'end' && run.value.ending) {
-      endings.value = endings.value.filter((id) => id !== run.value?.ending)
-    }
+    // Unlocked endings are permanent achievements across multiple runs.
     run.value = before
     persist()
   }
@@ -210,6 +266,12 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     loaded,
     canUndo,
     undo,
+    manualSaves,
+    saveSlot,
+    loadSlot,
+    deleteSlot,
+    exportSave,
+    importSave,
     chapter,
     card,
     offered,

@@ -23,8 +23,14 @@ for (const clue of CLUE_CHAINS) {
   const card = source?.encounters.find((c) => c.id === clue.card)
   const choice = card?.choices.find((c) => c.id === clue.choice)
   assert.ok(choice, key + ': source choice exists')
-  assert.equal(choice.requires?.flag, undefined, key + ': source is not itself flag-gated')
-  assert.ok(choice.cost.suspicion || Object.values(choice.cost).some((v) => v < 0))
+  assert.equal(
+    choice.requires?.flag,
+    undefined,
+    key + ': source is not itself flag-gated',
+  )
+  assert.ok(
+    choice.cost.suspicion || Object.values(choice.cost).some((v) => v < 0),
+  )
   const [targetId, targetChoiceId] = clue.target.split('/')
   const destination = DEPARTMENTS.find((d) =>
     d.encounters.some((c) => c.id === targetId),
@@ -32,7 +38,11 @@ for (const clue of CLUE_CHAINS) {
   const target = destination?.encounters.find((c) => c.id === targetId)
   const gated = target?.choices.find((c) => c.id === targetChoiceId)
   assert.ok(gated, key + ': target exists')
-  assert.equal(gated.requires?.flag, clue.grants, key + ': unlock matches the original gate')
+  assert.equal(
+    gated.requires?.flag,
+    clue.grants,
+    key + ': unlock matches the original gate',
+  )
   assert.ok(
     (destination?.department.order ?? 0) >= (source?.department.order ?? 0),
     key + ': target must not be on an earlier floor',
@@ -56,7 +66,10 @@ for (const clue of CLUE_CHAINS) {
     )
   }
   assert.equal(
-    clueChainFor({ ...prepared, flags: [...prepared.flags, clue.grants] }, choice!),
+    clueChainFor(
+      { ...prepared, flags: [...prepared.flags, clue.grants] },
+      choice!,
+    ),
     null,
     key + ': no duplicate award',
   )
@@ -76,7 +89,10 @@ for (const clue of CLUE_CHAINS) {
     if (after.pending.success) {
       success = true
       assert.ok(after.flags.includes(clue.grants), key + ': grants earned clue')
-      assert.ok(after.pending.events.includes(clue.message), key + ': narrated clue')
+      assert.ok(
+        after.pending.events.includes(clue.message),
+        key + ': narrated clue',
+      )
       if (clue.replace_success_text)
         assert.equal(after.pending.text, clue.replace_success_text)
       const unlocked = {
@@ -91,13 +107,18 @@ for (const clue of CLUE_CHAINS) {
       assert.equal(lockReason(unlocked, gated!), null, key + ': target unlocks')
     } else {
       failure = true
-      assert.ok(!after.flags.includes(clue.grants), key + ': failure cannot unlock')
+      assert.ok(
+        !after.flags.includes(clue.grants),
+        key + ': failure cannot unlock',
+      )
       assert.ok(!after.pending.events.includes(clue.message))
     }
   }
   assert.ok(success && failure, key + ': success and failure both verified')
 
-  const receipt = CLUE_RECEIPTS.find((r) => r.flag === gated?.success.add_flags[0])
+  const receipt = CLUE_RECEIPTS.find(
+    (r) => r.flag === gated?.success.add_flags[0],
+  )
   assert.ok(receipt, key + ': final decision has a callback')
   const epilogue = endingLines(
     {
@@ -110,11 +131,15 @@ for (const clue of CLUE_CHAINS) {
   )
   assert.ok(
     epilogue.includes(receipt!.text) ||
-      ENDINGS.some((e) => e.variants.some((v) => v.when_flag === receipt!.flag)),
+      ENDINGS.some((e) =>
+        e.variants.some((v) => v.when_flag === receipt!.flag),
+      ),
     key + ': verdict remembers the choice without inventing it',
   )
 }
 
 assert.equal(CLUE_CHAINS.length, 9)
 assert.equal(CLUE_RECEIPTS.length, 9)
-console.log('Shifting Desks: nine earned alternative secret routes verified, including original gate, failures and ending callbacks')
+console.log(
+  'Shifting Desks: nine earned alternative secret routes verified, including original gate, failures and ending callbacks',
+)

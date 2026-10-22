@@ -518,15 +518,18 @@ for (const id of endings) {
   const trace = encodeWitness(witness)
   const compactReplay = replayEncodedWitness(witness.seed, trace)
   assert.equal(witnessFingerprint(compactReplay), witnessFingerprint(replayed))
-  console.log('GAMEBOOK_GOLDEN ' + JSON.stringify({
-    ending: id,
-    seed: witness.seed,
-    trace,
-    health: witness.health,
-    resolve: witness.resolve,
-    scenes: witness.visited.length,
-    fingerprint: witnessFingerprint(replayed),
-  }))
+  console.log(
+    'GAMEBOOK_GOLDEN ' +
+      JSON.stringify({
+        ending: id,
+        seed: witness.seed,
+        trace,
+        health: witness.health,
+        resolve: witness.resolve,
+        scenes: witness.visited.length,
+        fingerprint: witnessFingerprint(replayed),
+      }),
+  )
   assert.ok(witness.visited[0] === 'the-crossing')
   if (id === 'ending-wren-lamp') {
     assert.ok(
@@ -594,21 +597,47 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
         health,
         resolve,
       )
-      const feint = combatBenchmark(node.id, 'feint-strike', 90, health, resolve)
-      const guard = combatBenchmark(node.id, 'guard-strike', 90, health, resolve)
+      const feint = combatBenchmark(
+        node.id,
+        'feint-strike',
+        90,
+        health,
+        resolve,
+      )
+      const guard = combatBenchmark(
+        node.id,
+        'guard-strike',
+        90,
+        health,
+        resolve,
+      )
       for (const outcome of [strike, exhausted, feint, guard]) {
         assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
         assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= health)
         assert.ok(outcome.wins >= 0 && outcome.wins <= 90)
       }
       if (resolve === 0)
-        assert.deepEqual(exhausted, strike, 'Quiet Draw cannot bypass 0 Resolve')
+        assert.deepEqual(
+          exhausted,
+          strike,
+          'Quiet Draw cannot bypass 0 Resolve',
+        )
       if (health === 3 || health === 12)
         console.log(
-          'Gamebook wounded ' + node.id +
-          ': health=' + health + ', resolve=' + resolve +
-          ', strike=' + strike.wins + ', feint=' + feint.wins +
-          ', guard=' + guard.wins + ', draw=' + exhausted.wins,
+          'Gamebook wounded ' +
+            node.id +
+            ': health=' +
+            health +
+            ', resolve=' +
+            resolve +
+            ', strike=' +
+            strike.wins +
+            ', feint=' +
+            feint.wins +
+            ', guard=' +
+            guard.wins +
+            ', draw=' +
+            exhausted.wins,
         )
     }
   }

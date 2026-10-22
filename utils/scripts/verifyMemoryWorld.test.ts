@@ -12,7 +12,11 @@ import {
   validateBriarLinks,
 } from '../memoryDungeonWorld'
 
-assert.deepEqual(validateBriarLinks(), [], 'All reveal links are in-bounds, adjacent, and expose at most two new options')
+assert.deepEqual(
+  validateBriarLinks(),
+  [],
+  'All reveal links are in-bounds, adjacent, and expose at most two new options',
+)
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
 
@@ -33,7 +37,11 @@ while (queue.length) {
   }
 }
 for (const site of Object.keys(BRIAR_SITES)) {
-  assert.equal(visited.has(site), true, `Player can eventually reveal site ${site}`)
+  assert.equal(
+    visited.has(site),
+    true,
+    `Player can eventually reveal site ${site}`,
+  )
 }
 assert.equal(visited.has(BRIAR_DUNGEON), true)
 assert.equal(visited.has(BRIAR_GATE), true)
@@ -53,7 +61,9 @@ const saved = {
   frontier: ['4,4', '-1,1', '3,4'],
   player: '3,4',
   attempts: 11,
-  cards: [{ id: 0, pairId: 0, image: '/ok.jpg', matched: false, flipped: true }],
+  cards: [
+    { id: 0, pairId: 0, image: '/ok.jpg', matched: false, flipped: true },
+  ],
   room: 'memory',
   roomId: 'vault-1',
 }
@@ -62,9 +72,27 @@ assert.deepEqual(restored.revealed, ['2,4', '1,4', '3,4'])
 assert.deepEqual(restored.frontier, ['4,4'])
 assert.equal(restored.player, '3,4')
 assert.equal(restored.attempts, 11)
-assert.equal(restored.cards[0]?.flipped, false, 'Incomplete one-card turn is discarded safely')
-assert.equal(restored.room, 'memory', 'Active matching room can resume after reload')
-assert.equal(restoreBriarSave({ ...saved, version: 999 }).attempts, 0, 'Unknown schema resets safely')
-assert.equal(restoreBriarSave({ ...saved, attempts: -99 }).attempts, 0, 'Corrupt attempts cannot go negative')
+assert.equal(
+  restored.cards[0]?.flipped,
+  false,
+  'Incomplete one-card turn is discarded safely',
+)
+assert.equal(
+  restored.room,
+  'memory',
+  'Active matching room can resume after reload',
+)
+assert.equal(
+  restoreBriarSave({ ...saved, version: 999 }).attempts,
+  0,
+  'Unknown schema resets safely',
+)
+assert.equal(
+  restoreBriarSave({ ...saved, attempts: -99 }).attempts,
+  0,
+  'Corrupt attempts cannot go negative',
+)
 
-console.log('Memory Dungeon Briar Camp: reveal routes, landmarks and save contracts passed.')
+console.log(
+  'Memory Dungeon Briar Camp: reveal routes, landmarks and save contracts passed.',
+)

@@ -10,6 +10,7 @@ import { ACT_THREE_DAYS, ACT_THREE_DUES, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_DUES, ACT_FOUR_QUESTS } from './actFour'
 import { ACT_FIVE_DAYS, ACT_FIVE_DUES, ACT_FIVE_QUESTS } from './actFive'
 import { CHORES } from './chores'
+import { questBrief } from './questBriefs'
 import type { AudienceDef, DayDef, DueDef, QuestDef, SceneLine } from './types'
 import { editChoices, liveTextStore } from '../../playbook/textOverlay'
 
@@ -25,7 +26,10 @@ const QUEST_INDEX = new Map<string, QuestDef>(
     ...ACT_FOUR_QUESTS,
     ...ACT_FIVE_QUESTS,
     ...QUEST_TEMPLATES,
-  ].map((quest) => [quest.id, quest]),
+  ].map((quest) => [
+    quest.id,
+    { ...quest, summary: questBrief(quest.id, quest.summary) },
+  ]),
 )
 
 // Playbook Manager live text (conductor weird-humboldt t-037): titles, story

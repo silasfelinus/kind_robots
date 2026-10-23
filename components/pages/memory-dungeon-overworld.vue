@@ -39,7 +39,7 @@
         class="rounded-lg border border-[#9f875e] px-2 py-2 text-xs hover:bg-[#514b3d]"
         @click="emit('leave')"
       >
-        Classic
+        Menu
       </button>
     </header>
 

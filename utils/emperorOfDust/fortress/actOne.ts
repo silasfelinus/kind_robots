@@ -2148,7 +2148,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Ask what was on the page that is no longer in the ledger.',
             effects: {},
             response:
-              'Pip goes still, a moth on a windowpane. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
+              'Pip presses their palm to the cold glass and goes still. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
             next: 'page',
           },
           {
@@ -2484,7 +2484,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         lines: [
           'The wagon-painter is a lean artisan with wet paint on his paws. He brings a sample: a wooden panel of the tower and the Pack’s wagons under a fat yellow moon. Everyone smiling. Nobody armed.',
           '“The Pack is throwing a feast in the tower’s honor, Majesty. No blades. Roast goat. The good fiddles, not the loud ones.”',
-          '“They’d be hurt if the tower didn’t come. Hurt is dangerous in a hyena. I say that as one.”',
+          '“They’d be hurt if the tower didn’t come. Hurt makes raiders dangerous. I learned that in the canyon.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',

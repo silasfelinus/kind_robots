@@ -7,24 +7,43 @@
   <Transition name="cq-dialogue">
     <div
       v-if="beat && scene && tankStore.storyShowing"
-      class="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-3 pb-3"
+      class="pointer-events-none fixed inset-x-0 z-50 flex justify-center px-3 pb-3"
+      :class="cinematic ? 'inset-y-0 items-center bg-black/85' : 'bottom-0'"
       role="dialog"
       aria-live="polite"
       :aria-label="`${speakerName} speaks`"
     >
-      <div class="pointer-events-auto relative w-full max-w-3xl">
+      <div
+        class="pointer-events-auto relative w-full"
+        :class="cinematic ? 'max-w-4xl' : 'max-w-3xl'"
+      >
+        <div v-if="cinematic" class="mb-3 text-center text-white">
+          <p
+            class="text-xs font-bold uppercase tracking-[0.35em] text-teal-200"
+          >
+            Portsmouth · After closing
+          </p>
+          <h2 class="mt-2 font-serif text-3xl font-bold sm:text-5xl">
+            Cthulhuquarium
+          </h2>
+          <p class="mt-1 text-sm text-white/75">
+            A small shop. A very deep tank.
+          </p>
+        </div>
         <img
           v-if="plateUrl && heroPlate"
           :key="plateKey ?? ''"
           :src="plateUrl"
           :alt="heroAlt"
-          class="mx-auto mb-2 aspect-[10/17] h-60 rounded-2xl border border-base-300 object-cover object-top shadow-xl sm:h-72"
+          class="mx-auto mb-2 aspect-[10/17] rounded-2xl border border-base-300 object-cover object-top shadow-xl"
+          :class="cinematic ? 'h-44 sm:h-60' : 'h-60 sm:h-72'"
         />
         <img
           v-else-if="plateUrl"
           :src="plateUrl"
           alt=""
-          class="mb-2 aspect-[16/9] max-h-56 w-full rounded-2xl border border-base-300 object-cover shadow-xl"
+          class="mb-2 aspect-[16/9] w-full rounded-2xl border border-base-300 object-cover shadow-xl"
+          :class="cinematic ? 'max-h-[40vh]' : 'max-h-56'"
         />
         <div
           class="relative flex min-h-36 items-end gap-3 rounded-2xl border-2 border-base-content/20 bg-base-100/95 p-3 shadow-2xl backdrop-blur"
@@ -99,7 +118,13 @@
                 class="btn btn-primary btn-sm min-h-11 min-w-24"
                 @click="tankStore.advanceBeat()"
               >
-                {{ isLastBeat ? 'Thank you' : 'Go on' }}
+                {{
+                  isLastBeat
+                    ? 'Return to the tank'
+                    : cinematic
+                      ? 'Continue the introduction'
+                      : 'Continue'
+                }}
               </button>
             </div>
           </div>
@@ -149,6 +174,10 @@ const firstFocusIndex = computed(() => {
 // A beat may carry its own plate (the intro shows each character's full-length
 // moving portrait as they are introduced); otherwise the scene's plate holds.
 // Plates stop once a beat points at the game itself, so they never cover it.
+const cinematic = computed(
+  () =>
+    scene.value?.id === 'intro' && tankStore.beatIndex < firstFocusIndex.value,
+)
 const plateKey = computed(() =>
   scene.value && tankStore.beatIndex < firstFocusIndex.value
     ? (beat.value?.plate ?? scene.value.plate)

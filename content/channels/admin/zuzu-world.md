@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: zuzu-world
+parentTabKey: retired
 label: Zuzu World
 title: Zuzu Worldbuilding Studio
 subtitle: One archive of Zuzu art for every production

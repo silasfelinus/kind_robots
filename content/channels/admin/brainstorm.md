@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: brainstorm
+parentTabKey: retired
 dashboardKey: brainstorm
 dashboardTab: brainstorm
 label: Brainstorm

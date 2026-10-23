@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: arcade
 tabKey: zuzu-pinball
+navigation: false
 label: Zuzu Pinball
 title: Zuzu · The Last Bell
 subtitle: An evolving 3D pinball workshop

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: arcade
 tabKey: zuzu-ghost-trail
+navigation: false
 label: Zuzu Ghost Trail
 title: Zuzu · Ghost Trail
 subtitle: A haunted side-scrolling adventure

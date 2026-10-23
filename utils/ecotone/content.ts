@@ -30,6 +30,8 @@ export type Effects = {
   weird?: number
   evidence?: string
   flag?: string
+  /** More flags to remember, e.g. which approach a mystery gate was played with. */
+  flags?: string[]
 }
 
 export type Check = { skill: SkillId; target: number }

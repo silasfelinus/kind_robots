@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { ALL_CARDS } from '../ecotone/engine'
 import {
   advance,
+  cardBody,
   chooseBeat,
   chooseCrossroads,
   chooseEvent,
@@ -24,6 +25,7 @@ import {
   MYSTERY_CARDS,
   PASSES_FOR_TRUE_PATH,
   caseRecord,
+  compileMystery,
   gateTriggers,
   mergeCaseRecord,
   mysteryCardId,
@@ -31,6 +33,7 @@ import {
   mysteryEnding,
   mysteryPasses,
   pickMystery,
+  recallFlag,
   runMystery,
   sanitizeCaseFiles,
   validateMystery,
@@ -203,6 +206,41 @@ for (const mystery of MYSTERIES) {
     `${mystery.id} reaches all its Real Endings`,
   )
 }
+
+// A missed trap still reaches the truth: after a failed Gate III the reveal reads
+// its afterMiss body, and every gate remembers which approach was played.
+let missedTraps = 0
+for (const mystery of MYSTERIES) {
+  for (let seed = 1; seed < 600; seed += 1) {
+    const { state, seen } = play(seed, 'quiet', mystery.id, investigate)
+    for (const n of [1, 2, 3])
+      if (seen.some((s) => s.card === mysteryCardId(mystery, `G${n}` as 'G1')))
+        assert.ok(
+          state.flags.some((f) => f.startsWith(`mystery_g${n}_via_`)),
+          `${mystery.id} gate ${n} records its approach`,
+        )
+    if (
+      !state.flags.includes('mystery_g3_fail') ||
+      mysteryPasses(state.flags) < PASSES_FOR_TRUE_PATH
+    )
+      continue
+    const reveal = findCard(mysteryCardId(mystery, 'REVEAL'))!
+    assert.deepEqual(
+      cardBody(reveal, state),
+      mystery.reveal.afterMiss,
+      `${mystery.id} reveal after a missed trap`,
+    )
+    missedTraps += 1
+    break
+  }
+  for (const card of compileMystery(mystery))
+    for (const flag of Object.keys(card.flagLines ?? {}))
+      assert.match(flag, /^mystery_g[123]_(pass|fail|via_[a-z0-9-]+)$/)
+}
+assert.ok(missedTraps >= 10, `missed-trap reveals exercised (${missedTraps})`)
+assert.equal(recallFlag('g2:pass'), 'mystery_g2_pass')
+assert.equal(recallFlag('g1:sequins'), 'mystery_g1_via_sequins')
+assert.equal(recallFlag('g4:pass'), null)
 
 // Case Files keep the best result per gate and never trust raw storage.
 const a = {

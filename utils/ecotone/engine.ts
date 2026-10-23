@@ -297,10 +297,11 @@ function applyEffects(state: RunState, effects: Effects): RunState {
       effects.evidence && !state.evidence.includes(effects.evidence)
         ? [...state.evidence, effects.evidence]
         : state.evidence,
-    flags:
-      effects.flag && !state.flags.includes(effects.flag)
-        ? [...state.flags, effects.flag]
-        : state.flags,
+    flags: [effects.flag, ...(effects.flags ?? [])].reduce<string[]>(
+      (flags, flag) =>
+        flag && !flags.includes(flag) ? [...flags, flag] : flags,
+      state.flags,
+    ),
   }
 }
 

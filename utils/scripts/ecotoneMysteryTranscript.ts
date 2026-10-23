@@ -111,12 +111,22 @@ function leafPaths(mystery: Mystery): string[][] {
   )
 }
 
-function seedFor(mystery: Mystery, want: (passes: number) => boolean) {
+function seedFor(
+  mystery: Mystery,
+  want: (passes: number) => boolean,
+  event: EventId = 'quiet',
+  follow = true,
+) {
   for (let seed = 1; seed < 2000; seed += 1) {
-    const { state } = play(seed, 'quiet', mystery, (_s, id) =>
-      mysteryCardMeta(id)?.kind === 'gate'
-        ? findCard(id)!.choices[0]!.id
-        : undefined,
+    const { state } = play(
+      seed,
+      event,
+      mystery,
+      (_s, id) =>
+        mysteryCardMeta(id)?.kind === 'gate'
+          ? findCard(id)!.choices[0]!.id
+          : undefined,
+      follow,
     )
     if (want(mysteryPasses(state.flags))) return seed
   }
@@ -147,7 +157,7 @@ function transcript(mystery: Mystery): string {
       )
     })
   }
-  const cold = seedFor(mystery, (p) => p < 2)
+  const cold = seedFor(mystery, (p) => p < 2, 'green-ribbon', false)
   if (cold !== null) {
     const { lines } = play(cold, 'green-ribbon', mystery, gateFirst, false)
     parts.push(

@@ -17,6 +17,7 @@ const STORY_FILES = [
   'secretTalks.ts',
   'epilogue.ts',
   'betrayal.ts',
+  'briefings.ts',
   'questBriefsEarly.ts',
   'questBriefsLate.ts',
   'questBriefsChores.ts',

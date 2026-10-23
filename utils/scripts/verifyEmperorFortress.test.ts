@@ -55,6 +55,7 @@ import {
   dailyTaxes,
   dailyWages,
   equipItem,
+  challengeRumour,
   finishDay,
   followerMood,
   followerStatus,
@@ -209,6 +210,11 @@ import {
   dayBriefings,
   dayLines,
   komodoLiesInHindsight,
+  RUMOUR_BOUNTY,
+  rumourPrompt,
+  rumourTally,
+  rumourVerdict,
+  todaysChallenge,
 } from '../emperorOfDust/fortress/briefings'
 import {
   KINGDOM_FACTIONS,
@@ -6544,6 +6550,66 @@ for (const def of DAYS)
     told(['hideout:nameless-cave', 'd46-host-left'], 'hideout'),
     /walked out/,
   )
+}
+
+{
+  // --- Challenge a rumour: one look a day, a bounty for the false report ------
+  const fresh = onDay(3, 12)
+  const reports = dayBriefings(fresh)!
+  const lie = reports.find((b) => !b.truth)!
+  const truths = reports.filter((b) => b.truth)
+  assert.equal(todaysChallenge(fresh), undefined)
+  assert.match(
+    rumourPrompt(fresh),
+    /not every rumour/i,
+    'Komodo explains first',
+  )
+
+  const caught = challengeRumour(fresh, lie.id)
+  assert.equal(caught.caught, true)
+  assert.equal(caught.run.brass, fresh.brass + RUMOUR_BOUNTY)
+  assert.equal(caught.response, rumourVerdict(lie))
+  assert.deepEqual(todaysChallenge(caught.run), {
+    day: 12,
+    briefingId: lie.id,
+    caught: true,
+  })
+  assert.throws(
+    () => challengeRumour(caught.run, truths[0]!.id),
+    /already been looked into today/,
+  )
+  assert.equal(fresh.rumourChallenges, undefined, 'the run is not mutated')
+
+  const cleared = challengeRumour(fresh, truths[0]!.id)
+  assert.equal(cleared.caught, false)
+  assert.equal(cleared.run.brass, fresh.brass, 'no penalty for a wrong guess')
+  assert.match(rumourPrompt(cleared.run), /which of these rings false/i)
+  assert.throws(() => challengeRumour(fresh, 'not-a-report'), /did not come in/)
+
+  // The challenge resets each dawn, and saves keep at most one a day.
+  const nextDay = finishDay(caught.run).run
+  assert.equal(todaysChallenge(nextDay), undefined)
+  const second = challengeRumour(
+    nextDay,
+    dayBriefings(nextDay)!.find((b) => b.truth)!.id,
+  ).run
+  assert.deepEqual(rumourTally(second), { caught: 1, made: 2 })
+  assert.ok(validateRun(JSON.parse(JSON.stringify(second))))
+  const doubled = {
+    ...second,
+    rumourChallenges: [
+      ...second.rumourChallenges!,
+      second.rumourChallenges![0]!,
+    ],
+  }
+  assert.ok(!validateRun(doubled), 'one challenge a day')
+
+  // Every report has its own investigation line, and they vary across the reign.
+  const verdicts = DAYS.flatMap((def) => def.briefings).map(rumourVerdict)
+  assert.ok(verdicts.every((line) => line.length >= 40))
+  assert.ok(new Set(verdicts).size >= 40, 'investigation lines vary')
+  const komodo = DAYS.flatMap((def) => def.briefings).find((b) => b.komodoLie)!
+  assert.match(rumourVerdict(komodo), /Komodo laughs it off/)
 }
 
 console.log('Emperor of Dust fortress contract: ok')

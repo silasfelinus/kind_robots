@@ -199,6 +199,19 @@ export const validateRun = (value: unknown): value is FortressRun => {
         !int(run.dailyEventOutcome.day, 1, LAST_DAY + 1) ||
         !text(run.dailyEventOutcome.title, 160) ||
         !text(run.dailyEventOutcome.text, 1500))) ||
+    (run.rumourChallenges !== undefined &&
+      (!Array.isArray(run.rumourChallenges) ||
+        run.rumourChallenges.length > LAST_DAY ||
+        !run.rumourChallenges.every(
+          (entry) =>
+            object(entry) &&
+            int(entry.day, 1, LAST_DAY) &&
+            text(entry.briefingId, 100) &&
+            typeof entry.caught === 'boolean',
+        ) ||
+        new Set(
+          run.rumourChallenges.map((entry) => (entry as { day: number }).day),
+        ).size !== run.rumourChallenges.length)) ||
     (run.market !== undefined && !validMarket(run.market)) ||
     (run.aid !== undefined && !validAid(run.aid)) ||
     (run.dues !== undefined && !validDues(run.dues)) ||

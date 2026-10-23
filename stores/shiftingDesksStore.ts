@@ -145,6 +145,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   // True when this run reached an ending the gallery had not seen yet.
   function recordEnding(): boolean {
     if (!run.value) return false
+    if (run.value.pending) return false
     if (run.value.status !== 'complete' && run.value.status !== 'eliminated')
       return false
     const ending = endingFor(run.value)

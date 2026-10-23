@@ -166,6 +166,9 @@
                       >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
                   </span>
+                  <span class="mt-2 block text-xs text-[#f3e6c8]/75">{{
+                    background.perk
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -601,6 +604,17 @@
                   </div>
                 </details>
                 <p class="eco-label px-1">{{ stage.question }}</p>
+                <label
+                  v-if="options.some((option) => option.perkEligible)"
+                  class="flex items-center gap-2 rounded-lg border border-[#d9b877]/50 bg-black/35 px-3 py-2 text-xs text-[#f3e6c8]"
+                >
+                  <input
+                    v-model="perkSelected"
+                    type="checkbox"
+                    class="checkbox checkbox-xs border-[#d9b877]"
+                  />
+                  Use my origin perk on an eligible choice (once this chapter)
+                </label>
                 <div
                   class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
                 >
@@ -633,7 +647,13 @@
                         v-if="option.chip || option.hint"
                         class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
                         >{{
-                          [option.chip, option.hint].filter(Boolean).join(' · ')
+                          [
+                            option.chip,
+                            option.perkEligible ? 'Origin perk available' : '',
+                            option.hint,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')
                         }}</span
                       >
                     </span>
@@ -719,7 +739,13 @@
             </div>
           </div>
           <p class="mt-2 text-xs text-white/60">
-            Perk (arrives with the full engine): {{ archetype.perk }}
+            Origin perk: {{ archetype.perk }}
+            <span
+              v-if="game.run.perkUsedChapters.includes(game.chapter)"
+              class="font-bold text-[#d9b877]"
+            >
+              · Used this chapter</span
+            >
           </p>
         </div>
       </div>
@@ -1171,6 +1197,7 @@ import {
   cardBody,
   chanceToSucceed,
   checkBonus,
+  originPerkAvailable,
   currentStep,
   dayName,
   fillText,
@@ -1215,6 +1242,7 @@ const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
 const continueButton = ref<HTMLButtonElement | null>(null)
 const momentSelections = ref<SubstanceId[]>([])
+const perkSelected = ref(false)
 const canTakeMoment = computed(() => {
   const run = game.run
   return Boolean(
@@ -1233,6 +1261,7 @@ watch(
   () => game.run?.card,
   () => {
     momentSelections.value = []
+    perkSelected.value = false
   },
 )
 
@@ -1611,6 +1640,7 @@ type Option = {
   chip?: string
   chipTitle?: string
   disabled?: boolean
+  perkEligible?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
 }
@@ -1710,7 +1740,11 @@ const options = computed<Option[]>(() => {
           : hint,
         chip: chip.chip,
         chipTitle: chip.title,
-        act: () => game.choose(choice.id),
+        perkEligible: originPerkAvailable(run, choice.id),
+        act: () => {
+          game.choose(choice.id, perkSelected.value)
+          perkSelected.value = false
+        },
       }
     })
   }

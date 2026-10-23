@@ -32,13 +32,21 @@ assert.match(page, /ArcadeCabinet slug="save-the-plumber"/)
 assert.match(page, /ArcadeCabinet slug="save-the-plumber" contained/)
 assert.match(page, /plumber-viewport/)
 assert.match(page, /plumber-motion-video/)
-assert.match(page, /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'play'/)
+assert.match(
+  page,
+  /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'play'/,
+)
 assert.match(page, /prefers-reduced-motion: reduce/)
 assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-|kr-scroll/)
 for (let world = 1; world <= 8; world++) {
   for (const extension of ['webp', 'webm', 'mp4'])
     assert.ok(
-      existsSync(new URL('../../public/save-the-plumber/maps/world-' + world + '.' + extension, import.meta.url)),
+      existsSync(
+        new URL(
+          '../../public/save-the-plumber/maps/world-' + world + '.' + extension,
+          import.meta.url,
+        ),
+      ),
       'shipped painted world ' + world + ' ' + extension + ' exists',
     )
 }

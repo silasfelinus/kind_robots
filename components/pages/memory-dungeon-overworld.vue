@@ -1,6 +1,6 @@
 <template>
   <div
-    class="kr-surface flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
+    class="kr-surface relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
   >
     <header
       class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
@@ -45,11 +45,13 @@
 
     <div
       v-if="settingsOpen"
-      class="kr-scroll z-10 max-h-[min(40%,18rem)] shrink-0 border-b border-[#9f875e]/50 bg-[#302b25] p-2 sm:p-3"
+      role="dialog"
+      aria-label="Choose Memory Dungeon artwork"
+      class="kr-scroll absolute right-2 top-14 z-50 max-h-[min(80dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25]/98 p-3 shadow-2xl sm:p-4"
     >
       <div class="flex flex-wrap items-center justify-between gap-2">
         <span class="text-sm font-bold"
-          >Choose images for the dungeon matching rooms</span
+          >Artwork for the current map and dungeon rooms</span
         >
         <button
           type="button"
@@ -64,6 +66,19 @@
         :mature-available="world.matureAvailable"
         @change="world.selectDeck"
       />
+      <p class="mt-2 text-xs text-[#e7d29e]">
+        Selecting art refreshes unmatched cards immediately. Revealed terrain, completed pairs and attempts stay intact.
+      </p>
+      <p v-if="world.loading && world.mapMatching" role="status" class="mt-2 text-xs font-bold text-[#ffe09b]">
+        Loading images from the selected collection…
+      </p>
+      <p v-if="world.mapDeckError" role="alert" class="mt-2 rounded-lg border border-[#eead8c] bg-[#5c2826] p-2 text-sm font-semibold text-[#fff0d9]">
+        {{ world.mapDeckError }}
+      </p>
+      <button v-if="world.mapMatching && (world.deckNeedsRefresh || world.mapDeckError)"
+        type="button" class="md-btn mt-2" :disabled="world.loading" @click="world.refreshMapDeck()">
+        Retry applying selected art
+      </button>
       <button
         type="button"
         class="mt-1 rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
@@ -75,10 +90,13 @@
 
     <div
       v-if="world.state.room === 'map'"
-      class="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-hidden p-2 lg:flex-row lg:p-3"
+      class="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-hidden p-2 xl:flex-row xl:p-3"
     >
       <div
-        class="relative aspect-square h-auto max-h-[64%] w-full max-w-[min(100%,74vh)] shrink-0 overflow-hidden rounded-lg lg:max-h-full border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
+        class="relative aspect-square min-h-0 shrink-0 overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
+        :class="world.mapMatching
+          ? 'w-[min(100%,47dvh)] xl:w-[min(56%,72dvh)]'
+          : 'w-[min(100%,34dvh)] xl:w-[min(48%,66dvh)]'"
       >
         <div
           class="absolute inset-0 bg-cover bg-center"
@@ -99,32 +117,22 @@
                 !world.state.revealed.includes(tile.key)
               "
               type="button"
-              class="relative flex h-full w-full items-center justify-center overflow-hidden border border-[#bba16e]/75 bg-[#263951] shadow-inner transition hover:brightness-125 focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
-              :disabled="
-                world.turnLocked ||
-                world.loading ||
-                world.mapCardAt(tile.key)?.flipped
-              "
-              :aria-label="
-                world.mapCardAt(tile.key)?.flipped
-                  ? 'Revealed memory picture; find its matching twin'
-                  : 'Flip map memory card'
-              "
+              class="md-card-container relative h-full w-full border border-[#bba16e]/75 focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
+              :disabled="world.turnLocked || world.loading || world.deckNeedsRefresh || !!world.mapDeckError || world.mapCardAt(tile.key)?.flipped"
+              :aria-label="world.mapCardAt(tile.key)?.flipped
+                ? 'Revealed memory picture; find its matching twin'
+                : 'Flip map memory card'"
               @click="world.pickMapCard(tile.key)"
             >
-              <img
-                v-if="world.mapCardAt(tile.key)?.flipped"
-                :src="world.mapCardAt(tile.key)?.image"
-                alt="Memory picture to match"
-                class="h-full w-full object-cover"
-                draggable="false"
-              />
-              <span
-                v-else
-                class="text-[clamp(15px,2vw,25px)] text-[#e4cf9c]"
-                aria-hidden="true"
-                >✥</span
-              >
+              <span class="md-card-inner" :class="{ flipped: world.mapCardAt(tile.key)?.flipped }">
+                <span class="md-card-back flex items-center justify-center bg-[#263951] text-[clamp(14px,2vw,28px)] text-[#e4cf9c]" aria-hidden="true">✥</span>
+                <img
+                  class="md-card-front h-full w-full bg-[#162733]"
+                  :src="world.mapCardAt(tile.key)?.image"
+                  alt="Picture to match"
+                  draggable="false"
+                />
+              </span>
             </button>
             <button
               v-else-if="world.state.revealed.includes(tile.key)"
@@ -198,7 +206,10 @@
       </div>
 
       <aside
-        class="w-full min-h-0 max-h-[34%] shrink-0 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm lg:max-h-[calc(100%-1rem)] lg:w-64"
+        class="kr-scroll min-h-0 w-full flex-1 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 text-[#322819] shadow-xl backdrop-blur-sm"
+        :class="world.mapMatching
+          ? 'p-3 sm:p-4 xl:max-h-full xl:min-w-[17rem] xl:p-5'
+          : 'p-4 sm:p-6 xl:max-h-full xl:min-w-[20rem] xl:p-7'"
       >
         <div
           class="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold text-[#735128]"
@@ -231,18 +242,31 @@
         >
           Begin next memory round · {{ nextWaveCount }} cards
         </button>
-        <h3 class="mb-1 text-base font-black">
+        <div v-if="!world.mapMatching" class="mb-4 flex items-center gap-4 rounded-xl border border-[#d7bb80]/70 bg-[#f8ebd2] p-3">
+          <div class="flex size-20 shrink-0 items-center justify-center rounded-xl bg-[#27463f] text-5xl shadow-inner sm:size-24 sm:text-6xl" aria-hidden="true">
+            {{ siteSymbol(world.selectedSite?.kind) || '🧭' }}
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold uppercase tracking-widest text-[#906f41]">Current location</p>
+            <p class="font-serif text-xl font-black sm:text-2xl">
+              {{ world.selectedSite?.name ?? 'The Crooked Trail' }}
+            </p>
+          </div>
+        </div>
+        <h3 class="mb-2 font-serif text-xl font-black sm:text-2xl">
           {{
             world.mapMatching
               ? 'The Whispering Fog'
               : (world.selectedSite?.name ?? 'The Crooked Trail')
           }}
         </h3>
-        <p class="text-xs leading-relaxed">{{ world.state.status }}</p>
+        <p class="text-sm leading-relaxed sm:text-base">{{ world.state.status }}</p>
+        <p v-if="world.mapDeckError" role="alert" class="mt-3 rounded-lg border border-[#bd6651] bg-[#fbe5da] p-3 text-sm font-bold text-[#682821]">{{ world.mapDeckError }}</p>
+        <button v-if="world.mapMatching && world.deckNeedsRefresh && !world.loading" class="md-btn mt-3" type="button" @click="world.refreshMapDeck()">Retry loading selected gallery</button>
 
         <div
           v-if="world.selectedSite && !world.mapMatching"
-          class="mt-3 flex flex-wrap gap-1.5"
+          class="mt-5 flex flex-wrap gap-3"
         >
           <button
             v-if="world.selectedSite.kind === 'merchant'"
@@ -347,13 +371,13 @@
         </div>
 
         <div
-          class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[#bda47b] pt-2 text-xs font-semibold"
+          class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#bda47b] pt-3 text-sm font-semibold"
         >
           <span>🌼 {{ world.state.wildflowers }}</span>
           <span>🏮 {{ world.state.lanterns }}</span>
           <span>🔔 {{ world.hasChime ? 'Chime found' : 'Chime missing' }}</span>
         </div>
-        <p class="mt-2 text-[11px] leading-snug text-[#675536]">
+        <p class="mt-3 text-xs leading-relaxed text-[#675536] sm:text-sm">
           Matched picture pairs uncover two terrain squares. After each round,
           explore the cleared paths, meet characters and claim treasure. Four
           near-matching sigils link future world maps.
@@ -540,7 +564,7 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
 
 onMounted(() => {
   world.hydrate()
-  void world.prepareWave()
+  void world.syncActiveMapDeck()
 })
 </script>
 

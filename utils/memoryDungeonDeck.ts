@@ -165,6 +165,16 @@ const galleryMotifs = [
     accent: '#e8dfb6',
     detail: '#9dcf9d',
   },
+  { title: 'Frost Lily', glyph: '❄', tone: '#426a7b', accent: '#e0fcff', detail: '#97dce2' },
+  { title: 'Dusk Crown', glyph: '♛', tone: '#684868', accent: '#ffceca', detail: '#ca89b1' },
+  { title: 'Forest Eye', glyph: '◈', tone: '#486145', accent: '#f6df99', detail: '#a1b77a' },
+  { title: 'Wishing Star', glyph: '✶', tone: '#345778', accent: '#fff1c4', detail: '#82b6dc' },
+  { title: 'Cinder Antler', glyph: '⚜', tone: '#775040', accent: '#ffdfba', detail: '#dc9b72' },
+  { title: 'Stone Lantern', glyph: '♟', tone: '#636659', accent: '#e8e9c9', detail: '#aaad8b' },
+  { title: 'Golden Leaf', glyph: '❦', tone: '#77743c', accent: '#ffebad', detail: '#d6cb77' },
+  { title: 'Silver Moth', glyph: '✧', tone: '#55587b', accent: '#eeefff', detail: '#ada4d9' },
+  { title: 'Sunflower Gate', glyph: '⌘', tone: '#777051', accent: '#fff4ce', detail: '#d5b968' },
+  { title: 'Starlit Wheel', glyph: '✺', tone: '#39556d', accent: '#f8efc0', detail: '#8fb9d4' },
 ]
 
 function designedImage(index: number): string {

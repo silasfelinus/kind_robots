@@ -29,6 +29,27 @@
         </p>
       </div>
       <span class="file-stamp" aria-hidden="true">{{ verdict.stamp }}</span>
+      <div v-if="epilogue" class="flex h-24 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-36 print:h-44" aria-label="Your ending reward">
+        <shifting-desks-art
+          class="w-28 shrink-0 overflow-hidden sm:w-40"
+          frame="h-full w-full"
+          position="object-center"
+          :src="stationArt('endings', epilogue.id)"
+          :prompt="epilogue.epilogue.art_prompt"
+          :alt="`Earned ending art: ${epilogue.title}`"
+          fallback-icon="kind-icon:trophy"
+          :show-brief="false"
+        />
+        <div class="flex min-w-0 flex-1 flex-col justify-center gap-1 py-2 pr-3">
+          <p class="font-mono text-[10px] font-black uppercase tracking-widest text-amber-300">Ending declassified · permanent record</p>
+          <p class="font-mono text-sm font-black uppercase sm:text-lg">{{ epilogue.title }}</p>
+          <p class="line-clamp-2 text-xs italic sm:text-sm">{{ epilogue.epilogue.title }}</p>
+          <button type="button" class="btn btn-warning btn-xs mt-1 self-start print:hidden sm:btn-sm" @click="emit('archive')">
+            <icon name="kind-icon:trophy" class="size-3.5" />
+            {{ store.rewardArchive.runs.length === 1 ? 'New archive unlocked' : 'View earned milestones' }}
+          </button>
+        </div>
+      </div>
 
       <div
         class="flex shrink-0 gap-1 overflow-x-auto rounded-xl bg-stone-900/10 p-1 print:hidden"
@@ -238,6 +259,14 @@
         <icon name="kind-icon:document" size="1rem" /> Print your file
       </button>
       <button
+        v-if="store.archiveUnlocked"
+        type="button"
+        class="btn btn-outline btn-sm sm:btn-md"
+        @click="emit('archive')"
+      >
+        <icon name="kind-icon:trophy" size="1rem" /> Personnel Archive
+      </button>
+      <button
         type="button"
         class="btn btn-ghost btn-sm sm:btn-md"
         @click="emit('front')"
@@ -274,7 +303,7 @@ import {
   dailyShareText,
 } from '~/utils/shiftingDesks/daily'
 
-const emit = defineEmits<{ again: []; front: [] }>()
+const emit = defineEmits<{ again: []; front: []; archive: [] }>()
 const tab = ref<'verdict' | 'departments' | 'results' | 'record'>('verdict')
 const tabs = [
   { id: 'verdict', title: 'Verdict' },

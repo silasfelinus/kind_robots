@@ -29,17 +29,32 @@
         :key="slot.saveId"
         class="flex items-center gap-2 rounded-2xl border border-amber-200/30 bg-slate-950/85 p-3 shadow-lg"
       >
-        <button
-          type="button"
-          class="min-h-16 min-w-0 flex-1 rounded-xl px-2 text-left hover:bg-amber-100/10"
-          @click="selectSlot(slot.saveId)"
-        >
-          <span class="block truncate font-serif text-lg font-bold">{{ slot.name }}</span>
-          <span class="block text-xs text-amber-100/70">Day {{ slot.turnCount + 1 }} · {{ slot.status.toLowerCase() }}</span>
-        </button>
-        <button type="button" class="min-h-11 rounded-lg px-2 text-xs hover:bg-amber-100/10" @click="rename(slot.saveId, slot.name)">
-          Rename
-        </button>
+        <template v-if="editingSlotId === slot.saveId">
+          <input
+            v-model="editedSlotName"
+            type="text"
+            maxlength="80"
+            class="min-h-12 min-w-0 flex-1 rounded-xl border border-amber-300/50 bg-slate-900 px-3 font-serif text-amber-50"
+            aria-label="Rename this reign"
+            @keydown.enter.prevent="saveRename"
+            @keydown.esc.prevent="editingSlotId = null"
+          />
+          <button type="button" class="min-h-11 rounded-lg border border-amber-200/40 px-3 text-sm" @click="saveRename">Save</button>
+          <button type="button" class="min-h-11 rounded-lg px-2 text-sm" @click="editingSlotId = null">Cancel</button>
+        </template>
+        <template v-else>
+          <button
+            type="button"
+            class="min-h-16 min-w-0 flex-1 rounded-xl px-2 text-left hover:bg-amber-100/10"
+            @click="selectSlot(slot.saveId)"
+          >
+            <span class="block truncate font-serif text-lg font-bold">{{ slot.name }}</span>
+            <span class="block text-xs text-amber-100/70">Day {{ slot.turnCount + 1 }} · {{ slot.status.toLowerCase() }}</span>
+          </button>
+          <button type="button" class="min-h-11 rounded-lg px-2 text-xs hover:bg-amber-100/10" @click="beginRename(slot.saveId, slot.name)">
+            Rename
+          </button>
+        </template>
         <button type="button" class="min-h-11 rounded-lg px-2 text-xs text-red-200 hover:bg-red-700/30" :aria-label="'Delete ' + slot.name" @click="store.deleteSlot(slot.saveId)">
           Delete
         </button>
@@ -121,6 +136,8 @@ const emit = defineEmits<{ picked: [] }>()
 const store = useRulerHookedStore()
 const showSaves = ref(false)
 const creating = ref(false)
+const editingSlotId = ref<string | null>(null)
+const editedSlotName = ref('')
 const rulerName = ref('Mo')
 const honorific = ref('Queen')
 const presetId = ref(HERO_RULER_PRESET_ID)
@@ -144,8 +161,13 @@ async function start() {
     creating.value = false
   }
 }
-function rename(saveId: string, current: string) {
-  const name = typeof window !== 'undefined' ? window.prompt('Rename this reign', current) : null
-  if (name?.trim()) store.renameSlot(saveId, name.trim())
+function beginRename(saveId: string, current: string) {
+  editingSlotId.value = saveId
+  editedSlotName.value = current
+}
+function saveRename() {
+  if (!editingSlotId.value || !editedSlotName.value.trim()) return
+  store.renameSlot(editingSlotId.value, editedSlotName.value.trim())
+  editingSlotId.value = null
 }
 </script>

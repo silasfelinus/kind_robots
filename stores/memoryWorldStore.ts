@@ -183,7 +183,6 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         'Your mature-art preference changed. The gallery room closed without losing your map.',
       )
     }
-
   })
 
   function reset(): void {
@@ -272,31 +271,50 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       return
     }
     loading.value = true
-    const pairs = [...new Set(
-      state.value.mapCards.filter((card) => !card.matched).map((card) => card.pairId),
-    )]
-    const usedPrior = BRIAR_REVEAL_WAVES.slice(0, state.value.waveIndex)
-      .reduce((total, wave) => total + wave.length / 2, 0)
+    const pairs = [
+      ...new Set(
+        state.value.mapCards
+          .filter((card) => !card.matched)
+          .map((card) => card.pairId),
+      ),
+    ]
+    const usedPrior = BRIAR_REVEAL_WAVES.slice(0, state.value.waveIndex).reduce(
+      (total, wave) => total + wave.length / 2,
+      0,
+    )
     try {
       const paths = await resolveMemoryDungeonDeck(
-        deck.value, pairs.length, usedPrior, state.value.seenMapImages,
+        deck.value,
+        pairs.length,
+        usedPrior,
+        state.value.seenMapImages,
       )
       if (ticket !== roomEpoch) return
-      if (paths.length !== pairs.length) throw new Error('The selected deck cannot fill the remaining card pairs.')
+      if (paths.length !== pairs.length)
+        throw new Error(
+          'The selected deck cannot fill the remaining card pairs.',
+        )
       pairs.forEach((pairId, index) => {
         const replacement = paths[index]!
-        state.value.mapCards.filter((card) => card.pairId === pairId).forEach((card) => {
-          card.image = replacement
-          card.flipped = false
-        })
+        state.value.mapCards
+          .filter((card) => card.pairId === pairId)
+          .forEach((card) => {
+            card.image = replacement
+            card.flipped = false
+          })
       })
-      state.value.seenMapImages = [...new Set([...state.value.seenMapImages, ...paths])]
+      state.value.seenMapImages = [
+        ...new Set([...state.value.seenMapImages, ...paths]),
+      ]
       state.value.mapDeckSignature = currentDeckSignature.value
       state.value.status = `Gallery applied to ${pairs.length} remaining pairs. Your matches, map and attempt count are preserved.`
       persist()
     } catch (error) {
       if (ticket === roomEpoch) {
-        mapDeckError.value = error instanceof Error ? error.message : 'Could not load this collection.'
+        mapDeckError.value =
+          error instanceof Error
+            ? error.message
+            : 'Could not load this collection.'
         state.value.status = `Image source not applied: ${mapDeckError.value}`
       }
     } finally {
@@ -313,7 +331,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function pickMapCard(key: string): void {
-    if (!mapMatching.value || loading.value || turnLocked.value || deckNeedsRefresh.value || mapDeckError.value) return
+    if (
+      !mapMatching.value ||
+      loading.value ||
+      turnLocked.value ||
+      deckNeedsRefresh.value ||
+      mapDeckError.value
+    )
+      return
     const card = mapCardAt(key)
     if (!card || card.matched || card.flipped) return
     card.flipped = true
@@ -341,12 +366,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           if (!state.value.revealed.includes(tile))
             state.value.revealed.push(tile)
         }
-        state.value.status = 'A remembered pair! Two pieces of Briar Camp have emerged.'
+        state.value.status =
+          'A remembered pair! Two pieces of Briar Camp have emerged.'
         if (state.value.mapCards.every((tile) => tile.matched)) {
           state.value.wavePhase = 'exploring'
-          state.value.status = state.value.waveIndex === 3
-            ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
-            : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
+          state.value.status =
+            state.value.waveIndex === 3
+              ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
+              : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
         }
         turnLocked.value = false
         persist()

@@ -384,7 +384,7 @@ export const TALKS: readonly TalkDef[] = [
             label: 'Send them anyway. Somebody should ask him why.',
             effects: { flags: ['rook-hunts-komodo'] },
             response:
-              '“Somebody,” Rook says. Gone before light. By your bedroll: a cold cup of tea, and a stick drawing of a hare in the dirt. Ears up. Facing north.',
+              '“Somebody,” Rook says. Gone before light. By your bedroll: a cold cup of tea, and a stick drawing of a rider in the dirt. Long ears. Facing north.',
           },
           {
             id: 'together',
@@ -3913,7 +3913,7 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'flinch',
         lines: [
-          'Him. He didn’t flinch the way guilty people flinch. Everyone else shifted, coughed, looked round. He stopped. Perfectly still. Like a rabbit under a hawk.',
+          'Him. He didn’t flinch the way guilty people flinch. Everyone else shifted, coughed, looked round. He stopped. Perfectly still. As still as someone who knows they are being watched.',
           'I thought it was nerves. A clever young man in a court that eats clever young men. I thought: poor thing.',
           'I read rooms for a living. I read him wrong.',
         ],
@@ -6660,7 +6660,7 @@ export const TALKS: readonly TalkDef[] = [
               'Tell him the crown was slower. The crown had the page in its hand.',
             effects: { flags: ['hollin-absolved'] },
             response:
-              'Hollin blinks. Once. Then he picks up the pen and draws the tower as it was. Beside the door, very small, an owl.',
+              'Hollin blinks. Once. Then he picks up the pen and draws the tower as it was. Beside the door, a tiny figure carrying a map.',
           },
           {
             id: 'is',

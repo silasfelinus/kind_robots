@@ -279,7 +279,7 @@
     <EmperorFortressIntro
       v-if="court.loaded && court.introOpen"
       :active="!splashing"
-      @done="court.closeIntro()"
+      @done="finishIntroduction"
     />
     <EmperorFortressSplash
       v-if="splashing"
@@ -299,6 +299,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { LAST_DAY } from '~/utils/emperorOfDust/fortress/content'
+import { COURT_ONBOARDING_FLAG } from '~/utils/emperorOfDust/fortress/onboarding'
 import {
   actOf,
   audiencesToday,
@@ -410,6 +411,15 @@ onBeforeUnmount(() => barObserver?.disconnect())
 function enter(room: RoomId) {
   activeRoom.value = room
   stage.value?.scrollTo({ top: 0 })
+}
+
+function finishIntroduction() {
+  const firstAudience =
+    run.value?.day === 1 &&
+    run.value.roster.length === 0 &&
+    run.value.flags.includes(COURT_ONBOARDING_FLAG)
+  court.closeIntro()
+  if (firstAudience) enter('throne')
 }
 
 watch(

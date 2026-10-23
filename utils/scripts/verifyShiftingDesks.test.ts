@@ -64,6 +64,14 @@ import {
   windowApplicant,
 } from '../shiftingDesks/rules'
 import { FLAG_MEMOS } from '../shiftingDesks/memos'
+import {
+  MILESTONES,
+  emptyRewardArchive,
+  migrateFoundEndings,
+  recordReward,
+  receiptFor,
+  restoreRewardArchive,
+} from '../shiftingDesks/rewards'
 
 const file = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 const asset = (path: string) => readFileSync(file(path), 'utf8')
@@ -1775,6 +1783,82 @@ assert.match(
     desk,
     /@click\.stop\.prevent="toggleRollTip/,
     'tapping the chip explains instead of choosing',
+  )
+}
+
+// First human clear: scores are true, but not four copy-pasted Exceptional labels.
+{
+  const profile = { obedience: 7, empathy: 13, ingenuity: 8, spite: 6 }
+  const result = rankedGrades(profile)
+  assert.deepEqual(
+    result.map((r) => r.score),
+    [13, 8, 7, 6],
+  )
+  assert.equal(
+    result.filter((r) => r.level.startsWith('Exceptional')).length,
+    1,
+  )
+  assert.match(result[1]!.level, /Liability/)
+  assert.match(result[2]!.level, /Compliant/)
+  assert.match(result[3]!.level, /Limited/)
+  const weak = rankedGrades({
+    obedience: -1,
+    empathy: 0,
+    ingenuity: 2,
+    spite: 3,
+  })
+  assert.equal(weak.filter((r) => r.level.startsWith('Exceptional')).length, 0)
+}
+
+// The archive remembers genuine completed files only; repeated save restores do
+// not mint another reward or overwrite the initial achievement timestamp.
+{
+  const example = endingSaves.find((s) => s.ending === 'employee-of-the-month')!
+  const receipt = receiptFor(example.run, '2026-10-23T09:58:00Z')
+  assert.ok(receipt)
+  assert.equal(receipt.endingId, 'employee-of-the-month')
+  assert.equal(receipt.grades.empathy, example.run.grades.empathy)
+  const empty = emptyRewardArchive()
+  const first = recordReward(empty, receipt, [receipt.endingId])
+  assert.equal(first.runs.length, 1)
+  assert.ok(first.milestones['first-ending'])
+  assert.ok(first.milestones['employee-of-the-month'])
+  assert.equal(recordReward(first, receipt, [receipt.endingId]), first)
+  assert.equal(
+    restoreRewardArchive(JSON.parse(JSON.stringify(first))).runs.length,
+    1,
+  )
+  assert.equal(
+    restoreRewardArchive({ version: 999, runs: first.runs }).runs.length,
+    0,
+  )
+  assert.equal(
+    restoreRewardArchive({ version: 1, runs: [{ seed: 'fake' }] }).runs.length,
+    0,
+  )
+  assert.equal(MILESTONES.filter((m) => m.badge).length >= 3, true)
+  assert.equal(
+    migrateFoundEndings(empty, ['employee-of-the-month']).runs.length,
+    0,
+    'legacy collectible IDs cannot manufacture run histories',
+  )
+  assert.equal(
+    receiptFor(newRun('unfinished-reward', 'intern'), '2026-10-23T09:58:00Z'),
+    null,
+  )
+  assert.match(
+    asset('../../pages/play/shifting-desks.vue'),
+    /shifting-desks-personnel-archive/,
+  )
+  assert.match(
+    asset('../../components/shifting-desks/shifting-desks-personnel-file.vue'),
+    /@click="emit\('archive'\)"/,
+  )
+  assert.match(
+    asset(
+      '../../components/shifting-desks/shifting-desks-personnel-archive.vue',
+    ),
+    /Personnel Archive/,
   )
 }
 

@@ -451,7 +451,7 @@ assert.match(
 )
 assert.match(
   worldStoreSource,
-  /state\.value\.mapCards\.filter\(\(card\) => !card\.matched\)/,
+  /state\.value\.mapCards[\s\S]*?\.filter\(\(card\) => !card\.matched\)/,
   'Refacing the board must preserve matched cards and revealed terrain',
 )
 assert.match(

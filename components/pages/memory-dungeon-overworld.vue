@@ -293,7 +293,7 @@
               <img
                 v-if="world.mapMatching && world.activeMapCard"
                 :src="world.activeMapCard.image"
-                class="h-full w-full object-cover"
+                class="h-full w-full bg-[#19322f] object-contain"
                 alt="Enlarged picture from the selected memory card"
                 draggable="false"
               />

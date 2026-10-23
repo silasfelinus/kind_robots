@@ -134,7 +134,8 @@ for (const archetypeId of ['student', 'rower', 'gardener'] as const) {
       assert.ok(altered.nerve >= normal.nerve, 'hazard resilience keeps nerve')
     } else {
       assert.ok(
-        altered.pending.entry.roll?.bonus! > normal.pending.entry.roll?.bonus!,
+        (altered.pending.entry.roll?.bonus ?? -999) >
+          (normal.pending.entry.roll?.bonus ?? -999),
         'risk spotting changes the check',
       )
     }

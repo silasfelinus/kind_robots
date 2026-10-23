@@ -108,7 +108,8 @@ for (const node of Object.values(BOOK)) {
   assert.ok(art.alt.length > 40, node.art + ' needs descriptive alt text')
   assert.ok(
     art.format === 'svg' ? art.artImageId === 0 : art.artImageId > 0,
-    node.art + ': a local SVG has no generated ArtImage, a WebP needs provenance',
+    node.art +
+      ': a local SVG has no generated ArtImage, a WebP needs provenance',
   )
   assert.ok(
     existsSync(join(scenesDir, art.file + '.' + (art.format ?? 'webp'))),

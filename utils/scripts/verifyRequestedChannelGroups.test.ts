@@ -99,12 +99,7 @@ for (const tab of ['aquarium', 'experiments', 'shifting-desks']) {
   assert.equal(existsSync(`content/channels/projects/${tab}.md`), false)
 }
 
-for (const tab of [
-  'art',
-  'video-generator',
-  'mandarin',
-  'button',
-]) {
+for (const tab of ['art', 'video-generator', 'mandarin', 'button']) {
   assert.match(nav(`projects/${tab}`), /\nchannelKey: projects\n/)
 }
 

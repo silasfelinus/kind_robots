@@ -41,18 +41,17 @@ tutorial:
         Projects shows every Conductor project with its roadmap, milestones, and
         blocked tasks, and its Proposed button is where you approve or reject new
         pitches. From a project page you can leave a task or comment for the project
-        worker. Project Placement is a one-off backfill that writes each project's
-        channel, tab, and live URL.
+        worker. Daily Dream Projects reviews approved pitches, their previews and
+        public-play approvals. Project Placement is a one-off backfill that writes
+        each project's channel, tab, and live URL.
       image: /images/dashboard-tabs/conductor/conductor.webp
     - key: studios
       title: Studios being built
       body: >-
-        Zuzu World is one archive of Zuzu art that any production can link to. Comic
-        Studio is where you pitch to the Editor, compare panel renders, and lay out
-        pages. Zuzu's Lair is a quick-time adventure, while The Ruler Is Hooked
-        blends fishing and kingdom decisions. Tzaddikim presents a sourced
-        gallery, and Brainstorm develops batches of new ideas. Zuzu Showdown, Shifting Lands and Pinball now have a Zuzu channel; other Zuzu
-        game prototypes appear there but remain admin-only during development.
+        Comic Studio is where you pitch to the Editor, compare panel renders,
+        and lay out pages. Zuzu's Lair is a quick-time adventure, while The Ruler
+        Is Hooked blends fishing and kingdom decisions. Tzaddikim presents a
+        sourced gallery. Other experimental production tools are on the Retired shelf.
       image: /zuzu-gamebook/scenes/zuzu-fire.webp
     - key: people
       title: Accounts and the forum
@@ -68,7 +67,8 @@ tutorial:
         Coloring Book pairs color and black-and-white pages for the coloring book. Animation Manager previews and layers the site's screen effects and sets the
         startup animation for your browser. Retired keeps older pages reachable
         without crowding the menu, including AppMaker, the Conductor App page, the Mermaids of Venice page editor, and the
-        Scene Animator.
+        Scene Animator, Coat Dance, Zuzu World, Zuzu Pinball Workshop, Butterfly
+        Gallery, Art Archive, Checkpoint Review, Brainstorm and Playbook Studio.
       image: /images/butterfly-gallery/room.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its

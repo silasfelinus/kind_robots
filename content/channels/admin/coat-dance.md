@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: coat-dance
+parentTabKey: retired
 label: Coat Dance
 title: Coat Dance Studio
 subtitle: Transform a full performance into a new animated film

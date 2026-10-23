@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: butterfly-gallery
+parentTabKey: retired
 label: Butterfly Gallery
 title: Butterfly Gallery
 subtitle: A sorting room for the private art archive

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: arcade
 tabKey: sliding-tile-gallery
+navigation: false
 label: Sliding Tile Gallery
 title: Sliding Tile Gallery · Work in progress
 subtitle: Work in progress · Piece the picture back together

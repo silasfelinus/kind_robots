@@ -18,7 +18,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/sliding-tile-gallery',
   },
   'music-mentor': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'daily-pitches',
     route: '/music-mentor',
   },

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: zuzu-pinball-workshop
+parentTabKey: retired
 label: Zuzu Pinball Workshop
 title: Zuzu Pinball · Engineering Workshop
 subtitle: Admin-only light-map editor and test cabinet

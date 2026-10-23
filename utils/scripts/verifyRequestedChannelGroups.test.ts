@@ -104,9 +104,28 @@ for (const tab of [
   'video-generator',
   'mandarin',
   'button',
-  'daily-pitches',
 ]) {
   assert.match(nav(`projects/${tab}`), /\nchannelKey: projects\n/)
+}
+
+assert.equal(existsSync('content/channels/projects/daily-pitches.md'), false)
+assert.match(nav('admin/daily-pitches'), /\nchannelKey: admin\n/)
+assert.match(nav('admin/daily-pitches'), /\nrequiredRole: ADMIN\n/)
+for (const key of [
+  'coat-dance',
+  'zuzu-world',
+  'zuzu-pinball-workshop',
+  'butterfly-gallery',
+  'art-archive',
+  'art-review',
+  'brainstorm',
+  'playbook-manager',
+]) {
+  assert.match(nav(`admin/${key}`), /\nparentTabKey: retired\n/)
+  assert.match(nav(`admin/${key}`), /\nrequiredRole: ADMIN\n/)
+}
+for (const key of ['zuzu-ghost-trail', 'zuzu-pinball', 'sliding-tile-gallery']) {
+  assert.match(nav(`arcade/${key}`), /\nnavigation: false\n/)
 }
 
 assert.equal(existsSync('content/channels/projects/music-video.md'), false)

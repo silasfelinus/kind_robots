@@ -451,7 +451,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             label: 'Ask Dunmark who would be left on the walls.',
             effects: {},
             response:
-              'Dunmark glances at the rider, then the windows, and lowers his voice. For a wolf his size, a courtesy.',
+              'Dunmark glances at the rider, then the windows, and lowers his voice. For a captain his size, a courtesy.',
             next: 'walls',
           },
           {
@@ -678,7 +678,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['ledger-page-kept', 'ledger-hand-studied'],
             },
             response:
-              'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
+              'Hollin turns the page under the lamp until midnight. “Left-handed,” Hollin says. “Taps the pen twice before every number, the way some people tap a claw.”',
           },
           {
             id: 'komodo',
@@ -738,7 +738,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['ledger-page-kept', 'ledger-hand-studied'],
                 },
                 response:
-                  'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
+                  'Hollin turns the page under the lamp until midnight. “Left-handed,” Hollin says. “Taps the pen twice before every number, the way some people tap a claw.”',
               },
               {
                 id: 'komodo',
@@ -795,7 +795,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         faction: 'moles',
         requires: { standing: MOLE_REFORMS_OPEN },
         lines: [
-          'A prairie dog climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
+          'A reform organiser climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
           '“Lumen Shale. I organize for the assembly. Granny Umber says the crown has done two honest things. The assembly says two is luck. Three is a habit.”',
           '“This is the list. Three reforms. A council seat for the burrows in this hall. The crown’s tax ledger nailed to the gate where anyone can read it. And the sedition law burned. The one you can hang a singer with.”',
           '“Grant one and we keep talking. Grant two and I work for you. Grant none and I go home and tell them the truth. That’s worse.”',

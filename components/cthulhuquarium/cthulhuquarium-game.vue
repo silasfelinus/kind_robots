@@ -1171,6 +1171,12 @@ import {
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
 import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
+import {
+  makeFeedParticles,
+  nearestFood,
+  MAX_VISIBLE_FOOD,
+  type FeedParticle,
+} from '~/utils/cthulhuquariumFood'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -1350,7 +1356,7 @@ type Collector = {
 /* The food is ALIVE (Silas, 2026-08-24) -- it wriggles on the way down and
    stops when eaten. `phase` drives the wriggle, `lean` gives each one its
    own bias so a handful never moves in unison. */
-type FeedCreature = { x: number; y: number; phase: number; lean: number }
+type FeedCreature = FeedParticle
 
 const tankStore = useCthulhuquariumTankStore()
 const shopHeaderArt =
@@ -2166,7 +2172,6 @@ function render(context: CanvasRenderingContext2D) {
 function step(delta: number) {
   syncSwimmers()
 
-  const food = feed.value[0] ?? null
   for (const swimmer of swimmers.value) {
     stepSwimState(swimmer, {
       width: STAGE_WIDTH,
@@ -2174,7 +2179,7 @@ function step(delta: number) {
       delta,
       speedMultiplier: swimSpeedMultiplier.value,
       pointer: pointerOnStage,
-      food,
+      food: nearestFood(swimmer, feed.value),
     })
     swimmer.facing = facingOf(swimmer, swimmer.facing)
   }
@@ -2411,7 +2416,7 @@ async function onCanvasPointerUp(event: PointerEvent) {
 }
 
 // cthulhuquarium/t-083: one tap feeds every hungry fish (tankStore.feedHungry);
-// food drops above up to three of them so the tank shows it happening.
+// food now scatters near fed fish, with a bounded particle budget.
 const feeding = ref(false)
 async function onFeed() {
   if (feeding.value) return
@@ -2421,20 +2426,18 @@ async function onFeed() {
     if (!fed.length) return
     tankSound.plop()
     tankStore.sayBark('fed', 0.5)
-    for (const id of fed.slice(0, 3)) dropFoodOver(id)
+    // Each successfully fed stock contributes to an animated scatter.
+    // The server decides who ate; this never changes hunger or rewards.
+    const drops = makeFeedParticles(
+      fed,
+      swimmers.value,
+      STAGE_WIDTH,
+      STAGE_HEIGHT,
+    )
+    feed.value = [...feed.value, ...drops].slice(-MAX_VISIBLE_FOOD)
   } finally {
     feeding.value = false
   }
-}
-
-function dropFoodOver(stockId: number) {
-  const swimmer = swimmers.value.find((entry) => entry.stockId === stockId)
-  feed.value.push({
-    x: swimmer?.x ?? 60 + Math.random() * (STAGE_WIDTH - 120),
-    y: 12,
-    phase: Math.random() * Math.PI * 2,
-    lean: (Math.random() - 0.5) * 1.6,
-  })
 }
 
 function onClean() {

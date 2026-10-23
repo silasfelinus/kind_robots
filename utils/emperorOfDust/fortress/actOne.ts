@@ -1035,7 +1035,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         npc: 'marisol-tallow',
         faction: 'ledger',
         lines: [
-          'They come up the carpet side by side, neither willing to go second. Factor Marisol Tallow, in a brass-buttoned waistcoat, carries two drafts of one charter, the tax rate blank on both. Foreman Dunmore Ash, the broad-shouldered Yard foreman in a floury apron, carries nothing. He folds his arms. That is his argument.',
+          'They come up the carpet side by side, neither willing to go second. Factor Marisol Tallow, in a brass-buttoned waistcoat, carries two drafts of one charter, the tax rate blank on both. Foreman Dunmore Ash, broad-shouldered and dressed in a floury apron, carries nothing. He folds his arms. That is his argument.',
           '“Your Majesty. The wasteland will judge you first by the fortress market. Tax it light and the caravans come here, not the Ford. Tax it hard and they come once, pay once, and tell the whole road.”',
           {
             who: 'Foreman Dunmore Ash',

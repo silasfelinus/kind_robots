@@ -174,7 +174,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -10 } },
     outcomes: {
       success:
-        'The witch who took the parcel was not surprised. It ticked the whole way. A Storm Crow who followed the courier now asks to see the emperor about what was inside.',
+        'The witch who took the parcel was not surprised. It ticked the whole way. A Conclave scout who followed the courier now asks to see the emperor about what was inside.',
       partial:
         'The parcel arrived damp. The Crows are not pleased, or not saying.',
       failure:
@@ -1334,7 +1334,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F011'],
             },
             response:
-              'A sealed parcel in oilcloth. Heavier than it looks. The gecko runner who carried it up the mountain does not leave with the envoy.',
+              'A sealed parcel in oilcloth. Heavier than it looks. The Conclave runner who carried it up the mountain does not leave with the envoy.',
             postsQuests: ['q-d07-crow-favor'],
           },
           {
@@ -1394,7 +1394,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F011'],
                 },
                 response:
-                  'The parcel is heavier than it looks. Once, when the hall is quiet, you are almost sure it ticks. The gecko runner who carried it up the mountain watches it pass to your steward, and stays.',
+                  'The parcel is heavier than it looks. Once, when the hall is quiet, you are almost sure it ticks. The Conclave runner who carried it up the mountain watches it pass to your steward, and stays.',
                 postsQuests: ['q-d07-crow-favor'],
               },
               {
@@ -1461,7 +1461,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F011'],
                 },
                 response:
-                  'The parcel goes north in oilcloth. The count stays under lock. The gecko runner stays behind, watching the courier’s road.',
+                  'The parcel goes north in oilcloth. The count stays under lock. The Conclave runner stays behind, watching the courier’s road.',
                 postsQuests: ['q-d07-crow-favor'],
               },
               {
@@ -1519,7 +1519,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F011'],
                 },
                 response:
-                  'The parcel in oilcloth, and the hour of the storm in a whisper. The gecko runner who carried it up the mountain does not leave.',
+                  'The parcel in oilcloth, and the hour of the storm in a whisper. The Conclave runner who carried it up the mountain does not leave.',
                 postsQuests: ['q-d07-crow-favor'],
               },
               {
@@ -1719,7 +1719,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         faction: 'abbey',
         lines: [
           'Wenna Coldbrook stands at the foot of the dais, three children behind her, a baby on her hip. Their farm is ash. They still smell of it. The smallest keeps a fist knotted in the back of her mother’s skirt.',
-          'Beside them, a white goat in grey Abbey robes, smiling. A counting cord hangs from her belt, knotted at even intervals. Her fingers rest on it like a hand on a sleeping dog.',
+          'Beside them, a novice in grey Abbey robes, smiling. A counting cord hangs from her belt, knotted at even intervals. Her fingers rest on it like a hand on a sleeping dog.',
           '“The Abbey would gladly take the little ones,” says Sister Marrow. “Warm beds. Lessons. Three meals, soup on feast days. Their mother may visit, of course. Once they are settled.”',
           '“Once they are settled,” Wenna repeats. Not a question. She wants to hear it out loud.',
           {
@@ -1775,7 +1775,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F012'],
             },
             response:
-              'Wenna holds the baby tight. Sister Marrow’s smile does not move. Then she is gone. A young capybara in a novice’s robe stays and asks if the Yard needs a cook.',
+              'Wenna holds the baby tight. Sister Marrow’s smile does not move. Then she is gone. A young Abbey novice stays and asks if the Yard needs a cook.',
           },
           {
             id: 'escort',
@@ -1812,7 +1812,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F012'],
                 },
                 response:
-                  'Wenna holds the baby so tight it squeaks. Sister Marrow is gone. A young capybara in a novice’s robe stays behind, a soup ladle in his belt, and asks if the Yard needs a cook.',
+                  'Wenna holds the baby so tight it squeaks. Sister Marrow is gone. A young Abbey novice stays behind, a soup ladle in his belt, and asks if the Yard needs a cook.',
               },
               {
                 id: 'seed',
@@ -1888,7 +1888,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F012'],
                 },
                 response:
-                  'Wenna holds the baby tight. Sister Marrow is gone. A young capybara in a novice’s robe stays and asks if the Yard needs a cook.',
+                  'Wenna holds the baby tight. Sister Marrow is gone. A young Abbey novice stays and asks if the Yard needs a cook.',
               },
               {
                 id: 'abbey',
@@ -1951,7 +1951,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F012'],
                 },
                 response:
-                  'Sister Marrow bows to Flint as deep as to you, and leaves. Her novice, a young capybara, stays and asks Flint if she wants the number. She says yes. He says he will have to count.',
+                  'Sister Marrow bows to Flint as deep as to you, and leaves. Her novice, a young cook, stays and asks Flint if she wants the number. She says yes. He says he will have to count.',
               },
               {
                 id: 'escort',
@@ -2288,7 +2288,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         faction: 'yard',
         requires: { local: { yard: 12 } },
         lines: [
-          'Juniper Slate comes up from the kitchens smelling of onions and carbolic. An opossum, a ladle through the belt like a sword, a roll of bandage in the apron. They walk straight past the herald. The herald has stopped trying.',
+          'Juniper Slate comes up from the kitchens smelling of onions and carbolic, a ladle through their belt like a sword and a roll of bandage in their apron. They walk straight past the herald. The herald has stopped trying.',
           'The Yard is behind the throne, Majesty. That means the kitchens. That means me. I want to see what the court eats on the road.',
           {
             who: 'Young Komodo',
@@ -2453,7 +2453,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               schedule: ['d10-oath-tested'],
             },
             response:
-              'A long look. A nod. “They’ll hold you to that. So will I.” A rhino at the end of the line asks to serve the crown closer than the gate.',
+              'A long look. A nod. “They’ll hold you to that. So will I.” A towering recruit at the end of the line asks to serve the crown closer than the gate.',
           },
           {
             id: 'crown',
@@ -2557,7 +2557,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   schedule: ['d10-oath-tested'],
                 },
                 response:
-                  '“He said it in that same voice. They’ll hold you to it. So will I.” A rhino at the end of the line, taller than the gate, asks to serve the crown closer than the walls.',
+                  '“He said it in that same voice. They’ll hold you to it. So will I.” A towering recruit at the end of the line, taller than the gate, asks to serve the crown closer than the walls.',
               },
               {
                 id: 'crown',
@@ -2749,7 +2749,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   schedule: ['d10-oath-tested'],
                 },
                 response:
-                  'Quiet while they work out if that was an answer. Then the old guard laughs, once, and swears. The rest follow. A rhino at the end of the line asks to serve closer than the gate.',
+                  'Quiet while they work out if that was an answer. Then the old guard laughs, once, and swears. The rest follow. A towering recruit at the end of the line asks to serve closer than the gate.',
               },
             ],
           },

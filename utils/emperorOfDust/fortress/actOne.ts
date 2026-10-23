@@ -97,7 +97,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -5 }, local: { ledger: -2 } },
     outcomes: {
       success:
-        'The hyena captain scratches out your coronation march on her fiddle. Her riders pull the wagons clear before the last sour note. The Saltroad medicine carts cross first; the Pack watches every bottle.',
+        'The Pack captain scratches out your coronation march on her fiddle. Her riders pull the wagons clear before the last sour note. The Saltroad medicine carts cross first; the Pack watches every bottle.',
       partial:
         'The Pack drags its wagons to one side, leaving room for a single cart. The captain asks the next trader for a song instead of brass. The driver knows no songs.',
       failure:
@@ -134,7 +134,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       partial:
         'The Pack gives up the tollhouse and plants its wheels across the narrow road beyond it. The Watch claims the gate. No cart reaches the far side.',
       failure:
-        'The Watch comes back missing three shields and its red banner. The hyena captain has hung the banner above the toll booth. She charges a brass bit to see it.',
+        'The Watch comes back missing three shields and its red banner. The Pack captain has hung the banner above the toll booth. She charges a brass bit to see it.',
       expired:
         'The blockade outlasts your order. Saltroad drivers unload flour by the bridge and carry it through the shallows themselves. The Pack takes a share for watching.',
     },
@@ -627,8 +627,9 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       success:
-        'From the roost, every crow faces the same way. East, toward the sunken rail yards.',
-      partial: 'The climbers saw the crows, and the crows saw them.',
+        'From the roost, every Conclave watcher faces the same way. East, toward the sunken rail yards.',
+      partial:
+        'The climbers saw the Conclave watchers, and the watchers saw them.',
       failure: 'The roost guards were not as silent as the rest.',
       expired: 'Nobody climbed.',
     },
@@ -801,7 +802,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         speaker: 'A Jackalwire captain',
         faction: 'jackalwire',
         lines: [
-          'The next petitioner does not wait to be announced. A hyena with a painted jaw, boots unlaced, a fiddle on her back. Her grin is a dropped knife.',
+          'The next petitioner does not wait to be announced. A raider captain with a painted jaw, boots unlaced, a fiddle on her back. Her grin is a dropped knife.',
           'Nice tower. The southern toll bridge is ours now. So are the carts that want to cross it.',
           'We can talk. You can pay. Or you can try to move us. Everybody gets three choices in the wasteland. The third one is always loud.',
           {
@@ -884,7 +885,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['pack-camp-mapped'],
                 },
                 response:
-                  'She leaves without a deal. That night at the postern a young hyena with a bandaged paw takes your brass and draws the camp on a ration card, eyes down. The Gate Watch pins the card above their fire.',
+                  'She leaves without a deal. That night at the postern a young informant with a bandaged paw takes your brass and draws the camp on a ration card, eyes down. The Gate Watch pins the card above their fire.',
               },
               {
                 id: 'parley',
@@ -2132,7 +2133,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         speaker: 'Pip Thread, archivist of Hollow Bell',
         faction: 'hollow-bell',
         lines: [
-          'The moth comes up the carpet in a coat too heavy for the weather, holding a letter in both hands like evidence. Their spectacles are mended with thread. They stop at the petitioners’ line, check it, and stop again.',
+          'Pip Thread comes up the carpet in a coat too heavy for the weather, holding a letter in both hands like evidence. Their spectacles are mended with thread. They stop at the petitioners’ line, check it, and stop again.',
           '“I brought a letter from the Hollow Bell archive. Nobody sent it. I mean, I sent it. I am delivering it. I am Pip Thread. I also wrote it.”',
           '“It says I want to work for the tower’s records. There is a reason. It is on a page no longer in the ledger.”',
           '“I don’t talk well, Your Majesty. I read well. I remember everything I read. That is the whole petition.”',
@@ -2148,7 +2149,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             label: 'Ask what was on the page that is no longer in the ledger.',
             effects: {},
             response:
-              'Pip goes still, a moth on a windowpane. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
+              'Pip presses their palm to the cold glass and goes still. “I can tell you what was on it. I can’t tell you who took it. I have no proof. I want to be clear about the proof.”',
             next: 'page',
           },
           {
@@ -2482,9 +2483,9 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         speaker: 'A wagon-painter for hire',
         faction: 'jackalwire',
         lines: [
-          'The wagon-painter is a lean hyena with wet paint on his paws. He brings a sample: a wooden panel of the tower and the Pack’s wagons under a fat yellow moon. Everyone smiling. Nobody armed.',
+          'The wagon-painter is a lean artisan with wet paint on his paws. He brings a sample: a wooden panel of the tower and the Pack’s wagons under a fat yellow moon. Everyone smiling. Nobody armed.',
           '“The Pack is throwing a feast in the tower’s honor, Majesty. No blades. Roast goat. The good fiddles, not the loud ones.”',
-          '“They’d be hurt if the tower didn’t come. Hurt is dangerous in a hyena. I say that as one.”',
+          '“They’d be hurt if the tower didn’t come. Hurt makes raiders dangerous. I learned that in the canyon.”',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
@@ -2560,7 +2561,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   flags: ['d04-feast-unarmed'],
                 },
                 response:
-                  'The Gate Watch hand over their blades at the tower door, faces shut. The goat is good and the fiddles are the good ones. All night a big hyena in a feathered coat watches your table from the dark, counting.',
+                  'The Gate Watch hand over their blades at the tower door, faces shut. The goat is good and the fiddles are the good ones. All night a towering Pack elder in a feathered coat watches your table from the dark, counting.',
               },
               {
                 id: 'warn-fiddler',

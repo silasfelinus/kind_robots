@@ -48,9 +48,9 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'mire-mothers': -10 } },
     outcomes: {
       triumph:
-        'The raiders broke and ran. A young newt-witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
+        'The raiders broke and ran. A novice fen witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
       success:
-        'The camp is scattered. A newt-witch named Isolde thanks the party, then asks to see the emperor alone.',
+        'The camp is scattered. A lantern-witch named Isolde thanks the party, then asks to see the emperor alone.',
       partial: 'The raiders pulled back. Not far.',
       failure:
         'The party was driven off. Lanterns burned in the fen all night. Not all of them were the Mothers’.',
@@ -517,7 +517,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'elder-corvane',
         faction: 'storm-crows',
         lines: [
-          'The hall is hot. Fans click in the gallery. At the back, three Freehold reeves hold empty seed sacks folded over their arms like mourning bands. Then the chimes: hundreds of copper bells on an old crow’s mantle, one ring per slow step.',
+          'The hall is hot. Fans click in the gallery. At the back, three Freehold reeves hold empty seed sacks folded over their arms like mourning bands. Then the chimes: hundreds of copper bells on Elder Corvane’s mantle, one ring per slow step.',
           'Elder Corvane does not bow. He unrolls a length of oilcloth down the steps of the dais. It keeps unrolling.',
           'The fields are dying, young ruler. The Conclave can bring rain. A season of it, every farm from the Ford to the Bell.',
           'In return, a covenant. The tower lends the Conclave a service when asked. Every covenant has a price. Ours is written down.',
@@ -989,10 +989,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               '“Raiders want bread and brass. The fen has neither.” Her voice does not change. “These want something else. Something they say the Mothers have.”',
               '“They are from Sedgewick and Low Carrow, up the dry river. Grief has made them stupid. They walk the fen’s edge at night with torches, shouting names into the reeds.”',
               {
-                who: 'A young newt at the back of the Mothers’ escort, holding a green lantern',
+                who: 'A young lantern-bearer at the back of the Mothers’ escort, holding a green lantern',
                 text: 'Children’s names, Majesty. The same eleven, every night. I know them all.',
               },
-              '“Hush,” says Sister Reedlight, without turning. The young newt hushes.',
+              '“Hush,” says Sister Reedlight, without turning. The young lantern-bearer hushes.',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -1006,7 +1006,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'Hold the fen edge anyway. There are children in those houses now.',
                 effects: {},
                 response:
-                  'Sister Reedlight bows low. “The fen remembers kindness.” Behind her the young newt with the green lantern is still mouthing names.',
+                  'Sister Reedlight bows low. “The fen remembers kindness.” Behind her the young lantern-bearer with the green lantern is still mouthing names.',
                 postsQuests: ['q-d12-mirefen-defense'],
               },
               {
@@ -1015,7 +1015,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'Hold the edge. While the Mothers watch the raiders, send someone into the cellars.',
                 effects: {},
                 response:
-                  '“You are so kind,” says Sister Reedlight. Her lantern gutters. Somewhere under it, a door has opened. The young newt meets your eyes. Nods once.',
+                  '“You are so kind,” says Sister Reedlight. Her lantern gutters. Somewhere under it, a door has opened. The young lantern-bearer meets your eyes. Nods once.',
                 postsQuests: ['q-d12-mirefen-defense', 'q-d12-mirefen-cellars'],
               },
               {
@@ -1049,7 +1049,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   schedule: ['d12-low-carrow-names'],
                 },
                 response:
-                  'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” The young newt at the back closes her eyes and stops mouthing names.',
+                  'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” The young lantern-bearer at the back closes her eyes and stops mouthing names.',
                 postsQuests: ['q-d12-mirefen-defense'],
               },
               {
@@ -1213,7 +1213,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'jackalwire',
         requires: { follower: 'F002' },
         lines: [
-          'Captain Gristle Vane fills the doorway first. A hyena in a greatcoat of a hundred painted feathers, ear-chain jangling, canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
+          'Captain Gristle Vane fills the doorway first. His greatcoat bears a hundred painted feathers, an ear-chain jangling above the canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
           'Our engine is broken, Majesty. One person alive knows how it was built. She’s standing beside you, pretending not to know me.',
           {
             who: 'Saffron Kett',
@@ -1381,7 +1381,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'abelard-vellum',
         faction: 'lamplight',
         lines: [
-          'A sloth in ink-dark robes takes his time crossing the throne room. He does not apologize.',
+          'Keeper Vellum, in ink-dark robes, takes his time crossing the throne room. He does not apologize.',
           '“The old maps are dust in their cases, Majesty. Roads, wells, tunnels nobody living remembers. Copying costs ink, paper and time. Mostly time.”',
           '“I brought one.” He unrolls it on the dais step. A corner lifts in the draught and drifts across the floor like a leaf. The Watch lets it go. “That,” says Keeper Vellum, “was the Eastern Ford, before the Ford moved.”',
         ],
@@ -1881,11 +1881,11 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'd16-bandaged-paw',
         title: 'The Mapmaker Comes Back',
-        speaker: 'A young hyena with a bandaged paw',
+        speaker: 'A young informant with a bandaged paw',
         faction: 'jackalwire',
         requires: { flags: ['pack-camp-mapped'] },
         lines: [
-          'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth: the young hyena who sold the crown a map of the Pack’s camp on a ration card.',
+          'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth: the young mapmaker who sold the crown a map of the Pack’s camp on a ration card.',
           'They know, Majesty. Somebody saw the card over the Watch’s fire and knew my drawing. I can’t draw good. That’s how.',
           'I’m not asking much. A bed in the Yard. A different name. I’ll scrub pots.',
           {
@@ -1929,7 +1929,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'turn-away',
             label:
-              'The crown bought a map, not a hyena. Send her back to her own.',
+              'The crown bought a map, not the mapmaker. Send her back to her own.',
             effects: {
               affinity: { jackalwire: 5 },
               local: { 'gate-watch': 1, yard: -2 },
@@ -2293,7 +2293,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'hester-plowright',
         faction: 'freeholds',
         lines: [
-          'A broad speckled hen in a mud-hemmed skirt plants herself before the throne like a fence post.',
+          'Hester Plowright, in a mud-hemmed skirt plants herself before the throne like a fence post.',
           '“Our wells are low, Majesty. Every refugee on the road wants a cup. The Freeholds water Freeholders. That’s all we can do.”',
           '“Sign on every well-head now. Freehold token or nothing. I painted them myself. Didn’t enjoy it.”',
           {
@@ -2324,7 +2324,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['thistledown-burned'] },
             effects: {},
             response:
-              'Hester goes still, the way a hen does when a hawk crosses the sun.',
+              'Hester goes still and watches the shadow cross the floor.',
             next: 'tokens',
           },
           {
@@ -3046,7 +3046,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'plum',
             lines: [
-              '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+              '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
               '“He said no. One of them took off a glove and gave it to him. A gift, for his trouble.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
               {
                 who: 'Lady Ottoline Vask',
@@ -3063,7 +3063,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 flags: ['d16-border-silver-seized'],
                 lines: [
-                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
                   '“Then one asked after some silver that went astray on the Freehold road. Grain money, he said. Paid in advance.” Dunmark sets a white glove on the dais step. Spotless. “He left that. My sergeant’s been sick since.”',
                   {
                     who: 'Lady Ottoline Vask',
@@ -3080,7 +3080,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 flags: ['d16-grain-followed'],
                 lines: [
-                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
                   '“And your rider came back from the grain carts. Their horses were eating Freehold oats out of Old House sacks.” Dunmark sets a white glove on the dais step. Spotless. “They gave my sergeant this. He’s been sick since.”',
                   {
                     who: 'Lady Ottoline Vask',
@@ -3235,7 +3235,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['bonded-runner-clause'] },
             effects: {},
             response:
-              'Corvane’s clouded eyes search the gallery for a small gecko he remembers. “Ah,” he says. “She told you.”',
+              'Corvane’s clouded eyes search the gallery for the courier he remembers. “Ah,” he says. “She told you.”',
             next: 'season',
           },
           {
@@ -3643,7 +3643,7 @@ export const D42_RUNNER_VARIANTS: SceneVariant[] = [
     flags: ['d34-tamsin-swapped'],
     lines: [
       D42_FIRST_LINE,
-      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The gecko took her sash.”',
+      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The courier took her sash.”',
       '“Tamsin runs the far paths now, the ones nobody wants. She runs them like she’s late for something. She doesn’t come to the cave while you’re in it.”',
       D42_LAST_LINE,
     ],

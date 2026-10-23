@@ -1000,11 +1000,23 @@ function collect(): Record<RuleId, string[]> {
       violations['one-scroll'].push(r)
     }
 
+    // Deliberately single-screen console games are bounded surfaces, not
+    // document pages. They cannot be forced to scroll just to satisfy a
+    // page-document rule: require an explicit opt-in plus all three viewport
+    // containment guarantees. Other pages still require a real scroll owner.
+    const fixedConsoleStage =
+      template.includes('data-layout="console-fixed"') &&
+      /\\b(kr-surface|kr-stage)\\b/.test(template) &&
+      /\\bh-full\\b/.test(template) &&
+      /\\bmin-h-0\\b/.test(template) &&
+      /\\boverflow-hidden\\b/.test(template)
+
     if (
       scrollers === 0 &&
       paneScrollers === 0 &&
       anchorScrollers === 0 &&
       pageComponent &&
+      !fixedConsoleStage &&
       !mdcMountedComponents.has(basename(file, '.vue'))
     ) {
       violations['zero-scroll'].push(r)

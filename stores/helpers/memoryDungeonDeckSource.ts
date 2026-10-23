@@ -73,7 +73,7 @@ export async function resolveMemoryDungeonDeck(
     return memory.selectLoadableImagePaths(filtered, needed)
   }
 
-  let records: VisibleDeckImage[] = []
+  let records: VisibleDeckImage[]
   if (choice.entityKind === 'dreams') {
     const source = useDreamStore()
     await source.fetchDreams()

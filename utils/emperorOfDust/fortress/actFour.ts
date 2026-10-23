@@ -816,7 +816,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
           {
             id: 'councils',
-            label: 'Grant the council seat. A burrow delegate sits in this hall.',
+            label:
+              'Grant the council seat. A burrow delegate sits in this hall.',
             effects: {
               affinity: { moles: 10 },
               local: { 'old-houses': -3 },

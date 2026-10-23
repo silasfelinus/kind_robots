@@ -15,6 +15,22 @@ export type RegionalCallback = {
 
 export const REGIONAL_CALLBACKS: RegionalCallback[] = [
   {
+    id: 'QW-5',
+    choice: 'monitor-success',
+    flag: 'creek_monitoring_committed',
+    priority: 9,
+    text: 'The crew kept the dated rota you signed instead of making your commitment into a legend. What grew was a habit of showing up, checking the culvert, and sharing measurements with the people who lived downstream.',
+    artMoment: 'Volunteer creek-monitoring sign-in sheet with four dated shifts, wet field notebook and simple water gauge, no miraculous instant forest restoration',
+  },
+  {
+    id: 'QW-5',
+    choice: 'monitor-failure',
+    flag: 'creek_monitoring_delayed',
+    priority: 9,
+    text: 'That first too-large promise never made it onto the crew rota. You kept the safety syllabus; even in a dark future, the people who did the fieldwork were not obliged to pretend your intention was their work.',
+    artMoment: 'Unsigned volunteer roster and rain-damp safety training booklet on a quiet porch, no falsely completed monitoring shifts',
+  },
+  {
     id: 'WH-014',
     choice: 'investigate-failure',
     flag: 'wh_014_partial',

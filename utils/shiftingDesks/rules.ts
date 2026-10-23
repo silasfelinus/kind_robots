@@ -1171,24 +1171,29 @@ function readGrade(g: Grade, score: number): GradeReading {
 }
 
 // Highest first; ties go to the axis listed later (spite beats obedience).
-const CORPORATE_LIABILITIES: Record<Grade, { level: string; warning: string }> = {
-  empathy: {
-    level: 'Flagged for Treatment',
-    warning: 'Wellness recommends scheduled exposure to a very sad clown until your concern for others becomes manageable.',
-  },
-  ingenuity: {
-    level: 'Productive Liability',
-    warning: 'Research requests measurements of your head. Innovations that improve office life are especially suspect.',
-  },
-  obedience: {
-    level: 'Admirably Compliant',
-    warning: 'PAL considers your willingness to obey a valuable resource, and has filed a claim for the remainder of it.',
-  },
-  spite: {
-    level: 'Useful in Limited Amounts',
-    warning: 'Your resentment improves throughput. HR recommends directing it only toward approved colleagues.',
-  },
-}
+const CORPORATE_LIABILITIES: Record<Grade, { level: string; warning: string }> =
+  {
+    empathy: {
+      level: 'Flagged for Treatment',
+      warning:
+        'Wellness recommends scheduled exposure to a very sad clown until your concern for others becomes manageable.',
+    },
+    ingenuity: {
+      level: 'Productive Liability',
+      warning:
+        'Research requests measurements of your head. Innovations that improve office life are especially suspect.',
+    },
+    obedience: {
+      level: 'Admirably Compliant',
+      warning:
+        'PAL considers your willingness to obey a valuable resource, and has filed a claim for the remainder of it.',
+    },
+    spite: {
+      level: 'Useful in Limited Amounts',
+      warning:
+        'Your resentment improves throughput. HR recommends directing it only toward approved colleagues.',
+    },
+  }
 
 // These labels are relative, satirical HR evaluations, never mechanical modifiers.
 // A strong employee can earn four high scores, but only the most pronounced trait
@@ -1201,7 +1206,8 @@ export function rankedGrades(grades: Grades): GradeReading[] {
       const liability = CORPORATE_LIABILITIES[r.grade]
       return {
         ...r,
-        level: index === 0 ? 'Exceptional · Under Observation' : liability.level,
+        level:
+          index === 0 ? 'Exceptional · Under Observation' : liability.level,
         line: liability.warning,
       }
     })

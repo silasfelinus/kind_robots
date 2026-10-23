@@ -1229,7 +1229,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
   },
   {
     day: 7,
-    title: 'A Crow’s Warning',
+    title: 'A Conclave Warning',
     whisper: {
       source: 'A Freehold reeve, waiting in the gatehouse',
       text: 'My gran sat out every dust storm in the old Mole galleries under the Ford. Nobody’s been down there in years, they tell me. Funny. The path to the old door is still worn smooth.',
@@ -1263,7 +1263,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd07-crow-warning',
-        title: 'A Crow’s Warning',
+        title: 'A Conclave Warning',
         speaker: 'A Storm Crow envoy',
         faction: 'storm-crows',
         // t-035: the rain the crown bought, or the rain it fenced.
@@ -1309,7 +1309,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'ask-hands',
             label:
-              'Ask why the parcel must go in the crown’s hands, not a crow’s.',
+              'Ask why the parcel must go in the crown’s hands, not a Conclave messenger’s.',
             effects: {},
             response:
               'One eye blinks, then the other. “Good question. The answer is also a parcel.”',
@@ -1364,7 +1364,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
           {
             id: 'hands',
             lines: [
-              '“The Mire Mothers take nothing from a crow’s claw. An old quarrel, older than your tower. They will take it from yours. Your tower has not yet given them a reason to refuse.”',
+              '“The Mire Mothers take nothing from a Conclave envoy’s hand. An old quarrel, older than your tower. They will take it from yours. Your tower has not yet given them a reason to refuse.”',
               '“What is inside is between the Conclave and the coven. Not a weapon. Not a gift. A sentence that has waited a long time for its full stop.”',
               '“Both of us will remember who carried it. That is the real price. The brass is for those who prefer to be forgotten.”',
               {

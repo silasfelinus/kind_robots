@@ -10,12 +10,12 @@ V7's saved action history is verified by replay. Editing V7's historic trial tar
 
 These are exact 2d6 odds, with the same existing skill bonuses. No dice are fudged and no success is guaranteed.
 
-| Trial approach | Other lands: V7 → V8 | Verge: V7 → V8 | Qualifier |
-| --- | --- | --- | --- |
-| Witness | 27.8% → 58.3% | 16.7% → 41.7% | Two encounter-earned mercy and/or honesty marks |
-| Solidarity | 41.7% → 72.2% | 27.8% → 58.3% | Four mercy **and** two honesty marks |
-| Scout | 41.7% → 72.2% | 16.7% → 58.3% | Spend 1 HP preparing once for that land |
-| Tribute / coercion | unchanged | unchanged | Retain their cost, moral mark and recorded consequences |
+| Trial approach     | Other lands: V7 → V8 | Verge: V7 → V8 | Qualifier                                               |
+| ------------------ | -------------------- | -------------- | ------------------------------------------------------- |
+| Witness            | 27.8% → 58.3%        | 16.7% → 41.7%  | Two encounter-earned mercy and/or honesty marks         |
+| Solidarity         | 41.7% → 72.2%        | 27.8% → 58.3%  | Four mercy **and** two honesty marks                    |
+| Scout              | 41.7% → 72.2%        | 16.7% → 58.3%  | Spend 1 HP preparing once for that land                 |
+| Tribute / coercion | unchanged            | unchanged      | Retain their cost, moral mark and recorded consequences |
 
 This is not a generic bonus for choosing a friendly dialogue line. Being kind during encounters can cost HP or provisions, and assembling witnesses takes real actions. Once the network has been built, it should actually help. Scouting carries an immediate physical cost; it should uncover a useful route, not just a worse lottery.
 

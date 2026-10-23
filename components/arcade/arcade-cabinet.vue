@@ -427,6 +427,7 @@ import type { CSSProperties } from 'vue'
 import {
   fitDisplay,
   MAX_DPR,
+  MOBILE_HD_CANVAS_PIXELS,
   RENDER_STYLE_NAMES,
   type DisplayFit,
   type RenderStyle,
@@ -1817,6 +1818,8 @@ function resizeCanvas() {
       ? Math.min(rect.width, rect.height * ratio)
       : rect.width,
     dpr: window.devicePixelRatio || 1,
+    availableHeight: fillsScreen.value ? Math.min(rect.height, rect.width / ratio) : rect.height,
+    maxCanvasPixels: touchControls.value ? MOBILE_HD_CANVAS_PIXELS : undefined,
     // A 3D cabinet's 2D layer sits over the full-size stage, so it always fills the screen.
     style: isWebGLCabinet.value ? 'hd' : renderStyle.value,
   })

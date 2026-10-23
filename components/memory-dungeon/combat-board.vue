@@ -121,8 +121,15 @@
             @focus="aim(r - 1, c - 1)"
             @click="act(r - 1, c - 1)"
           >
-            <span class="md-card-inner" :class="{ flipped: faceUp(r - 1, c - 1) }">
-              <span class="md-card-back bg-[#29384b] text-2xl text-[#dec28a]" aria-hidden="true">✦</span>
+            <span
+              class="md-card-inner"
+              :class="{ flipped: faceUp(r - 1, c - 1) }"
+            >
+              <span
+                class="md-card-back bg-[#29384b] text-2xl text-[#dec28a]"
+                aria-hidden="true"
+                >✦</span
+              >
               <img
                 class="md-card-front"
                 :src="imageAt(r - 1, c - 1)"

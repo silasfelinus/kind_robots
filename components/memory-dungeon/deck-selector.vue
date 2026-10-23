@@ -109,7 +109,12 @@
         <select
           class="rounded-md border border-[#bdac7c] bg-[#2c3b35] p-1.5 text-[#f8edce]"
           :value="selected.includeMature ? 'mature' : 'safe'"
-          @change="choose({ includeMature: ($event.target as HTMLSelectElement).value === 'mature' })"
+          @change="
+            choose({
+              includeMature:
+                ($event.target as HTMLSelectElement).value === 'mature',
+            })
+          "
         >
           <option value="safe">Non-mature only</option>
           <option value="mature">Mature only</option>
@@ -119,10 +124,13 @@
         v-if="selected.family !== 'designed'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
-        All-art uses public images only. Your explicitly chosen owned collections
-        or recently generated works may also use your private art.
-        <template v-if="matureAvailable">Each rating uses only that rating, never a mixture.</template>
-        A room requires at least 3 distinct loadable images, 4 for the Vault's last chamber.
+        All-art uses public images only. Your explicitly chosen owned
+        collections or recently generated works may also use your private art.
+        <template v-if="matureAvailable"
+          >Each rating uses only that rating, never a mixture.</template
+        >
+        A room requires at least 3 distinct loadable images, 4 for the Vault's
+        last chamber.
       </span>
     </div>
     <div

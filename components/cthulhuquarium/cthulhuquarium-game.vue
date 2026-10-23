@@ -323,7 +323,9 @@
             @click="closePanel"
           />
           <div v-if="activePanel" class="cq-room-heading">
-            <span class="min-w-0 truncate font-serif font-black">{{ activePanelName }}</span>
+            <span class="min-w-0 truncate font-serif font-black">{{
+              activePanelName
+            }}</span>
             <button
               type="button"
               class="btn btn-ghost btn-sm min-h-11 min-w-11 shrink-0"
@@ -532,7 +534,7 @@
             </div>
           </div>
 
-        <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
+          <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
            collection is the actual progression spine now ("ENDLESS BUT THE
            BESTIARY COMPLETES"), so it gets a view worth returning to rather
            than living only as a side effect of the unlock panel above.
@@ -540,292 +542,312 @@
            completionist book, not part of the tank's own poll loop. Formal
            name on the cover; Charlotte and Wilbur would just call it "the
            book" (SYSTEMS.md). -->
-        <div
-          v-show="activePanel === 'bestiary'"
-          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
-        >
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 rounded-2xl text-left"
-            :class="{ 'cq-focus': storyFocus === 'bestiary' }"
-            @click="onToggleBestiary"
+          <div
+            v-show="activePanel === 'bestiary'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
-               formal name and a text label; now it has its cover. -->
-            <!-- cthulhuquarium/t-067: see the fish-list wrapper comment above --
-               same width-cascade fix, wrapper-owned size and border. -->
-            <div
-              v-if="artByName('ichthyonomicon')"
-              class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 rounded-2xl text-left"
+              :class="{ 'cq-focus': storyFocus === 'bestiary' }"
+              @click="onToggleBestiary"
             >
-              <kr-art-plate
-                :source="{
-                  imagePath:
-                    movingArt('ichthyonomicon') ?? artByName('ichthyonomicon'),
-                }"
-                variant="icon"
-                shape="square"
-                frame="none"
-                fit="cover"
-                placeholder-icon="kind-icon:book"
-              />
-            </div>
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              The Ichthyonomicon
-              <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
-                — {{ tankStore.bestiaryCollectedCount }}/{{
-                  tankStore.bestiaryTotalCount
-                }}
-                observed
+              <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
+               formal name and a text label; now it has its cover. -->
+              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment above --
+               same width-cascade fix, wrapper-owned size and border. -->
+              <div
+                v-if="artByName('ichthyonomicon')"
+                class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+              >
+                <kr-art-plate
+                  :source="{
+                    imagePath:
+                      movingArt('ichthyonomicon') ??
+                      artByName('ichthyonomicon'),
+                  }"
+                  variant="icon"
+                  shape="square"
+                  frame="none"
+                  fit="cover"
+                  placeholder-icon="kind-icon:book"
+                />
+              </div>
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                The Ichthyonomicon
+                <span
+                  v-if="tankStore.bestiaryTotalCount > 0"
+                  class="opacity-80"
+                >
+                  — {{ tankStore.bestiaryCollectedCount }}/{{
+                    tankStore.bestiaryTotalCount
+                  }}
+                  observed
+                </span>
               </span>
-            </span>
-            <Icon
-              :name="
-                showBestiary ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
+              <Icon
+                :name="
+                  showBestiary
+                    ? 'kind-icon:chevron-up'
+                    : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-          <template v-if="showBestiary">
-            <cthulhuquarium-bark context="bestiary" />
-            <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
-              Reading the book…
-            </p>
-            <cthulhuquarium-ichthyonomicon v-else />
-          </template>
-        </div>
+            <template v-if="showBestiary">
+              <cthulhuquarium-bark context="bestiary" />
+              <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
+                Reading the book…
+              </p>
+              <cthulhuquarium-ichthyonomicon v-else />
+            </template>
+          </div>
 
-        <!-- Set pieces (cthulhuquarium/t-026): the build layer. Fish provide
+          <!-- Set pieces (cthulhuquarium/t-026): the build layer. Fish provide
            colour and income; sets provide the variation and the surprise
            combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
            panel is about a small, legible, COUNTED choice (setSlotsCap),
            not a big collected list. -->
-        <div
-          v-show="activePanel === 'sets'"
-          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
-        >
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 text-left"
-            @click="onToggleSets"
+          <div
+            v-show="activePanel === 'sets'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              Set pieces
-              <span class="opacity-80">
-                — {{ tankStore.equippedSets.length }}/{{
-                  tankStore.setSlotsCap
-                }}
-                equipped
-              </span>
-            </span>
-            <Icon
-              :name="
-                showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
-
-          <template v-if="showSets">
-            <cthulhuquarium-bark context="sets" />
-            <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
-              Surveying the build layer…
-            </p>
-            <div
-              v-else
-              class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 text-left"
+              @click="onToggleSets"
             >
-              <div
-                v-for="entry in tankStore.setCatalog"
-                :key="entry.kind"
-                class="flex flex-col gap-1 kr-panel-compact"
-                :class="{ 'border-primary/60': entry.equipped }"
-              >
-                <img
-                  v-if="artForSetKind(entry.kind)"
-                  :src="artForSetKind(entry.kind) ?? undefined"
-                  :alt="entry.title"
-                  loading="lazy"
-                  class="aspect-square w-full rounded-xl bg-base-200 object-contain"
-                />
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">{{ entry.title }}</p>
-                  <span
-                    v-if="entry.equipped"
-                    class="kr-badge-primary-xs shrink-0"
-                  >
-                    Equipped
-                  </span>
-                </div>
-                <p class="text-xs italic opacity-70">{{ entry.description }}</p>
-                <button
-                  v-if="entry.equipped"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  @click="
-                    () => {
-                      const id = equippedSetId(entry.kind)
-                      if (id) tankStore.unequipSet(id)
-                    }
-                  "
-                >
-                  Unequip
-                </button>
-                <button
-                  v-else
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  :disabled="!canEquip(entry)"
-                  @click="tankStore.equipSet(entry.kind)"
-                >
-                  Equip ({{ entry.cost }})
-                </button>
-              </div>
-              <p v-if="!tankStore.setCatalog.length" class="kr-text-faded-xs">
-                No set pieces to show right now.
-              </p>
-            </div>
-          </template>
-        </div>
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                Set pieces
+                <span class="opacity-80">
+                  — {{ tankStore.equippedSets.length }}/{{
+                    tankStore.setSlotsCap
+                  }}
+                  equipped
+                </span>
+              </span>
+              <Icon
+                :name="
+                  showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-        <!-- Decorate (cthulhuquarium/t-017): "they can decorate it" -- purely
+            <template v-if="showSets">
+              <cthulhuquarium-bark context="sets" />
+              <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
+                Surveying the build layer…
+              </p>
+              <div
+                v-else
+                class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+              >
+                <div
+                  v-for="entry in tankStore.setCatalog"
+                  :key="entry.kind"
+                  class="flex flex-col gap-1 kr-panel-compact"
+                  :class="{ 'border-primary/60': entry.equipped }"
+                >
+                  <img
+                    v-if="artForSetKind(entry.kind)"
+                    :src="artForSetKind(entry.kind) ?? undefined"
+                    :alt="entry.title"
+                    loading="lazy"
+                    class="aspect-square w-full rounded-xl bg-base-200 object-contain"
+                  />
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">{{ entry.title }}</p>
+                    <span
+                      v-if="entry.equipped"
+                      class="kr-badge-primary-xs shrink-0"
+                    >
+                      Equipped
+                    </span>
+                  </div>
+                  <p class="text-xs italic opacity-70">
+                    {{ entry.description }}
+                  </p>
+                  <button
+                    v-if="entry.equipped"
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    @click="
+                      () => {
+                        const id = equippedSetId(entry.kind)
+                        if (id) tankStore.unequipSet(id)
+                      }
+                    "
+                  >
+                    Unequip
+                  </button>
+                  <button
+                    v-else
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    :disabled="!canEquip(entry)"
+                    @click="tankStore.equipSet(entry.kind)"
+                  >
+                    Equip ({{ entry.cost }})
+                  </button>
+                </div>
+                <p v-if="!tankStore.setCatalog.length" class="kr-text-faded-xs">
+                  No set pieces to show right now.
+                </p>
+              </div>
+            </template>
+          </div>
+
+          <!-- Decorate (cthulhuquarium/t-017): "they can decorate it" -- purely
            cosmetic, unlike set pieces (no slot cap, no economy effect, and
            buying the same item twice is fine). Choosing an item here sets
            pendingDecorKind; the next tap on the tank places and pays for it.
            An already-placed item can be dragged directly on the canvas. -->
-        <div
-          v-show="activePanel === 'decor'"
-          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
-        >
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 text-left"
-            @click="onToggleDecor"
+          <div
+            v-show="activePanel === 'decor'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              Decorate
-              <span v-if="tankStore.placedDecor.length" class="opacity-80">
-                — {{ tankStore.placedDecor.length }} placed
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 text-left"
+              @click="onToggleDecor"
+            >
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                Decorate
+                <span v-if="tankStore.placedDecor.length" class="opacity-80">
+                  — {{ tankStore.placedDecor.length }} placed
+                </span>
               </span>
-            </span>
-            <Icon
-              :name="
-                showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
+              <Icon
+                :name="
+                  showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-          <template v-if="showDecor">
-            <cthulhuquarium-bark context="decor" />
-            <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
-              Sorting through the driftwood…
-            </p>
-            <div
-              v-else
-              class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
-            >
+            <template v-if="showDecor">
+              <cthulhuquarium-bark context="decor" />
+              <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
+                Sorting through the driftwood…
+              </p>
               <div
-                v-for="entry in tankStore.decorCatalog"
-                :key="entry.kind"
-                class="flex flex-col gap-1 kr-panel-compact"
-                :class="{
-                  'border-primary/60':
-                    tankStore.pendingDecorKind === entry.kind,
-                }"
+                v-else
+                class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
               >
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">
-                    <span class="mr-1">{{ entry.icon }}</span
-                    >{{ entry.title }}
-                  </p>
-                </div>
-                <p class="text-xs italic opacity-70">{{ entry.description }}</p>
-                <button
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  :disabled="tankStore.coins < entry.cost"
-                  @click="() => { tankStore.chooseDecorToPlace(entry.kind); closePanel() }"
+                <div
+                  v-for="entry in tankStore.decorCatalog"
+                  :key="entry.kind"
+                  class="flex flex-col gap-1 kr-panel-compact"
+                  :class="{
+                    'border-primary/60':
+                      tankStore.pendingDecorKind === entry.kind,
+                  }"
                 >
-                  Place ({{ entry.cost }})
-                </button>
-              </div>
-              <p v-if="!tankStore.decorCatalog.length" class="kr-text-faded-xs">
-                Nothing to place right now.
-              </p>
-            </div>
-            <p
-              v-if="tankStore.placedDecor.length"
-              class="text-[0.65rem] uppercase tracking-wide opacity-60"
-            >
-              Drag anything placed in the tank to move it.
-            </p>
-          </template>
-        </div>
-
-        <details
-          v-show="activePanel === 'scenery'"
-          class="cq-support-panel group flex flex-col gap-2 kr-panel-divider"
-          open
-        >
-          <summary
-            class="flex cursor-pointer list-none items-center justify-between gap-2"
-          >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              More for the tank — backgrounds, the last aquarium, sharing
-            </span>
-            <Icon
-              name="kind-icon:chevron-down"
-              class="kr-icon-4 shrink-0 opacity-60 transition group-open:rotate-180"
-            />
-          </summary>
-          <div class="mt-2 flex flex-col gap-3">
-            <div class="flex flex-col gap-2">
-              <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-                Behind the glass
-              </p>
-              <cthulhuquarium-bark context="backgrounds" />
-              <div class="flex snap-x gap-2 overflow-x-auto pb-1">
-                <button
-                  v-for="background in tankStore.backgrounds"
-                  :key="background.key"
-                  type="button"
-                  class="relative w-40 shrink-0 snap-start overflow-hidden rounded-2xl border-2 text-left transition"
-                  :class="
-                    background.key === tankStore.backgroundKey
-                      ? 'border-primary'
-                      : 'border-base-300'
-                  "
-                  :disabled="!background.unlocked || tankStore.backgroundSaving"
-                  :aria-pressed="background.key === tankStore.backgroundKey"
-                  @click="tankStore.chooseBackground(background.key)"
-                >
-                  <img
-                    v-if="backgroundArt(background.key)"
-                    :src="backgroundArt(background.key) ?? undefined"
-                    :alt="background.name"
-                    class="aspect-[16/9] w-full object-cover"
-                    :class="{
-                      'blur-sm grayscale opacity-40': !background.unlocked,
-                    }"
-                  />
-                  <div v-else class="aspect-[16/9] w-full bg-base-300" />
-                  <div class="p-1.5">
-                    <p class="truncate text-xs font-bold">
-                      {{ background.unlocked ? background.name : 'Not yet' }}
-                    </p>
-                    <p
-                      v-if="!background.unlocked"
-                      class="truncate text-[0.65rem] opacity-60"
-                    >
-                      {{ backgroundUnlockHint(background.unlock) }}
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">
+                      <span class="mr-1">{{ entry.icon }}</span
+                      >{{ entry.title }}
                     </p>
                   </div>
-                </button>
+                  <p class="text-xs italic opacity-70">
+                    {{ entry.description }}
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    :disabled="tankStore.coins < entry.cost"
+                    @click="
+                      () => {
+                        tankStore.chooseDecorToPlace(entry.kind)
+                        closePanel()
+                      }
+                    "
+                  >
+                    Place ({{ entry.cost }})
+                  </button>
+                </div>
+                <p
+                  v-if="!tankStore.decorCatalog.length"
+                  class="kr-text-faded-xs"
+                >
+                  Nothing to place right now.
+                </p>
               </div>
-            </div>
-            <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
+              <p
+                v-if="tankStore.placedDecor.length"
+                class="text-[0.65rem] uppercase tracking-wide opacity-60"
+              >
+                Drag anything placed in the tank to move it.
+              </p>
+            </template>
+          </div>
+
+          <details
+            v-show="activePanel === 'scenery'"
+            class="cq-support-panel group flex flex-col gap-2 kr-panel-divider"
+            open
+          >
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-2"
+            >
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                More for the tank — backgrounds, the last aquarium, sharing
+              </span>
+              <Icon
+                name="kind-icon:chevron-down"
+                class="kr-icon-4 shrink-0 opacity-60 transition group-open:rotate-180"
+              />
+            </summary>
+            <div class="mt-2 flex flex-col gap-3">
+              <div class="flex flex-col gap-2">
+                <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                  Behind the glass
+                </p>
+                <cthulhuquarium-bark context="backgrounds" />
+                <div class="flex snap-x gap-2 overflow-x-auto pb-1">
+                  <button
+                    v-for="background in tankStore.backgrounds"
+                    :key="background.key"
+                    type="button"
+                    class="relative w-40 shrink-0 snap-start overflow-hidden rounded-2xl border-2 text-left transition"
+                    :class="
+                      background.key === tankStore.backgroundKey
+                        ? 'border-primary'
+                        : 'border-base-300'
+                    "
+                    :disabled="
+                      !background.unlocked || tankStore.backgroundSaving
+                    "
+                    :aria-pressed="background.key === tankStore.backgroundKey"
+                    @click="tankStore.chooseBackground(background.key)"
+                  >
+                    <img
+                      v-if="backgroundArt(background.key)"
+                      :src="backgroundArt(background.key) ?? undefined"
+                      :alt="background.name"
+                      class="aspect-[16/9] w-full object-cover"
+                      :class="{
+                        'blur-sm grayscale opacity-40': !background.unlocked,
+                      }"
+                    />
+                    <div v-else class="aspect-[16/9] w-full bg-base-300" />
+                    <div class="p-1.5">
+                      <p class="truncate text-xs font-bold">
+                        {{ background.unlocked ? background.name : 'Not yet' }}
+                      </p>
+                      <p
+                        v-if="!background.unlocked"
+                        class="truncate text-[0.65rem] opacity-60"
+                      >
+                        {{ backgroundUnlockHint(background.unlock) }}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
            one-time terminal purchase -- deliberately not folded into "Set
            pieces" above, since it never occupies a setSlotsCap slot and can
            never be unequipped. Charlotte sells it "cheerfully and without
@@ -834,96 +856,96 @@
            set-last-aquarium plate (cthulhuquarium/t-054) replaces what would
            otherwise be a text-only row, matching the fish catalog's
            icon-plus-text layout above. -->
-            <div
-              v-if="tankStore.finaleConfig"
-              class="flex items-start gap-2 kr-panel-divider"
-            >
-              <!-- cthulhuquarium/t-067: THE reported bug -- "The Last Aquarium" row
+              <div
+                v-if="tankStore.finaleConfig"
+                class="flex items-start gap-2 kr-panel-divider"
+              >
+                <!-- cthulhuquarium/t-067: THE reported bug -- "The Last Aquarium" row
              rendering one word per line because this plate stretched to the
              row's full width. See the fish-list wrapper comment above for the
              root cause and fix (same width-cascade issue, same fix here). -->
-              <div
-                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
-              >
-                <kr-art-plate
-                  :source="{ imagePath: setLastAquariumArt }"
-                  variant="icon"
-                  shape="square"
-                  frame="none"
-                  fit="cover"
-                  placeholder-icon="kind-icon:box"
-                />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">
-                    {{ tankStore.finaleConfig.title }}
-                  </p>
-                  <span
-                    v-if="tankStore.finaleTriggered"
-                    class="kr-badge-primary-xs shrink-0"
-                  >
-                    Yours
-                  </span>
-                </div>
-                <p class="text-xs italic opacity-70">
-                  {{ tankStore.finaleConfig.description }}
-                </p>
-                <button
-                  v-if="!tankStore.finaleTriggered"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1"
-                  :disabled="tankStore.coins < tankStore.finaleConfig.cost"
-                  @click="tankStore.purchaseFinale()"
+                <div
+                  class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
                 >
-                  Buy ({{ tankStore.finaleConfig.cost }})
-                </button>
+                  <kr-art-plate
+                    :source="{ imagePath: setLastAquariumArt }"
+                    variant="icon"
+                    shape="square"
+                    frame="none"
+                    fit="cover"
+                    placeholder-icon="kind-icon:box"
+                  />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">
+                      {{ tankStore.finaleConfig.title }}
+                    </p>
+                    <span
+                      v-if="tankStore.finaleTriggered"
+                      class="kr-badge-primary-xs shrink-0"
+                    >
+                      Yours
+                    </span>
+                  </div>
+                  <p class="text-xs italic opacity-70">
+                    {{ tankStore.finaleConfig.description }}
+                  </p>
+                  <button
+                    v-if="!tankStore.finaleTriggered"
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1"
+                    :disabled="tankStore.coins < tankStore.finaleConfig.cost"
+                    @click="tankStore.purchaseFinale()"
+                  >
+                    Buy ({{ tankStore.finaleConfig.cost }})
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
+              <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
            -- new tanks default public, and this is the one-click way to
            change that. Read-only for visitors either way: the toggle only
            ever writes the owner's own tank. -->
-            <div
-              class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider"
-            >
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  class="kr-toggle-success-sm"
-                  :checked="tankStore.tank?.isPublic ?? false"
-                  :disabled="visibilitySaving"
-                  @change="onToggleVisibility"
-                />
-                <span class="kr-text-bold-xs">
-                  {{
-                    tankStore.tank?.isPublic ? 'Public tank' : 'Private tank'
-                  }}
-                </span>
-              </label>
-              <NuxtLink
-                v-if="tankStore.tank?.isPublic && username"
-                :to="`/play/aquarium/browse/${username}/${tankStore.tank.slug}`"
-                class="link text-xs opacity-70"
+              <div
+                class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider"
               >
-                View your public page
-              </NuxtLink>
-              <NuxtLink
-                to="/play/aquarium/browse"
-                class="link text-xs opacity-70"
-              >
-                Browse public tanks
-              </NuxtLink>
-              <NuxtLink
-                to="/play/aquarium/leaderboard"
-                class="link text-xs opacity-70"
-              >
-                Leaderboard
-              </NuxtLink>
+                <label class="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    class="kr-toggle-success-sm"
+                    :checked="tankStore.tank?.isPublic ?? false"
+                    :disabled="visibilitySaving"
+                    @change="onToggleVisibility"
+                  />
+                  <span class="kr-text-bold-xs">
+                    {{
+                      tankStore.tank?.isPublic ? 'Public tank' : 'Private tank'
+                    }}
+                  </span>
+                </label>
+                <NuxtLink
+                  v-if="tankStore.tank?.isPublic && username"
+                  :to="`/play/aquarium/browse/${username}/${tankStore.tank.slug}`"
+                  class="link text-xs opacity-70"
+                >
+                  View your public page
+                </NuxtLink>
+                <NuxtLink
+                  to="/play/aquarium/browse"
+                  class="link text-xs opacity-70"
+                >
+                  Browse public tanks
+                </NuxtLink>
+                <NuxtLink
+                  to="/play/aquarium/leaderboard"
+                  class="link text-xs opacity-70"
+                >
+                  Leaderboard
+                </NuxtLink>
+              </div>
             </div>
-          </div>
-        </details>
+          </details>
         </div>
       </div>
     </Teleport>
@@ -1501,7 +1523,10 @@ function openPanel(panel: AquariumPanel) {
   if (panel === 'sets' && !showSets.value) onToggleSets()
   if (panel === 'decor' && !showDecor.value) onToggleDecor()
 }
-const activePanelName = computed(() => aquariumPanels.find((panel) => panel.id === activePanel.value)?.title ?? '')
+const activePanelName = computed(
+  () =>
+    aquariumPanels.find((panel) => panel.id === activePanel.value)?.title ?? '',
+)
 function closePanel() {
   activePanel.value = null
 }

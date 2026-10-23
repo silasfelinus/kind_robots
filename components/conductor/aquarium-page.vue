@@ -16,14 +16,18 @@
       class="absolute bottom-16 right-3 z-30 w-64 max-w-[calc(100%-1.5rem)] rounded-2xl border border-base-300 bg-base-100/95 shadow-lg"
       @toggle="curationOpen = ($event.target as HTMLDetailsElement).open"
     >
-      <summary class="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 text-xs font-bold marker:hidden">
+      <summary
+        class="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 text-xs font-bold marker:hidden"
+      >
         <span class="flex items-center gap-2">
           <Icon name="kind-icon:lock" class="kr-icon-4" />
           Monster curation
         </span>
         <span class="kr-badge-outline">Admin</span>
       </summary>
-      <div class="max-h-64 overflow-y-auto overscroll-contain border-t border-base-300 p-2">
+      <div
+        class="max-h-64 overflow-y-auto overscroll-contain border-t border-base-300 p-2"
+      >
         <CurationCthulhuquariumCuration v-if="curationOpen" />
       </div>
     </details>

@@ -624,7 +624,10 @@ function select(id: string) {
   error.value = ''
   void nextTick(() => {
     if (detail.value && scrollArea.value)
-      scrollArea.value.scrollTo({ top: detail.value.offsetTop, behavior: 'smooth' })
+      scrollArea.value.scrollTo({
+        top: detail.value.offsetTop,
+        behavior: 'smooth',
+      })
   })
 }
 

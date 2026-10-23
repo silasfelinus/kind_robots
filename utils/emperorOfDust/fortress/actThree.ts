@@ -2462,7 +2462,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             requires: { follower: 'F013' },
             effects: { affinity: { jackalwire: 5 } },
             response:
-              'Vane grins with every tooth. “The big one. The rhino. I hoped you’d say her name.”',
+              'Vane grins with every tooth. “The big one. The Watch veteran. I hoped you’d say her name.”',
             postsQuests: ['q-d26-dry-well'],
           },
         ],
@@ -2517,7 +2517,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 requires: { follower: 'F013' },
                 effects: { affinity: { jackalwire: 5 } },
                 response:
-                  'Vane folds the sack away like a letter. “The rhino. Good. They can walk around her, if they can find the end of her.”',
+                  'Vane folds the sack away like a letter. “The Watch veteran. Good. They can walk around her, if they can find the end of her.”',
                 postsQuests: ['q-d26-dry-well'],
               },
             ],
@@ -2930,7 +2930,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         lines: [
           'Sister Reedlight comes in after the gallery empties. Green lantern lit at noon again. The flame still does not move. She waits until the doors are shut.',
           'On the Mirefen road your escort counted us, Your Majesty. Quietly, as you asked. Forty-one walked. Forty-one arrived. You are the first crown to count the fen and not sell the number.',
-          'Someone came to buy it. A white goat in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
+          'Someone came to buy it. An Abbey sister in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
           'The fen does not love the Abbey. But the fen hears what moves under the mission road. It is getting louder. We would show you.',
           {
             who: 'Young Komodo',
@@ -3058,7 +3058,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           'The Envoy of the Black Verge is tall, still and pale in a plum court coat. White gloves, never dirtied. They bow exactly as low as protocol requires. A servant sets a lacquered box on the step beside a sack of the Yard’s rotten grain.',
           'The Court has heard of your rot, Majesty. We have charms against it. A gift, between neighbours.',
           'The envoy touches the grain with one gloved finger. The grey bloom fades. The kernels under it are clean, faintly frosted.',
-          'One small thing. A courtier of ours has wandered off. A black leopard, lovely manners. If they come to your gate, we would like them back.',
+          'One small thing. A courtier of ours has wandered off. An exile, lovely manners. If they come to your gate, we would like them back.',
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
@@ -3237,7 +3237,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Sable Thorne',
         faction: 'black-verge',
         lines: [
-          'Late in the day a black leopard in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
+          'Late in the day an exiled courtier in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
           'I had hoped to arrive before my former colleagues, Majesty. I am late. I ask for sanctuary, with impeccable manners.',
           'If you send me back, I will go. I would much rather not.',
           'Through the open doors, across the courtyard, the envoy watches. Does not blink.',
@@ -3797,7 +3797,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-moles'],
             },
             response:
-              'The Mole envoy blinks up at the gate. He never once expected it to open.',
+              'The burrow envoy blinks up at the gate. He never once expected it to open.',
           },
           {
             id: 'ask-losses',
@@ -3831,7 +3831,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Oriel says she isn’t begging. She says it’s arithmetic.',
               },
               {
-                who: 'The Mole envoy',
+                who: 'The burrow envoy',
                 text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
               },
               {
@@ -3855,7 +3855,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                     text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Mind, we already pay the Ledger a toll to read our own roads, Majesty. You sold them the copies. Oriel says she isn’t begging. She says it’s arithmetic.',
                   },
                   {
-                    who: 'The Mole envoy',
+                    who: 'The burrow envoy',
                     text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
                   },
                   {
@@ -3889,7 +3889,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-freeholds'],
                 },
                 response:
-                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old mole thanks you for asking and goes back into the dark.',
+                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old tunnel delegate thanks you for asking and goes back into the dark.',
               },
               {
                 id: 'saltroad',
@@ -3914,7 +3914,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-moles'],
                 },
                 response:
-                  'The Mole envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
+                  'The burrow envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
               },
               {
                 // t-043: undo the Day 14 sale, at the Ledger's expense.

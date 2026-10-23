@@ -225,19 +225,26 @@ assert.equal(
   'Another user’s private art is always excluded',
 )
 
-
 assert.deepEqual(
-  unseenDeckPaths(['/owl.png', '/fern.png', '/owl.png', '/moth.png'], ['/owl.png']),
+  unseenDeckPaths(
+    ['/owl.png', '/fern.png', '/owl.png', '/moth.png'],
+    ['/owl.png'],
+  ),
   ['/fern.png', '/moth.png'],
   'Previously drawn images never re-enter the playable pool',
 )
 assert.equal(
-  deckImageIdentity('/api/art/image/archive/319?variant=medium&exp=100&sig=old'),
+  deckImageIdentity(
+    '/api/art/image/archive/319?variant=medium&exp=100&sig=old',
+  ),
   '/api/art/image/archive/319',
 )
 assert.deepEqual(
   unseenDeckPaths(
-    ['/api/art/image/archive/319?exp=200&sig=new', '/api/art/image/archive/320?exp=200&sig=new'],
+    [
+      '/api/art/image/archive/319?exp=200&sig=new',
+      '/api/art/image/archive/320?exp=200&sig=new',
+    ],
     ['/api/art/image/archive/319?exp=100&sig=old'],
   ),
   ['/api/art/image/archive/320?exp=200&sig=new'],
@@ -252,7 +259,10 @@ assert.deepEqual(
 const pool = Array.from({ length: 60 }, (_, i) => `/fresh-${i}.jpg`)
 const alreadyUsed = new Set<string>()
 for (const wave of BRIAR_REVEAL_WAVES) {
-  const fresh = unseenDeckPaths(pool, [...alreadyUsed]).slice(0, wave.length / 2)
+  const fresh = unseenDeckPaths(pool, [...alreadyUsed]).slice(
+    0,
+    wave.length / 2,
+  )
   assert.equal(fresh.length, wave.length / 2)
   assert.equal(fresh.filter((value) => alreadyUsed.has(value)).length, 0)
   for (const path of fresh) alreadyUsed.add(path)
@@ -262,13 +272,31 @@ const usedSave = restoreBriarSave({
   ...newBriarSave(),
   seenMapImages: ['/already.jpg', '/other.jpg', '/already.jpg'],
   mapCards: [
-    { id: 0, pairId: 0, image: '/current.jpg', tile: '2,4', flipped: true, matched: false },
+    {
+      id: 0,
+      pairId: 0,
+      image: '/current.jpg',
+      tile: '2,4',
+      flipped: true,
+      matched: false,
+    },
   ],
 })
-assert.deepEqual(usedSave.seenMapImages, ['/already.jpg', '/other.jpg', '/current.jpg'])
-assert.deepEqual(newBriarSave().seenMapImages, [], 'New expedition starts with a fresh art history')
+assert.deepEqual(usedSave.seenMapImages, [
+  '/already.jpg',
+  '/other.jpg',
+  '/current.jpg',
+])
 assert.deepEqual(
-  unseenDeckPaths(['/already.jpg', '/current.jpg', '/new.jpg'], usedSave.seenMapImages),
+  newBriarSave().seenMapImages,
+  [],
+  'New expedition starts with a fresh art history',
+)
+assert.deepEqual(
+  unseenDeckPaths(
+    ['/already.jpg', '/current.jpg', '/new.jpg'],
+    usedSave.seenMapImages,
+  ),
   ['/new.jpg'],
   'Reloaded save still blocks all previously seen cards',
 )
@@ -287,11 +315,30 @@ const launcherScreen = readFileSync(
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
-const deckLoaderSource = readFileSync('stores/helpers/memoryDungeonDeckSource.ts', 'utf8')
-assert.match(worldStoreSource, /state\.value\.seenMapImages/, 'Overworld persists used image history')
-assert.match(worldStoreSource, /keys\.length \/ 2,[\s\S]*?usedPrior,[\s\S]*?state\.value\.seenMapImages/, 'A new map round excludes all previous wave images')
-assert.match(classicScreen, /runSeenImages\.add\(path\)/, 'Classic records images once each floor is dealt')
-assert.match(deckLoaderSource, /unseenDeckPaths\(/, 'All gallery and model pools exclude previous images')
+const deckLoaderSource = readFileSync(
+  'stores/helpers/memoryDungeonDeckSource.ts',
+  'utf8',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.seenMapImages/,
+  'Overworld persists used image history',
+)
+assert.match(
+  worldStoreSource,
+  /keys\.length \/ 2,[\s\S]*?usedPrior,[\s\S]*?state\.value\.seenMapImages/,
+  'A new map round excludes all previous wave images',
+)
+assert.match(
+  classicScreen,
+  /runSeenImages\.add\(path\)/,
+  'Classic records images once each floor is dealt',
+)
+assert.match(
+  deckLoaderSource,
+  /unseenDeckPaths\(/,
+  'All gallery and model pools exclude previous images',
+)
 
 assert.match(
   classicScreen,

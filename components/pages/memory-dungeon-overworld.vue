@@ -12,7 +12,7 @@
           <span class="font-normal text-[#d1c19c]">/ Briar Camp</span>
         </h2>
         <p class="hidden text-xs text-[#d1c19c] sm:block">
-          Reveal the world, one square at a time.
+          Remember matching pictures to reveal the world.
         </p>
       </div>
       <span
@@ -93,7 +93,24 @@
             class="relative min-h-0 min-w-0"
           >
             <button
-              v-if="world.state.revealed.includes(tile.key)"
+              v-if="world.mapMatching && world.mapCardAt(tile.key) && !world.state.revealed.includes(tile.key)"
+              type="button"
+              class="relative flex h-full w-full items-center justify-center overflow-hidden border border-[#bba16e]/75 bg-[#263951] shadow-inner transition hover:brightness-125 focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
+              :disabled="world.turnLocked || world.loading || world.mapCardAt(tile.key)?.flipped"
+              :aria-label="world.mapCardAt(tile.key)?.flipped ? 'Revealed memory picture; find its matching twin' : 'Flip map memory card'"
+              @click="world.pickMapCard(tile.key)"
+            >
+              <img
+                v-if="world.mapCardAt(tile.key)?.flipped"
+                :src="world.mapCardAt(tile.key)?.image"
+                alt="Memory picture to match"
+                class="h-full w-full object-cover"
+                draggable="false"
+              />
+              <span v-else class="text-[clamp(15px,2vw,25px)] text-[#e4cf9c]" aria-hidden="true">✥</span>
+            </button>
+            <button
+              v-else-if="world.state.revealed.includes(tile.key)"
               type="button"
               class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
               :class="world.state.player === tile.key ? 'bg-yellow-200/10' : ''"
@@ -114,15 +131,22 @@
                 >🧭</span
               >
             </button>
-            <button
-              v-else-if="world.state.frontier.includes(tile.key)"
-              type="button"
-              class="group flex h-full w-full items-center justify-center border border-[#b29b6b]/60 bg-[#252f3b]/95 text-base text-[#e8c88f] shadow-inner transition hover:bg-[#46546a] focus-visible:outline-2 focus-visible:outline-[#fff0a9] sm:text-2xl"
-              :aria-label="`Reveal square ${tile.x}, ${tile.y}`"
-              @click="world.reveal(tile.key)"
+            <div
+              v-else-if="crossMapKeys.includes(tile.key)"
+              class="relative h-full w-full border border-[#a98b5b]/50 bg-[#28283f]/95"
             >
-              <span class="group-hover:scale-110" aria-hidden="true">✧</span>
-            </button>
+              <button
+                v-if="world.state.waveIndex === 3 && !world.mapMatching"
+                type="button"
+                class="h-full w-full overflow-hidden rounded border border-amber-200/80 shadow-inner focus-visible:outline-2 focus-visible:outline-white"
+                :aria-label="`Examine cross-world sigil: ${crossMapPuzzles[tile.key]?.title ?? 'Mystery'}`"
+                @click="world.examineCrossMapSigil(tile.key)"
+              >
+                <img :src="crossMapImage(tile.key)" alt="A unique cross-world memory sigil" class="h-full w-full object-cover"/>
+                <span class="absolute bottom-0 right-0 rounded bg-[#201a2f] px-0.5 text-[11px]" aria-hidden="true">🔒</span>
+              </button>
+              <span v-else class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50" aria-label="A mysterious unrevealed seal awaits">✧</span>
+            </div>
             <div
               v-else
               class="h-full w-full border border-[#a99877]/20 bg-[#202935]/[0.98]"
@@ -138,20 +162,42 @@
         <div
           class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
         >
-          {{ world.state.revealed.length }}/64 revealed ·
-          {{ world.state.frontier.length }} available
+          {{ world.state.revealed.length }}/60 paired squares · 4 cross-region seals
         </div>
       </div>
 
       <aside
         class="w-full min-h-0 max-h-[34%] shrink-0 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm lg:max-h-[calc(100%-1rem)] lg:w-64"
       >
+        <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold text-[#735128]">
+          <span>Round {{ world.state.waveIndex + 1 }}/4</span>
+          <span v-if="world.mapMatching">Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span>
+          <span v-else>Explore the map</span>
+        </div>
+        <button
+          v-if="world.mapMatching && !world.state.mapCards.length"
+          type="button"
+          class="md-btn mb-2 w-full"
+          :disabled="world.loading"
+          @click="world.prepareWave()"
+        >
+          {{ world.loading ? 'Preparing picture cards…' : 'Retry loading picture cards' }}
+        </button>
+        <button
+          v-if="!world.mapMatching && world.state.waveIndex < 3"
+          type="button"
+          class="md-btn mb-2 w-full"
+          :disabled="world.loading"
+          @click="world.nextWave()"
+        >
+          Begin next memory round · {{ nextWaveCount }} cards
+        </button>
         <h3 class="mb-1 text-base font-black">
-          {{ world.selectedSite?.name ?? 'The Crooked Trail' }}
+          {{ world.mapMatching ? 'The Whispering Fog' : world.selectedSite?.name ?? 'The Crooked Trail' }}
         </h3>
         <p class="text-xs leading-relaxed">{{ world.state.status }}</p>
 
-        <div v-if="world.selectedSite" class="mt-3 flex flex-wrap gap-1.5">
+        <div v-if="world.selectedSite && !world.mapMatching" class="mt-3 flex flex-wrap gap-1.5">
           <button
             v-if="world.selectedSite.kind === 'merchant'"
             type="button"
@@ -262,8 +308,7 @@
           <span>🔔 {{ world.hasChime ? 'Chime found' : 'Chime missing' }}</span>
         </div>
         <p class="mt-2 text-[11px] leading-snug text-[#675536]">
-          Explore a glowing square; tap a revealed square to return along known
-          trails. The sealed sigil's partner appears in a later region.
+          Matched picture pairs uncover two terrain squares. After each round, explore the cleared paths, meet characters and claim treasure. Four near-matching sigils link future world maps.
         </p>
       </aside>
     </div>
@@ -385,12 +430,21 @@ import {
   BRIAR_TILES,
   type BriarSiteKind,
 } from '~/utils/memoryDungeonWorld'
+import { BRIAR_CROSS_MAP_KEYS, BRIAR_CROSS_MAP_PUZZLES, BRIAR_WAVE_SIZES } from '~/utils/memoryDungeonWaves'
+import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
+const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
+const crossMapPuzzles: Record<string, { hint: string }> = BRIAR_CROSS_MAP_PUZZLES
+const nextWaveCount = computed(() => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0)
+function crossMapImage(key: string): string {
+  const index = BRIAR_CROSS_MAP_KEYS.indexOf(key as (typeof BRIAR_CROSS_MAP_KEYS)[number])
+  return DESIGNED_DUNGEON_ART[28 + index]?.imagePath ?? ''
+}
 const sites = BRIAR_SITES
 const settingsOpen = ref(false)
 const roomTitle = computed(() =>
@@ -427,7 +481,10 @@ function siteSymbol(kind: BriarSiteKind | undefined): string {
   return kind ? icons[kind] : ''
 }
 
-onMounted(() => world.hydrate())
+onMounted(() => {
+  world.hydrate()
+  void world.prepareWave()
+})
 </script>
 
 <style scoped>

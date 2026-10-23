@@ -93,11 +93,13 @@
           </span>
         </button>
 
-        <p
-          v-if="!availableCollections.length"
-          class="col-span-full px-2 py-3 text-xs font-semibold text-warning"
-        >
-          No usable collections found yet. The dungeon is browsing empty shelves.
+        <div v-if="loadingCollections" class="col-span-full px-2 text-xs">Loading art collections…</div>
+        <div v-if="collectionError" class="col-span-full flex flex-wrap items-center gap-2 px-2 text-xs text-warning">
+          {{ collectionError }}
+          <button type="button" class="btn btn-xs" @click="refreshCollectionIndex">Retry</button>
+        </div>
+        <p v-if="!availableCollections.length && !loadingCollections && !collectionError" class="col-span-full px-2 py-3 text-xs font-semibold text-warning">
+          No accessible collections yet. You can still use all available art.
         </p>
       </div>
     </Transition>
@@ -235,6 +237,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
+import { useCollectionStore } from '@/stores/collectionStore'
+import { useUserStore } from '@/stores/userStore'
 import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
 export type CollectionPickerMode =
@@ -273,6 +277,10 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
+const collectionStore = useCollectionStore()
+const userStore = useUserStore()
+const loadingCollections = ref(false)
+const collectionError = ref('')
 
 const pickerRoot = ref<HTMLElement | null>(null)
 const expanded = ref(false)
@@ -282,7 +290,12 @@ const selectedCollectionIds = ref<number[]>([])
 const galleryId = 'memory-dungeon-deck-gallery'
 
 const availableCollections = computed<ArtCollection[]>(() => {
-  return artStore.generationCollections
+  const viewerId = Number(userStore.userId ?? userStore.user?.id ?? 0)
+  return collectionStore.collections.filter((collection) => {
+    const permitted = collection.isPublic === true ||
+      (viewerId > 0 && collection.userId === viewerId)
+    return permitted && collection.isActive !== false
+  })
 })
 
 const selectedCollections = computed(() => {
@@ -341,13 +354,30 @@ watch(
 
 onMounted(async () => {
   isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
-
-  await artStore.initialize({
-    fetchRemote: false,
-    hydrateImages: false,
-    initializeCollections: true,
-  })
+  await refreshCollectionIndex()
 })
+
+async function refreshCollectionIndex() {
+  loadingCollections.value = true
+  collectionError.value = ''
+  try {
+    // A lightweight index, not a full 200k-image archive fetch.
+    await collectionStore.fetchCollections(true, {
+      summary: true,
+      includeImages: false,
+      counts: false,
+      includePrivate: true,
+      includeMature: true,
+    })
+    if (!collectionStore.collections.length) {
+      collectionError.value = 'No accessible collections returned. Check your login or create a collection in the Art Gallery.'
+    }
+  } catch {
+    collectionError.value = 'The collection index could not load. Try again.'
+  } finally {
+    loadingCollections.value = false
+  }
+}
 
 function handleBrowseClick() {
   if (!isSplashPicker.value) {

@@ -1,10 +1,11 @@
+import { resolveEntityArtwork } from './artImageSrc'
 export type DungeonDeckFamily = 'designed' | 'gallery' | 'entities'
 export type DungeonEntityKind =
   'dreams' | 'characters' | 'bots' | 'rewards' | 'scenarios' | 'facets'
 
 export interface DungeonDeckSelection {
   family: DungeonDeckFamily
-  gallery: 'all' | 'collections'
+  gallery: 'all' | 'collections' | 'generated'
   collectionIds: number[]
   includeMature: boolean
   entityKind: DungeonEntityKind
@@ -38,7 +39,10 @@ export function normalizeDungeonDeck(input: unknown): DungeonDeckSelection {
       entry.family === 'entities'
         ? entry.family
         : fresh.family,
-    gallery: entry.gallery === 'collections' ? 'collections' : 'all',
+    gallery:
+      entry.gallery === 'collections' || entry.gallery === 'generated'
+        ? entry.gallery
+        : 'all',
     collectionIds: Array.isArray(entry.collectionIds)
       ? [
           ...new Set(
@@ -65,43 +69,36 @@ export interface VisibleDeckImage {
   url?: string | null
   imageData?: string | null
   fileType?: string | null
+  userId?: number | null
+  avatarImage?: string | null
+  cardPath?: string | null
+  heroPath?: string | null
+  iconPath?: string | null
 }
 
 export function isEligibleDungeonArt(
   art: VisibleDeckImage,
   requestedMature: boolean,
   viewerAllowsMature: boolean,
+  viewerId = 0,
+  allowOwnedPrivate = false,
 ): boolean {
+  const permitted =
+    art.isPublic === true ||
+    (allowOwnedPrivate &&
+      viewerId > 0 &&
+      art.userId != null &&
+      art.userId === viewerId)
   return (
-    art.isPublic === true &&
+    permitted &&
     art.isActive !== false &&
     (!art.isMature || (requestedMature && viewerAllowsMature))
   )
 }
 
+/** Use the same canonical URL resolver as the working gallery and entity screens. */
 export function imageUrlForDeck(art: VisibleDeckImage): string {
-  const path = [art.imagePath, art.path, art.thumbnailPath, art.url].find(
-    (value): value is string =>
-      typeof value === 'string' && value.trim().length > 0,
-  )
-  if (path) {
-    if (path.startsWith('/') || /^https:\/\//i.test(path)) return path
-    if (/^(data:|javascript:|blob:)/i.test(path)) return ''
-    return '/images/gallery/' + path
-  }
-  if (
-    art.imageData &&
-    art.fileType &&
-    /^(png|jpeg|jpg|webp|gif)$/i.test(art.fileType)
-  ) {
-    return (
-      'data:image/' +
-      art.fileType.replace('jpg', 'jpeg') +
-      ';base64,' +
-      art.imageData
-    )
-  }
-  return ''
+  return resolveEntityArtwork(art) ?? ''
 }
 
 export function uniqueDeckPaths(paths: readonly string[]): string[] {
@@ -235,6 +232,20 @@ const galleryMotifs = [
     accent: '#f8efc0',
     detail: '#8fb9d4',
   },
+  { title: 'Wildwood Fox', glyph: '♞', tone: '#7c603b', accent: '#ffead1', detail: '#d2ad77' },
+  { title: 'Coral Crown', glyph: '♕', tone: '#7d5368', accent: '#f7cbd2', detail: '#c98d98' },
+  { title: 'Star Atlas', glyph: '✴', tone: '#3b567e', accent: '#e5ecfa', detail: '#8ea7d8' },
+  { title: 'Amber Beetle', glyph: '❖', tone: '#7f5635', accent: '#f9e19a', detail: '#dfb35d' },
+  { title: 'Fungal Choir', glyph: '♣', tone: '#646046', accent: '#e8e6b6', detail: '#a5b879' },
+  { title: 'Cinder Hour', glyph: '⌛', tone: '#8f5142', accent: '#ffd6a5', detail: '#e29a72' },
+  { title: 'Willow Wisp', glyph: '♧', tone: '#395c56', accent: '#dbffdc', detail: '#82bca2' },
+  { title: 'Moonwell Mirror', glyph: '◇', tone: '#494f77', accent: '#e3e3ff', detail: '#9cadda' },
+  { title: 'Mothwing Map', glyph: '✩', tone: '#5f4877', accent: '#edddff', detail: '#b9a7d8' },
+  { title: 'Thorn Compass', glyph: '✜', tone: '#477350', accent: '#f0e2b4', detail: '#a2bb87' },
+  { title: 'Mist Bell', glyph: '♧', tone: '#527a83', accent: '#e8f9ef', detail: '#8cc8c0' },
+  { title: 'Gilded Hourglass', glyph: '⌬', tone: '#8d714e', accent: '#fff1b2', detail: '#dbb978' },
+  { title: 'Obsidian Eye', glyph: '◉', tone: '#454859', accent: '#d4d5e7', detail: '#8389ae' },
+  { title: 'Dandelion Crown', glyph: '❀', tone: '#7c8552', accent: '#f8f4c3', detail: '#c7d69e' },
 ]
 
 function designedImage(index: number): string {

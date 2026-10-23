@@ -1,6 +1,4 @@
-import { useMemoryStore } from '../memoryStore'
 import { useArtStore } from '../artStore'
-import { useCollectionStore } from '../collectionStore'
 import { useUserStore } from '../userStore'
 import { useDreamStore } from '../dreamStore'
 import { useCharacterStore } from '../characterStore'
@@ -46,33 +44,73 @@ export async function resolveMemoryDungeonDeck(
   const matureAllowed =
     user.showMature === true || user.user?.showMature === true
   const includeMature = choice.includeMature && matureAllowed
-  const memory = useMemoryStore()
+  const art = useArtStore()
+  const viewerId = Number(user.userId ?? user.user?.id ?? 0)
 
   if (choice.family === 'gallery') {
-    if (choice.gallery === 'collections') {
-      if (!choice.collectionIds.length) return []
-      const collections = useCollectionStore()
-      await collections.fetchCollections()
-      const selectedPublic = choice.collectionIds.filter((id) => {
-        const collection = collections.findCollectionById(id)
-        return (
-          collection?.isPublic === true &&
-          collection.isActive !== false &&
-          (!collection.isMature || includeMature)
-        )
-      })
-      if (!selectedPublic.length) return []
-      memory.useCollections(selectedPublic)
+    let candidates: VisibleDeckImage[] = []
+    const selectedCollection = choice.gallery === 'collections'
+    const generated = choice.gallery === 'generated'
+
+    if (selectedCollection) {
+      if (!choice.collectionIds.length) {
+        throw new Error('Choose at least one collection before entering the dungeon.')
+      }
+      // Fetch ONLY selected shelves. Fetching the whole archive with every image
+      // used to time out or leave the memory selector apparently empty.
+      for (const id of choice.collectionIds) {
+        const reply = await $fetch<{
+          success: boolean
+          message?: string
+          data?: Array<{
+            id: number
+            userId: number
+            isPublic: boolean
+            isMature: boolean
+            isActive: boolean
+            ArtImages?: VisibleDeckImage[]
+            artImages?: VisibleDeckImage[]
+          }>
+        }>('/api/art/collection', {
+          query: {
+            id,
+            includePrivate: true,
+            includeMature: true,
+            includeImages: true,
+            counts: true,
+          },
+        })
+        if (!reply.success) throw new Error(reply.message || 'Unable to load that art collection.')
+        for (const shelf of reply.data ?? []) {
+          const owner = viewerId > 0 && shelf.userId === viewerId
+          if ((!shelf.isPublic && !owner) || shelf.isActive === false ||
+            (shelf.isMature && !includeMature)) continue
+          candidates.push(...(shelf.ArtImages ?? shelf.artImages ?? []))
+        }
+      }
     } else {
-      memory.useAllArtImages()
+      await art.initialize({
+        fetchRemote: true,
+        hydrateImages: true,
+        initializeCollections: false,
+      })
+      candidates = generated ? art.generatedArtImages : art.artImages
+      if (candidates.length < needed && !generated) {
+        candidates = await art.fetchAllArtImages({ force: true })
+      }
     }
-    const all = await memory.getMemoryCardPool()
-    const filtered = all.filter((image) =>
-      isEligibleDungeonArt(image, includeMature, matureAllowed),
+
+    const allowed = candidates.filter((image) =>
+      isEligibleDungeonArt(
+        image,
+        includeMature,
+        matureAllowed,
+        viewerId,
+        selectedCollection || generated,
+      ),
     )
-    const distinctPaths = uniqueDeckPaths(filtered.map(imageUrlForDeck))
-    if (distinctPaths.length < needed) return distinctPaths
-    return memory.selectLoadableImagePaths(filtered, needed)
+    const urls = uniqueDeckPaths(allowed.map(imageUrlForDeck))
+    return loadDungeonImagePaths(urls, needed)
   }
 
   let records: VisibleDeckImage[]
@@ -104,7 +142,6 @@ export async function resolveMemoryDungeonDeck(
     await source.fetchFacets({ includeMature })
     records = source.facets
   }
-  const art = useArtStore()
   await art.initialize({
     fetchRemote: true,
     hydrateImages: true,
@@ -114,21 +151,34 @@ export async function resolveMemoryDungeonDeck(
   const paths = uniqueDeckPaths(
     records
       .filter((record) => {
-        if (!isEligibleDungeonArt(record, includeMature, matureAllowed))
+        if (!isEligibleDungeonArt(record, includeMature, matureAllowed, viewerId))
           return false
         const artId = (record as { artImageId?: number | null }).artImageId
         if (!artId) return true
         const linkedArt = byId.get(artId)
         return linkedArt
-          ? isEligibleDungeonArt(linkedArt, includeMature, matureAllowed)
+          ? isEligibleDungeonArt(linkedArt, includeMature, matureAllowed, viewerId)
           : false
       })
       .map(imageUrlForDeck),
   )
+  return loadDungeonImagePaths(paths, needed)
+}
+
+async function loadDungeonImagePaths(paths: string[], needed: number): Promise<string[]> {
+  const candidates = [...paths].sort(() => Math.random() - 0.5)
   const selected: string[] = []
-  for (const path of paths.sort(() => Math.random() - 0.5)) {
-    if (await loadImage(path)) selected.push(path)
-    if (selected.length >= needed) break
+  for (let offset = 0; offset < candidates.length && selected.length < needed; offset += 8) {
+    const chunk = candidates.slice(offset, offset + 8)
+    const loaded = await Promise.all(chunk.map(async (path) => ({ path, ok: await loadImage(path) })))
+    for (const result of loaded) {
+      if (result.ok && selected.length < needed) selected.push(result.path)
+    }
+  }
+  if (selected.length < needed) {
+    throw new Error(
+      `Only ${selected.length} distinct usable images are available; this round needs ${needed}. Try the designed deck, a different public collection, or check saved art paths.`,
+    )
   }
   return selected
 }

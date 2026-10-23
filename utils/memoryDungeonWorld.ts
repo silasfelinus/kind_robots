@@ -8,7 +8,7 @@ export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
 export const BRIAR_GATE = '8,4'
 export const BRIAR_DUNGEON = '6,2'
-export const BRIAR_SAVE_VERSION = 1
+export const BRIAR_SAVE_VERSION = 2
 
 export type BriarSiteKind =
   | 'camp'
@@ -39,6 +39,21 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
     name: "Mosswick's Stall",
     description:
       'Mosswick will trade one found wildflower for a Lantern hint. He also knows the path to the Vault.',
+  },
+  '1,1': {
+    kind: 'sealed',
+    name: 'North Star Twin',
+    description: 'Its close companion hides in the distant Lake Terrace.',
+  },
+  '8,1': {
+    kind: 'sealed',
+    name: 'Whitewing Cipher',
+    description: 'A nearly matching feathered emblem is rumored at Salt Cliffs.',
+  },
+  '8,8': {
+    kind: 'sealed',
+    name: 'Moonroot Knot',
+    description: 'The other half of the knot rests in Moonwell Vale.',
   },
   '5,2': {
     kind: 'sealed',
@@ -209,7 +224,14 @@ export interface BriarMemoryCard {
   matched: boolean
 }
 
+export interface BriarMapCard extends BriarMemoryCard {
+  tile: string
+}
+
 export interface BriarSave {
+  waveIndex: number
+  wavePhase: 'matching' | 'exploring'
+  mapCards: BriarMapCard[]
   version: number
   revealed: string[]
   frontier: string[]
@@ -236,9 +258,12 @@ export interface BriarSave {
 export function newBriarSave(): BriarSave {
   return {
     version: BRIAR_SAVE_VERSION,
-    revealed: [BRIAR_START, '1,4'],
-    frontier: ['3,4', '2,5'],
-    player: BRIAR_START,
+    revealed: [],
+    frontier: [],
+    waveIndex: 0,
+    wavePhase: 'matching',
+    mapCards: [],
+    player: revealed[0] ?? BRIAR_START,
     attempts: 0,
     relics: [],
     wildflowers: 0,
@@ -254,7 +279,7 @@ export function newBriarSave(): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: 3,
-    status: 'A forest waits beyond the camp. Choose a nearby covered square.',
+    status: 'Find six matching pairs to uncover the first twelve pieces of Briar Camp.',
   }
 }
 
@@ -262,7 +287,14 @@ export function restoreBriarSave(input: unknown): BriarSave {
   const fresh = newBriarSave()
   if (!input || typeof input !== 'object') return fresh
   const saved = input as Partial<BriarSave>
-  if (saved.version !== BRIAR_SAVE_VERSION) return fresh
+  if (saved.version !== BRIAR_SAVE_VERSION) {
+    // The prototype exposed fog by clicking single squares. Its save cannot
+    // legitimately satisfy the new two-card matching progress contract.
+    return {
+      ...fresh,
+      status: 'Briar Camp now opens through four memory-matching rounds. A new expedition begins.',
+    }
+  }
   const validKeys = (value: unknown): string[] =>
     Array.isArray(value)
       ? [
@@ -273,9 +305,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
           ),
         ]
       : []
-  const revealed = [
-    ...new Set([BRIAR_START, '1,4', ...validKeys(saved.revealed)]),
-  ]
+  const revealed = validKeys(saved.revealed)
   const frontier = validKeys(saved.frontier).filter(
     (key) => !revealed.includes(key),
   )
@@ -291,6 +321,26 @@ export function restoreBriarSave(input: unknown): BriarSave {
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const combat = restoreBriarCombat(saved.combat)
+  const waveIndex =
+    Number.isInteger(saved.waveIndex) &&
+    saved.waveIndex! >= 0 &&
+    saved.waveIndex! < 4
+      ? saved.waveIndex!
+      : 0
+  const waveCards: BriarMapCard[] = Array.isArray(saved.mapCards)
+    ? saved.mapCards
+        .filter(
+          (card): card is BriarMapCard =>
+            !!card &&
+            typeof card.id === 'number' &&
+            typeof card.pairId === 'number' &&
+            typeof card.tile === 'string' &&
+            isBriarCoordinate(card.tile) &&
+            typeof card.image === 'string' &&
+            typeof card.matched === 'boolean',
+        )
+        .map((card) => ({ ...card, flipped: card.matched }))
+    : []
   const roomId =
     saved.roomId === 'vault-1' ||
     saved.roomId === 'vault-2' ||
@@ -304,6 +354,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
 
   return {
     ...fresh,
+    waveIndex,
+    wavePhase: saved.wavePhase === 'exploring' ? 'exploring' : 'matching',
+    mapCards: waveCards,
     revealed,
     frontier,
     player:

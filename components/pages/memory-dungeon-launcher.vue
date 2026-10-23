@@ -67,6 +67,24 @@
             :mature-available="world.matureAvailable"
             @change="world.selectDeck"
           />
+          <div
+            class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#b79c6d]/35 bg-[#1c2d2b]/90 px-3 py-2 text-xs"
+          >
+            <span class="font-semibold text-[#ead6b3]">Classic Match difficulty</span>
+            <select
+              v-model="memoryStore.selectedDifficulty"
+              aria-label="Classic Match difficulty"
+              class="rounded-lg border border-[#bba073]/60 bg-[#293e37] px-3 py-1.5 font-bold text-[#fff2d4]"
+            >
+              <option
+                v-for="difficulty in memoryStore.difficulties"
+                :key="difficulty.label"
+                :value="difficulty"
+              >
+                {{ difficulty.label }}
+              </option>
+            </select>
+          </div>
           <div class="mt-auto grid shrink-0 gap-2 pt-2 sm:grid-cols-[1fr_auto]">
             <button
               type="button"
@@ -84,8 +102,11 @@
             </button>
           </div>
           <p class="shrink-0 text-center text-[11px] text-[#d8c39b]">
-            Your deck choice applies to Briar Camp. Classic Match retains its
-            original gallery controls. Progress autosaves in this browser.
+            Your deck is shared by both modes. Classic difficulty is independent.
+            Briar Camp progress autosaves in this browser.
+          </p>
+          <p v-if="error" role="alert" class="rounded-lg border border-amber-300/80 bg-red-950/80 px-3 py-2 text-sm font-bold text-[#fff0d0]">
+            {{ error }}
           </p>
         </section>
       </div>
@@ -96,8 +117,11 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { useMemoryStore } from '~/stores/memoryStore'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
+defineProps<{ error?: string }>()
 const emit = defineEmits<{ explore: []; classic: [] }>()
 const world = useMemoryWorldStore()
+const memoryStore = useMemoryStore()
 onMounted(() => world.hydrate())
 </script>

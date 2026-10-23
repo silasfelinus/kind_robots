@@ -16,9 +16,14 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const access = await getArtImageAccessContext(event)
   const mode = query.source === 'generated' ? 'generated' : 'all'
-  const requestedMature =
-    query.includeMature === 'true' || query.includeMature === '1'
-  const mature = requestedMature && access.showMature
+  const wantsMature = query.rating === 'mature'
+  // Mature-only is allowed for a signed-in account that explicitly enabled
+  // mature content and does not have the CHILD restriction.
+  const mature =
+    wantsMature &&
+    access.isAuthenticated &&
+    !access.restricted &&
+    access.showMature
   const neededRaw = Number(query.needed)
   const needed = Number.isInteger(neededRaw)
     ? Math.max(1, Math.min(32, neededRaw))
@@ -37,7 +42,7 @@ export default defineEventHandler(async (event) => {
       buildArtImageWhere(access),
       mode === 'generated' ? { userId: access.userId! } : { isPublic: true },
       { isActive: true },
-      ...(!mature ? [{ isMature: false }] : []),
+      { isMature: mature },
     ],
   }
   const count = await prisma.artImage.count({ where })

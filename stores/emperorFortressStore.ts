@@ -385,6 +385,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     book.value = newBook(createRun(newSeed(), equippedRelics()))
     lastReport.value = null
     lastResponse.value = ''
+    lastLearned.value = []
+    introOpen.value = true
     releaseAutosave()
     persist()
   }

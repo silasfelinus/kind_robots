@@ -15,6 +15,8 @@ on:
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
       - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
+      - 'utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts'
+      - 'components/EmperorFortressIntro.vue'
       - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
       - 'utils/scripts/verifyEmperorFortressSecretTalks.test.ts'
@@ -48,6 +50,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressStore.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts

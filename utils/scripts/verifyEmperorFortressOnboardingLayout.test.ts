@@ -29,7 +29,10 @@ assert.match(quests, /auto-rows-max content-start gap-3 overflow-y-auto/)
 assert.match(quests, /@6xl:grid-cols-/)
 assert.equal(quests.split('kr-scroll').length - 1, 1)
 assert.equal(quests.split('overflow-y-auto').length - 1, 1)
-assert.match(quests, /class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"/)
+assert.match(
+  quests,
+  /class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"/,
+)
 assert.match(quests, /scrollArea\.value\.scrollTo/)
 assert.doesNotMatch(quests, /scrollIntoView/)
 

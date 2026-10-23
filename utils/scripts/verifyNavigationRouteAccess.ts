@@ -489,6 +489,24 @@ for (const name of [
   assert.match(tab, /^channelKey: projects$/m)
   if (name !== 'storybook') assert.match(tab, /^parentTabKey: storybook$/m)
 }
+const storybookNav = readFileSync(
+  'content/channels/projects/story-storybook.md',
+  'utf8',
+)
+const storybookPage = readFileSync('content/storybook.md', 'utf8')
+const storybookIcon = readFileSync('assets/icons/storybook.svg', 'utf8')
+for (const metadata of [storybookNav, storybookPage]) {
+  assert.match(
+    metadata,
+    /^icon: kind-icon:storybook$/m,
+    'Storybook must use the same dedicated emblem in navigation and page metadata.',
+  )
+}
+assert.match(storybookNav, /^route: \/storybook$/m)
+assert.match(storybookIcon, /<svg[^>]*viewBox="0 0 48 48"/)
+assert.match(storybookIcon, /fill="#51ddf3"/)
+assert.match(storybookIcon, /fill="#ff77be"/)
+assert.match(storybookIcon, /fill="#ffe46b"/)
 assert.equal(existsSync('content/channels/storybook/index.md'), false)
 for (const path of ['content/brainstorm.md', 'content/admin/ruler-hooked.md']) {
   assert.ok(

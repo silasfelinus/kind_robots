@@ -46,6 +46,12 @@ import {
   type SubstanceId,
   type SubstanceMoment,
 } from './substanceArc'
+import {
+  MYSTERY_CARDS,
+  findMystery,
+  mysteryInterlude,
+  pickMystery,
+} from './mysteries'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -139,6 +145,8 @@ export type RunState = {
   log: LogEntry[]
   pending: { entry: LogEntry; nextStep: number } | null
   ending: string | null
+  /** This run's one local mystery (mysteries/). Older saves derive it from the seed. */
+  mystery?: string
 }
 
 export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
@@ -157,7 +165,11 @@ export function setLiveEdits(edits: Record<string, CardEdit>): void {
 
 export function findCard(id: string | null | undefined): EncounterCard | null {
   if (id && liveCards[id]) return liveCards[id]
-  return ALL_CARDS.find((card) => card.id === id) ?? null
+  return (
+    ALL_CARDS.find((card) => card.id === id) ??
+    MYSTERY_CARDS.find((card) => card.id === id) ??
+    null
+  )
 }
 
 /** Meeting a person does not make them part of the traveling crew. */
@@ -542,7 +554,11 @@ export function computeEnding(state: RunState): Ending {
   }
 }
 
-export function createRun(seed: number, archetypeId: string): RunState {
+export function createRun(
+  seed: number,
+  archetypeId: string,
+  mysteryId?: string,
+): RunState {
   const archetype =
     ARCHETYPES.find((a) => a.id === archetypeId) ??
     (ARCHETYPES[0] as (typeof ARCHETYPES)[number])
@@ -579,6 +595,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     log: [],
     pending: null,
     ending: null,
+    mystery: findMystery(mysteryId)?.id ?? pickMystery(seed >>> 0),
   }
 }
 
@@ -632,6 +649,11 @@ export function enterStep(state: RunState, index: number): RunState {
         ? { currentState: 'sober' as LensId, clarity: 3 }
         : {}),
     }
+    // A mystery gate arrives as a digression before this step. It sits on the
+    // previous step index, so the route resumes exactly here afterwards.
+    const interlude = mysteryInterlude(base, route, i)
+    if (interlude)
+      return { ...base, step: i - 1, phase: 'beat', card: interlude }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }
@@ -1132,6 +1154,7 @@ export function restoreRun(raw: unknown): RunState | null {
         : incoming.pending,
   }
   if (s.version !== ECOTONE_SAVE_VERSION) return null
+  if (s.mystery !== undefined && !findMystery(s.mystery)) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))

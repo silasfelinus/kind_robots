@@ -63,7 +63,7 @@ export type Choice = {
 export type EncounterCard = {
   id: string
   /** 'spine' beats are fixed route story; 'encounter' cards are dealt into the daily white-rabbit forks. */
-  kind?: 'spine' | 'encounter'
+  kind?: 'spine' | 'encounter' | 'mystery'
   event?: EventId
   day?: number
   chapter: number

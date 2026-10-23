@@ -74,6 +74,19 @@
         </button>
         <button
           type="button"
+          class="hidden eco-pill hover:border-[#d9b877] @md:inline-flex"
+          :title="`Cases opened: ${game.casesOpened} of ${game.caseTotal}`"
+          @click="tab = 'cases'"
+        >
+          <span class="@xl:hidden"
+            >{{ game.casesOpened }}/{{ game.caseTotal }}</span
+          >
+          <span class="hidden @xl:inline"
+            >Cases {{ game.casesOpened }}/{{ game.caseTotal }}</span
+          >
+        </button>
+        <button
+          type="button"
           class="inline-flex eco-pill eco-pill-icon hover:border-[#d9b877]"
           :aria-label="`Art style: ${currentStyle.label}`"
           :title="`Art style: ${currentStyle.label}`"
@@ -213,7 +226,13 @@
               class="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-[#09141c] via-[#09141c]/50 to-transparent @4xl:block"
             />
             <div
-              v-if="stage.emblem && !portraitSrc"
+              v-if="stage.mysteryCard"
+              class="absolute right-4 top-4 w-20 rotate-3 drop-shadow-xl @xl:w-24 @4xl:right-10 @4xl:top-8 @4xl:w-36"
+            >
+              <EcotoneMysteryCard :mystery="stage.mysteryCard" compact />
+            </div>
+            <div
+              v-else-if="stage.emblem && !portraitSrc"
               class="absolute right-4 top-4 flex items-center gap-2 @4xl:right-10 @4xl:top-8"
             >
               <EcotoneEmblem
@@ -270,6 +289,13 @@
               aria-live="polite"
             >
               <template v-if="pending">
+                <p
+                  v-if="stage.realEnding"
+                  class="eco-label flex items-center gap-2 text-[#f6c55a]"
+                >
+                  <Icon name="kind-icon:star" class="size-3.5" />
+                  Real Ending · {{ stage.realEnding }}
+                </p>
                 <p class="eco-label">{{ pending.choice }}</p>
                 <div
                   v-if="pending.roll"
@@ -330,7 +356,9 @@
                   </span>
                 </div>
                 <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p class="font-serif text-lg leading-relaxed @4xl:text-xl">
+                  <p
+                    class="whitespace-pre-line font-serif text-lg leading-relaxed @4xl:text-xl"
+                  >
                     {{ pending.text }}
                   </p>
                 </div>
@@ -411,6 +439,30 @@
                   >
                     {{ LENS_CODAS[game.ending.lens] }}
                   </p>
+                  <button
+                    v-if="runCase && game.mystery"
+                    type="button"
+                    class="flex items-center gap-3 rounded-xl border border-[#d9b877]/40 bg-black/35 p-2.5 text-left hover:border-[#d9b877]"
+                    @click="openCase(game.mystery.id)"
+                  >
+                    <EcotoneMysteryCard
+                      :mystery="game.mystery"
+                      compact
+                      class="w-12 shrink-0"
+                    />
+                    <span class="min-w-0">
+                      <span class="eco-label block">
+                        Case {{ caseNumeral(game.mystery.number) }} ·
+                        {{ caseVerdict(runCase) }}
+                      </span>
+                      <span class="block font-serif text-sm font-bold">{{
+                        game.mystery.title
+                      }}</span>
+                      <span class="block text-xs text-[#f3e6c8]/65">
+                        Gates {{ gateSummary(runCase) }} · open the Case Files
+                      </span>
+                    </span>
+                  </button>
                   <section
                     class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
                   >
@@ -490,6 +542,34 @@
                 <div
                   class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
                 >
+                  <figure
+                    v-if="stage.message"
+                    class="ecotone-message self-start rounded-2xl border p-3 text-sm"
+                    :class="
+                      stage.message.medium === 'text'
+                        ? 'rounded-bl-sm border-[#8fb8b0]/50 bg-[#8fb8b0]/15'
+                        : 'border-[#d9b877]/45 bg-black/40'
+                    "
+                  >
+                    <figcaption
+                      class="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                    >
+                      <Icon
+                        :name="messageIcon(stage.message)"
+                        class="size-3.5"
+                      />
+                      {{ messageLabel(stage.message) }} ·
+                      {{ stage.message.from }}
+                    </figcaption>
+                    <p
+                      v-for="(line, index) in stage.message.lines"
+                      :key="`msg-${index}`"
+                      class="leading-snug"
+                      :class="stage.message.medium === 'text' ? '' : 'italic'"
+                    >
+                      {{ line }}
+                    </p>
+                  </figure>
                   <p
                     v-for="(paragraph, index) in stage.body"
                     :key="index"
@@ -946,6 +1026,180 @@
         </template>
       </div>
 
+      <div v-else-if="tab === 'cases'" class="kr-scroll h-full p-3 sm:p-5">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <div class="max-w-2xl">
+            <h2 class="font-serif text-2xl font-black">
+              Case Files {{ game.casesOpened }}/{{ game.caseTotal }}
+            </h2>
+            <p class="text-sm text-white/70">
+              Every weekend, one local mystery finds you: a text, a voicemail, a
+              flyer on a pole. It interrupts the road three times. Pass two of
+              its three gates and the true path opens; what you decide at the
+              reveal chooses its Real Ending. Cases you have not opened come
+              first.
+            </p>
+          </div>
+          <div class="flex gap-3 text-xs text-white/70">
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#8fb8b0]" /> Passed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#e08a5a]" /> Failed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-white/20" /> Not
+              reached</span
+            >
+          </div>
+        </div>
+        <div
+          class="mt-4 grid gap-4 @4xl:grid-cols-[minmax(0,1fr)_minmax(320px,26rem)]"
+        >
+          <div
+            class="grid grid-cols-3 content-start gap-2.5 @md:grid-cols-4 @2xl:grid-cols-6 @4xl:grid-cols-4 @6xl:grid-cols-6"
+          >
+            <button
+              v-for="item in MYSTERIES"
+              :key="item.id"
+              type="button"
+              class="rounded-xl outline-offset-2 transition hover:-translate-y-0.5"
+              :class="
+                selectedCase?.id === item.id
+                  ? 'outline outline-2 outline-[#d9b877]'
+                  : ''
+              "
+              :aria-pressed="selectedCase?.id === item.id"
+              @click="caseId = item.id"
+            >
+              <EcotoneMysteryCard
+                :mystery="item"
+                :locked="!game.caseFiles[item.id]"
+                :record="game.caseFiles[item.id]"
+              />
+            </button>
+          </div>
+          <section
+            v-if="selectedCase"
+            class="self-start rounded-3xl border border-white/10 bg-black/30 p-4"
+          >
+            <p class="eco-label">
+              Case {{ caseNumeral(selectedCase.number) }}
+              <span
+                v-if="game.mystery?.id === selectedCase.id && game.run"
+                class="ml-1 rounded-full bg-[#d9b877] px-2 py-0.5 text-[10px] text-[#09141c]"
+                >This run</span
+              >
+            </p>
+            <template v-if="selectedRecord">
+              <h3 class="mt-1 font-serif text-2xl font-black leading-tight">
+                {{ selectedCase.title }}
+              </h3>
+              <p
+                class="text-xs font-bold uppercase tracking-[.18em] text-[#8fb8b0]"
+              >
+                {{ selectedCase.region }}
+              </p>
+              <p class="mt-3 font-serif leading-relaxed">
+                {{ selectedCase.hook }}
+              </p>
+              <ol class="mt-4 grid gap-2">
+                <li
+                  v-for="(gate, index) in selectedCase.gates"
+                  :key="index"
+                  class="flex items-center gap-3 rounded-xl border border-white/10 p-2.5"
+                >
+                  <span
+                    class="grid size-8 shrink-0 place-items-center rounded-full font-serif text-sm font-black"
+                    :class="gateClass(selectedRecord.gates[index] ?? null)"
+                    >{{ caseNumeral(index + 1) }}</span
+                  >
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-bold">{{
+                      selectedRecord.gates[index]
+                        ? gate.title
+                        : `Gate ${caseNumeral(index + 1)}`
+                    }}</span>
+                    <span class="block text-xs text-white/60">{{
+                      selectedRecord.gates[index] === 'pass'
+                        ? 'Passed'
+                        : selectedRecord.gates[index] === 'fail'
+                          ? 'Failed: another run can pass it'
+                          : 'Not reached yet'
+                    }}</span>
+                  </span>
+                </li>
+              </ol>
+              <div
+                class="mt-3 rounded-xl p-3 text-sm"
+                :class="
+                  selectedRecord.truePath
+                    ? 'border border-[#f6c55a]/50 bg-[#f6c55a]/10'
+                    : 'bg-black/30'
+                "
+              >
+                <p class="eco-label">
+                  True path ·
+                  {{
+                    selectedRecord.truePath
+                      ? 'opened'
+                      : `needs ${PASSES_FOR_TRUE_PATH} passed gates in one run`
+                  }}
+                </p>
+                <p
+                  v-if="selectedRecord.cold && !selectedRecord.truePath"
+                  class="mt-1 text-xs text-white/60"
+                >
+                  The trail has gone cold before. It can warm up again.
+                </p>
+              </div>
+              <p class="eco-label mt-4">
+                Real Endings {{ selectedRecord.endings.length }}/{{
+                  selectedCase.endings.length
+                }}
+              </p>
+              <ul class="mt-2 grid gap-1.5">
+                <li
+                  v-for="ending in selectedCase.endings"
+                  :key="ending.id"
+                  class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                  :class="
+                    selectedRecord.endings.includes(ending.id)
+                      ? 'border-[#d9b877]/50'
+                      : 'border-dashed border-white/15 text-white/45'
+                  "
+                >
+                  <Icon
+                    :name="
+                      selectedRecord.endings.includes(ending.id)
+                        ? 'kind-icon:star'
+                        : 'kind-icon:lock'
+                    "
+                    class="size-3.5 shrink-0"
+                  />
+                  <span class="flex-1 font-serif font-bold">{{
+                    selectedRecord.endings.includes(ending.id)
+                      ? ending.title
+                      : 'Unfound ending'
+                  }}</span>
+                  <span class="text-[10px] uppercase tracking-wider">{{
+                    TONE_LABEL[ending.tone]
+                  }}</span>
+                </li>
+              </ul>
+            </template>
+            <template v-else>
+              <h3 class="mt-1 font-serif text-2xl font-black">Unopened</h3>
+              <p class="mt-2 text-sm text-white/70">
+                Somewhere in the county a case is waiting. When its weekend
+                comes, someone will text you about it. Unopened cases come up
+                before ones you have seen.
+              </p>
+            </template>
+          </section>
+        </div>
+      </div>
+
       <div v-else class="kr-scroll h-full p-3 sm:p-5">
         <div class="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -1043,7 +1297,7 @@
         :key="item.value"
         type="button"
         role="tab"
-        class="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[.2em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @xl:px-4 @xl:text-xs"
+        class="rounded-full px-1.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @md:px-2.5 @md:text-[11px] @md:tracking-[.2em] @xl:px-4 @xl:text-xs"
         :class="
           tab === item.value
             ? 'bg-[#d9b877]/15 text-[#d9b877]'
@@ -1209,8 +1463,19 @@ import {
 } from '~/utils/ecotone/sceneOffers'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
+import {
+  MYSTERIES,
+  PASSES_FOR_TRUE_PATH,
+  caseNumeral,
+  caseRecord,
+  type CaseRecord,
+  type GateResult,
+  type Mystery,
+  type MysteryEndingTone,
+  type MysteryMessage,
+} from '~/utils/ecotone/mysteries'
 
-type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
+type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases'
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')
@@ -1248,7 +1513,74 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'county', label: 'Map' },
   { value: 'journal', label: 'Journal' },
   { value: 'endings', label: 'Endings' },
+  { value: 'cases', label: 'Cases' },
 ]
+
+// Mysteries (conductor weird-humboldt t-062): the Case Files shelf and the
+// digressions that open each gate.
+const caseId = ref<string | null>(null)
+const selectedCase = computed<Mystery | null>(
+  () =>
+    MYSTERIES.find((item) => item.id === caseId.value) ??
+    (game.mystery && game.caseFiles[game.mystery.id] ? game.mystery : null) ??
+    MYSTERIES.find((item) => game.caseFiles[item.id]) ??
+    MYSTERIES[0] ??
+    null,
+)
+const selectedRecord = computed<CaseRecord | null>(() =>
+  selectedCase.value ? (game.caseFiles[selectedCase.value.id] ?? null) : null,
+)
+const runCase = computed(() => (game.run ? caseRecord(game.run) : null))
+const TONE_LABEL: Record<MysteryEndingTone, string> = {
+  true: 'True',
+  bittersweet: 'Bittersweet',
+  strange: 'Strange',
+}
+
+function openCase(id: string) {
+  caseId.value = id
+  tab.value = 'cases'
+}
+
+function gateClass(gate: GateResult) {
+  return gate === 'pass'
+    ? 'bg-[#8fb8b0] text-[#09141c]'
+    : gate === 'fail'
+      ? 'bg-[#e08a5a] text-[#09141c]'
+      : 'border border-white/20 text-white/50'
+}
+
+function gateSummary(record: CaseRecord) {
+  return record.gates
+    .map((gate) => (gate === 'pass' ? '✓' : gate === 'fail' ? '✗' : '·'))
+    .join(' ')
+}
+
+function caseVerdict(record: CaseRecord) {
+  if (record.endings.length) return 'Case closed'
+  if (record.cold) return 'Gone cold'
+  if (record.gates.every((gate) => gate === null)) return 'Walked away'
+  return 'Open'
+}
+
+function messageLabel(message: MysteryMessage) {
+  return {
+    text: 'Text',
+    voicemail: 'Voicemail',
+    note: 'Note',
+    flyer: 'Flyer',
+    radio: 'Radio',
+    email: 'Email',
+  }[message.medium]
+}
+
+function messageIcon(message: MysteryMessage) {
+  return message.medium === 'text' || message.medium === 'email'
+    ? 'kind-icon:message'
+    : message.medium === 'voicemail' || message.medium === 'radio'
+      ? 'kind-icon:phone'
+      : 'kind-icon:document'
+}
 
 // Art style (conductor weird-humboldt t-039): view-only, shared with every
 // scene through provide/inject, remembered per browser by the helpers.
@@ -1436,6 +1768,11 @@ type Stage = {
   asides: string[]
   portrait: boolean
   emblem: null | { id: CompanionId; name: string }[]
+  /** A mystery scene shows its case card and, at a gate, the digression. */
+  mysteryCard?: Mystery | null
+  message?: MysteryMessage | null
+  /** The Real Ending a finale choice just reached. */
+  realEnding?: string | null
 }
 
 const stage = computed<Stage>(() => {
@@ -1542,6 +1879,10 @@ const stage = computed<Stage>(() => {
       card.choices.some((choice) => choice.meet !== undefined) && !outcomeShown
     const prospect = game.prospect
     const cardArt = [cardArtKey(card.id), ...(card.art ? [card.art] : [])]
+    const meta = game.mysteryMeta
+    const numeral = meta ? caseNumeral(meta.mystery.number) : ''
+    const realEnding =
+      meta && pending.value && game.realEnding ? game.realEnding.title : null
     return {
       scene: card.scene,
       art:
@@ -1554,15 +1895,23 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? `${prospect.name}, ${prospect.role}`
           : card.title,
-      kicker: portrait
-        ? 'Companion encounter'
-        : card.id.startsWith('CO-')
-          ? 'Companion interlude'
-          : card.kind === 'spine'
-            ? `Story beat · ${card.id}`
-            : `Encounter · ${card.id}`,
-      title: card.title,
-      subtitle: card.place,
+      kicker: meta
+        ? realEnding
+          ? `Case ${numeral} · Real Ending`
+          : meta.kind === 'gate'
+            ? `Case ${numeral} · Gate ${caseNumeral(meta.gate ?? 1)} of III`
+            : meta.kind === 'cold'
+              ? `Case ${numeral} · The trail goes cold`
+              : `Case ${numeral} · The true path`
+        : portrait
+          ? 'Companion encounter'
+          : card.id.startsWith('CO-')
+            ? 'Companion interlude'
+            : card.kind === 'spine'
+              ? `Story beat · ${card.id}`
+              : `Encounter · ${card.id}`,
+      title: realEnding ?? card.title,
+      subtitle: realEnding && meta ? meta.mystery.title : card.place,
       place: card.place.split(',')[0] ?? card.place,
       meet:
         portrait && prospect
@@ -1590,6 +1939,9 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? [{ id: prospect.id, name: prospect.name }]
           : leadEmblem,
+      mysteryCard: meta?.mystery ?? null,
+      message: meta?.message ?? null,
+      realEnding,
     }
   }
   return fallback

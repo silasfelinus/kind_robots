@@ -180,7 +180,7 @@ const layers = computed<Layer[]>(() => {
   if (!scene) return []
   const regs = props.regions.regions
   return (Object.keys(regs) as RegionKey[])
-    .filter((k) => !!regs[k])
+    .filter((k) => !!regs[k] && k !== 'ruler')
     .sort((a, b) => (regs[a]!.z ?? 0) - (regs[b]!.z ?? 0))
     .map((region) => {
       const state = scene.regionStates[region]

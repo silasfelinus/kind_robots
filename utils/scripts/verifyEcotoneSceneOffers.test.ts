@@ -129,7 +129,10 @@ assert.equal(
   }),
   null,
 )
-const board = readFileSync(new URL('../../components/ecotone-board.vue', import.meta.url), 'utf8')
+const board = readFileSync(
+  new URL('../../components/ecotone-board.vue', import.meta.url),
+  'utf8',
+)
 assert.ok(board.includes('contextualOpeningChoices(card, run).map'))
 assert.ok(board.includes('sceneMomentOffer(game.card, game.run)'))
 assert.ok(!board.includes('SUBSTANCE_CHOICES'))

@@ -31,7 +31,7 @@
     <Teleport to="body" :disabled="!fullscreen">
       <div
         ref="gameRoot"
-        class="cq-game kr-container flex max-w-7xl flex-col gap-3"
+        class="cq-game flex min-h-0 w-full flex-1 flex-col gap-0 overflow-hidden"
         :class="{ 'cq-fullscreen': fullscreen }"
         @keydown.esc="closePanel"
       >
@@ -140,9 +140,16 @@
             class="cq-tank relative overflow-hidden rounded-2xl border border-base-300 bg-base-300 shadow-xl"
             :class="{ 'cq-focus': storyFocus === 'tank' }"
           >
+            <img
+              v-if="tankBackdrop"
+              :src="tankBackdrop"
+              alt=""
+              aria-hidden="true"
+              class="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover blur-xl brightness-[0.4]"
+            />
             <canvas
               ref="canvasRef"
-              class="block aspect-[16/9] w-full cursor-pointer touch-none"
+              class="relative z-[1] block aspect-[16/9] w-full cursor-pointer touch-none"
               :width="STAGE_WIDTH * RENDER_SCALE"
               :height="STAGE_HEIGHT * RENDER_SCALE"
               aria-label="Aquarium tank. Every fed fish drops coins; tap them to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
@@ -343,19 +350,19 @@
               class="flex scroll-mt-4 flex-col gap-2 rounded-2xl"
               :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
             >
-              <!-- The shop's own header (canon videos.yaml screen-shop): the aisle
-             of lit tanks, moving; the still plate under reduced motion. -->
-              <div class="flex items-end justify-between gap-2">
-                <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-                  Buy a fish
-                </p>
+              <!-- The fish market gets an illustrated scene, not a catalog thumbnail. -->
+              <div class="relative min-h-28 overflow-hidden rounded-xl bg-base-300 sm:min-h-40">
                 <img
                   v-if="shopHeaderArt"
                   :src="shopHeaderArt"
-                  alt="The shop's aisle of lit tanks"
-                  class="aspect-[16/5] w-28 rounded-xl border border-base-300 object-cover shadow"
+                  alt="Charlotte's curiosity shop, an aisle of mysterious lit tanks"
+                  class="absolute inset-0 h-full w-full object-cover"
                   loading="lazy"
                 />
+                <div class="absolute inset-0 bg-gradient-to-t from-base-100/90 via-transparent to-transparent" />
+                <p class="absolute bottom-2 left-3 font-serif text-xl font-black drop-shadow">
+                  The Fish Market
+                </p>
               </div>
               <cthulhuquarium-bark context="shop" />
               <!-- t-030: the shop rotates -- this is a slice of what's never been
@@ -390,13 +397,13 @@
                 >
                   <div class="flex items-center gap-3">
                     <div
-                      class="size-28 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
+                      class="cq-featured-frame size-40 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
                     >
                       <cthulhuquarium-sprite
                         :slug="featuredFish.slug"
                         :label="featuredFish.name"
                         :fallback="withCthulhuquariumArt(featuredFish)"
-                        :size="112"
+                        :size="240"
                         class="size-full"
                       />
                     </div>
@@ -1426,6 +1433,10 @@ const tankStore = useCthulhuquariumTankStore()
 const shopHeaderArt =
   (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
   artByName('screen-shop')
+// The illustrated surroundings cover letterbox space on tall mobile displays.
+const tankBackdrop = computed(() =>
+  backgroundArt(tankStore.backgroundKey) ?? backgroundArt('parlour'),
+)
 // Held, like the dialogue itself, while anything else has the floor.
 const storyFocus = computed(() =>
   tankStore.storyShowing ? (tankStore.activeBeat?.focus ?? null) : null,

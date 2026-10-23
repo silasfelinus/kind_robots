@@ -472,7 +472,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       !state.value.visited.includes(key) ||
       state.value.sceneChoices[key] ||
       !scene
-    ) return
+    )
+      return
     const choice = scene.choices.find((option) => option.id === id)
     if (!choice || !canChooseBriarScene(choice, state.value)) return
     state.value.wildflowers -= choice.cost?.wildflowers ?? 0
@@ -484,7 +485,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       choice.settleDuel &&
       BRIAR_SITES[key]?.kind === 'enemy' &&
       !state.value.completedEncounters.includes(key)
-    ) state.value.completedEncounters.push(key)
+    )
+      state.value.completedEncounters.push(key)
     state.value.status = choice.outcome
     persist()
   }

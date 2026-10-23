@@ -27,14 +27,28 @@ import {
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
 import type { SubstanceId } from '~/utils/ecotone/substanceArc'
+import {
+  MYSTERIES,
+  caseRecord,
+  mergeCaseRecord,
+  mysteryCardMeta,
+  mysteryEnding,
+  pickMystery,
+  runMystery,
+  sanitizeCaseFiles,
+  type CaseRecord,
+} from '~/utils/ecotone/mysteries'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
 const ENDINGS_KEY = 'kr.ecotone.endings.v1'
+const CASES_KEY = 'kr.ecotone.cases.v1'
 
 export const useEcotoneStore = defineStore('ecotone', () => {
   const run = ref<RunState | null>(null)
   const endings = ref<string[]>([])
+  /** Case Files: the best result on each gate of every mystery ever opened. */
+  const caseFiles = ref<Record<string, CaseRecord>>({})
   const loaded = ref(false)
   // Bumped when Playbook Manager live edits arrive, so card text re-reads them.
   const liveVersion = ref(0)
@@ -72,6 +86,14 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   const ending = computed(() =>
     run.value?.phase === 'end' ? computeEnding(run.value) : null,
   )
+  const mystery = computed(() => (run.value ? runMystery(run.value) : null))
+  const mysteryMeta = computed(() =>
+    run.value?.phase === 'beat' ? mysteryCardMeta(run.value.card) : null,
+  )
+  const realEnding = computed(() =>
+    run.value ? mysteryEnding(run.value) : null,
+  )
+  const casesOpened = computed(() => Object.keys(caseFiles.value).length)
   const unlockedCount = computed(
     () => endings.value.filter((id) => ENDING_IDS.includes(id)).length,
   )
@@ -83,6 +105,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         window.localStorage.setItem(RUN_KEY, JSON.stringify(run.value))
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
+      window.localStorage.setItem(CASES_KEY, JSON.stringify(caseFiles.value))
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -103,6 +126,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
                 typeof id === 'string' && ENDING_IDS.includes(id),
             )
         }
+        const cases = window.localStorage.getItem(CASES_KEY)
+        if (cases) caseFiles.value = sanitizeCaseFiles(JSON.parse(cases))
       } catch {
         run.value = null
       }
@@ -131,11 +156,24 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       !endings.value.includes(next.ending)
     )
       endings.value = [...endings.value, next.ending]
+    const record = caseRecord(next)
+    if (record)
+      caseFiles.value = {
+        ...caseFiles.value,
+        [record.id]: mergeCaseRecord(caseFiles.value[record.id], record),
+      }
     persist()
   }
 
   function begin(archetypeId: string) {
-    update(createRun(Date.now() % 2147483647, archetypeId))
+    const seed = Date.now() % 2147483647
+    update(
+      createRun(
+        seed,
+        archetypeId,
+        pickMystery(seed, Object.keys(caseFiles.value)),
+      ),
+    )
   }
 
   function pickEvent(event: EventId) {
@@ -192,6 +230,12 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     ending,
     unlockedCount,
     endingTotal: ENDING_IDS.length,
+    caseFiles,
+    casesOpened,
+    caseTotal: MYSTERIES.length,
+    mystery,
+    mysteryMeta,
+    realEnding,
     initialize,
     begin,
     pickEvent,

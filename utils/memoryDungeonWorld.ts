@@ -48,7 +48,8 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   '8,1': {
     kind: 'sealed',
     name: 'Whitewing Cipher',
-    description: 'A nearly matching feathered emblem is rumored at Salt Cliffs.',
+    description:
+      'A nearly matching feathered emblem is rumored at Salt Cliffs.',
   },
   '8,8': {
     kind: 'sealed',
@@ -279,7 +280,8 @@ export function newBriarSave(): BriarSave {
     combat: null,
     roomMisses: 0,
     hearts: 3,
-    status: 'Find six matching pairs to uncover the first twelve pieces of Briar Camp.',
+    status:
+      'Find six matching pairs to uncover the first twelve pieces of Briar Camp.',
   }
 }
 
@@ -292,7 +294,8 @@ export function restoreBriarSave(input: unknown): BriarSave {
     // legitimately satisfy the new two-card matching progress contract.
     return {
       ...fresh,
-      status: 'Briar Camp now opens through four memory-matching rounds. A new expedition begins.',
+      status:
+        'Briar Camp now opens through four memory-matching rounds. A new expedition begins.',
     }
   }
   const validKeys = (value: unknown): string[] =>

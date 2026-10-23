@@ -105,6 +105,15 @@ export function uniqueDeckPaths(paths: readonly string[]): string[] {
   return [...new Set(paths.filter((value) => value.length > 0))]
 }
 
+/** Never deal a second copy of an image already seen during this expedition. */
+export function unseenDeckPaths(
+  paths: readonly string[],
+  previouslyUsed: readonly string[],
+): string[] {
+  const seen = new Set(previouslyUsed)
+  return uniqueDeckPaths(paths).filter((path) => !seen.has(path))
+}
+
 const galleryMotifs = [
   {
     title: 'Moss Oracle',

@@ -9,8 +9,8 @@ export const VIRGIN_SACRIFICE: Mystery = {
   title: 'The Mystery of the Virgin Sacrifice',
   tagline:
     'Hooded figures, red ribbons, a harvest moon and one badly misunderstood word.',
-  region: 'The ridges above Scotia and Rio Dell',
-  hook: 'The rumor reached campus by Tuesday: hooded figures with lanterns on a ridge above Scotia, red ribbons tied around things in the dark, and a plan for a virgin sacrifice at the harvest moon. Three members of a student paranormal club drove down to see for themselves. They came back very fast and very quiet.',
+  region: 'A private ridge up a side canyon off the Eel, above Rio Dell',
+  hook: 'The email hit the campus list just before midnight: hooded figures with lanterns on a ridge above Rio Dell, red ribbons tied around things in the dark, and a plan for a virgin sacrifice at the harvest moon. It came from the president of the student paranormal club, who sent it from a gravel pullout below the ridge with every car door locked.',
   design: {
     element: 'earth',
     motif: 'grove',
@@ -44,10 +44,10 @@ export const VIRGIN_SACRIFICE: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. A cathedral grove of enormous old-growth redwoods on a ridge above the Eel River at night under an orange harvest moon, a ring of small brown-robed figures with lanterns circling the widest trunk, holding a long red ribbon between them like a measuring tape, red survey flagging knotted on the neighboring trunks, sword fern and redwood sorrel underfoot, the faint lights of a little mill town in the valley below. Faint brass stars in a gap of sky form an unlabeled long reclining-figure constellation. Moss green, umber and brass. No text, no letters, no logos.',
   provenance:
-    'Scotia, Rio Dell and the Eel River are real. “Virgin timber” is a real historical logging term for never-cut old growth. Julia Butterfly Hill’s tree-sit in the redwood called Luna, near Stafford, lasted 738 days, from 1997 to 1999. Marbled murrelets are real seabirds that nest in old-growth canopy and are protected under endangered species laws, and conservation easements are a real land-protection tool. Gleaner Ridge, Quillmark Land & Timber, the Sisters of the Understory, Brynn, Dusty and everyone else are invented. No real company, landowner or land trust is depicted.',
+    'Scotia, Rio Dell and the Eel River are real. “Virgin timber” is a real historical logging term for never-cut old growth. Julia Butterfly Hill’s tree-sit in the redwood called Luna, near Stafford, lasted 738 days, from 1997 to 1999; it is mentioned only as history. Marbled murrelets are real seabirds that nest in old-growth canopy and are protected under endangered species laws, and conservation easements are a real land-protection tool. Gleaner Ridge is an invented private inholding up an invented side canyon, not any real property. Quillmark Land & Timber, the land trust and its contact Spencer Ault, the Sisters of the Understory, Brynn, Dusty and everyone else are invented. No real company, landowner, land trust or public filing is depicted.',
   decline: {
-    label: 'Tell Brynn the paranormal club can handle its own cult',
-    text: 'You reply that you have a midterm and a strict policy on cults. Brynn sends back one lantern emoji and a voice memo of herself breathing. On a ridge above the Eel, someone writes a number down to the centimeter.',
+    label: 'Reply-all that the paranormal club can handle its own cult',
+    text: 'You reply-all that you have a midterm and a strict policy on cults. Forty people reply-all asking to be taken off the list. Brynn’s last message, to you alone, says only “noted,” and you feel measured.',
   },
   gates: [
     {
@@ -56,16 +56,16 @@ export const VIRGIN_SACRIFICE: Mystery = {
       chapter: 5,
       scene: 'highway',
       message: {
-        medium: 'text',
-        from: 'Brynn (Paranormal Society president, self-appointed)',
+        medium: 'email',
+        from: 'Brynn, Paranormal Society president (self-appointed), to the entire campus list',
         lines: [
-          'ok do NOT laugh',
-          'we saw them. robes. lanterns. like eight of them. on the ridge above scotia',
-          'one of them tied a RED RIBBON on my mirror while we were IN THE CAR. i’m at the pullout. please come',
+          'Subject: NOT A DRILL. Cult activity, Rio Dell. Please do NOT laugh.',
+          'We saw them. Robes. Lanterns. Approx. eight. On the ridge up the side canyon above Rio Dell.',
+          'One of them tied a RED RIBBON on my side mirror while we were IN THE CAR. I am at the gravel pullout. Anyone with a car and a spine, please come.',
         ],
       },
       body: [
-        'Brynn’s hatchback is parked crooked at a gravel pullout between Rio Dell and Scotia, the Eel sliding by below and a dark ridge rising above. Two club members sit in the back seat under one blanket. A red ribbon is knotted to the side mirror with a precision that is somehow worse than violence.',
+        'Brynn’s hatchback is parked crooked at a gravel pullout where a side canyon meets the Eel above Rio Dell, the river sliding by below and a dark ridge rising above. Two club members sit in the back seat under one blanket. A red ribbon is knotted to the side mirror with a precision that is somehow worse than violence.',
         'Brynn hands you the evidence: a flyer peeled off a laundromat corkboard in Rio Dell. In tidy library-hand it reads: THE VIRGIN WILL BE TAKEN AT THE HARVEST MOON UNLESS EVERY ONE IS COUNTED. VOLUNTEERS WELCOME. BRING A PENCIL.',
       ],
       approaches: [
@@ -112,11 +112,11 @@ export const VIRGIN_SACRIFICE: Mystery = {
       ],
       leadLines: {
         mara: 'Mara reads the flyer twice. “Every letter the same height. Nobody this tidy has ever sacrificed anything they didn’t alphabetize first.”',
-        kit: 'Kit balances on the guardrail, squinting uphill. “Lanterns at knee height,” she says. “They’re not marching. They’re measuring something.”',
+        kit: 'Kit balances on the guardrail, squinting uphill. “Lanterns at knee height,” she says. “They’re not marching. They’re… stopping. A lot.”',
         juniper:
-          'Juniper lays her palm on the ridge’s shadow across the road. “Something up there is very old and very worried,” she says. “I would be too.”',
+          'Juniper reads the flyer over your shoulder. “Bring a pencil,” she says. “Finally, a cult with standards. I’d join if the robes were better.”',
         cedar:
-          'Cedar snorts. “Virgin sacrifice. My dad would laugh till he coughed. That’s just what fallers called the big uncut stuff, back when there was more of it.”',
+          'Cedar squints at the moon coming up orange. “Harvest moon, hooded cult, flyer with good penmanship. The universe is laying it on thick.” He snorts at the word “virgin” and won’t say why.',
       },
       aloneLine:
         'Alone at the pullout, you watch one lantern pause on the ridge for a very long time, as if someone up there is double-checking.',
@@ -136,7 +136,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
         ],
       },
       body: [
-        'Gleaner Ridge is private land, steep and quiet, mostly young redwood that grew back after the last century’s cuts. Past a locked gate and a long switchback the trees change. They get wider, older, absurd: trunks like the sides of barns, bark furrowed deep enough to lose a hand in. Every one has a red ribbon around it at exactly the same height.',
+        'Gleaner Ridge is a private inholding up the canyon, steep and quiet, mostly young redwood that grew back after the last century’s cuts. Past a locked gate and a long switchback the trees change. They get wider, older, absurd: trunks like the sides of barns, bark furrowed deep enough to lose a hand in. Every one has a red ribbon around it at exactly the same height.',
         'Mixed among them are trees tied with blue ribbon instead, spray-painted with numbers. Above you, lanterns move from trunk to trunk, and a woman’s voice says, very clearly, “Two hundred sixty-eight point four. Write it down, Bea.”',
       ],
       approaches: [
@@ -185,12 +185,16 @@ export const VIRGIN_SACRIFICE: Mystery = {
         mara: 'Mara runs a fingertip along a red knot. “Same knot every time, same height every time. Best work I’ve ever seen done in the dark.”',
         kit: 'Kit looks up and up and up. “You could hang a whole circus off that first limb,” she says softly, “and it wouldn’t notice.”',
         juniper:
-          'Juniper has gone very quiet. “These ones remember before the roads,” she says. “Mind the little ones. They’re listening.”',
+          'Juniper walks the deer trail barefoot and steps on your heel twice. “You’re compacting the duff,” she tells you, delighted. “They said so. In writing.”',
         cedar:
           'Cedar touches a blue ribbon and his face changes. “That’s a cut line. My dad flagged a hundred like it. My mom hauled supplies for the Luna sit to stop lines like it. They still do Thanksgiving together. Somehow.”',
       },
       aloneLine:
         'Alone among trees this old, you lower your voice without deciding to, the way you would in a library.',
+      recall: {
+        'g1:fail':
+          'You came up the ridge with nothing to go on but a flyer and a club president who still thinks it is a cult. The trees do not seem to mind.',
+      },
     },
     {
       title: 'The Harvest Moon',
@@ -220,21 +224,21 @@ export const VIRGIN_SACRIFICE: Mystery = {
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You put the spare robe on inside out and backwards and join the procession with the hood over your face. You walk directly into the eldest tree. Seven robed women stop, turn and help you up with enormous tenderness, and one of them says, “Oh, it’s the granola wrapper,” and you will never, ever live this down.',
+            text: 'You put the spare robe on inside out and backwards and join the procession with the hood over your face. You walk directly into the eldest tree. Eight robed women stop, turn and help you up with enormous tenderness, and one of them says, “Oh, it’s the granola wrapper,” and you will never, ever live this down.',
             effects: { nerve: -1 },
           },
         },
         {
-          id: 'net',
-          label: 'Spring the club’s classic net trap on the trail',
+          id: 'box',
+          label: 'Spring the club’s classic trap on the trail',
           check: { skill: 'burly', target: 9 },
-          cost: 'It is a volleyball net from the campus rec center, and it has to go back.',
+          cost: 'It is a refrigerator box, a stick and a string. Brynn insists that is the classic.',
           success: {
-            text: 'You and Brynn string the net across the deer trail and wait. When it drops, it catches not a hooded cultist but a man in a high-vis vest with a clipboard and a can of blue spray paint: a timber cruiser for Quillmark, out here counting the same trees from the other side. Tangled in volleyball net, he looks up at the robed women gathering around him and says, “Ladies. Again?”',
+            text: 'You prop the box on the stick across the deer trail and bait it with a fresh pack of sharpened pencils, because the flyer said to bring one. Forty minutes later somebody kneels for a pencil, you yank the string, and the box comes down on not a hooded cultist but a man in a high-vis vest with a clipboard and a can of blue spray paint: a timber cruiser for Quillmark, counting the same trees from the other side. From inside the box, as robed women gather around it, he says, “Ladies. Again?”',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'The net goes off early and catches the paranormal club. All four of them. And the ring light. The robed women spend twenty minutes untangling everyone with knitting needles while the Quillmark pickup grinds past on the logging road, its headlights sweeping over the whole embarrassing tableau.',
+            text: 'Brynn sits on the string. The box comes down early on the club’s cooler and its treasurer, in that order. The robed women spend twenty minutes extracting the treasurer with great tenderness while the Quillmark pickup grinds past on the logging road, its headlights sweeping over the whole embarrassing tableau. Then they walk everybody up to the circle so nobody gets lost.',
             effects: { nerve: -1 },
           },
         },
@@ -257,12 +261,16 @@ export const VIRGIN_SACRIFICE: Mystery = {
         mara: 'Mara watches the circle with professional respect. “A procession that tidy took rehearsals. Whoever runs this would make a terrifying studio manager.”',
         kit: 'Kit is halfway up a neighbor tree with a headlamp. “From here it looks like they’re hugging it,” she calls. “They’re measuring it. Both, maybe.”',
         juniper:
-          'Juniper has a red ribbon in her hair, and you did not see anyone give it to her. “She knows we’re here,” Juniper says, meaning the tree.',
+          'Juniper has a red ribbon in her hair, and you did not see anyone give it to her. “I asked nicely,” she says. “You should try it sometime.”',
         cedar:
           'Cedar eyes the Quillmark pickup. “Not a scratch on it,” he says. “Nobody local drives up here on a full moon with a clean truck.”',
       },
       aloneLine:
         'Alone under the eldest tree, you feel very small, very young and very much like someone is about to ask you for a pencil.',
+      recall: {
+        'g2:canopy':
+          'A robed woman with a clipboard nods to you as she passes. She remembers you from the seabird, and so, apparently, does the seabird.',
+      },
     },
   ],
   coldCase: {
@@ -295,26 +303,36 @@ export const VIRGIN_SACRIFICE: Mystery = {
     chapter: 5,
     scene: 'grove',
     body: [
-      'The circle stops. All eight robed figures turn toward you in the lantern light, and the tallest lowers her hood: about seventy-five, close-cropped white hair, reading glasses on a beaded chain, the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly, one botanist, and Marisol, who taught fourth grade and frightens all of us. The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna. So we brought tape measures.”',
-      '“Quillmark bought this ridge last year,” Marisol says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the land trust can buy an easement before the harvest goes through. Our deadline is sunrise.” She looks up at the eldest tree. “My father was a faller for forty-one years. At the end, in the hospital, he asked me how many of the big ones were left. Nobody could tell him. So we are counting. Every one. So the next time somebody asks, there is an answer.”',
+      'The circle stops. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us. The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, “virgin stand” is the correct term. Bea wrote the flyer. Bea has never been on the internet.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the land trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” She looks up at the eldest tree. “My father was a faller for forty-one years. At the end, in the hospital, he asked me how many of the big ones were left. Nobody could tell him. So we are counting. Every one. So the next time somebody asks, there is an answer.”',
     ],
+    afterMiss: [
+      'Your plan for the night has failed in every particular, and it turns out not to matter at all. The circle stops anyway. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us. The robes are so nobody asks whether we have a permit. And before you ask, “virgin stand” is the correct term. Bea wrote the flyer. Bea has never been on the internet.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the land trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” She looks up at the eldest tree. “My father was a faller for forty-one years. At the end, in the hospital, he asked me how many of the big ones were left. Nobody could tell him. So we are counting. Every one. So the next time somebody asks, there is an answer.”',
+    ],
+    recall: {
+      'g1:fail':
+        'Brynn leans over and whispers that she still thinks it is a cult. Ofelia hears her and looks extremely pleased.',
+      'g2:fail':
+        '“We have watched you blunder about our ridge,” Agnes adds, kindly. “You improved. We wrote that down too.”',
+    },
     choices: [
       {
         id: 'tape',
         label: 'Pick up a diameter tape and start counting',
-        text: 'You take a clipboard. Marisol hands you a pencil she has already sharpened.',
+        text: 'You take a clipboard. Ofelia hands you a pencil she has already sharpened.',
         next: 'the-count',
       },
       {
         id: 'headlights',
-        label: 'Walk down to the Quillmark truck and talk to the cruiser',
-        text: 'You walk down the slope toward the headlights with your hands where everyone can see them.',
+        label: 'Find the Quillmark cruiser and ask what he’s counting',
+        text: 'You go looking for the man with the blue paint, with your hands where everyone can see them.',
         next: 'the-cruiser',
       },
       {
         id: 'core',
-        label: 'Ask the botanist about the wooden pencil in her case',
-        text: 'You ask about the thin rod of wood in the botanist’s padded case. Dr. Raman hesitates, then shows you the core sample.',
+        label: 'Ask Dr. Raman what is in the padded case',
+        text: 'Dr. Raman hesitates, then opens the case: a thin rod of wood in a labeled sleeve, a core drawn from the eldest tree.',
         ending: 'ring-for-next-year',
       },
     ],
@@ -322,9 +340,9 @@ export const VIRGIN_SACRIFICE: Mystery = {
       mara: 'Mara has already borrowed a clipboard. “I’ve wanted to join a cult like this my whole life,” she says, and means it.',
       kit: 'Kit is up the first limb with the end of a tape. “Call it,” she says. “I can reach what you can’t.”',
       juniper:
-        'Juniper lays her hand on the eldest tree and closes her eyes. “She says she’s been counted before,” Juniper says. “Never this kindly.”',
+        'Juniper isn’t counting. She is sitting in the eldest tree’s roots with her eyes shut. “I’m not here for the survey,” she says. “I’m visiting. She’s family, more or less.”',
       cedar:
-        'Cedar takes off his cap. “My mom would’ve loved you ladies,” he says. “My dad would’ve argued with you all night and then carried your gear.”',
+        'Cedar looks up at the eldest tree. “My mom’s going to love you ladies. My dad’s going to argue with you all night and then carry your gear. The universe put those two together on purpose. I figure it owes this tree one.”',
     },
     aloneLine:
       'Alone with eight retired women and a very old tree, you realize you have stopped being scared and started being useful.',
@@ -337,13 +355,13 @@ export const VIRGIN_SACRIFICE: Mystery = {
       scene: 'grove',
       body: [
         'You measure until your fingers go numb. Breast height, one meter thirty-seven off the uphill side, tape level, read it twice, call it out. Bea writes it down. Dr. Raman checks every tenth tree behind you and corrects you twice, gently, and then not at all. The Sisters work like a choir: no wasted motion, no raised voices, a thermos of tea passed down the line every hour on the hour.',
-        'By the gray before dawn two trees remain: one across a ravine, and the eldest herself, too wide for any tape they brought. The sky is going pale over the Eel. Down the slope, a truck door slams.',
+        'By the gray before dawn two trees remain: one across a ravine, and the eldest herself. The circle took her girth at midnight, but only once, and the Sisters do not record a number they have read only once. The land trust’s rule is simple: a census with a hole in it is a guess. Bea’s phone buzzes. It is Spencer, asking for the numbers “before anyone else sees them, so I can tidy them up.” Agnes frowns for the first time all night. Down the slope, a truck door slams.',
       ],
       choices: [
         {
           id: 'both',
           label: 'Split the crew and measure both before sunrise',
-          text: 'You send the fastest Sisters across the ravine and take the eldest yourself, three tapes knotted end to end and every hand holding a section.',
+          text: 'You send the fastest Sisters across the ravine and take the eldest yourself, three tapes knotted end to end and every hand holding a section. Agnes decides the binder goes to the board by hand, hers, untidied.',
           ending: 'every-tree-counted',
         },
         {
@@ -360,20 +378,20 @@ export const VIRGIN_SACRIFICE: Mystery = {
       chapter: 5,
       scene: 'highway',
       body: [
-        'The timber cruiser is a Rio Dell guy named Dusty Oyelaran, thirty-four, two kids, a high-vis vest and the exhausted face of someone who has been counting the same trees as eight retired women for a month. “I grew up down there,” he says, nodding at the lights of Scotia. “This job’s the job there is. I flag what they tell me.”',
-        'He looks up at the grove. “But my numbers come out bigger than the ones in the company’s filing. A lot bigger. I keep sending them in. Nobody answers.” He holds out a tablet with a cracked screen: every tree on the ridge, measured honestly by someone who knows exactly what it means.',
+        'The timber cruiser is a Rio Dell guy named Dusty Oyelaran, thirty-four, two kids, a high-vis vest and the exhausted face of someone who has been counting the same trees as eight retired women for a month. By now he has been offered tea by six of them. “I grew up down there,” he says, nodding at the lights of Rio Dell. “This job’s the job there is. I flag what they tell me.”',
+        'He lowers his voice. “You know your Sisters’ numbers come to our office every week? Their trust guy, Spencer, sends them over before his own board sees them, and our office sends him a check. Finder’s fee. That’s how we knew which trees to flag first.” He holds out a tablet with a cracked screen: his own honest cruise, and beside it the summary Spencer gave the trust’s board, every big tree rounded down to second growth. “They’ve been measuring for the wrong side,” he says. “Somebody ought to tell them.”',
       ],
       choices: [
         {
           id: 'compare',
-          label: 'Put his numbers beside the Sisters’ and send them together',
-          text: 'You sit Dusty and Bea side by side on a stump, and two people who were supposed to be enemies compare columns until every number matches to the centimeter.',
+          label: 'Put his numbers beside the Sisters’ and go around Spencer',
+          text: 'You sit Dusty and Bea side by side on a stump, and two people who were supposed to be enemies compare columns until every number matches to the centimeter. Dusty signs the bottom of every page. Agnes, very quietly, crosses Spencer’s name off the cover.',
           ending: 'every-tree-counted',
         },
         {
           id: 'protect-him',
           label: 'Tell him to keep his job and let the Sisters handle it',
-          text: 'You thank him and tell him not to risk it. He looks relieved and ashamed in equal measure, and walks back to his truck.',
+          text: 'You thank him and tell him not to risk it. He looks relieved and ashamed in equal measure, and walks back to his truck. You carry the news about Spencer up the hill alone, too late to matter by much.',
           ending: 'one-tree-saved',
         },
         {
@@ -391,8 +409,8 @@ export const VIRGIN_SACRIFICE: Mystery = {
       title: 'Every Tree Counted',
       tone: 'true',
       text: [
-        'Four hundred and twelve trees, measured to the centimeter, with seven murrelet detections, a cruiser’s honest numbers and a botanist’s signature on every page. A small local land trust carries the binder to Quillmark’s office in a city with very little moss, and by spring the company has sold a conservation easement on all of Gleaner Ridge for a sum that makes it feel clever. The trees never notice.',
-        'The Sisters throw a potluck in a community hall in Rio Dell. Brynn’s club attends in robes. You are given one too, brown, hemmed precisely to your height by someone who never asked it, with a pencil sewn into the sleeve. Marisol reads the final count aloud and then, softly, adds her father’s name at the bottom of the list.',
+        'Four hundred and twelve trees, measured to the centimeter, with seven murrelet detections and a botanist’s signature on every page. The Sisters carry the binder to the land trust’s board themselves, by hand, and by spring Quillmark has sold a conservation easement on all of Gleaner Ridge for a sum that makes it feel clever. The trees never notice.',
+        'The Sisters throw a potluck in a community hall in Rio Dell. Brynn’s club attends in robes. You are given one too, brown, hemmed precisely to your height by someone who never asked it, with a pencil sewn into the sleeve. Ofelia reads the final count aloud and then, softly, adds her father’s name at the bottom of the list.',
       ],
     },
     {
@@ -400,8 +418,8 @@ export const VIRGIN_SACRIFICE: Mystery = {
       title: 'One Tree Saved',
       tone: 'bittersweet',
       text: [
-        'The count comes up short. The harvest goes ahead on most of the ridge, and for a month the log trucks grind down past Scotia with loads you cannot look at. But the eldest tree, with a murrelet nest on a limb as broad as a sidewalk, stands in a buffer the company is required to leave, and the trees nearest her stand with her.',
-        'Every harvest moon the Sisters climb the ridge to measure her again, and every year she is a few millimeters wider. You go with them. Marisol lets you hold the tape. On the way down nobody says much, because there is a great deal of open sky where there didn’t used to be.',
+        'The count comes up short. The harvest goes ahead on most of the ridge, and for a month the log trucks grind down through Rio Dell with loads you cannot look at. But the eldest tree, with a murrelet nest on a limb as broad as a sidewalk, stands in a buffer the company is required to leave, and the trees nearest her stand with her.',
+        'Every harvest moon the Sisters climb the ridge to measure her again, and every year she is a few millimeters wider. You go with them. Ofelia lets you hold the tape. On the way down nobody says much, because there is a great deal of open sky where there didn’t used to be.',
       ],
     },
     {
@@ -409,8 +427,8 @@ export const VIRGIN_SACRIFICE: Mystery = {
       title: 'The Ring for Next Year',
       tone: 'strange',
       text: [
-        'Dr. Raman’s core, a pencil of wood drawn from the eldest tree last spring, should end at the bark with this year’s ring. It doesn’t. Past the bark line there are more: a wide wet year, a thin dry one, a dark scar from a fire that hasn’t happened, and then a ring so fat and pale it looks like a good year for everybody. She has counted them nine times. The newest ring is for next year.',
-        'The Sisters, being who they are, catalog it. It sits in a labeled tube in the back room of a small-town library, filed under a date that doesn’t exist yet. Whatever happens to Gleaner Ridge, the eldest tree seems sure she will be standing to grow that ring. Every few months you go and count again. There is always one more.',
+        'Dr. Raman’s core, a pencil of wood drawn from the eldest tree last spring, should end at the bark. It doesn’t. Past the bark line there is one more ring, a fat pale one that looks like a good year for everybody, and inside it the faint dark line of a fire that hasn’t happened yet. She has counted it nine times. The newest ring is for next year.',
+        'The Sisters, being who they are, catalog it. It sits in a labeled tube in the back room of a small-town library, filed under next year’s date. Whatever happens to Gleaner Ridge, the eldest tree seems sure she will be standing to grow that ring. Every few months you go and count again. There is always one more.',
       ],
     },
   ],

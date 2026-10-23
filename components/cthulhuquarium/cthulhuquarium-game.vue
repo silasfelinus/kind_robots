@@ -379,59 +379,87 @@
               >
                 The tank is full -- buy +4 room or release a fish to add more.
               </p>
-              <div v-if="!tankStore.catalogLoading" class="flex flex-col gap-1">
+              <div v-if="!tankStore.catalogLoading" class="flex flex-col gap-3">
                 <div
-                  v-for="entry in tankStore.catalog"
-                  :key="entry.id"
-                  class="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-1"
+                  v-if="featuredFish"
+                  class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+                  tabindex="0"
+                  aria-label="Featured fish. Use left or right arrow to browse."
+                  @keydown.left.prevent="shiftShop(-1)"
+                  @keydown.right.prevent="shiftShop(1)"
                 >
-                  <div
-                    class="size-11 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-100"
-                  >
-                    <cthulhuquarium-sprite
-                      :slug="entry.slug"
-                      :label="entry.name"
-                      :fallback="withCthulhuquariumArt(entry)"
-                      :size="44"
-                      class="size-full"
-                    />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
-                    <p
-                      class="truncate font-serif text-xs italic opacity-80"
-                      :title="voiceFor(entry.slug, 'charlotte') || undefined"
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="size-28 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
                     >
-                      {{
-                        voiceFor(entry.slug, 'charlotte')
-                          ? `“${voiceFor(entry.slug, 'charlotte')}”`
-                          : 'Not yet observed.'
-                      }}
-                    </p>
+                      <cthulhuquarium-sprite
+                        :slug="featuredFish.slug"
+                        :label="featuredFish.name"
+                        :fallback="withCthulhuquariumArt(featuredFish)"
+                        :size="112"
+                        class="size-full"
+                      />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-[0.65rem] font-black uppercase tracking-widest text-primary">
+                        Today's specimens
+                      </p>
+                      <h3 class="font-serif text-xl font-black">
+                        {{ featuredFish.name }}
+                      </h3>
+                      <p class="mt-1 font-serif text-sm italic opacity-80">
+                        {{
+                          voiceFor(featuredFish.slug, 'charlotte')
+                            ? `“${voiceFor(featuredFish.slug, 'charlotte')}”`
+                            : 'Not yet observed.'
+                        }}
+                      </p>
+                    </div>
                   </div>
                   <button
                     type="button"
-                    class="cq-price btn btn-primary btn-sm min-h-11 min-w-20 shrink-0 gap-1"
-                    :disabled="!canUnlock(entry)"
+                    class="cq-price btn btn-primary min-h-12 w-full gap-2"
+                    :disabled="!canUnlock(featuredFish)"
                     :title="
                       !fitsRoom()
                         ? 'Tank full'
-                        : entry.cost > tankStore.coins
-                          ? `${entry.cost - tankStore.coins} more coins needed`
+                        : featuredFish.cost > tankStore.coins
+                          ? `${featuredFish.cost - tankStore.coins} more coins needed`
                           : undefined
                     "
-                    @click="tankStore.unlock(entry.id)"
+                    @click="tankStore.unlock(featuredFish.id)"
                   >
-                    <template v-if="entry.cost === 0">Free</template>
-                    <template v-else>
+                    <span>Bring into the tank</span>
+                    <span v-if="featuredFish.cost === 0">Free</span>
+                    <span v-else class="inline-flex items-center gap-1">
                       <Icon name="kind-icon:coin" class="size-4 text-warning" />
-                      {{ entry.cost }}
-                    </template>
+                      {{ featuredFish.cost }}
+                    </span>
                   </button>
+                  <nav class="flex items-center justify-between gap-2" aria-label="Choose a market fish">
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm min-h-11 min-w-11"
+                      aria-label="Previous fish"
+                      @click="shiftShop(-1)"
+                    >
+                      <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+                    </button>
+                    <p class="text-xs font-bold tabular-nums" aria-live="polite">
+                      {{ selectedShopIndex + 1 }} / {{ tankStore.catalog.length }}
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm min-h-11 min-w-11"
+                      aria-label="Next fish"
+                      @click="shiftShop(1)"
+                    >
+                      <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
+                    </button>
+                  </nav>
                 </div>
-                <p v-if="!tankStore.catalog.length" class="kr-text-faded-xs">
-                  Nothing new today -- buy more of a fish you own from its card
-                  below.
+                <p v-else class="kr-text-faded-xs">
+                  Nothing new today. You can re-order discoveries in the bestiary.
                 </p>
               </div>
             </div>
@@ -1558,6 +1586,19 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 // timer -- a countdown display only shown in whole minutes doesn't need
 // finer-grained ticking than the tank's existing poll loop already gives it.
 const now = ref(Date.now())
+
+// One specimen at a time, like a real game shop instead of an endless web list.
+const selectedShopIndex = ref(0)
+const featuredFish = computed(() => tankStore.catalog[
+  Math.min(selectedShopIndex.value, Math.max(0, tankStore.catalog.length - 1))
+] ?? null)
+function shiftShop(delta: number) {
+  const count = tankStore.catalog.length
+  if (count) selectedShopIndex.value = (selectedShopIndex.value + delta + count) % count
+}
+watch(() => tankStore.catalog.length, (count) => {
+  if (selectedShopIndex.value >= count) selectedShopIndex.value = 0
+})
 
 // The unlock panel's live "refreshes in Xh Ym" readout, replacing the old
 // static "check back tomorrow" hint. Null (falls back to that static hint

@@ -296,8 +296,7 @@ function simulate(policy: Policy, runs: number): Row {
           if (id === 'scout') row.scoutTaken++
           next = stepJourneyLedgerV7(ledger, { type: 'TRIAL', choiceId: id })
           if (next.current.journey.phase === 'boss')
-            row.trialFailuresByLand[index] =
-              row.trialFailuresByLand[index]! + 1
+            row.trialFailuresByLand[index] = row.trialFailuresByLand[index]! + 1
         }
       } else if (!journey.active) {
         const open = reachableLocations(journey).filter(
@@ -354,12 +353,13 @@ function simulate(policy: Policy, runs: number): Row {
       }
     }
   }
-  row.distinctCards = JOURNEY_WORLD.lands.map((land) =>
-    V6_CARDS.filter(
-      (card) =>
-        seenCards.has(card.id) &&
-        land.locations.some((location) => location.id === card.locationId),
-    ).length,
+  row.distinctCards = JOURNEY_WORLD.lands.map(
+    (land) =>
+      V6_CARDS.filter(
+        (card) =>
+          seenCards.has(card.id) &&
+          land.locations.some((location) => location.id === card.locationId),
+      ).length,
   )
   assert.equal(row.completed + row.fallen + row.stalled, runs)
   return row

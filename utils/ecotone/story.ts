@@ -815,30 +815,41 @@ export const BEATS: EncounterCard[] = [
       },
       {
         id: 'monitor',
-        label: 'Commit four Saturdays to creek monitoring and learn the crew plan',
+        label:
+          'Commit four Saturdays to creek monitoring and learn the crew plan',
         wild: true,
         cost: 'Four Saturdays of real work, starting with training, not a grand gesture',
         check: { skill: 'lore', target: 9 },
         success: {
           text: 'The crew lead walks you through the permitted monitoring plan. You ask which downstream measurements matter, write four actual Saturdays into your calendar, and sign up for a partner check before working near the bank again. There is no instant ecological victory, just a shift roster with your name on it. When the next volunteer asks who will check the culvert after the rains, you can answer with a date instead of a speech.',
-          effects: { nerve: -1, goodwill: 1, flag: 'creek_monitoring_committed' },
+          effects: {
+            nerve: -1,
+            goodwill: 1,
+            flag: 'creek_monitoring_committed',
+          },
           leadLines: {
-            juniper: 'Juniper wants to promise the whole forest. The crew lead asks her to start with one stream gauge, and she does.',
+            juniper:
+              'Juniper wants to promise the whole forest. The crew lead asks her to start with one stream gauge, and she does.',
             kit: 'Kit draws a small rehearsal schedule next to yours. “We can be the least glamorous double act in Humboldt,” she says.',
-            cedar: 'Cedar checks the measurements against the culvert size, then reminds the crew he cannot promise a fix without the proper engineer.',
+            cedar:
+              'Cedar checks the measurements against the culvert size, then reminds the crew he cannot promise a fix without the proper engineer.',
             mara: 'Mara writes the rota date on her wrist, then transfers it to a real calendar. “Even artists need a schedule,” she says.',
-            alone: 'Nobody travels with you or holds you to the promise. You carry home a calendar with four dates and the crew number, both written in your own hand.',
+            alone:
+              'Nobody travels with you or holds you to the promise. You carry home a calendar with four dates and the crew number, both written in your own hand.',
           },
         },
         failure: {
           text: 'You offer every Saturday before checking your real obligations. The coordinator catches the conflict, quietly hands back the clipboard and asks you to train for one shift first. You have wasted an hour of the crew’s time, and the river has not moved an inch because of your enthusiasm. You take home the safety syllabus rather than the good feeling of a promise you could not keep.',
           effects: { nerve: -2, flag: 'creek_monitoring_delayed' },
           leadLines: {
-            juniper: 'Juniper does not excuse the overpromise. “Come back for the training,” she says. “I will too.”',
+            juniper:
+              'Juniper does not excuse the overpromise. “Come back for the training,” she says. “I will too.”',
             kit: 'Kit taps the unsigned calendar. “A rehearsal is a real thing. An imaginary show date isn’t.”',
-            cedar: 'Cedar lends you a pencil for a schedule you can actually keep, and makes you return it.',
+            cedar:
+              'Cedar lends you a pencil for a schedule you can actually keep, and makes you return it.',
             mara: 'Mara watches the coordinator reclaim the clipboard. “Not saying yes until you can mean it is a skill,” she says.',
-            alone: 'You leave with no signed shift and no witness who will remember the intention as work already done.',
+            alone:
+              'You leave with no signed shift and no witness who will remember the intention as work already done.',
           },
         },
       },

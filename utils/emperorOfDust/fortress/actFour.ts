@@ -1030,7 +1030,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         npc: 'hester-plowright',
         faction: 'freeholds',
         lines: [
-          'Hester Plowright, in a mud-heavy skirt marches up to the throne, egg basket and all. No curtsey. Her reeve’s chain is crooked. She dressed on the horse.',
+          'Hester Plowright, in a mud-heavy skirt, marches up to the throne, egg basket and all. No curtsey. Her reeve’s chain is crooked. She dressed on the horse.',
           '“The Saltroad has guards and money and a hundred wagons. Thistledown has me and my sister and the goats. You know who needs you more, Majesty. Say it out loud.”',
           {
             who: 'Young Komodo',

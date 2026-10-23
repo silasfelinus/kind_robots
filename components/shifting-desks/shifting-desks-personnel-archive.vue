@@ -42,7 +42,7 @@
         </div>
 
         <div class="min-h-0 flex-1 overflow-y-auto pr-1">
-          <section v-if="tab === 'milestones' || tab === 'achievements'" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" :aria-label="tab === 'achievements' ? 'Achievement badges' : 'Milestones'">
+          <section v-if="tab === 'milestones' || tab === 'achievements'" class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-2" :aria-label="tab === 'achievements' ? 'Achievement badges' : 'Milestones'">
             <article
               v-for="milestone in visibleMilestones"
               :key="milestone.id"
@@ -64,7 +64,7 @@
             </article>
           </section>
 
-          <section v-else-if="tab === 'endings'" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" aria-label="Ending collection">
+          <section v-else-if="tab === 'endings'" class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-2" aria-label="Ending collection">
             <article v-for="ending in ENDINGS" :key="ending.id" class="overflow-hidden rounded-xl border-2" :class="hasEnding(ending.id) ? 'border-warning' : 'border-base-content/20'">
               <div class="relative overflow-hidden">
                 <shifting-desks-art
@@ -86,7 +86,7 @@
             </article>
           </section>
 
-          <section v-else class="grid gap-2 sm:grid-cols-2" aria-label="Completed run dossiers">
+          <section v-else class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,19rem),1fr))] gap-2" aria-label="Completed run dossiers">
             <p v-if="archive.runs.length === 0" class="rounded-xl bg-base-200 p-4 text-sm">Earlier endings are recorded, but their full personnel files were not retained. New completions will appear here.</p>
             <article v-for="receipt in [...archive.runs].reverse()" :key="receipt.id" class="flex gap-3 rounded-xl border-2 border-base-content/20 bg-base-200 p-3">
               <shifting-desks-art
@@ -133,7 +133,7 @@ const tab = ref<ArchiveTab>('milestones')
 const earnedCount = computed(() => MILESTONES.filter((m) => earned(m.id)).length)
 const foundCount = computed(() => ENDINGS.filter((ending) => hasEnding(ending.id)).length)
 const visibleMilestones = computed(() => tab.value === 'achievements' ? MILESTONES.filter((m) => m.badge) : MILESTONES)
-const earned = (id: string) => !!archive.value.milestones[id]
+const earned = (id: string) => !!archive.value.milestones[id] || MILESTONES.some((m) => m.id === id && progress(m) >= m.target)
 const hasEnding = (id: string) => store.endingsFound.includes(id)
 const endingTitle = (id: string) => ENDINGS.find((ending) => ending.id === id)?.title ?? 'Classified'
 const progress = (milestone: Milestone) => Math.min(milestone.target, milestone.value(archive.value, store.endingsFound))

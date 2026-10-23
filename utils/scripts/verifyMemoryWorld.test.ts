@@ -506,24 +506,48 @@ assert.match(
   '3D flip retains Classic Match animation timing',
 )
 
-const selectorSource = readFileSync('components/memory-dungeon/deck-selector.vue', 'utf8')
+const selectorSource = readFileSync(
+  'components/memory-dungeon/deck-selector.vue',
+  'utf8',
+)
 const imageApiSource = readFileSync('server/api/art/memory-deck.get.ts', 'utf8')
-const collectionPickerSource = readFileSync('components/art/collection-picker.vue', 'utf8')
-assert.match(selectorSource, /selected\.family !== 'designed' && matureAvailable/,
-  'Mature selection controls are completely hidden from guests, child roles, and mature-off users')
+const collectionPickerSource = readFileSync(
+  'components/art/collection-picker.vue',
+  'utf8',
+)
+assert.match(
+  selectorSource,
+  /selected\.family !== 'designed' && matureAvailable/,
+  'Mature selection controls are completely hidden from guests, child roles, and mature-off users',
+)
 assert.match(selectorSource, /Non-mature only/)
 assert.match(selectorSource, /Mature only/)
-assert.doesNotMatch(selectorSource, /Include mature, public art/,
-  'The old mixed-rating checkbox must not return')
+assert.doesNotMatch(
+  selectorSource,
+  /Include mature, public art/,
+  'The old mixed-rating checkbox must not return',
+)
 assert.match(worldStoreSource, /userStore\.isLoggedIn/)
 assert.match(worldStoreSource, /!userStore\.isChild/)
-assert.match(worldStoreSource, /userStore\.showMature === true/,
-  'Mature permission uses the restricted effective user-store preference')
+assert.match(
+  worldStoreSource,
+  /userStore\.showMature === true/,
+  'Mature permission uses the restricted effective user-store preference',
+)
 assert.match(imageApiSource, /access\.isAuthenticated/)
 assert.match(imageApiSource, /!access\.restricted/)
-assert.match(imageApiSource, /\{ isMature: mature \}/,
-  'Even forged API queries must be forced to a safe-only or mature-only rating')
-assert.match(collectionPickerSource, /!userStore\.isChild/,
-  'Memory collection index never asks for mature folders from child accounts')
-assert.match(classicScreen, /Public mature only/,
-  'Classic summary must not claim that mature mode mixes safe and mature artwork')
+assert.match(
+  imageApiSource,
+  /\{ isMature: mature \}/,
+  'Even forged API queries must be forced to a safe-only or mature-only rating',
+)
+assert.match(
+  collectionPickerSource,
+  /!userStore\.isChild/,
+  'Memory collection index never asks for mature folders from child accounts',
+)
+assert.match(
+  classicScreen,
+  /Public mature only/,
+  'Classic summary must not claim that mature mode mixes safe and mature artwork',
+)

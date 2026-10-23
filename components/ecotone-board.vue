@@ -1208,9 +1208,7 @@ import {
   sceneMomentOffer,
 } from '~/utils/ecotone/sceneOffers'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
-import {
-  substanceEpilogue,
-} from '~/utils/ecotone/substanceArc'
+import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 

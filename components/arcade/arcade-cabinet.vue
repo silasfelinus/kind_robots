@@ -1325,7 +1325,6 @@ function eitherFrame(frames: InputFrame[]): InputFrame {
 }
 
 function tick() {
-  if (props.suspended) return
   ticks++
   const frames: InputFrame[] = inputs
     .slice(0, players.value)
@@ -1846,7 +1845,7 @@ function onScreenPointer() {
 }
 
 function onKey(event: KeyboardEvent) {
-  if (props.suspended || event.target instanceof HTMLInputElement) return
+  if (event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
   if (
     !guide.value &&
@@ -1884,6 +1883,15 @@ function onOnline() {
 function releaseInterruptedInput() {
   releaseTouch()
   for (const seatIn of inputs) seatIn.clear()
+}
+
+/** A cabinet behind another tab holds still: no ticks and no keys reach it. */
+function tickUnlessSuspended() {
+  if (!props.suspended) tick()
+}
+
+function onWindowKey(event: KeyboardEvent) {
+  if (!props.suspended) onKey(event)
 }
 
 function onVisibility() {
@@ -1982,7 +1990,7 @@ onMounted(() => {
   applySeats()
   window.addEventListener('gamepadconnected', applySeats)
   window.addEventListener('gamepaddisconnected', applySeats)
-  window.addEventListener('keydown', onKey)
+  window.addEventListener('keydown', onWindowKey)
   window.addEventListener('blur', onWindowBlur)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
@@ -1997,7 +2005,7 @@ onMounted(() => {
     doc.fullscreenEnabled ?? doc.webkitFullscreenEnabled,
   )
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
-  loop = startFixedLoop(tick, render, onLoopError)
+  loop = startFixedLoop(tickUnlessSuspended, render, onLoopError)
 })
 
 watch(
@@ -2051,7 +2059,7 @@ onBeforeUnmount(() => {
   for (const seatIn of inputs) seatIn.detach()
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
-  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('keydown', onWindowKey)
   window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)

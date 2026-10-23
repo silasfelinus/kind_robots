@@ -56,7 +56,12 @@ while (queue.length) {
     }
   }
 }
-for (const site of Object.keys(BRIAR_SITES).filter((key) => !BRIAR_CROSS_MAP_KEYS.includes(key as (typeof BRIAR_CROSS_MAP_KEYS)[number]))) {
+for (const site of Object.keys(BRIAR_SITES).filter(
+  (key) =>
+    !BRIAR_CROSS_MAP_KEYS.includes(
+      key as (typeof BRIAR_CROSS_MAP_KEYS)[number],
+    ),
+)) {
   assert.equal(
     visited.has(site),
     true,
@@ -133,7 +138,10 @@ assert.equal(
   true,
 )
 assert.deepEqual(normalizeDungeonDeck({}), DEFAULT_DUNGEON_DECK)
-assert.equal(normalizeDungeonDeck({ gallery: 'generated' }).gallery, 'generated')
+assert.equal(
+  normalizeDungeonDeck({ gallery: 'generated' }).gallery,
+  'generated',
+)
 assert.equal(normalizeDungeonDeck({ family: 'bad' }).family, 'designed')
 assert.deepEqual(
   normalizeDungeonDeck({ collectionIds: [1, 1, -1, 2] }).collectionIds,
@@ -172,28 +180,48 @@ assert.deepEqual(
   ['/forest.jpg', '/sun.jpg'],
 )
 
-
 assert.deepEqual(validateBriarWaves(), [])
-assert.deepEqual(BRIAR_REVEAL_WAVES.map((wave) => wave.length), BRIAR_WAVE_SIZES)
+assert.deepEqual(
+  BRIAR_REVEAL_WAVES.map((wave) => wave.length),
+  BRIAR_WAVE_SIZES,
+)
 assert.equal(BRIAR_REVEAL_WAVES.flat().length, 60)
-assert.equal(new Set([...BRIAR_REVEAL_WAVES.flat(), ...BRIAR_CROSS_MAP_KEYS]).size, 64)
+assert.equal(
+  new Set([...BRIAR_REVEAL_WAVES.flat(), ...BRIAR_CROSS_MAP_KEYS]).size,
+  64,
+)
 assert.equal(BRIAR_CROSS_MAP_KEYS.length, 4)
 for (const [index, wave] of BRIAR_REVEAL_WAVES.entries()) {
-  const faces = Array.from({ length: wave.length / 2 }, (_, pair) => `/design/pair-${pair}.png`)
+  const faces = Array.from(
+    { length: wave.length / 2 },
+    (_, pair) => `/design/pair-${pair}.png`,
+  )
   const cards = createBriarWaveCards(wave, faces, () => 0.4)
-  assert.equal(cards.length, wave.length, `wave ${index + 1} has expected card count`)
+  assert.equal(
+    cards.length,
+    wave.length,
+    `wave ${index + 1} has expected card count`,
+  )
   assert.equal(new Set(cards.map((card) => card.tile)).size, wave.length)
   for (const image of faces) {
     assert.equal(cards.filter((card) => card.image === image).length, 2)
   }
 }
-assert.throws(() => createBriarWaveCards(['2,4','3,4'], ['/same.jpg','/same.jpg']))
+assert.throws(() =>
+  createBriarWaveCards(['2,4', '3,4'], ['/same.jpg', '/same.jpg']),
+)
 assert.equal(BRIAR_SITES['4,2']?.kind, 'merchant')
 assert.equal(BRIAR_SITES['6,2']?.kind, 'dungeon')
-assert.equal(isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 42, true), true,
-  'Explicitly selected owner art can be used in custom decks')
-assert.equal(isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 77, true), false,
-  'Another user’s private art is always excluded')
+assert.equal(
+  isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 42, true),
+  true,
+  'Explicitly selected owner art can be used in custom decks',
+)
+assert.equal(
+  isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 77, true),
+  false,
+  'Another user’s private art is always excluded',
+)
 
 const classicScreen = readFileSync(
   'components/pages/memory-dungeon.vue',
@@ -249,6 +277,18 @@ assert.match(
   'Classic rejects duplicate card faces',
 )
 
-assert.match(mapScreen, /world\.pickMapCard/, 'Map cards must be matched, not single-click unveiled')
-assert.match(mapScreen, /world\.nextWave/, 'Player actively begins each subsequent reveal round')
-assert.doesNotMatch(mapScreen, /world\.state\.frontier\.includes/, 'Prototype single-click fog reveal is removed')
+assert.match(
+  mapScreen,
+  /world\.pickMapCard/,
+  'Map cards must be matched, not single-click unveiled',
+)
+assert.match(
+  mapScreen,
+  /world\.nextWave/,
+  'Player actively begins each subsequent reveal round',
+)
+assert.doesNotMatch(
+  mapScreen,
+  /world\.state\.frontier\.includes/,
+  'Prototype single-click fog reveal is removed',
+)

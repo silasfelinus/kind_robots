@@ -6,6 +6,7 @@ import {
   isEligibleDungeonArt,
   normalizeDungeonDeck,
   uniqueDeckPaths,
+  unseenDeckPaths,
 } from '../memoryDungeonDeck'
 
 import {
@@ -223,6 +224,36 @@ assert.equal(
   'Another user’s private art is always excluded',
 )
 
+
+assert.deepEqual(
+  unseenDeckPaths(['/owl.png', '/fern.png', '/owl.png', '/moth.png'], ['/owl.png']),
+  ['/fern.png', '/moth.png'],
+  'Previously drawn images never re-enter the playable pool',
+)
+const pool = Array.from({ length: 60 }, (_, i) => `/fresh-${i}.jpg`)
+const alreadyUsed = new Set<string>()
+for (const wave of BRIAR_REVEAL_WAVES) {
+  const fresh = unseenDeckPaths(pool, [...alreadyUsed]).slice(0, wave.length / 2)
+  assert.equal(fresh.length, wave.length / 2)
+  assert.equal(fresh.filter((value) => alreadyUsed.has(value)).length, 0)
+  for (const path of fresh) alreadyUsed.add(path)
+}
+assert.equal(alreadyUsed.size, 30)
+const usedSave = restoreBriarSave({
+  ...newBriarSave(),
+  seenMapImages: ['/already.jpg', '/other.jpg', '/already.jpg'],
+  mapCards: [
+    { id: 0, pairId: 0, image: '/current.jpg', tile: '2,4', flipped: true, matched: false },
+  ],
+})
+assert.deepEqual(usedSave.seenMapImages, ['/already.jpg', '/other.jpg', '/current.jpg'])
+assert.deepEqual(newBriarSave().seenMapImages, [], 'New expedition starts with a fresh art history')
+assert.deepEqual(
+  unseenDeckPaths(['/already.jpg', '/current.jpg', '/new.jpg'], usedSave.seenMapImages),
+  ['/new.jpg'],
+  'Reloaded save still blocks all previously seen cards',
+)
+
 const classicScreen = readFileSync(
   'components/pages/memory-dungeon.vue',
   'utf8',
@@ -236,6 +267,13 @@ const launcherScreen = readFileSync(
   'utf8',
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
+const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+const deckLoaderSource = readFileSync('stores/helpers/memoryDungeonDeckSource.ts', 'utf8')
+assert.match(worldStoreSource, /state\.value\.seenMapImages/, 'Overworld persists used image history')
+assert.match(worldStoreSource, /keys\.length \/ 2,[\s\S]*?usedPrior,[\s\S]*?state\.value\.seenMapImages/, 'A new map round excludes all previous wave images')
+assert.match(classicScreen, /runSeenImages\.add\(path\)/, 'Classic records images once each floor is dealt')
+assert.match(deckLoaderSource, /unseenDeckPaths\(/, 'All gallery and model pools exclude previous images')
+
 assert.match(
   classicScreen,
   /<memory-dungeon-deck-selector/,
@@ -263,8 +301,8 @@ assert.match(
 )
 assert.match(
   classicScreen,
-  /resolveMemoryDungeonDeck\(selection, needed\)/,
-  'Classic resolves using locked shared settings',
+  /resolveMemoryDungeonDeck\([\s\S]*?selection, needed, 0, \[\.\.\.runSeenImages\]/,
+  'Classic resolves with a per-run exclusion list of previous floors',
 )
 assert.match(
   memoryCore,

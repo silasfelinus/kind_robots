@@ -2324,7 +2324,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['thistledown-burned'] },
             effects: {},
             response:
-              'Hester goes still, the way a hen does when a hawk crosses the sun.',
+              'Hester goes still and watches the shadow cross the floor.',
             next: 'tokens',
           },
           {
@@ -3643,7 +3643,7 @@ export const D42_RUNNER_VARIANTS: SceneVariant[] = [
     flags: ['d34-tamsin-swapped'],
     lines: [
       D42_FIRST_LINE,
-      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The gecko took her sash.”',
+      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The courier took her sash.”',
       '“Tamsin runs the far paths now, the ones nobody wants. She runs them like she’s late for something. She doesn’t come to the cave while you’re in it.”',
       D42_LAST_LINE,
     ],

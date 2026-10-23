@@ -1508,6 +1508,9 @@ jobs:
       - name: Memory Dungeon spatial weapon combat contract
         run: npm run test:memory-dungeon-combat
 
+      - name: Memory Dungeon minefield floor contract
+        run: npm run test:memory-dungeon-minefield
+
       - name: Art Archive batch scan contract
         run: npm run test:art-archive-batch-scan
 

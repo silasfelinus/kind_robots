@@ -64,4 +64,6 @@ assert.doesNotMatch(
 assert.match('A koala enters the throne room.', singleMatch)
 assert.match('An elderly wolf brought the petition.', singleMatch)
 
-console.log(`Role-first Emperor prose contract: ${inspected} source files checked`)
+console.log(
+  `Role-first Emperor prose contract: ${inspected} source files checked`,
+)

@@ -119,7 +119,7 @@ export function validateBriarWaves(): string[] {
     errors.push('Dungeon must be discoverable in wave two')
   if (!third.includes('8,4'))
     errors.push('Gate must be discoverable by wave three')
-  if (!BRIAR_CROSS_MAP_KEYS.every((key) => key === '5,2' || !BRIAR_SITES[key]))
+  if (!BRIAR_CROSS_MAP_KEYS.every((key) => BRIAR_SITES[key]?.kind === 'sealed'))
     errors.push('Reserved cross-map landmarks must have authored coordinates')
   return errors
 }

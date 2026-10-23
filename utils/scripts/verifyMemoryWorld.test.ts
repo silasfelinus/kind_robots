@@ -7,6 +7,7 @@ import {
   normalizeDungeonDeck,
   uniqueDeckPaths,
   unseenDeckPaths,
+  deckImageIdentity,
 } from '../memoryDungeonDeck'
 
 import {
@@ -230,6 +231,24 @@ assert.deepEqual(
   ['/fern.png', '/moth.png'],
   'Previously drawn images never re-enter the playable pool',
 )
+assert.equal(
+  deckImageIdentity('/api/art/image/archive/319?variant=medium&exp=100&sig=old'),
+  '/api/art/image/archive/319',
+)
+assert.deepEqual(
+  unseenDeckPaths(
+    ['/api/art/image/archive/319?exp=200&sig=new', '/api/art/image/archive/320?exp=200&sig=new'],
+    ['/api/art/image/archive/319?exp=100&sig=old'],
+  ),
+  ['/api/art/image/archive/320?exp=200&sig=new'],
+  'Signed URL refresh never allows the same artwork to repeat',
+)
+assert.deepEqual(
+  unseenDeckPaths(['/one.png', '/one.png'], ['/one.png']),
+  [],
+  'Exhausted collection must not silently recycle an image',
+)
+
 const pool = Array.from({ length: 60 }, (_, i) => `/fresh-${i}.jpg`)
 const alreadyUsed = new Set<string>()
 for (const wave of BRIAR_REVEAL_WAVES) {

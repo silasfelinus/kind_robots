@@ -808,7 +808,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'ask-split',
-            label: 'Ask whether every Mole wants this list.',
+            label: 'Ask whether every burrow delegate wants this list.',
             effects: {},
             response:
               'Lumen looks at the trumpet in her paw for a moment. Then she puts it down.',
@@ -1585,7 +1585,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d34-ford-water-signed'],
                 },
                 response:
-                  'Corvane signs with an inked claw. By evening a crow sits on every sluice gate along the Ford. Freehold farmers learn to ask politely for their own water.',
+                  'Corvane signs with an inked claw. By evening a Conclave watchkeeper sits on every sluice gate along the Ford. Freehold farmers learn to ask politely for their own water.',
               },
             ],
           },
@@ -1718,7 +1718,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['d34-militia-told-water'],
             },
             response:
-              'The sergeant looks at the windows. A crow sits on every sill. “Then what are we taking back,” he says. It is not a question. They go home by the long road, so they will not pass a sluice.',
+              'The sergeant looks at the windows. A Conclave sentry sits on every sill. “Then what are we taking back,” he says. It is not a question. They go home by the long road, so they will not pass a sluice.',
           },
         ],
       },
@@ -2563,7 +2563,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       {
         id: 'd38-pardon',
         title: 'A Pardon for a Thief',
-        speaker: 'Captain Ferro Dunmark and a Mole prisoner',
+        speaker: 'Captain Ferro Dunmark and a prisoner from the burrows',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
         lines: [
@@ -2790,7 +2790,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-kept'],
                 },
                 response:
-                  'The Mole goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
+                  'The young courier goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
               },
               {
                 id: 'escort-home',
@@ -3068,7 +3068,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d39-crown-at-foot'],
                 },
                 response:
-                  'The table goes quiet as you sit at the foot, between Komodo and a Mole. Hester laughs out loud. The Abbess, alone at the head by the empty throne, folds her hands and waits. Komodo does not look at you again.',
+                  'The table goes quiet as you sit at the foot, between Komodo and a burrow delegate. Hester laughs out loud. The Abbess, alone at the head by the empty throne, folds her hands and waits. Komodo does not look at you again.',
               },
               {
                 id: 'tally',
@@ -3446,7 +3446,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'boy',
                 label:
-                  'Repeat the Mole boy’s whisper: the one with the ledger, under his arm, always.',
+                  'Repeat the young prisoner’s whisper: the one with the ledger, under his arm, always.',
                 requires: { flags: ['prisoner-pardoned'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3456,7 +3456,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'escaped',
                 label:
-                  'Ask how the Mole boy got out of a locked cell the night you gave him to Komodo.',
+                  'Ask how the young prisoner got out of a locked cell the night you gave him to Komodo.',
                 requires: { flags: ['prisoner-to-komodo'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3476,7 +3476,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'chain',
                 label:
-                  'Say nothing. Tap two fingers on the step, twice, the way the Mole boy did.',
+                  'Say nothing. Tap two fingers on the step, twice, the way the young prisoner did.',
                 requires: { flags: ['d38-hall-cleared'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3622,7 +3622,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   'Have the Watch hold him in the cells until morning, friend or not.',
                 effects: { flags: ['d40-komodo-held'] },
                 response:
-                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the Mole boy had.',
+                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the young prisoner had.',
               },
             ],
           },

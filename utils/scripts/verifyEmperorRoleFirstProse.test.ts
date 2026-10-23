@@ -52,9 +52,16 @@ for (const file of STORY_FILES) {
 
 // Real animals, ordinary livestock, exact art species, and proper faction
 // names remain canonical. Test the negative matcher independently.
-assert.doesNotMatch('A farmer feeds a goat. Two horses wait at the gate.', SPECIES_AS_IDENTITY)
-assert.doesNotMatch('A Storm Crow courier signs the Conclave ledger.', SPECIES_AS_IDENTITY)
-assert.match('A koala enters the throne room.', SPECIES_AS_IDENTITY)
-assert.match('An elderly wolf brought the petition.', SPECIES_AS_IDENTITY)
+const singleMatch = new RegExp(SPECIES_AS_IDENTITY.source, 'i')
+assert.doesNotMatch(
+  'A farmer feeds a goat. Two horses wait at the gate.',
+  singleMatch,
+)
+assert.doesNotMatch(
+  'A Storm Crow courier signs the Conclave ledger.',
+  singleMatch,
+)
+assert.match('A koala enters the throne room.', singleMatch)
+assert.match('An elderly wolf brought the petition.', singleMatch)
 
 console.log(`Role-first Emperor prose contract: ${inspected} source files checked`)

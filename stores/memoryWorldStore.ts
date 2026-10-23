@@ -33,7 +33,11 @@ import {
   isCombatRoom,
   startCombatRoom,
 } from '~/utils/memoryDungeon/rooms'
-import { BRIAR_REVEAL_WAVES, BRIAR_CROSS_MAP_PUZZLES, createBriarWaveCards } from '~/utils/memoryDungeonWaves'
+import {
+  BRIAR_REVEAL_WAVES,
+  BRIAR_CROSS_MAP_PUZZLES,
+  createBriarWaveCards,
+} from '~/utils/memoryDungeonWaves'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
@@ -66,13 +70,20 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   let roomEpoch = 0
 
   const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
-  const mapMatching = computed(() =>
-    state.value.room === 'map' && state.value.wavePhase === 'matching',
+  const mapMatching = computed(
+    () => state.value.room === 'map' && state.value.wavePhase === 'matching',
   )
-  const waveSize = computed(() => BRIAR_REVEAL_WAVES[state.value.waveIndex]?.length ?? 0)
-  const mapPairsMatched = computed(() => state.value.mapCards.filter((card) => card.matched).length / 2)
-  const waveComplete = computed(() => state.value.mapCards.length > 0 &&
-    state.value.mapCards.every((card) => card.matched))
+  const waveSize = computed(
+    () => BRIAR_REVEAL_WAVES[state.value.waveIndex]?.length ?? 0,
+  )
+  const mapPairsMatched = computed(
+    () => state.value.mapCards.filter((card) => card.matched).length / 2,
+  )
+  const waveComplete = computed(
+    () =>
+      state.value.mapCards.length > 0 &&
+      state.value.mapCards.every((card) => card.matched),
+  )
   function mapCardAt(key: string): BriarMapCard | undefined {
     return state.value.mapCards.find((card) => card.tile === key)
   }
@@ -147,7 +158,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (allowed || !deck.value.includeMature) return
     selectDeck({ includeMature: false })
     if (state.value.room === 'memory') {
-      leaveRoom('Your mature-art preference changed. The gallery room closed without losing your map.')
+      leaveRoom(
+        'Your mature-art preference changed. The gallery room closed without losing your map.',
+      )
     }
     if (state.value.mapCards.length && state.value.wavePhase === 'matching') {
       state.value.mapCards = []
@@ -171,10 +184,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   async function prepareWave(): Promise<void> {
-    if (state.value.room !== 'map' || state.value.wavePhase !== 'matching' ||
-      state.value.mapCards.length || loading.value) return
-    const keys = (BRIAR_REVEAL_WAVES[state.value.waveIndex] ?? [])
-      .filter((key) => !state.value.revealed.includes(key))
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'matching' ||
+      state.value.mapCards.length ||
+      loading.value
+    )
+      return
+    const keys = (BRIAR_REVEAL_WAVES[state.value.waveIndex] ?? []).filter(
+      (key) => !state.value.revealed.includes(key),
+    )
     if (!keys.length) {
       state.value.wavePhase = 'exploring'
       persist()
@@ -183,12 +202,20 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading.value = true
     const ticket = ++roomEpoch
     try {
-      const usedPrior = BRIAR_REVEAL_WAVES.slice(0, state.value.waveIndex)
-        .reduce((total, wave) => total + wave.length / 2, 0)
-      const paths = await resolveMemoryDungeonDeck(deck.value, keys.length / 2, usedPrior)
+      const usedPrior = BRIAR_REVEAL_WAVES.slice(
+        0,
+        state.value.waveIndex,
+      ).reduce((total, wave) => total + wave.length / 2, 0)
+      const paths = await resolveMemoryDungeonDeck(
+        deck.value,
+        keys.length / 2,
+        usedPrior,
+      )
       if (ticket !== roomEpoch) return
       if (new Set(paths).size !== keys.length / 2) {
-        throw new Error('This deck does not have enough unique matching images for the current round.')
+        throw new Error(
+          'This deck does not have enough unique matching images for the current round.',
+        )
       }
       const cards = createBriarWaveCards(keys, paths)
       state.value.mapCards = cards
@@ -196,7 +223,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       persist()
     } catch (error) {
       if (ticket === roomEpoch) {
-        state.value.status = error instanceof Error ? error.message : 'Images could not load. Choose another deck and retry.'
+        state.value.status =
+          error instanceof Error
+            ? error.message
+            : 'Images could not load. Choose another deck and retry.'
       }
     } finally {
       if (ticket === roomEpoch) loading.value = false
@@ -231,14 +261,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       first.matched = true
       card.matched = true
       for (const tile of [first.tile, card.tile]) {
-        if (!state.value.revealed.includes(tile)) state.value.revealed.push(tile)
+        if (!state.value.revealed.includes(tile))
+          state.value.revealed.push(tile)
       }
       state.value.status = `A remembered pair! Two pieces of Briar Camp have emerged.`
       if (state.value.mapCards.every((tile) => tile.matched)) {
         state.value.wavePhase = 'exploring'
-        state.value.status = state.value.waveIndex === 3
-          ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
-          : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
+        state.value.status =
+          state.value.waveIndex === 3
+            ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
+            : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
       }
       persist()
       window.setTimeout(() => {
@@ -247,7 +279,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         persist()
       }, 260)
     } else {
-      state.value.status = 'Not a match. Remember both images before they turn over.'
+      state.value.status =
+        'Not a match. Remember both images before they turn over.'
       persist()
       window.setTimeout(() => {
         if (epoch !== roomEpoch) return
@@ -260,19 +293,25 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   async function nextWave(): Promise<void> {
-    if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring' ||
-      state.value.waveIndex >= BRIAR_REVEAL_WAVES.length - 1) return
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      state.value.waveIndex >= BRIAR_REVEAL_WAVES.length - 1
+    )
+      return
     state.value.waveIndex++
     state.value.wavePhase = 'matching'
     state.value.mapCards = []
     firstMapCard.value = null
-    state.value.status = 'A fresh group of fog-bound memory cards stirs across the forest.'
+    state.value.status =
+      'A fresh group of fog-bound memory cards stirs across the forest.'
     persist()
     await prepareWave()
   }
 
   function walk(key: string): void {
-    if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring') return
+    if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring')
+      return
     if (!briarConnected(state.value.player, key, state.value.revealed)) return
     state.value.player = key
     state.value.status =
@@ -341,7 +380,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function startEncounter(
     kind: 'dungeon' | 'sprite' | 'patrol',
   ): Promise<void> {
-    if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring' || loading.value) return
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      loading.value
+    )
+      return
     const position = state.value.player
     if (kind === 'dungeon' && position !== BRIAR_DUNGEON) return
     if (kind === 'sprite' && position !== '5,5') return
@@ -639,9 +683,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function examineCrossMapSigil(key: string): void {
-    if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring' ||
-      state.value.waveIndex !== 3) return
-    const sigil = BRIAR_CROSS_MAP_PUZZLES[key as keyof typeof BRIAR_CROSS_MAP_PUZZLES]
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      state.value.waveIndex !== 3
+    )
+      return
+    const sigil =
+      BRIAR_CROSS_MAP_PUZZLES[key as keyof typeof BRIAR_CROSS_MAP_PUZZLES]
     if (!sigil) return
     state.value.status = `${sigil.title}: ${sigil.hint} Its true match awaits in ${sigil.counterpart}.`
     persist()

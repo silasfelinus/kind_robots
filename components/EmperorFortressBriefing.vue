@@ -79,12 +79,14 @@
         </p>
         <p
           v-if="!challenge"
-          class="eod-reading mx-auto max-w-xl text-center text-sm italic opacity-85"
+          class="eod-reading mx-auto w-11/12 max-w-md text-center text-sm italic opacity-85"
         >
-          <strong class="not-italic text-warning">{{ advisorName }}:</strong>
+          <strong class="not-italic text-warning"
+            >{{ advisorName }} adds:</strong
+          >
           “{{ prompt }}”
         </p>
-        <ul class="mx-auto grid w-full max-w-xl gap-2 text-center">
+        <ul class="mx-auto grid w-11/12 max-w-md gap-2 text-center">
           <li v-for="report in reports" :key="report.id">
             <button
               type="button"

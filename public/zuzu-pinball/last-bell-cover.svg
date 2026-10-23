@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" role="img" aria-labelledby="title desc">
+  <title id="title">Zuzu Pinball: The Last Bell</title>
+  <desc id="desc">A glowing silver ball ricochets around a haunted abbey pinball table above a dark river as a great bronze bell looms overhead.</desc>
+  <defs>
+    <linearGradient id="night" x2="0" y2="1">
+      <stop stop-color="#101b31"/>
+      <stop offset=".52" stop-color="#20384a"/>
+      <stop offset="1" stop-color="#0b1c29"/>
+    </linearGradient>
+    <radialGradient id="moon-glow">
+      <stop stop-color="#fad99b" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#fad99b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cabinet" x2="1" y2="1">
+      <stop stop-color="#a87751"/>
+      <stop offset=".46" stop-color="#583628"/>
+      <stop offset="1" stop-color="#231e25"/>
+    </linearGradient>
+    <linearGradient id="felt" x2="0" y2="1">
+      <stop stop-color="#293b4a"/>
+      <stop offset=".52" stop-color="#143640"/>
+      <stop offset="1" stop-color="#12212e"/>
+    </linearGradient>
+    <linearGradient id="bronze" x2="1" y2=".7">
+      <stop stop-color="#f7d38b"/>
+      <stop offset=".36" stop-color="#9b6944"/>
+      <stop offset=".8" stop-color="#eabf75"/>
+      <stop offset="1" stop-color="#68432f"/>
+    </linearGradient>
+    <radialGradient id="ball" cx=".3" cy=".2" r=".8">
+      <stop stop-color="#fffcee"/>
+      <stop offset=".35" stop-color="#bcecf0"/>
+      <stop offset=".8" stop-color="#607e99"/>
+      <stop offset="1" stop-color="#223846"/>
+    </radialGradient>
+    <filter id="soft-glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <pattern id="stars" width="147" height="121" patternUnits="userSpaceOnUse">
+      <circle cx="26" cy="17" r="1.6" fill="#f8deb0" opacity=".65"/>
+      <circle cx="116" cy="68" r="1" fill="#b6dcde" opacity=".65"/>
+      <circle cx="67" cy="105" r="1.2" fill="#e4d9e2" opacity=".7"/>
+    </pattern>
+    <clipPath id="playfield">
+      <path d="M704 143 976 143 1088 635 594 635Z"/>
+    </clipPath>
+  </defs>
+  <rect width="1200" height="750" fill="url(#night)"/>
+  <rect width="1200" height="750" fill="url(#stars)"/>
+  <circle cx="886" cy="125" r="300" fill="url(#moon-glow)"/>
+  <circle cx="886" cy="125" r="62" fill="#e7d9ac" opacity=".8"/>
+  <g fill="#0e2433" opacity=".9">
+    <path d="M0 530 0 390 55 365 87 417 122 325 164 360 194 409 234 346 276 405 325 370 357 430 405 380 465 459 508 421 561 488 596 475 635 530Z"/>
+    <path d="M0 542 72 489 125 513 208 458 255 495 336 471 400 515 464 492 530 532 600 511 661 547Z" fill="#153140"/>
+  </g>
+  <path d="M0 640 Q164 575 348 635 T750 633 T1200 636 V750 H0Z" fill="#102634"/>
+  <g fill="none" stroke="#77adb2" opacity=".18" stroke-width="5">
+    <path d="M0 680 Q130 651 260 680 T520 680"/>
+    <path d="M120 714 Q250 684 380 714 T660 714"/>
+  </g>
+  <g opacity=".65" fill="#21343e">
+    <path d="M90 510 105 385 142 385 156 510Z"/>
+    <path d="M103 385 122 347 141 385Z"/>
+    <path d="M187 506 202 345 236 345 250 506Z"/>
+    <path d="M200 345 218 305 239 345Z"/>
+    <path d="M90 430 H270 V444 H90Z"/>
+    <path d="M170 510 V423 H193 V510Z"/>
+  </g>
+  <g font-family="Georgia, 'Times New Roman', serif">
+    <text x="76" y="146" font-size="26" letter-spacing="8" fill="#f4ca87">ZUZU PRESENTS</text>
+    <text x="73" y="255" font-size="99" font-weight="bold" fill="#f8e7b8" letter-spacing="2">THE</text>
+    <text x="67" y="357" font-size="110" font-weight="bold" fill="#f8e7b8" letter-spacing="-4">LAST</text>
+    <text x="69" y="457" font-size="110" font-weight="bold" fill="#f8e7b8" letter-spacing="-4">BELL</text>
+  </g>
+  <path d="M74 484 H469" stroke="#dda46b" stroke-width="4"/>
+  <text x="76" y="527" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="bold" letter-spacing="8" fill="#e2c09a">PINBALL</text>
+  <text x="76" y="585" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="1.5" fill="#c2d6d5">THE ABBEY • THE RIVER • THE BELL</text>
+  <g transform="translate(-12 -8)">
+    <path d="M691 127 991 127 1123 663 558 663Z" fill="#080e18" opacity=".6" transform="translate(12 15)"/>
+    <path d="M691 127 991 127 1123 663 558 663Z" fill="url(#cabinet)" stroke="#d1a67c" stroke-width="11" stroke-linejoin="round"/>
+    <path d="M710 150 972 150 1090 636 592 636Z" fill="url(#felt)" stroke="#be946c" stroke-width="5"/>
+    <g clip-path="url(#playfield)">
+      <path d="M810 147 V634 M867 147 V634" stroke="#a3c1a3" stroke-width="2" opacity=".17"/>
+      <path d="M711 257 Q842 226 1006 267" fill="none" stroke="#b8d8b7" stroke-width="10" opacity=".45"/>
+      <path d="M712 302 Q848 270 1016 312" fill="none" stroke="#4e8292" stroke-width="20" opacity=".27"/>
+      <path d="M731 440 Q853 372 1030 465" fill="none" stroke="#568a91" stroke-width="35" opacity=".35"/>
+      <g fill="none" stroke="#d7af6d" stroke-width="9" stroke-linecap="round">
+        <path d="M729 189 Q658 321 704 448 Q712 486 761 493"/>
+        <path d="M949 182 Q1049 311 1001 449 Q992 479 961 488"/>
+      </g>
+      <g fill="#b7d8b3" stroke="#d8bb86" stroke-width="5">
+        <circle cx="762" cy="334" r="21"/>
+        <circle cx="854" cy="371" r="21"/>
+        <circle cx="949" cy="334" r="21"/>
+      </g>
+      <g opacity=".8" fill="#cfdebc">
+        <circle cx="762" cy="334" r="9"/>
+        <circle cx="854" cy="371" r="9"/>
+        <circle cx="949" cy="334" r="9"/>
+      </g>
+      <g transform="translate(840 224)">
+        <ellipse cx="0" cy="7" rx="65" ry="24" fill="#0a1521" opacity=".65"/>
+        <path d="M-42 -54 Q-55 -10 -31 14 H31 Q55 -10 42 -54Z" fill="url(#bronze)" stroke="#f1d69b" stroke-width="4"/>
+        <ellipse cx="0" cy="-54" rx="42" ry="7" fill="#f5cd8b"/>
+        <path d="M-46 13 H46" stroke="#f7d18e" stroke-width="11" stroke-linecap="round"/>
+        <path d="M-15 -59 V-72 H15 V-59" fill="none" stroke="#f7d18e" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="0" cy="23" r="11" fill="#d4a35f"/>
+      </g>
+      <g stroke="#ffd59b" stroke-width="5" fill="none" stroke-linecap="round">
+        <path d="M712 484 787 545 822 502"/>
+        <path d="M996 484 921 545 886 502"/>
+      </g>
+      <g fill="#f4b96e" stroke="#f6dca6" stroke-width="4">
+        <path d="M727 571 Q775 529 843 577 L824 598Z"/>
+        <path d="M981 571 Q933 529 865 577 L884 598Z"/>
+      </g>
+      <path d="M772 507 Q842 459 915 505" stroke="#a6f4ee" stroke-width="16" fill="none" opacity=".4" filter="url(#soft-glow)"/>
+      <path d="M772 507 Q842 459 915 505" stroke="#d1f8eb" stroke-width="4" stroke-dasharray="5 13" fill="none"/>
+      <g transform="translate(890 450)">
+        <circle r="42" fill="#c0f8f3" opacity=".44" filter="url(#soft-glow)"/>
+        <circle r="22" fill="url(#ball)" stroke="#e3fff5" stroke-width="2"/>
+        <circle cx="-7" cy="-8" r="7" fill="#fff"/>
+      </g>
+    </g>
+    <path d="M705 143 977 143 1093 643 584 643Z" fill="none" stroke="#f5ca8c" stroke-width="5" opacity=".65"/>
+    <g fill="#f8d38a">
+      <circle cx="700" cy="158" r="7"/>
+      <circle cx="981" cy="158" r="7"/>
+      <circle cx="591" cy="637" r="7"/>
+      <circle cx="1083" cy="637" r="7"/>
+    </g>
+  </g>
+  <rect x="9" y="9" width="1182" height="732" rx="18" fill="none" stroke="#dcad77" stroke-opacity=".55" stroke-width="3"/>
+</svg>

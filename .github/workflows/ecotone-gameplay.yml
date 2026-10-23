@@ -14,6 +14,7 @@ on:
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
       - 'utils/scripts/verifyEcotone.test.ts'
+      - 'utils/scripts/verifyEcotonePlaystyles.test.ts'
       - 'utils/playbook/**'
       - 'stores/playbookStore.ts'
       - 'server/utils/playbook.ts'

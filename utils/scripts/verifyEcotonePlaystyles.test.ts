@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import {
   ARCHETYPES,
+  ENCOUNTERS,
   LENSES,
   type Choice,
   type EventId,
@@ -12,6 +13,7 @@ import {
   chooseEvent,
   chooseFork,
   createRun,
+  encounterEligible,
   findCard,
   restoreRun,
   type RunState,
@@ -160,6 +162,21 @@ let campaigns = 0
 let divergentDecisions = 0
 let divergentConsequences = 0
 let divergentEndings = 0
+const uniqueCardPaths = new Set<string>()
+const uniqueForkPaths = new Set<string>()
+const encountered = new Map<string, number>()
+const chapterCoverage = new Map<number, Set<string>>()
+let comparedPairs = 0
+let totalRouteOverlap = 0
+let totalForkOverlap = 0
+let identicalForkPairs = 0
+let flagOnlyEligibilityDifferences = 0
+const encounterIds = new Set(ENCOUNTERS.map((card) => card.id))
+const jaccard = (a: Set<string>, b: Set<string>): number => {
+  const union = new Set([...a, ...b])
+  if (union.size === 0) return 1
+  return [...a].filter((id) => b.has(id)).length / union.size
+}
 const uniqueStories = new Set<string>()
 const styleEndings = new Map<Style, Set<string>>(
   styles.map((style) => [style, new Set<string>()]),
@@ -172,6 +189,28 @@ for (const event of EVENTS) {
         const run = journey(event.id, lens.id, seed, style)
         styleEndings.get(style)!.add(run.ending!)
         uniqueStories.add(storySignature(run))
+        uniqueCardPaths.add(run.played.join('>'))
+        uniqueForkPaths.add(
+          run.played.filter((id) => encounterIds.has(id)).join('>'),
+        )
+        for (const id of run.played) {
+          const card = findCard(id)
+          if (!card) continue
+          if (!chapterCoverage.has(card.chapter))
+            chapterCoverage.set(card.chapter, new Set())
+          chapterCoverage.get(card.chapter)!.add(id)
+          if (encounterIds.has(id))
+            encountered.set(id, (encountered.get(id) ?? 0) + 1)
+        }
+        const flagless = { ...run, flags: [] }
+        const actualEligible = ENCOUNTERS.filter((card) =>
+          encounterEligible(card, run),
+        ).map((card) => card.id)
+        const withoutFlags = ENCOUNTERS.filter((card) =>
+          encounterEligible(card, flagless),
+        ).map((card) => card.id)
+        if (actualEligible.join('|') !== withoutFlags.join('|'))
+          flagOnlyEligibilityDifferences++
         campaigns++
         if (seed === 21) {
           assert.deepEqual(
@@ -188,6 +227,23 @@ for (const event of EVENTS) {
         event.id + '/' + lens.id + ' needs distinct player decisions',
       )
       divergentDecisions++
+      for (let left = 0; left < histories.length; left++) {
+        for (let right = left + 1; right < histories.length; right++) {
+          const leftCards = new Set(histories[left]!.played)
+          const rightCards = new Set(histories[right]!.played)
+          const leftForks = new Set(
+            histories[left]!.played.filter((id) => encounterIds.has(id)),
+          )
+          const rightForks = new Set(
+            histories[right]!.played.filter((id) => encounterIds.has(id)),
+          )
+          totalRouteOverlap += jaccard(leftCards, rightCards)
+          const forkOverlap = jaccard(leftForks, rightForks)
+          totalForkOverlap += forkOverlap
+          if (forkOverlap === 1) identicalForkPairs++
+          comparedPairs++
+        }
+      }
       const consequences = histories.map((run) =>
         JSON.stringify({
           flags: [...run.flags].sort(),
@@ -208,6 +264,49 @@ assert.ok(divergentConsequences > 0, 'playstyles must alter saved consequences')
 assert.ok(
   [...styleEndings.values()].every((endings) => endings.size > 0),
   'every playstyle must complete collectible endings',
+)
+const unvisited = ENCOUNTERS.filter((card) => !encountered.has(card.id))
+const leastSeen = [...encountered.entries()]
+  .sort((a, b) => a[1] - b[1] || a[0].localeCompare(b[0]))
+  .slice(0, 8)
+assert.ok(comparedPairs > 0)
+assert.ok(chapterCoverage.size >= 4)
+console.log(
+  'Ecotone route-path audit: ' +
+    uniqueCardPaths.size +
+    '/' +
+    campaigns +
+    ' distinct ordered card paths; ' +
+    uniqueForkPaths.size +
+    ' distinct side-encounter paths; matched-pair mean overlap ' +
+    (totalRouteOverlap / comparedPairs).toFixed(3) +
+    ' all cards, ' +
+    (totalForkOverlap / comparedPairs).toFixed(3) +
+    ' side cards; ' +
+    identicalForkPairs +
+    '/' +
+    comparedPairs +
+    ' identical side-card sets. Chapter coverage: ' +
+    [...chapterCoverage.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([chapter, cards]) => chapter + '=' + cards.size)
+      .join(', ') +
+    '. Unvisited eligible-or-gated side cards: ' +
+    unvisited.length +
+    '/' +
+    ENCOUNTERS.length +
+    ' (' +
+    unvisited
+      .slice(0, 12)
+      .map((card) => card.id)
+      .join(', ') +
+    '). Least seen: ' +
+    leastSeen.map(([id, count]) => id + '=' + count).join(', ') +
+    '. Flag-only differences in remaining encounter eligibility: ' +
+    flagOnlyEligibilityDifferences +
+    '/' +
+    campaigns +
+    '.',
 )
 console.log(
   'Ecotone playstyle audit: ' +

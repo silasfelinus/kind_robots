@@ -21,22 +21,18 @@ assert.match(chronicle, /defineEmits<\{ 'new-run': \[\] \}>/)
 assert.match(chronicle, /function startOver\(\) \{[\s\S]*?emit\('new-run'\)/)
 assert.match(page, /@new-run="enter\('throne'\)"/)
 
-// The split panel must fit inside the console on tablet and phone. Neither
-// pane can grow over the other when the quest's narrative is long.
-assert.match(quests, /grid-rows-\[minmax\(11rem,0\.36fr\)_minmax\(0,1fr\)\]/)
-assert.match(quests, /@6xl:grid-rows-1/)
-assert.match(quests, /overflow-hidden/)
-assert.match(
-  quests,
-  /class="kr-scroll flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto/,
-)
-assert.match(
-  quests,
-  /class="@container kr-panel kr-scroll min-h-0 min-w-0 space-y-3 overflow-y-auto/,
-)
-assert.match(quests, /detail\.value\?\.scrollTo\(\{ top: 0 \}\)/)
+// Tablet and phone stack the board before details. The quest room is one
+// bounded scroll owner so nothing overlaps, and the shell itself stays still.
+assert.match(quests, /ref="scrollArea"/)
+assert.match(quests, /class="kr-scroll relative grid h-full min-h-0 min-w-0/)
+assert.match(quests, /auto-rows-max content-start gap-3 overflow-y-auto/)
+assert.match(quests, /@6xl:grid-cols-/)
+assert.equal(quests.split('kr-scroll').length - 1, 1)
+assert.equal(quests.split('overflow-y-auto').length - 1, 1)
+assert.match(quests, /class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"/)
+assert.match(quests, /scrollArea\.value\.scrollTo/)
 assert.doesNotMatch(quests, /scrollIntoView/)
 
 console.log(
-  'Emperor new-reign introduction and bounded tablet quest panes verified',
+  'Emperor new-reign introduction and bounded tablet quest room verified',
 )

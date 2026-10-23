@@ -313,7 +313,10 @@
               {{ panel.title }}
             </button>
           </nav>
-          <div v-show="activePanel === 'shop'" class="cq-side flex flex-col gap-3">
+          <div
+            v-show="activePanel === 'shop'"
+            class="cq-side flex flex-col gap-3"
+          >
             <div
               ref="shopRef"
               class="flex scroll-mt-4 flex-col gap-2 rounded-2xl"
@@ -415,7 +418,10 @@
             <cthulhuquarium-upgrades />
           </div>
 
-          <div v-show="activePanel === 'roster'" class="cq-roster flex flex-col gap-2">
+          <div
+            v-show="activePanel === 'roster'"
+            class="cq-roster flex flex-col gap-2"
+          >
             <div class="flex items-center justify-between">
               <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
                 The tank
@@ -516,7 +522,10 @@
            completionist book, not part of the tank's own poll loop. Formal
            name on the cover; Charlotte and Wilbur would just call it "the
            book" (SYSTEMS.md). -->
-        <div v-show="activePanel === 'bestiary'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
+        <div
+          v-show="activePanel === 'bestiary'"
+          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
+        >
           <button
             type="button"
             class="flex items-center justify-between gap-2 rounded-2xl text-left"
@@ -574,7 +583,10 @@
            combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
            panel is about a small, legible, COUNTED choice (setSlotsCap),
            not a big collected list. -->
-        <div v-show="activePanel === 'sets'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
+        <div
+          v-show="activePanel === 'sets'"
+          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
+        >
           <button
             type="button"
             class="flex items-center justify-between gap-2 text-left"
@@ -664,7 +676,10 @@
            buying the same item twice is fine). Choosing an item here sets
            pendingDecorKind; the next tap on the tank places and pays for it.
            An already-placed item can be dragged directly on the canvas. -->
-        <div v-show="activePanel === 'decor'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
+        <div
+          v-show="activePanel === 'decor'"
+          class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
+        >
           <button
             type="button"
             class="flex items-center justify-between gap-2 text-left"
@@ -731,7 +746,10 @@
           </template>
         </div>
 
-        <details v-show="activePanel === 'scenery'" class="cq-support-panel group flex flex-col gap-2 kr-panel-divider">
+        <details
+          v-show="activePanel === 'scenery'"
+          class="cq-support-panel group flex flex-col gap-2 kr-panel-divider"
+        >
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-2"
           >
@@ -1443,14 +1461,15 @@ let coinPops: CoinPop[] = []
 const coinTimers = new Map<number, number>()
 const feed = ref<FeedCreature[]>([])
 const collector = ref<Collector | null>(null)
-type AquariumPanel = 'shop' | 'roster' | 'bestiary' | 'sets' | 'decor' | 'scenery'
+type AquariumPanel =
+  'shop' | 'roster' | 'bestiary' | 'sets' | 'decor' | 'scenery'
 const aquariumPanels: { id: AquariumPanel; title: string; icon: string }[] = [
   { id: 'shop', title: 'Fish market', icon: 'kind-icon:coin' },
   { id: 'roster', title: 'My creatures', icon: 'kind-icon:fish' },
   { id: 'bestiary', title: 'The bestiary', icon: 'kind-icon:book' },
   { id: 'sets', title: 'Relics', icon: 'kind-icon:sparkles' },
   { id: 'decor', title: 'Decorate', icon: 'kind-icon:box' },
-  { id: 'scenery', title: 'Backdrops & more', icon: 'kind-icon:landscape' },
+  { id: 'scenery', title: 'Backdrops & more', icon: 'kind-icon:image' },
 ]
 const activePanel = ref<AquariumPanel>('shop')
 function selectPanel(panel: AquariumPanel) {
@@ -2558,7 +2577,9 @@ onBeforeUnmount(() => {
   gap: 0.75rem;
   align-items: start;
 }
-.cq-tank { grid-area: tank; }
+.cq-tank {
+  grid-area: tank;
+}
 .cq-command-deck {
   grid-area: deck;
   display: flex;
@@ -2567,9 +2588,20 @@ onBeforeUnmount(() => {
   padding: 0.35rem 0.15rem 0.6rem;
   scrollbar-width: thin;
 }
-.cq-deck-button { flex: 0 0 auto; gap: 0.4rem; }
-.cq-side { grid-area: side; max-height: min(34vh, 22rem); overflow-y: auto; }
-.cq-roster { grid-area: roster; max-height: min(34vh, 22rem); overflow-y: auto; }
+.cq-deck-button {
+  flex: 0 0 auto;
+  gap: 0.4rem;
+}
+.cq-side {
+  grid-area: side;
+  max-height: min(34vh, 22rem);
+  overflow-y: auto;
+}
+.cq-roster {
+  grid-area: roster;
+  max-height: min(34vh, 22rem);
+  overflow-y: auto;
+}
 .cq-support-panel {
   max-height: min(45vh, 28rem);
   overflow-y: auto;

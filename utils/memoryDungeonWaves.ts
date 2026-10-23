@@ -1,4 +1,8 @@
-import { BRIAR_TILES, BRIAR_SITES, type BriarMapCard } from './memoryDungeonWorld'
+import {
+  BRIAR_TILES,
+  BRIAR_SITES,
+  type BriarMapCard,
+} from './memoryDungeonWorld'
 
 /**
  * Four increasingly large, hand-arranged memory reveal waves.
@@ -9,16 +13,52 @@ export const BRIAR_CROSS_MAP_KEYS = ['5,2', '1,1', '8,1', '8,8'] as const
 export const BRIAR_WAVE_SIZES = [12, 14, 16, 18] as const
 
 const first: string[] = [
-  '2,4', '1,4', '3,4', '4,4', '4,3', '4,2',
-  '2,5', '3,5', '3,6', '2,6', '2,7', '3,2',
+  '2,4',
+  '1,4',
+  '3,4',
+  '4,4',
+  '4,3',
+  '4,2',
+  '2,5',
+  '3,5',
+  '3,6',
+  '2,6',
+  '2,7',
+  '3,2',
 ]
 const second: string[] = [
-  '5,3', '5,4', '6,4', '6,3', '6,2', '5,5', '5,6',
-  '6,5', '6,6', '3,3', '2,3', '1,3', '4,5', '4,6',
+  '5,3',
+  '5,4',
+  '6,4',
+  '6,3',
+  '6,2',
+  '5,5',
+  '5,6',
+  '6,5',
+  '6,6',
+  '3,3',
+  '2,3',
+  '1,3',
+  '4,5',
+  '4,6',
 ]
 const third: string[] = [
-  '7,4', '8,4', '7,3', '7,2', '7,1', '8,3', '8,2', '7,5',
-  '7,6', '8,5', '8,6', '6,7', '5,7', '4,7', '3,7', '1,5',
+  '7,4',
+  '8,4',
+  '7,3',
+  '7,2',
+  '7,1',
+  '8,3',
+  '8,2',
+  '7,5',
+  '7,6',
+  '8,5',
+  '8,6',
+  '6,7',
+  '5,7',
+  '4,7',
+  '3,7',
+  '1,5',
 ]
 const used = new Set([...first, ...second, ...third, ...BRIAR_CROSS_MAP_KEYS])
 const last = BRIAR_TILES.map((tile) => tile.key).filter((key) => !used.has(key))
@@ -60,17 +100,25 @@ export function validateBriarWaves(): string[] {
   const errors: string[] = []
   const all = BRIAR_REVEAL_WAVES.flatMap((wave) => wave)
   const reserves = [...BRIAR_CROSS_MAP_KEYS]
-  if (BRIAR_REVEAL_WAVES.length !== 4) errors.push('Must contain four reveal waves')
+  if (BRIAR_REVEAL_WAVES.length !== 4)
+    errors.push('Must contain four reveal waves')
   BRIAR_REVEAL_WAVES.forEach((wave, i) => {
-    if (wave.length !== BRIAR_WAVE_SIZES[i]) errors.push(`Wave ${i + 1}: incorrect size`)
+    if (wave.length !== BRIAR_WAVE_SIZES[i])
+      errors.push(`Wave ${i + 1}: incorrect size`)
     if (wave.length % 2) errors.push(`Wave ${i + 1}: unpaired card count`)
   })
-  if (new Set([...all, ...reserves]).size !== 64) errors.push('Overlapping or missing terrain squares')
-  if ([...all, ...reserves].some((key) => !BRIAR_TILES.some((t) => t.key === key)))
+  if (new Set([...all, ...reserves]).size !== 64)
+    errors.push('Overlapping or missing terrain squares')
+  if (
+    [...all, ...reserves].some((key) => !BRIAR_TILES.some((t) => t.key === key))
+  )
     errors.push('Out-of-bounds terrain square')
-  if (!first.includes('4,2')) errors.push('Merchant must be discoverable in wave one')
-  if (!second.includes('6,2')) errors.push('Dungeon must be discoverable in wave two')
-  if (!third.includes('8,4')) errors.push('Gate must be discoverable by wave three')
+  if (!first.includes('4,2'))
+    errors.push('Merchant must be discoverable in wave one')
+  if (!second.includes('6,2'))
+    errors.push('Dungeon must be discoverable in wave two')
+  if (!third.includes('8,4'))
+    errors.push('Gate must be discoverable by wave three')
   if (!BRIAR_CROSS_MAP_KEYS.every((key) => key === '5,2' || !BRIAR_SITES[key]))
     errors.push('Reserved cross-map landmarks must have authored coordinates')
   return errors
@@ -86,9 +134,15 @@ export function createBriarWaveCards(
   images: readonly string[],
   random: () => number = Math.random,
 ): BriarMapCard[] {
-  if (tiles.length % 2 || images.length !== tiles.length / 2 ||
-    new Set(tiles).size !== tiles.length || new Set(images).size !== images.length) {
-    throw new Error('A reveal round needs two unique terrain squares for every unique image.')
+  if (
+    tiles.length % 2 ||
+    images.length !== tiles.length / 2 ||
+    new Set(tiles).size !== tiles.length ||
+    new Set(images).size !== images.length
+  ) {
+    throw new Error(
+      'A reveal round needs two unique terrain squares for every unique image.',
+    )
   }
   const positions = [...tiles]
   for (let i = positions.length - 1; i > 0; i--) {

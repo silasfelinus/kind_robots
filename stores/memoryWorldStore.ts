@@ -104,7 +104,6 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     return card && card.flipped && !card.matched ? card : null
   })
 
-
   const matureAvailable = computed(
     () =>
       userStore.isLoggedIn &&

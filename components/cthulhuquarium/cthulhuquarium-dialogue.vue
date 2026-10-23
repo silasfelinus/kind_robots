@@ -13,12 +13,22 @@
       aria-live="polite"
       :aria-label="`${speakerName} speaks`"
     >
-      <div class="pointer-events-auto relative w-full"
-        :class="cinematic ? 'max-w-4xl' : 'max-w-3xl'">
+      <div
+        class="pointer-events-auto relative w-full"
+        :class="cinematic ? 'max-w-4xl' : 'max-w-3xl'"
+      >
         <div v-if="cinematic" class="mb-3 text-center text-white">
-          <p class="text-xs font-bold uppercase tracking-[0.35em] text-teal-200">Portsmouth · After closing</p>
-          <h2 class="mt-2 font-serif text-3xl font-bold sm:text-5xl">Cthulhuquarium</h2>
-          <p class="mt-1 text-sm text-white/75">A small shop. A very deep tank.</p>
+          <p
+            class="text-xs font-bold uppercase tracking-[0.35em] text-teal-200"
+          >
+            Portsmouth · After closing
+          </p>
+          <h2 class="mt-2 font-serif text-3xl font-bold sm:text-5xl">
+            Cthulhuquarium
+          </h2>
+          <p class="mt-1 text-sm text-white/75">
+            A small shop. A very deep tank.
+          </p>
         </div>
         <img
           v-if="plateUrl && heroPlate"
@@ -108,7 +118,13 @@
                 class="btn btn-primary btn-sm min-h-11 min-w-24"
                 @click="tankStore.advanceBeat()"
               >
-                {{ isLastBeat ? 'Return to the tank' : cinematic ? 'Continue the introduction' : 'Continue' }}
+                {{
+                  isLastBeat
+                    ? 'Return to the tank'
+                    : cinematic
+                      ? 'Continue the introduction'
+                      : 'Continue'
+                }}
               </button>
             </div>
           </div>
@@ -159,7 +175,8 @@ const firstFocusIndex = computed(() => {
 // moving portrait as they are introduced); otherwise the scene's plate holds.
 // Plates stop once a beat points at the game itself, so they never cover it.
 const cinematic = computed(
-  () => scene.value?.id === 'intro' && tankStore.beatIndex < firstFocusIndex.value,
+  () =>
+    scene.value?.id === 'intro' && tankStore.beatIndex < firstFocusIndex.value,
 )
 const plateKey = computed(() =>
   scene.value && tankStore.beatIndex < firstFocusIndex.value

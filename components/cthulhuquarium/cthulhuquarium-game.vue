@@ -2570,10 +2570,12 @@ onBeforeUnmount(() => {
 .cq-game {
   container-type: inline-size;
 }
-/* The tank and its selected room share one viewport; never stack rooms below it. */
+/* The route's kr-stage already owns viewport height. Do not establish a
+   second viewport-height calculation inside the game's nested surface. */
 .cq-game:not(.cq-fullscreen) {
-  height: calc(100dvh - 5.75rem);
-  min-height: 22rem;
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
   overflow: hidden;
   position: relative;
 }
@@ -2595,9 +2597,11 @@ onBeforeUnmount(() => {
   background: var(--color-base-300);
 }
 .cq-tank canvas {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
   max-height: 100%;
+  aspect-ratio: 16 / 9;
   object-fit: contain;
 }
 .cq-command-deck {
@@ -2609,8 +2613,13 @@ onBeforeUnmount(() => {
   padding: 0.25rem;
   scrollbar-width: thin;
 }
-.cq-deck-button { flex: 0 0 auto; gap: 0.4rem; }
-.cq-side, .cq-roster, .cq-support-panel {
+.cq-deck-button {
+  flex: 0 0 auto;
+  gap: 0.4rem;
+}
+.cq-side,
+.cq-roster,
+.cq-support-panel {
   position: absolute;
   z-index: 15;
   right: 0.5rem;
@@ -2632,13 +2641,13 @@ onBeforeUnmount(() => {
   max-width: none;
   margin: 0;
   padding: 0.5rem;
-  height: 100dvh;
   overflow: hidden;
   background: var(--color-base-100);
 }
 @media (max-width: 640px) {
-  .cq-game:not(.cq-fullscreen) { height: calc(100dvh - 4.75rem); }
-  .cq-side, .cq-roster, .cq-support-panel {
+  .cq-side,
+  .cq-roster,
+  .cq-support-panel {
     right: 0;
     bottom: 3.5rem;
     width: 100%;

@@ -2723,23 +2723,23 @@ onBeforeUnmount(() => {
   position: absolute;
   z-index: 12;
   inset: 0 0 3.9rem;
-  border-radius: 1rem;
-  background: rgb(0 0 0 / 0.38);
+  background: rgb(0 0 0 / 0.4);
   cursor: pointer;
 }
 .cq-room-heading {
   position: absolute;
   z-index: 25;
-  top: 0.7rem;
-  right: 0.7rem;
+  top: 0.45rem;
+  right: clamp(0.5rem, 2vw, 1.5rem);
+  left: clamp(0.5rem, 2vw, 1.5rem);
   display: flex;
-  width: min(27rem, calc(100% - 1.4rem));
+  height: 3.15rem;
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.25rem 0.4rem 0.25rem 0.8rem;
-  border-bottom: 1px solid var(--color-base-300);
-  border-radius: 1rem 1rem 0 0;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 1rem;
   background: var(--color-base-200);
 }
 .cq-side,
@@ -2747,22 +2747,24 @@ onBeforeUnmount(() => {
 .cq-support-panel {
   position: absolute;
   z-index: 20;
-  top: 0.65rem;
-  right: 0.65rem;
-  bottom: 4.25rem;
+  inset: 0 0 3.75rem;
   display: flex;
-  width: min(27rem, calc(100% - 1.3rem));
+  width: 100%;
   min-height: 0;
   max-height: none;
   flex-direction: column;
   gap: 0.65rem;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border: 1px solid var(--color-base-300);
-  border-radius: 1rem;
-  background: var(--color-base-100);
-  padding: 3.8rem 0.75rem 0.75rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-base-100) 94%, #13323b);
+  padding: 4.15rem clamp(0.75rem, 3vw, 2rem) 1.2rem;
   box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.4);
+}
+.cq-featured-frame {
+  height: clamp(9rem, 27dvh, 22rem);
+  width: clamp(9rem, 27dvh, 22rem);
 }
 @container (max-width: 800px) {
   .cq-command-deck {
@@ -2776,19 +2778,9 @@ onBeforeUnmount(() => {
   }
 }
 @container (max-width: 520px) {
-  .cq-side,
-  .cq-roster,
-  .cq-support-panel {
-    right: 0.25rem;
-    bottom: 3.65rem;
-    width: calc(100% - 0.5rem);
-  }
-  .cq-room-heading {
-    right: 0.3rem;
-    width: calc(100% - 0.6rem);
-  }
-  .cq-room-shade {
-    bottom: 3.55rem;
+  .cq-featured-frame {
+    height: clamp(7rem, 23dvh, 12rem);
+    width: clamp(7rem, 23dvh, 12rem);
   }
 }
 .cq-fullscreen {
@@ -2800,16 +2792,6 @@ onBeforeUnmount(() => {
   padding: 0.5rem;
   overflow: hidden;
   background: var(--color-base-100);
-}
-@media (max-width: 640px) {
-  .cq-side,
-  .cq-roster,
-  .cq-support-panel {
-    right: 0;
-    bottom: 3.5rem;
-    width: 100%;
-    max-height: 55%;
-  }
 }
 .cq-price:disabled {
   opacity: 1;

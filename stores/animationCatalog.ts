@@ -901,6 +901,18 @@ export const ANIMATION_EFFECTS = [
     preferredSurface: 'fullscreen',
   },
   {
+    id: 'chladni-sand-plate',
+    label: 'Chladni Sand Plate',
+    reveal: 'Sand on a ringing brass plate draws its hidden standing waves',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Sand settles into the nodal lines of a vibrating plate, then slides into a new pattern as the note changes 🎻 hover to light the grains near you, click to make the plate ring harder',
+    color: '#b08d57',
+    releasedAt: '2026-10-22T16:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
     id: 'metronome-sync-shelf',
     label: 'Metronome Sync Shelf',
     reveal: 'Eleven metronomes find the same beat on a shared shelf',

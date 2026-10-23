@@ -2,7 +2,9 @@
   <div
     class="grid h-full min-h-0 min-w-0 grid-cols-1 grid-rows-[minmax(11rem,0.36fr)_minmax(0,1fr)] gap-3 overflow-hidden @6xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] @6xl:grid-rows-1"
   >
-    <section class="kr-scroll flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto overscroll-contain">
+    <section
+      class="kr-scroll flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto overscroll-contain"
+    >
       <div class="eod-board shrink-0 p-3">
         <h2 class="sr-only">The quest board</h2>
         <p

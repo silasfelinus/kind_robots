@@ -102,36 +102,27 @@
       </template>
 
       <label
-        v-if="selected.family !== 'designed'"
+        v-if="selected.family !== 'designed' && matureAvailable"
         class="ml-auto flex items-center gap-2 rounded-lg bg-[#29352d] px-2 py-1.5"
       >
-        <input
-          type="checkbox"
-          class="accent-amber-300"
-          :checked="selected.includeMature && matureAvailable"
-          :disabled="!matureAvailable"
-          @change="
-            choose({
-              includeMature: ($event.target as HTMLInputElement).checked,
-            })
-          "
-        />
-        <span>Include mature, public art</span>
+        <span class="font-semibold">Artwork rating:</span>
+        <select
+          class="rounded-md border border-[#bdac7c] bg-[#2c3b35] p-1.5 text-[#f8edce]"
+          :value="selected.includeMature ? 'mature' : 'safe'"
+          @change="choose({ includeMature: ($event.target as HTMLSelectElement).value === 'mature' })"
+        >
+          <option value="safe">Non-mature only</option>
+          <option value="mature">Mature only</option>
+        </select>
       </label>
-      <span
-        v-if="selected.family !== 'designed' && !matureAvailable"
-        class="text-[11px] text-[#e1c4a6]"
-      >
-        Mature art follows your account visibility setting.
-      </span>
       <span
         v-if="selected.family !== 'designed'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
-        All-art excludes private images; your explicitly chosen owned
-        collections or recently generated works may contain private images. A
-        room requires at least 3 distinct loadable images, 4 for the Vault's
-        last chamber.
+        All-art uses public images only. Your explicitly chosen owned collections
+        or recently generated works may also use your private art. The rating
+        selection never mixes mature and non-mature images. A room requires
+        at least 3 distinct loadable images, 4 for the Vault's last chamber.
       </span>
     </div>
     <div

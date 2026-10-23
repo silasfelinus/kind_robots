@@ -610,7 +610,6 @@ check('every stage still fills the screen at every zoom and camera', () => {
   }
 })
 
-
 check('all Arcade viewport shapes fit available width and height', () => {
   const viewports = [
     [360, 640],

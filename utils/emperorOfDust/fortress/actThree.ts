@@ -464,7 +464,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         variants: [
           {
             flags: ['d03-tincture-fee-lapsed'],
-            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the hyena price. Triple, since the crown stopped paying.',
+            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the Pack’s price. Triple, since the crown stopped paying.',
           },
         ],
       },
@@ -551,7 +551,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'price',
             lines: [
-              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every hyena who doesn’t come home.”',
+              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every rider who doesn’t come home.”',
               '“Or.” He leans in. His ear-chain jangles. “Keep a few of my pups in your tower this winter. Guests. Fed, warm, safe. Every captain in the canyon would know the Pack can’t turn on you while its children eat your bread.”',
               {
                 who: 'Young Komodo',
@@ -614,7 +614,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-threatened', 'pack-alliance'],
                 },
                 response:
-                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young hyena with the bandaged paw stops coming to the postern gate.',
+                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young informant with the bandaged paw stops coming to the postern gate.',
               },
               {
                 id: 'refuse',

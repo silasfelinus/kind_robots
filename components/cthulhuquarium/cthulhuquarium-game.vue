@@ -862,7 +862,12 @@
               <button
                 type="button"
                 class="btn btn-outline min-h-12 w-full justify-start gap-2"
-                @click="() => { closePanel(); tankStore.replayIntro() }"
+                @click="
+                  () => {
+                    closePanel()
+                    tankStore.replayIntro()
+                  }
+                "
               >
                 <Icon name="kind-icon:play" class="kr-icon-4" />
                 Meet Charlotte and Wilbur · Replay the opening

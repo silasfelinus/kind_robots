@@ -2582,7 +2582,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             requires: { flags: ['moles-blamed'] },
             effects: {},
             response:
-              'Keel goes still. An armadillo deciding whether to curl up.',
+              'Keel goes still. They weigh whether it is worth speaking.',
             next: 'apology',
           },
         ],
@@ -2713,7 +2713,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Grain at three times the price is not charity. Somebody profited. Not a tortoise.',
+      'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Grain at three times the price is not charity. Somebody profited. Not Flint.',
     quests: [],
     audiences: [
       {
@@ -2796,7 +2796,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 npc: 'F004',
                 text: 'If I explain what I did, Majesty, I must say who I did it for. Then the Houses will know where to look.',
               },
-              'She lets out a long breath. For a tortoise, that takes time.',
+              'She lets out a long breath. She weighs each word before it leaves her mouth.',
               {
                 who: 'Duchess Flint',
                 npc: 'F004',

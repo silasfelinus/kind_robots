@@ -8,6 +8,7 @@ Scope: Conductor `zuzu-shifting-lands/t-041`; Kind Robots V7 game rules, authore
 These are **scripted adversarial play styles and synthetic reviewer personas**, not conversations with real players or visual acceptance. The game currently has five lands, 15 locations (three each), 120 seeded encounter cards (eight per location), and five boss trials. A completed run sees at most 15 of the 120 encounter cards. Test evidence comes from `utils/scripts/verifyShiftingV7.test.ts`: deterministic policy playthroughs, state transitions, save replays and tamper rejection. The workflow emits the actual counts; this report deliberately does not invent completion percentages.
 
 Five existing real-reducer adversaries each exercise the same 300 default seeds:
+
 - **Kind:** values mercy and honesty over profit; looks for solidarity, witness, then scouting.
 - **Safe:** protects health and provisions; scouts when possible.
 - **Greedy:** favors provisions and buys trial passage.
@@ -22,7 +23,7 @@ The enhanced verifier also prints per-land distinct card draws out of 24 and fai
 
 > “I told the truth at one cost and showed mercy at another. The court still says I haven't earned two good deeds.”
 
-**Cause:** `canChooseTrialV7` used `max(mercy, honesty) >= 2`, though the Witness choice describes two mercy *or* honesty marks. One of each was incorrectly excluded. A specialist who repeatedly picked only mercy could access the route while a character showing both virtues could not.
+**Cause:** `canChooseTrialV7` used `max(mercy, honesty) >= 2`, though the Witness choice describes two mercy _or_ honesty marks. One of each was incorrectly excluded. A specialist who repeatedly picked only mercy could access the route while a character showing both virtues could not.
 
 **Improvement:** Witness now counts the **sum** of earned mercy and honesty marks. In-game intent says combined marks explicitly. Regression tests distinguish zero, one, mixed one-plus-one, and two honesty marks. It is an eligibility expansion, not a rewrite of prior outcome history or existing save data; old recorded actions replay unchanged.
 

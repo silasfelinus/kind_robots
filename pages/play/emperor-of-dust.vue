@@ -266,6 +266,7 @@
           <EmperorFortressChronicle
             v-if="activeRoom === 'chronicle'"
             :run="run"
+            @new-run="enter('throne')"
           />
         </div>
       </div>

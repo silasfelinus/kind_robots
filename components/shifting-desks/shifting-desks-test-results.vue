@@ -72,7 +72,9 @@ const props = withDefaults(
   { sealed: 0, final: false, verdict: null },
 )
 
-const MAX_SHOWN = computed(() => Math.max(8, ...props.readings.map((reading) => reading.score)))
+const MAX_SHOWN = computed(() =>
+  Math.max(8, ...props.readings.map((reading) => reading.score)),
+)
 
 function fill(score: number): number {
   if (score <= 0) return score < 0 ? 6 : 0

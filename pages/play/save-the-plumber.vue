@@ -140,8 +140,8 @@
                 <button
                   type="button"
                   class="plumber-control"
-                  @click="stepStory(-1)"
                   :disabled="storyIndex === 0"
+                  @click="stepStory(-1)"
                 >
                   ‹ PREVIOUS
                 </button>
@@ -197,8 +197,8 @@
                 <button
                   type="button"
                   class="plumber-control"
-                  @click="stepWorld(-1)"
                   aria-label="Previous world"
+                  @click="stepWorld(-1)"
                 >
                   ‹
                 </button>
@@ -206,8 +206,8 @@
                 <button
                   type="button"
                   class="plumber-control"
-                  @click="stepWorld(1)"
                   aria-label="Next world"
+                  @click="stepWorld(1)"
                 >
                   ›
                 </button>
@@ -331,9 +331,9 @@
           <button
             v-if="screen !== 'title'"
             type="button"
-            @click="go('title')"
             class="plumber-footer-back"
             aria-label="Return to Save the Plumber title menu"
+            @click="go('title')"
           >
             <b>B</b> MENU
           </button>

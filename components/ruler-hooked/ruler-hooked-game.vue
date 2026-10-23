@@ -14,7 +14,7 @@
       </header>
 
       <template v-if="!store.save">
-        <div class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,1fr)]">
+        <div class="grid min-h-0 gap-3 ruler-scene-grid">
           <RulerHookedStage :scene="previewScene" :regions="store.bundle.regions" />
           <RulerHookedSlots @picked="onPicked" />
         </div>
@@ -36,14 +36,14 @@
           </button>
         </nav>
 
-        <div v-if="screen === 'opening'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,1fr)]">
+        <div v-if="screen === 'opening'" class="grid min-h-0 gap-3 ruler-scene-grid">
           <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
           <section class="min-h-0 rounded-2xl border border-base-300 bg-base-100 p-4">
             <RulerHookedOpening @skip="finishOpening" @done="finishOpening" />
           </section>
         </div>
 
-        <div v-else-if="screen === 'map'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,1fr)]">
+        <div v-else-if="screen === 'map'" class="grid min-h-0 gap-3 ruler-scene-grid">
           <div class="space-y-3">
             <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
             <RulerHookedHealth :health="store.save.kingdomHealth" />
@@ -72,7 +72,7 @@
           </section>
         </div>
 
-        <div v-else-if="screen === 'lake'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(16rem,1fr)]">
+        <div v-else-if="screen === 'lake'" class="grid min-h-0 gap-3 ruler-scene-grid">
           <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
           <section class="min-h-0 space-y-3 overflow-y-auto rounded-2xl border border-base-300 bg-base-100/95 p-4">
             <p class="text-xs font-bold uppercase tracking-widest text-primary">Castle Lake · Fishing</p>
@@ -113,7 +113,7 @@
           </button>
         </div>
 
-        <section v-else-if="screen === 'briefing'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+        <section v-else-if="screen === 'briefing'" class="grid min-h-0 gap-3 ruler-scene-grid">
           <div class="min-h-0 space-y-3">
             <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
             <RulerHookedAdvisor />
@@ -151,7 +151,7 @@
           <RulerHookedShop />
         </div>
 
-        <div v-else-if="screen === 'records'" class="grid min-h-0 gap-3 lg:grid-cols-2">
+        <div v-else-if="screen === 'records'" class="grid min-h-0 gap-3 ruler-scene-grid">
           <div class="max-h-[62dvh] overflow-y-auto rounded-2xl bg-base-100 p-4">
             <RulerHookedReignReview :save="store.save" />
           </div>
@@ -251,3 +251,9 @@ const endingBody = computed(
   () => store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)?.body ?? '',
 )
 </script>
+
+<style scoped>
+.ruler-scene-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+</style>

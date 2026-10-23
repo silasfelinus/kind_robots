@@ -95,7 +95,7 @@ export function isEligibleDungeonArt(
     art.isActive !== false &&
     (requestedMature && viewerAllowsMature
       ? art.isMature === true
-      : art.isMature === false)
+      : art.isMature !== true)
   )
 }
 

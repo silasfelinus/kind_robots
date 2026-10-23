@@ -63,7 +63,7 @@ export const SEA_GOAT: Mystery = {
         ],
       },
       body: [
-        'The old mill pier runs out into Humboldt Bay on pilings the color of burnt toast. Behind it the pulp mill sits dead and enormous, its smokestack raised into the fog like a finger making a point nobody stayed to hear. Jojo leans on her bumper with a box of maple bars and a crowbar she describes as “emotional support.” Before she says hello she photographs the abandoned truck’s plate for her invoice. Third tow off this one road this month, she mentions, at the county rate. “Not complaining,” she says, not complaining.',
+        'The old mill pier runs out into Humboldt Bay on pilings the color of burnt toast. Behind it the pulp mill sits dead and enormous, its smokestack raised into the fog like a finger making a point nobody stayed to hear. Jojo leans on her bumper with a box of maple bars and a crowbar she describes as “emotional support.” Before hello, she photographs the abandoned truck’s plate for her invoice: third tow off this road this month. “Not complaining,” she says, not complaining.',
         'On the pier planks: wet prints. Cloven, deep, and behind each pair a long smooth drag. They climb out of the water and stop at the base of the stack, beside an abandoned bolt cutter and a coil of stripped copper wire somebody left in a hurry. At the end of the pier, a bundle of fresh eelgrass is tied to a piling with a mill rigger’s knot.',
       ],
       approaches: [
@@ -130,7 +130,7 @@ export const SEA_GOAT: Mystery = {
           label: 'Sit with Dolores and let her tell the mill stories',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You ask the right question, which is “What was the best day?”, and Dolores talks for an hour. Walt has a daughter, Tess, who rode on his shoulders up the catwalk every bring-your-kid day and who now runs the eelgrass project under the old pier. “Nine years in waders, grant to grant. She’s got Walt’s disease: if it isn’t on the record, it didn’t happen.” Dolores smiles. “She called the mill a dragon when she was little. Walt said no, mija, it’s a goat. It climbs, and it doesn’t quit.”',
+            text: 'You ask the right question, which is “What was the best day?”, and Dolores talks for an hour. Walt has a daughter, Tess, who rode on his shoulders up the catwalk every bring-your-kid day and who now runs the eelgrass project under the old pier. “Nine years in waders, grant to grant. If it isn’t on the record, to Tess, it didn’t happen.” Dolores smiles. “She called the mill a dragon when she was little. Walt said no, mija, it’s a goat. It climbs, and it doesn’t quit.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -241,7 +241,7 @@ export const SEA_GOAT: Mystery = {
         'You run the whole trap yourself, with Jojo on the radio, which is the closest thing to a crew this mill has had in years.',
       recall: {
         'g2:pass':
-          'At eleven-fifteen your phone buzzes: GOOD LUCK. DO NOT FALL. WALT SAYS THE THIRTIETH RUNG IS LOOSE. — D. (GRANDSON TYPING)',
+          'Your phone buzzed at eleven-fifteen: GOOD LUCK. DO NOT FALL. WALT SAYS THE THIRTIETH RUNG IS LOOSE. — D. (GRANDSON TYPING)',
       },
     },
   ],
@@ -279,8 +279,8 @@ export const SEA_GOAT: Mystery = {
       'Up close, the costume is magnificent: a hand-sewn wetsuit with a beard of dyed rope, horns of steam-bent ash, and a fishtail of green neoprene scales, hundreds of them, each one glued on by hand. Far below, a dive tank is strapped to the base of the stack, its hose running to the brass whistle. Clipped to the creature’s belt, of all things, is a laminated county incident form.',
     ],
     afterMiss: [
-      'The trap is a bust, and it turns out not to matter. By a few minutes past midnight, one way or another, the scrap crew is gone, their trucks taillights on the peninsula road, and nobody on that road is coming back tonight. At the top of the stack, the sea-goat leans over the rail, looks down at you, and does something no monster has ever done. It waits.',
-      'You climb the forty rungs on shaking arms. It is sitting on the rest platform with its tail over the edge, beside a trail camera blinking red. Up close the costume is magnificent: a hand-sewn wetsuit, a beard of dyed rope, horns of steam-bent ash, and a fishtail of green neoprene scales, each one glued on by hand. Clipped to its belt, of all things, is a laminated county incident form.',
+      'The trap is a bust, and it turns out not to matter. One way or another the scrap crew is gone, their trucks taillights on the peninsula road, and nobody on that road is coming back tonight. At the top of the stack, the sea-goat leans over the rail, looks down at you, and does something no monster has ever done. It waits.',
+      'You climb the forty rungs on shaking arms. It sits on the rest platform beside a trail camera blinking red: a hand-sewn wetsuit, a rope beard, horns of steam-bent ash, a fishtail of neoprene scales glued on one by one. Clipped to its belt, of all things, is a laminated county incident form.',
     ],
     choices: [
       {
@@ -355,7 +355,7 @@ export const SEA_GOAT: Mystery = {
       scene: 'bay',
       body: [
         '“It runs on compressed air,” says the woman under the hood: Tess Keough, marine biologist, daughter of Walt, the last foreman. “Dad’s whistle, my dive tank, a timer off a sprinkler system. Nothing spooky.” She frowns at her watch. “Except it blows a minute early. Every night, however I set it. Like it’s clearing the way for somebody else’s shift.”',
-        'Then it is midnight, and below you a whistle blows that is not hers. The mill comes alive. Every window is lit, the yard is full of cars with fins, and the 1971 graveyard shift is filing in under the stack, lunch pails swinging, hard hats tipped back, every one of them looking up at you like you’re late. At the gate a skinny young man with a foreman’s clipboard puts two fingers in his mouth and whistles the same note as the brass. Tess grips the rail. “That’s Dad,” she whispers. “That’s Dad at twenty-four.”',
+        'Then midnight arrives by some older clock than yours, and below you a whistle blows that is not hers. The mill comes alive. Every window is lit, the yard is full of cars with fins, and the 1971 graveyard shift is filing in under the stack, lunch pails swinging, hard hats tipped back, every one of them looking up at you like you’re late. At the gate a skinny young man with a foreman’s clipboard puts two fingers in his mouth and whistles the same note as the brass. Tess grips the rail. “That’s Dad,” she whispers. “That’s Dad at twenty-four.”',
       ],
       recall: {
         'g3:whistle':
@@ -384,7 +384,7 @@ export const SEA_GOAT: Mystery = {
       tone: 'true',
       text: [
         'A little before one in the morning the old crew walks out onto the pier in bathrobes and work boots, Dolores at the front with a thermos and a clipboard. Tess has her phone on speaker, and from his sister’s couch in Yuma, Walt Keough calls the shifts the way he did for thirty-seven years. Everybody takes a turn on the chain. The whistle goes out over the black bay again and again, and across the water in Eureka, porch lights come on one at a time.',
-        'Between pulls, Tess calls the county’s overnight line and, with the whole crew listening, reports one sea-goat, homemade, hers. Then she asks for the fence anyway. Dolores takes the phone and adds that the pier now has a night watch of eleven retirees and a tow truck, and that the county would be wise to believe them. When the chain comes around to you, Walt’s voice crackles out of the phone: “Pull like you mean it.” You do.',
+        'Between pulls, Tess calls the county’s overnight line and, with the whole crew listening, reports one sea-goat, homemade, hers. Then she asks for the fence anyway. Dolores takes the phone and adds that the pier now has a night watch of eleven retirees and a tow truck. When the chain comes around to you, Walt’s voice crackles out of the phone: “Pull like you mean it.” You do.',
       ],
     },
     {

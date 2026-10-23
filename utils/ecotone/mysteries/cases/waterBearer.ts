@@ -321,7 +321,7 @@ export const WATER_BEARER: Mystery = {
       {
         id: 'why',
         label: 'Ask Saff why she leaves the jugs at all',
-        text: 'You ask the simplest question. Saff takes off her hat and looks at the dry well for a long time before she answers.',
+        text: 'You ask the simplest question. Saff takes off her hat and looks up the road toward the dry well for a long time before she answers.',
         next: 'the-well',
       },
       {
@@ -332,7 +332,7 @@ export const WATER_BEARER: Mystery = {
       },
     ],
     leadLines: {
-      mara: 'Mara looks from the thousand labels to Saff. “You never once misspelled September. I need to sit down.”',
+      mara: 'Mara reads the tape on Saff’s empty jugs, one after another. “Not a single misspelled September. I need to sit down.”',
       kit: 'Kit has the drone in her lap like a confiscated puppy. “Rental lights, a party speaker and a sounder worth more than my car. You built a UFO out of a real-estate budget.”',
       juniper:
         'Juniper walks a slow circle around Pruitt. “In my day,” she says, “the aliens at least had the decency to be aliens.”',
@@ -354,7 +354,7 @@ export const WATER_BEARER: Mystery = {
       scene: 'meadow',
       body: [
         'Pruitt Basin Partners, it turns out, buys rural parcels with good water and holds them until the dry years make the water worth more than the house. “Nobody sells because a well might fail in 2049,” Pruitt says. “They sell because there’s a light over the backyard humming at them, and a jug on the porch counting down. I just mailed the offer the next morning.”',
-        'He nods at Saff, almost respectfully. “Her dates are the best survey in the county, and she gives them away. The late ones are the deep wells. That’s my whole buy list.” Saff sits down on the edge of the dry well as if her knees have been cut. All those labels, all those dawns, and she has been drawing a treasure map.',
+        'He nods at Saff, almost respectfully. “Her dates are the best survey in the county, and she gives them away. The late ones are the deep wells. That’s my whole buy list.” Saff sits down on her hand-truck as if her knees have been cut. All those labels, all those dawns, and she has been drawing a treasure map.',
       ],
       choices: [
         {

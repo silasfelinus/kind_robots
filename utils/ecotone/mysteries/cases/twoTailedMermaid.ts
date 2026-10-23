@@ -321,7 +321,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       {
         id: 'hear-song',
         label: 'Sit down beside her and ask to hear the rest of the song',
-        text: 'You don’t say her name. You sit on the cold stone and ask whether she’ll finish the song. After a long moment, she does.',
+        text: 'You don’t say her name. You sit down beside her and ask whether she’ll finish the song. After a long moment, she does.',
         next: 'two-currents',
       },
       {
@@ -332,7 +332,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       },
     ],
     leadLines: {
-      mara: 'Mara holds out the blanket and doesn’t step closer. “You don’t have to come down. It’s just here if you want it.”',
+      mara: 'Mara holds out the blanket and doesn’t step closer. “No pressure. It’s just here if you want it.”',
       kit: 'Kit kneels on the wet sand at eye level, the way Coral used to kneel for kids. “I’m Kit. You gave me your pitch once in the rain. I never thanked you.”',
       juniper:
         'Juniper watches Dex wring out his wig. “I wanted to be a mermaid when I was six,” she says. “Then I met the people who sell them.”',
@@ -349,7 +349,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
   branches: {
     coral: {
       title: 'Coral',
-      place: 'The far rock at the Little River mouth',
+      place: 'The Little River mouth, dusk',
       chapter: 2,
       scene: 'rivermouth',
       body: [
@@ -360,7 +360,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
         {
           id: 'one-show',
           label: 'Ask if she would do the show now, on her own terms',
-          text: 'You ask: one show, here, right now, on the beach below the bluff, for the seals and anyone willing to sit quietly on the sand. No hat. No manager. She thinks about it while the tide comes up around the rock.',
+          text: 'You ask: one show, here, right now, on the beach below the bluff, for the seals and anyone willing to sit quietly on the sand. No hat. No manager. She thinks about it while the tide comes in over the bar.',
           ending: 'both-tails',
         },
         {
@@ -373,7 +373,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
     },
     'two-currents': {
       title: 'Two Currents',
-      place: 'The far rock at the Little River mouth, the song’s end',
+      place: 'The Little River mouth, the song’s end',
       chapter: 2,
       scene: 'rivermouth',
       body: [
@@ -384,7 +384,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
         {
           id: 'river-side',
           label: 'Point toward the river-side life, the one with the crowd',
-          text: 'You point, and Coral follows your hand and looks at that crowded Plaza for a long time. Then she climbs down off the rock and holds out her hand to Nadia on the sand.',
+          text: 'You point, and Coral follows your hand and looks at that crowded Plaza for a long time. Then she holds out her hand to Nadia.',
           ending: 'both-tails',
         },
         {
@@ -402,7 +402,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       title: 'Both Tails',
       tone: 'true',
       text: [
-        'The show starts eleven minutes late, on the beach below the bluff, by firelight. Half the Plaza sits on the logs in a silence that would astonish anyone who has met the Plaza, and whatever tourists are left stay to watch for free. Coral walks up out of the river and does the old act, slower: fire, glass, a song for the seals. Between tricks she talks plainly about burning out, and about walking out of the sea somewhere else. Nobody claps until the seals do.',
+        'The show starts eleven minutes later, on the beach below the bluff, by firelight. Half the Plaza sits on the logs in a silence that would astonish anyone who has met the Plaza, and whatever tourists are left stay to watch for free. Coral walks up out of the river and does the old act, slower: fire, glass, a song for the seals. Between tricks she talks plainly about burning out, and about walking out of the sea somewhere else. Nobody claps until the seals do.',
         'Dex watches from the pullout in a wet sequined tail, a man learning what a guaranteed sighting costs. At the end Coral walks up to him with the green hat, full of the night’s tips, and puts it in his hands. “Down payment,” she says. “The rest goes through a lawyer, like grown-ups.” Then she walks back down to the river mouth where Nadia is waiting with a blanket, and the two of them sit on the sand until the tide makes them move.',
       ],
     },

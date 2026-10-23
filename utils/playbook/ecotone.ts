@@ -28,6 +28,7 @@ import {
   SIGNATURES,
   type RouteStep,
 } from '../ecotone/story'
+import { ecotoneMysteryNodes } from './ecotoneMysteries'
 import {
   blankNode as blank,
   signedParts,
@@ -122,6 +123,16 @@ export function playbookCardNode(card: EncounterCard): PlaybookNode {
         label: `After ${flag.replaceAll('_', ' ')}${who === 'all' ? '' : `, with ${leadLabel(who as LeadId)}`}`,
         text,
       })
+  for (const [flag, body] of Object.entries(card.flagBody ?? {}))
+    variations.push({
+      axis: 'flag',
+      key: flag,
+      label:
+        flag === 'mystery_g3_fail'
+          ? 'Body if Gate III failed'
+          : `Body after ${flag.replaceAll('_', ' ')}`,
+      text: body.join('\n\n'),
+    })
   for (const [key, text] of Object.entries(card.variants ?? {}))
     variations.push({
       axis: card.variantBy === 'lead' ? 'lead' : 'prospect',
@@ -400,6 +411,8 @@ export function buildEcotonePlaybook(): Playbook {
     })
   }
   for (const lead of ENDING_LEADS) nodes[`ending:${lead}`] = endingNode(lead)
+  const mysteries = ecotoneMysteryNodes()
+  for (const node of mysteries.nodes) nodes[node.key] = node
 
   const routes: PlaybookRoute[] = EVENTS.map((event) => {
     const steps = ROUTES[event.id]
@@ -420,10 +433,15 @@ export function buildEcotonePlaybook(): Playbook {
   return {
     game: 'ecotone',
     title: 'Ecotone',
-    blurb: 'Weird Humboldt: three routes, four companions and the endings.',
+    blurb:
+      'Weird Humboldt: three routes, four companions, the endings and twelve local mysteries.',
     routes,
     nodes,
-    order: storyOrder(routes, [...ENCOUNTERS.map((c) => c.id), ...endingKeys]),
+    order: storyOrder(routes, [
+      ...ENCOUNTERS.map((c) => c.id),
+      ...endingKeys,
+      ...mysteries.nodes.map((node) => node.key),
+    ]),
     sections: [
       {
         title: 'Ending storylines',
@@ -431,6 +449,7 @@ export function buildEcotonePlaybook(): Playbook {
           'Who you finish with (or nobody, or the Wild Way) × opening lens × hopeful or dark.',
         keys: endingKeys,
       },
+      ...mysteries.sections,
     ],
     people: ENDING_LEADS.map((id) => ({ id, label: leadLabel(id) })),
     peopleLabel: 'Written for',
@@ -442,6 +461,7 @@ export function buildEcotonePlaybook(): Playbook {
       encounter: 'Random encounter',
       spine: 'Story spine',
       ending: 'Ending storyline',
+      quest: 'Mystery',
     },
     editable: true,
     artProject: 'weird-humboldt',

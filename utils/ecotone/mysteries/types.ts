@@ -138,7 +138,10 @@ export type Mystery = {
   /** Fewer than two passed gates: the trail goes cold. Two plain choices, no next/ending. */
   coldCase: MysteryScene
   /** Two passed gates: the true path opens here. */
-  reveal: MysteryScene
+  reveal: MysteryScene & {
+    /** The reveal's body when Gate III failed but Gates I and II passed: the trap missed, yet the truth still surfaces. */
+    afterMiss: string[]
+  }
   branches: Record<string, MysteryScene>
   /** The Real Endings, at least three, one of them tone 'true'. */
   endings: MysteryEnding[]

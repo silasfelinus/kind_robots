@@ -50,6 +50,11 @@ export function mysteryCardId(
   return `MY-${pad(mystery.number)}-${part}`
 }
 
+/** A Real Ending's own picture, shown when the finale choice lands on it. */
+export function mysteryEndingArtKey(caseId: string, endingId: string): string {
+  return `mysteries/${caseId}/${endingId}`
+}
+
 export function caseNumeral(n: number): string {
   return (
     ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][
@@ -170,12 +175,15 @@ export function compileMystery(mystery: Mystery): EncounterCard[] {
       },
     })),
   )
-  const reveal = sceneCard(
-    mystery,
-    mysteryCardId(mystery, 'REVEAL'),
-    mystery.reveal,
-    finaleChoices(mystery, mystery.reveal),
-  )
+  const reveal = {
+    ...sceneCard(
+      mystery,
+      mysteryCardId(mystery, 'REVEAL'),
+      mystery.reveal,
+      finaleChoices(mystery, mystery.reveal),
+    ),
+    flagBody: { mystery_g3_fail: mystery.reveal.afterMiss },
+  }
   const branches = Object.entries(mystery.branches).map(([key, scene]) =>
     sceneCard(
       mystery,
@@ -409,6 +417,7 @@ function playerText(mystery: Mystery): string[] {
       scene.aloneLine ?? '',
       ...scene.choices.flatMap((choice) => [choice.label, choice.text]),
     ]),
+    ...(mystery.reveal.afterMiss ?? []),
     ...mystery.endings.flatMap((ending) => [ending.title, ...ending.text]),
   ]
 }
@@ -491,6 +500,8 @@ export function validateMystery(mystery: Mystery): string[] {
     }
   }
   finale('reveal', mystery.reveal, true)
+  if (!mystery.reveal.afterMiss?.length || mystery.reveal.afterMiss.length > 3)
+    at('reveal', 'afterMiss: 1-3 paragraphs for a reveal after a failed Gate III')
   for (const id of COMPANION_IDS)
     if (!mystery.reveal.leadLines?.[id]) at('reveal', `lead line for ${id}`)
   for (const [key, scene] of Object.entries(mystery.branches)) {

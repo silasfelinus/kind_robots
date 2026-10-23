@@ -83,6 +83,8 @@ export type EncounterCard = {
   /** Replaces body for the companion this beat is keyed on: the prospect (opening beats) or the lead. */
   variantBy?: 'prospect' | 'lead'
   variants?: Partial<Record<LeadId, string[]>>
+  /** Replaces body when the run carries the flag (first match wins), e.g. a mystery reveal after a failed trap. */
+  flagBody?: Record<string, string[]>
   presence?: {
     companion: CompanionId
     lead: string

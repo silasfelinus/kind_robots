@@ -157,7 +157,7 @@ let liveCards: Record<string, EncounterCard> = {}
 
 export function setLiveEdits(edits: Record<string, CardEdit>): void {
   liveCards = {}
-  for (const card of ALL_CARDS) {
+  for (const card of [...ALL_CARDS, ...MYSTERY_CARDS]) {
     const edit = edits[card.id]
     if (edit) liveCards[card.id] = applyCardEdit(card, edit)
   }
@@ -336,6 +336,8 @@ export function variantKey(
 }
 
 export function cardBody(card: EncounterCard, state: RunState): string[] {
+  for (const [flag, body] of Object.entries(card.flagBody ?? {}))
+    if (state.flags.includes(flag)) return body
   const key = variantKey(card, state)
   return (key ? card.variants?.[key] : undefined) ?? card.body
 }

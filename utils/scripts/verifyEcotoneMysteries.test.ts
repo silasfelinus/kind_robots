@@ -11,8 +11,11 @@ import {
   createRun,
   findCard,
   restoreRun,
+  setLiveEdits,
   type RunState,
 } from '../ecotone/engine'
+import { buildEcotonePlaybook } from '../playbook/ecotone'
+import { mysteryEndingKey } from '../playbook/ecotoneMysteries'
 import type { EventId } from '../ecotone/content'
 import { ROUTES } from '../ecotone/story'
 import { openingLensChoices } from '../ecotone/openingLensChoices'
@@ -262,6 +265,41 @@ assert.equal(
   null,
   'an unknown mystery is rejected',
 )
+
+// The Playbook Manager lists every scene and Real Ending, chained as play reaches them,
+// and its live edits reach mystery cards in play.
+const playbook = buildEcotonePlaybook()
+const mysterySections = playbook.sections.filter((s) =>
+  s.title.startsWith('Case '),
+)
+assert.equal(mysterySections.length, 12, 'one Collection per case')
+for (const card of MYSTERY_CARDS) {
+  const node = playbook.nodes[card.id]
+  assert.ok(node, `${card.id} is in the Playbook`)
+  assert.equal(node.kind, 'quest')
+  assert.ok(node.editable && node.needsArt !== undefined)
+}
+for (const mystery of MYSTERIES)
+  for (const ending of mystery.endings)
+    assert.ok(
+      playbook.nodes[mysteryEndingKey(mystery, ending.id)],
+      `${mystery.id}/${ending.id} Real Ending node`,
+    )
+for (const node of Object.values(playbook.nodes))
+  for (const choice of node.choices)
+    if (choice.leadsTo)
+      assert.ok(
+        playbook.nodes[choice.leadsTo],
+        `${node.key}/${choice.id} leads somewhere`,
+      )
+assert.equal(
+  playbook.nodes['MY-05-G1']?.choices.find((c) => c.id === 'gossip')?.leadsTo,
+  'MY-05-G2',
+)
+setLiveEdits({ 'MY-05-G1': { title: 'Edited in the Playbook' } })
+assert.equal(findCard('MY-05-G1')?.title, 'Edited in the Playbook')
+setLiveEdits({})
+assert.equal(findCard('MY-05-G1')?.title, 'The Lion Who Knew the Old Callbacks')
 
 console.log(
   `Ecotone mysteries: 12 cases, ${MYSTERY_CARDS.length} scenes, ${MYSTERIES.reduce((n, m) => n + m.endings.length, 0)} Real Endings, gates on ${Object.keys(ROUTES).length} routes; true path found within ${truePathSeeds} seeds in total`,

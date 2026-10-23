@@ -75,7 +75,8 @@ export const CHORES: readonly QuestDef[] = [
     },
     expired: { affinity: { freeholds: -5 } },
     outcomes: {
-      success: 'A cracked cistern, and a dead fox in it. The herd will live.',
+      success:
+        'A cracked cistern, and a body in the water. The herd will live.',
       partial: 'Half the herd stood up again. The other half went to the pit.',
       failure:
         'Nobody could say what it was. The farmer burned the herd himself and would not let anyone help.',
@@ -248,7 +249,7 @@ export const CHORES: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -2 } },
     outcomes: {
       success:
-        'Every fledgling is back in a dry nest. An old crow watched the whole climb and said nothing, which from a Crow is thanks.',
+        'Every fledgling is back in a dry nest. A roost elder watched the whole climb and said nothing, which from a Crow is thanks.',
       partial: 'The party brought up five. The ledge kept the sixth.',
       failure:
         'The rock was wet and the rope was short. The Crows took it from there, and did not look at the party once.',
@@ -418,7 +419,7 @@ export const CHORES: readonly QuestDef[] = [
       partial:
         'The crews agreed to share it. For now. They are both sleeping beside it.',
       failure:
-        'The crowbars came out anyway. A rat named Dace will not use his left hand again.',
+        'The crowbars came out anyway. A digger named Dace will not use his left hand again.',
       expired: 'The crowbars decided it.',
     },
     outcomeAlts: {
@@ -714,7 +715,7 @@ export const CHORES: readonly QuestDef[] = [
     },
     outcomeAlts: {
       success: [
-        'A magpie, with a nest full of copper in the bell loft. The gravedigger’s boy was set free and given the nest.',
+        'A hoarder had hidden the copper in the bell loft. The gravedigger’s boy was set free and given the abandoned room.',
       ],
       failure: [
         'The party watched the box for a night and fell asleep. In the morning the box was empty and someone had left them a blanket.',

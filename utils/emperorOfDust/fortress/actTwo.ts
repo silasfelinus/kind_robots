@@ -210,7 +210,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -10 } },
     outcomes: {
       triumph:
-        'The courier, a fennec called Ash Quill, sat up by evening and asked for the satchel. Inside: a brass hourglass addressed to Young Komodo. Komodo let the court keep it. Too quickly.',
+        'The courier, Ash Quill, sat up by evening and asked for the satchel. Inside: a brass hourglass addressed to Young Komodo. Komodo let the court keep it. Too quickly.',
       success:
         'Ash Quill will live. The satchel held a brass hourglass addressed to Young Komodo. He waved it off. The court could have it.',
       partial:
@@ -247,7 +247,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { rustline: -5 } },
     outcomes: {
       success:
-        'Struck, the feathers ring on the Hollow Bell’s note. Pell, the rat salvager who brought them, wants to know what the court learned. And if it’s hiring.',
+        'Struck, the feathers ring on the Hollow Bell’s note. Pell, the salvager who brought them, wants to know what the court learned. And if it’s hiring.',
       partial: 'The feathers were catalogued. Nobody understands them.',
       failure: 'One feather cracked. The salvagers took the rest home.',
       expired: 'The salvagers sold the crate in the market.',
@@ -1213,7 +1213,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'jackalwire',
         requires: { follower: 'F002' },
         lines: [
-          'Captain Gristle Vane fills the doorway first. A hyena in a greatcoat of a hundred painted feathers, ear-chain jangling, canyon dust in every seam. He bows to the throne. Then, slower, to the jackal beside it.',
+          'Captain Gristle Vane fills the doorway first. A hyena in a greatcoat of a hundred painted feathers, ear-chain jangling, canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
           'Our engine is broken, Majesty. One person alive knows how it was built. She’s standing beside you, pretending not to know me.',
           {
             who: 'Saffron Kett',
@@ -1477,9 +1477,9 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'lamplight',
         requires: { local: { lamplight: 12 } },
         lines: [
-          'An old owl comes in through a high window. Three tries. He settles on the back of the petitioners’ bench. The first two did not happen.',
+          'An elderly keeper comes in through a high window. Three tries. He settles on the back of the petitioners’ bench. The first two did not happen.',
           'The Archive speaks well of the throne, Majesty. I came to see. I am old and fly slow. I remember roads nobody else does.',
-          'If the court has a bed for an owl, I would like to see some of those roads again before I die.',
+          'If the court has a bed for an archivist, I would like to see some of those roads again before I die.',
           {
             who: 'Keeper Abelard Vellum, from the gallery',
             npc: 'abelard-vellum',
@@ -1536,7 +1536,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       },
       {
         id: 'glass-hums',
-        source: 'Pell, a rat salvager',
+        source: 'Pell, a salvage mechanic',
         text: 'The glass hums when the Hollow Bell rings.',
         truth: true,
       },
@@ -1552,14 +1552,14 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'jinx-coupler',
         faction: 'rustline',
         lines: [
-          'A magpie in a bottle-cap coat struts in ahead of a rat pushing a crate. “Jinx Coupler, Yardboss of the Rustline. That’s Pell. He lifts things.”',
+          'Jinx Coupler, in a bottle-cap coat, struts in ahead of Pell pushing a crate. “Jinx Coupler, Yardboss of the Rustline. That’s Pell. He lifts things.”',
           '“Old-world glass, Majesty, shaped like feathers. Won’t break. Hums when the Bell rings. The Ledger wants to buy it. The Archive wants to study it. I want to know which one the crown is.”',
           {
             who: 'Pell Quickmarrow',
             npc: 'F014',
             text: 'Listen.',
           },
-          'The rat flicks one feather with a claw. It rings, thin and high. The hall holds its breath. Far to the east, faint enough to doubt, an answer.',
+          'Pell flicks one feather with a claw. It rings, thin and high. The hall holds its breath. Far to the east, faint enough to doubt, an answer.',
           'In the gallery the Ledger’s factor has waited since dawn, with a purse. The Archive’s scribes since before dawn, without one.',
         ],
         options: [

@@ -96,7 +96,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'The Second Flood',
-        'Water comes from upstream before the storm. A mole engineer says the order of things is wrong.',
+        'Water comes from upstream before the storm. A tunnel engineer says the order of things is wrong.',
       ],
       [
         'The Wet Wasteland',
@@ -148,7 +148,7 @@ const MOTIFS: readonly Motif[] = [
     scenes: [
       [
         'Three Red Turnips',
-        "An old rabbit grows three turnips the size of a child's head in soil that should be dead.",
+        "An old farmer grows three turnips the size of a child's head in soil that should be dead.",
       ],
       [
         'Orchard Behind the Wall',
@@ -453,7 +453,7 @@ const MOTIFS: readonly Motif[] = [
         'A traveler offers a map of channels that change each night. The paper smells of river mud.',
       ],
       [
-        'The Owl Who Remembers',
+        'The Keeper Who Remembers',
         'A tired wanderer arrives with fifty sketches of buildings that no longer exist.',
       ],
       [
@@ -611,7 +611,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'A Glass Seed',
-        'A crow drops a clear stone that sprouts a tiny glass leaf when warmed. The branch shatters at the sound of a bell.',
+        'A Conclave messenger leaves a clear stone that sprouts a tiny glass leaf when warmed. The branch shatters at the sound of a bell.',
       ],
       [
         'The Mirror with the Wrong Door',

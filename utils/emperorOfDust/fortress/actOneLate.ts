@@ -211,7 +211,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. An old Mole asked the party not to tell the tower. Then she asked who had told the tower it was empty.',
+        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. An old tunnel keeper asked the party not to tell the tower. Then she asked who had told the tower it was empty.',
       success:
         'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. They asked the party not to tell the tower. The party told you anyway.',
       partial:
@@ -854,7 +854,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F008'],
             },
             response:
-              'The foreman nods once. From him, that is a lot. The buffalo who drove the flour cart counts every sack twice, then asks if the crown needs someone who can count.',
+              'The foreman nods once. From him, that is a lot. The quartermaster who drove the flour cart counts every sack twice, then asks if the crown needs someone who can count.',
           },
           {
             id: 'ration',
@@ -871,7 +871,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F008'],
             },
             response:
-              'The Old Houses open their larders slowly, like people being robbed politely. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
+              'The Old Houses open their larders slowly, like people being robbed politely. Their quartermaster, still clutching a ration abacus, stays to ask about work.',
           },
         ],
         beats: [
@@ -926,7 +926,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F008'],
                 },
                 response:
-                  'Ash nods once. The buffalo who drove the flour cart counts every sack twice, glares at the price, and asks if the crown needs someone who can count.',
+                  'Ash nods once. The quartermaster who drove the flour cart counts every sack twice, glares at the price, and asks if the crown needs someone who can count.',
               },
               {
                 id: 'ration',
@@ -944,7 +944,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F008'],
                 },
                 response:
-                  'Lady Vask sends word to Bellam herself. He opens the granary and stands at the door the whole time, coughing, counting each sack out loud. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
+                  'Lady Vask sends word to Bellam herself. He opens the granary and stands at the door the whole time, coughing, counting each sack out loud. Their quartermaster, still clutching a ration abacus, stays to ask about work.',
               },
             ],
           },
@@ -1132,7 +1132,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'A Gate Watch sergeant',
         faction: 'gate-watch',
         lines: [
-          'A Gate Watch sergeant marches a boy up the carpet by the collar. A young weasel in a stablehand’s apron, straw in his fur, trying not to cry in front of the throne.',
+          'A Gate Watch sergeant marches a boy up the carpet by the collar. A young stablehand in a worn apron, straw in his fur, trying not to cry in front of the throne.',
           '“Night stablehand, Majesty. Every mount gone, and him asleep in the hayloft. So he says. A gate opened from inside is a Watch matter. We want him in the stocks by noon.”',
           '“I didn’t open it,” the boy says. “I didn’t. I wasn’t even...” He stops. He looks at the floor.',
           {

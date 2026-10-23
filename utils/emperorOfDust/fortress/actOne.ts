@@ -301,11 +301,11 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { moles: -5 } },
     outcomes: {
       success:
-        'An elderly Mole witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not a Mole’s. She asks for the clerk’s name, and waits while the court decides whether to give it.',
+        'An elderly burrow witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not a Mole’s. She asks for the clerk’s name, and waits while the court decides whether to give it.',
       partial:
         'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
       failure:
-        'The Moles walk your auditors back to daylight with cloth over their eyes. A Mole clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
+        'The Moles walk your auditors back to daylight with cloth over their eyes. A burrow clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
       expired:
         'The false receipt passes from clerk to clerk until it is entered as revenue. The tunnel elders refuse to pay a debt she never owed. Marisol Tallow asks where the missing brass has gone.',
     },
@@ -1035,7 +1035,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
         npc: 'marisol-tallow',
         faction: 'ledger',
         lines: [
-          'They come up the carpet side by side, neither willing to go second. Factor Marisol Tallow, a raccoon in a brass-buttoned waistcoat, carries two drafts of one charter, the tax rate blank on both. Foreman Dunmore Ash, a heavy boar in a floury apron, carries nothing. He folds his arms. That is his argument.',
+          'They come up the carpet side by side, neither willing to go second. Factor Marisol Tallow, in a brass-buttoned waistcoat, carries two drafts of one charter, the tax rate blank on both. Foreman Dunmore Ash, broad-shouldered and dressed in a floury apron, carries nothing. He folds his arms. That is his argument.',
           '“Your Majesty. The wasteland will judge you first by the fortress market. Tax it light and the caravans come here, not the Ford. Tax it hard and they come once, pay once, and tell the whole road.”',
           {
             who: 'Foreman Dunmore Ash',
@@ -2325,7 +2325,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
           'The fledgling wears a runner’s mantle cut for someone twice her size. The hem drags. Its copper chimes are stuffed with wool so they won’t ring. She keeps glancing at the high windows.',
           '“Every crow on the Heights stopped talking at once, Your Majesty. Yesterday at noon. Mid-word. Even the chicks.”',
           '“The elders won’t say why. They sit on the ledges and face east.” She swallows. “I’m not supposed to be here.”',
-          'Halfway through, the court sees what she has not: an ancient grey-blue crow on the far gallery rail. Clouded eyes half closed. His chimes perfectly still.',
+          'Halfway through, the court sees what she has not: an elderly watcher in a faded blue mantle on the far gallery rail. Clouded eyes half closed. His chimes perfectly still.',
           {
             who: 'Young Komodo',
             npc: 'young-komodo',
@@ -2355,7 +2355,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
               'Send climbers to the high roost to see what the crows are watching.',
             effects: {},
             response:
-              'The fledgling’s eyes go wide. “Don’t say I told you the way up.” On the gallery rail, the old crow’s head turns.',
+              'The fledgling’s eyes go wide. “Don’t say I told you the way up.” On the gallery rail, the old watcher’s head turns.',
             postsQuests: ['q-d04-crow-roost'],
           },
         ],
@@ -2365,7 +2365,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
             lines: [
               '“I’m a bonded runner, Your Majesty. Four years left. Runners carry the elders’ words and no others. Carry words without leave and they add years. Sometimes a lot.”',
               '“I thought if something was wrong enough to make the Heights go quiet, somebody down here should know. I thought that was what runners were for.” She is looking at the gallery now. “That’s Elder Corvane. He taught me my first forecast.”',
-              'On the rail the old crow does not move. He doesn’t need to. The warning has been paid for. The question is by whom.',
+              'On the rail the old watcher does not move. He doesn’t need to. The warning has been paid for. The question is by whom.',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -2469,7 +2469,7 @@ export const ACT_ONE_DAYS: readonly DayDef[] = [
                   'Thank him. Send climbers up the high roost tonight to see what he pointed at.',
                 effects: {},
                 response:
-                  'The old crow’s clouded eyes rest on you a moment longer. Then he turns on the rail to face east, showing the climbers where.',
+                  'The old watcher’s clouded eyes rest on you a moment longer. Then he turns on the rail to face east, showing the climbers where.',
                 postsQuests: ['q-d04-crow-roost'],
               },
             ],

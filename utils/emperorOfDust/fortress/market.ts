@@ -384,17 +384,18 @@ export const itemSource = (item: ItemDef): string =>
 /** Who is laying out goods, one line per seller, staples last. */
 const STALL_LINES: Record<KingdomFactionId | 'stores', string> = {
   'hollow-bell': 'A Hollow Bell tinker with bells on a string.',
-  abbey: 'Two otter sisters with candles. They smile at the children.',
-  'storm-crows': 'A Crow on the well sells glass. It does not blink.',
+  abbey: 'Two Abbey sisters with candles. They smile at the children.',
+  'storm-crows':
+    'A Conclave trader at the well sells glass. The trader does not blink.',
   'mire-mothers':
     'A fen woman with a reed basket. The sisters cross the yard to miss her.',
   jackalwire:
     'A Pack rider leans on the gate. His wire is good. His prices are not.',
   saltroad: 'Saltroad mules in the yard. Salt on everything.',
   freeholds: 'A Freehold cart. Tools, a tired dog, no smiles.',
-  moles: 'A mole sells lamps from a sack and watches the Gate Watch.',
+  moles: 'A tunnel trader sells lamps from a sack and watches the Gate Watch.',
   rustline:
-    'Magpies lay salvage out on oilcloth. Nobody asks where it was dug up.',
+    'Rustline merchants lay salvage out on oilcloth. Nobody asks where it was dug up.',
   'black-verge': 'A gorilla in a velvet coat. He sells from the shade only.',
   stores: 'The quartermaster unlocks the stores and counts out loud.',
 }

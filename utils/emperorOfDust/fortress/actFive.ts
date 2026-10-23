@@ -169,7 +169,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     id: 'q-d42-crow-watch',
     title: 'Stand the Crow Watch',
     summary:
-      'Elder Corvane wants the court on the ledges at night. Every Conclave watcher watches the Abbey road. So will you.',
+      'Elder Corvane wants the court on the ledges at night. Every Conclave sentinel keeps watch on the Abbey road. So will you.',
     region: 'storm-crow-heights',
     faction: 'storm-crows',
     durationDays: 1,
@@ -3173,7 +3173,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         npc: 'elder-corvane',
         faction: 'storm-crows',
         lines: [
-          'Elder Corvane arrives at dawn on foot. For Elder Corvane, that is formal. The young crows who carried him wait in the rocks.',
+          'Elder Corvane arrives at dawn on foot. For the Conclave elder, that is formal. The young porters who carried him wait in the rocks.',
           'He folds his wings and looks at you a long time. His clouded eyes move over the court, the fire, the empty place where an advisor stood.',
           '“We had a name for your advisor, Majesty. All year. The one who walks.”',
           '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',

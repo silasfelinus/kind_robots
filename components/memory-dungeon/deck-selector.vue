@@ -47,8 +47,8 @@
     >
       <template v-if="selected.family === 'designed'">
         <span class="font-semibold"
-          >✦ Thirty-six original fantasy card illustrations. Two-card matching with
-          original game art.</span
+          >✦ Thirty-six original fantasy card illustrations. Two-card matching
+          with original game art.</span
         >
       </template>
       <template v-else-if="selected.family === 'gallery'">
@@ -59,11 +59,8 @@
             :value="selected.gallery"
             @change="
               choose({
-                gallery:
-                  ($event.target as HTMLSelectElement).value as
-                    | 'all'
-                    | 'collections'
-                    | 'generated',
+                gallery: ($event.target as HTMLSelectElement).value as
+                  'all' | 'collections' | 'generated',
               })
             "
           >
@@ -131,8 +128,10 @@
         v-if="selected.family !== 'designed'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
-        All-art excludes private images; your explicitly chosen owned collections or recently generated works may contain private images. A room requires at
-        least 3 distinct loadable images, 4 for the Vault's last chamber.
+        All-art excludes private images; your explicitly chosen owned
+        collections or recently generated works may contain private images. A
+        room requires at least 3 distinct loadable images, 4 for the Vault's
+        last chamber.
       </span>
     </div>
     <div

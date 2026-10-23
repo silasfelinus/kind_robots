@@ -59,9 +59,10 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { GradeReading } from '~/utils/shiftingDesks/rules'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     readings: GradeReading[]
     sealed?: number
@@ -71,11 +72,11 @@ withDefaults(
   { sealed: 0, final: false, verdict: null },
 )
 
-const MAX_SHOWN = 8
+const MAX_SHOWN = computed(() => Math.max(8, ...props.readings.map((reading) => reading.score)))
 
 function fill(score: number): number {
   if (score <= 0) return score < 0 ? 6 : 0
-  return Math.min(100, Math.round((score / MAX_SHOWN) * 100))
+  return Math.min(100, Math.round((score / MAX_SHOWN.value) * 100))
 }
 </script>
 

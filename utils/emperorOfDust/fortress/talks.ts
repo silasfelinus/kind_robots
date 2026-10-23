@@ -3895,7 +3895,7 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'flinch',
         label:
-          'Ask her about the thirty-eighth day. The Mole boy’s whisper. She was watching the court. Who flinched?',
+          'Ask her about the thirty-eighth day. The young courier’s whisper. She was watching the court. Who flinched?',
         requires: { flags: ['prisoner-pardoned'] },
         effects: {},
         response: 'Lumen stops stitching.',

@@ -984,9 +984,16 @@ async function startGame() {
     ...world.deck,
     collectionIds: [...world.deck.collectionIds],
   })
-  memoryStore.setGameSuiteDeckResolver((needed) =>
-    resolveMemoryDungeonDeck(selection, needed),
-  )
+  // A single expedition has one memory of every picture used on earlier floors.
+  // Each new floor draws again from the chosen source, excluding those images.
+  const runSeenImages = new Set<string>()
+  memoryStore.setGameSuiteDeckResolver(async (needed) => {
+    const paths = await resolveMemoryDungeonDeck(
+      selection, needed, 0, [...runSeenImages],
+    )
+    for (const path of paths) runSeenImages.add(path)
+    return paths
+  })
   launchError.value = ''
   classicDeckIncludesMature.value = selection.includeMature
   await resetBoardForCurrentLevel()

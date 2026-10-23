@@ -137,7 +137,7 @@ for (const [nodeId, expectedFile] of [
   ['a2-bell-view', 'bell-view-original.svg'],
   ['a4-bloom', 'desert-bloom-original.svg'],
 ] as const) {
-  const chosen = sectionPlate(BOOK[nodeId])
+  const chosen = sectionPlate(BOOK[nodeId]!)
   assert.equal(
     platePath(chosen),
     '/zuzu-gamebook/scenes/' + expectedFile,

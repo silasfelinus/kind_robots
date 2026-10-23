@@ -2288,7 +2288,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         faction: 'yard',
         requires: { local: { yard: 12 } },
         lines: [
-          'Juniper Slate comes up from the kitchens smelling of onions and carbolic. A kitchen orderly, with a ladle through the belt like a sword and a roll of bandage in the apron. They walk straight past the herald. The herald has stopped trying.',
+          'Juniper Slate comes up from the kitchens smelling of onions and carbolic, a ladle through their belt like a sword and a roll of bandage in their apron. They walk straight past the herald. The herald has stopped trying.',
           'The Yard is behind the throne, Majesty. That means the kitchens. That means me. I want to see what the court eats on the road.',
           {
             who: 'Young Komodo',

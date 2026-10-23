@@ -182,7 +182,8 @@
                   @click="openArchive('milestones')"
                 >
                   <icon name="kind-icon:trophy" class="size-5" />
-                  Personnel Archive · {{ store.rewardArchive.runs.length }} filed
+                  Personnel Archive ·
+                  {{ store.rewardArchive.runs.length }} filed
                 </button>
                 <button
                   type="button"
@@ -1410,7 +1411,9 @@ const endingsGallery = ref<{ open: () => void } | null>(null)
 const personnelArchive = ref<{
   open: (section?: 'milestones' | 'endings' | 'achievements' | 'runs') => void
 } | null>(null)
-function openArchive(section: 'milestones' | 'endings' | 'achievements' | 'runs'): void {
+function openArchive(
+  section: 'milestones' | 'endings' | 'achievements' | 'runs',
+): void {
   personnelArchive.value?.open(section)
 }
 const endingsCount = computed(

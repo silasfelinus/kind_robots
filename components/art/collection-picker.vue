@@ -251,12 +251,14 @@ export type CollectionPickerMode =
 const props = withDefaults(
   defineProps<{
     title?: string
+    memoryDeckMode?: boolean
     mode?: CollectionPickerMode
     collectionId?: number | null
     collectionIds?: number[]
   }>(),
   {
     title: 'Card Source',
+    memoryDeckMode: false,
     mode: 'all',
     collectionId: null,
     collectionIds: () => [],
@@ -290,6 +292,7 @@ const selectedCollectionIds = ref<number[]>([])
 const galleryId = 'memory-dungeon-deck-gallery'
 
 const availableCollections = computed<ArtCollection[]>(() => {
+  if (!props.memoryDeckMode) return artStore.generationCollections
   const viewerId = Number(userStore.userId ?? userStore.user?.id ?? 0)
   return fetchedCollections.value.filter((collection) => {
     const permitted = collection.isPublic === true ||
@@ -354,7 +357,15 @@ watch(
 
 onMounted(async () => {
   isSplashPicker.value = Boolean(pickerRoot.value?.closest('.splash-screen'))
-  await refreshCollectionIndex()
+  if (props.memoryDeckMode) {
+    await refreshCollectionIndex()
+  } else {
+    await artStore.initialize({
+      fetchRemote: false,
+      hydrateImages: false,
+      initializeCollections: true,
+    })
+  }
 })
 
 async function refreshCollectionIndex() {

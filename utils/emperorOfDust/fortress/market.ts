@@ -385,7 +385,7 @@ export const itemSource = (item: ItemDef): string =>
 const STALL_LINES: Record<KingdomFactionId | 'stores', string> = {
   'hollow-bell': 'A Hollow Bell tinker with bells on a string.',
   abbey: 'Two Abbey sisters with candles. They smile at the children.',
-  'storm-crows': 'A Conclave trader at the well sells glass. It does not blink.',
+  'storm-crows': 'A Conclave trader at the well sells glass. The trader does not blink.',
   'mire-mothers':
     'A fen woman with a reed basket. The sisters cross the yard to miss her.',
   jackalwire:

@@ -122,3 +122,40 @@
     flex: 1 1 auto;
   }
 }
+
+/* Same 3D Y-flip timing and front/back treatment as Classic Match.
+   Shared by Briar Camp's overworld cards and dungeon memory boards. */
+.md-card-container {
+  perspective: 900px;
+}
+.md-card-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s ease;
+}
+.md-card-inner.flipped {
+  transform: rotateY(180deg);
+}
+.md-card-front,
+.md-card-back {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  object-fit: cover;
+}
+.md-card-front {
+  transform: rotateY(180deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .md-card-inner {
+    transition: none;
+  }
+}

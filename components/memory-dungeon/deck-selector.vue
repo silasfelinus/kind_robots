@@ -102,35 +102,34 @@
       </template>
 
       <label
-        v-if="selected.family !== 'designed'"
+        v-if="selected.family !== 'designed' && matureAvailable"
         class="ml-auto flex items-center gap-2 rounded-lg bg-[#29352d] px-2 py-1.5"
       >
-        <input
-          type="checkbox"
-          class="accent-amber-300"
-          :checked="selected.includeMature && matureAvailable"
-          :disabled="!matureAvailable"
+        <span class="font-semibold">Artwork rating:</span>
+        <select
+          class="rounded-md border border-[#bdac7c] bg-[#2c3b35] p-1.5 text-[#f8edce]"
+          :value="selected.includeMature ? 'mature' : 'safe'"
           @change="
             choose({
-              includeMature: ($event.target as HTMLInputElement).checked,
+              includeMature:
+                ($event.target as HTMLSelectElement).value === 'mature',
             })
           "
-        />
-        <span>Include mature, public art</span>
+        >
+          <option value="safe">Non-mature only</option>
+          <option value="mature">Mature only</option>
+        </select>
       </label>
-      <span
-        v-if="selected.family !== 'designed' && !matureAvailable"
-        class="text-[11px] text-[#e1c4a6]"
-      >
-        Mature art follows your account visibility setting.
-      </span>
       <span
         v-if="selected.family !== 'designed'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
-        All-art excludes private images; your explicitly chosen owned
-        collections or recently generated works may contain private images. A
-        room requires at least 3 distinct loadable images, 4 for the Vault's
+        All-art uses public images only. Your explicitly chosen owned
+        collections or recently generated works may also use your private art.
+        <template v-if="matureAvailable"
+          >Each rating uses only that rating, never a mixture.</template
+        >
+        A room requires at least 3 distinct loadable images, 4 for the Vault's
         last chamber.
       </span>
     </div>

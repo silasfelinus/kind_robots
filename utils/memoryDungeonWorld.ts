@@ -235,6 +235,8 @@ export interface BriarSave {
   mapCards: BriarMapCard[]
   /** Each image used by a reveal wave; persisted across saves to prevent duplicates. */
   seenMapImages: string[]
+  /** Exact art-source choice that dealt the current map cards. */
+  mapDeckSignature: string
   version: number
   revealed: string[]
   frontier: string[]
@@ -267,6 +269,7 @@ export function newBriarSave(): BriarSave {
     wavePhase: 'matching',
     mapCards: [],
     seenMapImages: [],
+    mapDeckSignature: '',
     player: BRIAR_START,
     attempts: 0,
     relics: [],
@@ -363,6 +366,8 @@ export function restoreBriarSave(input: unknown): BriarSave {
     waveIndex,
     wavePhase: saved.wavePhase === 'exploring' ? 'exploring' : 'matching',
     mapCards: waveCards,
+    mapDeckSignature:
+      typeof saved.mapDeckSignature === 'string' ? saved.mapDeckSignature : '',
     seenMapImages: [
       ...new Set([
         ...(Array.isArray(saved.seenMapImages)

@@ -374,7 +374,7 @@ async function refreshCollectionIndex() {
   try {
     // A lightweight index, not a full 200k-image archive fetch.
     const response = await performFetch<ArtCollection[]>(
-      '/api/art/collection?summary=true&includeImages=false&counts=false&includePrivate=true&includeMature=true',
+      '/api/art/collection?summary=true&includeImages=false&counts=false&includePrivate=true&includeMature=' + String(userStore.isLoggedIn && !userStore.isChild && userStore.showMature),
       {}, 1, 15_000,
     )
     if (!response.success) throw new Error(response.message || 'Collection index could not load.')

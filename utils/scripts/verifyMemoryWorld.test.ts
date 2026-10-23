@@ -177,6 +177,26 @@ assert.equal(
   isEligibleDungeonArt({ isPublic: true, isMature: true }, true, true),
   true,
 )
+assert.equal(
+  isEligibleDungeonArt({ isPublic: true, isMature: false }, true, true),
+  false,
+  'Mature-only mode must exclude all non-mature cards rather than mixing them',
+)
+assert.equal(
+  isEligibleDungeonArt({ isPublic: true, isMature: true }, false, true),
+  false,
+  'Non-mature mode must never include mature art',
+)
+assert.equal(
+  isEligibleDungeonArt({ isPublic: true, isMature: true }, true, false),
+  false,
+  'Guest, child, or mature-off accounts cannot force mature cards through local settings',
+)
+assert.equal(
+  isEligibleDungeonArt({ isPublic: true, isMature: false }, false, false),
+  true,
+  'Anonymous and restricted users still get normal public safe art',
+)
 assert.deepEqual(
   uniqueDeckPaths(['/forest.jpg', '/forest.jpg', '', '/sun.jpg']),
   ['/forest.jpg', '/sun.jpg'],
@@ -301,6 +321,43 @@ assert.deepEqual(
   'Reloaded save still blocks all previously seen cards',
 )
 
+assert.equal(
+  newBriarSave().mapDeckSignature,
+  '',
+  'New runs have no old deck binding',
+)
+const restoredDeck = restoreBriarSave({
+  ...newBriarSave(),
+  mapDeckSignature: '{"family":"gallery","gallery":"collections"}',
+  revealed: ['2,4', '1,4'],
+  attempts: 19,
+})
+assert.equal(
+  restoredDeck.mapDeckSignature,
+  '{"family":"gallery","gallery":"collections"}',
+)
+assert.deepEqual(restoredDeck.revealed, ['2,4', '1,4'])
+assert.equal(restoredDeck.attempts, 19)
+const oldDeckSave = restoreBriarSave({
+  ...newBriarSave(),
+  mapDeckSignature: undefined,
+  mapCards: [
+    {
+      id: 0,
+      pairId: 0,
+      image: '/designed.svg',
+      tile: '2,4',
+      flipped: false,
+      matched: false,
+    },
+  ],
+})
+assert.equal(
+  oldDeckSave.mapDeckSignature,
+  '',
+  'Older saves must trigger art-source reconciliation',
+)
+
 const classicScreen = readFileSync(
   'components/pages/memory-dungeon.vue',
   'utf8',
@@ -395,4 +452,102 @@ assert.doesNotMatch(
   mapScreen,
   /world\.state\.frontier\.includes/,
   'Prototype single-click fog reveal is removed',
+)
+
+const sharedFlipCss = readFileSync('assets/css/memory-dungeon.css', 'utf8')
+const combatBoard = readFileSync(
+  'components/memory-dungeon/combat-board.vue',
+  'utf8',
+)
+assert.match(
+  worldStoreSource,
+  /async function refreshMapDeck\(/,
+  'Changing galleries must refresh the active map deck',
+)
+assert.match(
+  worldStoreSource,
+  /if \(previous !== currentDeckSignature\.value && mapMatching\.value\)/,
+  'Deck selection changes must be applied immediately while matching',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.mapCards[\s\S]*?\.filter\(\(card\) => !card\.matched\)/,
+  'Refacing the board must preserve matched cards and revealed terrain',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.mapDeckSignature = currentDeckSignature\.value/,
+  'Successful deck loads must record the applied source',
+)
+assert.match(
+  mapScreen,
+  /world\.syncActiveMapDeck\(\)/,
+  'Older saved maps automatically resync artwork on opening',
+)
+assert.match(
+  mapScreen,
+  /world\.mapDeckError/,
+  'Failed custom-gallery loads must show a visible error',
+)
+assert.match(
+  mapScreen,
+  /role="dialog"/,
+  'Settings float as a game panel instead of reducing map height',
+)
+assert.match(
+  mapScreen,
+  /md-card-inner/,
+  'Map cards animate with the same flip vocabulary as Classic',
+)
+assert.match(combatBoard, /md-card-inner/, 'Combat cards animate the same way')
+assert.match(
+  sharedFlipCss,
+  /transition: transform 0\.55s ease/,
+  '3D flip retains Classic Match animation timing',
+)
+
+const selectorSource = readFileSync(
+  'components/memory-dungeon/deck-selector.vue',
+  'utf8',
+)
+const imageApiSource = readFileSync('server/api/art/memory-deck.get.ts', 'utf8')
+const collectionPickerSource = readFileSync(
+  'components/art/collection-picker.vue',
+  'utf8',
+)
+assert.match(
+  selectorSource,
+  /selected\.family !== 'designed' && matureAvailable/,
+  'Mature selection controls are completely hidden from guests, child roles, and mature-off users',
+)
+assert.match(selectorSource, /Non-mature only/)
+assert.match(selectorSource, /Mature only/)
+assert.doesNotMatch(
+  selectorSource,
+  /Include mature, public art/,
+  'The old mixed-rating checkbox must not return',
+)
+assert.match(worldStoreSource, /userStore\.isLoggedIn/)
+assert.match(worldStoreSource, /!userStore\.isChild/)
+assert.match(
+  worldStoreSource,
+  /userStore\.showMature === true/,
+  'Mature permission uses the restricted effective user-store preference',
+)
+assert.match(imageApiSource, /access\.isAuthenticated/)
+assert.match(imageApiSource, /!access\.restricted/)
+assert.match(
+  imageApiSource,
+  /\{ isMature: mature \}/,
+  'Even forged API queries must be forced to a safe-only or mature-only rating',
+)
+assert.match(
+  collectionPickerSource,
+  /!userStore\.isChild/,
+  'Memory collection index never asks for mature folders from child accounts',
+)
+assert.match(
+  classicScreen,
+  /Public mature only/,
+  'Classic summary must not claim that mature mode mixes safe and mature artwork',
 )

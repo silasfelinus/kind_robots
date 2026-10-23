@@ -64,7 +64,10 @@ for (const lens of LENSES) {
   assert.equal(computeEnding(failure).id, `ecotopia.${lens.id}.dark`)
   assert.equal(computeEnding(success).score, 4)
   assert.equal(computeEnding(failure).score, 3)
-  assert.equal(computeEnding(success).parts.at(-1)?.label, 'Sustained crew stewardship')
+  assert.equal(
+    computeEnding(success).parts.at(-1)?.label,
+    'Sustained crew stewardship',
+  )
   assert.ok(
     earnedQuestCallbacks(success.flags, success.played).some((text) =>
       text.includes('dated rota'),
@@ -93,7 +96,11 @@ for (const lens of LENSES) {
   const traditional = { ...stateFor(winningSeed), wild: 4 }
   assert.equal(computeEnding(traditional).id, `ecotopia.${lens.id}.hope`)
   assert.equal(
-    computeEnding({ ...stateFor(winningSeed), wild: 2, flags: ['creek_monitoring_committed'] }).id,
+    computeEnding({
+      ...stateFor(winningSeed),
+      wild: 2,
+      flags: ['creek_monitoring_committed'],
+    }).id,
     `ecotopia.${lens.id}.dark`,
     'a forged flag alone never earns stewardship credit',
   )
@@ -101,4 +108,6 @@ for (const lens of LENSES) {
 
 const choice = card.choices.find((item) => item.id === 'restore')
 assert.ok(choice, 'the original one-day creek volunteer choice stays playable')
-console.log('Ecotone solo creek repair: 7 lenses, 2 earned fates, no phantom shifts')
+console.log(
+  'Ecotone solo creek repair: 7 lenses, 2 earned fates, no phantom shifts',
+)

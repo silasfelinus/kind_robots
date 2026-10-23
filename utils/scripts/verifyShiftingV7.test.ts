@@ -3,6 +3,7 @@ import { JOURNEY_WORLD, reachableLocations } from '../shiftingLands/journey'
 import {
   activeV6Card,
   choiceLock,
+  V6_CARDS,
   type V6Choice,
 } from '../shiftingLands/deckV6'
 import {
@@ -71,6 +72,33 @@ assert.equal(
   ),
   true,
   'two actually earned mercy marks allow witnessed testimony',
+)
+assert.equal(
+  canChooseTrialV7(
+    witness,
+    { ...unearned, marks: { ...unearned.marks, mercy: 1, honesty: 1 } },
+    [],
+  ),
+  true,
+  'one merciful deed and one truthful deed must unlock joint testimony',
+)
+assert.equal(
+  canChooseTrialV7(
+    witness,
+    { ...unearned, marks: { ...unearned.marks, mercy: 1 } },
+    [],
+  ),
+  false,
+  'a single deed cannot unlock a witnessed route',
+)
+assert.equal(
+  canChooseTrialV7(
+    witness,
+    { ...unearned, marks: { ...unearned.marks, honesty: 2 } },
+    [],
+  ),
+  true,
+  'two truthful deeds are as valuable as two merciful ones',
 )
 assert.equal(
   canChooseTrialV7(scout, unearned, ['homestead']),
@@ -165,6 +193,8 @@ type Row = {
   uniquePreparations: number
   darkTaken: number
   solidarityTaken: number
+  distinctCards: number[]
+  trialFailuresByLand: number[]
 }
 function simulate(policy: Policy, runs: number): Row {
   const row: Row = {
@@ -182,7 +212,10 @@ function simulate(policy: Policy, runs: number): Row {
     uniquePreparations: 0,
     darkTaken: 0,
     solidarityTaken: 0,
+    distinctCards: Array(5).fill(0) as number[],
+    trialFailuresByLand: Array(5).fill(0) as number[],
   }
+  const seenCards = new Set<string>()
   for (let seed = 1; seed <= runs; seed++) {
     let ledger: JourneyLedgerV7 = newJourneyLedgerV7(seed)
     const entered = new Set<number>()
@@ -262,6 +295,8 @@ function simulate(policy: Policy, runs: number): Row {
           if (id === 'witness') row.witnessTaken++
           if (id === 'scout') row.scoutTaken++
           next = stepJourneyLedgerV7(ledger, { type: 'TRIAL', choiceId: id })
+          if (next.current.journey.phase === 'boss')
+            row.trialFailuresByLand[index]!++
         }
       } else if (!journey.active) {
         const open = reachableLocations(journey).filter(
@@ -277,6 +312,7 @@ function simulate(policy: Policy, runs: number): Row {
         })
       } else {
         const card = activeV6Card(state)!
+        seenCards.add(card.id)
         const open = card.choices.filter((choice) => !choiceLock(state, choice))
         assert.ok(open.length)
         const chosen = encounterPick(open, policy, seed, step)
@@ -317,6 +353,13 @@ function simulate(policy: Policy, runs: number): Row {
       }
     }
   }
+  row.distinctCards = JOURNEY_WORLD.lands.map((land) =>
+    V6_CARDS.filter(
+      (card) =>
+        seenCards.has(card.id) &&
+        land.locations.some((location) => location.id === card.locationId),
+    ).length,
+  )
   assert.equal(row.completed + row.fallen + row.stalled, runs)
   return row
 }
@@ -376,6 +419,23 @@ const lines = [
   '| --- | ---: | ---: | ---: | ---: | ---: |',
   ...rows.map(
     (row) => '| ' + row.policy + ' | ' + row.diedByLand.join(' | ') + ' |',
+  ),
+  '',
+  '## Distinct encounter cards actually drawn, out of 24 per land',
+  '',
+  '| Policy | ' + JOURNEY_WORLD.lands.map((land) => land.id).join(' | ') + ' |',
+  '| --- | ---: | ---: | ---: | ---: | ---: |',
+  ...rows.map(
+    (row) => '| ' + row.policy + ' | ' + row.distinctCards.join(' | ') + ' |',
+  ),
+  '',
+  '## Failed trial attempts by land, counts',
+  '',
+  '| Policy | ' + JOURNEY_WORLD.lands.map((land) => land.id).join(' | ') + ' |',
+  '| --- | ---: | ---: | ---: | ---: | ---: |',
+  ...rows.map(
+    (row) =>
+      '| ' + row.policy + ' | ' + row.trialFailuresByLand.join(' | ') + ' |',
   ),
   '',
   'Witness and solidarity choices require deeds. Scouting spends HP and is recorded in replay. ' +

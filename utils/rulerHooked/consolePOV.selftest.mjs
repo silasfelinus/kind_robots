@@ -7,6 +7,7 @@ const game = read('components/ruler-hooked/ruler-hooked-game.vue')
 const slots = read('components/ruler-hooked/ruler-hooked-slots.vue')
 const picker = read('components/ruler-hooked/ruler-hooked-cosmetics-picker.vue')
 const stage = read('components/ruler-hooked/ruler-hooked-stage.vue')
+const chronicle = read('components/ruler-hooked/ruler-hooked-reign-review.vue')
 
 assert.match(route, /class="kr-stage"/, 'the game must occupy a bounded console stage')
 assert.doesNotMatch(route, /<project-front-page\b/, 'do not restore the scrolling project landing page')
@@ -40,5 +41,12 @@ assert.doesNotMatch(
   /rulerCustomPortraitId|rulerCosmetics|ruler-fishing\.webp/,
   'game screens must not display player likeness',
 )
+
+assert.doesNotMatch(
+  chronicle,
+  /getPortraitUrl|customPortraitUrl|portraitSrc|\/images\/ruler-hooked\/ruler-/,
+  'the ruler must remain unseen even in the in-game chronicle',
+)
+assert.match(chronicle, /\{\{ rulerLabel \}\}/, 'the ruler identity persists in written records')
 
 console.log('Ruler console creation and unseen-player POV contract passed.')

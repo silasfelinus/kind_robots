@@ -2270,9 +2270,14 @@ function stepCoins(delta: number) {
     // Treasure hangs in the water column instead of collecting in a
     // hard-to-tap row along the bottom edge. Keep motion subtle so coins
     // remain easy targets on touchscreens.
-    coin.y = Math.max(20, Math.min(COIN_REST_Y - 20,
-      coin.y + Math.sin(coin.age * 1.8 + coin.spin) * COIN_DRIFT_SPEED * delta,
-    ))
+    coin.y = Math.max(
+      20,
+      Math.min(
+        COIN_REST_Y - 20,
+        coin.y +
+          Math.sin(coin.age * 1.8 + coin.spin) * COIN_DRIFT_SPEED * delta,
+      ),
+    )
     coin.spin += delta * 2
     coin.x = Math.min(
       STAGE_WIDTH - 14,

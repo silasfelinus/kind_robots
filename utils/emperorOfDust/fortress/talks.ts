@@ -856,7 +856,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['saffron-pass-unnamed'],
         },
         response:
-          'You seal it with wax from her own letter. Only wax to hand. She holds the blank pass to the light like a weld. “Nobody’s done anything wrong for me before. Only with me.” Three days later a sergeant reports a nameless jackal passed his post twice under the crown’s seal. He asks whether to write anything down. You say no. He writes that down.',
+          'You seal it with wax from her own letter. Only wax to hand. She holds the blank pass to the light like a weld. “Nobody’s done anything wrong for me before. Only with me.” Three days later a sergeant reports an unnamed traveler passed his post twice under the crown’s seal. He asks whether to write anything down. You say no. He writes that down.',
       },
       {
         id: 'named',
@@ -3592,7 +3592,7 @@ export const TALKS: readonly TalkDef[] = [
     fromDay: 27,
     requires: { notFlags: IN_THE_TOWER },
     lines: [
-      'Keel Understone has a survey map spread across two bunks. A lantern holds down one corner. A boot holds down the other. The armadillo kneels between the bunks and traces a blue line with one claw.',
+      'Keel Understone has a survey map spread across two bunks. A lantern holds down one corner. A boot holds down the other. Keel kneels between the bunks and traces a blue line with one claw.',
       'The imperial well-works. I mapped it for your predecessor’s clerks. Paid by the yard. Good pay.',
       'This is the sluice at the north cistern. There is a decree on the books, never repealed. In a dry year the crown may drop the sluice and send the overflow down the old channels. To keep the mills turning.',
       'The old channels run into the burrows. Forty-one homes. Water finds them in a night.',
@@ -4187,7 +4187,7 @@ export const TALKS: readonly TalkDef[] = [
     fromDay: 12,
     requires: { notFlags: IN_THE_TOWER },
     lines: [
-      'A crow sat on the barracks sill at dawn with a forecast tied to its leg. Addressed to Tamsin Gutterwing. By name. In the runners’ hand.',
+      'A Conclave messenger sat on the barracks sill at dawn with a forecast tied to its leg. Addressed to Tamsin Gutterwing. By name. In the runners’ hand.',
       'Tamsin has not touched it. She sits on the wardrobe and watches it sit on the bunk.',
       'It’s a true one. They only send true ones the first time. If I read it, I’m carrying again. That’s how it starts. If I don’t, you lose a true forecast in a dry year.',
     ],
@@ -4277,7 +4277,7 @@ export const TALKS: readonly TalkDef[] = [
     fromDay: 38,
     requires: { notFlags: IN_THE_TOWER },
     lines: [
-      'The Watch took a Crow runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
+      'The Watch took a Conclave runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
       'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold Crow children.',
       'Send her back and she carries till she dies. Keep her and the Conclave says the crown steals runners. Which is what they do. Pick one.',
     ],
@@ -5074,7 +5074,7 @@ export const TALKS: readonly TalkDef[] = [
     lines: [
       'Pell has grease on his whiskers and a grin he can’t put away. He drags you to the barracks window and points at the old rail cut.',
       'Handcar. Under the slag heap. Runs. I ran it. Twenty people down the old line in an hour, and nobody on a horse can follow.',
-      'Saltroad would take it against my debt. All of it. I’d be a free rat. Or it stays under the slag heap and I stay in hock, and the crown’s got a back door nobody knows. Your bed. Your call.',
+      'Saltroad would take it against my debt. All of it. I’d be free of the debt. Or it stays under the slag heap and I stay in hock, and the crown’s got a back door nobody knows. Your bed. Your call.',
     ],
     options: [
       {
@@ -6465,7 +6465,7 @@ export const TALKS: readonly TalkDef[] = [
         label: 'Put it on the crown’s map, under seal. Only the crown sees it.',
         effects: { local: { lamplight: 1 }, flags: ['hollin-road-sealed'] },
         response:
-          'Hollin inks it in brick-red and blots it twice. It goes in the map chest. Two days later Komodo asks, idly, whether the old owl has finished the north. Hollin, from the doorway, says he is still on the west.',
+          'Hollin inks it in brick-red and blots it twice. It goes in the map chest. Two days later Komodo asks, idly, whether Hollin has finished the north. Hollin, from the doorway, says he is still on the west.',
       },
       {
         id: 'archive',
@@ -6509,7 +6509,7 @@ export const TALKS: readonly TalkDef[] = [
           {
             id: 'archive',
             label:
-              'Give it to the Archive. Somebody besides an old owl should remember.',
+              'Give it to the Archive. Somebody besides an old archivist should remember.',
             effects: {
               local: { lamplight: 2 },
               flags: ['hollin-road-archived'],

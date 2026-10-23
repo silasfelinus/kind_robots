@@ -462,6 +462,13 @@ export type Briefing = {
   variants?: BriefingVariant[]
 }
 
+/** A morning report the crown had looked into (one a day at most). */
+export type RumourChallenge = {
+  day: number
+  briefingId: string
+  caught: boolean
+}
+
 export type DayDef = {
   day: number
   title: string
@@ -628,6 +635,8 @@ export type FortressRun = {
   chanceHistory?: string[]
   /** The response to today's last encounter, for the briefing readback. */
   dailyEventOutcome?: { id: string; day: number; title: string; text: string }
+  /** Morning reports challenged this reign, at most one a day. */
+  rumourChallenges?: RumourChallenge[]
   hideout?: string
   /** Audiences eligible at dawn; they stay at court for the whole day. */
   dayAudiences?: string[]

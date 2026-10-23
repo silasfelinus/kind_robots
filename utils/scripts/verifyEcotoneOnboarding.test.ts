@@ -6,10 +6,7 @@ import {
   PLAYER_PERSONALITIES,
   normalizePlayerIdentity,
 } from '../ecotone/playerIdentity'
-import {
-  visibleOpeningChoices,
-  localTemptation,
-} from '../ecotone/openingExperience'
+import { contextualOpeningChoices, contextualOfferLine, sceneMomentOffer } from '../ecotone/sceneOffers'
 import { EVENTS } from '../ecotone/story'
 
 assert.ok(PLAYER_AVATARS.length >= 10)
@@ -44,7 +41,7 @@ assert.equal(
   normalizePlayerIdentity({ playerName: 'z'.repeat(200) }).playerName.length,
   32,
 )
-const current = createRun(2026, 'mechanic', identity)
+const current = createRun(2026, 'mechanic', undefined, identity)
 assert.deepEqual(restoreRun(JSON.parse(JSON.stringify(current))), current)
 const old = { ...createRun(2026, 'mechanic') }
 delete old.playerName
@@ -61,63 +58,41 @@ assert.deepEqual(
   'identity does not change skills',
 )
 
-for (const [event, expected] of [
-  ['KN-2', ['sober', 'tipsy', 'race-stoned']],
-  ['GR-2', ['sober', 'fair-tipsy', 'stoned']],
-  ['QW-2', ['sober', 'stoned']],
+for (const [id, event] of [
+  ['KN-2', 'kinetic'],
+  ['GR-2', 'green-ribbon'],
+  ['QW-2', 'quiet'],
 ] as const) {
-  const card = findCard(event)!
-  const options = visibleOpeningChoices(card)
-  assert.deepEqual(
-    options.map((o) => o.id),
-    expected,
-    `${event} is no longer a seven-substance screen`,
-  )
-  assert.ok(
-    options.every(
-      (o) =>
-        !/meth|cocaine|mdma|fast track|everybody loves everybody/i.test(
-          o.label,
-        ),
-    ),
-  )
-  for (const option of options) {
-    const run = {
-      ...current,
-      event: EVENTS[0]!.id,
-      phase: 'beat' as const,
-      step: 1,
-      day: 1,
-      card: event,
-    }
-    const resolved = chooseBeat(run, option.id)
-    assert.notEqual(
-      resolved,
-      run,
-      `${event}/${option.id} is still a playable legacy choice`,
-    )
-    assert.equal(resolved.openingState, option.lens)
-    assert.equal(
-      restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState,
-      option.lens,
-    )
+  const card = findCard(id)!
+  const run = {
+    ...current,
+    event,
+    phase: 'beat' as const,
+    step: 1,
+    day: 1,
+    card: id,
+    prospect: id === 'KN-2' ? ('cedar' as const) : ('juniper' as const),
   }
+  const options = contextualOpeningChoices(card, run)
+  assert.ok(options.length >= 2 && options.length <= 3)
+  assert.ok(options.some((choice) => choice.lens === 'sober'))
+  assert.ok(options.every((choice) => !choice.locked && choice.lens))
+  for (const option of options) {
+    const resolved = chooseBeat(run, option.id)
+    assert.notEqual(resolved, run)
+    assert.equal(resolved.openingState, option.lens)
+    assert.equal(restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState, option.lens)
+  }
+  if (id === 'KN-2')
+    assert.match(contextualOfferLine(card, run) ?? '', /offer/)
+  else
+    assert.equal(contextualOfferLine(card, run), null)
 }
-
-assert.equal(localTemptation('KN-2'), null)
-assert.equal(localTemptation('GR-2'), null)
-assert.equal(localTemptation('QW-2'), null)
-for (const id of ['GR-4', 'QW-4', 'KN-6']) {
-  const offer = localTemptation(id)
-  assert.ok(offer)
-  assert.equal(offer?.offers.length, 2, `${id} has two contextual offers only`)
-  assert.ok(offer?.intro.length)
-}
-assert.equal(
-  localTemptation('WH-121'),
-  null,
-  'excluded cultural scene is never used for offers',
-)
+const momentRun = { ...current, phase: 'beat' as const, openingState: 'sober' as const }
+assert.equal(sceneMomentOffer(findCard('GR-3')!, momentRun)?.id, 'cannabis')
+assert.equal(sceneMomentOffer(findCard('KN-3')!, momentRun)?.id, 'alcohol')
+assert.equal(sceneMomentOffer(findCard('QW-4')!, momentRun), null)
+assert.equal(sceneMomentOffer(findCard('GR-4')!, momentRun), null)
 
 const store = readFileSync('stores/ecotoneStore.ts', 'utf8')
 const board = readFileSync('components/ecotone-board.vue', 'utf8')
@@ -139,7 +114,8 @@ assert.match(board, /Export save as JSON/)
 assert.match(board, /Import saved journey/)
 assert.match(board, /prefers-reduced-motion/)
 assert.match(board, /:style="\{ '--eco-text-scale': displayScale \}"/)
-assert.match(board, /visibleOpeningChoices\(card\)/)
+assert.match(board, /contextualOpeningChoices\(card, run\)/)
+assert.ok(!board.includes('SUBSTANCE_CHOICES'))
 assert.match(board, /v-for="\(paragraph, index\) in revealedBody"/)
 assert.ok(
   !board.includes('@4xl:overflow-hidden'),

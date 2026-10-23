@@ -1,0 +1,24 @@
+name: Cthulhuquarium Feeding
+
+on:
+  pull_request:
+    paths:
+      - 'components/cthulhuquarium/cthulhuquarium-game.vue'
+      - 'utils/cthulhuquariumFood.ts'
+      - 'utils/cthulhuquariumFood.selftest.ts'
+      - '.github/workflows/cthulhuquarium-feeding.yml'
+
+jobs:
+  food-interaction:
+    runs-on: ubuntu-24.04
+    env:
+      CYPRESS_INSTALL_BINARY: 0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Feeding animation logic
+        run: npx tsx utils/cthulhuquariumFood.selftest.ts

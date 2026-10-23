@@ -1,9 +1,10 @@
 <template>
   <div
-    class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.4fr)_minmax(24rem,0.85fr)]"
+    ref="scrollArea"
+    class="kr-scroll relative grid h-full min-h-0 min-w-0 auto-rows-max content-start gap-3 overflow-y-auto overscroll-contain @6xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]"
   >
-    <section class="flex min-h-0 flex-col gap-2">
-      <div class="eod-board min-h-0 flex-1 p-3">
+    <section class="flex min-h-0 min-w-0 flex-col gap-2">
+      <div class="eod-board shrink-0 p-3">
         <h2 class="sr-only">The quest board</h2>
         <p
           v-if="!run.board.length"
@@ -12,13 +13,13 @@
           The board is empty. Petitions in the throne room can post new quests.
         </p>
         <div
-          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,13rem),1fr))] gap-3 @7xl:gap-4"
+          class="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16.25rem),1fr))] gap-3 @7xl:gap-4"
         >
           <button
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex min-h-52 flex-col p-3 pt-4 text-left"
+            class="eod-notice flex min-h-36 flex-col p-4 pt-5 text-left @6xl:min-h-72"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -31,16 +32,16 @@
               :quest-id="entry.questId"
               :region="entry.quest.region"
               :label="entry.quest.title"
-              class="-mx-1 -mt-1 mb-3 aspect-[16/10] rounded-sm"
+              class="-mx-1 -mt-1 mb-4 aspect-[16/10] rounded-sm"
             />
-            <strong class="eod-display text-base leading-snug">{{
+            <strong class="eod-display text-lg leading-snug">{{
               entry.quest.title
             }}</strong>
-            <span class="mt-1 block text-sm italic leading-snug opacity-80">
+            <span class="mt-1 block text-base italic leading-snug opacity-80">
               {{ regionName(entry.quest.region) }}
             </span>
             <span
-              class="mt-1 flex flex-wrap gap-1 text-[10px] font-semibold uppercase"
+              class="mt-2 flex flex-wrap gap-1 text-xs font-semibold uppercase"
               :aria-label="`Needs ${bandSummary(entry.questId)}`"
             >
               <span
@@ -51,7 +52,7 @@
               >
             </span>
             <span
-              class="mt-auto flex items-center justify-between gap-2 pt-2 text-[11px] font-semibold"
+              class="mt-auto flex items-center justify-between gap-2 pt-3 text-xs font-semibold"
             >
               <span>
                 {{ entry.quest.durationDays }}
@@ -119,7 +120,7 @@
     <section
       v-if="selected && selectedEntry"
       ref="detail"
-      class="@container kr-panel min-h-0 space-y-3 p-4"
+      class="@container kr-panel min-h-0 min-w-0 space-y-3 p-4"
     >
       <EmperorFortressQuestImage
         :quest-id="selected.id"
@@ -139,7 +140,11 @@
           >
         </p>
         <h3 class="font-serif text-2xl font-bold">{{ selected.title }}</h3>
-        <p class="mt-1 text-base leading-snug">{{ selected.summary }}</p>
+        <p
+          class="mt-3 whitespace-pre-line font-serif text-base leading-relaxed @xl:text-lg"
+        >
+          {{ selected.summary }}
+        </p>
         <p
           v-if="selected.mustInclude"
           class="mt-1 text-xs font-semibold text-warning"
@@ -448,7 +453,7 @@
     </section>
     <section
       v-else
-      class="kr-panel flex flex-col items-center justify-center gap-3 p-6 text-sm"
+      class="kr-panel flex min-h-0 min-w-0 flex-col items-center justify-center gap-3 p-6 text-sm"
     >
       <p class="opacity-75">
         {{
@@ -504,6 +509,7 @@ const slotArt = (id: string) => followerPortrait(id)
 const hourglass = ref(false)
 const error = ref('')
 const detail = ref<HTMLElement | null>(null)
+const scrollArea = ref<HTMLElement | null>(null)
 
 const board = computed(() =>
   props.run.board
@@ -616,8 +622,13 @@ function select(id: string) {
   party.value = []
   hourglass.value = false
   error.value = ''
-  // On narrow screens the details sit below the board.
-  void nextTick(() => detail.value?.scrollIntoView({ block: 'nearest' }))
+  void nextTick(() => {
+    if (detail.value && scrollArea.value)
+      scrollArea.value.scrollTo({
+        top: detail.value.offsetTop,
+        behavior: 'smooth',
+      })
+  })
 }
 
 function toggle(id: string) {

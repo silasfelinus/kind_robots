@@ -283,7 +283,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
   },
   {
     id: 'informant',
-    name: 'The hyena with the bandaged paw',
+    name: 'The informant with the bandaged paw',
     variants: [
       {
         when: { flags: ['d42-informant-spared'] },
@@ -296,7 +296,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['d42-informant-bought'] },
-        text: 'She went east on a Saltroad cart with her paw in her lap. Past the salt flats a hyena runs a ferry and takes no passengers from the canyon. They say she draws a good map. She will not draw one for anyone.',
+        text: 'She went east on a Saltroad cart with her paw in her lap. Past the salt flats the former informant runs a ferry and takes no passengers from the canyon. They say she draws a good map. She will not draw one for anyone.',
       },
       {
         when: { flags: ['d16-informant-spy'] },
@@ -318,7 +318,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['pack-camp-mapped'] },
-        text: 'A young hyena sold the crown a map of the Pack’s camp for ten brass on the first night. Nobody at court knows what became of her. The Watch still has the card.',
+        text: 'A young informant sold the crown a map of the Pack’s camp for ten brass on the first night. Nobody at court knows what became of her. The Watch still has the card.',
       },
     ],
   },
@@ -517,7 +517,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     variants: [
       {
         when: { flags: ['d38-named-in-court'] },
-        text: 'Brass buttons, the Mole boy said, and Factor Tallow laid a hand over her waistcoat in front of the whole court. Nothing was ever proved. She sewed on horn buttons the next morning. She has worn horn ever since.',
+        text: 'Brass buttons, the young prisoner said, and Factor Tallow laid a hand over her waistcoat in front of the whole court. Nothing was ever proved. She sewed on horn buttons the next morning. She has worn horn ever since.',
       },
       {
         when: { flags: ['ledger-crisis'] },
@@ -847,12 +847,12 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['mole-messenger-arrested'] },
-        text: 'Granny Umber walked out of the crown’s cells the way she walked in: slowly, smiling. She has never once mentioned the cell. She does not need to. Every Mole child tells the story, and does her squint.',
+        text: 'Granny Umber walked out of the crown’s cells the way she walked in: slowly, smiling. She has never once mentioned the cell. She does not need to. Every child in the burrows tells the story, and does her squint.',
       },
       {
         when: { flags: ['moles-blamed'], notFlags: ['d26-ford-reparations'] },
         mood: 'angry',
-        text: 'The Mole cousins arrested for the Ford came home in spring, pale from the crown’s cells. Nobody apologised. Granny Umber met them at the burrow mouth with a shovel each. Among Moles that is welcome home. It is also a reminder.',
+        text: 'The cousins from the burrows arrested for the Ford came home in spring, pale from the crown’s cells. Nobody apologised. Granny Umber met them at the burrow mouth with a shovel each. Among Moles that is welcome home. It is also a reminder.',
       },
       {
         when: { flags: ['mole-truce'] },
@@ -1319,7 +1319,7 @@ const BARRACKS: EpilogueSubject[] = [
       },
       {
         when: { endings: ['long-night'] },
-        text: 'Pip carries the registers of the reign in a satchel too heavy for a moth. By whatever fire there is, Pip copies one page a night. The record will outlast whatever this is.',
+        text: 'Pip carries the registers of the reign in a satchel too heavy for Pip. By whatever fire there is, Pip copies one page a night. The record will outlast whatever this is.',
       },
       {
         when: { flags: ['pip-komodo-record'] },
@@ -1512,7 +1512,7 @@ const BARRACKS: EpilogueSubject[] = [
       {
         when: { flags: ['keel-third-channel'] },
         mood: 'happy',
-        text: 'Keel dug the third channel. It took a month, then a year. It waters the mills and spares the burrows. Keel’s name is not on it. A small armadillo is scratched into the first stone, upside down.',
+        text: 'Keel dug the third channel. It took a month, then a year. It waters the mills and spares the burrows. Keel’s name is not on it. A small portrait of Keel is scratched into the first stone, upside down.',
       },
       {
         when: { flags: ['keel-sluice-repealed'] },
@@ -1936,7 +1936,7 @@ const BARRACKS: EpilogueSubject[] = [
       },
       {
         when: { flags: ['hollin-absolved'] },
-        text: 'Hollin drew the tower as it was: the roof, the bell, the emperor’s window. The map hangs in the emperor’s chamber. Beside the door, very small, an owl.',
+        text: 'Hollin drew the tower as it was: the roof, the bell, the emperor’s window. The map hangs in the emperor’s chamber. Beside the door, a tiny figure carrying a map.',
       },
       {
         when: { flags: ['hollin-draws-is'] },

@@ -12,11 +12,13 @@ import { resolveChoice, applyEffect, cloneSave } from '~/utils/rulerHooked/apply
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 import { makeRng } from '~/utils/rulerHooked/seed'
 import {
-  applyFishingStop,
-  fishingEncounterFinished,
-  startFishingEncounter,
-  type FishingEncounter,
-} from '~/utils/rulerHooked/encounter'
+  applySimpleFishingStop,
+  applySimpleReel,
+  simpleFishingFinished,
+  startSimpleFishing,
+  type SimpleFishingEncounter,
+  type ReelInput,
+} from '~/utils/rulerHooked/simpleFishing'
 import {
   loadIndex, loadSave, writeSave, renameSlot as renameSlotStore,
   deleteSlot as deleteSlotStore, setActive, makeSaveId,
@@ -39,7 +41,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
   const activeCard = ref<Card | null>(null)
   const activeArcId = ref<string | null>(null)
   const pendingEnding = ref<string | null>(null)
-  const activeFishing = ref<FishingEncounter | null>(null)
+  const activeFishing = ref<SimpleFishingEncounter | null>(null)
   const lastCatch = ref<CatchResult | null>(null)
   const lastEscape = ref<{ fishName: string; cue: string } | null>(null)
   const slots = ref<SaveSlotMeta[]>([])
@@ -189,7 +191,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     if (!save.value || !canFish.value) return
     lastCatch.value = null
     lastEscape.value = null
-    activeFishing.value = startFishingEncounter(save.value)
+    activeFishing.value = startSimpleFishing(save.value)
   }
 
   /**
@@ -199,13 +201,21 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
    * outcomes immediately advance the reign turn.
    */
   function fishingStop(position: number) {
-    if (!save.value || !activeFishing.value) return
-    const nextEncounter = applyFishingStop(activeFishing.value, position)
-    activeFishing.value = nextEncounter
-    if (!fishingEncounterFinished(nextEncounter)) return
+    if (!activeFishing.value) return
+    advanceFishing(applySimpleFishingStop(activeFishing.value, position))
+  }
 
+  function reelFishing(action: ReelInput) {
+    if (!activeFishing.value) return
+    advanceFishing(applySimpleReel(activeFishing.value, action))
+  }
+
+  function advanceFishing(nextEncounter: SimpleFishingEncounter) {
+    if (!save.value) return
+    activeFishing.value = nextEncounter
+    if (!simpleFishingFinished(nextEncounter)) return
     const narrativeRng = makeRng(`${save.value.seed}:${save.value.turnCount}`)
-    if (nextEncounter.phase === 'LANDED') {
+    if (nextEncounter.stage === 'LANDED') {
       const result = takeTurn(bundle, save.value, narrativeRng)
       save.value = result.save
       lastCatch.value = result.catch
@@ -322,7 +332,7 @@ export const useRulerHookedStore = defineStore('rulerHooked', () => {
     bundle, save, activeCard, activeArcId, pendingEnding, activeFishing,
     lastCatch, lastEscape, slots, scene, canFish, coins,
     advisorCharacter, advisorLine, showOpening,
-    init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, choose,
+    init, newGame, updateCosmetics, loadSlot, startFishing, fishingStop, reelFishing, choose,
     acceptEnding, declineEnding, dismissOpening, renameSlot, deleteSlot, refreshSlots,
     purchaseGear, purchaseKingdomItem,
   }

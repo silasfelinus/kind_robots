@@ -8,6 +8,18 @@ import {
   sectionPlate,
 } from '../zuzuGamebook/art'
 import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
+import {
+  applyPlaytestMove,
+  combatBenchmark,
+  encodeWitness,
+  findEndingWitness,
+  replayEncodedWitness,
+  witnessFingerprint,
+  replayWitness,
+  witnessFromRun,
+  type EndingWitness,
+  type PlaytestMove,
+} from '../zuzuGamebook/adversarial'
 import { journal } from '../zuzuGamebook/journal'
 import { emphasis } from '../zuzuGamebook/prose'
 import {
@@ -18,6 +30,7 @@ import {
   fight,
   isSavedRun,
   lockReason,
+  resolveLoot,
   visibleChoices,
   honor,
   taint,
@@ -93,16 +106,23 @@ for (const node of Object.values(BOOK)) {
   const art = PLATES[node.art]
   assert.ok(art, node.id + ': unknown plate ' + node.art)
   assert.ok(art.alt.length > 40, node.art + ' needs descriptive alt text')
-  assert.ok(art.artImageId > 0, node.art + ' needs its ArtImage provenance')
   assert.ok(
-    existsSync(join(scenesDir, art.file + '.webp')),
+    art.format === 'svg' ? art.artImageId === 0 : art.artImageId > 0,
+    node.art +
+      ': a local SVG has no generated ArtImage, a WebP needs provenance',
+  )
+  assert.ok(
+    existsSync(join(scenesDir, art.file + '.' + (art.format ?? 'webp'))),
     node.art + ': plate file missing',
   )
-  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+  assert.equal(
+    platePath(art),
+    '/zuzu-gamebook/scenes/' + art.file + '.' + (art.format ?? 'webp'),
+  )
   // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
   const own = sectionPlate(node)
   assert.ok(
-    existsSync(join(scenesDir, own.file + '.webp')),
+    existsSync(join(scenesDir, own.file + '.' + (own.format ?? 'webp'))),
     node.id + ': own plate file missing',
   )
   assert.equal(
@@ -112,6 +132,24 @@ for (const node of Object.values(BOOK)) {
       ': wide plates sit above the text, tall and square ones to its right',
   )
 }
+// Regression: never show Hollow Bell on the lookout or an apple tree in the rain-bloom.
+for (const [nodeId, expectedFile] of [
+  ['a2-bell-view', 'bell-view-original.svg'],
+  ['a4-bloom', 'desert-bloom-original.svg'],
+] as const) {
+  const chosen = sectionPlate(BOOK[nodeId]!)
+  assert.equal(
+    platePath(chosen),
+    '/zuzu-gamebook/scenes/' + expectedFile,
+    nodeId + ': illustration must follow the authored scene',
+  )
+  assert.equal(chosen.fit, 'exact', nodeId + ': no unrelated stand-in')
+  assert.match(
+    readFileSync(join(scenesDir, expectedFile), 'utf8'),
+    /<svg[^>]+viewBox/,
+    nodeId + ': local scene illustration must be valid vector artwork',
+  )
+}
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
@@ -119,7 +157,9 @@ for (const key of Object.keys(PLATES)) {
 for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
   if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.webp' === file.name),
+    Object.values(PLATES).some(
+      (p) => p.file + '.' + (p.format ?? 'webp') === file.name,
+    ),
     'stray plate file ' + file.name,
   )
 }
@@ -172,6 +212,75 @@ assert.equal(initial.resolve, 4)
 assert.ok(isSavedRun(JSON.parse(JSON.stringify(initial))))
 assert.equal(isSavedRun({ ...initial, sceneId: 'missing' }), false)
 assert.equal(isSavedRun({ ...initial, health: 500 }), false)
+assert.equal(isSavedRun({ ...initial, pendingLoot: [123] }), false)
+const legacySave = JSON.parse(JSON.stringify(initial)) as Record<
+  string,
+  unknown
+>
+delete legacySave.pendingLoot
+assert.ok(
+  isSavedRun(legacySave),
+  'older V1 saves without pending loot are valid',
+)
+
+// An at-capacity pickup must never vanish without the player's consent.
+const fullItems = ['water', 'bandage', 'apple', 'flint', 'clapper']
+const fullPack: Run = {
+  ...startRun(77),
+  sceneId: 'apple-tree',
+  items: [...fullItems],
+}
+const offered = takeChoice(fullPack, 'take')
+assert.deepEqual(offered.items, fullItems)
+assert.deepEqual(offered.pendingLoot, ['apple'])
+assert.deepEqual(fullPack.pendingLoot, [], 'pickup did not mutate old state')
+assert.equal(
+  takeChoice(offered, 'on'),
+  offered,
+  'pending loot blocks story advancement',
+)
+assert.equal(
+  resolveLoot(offered, -1),
+  offered,
+  'invalid replacement cannot skip loot',
+)
+assert.equal(
+  resolveLoot(offered, 99),
+  offered,
+  'invalid index cannot discard items',
+)
+const replaced = resolveLoot(offered, 4)
+assert.deepEqual(replaced.items, [
+  'water',
+  'bandage',
+  'apple',
+  'flint',
+  'apple',
+])
+assert.deepEqual(replaced.pendingLoot, [])
+assert.deepEqual(offered.items, fullItems, 'exchange leaves old run untouched')
+const abandoned = resolveLoot(offered, null)
+assert.deepEqual(abandoned.items, fullItems)
+assert.deepEqual(abandoned.pendingLoot, [])
+assert.equal(resolveLoot(abandoned, null), abandoned, 'empty queue is a no-op')
+const multiple = {
+  ...offered,
+  pendingLoot: ['apple', 'water'],
+}
+assert.deepEqual(resolveLoot(multiple, null).pendingLoot, ['water'])
+assert.deepEqual(resolveLoot(resolveLoot(multiple, 0), 1).pendingLoot, [])
+const wagonPickup = Array.from({ length: 40 }, (_, i) =>
+  takeChoice(
+    { ...startRun(i + 1), sceneId: 'wagon', items: [...fullItems] },
+    'search',
+  ),
+).find((result) => result.sceneId === 'wagon-find')
+assert.ok(wagonPickup, 'some seeded wagon search succeeds')
+assert.deepEqual(
+  wagonPickup.pendingLoot,
+  ['water'],
+  'scene-entry loot must also wait for a full-pack decision',
+)
 
 const noWater = { ...initial, items: [] }
 assert.equal(
@@ -380,41 +489,243 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
-// Stateful exploration: seeded random playthroughs reach every ending and never stall.
+// Golden journeys must remain replayable without the search solver, including
+// rare moral endings and failures. Changes to choices, dice or consequences
+// require explicit editorial review and deliberate fixture refresh.
+type GoldenWitness = {
+  ending: string
+  seed: number
+  trace: string
+  health: number
+  resolve: number
+  scenes: number
+  fingerprint: string
+}
+const goldenFile = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'utils/scripts/fixtures/zuzuGamebookGolden.json'),
+    'utf8',
+  ),
+) as { version: number; witnesses: GoldenWitness[] }
+assert.equal(goldenFile.version, 1)
+assert.deepEqual(
+  goldenFile.witnesses.map((witness) => witness.ending).sort(),
+  [...endings].sort(),
+  'each authored ending must have exactly one golden full-journey transcript',
+)
+for (const fixture of goldenFile.witnesses) {
+  assert.ok(fixture.trace.length > 0 && fixture.trace.length % 2 === 0)
+  const replayed = replayEncodedWitness(fixture.seed, fixture.trace)
+  assert.equal(replayed.sceneId, fixture.ending)
+  assert.equal(replayed.health, fixture.health)
+  assert.equal(replayed.resolve, fixture.resolve)
+  assert.equal(replayed.visited.length, fixture.scenes)
+  assert.equal(
+    witnessFingerprint(replayed),
+    fixture.fingerprint,
+    fixture.ending + ': golden route or consequences unexpectedly changed',
+  )
+  if (fixture.ending === 'ending-wren-lamp') {
+    assert.ok(replayed.visited.includes('a5-wren-talk'))
+    assert.ok(replayed.flags.includes('wren-ally'))
+  }
+}
+assert.throws(() => replayEncodedWitness(1, 'c'), /Truncated witness/)
+assert.throws(() => replayEncodedWitness(1, 'x0'), /Unknown witness action/)
+
+// Seeded player journeys use actual dice and inventory decisions. Capture a
+// replayable witness for each ending rather than trusting synthetic scene flags.
 let rng = 20261009
 const rand = (n: number) => {
   rng = (rng * 1103515245 + 12345) >>> 0
   return (rng >>> 16) % n
 }
-const reached = new Set<string>()
+const witnessed = new Map<string, EndingWitness>()
 const actions: BattleAction[] = ['strike', 'guard', 'feint', 'quiet-draw']
 for (let walk = 0; walk < 6000; walk++) {
-  let run = startRun(walk * 7919 + 1)
+  const seed = walk * 7919 + 1
+  let run = startRun(seed)
+  const moves: PlaytestMove[] = []
   for (let step = 0; step < 200; step++) {
     const node = scene(run.sceneId)
     if (node.ending) {
-      reached.add(node.id)
+      if (!witnessed.has(node.id))
+        witnessed.set(node.id, witnessFromRun(seed, moves, run))
       break
     }
-    if (run.battle) {
-      const next = fight(run, actions[rand(actions.length)]!)
-      run = next === run ? fight(run, 'strike') : next
-      continue
+    let move: PlaytestMove
+    if (run.pendingLoot.length) {
+      const slot = rand(run.items.length + 1)
+      move = { kind: 'loot', replace: slot === run.items.length ? null : slot }
+    } else if (run.battle) {
+      const proposed = actions[rand(actions.length)]!
+      move = {
+        kind: 'fight',
+        action:
+          proposed === 'quiet-draw' && run.resolve < 2 ? 'strike' : proposed,
+      }
+    } else {
+      const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
+      assert.ok(open.length, 'stalled with no available choice at ' + node.id)
+      move = { kind: 'choice', id: open[rand(open.length)]!.id }
     }
-    const open = visibleChoices(run, node).filter((c) => !lockReason(run, c))
-    assert.ok(open.length, 'stalled with no available choice at ' + node.id)
-    run = takeChoice(run, open[rand(open.length)]!.id)
+    const next = applyPlaytestMove(run, move)
+    assert.notEqual(next, run, 'random walker attempted a rejected move')
+    moves.push(move)
+    run = next
     assert.ok(run.health >= 0 && run.health <= 12)
     assert.ok(run.items.length <= 5)
   }
 }
-// Endings behind a rare ally flag are proved by the scripted runs below instead of by chance.
-const scriptedEndings = new Set(['ending-wren-lamp'])
-for (const id of endings)
-  assert.ok(
-    reached.has(id) || scriptedEndings.has(id),
-    'ending never reached in play: ' + id,
+for (const id of endings) {
+  const witness = witnessed.get(id) ?? findEndingWitness(id)
+  assert.ok(witness, 'No legal seed-and-choice playthrough reaches ' + id)
+  assert.equal(witness.ending, id)
+  const replayed = replayWitness(witness.seed, witness.moves)
+  assert.equal(replayed.sceneId, id, 'replayed witness diverged for ' + id)
+  assert.deepEqual(replayed.visited, witness.visited)
+  assert.equal(replayed.health, witness.health)
+  assert.equal(replayed.resolve, witness.resolve)
+  const trace = encodeWitness(witness)
+  const compactReplay = replayEncodedWitness(witness.seed, trace)
+  assert.equal(witnessFingerprint(compactReplay), witnessFingerprint(replayed))
+  assert.ok(witness.visited[0] === 'the-crossing')
+  if (id === 'ending-wren-lamp') {
+    assert.ok(
+      witness.visited.includes('a5-wren-talk'),
+      'Wren must actually trust Zuzu',
+    )
+    assert.ok(replayed.flags.includes('wren-ally'))
+  }
+  console.log(
+    'Gamebook witness ' +
+      id +
+      ': seed=' +
+      witness.seed +
+      ', moves=' +
+      witness.moves.length +
+      ', health=' +
+      witness.health,
   )
+}
+
+// Check that every policy resolves each authored combat, including starting hurt.
+// The report is for designers; deterministic outcome bounds prevent a silent
+// regression to unwinnable battles.
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  const results = [
+    combatBenchmark(node.id, 'strike', 250),
+    combatBenchmark(node.id, 'quiet-draw', 250),
+    combatBenchmark(node.id, 'feint-strike', 250),
+    combatBenchmark(node.id, 'guard-strike', 250),
+  ]
+  for (const outcome of results) {
+    assert.ok(Number.isFinite(outcome.averageRounds))
+    assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
+    assert.ok(outcome.winRate >= 0 && outcome.winRate <= 1)
+  }
+  assert.ok(
+    results.some((outcome) => outcome.wins > 0),
+    node.id + ': unwinnable',
+  )
+  console.log(
+    'Gamebook combat ' +
+      node.id +
+      ': ' +
+      results
+        .map(
+          (r) =>
+            Math.round(r.winRate * 100) +
+            '%/' +
+            r.averageHealth.toFixed(1) +
+            'hp',
+        )
+        .join(' | '),
+  )
+}
+// Wounded and exhausted players must still resolve battles deterministically.
+// We do not require an injured Zuzu to beat five jackals: failures can be story.
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  for (const resolve of [0, 2, 4]) {
+    for (const health of [3, 6, 9, 12]) {
+      const strike = combatBenchmark(node.id, 'strike', 90, health, resolve)
+      const exhausted = combatBenchmark(
+        node.id,
+        'quiet-draw',
+        90,
+        health,
+        resolve,
+      )
+      const feint = combatBenchmark(
+        node.id,
+        'feint-strike',
+        90,
+        health,
+        resolve,
+      )
+      const guard = combatBenchmark(
+        node.id,
+        'guard-strike',
+        90,
+        health,
+        resolve,
+      )
+      for (const outcome of [strike, exhausted, feint, guard]) {
+        assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
+        // Losing some encounters restores HP during the authored aftermath.
+        assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= 12)
+        assert.ok(outcome.wins >= 0 && outcome.wins <= 90)
+      }
+      if (resolve === 0)
+        assert.deepEqual(
+          exhausted,
+          strike,
+          'Quiet Draw cannot bypass 0 Resolve',
+        )
+      if (health === 3 || health === 12)
+        console.log(
+          'Gamebook wounded ' +
+            node.id +
+            ': health=' +
+            health +
+            ', resolve=' +
+            resolve +
+            ', strike=' +
+            strike.wins +
+            ', feint=' +
+            feint.wins +
+            ', guard=' +
+            guard.wins +
+            ', draw=' +
+            exhausted.wins,
+        )
+    }
+  }
+}
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 0))
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 12, 5))
+
+const guardTestRuns = Array.from({ length: 120 }, (_, i) =>
+  fight({ ...coyote, seed: i + 1 }, 'guard'),
+)
+assert.ok(
+  guardTestRuns.some(
+    (result) => result.battle?.exposed && result.health === coyote.health,
+  ),
+  'successful guard should block damage and open a counterattack',
+)
+const feintTestRuns = Array.from({ length: 120 }, (_, i) =>
+  fight({ ...coyote, seed: i + 1 }, 'feint'),
+)
+assert.ok(
+  feintTestRuns.some(
+    (result) =>
+      result.battle?.exposed &&
+      result.battle.hp === 5 &&
+      result.health >= coyote.health - 1,
+  ),
+  'successful feint should deal 3, expose and reduce retaliation',
+)
 
 // The Keeper of the Empty Bell: from the tower, only when the children were freed.
 const towerRun: Run = { ...startRun(11), sceneId: 'a9-tower', flags: [] }
@@ -456,6 +767,16 @@ assert.match(page, /\(min-width: 1024px\) and \(max-height: 820px\)/)
 assert.match(page, /\(min-width: 768px\) and \(orientation: portrait\)/)
 assert.match(page, /md:grid-rows-\[minmax\(9rem,1fr\)_auto\]/)
 assert.match(page, /max-md:max-h-\[34svh\]/, 'phones keep the plate to a third')
+
+assert.ok(
+  page.includes('store.claimLoot(index)'),
+  'full pack can replace inventory',
+)
+assert.ok(page.includes('store.claimLoot(null)'), 'full pack can leave loot')
+assert.ok(
+  page.includes('store.recoverable'),
+  'restore journey action is visible',
+)
 
 console.log(
   'Zuzu gamebook contract: ' +

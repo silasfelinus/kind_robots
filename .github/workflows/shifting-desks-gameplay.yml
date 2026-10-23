@@ -14,6 +14,7 @@ on:
       - 'utils/scripts/verifyShiftingDesks.test.ts'
       - 'utils/scripts/verifyShiftingDesksBalance.test.ts'
       - 'utils/scripts/verifyShiftingDesksAdversarial.test.ts'
+      - 'utils/scripts/verifyShiftingDesksClueChains.test.ts'
       - 'utils/scripts/shiftingDesksAdversarialReport.ts'
       - 'utils/scripts/verifyShiftingDesksArtStyles.test.ts'
       - 'utils/scripts/shiftingDesksBalanceReport.ts'
@@ -41,6 +42,7 @@ jobs:
       - run: npx tsx utils/scripts/verifyShiftingDesks.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksBalance.test.ts
       - run: npx tsx utils/scripts/verifyShiftingDesksAdversarial.test.ts
+      - run: npx tsx utils/scripts/verifyShiftingDesksClueChains.test.ts
       - name: Generate adversarial playtest report
         shell: bash
         run: npx tsx utils/scripts/shiftingDesksAdversarialReport.ts 200 | tee shifting-desks-adversarial-report.md

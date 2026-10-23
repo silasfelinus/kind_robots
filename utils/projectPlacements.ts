@@ -18,7 +18,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/play/sliding-tile-gallery',
   },
   'music-mentor': {
-    channelKey: 'projects',
+    channelKey: 'admin',
     tabKey: 'daily-pitches',
     route: '/music-mentor',
   },
@@ -113,6 +113,14 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
   },
   // Kind Robots Arcade (Silas, 2026-10-06): classic cabinets, leaderboards,
   // original games riffing on golden-age favourites.
+  // The existing /play/memory page remains Memory Dungeon's game surface.
+  // Conductor's high-priority RPG evolution shares this route and Play tab;
+  // no duplicate dashboard or new channel should be created.
+  'memory-dungeon': {
+    channelKey: 'arcade',
+    tabKey: 'experiments',
+    route: '/play/memory',
+  },
   'kr-arcade': {
     channelKey: 'arcade',
     tabKey: 'arcade',

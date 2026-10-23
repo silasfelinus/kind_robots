@@ -266,6 +266,7 @@
           <EmperorFortressChronicle
             v-if="activeRoom === 'chronicle'"
             :run="run"
+            @new-run="enter('throne')"
           />
         </div>
       </div>
@@ -278,7 +279,7 @@
     <EmperorFortressIntro
       v-if="court.loaded && court.introOpen"
       :active="!splashing"
-      @done="court.closeIntro()"
+      @done="finishIntroduction"
     />
     <EmperorFortressSplash
       v-if="splashing"
@@ -298,6 +299,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useEmperorFortressStore } from '~/stores/emperorFortressStore'
 import { LAST_DAY } from '~/utils/emperorOfDust/fortress/content'
+import { COURT_ONBOARDING_FLAG } from '~/utils/emperorOfDust/fortress/onboarding'
 import {
   actOf,
   audiencesToday,
@@ -411,6 +413,15 @@ function enter(room: RoomId) {
   stage.value?.scrollTo({ top: 0 })
 }
 
+function finishIntroduction() {
+  const firstAudience =
+    run.value?.day === 1 &&
+    run.value.roster.length === 0 &&
+    run.value.flags.includes(COURT_ONBOARDING_FLAG)
+  court.closeIntro()
+  if (firstAudience) enter('throne')
+}
+
 watch(
   () => court.lastReport,
   (report) => {
@@ -489,7 +500,7 @@ useHead({ title: 'Emperor of Dust' })
 .eod {
   --eod-gilt: oklch(72% 0.1 78);
   --eod-gilt-dim: color-mix(in oklch, var(--eod-gilt) 45%, transparent);
-  --eod-ink: color-mix(in oklch, var(--color-base-100) 86%, transparent);
+  --eod-ink: var(--color-base-100);
 }
 
 .eod .eod-display,
@@ -512,7 +523,7 @@ useHead({ title: 'Emperor of Dust' })
 .eod .eod-chip {
   border: 1px solid var(--eod-gilt-dim);
   border-radius: 0.375rem;
-  background: color-mix(in oklch, var(--color-base-200) 85%, transparent);
+  background: var(--color-base-200);
 }
 
 /* Header tooltips are shifted to stay inside the bar (fitTips); the tail stays on its button. */
@@ -729,11 +740,7 @@ useHead({ title: 'Emperor of Dust' })
 .eod .eod-plate {
   border: 1px solid var(--eod-gilt-dim);
   border-radius: 0.25rem;
-  background: linear-gradient(
-    to right,
-    var(--eod-ink),
-    color-mix(in oklch, var(--color-base-100) 40%, transparent)
-  );
+  background: linear-gradient(to right, var(--eod-ink), var(--color-base-200));
   color: var(--color-base-content);
 }
 
@@ -770,7 +777,6 @@ useHead({ title: 'Emperor of Dust' })
   border: 1px solid var(--eod-gilt-dim);
   border-radius: 0.5rem;
   background: var(--eod-ink);
-  backdrop-filter: blur(3px);
   box-shadow:
     inset 0 0 0 3px color-mix(in oklch, var(--color-base-200) 70%, transparent),
     inset 0 0 0 4px color-mix(in oklch, var(--eod-gilt) 18%, transparent);

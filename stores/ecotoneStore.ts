@@ -12,6 +12,7 @@ import {
   chooseCrossroads,
   chooseEvent,
   chooseFork,
+  originPerkAvailable,
   chooseSubstanceMoment,
   computeEnding,
   createRun,
@@ -27,10 +28,22 @@ import {
 import type { CardEdit } from '~/utils/playbook/edits'
 import type { SubstanceId } from '~/utils/ecotone/substanceArc'
 import type { PlayerIdentity } from '~/utils/ecotone/playerIdentity'
+import {
+  MYSTERIES,
+  caseRecord,
+  mergeCaseRecord,
+  mysteryCardMeta,
+  mysteryEnding,
+  pickMystery,
+  runMystery,
+  sanitizeCaseFiles,
+  type CaseRecord,
+} from '~/utils/ecotone/mysteries'
 import { performFetch } from '~/stores/utils'
 
 const RUN_KEY = 'kr.ecotone.run.v1'
 const ENDINGS_KEY = 'kr.ecotone.endings.v1'
+const CASES_KEY = 'kr.ecotone.cases.v1'
 const UNDO_KEY = 'kr.ecotone.undo.v1'
 const SAVE_SLOTS_KEY = 'kr.ecotone.manual-saves.v1'
 export type EcotoneSaveSlot = { slot: number; savedAt: string; state: RunState }
@@ -38,8 +51,8 @@ export type EcotoneSaveSlot = { slot: number; savedAt: string; state: RunState }
 export const useEcotoneStore = defineStore('ecotone', () => {
   const run = ref<RunState | null>(null)
   const endings = ref<string[]>([])
-  // Exactly one checkpoint, immediately before a committed selection.
-  // No arbitrary rerolls; continuing the story clears the checkpoint.
+  /** Case Files: the best result on each gate of every mystery ever opened. */
+  const caseFiles = ref<Record<string, CaseRecord>>({})
   const undoSnapshot = ref<RunState | null>(null)
   const manualSaves = ref<EcotoneSaveSlot[]>([])
   const canUndo = computed(() => Boolean(run.value && undoSnapshot.value))
@@ -80,6 +93,14 @@ export const useEcotoneStore = defineStore('ecotone', () => {
   const ending = computed(() =>
     run.value?.phase === 'end' ? computeEnding(run.value) : null,
   )
+  const mystery = computed(() => (run.value ? runMystery(run.value) : null))
+  const mysteryMeta = computed(() =>
+    run.value?.phase === 'beat' ? mysteryCardMeta(run.value.card) : null,
+  )
+  const realEnding = computed(() =>
+    run.value ? mysteryEnding(run.value) : null,
+  )
+  const casesOpened = computed(() => Object.keys(caseFiles.value).length)
   const unlockedCount = computed(
     () => endings.value.filter((id) => ENDING_IDS.includes(id)).length,
   )
@@ -91,16 +112,10 @@ export const useEcotoneStore = defineStore('ecotone', () => {
         window.localStorage.setItem(RUN_KEY, JSON.stringify(run.value))
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
-      if (undoSnapshot.value)
-        window.localStorage.setItem(
-          UNDO_KEY,
-          JSON.stringify(undoSnapshot.value),
-        )
+      window.localStorage.setItem(CASES_KEY, JSON.stringify(caseFiles.value))
+      if (undoSnapshot.value) window.localStorage.setItem(UNDO_KEY, JSON.stringify(undoSnapshot.value))
       else window.localStorage.removeItem(UNDO_KEY)
-      window.localStorage.setItem(
-        SAVE_SLOTS_KEY,
-        JSON.stringify(manualSaves.value),
-      )
+      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(manualSaves.value))
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -161,6 +176,8 @@ export const useEcotoneStore = defineStore('ecotone', () => {
                 typeof id === 'string' && ENDING_IDS.includes(id),
             )
         }
+        const cases = window.localStorage.getItem(CASES_KEY)
+        if (cases) caseFiles.value = sanitizeCaseFiles(JSON.parse(cases))
       } catch {
         run.value = null
         undoSnapshot.value = null
@@ -191,11 +208,18 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       !endings.value.includes(next.ending)
     )
       endings.value = [...endings.value, next.ending]
+    const record = caseRecord(next)
+    if (record)
+      caseFiles.value = {
+        ...caseFiles.value,
+        [record.id]: mergeCaseRecord(caseFiles.value[record.id], record),
+      }
     persist()
   }
 
   function begin(archetypeId: string, identity: PlayerIdentity = {}) {
-    update(createRun(Date.now() % 2147483647, archetypeId, identity))
+    const seed = Date.now() % 2147483647
+    update(createRun(seed, archetypeId, pickMystery(seed, Object.keys(caseFiles.value)), identity))
   }
 
   function saveSlot(slot: number) {
@@ -277,8 +301,9 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     if (run.value) update(chooseFork(run.value, cardId), true)
   }
 
-  function choose(choiceId: string) {
-    if (run.value) update(chooseBeat(run.value, choiceId), true)
+  function choose(choiceId: string, spendOriginPerk = false) {
+    if (run.value)
+      update(chooseBeat(run.value, choiceId, spendOriginPerk && originPerkAvailable(run.value, choiceId)), true)
   }
 
   function takeMoment(selected: SubstanceId[]) {
@@ -325,6 +350,12 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     ending,
     unlockedCount,
     endingTotal: ENDING_IDS.length,
+    caseFiles,
+    casesOpened,
+    caseTotal: MYSTERIES.length,
+    mystery,
+    mysteryMeta,
+    realEnding,
     initialize,
     begin,
     pickEvent,

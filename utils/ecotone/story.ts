@@ -169,15 +169,15 @@ export const BEATS: EncounterCard[] = [
     scene: 'meadow',
     variantBy: 'prospect',
     body: [
-      'After the Green Ribbon Fair’s first performance, volunteers pass out sandwiches, water and schedules. A drummer invites you to hear a new song while the trail crew needs help putting up a safety sign. Someone offers a joint in passing, but nobody is keeping score of what you accept.',
+      'Somebody always has something to share at the Green Ribbon Fair: water, sandwiches, a joint, and a little tin of the serious brownies, labeled. Nobody has to.',
     ],
     variants: {
       kit: [
-        'After the show the acrobats unpack water and sandwiches while the volunteer coordinator counts missing flashlight batteries. Somebody offers a joint; the base of the act, a huge bearded man with a voice like a lullaby, says, “No pressure. We need people who can carry these lanterns, too.”',
+        'After the show the acrobats sprawl on a blanket, passing around water, a basket of sandwiches and a joint, all offered with the same easy generosity. The base of the act, a huge bearded man with a voice like a lullaby, holds up a wax-paper parcel. “Brownies,” he says. “Labeled. The serious kind. Nobody has to.”',
         'The woman in coveralls, still upside down on a stranger’s shoulders, calls over: “Whatever you pick, pick it on purpose.”',
       ],
       juniper: [
-        'The drum circle breaks for water, and a drummer with silver rings on every finger shows you where the path leaves the meadow. Someone nearby offers a smoke; she waves it away for herself and says, “The forest’s weird enough either way.”',
+        'The drum circle breaks for water. A drummer with silver rings on every finger passes you a canteen, then a joint, then, more carefully, a small labeled tin of the serious brownies. “Nobody has to,” she says. “The forest’s weird enough either way.”',
         'Across the clearing the woman with the ribbon watches you decide, curious rather than expectant.',
       ],
     },
@@ -556,16 +556,16 @@ export const BEATS: EncounterCard[] = [
     scene: 'marsh',
     variantBy: 'prospect',
     body: [
-      'The trail ends at a bench above a slough with the bay in view. Someone has left a thermos of coffee with a note: FOR WHOEVER NEEDS IT. Beside it is a pair of binoculars and a hand-drawn map of the birds you might see if you sit quietly.',
-      'You can watch the tide, use what you brought in your pocket, or simply leave before you become part of somebody else’s story. Nobody is watching. That is the point.',
+      'The trail ends at a bench above a slough with the whole bay in view. Someone has left a thermos of coffee there with a note: FOR WHOEVER NEEDS IT. There are binoculars nearby and a marked notebook for bird sightings.',
+      'There is also, in your pocket, the joint a neighbor gave you last week. Nobody is watching. That is the point.',
     ],
     variants: {
       juniper: [
-        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. A folded trail map lies between you; she follows an egret with her eyes.',
+        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. After a while she also offers a joint, with no expectation that you will accept.',
         '“Nobody has to,” she says. “The marsh is plenty either way.”',
       ],
       kit: [
-        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, holding out half a sandwich. A small notebook on her lap contains sketches of birds with too many wings.',
+        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, and offers half a sandwich. When she mentions the joint in her pocket, she is just as comfortable with you declining.',
         '“Nobody has to. I just don’t like eating alone.”',
       ],
     },
@@ -810,6 +810,46 @@ export const BEATS: EncounterCard[] = [
             mara: 'Mara looks at the damaged stakes, then at you. “A good apology is a day of work,” she says. She helps the crew redraw the markers.',
             alone:
               'Nobody explains away your mistake. You help carry the tools and listen when the crew tells you why they put the snag there.',
+          },
+        },
+      },
+      {
+        id: 'monitor',
+        label:
+          'Commit four Saturdays to creek monitoring and learn the crew plan',
+        wild: true,
+        cost: 'Four Saturdays of real work, starting with training, not a grand gesture',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The crew lead walks you through the permitted monitoring plan. You ask which downstream measurements matter, write four actual Saturdays into your calendar, and sign up for a partner check before working near the bank again. There is no instant ecological victory, just a shift roster with your name on it. When the next volunteer asks who will check the culvert after the rains, you can answer with a date instead of a speech.',
+          effects: {
+            nerve: -1,
+            goodwill: 1,
+            flag: 'creek_monitoring_committed',
+          },
+          leadLines: {
+            juniper:
+              'Juniper wants to promise the whole forest. The crew lead asks her to start with one stream gauge, and she does.',
+            kit: 'Kit draws a small rehearsal schedule next to yours. “We can be the least glamorous double act in Humboldt,” she says.',
+            cedar:
+              'Cedar checks the measurements against the culvert size, then reminds the crew he cannot promise a fix without the proper engineer.',
+            mara: 'Mara writes the rota date on her wrist, then transfers it to a real calendar. “Even artists need a schedule,” she says.',
+            alone:
+              'Nobody travels with you or holds you to the promise. You carry home a calendar with four dates and the crew number, both written in your own hand.',
+          },
+        },
+        failure: {
+          text: 'You offer every Saturday before checking your real obligations. The coordinator catches the conflict, quietly hands back the clipboard and asks you to train for one shift first. You have wasted an hour of the crew’s time, and the river has not moved an inch because of your enthusiasm. You take home the safety syllabus rather than the good feeling of a promise you could not keep.',
+          effects: { nerve: -2, flag: 'creek_monitoring_delayed' },
+          leadLines: {
+            juniper:
+              'Juniper does not excuse the overpromise. “Come back for the training,” she says. “I will too.”',
+            kit: 'Kit taps the unsigned calendar. “A rehearsal is a real thing. An imaginary show date isn’t.”',
+            cedar:
+              'Cedar lends you a pencil for a schedule you can actually keep, and makes you return it.',
+            mara: 'Mara watches the coordinator reclaim the clipboard. “Not saying yes until you can mean it is a skill,” she says.',
+            alone:
+              'You leave with no signed shift and no witness who will remember the intention as work already done.',
           },
         },
       },
@@ -1790,7 +1830,7 @@ export const FUTURES: Record<EndingLine, Record<Fate, string[]>> = {
       'Nobody remembers it starting with one person who kept choosing the animals, again and again, when nobody was watching. You remember. The herons do too.',
     ],
     dark: [
-      'You never quite chose. You loved the herons and the elk and the fog, and you kept loving them from a little distance. Things didn’t get worse, exactly. They just never got better.',
+      'You knew the elk and herons by their silences. You found a few ways to help, or at least nearly found them. But the county needed people who could return together for the hard, tedious years. That part never quite became your habit.',
       'You retire to a cabin up the Mad River with a woodstove, a good pair of binoculars and a notebook of every bird that ever came to your feeder. Some mornings the elk come down to the meadow and you wave. It is a small, kind, quiet life, and the county went on deciding without you.',
     ],
   },

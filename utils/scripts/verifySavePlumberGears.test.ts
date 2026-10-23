@@ -176,7 +176,10 @@ const resumed = createSavePlumberPreview(
 )
 assert.ok(resumed.gears.has('2-1'), 'and survives into the next session')
 assert.deepEqual(
-  readPlumberSave({ ...run.save, gears: ['2-1', 'nope', 7, '2-1'] })!.gears,
+  readPlumberSave({
+    ...readPlumberSave(run.save),
+    gears: ['2-1', 'nope', 7, '2-1'],
+  })!.gears,
   ['2-1'],
   'a save keeps only real stage codes, once',
 )

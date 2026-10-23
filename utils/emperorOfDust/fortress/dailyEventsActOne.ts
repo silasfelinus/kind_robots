@@ -368,7 +368,7 @@ export const ACT_ONE_CHOICES: Readonly<
       label:
         'Give the messenger breakfast at a public table, under the eyes of the Watch.',
       response:
-        'The hyena asks for seconds. The officers hear a useful road warning between bites; by evening they are arguing about whether hospitality counted as a treaty.',
+        'The Pack envoy asks for seconds. The officers hear a useful road warning between bites; by evening they are arguing about whether hospitality counted as a treaty.',
       effects: {
         brass: -3,
         local: { 'gate-watch': 1 },

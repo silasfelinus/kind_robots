@@ -10,6 +10,7 @@ import { ACT_THREE_DAYS, ACT_THREE_DUES, ACT_THREE_QUESTS } from './actThree'
 import { ACT_FOUR_DAYS, ACT_FOUR_DUES, ACT_FOUR_QUESTS } from './actFour'
 import { ACT_FIVE_DAYS, ACT_FIVE_DUES, ACT_FIVE_QUESTS } from './actFive'
 import { CHORES } from './chores'
+import { questBrief } from './questBriefs'
 import type { AudienceDef, DayDef, DueDef, QuestDef, SceneLine } from './types'
 import { editChoices, liveTextStore } from '../../playbook/textOverlay'
 
@@ -43,7 +44,9 @@ export const authoredQuestDef = (id: string): QuestDef | undefined =>
 export const questDef = (id: string): QuestDef | undefined => {
   const quest = authoredQuestDef(id)
   const edit = quest && FORTRESS_LIVE_TEXT.get(`quest:${quest.id}`)
-  if (!quest || !edit) return quest
+  if (!quest) return undefined
+  const briefing = questBrief(quest.id, quest.summary)
+  if (!edit) return { ...quest, summary: briefing }
   const outcomes = { ...quest.outcomes }
   for (const tier of TIERS) {
     const text = edit.choices?.[tier]?.success
@@ -52,7 +55,7 @@ export const questDef = (id: string): QuestDef | undefined => {
   return {
     ...quest,
     title: edit.title ?? quest.title,
-    summary: edit.body?.[0] ?? quest.summary,
+    summary: edit.body?.[0] ?? briefing,
     outcomes,
   }
 }

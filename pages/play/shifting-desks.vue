@@ -176,6 +176,16 @@
                   {{ run ? 'New game' : 'Begin' }}
                 </button>
                 <button
+                  v-if="store.archiveUnlocked"
+                  type="button"
+                  class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
+                  @click="openArchive('milestones')"
+                >
+                  <icon name="kind-icon:trophy" class="size-5" />
+                  Personnel Archive ·
+                  {{ store.rewardArchive.runs.length }} filed
+                </button>
+                <button
                   type="button"
                   class="btn btn-lg border-amber-100 bg-stone-950/85 text-amber-50 shadow-xl hover:bg-stone-900"
                   :title="`Today's Daily Memo (${todayLabel}): the same files for everyone, every day`"
@@ -348,6 +358,7 @@
           class="min-h-0 flex-1"
           @again="beginHire(false)"
           @front="toFront"
+          @archive="openArchive('milestones')"
         />
       </section>
 
@@ -748,6 +759,12 @@
                         >If the check succeeds: +1 Form</span
                       >
                       <span
+                        v-if="run && clueChainFor(run, choice)"
+                        class="self-start rounded-md border border-info/40 bg-info/10 px-2 py-0.5 text-[11px] font-semibold"
+                        :title="clueChainFor(run, choice)?.hint"
+                        >Thread: {{ clueChainFor(run, choice)?.hint }}</span
+                      >
+                      <span
                         v-if="rollTip === choice.id && choice.roll"
                         class="rounded-md bg-sky-100 px-2 py-1 text-xs leading-snug text-sky-950"
                         aria-hidden="true"
@@ -863,6 +880,7 @@
       </section>
 
       <shifting-desks-endings-gallery ref="endingsGallery" />
+      <shifting-desks-personnel-archive ref="personnelArchive" />
 
       <dialog ref="artPicker" class="modal" aria-label="Choose your art style">
         <div class="modal-box flex max-w-3xl flex-col gap-3 p-3 sm:p-4">
@@ -943,6 +961,7 @@ import {
   gradeTitle,
   reviewExhibits,
   riskPayoffFor,
+  clueChainFor,
   interimResults,
   departmentBoard,
   restructuringById,
@@ -1389,6 +1408,14 @@ function hasCost(choice: Choice): boolean {
 
 // The front desk's collectible: every ending this browser has reached.
 const endingsGallery = ref<{ open: () => void } | null>(null)
+const personnelArchive = ref<{
+  open: (section?: 'milestones' | 'endings' | 'achievements' | 'runs') => void
+} | null>(null)
+function openArchive(
+  section: 'milestones' | 'endings' | 'achievements' | 'runs',
+): void {
+  personnelArchive.value?.open(section)
+}
 const endingsCount = computed(
   () => ENDINGS.filter((e) => store.endingsFound.includes(e.id)).length,
 )

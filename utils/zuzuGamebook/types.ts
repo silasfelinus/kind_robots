@@ -75,6 +75,8 @@ export type Run = {
   resolve: number
   attributes: Record<Attribute, number>
   items: string[]
+  /** Loot held at the scene until the player chooses what to replace or leave. */
+  pendingLoot: string[]
   flags: string[]
   seed: number
   visited: string[]

@@ -6,6 +6,8 @@ import sublevelPack from './sub-level-zero.json'
 import decksData from './decks.json'
 import endingsData from './endings.json'
 import riskPayoffsData from './risk-payoffs.json'
+import clueChainsData from './clue-chains.json'
+import clueReceiptsData from './clue-receipts.json'
 import {
   editChoices,
   joinBody,
@@ -116,6 +118,21 @@ export type RiskPayoff = {
 
 export const RISK_PAYOFFS = (riskPayoffsData as { payoffs: RiskPayoff[] })
   .payoffs
+
+export type ClueChain = {
+  department: string
+  card: string
+  choice: string
+  on: 'success'
+  requires_flag?: string
+  grants: string
+  target: string
+  hint: string
+  message: string
+  replace_success_text?: string
+}
+
+export const CLUE_CHAINS = (clueChainsData as { clues: ClueChain[] }).clues
 
 export const START_METERS: Meters = {
   composure: 6,
@@ -496,6 +513,11 @@ const CHOICE_RECEIPTS: ReadonlyArray<readonly [string, string]> = [
   ],
 ]
 
+type ClueReceipt = { flag: string; text: string }
+
+export const CLUE_RECEIPTS = (clueReceiptsData as { receipts: ClueReceipt[] })
+  .receipts
+
 export function successorLegacyLines(
   state: Pick<RunState, 'terminations'>,
 ): string[] {
@@ -524,7 +546,18 @@ export function endingLines(state: RunState, ending: Ending): string[] {
   )
     .slice(0, 2)
     .map(([, text]) => text)
-  return [...authored, ...receipts, ...successorLegacyLines(state)]
+  const clueReceipts = CLUE_RECEIPTS.filter(
+    (receipt) =>
+      state.flags.includes(receipt.flag) && !existingFlags.has(receipt.flag),
+  )
+    .slice(0, 2)
+    .map((receipt) => receipt.text)
+  return [
+    ...authored,
+    ...receipts,
+    ...clueReceipts,
+    ...successorLegacyLines(state),
+  ]
 }
 
 export function jobPrompt(id: string): string {
@@ -1138,10 +1171,46 @@ function readGrade(g: Grade, score: number): GradeReading {
 }
 
 // Highest first; ties go to the axis listed later (spite beats obedience).
+const CORPORATE_LIABILITIES: Record<Grade, { level: string; warning: string }> =
+  {
+    empathy: {
+      level: 'Flagged for Treatment',
+      warning:
+        'Wellness recommends scheduled exposure to a very sad clown until your concern for others becomes manageable.',
+    },
+    ingenuity: {
+      level: 'Productive Liability',
+      warning:
+        'Research requests measurements of your head. Innovations that improve office life are especially suspect.',
+    },
+    obedience: {
+      level: 'Admirably Compliant',
+      warning:
+        'PAL considers your willingness to obey a valuable resource, and has filed a claim for the remainder of it.',
+    },
+    spite: {
+      level: 'Useful in Limited Amounts',
+      warning:
+        'Your resentment improves throughput. HR recommends directing it only toward approved colleagues.',
+    },
+  }
+
+// These labels are relative, satirical HR evaluations, never mechanical modifiers.
+// A strong employee can earn four high scores, but only the most pronounced trait
+// gets "Exceptional" on the final report. The raw scores and grade gates stay exact.
 export function rankedGrades(grades: Grades): GradeReading[] {
   return GRADES.map((g, i) => ({ r: readGrade(g, grades[g]), i }))
     .sort((a, b) => b.r.score - a.r.score || b.i - a.i)
-    .map((x) => x.r)
+    .map(({ r }, index) => {
+      if (r.score < 5) return r
+      const liability = CORPORATE_LIABILITIES[r.grade]
+      return {
+        ...r,
+        level:
+          index === 0 ? 'Exceptional · Under Observation' : liability.level,
+        line: liability.warning,
+      }
+    })
 }
 
 export function interimResults(state: RunState): {
@@ -1218,6 +1287,24 @@ export function riskPayoffFor(
         reward.department === state.department &&
         reward.card === card.id &&
         reward.choice === choice.id,
+    ) ?? null
+  )
+}
+
+export function clueChainFor(
+  state: RunState,
+  choice: Choice,
+): ClueChain | null {
+  const cardId = currentCard(state)?.card.id
+  if (!cardId) return null
+  return (
+    CLUE_CHAINS.find(
+      (clue) =>
+        clue.department === state.department &&
+        clue.card === cardId &&
+        clue.choice === choice.id &&
+        !state.flags.includes(clue.grants) &&
+        (!clue.requires_flag || state.flags.includes(clue.requires_flag)),
     ) ?? null
   )
 }
@@ -1381,8 +1468,14 @@ export function choose(
     }
   }
 
-  const outcome = success || !choice.failure ? choice.success : choice.failure
+  const earnedClue = success ? clueChainFor(state, choice) : null
+  const originalOutcome =
+    success || !choice.failure ? choice.success : choice.failure
+  const outcome = earnedClue?.replace_success_text
+    ? { ...originalOutcome, text: earnedClue.replace_success_text }
+    : originalOutcome
   let effects = addEffects(choice.cost, outcome.effects)
+  if (earnedClue) events.push(earnedClue.message)
   const earnedPayoff = success ? riskPayoffFor(state, choice) : null
   if (earnedPayoff) {
     effects = addEffects(effects, earnedPayoff.effects)
@@ -1417,6 +1510,11 @@ export function choose(
   flags = [
     ...flags.filter((f) => !outcome.remove_flags.includes(f)),
     ...outcome.add_flags.filter((f) => !flags.includes(f)),
+    ...(earnedClue &&
+    !flags.includes(earnedClue.grants) &&
+    !outcome.add_flags.includes(earnedClue.grants)
+      ? [earnedClue.grants]
+      : []),
   ]
 
   let societyStatus = state.societyStatus

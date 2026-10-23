@@ -55,7 +55,7 @@
             class="btn btn-primary w-full rounded-2xl text-lg tracking-wide hover:brightness-110"
             @click="startSubscription"
           >
-            Subscribe – $5/month
+            Subscribe – $9/month
           </button>
           <p
             v-else-if="!isPatron && hasStripeSubscription"

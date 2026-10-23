@@ -48,6 +48,7 @@ export function startRun(seed: number): Run {
     resolve: MAX_RESOLVE,
     attributes: { steel: 2, sense: 1, shadow: 1, mercy: 0 },
     items: ['water', 'bandage', 'apple', 'flint'],
+    pendingLoot: [],
     flags: [],
     seed: seed || 1,
     visited: ['the-crossing'],
@@ -108,9 +109,19 @@ function roll(seed: number): { seed: number; dice: [number, number] } {
   return { seed: x >>> 0, dice }
 }
 
+function queueLoot(run: Run, item: string): void {
+  if (run.items.length < SLOTS && !run.pendingLoot.length) run.items.push(item)
+  else run.pendingLoot.push(item)
+}
+
 function applyEffects(run: Run, effects: SceneEffects | undefined): Run {
   if (!effects) return run
-  const next = { ...run, items: [...run.items], flags: [...run.flags] }
+  const next = {
+    ...run,
+    items: [...run.items],
+    pendingLoot: [...(run.pendingLoot ?? [])],
+    flags: [...run.flags],
+  }
   addFlags(next.flags, [effects.flag, ...(effects.flags ?? [])])
   if (effects.attr) {
     const { attribute, amount } = effects.attr
@@ -122,7 +133,7 @@ function applyEffects(run: Run, effects: SceneEffects | undefined): Run {
       ),
     }
   }
-  if (effects.gain && next.items.length < SLOTS) next.items.push(effects.gain)
+  if (effects.gain) queueLoot(next, effects.gain)
   if (effects.heal)
     next.health = Math.min(MAX_HEALTH, next.health + effects.heal)
   if (effects.hurt) next.health = Math.max(1, next.health - effects.hurt)
@@ -161,19 +172,20 @@ function enter(run: Run, target: string): Run {
 
 export function takeChoice(run: Run, id: string): Run {
   const node = scene(run.sceneId)
-  if (run.battle || node.ending) return run
+  if (run.battle || node.ending || run.pendingLoot?.length) return run
   const choice = visibleChoices(run, node).find((c) => c.id === id)
   if (!choice || lockReason(run, choice)) return run
   let next: Run = {
     ...run,
     items: [...run.items],
+    pendingLoot: [...(run.pendingLoot ?? [])],
     flags: [...run.flags],
     resolve: run.resolve - (choice.cost ?? 0),
     health: Math.min(MAX_HEALTH, run.health + (choice.heal ?? 0)),
     lastRoll: null,
   }
   if (choice.spend) next.items.splice(next.items.indexOf(choice.spend), 1)
-  if (choice.gain && next.items.length < SLOTS) next.items.push(choice.gain)
+  if (choice.gain) queueLoot(next, choice.gain)
   addFlags(next.flags, [choice.flag, ...(choice.flags ?? [])])
   let target = choice.to
   if (choice.check) {
@@ -198,11 +210,35 @@ export function takeChoice(run: Run, id: string): Run {
   return enter(next, target)
 }
 
+/** Resolve exactly one pending pickup, explicitly replacing a carried item or leaving it. */
+export function resolveLoot(run: Run, replacementIndex: number | null): Run {
+  const pending = run.pendingLoot ?? []
+  if (!pending.length) return run
+  if (
+    replacementIndex !== null &&
+    (!Number.isInteger(replacementIndex) ||
+      replacementIndex < 0 ||
+      replacementIndex >= run.items.length)
+  )
+    return run
+  const items = [...run.items]
+  if (replacementIndex !== null) {
+    items.splice(replacementIndex, 1)
+    items.push(pending[0]!)
+  }
+  return { ...run, items, pendingLoot: pending.slice(1) }
+}
+
 export type BattleAction = 'strike' | 'guard' | 'feint' | 'quiet-draw'
 export function fight(run: Run, action: BattleAction): Run {
   const enemy = scene(run.sceneId).battle
   const battle = run.battle
-  if (!enemy || !battle || (action === 'quiet-draw' && run.resolve < 2))
+  if (
+    !enemy ||
+    !battle ||
+    run.pendingLoot?.length ||
+    (action === 'quiet-draw' && run.resolve < 2)
+  )
     return run
   const result = roll(run.seed)
   const modifier =
@@ -220,9 +256,9 @@ export function fight(run: Run, action: BattleAction): Run {
       ? 0
       : success
         ? action === 'feint'
-          ? 1
+          ? 3
           : action === 'quiet-draw'
-            ? 6
+            ? 5
             : 3
         : 0
   const enemyHp = Math.max(0, battle.hp - damage)
@@ -233,7 +269,7 @@ export function fight(run: Run, action: BattleAction): Run {
         ? 0
         : action === 'guard'
           ? 1
-          : Math.max(1, enemy.attack - (success && action === 'feint' ? 1 : 0))
+          : Math.max(1, enemy.attack - (success && action === 'feint' ? 2 : 0))
   const health = Math.max(0, run.health - incoming)
   const next: Run = {
     ...run,
@@ -250,10 +286,16 @@ export function fight(run: Run, action: BattleAction): Run {
     },
     battle: {
       hp: enemyHp,
-      exposed: action === 'feint' && success,
+      exposed: (action === 'feint' || action === 'guard') && success,
       turn: battle.turn + 1,
       log:
-        (success ? 'Your move connects.' : 'Your move fails.') +
+        (action === 'guard'
+          ? success
+            ? 'You turn the blow aside and expose the foe.'
+            : 'Your guard gives ground.'
+          : success
+            ? 'Your move connects.'
+            : 'Your move fails.') +
         (incoming
           ? ' You suffer ' + incoming + ' damage.'
           : ' You avoid the counterblow.'),
@@ -286,6 +328,10 @@ export function isSavedRun(value: unknown): value is Run {
     Array.isArray(s.items) &&
     s.items.length <= SLOTS &&
     s.items.every((x) => typeof x === 'string') &&
+    (s.pendingLoot === undefined ||
+      (Array.isArray(s.pendingLoot) &&
+        s.pendingLoot.length <= SLOTS &&
+        s.pendingLoot.every((x) => typeof x === 'string'))) &&
     Array.isArray(s.flags) &&
     s.flags.every((x) => typeof x === 'string') &&
     Array.isArray(s.visited) &&

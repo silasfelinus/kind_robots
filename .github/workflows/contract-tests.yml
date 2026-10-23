@@ -48,6 +48,9 @@ jobs:
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
+      - name: Memory Dungeon first overworld reachability and save contract
+        run: npx tsx utils/scripts/verifyMemoryWorld.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 
@@ -1501,6 +1504,15 @@ jobs:
 
       - name: Art Archive scan memory contract
         run: npm run test:art-archive-scan-memory
+
+      - name: Memory Dungeon spatial weapon combat contract
+        run: npm run test:memory-dungeon-combat
+
+      - name: Memory Dungeon minefield floor contract
+        run: npm run test:memory-dungeon-minefield
+
+      - name: Memory Dungeon combat rooms contract
+        run: npm run test:memory-dungeon-rooms
 
       - name: Art Archive batch scan contract
         run: npm run test:art-archive-batch-scan

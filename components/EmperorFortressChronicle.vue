@@ -223,6 +223,7 @@ import type { RelicId } from '~/utils/emperorOfDust/fortress/relics'
 import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
 
 defineProps<{ run: FortressRun }>()
+const emit = defineEmits<{ 'new-run': [] }>()
 const court = useEmperorFortressStore()
 const message = ref('')
 const confirmNew = ref(false)
@@ -247,8 +248,15 @@ function save(slot: number) {
 }
 
 function startOver() {
-  act(() => court.newRun(), 'A new reign begins.')
-  confirmNew.value = false
+  try {
+    court.newRun()
+    message.value = 'A new reign begins.'
+    confirmNew.value = false
+    emit('new-run')
+  } catch (cause) {
+    message.value =
+      cause instanceof Error ? cause.message : 'That did not work.'
+  }
 }
 
 function rewind() {

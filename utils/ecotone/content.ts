@@ -63,7 +63,7 @@ export type Choice = {
 export type EncounterCard = {
   id: string
   /** 'spine' beats are fixed route story; 'encounter' cards are dealt into the daily white-rabbit forks. */
-  kind?: 'spine' | 'encounter'
+  kind?: 'spine' | 'encounter' | 'mystery'
   event?: EventId
   day?: number
   chapter: number
@@ -115,49 +115,49 @@ export const ARCHETYPES: Archetype[] = [
     name: 'North Coast Reporter',
     vantage:
       'Writes for an independent weekly. Lives for the quote, bad at hearing no.',
-    perk: 'Ask one extra sourcing question before a choice, once per chapter.',
+    perk: 'Ask for a checkable source on one Wits or Lore decision per chapter. +1 on that check and a documented clue.',
     skills: { rizz: 2, burly: 0, wits: 2, lore: 1, psyche: 1 },
   },
   {
     id: 'student',
     name: 'Cal Poly Student',
     vantage: 'Smart, sleep-deprived, unsure what to believe.',
-    perk: 'Reframe one failure as a partial success with your study notes.',
+    perk: 'Use study notes on one checked decision per chapter; even on failure, salvage goodwill from a partial result.',
     skills: { rizz: 1, burly: 0, wits: 3, lore: 1, psyche: 1 },
   },
   {
     id: 'rower',
     name: 'Bay Rower',
     vantage: 'Knows currents, crews and cold water. Volunteers first.',
-    perk: 'Shrug off one travel penalty per chapter.',
+    perk: 'Brace for a difficult crossing once per chapter: ignore nerve loss on the chosen result.',
     skills: { rizz: 1, burly: 3, wits: 1, lore: 1, psyche: 0 },
   },
   {
     id: 'local',
     name: 'Lifelong Local',
     vantage: 'Family everywhere, and contradictory memories of town.',
-    perk: 'Recognize a local connection on one card per chapter.',
+    perk: 'Invoke a local connection once per chapter: +1 on a Lore or Rizz check and a checkable lead.',
     skills: { rizz: 1, burly: 1, wits: 0, lore: 3, psyche: 1 },
   },
   {
     id: 'mechanic',
     name: 'Kinetic Sculpture Mechanic',
     vantage: 'Fixes broken things and unreliable teams. Leaves no contraption.',
-    perk: 'Improvise a mechanical workaround at a material cost.',
+    perk: 'Improvise once per chapter: +2 on a Wits or Burly check, costing 1 nerve even if it works.',
     skills: { rizz: 1, burly: 2, wits: 2, lore: 1, psyche: 0 },
   },
   {
     id: 'gardener',
     name: 'Backwoods Gardener',
     vantage: 'Knows cultivation, land-use fights and survival. Wary of badges.',
-    perk: 'Spot practical and environmental risks before they bite.',
+    perk: 'Spot a hazard once per chapter: +1 on any check and prevent nerve loss from its result.',
     skills: { rizz: 0, burly: 1, wits: 1, lore: 2, psyche: 2 },
   },
   {
     id: 'dealer',
     name: 'Night-Shift Casino Dealer',
     vantage: 'Reads tells, chronically tired, used to fantastic stories.',
-    perk: 'Test whether someone is bluffing, once per chapter.',
+    perk: 'Read a bluff once per chapter: +2 on a Rizz or Wits check.',
     skills: { rizz: 3, burly: 0, wits: 1, lore: 0, psyche: 2 },
   },
 ]

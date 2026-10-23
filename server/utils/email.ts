@@ -217,6 +217,52 @@ export function sendWelcomeEmail(to: string, name: string) {
   })
 }
 
+/**
+ * Friendly entitlement confirmation after a verified paid Patron invoice.
+ * Stripe's own receipt remains the authoritative payment receipt; this note
+ * tells the customer their 1,000 paid TOKENS were actually credited.
+ *
+ * Send only after the database transaction commits a NEW invoice grant.
+ * This is an at-most-once best-effort notification; a Brevo outage is logged,
+ * not allowed to roll back already-credited tokens.
+ */
+export function sendPatronTokensGrantedEmail(
+  to: string,
+  name: string,
+  amountCents: number,
+  receiptUrl: string | null,
+) {
+  const greeting = name.trim().split(/\s+/)[0] || 'friend'
+  const amount = '$' + (amountCents / 100).toFixed(2)
+  let link = appBaseUrl() + '/sanctuary'
+  let isStripeReceipt = false
+  if (receiptUrl) {
+    try {
+      const url = new URL(receiptUrl)
+      if (url.protocol === 'https:' && url.hostname.endsWith('.stripe.com')) {
+        link = url.toString()
+        isStripeReceipt = true
+      }
+    } catch {
+      // No usable receipt link; the account fallback remains available.
+    }
+  }
+
+  return sendTransactionalEmail({
+    to,
+    toName: name || to,
+    subject: 'Your 1,000 Patron tokens are ready 🦋',
+    html: shell(
+      'Your tokens have landed',
+      `<p>Hi ${escapeHtml(greeting)},</p>
+      <p>Your Patron payment of <strong>${amount}</strong> was received, and <strong>1,000 paid tokens</strong> are now in your Kind Robots wallet.</p>
+      <p>Thank you for supporting the stories, worlds, and curious creatures we're building together.</p>
+      ${button(link, isStripeReceipt ? 'View Stripe receipt' : 'View your wallet')}
+      <p style="font-size:13px;color:#8a8f9c;">Questions about your tokens or membership? Just reply to this email.</p>`,
+    ),
+  })
+}
+
 function escapeHtml(v: string): string {
   return String(v || '')
     .replace(/&/g, '&amp;')

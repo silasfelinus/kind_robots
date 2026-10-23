@@ -49,12 +49,13 @@ import {
   sceneLines,
   chooseAudienceOption,
   chooseTalkOption,
-  createRun,
+  createRun as createUnrecruitedRun,
   earnFlag,
   dailyIncome,
   dailyTaxes,
   dailyWages,
   equipItem,
+  challengeRumour,
   finishDay,
   followerMood,
   followerStatus,
@@ -209,6 +210,11 @@ import {
   dayBriefings,
   dayLines,
   komodoLiesInHindsight,
+  RUMOUR_BOUNTY,
+  rumourPrompt,
+  rumourTally,
+  rumourVerdict,
+  todaysChallenge,
 } from '../emperorOfDust/fortress/briefings'
 import {
   KINGDOM_FACTIONS,
@@ -222,6 +228,88 @@ import type {
   FortressRun,
   SceneLine,
 } from '../emperorOfDust/fortress/types'
+import {
+  COURT_ONBOARDING_FLAG,
+  COURT_RECRUITMENT_IDS,
+  RANDOM_ARRIVALS,
+  RIVAL_ARGUMENTS,
+} from '../emperorOfDust/fortress/onboarding'
+
+// Older systems tests exercise a fully staffed court. This is a deliberate
+// legacy-game fixture; the true empty-roster onboarding is tested below.
+const createRun: typeof createUnrecruitedRun = (seed, relics) => {
+  const run = createUnrecruitedRun(seed, relics)
+  run.roster = FOLLOWERS.filter((def) => def.starter).map((def) => ({
+    id: def.id,
+    joinedDay: 1,
+    equipment: {},
+  }))
+  run.flags = run.flags.filter((flag) => flag !== COURT_ONBOARDING_FLAG)
+  run.dayAudiences = ACT_ONE_DAYS[0]!.audiences.map((audience) => audience.id)
+  return run
+}
+
+// New campaigns: appointments are court decisions, not starting inventory.
+const firstBellVisitors = new Set<string>()
+const firstBellArguments = new Set<string>()
+for (let seed = 1; seed <= 40; seed += 1) {
+  let run = createUnrecruitedRun(seed)
+  assert.equal(run.roster.length, 0, 'new ruler has no automatic followers')
+  assert.ok(validateRun(run))
+  assert.ok(decodeBook(encodeBook(newBook(run))), 'empty roster saves safely')
+  assert.equal(run.board.length, 1, 'only one authored opening quest')
+  assert.equal(run.dailyEvent, undefined, 'no chance-event pile-up on day one')
+  const court = audiencesToday(run)
+  assert.equal(court.length, 4, 'three recruits and one first-day petition')
+  const recruited = court.filter((audience) =>
+    COURT_RECRUITMENT_IDS.includes(audience.id),
+  )
+  assert.equal(recruited.length, 3)
+  const random = recruited.find((audience) =>
+    RANDOM_ARRIVALS.includes(audience.id as (typeof RANDOM_ARRIVALS)[number]),
+  )!
+  const argument = recruited.find((audience) =>
+    RIVAL_ARGUMENTS.includes(audience.id as (typeof RIVAL_ARGUMENTS)[number]),
+  )!
+  firstBellVisitors.add(random.id)
+  firstBellArguments.add(argument.id)
+  assert.throws(() => finishDay(run), /three recruiting petitions/)
+  run = chooseAudienceOption(run, 'd01-kiyo-arrives', 'appoint').run
+  run = chooseAudienceOption(run, random.id, 'appoint').run
+  const winner = argument.options[seed % argument.options.length]!
+  const loser = argument.options[(seed + 1) % argument.options.length]!
+  run = chooseAudienceOption(run, argument.id, winner.id).run
+  assert.equal(run.roster.length, 3, 'exactly one recruit per audience')
+  assert.ok(run.roster.some((f) => f.id === 'F003'))
+  const rejectedId = loser.effects.recruit![0]!
+  assert.ok(run.flags.includes(`court-excluded:${rejectedId}`))
+  assert.ok(
+    unmetRequirements(run, undefined, [rejectedId]).length,
+    'rejected rival can never be recruited later',
+  )
+  applyEffects(run, { recruitable: [rejectedId], recruit: [rejectedId] })
+  assert.ok(!run.roster.some((f) => f.id === rejectedId))
+  assert.ok(!run.recruitable.includes(rejectedId))
+  assert.deepEqual(
+    audiencesToday(run).map((a) => a.id),
+    court.map((a) => a.id),
+  )
+  assert.ok(
+    decodeBook(encodeBook(newBook(run))),
+    'recruitment and exclusion save',
+  )
+  const day2 = finishDay(run).run
+  assert.ok(audiencesToday(day2).some((a) => a.id === 'd01-toll'))
+  assert.ok(!audiencesToday(day2).some((a) => a.id === 'd01-mirefen'))
+  const day3 = finishDay(day2).run
+  assert.ok(audiencesToday(day3).some((a) => a.id === 'd01-mirefen'))
+}
+assert.equal(firstBellVisitors.size, 2, 'both chance recruits can visit')
+assert.equal(
+  firstBellArguments.size,
+  2,
+  'both authored feuding pairs can appear',
+)
 
 // --- startup overlay contract ----------------------------------------------
 // The splash fades for 600ms before it unmounts. On a new game, the first
@@ -6462,6 +6550,66 @@ for (const def of DAYS)
     told(['hideout:nameless-cave', 'd46-host-left'], 'hideout'),
     /walked out/,
   )
+}
+
+{
+  // --- Challenge a rumour: one look a day, a bounty for the false report ------
+  const fresh = onDay(3, 12)
+  const reports = dayBriefings(fresh)!
+  const lie = reports.find((b) => !b.truth)!
+  const truths = reports.filter((b) => b.truth)
+  assert.equal(todaysChallenge(fresh), undefined)
+  assert.match(
+    rumourPrompt(fresh),
+    /not every rumour/i,
+    'Komodo explains first',
+  )
+
+  const caught = challengeRumour(fresh, lie.id)
+  assert.equal(caught.caught, true)
+  assert.equal(caught.run.brass, fresh.brass + RUMOUR_BOUNTY)
+  assert.equal(caught.response, rumourVerdict(lie))
+  assert.deepEqual(todaysChallenge(caught.run), {
+    day: 12,
+    briefingId: lie.id,
+    caught: true,
+  })
+  assert.throws(
+    () => challengeRumour(caught.run, truths[0]!.id),
+    /already been looked into today/,
+  )
+  assert.equal(fresh.rumourChallenges, undefined, 'the run is not mutated')
+
+  const cleared = challengeRumour(fresh, truths[0]!.id)
+  assert.equal(cleared.caught, false)
+  assert.equal(cleared.run.brass, fresh.brass, 'no penalty for a wrong guess')
+  assert.match(rumourPrompt(cleared.run), /which of these rings false/i)
+  assert.throws(() => challengeRumour(fresh, 'not-a-report'), /did not come in/)
+
+  // The challenge resets each dawn, and saves keep at most one a day.
+  const nextDay = finishDay(caught.run).run
+  assert.equal(todaysChallenge(nextDay), undefined)
+  const second = challengeRumour(
+    nextDay,
+    dayBriefings(nextDay)!.find((b) => b.truth)!.id,
+  ).run
+  assert.deepEqual(rumourTally(second), { caught: 1, made: 2 })
+  assert.ok(validateRun(JSON.parse(JSON.stringify(second))))
+  const doubled = {
+    ...second,
+    rumourChallenges: [
+      ...second.rumourChallenges!,
+      second.rumourChallenges![0]!,
+    ],
+  }
+  assert.ok(!validateRun(doubled), 'one challenge a day')
+
+  // Every report has its own investigation line, and they vary across the reign.
+  const verdicts = DAYS.flatMap((def) => def.briefings).map(rumourVerdict)
+  assert.ok(verdicts.every((line) => line.length >= 40))
+  assert.ok(new Set(verdicts).size >= 40, 'investigation lines vary')
+  const komodo = DAYS.flatMap((def) => def.briefings).find((b) => b.komodoLie)!
+  assert.match(rumourVerdict(komodo), /Komodo laughs it off/)
 }
 
 console.log('Emperor of Dust fortress contract: ok')

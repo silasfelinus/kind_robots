@@ -42,7 +42,8 @@ export function makeFeedParticles(
   const count = Math.min(MAX_FOOD_PER_FEED, fedStockIds.length)
   return Array.from({ length: count }, (_, index) => {
     // Sample from the entire fed list instead of always showing its first 3.
-    const stockId = fedStockIds[Math.floor((index * fedStockIds.length) / count)]
+    const stockId =
+      fedStockIds[Math.floor((index * fedStockIds.length) / count)]
     const fish = byId.get(stockId!)
     const spreadX = ((index % 5) - 2) * 13
     const spreadY = ((index % 3) - 1) * 10

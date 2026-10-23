@@ -55,29 +55,6 @@
             :alt="scene.figureAlt"
             class="eod-figure block max-h-56 w-auto object-contain @3xl:h-full @3xl:max-h-none"
           />
-          <ul
-            v-else-if="scene.cast"
-            :key="'cast'"
-            class="flex max-h-full flex-wrap items-end justify-center gap-2 @3xl:gap-4"
-            aria-label="Your first followers"
-          >
-            <li
-              v-for="member in starters"
-              :key="member.id"
-              class="flex flex-col items-center gap-1"
-            >
-              <img
-                v-if="member.art"
-                :src="member.art"
-                :alt="member.name"
-                class="eod-figure h-36 w-auto object-contain @3xl:h-72"
-              />
-              <span
-                class="kr-panel px-2 py-0.5 font-serif text-xs @3xl:text-sm"
-                >{{ member.name }}</span
-              >
-            </li>
-          </ul>
         </Transition>
       </figure>
 
@@ -161,7 +138,6 @@ import {
   followerPortrait,
   illustration,
 } from '~/utils/emperorOfDust/fortress/castArt'
-import { FOLLOWERS } from '~/utils/emperorOfDust/fortress/followers'
 import { ROOMS } from '~/utils/emperorOfDust/fortress/rooms'
 import type { RoomId } from '~/utils/emperorOfDust/fortress/rooms'
 
@@ -176,7 +152,6 @@ type Scene = {
   backdrop: string
   figure?: string
   figureAlt?: string
-  cast?: boolean
   rooms?: boolean
 }
 
@@ -216,9 +191,10 @@ const SCENES: Scene[] = [
   {
     kicker: 'Your people',
     title: 'The Followers',
-    text: 'Four souls followed you here. Send one to four of them out on quests that last a day or three. They come back richer, wiser, hurt, or not at all. Mostly, they come back.',
+    text: 'The barracks are empty. Kiyo is coming to ask for a place at court. Another visitor will arrive by chance, and two rival applicants will demand that you choose only one. Hear all three recruiting petitions in the Throne Room before you send anyone into the wasteland.',
     backdrop: MAP,
-    cast: true,
+    figure: illustration('followers', 'F003') ?? followerPortrait('F003'),
+    figureAlt: 'Kiyo, who will petition to become the court physician',
   },
   {
     kicker: 'Fifty days',
@@ -237,14 +213,6 @@ const ROOM_DUTIES: Partial<Record<RoomId, string>> = {
   market: 'Spend brass on tools and charms',
   map: 'Watch the factions, taxes and borders',
 }
-
-const starters = computed(() =>
-  FOLLOWERS.filter((def) => def.starter).map((def) => ({
-    id: def.id,
-    name: def.name,
-    art: illustration('followers', def.id) ?? followerPortrait(def.id),
-  })),
-)
 
 const index = ref(0)
 const visible = ref(0)

@@ -43,27 +43,42 @@
         />
 
         <header class="cq-vn-masthead">
-          <span class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-teal-200 sm:text-xs">
+          <span
+            class="text-[0.65rem] font-black uppercase tracking-[0.2em] text-teal-200 sm:text-xs"
+          >
             Portsmouth · After closing
           </span>
-          <h1 class="font-serif text-3xl font-black leading-none text-white drop-shadow-lg sm:text-5xl">
+          <h1
+            class="font-serif text-3xl font-black leading-none text-white drop-shadow-lg sm:text-5xl"
+          >
             Cthulhuquarium
           </h1>
         </header>
 
-        <section class="cq-vn-dialogue" :aria-label="`${speakerName}'s dialogue`">
+        <section
+          class="cq-vn-dialogue"
+          :aria-label="`${speakerName}'s dialogue`"
+        >
           <div class="flex flex-wrap items-baseline justify-between gap-2">
             <div class="flex items-baseline gap-3">
-              <h2 class="font-serif text-xl font-black text-teal-200 sm:text-2xl">
+              <h2
+                class="font-serif text-xl font-black text-teal-200 sm:text-2xl"
+              >
                 {{ speakerName }}
               </h2>
-              <span class="text-xs italic text-white/65">{{ speakerRole }}</span>
+              <span class="text-xs italic text-white/65">{{
+                speakerRole
+              }}</span>
             </div>
-            <span class="text-xs font-bold uppercase tracking-widest text-white/55">
+            <span
+              class="text-xs font-bold uppercase tracking-widest text-white/55"
+            >
               {{ scene.id === 'intro' ? 'A beginning' : 'An encounter' }}
             </span>
           </div>
-          <p class="cq-vn-line font-serif text-lg leading-relaxed text-white sm:text-2xl">
+          <p
+            class="cq-vn-line font-serif text-lg leading-relaxed text-white sm:text-2xl"
+          >
             {{ beat.text }}
           </p>
           <div class="flex items-center justify-between gap-3">
@@ -86,7 +101,10 @@
         v-else
         class="pointer-events-auto relative w-full max-w-3xl rounded-2xl border border-base-content/20 bg-base-100/95 p-3 shadow-2xl backdrop-blur"
       >
-        <div class="flex items-end gap-3" :class="isCharlotte ? 'flex-row' : 'flex-row-reverse'">
+        <div
+          class="flex items-end gap-3"
+          :class="isCharlotte ? 'flex-row' : 'flex-row-reverse'"
+        >
           <img
             v-if="portraitUrl"
             :key="portraitUrl ?? beat.pose"
@@ -99,7 +117,9 @@
               <h2 class="font-serif text-lg font-black">{{ speakerName }}</h2>
               <span class="text-xs italic opacity-60">{{ speakerRole }}</span>
             </div>
-            <p class="font-serif text-sm leading-relaxed sm:text-base">{{ beat.text }}</p>
+            <p class="font-serif text-sm leading-relaxed sm:text-base">
+              {{ beat.text }}
+            </p>
             <div
               v-if="handover && isLastBeat"
               class="flex items-center gap-3 rounded-xl border border-base-300 bg-base-200 p-2"
@@ -119,7 +139,9 @@
                 class="btn btn-primary btn-sm min-h-11"
                 :disabled="tankStore.backgroundSaving"
                 @click="hangHandover"
-              >Hang it</button>
+              >
+                Hang it
+              </button>
             </div>
             <div class="flex flex-wrap items-center justify-end gap-2">
               <p v-if="awaitHint" class="mr-auto text-xs italic opacity-70">
@@ -130,13 +152,17 @@
                 type="button"
                 class="btn btn-ghost btn-sm min-h-11"
                 @click="tankStore.advanceBeat()"
-              >Skip</button>
+              >
+                Skip
+              </button>
               <button
                 v-else
                 type="button"
                 class="btn btn-primary btn-sm min-h-11 min-w-24"
                 @click="tankStore.advanceBeat()"
-              >{{ isLastBeat ? 'Return to the tank' : 'Continue' }}</button>
+              >
+                {{ isLastBeat ? 'Return to the tank' : 'Continue' }}
+              </button>
             </div>
           </div>
         </div>
@@ -186,8 +212,7 @@ const cinematic = computed(
     !!beat.value &&
     !beat.value.focus &&
     !beat.value.await &&
-    (scene.value?.id === 'intro' ||
-      !!(beat.value.plate ?? scene.value?.plate)),
+    (scene.value?.id === 'intro' || !!(beat.value.plate ?? scene.value?.plate)),
 )
 const plateKey = computed(() =>
   cinematic.value ? (beat.value?.plate ?? scene.value?.plate ?? null) : null,
@@ -244,7 +269,12 @@ async function hangHandover() {
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
-  background: radial-gradient(ellipse at center 35%, #17494f 0%, #071a26 65%, #050c16 100%);
+  background: radial-gradient(
+    ellipse at center 35%,
+    #17494f 0%,
+    #071a26 65%,
+    #050c16 100%
+  );
 }
 .cq-vn-background {
   position: absolute;
@@ -257,7 +287,13 @@ async function hangHandover() {
 .cq-vn-atmosphere {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgb(2 13 20 / 0.55) 0%, transparent 22%, rgb(2 10 19 / 0.25) 52%, rgb(2 10 19 / 0.94) 100%);
+  background: linear-gradient(
+    180deg,
+    rgb(2 13 20 / 0.55) 0%,
+    transparent 22%,
+    rgb(2 10 19 / 0.25) 52%,
+    rgb(2 10 19 / 0.94) 100%
+  );
 }
 .cq-vn-character {
   position: absolute;
@@ -307,7 +343,9 @@ async function hangHandover() {
 }
 .cq-dialogue-enter-active,
 .cq-dialogue-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 .cq-dialogue-enter-from,
 .cq-dialogue-leave-to {

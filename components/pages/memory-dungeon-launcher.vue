@@ -70,7 +70,9 @@
           <div
             class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#b79c6d]/35 bg-[#1c2d2b]/90 px-3 py-2 text-xs"
           >
-            <span class="font-semibold text-[#ead6b3]">Classic Match difficulty</span>
+            <span class="font-semibold text-[#ead6b3]"
+              >Classic Match difficulty</span
+            >
             <select
               v-model="memoryStore.selectedDifficulty"
               aria-label="Classic Match difficulty"
@@ -102,10 +104,14 @@
             </button>
           </div>
           <p class="shrink-0 text-center text-[11px] text-[#d8c39b]">
-            Your deck is shared by both modes. Classic difficulty is independent.
-            Briar Camp progress autosaves in this browser.
+            Your deck is shared by both modes. Classic difficulty is
+            independent. Briar Camp progress autosaves in this browser.
           </p>
-          <p v-if="error" role="alert" class="rounded-lg border border-amber-300/80 bg-red-950/80 px-3 py-2 text-sm font-bold text-[#fff0d0]">
+          <p
+            v-if="error"
+            role="alert"
+            class="rounded-lg border border-amber-300/80 bg-red-950/80 px-3 py-2 text-sm font-bold text-[#fff0d0]"
+          >
             {{ error }}
           </p>
         </section>

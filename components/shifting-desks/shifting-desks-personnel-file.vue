@@ -31,11 +31,11 @@
       <span class="file-stamp" aria-hidden="true">{{ verdict.stamp }}</span>
       <div
         v-if="epilogue"
-        class="flex h-24 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-36 print:h-44"
+        class="flex h-32 shrink-0 gap-3 overflow-hidden rounded-xl border-2 border-stone-900 bg-stone-900 text-amber-50 sm:h-44 print:h-44"
         aria-label="Your ending reward"
       >
         <shifting-desks-art
-          class="w-28 shrink-0 overflow-hidden sm:w-40"
+          class="w-36 shrink-0 overflow-hidden sm:w-52"
           frame="h-full w-full"
           position="object-center"
           :src="stationArt('endings', epilogue.id)"

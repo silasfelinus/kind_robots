@@ -320,10 +320,10 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'Three runners and a Crow dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead elder crow. It shows a lie for what it is. The court has it now.',
+        'Three runners and a Conclave dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead Conclave elder. It shows a lie for what it is. The court has it now.',
       success:
-        'The false reports ran through a Crow dead-drop to somewhere inside the fortress. In the dead-drop: a dead elder crow’s glass eye. It shows a lie for what it is.',
-      partial: 'The trail went cold at the Crow dead-drop.',
+        'The false reports ran through a Conclave dead-drop to somewhere inside the fortress. In the dead-drop: a dead Conclave elder’s glass eye. It shows a lie for what it is.',
+      partial: 'The trail went cold at the Conclave dead-drop.',
       failure: 'The runners were gone before anyone could follow.',
       expired: 'The reports kept coming. Some were wrong.',
     },
@@ -698,7 +698,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'You read *counted* twice. Corvane waits. He has waited for that word before.',
               {
                 who: 'A Freehold reeve at the back of the hall',
-                text: 'How long’s a season, to a crow?',
+                text: 'How long’s a season, to a Conclave elder?',
               },
               'Corvane looks at the reeve until the reeve looks at the floor.',
             ],
@@ -3587,7 +3587,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
         flags: ['d34-runner-home', 'd34-runner-bought'],
       },
       response:
-        'A crow takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every crow on the sills sits with its back to the throne.',
+        'A Conclave courier takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every crow on the sills sits with its back to the throne.',
     },
     {
       id: 'leave',

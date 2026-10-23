@@ -61,7 +61,7 @@ export const STUBBORN_HERD: Mystery = {
       },
       body: [
         'The Quaresma Family Creamery is a white barn, a tasting room with six stools and a cave dug into the foot of the only real hill for a mile. Rosie, who is twenty and runs the counter, the website and the goat, sets out a tasting flight before you have even sat down. She has a smear of gold-green paint on one wrist that she blames on the menu board. “Rule one,” she says. “You eat while you investigate. Rule two: do not let Alma see you near the cave. She thinks I called the sheriff. I did not call the sheriff. I called you.”',
-        'Inside the cave it is cool and smells like butter, salt and time. The floor of the lowest bay is damp and gritty, one whole low shelf is bare, and fresh scrape marks lead through the dirt to the back door. Out the window, the herd is grazing only on the hill. The flat green fields below it are completely empty.',
+        'Inside the cave it is cool and smells like butter, salt and time. The floor of the lowest bay is damp and gritty, one whole low shelf is bare, and fresh scrape marks lead through the dirt to the back door. Out the cave door, the herd is grazing only on the hill. The flat green fields below it are completely empty.',
       ],
       approaches: [
         {
@@ -106,7 +106,7 @@ export const STUBBORN_HERD: Mystery = {
         },
       ],
       leadLines: {
-        mara: 'Mara holds a slice of aged cheese up to the light like a stencil. “Whoever made this has steady hands and no patience for fools. I already like her.”',
+        mara: 'Mara reads the cave’s inventory board, chalk on slate, and taps one blank row. “Four wheels gone, and somebody erased them neatly. Thieves don’t tidy.”',
         kit: 'Kit inspects the cave’s old rolling shelves. “These run on bicycle chain. Somebody built this cave to move.”',
         juniper:
           'Juniper is negotiating with the goat, or possibly with Rosie about the goat. “If I solve this, I get him. Nobody has said no yet.”',
@@ -140,16 +140,17 @@ export const STUBBORN_HERD: Mystery = {
       },
       approaches: [
         {
-          id: 'hold-line',
-          label: 'Stand your ground on the survey line while the herd advances',
+          id: 'restake',
+          label:
+            'Take Trevor’s mallet and re-drive the pulled stakes yourself, herd or no herd',
           check: { skill: 'burly', target: 9 },
-          cost: 'A cow weighs about fourteen hundred pounds. All of them are coming.',
+          cost: 'The mallet weighs twelve pounds, and twenty cows are watching every swing.',
           success: {
-            text: 'The herd walks toward you, slowly. You do not move. They keep coming. You still do not move. Ten feet away, the lead cow stops, looks you in the eye for a very long time, and then turns and walks uphill. The rest follow. Inez applauds with her sandwich. Every cow, you notice, stepped exactly around the low places, as if they were already wet.',
+            text: 'You take Trevor’s mallet and start re-driving the pulled stakes down the line. It is honest, heavy work, and the herd watches every swing. At the third stake the hole fills with water before you can pull the mallet back. You taste it off your finger: salt, a mile from the bay. You drive twelve stakes. Every one the cows pulled up is standing in salt water within the minute. Every one they left alone sits in dry dirt. Inez applauds with her sandwich.',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'The herd walks toward you, slowly. You hold your ground for an impressive four seconds and then retreat at speed into the surveyors’ truck. The cows surround the truck and stand there, chewing, for forty minutes. Trevor uses the time to tell you about his divorce.',
+            text: 'You take Trevor’s mallet and swing for the first stake. The herd starts walking toward you, slowly, and keeps walking. You get one stake in, crooked, before twenty cows arrive and lean on you very gently until you are inside the surveyors’ truck. They stand around it, chewing, for forty minutes. Trevor uses the time to tell you about his divorce.',
             effects: { nerve: -1 },
           },
         },
@@ -159,7 +160,7 @@ export const STUBBORN_HERD: Mystery = {
             'Lay the old field maps over the county’s sea-level planning maps',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'Inez has the county’s public sea-level-rise maps on her tablet. You lay them over the creamery’s hand-drawn 1950s field map that Rosie lent you. The fields the cows refuse are not a random scatter. They follow one shaded line exactly, a line labeled with a year you will live to see, where the tide is projected to come up through the grass. Inez puts down her sandwich.',
+            text: 'Inez has the county’s public sea-level-rise maps on her tablet. You lay them over the creamery’s hand-drawn 1950s field map that Rosie lent you. The fields the cows refuse are not a random scatter. They follow one shaded line exactly, a line labeled in small type with a year not very far off, where the tide is projected to come up through the grass. Inez puts down her sandwich.',
             effects: { weird: 1 },
           },
           failure: {
@@ -198,19 +199,21 @@ export const STUBBORN_HERD: Mystery = {
       chapter: 5,
       scene: 'meadow',
       message: {
-        medium: 'flyer',
-        from: 'Stapled to the creamery gate',
+        medium: 'email',
+        from: 'Rosie, forwarding Bayline Coastal Holdings',
         lines: [
-          'COMMUNITY OPEN HOUSE: TIDEWATER MEADOWS. 48 luxury homes. On site, 2 pm. Refreshments!',
-          'Below it, in thick black marker: OVER MY DEAD COWS.',
-          'Below that, in pencil: The cows are fine. — R.',
+          'they’re fencing it. tonight is the last night. (alma wrote OVER MY DEAD COWS on the printout. i wrote under it: the cows are fine)',
+          '> You’re invited! COMMUNITY OPEN HOUSE, Tidewater Meadows. 48 luxury homes. On site, tomorrow 2 pm. Refreshments!',
+          '> Due to repeated vandalism, a fence crew and site security will be present from 6 am.',
         ],
       },
       body: [
         'The open house is tomorrow afternoon. If the stakes are pulled one more time, Bayline will bring in a fence crew and a security guard, and the cows will lose the bottoms one way or the other. Tonight is the last chance to catch the glowing calf before somebody less patient does.',
-        'Rosie gives you the barn key, a thermos of coffee and the best wheel in the cave, the one Alma calls the grandmother. She says she found the missing wheels this morning, stacked in the old hay barn at the top of the hill, and has not told Alma. She says all of this very fast, then has to go close out the register. The moon is up. Tule fog lies in the low fields like spilled milk. Down the hill a cow lows once, and the whole herd stands up.',
+        'Rosie gives you the barn key, a bag of day-old sweet bread and the best wheel in the cave, the one Alma calls the grandmother. She says she found the missing wheels this morning, stacked in the old hay barn at the top of the hill, and has not told Alma. She says all of this very fast, then has to go close out the register. The moon is up. Tule fog lies in the low fields like spilled milk. Down the hill a cow lows once, and the whole herd stands up.',
       ],
       recall: {
+        'g1:scrapes':
+          'You followed those scrape marks out the cave door yourself, the first night. Rosie talks right past that, very fast, and does not meet your eye.',
         'g2:old-maps':
           'The fog in the low fields lies exactly along the shading you saw on the maps, as if it had read them too.',
       },
@@ -234,7 +237,7 @@ export const STUBBORN_HERD: Mystery = {
             'Wrangle the glowing calf by hand when it comes through the field',
           check: { skill: 'burly', target: 7 },
           success: {
-            text: 'The calf comes up out of the fog leading a dozen cows uphill, and you vault the fence and tackle it as gently as anyone has ever tackled anything. It is softer than it should be. It is made of felt and glow paint and stuffing. It is swearing in two languages. The cows form a circle and look down, deeply disappointed in everyone. You help it up, and it limps beside you to the barn without being asked.',
+            text: 'The calf comes up out of the fog leading a dozen cows uphill, and you vault the fence and tackle it as gently as anyone has ever tackled anything. It is softer than it should be. It is made of felt and glow paint and stuffing. It is swearing in two languages. The cows form a circle and look down at the two of you like a committee that has been kept waiting. You help it up, and it limps beside you to the barn without being asked.',
             effects: { nerve: 1 },
           },
           failure: {
@@ -247,7 +250,7 @@ export const STUBBORN_HERD: Mystery = {
           label: 'Sit with the herd in the dark and refuse to leave first',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You sit in the grass among the cows and do not move for four hours. Neither do they. At dawn, the glowing calf comes up the hill, stops and stares at you. You stare back. You are both very stubborn. Finally it sighs, sits down beside you and says, in a creaky old-woman voice that cracks halfway into somebody much younger, “Fine. You win. Don’t tell Alma I sat down.” Then it brushes off its felt knees and walks with you to the barn.',
+            text: 'You sit in the grass among the cows and do not move for four hours. Neither do they. Near moonset, the glowing calf comes up the hill, stops and stares at you. You stare back. You are both very stubborn. Finally it sighs, sits down beside you and says, in a creaky old-woman voice that cracks halfway into somebody much younger, “Fine. You win. Don’t tell Alma I sat down.” Then it brushes off its felt knees and walks with you to the barn.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -257,10 +260,10 @@ export const STUBBORN_HERD: Mystery = {
         },
       ],
       leadLines: {
-        mara: 'Mara sits on a hay bale with her arms folded. “I can wait. I once waited six hours for a client to stop crying. This is easier.”',
+        mara: 'Mara sits on a hay bale sketching the herd by moonlight, one cow a minute. “Wake me when the calf comes. I won’t be asleep.”',
         kit: 'Kit rigs the barn door with a rope and a bicycle pulley. “Gentle trap. Nobody gets hurt. Especially not the cheese.”',
         juniper:
-          'Juniper braids a cow’s tail while she waits. “They know what’s coming. They’ve just decided to be polite about it.”',
+          'Juniper braids a cow’s tail while she waits. “If you fall asleep, I’m telling Rosie you snore. If you don’t, I’m telling her anyway.”',
         cedar:
           'Cedar sits on his tailgate with the CB off for once. “Some things you don’t chase. You just wait for ’em to come home.”',
       },
@@ -300,17 +303,17 @@ export const STUBBORN_HERD: Mystery = {
     scene: 'meadow',
     body: [
       'The glowing calf sits on a hay bale in the barn, slightly deflated, glow paint smudged on its felt nose. Around the walls, on the new shelves, are all the missing wheels of cheese, wrapped and labeled in neat round capitals. You text Rosie, GOT IT, and somewhere inside the felt calf a phone buzzes. A small voice from inside the head says “oh no, oh no, oh no,” very quietly.',
-      'Down the hill, the low fields are silver under the moon. The whole herd has come up and pressed against the barn, forty heads in the open doors, breathing steam. Every one of them is looking at the calf. Then, slowly, every one of them looks at you.',
+      'Down the hill, the low fields are silver under the moon. The whole herd has come up and pressed against the barn, forty heads in the open doors, breathing steam. Every one of them is looking at the calf. Then, slowly, all forty lie down, the way cows do before rain.',
     ],
     afterMiss: [
       'You lose the calf. You lose, around four in the morning, most of your dignity and one boot. Then at first light the barn’s work light clicks on, and there on a hay bale by the open door, felt head still on, sits the glowing calf, eating a sandwich through the mouth hole. All around the walls, on new shelves, are the missing wheels. It did not get caught. It just got tired.',
-      'You text Rosie, FOUND IT, and inside the felt calf a phone buzzes. The calf goes very still, and from inside the felt head comes a very small “oh no.” Behind you the whole herd has come up the hill and pressed into the doorway, forty heads, breathing steam. Every cow looks at the calf. Then, slowly, every cow looks at you.',
+      'You text Rosie, FOUND IT, and inside the felt calf a phone buzzes. The calf goes very still, and from inside the felt head comes a very small “oh no.” Behind you the whole herd has come up the hill and pressed into the doorway, forty heads, breathing steam. The cows look at the calf, then at the sandwich, then fold their legs and settle in the doorway as if a storm were coming.',
     ],
     recall: {
       'g1:alma-stare':
         'You think of Alma in her doorway, five feet tall and unblinking, and of how sure you were that it would be her in here.',
       'g1:fail':
-        'You never did get a straight story at the creamery, and nobody in this barn seems to think you have earned one yet.',
+        'The creamery gave you cheese and no answers, and nobody in this barn seems to think you have earned one yet.',
       'g2:fail':
         'You still do not know why the cows refuse the low fields. Forty of them look ready to explain it, very slowly.',
     },
@@ -339,9 +342,9 @@ export const STUBBORN_HERD: Mystery = {
       mara: 'Mara keeps her flashlight on the floor, not the face. “Nobody likes being lit from above when they get caught. Trust me.”',
       kit: 'Kit lifts one felt hoof and finds a volleyball kneepad strapped inside. “Whoever’s in here has crawled a lot of miles on purpose.”',
       juniper:
-        'Juniper strokes the nearest cow’s nose. “They’re not watching the calf. They’re watching to see what you’ll do.”',
+        'Juniper strokes the nearest cow’s nose. “Say something heroic. I want to hear you try. So do they.”',
       cedar:
-        'Cedar looks at forty cows looking at you. “King tide, forty witnesses and a calf with a phone in it. The universe booked this meeting, not us. Choose your words.”',
+        'Cedar looks at forty cows looking at you. “Full moon, a jury of forty and a calf with a phone in it. Somebody up there is laughing. Choose your words.”',
     },
     aloneLine:
       'Forty cows are watching you, and nobody else is. You have never felt so thoroughly supervised.',
@@ -406,7 +409,7 @@ export const STUBBORN_HERD: Mystery = {
       tone: 'true',
       text: [
         'At two the next afternoon, the Tidewater Meadows open house has a banner, a folding table of refreshments and forty dairy cows standing in a silent line along the fence. Rosie walks to the front in the felt calf suit with the head under her arm. You read the county’s projected tide line aloud, field by field, while Alma holds up the old 1950s field map beside you, and every cow behind you looks down at the bottoms at the same moment.',
-        'Trevor, who saw the glowing calf himself, nods all the way through. Inez quietly starts pulling up her own stakes. The man from Bayline folds his banner without being asked. Nothing is signed that day, and nothing has to be: the low fields will go back to the tide on their own schedule, and the family has decided to let them. Alma cuts the grandmother wheel on the refreshments table and hands the first slice to Trevor.',
+        'Trevor, who saw the glowing calf himself, nods all the way through. Inez quietly starts pulling up her own stakes. The man from Bayline does not fold. He reads out, politely, the option Rosie’s father signed on the bottoms two winters ago when the cave cooler died, the deposit long since spent, and what it costs to walk away. Then Inez texts him a flood-insurance quote for forty-eight homes below that tide line. He reads it twice and agrees to tear up the option the day the deposit comes back. Alma shakes on it without blinking, cuts the grandmother wheel, hands the first slice to Trevor and starts selling the rest of the cave by the pound.',
       ],
     },
     {
@@ -414,7 +417,7 @@ export const STUBBORN_HERD: Mystery = {
       title: 'Sold, With Conditions',
       tone: 'bittersweet',
       text: [
-        'The low fields sell, but the contract is a thing of beauty: no houses below the hill, a conservation easement on the bottoms, and a clause that the buyer must let the herd graze the high pasture for as long as there is a Quaresma alive to milk them. Bayline takes the deal because the alternative is more cows. The money keeps the creamery open another twenty years.',
+        'Bayline reads the word easement and sends back a counteroffer, a lawyer’s letter and an invoice for the survey. Alma refuses the first two and pays the third in cash, to make a point, and only then does Bayline walk. The low fields go instead to a coastal land trust that wants exactly the marsh the cows have been predicting. The contract is a thing of beauty: no houses below the hill, a conservation easement on the bottoms, and a clause that the herd may graze them every dry summer for as long as there is a Quaresma alive to milk. The money, less one survey invoice, keeps the creamery open another twenty years.',
         'Alma retires that winter and gives Rosie the recipe, written on the back of the old field map, and the felt calf, folded in tissue paper. You buy one of the last wheels Alma ever made. When you cut it, it tastes like butter, salt and something else, faint and far-off, like the smell of a tide coming in.',
       ],
     },

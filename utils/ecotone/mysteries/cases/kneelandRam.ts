@@ -54,7 +54,7 @@ export const KNEELAND_RAM: Mystery = {
         ],
       },
       body: [
-        'The turnout is full of folding chairs, trail cameras zip-tied to fence posts and about twenty people in matching orange beanies that say RIDGE RAM WATCHERS: WE SAW IT FIRST. Dwight, twenty-two and never once told no by a cryptid, walks you to a dented Subaru. The dent is perfectly round, knee-high on an adult, and the paint around it is scuffed in a ring.',
+        'The turnout is full of folding chairs, trail cameras zip-tied to fence posts and about twenty people in matching orange beanies that say RIDGE RAM WATCHERS: WE SAW IT FIRST. Dwight, twenty-two and never once told no by a cryptid, walks you to a dented Subaru. The dent is perfectly round, knee-high on an adult, and the paint around it is scuffed in a ring. Under the wiper, the owner says, he found a twenty-dollar bill and a jar of local honey. “Tribute,” Dwight says. “Cryptids do tribute.”',
         'At 11:02 the fog arrives all at once. At 11:04 there is a sound coming down the mountain that is not an engine: a long, rising whir, like a thousand bicycle wheels in a hurry. Twenty people raise their phones. Nobody has ever gotten a picture.',
       ],
       approaches: [
@@ -81,7 +81,7 @@ export const KNEELAND_RAM: Mystery = {
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You measure with great seriousness. The owner of the Subaru decides you are an insurance adjuster and follows you around the turnout explaining his deductible. By the time you shake him, the fog has turned your notes to pulp.',
+            text: 'You measure with great seriousness. The owner of the Subaru decides you are an insurance adjuster and follows you around the turnout explaining, at length, that twenty dollars and a jar of honey do not cover his deductible. By the time you shake him, the fog has turned your notes to pulp.',
             effects: { nerve: -1 },
           },
         },
@@ -91,7 +91,7 @@ export const KNEELAND_RAM: Mystery = {
             'Out-brag the Watchers until someone shows you the real sighting log',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You tell a bigger lie than anyone in the turnout and get a standing ovation. The oldest Watcher, a retired schoolteacher named Opal, quietly hands you a spiral notebook. Every sighting is on a Tuesday or a Friday, between 11:03 and 11:06, always going downhill. “Cryptids,” Opal says, tapping the page, “do not keep a schedule. People do.”',
+            text: 'You tell a bigger lie than anyone in the turnout and get a standing ovation. The oldest Watcher, a retired long-haul trucker named Marjean, quietly hands you a spiral notebook. Every sighting is on a Tuesday or a Friday, between 11:03 and 11:06, always going downhill. “Cryptids,” Marjean says, tapping the page, “do not keep a schedule. People do.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -126,14 +126,14 @@ export const KNEELAND_RAM: Mystery = {
         ],
       },
       body: [
-        'Above the fog, the ridge is a different country. The stars are out, the little airfield’s lights blink in the cold, and below you the whole coast is a white sea with the tops of hills poking up like islands. The shearing shed has its doors open and a work light on, and inside are nine of the strangest vehicles you have ever seen: a church pew on go-kart wheels, a clawfoot bathtub with flame decals, a coffin-shaped cart with EARLY RETIREMENT painted on the lid.',
+        'Above the fog, the ridge is a different country. The stars are out, the little airfield’s lights blink in the cold, and below you the whole coast is a white sea with the tops of hills poking up like islands. The shearing shed has its doors open and a work light on, and inside are eight of the strangest vehicles you have ever seen: a church pew on go-kart wheels, a clawfoot bathtub with flame decals, a coffin-shaped cart with EARLY RETIREMENT painted on the lid. A ninth shape sits under a tarp in the back, and against the wall leans a spare church pew on wheels with no number painted on it yet.',
         'The racers are all over sixty, in leathers, cardigans and one bowling shirt. A shaggy white ram with a red bandana stands in the middle of the shed eating someone’s granola bar, and nobody stops him. On a hook by the door hangs a road-crew paddle, STOP on one side and SLOW on the other, the SLOW side scratched out with a key.',
       ],
       recall: {
         'g1:stand-in-road':
           'A racer in a cardigan points a wrench at you. “Center line, mile 4. Brave or dumb. We haven’t decided.” Two others nod like that is a compliment.',
         'g1:dents':
-          'In the back, under a tarp, a padded bumper pokes out at knee height, ringed in safety orange, right where the Subaru took its dent.',
+          'In the back, under that tarp, a padded bumper pokes out at knee height, ringed in safety orange, right where the Subaru took its dent.',
       },
       approaches: [
         {
@@ -156,7 +156,7 @@ export const KNEELAND_RAM: Mystery = {
             'Walk to the ridge edge and look down at the fog where the road should be',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You look down long enough for your eyes to adjust. The fog is not empty. On its surface, faint as breath on glass, a road is drawn in moving lights: Kneeland Road on a race day nobody has run, a flagger on every bend and an ambulance at the bottom with its doors open and nobody who needs it. A tiny white ram runs at the front. You blink, and it is another year, the road overgrown and empty, and the ram is still there, running. Every version has the ram.',
+            text: 'You look down long enough for your eyes to adjust. The fog is not empty. On its surface, faint as breath on glass, the road is drawn in headlights. It is not a race. It is a line of stopped traffic, decades of it, every car waiting on a flagger’s paddle: station wagons, logging trucks, a VW bus with its windows down. At the front of every line, waiting for nobody’s permission, stands a white ram in a red bandana.',
             effects: { weird: 1 },
           },
           failure: {
@@ -201,32 +201,32 @@ export const KNEELAND_RAM: Mystery = {
         lines: [
           '“Breaker, breaker. Ram runs at eleven. Last heat of the season.',
           'Word is the Watchers got a cargo net and a plan. They don’t got a plan.',
-          'Whoever was asking questions at the turnout: be at the curve. We’re short a flagger.”',
+          'Whoever was out at the turnout with the Watchers the other night: be at the curve. We’re short a flagger.”',
         ],
       },
       body: [
-        'The Watchers have strung a cargo net across the blind curve at mile 4, between two fence posts, at roughly chest height on a person in a cart. Dwight is beaming. “Tonight,” he says, “we make history.” Up on the ridge, eight carts and the Ram are lining up in the starlight, and none of them knows the net is there.',
+        'The Watchers have strung a cargo net across the blind curve at mile 4, between two fence posts, at roughly chest height on a person in a cart. Dwight is beaming. “Tonight,” he says, “we make history.” Up on the ridge, eight carts and the Ram are lining up in the starlight, and none of them knows which curve it’s on.',
         'The fog comes in at 11:02, right on schedule. You have maybe two minutes to decide whether you are here to catch a monster or keep somebody from getting hurt, and you are starting to suspect those are the same job.',
       ],
       recall: {
         'g2:paddle':
           'You keep thinking about that scratched-out SLOW paddle on the shed hook, and whoever was never once allowed to put it down.',
         'g2:push-start':
-          'Somewhere up the ridge is Hector, the bathtub man, who raced you across the shed lot and will not let you forget it, whichever way it went.',
+          'Somewhere up the ridge is Hector, the bathtub man, who raced you across the shed lot and has since told everyone his own version of it.',
       },
       approaches: [
         {
-          id: 'race-down',
+          id: 'flares',
           label:
-            'Drag the League’s spare cart, a second church pew, up to the switchback above the curve and race the Ram down',
-          check: { skill: 'burly', target: 11 },
-          cost: 'You are about to ride a church pew down a mountain at night.',
+            'Lay road flares above the curve in the old county pattern a flagger would brake for in her sleep',
+          check: { skill: 'lore', target: 9 },
+          cost: 'You are betting the whole night on a road-crew habit thirty years deep.',
           success: {
-            text: 'You shove the spare pew off the switchback just as the whir arrives, and go. The fog swallows you, and for one glorious curve you are side by side with the horned helmet, both of you laughing like maniacs. You pull ahead just enough to shout NET, and the Ram leans hard and drops into the gravel runoff, and you go in right after it. Eight carts follow, safe, and the net catches only Dwight’s trail camera.',
-            effects: { nerve: 1 },
+            text: 'You borrow a box of flares from the firewood pickup and set them above the curve the way county crews did before the cones went orange: three in a chevron, point uphill, which means slide ahead, everybody stops, no exceptions. At 11:04 the whir comes down out of the fog and, for the first time all season, it brakes. The horned helmet stops dead at the chevron out of pure reflex, and eight carts stop politely behind it, because nobody passes the ram. Then the Ram rolls, very slowly, into the turnout.',
+            effects: { goodwill: 1 },
           },
           failure: {
-            text: 'The pew goes faster than you planned and slower than the Ram. You spin out on the switchback into a blackberry bramble, which is soft and loving and full of thorns. By the time you climb out, the race has gone past and somebody else has handled the net.',
+            text: 'You lay the flares from memory, and your memory is a liar. Three in a row, pointing left, which in county code means DETOUR LEFT, and there is no left, only the turnout. The carts obey beautifully: one into the hay, two into the ditch, one into a Watcher’s folding chair. The Ram alone ignores the flares, having never obeyed a sign in its life, and goes through the cargo net so hard it tears it off its posts.',
             effects: { nerve: -1 },
           },
         },
@@ -239,7 +239,7 @@ export const KNEELAND_RAM: Mystery = {
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'Dwight agrees to move the net, then moves it the wrong way. The carts brake in a panic and pile into the ditch in a slow, dignified, very loud tangle. Nobody is hurt. Everyone is livid. A seventy-eight-year-old woman in a bowling shirt tells you exactly what she thinks of you in a voice that could strip paint.',
+            text: 'Dwight agrees to move the net, then moves it the wrong way. The carts brake in a panic and pile into the ditch in a slow, dignified, very loud tangle, and the half-moved net comes down on top of the heap. Nobody is hurt. Everyone is livid. A seventy-eight-year-old woman in a bowling shirt tells you exactly what she thinks of you in a voice that could strip paint.',
             effects: { nerve: -1 },
           },
         },
@@ -249,20 +249,20 @@ export const KNEELAND_RAM: Mystery = {
             'Take the flagger’s spot at the curve and wave them through yourself',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You pull on a reflective vest, plant yourself at the curve with a flashlight and wave every cart wide of the net like you were born doing it. The last one down is the horned helmet. It slows, just for you, and the driver lifts one gloved hand off the wheel and points at you: well done. The Ram comes to a stop in the turnout. Dwight drops his phone.',
+            text: 'You pull on a reflective vest, plant yourself at the curve with a flashlight and wave them wide of the net like you were born doing it. The first one down, as always, is the horned helmet. It slows, just for you, and the driver lifts one gloved hand off the wheel and points at you: well done. The Ram comes to a stop in the turnout, eight carts glide in behind it, and Dwight drops his phone.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You wave the flashlight with total confidence in exactly the wrong direction. Two carts head for the net, and Sergeant Butters, of all creatures, charges it first, horns down, and tears it off its posts. The carts sail through. The ram looks back at you with what can only be described as professional disappointment.',
+            text: 'You wave the flashlight with total confidence in exactly the wrong direction. Two carts head for the net, and Sergeant Butters, of all creatures, charges it first, horns down, and tears it off its posts. The carts sail through, mostly; two of them do it by way of the ditch. The ram looks back at you with what can only be described as professional disappointment.',
             effects: { nerve: -1 },
           },
         },
       ],
       leadLines: {
-        mara: 'Mara pulls on a borrowed vest. “If anyone gets hurt tonight, I’m tattooing NET on Dwight’s forehead.”',
-        kit: 'Kit is strapping a bike light to a hay bale. “Every race needs a finish line. I’ll make one. Nobody stop me.”',
+        mara: 'Mara pulls on a borrowed vest and writes the ambulance number on the back of her hand in ballpoint. “Dwight. That net costs one tooth, you pay in merch.”',
+        kit: 'Kit is strapping a bike light to a hay bale. “Every race needs a finish line. I’m making one. Hold this end.”',
         juniper:
-          'Juniper stands in the fog with her eyes closed. “They’re coming. Nine hearts and a ram. Ten, counting yours.”',
+          'Juniper stands in the fog with her eyes closed. “Nine carts and a ram. If you get run over, I’m keeping your thermos.”',
         cedar:
           'Cedar keys his CB. “Channel 19, this is the curve. Come down wide. You hear me, come down wide.”',
       },
@@ -283,13 +283,13 @@ export const KNEELAND_RAM: Mystery = {
       {
         id: 'hoofprint',
         label: 'Photograph the last hoofprint before the sun dries it',
-        text: 'You take the picture. Later, zooming in, you see that the hoofprint points uphill, and that in the white behind it, faint as breath, a banner is strung across Kneeland Road with your name on it, spelled wrong, under the word FINISH.',
+        text: 'You take the picture. Later, zooming in, you see that the hoofprint points uphill, and that in the white behind it, faint as breath, a road-crew paddle stands planted in the center line, turned to STOP, with nobody holding it.',
         effects: { weird: 1 },
       },
       {
         id: 'watchers',
         label: 'Join the Watchers for breakfast and let them tell it',
-        text: 'You eat pancakes with twenty people in orange hats. Opal, the oldest Watcher, tells the story best. By the third retelling you were in it, standing in the road, and you decide not to correct her.',
+        text: 'You eat pancakes with twenty people in orange hats. Marjean, the oldest Watcher, tells the story best. By the third retelling you were in it, standing in the road, and you decide not to correct her.',
         effects: { goodwill: 1 },
       },
     ],
@@ -301,7 +301,7 @@ export const KNEELAND_RAM: Mystery = {
     scene: 'highway',
     body: [
       'The fog thins. Every flashlight and phone in the turnout swings to the same spot. There sits a long, low cart built from the frame of a hospital gurney, with hay bales lashed to the nose and a padded rubber bumper ringed in safety orange. In the driver’s seat sits a figure in leathers and a welding helmet with two enormous curling horns. Sergeant Butters stands beside it, panting, his bandana askew.',
-      'Up the mountain, eight more carts are rolling to a stop in a line, their drivers lifting goggles and helmets. The horned figure turns its head slowly toward you. It has been first all night. Now it is your move.',
+      'Behind it, eight more carts sit where they stopped, their drivers lifting goggles and helmets. The horned figure turns its head slowly toward you. It went first all night. Now it is your move.',
     ],
     afterMiss: [
       'Somehow, nobody is hurt. By the time the whir stops, the gravel turnout looks like a yard sale after an earthquake: one cart in the hay, two in the ditch, one with its front wheels in a Watcher’s folding chair. The cargo net is a heap of rope, and Sergeant Butters is standing on top of it like he won it. In the middle of the mess sits a long, low cart built from a hospital gurney, hay bales on its nose, a padded bumper ringed in safety orange, and in the driver’s seat a figure in leathers and a welding helmet with two enormous curling horns.',
@@ -338,7 +338,7 @@ export const KNEELAND_RAM: Mystery = {
     ],
     leadLines: {
       mara: 'Mara keeps her flashlight steady on the helmet. “Whoever’s in there earned this moment. Don’t rush it.”',
-      kit: 'Kit is staring at the gurney frame like it is a love letter. “Ask them anything you want. I’m asking about the steering.”',
+      kit: 'Kit is staring at the gurney frame the way other people stare at puppies. “Ask them anything you want. I’m asking about the steering.”',
       juniper:
         'Juniper smiles at the ram. “He already knows how this ends. He’s just waiting to see if you do.”',
       cedar:
@@ -354,7 +354,7 @@ export const KNEELAND_RAM: Mystery = {
       chapter: 4,
       scene: 'highway',
       body: [
-        'The helmet comes off with a crackle of static, and a silver buzz cut stands straight up: Bev Ostrander, seventy-one, wind-burned, who spent thirty-one years on the county road crew holding a STOP/SLOW paddle in the rain on this exact road. Opal, the oldest Watcher, gasps. “Bev? You flagged me through a rockslide in 1994.”',
+        'The helmet comes off with a crackle of static, and a silver buzz cut stands straight up: Bev Ostrander, seventy-one, wind-burned, who spent thirty-one years on the county road crew holding a STOP/SLOW paddle in the rain on this exact road. Marjean, the oldest Watcher, gasps. “Bev? You flagged my rig through a rockslide in 1994.”',
         '“Thirty-one years,” Bev says, “I stood still and told everybody else when they could go. I never once got to go first. Then last spring a doctor looked at my heart and said, Beverly, you need to slow down. And I thought, I have been slowing down since 1983.” She pats the gurney. “He meant well. But I wanted to be first at something, once, before I’m last at everything. So we built the League. Flaggers on every curve. Nobody passes the ram. And the dents are on us. Anybody parked in the blind curve got kissed by the bumper, and we left twenty dollars and a jar of honey under every wiper.” Behind her, eight old racers are nodding.',
       ],
       choices: [
@@ -368,8 +368,9 @@ export const KNEELAND_RAM: Mystery = {
         },
         {
           id: 'keep-secret',
-          label: 'Hand her back the helmet and promise you never saw a thing',
-          text: 'You hold out the helmet. Bev takes it, looks at you a long time, and nods. Behind you, Dwight is very quietly deleting his photos.',
+          label:
+            'Put the helmet back on her head and tell the Watchers the Ram got away',
+          text: 'You set the helmet back on Bev’s head. Twenty Watchers saw her face. Marjean looks around the turnout, and twenty Watchers decide, one by one, that they did not. Dwight is very quietly deleting his photos.',
           ending: 'ram-stays-wild',
         },
       ],
@@ -381,7 +382,7 @@ export const KNEELAND_RAM: Mystery = {
       scene: 'meadow',
       body: [
         'At the top of the ridge, above the clouds, the stars are so bright they look loud. You are sitting in the spare church pew. Beside you, the horned figure lifts the helmet for just a second to wipe the fog off her goggles, and you see a silver buzz cut and a grin seventy-one years in the making. “Bev Ostrander,” she says. “Thirty-one years on the road crew. Doctor told me to slow down. Ready?”',
-        'Sergeant Butters steps to the front, the way he always does. Hector, a sixty-nine-year-old in a bathtub cart, drops a bandana. You go. The fog rises to meet you, and inside it, flickering past at every curve, you see the road’s other nights: next year’s race with a flagger on every bend, a winter with the road shut by a slide, a summer of kids in cardboard carts. The ram runs first through all of them.',
+        'Sergeant Butters steps to the front, the way he always does. Hector, a sixty-nine-year-old in a bathtub cart, drops a bandana. You go. The fog rises to meet you, the ridge drops away, and for six curves there is nothing in the world but the whir, the cold and a pair of horns just ahead.',
       ],
       choices: [
         {
@@ -412,7 +413,7 @@ export const KNEELAND_RAM: Mystery = {
       title: 'First Down the Mountain',
       tone: 'true',
       text: [
-        'Nobody goes home. Somebody’s pickup becomes a podium, a cooler of root beer becomes the trophy table, and Dwight, still crying, writes the plan for a real charity downhill on the back of a merch flyer: road closure, flaggers on every curve, an ambulance at the bottom, every dollar to the senior center van. By one in the morning the Watchers have turned their beanies inside out and written on them in marker: WE SAW HER FIRST.',
+        'The turnout does not empty. Somebody’s pickup becomes a podium, a cooler of root beer becomes the trophy table, and Dwight, between sobs, writes the plan for a real charity downhill on the back of a merch flyer: road closure, flaggers on every curve, an ambulance at the bottom, every dollar to the senior center van. By one in the morning the Watchers have turned their beanies inside out and written on them in marker: WE SAW HER FIRST.',
         'Then there is one last run, slow, for the record, with Watchers on foot holding flashlights at every bend. You ride the spare pew at the very back, dead last behind a seventy-nine-year-old in the coffin cart, and it is the best night of your life. Bev crosses first among the carts. Sergeant Butters crosses before all of you, as he always will, and nobody tries to pass him.',
       ],
     },
@@ -431,7 +432,7 @@ export const KNEELAND_RAM: Mystery = {
       tone: 'strange',
       text: [
         'The fog closes over you like water. The ram runs, and you run after him, and the road under your feet changes texture three times: new asphalt, cracked asphalt, grass. You pass a hand-painted finish line, then a road closed by a slide, then a ridge with no road on it at all. In every one the ram is just ahead, never looking back.',
-        'You come out of the fog at the gravel turnout at 11:01, panting. Dwight is setting up his folding chair. Your own car is pulling in, and you are climbing out of it, holding a thermos, about to read a text from a man with a merch table. Sergeant Butters stands beside you, chewing, entirely unbothered, ready to go first again.',
+        'You come out of the fog at the gravel turnout at 11:01, panting. Dwight is setting up his folding chair. Your thermos is on the hood of your car, still warm, though you remember finishing it an hour ago. Sergeant Butters stands beside you, chewing, entirely unbothered, ready to go first again.',
       ],
     },
   ],

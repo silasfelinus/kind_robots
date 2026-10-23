@@ -59,16 +59,15 @@ export const WATER_BEARER: Mystery = {
       scene: 'plaza',
       message: {
         medium: 'note',
-        from: 'Masking tape on a glass jug, your own doorstep',
+        from: 'Masking tape on a jug on your doormat, then a text from Nell Okafor',
         lines: [
-          'A gallon jug, full to the shoulder, waiting on your doormat at dawn. Block capitals on the tape: OCT 3 2049.',
-          'You do not have plans for that date. Your landlord’s well might.',
-          'Then a text: “this is nell okafor, out past blue lake. u got one too?? six on my road. come before the neighbors drink the evidence”',
+          'OCT 3 2049',
+          '“this is nell okafor, out past blue lake. u got one too?? six on my road. come before the neighbors drink the evidence”',
         ],
       },
       body: [
-        'Nell Okafor’s road runs out past where the city water ends, where every house is on a well. On her porch sits a gallon glass jug, the old dairy kind with a finger loop, full of water so clear it seems to bend the porch light. The label reads AUG 14 2041. Across the road, the neighbor’s says JUL 2 2037. The house on the corner got SEP 30 2052 and has already posted it to the town message board with eleven question marks.',
-        'Nell drove the Blue Lake school bus for twenty-eight years and knows every driveway by its pothole. “Nobody saw a car,” she says. “Nobody heard a step. And the dogs didn’t bark, which out here is the real miracle.” Down the road, a man in a bathrobe holds his jug up to the sun like he’s checking a twenty.',
+        'The jug on your doormat was full to the shoulder, block capitals on its tape. You do not have plans for October 3, 2049. Your landlord’s well might. Nell Okafor’s road runs out past where the city water ends, where every house is on a well. On her porch sits a gallon glass jug, the old dairy kind with a finger loop, full of water so clear it seems to bend the porch light. The label reads AUG 14 2041. Across the road, the neighbor’s says JUL 2 2037. The house on the corner got SEP 30 2052 and has already posted it to the town message board with eleven question marks.',
+        'Nell drove the Blue Lake school bus long enough to know every driveway by its pothole. “Nobody saw a car,” she says. “Nobody heard a step. And the dogs didn’t bark, which out here is the real miracle.” Down the road, a man in a bathrobe holds his jug up to the sun like he’s checking a twenty.',
       ],
       approaches: [
         {
@@ -76,7 +75,7 @@ export const WATER_BEARER: Mystery = {
           label: 'Map which houses got which dates',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'You walk the road with Nell and a clipboard and plot every jug. The dates aren’t random. Houses that share a well share a date. The earliest dates cluster on the shallow wells uphill; the latest sit on the deep ones near the river. Somebody isn’t leaving gifts. Somebody is leaving a schedule, and anyone with a clipboard could read it.',
+            text: 'You walk the road with Nell and the back of a feed-store receipt and plot every jug. The dates aren’t random. Houses that share a well share a date. The earliest dates cluster on the shallow wells uphill; the latest sit on the deep ones near the river. Somebody isn’t leaving gifts. Somebody is leaving a schedule, and anyone who can count could read it.',
             effects: { weird: 1 },
           },
           failure: {
@@ -103,7 +102,7 @@ export const WATER_BEARER: Mystery = {
           label: 'Ask around about who’s up before dawn',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'The baker who opens at four saw a woman in a waxed canvas hat towing a trailer of empty glass jugs. “Older lady. Muddy boots. Paid in exact change and tipped like a saint.” Then she frowns. “And a man in a truck so clean it had to be a rental, asking which houses got jugs and what the dates said. He wrote them down. He didn’t tip.”',
+            text: 'The baker who opens at four saw a woman in a waxed canvas hat towing a trailer of empty glass jugs. “Older lady. Muddy boots. Paid in exact change and tipped like a saint.” Then she frowns. “And a man in a rented pickup, dealer plates still on, asking which houses got jugs and what the dates said. He wrote them down. He didn’t tip.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -121,7 +120,7 @@ export const WATER_BEARER: Mystery = {
           'Cedar squints at the dates and goes quiet. “My uncle’s well went dry a few summers back. Nobody left him a warning.”',
       },
       aloneLine:
-        'Alone on the road at dawn, you find a jug on the hood of your own car as well. The label is blank.',
+        'Alone on the road at dawn, you find a jug on the hood of your own car as well. The label is blank. Your car, apparently, is not on a well.',
     },
     {
       title: 'The Light Over the River',
@@ -156,16 +155,17 @@ export const WATER_BEARER: Mystery = {
           },
         },
         {
-          id: 'wade',
-          label: 'Wade into the pool beneath the light and hold still',
+          id: 'bridge',
+          label:
+            'Stand on the old bridge in its path and look straight into it',
           check: { skill: 'psyche', target: 9 },
-          cost: 'The river is cold enough to file a complaint.',
+          cost: 'Every flashlight on the gravel bar is about to swing your way.',
           success: {
-            text: 'You stand thigh-deep and do not flinch when the light comes down to meet you. In its glow the river shows you its own date: a gravel bed with a trickle down the middle, and people on the bridge holding jugs. Then the light startles at your face and lifts away, and for one second you see a rental-company barcode stuck to its belly.',
+            text: 'You stand at the rail and do not flinch when the light comes down the river at eye level. In its glow the water below shows you its own date: a gravel bed with a trickle down the middle, and people on this same bridge holding jugs. Then the light startles at your face and lifts away, and for one second you see a rental-company barcode stuck to its belly.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'The cold takes your breath and then your dignity. You make a noise like a kettle. The light swings toward you, considers you, and moves politely to a different pool, the way a person changes seats on a bus. Earl lends you his slippers, which he brought for exactly this.',
+            text: 'You hold your ground right up until it hums a chord directly into your face, and then you duck so hard you sit down on the bridge deck. The light considers you and moves politely to a different pool, the way a person changes seats on a bus. Down on the gravel bar, Earl gives you a thumbs-up for trying, which is worse.',
             effects: { nerve: -1 },
           },
         },
@@ -178,14 +178,14 @@ export const WATER_BEARER: Mystery = {
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'Arlo talks for an hour about propane, in more detail than you knew propane had. He mentions the Long Bucket Ranch only once, to note that they were behind on their account. When you ask what happened to them, he says, “Ask the bucket girl,” and falls asleep in his chair.',
+            text: 'Arlo hears “1974” and turns his hearing aid off, firmly, the way some people close a gate. You talk to him for ten minutes anyway. He mentions the bucket girl exactly once, to the river, not to you, and then falls asleep in his chair with the cocoa balanced on his knee.',
             effects: { nerve: -1 },
           },
         },
       ],
       leadLines: {
         mara: 'Mara sketches the light on the back of a receipt. “Too symmetrical for a ghost. Ghosts don’t have a design budget.”',
-        kit: 'Kit watches the light bank against the wind. “That’s a machine, and an expensive one. Somebody bought that. Nobody built it.”',
+        kit: 'Kit is taping three phone flashlights to a driftwood stick so they pan together. “If that thing has a seam, this finds it. Somebody bought that light. I built this one in a minute.”',
         juniper:
           'Juniper lies flat on the gravel looking straight up. “I came for the little one,” she says, pointing at the faint, still light nobody else is watching. “The loud one’s for tourists.”',
         cedar:
@@ -195,7 +195,9 @@ export const WATER_BEARER: Mystery = {
         'With no one to whisper to, you notice what the crowd talks over: the light only dips its line where the river runs deepest.',
       recall: {
         'g1:pass':
-          'Whatever the jugs are, you know now they are no prank. Somebody takes those dates very seriously, and somebody else is listening.',
+          'Whatever the jugs are, you know now they are no prank. Somebody takes those dates very seriously.',
+        'g1:porches':
+          'You keep thinking about the man in the rented pickup who wrote the dates down. Somebody besides the neighbors is listening.',
       },
     },
     {
@@ -209,7 +211,7 @@ export const WATER_BEARER: Mystery = {
         lines: [
           'You’re asking good questions. That’s rarer than water.',
           'Road above Korbel. Left at the bathtub. You’ll know it.',
-          'Come before dawn. The dates don’t wait, and neither does the light.',
+          'Come before dawn. The dates don’t wait, and neither does the light. — S.',
         ],
       },
       body: [
@@ -236,7 +238,7 @@ export const WATER_BEARER: Mystery = {
           label: 'Read the jug library for what the light is after',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'Each shelf is a well. Each label is a water-level reading, plotted forward by someone who knows exactly how fast the valley is drinking itself dry. The dates aren’t prophecy. They are arithmetic. And someone else has read them: the dust on the deep-well shelves is fingered fresh, and the light outside is circling those parcels in order. You follow the order downhill to a turnout, where a man sits in a very clean truck, flying it.',
+            text: 'Each shelf is a well. Each label is a water-level reading, plotted forward by someone who knows exactly how fast the valley is drinking itself dry. The dates aren’t prophecy. They are arithmetic. And someone else has read them: the dust on the deep-well shelves is fingered fresh, and the light outside is circling those parcels in order. You follow the order downhill to a turnout, where a man sits in a rented pickup, flying it.',
             effects: { weird: 1 },
           },
           failure: {
@@ -249,7 +251,7 @@ export const WATER_BEARER: Mystery = {
           label: 'Call Earl and the gravel-bar regulars to ring the meadow',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'Earl answers on the first ring. Twenty minutes later a dozen people in boots and bathrobes stand in a circle around the meadow, and on your signal every flashlight comes on at once, pointed up. The light panics. Its chord jumps an octave and it drops into the bathtub with the frogs. Down the road, a man in a very clean truck tries to leave with his headlights off and backs into the cattle guard.',
+            text: 'Earl answers on the first ring. Twenty minutes later a dozen people in boots and headlamps stand in a circle around the meadow, and on your signal every flashlight comes on at once, pointed up. The light panics. Its chord jumps an octave and it drops into the bathtub with the frogs. Down the road, a man in a rented pickup tries to leave with his headlights off and backs into the cattle guard.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -280,7 +282,7 @@ export const WATER_BEARER: Mystery = {
     chapter: 4,
     scene: 'plaza',
     body: [
-      'The jugs stop. Nobody knows why. The light over the river stays gone, and within a month three houses on Nell’s road get cash offers in the mail from a company nobody has heard of. Two of them sell. The Long Bucket Ranch goes back to being a rumor.',
+      'The jugs stop the morning after you walk out of the dome. Up above Korbel the dome stands empty by the weekend, its shelves cleared overnight, and nobody you ask will say whose they were. The light over the river stays gone, and within a month three houses on Nell’s road get cash offers in the mail from a company nobody has heard of. Two of them sell.',
       'Nell keeps her jug on the windowsill, unopened, catching the light. AUG 14 2041. “Probably nothing,” she says. Then she has someone out to check her well, just in case.',
     ],
     choices: [
@@ -297,6 +299,12 @@ export const WATER_BEARER: Mystery = {
         effects: { weird: 1 },
       },
     ],
+    recall: {
+      'g3:pass':
+        'You got closer to the light than anybody on the gravel bar ever has, close enough to see a rental sticker and a man who did not want to be seen. By the time you came back with Nell, the turnout held nothing but fresh tire marks.',
+      'g3:fail':
+        'The light got away from you in that meadow, and it never comes back over the river. Whoever was flying it already has what he came for.',
+    },
   },
   reveal: {
     title: 'The Light Comes Down',
@@ -304,12 +312,12 @@ export const WATER_BEARER: Mystery = {
     chapter: 4,
     scene: 'meadow',
     body: [
-      'However it came down, first light finds the UFO grounded in the wet grass: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot, caught one way or another, sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY AS-IS.',
-      'Up the road comes a hand-truck stacked with empty jugs, pushed by a woman in a waxed canvas hat and muddy boots. She sets it down and looks at you, at the drone, at the man on the cattle guard. “Saffron Gutierrez,” she says. “Saff. I leave the jugs. I am not the light.” She reads the card, and her face goes very still. “Oh,” she says. “Oh, no. He’s been reading them.”',
+      'In the blackberries, in the bathtub or on its last bar of battery over the turnout, the UFO comes down, and first light finds it grounded in the wet grass: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot, caught one way or another, sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS.',
+      'Up the road comes a hand-truck stacked with empty jugs, pushed by a woman in a waxed canvas hat and muddy boots. She sets it down and looks at you, at the drone, at the man on the cattle guard. “You got my note. Good,” she says. “Saffron Gutierrez. Saff. I leave the jugs. I am not the light.” She reads the card, and her face goes very still. “Oh,” she says. “Oh, no. He’s been reading them.”',
     ],
     afterMiss: [
-      'The light gets away. It doesn’t get far. At first light a woman in a waxed canvas hat comes up the road pushing a hand-truck of empty jugs, and she knows where it lands. “Every morning, the turnout below the cattle guard,” she says. “Saffron Gutierrez. Saff. I leave the jugs. I am not the light. I would very much like to know who is.”',
-      'You walk down together. In the turnout a man in a camouflage hunting poncho is loading a survey drone into a truck so clean it has to be a rental: party lights, a waterproof speaker zip-tied to its belly, a sonar sounder on a line. He sees all of you and a hand-truck and puts his hands up. When you pull back his hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY AS-IS. Saff reads it and goes very still. “Oh, no,” she says. “He’s been reading them.”',
+      'The light gets away. It doesn’t get far. At first light a woman in a waxed canvas hat comes up the road pushing a hand-truck of empty jugs. “You got my note. Good,” she says. “I’ve seen it come down past the cattle guard twice. Both times I hid behind my hand-truck. Saffron Gutierrez. Saff. I leave the jugs. I am not the light. I would very much like to know who is.”',
+      'You walk down together. In the turnout a man in a camouflage hunting poncho is loading a survey drone into the bed of a rented pickup: party lights, a waterproof speaker zip-tied to its belly, a sonar sounder on a line. He sees all of you and a hand-truck and puts his hands up. When you pull back his hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS. Saff reads it and goes very still. “Oh, no,” she says. “He’s been reading them.”',
     ],
     choices: [
       {
@@ -327,15 +335,15 @@ export const WATER_BEARER: Mystery = {
       {
         id: 'other-light',
         label: 'Ask whether his was the only light over the river',
-        text: 'You ask whether his was the only light over the river. Pruitt says yes, too fast: he only ever flew one. Saff says nothing, and that night she drives you down to the deep pool in a truck held together with zip ties and conviction.',
+        text: 'You ask whether his was the only light over the river. Pruitt says yes at once, and for the first time all morning he sounds scared: he only ever flew one. Saff says nothing, and that night she drives you down to the deep pool in a truck held together with zip ties and conviction.',
         ending: 'contact',
       },
     ],
     leadLines: {
       mara: 'Mara reads the tape on Saff’s empty jugs, one after another. “Not a single misspelled September. I need to sit down.”',
-      kit: 'Kit has the drone in her lap like a confiscated puppy. “Rental lights, a party speaker and a sounder worth more than my car. You built a UFO out of a real-estate budget.”',
+      kit: 'Kit has the drone in her lap like a confiscated puppy. “Rental lights, a party speaker and a sounder worth more than my car. You built a UFO out of a water-rights budget.”',
       juniper:
-        'Juniper walks a slow circle around Pruitt. “In my day,” she says, “the aliens at least had the decency to be aliens.”',
+        'Juniper walks a slow circle around Pruitt. “Party lights and a playlist,” she says. “You didn’t even try to be an alien. I’m offended on their behalf.”',
       cedar:
         'Cedar squints at the drone. “Folks up 299 been blaming those lights on outer space since ’74. Turns out it’s a guy with an acquisitions budget. Honestly? Scarier.”',
     },
@@ -344,6 +352,8 @@ export const WATER_BEARER: Mystery = {
     recall: {
       'g1:fail':
         'Nell’s road gave you a dozen theories and no answers. Not one of the theories was a man with a rental truck and a business card.',
+      'g3:library':
+        'Saff glances up the hill toward the dome. “You’ve been in my library,” she says. “Somebody always moves September.”',
     },
   },
   branches: {
@@ -353,20 +363,20 @@ export const WATER_BEARER: Mystery = {
       chapter: 4,
       scene: 'meadow',
       body: [
-        'Pruitt Basin Partners, it turns out, buys rural parcels with good water and holds them until the dry years make the water worth more than the house. “Nobody sells because a well might fail in 2049,” Pruitt says. “They sell because there’s a light over the backyard humming at them, and a jug on the porch counting down. I just mailed the offer the next morning.”',
-        'He nods at Saff, almost respectfully. “Her dates are the best survey in the county, and she gives them away. The late ones are the deep wells. That’s my whole buy list.” Saff sits down on her hand-truck as if her knees have been cut. All those labels, all those dawns, and she has been drawing a treasure map.',
+        'Pruitt Basin Partners, it turns out, brokers water. “I don’t want their houses,” Pruitt says. “I want what’s under them. I buy the parcel, keep the well rights, and resell the house dry. Nobody sells because a well might fail in 2049. They sell because there’s a light over the backyard humming at them, and a jug on the porch counting down. I just mail the offer the next morning.” He nods at the dry well. “I calibrate off hers every dawn. If my sounder agrees with her jug for that one, I trust the rest.”',
+        'He nods at Saff, almost respectfully. “Her dates are the best survey in the county, and she gives them away. The late ones are the deep wells. That’s my whole buy list.” Saff sits down on her hand-truck as if her knees have been cut. All those labels, all those dawns, and she has been drawing a treasure map. “I was the bucket kid up here in ’74,” she says, to nobody. “Fifty years making sure nobody’s well goes dry without warning. I never once thought about who else could read.”',
       ],
       choices: [
         {
           id: 'buy-list',
           label: 'Take his buy list to the fire hall, every name on it',
-          text: 'You take the folder off his clipboard while he is still explaining. By noon every name on it has heard what the light was, and who was flying it.',
+          text: 'You take the folder off his dashboard while he is still explaining. By noon every name on it has heard what the light was, and who was flying it.',
           ending: 'water-for-everyone',
         },
         {
           id: 'let-go',
           label: 'Let him drive off, if he leaves the drone and the valley',
-          text: 'You make the deal. Pruitt drives away with his hands at ten and two. Saff watches his dust settle and does not look at her jugs.',
+          text: 'You make the deal. Pruitt counts out loud what the drone cost him, twice, then hands over the controller and drives away with his hands at ten and two. Saff watches his dust settle and does not look at her jugs.',
           ending: 'jugs-stop',
         },
       ],
@@ -377,8 +387,8 @@ export const WATER_BEARER: Mystery = {
       chapter: 4,
       scene: 'meadow',
       body: [
-        '“I was nine,” Saff says. “Summer of ’74. Twenty-two grown-ups came up here to live on sunlight and beans and good intentions, and nobody checked the water table. I was the bucket kid. Every morning I lowered that bucket, and every morning the rope went a little longer. I told them. Nobody listens to a nine-year-old with a rope. Then one morning the bucket came up dry, and by June the ranch was over.”',
-        '“Everyone says they vanished. They didn’t vanish. They got jobs. My mom became a dental hygienist in Fortuna. Nobody got abducted. They just got thirsty.” She taps a jug. “So I measure every well in the valley and leave the date on the porch. Nobody listens to a nine-year-old. Everybody looks at a jug.” She glances at Pruitt. “Including him.”',
+        '“I was nine,” Saff says. “Spring of ’74. Twenty-two grown-ups came up here to live on sunlight and beans and good intentions, and nobody checked the water table. I was the bucket kid. Every morning I lowered that bucket, and every morning the rope went a little longer. I told them. Nobody listens to a nine-year-old with a rope. Then one morning the bucket came up dry, and by June the ranch was over.”',
+        '“Everyone says they vanished. They didn’t vanish. They got jobs. My mom became a dental hygienist in Willits. Nobody got abducted. They just got thirsty.” She taps a jug. “So I measure every well in the valley and leave the date on the porch. Nobody listens to a nine-year-old. Everybody looks at a jug.” She glances at Pruitt. “Including him.”',
       ],
       choices: [
         {
@@ -402,8 +412,8 @@ export const WATER_BEARER: Mystery = {
       title: 'Water for Everyone',
       tone: 'true',
       text: [
-        'By the next summer the well roads outside Blue Lake have a well-share co-op, run out of the fire hall on a whiteboard in draftsman’s capitals. Deep wells help shallow ones through the dry months, rain tanks go up on every barn roof that will hold them, and not one more parcel on the well roads sells to Pruitt Basin Partners. The dates on the porch jugs start getting crossed out and rewritten, years later each time. Nell runs the mailing list. The old propane man from the gravel bar runs the jokes.',
-        'In August a dozen grey-haired former ranchers from the Long Bucket days, one of them a dental hygienist from Fortuna, stand in the meadow while Saff pours one jug of river water, ceremonially, down the dry well. It doesn’t fix anything. Everyone cries anyway. Overhead, a secondhand drone flies the co-op’s well survey in plain white light, humming nothing at all.',
+        'By the next summer the well roads outside Blue Lake have a well-share co-op, run out of the fire hall on a whiteboard in draftsman’s capitals. Deep wells help shallow ones through the dry months, rain tanks go up on every barn roof that will hold them, and Pruitt does not go quietly: he already holds the well rights under two parcels, and his lawyer’s letter says so. The co-op buys them back at his price with a year of pancake breakfasts and one ruthless raffle, and after that not one more parcel on the well roads sells to Pruitt Basin Partners. The dates on the porch jugs start getting crossed out and rewritten, years later each time. Nell runs the mailing list. Arlo, the old man in the camp chair from the gravel bar, runs the jokes.',
+        'In August a dozen grey-haired former ranchers from the Long Bucket days, entirely unabducted, Saff’s mother among them, stand in the meadow while Saff pours one jug of river water, ceremonially, down the dry well. It doesn’t fix anything. Everyone cries anyway. Overhead, a secondhand drone flies the co-op’s well survey in plain white light, humming nothing at all.',
       ],
     },
     {
@@ -412,7 +422,7 @@ export const WATER_BEARER: Mystery = {
       tone: 'bittersweet',
       text: [
         'Saff stops the jugs. A warning anybody can read, she says, is a map anybody can read, and she can’t choose who reads it. Pruitt Basin Partners closes its post office box in Blue Lake and opens one two valleys over. The numbers were never secret; anyone can ask for their own well reading. Most people don’t. A few do, and quietly put in a tank, or conserve, or move.',
-        'In the August of a year you won’t name, Nell’s well runs low but holds. She credits the jug on her windowsill, which she never opened. You visit the dome one last time and find the shelves bare except for one jug, labeled with your address and a date so far out you will never have to worry about it. It is full.',
+        'In the August of a year you won’t name, Nell’s well runs low but holds. She credits the jug on her windowsill, which she never opened. You visit the dome one last time and find the shelves bare except for one jug, labeled with Nell’s address and a date so far out nobody on her road will have to worry about it. It is full.',
       ],
     },
     {

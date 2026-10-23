@@ -132,12 +132,12 @@ export const CROW_COURT: Mystery = {
         from: 'Odette (geology field camp)',
         lines: [
           'dot let me photograph one of the postcards behind the register',
-          '“Dear Crows. Blue bin, two scoops, not three. You’ll get fat. Tell R. it’s the wrong side of the stump. The side with the sun at supper. Don’t let anybody else dig. — Gus P.”',
+          '“Dear Crows. Blue bin, two scoops, not three. You’ll get fat. Tell R. it’s on the wrong side of the stump. Same as always. Don’t let anybody else dig. — Gus P.”',
           'gus is the dead guy. allegedly',
         ],
       },
       body: [
-        'Dot has eleven of these behind the register, all addressed to The Crows, care of the bar at the bend, all postmarked Fortuna, all signed by Augustine “Gus” Pell, whom the whole ridge quietly buried six winters ago. The handwriting wobbles like it is walking downhill. A second hand, round and patient, has fixed his spelling in pencil.',
+        'Dot has eleven of these behind the register, one a week since spring, all addressed to The Crows, care of the bar at the bend, all postmarked Fortuna, all signed by Augustine “Gus” Pell, whom the whole ridge quietly buried six winters ago. The handwriting wobbles like it is walking downhill. A second hand, round and patient, has fixed his spelling in pencil.',
         'The homestead is an hour up a dirt road that is mostly a suggestion. A cabin with its porch slumped to one knee, a blue plastic bin on the rail, a split redwood stump in the middle of the clearing, and around the stump, holes. Fresh ones, none of them deep. Somebody digs here every night and quits every time the crows land.',
       ],
       approaches: [
@@ -146,7 +146,7 @@ export const CROW_COURT: Mystery = {
           label: 'Work out which side of the stump is “the wrong side”',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'The sun at supper is west. And to a man who fed crows at dawn for twenty years, the wrong side is the one where the day goes. Every fresh hole in the clearing is on the east side. Whoever has been digging has been reading the postcards too, and reading them exactly backwards. You plant a stick on the west side, and the crows on the oak go quiet in a way that feels like approval.',
+            text: 'To a man who fed crows at dawn for twenty years, the wrong side of anything is the side where the day ends: west. Every fresh hole in the clearing is on the east side. Whoever has been digging has been reading the postcards too, and reading them exactly backwards. You plant a stick on the west side, and the crows on the oak go quiet in a way that feels like approval.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -164,7 +164,7 @@ export const CROW_COURT: Mystery = {
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You lose count. The third scoop is out of the bin before you remember the postcard, and fifty crows look at the third scoop, then at you, with the specific disappointment of a teacher who has already heard about you. Nobody eats. For the rest of the case, every crow on the ridge keeps one eye on your hands.',
+            text: 'You lose count. The third scoop is out of the bin before you remember the postcard, and fifty crows look at the third scoop, then at you, and you can actually hear them revise their opinion of you. Nobody eats. For the rest of the case, every crow on the ridge keeps one eye on your hands.',
             effects: { nerve: -1 },
           },
         },
@@ -177,7 +177,7 @@ export const CROW_COURT: Mystery = {
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You trace the postmark to Fortuna and then to every mailbox in Fortuna, which is a lot of mailboxes. By sunset you have learned the complete history of the town’s post office, three strong opinions about the Rohnerville airport and nothing whatsoever about Gus.',
+            text: 'You trace the postmark to Fortuna and then to every blue collection box in Fortuna, which is a lot of boxes. At the fourth, a mail carrier asks what exactly you are doing, hears the answer, and writes down your license plate. By sunset you know nothing about Gus and a great deal about how you look to a mail carrier.',
             effects: { nerve: -1 },
           },
         },
@@ -213,16 +213,16 @@ export const CROW_COURT: Mystery = {
       ],
       approaches: [
         {
-          id: 'hold',
-          label: 'Stand your ground in the clearing while it charges',
+          id: 'coat',
+          label: 'Put on Gus’s old barn coat and feed the crows the way he did',
           check: { skill: 'psyche', target: 11 },
-          cost: 'Seven feet of feathers at a dead run, and you have to not blink.',
+          cost: 'You have to be somebody’s father for ten minutes, convincingly, in front of fifty birds who knew him.',
           success: {
-            text: 'It charges. You do not move. The crows do not move either, and that is the clue: they are not afraid of it. At the last second the Crow Man skids to a stop, beak inches from your nose, and under the mask you hear a woman breathing hard and saying a word that is not a crow word. The crows hop down onto the stump behind you. They have picked a side, and it is not against you.',
+            text: 'Gus’s barn coat still hangs on a nail inside the cabin door. You put it on, step onto the slumped porch and scatter two scoops from the blue bin, slow, the way a man would who had done it every morning for twenty years. The crows come down around your boots, unafraid. Then the Crow Man steps out of the trees, not charging, walking, and the crows do not stir for it either: that is the clue. It stops three feet away. Under the beak a woman’s voice says, very quietly, “Take that off. Please.” You do. She doesn’t run.',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'You hold your ground for almost a full second, which is longer than most people manage. Then you are running through the manzanita making a sound you will deny later. The Crow Man stops at the clearing’s edge and does not follow. Behind you, fifty crows laugh in the specific, unhurried way crows laugh.',
+            text: 'You put on Gus’s barn coat from the nail inside the cabin door and step out to feed the crows. They know in one look that you are not him. The whole ridge goes up screaming, the Crow Man comes out of the trees at a dead run, and your legs make a decision without you: through the manzanita, making a sound you will deny later. When you look back, the Crow Man has stopped at the clearing’s edge, picked the coat out of the dirt where you dropped it, and is holding it.',
             effects: { nerve: -1 },
           },
         },
@@ -254,10 +254,10 @@ export const CROW_COURT: Mystery = {
         },
       ],
       leadLines: {
-        mara: 'Mara pulls her hood up. “If it comes for you, I’m stepping in. If it’s just a guy in a costume, I’m stepping in harder.”',
-        kit: 'Kit tests the oak limb with her full weight. “Holds me. Holds a tarp. Holds a seven-foot bird. Probably.”',
+        mara: 'Mara is pacing the clearing heel to toe. “Thirty-one steps from the stump to the trees. If it charges, you have thirty-one. Use them.”',
+        kit: 'Kit is hanging flashlights that treasure hunters dropped here on other nights from the oak on fishing line, all switched on and pointed down. “If they come back, the tree is going to look at them.”',
         juniper:
-          'Juniper hums something low, and the crows on the fence stop rustling to listen.',
+          'Juniper hums something low, and the crows on the fence stop rustling to listen. “They like me better,” she tells you. “Don’t take it personally. Take it a little personally.”',
         cedar:
           'Cedar leaves his truck lights off and his keys in. “Nobody’s getting chased down this road tonight. Not even the bad guys.”',
       },
@@ -265,7 +265,7 @@ export const CROW_COURT: Mystery = {
         'With nobody to catch you if you run, you decide, for once, not to run.',
       recall: {
         'g1:dot':
-          'Dot sent a thermos up the hill with Odette, your name on the tape, spelled wrong. You have been, provisionally, accepted.',
+          'Dot sent a paper sack of jerky up the hill with Odette, your name on it, spelled wrong. Whatever she decided about you, she decided you shouldn’t go hungry.',
       },
     },
   ],
@@ -282,7 +282,7 @@ export const CROW_COURT: Mystery = {
       {
         id: 'peanuts',
         label: 'Leave a handful of unsalted peanuts on the porch rail',
-        text: 'You leave them in a straight line. In the morning they are gone, and in their place is a gold bottle cap with a salmon on it, from a brewery that doesn’t exist yet.',
+        text: 'You leave them in a straight line. In the morning they are gone, and in their place is a gold bottle cap with a salmon on it, from a brewery on no map.',
         effects: { weird: 1 },
       },
       {
@@ -299,18 +299,20 @@ export const CROW_COURT: Mystery = {
     chapter: 5,
     scene: 'grove',
     body: [
-      'When the headlights have turned around and everyone is back on solid ground, the Crow Man sits down on the stump with the crows settling around its boots: fifty silent mourners and one costume of black contractor bags, cut into feathers by somebody patient. Up close, the seven feet are a pair of drywall stilts, and the rattle is a coffee can of bottle caps on a broom handle. You reach for the mask. A gloved hand slaps yours away. “I’m not a land developer,” says a tired woman’s voice, “if that’s what you were hoping.” She takes it off herself.',
-      'Reyna Pell is forty-four, sunburned, with her father’s jaw and a school-bus driver’s whistle on a cord around her neck. “Dad’s not dead,” she says. “He’s in Fortuna. He has dementia. Most days he doesn’t know my name, but every morning he asks Sione, his aide, if somebody fed the crows. He buried something up here for me and he can’t tell me where anymore. So I dig, and the treasure hunters dig, and I scare them off, and nobody finds it.”',
+      'When the headlights have turned around and everyone is back on solid ground, the Crow Man sits down on the stump with the crows settling around its boots: fifty silent mourners and one costume of black contractor bags, cut into feathers by somebody patient. Up close, the seven feet are a pair of drywall stilts, and the rattle is a paint can of bottle caps on a broom handle. You reach for the mask. A gloved hand slaps yours away. “I’m not a land developer,” says a tired woman’s voice, “if that’s what you were hoping.” She takes it off herself.',
+      'Reyna Pell is forty-four, sunburned, with her father’s jaw and a ring of school-bus keys on a district lanyard. “Dad’s not dead,” she says. “He’s in Fortuna. He has dementia. Most days he doesn’t know my name, but every morning he asks Sione, his aide, if somebody fed the crows. He buried something up here for me and he can’t tell me where anymore. So I dig, and the treasure hunters dig, and I scare them off, and nobody finds it.”',
       'She looks down at the dark folds of the Eel. “You know why I never corrected anybody? Because up here, when a man stops coming to town, folks down the hill think the other thing. Sometimes they’re right. There are families who still drive these roads every year with a photo on the dashboard, asking at every tavern, and their people didn’t go to a care home in Fortuna.” She wipes her eyes with a plastic-feathered sleeve. “I’m the lucky one. I know that. It doesn’t help as much as you’d think.”',
     ],
     afterMiss: [
-      'When the treasure hunters’ taillights are gone and the clearing is quiet, you go back to the stump, because that is the kind of mistake you make. The Crow Man is sitting on it with the mask in its lap and the crows settling around its boots: fifty silent mourners and one costume of black contractor bags cut into feathers by somebody patient, propped on a pair of drywall stilts. Beside it is a coffee can of bottle caps on a broom handle: the rattle. “You came back,” says a tired woman’s voice. “Nobody comes back. And no, I’m not a land developer.”',
-      'Reyna Pell is forty-four, sunburned, with her father’s jaw and a school-bus driver’s whistle on a cord. “Dad’s not dead. He’s in Fortuna. He has dementia. Most days he doesn’t know my name, but every morning he asks Sione, his aide, if somebody fed the crows. He buried something up here for me and he can’t tell me where anymore. So I dig, the treasure hunters dig, I scare them off, and nobody finds it.”',
+      'An hour later the clearing is quiet. The treasure hunters have gone back down the switchbacks with everyone and everything they brought, complaining the whole way, and you end up at the stump, because that is the kind of mistake you make. The Crow Man is sitting on it with the mask in its lap and the crows settling around its boots: fifty silent mourners and one costume of black contractor bags cut into feathers by somebody patient, propped on a pair of drywall stilts. Beside it is a paint can of bottle caps on a broom handle: the rattle. “You’re still here,” says a tired woman’s voice. “The crows are going to have opinions about that.”',
+      'Reyna Pell is forty-four, sunburned, with her father’s jaw and a ring of school-bus keys on a district lanyard. “Dad’s not dead. He’s in Fortuna. He has dementia. Most days he doesn’t know my name, but every morning he asks Sione, his aide, if somebody fed the crows. He buried something up here for me and he can’t tell me where anymore. So I dig, the treasure hunters dig, I scare them off, and nobody finds it.”',
       'She looks down at the dark folds of the Eel. “You know why I never corrected anybody? Because up here, when a man stops coming to town, folks down the hill think the other thing. Sometimes they’re right. There are families who still drive these roads every year with a photo on the dashboard, asking at every tavern, and their people didn’t go to a care home in Fortuna.” She wipes her eyes with a plastic-feathered sleeve. “I’m the lucky one. I know that. It doesn’t help as much as you’d think.”',
     ],
     recall: {
       'g1:dusk':
         'Reyna squints at you. “You’re the one who gave the eulogy. I was in the trees.” She does not say whether it was any good.',
+      'g3:coat':
+        'Gus’s old barn coat lies folded on the stump between you. Neither of you mentions it yet.',
       'g3:trap':
         'Behind you the tarp still turns slowly on its rope from the oak, empty now, like a flag nobody salutes.',
       'g3:scare':
@@ -326,7 +328,7 @@ export const CROW_COURT: Mystery = {
       {
         id: 'dig',
         label: 'Dig on the wrong side of the stump, together',
-        text: 'You read the postcard again: the side with the sun at supper. You point west. Reyna starts to laugh, stops, and picks up the shovel.',
+        text: 'You read the postcard again: the wrong side, same as always. For a man who lived by the sunrise, that is where the day ends. You point west. Reyna starts to laugh, stops, and picks up the shovel.',
         next: 'wrong-side',
       },
       {
@@ -338,7 +340,7 @@ export const CROW_COURT: Mystery = {
     ],
     leadLines: {
       mara: 'Mara steps between Reyna and the road without being asked, in case those headlights come back.',
-      kit: 'Kit has picked up one of the stilts and turns it over like a love letter. “Drywall stilts. In the dark. I’m furious I didn’t think of it.”',
+      kit: 'Kit has picked up one of the stilts and turns it over like a trophy she means to steal. “Drywall stilts. In the dark. I’m furious I didn’t think of it.”',
       juniper:
         'Juniper sits on the stump among the crows. “They’ve started missing him early,” she says. “Crows get ahead of themselves.”',
       cedar:
@@ -361,7 +363,7 @@ export const CROW_COURT: Mystery = {
         {
           id: 'bring-him',
           label: 'Ask Sione if Gus can come up the hill for one dusk',
-          text: 'Sione checks the rules, then the weather, then his conscience, and goes to find a wheelchair with good tires. On the way out, Reyna studies Gus’s drawing: a stump, an arrow, the sun going down. “West,” she says. “He’s been telling me for six years.” She is up the hill with a shovel before breakfast.',
+          text: 'Sione checks the rules, then the weather, then his conscience, and goes to find a wheelchair with good tires. On the way out, Reyna studies Gus’s drawing: a stump, an arrow, the sun going down. “West,” she says. “He’s been telling me every Tuesday since spring.” She is up the hill with a shovel before breakfast.',
           ending: 'crows-remember',
         },
         {
@@ -378,8 +380,8 @@ export const CROW_COURT: Mystery = {
       chapter: 5,
       scene: 'grove',
       body: [
-        'Two feet down on the west side, where the sun goes at supper, the shovel hits tin. It is a coffee can, the big kind, rusted at the rim and sealed with tape that has outlived several presidents. Inside: a roll of old bills, not much, a careful man’s whole savings, and a bundle of envelopes in a bread bag, each addressed in a strong hand that does not wobble yet: For Reyna.',
-        'The crows come down from the oak at once, all of them, and stand around the hole in a silent ring. Not a funeral now. Something else, like a congregation waiting for the hymn. One hops forward and drops the brass key into the can. It fits nothing in there. It is for something that doesn’t exist yet.',
+        'Two feet down on the west side, where the day ends, the shovel hits tin. It is a coffee can, the big kind, rusted at the rim and sealed with tape that has outlived several presidents. Inside: a roll of old bills, not much, a careful man’s whole savings, and a bundle of envelopes in a bread bag, each addressed in a strong hand that does not wobble yet: For Reyna.',
+        'The crows come down from the oak at once, all of them, and stand around the hole in a silent ring. Not a funeral now. Something else, like a congregation waiting for the hymn. One hops forward and drops the brass key into the can. It is the key to the padlock on the homestead gate, the one Reyna lost the winter Gus went down the hill.',
       ],
       choices: [
         {
@@ -410,7 +412,7 @@ export const CROW_COURT: Mystery = {
       tone: 'true',
       text: [
         'Gus Pell comes up the hill at dusk in a borrowed wheelchair with good tires, Sione pushing and Reyna walking beside him with the coffee can from the west side of the stump. He does not know the road. He does not know the cabin. Then the crows come in over the ridge, and he lifts both arms like a man who has done it every morning for twenty years, and they land on him: wrists, shoulders, the brim of his cap. Crows remember a face for years. These remember his exactly.',
-        'Nobody holds a funeral that night. Reyna reads the letters from the can aloud by headlamp, every one, each addressed For Reyna in a strong hand that does not wobble yet, and they are plain and loving and occasionally about tomatoes; in the last, he apologizes for never being much of a talker. When she finishes, a crow walks down his arm and drops a gold ring into her palm, the one from Dot’s bar towel, which nobody saw it take. Inside: R + J, and a date four years from now. “For your wedding,” Gus tells the crow on his wrist, not looking at anyone. “Tell her I liked her.” Down at the bar at the bend, Dot pins that week’s postcard over the register and never takes it down.',
+        'Nobody holds a funeral that night. Reyna reads the letters from the can aloud by headlamp, every one, each addressed For Reyna in the strong, square hand from before, and they are plain and loving and occasionally about tomatoes; in the last, he apologizes for never being much of a talker. When she finishes, a crow walks down his arm and drops a gold ring into her palm, the one from Dot’s bar towel, which nobody saw it take. Inside: R + J, and a date four years from now. “For your wedding,” Gus tells the crow on his wrist, not looking at anyone. “Tell her I liked her.” Down at the bar at the bend, Dot pins that week’s postcard over the register, and the next time a kid from down the hill asks why they call it Murder Mountain, she says, “Crows,” and this time she means it.',
       ],
     },
     {
@@ -428,7 +430,7 @@ export const CROW_COURT: Mystery = {
       tone: 'strange',
       text: [
         'The crows file your face away for good, and this time it is a good entry. The funeral stops. The next dusk they gather around the stump and simply look at you, all of them, until you understand that the funeral is over and you are the new keeper of the blue bin: two scoops, not three, every morning. Reyna gives you the key to the gate. In Fortuna, Gus is told, and nods like he had already heard.',
-        'Then the gifts start. A bottle cap from a brewery that opens next spring. A bus transfer for a route that doesn’t run yet. A photo-booth strip of strangers laughing at a wedding that hasn’t happened. And once, laid neatly on your porch rail, a postcard addressed to The Crows, care of the bar at the bend, in your own handwriting, postmarked a year from now.',
+        'Then the crows start gathering at dusk in new places, quietly, early: around the dead oak, which comes down in the March wind; around Dot’s woodstove chimney, a month before she finally sells the bar. They are always early, and they are never wrong, and you learn to go and say goodbye while there is still time. Once, laid neatly on your porch rail, there is a postcard addressed to The Crows, care of the bar at the bend, in a hand you have never seen, signed by someone whose name you don’t know yet.',
       ],
     },
   ],

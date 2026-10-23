@@ -1757,8 +1757,14 @@ import {
   contextualOfferLine,
   sceneMomentOffer,
 } from '~/utils/ecotone/sceneOffers'
-import { PLAYER_AVATARS, PLAYER_PERSONALITIES } from '~/utils/ecotone/playerIdentity'
-import { loadEcotoneDisplay, saveEcotoneDisplay } from '~/utils/ecotone/displaySettings'
+import {
+  PLAYER_AVATARS,
+  PLAYER_PERSONALITIES,
+} from '~/utils/ecotone/playerIdentity'
+import {
+  loadEcotoneDisplay,
+  saveEcotoneDisplay,
+} from '~/utils/ecotone/displaySettings'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
 import {
@@ -1773,7 +1779,8 @@ import {
   type MysteryMessage,
 } from '~/utils/ecotone/mysteries'
 
-type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases' | 'settings'
+type Tab =
+  'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases' | 'settings'
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')

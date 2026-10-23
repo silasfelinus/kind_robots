@@ -79,8 +79,8 @@ export function applySimpleReel(
       cue: 'The line relaxes. Keep reeling when you are ready.',
     }
   }
-  const progress = clamp(state.progress + 17)
-  const tension = clamp(state.tension + 16)
+  const progress = clamp(state.progress + 13)
+  const tension = clamp(state.tension + 19)
   if (progress >= 100) {
     return {
       ...state,

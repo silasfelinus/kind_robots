@@ -148,7 +148,13 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function choose(choiceId: string, spendOriginPerk = false) {
     if (run.value)
-      update(chooseBeat(run.value, choiceId, spendOriginPerk && originPerkAvailable(run.value, choiceId)))
+      update(
+        chooseBeat(
+          run.value,
+          choiceId,
+          spendOriginPerk && originPerkAvailable(run.value, choiceId),
+        ),
+      )
   }
 
   function takeMoment(selected: SubstanceId[]) {

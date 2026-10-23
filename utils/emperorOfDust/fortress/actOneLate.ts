@@ -854,7 +854,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F008'],
             },
             response:
-              'The foreman nods once. From him, that is a lot. The buffalo who drove the flour cart counts every sack twice, then asks if the crown needs someone who can count.',
+              'The foreman nods once. From him, that is a lot. The quartermaster who drove the flour cart counts every sack twice, then asks if the crown needs someone who can count.',
           },
           {
             id: 'ration',
@@ -871,7 +871,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
               recruitable: ['F008'],
             },
             response:
-              'The Old Houses open their larders slowly, like people being robbed politely. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
+              'The Old Houses open their larders slowly, like people being robbed politely. Their quartermaster, still clutching a ration abacus, stays to ask about work.',
           },
         ],
         beats: [
@@ -926,7 +926,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F008'],
                 },
                 response:
-                  'Ash nods once. The buffalo who drove the flour cart counts every sack twice, glares at the price, and asks if the crown needs someone who can count.',
+                  'Ash nods once. The quartermaster who drove the flour cart counts every sack twice, glares at the price, and asks if the crown needs someone who can count.',
               },
               {
                 id: 'ration',
@@ -944,7 +944,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
                   recruitable: ['F008'],
                 },
                 response:
-                  'Lady Vask sends word to Bellam herself. He opens the granary and stands at the door the whole time, coughing, counting each sack out loud. Their quartermaster, a buffalo with a ration abacus, stays to ask about work.',
+                  'Lady Vask sends word to Bellam herself. He opens the granary and stands at the door the whole time, coughing, counting each sack out loud. Their quartermaster, still clutching a ration abacus, stays to ask about work.',
               },
             ],
           },

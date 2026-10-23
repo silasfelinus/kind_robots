@@ -1502,6 +1502,9 @@ jobs:
       - name: Art Archive scan memory contract
         run: npm run test:art-archive-scan-memory
 
+      - name: Memory Dungeon spatial weapon combat contract
+        run: npm run test:memory-dungeon-combat
+
       - name: Art Archive batch scan contract
         run: npm run test:art-archive-batch-scan
 

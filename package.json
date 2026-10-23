@@ -150,6 +150,7 @@
     "tune:pinball": "tsx utils/scripts/pinballTuning.ts",
     "test:zuzu-gamebook": "tsx utils/scripts/verifyZuzuGamebook.test.ts",
     "test:ecotone": "tsx utils/scripts/verifyEcotone.test.ts",
+    "test:memory-dungeon-combat": "tsx utils/scripts/verifyMemoryDungeonCombat.test.ts",
     "test:playbook": "tsx utils/scripts/verifyPlaybook.test.ts",
     "test:shifting-desks": "tsx utils/scripts/verifyShiftingDesks.test.ts && tsx utils/scripts/verifyShiftingDesksArtStyles.test.ts",
     "test:zuzu-showdown-sim": "tsx utils/scripts/verifyZuzuShowdownSim.test.ts",

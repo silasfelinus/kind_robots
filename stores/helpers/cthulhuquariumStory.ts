@@ -179,9 +179,10 @@ export function useCthulhuquariumStory() {
       const firstInteractive = activeScene.value.beats.findIndex(
         (item) => item.focus !== null || item.await !== null,
       )
-      const lastCinematicBeat = firstInteractive >= 0
-        ? firstInteractive - 1
-        : activeScene.value.beats.length - 1
+      const lastCinematicBeat =
+        firstInteractive >= 0
+          ? firstInteractive - 1
+          : activeScene.value.beats.length - 1
       if (beatIndex.value >= lastCinematicBeat) {
         queue.value.shift()
         beatIndex.value = 0

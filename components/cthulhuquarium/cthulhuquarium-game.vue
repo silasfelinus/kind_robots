@@ -2570,44 +2570,60 @@ onBeforeUnmount(() => {
 .cq-game {
   container-type: inline-size;
 }
+/* The tank and its selected room share one viewport; never stack rooms below it. */
+.cq-game:not(.cq-fullscreen) {
+  height: calc(100dvh - 5.75rem);
+  min-height: 22rem;
+  overflow: hidden;
+  position: relative;
+}
 .cq-layout {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
   display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'tank' 'deck' 'side' 'roster';
-  gap: 0.75rem;
-  align-items: start;
+  grid-template-areas: 'tank' 'deck';
+  gap: 0.4rem;
 }
 .cq-tank {
   grid-area: tank;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-base-300);
+}
+.cq-tank canvas {
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 .cq-command-deck {
   grid-area: deck;
   display: flex;
-  gap: 0.45rem;
+  min-width: 0;
+  gap: 0.4rem;
   overflow-x: auto;
-  padding: 0.35rem 0.15rem 0.6rem;
+  padding: 0.25rem;
   scrollbar-width: thin;
 }
-.cq-deck-button {
-  flex: 0 0 auto;
-  gap: 0.4rem;
-}
-.cq-side {
-  grid-area: side;
-  max-height: min(34vh, 22rem);
+.cq-deck-button { flex: 0 0 auto; gap: 0.4rem; }
+.cq-side, .cq-roster, .cq-support-panel {
+  position: absolute;
+  z-index: 15;
+  right: 0.5rem;
+  bottom: 4.5rem;
+  width: min(25rem, calc(100% - 1rem));
+  max-height: min(65%, 34rem);
   overflow-y: auto;
-}
-.cq-roster {
-  grid-area: roster;
-  max-height: min(34vh, 22rem);
-  overflow-y: auto;
-}
-.cq-support-panel {
-  max-height: min(45vh, 28rem);
-  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-base-300);
   border-radius: 1rem;
-  background: var(--color-base-200);
-  padding: 1rem;
+  background: var(--color-base-100);
+  padding: 0.75rem;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.35);
 }
 .cq-fullscreen {
   position: fixed;
@@ -2615,10 +2631,19 @@ onBeforeUnmount(() => {
   z-index: 60;
   max-width: none;
   margin: 0;
-  padding: 0.5rem 0.75rem 1rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  padding: 0.5rem;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--color-base-100);
+}
+@media (max-width: 640px) {
+  .cq-game:not(.cq-fullscreen) { height: calc(100dvh - 4.75rem); }
+  .cq-side, .cq-roster, .cq-support-panel {
+    right: 0;
+    bottom: 3.5rem;
+    width: 100%;
+    max-height: 55%;
+  }
 }
 .cq-price:disabled {
   opacity: 1;

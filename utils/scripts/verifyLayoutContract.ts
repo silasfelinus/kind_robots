@@ -1006,10 +1006,10 @@ function collect(): Record<RuleId, string[]> {
     // containment guarantees. Other pages still require a real scroll owner.
     const fixedConsoleStage =
       template.includes('data-layout="console-fixed"') &&
-      /\\b(kr-surface|kr-stage)\\b/.test(template) &&
-      /\\bh-full\\b/.test(template) &&
-      /\\bmin-h-0\\b/.test(template) &&
-      /\\boverflow-hidden\\b/.test(template)
+      (template.includes('kr-surface') || template.includes('kr-stage')) &&
+      template.includes('h-full') &&
+      template.includes('min-h-0') &&
+      template.includes('overflow-hidden')
 
     if (
       scrollers === 0 &&

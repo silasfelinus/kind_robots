@@ -13,6 +13,7 @@ import {
   isEligibleDungeonArt,
   uniqueDeckPaths,
   unseenDeckPaths,
+  deckImageIdentity,
   type DungeonDeckSelection,
   type VisibleDeckImage,
 } from '~/utils/memoryDungeonDeck'
@@ -111,6 +112,7 @@ export async function resolveMemoryDungeonDeck(
       // Every wave/floor asks the server again for a random, bounded art batch.
       // Try another window if a recent batch overlaps pictures already played.
       const eligible = new Map<string, VisibleDeckImage>()
+      const usedIdentities = new Set(previouslyUsed.map(deckImageIdentity))
       for (let attempt = 0; attempt < 6; attempt++) {
         const reply = await performFetch<VisibleDeckImage[]>(
           '/api/art/memory-deck?' +
@@ -125,9 +127,12 @@ export async function resolveMemoryDungeonDeck(
         )
         if (!reply.success)
           throw new Error(reply.message || 'Could not load a random image deck.')
-        for (const image of reply.data ?? []) {
+        const received = reply.data ?? []
+        if (!received.length) break
+        for (const image of received) {
           const path = imageUrlForDeck(image)
-          if (path && !previouslyUsed.includes(path)) eligible.set(path, image)
+          const identity = deckImageIdentity(path)
+          if (path && !usedIdentities.has(identity)) eligible.set(identity, image)
         }
         if (eligible.size >= needed) break
       }

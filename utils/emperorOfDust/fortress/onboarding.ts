@@ -24,7 +24,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     speaker: 'Kiyo',
     npc: 'F003',
     lines: [
-      'Before the first petitioner, a koala in a travel-stained coat comes to the throne with a medicine case and a sleeping child on her hip. She gives her name as Kiyo. The boy is Zuzu. He has slept through three border inspections and half his mother’s worries.',
+      'Before the first petitioner, a physician in a travel-stained coat comes to the throne with a medicine case and a sleeping child on her hip. She gives her name as Kiyo. The boy is Zuzu. He has slept through three border inspections and half his mother’s worries.',
       '“There are sick people outside this wall, Majesty. I can treat them. The gate watch says I need an imperial seal to open a surgery here.”',
       {
         who: 'Young Komodo',
@@ -49,7 +49,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     speaker: 'Duchess Flint',
     npc: 'F004',
     lines: [
-      'A tortoise comes to court carrying a child’s patched shawl. Her title is Duchess Flint. Nobody can name her duchy, and she does not ask them to.',
+      'A refugee advocate comes to court carrying a child’s patched shawl. Her title is Duchess Flint. Nobody can name her duchy, and she does not ask them to.',
       '“The freehold camp sends me. Your new law names refugees as guests, but the watch has been counting them as debts. I can stop the argument before it becomes a funeral.”',
       'She puts the shawl on the petitioner’s rail. “A little girl slept under that at the gate. The guard says there was no room. There was room for his horse.”',
     ],
@@ -69,7 +69,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     speaker: 'Ash Quill',
     npc: 'F007',
     lines: [
-      'A fennec courier comes up the hall with a satchel full of other people’s sealed letters. Ash Quill lays one on the rail, face down.',
+      'A Saltroad courier comes up the hall with a satchel full of other people’s sealed letters. Ash Quill lays one on the rail, face down.',
       '“Saltroad gave me a route and no wages. There are names on these letters that have been dead for years. Somebody keeps paying to have them delivered.”',
       'Ash taps the unopened letter. “A crown needs to know which roads still work. I know the roads that have stopped admitting they exist.”',
     ],
@@ -89,7 +89,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     speaker: 'Rook Bramble and Saffron Kett',
     npc: 'F001',
     lines: [
-      'Rook Bramble, a hare outrider with mud to the elbows, has dragged a battered bridge pin into the throne room. Saffron Kett, a jackal machinist, follows carrying the rest of the bridge.',
+      'Rook Bramble, an outrider with mud to the elbows, has dragged a battered bridge pin into the throne room. Saffron Kett, a machinist, follows carrying the rest of the bridge.',
       '“You can cross the east ford without a bridge,” Rook says. “I’ve carried wounded people through it.”',
       '“And you lost two wagons,” Saffron says. “I found their wheels downstream. A map won’t hold the next one up.”',
       'They came together because neither trusts the other to explain the problem. Rook offers the roads and a scout’s speed. Saffron offers repairs, a workshop, and enemies inside the Jackalwire Pack. Neither will work under the other.',
@@ -131,7 +131,7 @@ export const FIRST_BELL_AUDIENCES: readonly AudienceDef[] = [
     speaker: 'Bram Coil and Keel Understone',
     npc: 'F008',
     lines: [
-      'Bram Coil, a buffalo quartermaster, has counted the tower’s grain twice. Keel Understone, an armadillo tunnel surveyor, has counted the mouths waiting under the city.',
+      'Bram Coil, a quartermaster, has counted the tower’s grain twice. Keel Understone, a tunnel surveyor, has counted the mouths waiting under the city.',
       '“A hungry garrison is no garrison,” Bram says, gripping the last sealed grain sack.',
       '“There are children beneath our floor,” Keel says. “You can hear them through the air shafts. They cannot eat the inventory.”',
       'Bram can keep an army fed and make a hard ration last. Keel knows the mole roads and the people who live under them. The pair refuse to share the court post: each believes the other will sacrifice people the crown cannot see.',

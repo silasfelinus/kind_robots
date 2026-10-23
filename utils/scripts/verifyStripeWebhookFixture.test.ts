@@ -47,6 +47,7 @@
 // carries the identical constraint (it imports server/utils/mana.ts, which
 // also imports prisma.ts) for the same reason.
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import Stripe from 'stripe'
 
 import {
@@ -430,6 +431,26 @@ assert.equal(
 assert.equal(patronPeriodEnd({ current_period_end: -1 }, 'price_patron'), null)
 console.log(
   '✅ Cancellation preserves paid-through dates across Stripe API versions',
+)
+
+// The token notice is sent only after the one-time invoice ledger grant
+// commits. The official receipt remains in Stripe; duplicate event delivery
+// must not generate another token confirmation email.
+const webhookSource = readFileSync(
+  new URL('../../server/api/stripe/webhook.post.ts', import.meta.url),
+  'utf8',
+)
+const receiptSource = readFileSync(
+  new URL('../../server/utils/email.ts', import.meta.url),
+  'utf8',
+)
+assert.match(webhookSource, /const newGrant = await prisma\.\$transaction/)
+assert.match(webhookSource, /if \(newGrant && user\.email\)/)
+assert.match(webhookSource, /if \(existing\) return false/)
+assert.match(receiptSource, /Your 1,000 Patron tokens are ready/)
+assert.match(receiptSource, /return sendTransactionalEmail\(/)
+console.log(
+  '✅ Patron token confirmation triggers only on new committed grants',
 )
 
 console.log('✅ verifyStripeWebhookFixture: all assertions passed')

@@ -978,7 +978,7 @@ const HOST_PATIENCE: HostPatience[] = [
       label:
         'Leave Nera Gale with the Conclave. She flies its watch until the debt is paid.',
       response:
-        'Nera does not argue. She was a Crow before she was yours. Corvane writes her name in the book where your debt was. She goes up to the ledge and does not look back at the fire.',
+        'Nera does not argue. She belonged to the Conclave before she joined your court. Corvane writes her name in the book where your debt was. She goes up to the ledge and does not look back at the fire.',
       reason:
         'Nera Gale went back up to the Conclave’s ledge on the forty-sixth day, to fly its watch against the crown’s debt.',
     },
@@ -1051,7 +1051,7 @@ const HOST_PATIENCE: HostPatience[] = [
     surety: {
       follower: 'F007',
       label:
-        'Give her Ash Quill. A fennec who knows the salt roads drives for her until the war is done.',
+        'Give her Ash Quill. A courier who knows the salt roads drives for her until the war is done.',
       response:
         'Ash takes the reins of the fifth wagon like something they have wanted all their life. Oriel counts them. Driver. At the next halt Ash does not look back down the line.',
       reason:
@@ -1223,7 +1223,7 @@ const D45_ENVOY: SceneLine[] = [
 ]
 
 const D47_FLOUR: SceneLine[] = [
-  'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young rabbit, flour to the elbows, a letter crumpled in his fist.',
+  'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young cook, flour to the elbows, a letter crumpled in his fist.',
   'Behind them, the Gate Watch sergeant who caught him explains it, loud, to anyone awake.',
   '“He was leaving it at the stone on the road, Majesty,” says Dunmore. “For the grey sisters. It says where we are. How many. Good clear hand. I taught him his letters.”',
   '“I’m asking you for nothing. I brought him because it’s the law and I’m the foreman. Do what the law says.”',
@@ -3373,7 +3373,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['d44-powder-to-crypt', 'd44-fen-asked'],
                 },
                 response:
-                  'At dawn you stand on the dike with an old mole and a lantern-witch. Nobody bows. Reedlight says no, as promised. Then she says she will hold the north dike anyway, for the children. She does not say whose.',
+                  'At dawn you stand on the dike with an old revolutionary and a lantern-witch. Nobody bows. Reedlight says no, as promised. Then she says she will hold the north dike anyway, for the children. She does not say whose.',
               },
               {
                 id: 'dike',

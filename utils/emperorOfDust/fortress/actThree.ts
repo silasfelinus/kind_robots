@@ -64,14 +64,14 @@ const joinLine = (base: string, extra: string | undefined): string =>
 const ABBESS_SPEECH =
   'I walked here to say this. The wasteland is cruel to little ones. The Abbey takes them in. We ask only to be left to our work.'
 const abbessOpening = (asides: (string | undefined)[]): SceneLine[] => [
-  'The Abbess walks into the hall on her own feet, road dust on her hem. Two young otter sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
-  'Foreman Dunmore Ash stops halfway across the hall. He is looking at the taller otter sister.',
+  'The Abbess walks into the hall on her own feet, road dust on her hem. Two young Abbey sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
+  'Foreman Dunmore Ash stops halfway across the hall. He is looking at the taller sister.',
   {
     who: 'Foreman Dunmore Ash',
     npc: 'dunmore-ash',
     text: 'That’s Moll. She came to my Yard at six with lice and no shoes, Majesty. The sisters walked her up the mission road in the hungry year. I never saw her again. Until now.',
   },
-  'The otter sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
+  'The sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
   joinLine(joinLine(ABBESS_SPEECH, asides[0]), asides[1]),
 ]
 
@@ -81,7 +81,7 @@ const MARROW_OFFER =
 const HESTER_DEFAULT =
   'A mother on my roads had a boy who walked to the Abbey with a sister in grey. She came here asking after him. Ask how often she’s seen his face.'
 const marrowLines = (asides: (string | undefined)[]): SceneLine[] => [
-  'Sister Marrow walks in out of the dark with road mud on her habit and a counting cord at her belt. She bows to each envoy, lowest to the mole.',
+  'Sister Marrow walks in out of the dark with road mud on her habit and a counting cord at her belt. She bows to each envoy, lowest to the burrow delegate.',
   '“The Abbess sends her wagons, Your Majesty. Shelter whichever grown folk you like. Tonight the Abbey takes the children of all three peoples behind our walls until the war is done.”',
   joinLine(MARROW_OFFER, asides[0]),
   {
@@ -105,7 +105,7 @@ const marrowLines = (asides: (string | undefined)[]): SceneLine[] => [
 const DUNMARK_GATE =
   'The fortress can shelter one of them properly, Majesty. Not two. Spread the Watch over three camps and I lose all three, and the gate. The rest fend for themselves.'
 const termsOpening = (dunmark: string): SceneLine[] => [
-  'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An old mole in a quilted vest, eyeing the ceiling like it might fall.',
+  'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An elderly burrow delegate in a quilted vest, eyeing the ceiling like it might fall.',
   'The Freeholds, the Saltroad and the Moles have each sent an envoy. One question from all three: if war comes tonight, will the crown open its gates?',
   {
     who: 'Captain Ferro Dunmark',
@@ -705,7 +705,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Coal Harrow, captain of the Mole sappers',
         faction: 'moles',
         lines: [
-          'A mole comes up the hall with a powder keg on his shoulder. “Empty,” he says, before the Watch can draw. He sets it on the step anyway. His paws are black to the elbow.',
+          'A sapper comes up the hall with a powder keg on his shoulder. “Empty,” he says, before the Watch can draw. He sets it on the step anyway. His paws are black to the elbow.',
           'Behind him two sappers carry a door between them. On the door: wet bedding, a kettle, a child’s shoe. Everything that came out of the north galleries before the water did.',
           'Coal Harrow. Captain of sappers. Granny Umber didn’t send me. She’d say it was rude to come. She’s right.',
           'The Mire Mothers built a weir across the fen outflow after the raiders came. Their water has to go somewhere. It went into our north galleries. Eleven families sleep on the stairs now.',
@@ -1323,7 +1323,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d23-tam-visited'],
             },
             response:
-              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady old wolf, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
+              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady veteran guard, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
           },
           {
             id: 'keep-bread',
@@ -2534,7 +2534,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           affinity: { moles: 'wary' },
         },
         lines: [
-          'The Mole cells send an armadillo, not a mole: banded, scuffed from tunnel walls, brass lantern high, a surveyor’s chain on one shoulder. Keel Understone unrolls a map across the step before anyone offers a chair.',
+          'The burrow cells send a surveyor with tunnel dust on their coat, a brass lantern held high, and a chain on one shoulder. Keel Understone unrolls a map across the step before anyone offers a chair.',
           'Granny Umber sent me. Your talks were real, so the cells meet you halfway. Water rights for the burrows. The cells stand down.',
           'I came to see if the crown keeps its word. If it does, I’d work for it. Against the witches, anyway.',
           {

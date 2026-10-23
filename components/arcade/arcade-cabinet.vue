@@ -489,7 +489,11 @@ import {
   type InputFrame,
 } from '~/utils/arcade/types'
 
-const props = defineProps<{ slug: string; contained?: boolean }>()
+const props = defineProps<{
+  slug: string
+  contained?: boolean
+  suspended?: boolean
+}>()
 const contained = computed(() => props.contained === true)
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
@@ -1321,6 +1325,7 @@ function eitherFrame(frames: InputFrame[]): InputFrame {
 }
 
 function tick() {
+  if (props.suspended) return
   ticks++
   const frames: InputFrame[] = inputs
     .slice(0, players.value)
@@ -1841,7 +1846,7 @@ function onScreenPointer() {
 }
 
 function onKey(event: KeyboardEvent) {
-  if (event.target instanceof HTMLInputElement) return
+  if (props.suspended || event.target instanceof HTMLInputElement) return
   unlockArcadeAudio()
   if (
     !guide.value &&
@@ -1882,7 +1887,10 @@ function releaseInterruptedInput() {
 }
 
 function onVisibility() {
-  if (!document.hidden) return
+  if (document.hidden) suspendPlay()
+}
+
+function suspendPlay() {
   releaseInterruptedInput()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
 }
@@ -1991,6 +1999,13 @@ onMounted(() => {
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
   loop = startFixedLoop(tick, render, onLoopError)
 })
+
+watch(
+  () => props.suspended,
+  (suspended) => {
+    if (suspended) suspendPlay()
+  },
+)
 
 watch(
   () => props.slug,

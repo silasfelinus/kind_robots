@@ -233,6 +233,8 @@ export interface BriarSave {
   waveIndex: number
   wavePhase: 'matching' | 'exploring'
   mapCards: BriarMapCard[]
+  /** Each image used by a reveal wave; persisted across saves to prevent duplicates. */
+  seenMapImages: string[]
   version: number
   revealed: string[]
   frontier: string[]
@@ -264,6 +266,7 @@ export function newBriarSave(): BriarSave {
     waveIndex: 0,
     wavePhase: 'matching',
     mapCards: [],
+    seenMapImages: [],
     player: BRIAR_START,
     attempts: 0,
     relics: [],
@@ -360,6 +363,15 @@ export function restoreBriarSave(input: unknown): BriarSave {
     waveIndex,
     wavePhase: saved.wavePhase === 'exploring' ? 'exploring' : 'matching',
     mapCards: waveCards,
+    seenMapImages: [
+      ...new Set([
+        ...(Array.isArray(saved.seenMapImages)
+          ? saved.seenMapImages.filter((value): value is string =>
+              typeof value === 'string' && value.length > 0)
+          : []),
+        ...waveCards.map((card) => card.image),
+      ]),
+    ],
     revealed,
     frontier,
     player:

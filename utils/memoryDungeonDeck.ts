@@ -105,13 +105,31 @@ export function uniqueDeckPaths(paths: readonly string[]): string[] {
   return [...new Set(paths.filter((value) => value.length > 0))]
 }
 
-/** Never deal a second copy of an image already seen during this expedition. */
+/**
+ * Signed archive URLs can gain a new exp/sig each hour without becoming new art.
+ * Compare those by stable ArtImage resource rather than time-limited capability.
+ */
+export function deckImageIdentity(path: string): string {
+  const route = path.match(
+    /(?:^|https?:\/\/[^/]+)(\/api\/art\/image\/(?:archive\/\d+|\d+\/thumbnail))(?:\?|$)/,
+  )
+  return route?.[1] ?? path
+}
+
+/** Return unique picture faces that have not appeared earlier this run. */
 export function unseenDeckPaths(
   paths: readonly string[],
   previouslyUsed: readonly string[],
 ): string[] {
-  const seen = new Set(previouslyUsed)
-  return uniqueDeckPaths(paths).filter((path) => !seen.has(path))
+  const blocked = new Set(previouslyUsed.map(deckImageIdentity))
+  const accepted = new Set<string>()
+  return paths.filter((path) => {
+    if (!path) return false
+    const identity = deckImageIdentity(path)
+    if (blocked.has(identity) || accepted.has(identity)) return false
+    accepted.add(identity)
+    return true
+  })
 }
 
 const galleryMotifs = [

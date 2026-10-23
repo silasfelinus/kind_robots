@@ -63,7 +63,7 @@
 
     <form
       v-else
-      class="relative z-10 grid min-h-0 flex-1 gap-3 overflow-y-auto px-3 py-3 sm:gap-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:overflow-hidden"
+      class="ruler-oath-layout relative z-10 grid min-h-0 flex-1 gap-3 overflow-y-auto px-3 py-3 sm:gap-5 sm:px-6"
       @submit.prevent="start"
     >
       <div class="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-amber-300/35 bg-slate-950/80 p-3 backdrop-blur-md sm:p-4">
@@ -171,3 +171,9 @@ function saveRename() {
   editingSlotId.value = null
 }
 </script>
+
+<style scoped>
+.ruler-oath-layout {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+</style>

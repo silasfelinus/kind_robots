@@ -88,11 +88,16 @@ const road = ['2,4', '3,4', '4,4', '5,4', '6,4', '7,4', '8,4']
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road), true)
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road.slice(0, -1)), false)
 
-
 const sceneCoordinates = Object.keys(BRIAR_SCENES)
-assert.ok(sceneCoordinates.length >= 12, 'World 1 begins with authored individual scenes')
+assert.ok(
+  sceneCoordinates.length >= 12,
+  'World 1 begins with authored individual scenes',
+)
 for (const key of sceneCoordinates) {
-  assert.ok(BRIAR_TILES.some((tile) => tile.key === key), `Scene ${key} is on map`)
+  assert.ok(
+    BRIAR_TILES.some((tile) => tile.key === key),
+    `Scene ${key} is on map`,
+  )
   const scene = BRIAR_SCENES[key]!
   assert.ok(scene.opening.length > 100, `Scene ${key} has prose`)
   assert.ok(scene.artPrompt.length > 40, `Scene ${key} has an art brief`)
@@ -144,14 +149,22 @@ const settledSave = {
   puzzleSolved: true,
 }
 for (const key of ['2,4', '3,6', '5,5', '6,2', '8,4', '2,7']) {
-  assert.equal(briarTileProgress(settledSave, key), 'complete', `${key} clears only when resolved`)
+  assert.equal(
+    briarTileProgress(settledSave, key),
+    'complete',
+    `${key} clears only when resolved`,
+  )
 }
 assert.equal(
   briarTileProgress({ ...settledSave, completedEncounters: [] }, '5,5'),
   'unfinished',
   'Hearing the Sprite without completing its duel does not clear the square',
 )
-assert.equal(briarTileProgress(settledSave, '5,2'), 'unfinished', 'Cross-world seals remain pending')
+assert.equal(
+  briarTileProgress(settledSave, '5,2'),
+  'unfinished',
+  'Cross-world seals remain pending',
+)
 const restoredScene = restoreBriarSave({
   ...settledSave,
   sceneChoices: { ...settledSave.sceneChoices, '3,4': 'invalid' },

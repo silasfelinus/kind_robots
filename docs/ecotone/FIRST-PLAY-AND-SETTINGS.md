@@ -19,7 +19,6 @@ Body copy for the initial pre-race party, fair and quiet bench has been revised 
 
 Targeted gameplay contract checks exercise three opening menus, legacy restored saves, nonstat identities, sparse temptations, and UI settings/save integration. Production mobile + XL browser visual verification is a recommended next step, not claimed complete.
 
-
 ## Reconciliation with later Ecotone work (October 23, 2026 PT)
 
 The current `sceneOffers.ts` contract governs every visible substance invitation. The former `openingExperience.ts` choices and roaming chemistry-picker are intentionally superseded; seven internal lenses remain for archived saves and ending coverage, but never appear as seven buttons on a player screen. New Settings, identity, undo, and save features coexist with Case Files and origin perks.

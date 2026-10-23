@@ -594,15 +594,15 @@
                 </p>
                 <template v-if="game.currentTrial">
                   <div
-                    v-if="game.ledger.version === 7"
+                    v-if="game.ledger.version === 7 || game.ledger.version === 8"
                     class="flex flex-wrap items-center gap-2 rounded-xl border border-info/40 bg-base-300 p-2.5"
                   >
                     <div class="min-w-[12rem] flex-1">
                       <strong class="text-xs">Scout before the trial</strong>
                       <p class="text-xs opacity-75">
-                        Spend 1 HP once to study this gate and earn a careful
-                        route. Mercy or honesty earned along the road may also
-                        summon witnesses.
+                        Spend 1 HP to unlock a carefully surveyed route.
+                        Check its success odds against your other choices before
+                        paying. Your earned deeds may also call witnesses.
                       </p>
                     </div>
                     <span
@@ -645,6 +645,9 @@
                       <span class="text-sm leading-snug opacity-85">{{
                         choice.intent
                       }}</span>
+                      <span class="text-xs font-bold text-info">
+                        {{ trialSuccessPercent(choice) }}% success on 2d6
+                      </span>
                       <span
                         v-if="checkTip === choice.id"
                         class="rounded-md bg-base-100 px-2 py-1 text-xs leading-snug"
@@ -1476,6 +1479,7 @@ import {
   type EncounterApproach,
 } from '~/utils/shiftingLands/journey'
 import type { V6Choice } from '~/utils/shiftingLands/deckV6'
+import { trialSuccessPercent } from '~/utils/shiftingLands/trialOdds'
 import ShiftingLandsCharacterRail from '~/components/shifting-lands-character-rail.vue'
 import {
   readShiftingLandsPresentation,

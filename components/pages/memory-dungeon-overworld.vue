@@ -642,9 +642,10 @@ onMounted(() => {
   border: 1px solid #927043;
   border-radius: 0.5rem;
   background: #4a5b36;
-  padding: 0.5rem 0.7rem;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.9rem;
   color: #fff4da;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 700;
 }
 .md-btn:hover:not(:disabled) {

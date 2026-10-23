@@ -144,7 +144,7 @@ export function isBriarCoordinate(key: string): boolean {
 }
 
 export function briarNeighbors(key: string): string[] {
-  const [x, y] = key.split(',').map(Number)
+  const [x = 0, y = 0] = key.split(',').map(Number)
   return [
     `${x - 1},${y}`,
     `${x + 1},${y}`,

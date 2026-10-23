@@ -39,7 +39,6 @@ assert.match(
 assert.match(quests, /scrollArea\.value\.scrollTo/)
 assert.doesNotMatch(quests, /scrollIntoView/)
 
-
 // Every illustrated fortress room uses the same opaque ink surface. The quest
 // rewards and dispatch controls must not show wood grain through their text.
 const inkRule = page.match(/(?:^|\n)\.eod \{([^}]+)\}/)?.[1] ?? ''

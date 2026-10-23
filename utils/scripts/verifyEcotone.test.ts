@@ -1,4 +1,5 @@
 import './verifyEcotoneAdversarial.test'
+import './verifyEcotoneSoloRepair.test'
 import './verifyEcotonePerks.test'
 import './verifyEcotonePlaystyles.test'
 import './verifyEcotoneEditorial.test'
@@ -624,8 +625,8 @@ assert.ok(encounterArtPitches().length > 500)
 assert.equal(endingArtPitches().length, ENDING_IDS.length * 4)
 assert.equal(
   REGIONAL_CALLBACKS.length,
-  38,
-  'thirty-eight precise optional regional payoffs',
+  40,
+  'forty precise optional regional payoffs, including both creek-monitoring results',
 )
 for (const callback of REGIONAL_CALLBACKS) {
   assert.ok(

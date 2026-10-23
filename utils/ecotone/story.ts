@@ -814,6 +814,46 @@ export const BEATS: EncounterCard[] = [
         },
       },
       {
+        id: 'monitor',
+        label:
+          'Commit four Saturdays to creek monitoring and learn the crew plan',
+        wild: true,
+        cost: 'Four Saturdays of real work, starting with training, not a grand gesture',
+        check: { skill: 'lore', target: 9 },
+        success: {
+          text: 'The crew lead walks you through the permitted monitoring plan. You ask which downstream measurements matter, write four actual Saturdays into your calendar, and sign up for a partner check before working near the bank again. There is no instant ecological victory, just a shift roster with your name on it. When the next volunteer asks who will check the culvert after the rains, you can answer with a date instead of a speech.',
+          effects: {
+            nerve: -1,
+            goodwill: 1,
+            flag: 'creek_monitoring_committed',
+          },
+          leadLines: {
+            juniper:
+              'Juniper wants to promise the whole forest. The crew lead asks her to start with one stream gauge, and she does.',
+            kit: 'Kit draws a small rehearsal schedule next to yours. “We can be the least glamorous double act in Humboldt,” she says.',
+            cedar:
+              'Cedar checks the measurements against the culvert size, then reminds the crew he cannot promise a fix without the proper engineer.',
+            mara: 'Mara writes the rota date on her wrist, then transfers it to a real calendar. “Even artists need a schedule,” she says.',
+            alone:
+              'Nobody travels with you or holds you to the promise. You carry home a calendar with four dates and the crew number, both written in your own hand.',
+          },
+        },
+        failure: {
+          text: 'You offer every Saturday before checking your real obligations. The coordinator catches the conflict, quietly hands back the clipboard and asks you to train for one shift first. You have wasted an hour of the crew’s time, and the river has not moved an inch because of your enthusiasm. You take home the safety syllabus rather than the good feeling of a promise you could not keep.',
+          effects: { nerve: -2, flag: 'creek_monitoring_delayed' },
+          leadLines: {
+            juniper:
+              'Juniper does not excuse the overpromise. “Come back for the training,” she says. “I will too.”',
+            kit: 'Kit taps the unsigned calendar. “A rehearsal is a real thing. An imaginary show date isn’t.”',
+            cedar:
+              'Cedar lends you a pencil for a schedule you can actually keep, and makes you return it.',
+            mara: 'Mara watches the coordinator reclaim the clipboard. “Not saying yes until you can mean it is a skill,” she says.',
+            alone:
+              'You leave with no signed shift and no witness who will remember the intention as work already done.',
+          },
+        },
+      },
+      {
         id: 'call',
         label: 'Call the five-digit number on the sign',
         check: { skill: 'lore', target: 9 },
@@ -1790,7 +1830,7 @@ export const FUTURES: Record<EndingLine, Record<Fate, string[]>> = {
       'Nobody remembers it starting with one person who kept choosing the animals, again and again, when nobody was watching. You remember. The herons do too.',
     ],
     dark: [
-      'You never quite chose. You loved the herons and the elk and the fog, and you kept loving them from a little distance. Things didn’t get worse, exactly. They just never got better.',
+      'You knew the elk and herons by their silences. You found a few ways to help, or at least nearly found them. But the county needed people who could return together for the hard, tedious years. That part never quite became your habit.',
       'You retire to a cabin up the Mad River with a woodstove, a good pair of binoculars and a notebook of every bird that ever came to your feeder. Some mornings the elk come down to the meadow and you wave. It is a small, kind, quiet life, and the county went on deciding without you.',
     ],
   },

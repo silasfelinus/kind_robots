@@ -341,10 +341,7 @@ export function canChooseTrialV7(
   prepared: readonly string[],
 ): boolean {
   const landId = state.journey.phase === 'boss' ? state.journey.landIndex : -1
-  if (
-    choice.id === 'witness' &&
-    state.marks.mercy + state.marks.honesty < 2
-  )
+  if (choice.id === 'witness' && state.marks.mercy + state.marks.honesty < 2)
     return false
   if (
     choice.id === 'solidarity' &&

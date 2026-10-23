@@ -248,7 +248,7 @@ export const CHORES: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -2 } },
     outcomes: {
       success:
-        'Every fledgling is back in a dry nest. An old crow watched the whole climb and said nothing, which from a Crow is thanks.',
+        'Every fledgling is back in a dry nest. A roost elder watched the whole climb and said nothing, which from a Crow is thanks.',
       partial: 'The party brought up five. The ledge kept the sixth.',
       failure:
         'The rock was wet and the rope was short. The Crows took it from there, and did not look at the party once.',
@@ -418,7 +418,7 @@ export const CHORES: readonly QuestDef[] = [
       partial:
         'The crews agreed to share it. For now. They are both sleeping beside it.',
       failure:
-        'The crowbars came out anyway. A rat named Dace will not use his left hand again.',
+        'The crowbars came out anyway. A digger named Dace will not use his left hand again.',
       expired: 'The crowbars decided it.',
     },
     outcomeAlts: {

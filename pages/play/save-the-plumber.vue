@@ -294,7 +294,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
   outline-offset: -4px;
 }
 .plumber-motion, .plumber-motion-image, .plumber-motion-video { position: absolute; inset: 0; width: 100%; height: 100%; }
-.plumber-motion { z-index: -1; overflow: hidden; }
+.plumber-motion { z-index: 0; overflow: hidden; }
 .plumber-motion-image, .plumber-motion-video { object-fit: cover; object-position: center center; }
 .plumber-motion::after {
   content: '';
@@ -305,6 +305,7 @@ useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 .plumber-view {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   overflow: hidden;
   min-width: 0;

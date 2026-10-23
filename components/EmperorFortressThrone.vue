@@ -102,7 +102,6 @@
           :key="selected.id + ':' + (scene.beatId ?? '')"
           :title="selected.title"
           :speaker="scene.speaker"
-          :subtitle="npc?.species ?? featuredFollower?.species"
           :art="
             npc
               ? illustration('npcs', npc.slug)

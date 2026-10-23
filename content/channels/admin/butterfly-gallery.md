@@ -8,7 +8,7 @@ title: Butterfly Gallery
 subtitle: A sorting room for the private art archive
 description: Sort the private art archive into rating bins, restore, or trash, one image or a batch at a time.
 summary: Sort archive art into bins.
-icon: kind-icon:butterfly
+icon: kind-icon:gridsquare
 route: /butterfly-gallery
 sort: 175
 requiredRole: ADMIN

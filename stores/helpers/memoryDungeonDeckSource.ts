@@ -12,6 +12,7 @@ import {
   imageUrlForDeck,
   isEligibleDungeonArt,
   uniqueDeckPaths,
+  unseenDeckPaths,
   type DungeonDeckSelection,
   type VisibleDeckImage,
 } from '~/utils/memoryDungeonDeck'
@@ -36,10 +37,15 @@ export async function resolveMemoryDungeonDeck(
   choice: DungeonDeckSelection,
   needed: number,
   designedOffset = 0,
+  previouslyUsed: readonly string[] = [],
 ): Promise<string[]> {
   if (choice.family === 'designed') {
     const paths = DESIGNED_DUNGEON_ART.map((item) => item.imagePath)
-    return paths.slice(designedOffset, designedOffset + needed)
+    const available = unseenDeckPaths(paths.slice(designedOffset), previouslyUsed)
+    if (available.length < needed) throw new Error(
+      `Only ${available.length} unseen designed images remain; this round needs ${needed}. Choose a larger gallery or start a new run.`,
+    )
+    return available.slice(0, needed)
   }
 
   const user = useUserStore()
@@ -102,20 +108,31 @@ export async function resolveMemoryDungeonDeck(
         }
       }
     } else {
-      const reply = await performFetch<VisibleDeckImage[]>(
-        '/api/art/memory-deck?' +
-          new URLSearchParams({
-            source: generated ? 'generated' : 'all',
-            needed: String(needed),
-            includeMature: String(includeMature),
-          }).toString(),
-        {},
-        1,
-        20_000,
-      )
-      if (!reply.success)
-        throw new Error(reply.message || 'Could not load a random image deck.')
-      candidates = reply.data ?? []
+      // Every wave/floor asks the server again for a random, bounded art batch.
+      // Try another window if a recent batch overlaps pictures already played.
+      const eligible = new Map<string, VisibleDeckImage>()
+      for (let attempt = 0; attempt < 6; attempt++) {
+        const reply = await performFetch<VisibleDeckImage[]>(
+          '/api/art/memory-deck?' +
+            new URLSearchParams({
+              source: generated ? 'generated' : 'all',
+              needed: String(Math.min(32, needed + previouslyUsed.length)),
+              includeMature: String(includeMature),
+            }).toString(),
+          {},
+          1,
+          20_000,
+        )
+        if (!reply.success)
+          throw new Error(reply.message || 'Could not load a random image deck.')
+        for (const image of reply.data ?? []) {
+          const path = imageUrlForDeck(image)
+          if (path && !previouslyUsed.includes(path)) eligible.set(path, image)
+        }
+        if (eligible.size >= needed) break
+      }
+      candidates = [...eligible.values()]
+
     }
 
     const allowed = candidates.filter((image) =>
@@ -127,7 +144,7 @@ export async function resolveMemoryDungeonDeck(
         selectedCollection || generated,
       ),
     )
-    const urls = uniqueDeckPaths(allowed.map(imageUrlForDeck))
+    const urls = unseenDeckPaths(allowed.map(imageUrlForDeck), previouslyUsed)
     return loadDungeonImagePaths(urls, needed)
   }
 
@@ -187,7 +204,7 @@ export async function resolveMemoryDungeonDeck(
       })
       .map(imageUrlForDeck),
   )
-  return loadDungeonImagePaths(paths, needed)
+  return loadDungeonImagePaths(unseenDeckPaths(paths, previouslyUsed), needed)
 }
 
 async function loadDungeonImagePaths(

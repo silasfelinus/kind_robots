@@ -64,7 +64,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
   '3,5': {
     title: 'Pip and the Borrowed Voice',
     opening:
-      'Pip, a traveling courier with a pocketful of crooked keys, is arguing with a hollow stump. Every answer comes back in Pip\'s own voice, except the stump keeps correcting their memory of yesterday.',
+      "Pip, a traveling courier with a pocketful of crooked keys, is arguing with a hollow stump. Every answer comes back in Pip's own voice, except the stump keeps correcting their memory of yesterday.",
     artPrompt:
       'Whimsical forest hollow, expressive traveling courier Pip with brass keys speaking to a hollow speaking stump, dusk light, large character portrait composition',
     choices: [
@@ -215,7 +215,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
   '7,4': {
     title: 'The Index of Unreliable Persons',
     opening:
-      'An official in an ink-stained traveling desk introduces itself as the Index. It keeps everyone\'s names safely filed, then forgets to mention who owns the files. A blank line waits beside your description.',
+      "An official in an ink-stained traveling desk introduces itself as the Index. It keeps everyone's names safely filed, then forgets to mention who owns the files. A blank line waits beside your description.",
     artPrompt:
       'Uncanny fantasy archivist in portable roll-top desk at forest roadside, cascading index cards and ink quills, faintly eerie bureaucratic charm, strong visual novel composition',
     callbacks: [
@@ -293,7 +293,7 @@ export const BRIAR_SCENES: Record<string, BriarScene> = {
         id: 'question',
         label: 'Ask whose favor it is remembering',
         outcome:
-          '“The Knight\'s,” it whispers. “He promised no one would be erased.” The Sprite keeps its challenge open until you duel or make amends.',
+          "“The Knight's,” it whispers. “He promised no one would be erased.” The Sprite keeps its challenge open until you duel or make amends.",
       },
     ],
   },

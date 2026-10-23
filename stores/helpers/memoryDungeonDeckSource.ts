@@ -1,3 +1,4 @@
+import { performFetch } from '@/stores/utils'
 import { useArtStore } from '../artStore'
 import { useUserStore } from '../userStore'
 import { useDreamStore } from '../dreamStore'
@@ -60,27 +61,24 @@ export async function resolveMemoryDungeonDeck(
       // Fetch ONLY selected shelves. Fetching the whole archive with every image
       // used to time out or leave the memory selector apparently empty.
       for (const id of choice.collectionIds) {
-        const reply = await $fetch<{
-          success: boolean
-          message?: string
-          data?: Array<{
-            id: number
-            userId: number
-            isPublic: boolean
-            isMature: boolean
-            isActive: boolean
-            ArtImages?: VisibleDeckImage[]
-            artImages?: VisibleDeckImage[]
-          }>
-        }>('/api/art/collection', {
-          query: {
-            id,
-            includePrivate: true,
-            includeMature: true,
-            includeImages: true,
-            counts: true,
-          },
-        })
+        const reply = await performFetch<Array<{
+          id: number
+          userId: number
+          isPublic: boolean
+          isMature: boolean
+          isActive: boolean
+          ArtImages?: VisibleDeckImage[]
+          artImages?: VisibleDeckImage[]
+        }>>(
+          '/api/art/collection?' + new URLSearchParams({
+            id: String(id),
+            includePrivate: 'true',
+            includeMature: String(includeMature),
+            includeImages: 'true',
+            counts: 'true',
+          }).toString(),
+          {}, 1, 20_000,
+        )
         if (!reply.success) throw new Error(reply.message || 'Unable to load that art collection.')
         for (const shelf of reply.data ?? []) {
           const owner = viewerId > 0 && shelf.userId === viewerId
@@ -90,24 +88,17 @@ export async function resolveMemoryDungeonDeck(
         }
       }
     } else {
-      await art.initialize({
-        fetchRemote: true,
-        hydrateImages: true,
-        initializeCollections: false,
-      })
-      candidates = generated ? art.generatedArtImages : art.artImages
-      if (candidates.length < needed) {
-        const refreshed = await art.fetchAllArtImages({ force: true })
-        candidates = generated
-          ? [
-              ...art.generatedArtImages,
-              ...refreshed
-                .filter((image) => viewerId > 0 && image.userId === viewerId)
-                .sort((a, b) => b.id - a.id)
-                .slice(0, 80),
-            ]
-          : refreshed
-      }
+      const reply = await performFetch<VisibleDeckImage[]>(
+        '/api/art/memory-deck?' + new URLSearchParams({
+          source: generated ? 'generated' : 'all',
+          needed: String(needed),
+          includeMature: String(includeMature),
+        }).toString(),
+        {}, 1, 20_000,
+      )
+      if (!reply.success) throw new Error(reply.message || 'Could not load a random image deck.')
+      candidates = reply.data ?? []
+
     }
 
     const allowed = candidates.filter((image) =>

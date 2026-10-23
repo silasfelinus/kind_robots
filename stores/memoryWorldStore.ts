@@ -96,7 +96,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   const matureAvailable = computed(
-    () => userStore.showMature === true || userStore.user?.showMature === true,
+    () =>
+      userStore.isLoggedIn &&
+      !userStore.isChild &&
+      userStore.showMature === true,
   )
 
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {

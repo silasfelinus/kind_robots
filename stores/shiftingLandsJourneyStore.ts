@@ -52,7 +52,6 @@ import { authoredEndingV6 } from '~/utils/shiftingLands/endingsV6'
 import { authoredEndingV7 } from '~/utils/shiftingLands/endingsV7'
 import { worldEchoesV7 } from '~/utils/shiftingLands/worldEchoesV7'
 import {
-  newJourneyLedgerV7,
   restoreJourneyLedgerV7,
   stepJourneyLedgerV7,
   type JourneyActionV7,

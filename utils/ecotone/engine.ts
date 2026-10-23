@@ -504,14 +504,24 @@ export function computeEnding(state: RunState): Ending {
   // animals, not on stats. Fall short and it is the hermit's bittersweet ending.
   if (!state.activeLead && event?.wildTarget) {
     const target = event.wildTarget
-    const parts = [{ label: 'Animal-first choices', value: state.wild }]
-    const fate: Fate = state.wild >= target ? 'hope' : 'dark'
+    const restorationCredit =
+      state.wild >= 3 && state.flags.includes('creek_monitoring_committed')
+        ? 1
+        : 0
+    const parts = [
+      { label: 'Animal-first choices', value: state.wild },
+      ...(restorationCredit
+        ? [{ label: 'Sustained crew stewardship', value: restorationCredit }]
+        : []),
+    ]
+    const score = state.wild + restorationCredit
+    const fate: Fate = score >= target ? 'hope' : 'dark'
     return {
       id: `ecotopia.${lens}.${fate}`,
       lead: 'ecotopia',
       lens,
       fate,
-      score: state.wild,
+      score,
       target,
       parts,
     }

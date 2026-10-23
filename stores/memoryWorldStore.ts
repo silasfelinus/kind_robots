@@ -18,6 +18,20 @@ import {
   type BriarMemoryCard,
   type BriarSave,
 } from '~/utils/memoryDungeonWorld'
+import {
+  describeEvents,
+  index as cellIndex,
+  scout,
+  strike,
+  type Cell,
+  type WeaponId,
+} from '~/utils/memoryDungeon/combat'
+import {
+  COMBAT_PAIRS,
+  COMBAT_ROOMS,
+  isCombatRoom,
+  startCombatRoom,
+} from '~/utils/memoryDungeon/rooms'
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
@@ -40,6 +54,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const turnLocked = ref(false)
   const firstCard = ref<number | null>(null)
   const runeInput = ref<string[]>([])
+  /** Combat cells face up after the last action (by board index), until they turn back. */
+  const combatShown = ref<number[]>([])
+  /** The first Scout pick, shown face up while the second is chosen. */
+  const combatPick = ref<number | null>(null)
+  /** What the last combat action did, for the status line and live region. */
+  const combatNote = ref('')
   let roomEpoch = 0
 
   const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
@@ -61,11 +81,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   const hasChime = computed(() => state.value.relics.includes('bramble-chime'))
-  const roomComplete = computed(
-    () =>
-      state.value.room === 'memory' &&
-      state.value.cards.length > 0 &&
-      state.value.cards.every((card) => card.matched),
+  const roomComplete = computed(() =>
+    state.value.combat
+      ? state.value.room === 'memory' &&
+        state.value.combat.state.outcome === 'victory'
+      : state.value.room === 'memory' &&
+        state.value.cards.length > 0 &&
+        state.value.cards.every((card) => card.matched),
   )
   const matchedPairs = computed(
     () => state.value.cards.filter((card) => card.matched).length / 2,
@@ -245,16 +267,33 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading.value = true
     const ticket = ++roomEpoch
     try {
-      const paths = await resolveMemoryDungeonDeck(
-        deck.value,
-        roomId === 'vault-2' ? 4 : 3,
-      )
+      const required = isCombatRoom(roomId) ? COMBAT_PAIRS : 3
+      const paths = await resolveMemoryDungeonDeck(deck.value, required)
       if (ticket !== roomEpoch) return
-      const required = roomId === 'vault-2' ? 4 : 3
       if (new Set(paths).size < required) {
         state.value.status = `Your selected gallery needs at least ${required} distinct loadable images. Choose a richer collection, then try again.`
         return
       }
+      combatShown.value = []
+      combatPick.value = null
+      combatNote.value = ''
+      if (isCombatRoom(roomId)) {
+        state.value.room = 'memory'
+        state.value.roomId = roomId
+        state.value.cards = []
+        state.value.combat = startCombatRoom(
+          roomId,
+          Math.floor(Math.random() * 2 ** 31),
+          [...new Set(paths)],
+        )
+        state.value.roomMisses = 0
+        firstCard.value = null
+        turnLocked.value = false
+        state.value.status = COMBAT_ROOMS[roomId].intro
+        persist()
+        return
+      }
+      state.value.combat = null
       const cards: BriarMemoryCard[] = paths
         .slice(0, required)
         .flatMap((image, pairId) => [
@@ -286,6 +325,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function peekPair(): void {
     if (
       state.value.room !== 'memory' ||
+      state.value.combat ||
       turnLocked.value ||
       state.value.lanterns < 1 ||
       roomComplete.value
@@ -378,6 +418,93 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     )
   }
 
+  /** Apply a combat action, show what it revealed, then turn unmatched cards back. */
+  function resolveCombat(
+    next: NonNullable<BriarSave['combat']>['state'],
+  ): void {
+    const combat = state.value.combat
+    if (!combat || next === combat.state) return
+    const events = next.log.slice(combat.state.log.length)
+    combat.state = next
+    state.value.attempts += 1
+    const revealed = events.flatMap((e) =>
+      e.type === 'reveal' ? e.cells.map((c) => cellIndex(next.cols, c)) : [],
+    )
+    combatShown.value = revealed
+    combatPick.value = null
+    combatNote.value = describeEvents(events)
+    state.value.status = combatNote.value
+    turnLocked.value = true
+    const epoch = roomEpoch
+    persist()
+    window.setTimeout(
+      () => {
+        if (epoch !== roomEpoch) return
+        combatShown.value = []
+        turnLocked.value = false
+        if (next.outcome === 'defeat') {
+          state.value.hearts -= 1
+          if (state.value.hearts <= 0) {
+            leaveRoom(
+              'The fight overwhelms you. You retreat to Briar Camp, keeping your map and discoveries.',
+            )
+            state.value.player = '2,4'
+            state.value.hearts = 3
+          } else {
+            leaveRoom(
+              `${next.enemy.name} drives you back to the trail. One heart lost; the room waits for a rematch.`,
+            )
+          }
+        }
+        persist()
+      },
+      revealed.length > 2 ? 1400 : 1000,
+    )
+  }
+
+  /** Scout: the first tap shows a card, the second resolves the pair. */
+  function combatScout(cell: Cell): void {
+    const combat = state.value.combat
+    if (!combat || turnLocked.value || combat.state.outcome !== 'fighting')
+      return
+    const i = cellIndex(combat.state.cols, cell)
+    const card = combat.state.cards[i]
+    if (!card || card.pair === null || card.matched) return
+    if (combatPick.value === null) {
+      combatPick.value = i
+      return
+    }
+    if (combatPick.value === i) {
+      combatPick.value = null
+      return
+    }
+    const first = combatPick.value
+    resolveCombat(
+      scout(
+        combat.state,
+        {
+          row: Math.floor(first / combat.state.cols),
+          col: first % combat.state.cols,
+        },
+        cell,
+      ),
+    )
+  }
+
+  /** Strike: commit a previewed weapon mask. */
+  function combatStrike(
+    weapon: WeaponId,
+    anchor: Cell,
+    rotation: number,
+  ): void {
+    const combat = state.value.combat
+    const roomId = state.value.roomId
+    if (!combat || turnLocked.value || !isCombatRoom(roomId)) return
+    if (!COMBAT_ROOMS[roomId].loadout.includes(weapon)) return
+    combatPick.value = null
+    resolveCombat(strike(combat.state, weapon, anchor, rotation))
+  }
+
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
@@ -409,8 +536,12 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.room = 'map'
     state.value.roomId = null
     state.value.cards = []
+    state.value.combat = null
     state.value.roomMisses = 0
     state.value.status = message
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
     firstCard.value = null
     turnLocked.value = false
     loading.value = false
@@ -434,6 +565,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading,
     turnLocked,
     runeInput,
+    combatShown,
+    combatPick,
+    combatNote,
     selectedSite,
     hasChime,
     roomComplete,
@@ -448,6 +582,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     startEncounter,
     peekPair,
     pickCard,
+    combatScout,
+    combatStrike,
     finishRoom,
     leaveRoom,
     openGate,

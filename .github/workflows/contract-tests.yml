@@ -1511,6 +1511,9 @@ jobs:
       - name: Memory Dungeon minefield floor contract
         run: npm run test:memory-dungeon-minefield
 
+      - name: Memory Dungeon combat rooms contract
+        run: npm run test:memory-dungeon-rooms
+
       - name: Art Archive batch scan contract
         run: npm run test:art-archive-batch-scan
 

@@ -501,3 +501,147 @@ export function pairsLeft(state: CombatState): number {
 export function serializeCombat(state: CombatState): string {
   return JSON.stringify(state)
 }
+
+/**
+ * The mask placed so its pivot (the first bullseye, or the first cell) sits on
+ * `at`: the cell under the pointer or keyboard focus. Players aim where they
+ * look, whatever the shape's bounding box.
+ */
+export function maskAt(
+  state: Pick<CombatState, 'rows' | 'cols'>,
+  weaponId: WeaponId,
+  at: Cell,
+  rotation = 0,
+): { anchor: Cell; mask: Mask } {
+  const weapon = WEAPONS[weaponId]
+  const turned = weapon.cells.map((c) => rotate(c, rotation))
+  const minRow = Math.min(...turned.map((c) => c.row))
+  const minCol = Math.min(...turned.map((c) => c.col))
+  const pivot = rotate(weapon.bullseye[0] ?? weapon.cells[0]!, rotation)
+  const anchor = {
+    row: at.row - (pivot.row - minRow),
+    col: at.col - (pivot.col - minCol),
+  }
+  return { anchor, mask: weaponMask(state, weaponId, anchor, rotation) }
+}
+
+const COLUMNS = 'ABCDEFGH'
+
+/** Spoken coordinate, "C4": columns are letters, rows count from 1. */
+export function cellName(cell: Cell): string {
+  return `${COLUMNS[cell.col] ?? '?'}${cell.row + 1}`
+}
+
+/**
+ * One sentence for what an action did, from its events: the live-region
+ * announcement and the status line under the board.
+ */
+export function describeEvents(events: CombatEvent[]): string {
+  const parts: string[] = []
+  for (const e of events) {
+    if (e.type === 'reveal' && e.cells.length)
+      parts.push(`Revealed ${e.cells.map(cellName).join(', ')}.`)
+    else if (e.type === 'match')
+      parts.push(
+        `Pair at ${e.cells.map(cellName).join(' and ')}${e.bullseye ? ', on the bullseye' : ''}!`,
+      )
+    else if (e.type === 'miss') parts.push('No pair.')
+    else if (e.type === 'capped')
+      parts.push(
+        `${e.pairs} more pair${e.pairs === 1 ? '' : 's'} stay hidden (two per strike).`,
+      )
+    else if (e.type === 'damage')
+      parts.push(
+        `${e.amount} damage${e.overkill ? ` (${e.overkill} overkill)` : ''}.`,
+      )
+    else if (e.type === 'guard') parts.push('Guard raised.')
+    else if (e.type === 'stagger') parts.push('The enemy staggers.')
+    else if (e.type === 'redeal') parts.push('A fresh board is dealt.')
+    else if (e.type === 'enemy-attack')
+      parts.push(
+        e.blocked
+          ? `The enemy strikes for ${e.amount}; Guard blocks ${e.blocked}.`
+          : `The enemy strikes for ${e.amount}.`,
+      )
+    else if (e.type === 'victory') parts.push('Victory!')
+    else if (e.type === 'defeat') parts.push('Defeated.')
+  }
+  return parts.join(' ')
+}
+
+/**
+ * A saved fight, validated: anything malformed returns null, so a damaged
+ * save drops the fight (the player is back on the map) instead of crashing.
+ * The event log is not restored; it only feeds the last announcement.
+ */
+export function restoreCombat(input: unknown): CombatState | null {
+  if (!input || typeof input !== 'object') return null
+  const s = input as Partial<CombatState>
+  const int = (v: unknown, min: number, max: number) =>
+    Number.isInteger(v) && (v as number) >= min && (v as number) <= max
+  if (s.version !== 1 || !int(s.rows, 2, 8) || !int(s.cols, 2, 8)) return null
+  const rows = s.rows!
+  const cols = s.cols!
+  if (!Array.isArray(s.cards) || s.cards.length !== rows * cols) return null
+  const cards = s.cards.map((c) => ({
+    pair: c && int(c.pair, 0, 63) ? (c.pair as number) : null,
+    matched: c?.matched === true,
+  }))
+  const counts = new Map<number, number>()
+  for (const c of cards)
+    if (c.pair !== null) counts.set(c.pair, (counts.get(c.pair) ?? 0) + 1)
+  if ([...counts.values()].some((n) => n !== 2)) return null
+  const e = s.enemy
+  if (
+    !e ||
+    typeof e.name !== 'string' ||
+    !int(e.maxHp, 1, 999) ||
+    !int(e.hp, 0, e.maxHp) ||
+    !int(e.attack, 0, 99) ||
+    !int(e.every, 1, 20) ||
+    !int(e.beatsLeft, 0, 21)
+  )
+    return null
+  if (
+    !int(s.playerHp, 0, 99) ||
+    !int(s.focus, 0, 99) ||
+    !int(s.guard, 0, MAX_GUARD) ||
+    !int(s.turn, 0, 100000) ||
+    !int(s.seed, -(2 ** 31), 2 ** 32)
+  )
+    return null
+  const cooldowns: Partial<Record<WeaponId, number>> = {}
+  for (const id of Object.keys(WEAPONS) as WeaponId[]) {
+    const v = s.cooldowns?.[id]
+    if (int(v, 0, 10)) cooldowns[id] = v
+  }
+  const outcome =
+    s.outcome === 'victory' || s.outcome === 'defeat' ? s.outcome : 'fighting'
+  return {
+    version: 1,
+    seed: s.seed!,
+    rows,
+    cols,
+    cards,
+    playerHp: s.playerHp!,
+    focus: s.focus!,
+    guard: s.guard!,
+    cooldowns,
+    enemy: {
+      name: e.name.slice(0, 60),
+      hp: e.hp,
+      maxHp: e.maxHp,
+      attack: e.attack,
+      every: e.every,
+      beatsLeft: e.beatsLeft,
+    },
+    turn: s.turn!,
+    log: [],
+    outcome,
+  }
+}
+
+/** Is `cell` inside the cell list (masks, reveals)? */
+export function includesCell(cells: readonly Cell[], cell: Cell): boolean {
+  return cells.some((c) => c.row === cell.row && c.col === cell.col)
+}

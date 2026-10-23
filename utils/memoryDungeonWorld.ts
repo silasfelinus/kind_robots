@@ -1,3 +1,9 @@
+import {
+  isCombatRoom,
+  restoreBriarCombat,
+  type BriarCombat,
+} from './memoryDungeon/rooms'
+
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
 export const BRIAR_GATE = '8,4'
@@ -220,6 +226,8 @@ export interface BriarSave {
   room: 'map' | 'memory'
   roomId: 'vault-1' | 'vault-2' | 'sprite' | 'patrol' | null
   cards: BriarMemoryCard[]
+  /** A combat room in progress (t-007); null in Classic rooms and on the map. */
+  combat: BriarCombat | null
   roomMisses: number
   hearts: number
   status: string
@@ -243,6 +251,7 @@ export function newBriarSave(): BriarSave {
     room: 'map',
     roomId: null,
     cards: [],
+    combat: null,
     roomMisses: 0,
     hearts: 3,
     status: 'A forest waits beyond the camp. Choose a nearby covered square.',
@@ -281,6 +290,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
+  const combat = restoreBriarCombat(saved.combat)
   const roomId =
     saved.roomId === 'vault-1' ||
     saved.roomId === 'vault-2' ||
@@ -288,6 +298,9 @@ export function restoreBriarSave(input: unknown): BriarSave {
     saved.roomId === 'patrol'
       ? saved.roomId
       : null
+  // A combat room restores only with its fight; a Classic room only with its cards.
+  const combatRoom = isCombatRoom(roomId) && combat !== null
+  const inRoom = combatRoom || (!isCombatRoom(roomId) && cards.length > 0)
 
   return {
     ...fresh,
@@ -318,10 +331,10 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
       : [],
     sealedPartnerFound: saved.sealedPartnerFound === true,
-    room:
-      saved.room === 'memory' && roomId && cards.length > 0 ? 'memory' : 'map',
-    roomId: saved.room === 'memory' && cards.length > 0 ? roomId : null,
-    cards,
+    room: saved.room === 'memory' && roomId && inRoom ? 'memory' : 'map',
+    roomId: saved.room === 'memory' && inRoom ? roomId : null,
+    cards: combatRoom ? [] : cards,
+    combat: saved.room === 'memory' && combatRoom ? combat : null,
     roomMisses: Number.isSafeInteger(saved.roomMisses)
       ? Math.max(0, saved.roomMisses!)
       : 0,

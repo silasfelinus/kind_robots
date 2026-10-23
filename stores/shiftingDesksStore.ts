@@ -17,17 +17,28 @@ import {
   endingFor,
 } from '~/utils/shiftingDesks/rules'
 import { dailySeed } from '~/utils/shiftingDesks/daily'
+import {
+  emptyRewardArchive,
+  migrateFoundEndings,
+  receiptFor,
+  recordReward,
+  restoreRewardArchive,
+  type RewardArchive,
+} from '~/utils/shiftingDesks/rewards'
 
 const SAVE_KEY = 'shifting-desks-run-v1'
 const ENVELOPE_KEY = 'shifting-desks-envelope-opened-v1'
 const OUTCOMES_KEY = 'shifting-desks-outcomes-v1'
 // Every ending this browser has reached: the front desk's collectible gallery.
 const ENDINGS_KEY = 'shifting-desks-endings-v1'
+const REWARD_KEY = 'shifting-desks-rewards-v1'
 
 export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const run = ref<RunState | null>(null)
   const discovered = ref<string[]>([])
   const endingsFound = ref<string[]>([])
+  const rewardArchive = ref<RewardArchive>(emptyRewardArchive())
+  const archiveUnlocked = computed(() => endingsFound.value.length > 0 || rewardArchive.value.runs.length > 0)
   const loaded = ref(false)
   const rollSerial = ref(0)
   const envelopeOpened = ref(false)
@@ -55,6 +66,7 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       else localStorage.removeItem(SAVE_KEY)
       localStorage.setItem(OUTCOMES_KEY, JSON.stringify(discovered.value))
       localStorage.setItem(ENDINGS_KEY, JSON.stringify(endingsFound.value))
+      localStorage.setItem(REWARD_KEY, JSON.stringify(rewardArchive.value))
     } catch {
       return
     }
@@ -80,10 +92,15 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       endingsFound.value = Array.isArray(endings)
         ? endings.filter((s): s is string => typeof s === 'string')
         : []
+      const rewards: unknown = JSON.parse(localStorage.getItem(REWARD_KEY) ?? 'null')
+      rewardArchive.value = migrateFoundEndings(restoreRewardArchive(rewards), endingsFound.value)
       if (recordEnding()) persist()
+      else persist()
     } catch {
       run.value = null
       discovered.value = []
+      endingsFound.value = []
+      rewardArchive.value = emptyRewardArchive()
     }
     loaded.value = true
     void loadPlaybookLiveText('shifting-desks', SHIFTING_DESKS_LIVE_TEXT).then(
@@ -124,9 +141,14 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     if (run.value.status !== 'complete' && run.value.status !== 'eliminated')
       return false
     const ending = endingFor(run.value)
-    if (!ending || endingsFound.value.includes(ending.id)) return false
-    endingsFound.value = [...endingsFound.value, ending.id]
-    return true
+    if (!ending) return false
+    const before = endingsFound.value.length
+    if (!endingsFound.value.includes(ending.id))
+      endingsFound.value = [...endingsFound.value, ending.id]
+    const receipt = receiptFor(run.value, new Date().toISOString())
+    if (receipt)
+      rewardArchive.value = recordReward(rewardArchive.value, receipt, endingsFound.value)
+    return endingsFound.value.length !== before || !!receipt
   }
 
   function useInstant(which: 'favor' | 'mutation'): void {
@@ -189,6 +211,8 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
     openEnvelope,
     discovered,
     endingsFound,
+    rewardArchive,
+    archiveUnlocked,
     loaded,
     rollSerial,
     card,

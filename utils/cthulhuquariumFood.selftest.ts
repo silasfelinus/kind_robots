@@ -24,7 +24,10 @@ assert.deepEqual(a, b, 'fed positions reproduce with an injected RNG')
 assert.equal(a.length, fed.length)
 assert.ok(new Set(a.map((particle) => Math.round(particle.x))).size > 1)
 assert.ok(new Set(a.map((particle) => Math.round(particle.y))).size > 1)
-assert.ok(a[0]!.y > swimmers[0]!.y, 'surface fish receive food below the ceiling')
+assert.ok(
+  a[0]!.y > swimmers[0]!.y,
+  'surface fish receive food below the ceiling',
+)
 assert.ok(a[1]!.y < swimmers[1]!.y, 'deeper fish receive food above them')
 for (const drop of a) {
   assert.ok(drop.x >= 24 && drop.x <= 616, 'horizontal tap-safe margins')
@@ -52,20 +55,29 @@ const many = Array.from({ length: 40 }, (_, index) => index + 1)
 const manySwimmers = many.map((stockId) => ({
   stockId,
   x: 35 + stockId * 14,
-  y: 100 + stockId % 5 * 35,
+  y: 100 + (stockId % 5) * 35,
 }))
 const capped = makeFeedParticles(many, manySwimmers, 640, 360, () => 0.5)
-assert.equal(capped.length, MAX_FOOD_PER_FEED, 'large tanks cap active particles')
-assert.ok(capped.some((drop) => drop.x > 450), 'sampling includes late fed fish')
+assert.equal(
+  capped.length,
+  MAX_FOOD_PER_FEED,
+  'large tanks cap active particles',
+)
+assert.ok(
+  capped.some((drop) => drop.x > 450),
+  'sampling includes late fed fish',
+)
 
 const emptySwimmers = makeFeedParticles(fed, [], 640, 360, predictableRandom())
 assert.equal(emptySwimmers.length, 3)
 assert.ok(emptySwimmers.every((drop) => drop.x >= 24 && drop.y >= 24))
 
 const mobile = makeFeedParticles(fed, swimmers, 320, 180, predictableRandom())
-assert.ok(mobile.every((drop) =>
-  drop.x >= 24 && drop.x <= 296 && drop.y >= 24 && drop.y <= 150,
-))
+assert.ok(
+  mobile.every(
+    (drop) => drop.x >= 24 && drop.x <= 296 && drop.y >= 24 && drop.y <= 150,
+  ),
+)
 assert.deepEqual(makeFeedParticles([], swimmers, 640, 360), [])
 assert.deepEqual(makeFeedParticles(fed, swimmers, 50, 60), [])
 

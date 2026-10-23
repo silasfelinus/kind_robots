@@ -112,7 +112,7 @@ export const TALKS: readonly TalkDef[] = [
     lines: [
       'Rook has scrubbed their paws three times since Thistledown. The soot is still in the creases. They sit on the bottom rung of the barracks ladder, turning a white rag over in their lap.',
       'You sent me under this. I went. I found her. Twenty years, and she was sitting on a wagon tongue at the edge of the smoke, eating an onion.',
-      'She remembered the Ford. Remembered a little hare on its mother’s back who bit her ear. “Still aches when it rains,” she said. Then she turned her wagons. Half the riders turned with her.',
+      'She remembered the Ford. Remembered a little child on its mother’s back who bit her ear. “Still aches when it rains,” she said. Then she turned her wagons. Half the riders turned with her.',
       'She did it because I asked. I asked in your name. And I promised her something in your name you never gave me leave to promise.',
     ],
     options: [
@@ -1808,7 +1808,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'hundred',
         lines: [
           'I would ask why the only tool in the room is a knife. I would keep asking. Slowly. Until someone found another tool. Or until the hundred were lost and everyone had to look at me while it happened.',
-          'I know which happens more often. I have buried both kinds. I would rather be the tortoise who was too slow than the one who learned to be quick.',
+          'I know which happens more often. I have buried both kinds. I would rather be remembered as the one who waited too long than the one who learned to threaten.',
           'You don’t have to agree. You only have to not use my voice for it.',
         ],
         options: [

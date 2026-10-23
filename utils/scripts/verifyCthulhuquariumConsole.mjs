@@ -86,7 +86,10 @@ assert.doesNotMatch(
   'the fixed cinematic overlay must not introduce a nested viewport-height shell',
 )
 assert.match(game, /const activePanel = ref<AquariumPanel \| null>\(null\)/)
-assert.match(game, /class="cq-room-backdrop pointer-events-none absolute object-cover"/)
+assert.match(
+  game,
+  /class="cq-room-backdrop pointer-events-none absolute object-cover"/,
+)
 assert.match(
   game,
   /\.cq-side,\s*\.cq-roster,\s*\.cq-support-panel\s*\{[\s\S]*?width:\s*100%/,

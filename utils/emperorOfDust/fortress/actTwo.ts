@@ -210,7 +210,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { saltroad: -10 } },
     outcomes: {
       triumph:
-        'The courier, a fennec called Ash Quill, sat up by evening and asked for the satchel. Inside: a brass hourglass addressed to Young Komodo. Komodo let the court keep it. Too quickly.',
+        'The courier, Ash Quill, sat up by evening and asked for the satchel. Inside: a brass hourglass addressed to Young Komodo. Komodo let the court keep it. Too quickly.',
       success:
         'Ash Quill will live. The satchel held a brass hourglass addressed to Young Komodo. He waved it off. The court could have it.',
       partial:

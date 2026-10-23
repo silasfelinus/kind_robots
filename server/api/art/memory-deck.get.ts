@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
     select: {
       id: true,
       userId: true,
+      designer: true,
       imagePath: true,
       path: true,
       fileType: true,

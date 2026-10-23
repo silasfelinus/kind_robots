@@ -1536,7 +1536,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       },
       {
         id: 'glass-hums',
-        source: 'Pell, a rat salvager',
+        source: 'Pell, a salvage mechanic',
         text: 'The glass hums when the Hollow Bell rings.',
         truth: true,
       },
@@ -1552,7 +1552,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'jinx-coupler',
         faction: 'rustline',
         lines: [
-          'Jinx Coupler, in a bottle-cap coat struts in ahead of Pell pushing a crate. “Jinx Coupler, Yardboss of the Rustline. That’s Pell. He lifts things.”',
+          'Jinx Coupler, in a bottle-cap coat, struts in ahead of Pell pushing a crate. “Jinx Coupler, Yardboss of the Rustline. That’s Pell. He lifts things.”',
           '“Old-world glass, Majesty, shaped like feathers. Won’t break. Hums when the Bell rings. The Ledger wants to buy it. The Archive wants to study it. I want to know which one the crown is.”',
           {
             who: 'Pell Quickmarrow',

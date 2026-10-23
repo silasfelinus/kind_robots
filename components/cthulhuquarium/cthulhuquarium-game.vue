@@ -262,7 +262,7 @@
                 <button
                   type="button"
                   class="btn btn-secondary btn-sm min-h-11 min-w-11 shadow"
-                  @click="scrollToShop"
+                  @click="openFishMarket"
                 >
                   Buy fish
                 </button>
@@ -308,6 +308,7 @@
               class="cq-deck-button btn btn-sm min-h-11"
               :class="activePanel === panel.id ? 'btn-primary' : 'btn-ghost'"
               :aria-pressed="activePanel === panel.id"
+              :aria-expanded="activePanel === panel.id"
               @click="selectPanel(panel.id)"
             >
               <Icon :name="panel.icon" class="kr-icon-4" />
@@ -1130,7 +1131,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
@@ -1384,16 +1385,13 @@ const storyFocus = computed(() =>
 // first fish the page is still down at the shop, and Wilbur's "press Feed"
 // ring would otherwise pulse on a button above the fold.
 const gameRoot = ref<HTMLElement | null>(null)
-watch(storyFocus, async (focus) => {
+watch(storyFocus, (focus) => {
   if (!focus) return
   if (focus === 'shop') openPanel('shop')
   if (focus === 'bestiary') openPanel('bestiary')
   if (focus === 'sets') openPanel('sets')
   if (focus === 'decor') openPanel('decor')
   if (focus === 'tank' || focus === 'coins' || focus === 'feed') closePanel()
-  await nextTick()
-  // The shell owns height; scrolling the highlighted tank would move the page.
-  // Room contents may scroll internally, but never the outer game.
 })
 
 watch(
@@ -1552,7 +1550,7 @@ const shopRefreshLabel = computed(() => {
 // Unlock/Buy dead with no word why).
 // cthulhuquarium/t-083: the shop sits right under the tank; Buy fish jumps to
 // it on a phone, where the tank fills the first screen.
-function scrollToShop() {
+function openFishMarket() {
   openPanel('shop')
 }
 

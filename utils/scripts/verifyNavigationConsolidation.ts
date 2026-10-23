@@ -549,6 +549,8 @@ for (const route of [
   '/play/mandarin',
   '/play/emperor-of-dust',
   '/play/zuzu-pinball',
+  '/play/save-the-plumber',
+  '/play/rainbow-bullet-hell-space-princess',
   '/play/zuzu-shifting-lands',
   '/play/zuzu-gamebook',
   '/play/ecotone',
@@ -559,6 +561,24 @@ for (const route of [
     'public showcase must preserve the visitor destination ' + route,
   )
 }
+for (const image of [
+  '/save-the-plumber/maps/world-1.webp',
+  '/rainbow-princess-art/hero-pearl-palace.webp',
+  '/zuzu-pinball/last-bell-cover.svg',
+]) {
+  assert.ok(
+    visitorDirectorySource.includes("image: '" + image + "'"),
+    'featured card must use a shipped illustration: ' + image,
+  )
+  assert.ok(
+    existsSync('public' + image),
+    'featured artwork must exist in the public assets: ' + image,
+  )
+}
+assert.ok(
+  !visitorDirectorySource.includes("image: '/zuzu-pinball/river-croc.webp'"),
+  'Zuzu pinball sprite atlas must not be used as a featured cover',
+)
 for (const internal of [
   '/admin/emperor-of-dust',
   '/admin/zuzu-lair',

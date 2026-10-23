@@ -42,10 +42,10 @@ export const SECOND_VOICE: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. Trinidad harbor at night in thin fog, the dark hump of Trinidad Head with its small lighthouse on the cliff, a little white memorial lighthouse on the bluff above town, a wooden pier with moored fishing boats. Two beams of light, one from each lighthouse, cross over the water and form a pair of mirrored figures standing back to back. A small radio antenna on a net shed glows. Faint silver stars above the Head form an unlabeled constellation of two parallel stick figures. Fog lavender, silver-blue and slate. No text, no letters, no logos.',
   provenance:
-    'Trinidad, its harbor, its pier, Trinidad Head with its lighthouse, the memorial lighthouse in town and nearby Westhaven are real places and appear here as geography only. Lyle and Lowell Pettibone, the Harbor Hour, the Seawall Bait and Tackle, the Double Hitch Tavern, Marisol, Darlene and every other person, business and event are invented. No real business, broadcaster or resident is depicted.',
+    'Trinidad, its harbor, its pier, Trinidad Head with its lighthouse, the memorial lighthouse in town and nearby Westhaven are real places and appear here as geography only. Lyle and Lowell Pettibone, the Harbor Hour and its 87.9 FM signal, the Seawall Bait and Tackle, the Double Hitch Tavern, Marisol, Darlene and every other person, business and event are invented. No real business, broadcaster or resident is depicted.',
   decline: {
     label: 'Tell Marisol you only listen to podcasts',
-    text: 'You turn the dial past 88.3 and keep going. For a second, under the static, you could swear a voice says your name, a little disappointed. Then it is just the weather, and the weather is fog.',
+    text: 'You turn the dial past 87.9 and keep going. For a second, under the static, you could swear a voice says your name, a little disappointed. Then it is just the weather, and the weather is fog.',
   },
   gates: [
     {
@@ -55,7 +55,7 @@ export const SECOND_VOICE: Mystery = {
       scene: 'bay',
       message: {
         medium: 'radio',
-        from: '88.3 FM, no call sign, 6:02 a.m.',
+        from: '87.9 FM, no call sign, 6:02 a.m.',
         lines: [
           '“Good morning, harbor. This is the Harbor Hour. Here’s what’s happening tomorrow.',
           'Bait shop runs out of squid by nine. Somebody’s dog gets on the wrong boat. Darlene finally tells Mo his joke isn’t funny.',
@@ -64,7 +64,7 @@ export const SECOND_VOICE: Mystery = {
       },
       body: [
         'The next morning, the bait shop runs out of squid at 8:52. A wet spaniel jumps onto a charter boat and has to be negotiated back off. At the end of the pier, Darlene puts down her coffee and tells Mo, kindly and finally, that his joke about the seagull and the lawyer has never once been funny. Mo looks stricken. Everyone on the pier looks at the sky, then at the water, then at you.',
-        'Marisol, who runs the Seawall Bait and Tackle and has had the station on her shop radio for a year, waves you over. “Nobody can find it,” she says. “Ham guys have tried. Every prediction comes true. And now it’s talking about you.”',
+        'Marisol, who runs the Seawall Bait and Tackle on the harbor road and has had the station on her shop radio for a year, waves you over. “Nobody can find it,” she says. “Ham guys have tried. Every prediction comes true. And now it’s talking about you.”',
       ],
       approaches: [
         {
@@ -76,17 +76,17 @@ export const SECOND_VOICE: Mystery = {
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You try to start a rumor to see if the station picks it up. You pick the wrong one: that the pier is being sold. Within the hour it has reached Westhaven, Moonstone and somebody’s cousin in Eureka, and three fishermen corner you to ask who is buying. You spend the afternoon un-starting it.',
+            text: 'You try to start a rumor to see if the station picks it up, and you pick the wrong one: that Mo has a second joke. Within the hour it has reached Westhaven, Moonstone and somebody’s cousin in Eureka, and a small crowd gathers on the pier to hear it. Mo, who does not have a second joke, has to write one live. You spend the afternoon apologizing to Mo.',
             effects: { nerve: -1 },
           },
         },
         {
           id: 'log',
           label:
-            'Write down every prediction for a week and check them against the harbor',
+            'Write down every prediction for the weekend and check them against the harbor',
           check: { skill: 'wits', target: 7 },
           success: {
-            text: 'You keep a notebook. Forty-one predictions in a week; thirty-nine come true. The two that miss both happened in Westhaven instead of the harbor, at night, and both were told in a slightly different voice: lower, rougher, like the same man with a cold. Two voices take turns on the Harbor Hour. Whoever they are, they are reporting to each other.',
+            text: 'You keep a notebook. Fourteen predictions; thirteen come true. The one that misses happened in Westhaven instead of the harbor, at night, and was told in a slightly different voice: lower, rougher, like the same man with a cold. Two voices take turns on the Harbor Hour. Whoever they are, they are reporting to each other.',
             effects: { weird: 1 },
           },
           failure: {
@@ -99,7 +99,7 @@ export const SECOND_VOICE: Mystery = {
         mara: 'Mara watches Darlene and Mo. “Whoever’s writing this show knows exactly where to put the needle.”',
         kit: 'Kit tunes Marisol’s radio by ear. “Low power. Close by. Somebody built this transmitter out of a toaster and spite.”',
         juniper:
-          'Juniper leans on the railing. “Gossip is just the town thinking out loud. This town is thinking ahead.”',
+          'Juniper leans on the railing. “If tomorrow’s on the radio, I want to know whether I win the meat raffle. Ask it for me. Don’t be weird about it.”',
         cedar:
           'Cedar frowns at the radio. “My CB’s been catching a show like this for months. Different station. Same voice.”',
       },
@@ -122,8 +122,12 @@ export const SECOND_VOICE: Mystery = {
       },
       body: [
         'Lyle Pettibone is on the pier, in a yellow rain slicker, cheerfully buying three pounds of sardines and asking after everyone’s mother. Marisol’s phone shows a photo, time-stamped one minute ago, of Lyle Pettibone behind the bar at the Double Hitch Tavern in Westhaven, in a black T-shirt, scowling at a man who ordered a mojito.',
-        'Same face, same scar through the left eyebrow, same pinky ring. Lyle pays for his sardines, winks at you and walks off up the hill toward his little apartment above the bait shop, whistling. At the Double Hitch, according to Davey, the bartender has just looked at his watch and said, “Close enough.”',
+        'Same face, same scar through the left eyebrow, same pinky ring. Lyle pays for his sardines, winks at you and walks off toward the Head trail, whistling. At the Double Hitch, according to Davey, the bartender has just looked at his watch and said, “Close enough.”',
       ],
+      recall: {
+        'g1:pass':
+          'You came into this already suspecting the radio has two sources. Now you are looking at a photo of a second Lyle.',
+      },
       approaches: [
         {
           id: 'split-up',
@@ -131,7 +135,7 @@ export const SECOND_VOICE: Mystery = {
             'Split the party, one at each Lyle, and keep the phones on speaker',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'You race to Westhaven while a friend of Marisol’s tails the pier Lyle home. On speaker, both of you narrate. “He’s opening the apartment door.” “He’s pouring a beer.” “He’s turning on a radio.” “So is this one.” At the same instant, in two places, both Lyles say exactly the same thing to nobody in particular: “Copy that.” Then the line between your phones fills with static and a third voice says, calmly, “Look at the hands.”',
+            text: 'You race to Westhaven while a friend of Marisol’s tails the pier Lyle. On speaker, both of you narrate. “He’s opening a door.” “He’s pouring a beer.” “He’s turning on a radio.” “So is this one.” At the same instant, in two places, both Lyles say exactly the same thing to nobody in particular: “Copy that.” Then the line between your phones fills with static and a third voice says, calmly, “Look at the hands.”',
             effects: { weird: 1 },
           },
           failure: {
@@ -145,7 +149,7 @@ export const SECOND_VOICE: Mystery = {
             'Ask the pier Lyle something only last night’s Lyle could know',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You catch up with Lyle on the stairs and ask, friendly as anything, how the mojito guy took it. Lyle smiles, says “Oh, he cried a little,” and then stops, smile frozen, as he hears himself. He has not been to Westhaven today. He knows exactly what happened there. He looks at you a long moment and says, quietly, “Huh. You’re the new one. The radio said you were quick.”',
+            text: 'You catch up with Lyle at the trailhead and ask, friendly as anything, how the mojito guy took it. Lyle smiles, says “Oh, he cried a little,” and then stops, smile frozen, as he hears himself. He has not been to Westhaven today. He knows exactly what happened there. He looks at you a long moment and says, quietly, “Huh. You’re the new one. The radio said you were quick.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -155,10 +159,10 @@ export const SECOND_VOICE: Mystery = {
         },
         {
           id: 'tail',
-          label: 'Tail the pier Lyle up Trinidad Head in the fog',
+          label: 'Tail the pier Lyle up Trinidad Head in the drizzle',
           check: { skill: 'burly', target: 9 },
           success: {
-            text: 'Lyle takes the trail up the Head, fast for a man his age. You keep pace through the fog and the wet brush and come out at an overlook just as he lifts a handheld air horn from his slicker pocket and gives one long blast toward Westhaven. Far down the coast, through the fog, another horn answers. Lyle nods, satisfied, and says out loud to the empty air, “Your turn.”',
+            text: 'Lyle takes the trail up the Head, fast for a man his age. You keep pace through the wet brush and come out at an overlook just as he lifts a handheld air horn from his slicker pocket and gives one long blast toward Westhaven. Far down the coast, another horn answers. Lyle nods, satisfied, and says out loud to the empty air, “Your turn.”',
             effects: { nerve: 1 },
           },
           failure: {
@@ -173,7 +177,7 @@ export const SECOND_VOICE: Mystery = {
         juniper:
           'Juniper hums. “He’s not lying. He’s just never once been the whole story.”',
         cedar:
-          'Cedar’s CB crackles in his truck. He listens and goes pale. “That was your voice. On my CB. Telling me to watch the bartender’s left hand.”',
+          'Cedar’s CB crackles in his truck. He listens and frowns. “That voice on my CB. I know it from somewhere. Said to watch the bartender’s left hand.”',
       },
       aloneLine:
         'Alone, you cannot be in two places at once. For the first time in your life, you wish you could.',
@@ -185,7 +189,7 @@ export const SECOND_VOICE: Mystery = {
       scene: 'beach',
       message: {
         medium: 'radio',
-        from: '88.3 FM, the Harbor Hour, 6:01 p.m.',
+        from: '87.9 FM, the Harbor Hour, 6:01 p.m.',
         lines: [
           '“Evening, harbor. Tomorrow: two men, one cake. And somebody finally asks the right question.',
           'This next part is for the one who’s been asking around.',
@@ -194,19 +198,25 @@ export const SECOND_VOICE: Mystery = {
       },
       body: [
         'The voice on the radio is yours. Not like yours. Yours, a little older, a little hoarse, warm in a way you have only ever heard on recordings of yourself and hated. Marisol turns the radio off, then on again. It is still you, signing off with a phrase you have never said and are suddenly sure you will.',
-        'The net loft behind the bait shop has a thin wire antenna running up the side of the building and a light under the door. Inside, two men are arguing in the same voice. Out on the water, the fog is coming in, and somewhere down the coast a horn is waiting to answer.',
+        'The net loft behind the bait shop has a thin wire antenna running up the side of the building and a light under the door. Inside, two men are arguing in the same voice. Out on the water the spray is up and the light is going, and somewhere down the coast a horn is waiting to answer.',
       ],
+      recall: {
+        'g2:tail':
+          'You have already stood on the overlook and heard that horn answer itself. You know which way the second one comes from.',
+        'g2:fail':
+          'You never caught either Lyle at it. Tonight, somebody is going to have to explain it to you in person.',
+      },
       approaches: [
         {
           id: 'take-mic',
           label: 'Walk in, take the mic and broadcast a dare to both of them',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You push open the door, grab the mic off its stand and go live before anyone can stop you. “Good evening, harbor. Breaking news: Lyle Pettibone is in two places at once, and I dare both of him to say good night on air.” Silence. Then, from the stool by the transmitter, a gruff voice and a gentle one say good night at the same time, and somewhere out on the water every boat radio in the harbor goes off with laughter.',
+            text: 'You push open the door, grab the mic off its stand and go live before anyone can stop you. “Good evening, harbor. Breaking news: somebody in this harbor is in two places at once, and I dare both of him to say good night.” Silence. Then, from the stools by the transmitter, a gruff voice and a gentle one say good night at the same time, and somewhere out on the water every boat radio in the harbor goes off with laughter.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You push open the door and go live, but you open with a pun, and it is not a good one. The gentle Lyle winces. The gruff one unplugs the transmitter. For one long second the whole harbor hears only static, and then, faintly, your own future voice sighing, “Not the pun. I told you, not the pun.”',
+            text: 'You push open the door and go live, but you open with a pun, and it is not a good one. The gentle Lyle winces. The gruff one unplugs the transmitter. For one long second the whole harbor hears only static, and then, faintly, your own future voice sighing, “Not the pun. I told you, not the pun.” When you turn around, the back window is open and both stools are empty.',
             effects: { nerve: -1 },
           },
         },
@@ -216,11 +226,11 @@ export const SECOND_VOICE: Mystery = {
           check: { skill: 'lore', target: 11 },
           cost: 'You have to guess the code from three days of listening and one bad night of sleep.',
           success: {
-            text: 'One long, two short means “come home, it’s safe.” You worked it out from the gaps in the broadcasts. You blow it from the overlook with Lyle’s spare horn. Fifteen minutes later, two men in the same face come running up the trail from opposite directions, one in a rain slicker and one in a bar apron, and stop dead, three feet apart, staring at each other in public for the first time in twenty years.',
+            text: 'One long, two short means “come home, it’s safe.” You worked it out from the gaps in the broadcasts, and you blow it from the overlook on an air horn borrowed from Marisol’s shop. Down at the harbor the loft light snaps off. Fifteen minutes later two men with the same face come puffing up the trail side by side, one in a rain slicker and one in a bar apron, arguing, and stop dead when they see it is you holding the horn. “Loft,” says the one in the slicker. “Now. Before anybody else heard that.”',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You blow what you think is “come home.” It turns out to mean “ran out of ice.” Twenty minutes later a truck pulls up at the Double Hitch with three bags of ice and a very confused bartender, and the whole night is spent explaining to Davey that you are not, in fact, the new bar manager.',
+            text: 'You blow what you think is “come home.” It turns out to mean “ran out of ice.” Twenty minutes later a truck pulls up at the Double Hitch with three bags of ice and a very confused bartender, and you spend an hour explaining to Davey that you are not, in fact, the new bar manager. When you get back to the harbor, the loft is dark.',
             effects: { nerve: -1 },
           },
         },
@@ -245,7 +255,7 @@ export const SECOND_VOICE: Mystery = {
         juniper:
           'Juniper listens to your future voice and grins. “You got funnier. Not a lot. But some.”',
         cedar:
-          'Cedar sets his CB on the hood. It is playing the same broadcast. “Whatever this is, it’s reaching me too. Be gentle with ’em.”',
+          'Cedar listens to your older voice and whistles low. “The universe finally gets you on the line, and it’s a wrong number from yourself. That’s the universe for you.”',
       },
       aloneLine:
         'Nobody else is with you. That is fine. You have, it turns out, yourself.',
@@ -257,13 +267,13 @@ export const SECOND_VOICE: Mystery = {
     chapter: 2,
     scene: 'bay',
     body: [
-      'At six the next morning, 88.3 is static. The Harbor Hour never comes back. Lyle Pettibone is on the pier, cheerful as ever, buying sardines, and that night the bartender at the Double Hitch is as cranky as ever. Nobody sees them at the same minute again.',
+      'At six the next morning, 87.9 is static. The Harbor Hour never comes back. Lyle Pettibone is on the pier, cheerful as ever, buying sardines, and that night the bartender at the Double Hitch is as cranky as ever. Nobody sees them at the same minute again.',
       'Marisol leaves her radio tuned to the empty frequency, just in case. Some mornings, she swears, there is someone breathing on the other end, getting ready to say something.',
     ],
     choices: [
       {
         id: 'leave-tuned',
-        label: 'Leave your own radio tuned to 88.3',
+        label: 'Leave your own radio tuned to 87.9',
         text: 'You leave it on. Months later, very faintly, you hear your own voice say good morning to a harbor you do not recognize yet.',
         effects: { weird: 1 },
       },
@@ -282,8 +292,18 @@ export const SECOND_VOICE: Mystery = {
     scene: 'beach',
     body: [
       'The net loft is a radio station the size of a closet: a transmitter built from a car stereo and a toaster, two stools, two coffee mugs, two notebooks labeled MORNING and NIGHT, and a wall of index cards covered in harbor gossip in two slightly different handwritings. On the two stools sit two Lyle Pettibones, one in a rain slicker and one in a bar apron, with the same face, the same scar and the same look of men who have been caught.',
-      'On the transmitter, the needle is still moving. Someone is still on the air, and it is not either of them. Marisol is in the doorway with her hand over her mouth. Out by the Head, the horn blows once, and nobody answers it.',
+      'On the transmitter, the needle is still moving. Someone is still on the air, and it is not either of them. Marisol is in the doorway, staring at the antenna on her own back wall. “I have walked past that every day for a year,” she whispers. “I thought it was for the gutters.” Out by the Head, the horn blows once, and nobody answers it.',
     ],
+    afterMiss: [
+      'It is past midnight when Marisol finds you, phone held up like a lantern. “The loft light’s back on,” she whispers. “Both of them went in. I think they’re packing.” The door isn’t locked. Inside, the transmitter is unplugged, the antenna lies coiled on the floor, and two Lyle Pettibones, one in a rain slicker and one in a bar apron, are packing index cards into two shoeboxes with the look of men who were about to leave town and have just been caught.',
+      'Then the unplugged transmitter crackles on by itself. The needle moves. Someone is still on the air, and it is not either of them. Marisol stares at the coil of antenna wire that used to run up her own back wall. “I walked past that every day for a year,” she says. “I thought it was for the gutters.” Out by the Head, the horn blows once, and nobody answers it.',
+    ],
+    recall: {
+      'g1:log':
+        'Among the index cards is one that just says NOTEBOOK KID, WATCH OUT, in the rougher handwriting.',
+      'g2:fail':
+        'You never managed to catch both of them in one place until now, and from their faces, neither did anybody else in twenty years.',
+    },
     choices: [
       {
         id: 'names',
@@ -307,11 +327,11 @@ export const SECOND_VOICE: Mystery = {
     ],
     leadLines: {
       mara: 'Mara studies the two scars. “Hook on the left one. Straight on the right. Twenty years and nobody looked closely.”',
-      kit: 'Kit is very carefully not touching the toaster transmitter. “I have so many questions, and none of them are about the lying.”',
+      kit: 'Kit is very carefully not touching the toaster transmitter. “This should not work. Nothing in this room should work. I want to live here.”',
       juniper:
         'Juniper smiles at both men. “You look less tired already. Two people are lighter than one.”',
       cedar:
-        'Cedar sets down his CB, still playing. “My dad’s got a brother he hasn’t talked to in thirty years. Say whatever you’re gonna say.”',
+        'Cedar sets the CB down, still playing. “Two of the same man on one frequency. Physics says no. My CB says hush.”',
     },
     aloneLine:
       'Two men look up at you, and the radio speaks in your voice, and you are suddenly the most outnumbered person in Trinidad.',
@@ -324,7 +344,7 @@ export const SECOND_VOICE: Mystery = {
       scene: 'beach',
       body: [
         '“Lyle,” says the one in the slicker. “Lowell,” says the one in the apron, like it hurts to use. Twenty years ago their father died and left them one boat, one fishing permit, one apartment and one debt. Lowell was supposed to take a cannery job in Alaska. He got as far as the gate at the little airport in McKinleyville, sat there for six hours and came home.',
-        '“I couldn’t figure out how to be half of something,” Lowell says. “And I couldn’t afford two of anything,” Lyle says. So they became one man. Mornings and nights. One name, one permit, one life in shifts, and the radio to keep their stories straight. “Everybody says I’m two-faced,” Lyle says, and laughs, and then neither of them is laughing.',
+        '“I couldn’t figure out how to be half of something,” Lowell says. “And I couldn’t afford two of anything,” Lyle says. So they became one man. Mornings and nights. One name, one permit, one life in shifts, and the radio to keep their stories straight. “Everybody says I’m two-faced,” Lyle says, and laughs, and then neither of them is laughing. “And the predictions?” you ask. Lyle shrugs. “Half of it’s knowing everybody.” Lowell looks at the transmitter. “The other half isn’t us.”',
       ],
       choices: [
         {
@@ -348,7 +368,7 @@ export const SECOND_VOICE: Mystery = {
       chapter: 2,
       scene: 'beach',
       body: [
-        '“It started showing up six months ago,” Lyle says. “Cutting in on our frequency.” Lowell nods. “Gave us better gossip than we had. Told us somebody was coming. Said to let you find us.” Neither brother can explain it. They both look a little embarrassed to be the ones keeping secrets when there is a voice in the room keeping a bigger one.',
+        '“It started showing up a year ago, the night we put the show on the public dial,” Lyle says. “Before that, the radio was just how we kept our stories straight.” Lowell nods. “Gave us better gossip than we had. Told us somebody was coming. Said to let you find us.” Neither brother can explain it. They both look a little embarrassed to be the ones keeping secrets when there is a voice in the room keeping a bigger one.',
         'The speaker hisses. Your voice says, “I’m in a Trinidad one street over from yours. Close enough to hear. Not close enough to touch. You’ve got about a minute before the fog lifts and the signal goes.” In the voice’s background you can hear gulls, and a party, and two men laughing in the same voice.',
       ],
       choices: [
@@ -383,8 +403,8 @@ export const SECOND_VOICE: Mystery = {
       title: 'One Life, Shared',
       tone: 'bittersweet',
       text: [
-        'Lyle Pettibone goes on being the sweetest man on the pier before noon and the crankiest bartender in Westhaven after dark. The Harbor Hour goes back to whispering tomorrow’s gossip at six, a little quieter now. You and Marisol are the only two people who know, and you keep it, the way you would keep anyone’s secret that was mostly about love.',
-        'On your birthday, a card comes in two handwritings. It says, Thanks for seeing both of us. Some foggy nights, from the overlook on the Head, you hear the horn blow once, and far down the coast, another one answer, and you think: there they go. Your turn. My turn. Your turn.',
+        'Lyle Pettibone goes on being the sweetest man on the pier before noon and the crankiest bartender in Westhaven after dark. The Harbor Hour goes back to whispering tomorrow’s gossip at six, a little quieter now. You and Marisol are the only two people who know for sure, and you keep it, the way you would keep anyone’s secret that was mostly about love.',
+        'On your birthday, a card comes in two handwritings. It says, Thanks for seeing both of us. Some mornings at six you cannot tell which brother is on the air, and you realize that was always the point. Then, very softly, before the weather: Your turn. My turn. Your turn.',
       ],
     },
     {
@@ -393,7 +413,7 @@ export const SECOND_VOICE: Mystery = {
       tone: 'strange',
       text: [
         'You talk until the fog lifts. You tell yourself about the case, and yourself tells you about a Trinidad one street over, where things went a little differently and a little better and you still have the same terrible taste in puns. You both laugh at the same moment, at the same joke, which is somehow the most unsettling part.',
-        'The signal goes at dawn. But every morning after that, at 6:02, there is a third voice on 88.3 for exactly one minute, and it is always you, and it always knows what you are about to do. Some days you listen. Some days you argue. Lyle and Lowell say that is the most normal thing about you.',
+        'The signal goes at dawn. But every morning after that, at 6:02, there is a third voice on 87.9 for exactly one minute, and it is always you, and it always knows what you are about to do. Some days you listen. Some days you argue. Lyle and Lowell say that is the most normal thing about you.',
       ],
     },
   ],

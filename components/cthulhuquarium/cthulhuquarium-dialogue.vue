@@ -239,8 +239,8 @@ async function hangHandover() {
   position: relative;
   isolation: isolate;
   display: flex;
-  height: 100dvh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   flex-direction: column;
   justify-content: flex-end;
   overflow: hidden;
@@ -261,8 +261,8 @@ async function hangHandover() {
 }
 .cq-vn-character {
   position: absolute;
-  bottom: min(16rem, 25dvh);
-  height: min(82dvh, 920px);
+  bottom: min(16rem, 25%);
+  height: 82%;
   max-width: 96vw;
   object-fit: contain;
   object-position: bottom;
@@ -287,7 +287,7 @@ async function hangHandover() {
   position: relative;
   z-index: 1;
   display: flex;
-  max-height: min(38dvh, 21rem);
+  max-height: min(40%, 21rem);
   min-height: 10rem;
   flex-direction: column;
   gap: 0.75rem;
@@ -325,11 +325,11 @@ async function hangHandover() {
 }
 @media (max-height: 550px) {
   .cq-vn-dialogue {
-    max-height: 50dvh;
+    max-height: 50%;
   }
   .cq-vn-character {
-    bottom: 20dvh;
-    height: 82dvh;
+    bottom: 20%;
+    height: 82%;
   }
 }
 @media (prefers-reduced-motion: reduce) {

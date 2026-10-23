@@ -2,7 +2,7 @@
 <!-- root div -->
 <template>
   <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
-    <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startGame" />
+    <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startClassicFromLauncher" />
     <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" />
     <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
@@ -438,10 +438,12 @@ import { useArtStore } from '@/stores/artStore'
 const world = useMemoryWorldStore()
 const worldMode = ref(false)
 const launchError = ref('')
+const classicDeckIncludesMature = ref(false)
 
 function returnToMenu(): void {
   cancelChallenge()
   memoryStore.setGameSuiteDeckResolver(null)
+  classicDeckIncludesMature.value = false
   gameStarted.value = false
   configOpen.value = false
 }
@@ -449,13 +451,18 @@ function returnToMenu(): void {
 watch(
   () => world.matureAvailable,
   (allowed) => {
-    if (allowed || !world.deck.includeMature) return
+    if (allowed || !classicDeckIncludesMature.value) return
     if (gameStarted.value) {
       returnToMenu()
       launchError.value = 'Mature-image visibility has changed. Choose a new deck to continue.'
     }
   },
 )
+
+function startClassicFromLauncher(): void {
+  pendingDifficulty.value = memoryStore.selectedDifficulty
+  void startGame()
+}
 
 function startOverworld(): void {
   launchError.value = ''
@@ -981,6 +988,7 @@ async function startGame() {
     resolveMemoryDungeonDeck(selection, needed),
   )
   launchError.value = ''
+  classicDeckIncludesMature.value = selection.includeMature
   await resetBoardForCurrentLevel()
 
   if (!memoryStore.galleryImages.length) {
@@ -993,6 +1001,7 @@ async function startGame() {
       memoryStore.notification?.message ||
       'The selected image source cannot fill this board. Choose more eligible images.'
     memoryStore.setGameSuiteDeckResolver(null)
+    classicDeckIncludesMature.value = false
     gameStarted.value = false
     return
   }
@@ -1164,10 +1173,16 @@ function onLevelComplete() {
 
     await resetBoardForCurrentLevel()
 
+    if (!memoryStore.galleryImages.length) {
+      deathFlavor.value =
+        memoryStore.notification?.message ||
+        'The selected collection cannot fill the next floor. Choose a bigger deck from the menu.'
+      gameOver.value = true
+      addLog(deathFlavor.value, 'system')
+    }
+
     await nextTick()
-
     updateBoardBounds()
-
     levelTransitioning.value = false
   }, 1400)
 }

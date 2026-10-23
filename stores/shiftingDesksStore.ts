@@ -94,15 +94,18 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       endingsFound.value = Array.isArray(endings)
         ? endings.filter((s): s is string => typeof s === 'string')
         : []
-      const rewards: unknown = JSON.parse(
-        localStorage.getItem(REWARD_KEY) ?? 'null',
-      )
+      let rewards: unknown = null
+      try {
+        rewards = JSON.parse(localStorage.getItem(REWARD_KEY) ?? 'null')
+      } catch {
+        rewards = null
+      }
       rewardArchive.value = migrateFoundEndings(
         restoreRewardArchive(rewards),
         endingsFound.value,
       )
-      if (recordEnding()) persist()
-      else persist()
+      recordEnding()
+      persist()
     } catch {
       run.value = null
       discovered.value = []

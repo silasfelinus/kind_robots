@@ -884,6 +884,17 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     return selectedPaths.slice(0, needed)
   }
 
+  // Optional game-suite source resolver. A function stays outside Pinia state/SSR serialization.
+  // Classic Match and RPG use the same selected deck, while older store consumers
+  // keep their legacy source behavior when no resolver has been installed.
+  let gameSuiteDeckResolver: ((needed: number) => Promise<string[]>) | null = null
+
+  function setGameSuiteDeckResolver(
+    resolver: ((needed: number) => Promise<string[]>) | null,
+  ): void {
+    gameSuiteDeckResolver = resolver
+  }
+
   async function generateMemoryGameImages(): Promise<void> {
     try {
       isLoading.value = true
@@ -894,24 +905,32 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       clearNotification()
       resetTurnState()
 
-      const pool = await getMemoryCardPool()
-
-      console.info('Memory Dungeon card pool', {
-        source: cardSource.value,
-        poolCount: pool.length,
-        collectionCount: collectionStore.collections.length,
-        selectedCollectionIds: cardSource.value.collectionIds,
-        selectedCollectionId: cardSource.value.collectionId,
-      })
-
-      if (pool.length < 2) {
-        throw new Error(
-          'The dungeon could not find enough art images for a memory board. Generate some art first!',
-        )
-      }
-
       const needed = pairsNeeded.value
-      const imagePaths = await selectLoadableImagePaths(pool, needed)
+      let imagePaths: string[]
+
+      if (gameSuiteDeckResolver) {
+        imagePaths = await gameSuiteDeckResolver(needed)
+        if (imagePaths.length !== needed || new Set(imagePaths).size !== needed) {
+          throw new Error(
+            `The selected deck needs ${needed} distinct, loadable images for this floor. Choose another source or collection.`,
+          )
+        }
+      } else {
+        const pool = await getMemoryCardPool()
+        console.info('Memory Dungeon card pool', {
+          source: cardSource.value,
+          poolCount: pool.length,
+          collectionCount: collectionStore.collections.length,
+          selectedCollectionIds: cardSource.value.collectionIds,
+          selectedCollectionId: cardSource.value.collectionId,
+        })
+        if (pool.length < 2) {
+          throw new Error(
+            'The dungeon could not find enough art images for a memory board. Generate some art first!',
+          )
+        }
+        imagePaths = await selectLoadableImagePaths(pool, needed)
+      }
 
       galleryImages.value = shuffle(
         imagePaths.flatMap((imagePath, pairId) => [
@@ -1663,6 +1682,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     startDungeonRun,
     getMemoryCardPool,
     selectLoadableImagePaths,
+    setGameSuiteDeckResolver,
     resetGame,
     advanceLevel,
     clearNotification,

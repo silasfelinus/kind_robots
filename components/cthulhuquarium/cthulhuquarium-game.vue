@@ -8,7 +8,7 @@
 
      Coin drops (cthulhuquarium/t-080, conductor LOOP.md): every fed fish
      drops a coin every tank.coinDropSeconds on its own timer, worth its
-     stock row's coinValue. Coins sink to the gravel, rest, and fade after
+     stock row's coinValue. Coins float near their swimmers and fade after
      tank.coinVisibleSeconds. Clicking one queues its value with the store's
      requestCollect(); the server credits at most what the tank's drop rate
      accrued (server/utils/aquariumCollect.ts coinAllowance), so the canvas
@@ -1184,7 +1184,7 @@ const RENDER_SCALE = 2
 // cthulhuquarium/t-080 coins: sink speed (stage px/s), where they come to
 // rest, how long the fade-out takes, and the most drawn at once (oldest go
 // first) so a 40-fish tank stays smooth on a phone.
-const COIN_SINK_SPEED = 34
+const COIN_DRIFT_SPEED = 9
 const COIN_REST_Y = STAGE_HEIGHT - 18
 const COIN_FADE_SECONDS = 1.5
 const COIN_MAX_ON_SCREEN = 90
@@ -1627,7 +1627,7 @@ function spawnSwimmer(stock: TankStock): Swimmer {
 const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
 let huntClock = 20
 
-// A dropped coin: a struck disc that turns as it sinks, catching the light
+// A dropped coin: a struck disc that turns as it floats, catching the light
 // in a travelling glint so it reads as something worth tapping. Common coins
 // are gold; rarer fish strike stranger metals.
 function coinHue(value: number): number {
@@ -1654,8 +1654,7 @@ function drawCoin(
       : 1
   if (alpha <= 0) return
   const r = coin.radius
-  const resting = coin.y >= COIN_REST_Y
-  const turn = resting ? 1 : Math.abs(Math.cos(coin.spin))
+  const turn = Math.abs(Math.cos(coin.spin))
   context.save()
   context.globalAlpha = alpha
   context.translate(coin.x, coin.y)
@@ -2268,14 +2267,22 @@ function stepCoins(delta: number) {
 
   for (const coin of coins) {
     coin.age += delta
-    if (coin.y < COIN_REST_Y) {
-      coin.y = Math.min(COIN_REST_Y, coin.y + COIN_SINK_SPEED * delta)
-      coin.spin += delta * 4
-      coin.x = Math.min(
-        STAGE_WIDTH - 14,
-        Math.max(14, coin.x + coin.drift * delta),
-      )
-    }
+    // Treasure hangs in the water column instead of collecting in a
+    // hard-to-tap row along the bottom edge. Keep motion subtle so coins
+    // remain easy targets on touchscreens.
+    coin.y = Math.max(
+      20,
+      Math.min(
+        COIN_REST_Y - 20,
+        coin.y +
+          Math.sin(coin.age * 1.8 + coin.spin) * COIN_DRIFT_SPEED * delta,
+      ),
+    )
+    coin.spin += delta * 2
+    coin.x = Math.min(
+      STAGE_WIDTH - 14,
+      Math.max(14, coin.x + coin.drift * delta),
+    )
   }
   if (visible > 0) {
     coins = coins.filter((coin) => coin.age < visible)
@@ -2288,7 +2295,7 @@ function stepCoins(delta: number) {
 function spawnCoin(swimmer: Swimmer, value: number) {
   coins.push({
     x: swimmer.x,
-    y: Math.min(swimmer.y + 6, COIN_REST_Y),
+    y: Math.max(24, Math.min(swimmer.y + 6, COIN_REST_Y - 24)),
     drift: (Math.random() - 0.5) * 12,
     value,
     radius: coinRadius(value),

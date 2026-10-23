@@ -556,16 +556,16 @@ export const BEATS: EncounterCard[] = [
     scene: 'marsh',
     variantBy: 'prospect',
     body: [
-      'The trail ends at a bench above a slough with the whole bay in view. Someone has left a thermos of coffee there with a note: FOR WHOEVER NEEDS IT. Beside it sits a tidy little tin of the serious brownies with its own note: ONLY IF YOU MEANT TO COME HERE.',
+      'The trail ends at a bench above a slough with the whole bay in view. Someone has left a thermos of coffee there with a note: FOR WHOEVER NEEDS IT. There are binoculars nearby and a marked notebook for bird sightings.',
       'There is also, in your pocket, the joint a neighbor gave you last week. Nobody is watching. That is the point.',
     ],
     variants: {
       juniper: [
-        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. In her other hand there is a joint, and on the bench between you a small labeled tin of the serious brownies.',
+        'The young woman with the ribbon sits at the far end of a boardwalk bench and offers you the lid of her thermos without a word. After a while she also offers a joint, with no expectation that you will accept.',
         '“Nobody has to,” she says. “The marsh is plenty either way.”',
       ],
       kit: [
-        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, and holds out half a sandwich, then a joint, then, more carefully, a little labeled tin of the serious brownies.',
+        'The woman in coveralls notices you noticing her and laughs at herself. “I come here when I miss something,” she says, and offers half a sandwich. When she mentions the joint in her pocket, she is just as comfortable with you declining.',
         '“Nobody has to. I just don’t like eating alone.”',
       ],
     },

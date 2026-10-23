@@ -24,6 +24,7 @@ on:
       - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
       - 'components/EmperorFortressBarracks.vue'
+      - 'components/EmperorFortressBriefing.vue'
       - 'components/EmperorFortressChronicle.vue'
       - 'components/EmperorFortressDawn.vue'
       - 'components/EmperorFortressDialogue.vue'

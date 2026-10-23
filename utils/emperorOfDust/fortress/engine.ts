@@ -65,6 +65,12 @@ import type {
 import { TALKS } from './talks'
 import { CHANCE_EVENTS, chanceEvent } from './dailyEvents'
 import {
+  RUMOUR_BOUNTY,
+  dayBriefings,
+  rumourVerdict,
+  todaysChallenge,
+} from './briefings'
+import {
   BETRAYAL_DAY,
   HIDEOUT_HOST,
   HIDEOUT_NAMES,
@@ -324,6 +330,29 @@ export const chooseChanceEvent = (
     text: response,
   }
   return { run: next, response }
+}
+
+/**
+ * Look into one morning report a day. Catching the false one pays a bounty;
+ * a true report costs nothing beyond the day's one challenge.
+ */
+export const challengeRumour = (
+  run: FortressRun,
+  briefingId: string,
+): { run: FortressRun; caught: boolean; response: string } => {
+  if (isOver(run)) throw new Error('the reign is over')
+  if (todaysChallenge(run))
+    throw new Error('a report has already been looked into today')
+  const briefing = dayBriefings(run)?.find((entry) => entry.id === briefingId)
+  if (!briefing) throw new Error('that report did not come in this morning')
+  const next = cloneRun(run)
+  const caught = !briefing.truth
+  if (caught) next.brass += RUMOUR_BOUNTY
+  next.rumourChallenges = [
+    ...(next.rumourChallenges ?? []),
+    { day: next.day, briefingId, caught },
+  ]
+  return { run: next, caught, response: rumourVerdict(briefing) }
 }
 
 /** A chore is posted at most this many times a run (t-041). */

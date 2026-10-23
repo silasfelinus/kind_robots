@@ -169,6 +169,21 @@ function transcript(mystery: Mystery): string {
     mysteryCardMeta(id)?.gate === 1 ? 'decline' : undefined,
   )
   parts.push(`\n## Playthrough: walking away at Gate I (kinetic)`, ...lines)
+  parts.push(
+    '\n## Every way the Gate III trap can miss, then the reveal after a miss',
+    'Each Gate III failure below is followed by the same reveal.afterMiss body; both must read true together.',
+  )
+  for (const approach of mystery.gates[2].approaches)
+    parts.push(
+      `\n**Gate III failed via “${approach.label}”:** ${approach.failure.text}`,
+      ...Object.entries(mystery.reveal.recall ?? {})
+        .filter(([key]) => key === `g3:${approach.id}` || key === 'g3:fail')
+        .map(([key, text]) => `(recall ${key}) ${text}`),
+    )
+  parts.push(
+    '\n**Reveal after a miss (afterMiss):**',
+    ...mystery.reveal.afterMiss,
+  )
   return parts.join('\n')
 }
 

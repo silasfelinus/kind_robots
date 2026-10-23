@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useUserStore } from './userStore'
 import { resolveMemoryDungeonDeck } from './helpers/memoryDungeonDeckSource'
 import {
@@ -90,13 +90,29 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         const previousDeck = window.localStorage.getItem(DECK_KEY)
         if (previousDeck)
           deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
-        if (!matureAvailable.value) deck.value.includeMature = false
+        if (!matureAvailable.value && deck.value.includeMature) {
+          deck.value.includeMature = false
+          if (state.value.room === 'memory') {
+            state.value.room = 'map'
+            state.value.cards = []
+            state.value.roomId = null
+            state.value.status = 'Mature gallery images are hidden until enabled in your account preferences.'
+          }
+        }
       } catch {
         state.value = newBriarSave()
       }
     }
     ready.value = true
   }
+
+  watch(matureAvailable, (allowed) => {
+    if (allowed || !deck.value.includeMature) return
+    selectDeck({ includeMature: false })
+    if (state.value.room === 'memory') {
+      leaveRoom('Your mature-art preference changed. The gallery room closed without losing your map.')
+    }
+  })
 
   function reset(): void {
     roomEpoch++

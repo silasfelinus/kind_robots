@@ -561,7 +561,7 @@
                   <p class="my-2 text-xs text-[#f3e6c8]/75">
                     {{ momentOffer.description }}
                   </p>
-                  <div class="grid gap-2 sm:grid-cols-2">
+                  <div class="grid gap-2 @xl:grid-cols-2">
                     <button
                       type="button"
                       class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-xs font-bold"

@@ -211,7 +211,7 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. An old Mole asked the party not to tell the tower. Then she asked who had told the tower it was empty.',
+        'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. An old tunnel keeper asked the party not to tell the tower. Then she asked who had told the tower it was empty.',
       success:
         'No rubble. No rats. Forty Mole families in dry galleries, and a path to the old door worn smooth by small feet. They asked the party not to tell the tower. The party told you anyway.',
       partial:
@@ -1132,7 +1132,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
         speaker: 'A Gate Watch sergeant',
         faction: 'gate-watch',
         lines: [
-          'A Gate Watch sergeant marches a boy up the carpet by the collar. A young weasel in a stablehand’s apron, straw in his fur, trying not to cry in front of the throne.',
+          'A Gate Watch sergeant marches a boy up the carpet by the collar. A young stablehand in a worn apron, straw in his fur, trying not to cry in front of the throne.',
           '“Night stablehand, Majesty. Every mount gone, and him asleep in the hayloft. So he says. A gate opened from inside is a Watch matter. We want him in the stocks by noon.”',
           '“I didn’t open it,” the boy says. “I didn’t. I wasn’t even...” He stops. He looks at the floor.',
           {

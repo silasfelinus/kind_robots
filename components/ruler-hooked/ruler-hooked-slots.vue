@@ -1,89 +1,51 @@
-<!-- components/ruler-hooked/ruler-hooked-slots.vue
-     Save-slot picker (data-model.md §2.2): new / continue / rename / delete.
-     Reads and drives the store directly. -->
 <template>
-  <div class="rounded-xl border border-base-300 bg-base-100 p-4">
-    <h3 class="kr-text-faded-sm kr-text-eyebrow-bold mb-2 tracking-wide">Save slots</h3>
+  <section class="rounded-2xl border border-base-300 bg-base-100/90 p-4">
+    <div class="mb-4">
+      <p class="text-xs font-black uppercase tracking-widest text-primary">The royal ledger</p>
+      <h2 class="font-serif text-2xl font-bold">Choose a reign</h2>
+      <p class="mt-1 text-sm opacity-70">
+        No names, portraits or titles to choose. The kingdom is waiting, and the fish do not care.
+      </p>
+    </div>
 
-    <div v-if="store.slots.length" class="mb-3 flex flex-col gap-1">
+    <div v-if="store.slots.length" class="mb-4 grid gap-2">
       <div
         v-for="slot in store.slots"
         :key="slot.saveId"
-        class="flex items-center gap-2 rounded-lg px-2 py-1"
-        :class="slot.saveId === store.save?.saveId ? 'bg-primary/10' : 'hover:bg-base-200'"
+        class="flex items-center gap-2 rounded-xl border border-base-300 bg-base-200/80 p-2"
       >
-        <button type="button" class="flex-1 text-left" @click="selectSlot(slot.saveId)">
-          <span class="font-medium">{{ slot.name }}</span>
-          <span class="ml-2 text-xs opacity-60">turn {{ slot.turnCount }} · {{ slot.status.toLowerCase() }}</span>
+        <button
+          type="button"
+          class="min-h-12 min-w-0 flex-1 rounded-lg px-2 text-left hover:bg-base-300"
+          @click="selectSlot(slot.saveId)"
+        >
+          <span class="block truncate font-bold">{{ slot.name }}</span>
+          <span class="block text-xs opacity-65">Day {{ slot.turnCount + 1 }} · {{ slot.status.toLowerCase() }}</span>
         </button>
-        <button type="button" class="kr-btn-ghost-xs-plain" @click="rename(slot.saveId, slot.name)">rename</button>
-        <button type="button" class="btn btn-ghost btn-xs text-error" @click="store.deleteSlot(slot.saveId)">delete</button>
-      </div>
-    </div>
-    <p v-else class="mb-3 text-xs opacity-60">No saves yet — start a new reign.</p>
-
-    <div class="flex flex-col gap-2">
-      <div class="flex flex-wrap items-end gap-2">
-        <label class="form-control">
-          <span class="kr-label-xs">Ruler name</span>
-          <input v-model="rulerName" type="text" placeholder="Mo" class="kr-input-sm w-28" />
-        </label>
-        <label class="form-control">
-          <span class="kr-label-xs">Title</span>
-          <input
-            v-model="honorific"
-            type="text"
-            list="ruler-honorific-suggestions"
-            placeholder="Queen"
-            class="kr-input-sm w-32"
-          />
-          <datalist id="ruler-honorific-suggestions">
-            <option v-for="h in honorificSuggestions" :key="h" :value="h" />
-          </datalist>
-        </label>
-        <button type="button" class="kr-btn-primary-plain" :disabled="!rulerName.trim()" @click="start">
-          New reign
+        <button type="button" class="btn btn-ghost btn-xs min-h-11" @click="rename(slot.saveId, slot.name)">
+          Rename
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-xs min-h-11 text-error"
+          :aria-label="'Delete ' + slot.name"
+          @click="store.deleteSlot(slot.saveId)"
+        >
+          Delete
         </button>
       </div>
-
-      <details class="rounded-lg border border-base-300 p-2">
-        <summary class="cursor-pointer text-xs font-medium opacity-70">
-          Choose your ruler's look
-        </summary>
-        <div class="mt-2">
-          <RulerHookedCosmeticsPicker
-            v-model="presetId"
-            @custom-file="(f: File | null) => (customPortraitFile = f)"
-          />
-        </div>
-      </details>
     </div>
-  </div>
+    <button type="button" class="btn btn-primary min-h-12 w-full" @click="start">
+      Begin a new reign
+    </button>
+  </section>
 </template>
 
 <script setup lang="ts">
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
-import {
-  HERO_RULER_PRESET_ID,
-  RULER_PRESETS,
-} from '~/utils/rulerHooked/rulerPresets'
 
-// ruler-hooked/t-024: this panel now lives inside a modal (see
-// ruler-hooked-game.vue) instead of stacking below the play scene as its own
-// document row. `picked` tells the host it can close the modal -- picking a
-// slot or starting a reign both leave `store.save` non-null, so a host that
-// only watched for that transition would miss "switch to a different
-// already-active-feeling slot" entirely.
-const emit = defineEmits<{ (e: 'picked'): void }>()
-
+const emit = defineEmits<{ picked: [] }>()
 const store = useRulerHookedStore()
-const rulerName = ref('Mo')
-const honorific = ref('Queen')
-const presetId = ref(HERO_RULER_PRESET_ID)
-const customPortraitFile = ref<File | null>(null)
-
-// Preset honorifics as suggestions, not a constraint (t-021: free text).
-const honorificSuggestions = [...new Set(RULER_PRESETS.map((p) => p.title))]
 
 function selectSlot(saveId: string) {
   store.loadSlot(saveId)
@@ -91,15 +53,12 @@ function selectSlot(saveId: string) {
 }
 
 async function start() {
-  if (!rulerName.value.trim()) return
-  await store.newGame('', rulerName.value.trim(), honorific.value, {
-    presetId: presetId.value,
-    customPortraitFile: customPortraitFile.value ?? undefined,
-  })
+  await store.newGame('', 'Angler', 'Ruler')
   emit('picked')
 }
+
 function rename(saveId: string, current: string) {
   const name = typeof window !== 'undefined' ? window.prompt('Rename this reign', current) : null
-  if (name && name.trim()) store.renameSlot(saveId, name.trim())
+  if (name?.trim()) store.renameSlot(saveId, name.trim())
 }
 </script>

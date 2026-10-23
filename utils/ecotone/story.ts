@@ -1819,7 +1819,7 @@ export const FUTURES: Record<EndingLine, Record<Fate, string[]>> = {
       'Nobody remembers it starting with one person who kept choosing the animals, again and again, when nobody was watching. You remember. The herons do too.',
     ],
     dark: [
-      'You never quite chose. You loved the herons and the elk and the fog, and you kept loving them from a little distance. Things didn’t get worse, exactly. They just never got better.',
+      'You knew the elk and herons by their silences. You found a few ways to help, or at least nearly found them. But the county needed people who could return together for the hard, tedious years. That part never quite became your habit.',
       'You retire to a cabin up the Mad River with a woodstove, a good pair of binoculars and a notebook of every bird that ever came to your feeder. Some mornings the elk come down to the meadow and you wave. It is a small, kind, quiet life, and the county went on deciding without you.',
     ],
   },

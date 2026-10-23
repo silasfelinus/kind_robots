@@ -22,7 +22,7 @@ const STORY_FILES = [
   'questBriefsChores.ts',
 ] as const
 
-// Guard prose, not species-locked cast records or the positive art prompts.
+// Guard prose, not species-locked cast records or positive art prompts.
 // Proper faction names such as Storm Crows and Mole Revolutionaries are
 // political affiliations, not a license to call an individual "a fox".
 const SPECIES_AS_IDENTITY =
@@ -34,7 +34,12 @@ for (const file of STORY_FILES) {
     new URL(`../emperorOfDust/fortress/${file}`, import.meta.url),
     'utf8',
   )
-  const matches = [...text.matchAll(SPECIES_AS_IDENTITY)]
+  // These are explicit food or artwork, not labels applied to people.
+  const namesOnly = text
+    .replaceAll('a snared hare', 'snared game')
+    .replaceAll('A jackal’s jaw', 'A metal crest')
+    .replaceAll('A small armadillo is scratched', 'A small figure is scratched')
+  const matches = [...namesOnly.matchAll(SPECIES_AS_IDENTITY)]
   assert.equal(
     matches.length,
     0,

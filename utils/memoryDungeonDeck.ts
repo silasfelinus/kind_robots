@@ -7,6 +7,7 @@ export interface DungeonDeckSelection {
   family: DungeonDeckFamily
   gallery: 'all' | 'collections' | 'generated'
   collectionIds: number[]
+  /** Exclusive rating filter: false = non-mature only, true = mature only. */
   includeMature: boolean
   entityKind: DungeonEntityKind
 }
@@ -92,7 +93,9 @@ export function isEligibleDungeonArt(
   return (
     permitted &&
     art.isActive !== false &&
-    (!art.isMature || (requestedMature && viewerAllowsMature))
+    (requestedMature && viewerAllowsMature
+      ? art.isMature === true
+      : art.isMature === false)
   )
 }
 

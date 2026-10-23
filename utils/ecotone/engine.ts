@@ -716,10 +716,14 @@ function meet(state: RunState, accept: boolean): RunState {
  * Each actionable perk can be used once per regional chapter. Existing version-4
  * saves gain an empty spent list, preserving their established rolls and choices.
  */
-export function originPerkAvailable(state: RunState, choiceId: string): boolean {
+export function originPerkAvailable(
+  state: RunState,
+  choiceId: string,
+): boolean {
   if (state.phase !== 'beat' || state.pending) return false
   const card = findCard(state.card)
-  const choice = card && openingLensChoices(card).find((item) => item.id === choiceId)
+  const choice =
+    card && openingLensChoices(card).find((item) => item.id === choiceId)
   if (!card || !choice || choice.locked) return false
   if ((state.perkUsedChapters ?? []).includes(card.chapter)) return false
   const skill = choice.check?.skill
@@ -780,8 +784,13 @@ export function chooseBeat(
   let outcome: Outcome = choice.success
   let result: OutcomeResult = 'success'
   if (choice.check) {
-    const perkBonus =
-      !usesPerk ? 0 : state.archetype === 'mechanic' || state.archetype === 'dealer' ? 2 : state.archetype === 'student' || state.archetype === 'rower' ? 0 : 1
+    const perkBonus = !usesPerk
+      ? 0
+      : state.archetype === 'mechanic' || state.archetype === 'dealer'
+        ? 2
+        : state.archetype === 'student' || state.archetype === 'rower'
+          ? 0
+          : 1
     roll = resolveCheck(next, choice.check, perkBonus)
     if (!roll.success && choice.failure) {
       outcome = choice.failure
@@ -801,39 +810,52 @@ export function chooseBeat(
     }
     switch (state.archetype) {
       case 'reporter':
-        perkLine = 'You ask the extra sourcing question: when was this first observed, and who can check it? A verifiable lead enters your notes.'
+        perkLine =
+          'You ask the extra sourcing question: when was this first observed, and who can check it? A verifiable lead enters your notes.'
         break
       case 'student':
         if (roll && !roll.success) {
           effects.goodwill = (effects.goodwill ?? 0) + 1
-          perkLine = 'Your annotated notes rescue one useful piece of a failed attempt. You still face the setback, but somebody else can build on the partial result.'
+          perkLine =
+            'Your annotated notes rescue one useful piece of a failed attempt. You still face the setback, but somebody else can build on the partial result.'
         } else {
-          perkLine = 'You annotate the reasoning while it is fresh. The next person can reproduce what worked.'
+          perkLine =
+            'You annotate the reasoning while it is fresh. The next person can reproduce what worked.'
         }
         break
       case 'rower':
         if ((effects.nerve ?? 0) < 0) effects.nerve = 0
-        perkLine = 'You recognize the punishing terrain early and adjust the crossing. The physical setback costs no nerve this time.'
+        perkLine =
+          'You recognize the punishing terrain early and adjust the crossing. The physical setback costs no nerve this time.'
         break
       case 'local':
-        perkLine = 'You remember a local connection and ask for a second perspective before treating the first story as settled.'
+        perkLine =
+          'You remember a local connection and ask for a second perspective before treating the first story as settled.'
         break
       case 'mechanic':
         effects.nerve = (effects.nerve ?? 0) - 1
-        perkLine = 'You improvise with the supplies at hand. It works or fails on the roll, but the extra work takes a real toll on your nerve.'
+        perkLine =
+          'You improvise with the supplies at hand. It works or fails on the roll, but the extra work takes a real toll on your nerve.'
         break
       case 'gardener':
         if ((effects.nerve ?? 0) < 0) effects.nerve = 0
-        perkLine = 'You spot a practical hazard before it bites. The problem remains, but it cannot drain your nerve on this result.'
+        perkLine =
+          'You spot a practical hazard before it bites. The problem remains, but it cannot drain your nerve on this result.'
         break
       case 'dealer':
-        perkLine = 'You wait out a practiced bluff and watch the response instead of trusting the first claim.'
+        perkLine =
+          'You wait out a practiced bluff and watch the response instead of trusting the first claim.'
         break
     }
   }
   next = applyEffects(next, effects)
-  if (usesPerk && (state.archetype === 'reporter' || state.archetype === 'local'))
-    next = applyEffects(next, { evidence: `origin_${state.archetype}_${card.id}` })
+  if (
+    usesPerk &&
+    (state.archetype === 'reporter' || state.archetype === 'local')
+  )
+    next = applyEffects(next, {
+      evidence: `origin_${state.archetype}_${card.id}`,
+    })
   if (!next.played.includes(card.id))
     next = { ...next, played: [...next.played, card.id] }
   return record(
@@ -1146,9 +1168,12 @@ export function restoreRun(raw: unknown): RunState | null {
   if (
     s.perkUsedChapters !== undefined &&
     (!Array.isArray(s.perkUsedChapters) ||
-      !s.perkUsedChapters.every((chapter) => Number.isInteger(chapter) && chapter >= 1 && chapter <= 6) ||
+      !s.perkUsedChapters.every(
+        (chapter) => Number.isInteger(chapter) && chapter >= 1 && chapter <= 6,
+      ) ||
       new Set(s.perkUsedChapters).size !== s.perkUsedChapters.length)
-  ) return null
+  )
+    return null
   if (
     s.substanceMoments !== undefined &&
     !validSubstanceMoments(s.substanceMoments)

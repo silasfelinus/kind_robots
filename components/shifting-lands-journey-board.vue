@@ -594,14 +594,16 @@
                 </p>
                 <template v-if="game.currentTrial">
                   <div
-                    v-if="game.ledger.version === 7 || game.ledger.version === 8"
+                    v-if="
+                      game.ledger.version === 7 || game.ledger.version === 8
+                    "
                     class="flex flex-wrap items-center gap-2 rounded-xl border border-info/40 bg-base-300 p-2.5"
                   >
                     <div class="min-w-[12rem] flex-1">
                       <strong class="text-xs">Scout before the trial</strong>
                       <p class="text-xs opacity-75">
-                        Spend 1 HP to unlock a carefully surveyed route.
-                        Check its success odds against your other choices before
+                        Spend 1 HP to unlock a carefully surveyed route. Check
+                        its success odds against your other choices before
                         paying. Your earned deeds may also call witnesses.
                       </p>
                     </div>

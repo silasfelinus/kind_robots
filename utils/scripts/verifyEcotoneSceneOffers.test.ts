@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { createRun, findCard, type RunState } from '../ecotone/engine'
 import {
   contextualOpeningChoices,
@@ -128,6 +129,11 @@ assert.equal(
   }),
   null,
 )
+const board = readFileSync(new URL('../../components/ecotone-board.vue', import.meta.url), 'utf8')
+assert.ok(board.includes('contextualOpeningChoices(card, run).map'))
+assert.ok(board.includes('sceneMomentOffer(game.card, game.run)'))
+assert.ok(!board.includes('SUBSTANCE_CHOICES'))
+assert.ok(!board.includes('openingLensChoices(card).map'))
 console.log(
   'Ecotone chemistry UX: no catalog, context-specific offers, abstention always visible',
 )

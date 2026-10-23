@@ -740,11 +740,7 @@ useHead({ title: 'Emperor of Dust' })
 .eod .eod-plate {
   border: 1px solid var(--eod-gilt-dim);
   border-radius: 0.25rem;
-  background: linear-gradient(
-    to right,
-    var(--eod-ink),
-    var(--color-base-200)
-  );
+  background: linear-gradient(to right, var(--eod-ink), var(--color-base-200));
   color: var(--color-base-content);
 }
 

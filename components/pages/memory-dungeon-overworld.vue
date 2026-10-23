@@ -436,34 +436,16 @@
             v-for="card in world.state.cards"
             :key="card.id"
             type="button"
-            class="relative aspect-square min-h-0 min-w-0 overflow-hidden rounded-xl border-2 border-[#c1a56f] shadow-xl transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-white"
+            class="md-card-container relative aspect-square min-h-0 min-w-0 overflow-hidden rounded-xl border-2 border-[#c1a56f] shadow-xl hover:brightness-110 focus-visible:outline-2 focus-visible:outline-white"
             :class="card.matched ? 'border-[#b6dc88] opacity-65' : ''"
-            :disabled="
-              card.flipped ||
-              card.matched ||
-              world.turnLocked ||
-              world.roomComplete
-            "
-            :aria-label="
-              card.flipped || card.matched
-                ? 'Revealed gallery image'
-                : 'Reveal memory image'
-            "
+            :disabled="card.flipped || card.matched || world.turnLocked || world.roomComplete"
+            :aria-label="card.flipped || card.matched ? 'Revealed gallery image' : 'Reveal memory image'"
             @click="world.pickCard(card.id)"
           >
-            <img
-              v-if="card.flipped || card.matched"
-              :src="card.image"
-              class="h-full w-full object-cover"
-              alt="Selected gallery art"
-              draggable="false"
-            />
-            <span
-              v-else
-              class="flex h-full w-full items-center justify-center bg-[#29384b] text-3xl text-[#dec28a]"
-              aria-hidden="true"
-              >✦</span
-            >
+            <span class="md-card-inner" :class="{ flipped: card.flipped || card.matched }">
+              <span class="md-card-back bg-[#29384b] text-3xl text-[#dec28a]" aria-hidden="true">✦</span>
+              <img class="md-card-front" :src="card.image" alt="Selected gallery art" draggable="false" />
+            </span>
           </button>
         </div>
         <div

@@ -113,7 +113,7 @@ assert.equal(
 )
 assert.equal(
   new Set(DESIGNED_DUNGEON_ART.map((item) => item.imagePath)).size,
-  8,
+  18,
 )
 assert.equal(
   DESIGNED_DUNGEON_ART.every((entry) =>

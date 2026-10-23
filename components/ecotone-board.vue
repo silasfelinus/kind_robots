@@ -166,7 +166,9 @@
                       >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
                   </span>
-                  <span class="mt-2 block text-xs text-[#f3e6c8]/75">{{ background.perk }}</span>
+                  <span class="mt-2 block text-xs text-[#f3e6c8]/75">{{
+                    background.perk
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -606,7 +608,11 @@
                   v-if="options.some((option) => option.perkEligible)"
                   class="flex items-center gap-2 rounded-lg border border-[#d9b877]/50 bg-black/35 px-3 py-2 text-xs text-[#f3e6c8]"
                 >
-                  <input v-model="perkSelected" type="checkbox" class="checkbox checkbox-xs border-[#d9b877]" />
+                  <input
+                    v-model="perkSelected"
+                    type="checkbox"
+                    class="checkbox checkbox-xs border-[#d9b877]"
+                  />
                   Use my origin perk on an eligible choice (once this chapter)
                 </label>
                 <div
@@ -641,7 +647,13 @@
                         v-if="option.chip || option.hint"
                         class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
                         >{{
-                          [option.chip, option.perkEligible ? 'Origin perk available' : '', option.hint].filter(Boolean).join(' · ')
+                          [
+                            option.chip,
+                            option.perkEligible ? 'Origin perk available' : '',
+                            option.hint,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')
                         }}</span
                       >
                     </span>
@@ -728,7 +740,12 @@
           </div>
           <p class="mt-2 text-xs text-white/60">
             Origin perk: {{ archetype.perk }}
-            <span v-if="game.run.perkUsedChapters.includes(game.chapter)" class="font-bold text-[#d9b877]"> · Used this chapter</span>
+            <span
+              v-if="game.run.perkUsedChapters.includes(game.chapter)"
+              class="font-bold text-[#d9b877]"
+            >
+              · Used this chapter</span
+            >
           </p>
         </div>
       </div>

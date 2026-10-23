@@ -10,7 +10,6 @@ import {
 import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
-  BRIAR_LINKS,
   BRIAR_SITES,
   briarConnected,
   newBriarSave,

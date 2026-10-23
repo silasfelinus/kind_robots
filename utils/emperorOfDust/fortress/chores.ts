@@ -523,7 +523,7 @@ export const CHORES: readonly QuestDef[] = [
     id: 'r-runaway-runner',
     title: 'A Runner in the Reeds',
     summary:
-      'A bonded Crow runner has run. The Crows want her back and are paying for news of her. The Mirefen say she asked them for a boat.',
+      'A bonded Conclave runner has run. The Crows want her back and are paying for news of her. The Mirefen say she asked them for a boat.',
     region: 'mirefen',
     faction: 'storm-crows',
     durationDays: 2,

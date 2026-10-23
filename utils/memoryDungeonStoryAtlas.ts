@@ -1,7 +1,4 @@
-import {
-  BRIAR_CROSS_MAP_KEYS,
-  BRIAR_REVEAL_WAVES,
-} from './memoryDungeonWaves'
+import { BRIAR_CROSS_MAP_KEYS, BRIAR_REVEAL_WAVES } from './memoryDungeonWaves'
 import { BRIAR_TILES } from './memoryDungeonWorld'
 
 /**
@@ -13,8 +10,7 @@ import { BRIAR_TILES } from './memoryDungeonWorld'
  * until a scripted-event executor is implemented and tested.
  */
 export type DungeonStoryValue =
-  | 'community' | 'nature' | 'truth' | 'mercy' | 'identity'
-  | 'court' | 'freedom'
+  'community' | 'nature' | 'truth' | 'mercy' | 'identity' | 'court' | 'freedom'
 
 export interface DungeonStoryChoice {
   id: string
@@ -32,8 +28,10 @@ export interface DungeonStoryTile {
 export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '1,1': {
     title: 'North Star Twin',
-    introduction: 'A seven-point star has one point polished by someone who was not there.',
-    artDirection: 'A blue-white star-seal at a mossy standing stone beside royal footprints.',
+    introduction:
+      'A seven-point star has one point polished by someone who was not there.',
+    artDirection:
+      'A blue-white star-seal at a mossy standing stone beside royal footprints.',
     choices: [
       {
         id: 'c1',
@@ -51,8 +49,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,1': {
     title: 'The Unclaimed Stair',
-    introduction: 'Two sets of identical bootprints descend a staircase, but only one set returns.',
-    artDirection: 'A spiral ruin stair half buried in a forest ridge, matched royal bootprints.',
+    introduction:
+      'Two sets of identical bootprints descend a staircase, but only one set returns.',
+    artDirection:
+      'A spiral ruin stair half buried in a forest ridge, matched royal bootprints.',
     choices: [
       {
         id: 'c1',
@@ -70,7 +70,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,1': {
     title: 'Thimble Court',
-    introduction: 'Small folk insist the old king promised them a voice, not a throne.',
+    introduction:
+      'Small folk insist the old king promised them a voice, not a throne.',
     artDirection: 'A forest council of tiny carved seats around a stone table.',
     choices: [
       {
@@ -89,7 +90,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,1': {
     title: 'Bellwood Tower',
-    introduction: 'A bell rings once for births, once for deaths, and twice for someone in between.',
+    introduction:
+      'A bell rings once for births, once for deaths, and twice for someone in between.',
     artDirection: 'A slanted tower among firs with a suspended silver bell.',
     choices: [
       {
@@ -108,8 +110,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,1': {
     title: 'The Wrong Sleeve',
-    introduction: "A prince's gold cuff has been sewn to a funeral-black cloak.",
-    artDirection: 'An abandoned gold embroidered sleeve laid against a black velvet coat.',
+    introduction:
+      "A prince's gold cuff has been sewn to a funeral-black cloak.",
+    artDirection:
+      'An abandoned gold embroidered sleeve laid against a black velvet coat.',
     choices: [
       {
         id: 'c1',
@@ -127,8 +131,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,1': {
     title: 'Foxglove Shelter',
-    introduction: 'Refugees shelter in a flower meadow that the crown calls unused land.',
-    artDirection: 'A flower-crowned field canopy with weary travelers and lanterns.',
+    introduction:
+      'Refugees shelter in a flower meadow that the crown calls unused land.',
+    artDirection:
+      'A flower-crowned field canopy with weary travelers and lanterns.',
     choices: [
       {
         id: 'c1',
@@ -146,8 +152,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,1': {
     title: 'The Two-Note Bird',
-    introduction: 'A songbird repeats the same melody with one altered final note.',
-    artDirection: 'A jewel-bright woodland bird perched among two tuning forks.',
+    introduction:
+      'A songbird repeats the same melody with one altered final note.',
+    artDirection:
+      'A jewel-bright woodland bird perched among two tuning forks.',
     choices: [
       {
         id: 'c1',
@@ -165,8 +173,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,1': {
     title: 'Whitewing Cipher',
-    introduction: 'Two wing emblems differ by a feather, and the court has burned one copy.',
-    artDirection: 'A white bird crest carved in salt stone with one reversed feather.',
+    introduction:
+      'Two wing emblems differ by a feather, and the court has burned one copy.',
+    artDirection:
+      'A white bird crest carved in salt stone with one reversed feather.',
     choices: [
       {
         id: 'c1',
@@ -184,8 +194,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,2': {
     title: 'The Mushroom Witness',
-    introduction: 'A mushroom insists it saw you pass yesterday while you were elsewhere.',
-    artDirection: 'An enormous amber mushroom shading a tiny witness under roots.',
+    introduction:
+      'A mushroom insists it saw you pass yesterday while you were elsewhere.',
+    artDirection:
+      'An enormous amber mushroom shading a tiny witness under roots.',
     choices: [
       {
         id: 'c1',
@@ -203,8 +215,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,2': {
     title: "Lark's False Welcome",
-    introduction: 'A welcome sign has your handwriting, although you never wrote it.',
-    artDirection: 'A welcome arch tangled with ribbons and two near-identical signatures.',
+    introduction:
+      'A welcome sign has your handwriting, although you never wrote it.',
+    artDirection:
+      'A welcome arch tangled with ribbons and two near-identical signatures.',
     choices: [
       {
         id: 'c1',
@@ -241,8 +255,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,2': {
     title: "Mosswick's Stall",
-    introduction: 'Mosswick sells lanterns, rumors, and receipts that everyone claims to have lost.',
-    artDirection: 'A friendly old stall with hanging lanterns, herbs, and a lockbox.',
+    introduction:
+      'Mosswick sells lanterns, rumors, and receipts that everyone claims to have lost.',
+    artDirection:
+      'A friendly old stall with hanging lanterns, herbs, and a lockbox.',
     choices: [
       {
         id: 'c1',
@@ -266,8 +282,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,2': {
     title: 'Sleeping Sigil',
-    introduction: 'The crest looks the same as a distant one, except for the direction of its roots.',
-    artDirection: 'A violet seal embedded in a flat river stone, mirror-like rootwork.',
+    introduction:
+      'The crest looks the same as a distant one, except for the direction of its roots.',
+    artDirection:
+      'A violet seal embedded in a flat river stone, mirror-like rootwork.',
     choices: [
       {
         id: 'c1',
@@ -285,8 +303,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,2': {
     title: 'Rootbound Vault',
-    introduction: 'The vault does not ask who you resemble, only what you remember.',
-    artDirection: 'A vine-shrouded wooden gate with twin brass locks and glowing seams.',
+    introduction:
+      'The vault does not ask who you resemble, only what you remember.',
+    artDirection:
+      'A vine-shrouded wooden gate with twin brass locks and glowing seams.',
     choices: [
       {
         id: 'c1',
@@ -310,7 +330,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,2': {
     title: 'The Petition Line',
-    introduction: 'Villagers have queued for days to prove they are themselves.',
+    introduction:
+      'Villagers have queued for days to prove they are themselves.',
     artDirection: 'A winding forest queue under royal identity-check banners.',
     choices: [
       {
@@ -330,7 +351,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '8,2': {
     title: 'Rose-Court Tribunal',
     introduction: 'A sleeping judge wrote a verdict before hearing testimony.',
-    artDirection: "An abandoned woodland dais with a blooming rose on a judge's chair.",
+    artDirection:
+      "An abandoned woodland dais with a blooming rose on a judge's chair.",
     choices: [
       {
         id: 'c1',
@@ -348,8 +370,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,3': {
     title: 'Briar Ferryman',
-    introduction: 'A ferryman refuses coins, accepting only stories that have not been told.',
-    artDirection: 'A narrow reed boat crossing a black-green river between pines.',
+    introduction:
+      'A ferryman refuses coins, accepting only stories that have not been told.',
+    artDirection:
+      'A narrow reed boat crossing a black-green river between pines.',
     choices: [
       {
         id: 'c1',
@@ -368,7 +392,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '2,3': {
     title: 'Duet Hollow',
     introduction: 'A voice answers every note of a tune, one heartbeat late.',
-    artDirection: 'A circular grove with twin carved wooden flutes and moonlit leaves.',
+    artDirection:
+      'A circular grove with twin carved wooden flutes and moonlit leaves.',
     choices: [
       {
         id: 'c1',
@@ -386,7 +411,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,3': {
     title: 'The Counterfeit Market',
-    introduction: 'Sellers offer memories in jars; every price tag uses your name.',
+    introduction:
+      'Sellers offer memories in jars; every price tag uses your name.',
     artDirection: 'A twilight flea market of glass jars and half-hidden faces.',
     choices: [
       {
@@ -406,7 +432,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '4,3': {
     title: 'Oath-Fern Crossing',
     introduction: 'A bridge blooms only for a promise made with witnesses.',
-    artDirection: 'A fern bridge rising across a creek as people watch from both banks.',
+    artDirection:
+      'A fern bridge rising across a creek as people watch from both banks.',
     choices: [
       {
         id: 'c1',
@@ -425,7 +452,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '5,3': {
     title: 'The River Lock',
     introduction: 'A dam protects homes but starves the spawning pools.',
-    artDirection: 'A wooden floodgate over a river with salmon-like silver shadows.',
+    artDirection:
+      'A wooden floodgate over a river with salmon-like silver shadows.',
     choices: [
       {
         id: 'c1',
@@ -443,8 +471,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,3': {
     title: 'Waxen Testament',
-    introduction: 'A wax seal depicts two identical infants with different shadows.',
-    artDirection: 'A royal document in a bronze lantern, two infant silhouettes in wax.',
+    introduction:
+      'A wax seal depicts two identical infants with different shadows.',
+    artDirection:
+      'A royal document in a bronze lantern, two infant silhouettes in wax.',
     choices: [
       {
         id: 'c1',
@@ -462,8 +492,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,3': {
     title: 'Thorn Patrol',
-    introduction: 'Two sentries are ordered to seize anyone who cannot prove a unique identity.',
-    artDirection: 'A forest checkpoint with shields, thorn pennants and worried guards.',
+    introduction:
+      'Two sentries are ordered to seize anyone who cannot prove a unique identity.',
+    artDirection:
+      'A forest checkpoint with shields, thorn pennants and worried guards.',
     choices: [
       {
         id: 'c1',
@@ -481,7 +513,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,3': {
     title: 'The Border Cairn',
-    introduction: 'Someone moved the old border stones into the village graveyard.',
+    introduction:
+      'Someone moved the old border stones into the village graveyard.',
     artDirection: 'A row of tiny carved standing stones among old graves.',
     choices: [
       {
@@ -500,7 +533,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,4': {
     title: 'The Sighing Ferry',
-    introduction: 'A ghost ferries arguments to the opposite shore and returns them kinder.',
+    introduction:
+      'A ghost ferries arguments to the opposite shore and returns them kinder.',
     artDirection: 'A half-sunken ferry lit by fireflies and mist.',
     choices: [
       {
@@ -519,8 +553,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,4': {
     title: 'Briar Camp',
-    introduction: 'A signpost welcomes you by name. Someone altered it yesterday.',
-    artDirection: 'A friendly woodland campfire beside a sign bearing two different handwriting styles.',
+    introduction:
+      'A signpost welcomes you by name. Someone altered it yesterday.',
+    artDirection:
+      'A friendly woodland campfire beside a sign bearing two different handwriting styles.',
     choices: [
       {
         id: 'c1',
@@ -544,7 +580,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,4': {
     title: 'The Double Footprints',
-    introduction: 'Two sets of your footprints run parallel until one veers homeward.',
+    introduction:
+      'Two sets of your footprints run parallel until one veers homeward.',
     artDirection: 'A damp path imprinted with twin sets of identical boots.',
     choices: [
       {
@@ -563,8 +600,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,4': {
     title: 'The Courtesy Fork',
-    introduction: 'One path is paved by royal decree, the other kept open by walkers.',
-    artDirection: 'A forest fork, one paved and formal, one soft with animal tracks.',
+    introduction:
+      'One path is paved by royal decree, the other kept open by walkers.',
+    artDirection:
+      'A forest fork, one paved and formal, one soft with animal tracks.',
     choices: [
       {
         id: 'c1',
@@ -582,8 +621,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,4': {
     title: 'Council of Hollow Oaks',
-    introduction: 'The village is divided about letting changelings rent houses.',
-    artDirection: 'A ring of hollow oaks with lantern-lit neighbors in heated debate.',
+    introduction:
+      'The village is divided about letting changelings rent houses.',
+    artDirection:
+      'A ring of hollow oaks with lantern-lit neighbors in heated debate.',
     choices: [
       {
         id: 'c1',
@@ -601,7 +642,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,4': {
     title: 'A Letter to Yourself',
-    introduction: 'A letter in your handwriting begs you not to believe the next letter.',
+    introduction:
+      'A letter in your handwriting begs you not to believe the next letter.',
     artDirection: 'A creased letter floating in a small paper boat.',
     choices: [
       {
@@ -620,8 +662,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,4': {
     title: 'The Crooked Bridge',
-    introduction: 'A bridge bends toward the traveler carrying the heavier regret.',
-    artDirection: 'An arching crooked wooden bridge with two figures at opposite ends.',
+    introduction:
+      'A bridge bends toward the traveler carrying the heavier regret.',
+    artDirection:
+      'An arching crooked wooden bridge with two figures at opposite ends.',
     choices: [
       {
         id: 'c1',
@@ -639,8 +683,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,4': {
     title: 'Thorn Gate',
-    introduction: 'The gate can be opened by the Chime, but the keeper insists someone will be displaced.',
-    artDirection: 'A monumental living-thorn gate framing a glimpse of an enchanted orchard.',
+    introduction:
+      'The gate can be opened by the Chime, but the keeper insists someone will be displaced.',
+    artDirection:
+      'A monumental living-thorn gate framing a glimpse of an enchanted orchard.',
     choices: [
       {
         id: 'c1',
@@ -659,7 +705,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '1,5': {
     title: 'The Root Nursery',
     introduction: 'Seedlings rise from a path the soldiers ordered cleared.',
-    artDirection: 'A low woodland nursery of tiny tree seedlings protected by moss.',
+    artDirection:
+      'A low woodland nursery of tiny tree seedlings protected by moss.',
     choices: [
       {
         id: 'c1',
@@ -677,7 +724,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,5': {
     title: 'The Ribbon Trap',
-    introduction: 'A beautiful bow hides a snare, meant to catch something with your face.',
+    introduction:
+      'A beautiful bow hides a snare, meant to catch something with your face.',
     artDirection: 'A scarlet ribbon tied around a bent sapling snare.',
     choices: [
       {
@@ -697,7 +745,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '3,5': {
     title: 'Glass-Leaf Trail',
     introduction: "Transparent leaves show yesterday's sky, even during rain.",
-    artDirection: 'A carpet of translucent leaves reflecting a sunset that is not here.',
+    artDirection:
+      'A carpet of translucent leaves reflecting a sunset that is not here.',
     choices: [
       {
         id: 'c1',
@@ -715,8 +764,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,5': {
     title: 'A Lost Courier',
-    introduction: 'A courier carries royal letters for two princes who claim the same throne.',
-    artDirection: 'A weary courier in a muddy blue cloak clutching two sealed bags.',
+    introduction:
+      'A courier carries royal letters for two princes who claim the same throne.',
+    artDirection:
+      'A weary courier in a muddy blue cloak clutching two sealed bags.',
     choices: [
       {
         id: 'c1',
@@ -734,8 +785,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,5': {
     title: 'Moss Sprite',
-    introduction: 'A mischievous sprite demands a fair match and recognizes your stolen reflection.',
-    artDirection: 'A clever woodland trickster perched on a floating memory card.',
+    introduction:
+      'A mischievous sprite demands a fair match and recognizes your stolen reflection.',
+    artDirection:
+      'A clever woodland trickster perched on a floating memory card.',
     choices: [
       {
         id: 'c1',
@@ -753,7 +806,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,5': {
     title: 'The Orchard Without Fruit',
-    introduction: 'The old trees bloom each year, yet every harvest belongs to the palace.',
+    introduction:
+      'The old trees bloom each year, yet every harvest belongs to the palace.',
     artDirection: 'An uncanny orchard of lush blossom and empty baskets.',
     choices: [
       {
@@ -772,7 +826,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,5': {
     title: 'The Shared Cradle',
-    introduction: 'Two families insist the same child is theirs; the child recognizes both.',
+    introduction:
+      'Two families insist the same child is theirs; the child recognizes both.',
     artDirection: 'A woven cradle between two homes in a peaceful glade.',
     choices: [
       {
@@ -791,8 +846,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,5': {
     title: 'Ink-Stained Pact',
-    introduction: "A contract promises safety but takes the signer's true name.",
-    artDirection: 'A floating parchment with dark ink traveling up living vines.',
+    introduction:
+      "A contract promises safety but takes the signer's true name.",
+    artDirection:
+      'A floating parchment with dark ink traveling up living vines.',
     choices: [
       {
         id: 'c1',
@@ -810,7 +867,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,6': {
     title: 'Scent of Home',
-    introduction: 'A familiar supper smell travels from a house that burned years ago.',
+    introduction:
+      'A familiar supper smell travels from a house that burned years ago.',
     artDirection: 'A warm phantom kitchen visible through trunks at dusk.',
     choices: [
       {
@@ -829,8 +887,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,6': {
     title: 'Moss Inscription',
-    introduction: 'An old carving holds the order leaf, leaf, sun, and a second pattern beneath it.',
-    artDirection: 'An ancient mossy rock showing overlapping carved leaf and sun runes.',
+    introduction:
+      'An old carving holds the order leaf, leaf, sun, and a second pattern beneath it.',
+    artDirection:
+      'An ancient mossy rock showing overlapping carved leaf and sun runes.',
     choices: [
       {
         id: 'c1',
@@ -848,7 +908,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,6': {
     title: 'Creekside Cache',
-    introduction: 'Someone hid medicine beside coins and marked the box for a family.',
+    introduction:
+      'Someone hid medicine beside coins and marked the box for a family.',
     artDirection: 'A small oak chest beneath wet ferns beside a narrow creek.',
     choices: [
       {
@@ -867,7 +928,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,6': {
     title: 'A Small Oath',
-    introduction: 'A tree has grown around an old promise; cutting it free would end the vow.',
+    introduction:
+      'A tree has grown around an old promise; cutting it free would end the vow.',
     artDirection: 'A tree embracing a rusted oath chain, dappled green light.',
     choices: [
       {
@@ -886,7 +948,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,6': {
     title: 'The Spyglass Clearing',
-    introduction: 'A cracked spyglass shows two identical figures taking different roads.',
+    introduction:
+      'A cracked spyglass shows two identical figures taking different roads.',
     artDirection: 'A brass telescope trained on a far-off two-road clearing.',
     choices: [
       {
@@ -905,7 +968,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,6': {
     title: 'Broken Crowns',
-    introduction: "Two coronets lie beneath one tree, each missing the other's gemstone.",
+    introduction:
+      "Two coronets lie beneath one tree, each missing the other's gemstone.",
     artDirection: 'A pair of battered gold crowns, one tied with black silk.',
     choices: [
       {
@@ -924,7 +988,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,6': {
     title: 'Riverbank Chest',
-    introduction: 'A chest glows under reeds, its lock decorated with a tiny sleeping moth.',
+    introduction:
+      'A chest glows under reeds, its lock decorated with a tiny sleeping moth.',
     artDirection: 'A glowing treasure chest beside a river among silver reeds.',
     choices: [
       {
@@ -944,7 +1009,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '8,6': {
     title: 'The Thirsty Well',
     introduction: 'A town well is fresh but the forest spring runs dry.',
-    artDirection: 'A cracked community well and root network beside thirsty trees.',
+    artDirection:
+      'A cracked community well and root network beside thirsty trees.',
     choices: [
       {
         id: 'c1',
@@ -962,8 +1028,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,7': {
     title: 'The Tangled Chorus',
-    introduction: 'A choir sings one note until a stranger introduces a needed discord.',
-    artDirection: 'A chorus of woodland travelers singing under woven branches.',
+    introduction:
+      'A choir sings one note until a stranger introduces a needed discord.',
+    artDirection:
+      'A chorus of woodland travelers singing under woven branches.',
     choices: [
       {
         id: 'c1',
@@ -981,8 +1049,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,7': {
     title: 'Three Quiet Stones',
-    introduction: 'The stones ask for two forest marks, then sunlight. Somebody hid a second truth beneath the sequence.',
-    artDirection: 'Three luminous standing stones with leaf and sun runes and an inset clue groove.',
+    introduction:
+      'The stones ask for two forest marks, then sunlight. Somebody hid a second truth beneath the sequence.',
+    artDirection:
+      'Three luminous standing stones with leaf and sun runes and an inset clue groove.',
     choices: [
       {
         id: 'c1',
@@ -1006,8 +1076,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,7': {
     title: 'The Sister Garden',
-    introduction: 'A gardener plants flowers for a sister the court claims never existed.',
-    artDirection: 'A delicate moonlit garden with two adjoining paths and one empty bench.',
+    introduction:
+      'A gardener plants flowers for a sister the court claims never existed.',
+    artDirection:
+      'A delicate moonlit garden with two adjoining paths and one empty bench.',
     choices: [
       {
         id: 'c1',
@@ -1025,7 +1097,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,7': {
     title: 'The Sacred Root',
-    introduction: 'A village needs wood, but this root network keeps the valley from sliding.',
+    introduction:
+      'A village needs wood, but this root network keeps the valley from sliding.',
     artDirection: 'A huge exposed root lattice above a cliffside village.',
     choices: [
       {
@@ -1044,7 +1117,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,7': {
     title: 'Smoke Without Fire',
-    introduction: 'Smoke signals from the hills describe a battle that has not happened.',
+    introduction:
+      'Smoke signals from the hills describe a battle that has not happened.',
     artDirection: 'A distant smoke column over a wet meadow with no flame.',
     choices: [
       {
@@ -1064,7 +1138,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   '6,7': {
     title: 'Mirror Meadow',
     introduction: 'A pool gives each traveler the face they fear becoming.',
-    artDirection: 'A violet meadow of shallow reflecting pools and whispering reeds.',
+    artDirection:
+      'A violet meadow of shallow reflecting pools and whispering reeds.',
     choices: [
       {
         id: 'c1',
@@ -1082,8 +1157,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,7': {
     title: 'Shadows of the Palace',
-    introduction: 'The princes meet in secret to trade costumes before a public appearance.',
-    artDirection: 'A palace terrace where identical princes exchange white silk and black velvet.',
+    introduction:
+      'The princes meet in secret to trade costumes before a public appearance.',
+    artDirection:
+      'A palace terrace where identical princes exchange white silk and black velvet.',
     choices: [
       {
         id: 'c1',
@@ -1101,8 +1178,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,7': {
     title: "The Queen's Unsent Reply",
-    introduction: 'A draft decree tells the twins they can both be loved without sharing a crown.',
-    artDirection: 'An unfinished letter beneath a small portrait of a sorrowful queen.',
+    introduction:
+      'A draft decree tells the twins they can both be loved without sharing a crown.',
+    artDirection:
+      'An unfinished letter beneath a small portrait of a sorrowful queen.',
     choices: [
       {
         id: 'c1',
@@ -1120,7 +1199,8 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '1,8': {
     title: 'The Briar Refuge',
-    introduction: 'Families keep a hidden sanctuary for travelers without proper names.',
+    introduction:
+      'Families keep a hidden sanctuary for travelers without proper names.',
     artDirection: 'A candlelit forest refuge under intertwined branches.',
     choices: [
       {
@@ -1139,8 +1219,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '2,8': {
     title: 'Mill of Lost Hours',
-    introduction: 'A broken mill grinds discarded memories into flour for the town.',
-    artDirection: 'A whimsical old mill with luminous grain and a turning clockwheel.',
+    introduction:
+      'A broken mill grinds discarded memories into flour for the town.',
+    artDirection:
+      'A whimsical old mill with luminous grain and a turning clockwheel.',
     choices: [
       {
         id: 'c1',
@@ -1158,8 +1240,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '3,8': {
     title: 'The Truth Pool',
-    introduction: 'Two visitors see the same childhood, but one remembers an extra person.',
-    artDirection: 'A black mirror pond revealing a third shadow between two figures.',
+    introduction:
+      'Two visitors see the same childhood, but one remembers an extra person.',
+    artDirection:
+      'A black mirror pond revealing a third shadow between two figures.',
     choices: [
       {
         id: 'c1',
@@ -1177,8 +1261,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '4,8': {
     title: "Saint's Spring",
-    introduction: 'The famous healing water works, but takes strength from nearby roots.',
-    artDirection: 'A sparkling forest spring surrounded by fragile luminous trees.',
+    introduction:
+      'The famous healing water works, but takes strength from nearby roots.',
+    artDirection:
+      'A sparkling forest spring surrounded by fragile luminous trees.',
     choices: [
       {
         id: 'c1',
@@ -1196,8 +1282,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '5,8': {
     title: 'The Candle Grove',
-    introduction: 'A flickering candle goes out each time the court declares someone false.',
-    artDirection: 'A grove of floating candles, one flame shaped like a small star.',
+    introduction:
+      'A flickering candle goes out each time the court declares someone false.',
+    artDirection:
+      'A grove of floating candles, one flame shaped like a small star.',
     choices: [
       {
         id: 'c1',
@@ -1215,8 +1303,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '6,8': {
     title: "The Keeper's Ledger",
-    introduction: 'A caretaker keeps two columns: faces recognized and kindness received.',
-    artDirection: 'A leather ledger spread under lanternlight with mismatched entries.',
+    introduction:
+      'A caretaker keeps two columns: faces recognized and kindness received.',
+    artDirection:
+      'A leather ledger spread under lanternlight with mismatched entries.',
     choices: [
       {
         id: 'c1',
@@ -1234,8 +1324,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '7,8': {
     title: 'Portal Sketch',
-    introduction: 'An unsigned map shows home beyond the next region, but the door is drawn twice.',
-    artDirection: 'A folded map of a fey portal with twin doorways and different shadows.',
+    introduction:
+      'An unsigned map shows home beyond the next region, but the door is drawn twice.',
+    artDirection:
+      'A folded map of a fey portal with twin doorways and different shadows.',
     choices: [
       {
         id: 'c1',
@@ -1253,8 +1345,10 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> = {
   },
   '8,8': {
     title: 'Moonroot Knot',
-    introduction: 'The final Briar sigil has a root reversed from the one promised in Moonwell Vale.',
-    artDirection: 'A moonlit carved knot under a black fern, its mirrored root glinting.',
+    introduction:
+      'The final Briar sigil has a root reversed from the one promised in Moonwell Vale.',
+    artDirection:
+      'A moonlit carved knot under a black fern, its mirrored root glinting.',
     choices: [
       {
         id: 'c1',
@@ -1280,12 +1374,22 @@ export function validateBriarStoryAtlas(): string[] {
   }
   for (const key of keys) {
     const scene = BRIAR_STORY_ATLAS[key]
-    if (!scene) { issues.push(`Missing story scene at ${key}`); continue }
-    if (!scene.title.trim() || !scene.introduction.trim() || !scene.artDirection.trim())
+    if (!scene) {
+      issues.push(`Missing story scene at ${key}`)
+      continue
+    }
+    if (
+      !scene.title.trim() ||
+      !scene.introduction.trim() ||
+      !scene.artDirection.trim()
+    )
       issues.push(`Incomplete illustration/story hook at ${key}`)
     if (scene.choices.length < 2 || scene.choices.length > 5)
       issues.push(`Scene ${key} must offer 2-5 purposeful choices`)
-    if (new Set(scene.choices.map((choice) => choice.id)).size !== scene.choices.length)
+    if (
+      new Set(scene.choices.map((choice) => choice.id)).size !==
+      scene.choices.length
+    )
       issues.push(`Duplicate choice ID at ${key}`)
     for (const choice of scene.choices) {
       if (!choice.label.trim() || !choice.result.trim())

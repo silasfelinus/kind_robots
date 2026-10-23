@@ -55,9 +55,11 @@ export async function resolveMemoryDungeonDeck(
       await collections.fetchCollections()
       const selectedPublic = choice.collectionIds.filter((id) => {
         const collection = collections.findCollectionById(id)
-        return collection?.isPublic === true &&
+        return (
+          collection?.isPublic === true &&
           collection.isActive !== false &&
           (!collection.isMature || includeMature)
+        )
       })
       if (!selectedPublic.length) return []
       memory.useCollections(selectedPublic)

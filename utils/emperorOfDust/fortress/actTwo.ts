@@ -48,7 +48,7 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'mire-mothers': -10 } },
     outcomes: {
       triumph:
-        'The raiders broke and ran. A young lantern-witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
+        'The raiders broke and ran. A novice fen witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
       success:
         'The camp is scattered. A lantern-witch named Isolde thanks the party, then asks to see the emperor alone.',
       partial: 'The raiders pulled back. Not far.',
@@ -1213,7 +1213,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'jackalwire',
         requires: { follower: 'F002' },
         lines: [
-          'Captain Gristle Vane fills the doorway first. The Pack captain wears a greatcoat of a hundred painted feathers, ear-chain jangling, canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
+          'Captain Gristle Vane fills the doorway first. His greatcoat bears a hundred painted feathers, an ear-chain jangling above the canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
           'Our engine is broken, Majesty. One person alive knows how it was built. She’s standing beside you, pretending not to know me.',
           {
             who: 'Saffron Kett',
@@ -1381,7 +1381,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'abelard-vellum',
         faction: 'lamplight',
         lines: [
-          'Keeper Vellum, in ink-dark robes takes his time crossing the throne room. He does not apologize.',
+          'Keeper Vellum, in ink-dark robes, takes his time crossing the throne room. He does not apologize.',
           '“The old maps are dust in their cases, Majesty. Roads, wells, tunnels nobody living remembers. Copying costs ink, paper and time. Mostly time.”',
           '“I brought one.” He unrolls it on the dais step. A corner lifts in the draught and drifts across the floor like a leaf. The Watch lets it go. “That,” says Keeper Vellum, “was the Eastern Ford, before the Ford moved.”',
         ],

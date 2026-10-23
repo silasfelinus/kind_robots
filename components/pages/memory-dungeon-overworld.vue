@@ -45,10 +45,15 @@
 
     <div
       v-if="settingsOpen"
-      role="dialog"
-      aria-label="Choose Memory Dungeon artwork"
-      class="kr-scroll absolute right-2 top-14 z-50 max-h-[min(80dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25]/98 p-3 shadow-2xl sm:p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1617]/85 p-3 backdrop-blur-sm"
+      @click.self="settingsOpen = false"
     >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Choose Memory Dungeon artwork"
+        class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
+      >
       <div class="flex flex-wrap items-center justify-between gap-2">
         <span class="text-sm font-bold"
           >Artwork for the current map and dungeon rooms</span
@@ -102,6 +107,7 @@
       >
         Begin a new overworld run
       </button>
+      </div>
     </div>
 
     <div

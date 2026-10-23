@@ -82,19 +82,19 @@ assert.match(
 )
 assert.doesNotMatch(
   dialogue,
-  /\\d+(?:\\.\\d+)?dvh/,
+  /\d+(?:\.\d+)?dvh/,
   'the fixed cinematic overlay must not introduce a nested viewport-height shell',
 )
-assert.match(game, /const activePanel = ref<AquariumPanel \\| null>\\(null\\)/)
+assert.match(game, /const activePanel = ref<AquariumPanel \| null>\(null\)/)
 assert.match(game, /class="cq-room-backdrop pointer-events-none absolute object-cover"/)
 assert.match(
   game,
-  /\\.cq-side,\\s*\\.cq-roster,\\s*\\.cq-support-panel\\s*\\{[\\s\\S]*?width:\\s*100%/,
+  /\.cq-side,\s*\.cq-roster,\s*\.cq-support-panel\s*\{[\s\S]*?width:\s*100%/,
   'all rooms occupy the console scene rather than tiny sidebars',
 )
 assert.doesNotMatch(
   game,
-  /const activePanel = ref<AquariumPanel>\\('shop'\\)/,
+  /const activePanel = ref<AquariumPanel>\('shop'\)/,
   'no room should open by default over the aquarium',
 )
 const { existsSync } = await import('node:fs')

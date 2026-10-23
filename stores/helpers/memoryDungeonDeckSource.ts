@@ -34,10 +34,11 @@ function loadImage(path: string): Promise<boolean> {
 export async function resolveMemoryDungeonDeck(
   choice: DungeonDeckSelection,
   needed: number,
+  designedOffset = 0,
 ): Promise<string[]> {
   if (choice.family === 'designed') {
     const paths = DESIGNED_DUNGEON_ART.map((item) => item.imagePath)
-    return paths.slice(0, needed)
+    return paths.slice(designedOffset, designedOffset + needed)
   }
 
   const user = useUserStore()

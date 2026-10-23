@@ -95,8 +95,17 @@ export async function resolveMemoryDungeonDeck(
         initializeCollections: false,
       })
       candidates = generated ? art.generatedArtImages : art.artImages
-      if (candidates.length < needed && !generated) {
-        candidates = await art.fetchAllArtImages({ force: true })
+      if (candidates.length < needed) {
+        const refreshed = await art.fetchAllArtImages({ force: true })
+        candidates = generated
+          ? [
+              ...art.generatedArtImages,
+              ...refreshed
+                .filter((image) => viewerId > 0 && image.userId === viewerId)
+                .sort((a, b) => b.id - a.id)
+                .slice(0, 80),
+            ]
+          : refreshed
       }
     }
 

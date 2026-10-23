@@ -34,8 +34,7 @@
     class="relative w-full overflow-hidden rounded-xl border border-base-300 shadow-inner"
     :aria-label="`Lakeside kingdom at ${scene?.time ?? 'day'}`"
   >
-    <div class="flex flex-col"
-      :class="fill ? 'h-full' : 'aspect-[7/4]'">
+    <div class="flex flex-col" :class="fill ? 'h-full' : 'aspect-[7/4]'">
       <div
         v-for="layer in layers"
         :key="layer.region"
@@ -71,7 +70,11 @@
 
 <script setup lang="ts">
 import { assetCandidates } from '~/utils/rulerHooked/compositor'
-import type { RegionKey, RegionsManifest, SceneState } from '~/types/ruler-hooked'
+import type {
+  RegionKey,
+  RegionsManifest,
+  SceneState,
+} from '~/types/ruler-hooked'
 
 const props = withDefaults(
   defineProps<{

@@ -75,7 +75,7 @@ export const CHORES: readonly QuestDef[] = [
     },
     expired: { affinity: { freeholds: -5 } },
     outcomes: {
-      success: 'A cracked cistern, and a dead fox in it. The herd will live.',
+      success: 'A cracked cistern, and a body in the water. The herd will live.',
       partial: 'Half the herd stood up again. The other half went to the pit.',
       failure:
         'Nobody could say what it was. The farmer burned the herd himself and would not let anyone help.',
@@ -714,7 +714,7 @@ export const CHORES: readonly QuestDef[] = [
     },
     outcomeAlts: {
       success: [
-        'A magpie, with a nest full of copper in the bell loft. The gravedigger’s boy was set free and given the nest.',
+        'A hoarder had hidden the copper in the bell loft. The gravedigger’s boy was set free and given the abandoned room.',
       ],
       failure: [
         'The party watched the box for a night and fell asleep. In the morning the box was empty and someone had left them a blanket.',

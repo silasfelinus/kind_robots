@@ -1,5 +1,6 @@
 import {
   ENDINGS,
+  endingFor,
   jobById,
   mutationById,
   societyById,
@@ -96,11 +97,7 @@ function isRunReceipt(value: unknown): value is RunReceipt {
 }
 
 export function receiptFor(run: RunState, completedAt: string): RunReceipt | null {
-  const ending = ENDINGS.find((candidate) =>
-    run.status === 'eliminated'
-      ? candidate.trigger.status === 'eliminated' && (!candidate.trigger.flag || run.flags.includes(candidate.trigger.flag))
-      : candidate.trigger.department_outcome && Object.values(run.departmentOutcomes).includes(candidate.trigger.department_outcome),
-  )
+  const ending = endingFor(run)
   if (!ending || (run.status !== 'complete' && run.status !== 'eliminated') || run.pending) return null
   const files = run.log.filter((entry) => entry.cardId !== 'dossier' && entry.cardId !== 'restructuring').length
   return {

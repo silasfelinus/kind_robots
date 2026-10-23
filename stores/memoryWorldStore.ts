@@ -209,6 +209,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         deck.value,
         keys.length / 2,
         usedPrior,
+        state.value.seenMapImages,
       )
       if (ticket !== roomEpoch) return
       if (new Set(paths).size !== keys.length / 2) {
@@ -218,6 +219,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       const cards = createBriarWaveCards(keys, paths)
       state.value.mapCards = cards
+      state.value.seenMapImages = [
+        ...new Set([...state.value.seenMapImages, ...paths]),
+      ]
       state.value.status = `Round ${state.value.waveIndex + 1}: match ${paths.length} image pairs to uncover ${keys.length} map squares.`
       persist()
     } catch (error) {

@@ -351,7 +351,9 @@
               :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
             >
               <!-- The fish market gets an illustrated scene, not a catalog thumbnail. -->
-              <div class="relative min-h-28 overflow-hidden rounded-xl bg-base-300 sm:min-h-40">
+              <div
+                class="relative min-h-28 overflow-hidden rounded-xl bg-base-300 sm:min-h-40"
+              >
                 <img
                   v-if="shopHeaderArt"
                   :src="shopHeaderArt"
@@ -359,8 +361,12 @@
                   class="absolute inset-0 h-full w-full object-cover"
                   loading="lazy"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-base-100/90 via-transparent to-transparent" />
-                <p class="absolute bottom-2 left-3 font-serif text-xl font-black drop-shadow">
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-base-100/90 via-transparent to-transparent"
+                />
+                <p
+                  class="absolute bottom-2 left-3 font-serif text-xl font-black drop-shadow"
+                >
                   The Fish Market
                 </p>
               </div>
@@ -408,7 +414,9 @@
                       />
                     </div>
                     <div class="min-w-0 flex-1">
-                      <p class="text-[0.65rem] font-black uppercase tracking-widest text-primary">
+                      <p
+                        class="text-[0.65rem] font-black uppercase tracking-widest text-primary"
+                      >
                         Today's specimens
                       </p>
                       <h3 class="font-serif text-xl font-black">
@@ -443,7 +451,10 @@
                       {{ featuredFish.cost }}
                     </span>
                   </button>
-                  <nav class="flex items-center justify-between gap-2" aria-label="Choose a market fish">
+                  <nav
+                    class="flex items-center justify-between gap-2"
+                    aria-label="Choose a market fish"
+                  >
                     <button
                       type="button"
                       class="btn btn-outline btn-sm min-h-11 min-w-11"
@@ -452,8 +463,12 @@
                     >
                       <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
                     </button>
-                    <p class="text-xs font-bold tabular-nums" aria-live="polite">
-                      {{ selectedShopIndex + 1 }} / {{ tankStore.catalog.length }}
+                    <p
+                      class="text-xs font-bold tabular-nums"
+                      aria-live="polite"
+                    >
+                      {{ selectedShopIndex + 1 }} /
+                      {{ tankStore.catalog.length }}
                     </p>
                     <button
                       type="button"
@@ -466,7 +481,8 @@
                   </nav>
                 </div>
                 <p v-else class="kr-text-faded-xs">
-                  Nothing new today. You can re-order discoveries in the bestiary.
+                  Nothing new today. You can re-order discoveries in the
+                  bestiary.
                 </p>
               </div>
             </div>
@@ -1434,8 +1450,8 @@ const shopHeaderArt =
   (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
   artByName('screen-shop')
 // The illustrated surroundings cover letterbox space on tall mobile displays.
-const tankBackdrop = computed(() =>
-  backgroundArt(tankStore.backgroundKey) ?? backgroundArt('parlour'),
+const tankBackdrop = computed(
+  () => backgroundArt(tankStore.backgroundKey) ?? backgroundArt('parlour'),
 )
 // Held, like the dialogue itself, while anything else has the floor.
 const storyFocus = computed(() =>
@@ -1600,16 +1616,26 @@ const now = ref(Date.now())
 
 // One specimen at a time, like a real game shop instead of an endless web list.
 const selectedShopIndex = ref(0)
-const featuredFish = computed(() => tankStore.catalog[
-  Math.min(selectedShopIndex.value, Math.max(0, tankStore.catalog.length - 1))
-] ?? null)
+const featuredFish = computed(
+  () =>
+    tankStore.catalog[
+      Math.min(
+        selectedShopIndex.value,
+        Math.max(0, tankStore.catalog.length - 1),
+      )
+    ] ?? null,
+)
 function shiftShop(delta: number) {
   const count = tankStore.catalog.length
-  if (count) selectedShopIndex.value = (selectedShopIndex.value + delta + count) % count
+  if (count)
+    selectedShopIndex.value = (selectedShopIndex.value + delta + count) % count
 }
-watch(() => tankStore.catalog.length, (count) => {
-  if (selectedShopIndex.value >= count) selectedShopIndex.value = 0
-})
+watch(
+  () => tankStore.catalog.length,
+  (count) => {
+    if (selectedShopIndex.value >= count) selectedShopIndex.value = 0
+  },
+)
 
 // The unlock panel's live "refreshes in Xh Ym" readout, replacing the old
 // static "check back tomorrow" hint. Null (falls back to that static hint

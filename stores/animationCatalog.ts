@@ -912,6 +912,18 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'orbital-resonance-chords',
+    label: 'Orbital Resonance Chords',
+    reveal: 'Six moons in whole-number resonance weave a glowing chord web',
+    icon: 'kind-icon:orbit',
+    tooltip:
+      'Six moons circle a small sun at 1:2:3:4:5:6 speeds while chords between them weave a figure that reforms every loop 🌙 hover to brighten nearby moons, click to speed up the orbits',
+    color: '#78dcff',
+    releasedAt: '2026-10-23T13:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

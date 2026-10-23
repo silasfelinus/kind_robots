@@ -318,7 +318,6 @@
             class="cq-side flex flex-col gap-3"
           >
             <div
-              ref="shopRef"
               class="flex scroll-mt-4 flex-col gap-2 rounded-2xl"
               :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
             >
@@ -728,7 +727,7 @@
                   type="button"
                   class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
                   :disabled="tankStore.coins < entry.cost"
-                  @click="tankStore.chooseDecorToPlace(entry.kind)"
+                  @click="() => { tankStore.chooseDecorToPlace(entry.kind); closePanel() }"
                 >
                   Place ({{ entry.cost }})
                 </button>
@@ -1367,15 +1366,14 @@ const storyFocus = computed(() =>
 const gameRoot = ref<HTMLElement | null>(null)
 watch(storyFocus, async (focus) => {
   if (!focus) return
-  if (focus === 'shop') selectPanel('shop')
-  if (focus === 'bestiary') selectPanel('bestiary')
-  if (focus === 'sets') selectPanel('sets')
-  if (focus === 'decor') selectPanel('decor')
+  if (focus === 'shop') openPanel('shop')
+  if (focus === 'bestiary') openPanel('bestiary')
+  if (focus === 'sets') openPanel('sets')
+  if (focus === 'decor') openPanel('decor')
+  if (focus === 'tank' || focus === 'coins' || focus === 'feed') closePanel()
   await nextTick()
-  gameRoot.value?.querySelector('.cq-focus')?.scrollIntoView({
-    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    block: 'center',
-  })
+  // The shell owns height; scrolling the highlighted tank would move the page.
+  // Room contents may scroll internally, but never the outer game.
 })
 
 watch(
@@ -1471,12 +1469,23 @@ const aquariumPanels: { id: AquariumPanel; title: string; icon: string }[] = [
   { id: 'decor', title: 'Decorate', icon: 'kind-icon:box' },
   { id: 'scenery', title: 'Backdrops & more', icon: 'kind-icon:image' },
 ]
-const activePanel = ref<AquariumPanel>('shop')
+const activePanel = ref<AquariumPanel | null>(null)
 function selectPanel(panel: AquariumPanel) {
+  if (activePanel.value === panel) {
+    closePanel()
+    return
+  }
+  openPanel(panel)
+}
+function openPanel(panel: AquariumPanel) {
   activePanel.value = panel
   if (panel === 'bestiary' && !showBestiary.value) onToggleBestiary()
   if (panel === 'sets' && !showSets.value) onToggleSets()
   if (panel === 'decor' && !showDecor.value) onToggleDecor()
+}
+const activePanelName = computed(() => aquariumPanels.find((panel) => panel.id === activePanel.value)?.title ?? '')
+function closePanel() {
+  activePanel.value = null
 }
 const showBestiary = ref(false)
 const showSets = ref(false)
@@ -1523,13 +1532,8 @@ const shopRefreshLabel = computed(() => {
 // Unlock/Buy dead with no word why).
 // cthulhuquarium/t-083: the shop sits right under the tank; Buy fish jumps to
 // it on a phone, where the tank fills the first screen.
-const shopRef = ref<HTMLElement | null>(null)
 function scrollToShop() {
-  selectPanel('shop')
-  shopRef.value?.scrollIntoView({
-    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    block: 'start',
-  })
+  openPanel('shop')
 }
 
 // Fullscreen is the page's own overlay first (it works on phones without the

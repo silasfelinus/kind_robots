@@ -439,7 +439,7 @@ const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
-const crossMapPuzzles: Record<string, { hint: string }> = BRIAR_CROSS_MAP_PUZZLES
+const crossMapPuzzles: Record<string, { hint: string; title: string }> = BRIAR_CROSS_MAP_PUZZLES
 const nextWaveCount = computed(() => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0)
 function crossMapImage(key: string): string {
   const index = BRIAR_CROSS_MAP_KEYS.indexOf(key as (typeof BRIAR_CROSS_MAP_KEYS)[number])

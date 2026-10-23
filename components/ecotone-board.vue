@@ -166,6 +166,9 @@
                       >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
                   </span>
+                  <span class="mt-2 block text-xs text-[#f3e6c8]/75">{{
+                    background.perk
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -546,61 +549,47 @@
               </template>
               <template v-else>
                 <details
-                  v-if="canTakeMoment"
+                  v-if="canTakeMoment && momentOffer"
                   :key="game.run?.card ?? ''"
                   class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
                 >
                   <summary
                     class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]"
                   >
-                    Optional moment · change the tempo
+                    An offer along the way · entirely optional
                   </summary>
                   <p class="my-2 text-xs text-[#f3e6c8]/75">
-                    Choose one or two experiences, or take a clear-headed break.
-                    Your first perspective stays in your story. No combination
-                    grants supernatural knowledge.
+                    {{ momentOffer.description }}
                   </p>
-                  <div class="grid grid-cols-2 gap-1.5">
-                    <button
-                      v-for="moment in SUBSTANCE_CHOICES"
-                      :key="moment.id"
-                      type="button"
-                      class="rounded-lg border px-2 py-2 text-left text-xs"
-                      :class="
-                        momentSelections.includes(moment.id)
-                          ? 'border-[#d9b877] bg-[#d9b877]/20'
-                          : 'border-white/20'
-                      "
-                      :aria-pressed="momentSelections.includes(moment.id)"
-                      :disabled="
-                        momentSelections.length >= 2 &&
-                        !momentSelections.includes(moment.id)
-                      "
-                      :title="moment.detail"
-                      @click="toggleMoment(moment.id)"
-                    >
-                      {{ moment.label }}
-                    </button>
-                  </div>
-                  <div class="mt-2 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
-                      :disabled="momentSelections.length === 0"
-                      @click="takeMoment(false)"
-                    >
-                      Take this moment
-                    </button>
+                  <div class="grid gap-2 @xl:grid-cols-2">
                     <button
                       type="button"
                       class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-xs font-bold"
-                      @click="takeMoment(true)"
+                      @click="game.takeMoment([])"
                     >
-                      Water, air, a pause
+                      No thanks
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
+                      @click="game.takeMoment([momentOffer.id])"
+                    >
+                      {{ momentOffer.label }}
                     </button>
                   </div>
                 </details>
                 <p class="eco-label px-1">{{ stage.question }}</p>
+                <label
+                  v-if="options.some((option) => option.perkEligible)"
+                  class="flex items-center gap-2 rounded-lg border border-[#d9b877]/50 bg-black/35 px-3 py-2 text-xs text-[#f3e6c8]"
+                >
+                  <input
+                    v-model="perkSelected"
+                    type="checkbox"
+                    class="checkbox checkbox-xs border-[#d9b877]"
+                  />
+                  Use my origin perk on an eligible choice (once this chapter)
+                </label>
                 <div
                   class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
                 >
@@ -633,7 +622,13 @@
                         v-if="option.chip || option.hint"
                         class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
                         >{{
-                          [option.chip, option.hint].filter(Boolean).join(' · ')
+                          [
+                            option.chip,
+                            option.perkEligible ? 'Origin perk available' : '',
+                            option.hint,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')
                         }}</span
                       >
                     </span>
@@ -719,7 +714,13 @@
             </div>
           </div>
           <p class="mt-2 text-xs text-white/60">
-            Perk (arrives with the full engine): {{ archetype.perk }}
+            Origin perk: {{ archetype.perk }}
+            <span
+              v-if="game.run.perkUsedChapters.includes(game.chapter)"
+              class="font-bold text-[#d9b877]"
+            >
+              · Used this chapter</span
+            >
           </p>
         </div>
       </div>
@@ -1171,6 +1172,7 @@ import {
   cardBody,
   chanceToSucceed,
   checkBonus,
+  originPerkAvailable,
   currentStep,
   dayName,
   fillText,
@@ -1200,13 +1202,13 @@ import {
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
-import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
-import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
-  SUBSTANCE_CHOICES,
-  substanceEpilogue,
-  type SubstanceId,
-} from '~/utils/ecotone/substanceArc'
+  contextualOpeningChoices,
+  contextualOfferLine,
+  sceneMomentOffer,
+} from '~/utils/ecotone/sceneOffers'
+import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
+import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
 
 type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
 
@@ -1214,7 +1216,10 @@ const game = useEcotoneStore()
 const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
 const continueButton = ref<HTMLButtonElement | null>(null)
-const momentSelections = ref<SubstanceId[]>([])
+const momentOffer = computed(() =>
+  game.run && game.card ? sceneMomentOffer(game.card, game.run) : null,
+)
+const perkSelected = ref(false)
 const canTakeMoment = computed(() => {
   const run = game.run
   return Boolean(
@@ -1222,6 +1227,7 @@ const canTakeMoment = computed(() => {
     !run.pending &&
     run.openingState &&
     run.card &&
+    momentOffer.value &&
     !run.substanceMoments.some((moment) => moment.source === run.card),
   )
 })
@@ -1232,23 +1238,9 @@ const philosophy = computed(() => (game.run ? philosophyNeedles(game.run) : []))
 watch(
   () => game.run?.card,
   () => {
-    momentSelections.value = []
+    perkSelected.value = false
   },
 )
-
-function toggleMoment(id: SubstanceId) {
-  if (momentSelections.value.includes(id))
-    momentSelections.value = momentSelections.value.filter(
-      (entry) => entry !== id,
-    )
-  else if (momentSelections.value.length < 2)
-    momentSelections.value = [...momentSelections.value, id]
-}
-
-function takeMoment(clearHead: boolean) {
-  game.takeMoment(clearHead ? [] : momentSelections.value)
-  momentSelections.value = []
-}
 
 const tabs: { value: Tab; label: string }[] = [
   { value: 'road', label: 'Journey' },
@@ -1583,7 +1575,12 @@ const stage = computed<Stage>(() => {
       question: card.choices.some((choice) => choice.lens)
         ? 'How do you enter the weekend?'
         : 'How do you answer?',
-      body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
+      body: [
+        ...cardBody(card, run),
+        ...(contextualOfferLine(card, run)
+          ? [contextualOfferLine(card, run)!]
+          : []),
+      ].map((paragraph) => fillText(paragraph, run)),
       lensLine: run.currentState
         ? (card.lensLines?.[run.currentState] ?? '')
         : '',
@@ -1611,6 +1608,7 @@ type Option = {
   chip?: string
   chipTitle?: string
   disabled?: boolean
+  perkEligible?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
 }
@@ -1674,7 +1672,7 @@ const options = computed<Option[]>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
-    return openingLensChoices(card).map((choice) => {
+    return contextualOpeningChoices(card, run).map((choice) => {
       const lens = choice.lens
         ? LENSES.find((l) => l.id === choice.lens)
         : undefined
@@ -1710,7 +1708,11 @@ const options = computed<Option[]>(() => {
           : hint,
         chip: chip.chip,
         chipTitle: chip.title,
-        act: () => game.choose(choice.id),
+        perkEligible: originPerkAvailable(run, choice.id),
+        act: () => {
+          game.choose(choice.id, perkSelected.value)
+          perkSelected.value = false
+        },
       }
     })
   }

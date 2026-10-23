@@ -102,8 +102,14 @@
           :key="selected.id + ':' + (scene.beatId ?? '')"
           :title="selected.title"
           :speaker="scene.speaker"
-          :subtitle="npc?.species"
-          :art="npc ? illustration('npcs', npc.slug) : undefined"
+          :subtitle="npc?.species ?? featuredFollower?.species"
+          :art="
+            npc
+              ? illustration('npcs', npc.slug)
+              : featuredFollower
+                ? illustration('followers', featuredFollower.id)
+                : undefined
+          "
           :lines="sceneLines"
           :choices="choices"
           @choose="choose"
@@ -129,6 +135,10 @@ import {
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import type { Mood } from '~/utils/emperorOfDust/fortress/castArt'
 import { NPCS, npcDef, reactionMood } from '~/utils/emperorOfDust/fortress/npcs'
+import {
+  FOLLOWERS,
+  followerDef,
+} from '~/utils/emperorOfDust/fortress/followers'
 import type {
   FortressRun,
   SceneLine,
@@ -158,6 +168,9 @@ const scene = computed(() =>
 const npc = computed(() =>
   scene.value?.npc ? npcDef(scene.value.npc) : undefined,
 )
+const featuredFollower = computed(() =>
+  scene.value?.npc ? followerDef(scene.value.npc) : undefined,
+)
 /** The answer that led into a beat opens it, so the scene reads straight on. */
 const sceneLines = computed<SceneLine[]>(() => {
   const lines = scene.value?.lines ?? []
@@ -181,7 +194,7 @@ const sceneFigures = computed(() => {
   if (npc.value && !onStage.some((actor) => actor.slug === npc.value?.slug))
     onStage.unshift(npc.value)
   const mood = selected.value ? reactions.value[selected.value.id] : undefined
-  return onStage.slice(0, 3).flatMap((actor) => {
+  const npcFigures = onStage.slice(0, 3).flatMap((actor) => {
     const art = illustration(
       'npcs',
       actor.slug,
@@ -189,6 +202,13 @@ const sceneFigures = computed(() => {
     )
     return art ? [{ slug: actor.slug, name: actor.name, art }] : []
   })
+  const followerFigures = FOLLOWERS.filter(
+    (actor) => speaker.includes(actor.name) || actor.id === scene.value?.npc,
+  ).flatMap((actor) => {
+    const art = illustration('followers', actor.id)
+    return art ? [{ slug: actor.id, name: actor.name, art }] : []
+  })
+  return [...npcFigures, ...followerFigures].slice(0, 3)
 })
 
 watch(

@@ -1,70 +1,44 @@
-<!-- /components/conductor/aquarium-page.vue -->
+<!-- /components/conductor/aquarium-page.vue
+     The aquarium is a console game, not a scrolling project landing page.
+     The app shell owns viewport height and the page's only kr-stage fills it.
+     Existing project metadata remains in Kind Robots/Conductor and the site
+     navbar still provides route identity and tutorial navigation. -->
 <template>
-  <project-front-page
-    class="kr-surface"
-    slug="cthulhuquarium"
-    :fallback="config"
-    :show-deliverables="false"
-    wide
-  >
-    <template #interactive>
+  <div class="kr-surface relative bg-base-200">
+    <div class="kr-stage">
       <CthulhuquariumPlay />
+    </div>
 
-      <details
-        v-if="userStore.isAdmin"
-        class="group kr-panel-flat mt-5"
-        @toggle="curationOpen = ($event.target as HTMLDetailsElement).open"
+    <!-- Curation is an admin utility, not another document section below
+         the play surface. Keep it reachable without adding page scroll. -->
+    <details
+      v-if="userStore.isAdmin"
+      class="absolute bottom-16 right-3 z-30 w-64 max-w-[calc(100%-1.5rem)] rounded-2xl border border-base-300 bg-base-100/95 shadow-lg"
+      @toggle="curationOpen = ($event.target as HTMLDetailsElement).open"
+    >
+      <summary
+        class="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 text-xs font-bold marker:hidden"
       >
-        <summary
-          class="flex cursor-pointer list-none items-center justify-between gap-3 p-3 marker:hidden"
-        >
-          <span class="flex items-center gap-2 font-black">
-            <Icon name="kind-icon:lock" class="kr-icon-4" />
-            Monster curation
-          </span>
-          <span class="kr-badge-outline">Admin only</span>
-        </summary>
-        <div class="border-t border-base-300 p-3">
-          <CurationCthulhuquariumCuration v-if="curationOpen" />
-        </div>
-      </details>
-    </template>
-    <template #footer>
-      <!-- Charlotte and Wilbur speak from a fixed bottom sheet
-           (cthulhuquarium-dialogue.vue). While they do, this keeps the end
-           of the page scrollable out from under it instead of hidden. -->
-      <div v-if="tankStore.storyShowing" class="h-56" aria-hidden="true" />
-    </template>
-  </project-front-page>
+        <span class="flex items-center gap-2">
+          <Icon name="kind-icon:lock" class="kr-icon-4" />
+          Monster curation
+        </span>
+        <span class="kr-badge-outline">Admin</span>
+      </summary>
+      <div
+        class="max-h-64 overflow-y-auto overscroll-contain border-t border-base-300 p-2"
+      >
+        <CurationCthulhuquariumCuration v-if="curationOpen" />
+      </div>
+    </details>
+  </div>
 </template>
 
 <script setup lang="ts">
-import type { ProjectFrontConfig } from '@/components/conductor/projectFront'
 import { ref } from 'vue'
-import { useCthulhuquariumTankStore } from '@/stores/cthulhuquariumTankStore'
 import { useUserStore } from '@/stores/userStore'
 import CurationCthulhuquariumCuration from '@/components/curation/cthulhuquarium-curation.vue'
 
-const tankStore = useCthulhuquariumTankStore()
 const userStore = useUserStore()
 const curationOpen = ref(false)
-
-const config: ProjectFrontConfig = {
-  slug: 'cthulhuquarium',
-  title: 'Cthulhuquarium',
-  icon: 'kind-icon:fish',
-  tagline:
-    'It sits in the back of the curiosity shop, and now it is yours to feed.',
-  description:
-    'A darkly funny aquarium. Every fed creature drops coins: tap them, buy more creatures, and fill the tank.',
-  deliverables: {
-    done: [
-      'Server-backed tanks with real offline income',
-      'The fun loop — every fish drops coins, copies, and a tank that grows to 40',
-      'Bestiary schema shared with Ruler Hooked',
-      'Browsable public aquariums',
-    ],
-    next: ['Twenty species with generated art'],
-  },
-}
 </script>

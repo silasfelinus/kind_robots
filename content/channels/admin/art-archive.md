@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: art-archive
+parentTabKey: retired
 label: Art Archive
 title: Art Archive
 subtitle: Import and curate the private legacy art archive

@@ -64,14 +64,14 @@ const joinLine = (base: string, extra: string | undefined): string =>
 const ABBESS_SPEECH =
   'I walked here to say this. The wasteland is cruel to little ones. The Abbey takes them in. We ask only to be left to our work.'
 const abbessOpening = (asides: (string | undefined)[]): SceneLine[] => [
-  'The Abbess walks into the hall on her own feet, road dust on her hem. Two young otter sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
-  'Foreman Dunmore Ash stops halfway across the hall. He is looking at the taller otter sister.',
+  'The Abbess walks into the hall on her own feet, road dust on her hem. Two young Abbey sisters follow with bread for the Yard. She is smaller than her reputation. In passing she touches a kitchen child’s head. The child leans in like a cat.',
+  'Foreman Dunmore Ash stops halfway across the hall. He is looking at the taller sister.',
   {
     who: 'Foreman Dunmore Ash',
     npc: 'dunmore-ash',
     text: 'That’s Moll. She came to my Yard at six with lice and no shoes, Majesty. The sisters walked her up the mission road in the hungry year. I never saw her again. Until now.',
   },
-  'The otter sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
+  'The sister bobs to him. She is seventeen, broad in the shoulder, with all her teeth. She carries the heaviest basket.',
   joinLine(joinLine(ABBESS_SPEECH, asides[0]), asides[1]),
 ]
 
@@ -81,7 +81,7 @@ const MARROW_OFFER =
 const HESTER_DEFAULT =
   'A mother on my roads had a boy who walked to the Abbey with a sister in grey. She came here asking after him. Ask how often she’s seen his face.'
 const marrowLines = (asides: (string | undefined)[]): SceneLine[] => [
-  'Sister Marrow walks in out of the dark with road mud on her habit and a counting cord at her belt. She bows to each envoy, lowest to the mole.',
+  'Sister Marrow walks in out of the dark with road mud on her habit and a counting cord at her belt. She bows to each envoy, lowest to the burrow delegate.',
   '“The Abbess sends her wagons, Your Majesty. Shelter whichever grown folk you like. Tonight the Abbey takes the children of all three peoples behind our walls until the war is done.”',
   joinLine(MARROW_OFFER, asides[0]),
   {
@@ -105,7 +105,7 @@ const marrowLines = (asides: (string | undefined)[]): SceneLine[] => [
 const DUNMARK_GATE =
   'The fortress can shelter one of them properly, Majesty. Not two. Spread the Watch over three camps and I lose all three, and the gate. The rest fend for themselves.'
 const termsOpening = (dunmark: string): SceneLine[] => [
-  'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An old mole in a quilted vest, eyeing the ceiling like it might fall.',
+  'Night comes early. The hall is lit like a camp. Three envoys before the throne, in order of arrival. Hester Plowright of the Freeholds, mud to her knees. A Saltroad drover, Oriel Saltmarsh’s seal on a cord. An elderly burrow delegate in a quilted vest, eyeing the ceiling like it might fall.',
   'The Freeholds, the Saltroad and the Moles have each sent an envoy. One question from all three: if war comes tonight, will the crown open its gates?',
   {
     who: 'Captain Ferro Dunmark',
@@ -464,7 +464,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         variants: [
           {
             flags: ['d03-tincture-fee-lapsed'],
-            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the hyena price. Triple, since the crown stopped paying.',
+            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the Pack’s price. Triple, since the crown stopped paying.',
           },
         ],
       },
@@ -551,7 +551,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'price',
             lines: [
-              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every hyena who doesn’t come home.”',
+              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every rider who doesn’t come home.”',
               '“Or.” He leans in. His ear-chain jangles. “Keep a few of my pups in your tower this winter. Guests. Fed, warm, safe. Every captain in the canyon would know the Pack can’t turn on you while its children eat your bread.”',
               {
                 who: 'Young Komodo',
@@ -614,7 +614,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-threatened', 'pack-alliance'],
                 },
                 response:
-                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young hyena with the bandaged paw stops coming to the postern gate.',
+                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young informant with the bandaged paw stops coming to the postern gate.',
               },
               {
                 id: 'refuse',
@@ -705,7 +705,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Coal Harrow, captain of the Mole sappers',
         faction: 'moles',
         lines: [
-          'A mole comes up the hall with a powder keg on his shoulder. “Empty,” he says, before the Watch can draw. He sets it on the step anyway. His paws are black to the elbow.',
+          'A sapper comes up the hall with a powder keg on his shoulder. “Empty,” he says, before the Watch can draw. He sets it on the step anyway. His paws are black to the elbow.',
           'Behind him two sappers carry a door between them. On the door: wet bedding, a kettle, a child’s shoe. Everything that came out of the north galleries before the water did.',
           'Coal Harrow. Captain of sappers. Granny Umber didn’t send me. She’d say it was rude to come. She’s right.',
           'The Mire Mothers built a weir across the fen outflow after the raiders came. Their water has to go somewhere. It went into our north galleries. Eleven families sleep on the stairs now.',
@@ -1323,7 +1323,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['d23-tam-visited'],
             },
             response:
-              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady old wolf, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
+              'Tam comes back at dusk, full of bread, with a slate of letters in his own hand. His guard, a steady veteran guard, says the lessons were lessons. One door stayed locked. The sisters called it the fever ward. He heard coughing behind it.',
           },
           {
             id: 'keep-bread',
@@ -2462,7 +2462,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             requires: { follower: 'F013' },
             effects: { affinity: { jackalwire: 5 } },
             response:
-              'Vane grins with every tooth. “The big one. The rhino. I hoped you’d say her name.”',
+              'Vane grins with every tooth. “The big one. The Watch veteran. I hoped you’d say her name.”',
             postsQuests: ['q-d26-dry-well'],
           },
         ],
@@ -2517,7 +2517,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 requires: { follower: 'F013' },
                 effects: { affinity: { jackalwire: 5 } },
                 response:
-                  'Vane folds the sack away like a letter. “The rhino. Good. They can walk around her, if they can find the end of her.”',
+                  'Vane folds the sack away like a letter. “The Watch veteran. Good. They can walk around her, if they can find the end of her.”',
                 postsQuests: ['q-d26-dry-well'],
               },
             ],
@@ -2534,7 +2534,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           affinity: { moles: 'wary' },
         },
         lines: [
-          'The Mole cells send an armadillo, not a mole: banded, scuffed from tunnel walls, brass lantern high, a surveyor’s chain on one shoulder. Keel Understone unrolls a map across the step before anyone offers a chair.',
+          'The burrow cells send a surveyor with tunnel dust on their coat, a brass lantern held high, and a chain on one shoulder. Keel Understone unrolls a map across the step before anyone offers a chair.',
           'Granny Umber sent me. Your talks were real, so the cells meet you halfway. Water rights for the burrows. The cells stand down.',
           'I came to see if the crown keeps its word. If it does, I’d work for it. Against the witches, anyway.',
           {
@@ -2582,7 +2582,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             requires: { flags: ['moles-blamed'] },
             effects: {},
             response:
-              'Keel goes still. An armadillo deciding whether to curl up.',
+              'Keel goes still. They weigh whether it is worth speaking.',
             next: 'apology',
           },
         ],
@@ -2713,7 +2713,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       },
     ],
     komodo:
-      'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Grain at three times the price is not charity. Somebody profited. Not a tortoise.',
+      'Flint would be boiled before she confessed to a thing she did not do, Your Majesty. Grain at three times the price is not charity. Somebody profited. Not Flint.',
     quests: [],
     audiences: [
       {
@@ -2796,7 +2796,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 npc: 'F004',
                 text: 'If I explain what I did, Majesty, I must say who I did it for. Then the Houses will know where to look.',
               },
-              'She lets out a long breath. For a tortoise, that takes time.',
+              'She lets out a long breath. She weighs each word before it leaves her mouth.',
               {
                 who: 'Duchess Flint',
                 npc: 'F004',
@@ -2930,7 +2930,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         lines: [
           'Sister Reedlight comes in after the gallery empties. Green lantern lit at noon again. The flame still does not move. She waits until the doors are shut.',
           'On the Mirefen road your escort counted us, Your Majesty. Quietly, as you asked. Forty-one walked. Forty-one arrived. You are the first crown to count the fen and not sell the number.',
-          'Someone came to buy it. A white goat in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
+          'Someone came to buy it. An Abbey sister in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
           'The fen does not love the Abbey. But the fen hears what moves under the mission road. It is getting louder. We would show you.',
           {
             who: 'Young Komodo',
@@ -3058,7 +3058,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           'The Envoy of the Black Verge is tall, still and pale in a plum court coat. White gloves, never dirtied. They bow exactly as low as protocol requires. A servant sets a lacquered box on the step beside a sack of the Yard’s rotten grain.',
           'The Court has heard of your rot, Majesty. We have charms against it. A gift, between neighbours.',
           'The envoy touches the grain with one gloved finger. The grey bloom fades. The kernels under it are clean, faintly frosted.',
-          'One small thing. A courtier of ours has wandered off. A black leopard, lovely manners. If they come to your gate, we would like them back.',
+          'One small thing. A courtier of ours has wandered off. An exile, lovely manners. If they come to your gate, we would like them back.',
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
@@ -3237,7 +3237,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Sable Thorne',
         faction: 'black-verge',
         lines: [
-          'Late in the day a black leopard in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
+          'Late in the day an exiled courtier in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
           'I had hoped to arrive before my former colleagues, Majesty. I am late. I ask for sanctuary, with impeccable manners.',
           'If you send me back, I will go. I would much rather not.',
           'Through the open doors, across the courtyard, the envoy watches. Does not blink.',
@@ -3797,7 +3797,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-moles'],
             },
             response:
-              'The Mole envoy blinks up at the gate. He never once expected it to open.',
+              'The burrow envoy blinks up at the gate. He never once expected it to open.',
           },
           {
             id: 'ask-losses',
@@ -3831,7 +3831,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Oriel says she isn’t begging. She says it’s arithmetic.',
               },
               {
-                who: 'The Mole envoy',
+                who: 'The burrow envoy',
                 text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
               },
               {
@@ -3855,7 +3855,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                     text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Mind, we already pay the Ledger a toll to read our own roads, Majesty. You sold them the copies. Oriel says she isn’t begging. She says it’s arithmetic.',
                   },
                   {
-                    who: 'The Mole envoy',
+                    who: 'The burrow envoy',
                     text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
                   },
                   {
@@ -3889,7 +3889,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-freeholds'],
                 },
                 response:
-                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old mole thanks you for asking and goes back into the dark.',
+                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old tunnel delegate thanks you for asking and goes back into the dark.',
               },
               {
                 id: 'saltroad',
@@ -3914,7 +3914,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-moles'],
                 },
                 response:
-                  'The Mole envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
+                  'The burrow envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
               },
               {
                 // t-043: undo the Day 14 sale, at the Ledger's expense.

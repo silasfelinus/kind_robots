@@ -1,27 +1,21 @@
+<!-- The ruler is the point of view, not a portrait in the kingdom chronicle. -->
 <template>
   <div class="flex flex-col gap-4">
-    <div class="flex items-center gap-3">
-      <img
-        v-if="portraitStage !== 'broken'"
-        :src="portraitSrc"
-        :alt="rulerLabel"
-        class="kr-icon-12 shrink-0 rounded-full border border-base-300 object-cover"
-        loading="lazy"
-        @error="onPortraitError"
-      />
+    <header
+      class="flex items-center gap-3 rounded-2xl border border-amber-300/20 bg-slate-900/85 p-3 text-amber-50"
+    >
       <div
-        v-else
-        class="kr-text-bold-lg flex kr-icon-12 shrink-0 items-center justify-center rounded-full border border-base-300 bg-base-200 opacity-60"
+        class="flex size-14 shrink-0 items-center justify-center rounded-full border border-amber-300/40 bg-amber-300/10"
       >
-        {{ (save.ruler.name || '?').charAt(0) }}
+        <Icon name="kind-icon:crown" class="size-7 text-amber-200" />
       </div>
-      <div>
-        <p class="kr-text-bold-lg">{{ rulerLabel }}</p>
-        <p class="kr-text-faded-xs">
-          Your reign, your people, and the realm they live in.
+      <div class="min-w-0">
+        <p class="font-serif text-xl font-black">{{ rulerLabel }}</p>
+        <p class="text-xs text-amber-100/65">
+          Your reign, your people, and the realm they inhabit.
         </p>
       </div>
-    </div>
+    </header>
 
     <RulerHookedKingdomView
       :save="save"
@@ -34,67 +28,11 @@
 
 <script setup lang="ts">
 import type { RunSave } from '~/types/ruler-hooked'
-import { HERO_RULER_PRESET_ID } from '~/utils/rulerHooked/rulerPresets'
-import { getPortraitUrl } from '~/utils/rulerHooked/portraitStore'
 import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 
 const props = defineProps<{ save: RunSave }>()
 const store = useRulerHookedStore()
-
 const rulerLabel = computed(() =>
   [props.save.ruler.honorific, props.save.ruler.name].filter(Boolean).join(' '),
 )
-
-const presetId = computed(
-  () => props.save.ruler.cosmetics?.presetId ?? HERO_RULER_PRESET_ID,
-)
-const customPortraitId = computed(
-  () => props.save.ruler.cosmetics?.customPortraitId ?? null,
-)
-
-const customPortraitUrl = ref<string | null>(null)
-watch(
-  customPortraitId,
-  async (id, _prev, onCleanup) => {
-    let cancelled = false
-    onCleanup(() => {
-      cancelled = true
-    })
-    if (!id) {
-      customPortraitUrl.value = null
-      return
-    }
-    const url = await getPortraitUrl(id)
-    if (!cancelled) customPortraitUrl.value = url
-  },
-  { immediate: true },
-)
-const prevUrl = ref<string | null>(null)
-watch(customPortraitUrl, (url) => {
-  if (prevUrl.value && prevUrl.value !== url) URL.revokeObjectURL(prevUrl.value)
-  prevUrl.value = url
-})
-onBeforeUnmount(() => {
-  if (prevUrl.value) URL.revokeObjectURL(prevUrl.value)
-})
-
-type PortraitStage = 'custom' | 'preset' | 'broken'
-const portraitStage = ref<PortraitStage>('preset')
-watch(
-  [customPortraitUrl, presetId],
-  ([customUrl]) => {
-    portraitStage.value = customUrl ? 'custom' : 'preset'
-  },
-  { immediate: true },
-)
-const portraitSrc = computed(() => {
-  if (portraitStage.value === 'custom') return customPortraitUrl.value ?? ''
-  if (portraitStage.value === 'preset') {
-    return `/images/ruler-hooked/ruler-${presetId.value}.webp`
-  }
-  return ''
-})
-function onPortraitError() {
-  portraitStage.value = portraitStage.value === 'custom' ? 'preset' : 'broken'
-}
 </script>

@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: playbook-manager
+parentTabKey: retired
 label: Playbook Studio
 title: Playbook Studio
 subtitle: Every beat. Every branch. Every beautiful, strange possibility.

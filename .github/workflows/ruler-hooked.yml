@@ -6,6 +6,7 @@ on:
       - 'utils/rulerHooked/**'
       - 'stores/rulerHookedStore.ts'
       - 'components/ruler-hooked/**'
+      - 'components/conductor/ruler-hooked-page.vue'
       - '.github/workflows/ruler-hooked.yml'
 jobs:
   verify:
@@ -23,6 +24,10 @@ jobs:
         run: npx tsx utils/rulerHooked/game.selftest.ts
       - name: Fishing encounter self-test
         run: npx tsx utils/rulerHooked/encounter.selftest.ts
+      - name: Simplified fishing self-test
+        run: npx tsx utils/rulerHooked/simpleFishing.selftest.ts
+      - name: First-person console and coronation contract
+        run: node utils/rulerHooked/consolePOV.selftest.mjs
       - name: Core engine self-test
         run: npx tsx utils/rulerHooked/engine.selftest.ts
       - name: Advisor self-test

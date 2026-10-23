@@ -10,6 +10,7 @@ import {
   drawSprite,
   plumberHeroine,
   plumberStageArt,
+  loopingVideo,
   stagePlate,
   tilePattern,
 } from './savePlumberArt'
@@ -3383,8 +3384,11 @@ export class PlumberRun implements ArcadeGameInstance {
     sky.addColorStop(1, pal.skyBottom)
     g.fillStyle = sky
     g.fillRect(0, 0, W, H)
+    // The plate's motion loop when it has shipped and loaded, else the still plate.
+    const clip = map.clip ? loopingVideo(map.clip) : null
     const plate = map.plate ? stagePlate(map.plate) : null
-    if (plate) g.drawImage(plate, 0, 0, W, H)
+    if (clip) g.drawImage(clip, 0, 0, W, H)
+    else if (plate) g.drawImage(plate, 0, 0, W, H)
     else {
       g.fillStyle = pal.far
       for (let i = 0; i < 6; i++) {
@@ -3420,6 +3424,8 @@ export class PlumberRun implements ArcadeGameInstance {
       const q = ends(path, path.to)
       const k = reveal.has(path) ? grow : 1
       g.setLineDash([5, 6])
+      // The dots march along the trail.
+      g.lineDashOffset = -(this.tick % 44) / 4
       g.lineWidth = 6
       g.strokeStyle = 'rgba(27, 52, 64, 0.55)'
       g.beginPath()
@@ -3430,6 +3436,16 @@ export class PlumberRun implements ArcadeGameInstance {
       g.strokeStyle = path.unlock?.exit === 'secret' ? '#ff9fd6' : '#fff4dc'
       g.stroke()
       g.setLineDash([])
+      g.lineDashOffset = 0
+    }
+    // The node she stands on pulses when there is a stage to enter.
+    if (here.stage && !this.mapWalk) {
+      const pulse = (this.tick % 60) / 60
+      g.strokeStyle = `rgba(255, 217, 138, ${0.9 - pulse * 0.9})`
+      g.lineWidth = 3
+      g.beginPath()
+      g.arc(here.x, here.y, 14 + pulse * 12, 0, Math.PI * 2)
+      g.stroke()
     }
     for (const node of map.nodes) {
       const reachable = nodeReachable(node.id, progress)
@@ -3494,7 +3510,20 @@ export class PlumberRun implements ArcadeGameInstance {
       }
     }
     const at = this.mapHeroPoint()
-    this.drawHeroSprite(g, at.x, at.y - 8, null, 1.35)
+    // Standing, she breathes and bobs; walking, her run cycle plays.
+    const idle = !this.mapWalk
+    const bob = idle ? Math.abs(Math.sin(this.tick / 14)) * 2 : 0
+    g.fillStyle = 'rgba(12, 24, 32, 0.35)'
+    g.beginPath()
+    g.ellipse(at.x, at.y - 7, 10 - bob, 3, 0, 0, Math.PI * 2)
+    g.fill()
+    this.drawHeroSprite(
+      g,
+      at.x,
+      at.y - 8 - bob,
+      null,
+      1.35 + (idle ? Math.sin(this.tick / 14) * 0.015 : 0),
+    )
     // Header: the world; footer: where she stands and how much of the world is done.
     g.fillStyle = 'rgba(12, 40, 52, 0.66)'
     g.fillRect(0, 0, W, 26)
@@ -3543,8 +3572,21 @@ export class PlumberRun implements ArcadeGameInstance {
         'COMING SOON',
         `${here.name} is designed and on its way. Walk on!`,
       )
-    else if (here.stage && !this.mapWalk && Math.floor(this.tick / 30) % 2)
-      this.text(g, 'A  ENTER', at.x, at.y - 44, 10, '#ffd98a')
+    else if (here.stage && !this.mapWalk) {
+      const hop = Math.abs(Math.sin(this.tick / 10)) * 4
+      g.fillStyle = '#ffd98a'
+      g.strokeStyle = '#1b3440'
+      g.lineWidth = 2
+      g.beginPath()
+      g.moveTo(at.x - 6, at.y - 58 - hop)
+      g.lineTo(at.x + 6, at.y - 58 - hop)
+      g.lineTo(at.x, at.y - 50 - hop)
+      g.closePath()
+      g.fill()
+      g.stroke()
+      if (Math.floor(this.tick / 30) % 2)
+        this.text(g, 'A  ENTER', at.x, at.y - 64 - hop, 10, '#ffd98a')
+    }
   }
 
   private renderSelect(g: CanvasRenderingContext2D) {

@@ -6,6 +6,8 @@ import {
 } from '../emperorOfDust/fortress/dailyEvents'
 import {
   chooseChanceEvent,
+  chooseAudienceOption,
+  audiencesToday,
   createRun,
   finishDay,
   followerStatus,
@@ -17,6 +19,7 @@ import {
   treatFollower,
 } from '../emperorOfDust/fortress/market'
 import { FOLLOWERS } from '../emperorOfDust/fortress/followers'
+import { COURT_RECRUITMENT_IDS } from '../emperorOfDust/fortress/onboarding'
 import {
   decodeBook,
   encodeBook,
@@ -89,29 +92,42 @@ const ids = new Set(FOLLOWERS.map((follower) => follower.id))
 for (const offer of CHANCE_EVENTS.filter((entry) => entry.secretFollower))
   assert.ok(ids.has(offer.secretFollower!), offer.id)
 
+// First Bell belongs to recruitment rather than an unrelated random visitor.
+// The fifty-day event draw starts on Day 2, with save and reload intact.
+const welcomeCourt = (run: ReturnType<typeof createRun>) => {
+  let next = run
+  for (const audience of audiencesToday(run)) {
+    if (!COURT_RECRUITMENT_IDS.includes(audience.id)) continue
+    next = chooseAudienceOption(next, audience.id, audience.options[0]!.id).run
+  }
+  return next
+}
 const fresh = createRun(20261021)
-assert.ok(fresh.dailyEvent, 'a new reign begins with an unexpected dispatch')
+assert.equal(fresh.dailyEvent, undefined, 'Day 1 is reserved for recruiting')
 assert.deepEqual(
   decodeBook(encodeBook(newBook(fresh)))?.current,
   fresh,
-  'the day-one chance event survives a browser save',
+  'the empty starting roster survives a browser save',
 )
+const day2 = finishDay(welcomeCourt(fresh)).run
+assert.ok(day2.dailyEvent, 'chance events begin after First Bell')
 const chosen = chooseChanceEvent(
-  fresh,
-  fresh.dailyEvent!,
-  chanceEvent(fresh.dailyEvent!)!.choices[0]!.id,
+  day2,
+  day2.dailyEvent!,
+  chanceEvent(day2.dailyEvent!)!.choices[0]!.id,
 )
 assert.equal(chosen.run.dailyEvent, undefined)
-assert.equal(chosen.run.dailyEventOutcome?.day, 1)
+assert.equal(chosen.run.dailyEventOutcome?.day, 2)
 assert.throws(
-  () => chooseChanceEvent(chosen.run, fresh.dailyEvent!, 'collect'),
+  () => chooseChanceEvent(chosen.run, day2.dailyEvent!, 'collect'),
   /no longer at court/,
 )
 
 const wounded = createRun(2077)
-wounded.roster = wounded.roster.map((state) =>
-  state.id === 'F001' ? { ...state, injuredUntilDay: 5 } : state,
-)
+wounded.roster = [
+  { id: 'F001', joinedDay: 1, equipment: {}, injuredUntilDay: 5 },
+  { id: 'F003', joinedDay: 1, equipment: {} },
+]
 assert.equal(followerStatus(wounded, 'F003'), 'ready')
 const fee = treatmentPrice(wounded, 'F001', 'infirmary')
 assert.ok(fee < wounded.brass)
@@ -133,7 +149,7 @@ const withoutKiyo = {
 assert.match(treatmentBlocker(withoutKiyo, 'F001', 'infirmary') ?? '', /Kiyo/)
 
 for (const seed of [1, 9, 47, 113, 1204, 23018]) {
-  let run = createRun(seed)
+  let run = welcomeCourt(createRun(seed))
   const seen = new Set<string>()
   const offers = new Set<string>()
   while (run.day <= 50) {
@@ -154,13 +170,17 @@ for (const seed of [1, 9, 47, 113, 1204, 23018]) {
     assert.equal(next.day, run.day + 1)
     run = next
   }
-  assert.equal(seen.size, 50, `seed ${seed}: one surprise per day`)
+  assert.equal(
+    seen.size,
+    49,
+    `seed ${seed}: one surprise after each First Bell`,
+  )
   assert.equal(
     offers.size,
     5,
     `seed ${seed}: every hidden traveler has a chance to ask`,
   )
-  assert.equal(run.chanceHistory?.length, 50)
+  assert.equal(run.chanceHistory?.length, 49)
 }
 console.log(
   'Emperor of Dust: 135 chance scenes, five hidden recruits, healing and replay checks passed.',

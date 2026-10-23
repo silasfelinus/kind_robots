@@ -463,7 +463,7 @@ export const PRECAUTIONS: readonly Precaution[] = [
   {
     id: 'followed',
     flags: ['d40-komodo-followed'],
-    line: 'Rook was on the ridge when the gate opened. “He walked his horse back in the old ruts,” the hare says. “I know which ruts now.”',
+    line: 'Rook was on the ridge when the gate opened. “He walked his horse back in the old ruts,” Rook says. “I know which ruts now.”',
   },
   {
     id: 'sealed-name',

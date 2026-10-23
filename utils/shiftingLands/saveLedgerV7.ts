@@ -6,7 +6,7 @@ import {
   type JourneyActionV6,
   type JourneyLedgerV6,
 } from './saveLedgerV6'
-import { stepAuthoredTrial } from './authoredBosses'
+import { stepAuthoredTrial, type AuthoredTrial } from './authoredBosses'
 import {
   TRIAL_RULES_V7,
   canChooseTrialV7,
@@ -43,6 +43,7 @@ export function newJourneyLedgerV7(seed: number): JourneyLedgerV7 {
 export function stepJourneyLedgerV7(
   ledger: JourneyLedgerV7,
   action: JourneyActionV7,
+  trialResolver: (landId: string) => AuthoredTrial | null = trialForLandV7,
 ): JourneyLedgerV7 {
   if (
     ledger.actions.length >= MAX_ACTIONS ||
@@ -82,7 +83,7 @@ export function stepJourneyLedgerV7(
     if (typeof action.choiceId !== 'string' || state.journey.phase !== 'boss')
       return ledger
     const land = JOURNEY_WORLD.lands[state.journey.landIndex]
-    const trial = land && trialForLandV7(land.id)
+    const trial = land && trialResolver(land.id)
     const choice = trial?.choices.find(
       (candidate) => candidate.id === action.choiceId,
     )

@@ -912,6 +912,43 @@ export const ANIMATION_EFFECTS = [
     generationSafe: true,
     preferredSurface: 'fullscreen',
   },
+  {
+    id: 'metronome-sync-shelf',
+    label: 'Metronome Sync Shelf',
+    reveal: 'Eleven metronomes find the same beat on a shared shelf',
+    icon: 'kind-icon:sparkle',
+    tooltip:
+      'Eleven metronomes start out of step, then the shelf they share nudges them into one ticking beat and lets them drift apart again 🎼 hover to brighten the ones near you, click to fast-forward the sync',
+    color: '#4cc9f0',
+    releasedAt: '2026-10-22T13:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
+    id: 'orbital-resonance-chords',
+    label: 'Orbital Resonance Chords',
+    reveal: 'Six moons in whole-number resonance weave a glowing chord web',
+    icon: 'kind-icon:orbit',
+    tooltip:
+      'Six moons circle a small sun at 1:2:3:4:5:6 speeds while chords between them weave a figure that reforms every loop 🌙 hover to brighten nearby moons, click to speed up the orbits',
+    color: '#78dcff',
+    releasedAt: '2026-10-23T13:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
+  {
+    id: 'lissajous-lantern-loom',
+    label: 'Lissajous Lantern Loom',
+    reveal:
+      'Three glowing lanterns weave looping Lissajous threads across the dark',
+    icon: 'kind-icon:orbit',
+    tooltip:
+      'Three lanterns trace 3:2, 4:3 and 5:4 Lissajous curves, leaving fading threads that reform every loop 🏮 hover to brighten nearby lanterns, click to make the threads flare',
+    color: '#ffb347',
+    releasedAt: '2026-10-23T18:00:00Z',
+    generationSafe: true,
+    preferredSurface: 'fullscreen',
+  },
 ] as const satisfies readonly AnimationEffectDefinition[]
 
 export type AnimationEffectId = (typeof ANIMATION_EFFECTS)[number]['id']

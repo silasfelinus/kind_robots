@@ -12,6 +12,7 @@ import {
   chooseCrossroads,
   chooseEvent,
   chooseFork,
+  originPerkAvailable,
   chooseSubstanceMoment,
   computeEnding,
   createRun,
@@ -145,8 +146,15 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     if (run.value) update(chooseFork(run.value, cardId))
   }
 
-  function choose(choiceId: string) {
-    if (run.value) update(chooseBeat(run.value, choiceId))
+  function choose(choiceId: string, spendOriginPerk = false) {
+    if (run.value)
+      update(
+        chooseBeat(
+          run.value,
+          choiceId,
+          spendOriginPerk && originPerkAvailable(run.value, choiceId),
+        ),
+      )
   }
 
   function takeMoment(selected: SubstanceId[]) {

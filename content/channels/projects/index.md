@@ -5,7 +5,7 @@ label: Projects
 title: Projects
 room: The Creative Workshop
 subtitle: Stories, projects, creation and learning
-description: Storybook, Daily Dream projects, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Play.
+description: Storybook, art, video, Mandarin, Rebel Button and other non-game creations. Games live in Play.
 icon: kind-icon:blueprint
 image: /images/tutorials/scenario/storybook.webp
 backgroundMobile: /api/art/backdrop/play-mobile
@@ -23,7 +23,7 @@ tutorial:
   tagline: Make art, build stories, explore projects.
   overview: >-
     Projects gathers Storybook and its ingredient galleries, Art Studio, Video
-    Studio (with Music Videos), Mandarin, Daily Dream Projects and Rebel Button. Games
+    Studio (with Music Videos), Mandarin and Rebel Button. Games
     share the Play channel, including the Arcade and Zuzu's weird-west adventures. Each destination opens with
     its own page help, and this overview stays behind the About Projects
     control.
@@ -66,10 +66,9 @@ tutorial:
     - key: toys
       title: New projects and toys
       body: >-
-        Daily Dream Projects shows approved daily pitches, their coming-soon
-        previews, and the experiences released for play. Rebel Button is a
-        button you are told not to press; each press changes its message and
-        adds to a click leaderboard.
+        Rebel Button is a button you are told not to press; each press changes
+        its message and adds to a click leaderboard. Daily Dream project
+        management now lives in Admin.
       image: /images/channels/play/button.webp
 # Stage 3 backdrop art, resolved by slug via /api/art/backdrop/<page>-<variant>.
 # The route finds the completed ArtJob for this page and redirects to its

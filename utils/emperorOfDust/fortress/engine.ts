@@ -74,6 +74,14 @@ import {
   hostShare,
 } from './betrayal'
 import { lawTaxes } from './laws'
+import { ACT_ONE_DAYS } from './actOne'
+import {
+  COURT_ONBOARDING_FLAG,
+  COURT_RECRUITMENT_IDS,
+  FIRST_BELL_AUDIENCES,
+  RANDOM_ARRIVALS,
+  RIVAL_ARGUMENTS,
+} from './onboarding'
 
 export const START_BRASS = 120
 export const WAGE = 4
@@ -195,17 +203,13 @@ export const createRun = (
     ).map((def) => def.id),
     wipedOut: [],
     beds: 6,
-    roster: FOLLOWERS.filter((def) => def.starter).map((def) => ({
-      id: def.id,
-      joinedDay: 1,
-      equipment: {},
-    })),
+    roster: [],
     recruitable: [],
     inventory: [],
     board: [],
     active: [],
     audiencesHeard: [],
-    flags: [],
+    flags: [COURT_ONBOARDING_FLAG],
     equippedRelics: [...equippedRelics],
     relicUses: {},
     reports: [],
@@ -223,7 +227,7 @@ export const postDawnQuests = (run: FortressRun): void => {
   drawChanceEvent(run)
   // Whoever is eligible at dawn stays at court all day, whatever is decided
   // in the other audiences.
-  run.dayAudiences = (dayDef(run.day)?.audiences ?? [])
+  run.dayAudiences = courtAudiences(run)
     .filter(
       (audience) => unmetRequirements(run, audience.requires).length === 0,
     )
@@ -240,6 +244,7 @@ export const drawChanceEvent = (run: FortressRun): void => {
   delete run.dailyEvent
   delete run.dailyEventOutcome
   if (isOver(run)) return
+  if (run.day === 1 && run.flags.includes(COURT_ONBOARDING_FLAG)) return
   const act = actOf(run.day)
   const seen = run.chanceHistory ?? []
   const visitor = CHANCE_EVENTS.find(
@@ -516,6 +521,11 @@ export const unmetRequirements = (
     if (run.flags.includes(flag)) reasons.push('No longer possible')
   if (!standingHeld(run.flags, requires?.standing))
     reasons.push('Not yet possible')
+  for (const id of recruits)
+    if (run.flags.includes(`court-excluded:${id}`))
+      reasons.push(
+        `${followerDef(id)?.name ?? id} was turned away at First Bell`,
+      )
   if (bedsUsed(run) + recruits.length > run.beds)
     reasons.push('The barracks are full')
   return reasons
@@ -550,9 +560,14 @@ export const applyEffects = (
     (flag) => !(effects.clearFlags ?? []).includes(flag),
   )
   for (const id of effects.recruitable ?? [])
-    if (!run.recruitable.includes(id) && !run.roster.some((s) => s.id === id))
+    if (
+      !run.flags.includes(`court-excluded:${id}`) &&
+      !run.recruitable.includes(id) &&
+      !run.roster.some((s) => s.id === id)
+    )
       run.recruitable.push(id)
   for (const id of effects.recruit ?? []) {
+    if (run.flags.includes(`court-excluded:${id}`)) continue
     if (run.roster.some((entry) => entry.id === id)) continue
     if (bedsUsed(run) < run.beds) {
       run.roster.push({ id, joinedDay: run.day, equipment: {} })
@@ -707,8 +722,32 @@ export const dismissBlockers = (
 
 // --- throne room ------------------------------------------------------------
 
+/**
+ * Older campaigns keep their original Day 1 audiences and recruited roster.
+ * New campaigns meet three followers in person before petitions start. The
+ * other two First Bell disputes move to Days 2 and 3 instead of flooding Day 1.
+ */
+const courtAudiences = (run: FortressRun): AudienceDef[] => {
+  const ordinary = dayDef(run.day)?.audiences ?? []
+  if (!run.flags.includes(COURT_ONBOARDING_FLAG)) return ordinary
+  if (run.day === 2) return [...ordinary, ACT_ONE_DAYS[0]!.audiences[1]!]
+  if (run.day === 3) return [...ordinary, ACT_ONE_DAYS[0]!.audiences[2]!]
+  if (run.day !== 1) return ordinary
+  const random =
+    RANDOM_ARRIVALS[rollFor(run, 'first-bell:visitor') % RANDOM_ARRIVALS.length]
+  const argument =
+    RIVAL_ARGUMENTS[
+      rollFor(run, 'first-bell:argument') % RIVAL_ARGUMENTS.length
+    ]
+  const chosen = new Set(['d01-kiyo-arrives', random, argument])
+  return [
+    ...FIRST_BELL_AUDIENCES.filter((audience) => chosen.has(audience.id)),
+    ordinary[0]!,
+  ]
+}
+
 export const audiencesToday = (run: FortressRun): AudienceDef[] =>
-  (dayDef(run.day)?.audiences ?? []).filter((audience) =>
+  courtAudiences(run).filter((audience) =>
     run.dayAudiences
       ? run.dayAudiences.includes(audience.id)
       : unmetRequirements(run, audience.requires).length === 0,
@@ -2278,6 +2317,18 @@ export const finishDay = (
   known: readonly string[] = [],
 ): { run: FortressRun; report: DawnReport } => {
   if (isOver(run)) throw new Error('the campaign is over')
+  if (run.day === 1 && run.flags.includes(COURT_ONBOARDING_FLAG)) {
+    const appointments = (run.dayAudiences ?? []).filter((id) =>
+      COURT_RECRUITMENT_IDS.includes(id),
+    )
+    if (
+      appointments.length !== 3 ||
+      appointments.some((id) => !run.audiencesHeard.includes(id))
+    )
+      throw new Error(
+        'Hear all three recruiting petitions before ending your first day',
+      )
+  }
   const next = cloneRun(run)
   const events: string[] = []
   // Hot Meals First: the wounded resting at home tonight heal a day sooner.
@@ -2405,5 +2456,14 @@ export const rerollDawn = (run: FortressRun): FortressRun => {
   )
   drawTemplates(next)
   drawChanceEvent(next)
+  // A Day 1 rewind changes the branch, which can select a different visitor
+  // or rival pair. Refresh the dawn snapshot or the old IDs would filter out
+  // new petitioners and could strand the player at First Bell.
+  if (next.day === 1 && next.flags.includes(COURT_ONBOARDING_FLAG))
+    next.dayAudiences = courtAudiences(next)
+      .filter(
+        (audience) => unmetRequirements(next, audience.requires).length === 0,
+      )
+      .map((audience) => audience.id)
   return next
 }

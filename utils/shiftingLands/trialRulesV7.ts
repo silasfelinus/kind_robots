@@ -273,7 +273,7 @@ export function trialForLandV7(landId: string): AuthoredTrial | null {
       id: 'witness',
       label: witness.label,
       intent:
-        'Call on people you helped or truths you defended. Requires at least two earned mercy or honesty marks; costs no provisions.',
+        'Call on people you helped or truths you defended. Requires two mercy and/or honesty marks in total, earned in encounters; costs no provisions.',
       skill: 'bearing',
       target: landId === 'verge' ? 12 : 11,
       cost: 0,
@@ -341,10 +341,7 @@ export function canChooseTrialV7(
   prepared: readonly string[],
 ): boolean {
   const landId = state.journey.phase === 'boss' ? state.journey.landIndex : -1
-  if (
-    choice.id === 'witness' &&
-    Math.max(state.marks.mercy, state.marks.honesty) < 2
-  )
+  if (choice.id === 'witness' && state.marks.mercy + state.marks.honesty < 2)
     return false
   if (
     choice.id === 'solidarity' &&

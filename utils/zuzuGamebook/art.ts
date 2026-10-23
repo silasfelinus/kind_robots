@@ -21,6 +21,8 @@ import { SECTION_PLATES } from './sectionArt'
 
 export type ScenePlate = {
   file: string
+  /** Locally-authored vector plates can be SVG; generated plates default to WebP. */
+  format?: 'webp' | 'svg'
   alt: string
   artImageId: number
   source: string
@@ -311,11 +313,12 @@ export const PLATES: Record<string, ScenePlate> = {
     shape: 'square',
   },
   'bell-view': {
-    file: 'hollow-bell',
-    alt: 'Zuzu stands small in the middle of a burning frontier street, flames along both boardwalks and a wooden bell tower black against the smoke.',
-    artImageId: 242696,
-    source: 'Stand-in (hollow-bell) until art round 4 renders this plate',
-    fit: 'stand-in',
+    file: 'bell-view-original',
+    alt: 'From the bell canopy, a cold blue iron bell hangs above the ochre-and-white desert, small tracks running toward a lone pale tower on the horizon.',
+    artImageId: 0,
+    source: 'Original scene-specific vector illustration (no generated ArtImage)',
+    fit: 'exact',
+    format: 'svg',
   },
   'stolen-bread': {
     file: 'stolen-bread',
@@ -381,11 +384,12 @@ export const PLATES: Record<string, ScenePlate> = {
     fit: 'stand-in',
   },
   'desert-bloom': {
-    file: 'apple-tree',
-    alt: 'A lone red-leafed apple tree glows against the setting sun on a desert ridge, a small fox standing beneath it.',
-    artImageId: 242569,
-    source: 'Stand-in (apple-tree) until art round 4 renders this plate',
-    fit: 'stand-in',
+    file: 'desert-bloom-original',
+    alt: 'After the storm, hundreds of yellow, white and violet wildflowers bloom across damp desert ground beyond a stone shrine doorway.',
+    artImageId: 0,
+    source: 'Original scene-specific vector illustration (no generated ArtImage)',
+    fit: 'exact',
+    format: 'svg',
   },
   'hb-noon': {
     file: 'hb-noon',
@@ -545,7 +549,7 @@ export const PLATES: Record<string, ScenePlate> = {
 }
 
 export function platePath(plate: ScenePlate): string {
-  return '/zuzu-gamebook/scenes/' + plate.file + '.webp'
+  return '/zuzu-gamebook/scenes/' + plate.file + '.' + (plate.format ?? 'webp')
 }
 
 /** The plate a scene's `art` key names (adventure.ts). */

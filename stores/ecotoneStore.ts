@@ -113,9 +113,16 @@ export const useEcotoneStore = defineStore('ecotone', () => {
       else window.localStorage.removeItem(RUN_KEY)
       window.localStorage.setItem(ENDINGS_KEY, JSON.stringify(endings.value))
       window.localStorage.setItem(CASES_KEY, JSON.stringify(caseFiles.value))
-      if (undoSnapshot.value) window.localStorage.setItem(UNDO_KEY, JSON.stringify(undoSnapshot.value))
+      if (undoSnapshot.value)
+        window.localStorage.setItem(
+          UNDO_KEY,
+          JSON.stringify(undoSnapshot.value),
+        )
       else window.localStorage.removeItem(UNDO_KEY)
-      window.localStorage.setItem(SAVE_SLOTS_KEY, JSON.stringify(manualSaves.value))
+      window.localStorage.setItem(
+        SAVE_SLOTS_KEY,
+        JSON.stringify(manualSaves.value),
+      )
     } catch {
       /* private browsing keeps the run in memory only */
     }
@@ -219,7 +226,14 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function begin(archetypeId: string, identity: PlayerIdentity = {}) {
     const seed = Date.now() % 2147483647
-    update(createRun(seed, archetypeId, pickMystery(seed, Object.keys(caseFiles.value)), identity))
+    update(
+      createRun(
+        seed,
+        archetypeId,
+        pickMystery(seed, Object.keys(caseFiles.value)),
+        identity,
+      ),
+    )
   }
 
   function saveSlot(slot: number) {
@@ -303,7 +317,14 @@ export const useEcotoneStore = defineStore('ecotone', () => {
 
   function choose(choiceId: string, spendOriginPerk = false) {
     if (run.value)
-      update(chooseBeat(run.value, choiceId, spendOriginPerk && originPerkAvailable(run.value, choiceId)), true)
+      update(
+        chooseBeat(
+          run.value,
+          choiceId,
+          spendOriginPerk && originPerkAvailable(run.value, choiceId),
+        ),
+        true,
+      )
   }
 
   function takeMoment(selected: SubstanceId[]) {

@@ -688,7 +688,7 @@ const deckSummary = computed(() => {
   if (selected.family === 'entities') {
     return selected.entityKind.charAt(0).toUpperCase() + selected.entityKind.slice(1)
   }
-  if (selected.gallery === 'all') return selected.includeMature ? 'All public + mature' : 'All public'
+  if (selected.gallery === 'all') return selected.includeMature ? 'Public mature only' : 'Public non-mature only'
   return `${selected.collectionIds.length} collection(s)`
 })
 

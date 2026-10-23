@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
-    <main class="kr-container flex min-h-0 max-w-7xl flex-col gap-3">
-      <header class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/90 p-3">
+    <main class="flex h-full min-h-0 w-full flex-col gap-2 overflow-hidden bg-slate-950 p-2 sm:p-3">
+      <header v-if="store.save" class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/90 p-3">
         <div class="min-w-0">
           <p class="text-xs font-bold uppercase tracking-widest text-primary">The Ruler Is Hooked</p>
           <h1 class="font-serif text-xl font-black sm:text-2xl">The crown can wait. The fish cannot.</h1>
@@ -14,9 +14,15 @@
       </header>
 
       <template v-if="!store.save">
-        <div class="grid min-h-0 gap-3 ruler-scene-grid">
-          <RulerHookedStage :scene="previewScene" :regions="store.bundle.regions" />
-          <RulerHookedSlots @picked="onPicked" />
+        <div class="relative isolate min-h-0 flex-1 overflow-hidden rounded-2xl bg-slate-950">
+          <RulerHookedStage
+            :scene="previewScene"
+            :regions="store.bundle.regions"
+            :fill="true"
+            class="pointer-events-none absolute inset-0 h-full w-full scale-105 !rounded-none !border-0 opacity-45 blur-[1px]"
+          />
+          <div class="pointer-events-none absolute inset-0 bg-gradient-to-b from-slate-950/75 via-transparent to-slate-950/70" />
+          <RulerHookedSlots class="relative z-10 h-full" @picked="onPicked" />
         </div>
       </template>
 

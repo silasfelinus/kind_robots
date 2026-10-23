@@ -97,15 +97,15 @@
               type="button"
               class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
               :class="world.state.player === tile.key ? 'bg-yellow-200/10' : ''"
-              :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key] ? ', ' + sites[tile.key].name : ''}`"
+              :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}`"
               @click="world.walk(tile.key)"
             >
               <span
                 v-if="sites[tile.key]"
                 class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
-                :title="sites[tile.key].name"
+                :title="sites[tile.key]?.name"
               >
-                {{ siteSymbol(sites[tile.key].kind) }}
+                {{ siteSymbol(sites[tile.key]?.kind) }}
               </span>
               <span
                 v-if="world.state.player === tile.key"
@@ -364,7 +364,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
 import {
   BRIAR_SITES,
@@ -378,6 +378,13 @@ const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
 const sites = BRIAR_SITES
 const settingsOpen = ref(false)
+const roomTitle = computed(() =>
+  world.state.roomId === 'vault-1'
+    ? 'Rootbound Vault · Echo Chamber'
+    : world.state.roomId === 'vault-2'
+      ? 'Rootbound Vault · The Warden'
+      : 'Forest Memory Duel',
+)
 
 function restart(): void {
   if (
@@ -390,7 +397,7 @@ function restart(): void {
   }
 }
 
-function siteSymbol(kind: BriarSiteKind): string {
+function siteSymbol(kind: BriarSiteKind | undefined): string {
   const icons: Record<BriarSiteKind, string> = {
     camp: '⛺',
     merchant: '🏡',
@@ -402,7 +409,7 @@ function siteSymbol(kind: BriarSiteKind): string {
     gate: '🌿',
     rune: '🪨',
   }
-  return icons[kind]
+  return kind ? icons[kind] : ''
 }
 
 onMounted(() => world.hydrate())

@@ -179,7 +179,8 @@ const finishWithRecruitment = (
   const petitions = audiencesToday(court.run!)
   assert.equal(petitions.length, 4)
   assert.equal(
-    petitions.filter((entry) => COURT_RECRUITMENT_IDS.includes(entry.id)).length,
+    petitions.filter((entry) => COURT_RECRUITMENT_IDS.includes(entry.id))
+      .length,
     3,
     'the new court has the guaranteed, random and rival-pair recruits',
   )

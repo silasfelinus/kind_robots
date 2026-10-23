@@ -18,7 +18,8 @@ assert.ok(monitor?.check && monitor.failure)
 assert.ok(monitor.wild)
 assert.ok(monitor.cost)
 assert.ok(
-  monitor.success.effects.nerve! < 0 && monitor.failure.effects.nerve! < 0,
+  (monitor.success.effects.nerve ?? 0) < 0 &&
+    (monitor.failure.effects.nerve ?? 0) < 0,
   'both outcomes cost effort even when the commitment does not succeed',
 )
 

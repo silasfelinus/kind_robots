@@ -75,7 +75,8 @@ export const CHORES: readonly QuestDef[] = [
     },
     expired: { affinity: { freeholds: -5 } },
     outcomes: {
-      success: 'A cracked cistern, and a body in the water. The herd will live.',
+      success:
+        'A cracked cistern, and a body in the water. The herd will live.',
       partial: 'Half the herd stood up again. The other half went to the pit.',
       failure:
         'Nobody could say what it was. The farmer burned the herd himself and would not let anyone help.',

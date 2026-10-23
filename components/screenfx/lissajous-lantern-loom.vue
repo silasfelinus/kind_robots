@@ -103,7 +103,11 @@ function drawScene(seconds: number): void {
   THREADS.forEach((thread, index) => {
     for (let i = 0; i < TRAIL_POINTS; i += 1) {
       const age = i / TRAIL_POINTS
-      const a = threadPoint(index, head - age * TRAIL_SPAN * TWO_PI * 3, loopPos)
+      const a = threadPoint(
+        index,
+        head - age * TRAIL_SPAN * TWO_PI * 3,
+        loopPos,
+      )
       const b = threadPoint(
         index,
         head - ((i + 1) / TRAIL_POINTS) * TRAIL_SPAN * TWO_PI * 3,

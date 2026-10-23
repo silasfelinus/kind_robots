@@ -927,7 +927,8 @@ export const ANIMATION_EFFECTS = [
   {
     id: 'lissajous-lantern-loom',
     label: 'Lissajous Lantern Loom',
-    reveal: 'Three glowing lanterns weave looping Lissajous threads across the dark',
+    reveal:
+      'Three glowing lanterns weave looping Lissajous threads across the dark',
     icon: 'kind-icon:orbit',
     tooltip:
       'Three lanterns trace 3:2, 4:3 and 5:4 Lissajous curves, leaving fading threads that reform every loop 🏮 hover to brighten nearby lanterns, click to make the threads flare',

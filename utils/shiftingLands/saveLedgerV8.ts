@@ -48,12 +48,13 @@ export function restoreJourneyLedgerV8(value: unknown): JourneyLedgerV8 | null {
   if (!value || typeof value !== 'object') return null
   const saved = value as Partial<JourneyLedgerV8>
   if (
+    typeof saved.seed !== 'number' ||
     !Number.isSafeInteger(saved.seed) ||
     (saved.seed ?? 0) < 1 ||
     (saved.seed ?? 0) > 0xffffffff
   )
     return null
-  const fresh = newJourneyLedgerV8(saved.seed!)
+  const fresh = newJourneyLedgerV8(saved.seed)
   if (
     saved.version !== 8 ||
     saved.trialRulesVersion !== TRIAL_RULES_V8 ||

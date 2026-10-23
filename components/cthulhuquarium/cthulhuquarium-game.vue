@@ -299,7 +299,21 @@
             </p>
           </div>
 
-          <div class="cq-side flex flex-col gap-3">
+          <nav class="cq-command-deck" aria-label="Aquarium rooms">
+            <button
+              v-for="panel in aquariumPanels"
+              :key="panel.id"
+              type="button"
+              class="cq-deck-button btn btn-sm min-h-11"
+              :class="activePanel === panel.id ? 'btn-primary' : 'btn-ghost'"
+              :aria-pressed="activePanel === panel.id"
+              @click="selectPanel(panel.id)"
+            >
+              <Icon :name="panel.icon" class="kr-icon-4" />
+              {{ panel.title }}
+            </button>
+          </nav>
+          <div v-show="activePanel === 'shop'" class="cq-side flex flex-col gap-3">
             <div
               ref="shopRef"
               class="flex scroll-mt-4 flex-col gap-2 rounded-2xl"
@@ -401,7 +415,7 @@
             <cthulhuquarium-upgrades />
           </div>
 
-          <div class="cq-roster flex flex-col gap-2">
+          <div v-show="activePanel === 'roster'" class="cq-roster flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
                 The tank
@@ -502,7 +516,7 @@
            completionist book, not part of the tank's own poll loop. Formal
            name on the cover; Charlotte and Wilbur would just call it "the
            book" (SYSTEMS.md). -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
+        <div v-show="activePanel === 'bestiary'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
           <button
             type="button"
             class="flex items-center justify-between gap-2 rounded-2xl text-left"
@@ -560,7 +574,7 @@
            combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
            panel is about a small, legible, COUNTED choice (setSlotsCap),
            not a big collected list. -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
+        <div v-show="activePanel === 'sets'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
           <button
             type="button"
             class="flex items-center justify-between gap-2 text-left"
@@ -650,7 +664,7 @@
            buying the same item twice is fine). Choosing an item here sets
            pendingDecorKind; the next tap on the tank places and pays for it.
            An already-placed item can be dragged directly on the canvas. -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
+        <div v-show="activePanel === 'decor'" class="cq-support-panel flex flex-col gap-2 kr-panel-divider">
           <button
             type="button"
             class="flex items-center justify-between gap-2 text-left"
@@ -717,7 +731,7 @@
           </template>
         </div>
 
-        <details class="group flex flex-col gap-2 kr-panel-divider">
+        <details v-show="activePanel === 'scenery'" class="cq-support-panel group flex flex-col gap-2 kr-panel-divider">
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-2"
           >
@@ -1335,6 +1349,10 @@ const storyFocus = computed(() =>
 const gameRoot = ref<HTMLElement | null>(null)
 watch(storyFocus, async (focus) => {
   if (!focus) return
+  if (focus === 'shop') selectPanel('shop')
+  if (focus === 'bestiary') selectPanel('bestiary')
+  if (focus === 'sets') selectPanel('sets')
+  if (focus === 'decor') selectPanel('decor')
   await nextTick()
   gameRoot.value?.querySelector('.cq-focus')?.scrollIntoView({
     behavior: prefersReducedMotion() ? 'auto' : 'smooth',
@@ -1425,6 +1443,22 @@ let coinPops: CoinPop[] = []
 const coinTimers = new Map<number, number>()
 const feed = ref<FeedCreature[]>([])
 const collector = ref<Collector | null>(null)
+type AquariumPanel = 'shop' | 'roster' | 'bestiary' | 'sets' | 'decor' | 'scenery'
+const aquariumPanels: { id: AquariumPanel; title: string; icon: string }[] = [
+  { id: 'shop', title: 'Fish market', icon: 'kind-icon:coin' },
+  { id: 'roster', title: 'My creatures', icon: 'kind-icon:fish' },
+  { id: 'bestiary', title: 'The bestiary', icon: 'kind-icon:book' },
+  { id: 'sets', title: 'Relics', icon: 'kind-icon:sparkles' },
+  { id: 'decor', title: 'Decorate', icon: 'kind-icon:box' },
+  { id: 'scenery', title: 'Backdrops & more', icon: 'kind-icon:landscape' },
+]
+const activePanel = ref<AquariumPanel>('shop')
+function selectPanel(panel: AquariumPanel) {
+  activePanel.value = panel
+  if (panel === 'bestiary' && !showBestiary.value) onToggleBestiary()
+  if (panel === 'sets' && !showSets.value) onToggleSets()
+  if (panel === 'decor' && !showDecor.value) onToggleDecor()
+}
 const showBestiary = ref(false)
 const showSets = ref(false)
 const showDecor = ref(false)
@@ -1472,6 +1506,7 @@ const shopRefreshLabel = computed(() => {
 // it on a phone, where the tank fills the first screen.
 const shopRef = ref<HTMLElement | null>(null)
 function scrollToShop() {
+  selectPanel('shop')
   shopRef.value?.scrollIntoView({
     behavior: prefersReducedMotion() ? 'auto' : 'smooth',
     block: 'start',
@@ -2519,25 +2554,28 @@ onBeforeUnmount(() => {
 .cq-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'tank' 'side' 'roster';
+  grid-template-areas: 'tank' 'deck' 'side' 'roster';
   gap: 0.75rem;
   align-items: start;
 }
-.cq-tank {
-  grid-area: tank;
+.cq-tank { grid-area: tank; }
+.cq-command-deck {
+  grid-area: deck;
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  padding: 0.35rem 0.15rem 0.6rem;
+  scrollbar-width: thin;
 }
-.cq-side {
-  grid-area: side;
-}
-.cq-roster {
-  grid-area: roster;
-}
-@container (min-width: 52rem) {
-  .cq-layout {
-    grid-template-columns: minmax(0, 1.9fr) minmax(17rem, 1fr);
-    grid-template-areas: 'tank side' 'roster side';
-    grid-template-rows: auto 1fr;
-  }
+.cq-deck-button { flex: 0 0 auto; gap: 0.4rem; }
+.cq-side { grid-area: side; max-height: min(34vh, 22rem); overflow-y: auto; }
+.cq-roster { grid-area: roster; max-height: min(34vh, 22rem); overflow-y: auto; }
+.cq-support-panel {
+  max-height: min(45vh, 28rem);
+  overflow-y: auto;
+  border-radius: 1rem;
+  background: var(--color-base-200);
+  padding: 1rem;
 }
 .cq-fullscreen {
   position: fixed;

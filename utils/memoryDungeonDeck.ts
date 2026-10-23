@@ -246,6 +246,10 @@ const galleryMotifs = [
   { title: 'Gilded Hourglass', glyph: '⌬', tone: '#8d714e', accent: '#fff1b2', detail: '#dbb978' },
   { title: 'Obsidian Eye', glyph: '◉', tone: '#454859', accent: '#d4d5e7', detail: '#8389ae' },
   { title: 'Dandelion Crown', glyph: '❀', tone: '#7c8552', accent: '#f8f4c3', detail: '#c7d69e' },
+  { title: 'Sapphire Stream', glyph: '♓', tone: '#376f8a', accent: '#b6e3fb', detail: '#79bfdc' },
+  { title: 'Clover Sentinel', glyph: '♧', tone: '#507b52', accent: '#eff8c4', detail: '#a2c992' },
+  { title: 'Twilight Fern', glyph: '✢', tone: '#67557d', accent: '#f3dcff', detail: '#b49bcb' },
+  { title: 'Meteor Ladder', glyph: '⋆', tone: '#60597d', accent: '#ece9ff', detail: '#a4a0d8' },
 ]
 
 function designedImage(index: number): string {

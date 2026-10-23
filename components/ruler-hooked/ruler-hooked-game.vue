@@ -1,254 +1,173 @@
-<!-- components/ruler-hooked/ruler-hooked-game.vue
-     The playable Ruler Hooked PoC, dropped into the /ruler-hooked scaffold's
-     #interactive slot. Offline-first & client-only: all state lives in the
-     localStorage-backed store; no server round-trip is needed to play.
-
-     ruler-hooked/t-024, Silas playing 2026-09-11: "It should all be one
-     navigable screen... the introduction could be on a centered window, but
-     we need a background. basically, start with the game experience ready
-     to go." The stage now renders unconditionally -- a preview scene (every
-     region at its default/first state, no save required) behind the setup
-     modal when there is no reign yet, the real scene once one exists -- and
-     save-slot management (new reign / continue / rename / delete) moved out
-     of the scrolled document into that same modal instead of always
-     stacking below the play area. -->
 <template>
   <ClientOnly>
-    <div class="kr-container max-w-3xl flex flex-col gap-4">
-      <RulerHookedStage
-        :scene="store.scene ?? previewScene"
-        :regions="store.bundle.regions"
-        :ruler-custom-portrait-id="
-          store.save?.ruler.cosmetics?.customPortraitId ?? null
-        "
-      />
-
-      <template v-if="store.save">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p class="kr-text-bold-sm">
-              {{ store.save.ruler.honorific }} {{ store.save.ruler.name }}
-            </p>
-            <p class="kr-text-faded-xs">
-              Turn {{ store.save.turnCount }} ·
-              {{ store.save.status.toLowerCase() }} ·
-              {{ store.save.counters.fishCaught ?? 0 }} fish
-            </p>
-          </div>
-          <div class="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm btn-square rounded-2xl border border-base-300"
-              title="Your reign"
-              @click="showReignReview = true"
-            >
-              <Icon name="kind-icon:crown" class="kr-icon-4" />
-            </button>
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm btn-square rounded-2xl border border-base-300"
-              title="Manage saves"
-              @click="showSlots = true"
-            >
-              <Icon name="kind-icon:save" class="kr-icon-4" />
-            </button>
-            <button
-              type="button"
-              class="btn btn-ghost btn-sm rounded-2xl border border-base-300 gap-1"
-              title="Shop"
-              @click="showShop = true"
-            >
-              <Icon name="kind-icon:coin" class="kr-icon-4" />
-              {{ store.coins }}
-            </button>
-            <button
-              type="button"
-              class="kr-btn-primary-md-plain"
-              :disabled="!store.canFish"
-              @click="store.startFishing()"
-            >
-              🎣 Cast a line
-            </button>
-          </div>
+    <main class="kr-container flex min-h-0 max-w-7xl flex-col gap-3">
+      <header class="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-base-300 bg-base-100/90 p-3">
+        <div class="min-w-0">
+          <p class="text-xs font-bold uppercase tracking-widest text-primary">The Ruler Is Hooked</p>
+          <h1 class="font-serif text-xl font-black sm:text-2xl">The crown can wait. The fish cannot.</h1>
         </div>
-
-        <RulerHookedAdvisor />
-
-        <RulerHookedCosmetics />
-
-        <RulerHookedHealth :health="store.save.kingdomHealth" />
-
-        <RulerHookedFishingEncounter
-          v-if="store.activeFishing"
-          :encounter="store.activeFishing"
-          @stop="store.fishingStop($event)"
-        />
-
-        <div
-          v-if="store.lastEscape"
-          class="rounded-xl border border-warning/40 bg-warning/10 p-4"
-          role="status"
-        >
-          <p class="font-bold">{{ store.lastEscape.fishName }} got away.</p>
-          <p class="mt-1 text-sm opacity-75">{{ store.lastEscape.cue }}</p>
+        <div v-if="store.save" class="flex items-center gap-3 text-xs font-bold">
+          <span>Day {{ store.save.turnCount + 1 }}</span>
+          <span>🎣 {{ store.save.counters.fishCaught ?? 0 }}</span>
+          <span>🪙 {{ store.coins }}</span>
         </div>
+      </header>
 
-        <RulerHookedCatch
-          v-if="store.lastCatch"
-          :catch-result="store.lastCatch"
-        />
-
-        <RulerHookedCard
-          v-if="store.activeCard"
-          :card="store.activeCard"
-          :advisor-name="store.advisorCharacter?.name"
-          :advisor-slug="store.advisorCharacter?.slug"
-          @choose="store.choose($event)"
-        />
-
-        <div
-          v-if="store.pendingEnding"
-          class="rounded-xl border border-accent bg-accent/10 p-4"
-        >
-          <p class="kr-text-bold-sm">An ending is within reach:</p>
-          <p class="kr-text-bold-lg mt-1">{{ endingTitle }}</p>
-          <p v-if="endingBody" class="kr-text-faded-sm-80">{{ endingBody }}</p>
-          <div class="mt-3 flex gap-2">
-            <button
-              type="button"
-              class="btn btn-accent btn-sm"
-              @click="store.acceptEnding()"
-            >
-              Take this ending
-            </button>
-            <button
-              type="button"
-              class="kr-btn-ghost-plain"
-              @click="store.declineEnding()"
-            >
-              Keep fishing
-            </button>
-          </div>
+      <template v-if="!store.save">
+        <div class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,1fr)]">
+          <RulerHookedStage :scene="previewScene" :regions="store.bundle.regions" />
+          <RulerHookedSlots @picked="onPicked" />
         </div>
-
-        <div
-          v-if="store.save.status === 'COMPLETE'"
-          class="rounded-xl border border-success bg-success/10 p-4 text-center"
-        >
-          <p class="kr-text-bold-lg">
-            {{ endingTitleFor(store.save.endingKey) }}
-          </p>
-          <p class="kr-text-faded-sm-80">
-            The reign is complete. Start another from Manage saves above.
-          </p>
-        </div>
-
-        <RulerHookedFishopedia :save="store.save" />
       </template>
-    </div>
 
-    <Teleport to="body">
-      <dialog
-        v-if="showSlots"
-        class="modal modal-open"
-        aria-modal="true"
-        @cancel.prevent="onDialogCancel"
-      >
-        <div
-          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
-        >
-          <RulerHookedSlots @picked="showSlots = false" />
+      <template v-else>
+        <nav class="flex min-h-12 flex-nowrap gap-2 overflow-x-auto pb-1" aria-label="Ruler Hooked screens">
           <button
-            v-if="store.save"
+            v-for="tab in tabs"
+            :key="tab.id"
             type="button"
-            class="kr-btn-ghost-plain self-end"
-            @click="showSlots = false"
+            class="btn btn-sm min-h-11 shrink-0"
+            :class="screen === tab.id ? 'btn-primary' : 'btn-ghost'"
+            :aria-current="screen === tab.id ? 'page' : undefined"
+            @click="screen = tab.id"
           >
-            Back to the lake
+            <Icon :name="tab.icon" class="kr-icon-4" />
+            {{ tab.label }}
+          </button>
+        </nav>
+
+        <div v-if="screen === 'opening'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.4fr)_minmax(19rem,1fr)]">
+          <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+          <section class="min-h-0 rounded-2xl border border-base-300 bg-base-100 p-4">
+            <RulerHookedOpening @skip="finishOpening" @done="finishOpening" />
+          </section>
+        </div>
+
+        <div v-else-if="screen === 'map'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,1fr)]">
+          <div class="space-y-3">
+            <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+            <RulerHookedHealth :health="store.save.kingdomHealth" />
+          </div>
+          <section class="flex min-h-0 flex-col gap-3 rounded-2xl border border-base-300 bg-base-100/95 p-4">
+            <div>
+              <p class="text-xs font-bold uppercase tracking-widest text-primary">Royal cartography</p>
+              <h2 class="font-serif text-2xl font-bold">Where shall we fish?</h2>
+              <p class="mt-1 text-sm opacity-70">The land changes with your decrees. For now, only the castle lake is open.</p>
+            </div>
+            <button type="button" class="flex min-h-24 w-full items-center gap-3 rounded-2xl border-2 border-primary bg-primary/10 p-3 text-left hover:bg-primary/20" @click="screen = 'lake'">
+              <Icon name="kind-icon:fish" class="size-8 shrink-0 text-primary" />
+              <span class="flex-1"><strong class="block">Castle Lake</strong><span class="text-xs opacity-75">Open · Your fishing grounds</span></span>
+              <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
+            </button>
+            <div class="flex min-h-16 items-center gap-3 rounded-xl border border-dashed border-base-content/20 bg-base-200/40 p-3 opacity-65">
+              <Icon name="kind-icon:lock" class="kr-icon-4" />
+              <div><strong class="block text-sm">The outer waterways</strong><span class="text-xs">Locked until the realm changes</span></div>
+            </div>
+            <button type="button" class="btn btn-outline min-h-11" @click="screen = 'briefing'">
+              Read the kingdom briefing
+            </button>
+            <p v-if="store.save.status === 'COMPLETE'" class="text-sm font-bold text-success">
+              {{ endingTitleFor(store.save.endingKey) }}. Begin another reign from Saves.
+            </p>
+          </section>
+        </div>
+
+        <div v-else-if="screen === 'lake'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1.65fr)_minmax(16rem,1fr)]">
+          <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+          <section class="min-h-0 space-y-3 overflow-y-auto rounded-2xl border border-base-300 bg-base-100/95 p-4">
+            <p class="text-xs font-bold uppercase tracking-widest text-primary">Castle Lake · Fishing</p>
+            <RulerHookedFishingEncounter
+              v-if="store.activeFishing"
+              :encounter="store.activeFishing"
+              @stop="store.fishingStop($event)"
+              @tap="store.reelFishing('TAP')"
+              @release="store.reelFishing('RELEASE')"
+            />
+            <template v-else>
+              <h2 class="font-serif text-2xl font-bold">Just one more cast.</h2>
+              <p class="text-sm opacity-75">
+                Two timed clicks to cast and hook, then reel with taps. Give the line slack when it gets tight.
+              </p>
+              <button
+                type="button"
+                class="btn btn-primary min-h-14 w-full text-lg"
+                :disabled="!store.canFish"
+                @click="store.startFishing()"
+              >
+                🎣 Cast a line
+              </button>
+              <p v-if="!store.canFish" class="text-xs opacity-65">A royal decision awaits, or this reign has ended.</p>
+              <RulerHookedAdvisor />
+            </template>
+          </section>
+        </div>
+
+        <div v-else-if="screen === 'catch'" class="mx-auto flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-base-300 bg-base-100 p-4">
+          <RulerHookedCatch v-if="store.lastCatch" :catch-result="store.lastCatch" />
+          <div v-else-if="store.lastEscape" class="rounded-2xl bg-warning/10 p-4" role="status">
+            <h2 class="font-serif text-xl font-bold">{{ store.lastEscape.fishName }} escaped</h2>
+            <p>{{ store.lastEscape.cue }}</p>
+          </div>
+          <button type="button" class="btn btn-primary min-h-12" @click="screen = 'briefing'">
+            Hear the royal briefing
           </button>
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button type="button" @click="onDialogCancel">close</button>
-        </form>
-      </dialog>
-    </Teleport>
 
-    <!-- The once-per-reign opening (ruler-hooked/t-028), hosted in the same
-         centered window as the setup modal above. Shows once the setup
-         modal has closed on an active, not-yet-introduced reign; skip/begin
-         both just dismiss it via dismissOpening(). -->
-    <Teleport to="body">
-      <dialog v-if="showOpening" class="modal modal-open" aria-modal="true">
-        <div
-          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
-        >
-          <RulerHookedOpening
-            @skip="store.dismissOpening()"
-            @done="store.dismissOpening()"
-          />
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button type="button" @click="store.dismissOpening()">close</button>
-        </form>
-      </dialog>
-    </Teleport>
+        <section v-else-if="screen === 'briefing'" class="grid min-h-0 gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
+          <div class="min-h-0 space-y-3">
+            <RulerHookedStage :scene="store.scene" :regions="store.bundle.regions" />
+            <RulerHookedAdvisor />
+          </div>
+          <div class="min-h-0 max-h-[58dvh] overflow-y-auto rounded-2xl border border-base-300 bg-base-100/95 p-4">
+            <div v-if="store.activeCard">
+              <p class="mb-2 text-xs font-bold uppercase tracking-widest text-primary">The court demands an answer</p>
+              <RulerHookedCard
+                :card="store.activeCard"
+                :advisor-name="store.advisorCharacter?.name"
+                :advisor-slug="store.advisorCharacter?.slug"
+                @choose="makeChoice($event)"
+              />
+            </div>
+            <div v-else-if="store.pendingEnding" class="space-y-3">
+              <p class="text-xs font-bold uppercase tracking-widest text-primary">The end of a reign</p>
+              <h2 class="font-serif text-2xl font-bold">{{ endingTitle }}</h2>
+              <p class="text-sm">{{ endingBody }}</p>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary" @click="takeEnding">Accept this ending</button>
+                <button type="button" class="btn btn-outline" @click="keepFishing">Keep fishing</button>
+              </div>
+            </div>
+            <div v-else class="space-y-3">
+              <h2 class="font-serif text-2xl font-bold">An unusually quiet court</h2>
+              <p class="text-sm opacity-75">
+                Fish the lake to turn the day. When the court has an issue, it will arrive here as a decision.
+              </p>
+              <button type="button" class="btn btn-primary" @click="screen = 'map'">Return to the map</button>
+            </div>
+          </div>
+        </section>
 
-    <!-- Shop (ruler-hooked/t-029): spend coins found while fishing on gear
-         or kingdom investment. -->
-    <Teleport to="body">
-      <dialog
-        v-if="showShop && store.save"
-        class="modal modal-open"
-        aria-modal="true"
-        @cancel.prevent="showShop = false"
-      >
-        <div
-          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
-        >
+        <div v-else-if="screen === 'shop'" class="mx-auto min-h-0 max-h-[68dvh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-base-300 bg-base-100 p-4">
           <RulerHookedShop />
-          <button
-            type="button"
-            class="kr-btn-ghost-plain self-end"
-            @click="showShop = false"
-          >
-            Back to the lake
-          </button>
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button type="button" @click="showShop = false">close</button>
-        </form>
-      </dialog>
-    </Teleport>
 
-    <!-- "Ruler stuff" (ruler-hooked/t-028): who you are, how the realm
-         regards you, what your choices have done. -->
-    <Teleport to="body">
-      <dialog
-        v-if="showReignReview && store.save"
-        class="modal modal-open"
-        aria-modal="true"
-        @cancel.prevent="showReignReview = false"
-      >
-        <div
-          class="modal-box flex max-w-md flex-col gap-3 rounded-3xl border border-base-300 bg-base-100"
-        >
-          <RulerHookedReignReview :save="store.save" />
-          <button
-            type="button"
-            class="kr-btn-ghost-plain self-end"
-            @click="showReignReview = false"
-          >
-            Back to the lake
-          </button>
+        <div v-else-if="screen === 'records'" class="grid min-h-0 gap-3 lg:grid-cols-2">
+          <div class="max-h-[62dvh] overflow-y-auto rounded-2xl bg-base-100 p-4">
+            <RulerHookedReignReview :save="store.save" />
+          </div>
+          <div class="max-h-[62dvh] overflow-y-auto rounded-2xl bg-base-100 p-4">
+            <RulerHookedFishopedia :save="store.save" />
+          </div>
         </div>
-        <form method="dialog" class="modal-backdrop">
-          <button type="button" @click="showReignReview = false">close</button>
-        </form>
-      </dialog>
-    </Teleport>
+
+        <div v-else-if="screen === 'saves'" class="mx-auto w-full max-w-3xl">
+          <RulerHookedSlots @picked="onPicked" />
+        </div>
+      </template>
+    </main>
 
     <template #fallback>
-      <div class="py-12 text-center text-sm opacity-60">Loading the lake…</div>
+      <div class="py-12 text-center text-sm opacity-60">Preparing the royal lake…</div>
     </template>
   </ClientOnly>
 </template>
@@ -258,37 +177,26 @@ import { useRulerHookedStore } from '~/stores/rulerHookedStore'
 import { createRun } from '~/utils/rulerHooked/newGame'
 import { resolveScene } from '~/utils/rulerHooked/compositor'
 
+type RulerScreen =
+  | 'opening'
+  | 'map'
+  | 'lake'
+  | 'catch'
+  | 'briefing'
+  | 'shop'
+  | 'records'
+  | 'saves'
+
 const store = useRulerHookedStore()
-
-// The setup modal is forced open whenever there is no active reign (first
-// visit, or the active save was just deleted) and stays closed otherwise;
-// "picked" (ruler-hooked-slots.vue) closes it explicitly once a slot is
-// loaded or a new reign is created, and "Manage saves" / "Back to the lake"
-// toggle it manually while a reign is already active.
-const showSlots = ref(!store.save)
-watch(
-  () => store.save,
-  (save) => {
-    if (!save) showSlots.value = true
-  },
-)
-function onDialogCancel() {
-  // No reign yet: this modal is the only content, so Escape can't dismiss it.
-  if (store.save) showSlots.value = false
-}
-
-// The opening (t-028) shows once the setup modal has closed on a reign that
-// hasn't seen it yet -- never stacked on top of slot-picking.
-const showOpening = computed(() => !showSlots.value && store.showOpening)
-
-const showReignReview = ref(false)
-const showShop = ref(false)
-
-// Preview scene (ruler-hooked/t-024): every region resolved at its own
-// default/first state, purely for rendering a background behind the setup
-// modal before any save exists. Never persisted -- createRun's normal
-// defaults (HERO_RULER_PRESET_ID, kingdomHealth at 50, empty overrides) are
-// exactly the "nobody has chosen anything yet" scene.
+const screen = ref<RulerScreen>('map')
+const tabs: { id: RulerScreen; label: string; icon: string }[] = [
+  { id: 'map', label: 'Kingdom map', icon: 'kind-icon:map' },
+  { id: 'lake', label: 'Go fishing', icon: 'kind-icon:fish' },
+  { id: 'briefing', label: 'Briefings', icon: 'kind-icon:scroll' },
+  { id: 'shop', label: 'Royal shop', icon: 'kind-icon:coin' },
+  { id: 'records', label: 'Chronicle', icon: 'kind-icon:book' },
+  { id: 'saves', label: 'Saves', icon: 'kind-icon:save' },
+]
 const previewScene = computed(() =>
   resolveScene(
     createRun(store.bundle, {
@@ -302,18 +210,44 @@ const previewScene = computed(() =>
   ),
 )
 
+function onPicked() {
+  screen.value = store.showOpening ? 'opening' : 'map'
+}
+function finishOpening() {
+  store.dismissOpening()
+  screen.value = 'map'
+}
+function makeChoice(choiceId: string) {
+  store.choose(choiceId)
+  screen.value = store.pendingEnding ? 'briefing' : 'map'
+}
+function takeEnding() {
+  store.acceptEnding()
+  screen.value = 'map'
+}
+function keepFishing() {
+  store.declineEnding()
+  screen.value = 'map'
+}
+
+watch(
+  () => store.activeCard,
+  (card) => {
+    if (card && !store.activeFishing && screen.value === 'lake') {
+      screen.value = store.lastCatch || store.lastEscape ? 'catch' : 'briefing'
+    }
+  },
+)
 onMounted(() => {
   store.init()
+  screen.value = store.showOpening ? 'opening' : 'map'
 })
 
 function endingTitleFor(key: string | null): string {
-  const e = store.bundle.endings.find((x) => x.outcomeKey === key)
-  return e?.title ?? 'A Reign Remembered'
+  return store.bundle.endings.find((x) => x.outcomeKey === key)?.title ?? 'A Reign Remembered'
 }
 const endingTitle = computed(() => endingTitleFor(store.pendingEnding))
 const endingBody = computed(
-  () =>
-    store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)
-      ?.body ?? '',
+  () => store.bundle.endings.find((x) => x.outcomeKey === store.pendingEnding)?.body ?? '',
 )
 </script>

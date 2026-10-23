@@ -22,7 +22,11 @@ import { openingLensChoices } from '../ecotone/openingLensChoices'
 import { EVENTS } from '../ecotone/story'
 
 type Style =
-  'investigator' | 'caretaker' | 'thrill' | 'solitary' | 'collaborator'
+  | 'investigator'
+  | 'caretaker'
+  | 'thrill'
+  | 'solitary'
+  | 'collaborator'
 
 const styles: Style[] = [
   'investigator',
@@ -190,7 +194,9 @@ for (const event of EVENTS) {
         styleEndings.get(style)!.add(run.ending!)
         uniqueStories.add(storySignature(run))
         uniqueCardPaths.add(run.played.join('>'))
-        uniqueForkPaths.add(run.played.filter((id) => encounterIds.has(id)).join('>'))
+        uniqueForkPaths.add(
+          run.played.filter((id) => encounterIds.has(id)).join('>'),
+        )
         for (const id of run.played) {
           const card = findCard(id)
           if (!card) continue
@@ -294,7 +300,10 @@ console.log(
     '/' +
     ENCOUNTERS.length +
     ' (' +
-    unvisited.slice(0, 12).map((card) => card.id).join(', ') +
+    unvisited
+      .slice(0, 12)
+      .map((card) => card.id)
+      .join(', ') +
     '). Least seen: ' +
     leastSeen.map(([id, count]) => id + '=' + count).join(', ') +
     '. Flag-only differences in remaining encounter eligibility: ' +

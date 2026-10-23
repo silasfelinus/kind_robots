@@ -47,7 +47,7 @@
     >
       <template v-if="selected.family === 'designed'">
         <span class="font-semibold"
-          >✦ Eight illustrated fantasy motifs. Two-card matching with original
+          >✦ Eighteen illustrated fantasy motifs. Two-card matching with original
           game art.</span
         >
       </template>

@@ -47,14 +47,14 @@
         </label>
       </div>
       <div class="grid grid-cols-2 gap-3">
-        <button type="button" class="btn btn-primary min-h-16 text-lg" @click="emit('tap')">
+        <button type="button" class="btn btn-primary min-h-16 text-lg" @click="tap">
           🎣 Tap to reel
         </button>
-        <button type="button" class="btn btn-outline min-h-16 text-lg" @click="emit('release')">
+        <button type="button" class="btn btn-outline min-h-16 text-lg" @click="release">
           Give slack
         </button>
       </div>
-      <p class="text-xs opacity-75">Tap Reel to advance. Tap Give slack when tension reaches 65%. You can always recover.</p>
+      <p class="text-xs opacity-75">Tap repeatedly to reel. Pause for a moment and the line automatically relaxes. Give slack also works as a button.</p>
     </div>
 
     <p class="mt-3 rounded-lg bg-base-300/70 p-3 text-sm" role="status" aria-live="polite">
@@ -83,12 +83,41 @@ const stageLabel = computed(() => ({
 }[props.encounter.stage]))
 let animationId: number | null = null
 let start = 0
+let lastTapAt = 0
+let slackTimer: ReturnType<typeof setInterval> | null = null
+
+function tap() {
+  lastTapAt = performance.now()
+  emit('tap')
+}
+
+function release() {
+  lastTapAt = performance.now()
+  emit('release')
+}
+
+watch(
+  () => props.encounter.stage,
+  () => { lastTapAt = performance.now() },
+)
 function tick(now: number) {
   if (!start) start = now
   const fraction = ((now - start) % 2400) / 1200
   marker.value = fraction <= 1 ? Math.round(fraction * 100) : Math.round((2 - fraction) * 100)
   animationId = requestAnimationFrame(tick)
 }
-onMounted(() => { animationId = requestAnimationFrame(tick) })
-onBeforeUnmount(() => { if (animationId !== null) cancelAnimationFrame(animationId) })
+onMounted(() => {
+  lastTapAt = performance.now()
+  animationId = requestAnimationFrame(tick)
+  slackTimer = setInterval(() => {
+    if (props.encounter.stage === 'REEL' && performance.now() - lastTapAt >= 900) {
+      lastTapAt = performance.now()
+      emit('release')
+    }
+  }, 300)
+})
+onBeforeUnmount(() => {
+  if (animationId !== null) cancelAnimationFrame(animationId)
+  if (slackTimer !== null) clearInterval(slackTimer)
+})
 </script>

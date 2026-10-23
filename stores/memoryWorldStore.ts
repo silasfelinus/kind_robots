@@ -182,7 +182,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     loading.value = true
     const ticket = ++roomEpoch
     try {
-      const paths = await resolveMemoryDungeonDeck(deck.value, keys.length / 2)
+      const usedPrior = BRIAR_REVEAL_WAVES.slice(0, state.value.waveIndex)
+        .reduce((total, wave) => total + wave.length / 2, 0)
+      const paths = await resolveMemoryDungeonDeck(deck.value, keys.length / 2, usedPrior)
       if (ticket !== roomEpoch) return
       if (new Set(paths).size !== keys.length / 2) {
         throw new Error('This deck does not have enough unique matching images for the current round.')

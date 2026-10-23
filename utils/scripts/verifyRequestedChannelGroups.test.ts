@@ -119,7 +119,11 @@ for (const key of [
   assert.match(nav(`admin/${key}`), /\nparentTabKey: retired\n/)
   assert.match(nav(`admin/${key}`), /\nrequiredRole: ADMIN\n/)
 }
-for (const key of ['zuzu-ghost-trail', 'zuzu-pinball', 'sliding-tile-gallery']) {
+for (const key of [
+  'zuzu-ghost-trail',
+  'zuzu-pinball',
+  'sliding-tile-gallery',
+]) {
   assert.match(nav(`arcade/${key}`), /\nnavigation: false\n/)
 }
 

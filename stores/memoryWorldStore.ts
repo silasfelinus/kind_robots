@@ -15,6 +15,7 @@ import {
   briarConnected,
   newBriarSave,
   restoreBriarSave,
+  type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
 } from '~/utils/memoryDungeonWorld'

@@ -60,10 +60,10 @@ assert.deepEqual(
   applySimpleReel(unskilled, 'TAP'),
   'recorded inputs are deterministic',
 )
-const snapped = Array.from({ length: 8 }).reduce(
-  (state) => applySimpleReel(state, 'TAP'),
-  hooked,
-)
+let snapped = hooked
+for (let beat = 0; beat < 8; beat++) {
+  snapped = applySimpleReel(snapped, 'TAP')
+}
 assert.equal(
   snapped.stage,
   'ESCAPED',

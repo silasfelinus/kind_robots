@@ -142,8 +142,8 @@ const newVergeScout = trialForLandV8('verge')!.choices.find(
   (x) => x.id === 'scout',
 )!
 assert.equal(trialSuccessOutcomes(oldVergeScout), 6)
-assert.equal(trialSuccessOutcomes(newVergeScout), 21)
-assert.equal(trialSuccessPercent(newVergeScout), 58.3)
+assert.equal(trialSuccessOutcomes(newVergeScout), 15)
+assert.equal(trialSuccessPercent(newVergeScout), 41.7)
 for (const land of JOURNEY_WORLD.lands) {
   const old = trialForLandV7(land.id)!
   const current = trialForLandV8(land.id)!

@@ -859,6 +859,14 @@
               />
             </summary>
             <div class="mt-2 flex flex-col gap-3">
+              <button
+                type="button"
+                class="btn btn-outline min-h-12 w-full justify-start gap-2"
+                @click="() => { closePanel(); tankStore.replayIntro() }"
+              >
+                <Icon name="kind-icon:play" class="kr-icon-4" />
+                Meet Charlotte and Wilbur · Replay the opening
+              </button>
               <div class="flex flex-col gap-2">
                 <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
                   Behind the glass
@@ -1569,7 +1577,7 @@ const aquariumPanels: { id: AquariumPanel; title: string; icon: string }[] = [
   { id: 'bestiary', title: 'The bestiary', icon: 'kind-icon:book' },
   { id: 'sets', title: 'Relics', icon: 'kind-icon:sparkles' },
   { id: 'decor', title: 'Decorate', icon: 'kind-icon:box' },
-  { id: 'scenery', title: 'Backdrops & more', icon: 'kind-icon:image' },
+  { id: 'scenery', title: 'World & story', icon: 'kind-icon:image' },
 ]
 const activePanel = ref<AquariumPanel | null>(null)
 function selectPanel(panel: AquariumPanel) {

@@ -61,4 +61,54 @@ assert.match(
   /\.cq-command-deck \{[\s\S]*?grid-template-columns: repeat\(6/,
 )
 
+const dialogue = readFileSync(
+  'components/cthulhuquarium/cthulhuquarium-dialogue.vue',
+  'utf8',
+)
+assert.match(
+  dialogue,
+  /class="cq-vn-stage pointer-events-auto"/,
+  'intro and illustrated interstitials must occupy a cinematic scene',
+)
+assert.match(
+  dialogue,
+  /class="cq-vn-character"/,
+  'NPC art is a primary full-length scene composition',
+)
+assert.match(
+  dialogue,
+  /:aria-modal="cinematic \? true : undefined"/,
+  'full-screen story moments announce the dialog to assistive technology',
+)
+assert.doesNotMatch(
+  dialogue,
+  /\\d+(?:\\.\\d+)?dvh/,
+  'the fixed cinematic overlay must not introduce a nested viewport-height shell',
+)
+assert.match(game, /const activePanel = ref<AquariumPanel \\| null>\\(null\\)/)
+assert.match(game, /class="cq-room-backdrop pointer-events-none absolute object-cover"/)
+assert.match(
+  game,
+  /\\.cq-side,\\s*\\.cq-roster,\\s*\\.cq-support-panel\\s*\\{[\\s\\S]*?width:\\s*100%/,
+  'all rooms occupy the console scene rather than tiny sidebars',
+)
+assert.doesNotMatch(
+  game,
+  /const activePanel = ref<AquariumPanel>\\('shop'\\)/,
+  'no room should open by default over the aquarium',
+)
+const { existsSync } = await import('node:fs')
+for (const asset of [
+  'portraits/charlotte-fishmonger-welcome.webp',
+  'portraits/wilbur-stint-greeting.webp',
+  'plates/screen-arrival.webp',
+  'videos/charlotte-fishmonger-hero.webp',
+  'videos/wilbur-stint-hero.webp',
+]) {
+  assert.ok(
+    existsSync(`assets/images/cthulhuquarium/${asset}`),
+    `missing intro cinematic art: ${asset}`,
+  )
+}
+
 console.log('Aquarium bounded console shell contract passed.')

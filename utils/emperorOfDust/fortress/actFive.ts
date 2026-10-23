@@ -169,7 +169,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     id: 'q-d42-crow-watch',
     title: 'Stand the Crow Watch',
     summary:
-      'Elder Corvane wants the court on the ledges at night. Every crow watches the Abbey road. So will you.',
+      'Elder Corvane wants the court on the ledges at night. Every Conclave watcher watches the Abbey road. So will you.',
     region: 'storm-crow-heights',
     faction: 'storm-crows',
     durationDays: 1,
@@ -1255,7 +1255,7 @@ const D49_COALITION = composed([
   },
   {
     flag: 'd44-dike-blown',
-    on: 'Sister Reedlight did not come. A heron you have never met stands where the firelight ends, a green lantern on a pole. She does not sit.',
+    on: 'Sister Reedlight did not come. A fen emissary you have never met stands where the firelight ends, a green lantern on a pole. She does not sit.',
     off: 'Sister Reedlight has set her lantern on the ground between the Moles and the Crows. Nobody looks at it.',
   },
   {
@@ -1288,7 +1288,7 @@ const D49_LEFT_OUT = composed([
   {
     flag: 'd44-dike-blown',
     on: {
-      who: 'The heron with the lantern',
+      who: 'The fen envoy with the lantern',
       text: '“Sister Reedlight sends one sentence. Every peace at this fire leaves out the fen. After the north water she would like to hear the crown say it.”',
     },
     off: {
@@ -1918,7 +1918,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“Twenty years we dug under your tower, Majesty. Twenty years we wanted it empty. Now it’s empty, and the wrong people sit in it.”',
           '“Stay as long as you like. But down here everybody digs. Even emperors.”',
           {
-            who: 'A young Mole organiser',
+            who: 'A young burrow organiser',
             text: '“Some of us dug to bring the crown down, Granny. Not to tuck it in.”',
           },
         ],
@@ -1982,7 +1982,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         hideout: 'crow-cave',
         bargainEffects: { flags: ['d42-messenger-silenced'] },
         collect: {
-          paid: 'Elder Corvane sent a young crow at dawn. The court never stood its watch. Twenty brass went into the stone basin. Nobody counted it aloud.',
+          paid: 'Elder Corvane sent a young messenger at dawn. The court never stood its watch. Twenty brass went into the stone basin. Nobody counted it aloud.',
           unpaid:
             'Elder Corvane came down off his ledge at dawn. The watch was never stood and the strongbox was empty. He wrote it in the Conclave’s book. Crows put everything in writing.',
           kept: 'Elder Corvane stopped by the court’s fire at dawn. “Clean,” he said. He went back up to his ledge.',
@@ -2765,11 +2765,11 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         // Callback: the crown pardoned the Mole courier (Day 38).
         id: 'd42-the-courier',
         title: 'The Boy Who Carried Letters',
-        speaker: 'The young Mole courier',
+        speaker: 'The young burrow courier',
         faction: 'moles',
         requires: { flags: ['hideout:mole-tunnels', 'prisoner-pardoned'] },
         lines: [
-          'The Mole with the lantern at the tunnel mouth is sixteen, blinking at even this much light. You have seen him before. In chains, in your throne room, on the thirty-eighth day.',
+          'The courier with the lantern at the tunnel mouth is sixteen, blinking at even this much light. You have seen him before. In chains, in your throne room, on the thirty-eighth day.',
           '“You pardoned me, Majesty. I gave you the name and you let me go. Three days later he did exactly what I said.”',
           '“The sisters still think I’m his runner. They don’t know I’m down here. If I went up the mission road tonight with a letter, they’d open the gate. Like always.”',
           '“I could carry one more letter. Or stay down here and dig and never carry anything again.”',
@@ -3173,9 +3173,9 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         npc: 'elder-corvane',
         faction: 'storm-crows',
         lines: [
-          'Elder Corvane arrives at dawn on foot. For a crow, that is formal. The young crows who carried him wait in the rocks.',
+          'Elder Corvane arrives at dawn on foot. For Elder Corvane, that is formal. The young crows who carried him wait in the rocks.',
           'He folds his wings and looks at you a long time. His clouded eyes move over the court, the fire, the empty place where an advisor stood.',
-          '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
+          '“We had a name for your advisor, Majesty. All year. The one who walks.”',
           '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
         ],
         // t-043: the rain debt the crown told to wait on Day 34.
@@ -3185,7 +3185,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             lines: [
               'Elder Corvane arrives at dawn on foot. The young crows who carried him wait in the rocks with spears across their knees. They have carried spears since the thirty-fourth day, when the crown said the debt would wait.',
               'He looks at you a long time. “It is still waiting, Majesty. I did not come about it. I wanted you to watch me not mention it.”',
-              '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
+              '“We had a name for your advisor, Majesty. All year. The one who walks.”',
               '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
             ],
           },
@@ -3710,7 +3710,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         npc: 'sister-reedlight',
         faction: 'mire-mothers',
         lines: [
-          'A heron in a green cloak steps out of the dark at the edge of the firelight. Nobody saw her come. She holds a lantern of green glass. The flame does not move when the wind does.',
+          'A fen envoy in a green cloak steps out of the dark at the edge of the firelight. Nobody saw her come. She holds a lantern of green glass. The flame does not move when the wind does.',
           'Half the court reaches for something to throw. The other half has been to the Mirefen. They don’t.',
           '“The Mothers have always known what sleeps under the Abbey, Majesty. Longer than there has been an Abbey. We sank the bell’s clapper ourselves, so nobody could ring it the wrong way.”',
           '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
@@ -3720,8 +3720,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           {
             flags: ['d44-dike-blown'],
             lines: [
-              'A heron in a green cloak steps out of the dark at the edge of the firelight. Her hems are wet to the knee. She holds a lantern of green glass. The flame does not move when the wind does. The Moles at the fire stop talking.',
-              '“Forty lantern-houses stood on the north water, Majesty. Thirty-one stand. We counted the children twice. One short. A girl called Fennet. She went back for a heron chick.”',
+              'A fen envoy in a green cloak steps out of the dark at the edge of the firelight. Her hems are wet to the knee. She holds a lantern of green glass. The flame does not move when the wind does. The Moles at the fire stop talking.',
+              '“Forty lantern-houses stood on the north water, Majesty. Thirty-one stand. We counted the children twice. One short. A girl called Fennet. She went back for a lost child.”',
               '“I am not here for you. The thing under the hill does not care who drowned whom. We sank the bell’s clapper ourselves, long ago, so nobody could ring it the wrong way.”',
               '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
             ],
@@ -3823,7 +3823,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             speaker: 'Granny Umber of the Mole Revolutionaries',
             npc: 'granny-umber',
             lines: [
-              'Granny Umber comes up the tunnel with her cane, sees the heron, and stops dead. The lamp-boy walks into her back.',
+              'Granny Umber comes up the tunnel with her cane, sees the fen envoy, and stops dead. The lamp-boy walks into her back.',
               '“Not in my tunnels. Two hundred years the Mothers flooded our burrows and called it weather. They took the Silverbank cell in one night. With a song.”',
               {
                 who: 'Sister Reedlight',

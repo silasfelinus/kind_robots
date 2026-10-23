@@ -106,16 +106,19 @@ for (const node of Object.values(BOOK)) {
   const art = PLATES[node.art]
   assert.ok(art, node.id + ': unknown plate ' + node.art)
   assert.ok(art.alt.length > 40, node.art + ' needs descriptive alt text')
-  assert.ok(art.artImageId > 0, node.art + ' needs its ArtImage provenance')
   assert.ok(
-    existsSync(join(scenesDir, art.file + '.webp')),
+    art.format === 'svg' ? art.artImageId === 0 : art.artImageId > 0,
+    node.art + ': a local SVG has no generated ArtImage, a WebP needs provenance',
+  )
+  assert.ok(
+    existsSync(join(scenesDir, art.file + '.' + (art.format ?? 'webp'))),
     node.art + ': plate file missing',
   )
-  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.' + (art.format ?? 'webp'))
   // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
   const own = sectionPlate(node)
   assert.ok(
-    existsSync(join(scenesDir, own.file + '.webp')),
+    existsSync(join(scenesDir, own.file + '.' + (own.format ?? 'webp'))),
     node.id + ': own plate file missing',
   )
   assert.equal(
@@ -125,6 +128,24 @@ for (const node of Object.values(BOOK)) {
       ': wide plates sit above the text, tall and square ones to its right',
   )
 }
+// Regression: never show Hollow Bell on the lookout or an apple tree in the rain-bloom.
+for (const [nodeId, expectedFile] of [
+  ['a2-bell-view', 'bell-view-original.svg'],
+  ['a4-bloom', 'desert-bloom-original.svg'],
+] as const) {
+  const chosen = sectionPlate(BOOK[nodeId])
+  assert.equal(
+    platePath(chosen),
+    '/zuzu-gamebook/scenes/' + expectedFile,
+    nodeId + ': illustration must follow the authored scene',
+  )
+  assert.equal(chosen.fit, 'exact', nodeId + ': no unrelated stand-in')
+  assert.match(
+    readFileSync(join(scenesDir, expectedFile), 'utf8'),
+    /<svg[^>]+viewBox/,
+    nodeId + ': local scene illustration must be valid vector artwork',
+  )
+}
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
@@ -132,7 +153,7 @@ for (const key of Object.keys(PLATES)) {
 for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
   if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.webp' === file.name),
+    Object.values(PLATES).some((p) => p.file + '.' + (p.format ?? 'webp') === file.name),
     'stray plate file ' + file.name,
   )
 }

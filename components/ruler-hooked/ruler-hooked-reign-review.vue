@@ -1,8 +1,12 @@
 <!-- The ruler is the point of view, not a portrait in the kingdom chronicle. -->
 <template>
   <div class="flex flex-col gap-4">
-    <header class="flex items-center gap-3 rounded-2xl border border-amber-300/20 bg-slate-900/85 p-3 text-amber-50">
-      <div class="flex size-14 shrink-0 items-center justify-center rounded-full border border-amber-300/40 bg-amber-300/10">
+    <header
+      class="flex items-center gap-3 rounded-2xl border border-amber-300/20 bg-slate-900/85 p-3 text-amber-50"
+    >
+      <div
+        class="flex size-14 shrink-0 items-center justify-center rounded-full border border-amber-300/40 bg-amber-300/10"
+      >
         <Icon name="kind-icon:crown" class="size-7 text-amber-200" />
       </div>
       <div class="min-w-0">

@@ -22,11 +22,7 @@ import { openingLensChoices } from '../ecotone/openingLensChoices'
 import { EVENTS } from '../ecotone/story'
 
 type Style =
-  | 'investigator'
-  | 'caretaker'
-  | 'thrill'
-  | 'solitary'
-  | 'collaborator'
+  'investigator' | 'caretaker' | 'thrill' | 'solitary' | 'collaborator'
 
 const styles: Style[] = [
   'investigator',

@@ -316,7 +316,8 @@ export const PLATES: Record<string, ScenePlate> = {
     file: 'bell-view-original',
     alt: 'From the bell canopy, a cold blue iron bell hangs above the ochre-and-white desert, small tracks running toward a lone pale tower on the horizon.',
     artImageId: 0,
-    source: 'Original scene-specific vector illustration (no generated ArtImage)',
+    source:
+      'Original scene-specific vector illustration (no generated ArtImage)',
     fit: 'exact',
     format: 'svg',
   },
@@ -387,7 +388,8 @@ export const PLATES: Record<string, ScenePlate> = {
     file: 'desert-bloom-original',
     alt: 'After the storm, hundreds of yellow, white and violet wildflowers bloom across damp desert ground beyond a stone shrine doorway.',
     artImageId: 0,
-    source: 'Original scene-specific vector illustration (no generated ArtImage)',
+    source:
+      'Original scene-specific vector illustration (no generated ArtImage)',
     fit: 'exact',
     format: 'svg',
   },

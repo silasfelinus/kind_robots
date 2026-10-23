@@ -38,7 +38,9 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
   const discovered = ref<string[]>([])
   const endingsFound = ref<string[]>([])
   const rewardArchive = ref<RewardArchive>(emptyRewardArchive())
-  const archiveUnlocked = computed(() => endingsFound.value.length > 0 || rewardArchive.value.runs.length > 0)
+  const archiveUnlocked = computed(
+    () => endingsFound.value.length > 0 || rewardArchive.value.runs.length > 0,
+  )
   const loaded = ref(false)
   const rollSerial = ref(0)
   const envelopeOpened = ref(false)
@@ -92,8 +94,13 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       endingsFound.value = Array.isArray(endings)
         ? endings.filter((s): s is string => typeof s === 'string')
         : []
-      const rewards: unknown = JSON.parse(localStorage.getItem(REWARD_KEY) ?? 'null')
-      rewardArchive.value = migrateFoundEndings(restoreRewardArchive(rewards), endingsFound.value)
+      const rewards: unknown = JSON.parse(
+        localStorage.getItem(REWARD_KEY) ?? 'null',
+      )
+      rewardArchive.value = migrateFoundEndings(
+        restoreRewardArchive(rewards),
+        endingsFound.value,
+      )
       if (recordEnding()) persist()
       else persist()
     } catch {
@@ -147,7 +154,11 @@ export const useShiftingDesksStore = defineStore('shiftingDesks', () => {
       endingsFound.value = [...endingsFound.value, ending.id]
     const receipt = receiptFor(run.value, new Date().toISOString())
     if (receipt)
-      rewardArchive.value = recordReward(rewardArchive.value, receipt, endingsFound.value)
+      rewardArchive.value = recordReward(
+        rewardArchive.value,
+        receipt,
+        endingsFound.value,
+      )
     return endingsFound.value.length !== before || !!receipt
   }
 

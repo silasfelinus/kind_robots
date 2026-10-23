@@ -112,16 +112,15 @@
 
     <div
       v-if="world.state.room === 'map'"
-      class="relative flex min-h-0 flex-1 flex-col items-center justify-center gap-2 overflow-hidden p-2 xl:flex-row xl:p-3"
+      class="md-map-stage relative min-h-0 flex-1 overflow-hidden p-2"
+      data-testid="memory-world-console-stage"
     >
-      <div
-        class="relative aspect-square min-h-0 shrink-0 overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
-        :class="
-          world.mapMatching
-            ? 'w-[min(100%,47dvh)] xl:w-[min(56%,72dvh)]'
-            : 'w-[min(100%,34dvh)] xl:w-[min(48%,66dvh)]'
-        "
-      >
+      <div class="md-map-layout">
+        <div class="md-map-viewport">
+          <div
+            class="md-overworld-map relative aspect-square overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
+            aria-label="Briar Camp eight by eight memory overworld"
+          >
         <div
           class="absolute inset-0 bg-cover bg-center"
           style="background-image: url('/memory-dungeon/briar-camp.svg')"
@@ -242,18 +241,15 @@
           {{ world.state.revealed.length }}/60 paired squares · 4 cross-region
           seals
         </div>
-      </div>
+          </div>
+        </div>
 
       <aside
-        class="kr-scroll min-h-0 w-full flex-1 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 text-[#322819] shadow-xl backdrop-blur-sm"
-        :class="
-          world.mapMatching
-            ? 'p-3 sm:p-4 xl:max-h-full xl:min-w-[17rem] xl:p-5'
-            : 'p-4 sm:p-6 xl:max-h-full xl:min-w-[20rem] xl:p-7'
-        "
+        class="md-encounter-pane flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm sm:p-4"
+        aria-label="Map location and encounter information"
       >
         <div
-          class="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold text-[#735128]"
+          class="mb-2 flex shrink-0 flex-wrap items-center gap-2 text-xs font-bold text-[#735128]"
         >
           <span>Round {{ world.state.waveIndex + 1 }}/4</span>
           <span v-if="world.mapMatching"
@@ -283,56 +279,57 @@
         >
           Begin next memory round · {{ nextWaveCount }} cards
         </button>
-        <div
-          v-if="!world.mapMatching"
-          class="mb-4 flex items-center gap-4 rounded-xl border border-[#d7bb80]/70 bg-[#f8ebd2] p-3"
-        >
-          <div
-            class="flex size-20 shrink-0 items-center justify-center rounded-xl bg-[#27463f] text-5xl shadow-inner sm:size-24 sm:text-6xl"
-            aria-hidden="true"
-          >
-            {{ siteSymbol(world.selectedSite?.kind) || '🧭' }}
+        <div class="md-scene-overview" data-testid="memory-world-encounter-display">
+          <div class="md-scene-art" aria-label="Illustrated image detail for the current memory or map location">
+            <img
+              v-if="world.mapMatching && world.activeMapCard"
+              :src="world.activeMapCard.image"
+              class="h-full w-full object-cover"
+              alt="Enlarged picture from the selected memory card"
+              draggable="false"
+            />
+            <div
+              v-else-if="!world.mapMatching"
+              class="h-full w-full bg-cover"
+              :style="currentSceneStyle"
+              role="img"
+              :aria-label="`Detailed view of ${world.selectedSite?.name ?? 'the selected map square'}`"
+            ></div>
+            <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
+            <span class="md-scene-art-label">
+              {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
+            </span>
           </div>
-          <div class="min-w-0">
-            <p
-              class="text-sm font-bold uppercase tracking-widest text-[#906f41]"
-            >
-              Current location
+          <div class="md-scene-copy">
+            <p class="text-xs font-black uppercase tracking-widest text-[#795a32]">
+              {{ world.mapMatching ? `Reveal ${world.state.waveIndex + 1} of 4` : 'Current location' }}
             </p>
-            <p class="font-serif text-xl font-black sm:text-2xl">
-              {{ world.selectedSite?.name ?? 'The Crooked Trail' }}
+            <h3 class="font-serif text-xl font-black leading-tight sm:text-2xl">
+              {{ world.mapMatching ? 'The Whispering Fog' : world.selectedSite?.name ?? 'The Crooked Trail' }}
+            </h3>
+            <p class="md-scene-status text-sm leading-snug sm:text-base" role="status">
+              {{ world.state.status }}
+            </p>
+            <p v-if="world.mapMatching && world.activeMapCard" class="text-xs font-semibold text-[#775b3c]">
+              Find the matching picture to reveal two squares.
             </p>
           </div>
         </div>
-        <h3 class="mb-2 font-serif text-xl font-black sm:text-2xl">
-          {{
-            world.mapMatching
-              ? 'The Whispering Fog'
-              : (world.selectedSite?.name ?? 'The Crooked Trail')
-          }}
-        </h3>
-        <p class="text-sm leading-relaxed sm:text-base">
-          {{ world.state.status }}
-        </p>
         <p
           v-if="world.mapDeckError"
           role="alert"
-          class="mt-3 rounded-lg border border-[#bd6651] bg-[#fbe5da] p-3 text-sm font-bold text-[#682821]"
-        >
-          {{ world.mapDeckError }}
-        </p>
+          class="md-scene-alert mt-2 rounded-lg border border-[#bd6651] bg-[#fbe5da] p-2 text-sm font-bold text-[#682821]"
+        >{{ world.mapDeckError }}</p>
         <button
           v-if="world.mapMatching && world.deckNeedsRefresh && !world.loading"
-          class="md-btn mt-3"
           type="button"
+          class="md-btn mt-2"
           @click="world.refreshMapDeck()"
-        >
-          Retry loading selected gallery
-        </button>
+        >Retry loading selected gallery</button>
 
         <div
           v-if="world.selectedSite && !world.mapMatching"
-          class="mt-5 flex flex-wrap gap-3"
+          class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
         >
           <button
             v-if="world.selectedSite.kind === 'merchant'"
@@ -437,18 +434,15 @@
         </div>
 
         <div
-          class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#bda47b] pt-3 text-sm font-semibold"
+          class="md-encounter-inventory mt-auto flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#bda47b] pt-2 text-sm font-semibold"
         >
           <span>🌼 {{ world.state.wildflowers }}</span>
           <span>🏮 {{ world.state.lanterns }}</span>
           <span>🔔 {{ world.hasChime ? 'Chime found' : 'Chime missing' }}</span>
         </div>
-        <p class="mt-3 text-xs leading-relaxed text-[#675536] sm:text-sm">
-          Matched picture pairs uncover two terrain squares. After each round,
-          explore the cleared paths, meet characters and claim treasure. Four
-          near-matching sigils link future world maps.
-        </p>
+
       </aside>
+      </div>
     </div>
 
     <div
@@ -595,6 +589,14 @@ function crossMapImage(key: string): string {
   )
   return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
 }
+const currentSceneStyle = computed(() => {
+  const [x = 1, y = 1] = world.state.player.split(',').map(Number)
+  return {
+    backgroundImage: "url('/memory-dungeon/briar-camp.svg')",
+    backgroundSize: '800% 800%',
+    backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
+  }
+})
 const sites = BRIAR_SITES
 const settingsOpen = ref(false)
 const roomTitle = computed(() =>
@@ -638,6 +640,99 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* A named game-stage container, not the browser viewport, determines whether
+   map + encounter can share a full-height landscape console screen. */
+.md-map-stage { container: md-world / size; }
+.md-map-layout {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 0.57fr) minmax(0, 0.43fr);
+  overflow: hidden;
+}
+.md-map-viewport {
+  display: grid;
+  min-height: 0;
+  min-width: 0;
+  place-items: center;
+  overflow: hidden;
+  container: md-map / size;
+}
+.md-overworld-map {
+  width: min(100cqw, 100cqh);
+  max-width: 100%;
+  max-height: 100%;
+}
+.md-encounter-pane { min-height: 0; }
+.md-scene-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.43fr) minmax(0, 0.57fr);
+  gap: clamp(0.5rem, 1vw, 1rem);
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.md-scene-art {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  border: 2px solid #b69665;
+  border-radius: 0.65rem;
+  background: #314c43;
+}
+.md-scene-mystery {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  font-size: clamp(3rem, 8cqw, 8rem);
+  color: #e4ce9e;
+  background: radial-gradient(circle at 40% 30%, #465f6a, #25334a 75%);
+}
+.md-scene-art-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 0.15rem 0.4rem;
+  background: #142524da;
+  color: #fff1c9;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.md-scene-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.md-scene-status {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+.md-scene-alert { flex: 0 0 auto; }
+@container md-world (min-width: 760px) {
+  .md-map-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .md-scene-overview { grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr); }
+}
+@container md-world (max-height: 500px) {
+  .md-scene-status { -webkit-line-clamp: 3; }
+  .md-encounter-actions { margin-top: 0.35rem; }
+}
 .md-btn {
   border: 1px solid #927043;
   border-radius: 0.5rem;

@@ -2,10 +2,10 @@ import { sameReplay } from './saveLedger'
 import {
   newJourneyLedgerV7,
   stepJourneyLedgerV7,
-  TRIAL_RULES_V7,
   type JourneyActionV7,
   type JourneyLedgerV7,
 } from './saveLedgerV7'
+import { TRIAL_RULES_V7 } from './trialRulesV7'
 import { trialForLandV8, TRIAL_RULES_V8 } from './trialRulesV8'
 
 export type JourneyLedgerV8 = Omit<

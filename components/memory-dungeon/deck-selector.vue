@@ -143,6 +143,7 @@
       class="mt-2"
     >
       <collection-picker
+        :memory-deck-mode="true"
         title="Choose art collections"
         :mode="selected.collectionIds.length ? 'collections' : 'all'"
         :collection-id="null"

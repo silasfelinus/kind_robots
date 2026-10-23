@@ -1,9 +1,9 @@
 <template>
   <div
-    class="kr-scroll grid h-full min-h-0 gap-3 overflow-y-auto @4xl:grid-cols-[minmax(0,1.65fr)_minmax(25rem,0.85fr)]"
+    class="grid h-full min-h-0 min-w-0 grid-cols-1 grid-rows-[minmax(11rem,0.36fr)_minmax(0,1fr)] gap-3 overflow-hidden @6xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] @6xl:grid-rows-1"
   >
-    <section class="flex min-h-0 flex-col gap-2">
-      <div class="eod-board min-h-0 flex-1 p-3">
+    <section class="kr-scroll flex min-h-0 min-w-0 flex-col gap-2 overflow-y-auto overscroll-contain">
+      <div class="eod-board shrink-0 p-3">
         <h2 class="sr-only">The quest board</h2>
         <p
           v-if="!run.board.length"
@@ -18,7 +18,7 @@
             v-for="(entry, i) in board"
             :key="entry.questId"
             type="button"
-            class="eod-notice flex min-h-72 flex-col p-4 pt-5 text-left"
+            class="eod-notice flex min-h-36 flex-col p-4 pt-5 text-left @6xl:min-h-72"
             :class="[
               i % 3 === 0 ? '-rotate-1' : i % 3 === 1 ? 'rotate-1' : '',
               selectedId === entry.questId ? 'eod-notice-picked' : '',
@@ -119,7 +119,7 @@
     <section
       v-if="selected && selectedEntry"
       ref="detail"
-      class="@container kr-panel min-h-0 space-y-3 p-4"
+      class="@container kr-panel kr-scroll min-h-0 min-w-0 space-y-3 overflow-y-auto overscroll-contain p-4"
     >
       <EmperorFortressQuestImage
         :quest-id="selected.id"
@@ -452,7 +452,7 @@
     </section>
     <section
       v-else
-      class="kr-panel flex flex-col items-center justify-center gap-3 p-6 text-sm"
+      class="kr-panel kr-scroll flex min-h-0 min-w-0 flex-col items-center justify-center gap-3 overflow-y-auto p-6 text-sm"
     >
       <p class="opacity-75">
         {{
@@ -620,8 +620,7 @@ function select(id: string) {
   party.value = []
   hourglass.value = false
   error.value = ''
-  // On narrow screens the details sit below the board.
-  void nextTick(() => detail.value?.scrollIntoView({ block: 'nearest' }))
+  void nextTick(() => detail.value?.scrollTo({ top: 0 }))
 }
 
 function toggle(id: string) {

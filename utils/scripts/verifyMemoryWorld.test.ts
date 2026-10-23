@@ -6,7 +6,17 @@ import {
   isEligibleDungeonArt,
   normalizeDungeonDeck,
   uniqueDeckPaths,
+  unseenDeckPaths,
+  deckImageIdentity,
 } from '../memoryDungeonDeck'
+
+import {
+  BRIAR_CROSS_MAP_KEYS,
+  BRIAR_REVEAL_WAVES,
+  BRIAR_WAVE_SIZES,
+  createBriarWaveCards,
+  validateBriarWaves,
+} from '../memoryDungeonWaves'
 
 import {
   BRIAR_DUNGEON,
@@ -30,12 +40,15 @@ assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
 
 const first = newBriarSave()
-assert.deepEqual(first.frontier, ['3,4', '2,5'])
+assert.deepEqual(first.frontier, [])
+assert.deepEqual(first.revealed, [])
+assert.equal(first.waveIndex, 0)
+assert.equal(first.wavePhase, 'matching')
 assert.equal(first.attempts, 0)
 assert.equal(first.player, BRIAR_START)
 
-const visited = new Set(first.revealed)
-const queue = [...first.revealed]
+const visited = new Set([BRIAR_START])
+const queue = [BRIAR_START]
 while (queue.length) {
   const current = queue.shift()!
   for (const next of BRIAR_LINKS[current] ?? []) {
@@ -45,7 +58,12 @@ while (queue.length) {
     }
   }
 }
-for (const site of Object.keys(BRIAR_SITES)) {
+for (const site of Object.keys(BRIAR_SITES).filter(
+  (key) =>
+    !BRIAR_CROSS_MAP_KEYS.includes(
+      key as (typeof BRIAR_CROSS_MAP_KEYS)[number],
+    ),
+)) {
   assert.equal(
     visited.has(site),
     true,
@@ -77,7 +95,7 @@ const saved = {
   roomId: 'vault-1',
 }
 const restored = restoreBriarSave(saved)
-assert.deepEqual(restored.revealed, ['2,4', '1,4', '3,4'])
+assert.deepEqual(restored.revealed, ['1,4', '2,4', '3,4'])
 assert.deepEqual(restored.frontier, ['4,4'])
 assert.equal(restored.player, '3,4')
 assert.equal(restored.attempts, 11)
@@ -108,12 +126,12 @@ console.log(
 
 assert.equal(
   DESIGNED_DUNGEON_ART.length,
-  18,
-  'Designed fantasy deck has eighteen unique art faces',
+  36,
+  'Designed fantasy deck has thirty-six unique art faces',
 )
 assert.equal(
   new Set(DESIGNED_DUNGEON_ART.map((item) => item.imagePath)).size,
-  18,
+  36,
 )
 assert.equal(
   DESIGNED_DUNGEON_ART.every((entry) =>
@@ -122,6 +140,10 @@ assert.equal(
   true,
 )
 assert.deepEqual(normalizeDungeonDeck({}), DEFAULT_DUNGEON_DECK)
+assert.equal(
+  normalizeDungeonDeck({ gallery: 'generated' }).gallery,
+  'generated',
+)
 assert.equal(normalizeDungeonDeck({ family: 'bad' }).family, 'designed')
 assert.deepEqual(
   normalizeDungeonDeck({ collectionIds: [1, 1, -1, 2] }).collectionIds,
@@ -160,6 +182,125 @@ assert.deepEqual(
   ['/forest.jpg', '/sun.jpg'],
 )
 
+assert.deepEqual(validateBriarWaves(), [])
+assert.deepEqual(
+  BRIAR_REVEAL_WAVES.map((wave) => wave.length),
+  BRIAR_WAVE_SIZES,
+)
+assert.equal(BRIAR_REVEAL_WAVES.flat().length, 60)
+assert.equal(
+  new Set([...BRIAR_REVEAL_WAVES.flat(), ...BRIAR_CROSS_MAP_KEYS]).size,
+  64,
+)
+assert.equal(BRIAR_CROSS_MAP_KEYS.length, 4)
+for (const [index, wave] of BRIAR_REVEAL_WAVES.entries()) {
+  const faces = Array.from(
+    { length: wave.length / 2 },
+    (_, pair) => `/design/pair-${pair}.png`,
+  )
+  const cards = createBriarWaveCards(wave, faces, () => 0.4)
+  assert.equal(
+    cards.length,
+    wave.length,
+    `wave ${index + 1} has expected card count`,
+  )
+  assert.equal(new Set(cards.map((card) => card.tile)).size, wave.length)
+  for (const image of faces) {
+    assert.equal(cards.filter((card) => card.image === image).length, 2)
+  }
+}
+assert.throws(() =>
+  createBriarWaveCards(['2,4', '3,4'], ['/same.jpg', '/same.jpg']),
+)
+assert.equal(BRIAR_SITES['4,2']?.kind, 'merchant')
+assert.equal(BRIAR_SITES['6,2']?.kind, 'dungeon')
+assert.equal(
+  isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 42, true),
+  true,
+  'Explicitly selected owner art can be used in custom decks',
+)
+assert.equal(
+  isEligibleDungeonArt({ isPublic: false, userId: 42 }, false, false, 77, true),
+  false,
+  'Another user’s private art is always excluded',
+)
+
+assert.deepEqual(
+  unseenDeckPaths(
+    ['/owl.png', '/fern.png', '/owl.png', '/moth.png'],
+    ['/owl.png'],
+  ),
+  ['/fern.png', '/moth.png'],
+  'Previously drawn images never re-enter the playable pool',
+)
+assert.equal(
+  deckImageIdentity(
+    '/api/art/image/archive/319?variant=medium&exp=100&sig=old',
+  ),
+  '/api/art/image/archive/319',
+)
+assert.deepEqual(
+  unseenDeckPaths(
+    [
+      '/api/art/image/archive/319?exp=200&sig=new',
+      '/api/art/image/archive/320?exp=200&sig=new',
+    ],
+    ['/api/art/image/archive/319?exp=100&sig=old'],
+  ),
+  ['/api/art/image/archive/320?exp=200&sig=new'],
+  'Signed URL refresh never allows the same artwork to repeat',
+)
+assert.deepEqual(
+  unseenDeckPaths(['/one.png', '/one.png'], ['/one.png']),
+  [],
+  'Exhausted collection must not silently recycle an image',
+)
+
+const pool = Array.from({ length: 60 }, (_, i) => `/fresh-${i}.jpg`)
+const alreadyUsed = new Set<string>()
+for (const wave of BRIAR_REVEAL_WAVES) {
+  const fresh = unseenDeckPaths(pool, [...alreadyUsed]).slice(
+    0,
+    wave.length / 2,
+  )
+  assert.equal(fresh.length, wave.length / 2)
+  assert.equal(fresh.filter((value) => alreadyUsed.has(value)).length, 0)
+  for (const path of fresh) alreadyUsed.add(path)
+}
+assert.equal(alreadyUsed.size, 30)
+const usedSave = restoreBriarSave({
+  ...newBriarSave(),
+  seenMapImages: ['/already.jpg', '/other.jpg', '/already.jpg'],
+  mapCards: [
+    {
+      id: 0,
+      pairId: 0,
+      image: '/current.jpg',
+      tile: '2,4',
+      flipped: true,
+      matched: false,
+    },
+  ],
+})
+assert.deepEqual(usedSave.seenMapImages, [
+  '/already.jpg',
+  '/other.jpg',
+  '/current.jpg',
+])
+assert.deepEqual(
+  newBriarSave().seenMapImages,
+  [],
+  'New expedition starts with a fresh art history',
+)
+assert.deepEqual(
+  unseenDeckPaths(
+    ['/already.jpg', '/current.jpg', '/new.jpg'],
+    usedSave.seenMapImages,
+  ),
+  ['/new.jpg'],
+  'Reloaded save still blocks all previously seen cards',
+)
+
 const classicScreen = readFileSync(
   'components/pages/memory-dungeon.vue',
   'utf8',
@@ -173,6 +314,32 @@ const launcherScreen = readFileSync(
   'utf8',
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
+const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+const deckLoaderSource = readFileSync(
+  'stores/helpers/memoryDungeonDeckSource.ts',
+  'utf8',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.seenMapImages/,
+  'Overworld persists used image history',
+)
+assert.match(
+  worldStoreSource,
+  /keys\.length \/ 2,[\s\S]*?usedPrior,[\s\S]*?state\.value\.seenMapImages/,
+  'A new map round excludes all previous wave images',
+)
+assert.match(
+  classicScreen,
+  /runSeenImages\.add\(path\)/,
+  'Classic records images once each floor is dealt',
+)
+assert.match(
+  deckLoaderSource,
+  /unseenDeckPaths\(/,
+  'All gallery and model pools exclude previous images',
+)
+
 assert.match(
   classicScreen,
   /<memory-dungeon-deck-selector/,
@@ -200,8 +367,8 @@ assert.match(
 )
 assert.match(
   classicScreen,
-  /resolveMemoryDungeonDeck\(selection, needed\)/,
-  'Classic resolves using locked shared settings',
+  /resolveMemoryDungeonDeck\([\s\S]*?selection, needed, 0, \[\.\.\.runSeenImages\]/,
+  'Classic resolves with a per-run exclusion list of previous floors',
 )
 assert.match(
   memoryCore,
@@ -212,4 +379,20 @@ assert.match(
   memoryCore,
   /new Set\(imagePaths\)\.size !== needed/,
   'Classic rejects duplicate card faces',
+)
+
+assert.match(
+  mapScreen,
+  /world\.pickMapCard/,
+  'Map cards must be matched, not single-click unveiled',
+)
+assert.match(
+  mapScreen,
+  /world\.nextWave/,
+  'Player actively begins each subsequent reveal round',
+)
+assert.doesNotMatch(
+  mapScreen,
+  /world\.state\.frontier\.includes/,
+  'Prototype single-click fog reveal is removed',
 )

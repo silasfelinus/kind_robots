@@ -47,8 +47,8 @@
     >
       <template v-if="selected.family === 'designed'">
         <span class="font-semibold"
-          >✦ Eighteen illustrated fantasy motifs. Two-card matching with
-          original game art.</span
+          >✦ Thirty-six original fantasy card illustrations. Two-card matching
+          with original game art.</span
         >
       </template>
       <template v-else-if="selected.family === 'gallery'">
@@ -59,15 +59,14 @@
             :value="selected.gallery"
             @change="
               choose({
-                gallery:
-                  ($event.target as HTMLSelectElement).value === 'collections'
-                    ? 'collections'
-                    : 'all',
+                gallery: ($event.target as HTMLSelectElement).value as
+                  'all' | 'collections' | 'generated',
               })
             "
           >
             <option value="all">All public images</option>
             <option value="collections">Chosen collection(s)</option>
+            <option value="generated">Recently generated art</option>
           </select>
         </label>
         <button
@@ -129,8 +128,10 @@
         v-if="selected.family !== 'designed'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
-        Private and inactive records are always excluded. A room requires at
-        least 3 distinct loadable images, 4 for the Vault's last chamber.
+        All-art excludes private images; your explicitly chosen owned
+        collections or recently generated works may contain private images. A
+        room requires at least 3 distinct loadable images, 4 for the Vault's
+        last chamber.
       </span>
     </div>
     <div
@@ -142,6 +143,7 @@
       class="mt-2"
     >
       <collection-picker
+        :memory-deck-mode="true"
         title="Choose art collections"
         :mode="selected.collectionIds.length ? 'collections' : 'all'"
         :collection-id="null"

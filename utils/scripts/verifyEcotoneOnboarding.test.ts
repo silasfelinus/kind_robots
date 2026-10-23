@@ -11,7 +11,6 @@ import {
   contextualOfferLine,
   sceneMomentOffer,
 } from '../ecotone/sceneOffers'
-import { EVENTS } from '../ecotone/story'
 
 assert.ok(PLAYER_AVATARS.length >= 10)
 assert.ok(PLAYER_PERSONALITIES.length >= 5)

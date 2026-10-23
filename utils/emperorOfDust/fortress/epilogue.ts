@@ -1936,7 +1936,7 @@ const BARRACKS: EpilogueSubject[] = [
       },
       {
         when: { flags: ['hollin-absolved'] },
-        text: 'Hollin drew the tower as it was: the roof, the bell, the emperor’s window. The map hangs in the emperor’s chamber. Beside the door, very small, an owl.',
+        text: 'Hollin drew the tower as it was: the roof, the bell, the emperor’s window. The map hangs in the emperor’s chamber. Beside the door, a tiny figure carrying a map.',
       },
       {
         when: { flags: ['hollin-draws-is'] },

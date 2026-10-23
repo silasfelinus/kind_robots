@@ -1,6 +1,6 @@
 <template>
   <main class="kr-surface plumber-page">
-    <div class="plumber-console" aria-label="Save the Plumber handheld game menu">
+    <div class="plumber-console kr-scroll" aria-label="Save the Plumber handheld game menu">
       <header class="plumber-console-top">
         <NuxtLink to="/" class="plumber-home" aria-label="Return to Kind Robots dashboard">⌂</NuxtLink>
         <span class="plumber-system">KIND ROBOTS <strong>◆ ADVENTURE SYSTEM</strong></span>
@@ -34,10 +34,10 @@
           <section v-if="screen === 'title'" key="title" class="plumber-view plumber-title-view" aria-labelledby="plumber-name">
             <div class="plumber-title-content">
               <p class="plumber-eyebrow">THE RIVERS ARE RUNNING UPHILL</p>
-              <h1 id="plumber-name" class="plumber-logo">
+              <h2 id="plumber-name" class="plumber-logo">
                 <span>SAVE THE</span>
                 <strong>PLUMBER!</strong>
-              </h1>
+              </h2>
               <p class="plumber-tagline">Eight worlds. One fearless heroine. A missing boyfriend. A very badly behaved waterworks corporation.</p>
               <nav class="plumber-main-menu" aria-label="Game menu">
                 <button type="button" class="plumber-option plumber-option--primary" @click="go('play')">

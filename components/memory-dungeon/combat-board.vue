@@ -112,7 +112,7 @@
             :ref="(el) => setCellRef(el, r - 1, c - 1)"
             type="button"
             role="gridcell"
-            class="relative aspect-square min-h-0 min-w-0 overflow-hidden rounded-lg border-2 shadow-lg focus-visible:outline-2 focus-visible:outline-white motion-safe:transition"
+            class="md-card-container relative aspect-square min-h-0 min-w-0 overflow-hidden rounded-lg border-2 shadow-lg focus-visible:outline-2 focus-visible:outline-white"
             :class="cellClass(r - 1, c - 1)"
             :tabindex="isFocus(r - 1, c - 1) ? 0 : -1"
             :aria-label="cellLabel(r - 1, c - 1)"
@@ -121,20 +121,16 @@
             @focus="aim(r - 1, c - 1)"
             @click="act(r - 1, c - 1)"
           >
-            <img
-              v-if="faceUp(r - 1, c - 1)"
-              :src="imageAt(r - 1, c - 1)"
-              class="h-full w-full object-cover"
-              :class="cardAt(r - 1, c - 1)?.matched ? 'opacity-55' : ''"
-              alt=""
-              draggable="false"
-            />
-            <span
-              v-else
-              class="flex h-full w-full items-center justify-center bg-[#29384b] text-2xl text-[#dec28a]"
-              aria-hidden="true"
-              >✦</span
-            >
+            <span class="md-card-inner" :class="{ flipped: faceUp(r - 1, c - 1) }">
+              <span class="md-card-back bg-[#29384b] text-2xl text-[#dec28a]" aria-hidden="true">✦</span>
+              <img
+                class="md-card-front"
+                :src="imageAt(r - 1, c - 1)"
+                :class="cardAt(r - 1, c - 1)?.matched ? 'opacity-55' : ''"
+                alt=""
+                draggable="false"
+              />
+            </span>
             <span
               v-if="bullseyeAt(r - 1, c - 1)"
               class="pointer-events-none absolute inset-0 m-auto h-1/2 w-1/2 rounded-full border-4 border-[#f2d68f]"

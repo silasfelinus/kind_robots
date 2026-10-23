@@ -54,59 +54,59 @@
         aria-label="Choose Memory Dungeon artwork"
         class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
       >
-      <div class="flex flex-wrap items-center justify-between gap-2">
-        <span class="text-sm font-bold"
-          >Artwork for the current map and dungeon rooms</span
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-bold"
+            >Artwork for the current map and dungeon rooms</span
+          >
+          <button
+            type="button"
+            class="rounded border border-[#9f875e] px-2 py-1 text-xs"
+            @click="settingsOpen = false"
+          >
+            Close
+          </button>
+        </div>
+        <memory-dungeon-deck-selector
+          :selected="world.deck"
+          :mature-available="world.matureAvailable"
+          @change="world.selectDeck"
+        />
+        <p class="mt-2 text-xs text-[#e7d29e]">
+          Selecting art refreshes unmatched cards immediately. Revealed terrain,
+          completed pairs and attempts stay intact.
+        </p>
+        <p
+          v-if="world.loading && world.mapMatching"
+          role="status"
+          class="mt-2 text-xs font-bold text-[#ffe09b]"
         >
+          Loading images from the selected collection…
+        </p>
+        <p
+          v-if="world.mapDeckError"
+          role="alert"
+          class="mt-2 rounded-lg border border-[#eead8c] bg-[#5c2826] p-2 text-sm font-semibold text-[#fff0d9]"
+        >
+          {{ world.mapDeckError }}
+        </p>
+        <button
+          v-if="
+            world.mapMatching && (world.deckNeedsRefresh || world.mapDeckError)
+          "
+          type="button"
+          class="md-btn mt-2"
+          :disabled="world.loading"
+          @click="world.refreshMapDeck()"
+        >
+          Retry applying selected art
+        </button>
         <button
           type="button"
-          class="rounded border border-[#9f875e] px-2 py-1 text-xs"
-          @click="settingsOpen = false"
+          class="mt-1 rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
+          @click="restart"
         >
-          Close
+          Begin a new overworld run
         </button>
-      </div>
-      <memory-dungeon-deck-selector
-        :selected="world.deck"
-        :mature-available="world.matureAvailable"
-        @change="world.selectDeck"
-      />
-      <p class="mt-2 text-xs text-[#e7d29e]">
-        Selecting art refreshes unmatched cards immediately. Revealed terrain,
-        completed pairs and attempts stay intact.
-      </p>
-      <p
-        v-if="world.loading && world.mapMatching"
-        role="status"
-        class="mt-2 text-xs font-bold text-[#ffe09b]"
-      >
-        Loading images from the selected collection…
-      </p>
-      <p
-        v-if="world.mapDeckError"
-        role="alert"
-        class="mt-2 rounded-lg border border-[#eead8c] bg-[#5c2826] p-2 text-sm font-semibold text-[#fff0d9]"
-      >
-        {{ world.mapDeckError }}
-      </p>
-      <button
-        v-if="
-          world.mapMatching && (world.deckNeedsRefresh || world.mapDeckError)
-        "
-        type="button"
-        class="md-btn mt-2"
-        :disabled="world.loading"
-        @click="world.refreshMapDeck()"
-      >
-        Retry applying selected art
-      </button>
-      <button
-        type="button"
-        class="mt-1 rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
-        @click="restart"
-      >
-        Begin a new overworld run
-      </button>
       </div>
     </div>
 

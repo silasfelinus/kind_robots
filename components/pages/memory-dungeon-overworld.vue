@@ -1,6 +1,7 @@
 <template>
   <div
     class="kr-surface relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
+    data-layout="console-fixed"
   >
     <header
       class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"

@@ -21,7 +21,7 @@ import {
   type Cell,
   type CombatState,
   type WeaponId,
-} from '../memoryDungeonCombat'
+} from '../memoryDungeon/combat'
 
 const key = (cells: Cell[]) =>
   cells

@@ -59,6 +59,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const turnLocked = ref(false)
   const firstCard = ref<number | null>(null)
   const firstMapCard = ref<string | null>(null)
+  const mapDeckError = ref('')
   const runeInput = ref<string[]>([])
   /** Combat cells face up after the last action (by board index), until they turn back. */
   const combatShown = ref<number[]>([])
@@ -71,6 +72,13 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
   const mapMatching = computed(
     () => state.value.room === 'map' && state.value.wavePhase === 'matching',
+  )
+  const currentDeckSignature = computed(() => JSON.stringify(deck.value))
+  const deckNeedsRefresh = computed(
+    () =>
+      mapMatching.value &&
+      state.value.mapCards.length > 0 &&
+      state.value.mapDeckSignature !== currentDeckSignature.value,
   )
   const waveSize = computed(
     () => BRIAR_REVEAL_WAVES[state.value.waveIndex]?.length ?? 0,
@@ -92,6 +100,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   )
 
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {
+    const previous = JSON.stringify(deck.value)
     deck.value = normalizeDungeonDeck({ ...deck.value, ...selection })
     if (!matureAvailable.value) deck.value.includeMature = false
     if (import.meta.client) {
@@ -101,6 +110,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         state.value.status =
           'Deck choice is active for this visit; browser storage is unavailable.'
       }
+    }
+    if (previous !== currentDeckSignature.value && mapMatching.value) {
+      void refreshMapDeck()
     }
   }
 
@@ -153,6 +165,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     ready.value = true
   }
 
+  /** A saved round can predate the source selector; resync it without losing matches. */
+  async function syncActiveMapDeck(): Promise<void> {
+    if (!mapMatching.value) return
+    if (!state.value.mapCards.length) {
+      await prepareWave()
+    } else if (deckNeedsRefresh.value) {
+      await refreshMapDeck()
+    }
+  }
+
   watch(matureAvailable, (allowed) => {
     if (allowed || !deck.value.includeMature) return
     selectDeck({ includeMature: false })
@@ -161,14 +183,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         'Your mature-art preference changed. The gallery room closed without losing your map.',
       )
     }
-    if (state.value.mapCards.length && state.value.wavePhase === 'matching') {
-      state.value.mapCards = []
-      firstMapCard.value = null
-      roomEpoch++
-      turnLocked.value = false
-      persist()
-      void prepareWave()
-    }
+
   })
 
   function reset(): void {
@@ -176,6 +191,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     turnLocked.value = false
     firstCard.value = null
     firstMapCard.value = null
+    mapDeckError.value = ''
     runeInput.value = []
     state.value = newBriarSave()
     persist()
@@ -219,6 +235,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
       const cards = createBriarWaveCards(keys, paths)
       state.value.mapCards = cards
+      state.value.mapDeckSignature = currentDeckSignature.value
+      mapDeckError.value = ''
       state.value.seenMapImages = [
         ...new Set([...state.value.seenMapImages, ...paths]),
       ]
@@ -230,6 +248,56 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
           error instanceof Error
             ? error.message
             : 'Images could not load. Choose another deck and retry.'
+        mapDeckError.value = state.value.status
+      }
+    } finally {
+      if (ticket === roomEpoch) loading.value = false
+    }
+  }
+
+  /** Reface only unmatched pairs when the source changes, without discarding
+   * earned terrain, attempts or run-wide no-repeat history. */
+  async function refreshMapDeck(): Promise<void> {
+    if (!mapMatching.value) return
+    const ticket = ++roomEpoch
+    firstMapCard.value = null
+    turnLocked.value = false
+    mapDeckError.value = ''
+    for (const card of state.value.mapCards) {
+      if (!card.matched) card.flipped = false
+    }
+    if (!state.value.mapCards.length) {
+      loading.value = false
+      await prepareWave()
+      return
+    }
+    loading.value = true
+    const pairs = [...new Set(
+      state.value.mapCards.filter((card) => !card.matched).map((card) => card.pairId),
+    )]
+    const usedPrior = BRIAR_REVEAL_WAVES.slice(0, state.value.waveIndex)
+      .reduce((total, wave) => total + wave.length / 2, 0)
+    try {
+      const paths = await resolveMemoryDungeonDeck(
+        deck.value, pairs.length, usedPrior, state.value.seenMapImages,
+      )
+      if (ticket !== roomEpoch) return
+      if (paths.length !== pairs.length) throw new Error('The selected deck cannot fill the remaining card pairs.')
+      pairs.forEach((pairId, index) => {
+        const replacement = paths[index]!
+        state.value.mapCards.filter((card) => card.pairId === pairId).forEach((card) => {
+          card.image = replacement
+          card.flipped = false
+        })
+      })
+      state.value.seenMapImages = [...new Set([...state.value.seenMapImages, ...paths])]
+      state.value.mapDeckSignature = currentDeckSignature.value
+      state.value.status = `Gallery applied to ${pairs.length} remaining pairs. Your matches, map and attempt count are preserved.`
+      persist()
+    } catch (error) {
+      if (ticket === roomEpoch) {
+        mapDeckError.value = error instanceof Error ? error.message : 'Could not load this collection.'
+        state.value.status = `Image source not applied: ${mapDeckError.value}`
       }
     } finally {
       if (ticket === roomEpoch) loading.value = false
@@ -245,7 +313,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function pickMapCard(key: string): void {
-    if (!mapMatching.value || loading.value || turnLocked.value) return
+    if (!mapMatching.value || loading.value || turnLocked.value || deckNeedsRefresh.value || mapDeckError.value) return
     const card = mapCardAt(key)
     if (!card || card.matched || card.flipped) return
     card.flipped = true
@@ -261,26 +329,28 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     turnLocked.value = true
     const epoch = roomEpoch
     if (first.pairId === card.pairId) {
-      first.matched = true
-      card.matched = true
-      for (const tile of [first.tile, card.tile]) {
-        if (!state.value.revealed.includes(tile))
-          state.value.revealed.push(tile)
-      }
-      state.value.status = `A remembered pair! Two pieces of Briar Camp have emerged.`
-      if (state.value.mapCards.every((tile) => tile.matched)) {
-        state.value.wavePhase = 'exploring'
-        state.value.status =
-          state.value.waveIndex === 3
-            ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
-            : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
-      }
+      // Allow the same 550ms Y-axis animation used in Classic to finish
+      // before replacing the successful pair with visible map terrain.
+      state.value.status = 'A match! The fog is lifting…'
       persist()
       window.setTimeout(() => {
         if (epoch !== roomEpoch) return
+        first.matched = true
+        card.matched = true
+        for (const tile of [first.tile, card.tile]) {
+          if (!state.value.revealed.includes(tile))
+            state.value.revealed.push(tile)
+        }
+        state.value.status = 'A remembered pair! Two pieces of Briar Camp have emerged.'
+        if (state.value.mapCards.every((tile) => tile.matched)) {
+          state.value.wavePhase = 'exploring'
+          state.value.status = state.value.waveIndex === 3
+            ? 'All four reveal rounds are complete. Explore the map; four paired sigils await future regions.'
+            : 'Round complete! Explore the revealed landscape, then begin the next matching round.'
+        }
         turnLocked.value = false
         persist()
-      }, 260)
+      }, 680)
     } else {
       state.value.status =
         'Not a match. Remember both images before they turn over.'
@@ -291,7 +361,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         card.flipped = false
         turnLocked.value = false
         persist()
-      }, 1100)
+      }, 1350)
     }
   }
 
@@ -305,6 +375,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     state.value.waveIndex++
     state.value.wavePhase = 'matching'
     state.value.mapCards = []
+    state.value.mapDeckSignature = ''
+    mapDeckError.value = ''
     firstMapCard.value = null
     state.value.status =
       'A fresh group of fog-bound memory cards stirs across the forest.'
@@ -725,6 +797,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     waveSize,
     waveComplete,
     mapCardAt,
+    mapDeckError,
+    deckNeedsRefresh,
+    syncActiveMapDeck,
+    refreshMapDeck,
     examineCrossMapSigil,
     prepareWave,
     nextWave,

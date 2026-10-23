@@ -6,7 +6,11 @@ import {
   PLAYER_PERSONALITIES,
   normalizePlayerIdentity,
 } from '../ecotone/playerIdentity'
-import { contextualOpeningChoices, contextualOfferLine, sceneMomentOffer } from '../ecotone/sceneOffers'
+import {
+  contextualOpeningChoices,
+  contextualOfferLine,
+  sceneMomentOffer,
+} from '../ecotone/sceneOffers'
 import { EVENTS } from '../ecotone/story'
 
 assert.ok(PLAYER_AVATARS.length >= 10)
@@ -81,14 +85,19 @@ for (const [id, event] of [
     const resolved = chooseBeat(run, option.id)
     assert.notEqual(resolved, run)
     assert.equal(resolved.openingState, option.lens)
-    assert.equal(restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState, option.lens)
+    assert.equal(
+      restoreRun(JSON.parse(JSON.stringify(resolved)))?.openingState,
+      option.lens,
+    )
   }
-  if (id === 'KN-2')
-    assert.match(contextualOfferLine(card, run) ?? '', /offer/)
-  else
-    assert.equal(contextualOfferLine(card, run), null)
+  if (id === 'KN-2') assert.match(contextualOfferLine(card, run) ?? '', /offer/)
+  else assert.equal(contextualOfferLine(card, run), null)
 }
-const momentRun = { ...current, phase: 'beat' as const, openingState: 'sober' as const }
+const momentRun = {
+  ...current,
+  phase: 'beat' as const,
+  openingState: 'sober' as const,
+}
 assert.equal(sceneMomentOffer(findCard('GR-3')!, momentRun)?.id, 'cannabis')
 assert.equal(sceneMomentOffer(findCard('KN-3')!, momentRun)?.id, 'alcohol')
 assert.equal(sceneMomentOffer(findCard('QW-4')!, momentRun), null)

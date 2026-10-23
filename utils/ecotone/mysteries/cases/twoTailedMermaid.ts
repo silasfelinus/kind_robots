@@ -8,9 +8,9 @@ export const TWO_TAILED_MERMAID: Mystery = {
   sign: 'pisces',
   title: 'The Mystery of the Two-Tailed Mermaid',
   tagline:
-    'A mermaid with two tails sings to the seals, and a lost busker’s hat keeps coming home full of sea glass.',
+    'Two tails, two currents, and a mermaid tour that guarantees a sighting.',
   region: 'Moonstone Beach, the Little River mouth and Clam Beach',
-  hook: 'At dusk, in the Little River mouth, something with two tails sits on the rocks and sings to the harbor seals. A year ago Coral Venn, the glasswalking, fire-juggling street performer every Arcata kid remembers, walked into the surf at Clam Beach and was never seen again. Now her busking hat keeps turning up on the Arcata Plaza at sunrise, full to the brim with sea glass.',
+  hook: 'At dusk, at the Little River mouth, something with two tails sits on the rocks and sings to the harbor seals. Within a month there is a van on Scenic Drive selling MERMAID COVE TOURS, forty dollars, sighting guaranteed. And on the Arcata Plaza, a green busking hat nobody has claimed in a year keeps turning up at sunrise, full to the brim with sea glass.',
   design: {
     element: 'water',
     motif: 'two-fish',
@@ -43,31 +43,31 @@ export const TWO_TAILED_MERMAID: Mystery = {
     ],
   },
   artPrompt:
-    'Portrait 2:3 collectible mystery card, painted. The Little River mouth on the Humboldt coast at dusk: a wide sand bar where the river braids into the surf, a dark sea stack, silver driftwood, harbor seals hauled out in a row. On a rock sits a figure with two long tails curving in opposite directions, one toward the river and one toward the sea, sewn from faded patched cloth banners. Beside her rests a green felt hat full of glowing sea glass, and a small driftwood camp and low fire glow under the bluff. Faint pearl stars above form an unlabeled two-fish constellation. Teal, abyss blue and pearl. No text, no letters, no logos.',
+    'Portrait 2:3 collectible mystery card, painted. The Little River mouth on the Humboldt coast at dusk: a wide sand bar where the river braids into the surf, dark sea stacks, silver driftwood, harbor seals hauled out in a row. On two rocks sit two mermaids back to back, their tails curving in opposite directions, one toward the river and one toward the sea: one tail sewn from faded patched cloth banners, the other cheap and glittering. Beside the near rock rests a green felt hat full of glowing sea glass, and a small driftwood camp glows under the bluff. Faint pearl stars above form an unlabeled two-fish constellation. Teal, abyss blue and pearl. No text, no letters, no logos.',
   provenance:
-    'Moonstone Beach, the Little River mouth, Clam Beach and the Arcata Plaza are real places, and harbor seals do haul out along this stretch of coast. Street performance is a real part of Arcata life, and sneaker waves are a real hazard on these beaches. Coral Venn, Wren, Hal, Dex, the hat, the sea glass, the driftwood camp and every other person and event here are invented. No real person, business or incident is depicted.',
+    'Moonstone Beach, the Little River mouth, Clam Beach, Scenic Drive and the Arcata Plaza are real places, and harbor seals do haul out along this stretch of coast. Street performance is a real part of Arcata life, and sneaker waves are a real hazard on these beaches. Coral Venn, Nadia, Gordon, Dex Marlow, Mermaid Cove Tours, the hat, the sea glass, the driftwood camp and every other person, business and event here are invented. No real person, business or incident is depicted.',
   decline: {
-    label: 'Tell Wren you don’t chase ghosts, or mermaids',
-    text: 'You tell Wren to let it rest. She sends back a photo of the green hat on the Plaza bench, glinting in the sunrise, and then nothing. That night, down the coast, someone sings to the seals for an audience of no one.',
+    label: 'Tell Nadia you don’t chase ghosts, or mermaids',
+    text: 'You tell Nadia to let it rest. She doesn’t answer. Two weeks later you pass a MERMAID COVE TOURS van on Scenic Drive and find you cannot look at it, which is harder than it sounds on a road that narrow.',
   },
   gates: [
     {
       title: 'The Hat That Keeps Coming Back',
-      place: 'Clam Beach, where Coral walked into the surf',
+      place: 'Clam Beach, where Coral’s hat was found',
       chapter: 2,
       scene: 'beach',
       message: {
         medium: 'text',
-        from: 'Wren (Plaza fire spinner)',
+        from: 'Nadia (Plaza fire spinner)',
         lines: [
           'the hat was on the plaza AGAIN. third time. same bench, sunrise, full of sea glass',
-          'it’s coral’s hat. the green one with the bells. I saw her set it down at clam beach a year ago',
+          'it’s coral’s hat. the green one with the bells. they found it on the sand at clam beach a year ago',
           'I’m taking it back there today. please come. I don’t want to be on that beach alone',
         ],
       },
       body: [
-        'Clam Beach in the late afternoon is wide and bright and too windy for sad thoughts, which is why Wren picked it. She wears her fire-spinning chains as a belt and holds Coral Venn’s busking hat in both hands like a bird: green felt gone grey with salt, a ring of tiny brass bells around the brim. It is full of frosted sea glass: greens, ambers and one cobalt piece the size of a thumbnail.',
-        '“A year ago Coral did her last show on the Plaza,” Wren says. “Then she drove up here, set the hat on the sand, and walked into the water in her stage clothes. They searched for a week and found nothing.” She swallows. “Somebody keeps filling her hat with sea glass. I need to know who.”',
+        'Clam Beach in the late afternoon is wide and bright and too windy for sad thoughts, which is why Nadia picked it. She wears her fire-spinning chains as a belt and holds Coral Venn’s busking hat in both hands like a bird: green felt gone grey with salt, a ring of tiny brass bells around the brim. It is full of frosted sea glass: greens, ambers and one cobalt piece the size of a thumbnail.',
+        '“A year ago Coral did her last show on the Plaza,” Nadia says. “Next morning her van was in the lot up there and her hat was on the sand, with her shoes beside it. They searched for a week.” She pulls a flyer out of her pocket: MERMAID COVE TOURS, SUNSET SIGHTINGS, $40. “And now this. Dex printed it. Her old manager. He’s been on the Plaza asking everyone about the hat. Says she owed him money. He wants it back from a dead woman.”',
       ],
       approaches: [
         {
@@ -75,37 +75,37 @@ export const TWO_TAILED_MERMAID: Mystery = {
           label: 'Sort the sea glass and read where it came from',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'You spread the glass on Wren’s jacket. Most of it is ordinary beach glass, but three greens are worn long and smooth the way only a river does it. River glass, mixed in with sea glass. On this stretch of coast the two get tumbled together in one place: where the Little River meets the ocean, a few miles north, below Moonstone Beach.',
+            text: 'You spread the glass on Nadia’s jacket. Most of it is ordinary beach glass, but three greens are worn long and smooth the way only a river does it. River glass, mixed in with sea glass. On this stretch of coast the two get tumbled together in one place: where the Little River meets the ocean, a few miles north, just below Moonstone Beach.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You sort the glass by color into a lovely rainbow and photograph it, and it is a beautiful photo with no information in it whatsoever. A gust takes the cobalt piece out of your hand and bounces it down the beach. A gull eats it, or pretends to. Wren says it’s fine in a voice that means the opposite.',
+            text: 'You sort the glass by color into a lovely rainbow and photograph it, and it is a beautiful photo with no information in it whatsoever. A gust takes the cobalt piece out of your hand and bounces it down the beach. A gull eats it, or pretends to. Nadia says it’s fine in a voice that means the opposite.',
             effects: { nerve: -1 },
           },
         },
         {
           id: 'good-days',
-          label: 'Ask Wren what Coral was like when the hat was full',
+          label: 'Ask Nadia what Coral was like when the hat was full',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You ask about the good days, and Wren lights up despite herself. Coral walked barefoot on broken glass and juggled fire on the Plaza every Saturday, and once did a whole show on her knees for a kid in a wheelchair, at eye level. Two summers busking in Europe. Then a man named Dex became her manager, then her partner, then her landlord, then her debt. “She stopped laughing onstage,” Wren says. “She kept smiling. It isn’t the same.”',
+            text: 'You ask about the good days, and Nadia lights up despite herself. Coral walked barefoot on broken glass and juggled fire on the Plaza every Saturday, and once did a whole show on her knees for a kid in a wheelchair, at eye level. Two summers busking in Europe. Then Dex became her manager, then her partner, then her landlord, then her debt. “She stopped laughing onstage,” Nadia says. “She kept smiling. It isn’t the same.”',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You ask the wrong question first, which is whether Wren thinks she’s dead, and Wren walks to the waterline and stands there a long time. When she comes back she is polite and distant, and the conversation is over. She lets you keep the hat for the night. You are not sure that is a kindness.',
+            text: 'You ask the wrong question first, which is whether Nadia thinks she’s dead, and Nadia walks to the waterline and stands there a long time. When she comes back she is polite and distant, and the conversation is over. She lets you keep the hat for the night. You are not sure that is a kindness.',
             effects: { nerve: -1 },
           },
         },
         {
           id: 'tideline',
-          label: 'Stand where Coral stood and look where she looked',
+          label: 'Stand where Coral’s hat was found and look north',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You stand above the tideline with the hat in your hands and look out to sea. Then, without meaning to, you look north, the way the beach curves toward the rocks and the river mouth. The bells on the brim chime once, in a wind blowing the other way. For a heartbeat you see footprints leaving the water a mile up the sand, walking north, and then a wave smooths them away.',
+            text: 'You stand above the tideline with the hat in your hands and look out to sea. Then, without meaning to, you look north, where the beach curves toward the rocks and the river mouth. The bells on the brim chime once, in a wind blowing the other way. For a heartbeat you see footprints leaving the water a mile up the sand, walking north, and then a wave smooths them away.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You step too close and a sneaker wave arrives, as they do on this coast, with no warning and no remorse, soaking you to the waist. You stagger up the beach holding the hat over your head like a trophy. Wren grabs your arm, furious and frightened. “That’s exactly how it happens,” she says. “Don’t.”',
+            text: 'You step too close and a sneaker wave arrives, as they do on this coast, with no warning and no remorse, soaking you to the waist. You stagger up the beach holding the hat over your head like a trophy. Nadia grabs your arm, furious and frightened. “That’s exactly how it happens,” she says. “Don’t.”',
             effects: { nerve: -1 },
           },
         },
@@ -114,9 +114,9 @@ export const TWO_TAILED_MERMAID: Mystery = {
         mara: 'Mara turns the hat over and runs a thumb along the brim. “Somebody mended this recently. Small stitches. A performer’s stitches, done by firelight.”',
         kit: 'Kit goes quiet a long time. “I busked next to her once,” she says. “She gave me her pitch when mine got rained out. Nobody does that.”',
         juniper:
-          'Juniper holds a piece of glass up to the sun. “This has been in the river and the ocean both,” she says. “Two lives. Like some people.”',
+          'Juniper pockets the best green piece when she thinks nobody is looking. “Finders keepers,” she says, when she is caught. “The ocean owes me a sandal.”',
         cedar:
-          'Cedar reads the beach like a road. “Her van didn’t sit here,” he says. “Somebody sold it, legit, with a signed title. Ghosts don’t sign titles.”',
+          'Cedar’s been on the phone with a guy he knows at a Fortuna tow yard. “Her van got sold three weeks after,” he says. “Signed title, her signature. Ghosts don’t sign titles.”',
       },
       aloneLine:
         'Alone with the hat on that wide beach, you notice the bells only ring when you face north.',
@@ -127,30 +127,30 @@ export const TWO_TAILED_MERMAID: Mystery = {
       chapter: 2,
       scene: 'rivermouth',
       message: {
-        medium: 'voicemail',
-        from: 'Unknown number, 0:58',
+        medium: 'email',
+        from: 'Gordon, Little River seal survey (volunteer list)',
         lines: [
-          '“Hi, this is Hal. I count seals for a volunteer survey up at Little River. This is going to sound strange.',
-          'There’s a woman with two tails on the rocks at dusk. Singing. The seals come in to listen.',
-          'I’ve done this nineteen years. Seals don’t come in to listen to anything. Come tonight. Bring something warm.”',
+          'Subject: Little River, unusual (long). Hello. Gordon here. I have counted seals at this river mouth for twenty-three years.',
+          'There is a mermaid on the rocks at dusk. Some evenings there are two.',
+          'When the far one sings, the seals come in. When the near one sings, they leave. I have a spreadsheet. Please come tonight. Bring something warm.',
         ],
       },
       body: [
-        'The Little River slides across a wide sand bar to meet the ocean, Moonstone Beach curling away to the south, and the seals lie along the bar like a row of sleeping loaves. Hal, a retired shop teacher with a clipboard of tally marks, hands you binoculars and points. On a rock at the river’s edge, as the sun sinks into the fog bank, a figure sits with two long tails spilling down the stone, one curling toward the river, one toward the sea.',
-        'She is singing: no words you can catch, just a low, wandering tune that rises and falls with the surf. Every seal on the bar has turned its head toward her, and three have slid into the water to come closer. Under the bluff, a thin thread of smoke rises from somewhere in the driftwood.',
+        'The Little River slides across a wide sand bar to meet the ocean, Moonstone Beach and its sea stacks to the north, Clam Beach running away to the south. Gordon, a retired shop teacher with a clipboard of tally marks, hands you binoculars. Up on the pullout, a van painted MERMAID COVE TOURS unloads a dozen tourists, and right on cue a mermaid in a shiny one-piece tail waves at them from the near rock. A song you half recognize drifts over the water, a little too clean.',
+        'Farther out, on a rock at the river’s edge, a second figure sits with her tail spilling down the stone toward the sea. From the pullout the two rocks line up, and the two of them blur into one creature with two tails, one toward the river and one toward the sea. This one is singing too: no words, a low, wandering tune that rises and falls with the surf. Every seal on the bar has turned its head toward her. Under the bluff, a thin thread of smoke rises from the driftwood.',
       ],
       approaches: [
         {
           id: 'duet',
-          label: 'Sing back, badly but honestly',
+          label: 'Sing back to the far rock, badly but honestly',
           check: { skill: 'rizz', target: 9 },
-          cost: 'You are going to sing, out loud, in front of Hal and the seals.',
+          cost: 'You are going to sing, out loud, in front of Gordon and the seals.',
           success: {
-            text: 'You hum the one tune you know all the way through, which is embarrassing, and the mermaid stops. Then she picks up your tune and sings it back, slower and sadder and much better, the way a pro fixes a rookie’s set without making a show of it. At the end she lifts one hand to you. Hal writes “seals: 14, plus one duet” on his clipboard.',
+            text: 'You hum the one tune you know all the way through, which is embarrassing, and the far mermaid stops. Then she picks up your tune and sings it back, slower and sadder and much better, the way a pro fixes a rookie’s set without making a show of it. At the end she lifts one hand to you. Gordon writes “seals: 14, plus one duet” on his clipboard.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'Your voice cracks on the first note so badly that two seals leave. The mermaid stops, turns, and looks at you across the water with pure stagecraft: the face of a performer whose quiet set just got heckled. Then she slips off the rock into the river and is gone.',
+            text: 'Your voice cracks on the first note so badly that two seals leave. The far mermaid stops, turns, and looks at you across the water with pure stagecraft: the face of a performer whose quiet set just got heckled. Then she slips off the rock into the river and is gone. The near one keeps waving at the tourists.',
             effects: { nerve: -1 },
           },
         },
@@ -159,83 +159,101 @@ export const TWO_TAILED_MERMAID: Mystery = {
           label: 'Follow the thread of smoke into the driftwood',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'Behind a wall of storm-stacked logs you find a camp so tidy it looks curated: a driftwood lean-to, a fire ring of round stones, a crate of library books, and a clothesline hung with faded banners. Two have been cut into long tapering strips. On a third, under the salt, sun-bleached red letters still read CORAL VENN, LIVE.',
+            text: 'Behind a wall of storm-stacked logs you find a camp so tidy it looks curated: a driftwood lean-to, a fire ring of round stones, a crate of library books, and a clothesline hung with faded banners. One has been cut into a long tapering tail. On another, under the salt, sun-bleached red letters still read CORAL VENN, LIVE. Nailed to a log, someone has pinned a Mermaid Cove flyer and drawn a knife through it.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You lose the smoke in a hundred yards of identical silver logs. When you finally climb out onto the sand it is full dark, the rock is empty, and Hal is sweeping his flashlight along the bluff calling your name like a lost-dog flyer.',
+            text: 'You lose the smoke in a hundred yards of identical silver logs. When you finally climb out onto the sand it is full dark, both rocks are empty, and Gordon is sweeping his flashlight along the bluff calling your name like a lost-dog flyer.',
             effects: { nerve: -1 },
           },
         },
         {
           id: 'still',
           label:
-            'Sit still at the edge of the haul-out and let her come to you',
+            'Sit still at the edge of the haul-out and let the song come to you',
           check: { skill: 'psyche', target: 7 },
           success: {
-            text: 'You sit on the cold sand and do nothing, which is the hardest thing you have done all year. The seals forget you. The song goes on. Between one wave and the next, the two tails look like two different things: one is a stage banner, and the other is wrapped in water from some other evening, glinting with lights you can’t place.',
+            text: 'You sit on the cold sand and do nothing, which is the hardest thing you have done all year. The seals forget you. Between one wave and the next, the far mermaid is two women at once: one on the rock in a banner tail, and one on the Plaza at this same minute, juggling fire for a crowd, in a life where she never walked into the sea. Both of them look tired. Only one looks free.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'You sit very still and a seal pup, unimpressed by your stillness, flops up beside you and yells. Hal, who knows the rules, makes you back off a full hundred yards for the pup’s sake. By the time you are settled again, the rock is empty and the singing has stopped.',
+            text: 'You sit very still and a seal pup, unimpressed by your stillness, flops up beside you and yells. Gordon, who knows the rules, makes you back off a full hundred yards for the pup’s sake. By the time you are settled again, the far rock is empty and the singing has stopped.',
             effects: { nerve: -1 },
           },
         },
       ],
       leadLines: {
-        mara: 'Mara watches through the binoculars a long time. “She’s not performing. She’s practicing. Those are different faces.”',
-        kit: 'Kit studies the tails. “Two banners, cut on the bias, weighted at the fins. She sewed that to move in water. That’s show construction.”',
+        mara: 'Mara watches both rocks through the binoculars. “Near one is performing. Far one is practicing. Those are different faces.”',
+        kit: 'Kit studies the tails. “Near one’s a rental, forty a night, I’ve worn it. Far one is a banner cut on the bias and weighted at the fin. She sewed that to move in water.”',
         juniper:
-          'Juniper wades into the river shallows, humming along. “Seals know who’s sad,” she says. “They come close for that.”',
+          'Juniper wades into the river shallows, humming along. “I want her to teach me that,” she says. “Not for the seals. For me.”',
         cedar:
           'Cedar sniffs the wind. “Driftwood fire, and somebody’s making coffee. Mermaids don’t make coffee.”',
       },
       aloneLine:
-        'Alone on the bar, the song feels meant for nobody, which may be the whole point of it.',
+        'Alone on the bar, the far song feels meant for nobody, which may be the whole point of it.',
+      recall: {
+        'g1:fail':
+          'Nadia came anyway. She stands a little apart from you on the bar, still deciding whether she has forgiven Clam Beach.',
+      },
     },
     {
       title: 'Showtime at Moonstone',
-      place: 'Moonstone Beach and the river mouth, dusk',
+      place: 'Moonstone Beach and the river mouth, sunset',
       chapter: 2,
       scene: 'beach',
       message: {
-        medium: 'flyer',
-        from: 'Pinned to a driftwood log with a gull feather',
+        medium: 'voicemail',
+        from: 'Gordon, forwarding a recording, 0:41',
         lines: [
-          'TONIGHT AT DUSK. ONE PERFORMANCE ONLY.',
-          'Audience: seals. Admission: free. Humans: please don’t.',
-          'P.S. to whoever keeps carrying my hat back to Clam Beach: I know where I left it.',
+          '“Gordon. I recorded this at the far rock last night. I am not sure I should send it. Here.”',
+          '[A woman’s voice, close to the mic, talking to the seals] “Okay, babies. One more show. Sunset tomorrow. No hat. No humans.',
+          'Especially not him with the van. If he’s there, I’m not.”',
         ],
       },
       body: [
-        'Moonstone Beach at dusk is all reflections, the sky doing something orange it will regret. The camp under the bluff has been swept and its banners taken down. On the big rock at the river mouth, someone has set a stage: a ring of sea glass on the stone and a single battered juggling torch, unlit.',
-        'Wren has brought half the Plaza: two jugglers, a hula hooper, an accordion player, and the crepe vendor, who refused to be left out. They all promised to stay behind the logs. They are already not behind the logs. Out on the bar, the seals settle in like they bought tickets. The tide is coming in.',
+        'Moonstone at sunset is all reflections, the sky doing something orange it will regret. On the far rock at the river mouth someone has set a stage: a ring of sea glass on the stone and a single battered juggling torch, unlit.',
+        'Nadia has brought half the Plaza: two jugglers, a hula hooper, an accordion player, and the crepe vendor, who refused to be left out. They all promised to stay behind the logs. They are already not behind the logs. And up on the pullout, right on schedule, the Mermaid Cove van is unloading a SUNSET SPECIAL, while the shiny mermaid wades out to the near rock with a speaker in a dry bag.',
       ],
       approaches: [
         {
           id: 'hush',
-          label: 'Keep the Plaza crowd quiet so the show can happen',
+          label: 'Keep every crowd on this beach quiet so the show can happen',
           check: { skill: 'rizz', target: 9 },
           success: {
-            text: 'You give the Plaza crew a backstage pep talk worth framing: this is her show, not ours, and nobody claps until the seals do. Twenty performers lie flat behind the logs in total silence, which none of them has ever managed. At dusk a two-tailed figure slides onto the rock, lights the torch, and juggles fire for the seals, and nobody breathes.',
+            text: 'You give the Plaza crew a backstage pep talk worth framing: this is her show, not ours, and nobody claps until the seals do. Twenty performers lie flat behind the logs, and somehow the tour group catches the hush too, and nobody so much as jingles. At sunset a mermaid slides onto the far rock, lights the torch, and juggles fire for the seals.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You ask for quiet, and the accordion player takes this as his cue for a gentle, supportive intro. The hula hooper joins in. On the rock, the mermaid freezes mid-climb, looks at the crowd of people she used to perform beside, and slides back into the river with a splash that sounds a lot like a sob.',
+            text: 'You ask for quiet, and the accordion player takes this as his cue for a gentle, supportive intro. The hula hooper joins in. Out on the water, the real mermaid freezes mid-climb, looks at the crowd of people she used to perform beside, and slides back into the river with a splash that sounds a lot like a sob.',
             effects: { nerve: -1 },
           },
         },
         {
           id: 'torch',
-          label: 'Light a torch and walk out across the bar to join the show',
+          label:
+            'Light a torch and carry it out across the bar to the far rock',
           check: { skill: 'psyche', target: 9 },
           cost: 'You have never juggled fire. You are going to carry it out there anyway.',
           success: {
-            text: 'You light a torch from a driftwood fire and walk across the bar with it held high, not juggling, just carrying it, an offering. The mermaid watches you the whole way. When you reach the rock she leans down, lights her torch from yours, and says quietly, “You’re holding it like it bites. It won’t. Not tonight.”',
+            text: 'You light a torch from a driftwood fire and walk across the bar with it held high, not juggling, just carrying it, an offering. The far mermaid watches you the whole way. When you reach the rock she leans down, lights her torch from yours, and says quietly, “You’re holding it like it bites. It won’t. Not tonight.”',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'Your torch gutters out halfway across the bar in a gust of spray. You stand in the dusk holding a smoking stick like a lost birthday guest. On the rock, the mermaid laughs, not unkindly, the laugh of someone remembering their own first time, and is gone before you can relight it.',
+            text: 'Your torch gutters out halfway across the bar in a gust of spray. You stand in the dusk holding a smoking stick like a lost birthday guest. On the far rock, the mermaid laughs, not unkindly, the laugh of someone remembering their own first time, and is gone before you can relight it.',
+            effects: { nerve: -1 },
+          },
+        },
+        {
+          id: 'van',
+          label: 'Send the Mermaid Cove van to the wrong beach',
+          check: { skill: 'wits', target: 9 },
+          success: {
+            text: 'You tell the teenage van driver, with total confidence, that the mermaid has moved her sunset set to Clam Beach; your cousin has a seal permit. He believes you, because he is seventeen and paid by the hour. The van leaves. On the near rock, the shiny mermaid watches his ride go and says a word mermaids don’t say. On the far rock, a torch flares.',
+            effects: { goodwill: 1 },
+          },
+          failure: {
+            text: 'The driver checks his laminated script, which says SHE IS ALWAYS HERE in capital letters, and charges you forty dollars for asking. You pay it, somehow. By the time you are back at the logs the far rock is empty and the torch is lying on its side, unlit.',
             effects: { nerve: -1 },
           },
         },
@@ -246,10 +264,14 @@ export const TWO_TAILED_MERMAID: Mystery = {
         juniper:
           'Juniper sits with her feet where the river braids into the sea. “Two currents,” she murmurs. “Both pulling. Neither one wrong.”',
         cedar:
-          'Cedar builds a small fire behind the logs and keeps it low. “Folks living out here are folks,” he says. “Talk to her like a neighbor.”',
+          'Cedar builds a small fire behind the logs and keeps it low. “Full moon and a big tide on the same night,” he says. “The universe is trying to get everybody wet. Don’t help it.”',
       },
       aloneLine:
         'Alone at the river mouth, you have no one to hold your nerve but the seals, and the seals are not taking sides.',
+      recall: {
+        'g2:pass':
+          'Gordon has saved you a spot on his log. “Far rock,” he says, without looking up from his clipboard. “The near one is a man.”',
+      },
     },
   ],
   coldCase: {
@@ -258,32 +280,36 @@ export const TWO_TAILED_MERMAID: Mystery = {
     chapter: 2,
     scene: 'rivermouth',
     body: [
-      'The rock is empty at dusk. The driftwood camp under the bluff is gone, swept so clean you would never know anyone lived there. Hal’s seal count goes back to ordinary. Nobody sings.',
-      'The hat turns up on the Plaza one last time, full of sea glass, with a single cobalt piece shaped like a heart on top. Wren keeps it. “She’s alive,” she says. “I’m choosing to believe that. I think she wants me to.”',
+      'The far rock is empty at dusk. The driftwood camp under the bluff is gone, swept so clean you would never know anyone lived there. The Mermaid Cove van still parks on the pullout every evening, and its shiny mermaid still waves from the near rock, and Gordon’s seals still leave when she sings.',
+      'The hat turns up on the Plaza one last time, full of sea glass, with a single cobalt piece shaped like a heart on top. Nadia keeps it. “She’s alive,” she says. “I’m choosing to believe that. I think she wants me to.”',
     ],
     choices: [
       {
         id: 'busk',
-        label: 'Busk on the Plaza with Wren, in Coral’s old spot',
-        text: 'You stand in Coral’s pitch with Wren and do the worst juggling act in Arcata history. People tip anyway. You leave every coin in the green hat on the bench at sunrise.',
+        label: 'Busk on the Plaza with Nadia, in Coral’s old spot',
+        text: 'You stand in Coral’s pitch with Nadia and do the worst juggling act in Arcata history. People tip anyway. You leave every coin in the green hat on the bench at sunrise.',
         effects: { goodwill: 1 },
       },
       {
         id: 'heart',
-        label: 'Keep the cobalt heart in your pocket',
-        text: 'You keep it. Some nights, held to your ear, it sounds like surf and, very faintly, two songs going different ways.',
+        label: 'Throw the cobalt heart back in at the river mouth',
+        text: 'You throw it as far as you can, out where the river meets the sea. The next morning the hat on the Plaza has two cobalt hearts in it.',
         effects: { weird: 1 },
       },
     ],
   },
   reveal: {
-    title: 'The Mermaid on the Rock',
-    place: 'The rock at the Little River mouth, dusk',
+    title: 'Two Mermaids',
+    place: 'The rocks at the Little River mouth, dusk',
     chapter: 2,
     scene: 'rivermouth',
     body: [
-      'The torch gutters. The seals watch. The two-tailed mermaid sits on her rock with the tide rising around it, sea glass glinting in a ring at her feet, and looks at you with the tired, wary patience of a performer who has met every kind of audience and doesn’t know yet which kind you are.',
-      'Up close, the tails are two old busking banners, cut and sewn and weighted with fishing sinkers at the fins, painted letters faded to ghosts across the scales. Her face is painted silver and teal, and under the paint is a face half of Arcata would know. Behind you on the sand, Wren has stopped breathing. The tide will cover the bar in eleven minutes.',
+      'Full dark is twenty minutes off when the near rock’s show falls apart. The tide reaches the speaker wedged in the stones, it coughs once and dies, and the shiny mermaid is left lip-syncing to the surf. A wave slaps him off the rock. He comes up in the shallows with his wig floating off toward Trinidad: a red-faced man in his forties with a headset mic, clutching a laminated clipboard. “She owes me eleven grand,” Dex Marlow sputters, to nobody. “A guaranteed mermaid was the only way to find her.”',
+      'On the far rock the other mermaid has not stopped singing. You end up at the foot of her rock, the way you were always going to, and up close her tail is an old busking banner, cut and sewn and weighted with fishing sinkers at the fin, painted letters faded to ghosts across the scales. The torch in her hand is real. Nadia, beside you, has gone completely still. The tide will cover the bar in eleven minutes.',
+    ],
+    afterMiss: [
+      'The show is over before it starts. The far rock is empty, the seals are drifting back to the bar, and the sunset special wants its forty dollars back. Then the tide reaches the speaker wedged in the near rock. It coughs once and dies, and the shiny mermaid is left lip-syncing to the surf until a wave slaps him off the rock. He comes up in the shallows with his wig floating off toward Trinidad: a red-faced man in his forties with a headset mic. “She owes me eleven grand,” Dex Marlow sputters, to nobody. “A guaranteed mermaid was the only way to find her.”',
+      'Later, when the tourists have gone and the Plaza crew has gone quiet, a voice behind you on the dark sand says, “Is he gone? You’re sure?” The other mermaid has walked up out of the river, her tail dragging, a torch unlit in her hand. Up close the tail is an old busking banner, cut and sewn and weighted with sinkers, painted letters faded to ghosts across the scales. She is looking past you, at Nadia.',
     ],
     choices: [
       {
@@ -294,14 +320,14 @@ export const TWO_TAILED_MERMAID: Mystery = {
       },
       {
         id: 'hear-song',
-        label: 'Sit down on the rock and ask to hear the rest of the song',
+        label: 'Sit down beside her and ask to hear the rest of the song',
         text: 'You don’t say her name. You sit on the cold stone and ask whether she’ll finish the song. After a long moment, she does.',
         next: 'two-currents',
       },
       {
         id: 'walk-back',
         label: 'Nod, walk back before the tide, and leave her be',
-        text: 'You nod to her, one performer to another between sets, and walk back across the bar before the water closes it. You tell Wren what you saw, and then that you won’t say anything else.',
+        text: 'You nod to her, one performer to another between sets, and walk back across the bar with Nadia before the water closes it. Nadia, beside you, says nothing at all, and you both agree without a word to keep it.',
         ending: 'let-her-swim',
       },
     ],
@@ -309,58 +335,62 @@ export const TWO_TAILED_MERMAID: Mystery = {
       mara: 'Mara holds out the blanket and doesn’t step closer. “You don’t have to come down. It’s just here if you want it.”',
       kit: 'Kit kneels on the wet sand at eye level, the way Coral used to kneel for kids. “I’m Kit. You gave me your pitch once in the rain. I never thanked you.”',
       juniper:
-        'Juniper smiles at the two tails. “One for the town and one for the sea. You can’t swim both ways forever, but you can try for a while.”',
+        'Juniper watches Dex wring out his wig. “I wanted to be a mermaid when I was six,” she says. “Then I met the people who sell them.”',
       cedar:
         'Cedar stays back by his little fire. “Coffee’s on,” he calls, like it’s any other evening, and somehow that’s the kindest thing anyone says.',
     },
     aloneLine:
-      'Alone on the rock with her, you are the whole audience, which is exactly what she didn’t want and maybe exactly what she needed.',
+      'Alone with her, you are the whole audience, which is exactly what she didn’t want and maybe exactly what she needed.',
+    recall: {
+      'g2:duet':
+        'She knows your voice. You sang across this water to her once, well or badly, and performers never forget a heckler or a duet.',
+    },
   },
   branches: {
     coral: {
       title: 'Coral',
-      place: 'The rock at the Little River mouth',
+      place: 'The far rock at the Little River mouth',
       chapter: 2,
       scene: 'rivermouth',
       body: [
-        '“I didn’t drown,” Coral says, hoarse from singing to seals. “I walked in up to my chest and stood there, and I thought, I could just keep going. Then I thought, or I could walk out somewhere else. So I did, a mile up the beach in the dark, in a sequined vest. The debt’s still there. Turns out debt doesn’t care if you’re a mermaid.”',
-        'She looks down at the sea glass. “When I was nineteen I juggled fire in a square in Lisbon at two in the morning for six strangers, and one of them cried, and I knew what I was for. Then it turned into rent, and Dex, and smiling on cue, and I couldn’t find that place anymore. Seals don’t tip. Nobody’s selling anything out here. I just wanted to remember what it felt like when it was free.” She almost smiles. “The glass on the Plaza is me paying the town back. For all the years it paid me.”',
+        'She looks past you to Nadia, and her face does something no stage paint can cover. “I’m sorry,” she says. “I couldn’t come back as myself. I didn’t know how.” Then, to you, hoarse from singing to seals: “I didn’t drown. I walked in up to my chest and stood there, and I couldn’t see a way forward. Then I thought, I could walk out somewhere else. So I did, a mile up the beach in the dark. The debt’s still there. Turns out debt doesn’t care if you’re a mermaid.”',
+        '“When I was nineteen I juggled fire in a square in Lisbon at two in the morning for six strangers, and one of them cried, and I knew what I was for. Then it turned into rent, and Dex, my manager, then my boyfriend, then my landlord, and smiling on cue, and I couldn’t find that place anymore. Seals don’t tip. Nobody’s selling anything out here, or nobody was.” She almost smiles. “The glass on the Plaza is me paying the town back. For all the years it paid me.”',
       ],
       choices: [
         {
           id: 'one-show',
-          label: 'Ask if she would do one show, entirely on her own terms',
-          text: 'You ask: one show, here, at sunset, for the seals and anyone willing to sit quietly on the sand. No hat. No manager. She thinks about it while the tide comes up around the rock.',
+          label: 'Ask if she would do the show now, on her own terms',
+          text: 'You ask: one show, here, right now, on the beach below the bluff, for the seals and anyone willing to sit quietly on the sand. No hat. No manager. She thinks about it while the tide comes up around the rock.',
           ending: 'both-tails',
         },
         {
           id: 'keep-secret',
           label: 'Promise to keep her secret and let her stay',
-          text: 'You promise. You tell Wren only that her friend is alive, and okay, and needs room. Coral nods and slides back into the river with both tails trailing.',
+          text: 'You promise. Nadia promises too, through tears, and says she only needed to know. Coral touches her hand once and slides back into the river.',
           ending: 'let-her-swim',
         },
       ],
     },
     'two-currents': {
       title: 'Two Currents',
-      place: 'The rock at the Little River mouth, the song’s end',
+      place: 'The far rock at the Little River mouth, the song’s end',
       chapter: 2,
       scene: 'rivermouth',
       body: [
-        'She sings it through. It is not a song you know, though it sounds like every song you’ve almost known. On the last note, river and sea meet over the bar in a long seam of foam, and the two tails stir in two directions at once, each pulled by its own tide.',
-        'In the river-side water you see the Plaza at sunset in a year you don’t recognize, packed and quiet, a woman with silver in her hair juggling fire for kids and grandparents. In the sea-side water you see the same woman, older still, alone on a beach with no name, singing and entirely at peace. Coral, under the paint, is watching both. “I swim between them,” she says. “Every night. One tail each. I can’t tell which one I’m meant to keep.”',
+        'She sings it through. It is not a song you know, though it sounds like every song you’ve almost known. On the last note, river and sea meet over the bar in a long seam of foam, and her reflection splits along it, one in each current.',
+        'In the river-side water you see the Plaza at this same minute, packed and quiet, and a Coral who never walked into the sea juggling fire for kids and grandparents, tired and paid and laughing. In the sea-side water you see a Coral who kept walking north and never looked back, alone on a beach with no name, singing and entirely at peace. Coral, under the paint, is watching both. “Every night I swim between them,” she says. “I can’t tell which one I’m meant to keep.”',
       ],
       choices: [
         {
           id: 'river-side',
-          label: 'Point toward the river-side future, the one with the crowd',
-          text: 'You point, and Coral follows your hand and looks at that crowded future for a long time. Then she unties one fin and holds it out to Wren on the sand.',
+          label: 'Point toward the river-side life, the one with the crowd',
+          text: 'You point, and Coral follows your hand and looks at that crowded Plaza for a long time. Then she climbs down off the rock and holds out her hand to Nadia on the sand.',
           ending: 'both-tails',
         },
         {
           id: 'no-choice',
           label: 'Tell her she doesn’t have to choose tonight',
-          text: 'You tell her nobody has to choose tonight. Coral smiles and lets the tide lift both tails at once.',
+          text: 'You tell her nobody has to choose tonight. Coral smiles and lets the tide lift her tail, and her reflection, both ways at once.',
           ending: 'other-current',
         },
       ],
@@ -372,8 +402,8 @@ export const TWO_TAILED_MERMAID: Mystery = {
       title: 'Both Tails',
       tone: 'true',
       text: [
-        'A month later a hand-lettered flyer goes up on the Plaza: ONE SHOW. MOONSTONE, SUNSET. NO HAT. SEALS FREE. Half of Arcata sits on the sand in a silence that would astonish anyone who has met Arcata. Coral walks up out of the river in both tails and does the old act, slower, and between tricks talks plainly about burning out and walking out of the sea somewhere else. Nobody claps until the seals do.',
-        'Afterward, Wren and the Plaza crew start paying down Coral’s debt a dollar at a time, in the green hat. Coral does one show a season now, on her own schedule, with a small room in town and the driftwood camp for weekends. Her new banner says only CORAL, with two tails painted on it, swimming opposite ways.',
+        'The show starts eleven minutes late, on the beach below the bluff, by firelight. Half the Plaza sits on the logs in a silence that would astonish anyone who has met the Plaza, and whatever tourists are left stay to watch for free. Coral walks up out of the river and does the old act, slower: fire, glass, a song for the seals. Between tricks she talks plainly about burning out, and about walking out of the sea somewhere else. Nobody claps until the seals do.',
+        'Dex watches from the pullout in a wet sequined tail, a man learning what a guaranteed sighting costs. At the end Coral walks up to him with the green hat, full of the night’s tips, and puts it in his hands. “Down payment,” she says. “The rest goes through a lawyer, like grown-ups.” Then she walks back down to the river mouth where Nadia is waiting with a blanket, and the two of them sit on the sand until the tide makes them move.',
       ],
     },
     {
@@ -381,8 +411,8 @@ export const TWO_TAILED_MERMAID: Mystery = {
       title: 'Let Her Swim',
       tone: 'bittersweet',
       text: [
-        'You keep the secret, and Wren keeps it too once she understands. Coral stays at the river mouth through the winter, and Hal notes in his survey that the local seals have unusually refined taste in music. The hat stops appearing on the Plaza. The sea glass stops.',
-        'In spring the camp under the bluff is gone, swept clean. Nobody knows where she went. A postcard reaches Wren with no return address, a painting of two fish swimming in a circle. On the back: Still swimming. Thank you for not calling me back to shore.',
+        'You keep the secret, and Nadia keeps it too. The Mermaid Cove van disappears from Scenic Drive within a week; nobody books a tour whose mermaid is a soaked man in a wig. Coral stays at the river mouth through the winter, and Gordon notes in his survey that the local seals have unusually refined taste in music. The hat stops appearing on the Plaza. The sea glass stops.',
+        'In spring the camp under the bluff is gone, swept clean. Nobody knows where she went. Gordon’s survey sheet for the last evening in April reads, in his careful shop-teacher capitals: Seals present: 14. Mermaid: absent. Song: still going, somewhere.',
       ],
     },
     {
@@ -390,7 +420,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       title: 'The Other Current',
       tone: 'strange',
       text: [
-        'Coral never quite comes ashore and never quite leaves. People on the Plaza swear she busks there some Saturdays, silver-haired, doing a trick with glass that hasn’t been invented yet. Hal swears she sings at the river mouth every dusk, the same age she was the night you met her. Both of them are right. Some nights, both are right at once.',
+        'Coral never quite comes ashore and never quite leaves. People on the Plaza swear she busks there some Saturdays at dusk, juggling three pieces of sea glass that hang in the air a beat too long, like water deciding which way to fall. Gordon swears she sings at the river mouth at that same dusk, at that same minute. Both of them are right. Some evenings, both are right at once.',
         'You go back to the rock once, alone. In the ring of sea glass lies a piece in a color you’ve never seen, somewhere between teal and gold. Held to the light, it shows two Corals, one in each current, waving, and both of them look free.',
       ],
     },

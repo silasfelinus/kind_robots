@@ -9,7 +9,7 @@ export const MIDNIGHT_MANE: Mystery = {
   title: 'The Mystery of the Midnight Mane',
   tagline: 'A golden lion steals the spotlight at the last midnight movie.',
   region: 'Old Town Eureka, the Bellwether Palace',
-  hook: 'Every Saturday at midnight a figure in a gold lamé lion mask walks onstage at the Bellwether Palace, hits every cue of the shadow cast’s show better than the cast does, and vanishes before the lights come up. The theater has been sold, and its last midnight show is coming. The old-timers say they know exactly who is under that mask. The new cast says the old-timers are wrong.',
+  hook: 'Every Saturday at midnight a figure in a gold lamé lion mask walks onstage at the Bellwether Palace, hits every cue of the shadow cast’s show better than the cast does, and vanishes before the lights come up. The theater has been sold. The old-timers say they know exactly who is under that mask. The new cast says the old-timers are wrong.',
   design: {
     element: 'fire',
     motif: 'mane',
@@ -96,11 +96,11 @@ export const MIDNIGHT_MANE: Mystery = {
           label: 'Read Brody’s grievance for the lie in it',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'Brody’s outrage is very good and very rehearsed, and he checks his phone every time he pauses for breath. You follow him out the stage door to an old Buick idling in the alley, where a woman with silver hair and perfect eyeliner hands him a thermos and a pair of heels. Ronnie “Lady Mane” Delacroix, who played the lead here for twenty-eight years, has been secretly teaching him her turn. “Don’t tell the cast,” Brody begs. “And don’t look at me like that. I wasn’t the lion. Probably.”',
+            text: 'Brody’s outrage is very good, very rehearsed, and keeps pausing for him to check his phone. You follow him out to an old Buick in the alley, where a silver-haired woman in perfect eyeliner hands him a pair of heels: Ronnie “Lady Mane” Delacroix, the Bellwether’s lead for twenty-eight years, secretly teaching him her turn. “Don’t tell the cast,” Brody begs. “And I wasn’t the lion. Probably.”',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'You tell Brody, as kindly as you can, that his grievance feels a little big. He takes it as a note. He performs the whole thing again, smaller, then smaller still, until he is whispering it at you from four inches away with tears in his eyes. The cast gives him a standing ovation. You learn nothing, except that Brody can act.',
+            text: 'You tell Brody, kindly, that his grievance feels a little big. He takes it as a note and performs it again, smaller, then smaller still, until he is whispering it from four inches away with tears in his eyes. The cast gives him a standing ovation. You learn only that Brody can act.',
             effects: { nerve: -1 },
           },
         },
@@ -168,7 +168,7 @@ export const MIDNIGHT_MANE: Mystery = {
           check: { skill: 'burly', target: 7 },
           cost: 'Forty pounds of film and a ladder built for one careful person.',
           success: {
-            text: 'You get all six cans down the back ladder and into the old organ loft before the inspector reaches the booth. He finds an empty projector and a note in Hollis’s handwriting that says only, “Intermission.” When he leaves, you carry them back up, and the impossible reel is waiting on top, warm to the touch.',
+            text: 'You get all six cans down the back ladder and into the old organ loft before the inspector reaches the booth. He finds an empty projector and a note in Hollis’s handwriting that says only, “Intermission.” When he leaves, the impossible reel goes back on the platter, warm to the touch.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -315,8 +315,6 @@ export const MIDNIGHT_MANE: Mystery = {
     recall: {
       'g1:fail':
         'You still couldn’t swear to who is in there: the old legend, the furious new lead, or somebody else entirely. Four hundred people are about to find out with you.',
-      'g2:fail':
-        'Up in the booth, Hollis has the impossible reel threaded and his hand on the projector, as if he expects tonight to end up on it.',
     },
     choices: [
       {
@@ -379,8 +377,8 @@ export const MIDNIGHT_MANE: Mystery = {
       chapter: 3,
       scene: 'theater',
       body: [
-        'The lion does the number again, alone, a cappella, with four hundred people providing the backup and every old callback from 1981 coming out of the audience like it has been stored in the walls. When a foghorn sounds out on the bay, the oldest people in the house answer it with a line nobody has yelled since the eighties. Brody stands in the wings mouthing the words and taking notes.',
-        'At the end the lion takes off the mask itself, and it is not who anyone expected: Marguerite Tsai, the owner, eyeliner perfect and chin up, the sale agreement folded into her corset. Up in the balcony the silver-haired woman is on her feet, Ronnie Delacroix, Lady Mane, who taught her the turn thirty years ago and never once let her use it. Hollis, up in the booth, is threading the impossible reel again. The camera light on the old projector is blinking red.',
+        'The lion does the number again, alone, a cappella, with four hundred people providing the backup and every old callback from 1981 coming out of the audience like it has been stored in the walls. When a foghorn sounds on the bay, the old-timers answer it with a callback nobody has yelled since the eighties. Brody stands in the wings mouthing the words and taking notes.',
+        'At the end the lion takes off the mask itself, and it is not who anyone expected: Marguerite Tsai, the owner, eyeliner perfect and chin up, the sale agreement folded into her corset. In the balcony the silver-haired woman is on her feet: Ronnie Delacroix, Lady Mane, who taught her the turn thirty years ago and never once let her use it. Hollis, up in the booth, is threading the impossible reel again. The camera light on the old projector is blinking red.',
       ],
       choices: [
         {

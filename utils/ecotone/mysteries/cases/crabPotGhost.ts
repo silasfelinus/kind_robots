@@ -371,7 +371,7 @@ export const CRAB_POT_GHOST: Mystery = {
       scene: 'bay',
       body: [
         'By six there are thirty people on the little dock in bathrobes and rubber boots, and the crab pot from Graciela’s living room has been carried down to serve as a coffee table. Royce brought donuts. Teo is taking minutes on his phone, badly.',
-        '“She fed us all winter,” Graciela tells the crowd, “and not one of us noticed she was hungry too.” Nobody speaks for a while. Woodsmoke from the Moon Snail’s stovepipe drifts up the street, and for a second every porch has a full pot on it and a working boat tied behind it, the way the block looked the winter Arne fed it in 1970. Then the smoke thins, and it is just your street again.',
+        '“She fed us all winter,” Graciela tells the crowd, “and not one of us noticed she was hungry too.” Nobody speaks for a while. Woodsmoke from the Moon Snail’s stovepipe drifts up the street, and for a second every porch has a full pot on it and a working boat tied behind it, the way the block looked the winter Arne fed it in 1970. Then the smoke thins, and it is just King Salmon again.',
       ],
       choices: [
         {
@@ -419,7 +419,7 @@ export const CRAB_POT_GHOST: Mystery = {
       title: 'Moored in 1970',
       tone: 'strange',
       text: [
-        'The Moon Snail slides out past Buhne Point into the woodsmoke and the morning mist and does not come out the other side. The tow arrives at eight to an empty slough, and the paperwork lists her as lost. Ione is never found, and nobody in King Salmon looks very hard.',
+        'The Moon Snail slides out past Buhne Point into the woodsmoke and the morning mist and does not come out the other side. The tow arrives at eight to find nothing to tow, and the paperwork lists her as lost. Ione is never found, and nobody in King Salmon looks very hard.',
         'But if you leave a scanner on the old fishing channel, a young couple sometimes calls pot counts back and forth at 1970 prices, and one of them laughs the way Ione must have laughed at thirty. Once, on a king tide, you see her yourself: the Moon Snail working the slough among a dozen boats that were scrapped before you were born, two figures in yellow at the wheel, geraniums on the roof. The next morning a full crab pot waits on Graciela’s step for whoever needs it.',
       ],
     },

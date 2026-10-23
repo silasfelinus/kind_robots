@@ -1587,13 +1587,23 @@ function openPanel(panel: AquariumPanel) {
 }
 const activePanelArt = computed(() => {
   switch (activePanel.value) {
-    case 'shop': return shopHeaderArt
-    case 'roster': return backgroundArt('parlour')
-    case 'bestiary': return (prefersReducedMotion() ? null : movingArt('ichthyonomicon')) ?? artByName('ichthyonomicon')
-    case 'sets': return backgroundArt('counting-house')
-    case 'decor': return backgroundArt('flooded-conservatory')
-    case 'scenery': return backgroundArt(tankStore.backgroundKey)
-    default: return null
+    case 'shop':
+      return shopHeaderArt
+    case 'roster':
+      return backgroundArt('parlour')
+    case 'bestiary':
+      return (
+        (prefersReducedMotion() ? null : movingArt('ichthyonomicon')) ??
+        artByName('ichthyonomicon')
+      )
+    case 'sets':
+      return backgroundArt('counting-house')
+    case 'decor':
+      return backgroundArt('flooded-conservatory')
+    case 'scenery':
+      return backgroundArt(tankStore.backgroundKey)
+    default:
+      return null
   }
 })
 const activePanelName = computed(
@@ -2809,7 +2819,12 @@ onBeforeUnmount(() => {
   overscroll-behavior: contain;
   border: 0;
   border-radius: 0.75rem;
-  background: linear-gradient(90deg, var(--color-base-100) 0%, color-mix(in oklab, var(--color-base-100) 90%, transparent) 65%, color-mix(in oklab, var(--color-base-100) 78%, transparent) 100%);
+  background: linear-gradient(
+    90deg,
+    var(--color-base-100) 0%,
+    color-mix(in oklab, var(--color-base-100) 90%, transparent) 65%,
+    color-mix(in oklab, var(--color-base-100) 78%, transparent) 100%
+  );
   padding: 4.15rem clamp(0.75rem, 3vw, 2rem) 1.2rem;
   box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.4);
 }

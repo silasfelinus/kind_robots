@@ -306,12 +306,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.roomMisses = 0
       firstCard.value = null
       turnLocked.value = false
+      // Combat rooms returned above; only the Classic Echo Chamber reaches here.
       state.value.status =
-        roomId === 'vault-2'
-          ? 'The Rootbound Warden guards the Chime. Remember four pairs to win.'
-          : roomId === 'vault-1'
-            ? 'The Vault welcomes you with three pairs from your chosen art gallery.'
-            : 'An optional forest challenger invites you to remember three pairs.'
+        'The Vault welcomes you with three pairs from your chosen art gallery.'
       persist()
     } catch {
       if (ticket === roomEpoch)

@@ -263,7 +263,7 @@ export function newBriarSave(): BriarSave {
     waveIndex: 0,
     wavePhase: 'matching',
     mapCards: [],
-    player: revealed[0] ?? BRIAR_START,
+    player: BRIAR_START,
     attempts: 0,
     relics: [],
     wildflowers: 0,

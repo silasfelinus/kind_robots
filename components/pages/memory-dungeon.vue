@@ -71,6 +71,14 @@
           ⚙️
           <span class="hidden sm:inline">{{ deckSummary }}</span>
         </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2"
+          title="Back to the Memory Dungeon game menu"
+          @click="returnToMenu"
+        >
+          ⌂ <span class="hidden sm:inline">Menu</span>
+        </button>
 
         <button
           class="btn btn-primary btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2 text-base"
@@ -563,6 +571,12 @@ import { useArtStore } from '@/stores/artStore'
 import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
 
 const worldMode = ref(false)
+
+function returnToMenu(): void {
+  cancelChallenge()
+  gameStarted.value = false
+  configOpen.value = false
+}
 
 function startOverworld(): void {
   applyPendingSettings()

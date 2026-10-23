@@ -502,7 +502,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               questAid: [BOXCARS_AT_FORD],
             },
             response:
-              'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. The magpies charge by the boxcar. The Freeholds will spend the winter fencing fields they kept.',
+              'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. The rail salvagers charge by the boxcar. The Freeholds will spend the winter fencing fields they kept.',
           },
         ],
         beats: [
@@ -2710,7 +2710,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             speaker: 'Lumen Shale',
             npc: 'F010',
             lines: [
-              'The prairie dog stands up straight beside the throne, the way her people do at a burrow mouth. She watches the room, not the boy.',
+              'Lumen stands up straight beside the throne, the way her people do at a burrow mouth. She watches the room, not the boy.',
               '“He isn’t lying, Majesty. He isn’t afraid of the Watch. He’s afraid of somebody behind you, and he’s trying hard not to look at them.”',
               '“Clear the hall and he’ll talk. Keep it full and he’ll say whatever keeps him alive.”',
               {
@@ -3613,7 +3613,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 requires: { follower: 'F001' },
                 effects: { flags: ['d40-komodo-followed'] },
                 response:
-                  'Rook slips out the postern. Near midnight the hare comes back alone, ears flat. “He took the Saltroad fork. Then he walked his horse back across the scrub to the mission road, in the old ruts, so his tracks would lie. He knew someone would read them. I think he hoped it was me.”',
+                  'Rook slips out the postern. Near midnight Rook comes back alone, ears flat. “He took the Saltroad fork. Then he walked his horse back across the scrub to the mission road, in the old ruts, so his tracks would lie. He knew someone would read them. I think he hoped it was me.”',
               },
               {
                 id: 'cell',

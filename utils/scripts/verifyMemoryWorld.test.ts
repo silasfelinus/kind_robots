@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   DEFAULT_DUNGEON_DECK,
   DESIGNED_DUNGEON_ART,
@@ -158,3 +159,16 @@ assert.deepEqual(
   uniqueDeckPaths(['/forest.jpg', '/forest.jpg', '', '/sun.jpg']),
   ['/forest.jpg', '/sun.jpg'],
 )
+
+const classicScreen = readFileSync('components/pages/memory-dungeon.vue', 'utf8')
+const mapScreen = readFileSync('components/pages/memory-dungeon-overworld.vue', 'utf8')
+const launcherScreen = readFileSync('components/pages/memory-dungeon-launcher.vue', 'utf8')
+const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
+assert.match(classicScreen, /<memory-dungeon-deck-selector/, 'Classic settings mount shared art selector')
+assert.match(mapScreen, /<memory-dungeon-deck-selector/, 'Overworld settings mount shared art selector')
+assert.match(launcherScreen, /<memory-dungeon-deck-selector/, 'Launcher mounts shared art selector')
+assert.doesNotMatch(classicScreen, /<collection-picker/, 'Classic does not retain duplicate gallery picker')
+assert.match(classicScreen, /setGameSuiteDeckResolver/, 'Classic supplies the same resolver to memory store')
+assert.match(classicScreen, /resolveMemoryDungeonDeck\(selection, needed\)/, 'Classic resolves using locked shared settings')
+assert.match(memoryCore, /if \(gameSuiteDeckResolver\)/, 'Both Classic and RPG can resolve selected image pools')
+assert.match(memoryCore, /new Set\(imagePaths\)\.size !== needed/, 'Classic rejects duplicate card faces')

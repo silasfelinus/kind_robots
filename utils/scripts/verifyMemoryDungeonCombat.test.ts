@@ -22,6 +22,7 @@ import {
   type CombatState,
   type WeaponId,
 } from '../memoryDungeon/combat'
+import { COMBAT_COLS, COMBAT_ROOMS, COMBAT_ROWS } from '../memoryDungeon/rooms'
 
 const key = (cells: Cell[]) =>
   cells
@@ -358,14 +359,29 @@ const ARCHIVIST = (pairs: number) => ({
   every: 2 + Math.ceil(pairs / 6),
 })
 
-function play(player: Player, seed: number, rows: number, cols: number) {
+type Setup = {
+  enemy: { name: string; hp: number; attack: number; every: number }
+  playerHp: number
+  focus: number
+  loadout: WeaponId[]
+}
+
+function play(
+  player: Player,
+  seed: number,
+  rows: number,
+  cols: number,
+  setup?: Setup,
+) {
   const pairs = Math.floor((rows * cols) / 2)
+  const allowed = (id: WeaponId) => !setup || setup.loadout.includes(id)
   let s = createCombat({
     seed,
     rows,
     cols,
-    enemy: { name: 'Archivist', ...ARCHIVIST(pairs) },
-    playerHp: 10,
+    enemy: setup?.enemy ?? { name: 'Archivist', ...ARCHIVIST(pairs) },
+    playerHp: setup?.playerHp ?? 10,
+    focus: setup?.focus,
   })
   const rand = seededRandom(seed * 31 + 7)
   const memory = new Map<number, number>() // cell index -> pair
@@ -398,18 +414,21 @@ function play(player: Player, seed: number, rows: number, cols: number) {
   while (s.outcome === 'fighting' && guard++ < 400) {
     if (player.spray) {
       const id = (['staff', 'hammer', 'spear', 'twinblade'] as WeaponId[]).find(
-        (w) => !strikeBlocked(s, w, legalMasks(s, w)[0]!.mask),
-      )!
-      const options = legalMasks(s, id)
-      const pick = options[Math.floor(rand() * options.length)]!
-      act(strike(s, id, pick.anchor, pick.rotation))
-      continue
+        (w) => allowed(w) && !strikeBlocked(s, w, legalMasks(s, w)[0]!.mask),
+      )
+      if (id) {
+        const options = legalMasks(s, id)
+        const pick = options[Math.floor(rand() * options.length)]!
+        act(strike(s, id, pick.anchor, pick.rotation))
+        continue
+      }
     }
     const known = knownPairs()
     if (known.length) {
       const cells = known[0]!.map(cellOf)
       if (player.targets) {
         const shot = (['twinblade', 'spear', 'hammer', 'rapier'] as WeaponId[])
+          .filter(allowed)
           .map((id) => ({ id, aim: aimAt(s, id, cells) }))
           .find(({ id, aim }) => aim && !strikeBlocked(s, id, aim.mask))
         if (shot) {
@@ -496,6 +515,41 @@ for (const [size, r] of Object.entries(results)) {
     `${size}: and wins in fewer actions`,
   )
 }
+
+// 11. Briar Camp's combat rooms (t-007) hold the same line on their 4x4 board:
+// remembering wins, guessing and spraying shapes mostly lose.
+const roomStats: Record<string, Record<string, number>> = {}
+for (const [roomId, room] of Object.entries(COMBAT_ROOMS)) {
+  roomStats[roomId] = {}
+  for (const player of PLAYERS) {
+    let win = 0
+    for (let seed = 1; seed <= SEEDS; seed++)
+      win += Number(play(player, seed, COMBAT_ROWS, COMBAT_COLS, room).won)
+    roomStats[roomId]![player.name] = win / SEEDS
+  }
+  const at = (n: string) => roomStats[roomId]![n]!
+  assert.ok(
+    at('memory') >= 0.95,
+    `${roomId}: remembering wins (${at('memory')})`,
+  )
+  assert.ok(
+    at('targeting') >= 0.95,
+    `${roomId}: aiming wins (${at('targeting')})`,
+  )
+  assert.ok(
+    at('memory-60') >= 0.6,
+    `${roomId}: partial memory mostly wins (${at('memory-60')})`,
+  )
+  assert.ok(
+    at('blind') <= 0.35,
+    `${roomId}: guessing mostly loses (${at('blind')})`,
+  )
+  assert.ok(
+    at('spray') <= 0.5,
+    `${roomId}: spraying shapes mostly loses (${at('spray')})`,
+  )
+}
+if (process.env.MD_COMBAT_STATS) console.log(JSON.stringify(roomStats))
 
 console.log(
   'Memory Dungeon combat: masks, edges, costs, cap, tempo, replay and',

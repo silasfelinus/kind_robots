@@ -279,6 +279,7 @@
         </div>
         <div class="flex gap-2">
           <button
+            v-if="!world.state.combat"
             type="button"
             class="rounded-lg border border-[#c4aa72] bg-[#342e2a] px-3 py-2 text-xs font-bold"
             :disabled="world.turnLocked"
@@ -295,7 +296,20 @@
           </button>
         </div>
       </div>
+      <template v-if="world.state.combat">
+        <memory-dungeon-combat-board class="mt-2" />
+        <button
+          v-if="world.roomComplete"
+          type="button"
+          :disabled="world.turnLocked || world.loading"
+          class="mx-auto mt-2 shrink-0 rounded-lg bg-[#f2d68f] px-4 py-2 font-black text-[#2b271b]"
+          @click="world.finishRoom()"
+        >
+          Claim victory ✓
+        </button>
+      </template>
       <div
+        v-else
         class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3"
       >
         <div
@@ -372,6 +386,7 @@ import {
   type BriarSiteKind,
 } from '~/utils/memoryDungeonWorld'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
+import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()

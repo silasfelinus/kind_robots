@@ -114,7 +114,10 @@ for (const node of Object.values(BOOK)) {
     existsSync(join(scenesDir, art.file + '.' + (art.format ?? 'webp'))),
     node.art + ': plate file missing',
   )
-  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.' + (art.format ?? 'webp'))
+  assert.equal(
+    platePath(art),
+    '/zuzu-gamebook/scenes/' + art.file + '.' + (art.format ?? 'webp'),
+  )
   // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
   const own = sectionPlate(node)
   assert.ok(
@@ -153,7 +156,9 @@ for (const key of Object.keys(PLATES)) {
 for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
   if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.' + (p.format ?? 'webp') === file.name),
+    Object.values(PLATES).some(
+      (p) => p.file + '.' + (p.format ?? 'webp') === file.name,
+    ),
     'stray plate file ' + file.name,
   )
 }

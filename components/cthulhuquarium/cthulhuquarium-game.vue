@@ -33,6 +33,7 @@
         ref="gameRoot"
         class="cq-game kr-container flex max-w-7xl flex-col gap-3"
         :class="{ 'cq-fullscreen': fullscreen }"
+        @keydown.esc="closePanel"
       >
         <cthulhuquarium-dialogue />
         <div
@@ -153,7 +154,7 @@
             />
 
             <div
-              class="pointer-events-none flex flex-wrap items-center justify-between gap-2 bg-base-200 p-2 sm:absolute sm:inset-x-0 sm:top-0 sm:items-start sm:bg-transparent sm:p-3"
+              class="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-wrap items-start justify-between gap-2 bg-gradient-to-b from-black/30 to-transparent p-2 sm:p-3"
             >
               <div
                 class="flex items-center gap-3 rounded-full bg-base-100/80 px-3 py-1.5 text-sm font-bold shadow backdrop-blur-sm"
@@ -313,6 +314,24 @@
               {{ panel.title }}
             </button>
           </nav>
+          <button
+            v-if="activePanel"
+            type="button"
+            class="cq-room-shade"
+            :aria-label="`Close ${activePanelName} and return to aquarium`"
+            @click="closePanel"
+          />
+          <div v-if="activePanel" class="cq-room-heading">
+            <span class="min-w-0 truncate font-serif font-black">{{ activePanelName }}</span>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm min-h-11 min-w-11 shrink-0"
+              :aria-label="`Close ${activePanelName}`"
+              @click="closePanel"
+            >
+              <Icon name="kind-icon:close" class="kr-icon-4" />
+            </button>
+          </div>
           <div
             v-show="activePanel === 'shop'"
             class="cq-side flex flex-col gap-3"
@@ -511,7 +530,6 @@
               </div>
             </div>
           </div>
-        </div>
 
         <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
            collection is the actual progression spine now ("ENDLESS BUT THE
@@ -748,6 +766,7 @@
         <details
           v-show="activePanel === 'scenery'"
           class="cq-support-panel group flex flex-col gap-2 kr-panel-divider"
+          open
         >
           <summary
             class="flex cursor-pointer list-none items-center justify-between gap-2"
@@ -904,6 +923,7 @@
             </div>
           </div>
         </details>
+        </div>
       </div>
     </Teleport>
 

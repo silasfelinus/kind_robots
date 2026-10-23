@@ -58,7 +58,7 @@ export function applySimpleFishingStop(
     ...state,
     stops,
     stage: 'REEL',
-    progress: Math.round(10 + 20 * (firstQuality + secondQuality) / 2),
+    progress: Math.round(10 + (20 * (firstQuality + secondQuality)) / 2),
     tension: 15,
     cue: 'Hooked! Tap REEL to pull. Tap GIVE SLACK whenever tension climbs above 65%.',
   }
@@ -106,9 +106,10 @@ export function applySimpleReel(
     actions,
     progress,
     tension,
-    cue: tension >= 65
-      ? 'The line is taut. Tap GIVE SLACK now.'
-      : 'Good pull. Keep reeling, or give slack to lower tension.',
+    cue:
+      tension >= 65
+        ? 'The line is taut. Tap GIVE SLACK now.'
+        : 'Good pull. Keep reeling, or give slack to lower tension.',
   }
 }
 

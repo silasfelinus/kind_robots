@@ -23,6 +23,8 @@ jobs:
         run: npx tsx utils/rulerHooked/game.selftest.ts
       - name: Fishing encounter self-test
         run: npx tsx utils/rulerHooked/encounter.selftest.ts
+      - name: Simplified fishing self-test
+        run: npx tsx utils/rulerHooked/simpleFishing.selftest.ts
       - name: Core engine self-test
         run: npx tsx utils/rulerHooked/engine.selftest.ts
       - name: Advisor self-test

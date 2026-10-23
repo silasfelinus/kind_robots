@@ -48,12 +48,12 @@ export type Milestone = {
 export const MILESTONES: Milestone[] = [
   { id: 'first-ending', title: 'A Permanent Position', detail: 'Reach your first ending. There is no exit interview.', icon: 'kind-icon:trophy', target: 1, badge: true, value: (_a, e) => e.length },
   { id: 'five-departments', title: 'Entirely Reviewed', detail: 'Get through all five departments in a single run.', icon: 'kind-icon:folder', target: 5, badge: true, value: (a) => Math.max(0, ...a.runs.map((r) => r.floors)) },
-  { id: 'employee-of-the-month', title: 'Employee of the Month', detail: 'Let the Board make you an example.', icon: 'kind-icon:award', target: 1, badge: true, value: (a) => a.runs.some((r) => r.endingId === 'employee-of-the-month') ? 1 : 0 },
+  { id: 'employee-of-the-month', title: 'Employee of the Month', detail: 'Let the Board make you an example.', icon: 'kind-icon:trophy', target: 1, badge: true, value: (a) => a.runs.some((r) => r.endingId === 'employee-of-the-month') ? 1 : 0 },
   { id: 'mutation-used', title: 'Medical Leave Denied', detail: 'Use an officially undocumented mutation.', icon: 'kind-icon:eye', target: 1, value: (a) => a.runs.some((r) => r.mutationUsed) ? 1 : 0 },
   { id: 'society-agent', title: 'Discreet Membership', detail: 'Carry out business for a secret society.', icon: 'kind-icon:users', target: 1, value: (a) => a.runs.some((r) => r.societyMet) ? 1 : 0 },
   { id: 'successor', title: 'Team Restructuring', detail: 'Make use of at least one Successor.', icon: 'kind-icon:refresh', target: 1, value: (a) => a.runs.some((r) => r.employees > 1) ? 1 : 0 },
   { id: 'forms-25', title: 'A Paper Trail', detail: 'Handle 25 files in a single run.', icon: 'kind-icon:book', target: 25, value: (a) => Math.max(0, ...a.runs.map((r) => r.files)) },
-  { id: 'test-report', title: 'Subject Under Observation', detail: 'Receive your first final psychological report.', icon: 'kind-icon:clipboard', target: 1, value: (a) => a.runs.length },
+  { id: 'test-report', title: 'Subject Under Observation', detail: 'Receive your first final psychological report.', icon: 'kind-icon:book', target: 1, value: (a) => a.runs.length },
   { id: 'three-endings', title: 'Repeat Offender', detail: 'Discover three different endings.', icon: 'kind-icon:layers', target: 3, value: (_a, e) => e.length },
   { id: 'exceptional-empathy', title: 'A Treatable Condition', detail: 'Score 10 or more Empathy on a final report.', icon: 'kind-icon:heart', target: 10, value: (a) => Math.max(0, ...a.runs.map((r) => r.grades.empathy)) },
 ]

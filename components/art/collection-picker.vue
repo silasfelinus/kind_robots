@@ -237,7 +237,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import type { ArtImage } from '~/prisma/generated/prisma/client'
 import type { ArtCollection } from '@/stores/helpers/collectionHelper'
 import { useArtStore } from '@/stores/artStore'
-import { useCollectionStore } from '@/stores/collectionStore'
+import { performFetch } from '@/stores/utils'
 import { useUserStore } from '@/stores/userStore'
 import { resolveArtImageThumbSrc } from '@/utils/artImageSrc'
 
@@ -277,7 +277,7 @@ const emit = defineEmits<{
 }>()
 
 const artStore = useArtStore()
-const collectionStore = useCollectionStore()
+const fetchedCollections = ref<ArtCollection[]>([])
 const userStore = useUserStore()
 const loadingCollections = ref(false)
 const collectionError = ref('')
@@ -291,7 +291,7 @@ const galleryId = 'memory-dungeon-deck-gallery'
 
 const availableCollections = computed<ArtCollection[]>(() => {
   const viewerId = Number(userStore.userId ?? userStore.user?.id ?? 0)
-  return collectionStore.collections.filter((collection) => {
+  return fetchedCollections.value.filter((collection) => {
     const permitted = collection.isPublic === true ||
       (viewerId > 0 && collection.userId === viewerId)
     return permitted && collection.isActive !== false
@@ -362,14 +362,13 @@ async function refreshCollectionIndex() {
   collectionError.value = ''
   try {
     // A lightweight index, not a full 200k-image archive fetch.
-    await collectionStore.fetchCollections(true, {
-      summary: true,
-      includeImages: false,
-      counts: false,
-      includePrivate: true,
-      includeMature: true,
-    })
-    if (!collectionStore.collections.length) {
+    const response = await performFetch<ArtCollection[]>(
+      '/api/art/collection?summary=true&includeImages=false&counts=false&includePrivate=true&includeMature=true',
+      {}, 1, 15_000,
+    )
+    if (!response.success) throw new Error(response.message || 'Collection index could not load.')
+    fetchedCollections.value = response.data ?? []
+    if (!fetchedCollections.value.length) {
       collectionError.value = 'No accessible collections returned. Check your login or create a collection in the Art Gallery.'
     }
   } catch {
@@ -457,10 +456,10 @@ function getCollectionMeta(collection: ArtCollection): string {
   }
 
   const imageCount = getCollectionImages(collection).length
-  const visibility = record.isPublic ? 'public' : 'private'
+  const visibility = record.isPublic ? 'public' : 'your private'
   const rating = record.isMature ? 'mature' : 'safe'
-
-  return `${imageCount} image${imageCount === 1 ? '' : 's'} · ${visibility} · ${rating}`
+  const countLabel = imageCount > 0 ? `${imageCount} preview image(s)` : 'Choose to load artwork'
+  return `${countLabel} · ${visibility} · ${rating}`
 }
 
 function hideBrokenPreview(event: Event) {

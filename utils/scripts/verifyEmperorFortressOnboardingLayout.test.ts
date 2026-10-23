@@ -20,6 +20,9 @@ assert.match(store, /function newRun\(\) \{[\s\S]*?introOpen\.value = true/)
 assert.match(chronicle, /defineEmits<\{ 'new-run': \[\] \}>/)
 assert.match(chronicle, /function startOver\(\) \{[\s\S]*?emit\('new-run'\)/)
 assert.match(page, /@new-run="enter\('throne'\)"/)
+assert.match(page, /@done="finishIntroduction"/)
+assert.match(page, /function finishIntroduction\(\)/)
+assert.match(page, /if \(firstAudience\) enter\('throne'\)/)
 
 // Tablet and phone stack the board before details. The quest room is one
 // bounded scroll owner so nothing overlaps, and the shell itself stays still.

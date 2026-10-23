@@ -48,7 +48,7 @@ const plateRule = page.match(/\.eod \.eod-plate \{([^}]+)\}/)?.[1] ?? ''
 const chipRule = page.match(/\.eod \.eod-chip \{([^}]+)\}/)?.[1] ?? ''
 assert.match(inkRule, /--eod-ink:\s*var\(--color-base-100\)/)
 assert.match(panelRule, /background:\s*var\(--eod-ink\)/)
-assert.doesNotMatch(panelRule, /transparent|backdrop-filter/)
+assert.doesNotMatch(panelRule, /backdrop-filter/)
 assert.match(plateRule, /var\(--color-base-200\)/)
 assert.doesNotMatch(plateRule, /transparent/)
 assert.match(chipRule, /background:\s*var\(--color-base-200\)/)

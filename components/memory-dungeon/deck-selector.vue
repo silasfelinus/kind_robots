@@ -47,7 +47,7 @@
     >
       <template v-if="selected.family === 'designed'">
         <span class="font-semibold"
-          >✦ Thirty-two original fantasy card illustrations. Two-card matching with
+          >✦ Thirty-six original fantasy card illustrations. Two-card matching with
           original game art.</span
         >
       </template>

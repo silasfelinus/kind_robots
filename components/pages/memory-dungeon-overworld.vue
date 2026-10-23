@@ -93,11 +93,23 @@
             class="relative min-h-0 min-w-0"
           >
             <button
-              v-if="world.mapMatching && world.mapCardAt(tile.key) && !world.state.revealed.includes(tile.key)"
+              v-if="
+                world.mapMatching &&
+                world.mapCardAt(tile.key) &&
+                !world.state.revealed.includes(tile.key)
+              "
               type="button"
               class="relative flex h-full w-full items-center justify-center overflow-hidden border border-[#bba16e]/75 bg-[#263951] shadow-inner transition hover:brightness-125 focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
-              :disabled="world.turnLocked || world.loading || world.mapCardAt(tile.key)?.flipped"
-              :aria-label="world.mapCardAt(tile.key)?.flipped ? 'Revealed memory picture; find its matching twin' : 'Flip map memory card'"
+              :disabled="
+                world.turnLocked ||
+                world.loading ||
+                world.mapCardAt(tile.key)?.flipped
+              "
+              :aria-label="
+                world.mapCardAt(tile.key)?.flipped
+                  ? 'Revealed memory picture; find its matching twin'
+                  : 'Flip map memory card'
+              "
               @click="world.pickMapCard(tile.key)"
             >
               <img
@@ -107,7 +119,12 @@
                 class="h-full w-full object-cover"
                 draggable="false"
               />
-              <span v-else class="text-[clamp(15px,2vw,25px)] text-[#e4cf9c]" aria-hidden="true">✥</span>
+              <span
+                v-else
+                class="text-[clamp(15px,2vw,25px)] text-[#e4cf9c]"
+                aria-hidden="true"
+                >✥</span
+              >
             </button>
             <button
               v-else-if="world.state.revealed.includes(tile.key)"
@@ -142,10 +159,23 @@
                 :aria-label="`Examine cross-world sigil: ${crossMapPuzzles[tile.key]?.title ?? 'Mystery'}`"
                 @click="world.examineCrossMapSigil(tile.key)"
               >
-                <img :src="crossMapImage(tile.key)" alt="A unique cross-world memory sigil" class="h-full w-full object-cover"/>
-                <span class="absolute bottom-0 right-0 rounded bg-[#201a2f] px-0.5 text-[11px]" aria-hidden="true">🔒</span>
+                <img
+                  :src="crossMapImage(tile.key)"
+                  alt="A unique cross-world memory sigil"
+                  class="h-full w-full object-cover"
+                />
+                <span
+                  class="absolute bottom-0 right-0 rounded bg-[#201a2f] px-0.5 text-[11px]"
+                  aria-hidden="true"
+                  >🔒</span
+                >
               </button>
-              <span v-else class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50" aria-label="A mysterious unrevealed seal awaits">✧</span>
+              <span
+                v-else
+                class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50"
+                aria-label="A mysterious unrevealed seal awaits"
+                >✧</span
+              >
             </div>
             <div
               v-else
@@ -162,16 +192,21 @@
         <div
           class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
         >
-          {{ world.state.revealed.length }}/60 paired squares · 4 cross-region seals
+          {{ world.state.revealed.length }}/60 paired squares · 4 cross-region
+          seals
         </div>
       </div>
 
       <aside
         class="w-full min-h-0 max-h-[34%] shrink-0 overflow-y-auto rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm lg:max-h-[calc(100%-1rem)] lg:w-64"
       >
-        <div class="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold text-[#735128]">
+        <div
+          class="mb-2 flex flex-wrap items-center gap-2 text-xs font-bold text-[#735128]"
+        >
           <span>Round {{ world.state.waveIndex + 1 }}/4</span>
-          <span v-if="world.mapMatching">Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span>
+          <span v-if="world.mapMatching"
+            >Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span
+          >
           <span v-else>Explore the map</span>
         </div>
         <button
@@ -181,7 +216,11 @@
           :disabled="world.loading"
           @click="world.prepareWave()"
         >
-          {{ world.loading ? 'Preparing picture cards…' : 'Retry loading picture cards' }}
+          {{
+            world.loading
+              ? 'Preparing picture cards…'
+              : 'Retry loading picture cards'
+          }}
         </button>
         <button
           v-if="!world.mapMatching && world.state.waveIndex < 3"
@@ -193,11 +232,18 @@
           Begin next memory round · {{ nextWaveCount }} cards
         </button>
         <h3 class="mb-1 text-base font-black">
-          {{ world.mapMatching ? 'The Whispering Fog' : world.selectedSite?.name ?? 'The Crooked Trail' }}
+          {{
+            world.mapMatching
+              ? 'The Whispering Fog'
+              : (world.selectedSite?.name ?? 'The Crooked Trail')
+          }}
         </h3>
         <p class="text-xs leading-relaxed">{{ world.state.status }}</p>
 
-        <div v-if="world.selectedSite && !world.mapMatching" class="mt-3 flex flex-wrap gap-1.5">
+        <div
+          v-if="world.selectedSite && !world.mapMatching"
+          class="mt-3 flex flex-wrap gap-1.5"
+        >
           <button
             v-if="world.selectedSite.kind === 'merchant'"
             type="button"
@@ -308,7 +354,9 @@
           <span>🔔 {{ world.hasChime ? 'Chime found' : 'Chime missing' }}</span>
         </div>
         <p class="mt-2 text-[11px] leading-snug text-[#675536]">
-          Matched picture pairs uncover two terrain squares. After each round, explore the cleared paths, meet characters and claim treasure. Four near-matching sigils link future world maps.
+          Matched picture pairs uncover two terrain squares. After each round,
+          explore the cleared paths, meet characters and claim treasure. Four
+          near-matching sigils link future world maps.
         </p>
       </aside>
     </div>
@@ -430,7 +478,11 @@ import {
   BRIAR_TILES,
   type BriarSiteKind,
 } from '~/utils/memoryDungeonWorld'
-import { BRIAR_CROSS_MAP_KEYS, BRIAR_CROSS_MAP_PUZZLES, BRIAR_WAVE_SIZES } from '~/utils/memoryDungeonWaves'
+import {
+  BRIAR_CROSS_MAP_KEYS,
+  BRIAR_CROSS_MAP_PUZZLES,
+  BRIAR_WAVE_SIZES,
+} from '~/utils/memoryDungeonWaves'
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
@@ -439,10 +491,15 @@ const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()
 const tiles = BRIAR_TILES
 const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
-const crossMapPuzzles: Record<string, { hint: string; title: string }> = BRIAR_CROSS_MAP_PUZZLES
-const nextWaveCount = computed(() => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0)
+const crossMapPuzzles: Record<string, { hint: string; title: string }> =
+  BRIAR_CROSS_MAP_PUZZLES
+const nextWaveCount = computed(
+  () => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0,
+)
 function crossMapImage(key: string): string {
-  const index = BRIAR_CROSS_MAP_KEYS.indexOf(key as (typeof BRIAR_CROSS_MAP_KEYS)[number])
+  const index = BRIAR_CROSS_MAP_KEYS.indexOf(
+    key as (typeof BRIAR_CROSS_MAP_KEYS)[number],
+  )
   return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
 }
 const sites = BRIAR_SITES

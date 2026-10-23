@@ -1,5 +1,10 @@
 import assert from 'node:assert/strict'
-import { ARCHETYPES, LENSES, type Choice, type EventId } from '../ecotone/content'
+import {
+  ARCHETYPES,
+  LENSES,
+  type Choice,
+  type EventId,
+} from '../ecotone/content'
 import {
   advance,
   chooseBeat,
@@ -14,7 +19,8 @@ import {
 import { openingLensChoices } from '../ecotone/openingLensChoices'
 import { EVENTS } from '../ecotone/story'
 
-type Style = 'investigator' | 'caretaker' | 'thrill' | 'solitary' | 'collaborator'
+type Style =
+  'investigator' | 'caretaker' | 'thrill' | 'solitary' | 'collaborator'
 
 const styles: Style[] = [
   'investigator',

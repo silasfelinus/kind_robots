@@ -10,7 +10,11 @@ import {
 } from '../ecotone/engine'
 import { openingLensChoices } from '../ecotone/openingLensChoices'
 
-function eligibleDecision(archetype: string): { cardId: string; choice: Choice; chapter: number } {
+function eligibleDecision(archetype: string): {
+  cardId: string
+  choice: Choice
+  chapter: number
+} {
   for (const card of ALL_CARDS) {
     const state = {
       ...createRun(73, archetype),
@@ -57,19 +61,13 @@ for (const archetype of ARCHETYPES) {
     chooseBeat(alreadySpent, choice.id),
     archetype.id + ' cannot spend twice in the same chapter',
   )
-  assert.equal(
-    originPerkAvailable({ ...base, phase: 'end' }, choice.id),
-    false,
-  )
+  assert.equal(originPerkAvailable({ ...base, phase: 'end' }, choice.id), false)
 
   const anotherChapter = ALL_CARDS.find(
     (candidate) =>
       candidate.chapter !== chapter &&
       openingLensChoices(candidate).some((item) =>
-        originPerkAvailable(
-          { ...alreadySpent, card: candidate.id },
-          item.id,
-        ),
+        originPerkAvailable({ ...alreadySpent, card: candidate.id }, item.id),
       ),
   )
   assert.ok(anotherChapter, archetype.id + ' has a fresh chapter opportunity')
@@ -128,7 +126,10 @@ for (const archetypeId of ['student', 'rower', 'gardener'] as const) {
     if (normal.pending?.entry.roll?.success !== false) continue
     assert.ok(altered.pending)
     if (archetypeId === 'student') {
-      assert.ok(altered.goodwill > normal.goodwill, 'failed research salvages goodwill')
+      assert.ok(
+        altered.goodwill > normal.goodwill,
+        'failed research salvages goodwill',
+      )
     } else if (archetypeId === 'rower') {
       assert.ok(altered.nerve >= normal.nerve, 'hazard resilience keeps nerve')
     } else {

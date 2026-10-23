@@ -2375,12 +2375,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         accept: {
           label: 'Accept the terms. Pick up a wrench.',
           response:
-            'Jinx tosses you a wrench. “The shiny bolts are mine,” the magpie says. “All of them.” At dusk a grey cart stops at the east siding. Jinx goes out to it alone.',
+            'Jinx tosses you a wrench. “The shiny bolts are mine,” Jinx says. “All of them.” At dusk a grey cart stops at the east siding. Jinx goes out to it alone.',
         },
         ask: {
           label: 'Ask who the engine belonged to.',
           response:
-            'Jinx turns a bolt in the lantern light and does not look at you. “Belonged,” the magpie says. “Past tense. Good word.”',
+            'Jinx turns a bolt in the lantern light and does not look at you. “Belonged,” Jinx says. “Past tense. Good word.”',
         },
         truth: [
           '“Grey paint under the rust, Majesty. Abbey engine. Hauled the night carts up the mission road for years. Then the line flooded.”',
@@ -2394,7 +2394,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           label:
             'Strip it with Jinx. Fair shares. What Jinx does with Jinx’s half is Jinx’s business.',
           response:
-            'Jinx tosses you a wrench. “Fair shares,” the magpie says. “Meaning mine.” At dusk the grey cart comes for Jinx’s half. You hear it go up the mission road. Half an engine. Enough to start.',
+            'Jinx tosses you a wrench. “Fair shares,” Jinx says. “Meaning mine.” At dusk the grey cart comes for Jinx’s half. You hear it go up the mission road. Half an engine. Enough to start.',
         },
         bargainAgain: {
           label: 'Pay Jinx for the whole engine. Every part stays here, dead.',
@@ -2425,7 +2425,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d42-engine-wrecked'],
             },
             response:
-              'It takes all night and most of the court. Jinx watches, coat bristling, bottle caps rattling. Not a claw lifted. By morning the engine is scrap. The magpie won’t sell you a nail all week.',
+              'It takes all night and most of the court. Jinx watches, coat bristling, bottle caps rattling. Not a claw lifted. By morning the engine is scrap. Jinx won’t sell you a nail all week.',
           },
         ],
       }),

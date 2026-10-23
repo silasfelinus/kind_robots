@@ -42,10 +42,14 @@ export async function resolveMemoryDungeonDeck(
 ): Promise<string[]> {
   if (choice.family === 'designed') {
     const paths = DESIGNED_DUNGEON_ART.map((item) => item.imagePath)
-    const available = unseenDeckPaths(paths.slice(designedOffset), previouslyUsed)
-    if (available.length < needed) throw new Error(
-      `Only ${available.length} unseen designed images remain; this round needs ${needed}. Choose a larger gallery or start a new run.`,
+    const available = unseenDeckPaths(
+      paths.slice(designedOffset),
+      previouslyUsed,
     )
+    if (available.length < needed)
+      throw new Error(
+        `Only ${available.length} unseen designed images remain; this round needs ${needed}. Choose a larger gallery or start a new run.`,
+      )
     return available.slice(0, needed)
   }
 
@@ -126,18 +130,20 @@ export async function resolveMemoryDungeonDeck(
           20_000,
         )
         if (!reply.success)
-          throw new Error(reply.message || 'Could not load a random image deck.')
+          throw new Error(
+            reply.message || 'Could not load a random image deck.',
+          )
         const received = reply.data ?? []
         if (!received.length) break
         for (const image of received) {
           const path = imageUrlForDeck(image)
           const identity = deckImageIdentity(path)
-          if (path && !usedIdentities.has(identity)) eligible.set(identity, image)
+          if (path && !usedIdentities.has(identity))
+            eligible.set(identity, image)
         }
         if (eligible.size >= needed) break
       }
       candidates = [...eligible.values()]
-
     }
 
     const allowed = candidates.filter((image) =>

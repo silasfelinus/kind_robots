@@ -34,7 +34,8 @@
     class="relative w-full overflow-hidden rounded-xl border border-base-300 shadow-inner"
     :aria-label="`Lakeside kingdom at ${scene?.time ?? 'day'}`"
   >
-    <div class="flex aspect-[7/4] flex-col">
+    <div class="flex flex-col"
+      :class="fill ? 'h-full' : 'aspect-[7/4]'">
       <div
         v-for="layer in layers"
         :key="layer.region"
@@ -77,8 +78,10 @@ const props = withDefaults(
     scene: SceneState | null
     regions: RegionsManifest
     showImages?: boolean
+    /** Only the coronation backdrop fills the entire play stage. */
+    fill?: boolean
   }>(),
-  { showImages: true },
+  { showImages: true, fill: false },
 )
 
 // The ruler's portrait belongs exclusively to the coronation screen. The

@@ -119,12 +119,12 @@ console.log(
 
 assert.equal(
   DESIGNED_DUNGEON_ART.length,
-  32,
-  'Designed fantasy deck has thirty-two unique art faces',
+  36,
+  'Designed fantasy deck has thirty-six unique art faces',
 )
 assert.equal(
   new Set(DESIGNED_DUNGEON_ART.map((item) => item.imagePath)).size,
-  32,
+  36,
 )
 assert.equal(
   DESIGNED_DUNGEON_ART.every((entry) =>

@@ -33,4 +33,21 @@ assert.match(game, /aria-label="Aquarium rooms"/)
 assert.match(game, /v-show="activePanel === 'shop'"/)
 assert.match(game, /v-show="activePanel === 'bestiary'"/)
 assert.match(game, /v-show="activePanel === 'scenery'"/)
+assert.match(
+  game,
+  /const activePanel = ref<AquariumPanel \\| null>\\(null\\)/,
+  'returning players should see the tank, not an automatically open shop',
+)
+assert.match(game, /class="cq-room-shade"/, 'open rooms shade the playable stage')
+assert.match(game, /class="cq-room-heading"/, 'every room has a common header')
+assert.match(game, /:aria-label="`Close \\$\\{activePanelName\\}`"/, 'room has a named close control')
+assert.match(
+  game,
+  /function selectPanel\\(panel: AquariumPanel\\) \\{[\\s\\S]*?activePanel\\.value === panel[\\s\\S]*?closePanel\\(\\)/,
+  'selecting an active room toggles back to the tank',
+)
+assert.match(game, /function openFishMarket\\(\\) \\{\\s*openPanel\\('shop'\\)/)
+assert.match(game, /\\.cq-room-shade \\{[\\s\\S]*?position: absolute/)
+assert.match(game, /\\.cq-command-deck \\{[\\s\\S]*?grid-template-columns: repeat\\(6/)
+
 console.log('Aquarium bounded console shell contract passed.')

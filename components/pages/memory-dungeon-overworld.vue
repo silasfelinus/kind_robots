@@ -267,7 +267,8 @@
             <div
               class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
             >
-              {{ completedCount }} cleared · {{ world.state.revealed.length }}/60 revealed
+              {{ completedCount }} cleared ·
+              {{ world.state.revealed.length }}/60 revealed
             </div>
           </div>
         </div>
@@ -355,7 +356,9 @@
                 {{
                   world.mapMatching
                     ? 'The Whispering Fog'
-                    : (world.activeScene?.title ?? world.selectedSite?.name ?? 'The Crooked Trail')
+                    : (world.activeScene?.title ??
+                      world.selectedSite?.name ??
+                      'The Crooked Trail')
                 }}
               </h3>
               <p
@@ -365,7 +368,7 @@
                 {{
                   world.mapMatching
                     ? world.state.status
-                    : (world.currentSceneText || world.state.status)
+                    : world.currentSceneText || world.state.status
                 }}
               </p>
               <p
@@ -404,12 +407,15 @@
           </button>
 
           <div
-            v-if="!world.mapMatching && (world.selectedSite || world.activeScene)"
+            v-if="
+              !world.mapMatching && (world.selectedSite || world.activeScene)
+            "
             class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
           >
             <template
               v-if="
-                world.activeScene && !world.state.sceneChoices[world.state.player]
+                world.activeScene &&
+                !world.state.sceneChoices[world.state.player]
               "
             >
               <button
@@ -526,7 +532,8 @@
             </template>
             <span
               v-if="
-                world.selectedSite?.kind === 'puzzle' && world.state.puzzleSolved
+                world.selectedSite?.kind === 'puzzle' &&
+                world.state.puzzleSolved
               "
               class="text-xs font-bold"
               >✓ Stones solved</span

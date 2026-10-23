@@ -59,6 +59,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const turnLocked = ref(false)
   const firstCard = ref<number | null>(null)
   const firstMapCard = ref<string | null>(null)
+  const latestMapCardKey = ref<string | null>(null)
   const mapDeckError = ref('')
   const runeInput = ref<string[]>([])
   /** Combat cells face up after the last action (by board index), until they turn back. */
@@ -94,6 +95,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function mapCardAt(key: string): BriarMapCard | undefined {
     return state.value.mapCards.find((card) => card.tile === key)
   }
+  // A readable, enlarged card face belongs in the encounter panel while the
+  // player is examining a picture, not squeezed into a 1/8-scale terrain tile.
+  const activeMapCard = computed(() => {
+    const key = latestMapCardKey.value
+    if (!key || !mapMatching.value) return null
+    const card = mapCardAt(key)
+    return card && card.flipped && !card.matched ? card : null
+  })
 
   const matureAvailable = computed(
     () =>
@@ -193,6 +202,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     turnLocked.value = false
     firstCard.value = null
     firstMapCard.value = null
+    latestMapCardKey.value = null
     mapDeckError.value = ''
     runeInput.value = []
     state.value = newBriarSave()
@@ -344,6 +354,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       return
     const card = mapCardAt(key)
     if (!card || card.matched || card.flipped) return
+    latestMapCardKey.value = key
     card.flipped = true
     if (!firstMapCard.value) {
       firstMapCard.value = key
@@ -824,6 +835,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     selectedSite,
     mapMatching,
     mapPairsMatched,
+    activeMapCard,
     waveSize,
     waveComplete,
     mapCardAt,

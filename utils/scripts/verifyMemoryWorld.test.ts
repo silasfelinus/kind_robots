@@ -551,3 +551,88 @@ assert.match(
   /Public mature only/,
   'Classic summary must not claim that mature mode mixes safe and mature artwork',
 )
+
+const consoleStage = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+assert.match(
+  consoleStage,
+  /data-testid="memory-world-console-stage"/,
+  'Overworld renders a dedicated, fully bounded console stage',
+)
+assert.match(
+  consoleStage,
+  /container: md-world \/ size/,
+  'Map stage uses its actual available dimensions, not viewport height',
+)
+assert.match(
+  consoleStage,
+  /@container md-world \(min-width: 760px\)/,
+  'Tablet landscape uses a two-column game layout independent of viewport breakpoint labels',
+)
+assert.match(
+  consoleStage,
+  /grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/,
+  'Map and encounter split available landscape width equally',
+)
+assert.match(
+  consoleStage,
+  /width: min\(100cqw, 100cqh\)/,
+  'Map fills its square viewport up to the available panel height',
+)
+assert.match(
+  consoleStage,
+  /class="md-scene-overview"/,
+  'Encounter panel includes a prominent image and narrative',
+)
+assert.match(
+  consoleStage,
+  /world\.activeMapCard\.image/,
+  'The selected picture is rendered at enlarged resolution in the encounter panel',
+)
+assert.match(
+  consoleStage,
+  /md-scene-status/,
+  'Current map status lives alongside the enlarged picture',
+)
+assert.match(
+  consoleStage,
+  /backgroundSize: '800% 800%'/,
+  'Exploration displays a closeup of the current map square',
+)
+assert.doesNotMatch(
+  consoleStage,
+  /kr-scroll min-h-0 w-full flex-1 overflow-y-auto/,
+  'Gameplay location panel does not become a vertically scrolling webpage',
+)
+assert.match(
+  consoleStage,
+  /\.md-map-layout \{[\s\S]*?overflow: hidden/,
+  'Entire game stage remains within the shell instead of scrolling',
+)
+assert.match(
+  worldStoreSource,
+  /const activeMapCard = computed\(/,
+  'Current flipped card is published for full-scale memory preview',
+)
+
+const layoutVerifier = readFileSync(
+  'utils/scripts/verifyLayoutContract.ts',
+  'utf8',
+)
+assert.match(
+  consoleStage,
+  /data-layout="console-fixed"/,
+  'Map explicitly opts into a bounded console instead of requiring scroll',
+)
+assert.match(
+  layoutVerifier,
+  /const fixedConsoleStage =/,
+  'Global layout contract has an explicit bounded-console exception',
+)
+assert.match(
+  layoutVerifier,
+  /!fixedConsoleStage/,
+  'Exception is restricted to named fixed consoles, not all pages',
+)

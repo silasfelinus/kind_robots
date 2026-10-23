@@ -329,6 +329,13 @@
             :aria-label="`Close ${activePanelName} and return to aquarium`"
             @click="closePanel"
           />
+          <img
+            v-if="activePanelArt"
+            :src="activePanelArt"
+            alt=""
+            aria-hidden="true"
+            class="cq-room-backdrop pointer-events-none absolute object-cover"
+          />
           <div v-if="activePanel" class="cq-room-heading">
             <span class="min-w-0 truncate font-serif font-black">{{
               activePanelName
@@ -1578,6 +1585,17 @@ function openPanel(panel: AquariumPanel) {
   if (panel === 'sets' && !showSets.value) onToggleSets()
   if (panel === 'decor' && !showDecor.value) onToggleDecor()
 }
+const activePanelArt = computed(() => {
+  switch (activePanel.value) {
+    case 'shop': return shopHeaderArt
+    case 'roster': return backgroundArt('parlour')
+    case 'bestiary': return (prefersReducedMotion() ? null : movingArt('ichthyonomicon')) ?? artByName('ichthyonomicon')
+    case 'sets': return backgroundArt('counting-house')
+    case 'decor': return backgroundArt('flooded-conservatory')
+    case 'scenery': return backgroundArt(tankStore.backgroundKey)
+    default: return null
+  }
+})
 const activePanelName = computed(
   () =>
     aquariumPanels.find((panel) => panel.id === activePanel.value)?.title ?? '',
@@ -2752,6 +2770,13 @@ onBeforeUnmount(() => {
   background: rgb(0 0 0 / 0.4);
   cursor: pointer;
 }
+.cq-room-backdrop {
+  z-index: 19;
+  inset: 0 0 3.7rem;
+  height: calc(100% - 3.7rem);
+  width: 100%;
+  filter: brightness(0.46) saturate(0.8);
+}
 .cq-room-heading {
   position: absolute;
   z-index: 25;
@@ -2784,9 +2809,12 @@ onBeforeUnmount(() => {
   overscroll-behavior: contain;
   border: 0;
   border-radius: 0.75rem;
-  background: color-mix(in oklab, var(--color-base-100) 94%, #13323b);
+  background: linear-gradient(90deg, var(--color-base-100) 0%, color-mix(in oklab, var(--color-base-100) 90%, transparent) 65%, color-mix(in oklab, var(--color-base-100) 78%, transparent) 100%);
   padding: 4.15rem clamp(0.75rem, 3vw, 2rem) 1.2rem;
   box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.4);
+}
+.cq-side > * {
+  max-width: min(100%, 49rem);
 }
 .cq-featured-frame {
   height: clamp(9rem, 27dvh, 22rem);

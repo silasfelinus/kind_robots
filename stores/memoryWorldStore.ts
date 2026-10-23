@@ -96,7 +96,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
             state.value.room = 'map'
             state.value.cards = []
             state.value.roomId = null
-            state.value.status = 'Mature gallery images are hidden until enabled in your account preferences.'
+            state.value.status =
+              'Mature gallery images are hidden until enabled in your account preferences.'
           }
         }
       } catch {
@@ -110,7 +111,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (allowed || !deck.value.includeMature) return
     selectDeck({ includeMature: false })
     if (state.value.room === 'memory') {
-      leaveRoom('Your mature-art preference changed. The gallery room closed without losing your map.')
+      leaveRoom(
+        'Your mature-art preference changed. The gallery room closed without losing your map.',
+      )
     }
   })
 

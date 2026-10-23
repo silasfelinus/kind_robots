@@ -443,7 +443,7 @@ const crossMapPuzzles: Record<string, { hint: string }> = BRIAR_CROSS_MAP_PUZZLE
 const nextWaveCount = computed(() => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0)
 function crossMapImage(key: string): string {
   const index = BRIAR_CROSS_MAP_KEYS.indexOf(key as (typeof BRIAR_CROSS_MAP_KEYS)[number])
-  return DESIGNED_DUNGEON_ART[28 + index]?.imagePath ?? ''
+  return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
 }
 const sites = BRIAR_SITES
 const settingsOpen = ref(false)

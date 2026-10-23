@@ -514,8 +514,8 @@ export function validateMystery(mystery: Mystery): string[] {
   if (!/no text/i.test(mystery.artPrompt)) at('artPrompt', 'asks for no text')
   if (!mystery.provenance) at('provenance', 'names its provenance')
   for (const text of playerText(mystery)) {
-    const hit = text.match(SIGN_WORDS)
-    if (hit) at('text', `names "${hit[0]}" outright: “${text.slice(0, 60)}…”`)
+    const word = text.match(SIGN_WORDS)?.[0]
+    if (word) at('text', `names "${word}" outright: “${text.slice(0, 60)}…”`)
   }
   return problems
 }

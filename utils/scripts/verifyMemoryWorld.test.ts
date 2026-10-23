@@ -19,6 +19,11 @@ import {
 } from '../memoryDungeonWaves'
 
 import {
+  BRIAR_STORY_ATLAS,
+  validateBriarStoryAtlas,
+} from '../memoryDungeonStoryAtlas'
+
+import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_LINKS,
@@ -39,6 +44,33 @@ assert.deepEqual(
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
 
+
+assert.deepEqual(
+  validateBriarStoryAtlas(),
+  [],
+  'Each of the 64 map squares needs an authored illustration brief and meaningful choice outcomes',
+)
+assert.equal(Object.keys(BRIAR_STORY_ATLAS).length, 64)
+for (const tile of BRIAR_TILES) {
+  const scene = BRIAR_STORY_ATLAS[tile.key]
+  assert.ok(scene, `Story scene missing at ${tile.key}`)
+  assert.ok(scene.artDirection.length > 30, `Unique art brief missing at ${tile.key}`)
+  assert.ok(scene.choices.length >= 2, `Non-interactive map tile at ${tile.key}`)
+  assert.ok(scene.choices.every(choice => choice.result.length > 15),
+    `All choices must describe a consequential scene change at ${tile.key}`)
+}
+for (const [key, title] of [
+  ['2,4', 'Briar Camp'],
+  ['4,2', "Mosswick's Stall"],
+  ['2,7', 'Three Quiet Stones'],
+  ['6,2', 'Rootbound Vault'],
+  ['8,4', 'Thorn Gate'],
+] as const) {
+  assert.equal(BRIAR_STORY_ATLAS[key]?.title, title,
+    `Narrative scene must keep the current functioning landmark identity: ${key}`)
+}
+assert.equal(BRIAR_REVEAL_WAVES.flat().length, 60)
+assert.equal(BRIAR_CROSS_MAP_KEYS.length, 4)
 const first = newBriarSave()
 assert.deepEqual(first.frontier, [])
 assert.deepEqual(first.revealed, [])

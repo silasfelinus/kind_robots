@@ -1,4 +1,5 @@
 import './verifyEcotoneAdversarial.test'
+import './verifyEcotonePlaystyles.test'
 import './verifyEcotoneEditorial.test'
 import './verifyEcotoneEnsemble.test'
 import './verifyEcotoneHangouts.test'

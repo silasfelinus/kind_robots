@@ -26,7 +26,7 @@ const STORY_FILES = [
 // Proper faction names such as Storm Crows and Mole Revolutionaries are
 // political affiliations, not a license to call an individual "a fox".
 const SPECIES_AS_IDENTITY =
-  /\b(?:a|an|the|another|two|three)\s+(?:[a-z][a-z-]*\s+){0,2}(?:koala|fennec|tortoise|hare|jackal|buffalo|armadillo|raccoon|boar|weasel|otter|rabbit|wolf|owl|magpie|rat|fox|prairie dog)\b/gi
+  /\b(?:a|an|the|another|two|three|every|each)\s+(?:(?:young|old|elderly|ancient|small|big|lean|thin|heavy|steady|nameless|free|grey-blue|little|taller|dead|snared|black|white|speckled|red)\s+){0,2}(?:koala|fennec(?: fox)?|tortoise|hare|jackal|buffalo|armadillo|raccoon|boar|weasel|otter|rabbit|wolf|owl|magpie|rat|fox|prairie dog|gecko|capybara|rhino|newt(?:-witch)?|leopard|badger|ferret|opossum|porcupine|ibis|antelope|civet|heron|hyena|pelican|hen|sloth|gorilla|moth)(?![-’'])\b/gi
 
 let inspected = 0
 for (const file of STORY_FILES) {
@@ -63,6 +63,9 @@ assert.doesNotMatch(
 )
 assert.match('A koala enters the throne room.', singleMatch)
 assert.match('An elderly wolf brought the petition.', singleMatch)
+assert.match('A hyena captain brought the petition.', singleMatch)
+assert.match('A young capybara in a novice robe arrived.', singleMatch)
+assert.match('The gecko courier stayed behind.', singleMatch)
 
 console.log(
   `Role-first Emperor prose contract: ${inspected} source files checked`,

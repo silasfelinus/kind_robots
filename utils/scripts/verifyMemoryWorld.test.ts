@@ -617,10 +617,22 @@ assert.match(
   'Current flipped card is published for full-scale memory preview',
 )
 
-const layoutVerifier = readFileSync('utils/scripts/verifyLayoutContract.ts', 'utf8')
-assert.match(consoleStage, /data-layout="console-fixed"/,
-  'Map explicitly opts into a bounded console instead of requiring scroll')
-assert.match(layoutVerifier, /const fixedConsoleStage =/,
-  'Global layout contract has an explicit bounded-console exception')
-assert.match(layoutVerifier, /!fixedConsoleStage/,
-  'Exception is restricted to named fixed consoles, not all pages')
+const layoutVerifier = readFileSync(
+  'utils/scripts/verifyLayoutContract.ts',
+  'utf8',
+)
+assert.match(
+  consoleStage,
+  /data-layout="console-fixed"/,
+  'Map explicitly opts into a bounded console instead of requiring scroll',
+)
+assert.match(
+  layoutVerifier,
+  /const fixedConsoleStage =/,
+  'Global layout contract has an explicit bounded-console exception',
+)
+assert.match(
+  layoutVerifier,
+  /!fixedConsoleStage/,
+  'Exception is restricted to named fixed consoles, not all pages',
+)

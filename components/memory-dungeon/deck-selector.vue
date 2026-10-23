@@ -120,9 +120,9 @@
         class="w-full text-[11px] text-[#e0cdad]"
       >
         All-art uses public images only. Your explicitly chosen owned collections
-        or recently generated works may also use your private art. The rating
-        selection never mixes mature and non-mature images. A room requires
-        at least 3 distinct loadable images, 4 for the Vault's last chamber.
+        or recently generated works may also use your private art.
+        <template v-if="matureAvailable">Each rating uses only that rating, never a mixture.</template>
+        A room requires at least 3 distinct loadable images, 4 for the Vault's last chamber.
       </span>
     </div>
     <div

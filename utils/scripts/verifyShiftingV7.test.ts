@@ -296,7 +296,8 @@ function simulate(policy: Policy, runs: number): Row {
           if (id === 'scout') row.scoutTaken++
           next = stepJourneyLedgerV7(ledger, { type: 'TRIAL', choiceId: id })
           if (next.current.journey.phase === 'boss')
-            row.trialFailuresByLand[index]!++
+            row.trialFailuresByLand[index] =
+              row.trialFailuresByLand[index]! + 1
         }
       } else if (!journey.active) {
         const open = reachableLocations(journey).filter(

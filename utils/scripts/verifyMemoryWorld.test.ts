@@ -301,24 +301,42 @@ assert.deepEqual(
   'Reloaded save still blocks all previously seen cards',
 )
 
-assert.equal(newBriarSave().mapDeckSignature, '', 'New runs have no old deck binding')
+assert.equal(
+  newBriarSave().mapDeckSignature,
+  '',
+  'New runs have no old deck binding',
+)
 const restoredDeck = restoreBriarSave({
   ...newBriarSave(),
   mapDeckSignature: '{"family":"gallery","gallery":"collections"}',
   revealed: ['2,4', '1,4'],
   attempts: 19,
 })
-assert.equal(restoredDeck.mapDeckSignature, '{"family":"gallery","gallery":"collections"}')
+assert.equal(
+  restoredDeck.mapDeckSignature,
+  '{"family":"gallery","gallery":"collections"}',
+)
 assert.deepEqual(restoredDeck.revealed, ['2,4', '1,4'])
 assert.equal(restoredDeck.attempts, 19)
 const oldDeckSave = restoreBriarSave({
   ...newBriarSave(),
   mapDeckSignature: undefined,
   mapCards: [
-    { id: 0, pairId: 0, image: '/designed.svg', tile: '2,4', flipped: false, matched: false },
+    {
+      id: 0,
+      pairId: 0,
+      image: '/designed.svg',
+      tile: '2,4',
+      flipped: false,
+      matched: false,
+    },
   ],
 })
-assert.equal(oldDeckSave.mapDeckSignature, '', 'Older saves must trigger art-source reconciliation')
+assert.equal(
+  oldDeckSave.mapDeckSignature,
+  '',
+  'Older saves must trigger art-source reconciliation',
+)
 
 const classicScreen = readFileSync(
   'components/pages/memory-dungeon.vue',
@@ -417,24 +435,53 @@ assert.doesNotMatch(
 )
 
 const sharedFlipCss = readFileSync('assets/css/memory-dungeon.css', 'utf8')
-const combatBoard = readFileSync('components/memory-dungeon/combat-board.vue', 'utf8')
-assert.match(worldStoreSource, /async function refreshMapDeck\(/,
-  'Changing galleries must refresh the active map deck')
-assert.match(worldStoreSource, /if \(previous !== currentDeckSignature\.value && mapMatching\.value\)/,
-  'Deck selection changes must be applied immediately while matching')
-assert.match(worldStoreSource, /state\.value\.mapCards\.filter\(\(card\) => !card\.matched\)/,
-  'Refacing the board must preserve matched cards and revealed terrain')
-assert.match(worldStoreSource, /state\.value\.mapDeckSignature = currentDeckSignature\.value/,
-  'Successful deck loads must record the applied source')
-assert.match(mapScreen, /world\.syncActiveMapDeck\(\)/,
-  'Older saved maps automatically resync artwork on opening')
-assert.match(mapScreen, /world\.mapDeckError/,
-  'Failed custom-gallery loads must show a visible error')
-assert.match(mapScreen, /role="dialog"/,
-  'Settings float as a game panel instead of reducing map height')
-assert.match(mapScreen, /md-card-inner/,
-  'Map cards animate with the same flip vocabulary as Classic')
-assert.match(combatBoard, /md-card-inner/,
-  'Combat cards animate the same way')
-assert.match(sharedFlipCss, /transition: transform 0\.55s ease/,
-  '3D flip retains Classic Match animation timing')
+const combatBoard = readFileSync(
+  'components/memory-dungeon/combat-board.vue',
+  'utf8',
+)
+assert.match(
+  worldStoreSource,
+  /async function refreshMapDeck\(/,
+  'Changing galleries must refresh the active map deck',
+)
+assert.match(
+  worldStoreSource,
+  /if \(previous !== currentDeckSignature\.value && mapMatching\.value\)/,
+  'Deck selection changes must be applied immediately while matching',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.mapCards\.filter\(\(card\) => !card\.matched\)/,
+  'Refacing the board must preserve matched cards and revealed terrain',
+)
+assert.match(
+  worldStoreSource,
+  /state\.value\.mapDeckSignature = currentDeckSignature\.value/,
+  'Successful deck loads must record the applied source',
+)
+assert.match(
+  mapScreen,
+  /world\.syncActiveMapDeck\(\)/,
+  'Older saved maps automatically resync artwork on opening',
+)
+assert.match(
+  mapScreen,
+  /world\.mapDeckError/,
+  'Failed custom-gallery loads must show a visible error',
+)
+assert.match(
+  mapScreen,
+  /role="dialog"/,
+  'Settings float as a game panel instead of reducing map height',
+)
+assert.match(
+  mapScreen,
+  /md-card-inner/,
+  'Map cards animate with the same flip vocabulary as Classic',
+)
+assert.match(combatBoard, /md-card-inner/, 'Combat cards animate the same way')
+assert.match(
+  sharedFlipCss,
+  /transition: transform 0\.55s ease/,
+  '3D flip retains Classic Match animation timing',
+)

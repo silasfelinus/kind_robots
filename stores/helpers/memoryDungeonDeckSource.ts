@@ -55,7 +55,7 @@ export async function resolveMemoryDungeonDeck(
 
   const user = useUserStore()
   const matureAllowed =
-    user.showMature === true || user.user?.showMature === true
+    user.isLoggedIn && !user.isChild && user.showMature === true
   const includeMature = choice.includeMature && matureAllowed
   const art = useArtStore()
   const viewerId = Number(user.userId ?? user.user?.id ?? 0)
@@ -124,6 +124,7 @@ export async function resolveMemoryDungeonDeck(
               source: generated ? 'generated' : 'all',
               needed: String(Math.min(32, needed + previouslyUsed.length)),
               includeMature: String(includeMature),
+              rating: includeMature ? 'mature' : 'safe',
             }).toString(),
           {},
           1,

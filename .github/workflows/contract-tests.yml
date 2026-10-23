@@ -48,6 +48,9 @@ jobs:
       - name: Solitaire engine contract
         run: npm run test:solitaire-engine
 
+      - name: Memory Dungeon first overworld reachability and save contract
+        run: npx tsx utils/scripts/verifyMemoryWorld.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 

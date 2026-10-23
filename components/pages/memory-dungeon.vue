@@ -1,7 +1,10 @@
 <!-- /components/content/story/memory-dungeon.vue -->
 <!-- root div -->
 <template>
-  <div class="kr-surface relative select-none gap-0 bg-(--kr-surface)">
+  <div class="kr-surface relative min-h-0 select-none gap-0 bg-(--kr-surface)">
+    <memory-dungeon-launcher v-if="!worldMode && !gameStarted" :error="launchError" @explore="startOverworld" @classic="startClassicFromLauncher" />
+    <memory-dungeon-overworld v-else-if="worldMode" @leave="worldMode = false" />
+    <div v-else class="flex min-h-0 flex-1 flex-col">
     <header
       v-if="gameStarted"
       class="relative z-20 shrink-0 border-b border-base-content/10 bg-base-300 shadow-md"
@@ -68,6 +71,14 @@
           ⚙️
           <span class="hidden sm:inline">{{ deckSummary }}</span>
         </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2"
+          title="Back to the Memory Dungeon game menu"
+          @click="returnToMenu"
+        >
+          ⌂ <span class="hidden sm:inline">Menu</span>
+        </button>
 
         <button
           class="btn btn-primary btn-sm h-8 min-h-8 shrink-0 rounded-xl px-2 text-base"
@@ -105,16 +116,14 @@
               v-if="gameStarted && !gameOver"
               class="kr-text-dim-xs"
             >
-              Changes apply when you restart.
+              Deck changes apply when you restart.
             </span>
           </div>
 
-          <collection-picker
-            title="Dungeon Deck"
-            :mode="pendingCardSource.mode"
-            :collection-id="pendingCardSource.collectionId"
-            :collection-ids="pendingCardSource.collectionIds"
-            @change="handleCollectionPickerChange"
+          <memory-dungeon-deck-selector
+            :selected="world.deck"
+            :mature-available="world.matureAvailable"
+            @change="world.selectDeck"
           />
 
           <button
@@ -173,132 +182,8 @@
       </div>
     </Transition>
 
-    <!-- ─── SPLASH SCREEN (pre-game takeover) ───────────────── -->
-    <div
-      v-if="!gameStarted"
-      class="splash-screen kr-scroll relative flex min-h-full flex-col bg-black"
-    >
-      <div
-        class="splash-hero relative flex min-h-[58svh] flex-col overflow-hidden sm:min-h-[64svh] lg:min-h-[70svh]"
-      >
-        <img
-          src="/images/background/memorydungeon.webp"
-          alt="Memory Match Dungeon"
-          class="splash-img absolute inset-0 h-full w-full object-cover"
-        />
-
-        <div
-          class="absolute inset-0 bg-linear-to-b from-black/55 via-transparent to-black/85"
-        ></div>
-        <div class="splash-vignette pointer-events-none absolute inset-0"></div>
-
-        <div class="torch torch-left">🔥</div>
-        <div class="torch torch-right">🔥</div>
-
-        <div
-          class="relative z-10 flex flex-col items-center px-4 pt-4 text-center sm:pt-8"
-        >
-          <p
-            class="splash-title text-4xl font-black tracking-widest text-yellow-100 sm:text-5xl md:text-6xl"
-          >
-            MEMORY MATCH DUNGEON
-          </p>
-          <p
-            class="mt-2 text-sm italic text-red-300/90 drop-shadow sm:text-base"
-          >
-            Enter at your own peril, mortal
-          </p>
-        </div>
-
-        <div
-          class="relative z-10 mt-auto flex flex-col items-center gap-3 px-4 pb-6 pt-6 sm:pb-10"
-        >
-          <div
-            class="flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-yellow-500/30 bg-black/65 p-3 text-yellow-100 shadow-2xl backdrop-blur sm:flex-row sm:items-start"
-          >
-            <label class="flex shrink-0 items-center justify-center gap-2 text-sm">
-              <span class="font-semibold">Difficulty:</span>
-              <select
-                v-model="pendingDifficulty"
-                class="rounded-xl border border-yellow-500/30 bg-base-300 px-3 py-2 text-base-content outline-none"
-              >
-                <option
-                  v-for="difficulty in memoryStore.difficulties"
-                  :key="difficulty.label"
-                  :value="difficulty"
-                >
-                  {{ difficulty.label }}
-                </option>
-              </select>
-            </label>
-
-            <collection-picker
-              class="min-w-0 flex-1"
-              title="Dungeon Deck"
-              :mode="pendingCardSource.mode"
-              :collection-id="pendingCardSource.collectionId"
-              :collection-ids="pendingCardSource.collectionIds"
-              @change="handleCollectionPickerChange"
-            />
-          </div>
-
-          <!-- Start / Back buttons always visible below the config row -->
-          <div class="flex w-full flex-col items-center gap-3 px-3 sm:px-4">
-            <button
-              v-if="pendingCardSource.mode !== 'all'"
-              type="button"
-              class="rounded-full border border-yellow-500/40 bg-black/50 px-4 py-2 text-sm font-semibold text-yellow-300 transition hover:bg-black/70 active:scale-95"
-              @click="useAllPendingArt"
-            >
-              ← All Images
-            </button>
-
-            <button
-              type="button"
-              class="splash-enter-btn max-w-full text-sm sm:text-base"
-              @click="startGame"
-            >
-              ⚔️ ENTER THE DUNGEON
-            </button>
-          </div>
-
-          <div
-            v-if="memoryStore.notification"
-            class="max-w-2xl rounded-2xl border border-error/40 bg-error/20 px-4 py-2 text-center text-sm font-semibold text-error-content backdrop-blur"
-          >
-            {{ memoryStore.notification.message }}
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="shrink-0 border-t border-yellow-700/30 bg-base-300/95 px-4 py-3"
-      >
-        <div
-          class="rounded-lg bg-black/60 p-3 text-xs leading-relaxed border border-yellow-600/20"
-        >
-          <div class="mb-1 font-bold text-yellow-300">🏆 Top Adventurers</div>
-          <ol v-if="leaderboard.length" class="space-y-0.5 text-yellow-50/90">
-            <li
-              v-for="(user, i) in leaderboard.slice(0, 3)"
-              :key="user.id"
-              class="flex justify-between"
-            >
-              <span>{{ i + 1 }}. {{ user.username }}</span>
-              <span class="font-mono font-bold text-yellow-400">
-                {{ user.matchRecord ?? '—' }}
-              </span>
-            </li>
-          </ol>
-          <p v-else class="italic text-yellow-50/50">
-            Be the first to leave a mark.
-          </p>
-        </div>
-      </div>
-    </div>
-
     <!-- ─── PLAY LAYOUT (board + log, only in-game) ─────────── -->
-    <div v-else class="relative flex min-h-0 flex-1 overflow-hidden">
+    <div class="relative flex min-h-0 flex-1 overflow-hidden">
       <div ref="boardPanel" class="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
         <div
           v-if="memoryStore.isLoading"
@@ -525,11 +410,18 @@
         </table>
       </div>
     </Transition>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useMemoryStore } from '@/stores/memoryStore'
+import MemoryDungeonOverworld from '@/components/pages/memory-dungeon-overworld.vue'
+import MemoryDungeonLauncher from '@/components/pages/memory-dungeon-launcher.vue'
+import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
+import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import { resolveMemoryDungeonDeck } from '~/stores/helpers/memoryDungeonDeckSource'
+import { normalizeDungeonDeck } from '~/utils/memoryDungeonDeck'
 import { useAchievementStore } from '@/stores/achievementStore'
 import {
   computed,
@@ -542,7 +434,40 @@ import {
 } from 'vue'
 import type { CSSProperties } from 'vue'
 import { useArtStore } from '@/stores/artStore'
-import type { CollectionPickerMode } from '@/components/art/collection-picker.vue'
+
+const world = useMemoryWorldStore()
+const worldMode = ref(false)
+const launchError = ref('')
+const classicDeckIncludesMature = ref(false)
+
+function returnToMenu(): void {
+  cancelChallenge()
+  memoryStore.setGameSuiteDeckResolver(null)
+  classicDeckIncludesMature.value = false
+  gameStarted.value = false
+  configOpen.value = false
+}
+
+watch(
+  () => world.matureAvailable,
+  (allowed) => {
+    if (allowed || !classicDeckIncludesMature.value) return
+    if (gameStarted.value) {
+      returnToMenu()
+      launchError.value = 'Mature-image visibility has changed. Choose a new deck to continue.'
+    }
+  },
+)
+
+function startClassicFromLauncher(): void {
+  pendingDifficulty.value = memoryStore.selectedDifficulty
+  void startGame()
+}
+
+function startOverworld(): void {
+  launchError.value = ''
+  worldMode.value = true
+}
 
 const artStore = useArtStore()
 
@@ -596,16 +521,6 @@ const memoryStore = useMemoryStore()
 const achievementStore = useAchievementStore()
 
 const pendingDifficulty = ref(memoryStore.selectedDifficulty)
-const pendingCardSource = reactive<{
-  mode: CollectionPickerMode
-  collectionId: number | null
-  collectionIds: number[]
-}>({
-  mode: 'all',
-  collectionId: null,
-  collectionIds: [],
-})
-
 const HIGH_SCORE_STORAGE_KEY = 'memoryDungeonHighScore'
 const MAX_POSSIBLE_LIVES = 8
 const MIN_LEVEL_PAIRS = 4
@@ -768,103 +683,17 @@ const powerups = ref<Powerup[]>([])
 const dungeonLog = ref<LogEntry[]>([])
 
 const deckSummary = computed(() => {
-  const source = memoryStore.cardSource
-
-  if (source.type === 'manual') return 'Custom art'
-
-  if (source.type === 'collection') {
-    return source.collectionId ? '1 collection' : 'All art'
+  const selected = world.deck
+  if (selected.family === 'designed') return 'Enchanted Deck'
+  if (selected.family === 'entities') {
+    return selected.entityKind.charAt(0).toUpperCase() + selected.entityKind.slice(1)
   }
-
-  if (source.type === 'collections') {
-    const count = source.collectionIds.length
-    if (!count) return 'All art'
-    return `${count} collection${count === 1 ? '' : 's'}`
-  }
-
-  return 'All art'
+  if (selected.gallery === 'all') return selected.includeMature ? 'All public + mature' : 'All public'
+  return `${selected.collectionIds.length} collection(s)`
 })
 
-function handleCollectionPickerChange(value: {
-  mode: CollectionPickerMode
-  collectionId: number | null
-  collectionIds: number[]
-}) {
-  if (value.mode === 'manual') return
-
-  pendingCardSource.mode =
-    value.mode === 'collection' ? 'collections' : value.mode
-  pendingCardSource.collectionId = null
-  pendingCardSource.collectionIds =
-    value.mode === 'collection' && value.collectionId
-      ? [value.collectionId]
-      : [...value.collectionIds]
-}
-
-function useAllPendingArt() {
-  pendingCardSource.mode = 'all'
-  pendingCardSource.collectionId = null
-  pendingCardSource.collectionIds = []
-}
-
-function syncPendingSettings() {
-  pendingDifficulty.value = memoryStore.selectedDifficulty
-
-  const source = memoryStore.cardSource
-
-  if (source.type === 'manual') {
-    pendingCardSource.mode = 'manual'
-    pendingCardSource.collectionId = null
-    pendingCardSource.collectionIds = []
-    return
-  }
-
-  if (source.type === 'collection' && source.collectionId) {
-    pendingCardSource.mode = 'collections'
-    pendingCardSource.collectionId = null
-    pendingCardSource.collectionIds = [source.collectionId]
-    return
-  }
-
-  if (source.type === 'collections' && source.collectionIds.length) {
-    pendingCardSource.mode = 'collections'
-    pendingCardSource.collectionId = null
-    pendingCardSource.collectionIds = [...source.collectionIds]
-    return
-  }
-
-  pendingCardSource.mode = 'all'
-  pendingCardSource.collectionId = null
-  pendingCardSource.collectionIds = []
-}
-
-function applyPendingSettings() {
+function applyPendingSettings(): void {
   memoryStore.selectedDifficulty = pendingDifficulty.value
-
-  if (pendingCardSource.mode === 'manual') return
-
-  if (
-    pendingCardSource.mode === 'collections' &&
-    pendingCardSource.collectionIds.length
-  ) {
-    memoryStore.useCollections(pendingCardSource.collectionIds)
-    return
-  }
-
-  memoryStore.useAllArtImages()
-}
-
-function normalizeLegacyCardSource() {
-  const source = memoryStore.cardSource
-
-  if (source.type === 'generated') {
-    memoryStore.useAllArtImages()
-    return
-  }
-
-  if (source.type === 'collection') {
-    memoryStore.useCollections(source.collectionId ? [source.collectionId] : [])
-  }
 }
 
 function loadHighScore() {
@@ -1150,6 +979,16 @@ async function startGame() {
 
   award.visible = false
 
+  world.hydrate()
+  const selection = normalizeDungeonDeck({
+    ...world.deck,
+    collectionIds: [...world.deck.collectionIds],
+  })
+  memoryStore.setGameSuiteDeckResolver((needed) =>
+    resolveMemoryDungeonDeck(selection, needed),
+  )
+  launchError.value = ''
+  classicDeckIncludesMature.value = selection.includeMature
   await resetBoardForCurrentLevel()
 
   if (!memoryStore.galleryImages.length) {
@@ -1158,6 +997,11 @@ async function startGame() {
         'The dungeon could not find enough playable images. Pick a collection with image cards first.',
       'system',
     )
+    launchError.value =
+      memoryStore.notification?.message ||
+      'The selected image source cannot fill this board. Choose more eligible images.'
+    memoryStore.setGameSuiteDeckResolver(null)
+    classicDeckIncludesMature.value = false
     gameStarted.value = false
     return
   }
@@ -1329,10 +1173,16 @@ function onLevelComplete() {
 
     await resetBoardForCurrentLevel()
 
+    if (!memoryStore.galleryImages.length) {
+      deathFlavor.value =
+        memoryStore.notification?.message ||
+        'The selected collection cannot fill the next floor. Choose a bigger deck from the menu.'
+      gameOver.value = true
+      addLog(deathFlavor.value, 'system')
+    }
+
     await nextTick()
-
     updateBoardBounds()
-
     levelTransitioning.value = false
   }, 1400)
 }
@@ -1598,8 +1448,7 @@ function usePowerup(powerup: Powerup) {
 }
 
 onMounted(async () => {
-  normalizeLegacyCardSource()
-  syncPendingSettings()
+  world.hydrate()
   loadHighScore()
 
   if (!achievementStore.highMatchScores.length) {

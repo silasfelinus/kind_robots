@@ -366,7 +366,8 @@ export function restoreBriarSave(input: unknown): BriarSave {
     waveIndex,
     wavePhase: saved.wavePhase === 'exploring' ? 'exploring' : 'matching',
     mapCards: waveCards,
-    mapDeckSignature: typeof saved.mapDeckSignature === 'string' ? saved.mapDeckSignature : '',
+    mapDeckSignature:
+      typeof saved.mapDeckSignature === 'string' ? saved.mapDeckSignature : '',
     seenMapImages: [
       ...new Set([
         ...(Array.isArray(saved.seenMapImages)

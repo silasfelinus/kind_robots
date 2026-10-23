@@ -366,8 +366,10 @@ export function restoreBriarSave(input: unknown): BriarSave {
     seenMapImages: [
       ...new Set([
         ...(Array.isArray(saved.seenMapImages)
-          ? saved.seenMapImages.filter((value): value is string =>
-              typeof value === 'string' && value.length > 0)
+          ? saved.seenMapImages.filter(
+              (value): value is string =>
+                typeof value === 'string' && value.length > 0,
+            )
           : []),
         ...waveCards.map((card) => card.image),
       ]),

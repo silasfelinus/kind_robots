@@ -628,7 +628,8 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'From the roost, every Conclave watcher faces the same way. East, toward the sunken rail yards.',
-      partial: 'The climbers saw the Conclave watchers, and the watchers saw them.',
+      partial:
+        'The climbers saw the Conclave watchers, and the watchers saw them.',
       failure: 'The roost guards were not as silent as the rest.',
       expired: 'Nobody climbed.',
     },

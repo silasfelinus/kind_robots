@@ -451,10 +451,14 @@ export function restoreBriarSave(input: unknown): BriarSave {
   }
 }
 
-export type BriarTileProgress = 'hidden' | 'unvisited' | 'unfinished' | 'complete'
+export type BriarTileProgress =
+  'hidden' | 'unvisited' | 'unfinished' | 'complete'
 
 /** A revealed square is not "clear" until its one-time story and site work are settled. */
-export function briarTileProgress(save: BriarSave, key: string): BriarTileProgress {
+export function briarTileProgress(
+  save: BriarSave,
+  key: string,
+): BriarTileProgress {
   if (!save.revealed.includes(key)) return 'hidden'
   if (!save.visited.includes(key)) return 'unvisited'
   if (BRIAR_SCENES[key] && !save.sceneChoices[key]) return 'unfinished'

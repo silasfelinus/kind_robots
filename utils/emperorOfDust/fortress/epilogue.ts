@@ -517,7 +517,7 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
     variants: [
       {
         when: { flags: ['d38-named-in-court'] },
-        text: 'Brass buttons, the Mole boy said, and Factor Tallow laid a hand over her waistcoat in front of the whole court. Nothing was ever proved. She sewed on horn buttons the next morning. She has worn horn ever since.',
+        text: 'Brass buttons, the young prisoner said, and Factor Tallow laid a hand over her waistcoat in front of the whole court. Nothing was ever proved. She sewed on horn buttons the next morning. She has worn horn ever since.',
       },
       {
         when: { flags: ['ledger-crisis'] },
@@ -847,12 +847,12 @@ const KINGDOM: EpilogueSubject[] = afterTheWar([
       },
       {
         when: { flags: ['mole-messenger-arrested'] },
-        text: 'Granny Umber walked out of the crown’s cells the way she walked in: slowly, smiling. She has never once mentioned the cell. She does not need to. Every Mole child tells the story, and does her squint.',
+        text: 'Granny Umber walked out of the crown’s cells the way she walked in: slowly, smiling. She has never once mentioned the cell. She does not need to. Every child in the burrows tells the story, and does her squint.',
       },
       {
         when: { flags: ['moles-blamed'], notFlags: ['d26-ford-reparations'] },
         mood: 'angry',
-        text: 'The Mole cousins arrested for the Ford came home in spring, pale from the crown’s cells. Nobody apologised. Granny Umber met them at the burrow mouth with a shovel each. Among Moles that is welcome home. It is also a reminder.',
+        text: 'The cousins from the burrows arrested for the Ford came home in spring, pale from the crown’s cells. Nobody apologised. Granny Umber met them at the burrow mouth with a shovel each. Among Moles that is welcome home. It is also a reminder.',
       },
       {
         when: { flags: ['mole-truce'] },

@@ -1,6 +1,7 @@
 import './verifyEcotoneAdversarial.test'
 import './verifyEcotoneSoloRepair.test'
 import './verifyEcotonePerks.test'
+import './verifyEcotoneSceneOffers.test'
 import './verifyEcotonePlaystyles.test'
 import './verifyEcotoneEditorial.test'
 import './verifyEcotoneEnsemble.test'

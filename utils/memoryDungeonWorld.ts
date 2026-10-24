@@ -230,6 +230,8 @@ export interface BriarMapCard extends BriarMemoryCard {
   tile: string
 }
 
+export type BriarPrologueChoice = 'terms' | 'anchor'
+
 export interface BriarSave {
   waveIndex: number
   wavePhase: 'matching' | 'exploring'
@@ -242,6 +244,7 @@ export interface BriarSave {
   revealed: string[]
   visited: string[]
   sceneChoices: Record<string, string>
+  prologueChoice: BriarPrologueChoice | null
   frontier: string[]
   player: string
   attempts: number
@@ -269,6 +272,7 @@ export function newBriarSave(): BriarSave {
     revealed: [],
     visited: [],
     sceneChoices: {},
+    prologueChoice: null,
     frontier: [],
     waveIndex: 0,
     wavePhase: 'matching',
@@ -408,6 +412,10 @@ export function restoreBriarSave(input: unknown): BriarSave {
     revealed,
     visited,
     sceneChoices,
+    prologueChoice:
+      saved.prologueChoice === 'terms' || saved.prologueChoice === 'anchor'
+        ? saved.prologueChoice
+        : null,
     frontier,
     player:
       typeof saved.player === 'string' && revealed.includes(saved.player)

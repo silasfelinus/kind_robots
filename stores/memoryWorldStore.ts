@@ -18,6 +18,7 @@ import {
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
+  type BriarPrologueChoice,
 } from '~/utils/memoryDungeonWorld'
 import {
   BRIAR_SCENES,
@@ -218,6 +219,27 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       )
     }
   })
+
+  function recordPrologueChoice(choice: BriarPrologueChoice): void {
+    if (
+      state.value.prologueChoice !== null ||
+      state.value.revealed.length > 0 ||
+      state.value.mapCards.length > 0 ||
+      state.value.attempts > 0
+    )
+      return
+    state.value.prologueChoice = choice
+    if (choice === 'terms') {
+      state.value.lanterns += 1
+      state.value.status =
+        'You demanded the terms of the exchange. You awaken holding a second lantern, though Morrow kept the answers.'
+    } else {
+      state.value.wildflowers += 1
+      state.value.status =
+        'You held fast to the memory of an ordinary morning. A single silver flower survives the crossing with you.'
+    }
+    persist()
+  }
 
   function reset(): void {
     roomEpoch++
@@ -910,6 +932,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     matchedPairs,
     hydrate,
     reset,
+    recordPrologueChoice,
     reveal,
     walk,
     chooseScene,

@@ -51,10 +51,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         'The raiders broke and ran. A novice fen witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
       success:
         'The camp is scattered. A lantern-witch named Isolde thanks the party, then asks to see the emperor alone.',
-      partial: 'The raiders pulled back. Not far.',
+      partial:
+        'The raiders retreat into the reed line, close enough for their cooking smoke to reach the village. The watch ties three strips of red cloth to the fence for the families still hiding beyond it.',
       failure:
-        'The party was driven off. Lanterns burned in the fen all night. Not all of them were the Mothers’.',
-      expired: 'No help came. The Mothers will not ask twice.',
+        'The party comes back by the road, stripped of its warning bells. Lanterns burn across the fen until dawn. Sister Reedlight says the raiders hung some of them; she will not say which.',
+      expired:
+        'No aid reaches the fen. Sister Reedlight leaves a dry bundle of broken reeds at the fortress gate. By morning every village pole on the road has been stripped of its lantern.',
     },
   },
   {
@@ -89,9 +91,10 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Jars. Shelves of them, labelled in a neat hand with dates and village names. Some jars are small. The party took the ledger and left the jars.',
-      partial: 'The party saw the cellar door, and the lock, and left.',
+      partial:
+        'Behind the cellar door something glass knocks gently against something else. The lock carries the stamp of Hollow Bell’s old foundry. The investigators leave with a sketch of it and empty hands.',
       failure:
-        'The Mothers caught the party on the stairs and smiled at them all the way out.',
+        'Sister Reedlight meets the party halfway down the stairs with a tray of tea. The investigators climb back into daylight still holding untouched cups. Their map is gone.',
       expired:
         'The party never went down. Sister Reedlight sent the crown a green lantern, unlit. The Mothers saw the search posted, and saw it not dare.',
     },
@@ -132,9 +135,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The engine runs. The Pack cheered Saffron like a captain come home. She wept, then denied it. Hollow Bell’s stream runs lower.',
-      partial: 'The engine coughs. It runs every other day.',
-      failure: 'The engine blew. Nobody is speaking to anybody.',
-      expired: 'The Pack waited. Then it stopped waiting.',
+      partial:
+        'The Rustline pump starts on the second pull and dies by supper. The Pack posts a guard beside it anyway. Hollow Bell’s stream runs low whenever the engine turns.',
+      failure:
+        'The pump breaks its flywheel on the first full load. A chunk lands in the watch tent. Gristle Vane sends the cracked bearing to the throne wrapped in the dead mechanic’s apron.',
+      expired:
+        'The Pack leaves the pump shed open and drains the oil into the dry creek bed. Gristle Vane nails a tally of wasted days to the door. His riders have returned to the toll road.',
     },
   },
   {
@@ -171,10 +177,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'The engine runs clean. In a month it won’t. Nobody in the canyon suspects.',
       partial:
-        'The engine runs. Whether it fails on schedule is anyone’s guess.',
+        'The sabotaged engine turns without complaint. The filed pin slides under the mechanic’s thumb but holds. The party leaves without learning which shift will be blamed when it breaks.',
       failure:
         'Gristle Vane found the filed bolt himself. He kept it. He will show it to people.',
-      expired: 'The chance passed.',
+      expired:
+        'The mechanic replaces the weakened pin before the party arrives. The old one sits on the workbench in a clean envelope. Gristle Vane asks who wanted the engine to fail.',
     },
   },
   {
@@ -214,9 +221,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'Ash Quill will live. The satchel held a brass hourglass addressed to Young Komodo. He waved it off. The court could have it.',
       partial:
-        'The courier lived, barely. A caravan carried them home before anyone asked questions.',
-      failure: 'The fever won.',
-      expired: 'Nobody came in time.',
+        'The fever breaks just before dawn. The courier is carried home wrapped in the caravan master’s spare coat, satchel clenched under one arm. Young Komodo asks whether anyone opened it.',
+      failure:
+        'The courier’s cot is empty when the healers reach it. A stopped hourglass stands beside a sealed satchel. Nobody at the infirmary will sign the delivery receipt.',
+      expired:
+        'The road party reaches the milepost after the stretcher tracks have been washed away. Only the courier’s brass seal remains, pressed into the mud. It bears the tower’s address.',
     },
   },
   {
@@ -248,9 +257,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Struck, the feathers ring on the Hollow Bell’s note. Pell, the salvager who brought them, wants to know what the court learned. And if it’s hiring.',
-      partial: 'The feathers were catalogued. Nobody understands them.',
-      failure: 'One feather cracked. The salvagers took the rest home.',
-      expired: 'The salvagers sold the crate in the market.',
+      partial:
+        'The Archive numbers every feather and pins them under glass. By morning one pin has turned green and the others have not. The clerk locks the specimen drawer and gives the key to the throne.',
+      failure:
+        'The first feather splits when struck and leaves a thin blue line across the measuring table. Pell wraps the others in his coat. He says the Archive may buy the broken piece at full price.',
+      expired:
+        'The feather crate sells before the court answers. A buyer takes it under a canvas sheet through the north gate. The watch officer remembers the cart, not the face behind the reins.',
     },
   },
   {
@@ -282,9 +294,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Two haystacks held grain sacks stamped with an Old House crest. The third held hay. And a Gate Watch lantern, still warm.',
-      partial: 'One haystack held grain. Its owner ran before the questions.',
-      failure: 'The haystacks were hay. The Yard does not believe it.',
-      expired: 'The haystacks were moved in the night.',
+      partial:
+        'The searchers cut open a single haystack and find Old House flour seals under the straw. The farmer’s boots are still by the door. The farmer is gone, and the Yard gets only one wagon.',
+      failure:
+        'The three haystacks hold ordinary winter fodder. Dunmore Ash comes to see the empty evidence sacks himself. He takes one home and hangs it by the oven as a reminder of what the raid cost.',
+      expired:
+        'The hiding place is bare at dawn, the grass underneath still pale. Wagon ruts lead toward the Old Houses’ private ford. They disappear where the road joins the river.',
     },
   },
   {
@@ -323,9 +338,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
         'Three runners and a Crow dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead elder crow. It shows a lie for what it is. The court has it now.',
       success:
         'The false reports ran through a Crow dead-drop to somewhere inside the fortress. In the dead-drop: a dead elder crow’s glass eye. It shows a lie for what it is.',
-      partial: 'The trail went cold at the Crow dead-drop.',
-      failure: 'The runners were gone before anyone could follow.',
-      expired: 'The reports kept coming. Some were wrong.',
+      partial:
+        'The dead-drop is empty except for a black thread caught in its hinge. It smells of lamp oil from inside the fortress. The runner asks whether the court wants the thread or the name.',
+      failure:
+        'Three messengers leave the city before the Watch reaches their lodgings. A fourth bed has been slept in but no one booked it. Its pillowcase bears a court laundry mark.',
+      expired:
+        'Each morning brings another contradictory report, all bearing the tower’s own seal. The Archive clerk keeps them in a separate stack. The stack is taller than the true ones by week’s end.',
     },
   },
   {
@@ -356,10 +374,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Hollow Bell let them in. Mara Reedbell wrote every name. Then she looked at the crown’s riders and wrote theirs.',
-      partial: 'Some were let in. Some were not.',
+      partial:
+        'Mara opens the bell gate for families with trade papers first. The others make camp in the ditch beneath the walls. Their cookfire smoke reaches the mayor’s bedroom window.',
       failure:
-        'The Bell’s gate stayed shut. The party slept outside it with the refugees.',
-      expired: 'The refugees went to the Abbey.',
+        'Mara keeps the gate barred. The escort sleeps among the refugees, passing one cooking pot between six fires. At dawn someone has painted the crown’s mark on the locked gate.',
+      expired:
+        'The abandoned escort notice remains on the throne board. An Abbey wagon reaches the refugees before the crown does. Its driver leaves a list of names for the tax office to cross out.',
     },
   },
   {
@@ -418,9 +438,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'Hollow Bell voted yes, by nine hands. The bell rang. Somebody was holding the rope.',
       partial:
-        'The vote tied. Mara Reedbell broke it and would not say which way.',
-      failure: 'Hollow Bell voted no. Mara was polite about it.',
-      expired: 'Nobody spoke for the crown. Hollow Bell voted no.',
+        'Mara breaks the deadlock behind the old chapel door. When she comes out, she has put the voting tally in her ledger backward. She refuses to read the margin aloud.',
+      failure:
+        'The town votes against the crown. Mara Reedbell delivers the result in person and brings a loaf from the town bakery. It has been cut in half before she arrives.',
+      expired:
+        'The speaker’s chair stays empty through the Bell’s assembly. Mara folds the unused invitation and files it beside the negative tally. The bell rings once, without ceremony.',
     },
   },
   {
@@ -459,11 +481,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The dam held. The map room has a new blue line where the reservoir will be.',
-      partial: 'The dam held, mostly. The lower fields flooded.',
+      partial:
+        'The dam keeps its crown and loses its southern spillway. The water finds the tenant fields first. A farmer brings the map room three bricks marked with flood depth.',
       failure:
-        'The dam failed. The Ford took two villages, then came through the burrow ceilings under them.',
+        'The dam tears open at the center. By morning the two riverside villages stand knee-deep in silt. The burrow roofs below them split under the weight of the water, and Granny Umber demands the names of whoever signed the design.',
       expired:
-        'The dam stood cracked and alone. The first hard rain took it in an hour. The Ford took two villages.',
+        'The dam holds without repair until the first hard rain. It breaks in an hour. Two villages are evacuated toward the eastern road, carrying grain ledgers and their door keys because they still intend to return.',
     },
     outcomeVariants: {
       failure: [

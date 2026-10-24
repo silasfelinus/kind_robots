@@ -16,6 +16,64 @@ export interface BriarScene {
 }
 
 export const BRIAR_SCENES: Record<string, BriarScene> = {
+  '4,4': {
+    title: 'Their Identical Royal Highnesses',
+    opening:
+      'Two princesses have arrived with a carriage stuck firmly between two trees. One wears an immaculate traveling coat and a crown pinned squarely above a practical braid. Her sister has the same face, broad shoulders and knowing grin, but darker skin, a web of black lace, battered velvet, silver jewelry and a severe sweep of goth makeup. “Scylla,” says the proper one. “Char,” says the other. “Charybdis on formal occasions. We are identical, obviously.” Before you can explain the problem with your stolen life, both announce that they are helping.',
+    artPrompt:
+      'Western-animation dark storybook ensemble, Scylla and Charybdis identical sturdy farm-built adult mermaid twin princesses with matching faces and differing skin tones; proper tailored crown-and-coat style contrasted with authentic layered goth lace velvet dark makeup and silver jewelry, a forest carriage wedged between trees, warm lively expressive body language, no waif or pinup anatomy',
+    choices: [
+      {
+        id: 'escort',
+        label: 'Accept the princesses as traveling companions',
+        gain: { wildflowers: 1 },
+        outcome:
+          'Scylla draws up an escort proclamation. Char draws a skull over its seal. They give you a silver wildflower, insist the entire affair is settled, and send a summons to their headsman to handle the transport.',
+      },
+      {
+        id: 'question',
+        label: 'Ask why identical twins look so different',
+        gain: { lanterns: 1 },
+        outcome:
+          'Both stare at you in the same scandalized way. “Different waters,” says Char. “Same face,” says Scylla. “That is how tides work.” They offer you a lantern to examine the evidence and then declare your new expedition official anyway.',
+      },
+    ],
+  },
+  '4,3': {
+    title: 'The Headsman Keeps a Manifest',
+    opening:
+      'The royal headsman towers over a wagon wheel in his executioner’s hood, broad axe balanced against one shoulder. He never removes the mask. With one clean stroke he frees the wheel from a root, then unrolls a densely annotated travel manifest. “Three princesses’ worth of luggage,” he mutters, despite there being only two princesses. “One borrowed changeling. Four roads closed by narrative improbability. I have allowed for lunch.”',
+    artPrompt:
+      'Cinematic western animated gothic fairy tale, intimidating sturdy adult royal executioner Oren Pike in permanent traditional cloth headsman hood with eyeholes, holding ceremonial axe while expertly sorting supply manifests, practical packed carriage, two royal sisters in background, humorous logistics competence, no exposed face, original design',
+    callbacks: [
+      {
+        at: '4,4',
+        choice: 'escort',
+        line: 'He inspects Scylla’s escort proclamation and silently files it under UNNECESSARY BUT BINDING.',
+      },
+      {
+        at: '4,4',
+        choice: 'question',
+        line: 'He sees your lantern. “They gave you the demonstration, then. Happens every spring.”',
+      },
+    ],
+    choices: [
+      {
+        id: 'plan',
+        label: 'Ask Oren for a workable itinerary',
+        gain: { lanterns: 1 },
+        outcome:
+          'Oren divides the map into reachable stages, marks the dangerous crossings, and hands you a spare lantern. “The axe is for emergencies,” he explains. “The schedule prevents them.”',
+      },
+      {
+        id: 'load',
+        label: 'Help organize the supplies for the road',
+        gain: { wildflowers: 1 },
+        outcome:
+          'You sort six parcels by destination, discover one mislabeled chest, and save Oren a return trip. Without a word he gives you a silver wildflower. This is apparently how royal commendations work.',
+      },
+    ],
+  },
   '2,4': {
     title: 'The Signpost Has Two Arrows',
     opening:

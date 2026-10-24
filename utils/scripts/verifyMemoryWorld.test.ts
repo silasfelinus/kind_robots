@@ -124,6 +124,21 @@ for (const key of sceneCoordinates) {
   assert.equal(scene.choices.length, 2, `Scene ${key} has two decisions`)
   assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
 }
+
+assert.equal(
+  BRIAR_SCENES['4,4']?.choices.length,
+  2,
+  'The mermaid twins offer two different responses',
+)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Scylla/)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Charybdis/)
+assert.match(BRIAR_SCENES['4,3']!.opening, /executioner’s hood/)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['4,3']!, { '4,4': 'escort' }),
+  /UNNECESSARY BUT BINDING/,
+  'Oren responds to the player's earlier choice',
+)
+
 assert.match(
   briarSceneOpening(BRIAR_SCENES['6,4']!, { '3,5': 'light' }),
   /own voice thanks to you/,

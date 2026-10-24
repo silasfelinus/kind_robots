@@ -565,163 +565,425 @@ export const HOUSE_ROOMS: Record<string, HouseRoom> = {
     artPrompt:
       'Western animated mature Grimm fantasy, a single story scene: Vintage parlor with ornate mirror showing awkward Earth office scenes as memory echoes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-21.webp',
-    exits: ["HD-22"],
-    choices: [{"id":"archive","label":"Keep the humiliating memory as evidence","outcome":"The Chronicle records Morrow's early harm without pretending it is their whole character."},{"id":"turn","label":"Turn the mirror toward the empty room","outcome":"The laughter stops. You are still allowed to feel angry, but you stop inviting an audience."}],
+    exits: ['HD-22'],
+    choices: [
+      {
+        id: 'archive',
+        label: 'Keep the humiliating memory as evidence',
+        outcome:
+          "The Chronicle records Morrow's early harm without pretending it is their whole character.",
+      },
+      {
+        id: 'turn',
+        label: 'Turn the mirror toward the empty room',
+        outcome:
+          'The laughter stops. You are still allowed to feel angry, but you stop inviting an audience.',
+      },
+    ],
   },
   'HD-22': {
     id: 'HD-22',
-    title: "Index Collector",
+    title: 'Index Collector',
     kind: 'combat',
-    opening: "The Collector counts each unpaired card with cold precision. Its next sweep is announced two turns ahead, not sprung as a surprise.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Tall paper-armored bureaucratic collector with glowing marked card-column pattern over its gauntlet. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The Collector counts each unpaired card with cold precision. Its next sweep is announced two turns ahead, not sprung as a surprise.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Tall paper-armored bureaucratic collector with glowing marked card-column pattern over its gauntlet. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-22.webp',
-    exits: ["HD-23"],
-    choices: [{"id":"challenge","label":"Demand the Collector justify its seizure","outcome":"The Collector produces a rulebook missing the page authorizing possession of a person."},{"id":"feint","label":"Study the visible two-turn attack pattern","outcome":"You identify the safe column. Remembering the tell is better than being lucky."},{"id":"duel","label":"Fight the Collector using the remembered safe columns","outcome":"The Collector yields its stamp rather than claiming the lives it was sent to count."}],
+    exits: ['HD-23'],
+    choices: [
+      {
+        id: 'challenge',
+        label: 'Demand the Collector justify its seizure',
+        outcome:
+          'The Collector produces a rulebook missing the page authorizing possession of a person.',
+      },
+      {
+        id: 'feint',
+        label: 'Study the visible two-turn attack pattern',
+        outcome:
+          'You identify the safe column. Remembering the tell is better than being lucky.',
+      },
+      {
+        id: 'duel',
+        label: 'Fight the Collector using the remembered safe columns',
+        outcome:
+          'The Collector yields its stamp rather than claiming the lives it was sent to count.',
+      },
+    ],
   },
   'HD-23': {
     id: 'HD-23',
-    title: "Small Wardrobe Door",
+    title: 'Small Wardrobe Door',
     kind: 'secret',
-    opening: "A wardrobe is smaller on the outside than its boots. It recognizes the mud-sorting method from the entrance maze.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Tiny wardrobe inset in cavernous walls, paired boots and secret glowing lock. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'A wardrobe is smaller on the outside than its boots. It recognizes the mud-sorting method from the entrance maze.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Tiny wardrobe inset in cavernous walls, paired boots and secret glowing lock. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-23.webp',
-    exits: ["HD-24"],
-    choices: [{"id":"boots","label":"Use the Boot-Rack clue to unlock the wardrobe","outcome":"The lock recognizes the old routes. Inside is a route-map, not a chest of infinite treasure."},{"id":"knock","label":"Knock and wait for its owner","outcome":"A hidden attendant opens the door and explains why the shortcut was built."}],
+    exits: ['HD-24'],
+    choices: [
+      {
+        id: 'boots',
+        label: 'Use the Boot-Rack clue to unlock the wardrobe',
+        outcome:
+          'The lock recognizes the old routes. Inside is a route-map, not a chest of infinite treasure.',
+      },
+      {
+        id: 'knock',
+        label: 'Knock and wait for its owner',
+        outcome:
+          'A hidden attendant opens the door and explains why the shortcut was built.',
+      },
+    ],
   },
   'HD-24': {
     id: 'HD-24',
-    title: "Dry Cellar Return",
+    title: 'Dry Cellar Return',
     kind: 'shortcut',
-    opening: "This stair leads back to a room you have already visited. A painted arrow announces NO HEROISM REQUIRED.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Safe brick cellar staircase with practical return signage and warmly glowing root-path. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'This stair leads back to a room you have already visited. A painted arrow announces NO HEROISM REQUIRED.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Safe brick cellar staircase with practical return signage and warmly glowing root-path. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-24.webp',
-    exits: ["HD-13","HD-31"],
-    choices: [{"id":"mark","label":"Mark this loop for other expeditions","outcome":"The route remains visible on later returns. Nobody has to rediscover a safe exit."},{"id":"retreat","label":"Test the passage without abandoning your progress","outcome":"It carries you safely to the central hall and back; your choices remain remembered."}],
+    exits: ['HD-13', 'HD-31'],
+    choices: [
+      {
+        id: 'mark',
+        label: 'Mark this loop for other expeditions',
+        outcome:
+          'The route remains visible on later returns. Nobody has to rediscover a safe exit.',
+      },
+      {
+        id: 'retreat',
+        label: 'Test the passage without abandoning your progress',
+        outcome:
+          'It carries you safely to the central hall and back; your choices remain remembered.',
+      },
+    ],
   },
   'HD-25': {
     id: 'HD-25',
-    title: "The Bargain Ledger",
+    title: 'The Bargain Ledger',
     kind: 'puzzle',
-    opening: "The ledger lists promises by the date they were made, not the day they were enforced. Two names have been moved to the wrong pages.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Enormous ledger lit by little candles, two misordered dated records and ink stains. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The ledger lists promises by the date they were made, not the day they were enforced. Two names have been moved to the wrong pages.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Enormous ledger lit by little candles, two misordered dated records and ink stains. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-25.webp',
-    exits: ["HD-26"],
-    choices: [{"id":"compare","label":"Compare signatures against both Earth photos","outcome":"The dates make sense: a stranger harmed your old life before learning how to live in it."},{"id":"recount","label":"Ask the records who consented and who inherited a debt","outcome":"The balance shifts when you refuse to treat silence as agreement."}],
+    exits: ['HD-26'],
+    choices: [
+      {
+        id: 'compare',
+        label: 'Compare signatures against both Earth photos',
+        outcome:
+          'The dates make sense: a stranger harmed your old life before learning how to live in it.',
+      },
+      {
+        id: 'recount',
+        label: 'Ask the records who consented and who inherited a debt',
+        outcome:
+          'The balance shifts when you refuse to treat silence as agreement.',
+      },
+    ],
   },
   'HD-26': {
     id: 'HD-26',
     title: "Wolf-Mother's Defense",
     kind: 'choice',
-    opening: "The village wanted guardians, then renamed their payment tribute. The patrol leader asks why service becomes robbery in a story told by comfortable people.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Wolf guardian leader in worn traveling armor protecting frightened families at a doorway. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The village wanted guardians, then renamed their payment tribute. The patrol leader asks why service becomes robbery in a story told by comfortable people.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Wolf guardian leader in worn traveling armor protecting frightened families at a doorway. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-26.webp',
-    exits: ["HD-27"],
-    choices: [{"id":"testify","label":"Record the patrol's evidence and name its witnesses","outcome":"Their account becomes admissible before the Warden. Defense and consent are no longer separable."},{"id":"shelter","label":"Offer food and a safe road without a formal hearing","outcome":"The patrol accepts the kindness but keeps its petition. A debt need not be made invisible to be forgiven."}],
+    exits: ['HD-27'],
+    choices: [
+      {
+        id: 'testify',
+        label: "Record the patrol's evidence and name its witnesses",
+        outcome:
+          'Their account becomes admissible before the Warden. Defense and consent are no longer separable.',
+      },
+      {
+        id: 'shelter',
+        label: 'Offer food and a safe road without a formal hearing',
+        outcome:
+          'The patrol accepts the kindness but keeps its petition. A debt need not be made invisible to be forgiven.',
+      },
+    ],
   },
   'HD-27': {
     id: 'HD-27',
-    title: "Unclaimed Portrait",
+    title: 'Unclaimed Portrait',
     kind: 'treasure',
-    opening: "An empty painted chair is signed for by someone who never sat there. If you take the painting, the person might never learn they were expected.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Haunting painted empty chair and silhouetted absent subject in ornate cracked portrait frame. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'An empty painted chair is signed for by someone who never sat there. If you take the painting, the person might never learn they were expected.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Haunting painted empty chair and silhouetted absent subject in ornate cracked portrait frame. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-27.webp',
-    exits: ["HD-28"],
-    choices: [{"id":"keep","label":"Copy the blank portrait rather than taking it","outcome":"A lantern glows in the frame's shadow; you may keep its light without stealing the record.","gain":{"lanterns":1}},{"id":"leave","label":"Leave the portrait for its unclaimed subject","outcome":"The House records that an unknown guest still has somewhere to return."}],
+    exits: ['HD-28'],
+    choices: [
+      {
+        id: 'keep',
+        label: 'Copy the blank portrait rather than taking it',
+        outcome:
+          "A lantern glows in the frame's shadow; you may keep its light without stealing the record.",
+        gain: { lanterns: 1 },
+      },
+      {
+        id: 'leave',
+        label: 'Leave the portrait for its unclaimed subject',
+        outcome:
+          'The House records that an unknown guest still has somewhere to return.',
+      },
+    ],
   },
   'HD-28': {
     id: 'HD-28',
-    title: "Twinned Guard",
+    title: 'Twinned Guard',
     kind: 'combat',
-    opening: "Two armored figures each protect the other's marked cards. They ask which one must be defeated first, but neither will call it victory.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Two identical armored root guardians guarding mirrored glowing matching cards and each other's shields. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "Two armored figures each protect the other's marked cards. They ask which one must be defeated first, but neither will call it victory.",
+    artPrompt:
+      "Western animated mature Grimm fantasy, a single story scene: Two identical armored root guardians guarding mirrored glowing matching cards and each other's shields. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-28.webp',
-    exits: ["HD-29"],
-    choices: [{"id":"separate","label":"Ask the guards to move apart before combat","outcome":"Without the false assumption of a single enemy, you spot the symmetry of their defense."},{"id":"cooperate","label":"Suggest they protect the same door together","outcome":"They hesitate, then allow you a route while they revise their shared oath."},{"id":"duel","label":"Challenge both guards in a paired-memory contest","outcome":"The guards drop their mirrored defense only after seeing the pairs you actually remembered."}],
+    exits: ['HD-29'],
+    choices: [
+      {
+        id: 'separate',
+        label: 'Ask the guards to move apart before combat',
+        outcome:
+          'Without the false assumption of a single enemy, you spot the symmetry of their defense.',
+      },
+      {
+        id: 'cooperate',
+        label: 'Suggest they protect the same door together',
+        outcome:
+          'They hesitate, then allow you a route while they revise their shared oath.',
+      },
+      {
+        id: 'duel',
+        label: 'Challenge both guards in a paired-memory contest',
+        outcome:
+          'The guards drop their mirrored defense only after seeing the pairs you actually remembered.',
+      },
+    ],
   },
   'HD-29': {
     id: 'HD-29',
-    title: "The Indenture Room",
+    title: 'The Indenture Room',
     kind: 'lore',
-    opening: "Contracts here belong to people who asked for relief from memories. No record shows that any of them agreed to lose the right to remember.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Archive room with opened contracts and tangled living roots growing through broken locks. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Contracts here belong to people who asked for relief from memories. No record shows that any of them agreed to lose the right to remember.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Archive room with opened contracts and tangled living roots growing through broken locks. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-29.webp',
-    exits: ["HD-30"],
-    choices: [{"id":"read","label":"Record the absence of revocation terms","outcome":"The lack is evidence. It does not invalidate every need for protection, but it ends the fiction that everyone could leave."},{"id":"repair","label":"Offer a new consent clause","outcome":"A pen writes only after each named participant has spoken. It may take longer than a royal decree."}],
+    exits: ['HD-30'],
+    choices: [
+      {
+        id: 'read',
+        label: 'Record the absence of revocation terms',
+        outcome:
+          'The lack is evidence. It does not invalidate every need for protection, but it ends the fiction that everyone could leave.',
+      },
+      {
+        id: 'repair',
+        label: 'Offer a new consent clause',
+        outcome:
+          'A pen writes only after each named participant has spoken. It may take longer than a royal decree.',
+      },
+    ],
   },
   'HD-30': {
     id: 'HD-30',
-    title: "Lantern Landing",
+    title: 'Lantern Landing',
     kind: 'rest',
-    opening: "The landing has enough seats for your party and one empty place. Oren checks rations. Scylla makes tea. Char quietly repairs a stranger's ward.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Warm lantern-lit landing with sturdy mermaid twins proper and goth, masked hooded headsman with supply ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "The landing has enough seats for your party and one empty place. Oren checks rations. Scylla makes tea. Char quietly repairs a stranger's ward.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Warm lantern-lit landing with sturdy mermaid twins proper and goth, masked hooded headsman with supply ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-30.webp',
-    exits: ["HD-31"],
-    choices: [{"id":"rest","label":"Recover and redistribute supplies","outcome":"You recover one heart without resetting the House's rooms or taking another person's rations.","gain":{"hearts":1}},{"id":"talk","label":"Hear what each companion thinks the House owes","outcome":"For once they agree: truth without care can become another kind of theft."}],
+    exits: ['HD-31'],
+    choices: [
+      {
+        id: 'rest',
+        label: 'Recover and redistribute supplies',
+        outcome:
+          "You recover one heart without resetting the House's rooms or taking another person's rations.",
+        gain: { hearts: 1 },
+      },
+      {
+        id: 'talk',
+        label: 'Hear what each companion thinks the House owes',
+        outcome:
+          'For once they agree: truth without care can become another kind of theft.',
+      },
+    ],
   },
   'HD-31': {
     id: 'HD-31',
-    title: "Cellar of the Forgot",
+    title: 'Cellar of the Forgot',
     kind: 'hazard',
-    opening: "Fog rises through the floorboards, hiding the newest door but not the paths you have already walked. The House is afraid of the last room.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Dense low fog over known stone passage with still-visible safe lantern markers. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Fog rises through the floorboards, hiding the newest door but not the paths you have already walked. The House is afraid of the last room.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Dense low fog over known stone passage with still-visible safe lantern markers. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-31.webp',
-    exits: ["HD-32"],
-    choices: [{"id":"mark","label":"Mark safe routes before the fog grows","outcome":"Your remembered map does not vanish. The cellar loses the power to make you start from zero."},{"id":"breathe","label":"Stop and count the steps instead of running","outcome":"You notice the fog repeats on every seventh breath, revealing a clear passage."}],
+    exits: ['HD-32'],
+    choices: [
+      {
+        id: 'mark',
+        label: 'Mark safe routes before the fog grows',
+        outcome:
+          'Your remembered map does not vanish. The cellar loses the power to make you start from zero.',
+      },
+      {
+        id: 'breathe',
+        label: 'Stop and count the steps instead of running',
+        outcome:
+          'You notice the fog repeats on every seventh breath, revealing a clear passage.',
+      },
+    ],
   },
   'HD-32': {
     id: 'HD-32',
-    title: "Rootbound Warden",
+    title: 'Rootbound Warden',
     kind: 'guardian',
-    opening: "The Rootbound Warden stands between you and a library that once sheltered the unwanted. It has kept records safe and residents captive. The Warden asks for proof that opening the doors would not simply make the strong richer.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Colossal living rootwood guardian with glass memory jar, defensive stance by archive doors and telegraphed glowing memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The Rootbound Warden stands between you and a library that once sheltered the unwanted. It has kept records safe and residents captive. The Warden asks for proof that opening the doors would not simply make the strong richer.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Colossal living rootwood guardian with glass memory jar, defensive stance by archive doors and telegraphed glowing memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-32.webp',
-    exits: ["HD-33"],
-    choices: [{"id":"fight","label":"Challenge the Warden in memory-card combat","outcome":"A fair duel begins. Victory earns passage, not permission to rewrite another person's past."},{"id":"petition","label":"Present the witness testimony and request revocable consent","outcome":"The Warden reads the rescued names and steps aside without violence. The house agrees that a locked kindness is still a lock."}],
+    exits: ['HD-33'],
+    choices: [
+      {
+        id: 'fight',
+        label: 'Challenge the Warden in memory-card combat',
+        outcome:
+          "A fair duel begins. Victory earns passage, not permission to rewrite another person's past.",
+      },
+      {
+        id: 'petition',
+        label: 'Present the witness testimony and request revocable consent',
+        outcome:
+          'The Warden reads the rescued names and steps aside without violence. The house agrees that a locked kindness is still a lock.',
+      },
+    ],
   },
   'HD-33': {
     id: 'HD-33',
-    title: "The Last Kind Lie",
+    title: 'The Last Kind Lie',
     kind: 'choice',
-    opening: "The village elders once asked the House to keep one terrible truth secret. The people protected by that lie are now old enough to choose what to know.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Candlelit village council table with sealed memory jars and elderly witnesses struggling with a decision. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The village elders once asked the House to keep one terrible truth secret. The people protected by that lie are now old enough to choose what to know.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Candlelit village council table with sealed memory jars and elderly witnesses struggling with a decision. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-33.webp',
-    exits: ["HD-34"],
-    choices: [{"id":"reveal","label":"Tell the survivors what the elders concealed","outcome":"The truth unsettles families, but now belongs to the people who must live with it."},{"id":"consent","label":"Let each survivor choose when to hear","outcome":"The House prepares individual witnesses and refuses to sell revelation as spectacle."}],
+    exits: ['HD-34'],
+    choices: [
+      {
+        id: 'reveal',
+        label: 'Tell the survivors what the elders concealed',
+        outcome:
+          'The truth unsettles families, but now belongs to the people who must live with it.',
+      },
+      {
+        id: 'consent',
+        label: 'Let each survivor choose when to hear',
+        outcome:
+          'The House prepares individual witnesses and refuses to sell revelation as spectacle.',
+      },
+    ],
   },
   'HD-34': {
     id: 'HD-34',
-    title: "Broken Doorway",
+    title: 'Broken Doorway',
     kind: 'puzzle',
-    opening: "The door ahead bears two near-identical seals. The root marks are reversed, and the House admits it has been showing the wrong way out for years.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Mysterious broken paired seal doorway with reversed root crescents and honest readable puzzle geometry. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The door ahead bears two near-identical seals. The root marks are reversed, and the House admits it has been showing the wrong way out for years.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Mysterious broken paired seal doorway with reversed root crescents and honest readable puzzle geometry. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-34.webp',
-    exits: ["HD-35"],
-    choices: [{"id":"compare","label":"Use the paired marks, not their apparent age","outcome":"A route opens when you notice the mirrored notch from Briar's border clues."},{"id":"ask","label":"Ask the House why the false doorway exists","outcome":"It was built for people who needed to leave without being found. You leave both paths intact."}],
+    exits: ['HD-35'],
+    choices: [
+      {
+        id: 'compare',
+        label: 'Use the paired marks, not their apparent age',
+        outcome:
+          "A route opens when you notice the mirrored notch from Briar's border clues.",
+      },
+      {
+        id: 'ask',
+        label: 'Ask the House why the false doorway exists',
+        outcome:
+          'It was built for people who needed to leave without being found. You leave both paths intact.',
+      },
+    ],
   },
   'HD-35': {
     id: 'HD-35',
-    title: "Memory Hearth",
+    title: 'Memory Hearth',
     kind: 'climax',
-    opening: "The hearth holds the names, grief and joys that people entrusted to the House. Its fire is almost out. The Warden will honor a choice only if you state whose consent matters.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Grand rootwood memory hearth with glass memory jars held in a ring of fire and gathered villagers, anxious hope. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The hearth holds the names, grief and joys that people entrusted to the House. Its fire is almost out. The Warden will honor a choice only if you state whose consent matters.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Grand rootwood memory hearth with glass memory jars held in a ring of fire and gathered villagers, anxious hope. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-35.webp',
-    exits: ["HD-36"],
-    choices: [{"id":"release","label":"Return the stored memories to their owners","outcome":"The records are released to named people; many regain agency, and some old protections painfully fall away."},{"id":"renew","label":"Negotiate a revocable memory commons with witnesses","outcome":"The House becomes a steward, not a jailer. Each person can reclaim or leave a memory, and every agreement can end."},{"id":"break","label":"Break the mechanism that owns remembrance","outcome":"Nobody may own memory by decree. The House becomes dangerous and free, and tomorrow's villagers must invent a kinder safety."}],
+    exits: ['HD-36'],
+    choices: [
+      {
+        id: 'release',
+        label: 'Return the stored memories to their owners',
+        outcome:
+          'The records are released to named people; many regain agency, and some old protections painfully fall away.',
+      },
+      {
+        id: 'renew',
+        label: 'Negotiate a revocable memory commons with witnesses',
+        outcome:
+          'The House becomes a steward, not a jailer. Each person can reclaim or leave a memory, and every agreement can end.',
+      },
+      {
+        id: 'break',
+        label: 'Break the mechanism that owns remembrance',
+        outcome:
+          "Nobody may own memory by decree. The House becomes dangerous and free, and tomorrow's villagers must invent a kinder safety.",
+      },
+    ],
   },
   'HD-36': {
     id: 'HD-36',
-    title: "Bramble Chime Exit",
+    title: 'Bramble Chime Exit',
     kind: 'exit',
-    opening: "A small chime hangs from a living branch. The House will let you carry it only after your choice at the Memory Hearth. Its sound can open the regional gate, but cannot undo the bargain you've made.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Forest-root exit with tiny glowing golden bell above doorway and three winding roads beyond. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A small chime hangs from a living branch. The House will let you carry it only after your choice at the Memory Hearth. Its sound can open the regional gate, but cannot undo the bargain you've made.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Forest-root exit with tiny glowing golden bell above doorway and three winding roads beyond. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-36.webp',
     exits: [],
-    choices: [{"id":"carry","label":"Carry the Bramble Chime back into Briar Marches","outcome":"The House releases its chime. It belongs to your journey, not to an unlimited trophy pile."},{"id":"entrust","label":"Ask Oren to carry the chime for everyone","outcome":"Oren records the handoff with intimidating precision; the Bramble Chime is yours to use, but the witnesses know who carries it."}],
+    choices: [
+      {
+        id: 'carry',
+        label: 'Carry the Bramble Chime back into Briar Marches',
+        outcome:
+          'The House releases its chime. It belongs to your journey, not to an unlimited trophy pile.',
+      },
+      {
+        id: 'entrust',
+        label: 'Ask Oren to carry the chime for everyone',
+        outcome:
+          'Oren records the handoff with intimidating precision; the Bramble Chime is yours to use, but the witnesses know who carries it.',
+      },
+    ],
   },
 }
 export const HOUSE_ENTRY: HouseRoomId = 'HD-01'
 export const HOUSE_EXIT_POINTS: readonly HouseRoomId[] = [
-  'HD-01', 'HD-06', 'HD-12', 'HD-24', 'HD-36',
+  'HD-01',
+  'HD-06',
+  'HD-12',
+  'HD-24',
+  'HD-36',
 ]
 
 export function houseRoom(id: string): HouseRoom | null {
@@ -734,8 +996,9 @@ export function houseExits(
 ): HouseRoomId[] {
   const forward = [...(HOUSE_ROOMS[roomId]?.exits ?? [])]
   const backtrack = Object.values(HOUSE_ROOMS)
-    .filter((room) =>
-      room.exits.includes(roomId) && progress.visited.includes(room.id),
+    .filter(
+      (room) =>
+        room.exits.includes(roomId) && progress.visited.includes(room.id),
     )
     .map((room) => room.id)
   const exits = [...new Set([...forward, ...backtrack])]
@@ -747,9 +1010,10 @@ export function houseExits(
     exits.push('HD-34')
   if (roomId === 'HD-34' && progress.decisions['HD-26'] === 'testify')
     exits.push('HD-26')
-  return [...new Set(exits)].filter((exit) =>
-    !(exit === 'HD-33' && roomId === 'HD-32' && !progress.wardenPassed) &&
-    !(exit === 'HD-36' && roomId === 'HD-35' && progress.ending === null),
+  return [...new Set(exits)].filter(
+    (exit) =>
+      !(exit === 'HD-33' && roomId === 'HD-32' && !progress.wardenPassed) &&
+      !(exit === 'HD-36' && roomId === 'HD-35' && progress.ending === null),
   )
 }
 
@@ -759,9 +1023,9 @@ export function houseWitnessEvidence(
 ): boolean {
   return Boolean(
     progress.decisions['HD-16'] === 'return-name' ||
-      progress.decisions['HD-17'] === 'read' ||
-      progress.decisions['HD-26'] === 'testify' ||
-      briarDecisions['4,6'] === 'testify',
+    progress.decisions['HD-17'] === 'read' ||
+    progress.decisions['HD-26'] === 'testify' ||
+    briarDecisions['4,6'] === 'testify',
   )
 }
 
@@ -782,13 +1046,19 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
   const v = input as Partial<HouseProgress>
   const initial = newHouseProgress()
   const visited = Array.isArray(v.visited)
-    ? [...new Set(v.visited.filter((id): id is HouseRoomId =>
-        typeof id === 'string' && Boolean(HOUSE_ROOMS[id]),
-      ))]
+    ? [
+        ...new Set(
+          v.visited.filter(
+            (id): id is HouseRoomId =>
+              typeof id === 'string' && Boolean(HOUSE_ROOMS[id]),
+          ),
+        ),
+      ]
     : []
-  const current = typeof v.current === 'string' && HOUSE_ROOMS[v.current]
-    ? v.current
-    : HOUSE_ENTRY
+  const current =
+    typeof v.current === 'string' && HOUSE_ROOMS[v.current]
+      ? v.current
+      : HOUSE_ENTRY
   const decisions: Record<string, string> = {}
   if (v.decisions && typeof v.decisions === 'object')
     for (const [key, choice] of Object.entries(v.decisions))
@@ -799,12 +1069,19 @@ export function restoreHouseProgress(input: unknown): HouseProgress | null {
     current,
     visited: [...new Set([HOUSE_ENTRY, ...visited, current])],
     decisions,
-    ending: v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
-      ? v.ending : null,
+    ending:
+      v.ending === 'release' || v.ending === 'renew' || v.ending === 'break'
+        ? v.ending
+        : null,
     wardenPassed: v.wardenPassed === true,
-    combatOrigin: v.combatOrigin === 'HD-09' || v.combatOrigin === 'HD-19' ||
-      v.combatOrigin === 'HD-22' || v.combatOrigin === 'HD-28' || v.combatOrigin === 'HD-32'
-      ? v.combatOrigin : null,
+    combatOrigin:
+      v.combatOrigin === 'HD-09' ||
+      v.combatOrigin === 'HD-19' ||
+      v.combatOrigin === 'HD-22' ||
+      v.combatOrigin === 'HD-28' ||
+      v.combatOrigin === 'HD-32'
+        ? v.combatOrigin
+        : null,
     chimeClaimed: v.chimeClaimed === true,
   }
 }
@@ -818,21 +1095,32 @@ export function validateHouseRooms(): string[] {
       issues.push(`Invalid room key ${key}`)
     if (!room.title || room.opening.length < 75 || room.artPrompt.length < 60)
       issues.push(`Missing authored atmosphere or original art at ${key}`)
-    if (room.choices.length < 2 || new Set(room.choices.map((c) => c.id)).size !== room.choices.length)
+    if (
+      room.choices.length < 2 ||
+      new Set(room.choices.map((c) => c.id)).size !== room.choices.length
+    )
       issues.push(`Choices are missing or duplicate at ${key}`)
     for (const choice of room.choices)
       if (!choice.label.trim() || !choice.outcome.trim())
         issues.push(`Missing player-facing outcome at ${key}`)
     for (const next of room.exits)
-      if (!HOUSE_ROOMS[next]) issues.push(`Unreachable destination ${next} from ${key}`)
+      if (!HOUSE_ROOMS[next])
+        issues.push(`Unreachable destination ${next} from ${key}`)
   }
   const found = new Set<string>([HOUSE_ENTRY])
   const q = [HOUSE_ENTRY]
   for (let i = 0; i < q.length; i++)
     for (const next of HOUSE_ROOMS[q[i]!]?.exits ?? [])
-      if (!found.has(next)) { found.add(next); q.push(next) }
-  for (const id of keys) if (!found.has(id)) issues.push(`Unreachable house room ${id}`)
-  if (HOUSE_ROOMS['HD-35']?.choices.map((c) => c.id).join(',') !== 'release,renew,break')
+      if (!found.has(next)) {
+        found.add(next)
+        q.push(next)
+      }
+  for (const id of keys)
+    if (!found.has(id)) issues.push(`Unreachable house room ${id}`)
+  if (
+    HOUSE_ROOMS['HD-35']?.choices.map((c) => c.id).join(',') !==
+    'release,renew,break'
+  )
     issues.push('House must provide release, renew and break consequences')
   return issues
 }

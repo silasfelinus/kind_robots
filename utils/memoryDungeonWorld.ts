@@ -4,7 +4,11 @@ import {
   type BriarCombat,
 } from './memoryDungeon/rooms'
 import { BRIAR_SCENES } from './memoryDungeon/scenes'
-import { newHouseProgress, restoreHouseProgress, type HouseProgress } from './memoryDungeon/house'
+import {
+  newHouseProgress,
+  restoreHouseProgress,
+  type HouseProgress,
+} from './memoryDungeon/house'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -74,7 +78,8 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   '6,2': {
     kind: 'dungeon',
     name: 'The House That Remembers · Rootbound Vault',
-    description: 'Thirty-six rooms of remembered bargains, with fair choices and a guarded Bramble Chime.',
+    description:
+      'Thirty-six rooms of remembered bargains, with fair choices and a guarded Bramble Chime.',
   },
   '8,4': {
     kind: 'gate',
@@ -480,7 +485,12 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
       : [],
     sealedPartnerFound: saved.sealedPartnerFound === true,
-    room: saved.room === 'house' && house ? 'house' : saved.room === 'memory' && roomId && inRoom ? 'memory' : 'map',
+    room:
+      saved.room === 'house' && house
+        ? 'house'
+        : saved.room === 'memory' && roomId && inRoom
+          ? 'memory'
+          : 'map',
     house,
     roomId: saved.room === 'memory' && inRoom ? roomId : null,
     cards: combatRoom ? [] : cards,

@@ -91,7 +91,7 @@ export const FINALE_AID: FlagAid[] = [
 
 /**
  * The plans of what stood on the Abbey's hill (t-043): copied first and
- * locked away on Day 14, still in the crown's hands on Day 50. They show the
+ * locked away on Day 14, still in the crown’s hands on Day 50. They show the
  * stair from the old well to the lowest room.
  */
 const HILL_PLANS_AID: FlagAid = {
@@ -130,10 +130,12 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Eleven cooks, four guards and one angry goat came in from the dark. The Yard cooks again.',
-      partial: 'A few came in. The rest had chosen other roads.',
+      partial:
+        'Six stragglers answer the summons: two cooks, a tired guard, and three road hands carrying the keys to rooms they can no longer enter. The others have taken work under banners that stayed standing.',
       failure:
-        'The ditches were empty. Or the people in them did not want finding.',
-      expired: 'Nobody went looking. The stragglers stopped waiting.',
+        'The searchers find abandoned blankets and an old Yard ration tin in the drainage ditch. Nobody answers the watch signal. At dusk Dunmore serves supper for people who are not coming.',
+      expired:
+        'No patrol goes out. By the second morning the roadside fires have gone cold. A gate clerk pins six unclaimed names to the inner wall and waits for someone to ask after them.',
     },
   },
   // Day 42: one host quest per hideout, posted by accepting the host's terms.
@@ -160,9 +162,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { moles: -10 } },
     outcomes: {
       success:
-        'The props hold. Granny Umber knocks on one and listens. She nods.',
-      failure: 'A section came down. Nobody was under it. This time.',
-      expired: 'The Moles propped it themselves. They say so. Often.',
+        'Every support holds beneath the burrow roof. Granny Umber strikes the newest brace with her walking stick and listens for the answer. She opens the inner gate, but keeps the keys.',
+      failure:
+        'One brace snaps and half a passage fills with dust. The families reach the deeper gallery unharmed, carrying their bedding through ankle-high rubble. Granny Umber asks for timber before she asks for thanks.',
+      expired:
+        'The tunnel wardens finish their own repairs overnight. Granny Umber leaves the crown a bill in careful handwriting, beside a drawing of the roof they saved without royal help.',
     },
   },
   {
@@ -192,8 +196,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Three nights on the ledges. On the third, a line of lanterns went up the Abbey road. None came down.',
-      failure: 'The watch fell asleep. The crows did not. They told Corvane.',
-      expired: 'The crows stood the watch alone. They noted it.',
+      failure:
+        'Two watchers miss the change of lanterns on the Abbey road. Corvane’s sentries record it in their night ledger and deliver a copy to the court. They keep the original.',
+      expired:
+        'The Conclave keeps watch without the crown. At dawn its sentries hand over a list of every lamp that moved along the Abbey road. The last line is blank where the tower’s signature should be.',
     },
   },
   {
@@ -223,9 +229,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The aqueduct runs. Mara Reedbell rings the chapel bell once, quietly. For the court.',
-      failure: 'The leak won. The town is rationing again.',
+      failure:
+        'The aqueduct loses water through a broken joint near the chapel. Mara Reedbell orders the public taps shut between bells. By afternoon a row of empty jars stands against the town hall.',
       expired:
-        'The town carried water by hand. Nobody complained where you could hear.',
+        'No royal repair crew comes. Hollow Bell’s residents haul their water in clay jars from the river stairs. Mara writes down every missed delivery and sends the total to the hideout.',
     },
   },
   {
@@ -255,8 +262,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Every wagon rolls. Vane paints a small crown on the axle of his own.',
-      failure: 'Two wagons are still on blocks. Vane is counting.',
-      expired: 'The Pack fixed its own wheels. Then it raised its prices.',
+      failure:
+        'The Pack gets half its wagons moving. Vane paints a number on each stalled axle and sets the repair bill beneath the crown’s borrowed flag. He can still count what he is owed.',
+      expired:
+        'The crown sends no wheelwright. Pack mechanics salvage their own axles in the dark. Vane adds the repair hours to every future escort contract, including the emperor’s.',
     },
   },
   {
@@ -287,8 +296,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The caravan made the salt flats by dawn. Not a wheel lost. Not a guest.',
-      failure: 'Riders took two wagons on the night road.',
-      expired: 'Oriel hired guards elsewhere. She mentions the price daily.',
+      failure:
+        'The caravan limps into the salt flats missing two wagons. Oriel Saltmarsh sets out two empty harnesses in front of the paymaster and asks which account covers the drivers who were hired to bring them home.',
+      expired:
+        'Oriel hires a private escort at twice the crown’s rate. Her factor brings the receipt to the hideout each morning. The first copy is an invoice; the second is a warning.',
     },
   },
   {
@@ -318,8 +329,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The field is in. Hester hands every reaper a warm egg, like pinning on a medal.',
-      failure: 'Half the field burned before the sheaves were stood.',
-      expired: 'Hester and her sister brought it in alone. It took all night.',
+      failure:
+        'Half the harvest is lost before the sheaves are stacked. Hester keeps the remaining sacks under guard. Her sister counts how many households they can feed, then stops when she reaches winter.',
+      expired:
+        'Hester and her sister finish the harvest by lantern light, without the promised helpers. By morning the grain is dry and their hands are raw. The crown receives a sack with an unpaid labor tally tied to it.',
     },
   },
   {
@@ -350,8 +363,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The engine is stripped to the bolts. Jinx keeps the shiny ones.',
-      failure: 'Someone else got to the engine first.',
-      expired: 'Jinx stripped it alone. Slowly. She remembers.',
+      failure:
+        'Jinx finds the salvage engine stripped of its copper and good bolts. Only a broken brass nameplate remains. They hold it up to the sun and say the crown can have that much for free.',
+      expired:
+        'Jinx works the abandoned engine alone until moonrise. Every usable screw goes into a cloth pouch. The work is finished without royal help, and the invoice arrives with their signature.',
     },
   },
   {
@@ -377,8 +392,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Roots, a snared hare, somebody’s abandoned flour. Tonight nobody is hungry.',
-      failure: 'The hills were bare. The cave ate the last of the bread.',
-      expired: 'Nobody went. The cave slept hungry.',
+      failure:
+        'The party comes back carrying dry roots and one cracked cooking pot. The last bread is gone before the evening fire. Dunmore measures tomorrow’s portions with a string.',
+      expired:
+        'No foragers go out. The hideout’s last flour tin is scraped clean, and the cooks hang the empty scoop where everyone can see it. The sentries are offered their ration first.',
     },
   },
   {
@@ -1610,7 +1627,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
       },
       {
-        // Callback: the emperor let Komodo ride out on the crown's business (Day 40).
+        // Callback: the emperor let Komodo ride out on the crown’s business (Day 40).
         id: 'd41-trusted-road',
         title: 'The Leave You Gave',
         speaker: 'Keeper Abelard Vellum',

@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRun, restoreRun, chooseBeat, findCard } from '../ecotone/engine'
+import { EVENTS, EVENT_CHOICE } from '../ecotone/story'
 import {
   PLAYER_AVATARS,
   PLAYER_PERSONALITIES,
   normalizePlayerIdentity,
+  playerAvatarSrc,
 } from '../ecotone/playerIdentity'
 import {
   contextualOpeningChoices,
@@ -12,6 +14,10 @@ import {
   sceneMomentOffer,
 } from '../ecotone/sceneOffers'
 
+assert.equal(
+  playerAvatarSrc('/images/ecotone/avatars/glitter.webp'),
+  'https://media.acrocatranch.com/images/ecotone/avatars/glitter.webp',
+)
 assert.equal(PLAYER_AVATARS.length, 12)
 assert.deepEqual(
   PLAYER_AVATARS.map((avatar) => avatar.portrait),
@@ -33,6 +39,33 @@ assert.equal(
   new Set(PLAYER_PERSONALITIES.map((p) => p.id)).size,
   PLAYER_PERSONALITIES.length,
 )
+
+assert.equal(EVENT_CHOICE.body.length, 3)
+assert.ok(EVENT_CHOICE.body.every((paragraph) => paragraph.length < 160))
+assert.ok(EVENTS.every((event) => event.arrival && event.possibilities))
+assert.ok(
+  EVENTS.every(
+    (event) =>
+      !/\b(kit|juniper|cedar|mara|drugs?|meth|cocaine|mdma|stoned|psychedelic|drink|sobriety)\b/i.test(
+        `${event.blurb} ${event.kind} ${event.arrival} ${event.possibilities}`,
+      ),
+  ),
+  'opening routes must describe possibilities, not reveal companions or chemical paths',
+)
+const custom = createRun(3030, 'mechanic', undefined, {
+  avatarId: 'custom',
+  portraitArtId: 45678,
+})
+assert.equal(
+  restoreRun(JSON.parse(JSON.stringify(custom)))?.portraitArtId,
+  45678,
+)
+assert.equal(restoreRun(JSON.parse(JSON.stringify(custom)))?.avatarId, 'custom')
+assert.equal(
+  normalizePlayerIdentity({ avatarId: 'custom', portraitArtId: 0 }).avatarId,
+  'glitter',
+)
+assert.equal(restoreRun({ ...custom, portraitArtId: -2 }), null)
 
 const identity = normalizePlayerIdentity({
   playerName: '   River   Rabbit   ',
@@ -123,7 +156,13 @@ assert.match(store, /function loadSlot\(/)
 assert.match(store, /function exportSave\(/)
 assert.match(store, /function importSave\(/)
 assert.match(store, /restoreRun\(payload\.run\)/)
-assert.match(board, /:src="avatar.portrait"/)
+assert.match(board, /portraitRetry/)
+assert.match(board, /:art="stagedChoice.thumb.art"/)
+assert.match(board, /stagedChoice.possibilities/)
+assert.match(board, /uploadPortrait/)
+assert.match(board, /game.setPlayerLook/)
+assert.match(board, /max-h-none/)
+assert.ok(store.includes('function setPlayerLook('))
 assert.match(board, /:aria-pressed="pickedAvatar === avatar.id"/)
 assert.ok(board.includes('failedAvatarPortraits.push(avatar.id)'))
 assert.ok(

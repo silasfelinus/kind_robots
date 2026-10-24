@@ -21,6 +21,9 @@ export type EventInfo = {
   name: string
   kind: string
   blurb: string
+  /** Spoiler-free possibilities shown before the player chooses a route. */
+  arrival: string
+  possibilities: string
   pick: string
   scene: SceneKind
   art: string
@@ -38,9 +41,12 @@ export const EVENTS: EventInfo[] = [
   {
     id: 'green-ribbon',
     name: 'The Green Ribbon Fair',
-    kind: 'An invented cannabis harvest fair at the forest edge',
+    kind: 'An invented forest-edge harvest fair',
     blurb:
-      'Growers’ booths, a giant moss puppet, circus on the lawn and drums in the woods. Where Kit and Juniper are, and where the weekend can go sober, stoned or psychedelic.',
+      'A moss puppet looms over a crowded fair. Circus performers take the lawn. Drums echo from the trees.',
+    arrival: 'Follow the green flyer to a meadow at the edge of the redwoods.',
+    possibilities:
+      'You might try the circus, follow an unfamiliar rhythm, or stumble into something stranger than the fair advertised.',
     pick: 'You follow the green flyer out of town, to a meadow where the redwoods begin.',
     scene: 'meadow',
     art: 'scenes/prologue-meadow',
@@ -54,9 +60,13 @@ export const EVENTS: EventInfo[] = [
   {
     id: 'kinetic',
     name: 'The Kinetic Grand Championship',
-    kind: 'The real three-day human-powered art race, with an invented afterparty',
+    kind: 'A human-powered art race and its invented afterparty',
     blurb:
-      'Pedal-powered sculptures race from the Arcata Plaza over road, the Manila dunes, Humboldt Bay and the Eel River to Ferndale. Where Cedar and Mara are, a drink or a clear head, a seat in the race, and a rainbow shrimp, a dragon, a shark and a raft of sea otters to race against.',
+      'Impossible pedal-powered sculptures gather in the Plaza. A three-day race will cross sand, water and roads.',
+    arrival:
+      'Stay near the Plaza as racing crews arrive, argue over repairs, and make room for one more set of hands.',
+    possibilities:
+      'You might help a team, find yourself in the race, or uncover the trouble behind the spectacle.',
     pick: 'You stay on the Plaza. The race starts at noon tomorrow, and the sculptures are already rolling in, with costumes and people who trained all year to be ridiculous.',
     scene: 'plaza',
     art: 'chapters/the-impossible-festival',
@@ -72,7 +82,11 @@ export const EVENTS: EventInfo[] = [
     name: 'The Quiet Way',
     kind: 'No festival at all: the marsh, the zoo, or a trail nobody else knows',
     blurb:
-      'Skip both flyers for a contemplative day on your own. The marsh may lead to Juniper and the zoo to Kit, or you can keep the whole county to yourself. Choose the animals often enough and finish alone, and the Wild Way opens.',
+      'Leave the flyers behind. The marsh, the zoo and a quiet trail offer other ways into the weekend.',
+    arrival:
+      'Leave the noisy Plaza and walk toward the marsh, where waterbirds are already awake.',
+    possibilities:
+      'You might follow tracks, visit the zoo, or learn why the quiet places have been changing.',
     pick: 'You leave both flyers on the pole and walk the other way, toward the water and the birds.',
     scene: 'marsh',
     art: 'encounters/arcata-marsh',
@@ -87,14 +101,14 @@ export const EVENTS: EventInfo[] = [
 ]
 
 export const EVENT_CHOICE = {
-  title: 'Where Does the Weekend Start?',
+  title: 'Where To This Weekend?',
   place: 'Arcata Plaza, a telephone pole',
   scene: 'plaza' as SceneKind,
   art: 'chapters/arcata-after-hours',
   body: [
-    'Two flyers are stapled to the same telephone pole on the Arcata Plaza. One is green, hand-printed, and smells faintly of the forest. The other is a photocopy of a giant pedal-powered banana slug.',
-    'A white rabbit in a tiny racing helmet hops past both, checks a pocket watch and says, to nobody, “Late, late, the fog won’t wait.” Then it is gone, and the choice of which one to chase is yours.',
-    'Or chase neither. The marsh is a ten-minute walk, the zoo opens at ten, and nobody is expecting you anywhere.',
+    'Two flyers share a telephone pole on the Arcata Plaza. One smells of damp forest. The other shows a giant pedal-powered slug.',
+    'A white rabbit in a racing helmet checks its watch. “Late, late. The fog won’t wait.” Then it vanishes into the crowd.',
+    'The marsh is a short walk away. You could leave both flyers behind. Nobody expects you anywhere.',
   ],
 }
 

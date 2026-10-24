@@ -111,6 +111,16 @@ assert.equal(
 )
 assert.equal(visited.has(BRIAR_DUNGEON), true)
 assert.equal(visited.has(BRIAR_GATE), true)
+assert.equal(
+  BRIAR_SITES['1,4']?.name,
+  BRIAR_SCENES['1,4']?.title,
+  'Authored sites have meaningful visible map labels',
+)
+assert.equal(
+  BRIAR_SITES['4,4']?.kind,
+  'story',
+  'Scene-only map locations use a real story site instead of an empty marker',
+)
 assert.equal(BRIAR_SITES['4,2']?.kind, 'merchant')
 assert.equal(BRIAR_SITES['2,7']?.kind, 'puzzle')
 assert.equal(BRIAR_SITES['3,6']?.kind, 'chest')

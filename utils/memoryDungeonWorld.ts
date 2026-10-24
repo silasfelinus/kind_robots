@@ -21,6 +21,7 @@ export type BriarSiteKind =
   | 'enemy'
   | 'gate'
   | 'rune'
+  | 'story'
 
 export interface BriarSite {
   kind: BriarSiteKind
@@ -29,6 +30,12 @@ export interface BriarSite {
 }
 
 export const BRIAR_SITES: Record<string, BriarSite> = {
+  ...Object.fromEntries(
+    Object.entries(BRIAR_SCENES).map(([key, scene]) => [
+      key,
+      { kind: 'story' as const, name: scene.title, description: scene.opening },
+    ]),
+  ),
   '2,4': {
     kind: 'camp',
     name: 'Briar Camp',

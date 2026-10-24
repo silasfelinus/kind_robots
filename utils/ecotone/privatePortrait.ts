@@ -5,7 +5,9 @@
  */
 type ArtReply<T> = { success: boolean; data?: T | null; message?: string }
 
-export async function uploadPrivateEcotonePortrait(file: File): Promise<number> {
+export async function uploadPrivateEcotonePortrait(
+  file: File,
+): Promise<number> {
   const form = new FormData()
   form.append('file', file)
   form.append('galleryName', 'ecotone-players')
@@ -18,7 +20,13 @@ export async function uploadPrivateEcotonePortrait(file: File): Promise<number> 
   })
   const payload = (await response.json()) as ArtReply<{ id: number }>
   const id = payload.data?.id
-  if (!response.ok || !payload.success || !Number.isInteger(id) || !id || id <= 0)
+  if (
+    !response.ok ||
+    !payload.success ||
+    !Number.isInteger(id) ||
+    !id ||
+    id <= 0
+  )
     throw new Error(payload.message || 'Portrait upload failed.')
   return id
 }

@@ -35,7 +35,7 @@ import {
   FUTURE_BOOKENDS,
   NEW_LENS_CODAS,
 } from './finaleExpansion'
-import { applyCardEdit, type CardEdit } from '../playbook/edits'
+import { applyCardEdit, newBeatCard, type CardEdit } from '../playbook/edits'
 import { openingLensChoices } from './openingLensChoices'
 import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
@@ -160,9 +160,15 @@ export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
 // Playbook Manager edits an admin marked live (conductor weird-humboldt t-033).
 // They rewrite text and may add choices; card ids and authored mechanics stay.
 let liveCards: Record<string, EncounterCard> = {}
+// Playbook Studio "+ New beat" entries are dealt from chapter fork pools.
+let liveBeats: GatedEncounter[] = []
 
 export function setLiveEdits(edits: Record<string, CardEdit>): void {
   liveCards = {}
+  liveBeats = Object.entries(edits).flatMap(([key, edit]) => {
+    const card = newBeatCard(key, edit)
+    return card ? [card] : []
+  })
   for (const card of [...ALL_CARDS, ...MYSTERY_CARDS]) {
     const edit = edits[card.id]
     if (edit) liveCards[card.id] = applyCardEdit(card, edit)
@@ -174,6 +180,7 @@ export function findCard(id: string | null | undefined): EncounterCard | null {
   return (
     ALL_CARDS.find((card) => card.id === id) ??
     MYSTERY_CARDS.find((card) => card.id === id) ??
+    liveBeats.find((card) => card.id === id) ??
     null
   )
 }
@@ -443,7 +450,7 @@ export function encounterEligible(
 export function drawFork(state: RunState, index: number): string[] {
   const step = routeFor(state)[index]
   if (!step || step.kind !== 'fork') return []
-  const eligible: GatedEncounter[] = ENCOUNTERS
+  const eligible: GatedEncounter[] = [...ENCOUNTERS, ...liveBeats]
   const open = eligible.filter((card) => encounterEligible(card, state))
   const decks = step.pools.map((pool, n) => {
     const ids = open.filter((c) => c.chapter === pool).map((c) => c.id)

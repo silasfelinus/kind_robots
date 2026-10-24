@@ -6,7 +6,11 @@ import {
   type PlaybookGame,
 } from '../../utils/playbook/games'
 import type { Playbook } from '../../utils/playbook/types'
-import { isEmptyEdit, type CardEdit } from '../../utils/playbook/edits'
+import {
+  isEmptyEdit,
+  isNewBeatKey,
+  type CardEdit,
+} from '../../utils/playbook/edits'
 
 // Playbook Manager server helpers (conductor weird-humboldt t-033, t-036). Node keys
 // come from the authored playbook, so a row can only ever point at a real beat.
@@ -36,6 +40,8 @@ export function resolvePlaybookNode(
   { editable = false }: { editable?: boolean } = {},
 ): string {
   const key = String(raw ?? '').trim()
+  // A Studio "+ New beat" has no authored node yet; its row is the content.
+  if (editable && game === 'ecotone' && isNewBeatKey(key)) return key
   const node = playbookFor(game).nodes[key]
   if (!node)
     throw createError({ statusCode: 404, message: 'Unknown playbook beat.' })

@@ -423,6 +423,33 @@ for (const flag of [
     `${flag} is considered by a final Board outcome`,
   )
 }
+const companionEchoes: Array<[string, string]> = [
+  ['freed-kevin', 'whistleblower'],
+  ['kept-kevin-company', 'the-kind-rewrite'],
+  ['shared-lunch-with-pip', 'early-retirement'],
+  ['hid-pip-in-the-coats', 'escape-through-the-ducts'],
+  ['restored-the-union-roster', 'roach-union-general-strike'],
+]
+for (const [flag, endingId] of companionEchoes) {
+  const ending = ENDINGS.find((candidate) => candidate.id === endingId)
+  assert.ok(ending, `missing ending ${endingId}`)
+  assert.equal(
+    ending.variants.filter((variant) => variant.when_flag === flag).length,
+    1,
+    `${flag} has exactly one echo in ${endingId}`,
+  )
+  assert.ok(
+    DEPARTMENTS.some((dept) =>
+      [...dept.encounters.flatMap((e) => e.choices), ...dept.boss.choices].some(
+        (choice) =>
+          choice.success.add_flags.includes(flag) ||
+          (choice.failure?.add_flags ?? []).includes(flag),
+      ),
+    ),
+    `${flag} must come from an actual playable decision`,
+  )
+}
+
 assert.match(
   asset('../../pages/play/shifting-desks.vue'),
   /caseFileExhibits\.length/,

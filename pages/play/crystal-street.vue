@@ -1,0 +1,556 @@
+<template>
+  <main
+    class="kr-surface cs @container h-full min-h-0 overflow-hidden bg-base-200 px-2 py-2 text-base-content sm:px-3"
+    :class="[
+      run?.phase === 'night' ? 'cs-night' : 'cs-day',
+      store.settings.contrast === 'high' ? 'cs-high-contrast' : '',
+      store.settings.motion === 'reduced' ? 'cs-motion-reduced' : '',
+    ]"
+    data-theme="crystal-street"
+    data-layout="console-fixed"
+  >
+    <p
+      v-if="store.storageWarning"
+      class="kr-note kr-note-error p-2 text-sm"
+      role="alert"
+    >
+      {{ store.storageWarning }}
+    </p>
+
+    <header
+      v-if="store.loaded && menuScreen"
+      class="kr-toolbar cs-bar"
+      data-testid="cs-menu-bar"
+    >
+      <button
+        type="button"
+        class="cs-brand"
+        aria-label="Back to the main menu"
+        @click="view = 'title'"
+      >
+        <span class="cs-display hidden text-sm leading-none @3xl:block"
+          >Crystal Street</span
+        >
+        <span
+          class="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest"
+        >
+          <icon name="kind-icon:arrow-left" class="h-3 w-3" /> Menu
+        </span>
+      </button>
+      <nav class="ml-auto flex gap-1" aria-label="Menu screens">
+        <button
+          v-for="tab in MENU_TABS"
+          :key="tab.id"
+          type="button"
+          class="btn btn-xs rounded-2xl @3xl:btn-sm"
+          :class="view === tab.id ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="view === tab.id"
+          @click="view = tab.id"
+        >
+          <icon :name="tab.icon" class="h-4 w-4" />
+          <span class="hidden @2xl:inline">{{ tab.label }}</span>
+        </button>
+      </nav>
+    </header>
+
+    <header
+      v-else-if="store.loaded && run && view !== 'title'"
+      class="kr-toolbar cs-bar"
+    >
+      <img
+        v-if="run.avatar"
+        :src="`/crystal-street/avatars/${run.avatar}.webp`"
+        :alt="`${run.name}'s avatar`"
+        class="h-9 w-9 shrink-0 rounded-full bg-black object-cover object-top ring-2 ring-primary"
+        @error="($event.target as HTMLImageElement).style.display = 'none'"
+      />
+      <button
+        type="button"
+        class="cs-brand"
+        aria-label="Back to the main menu"
+        @click="view = 'title'"
+      >
+        <span class="cs-display hidden text-sm leading-none @3xl:block"
+          >Crystal Street</span
+        >
+        <span class="text-[11px] font-bold uppercase tracking-widest">
+          {{
+            run.ending
+              ? 'Week over'
+              : `Day ${run.day} · ${run.phase === 'night' ? 'Night' : 'Day'}`
+          }}
+        </span>
+      </button>
+      <div class="flex items-center gap-2 text-xs" aria-label="Your state">
+        <span class="cs-meter" :title="`Nerve ${run.nerve} of ${MAX_NERVE}`">
+          <icon name="kind-icon:heart" class="h-4 w-4 text-primary" />
+          <strong>{{ run.nerve }}</strong>
+          <span class="sr-only">nerve</span>
+        </span>
+        <span class="cs-meter" :title="`Dread ${run.dread} of ${MAX_DREAD}`">
+          <icon name="kind-icon:ghost" class="h-4 w-4 text-secondary" />
+          <span class="cs-dread" aria-hidden="true">
+            <span :style="{ width: `${run.dread * 10}%` }" />
+          </span>
+          <span class="sr-only">dread {{ run.dread }}</span>
+        </span>
+        <span class="cs-meter hidden @md:flex" title="Quarters">
+          <icon name="kind-icon:coin" class="h-4 w-4 text-accent" />{{
+            run.quarters
+          }}
+        </span>
+        <span class="cs-meter hidden @lg:flex" title="Night wins">
+          <icon name="kind-icon:dice" class="h-4 w-4" />{{ run.wins }}
+        </span>
+      </div>
+      <nav class="ml-auto flex gap-1" aria-label="Game panels">
+        <button
+          v-for="tab in TABS"
+          :key="tab.id"
+          type="button"
+          class="btn btn-xs rounded-2xl @3xl:btn-sm"
+          :class="view === tab.id ? 'btn-primary' : 'btn-ghost'"
+          :aria-pressed="view === tab.id"
+          @click="view = tab.id"
+        >
+          <icon :name="tab.icon" class="h-4 w-4" />
+          <span class="hidden @2xl:inline">{{ tab.label }}</span>
+          <span v-if="tab.id === 'crew'" class="text-[10px]">{{
+            run.crew.length
+          }}</span>
+          <span v-if="tab.id === 'case'" class="text-[10px]"
+            >{{ run.clues.length }}/3</span
+          >
+        </button>
+      </nav>
+    </header>
+
+    <div v-if="!store.loaded" class="kr-stage" aria-hidden="true" />
+    <div v-else class="kr-stage">
+      <crystal-street-gallery
+        v-if="view === 'gallery'"
+        :initial="focusVillain"
+        @endings="openEndings"
+      />
+      <crystal-street-endings
+        v-else-if="view === 'endings'"
+        :initial="focusVillain"
+      />
+      <crystal-street-crew v-else-if="view === 'roster'" roster />
+      <crystal-street-guide v-else-if="view === 'guide'" section="guide" />
+      <crystal-street-guide v-else-if="view === 'credits'" section="credits" />
+      <crystal-street-settings v-else-if="view === 'settings'" />
+      <crystal-street-scrapbook v-else-if="view === 'scrapbook'" />
+      <crystal-street-title
+        v-else-if="view === 'title' || !run"
+        @resume="view = 'stage'"
+        @started="view = 'stage'"
+        @open="openMenu"
+      />
+      <crystal-street-crew v-else-if="view === 'crew'" />
+      <crystal-street-case v-else-if="view === 'case'" />
+      <crystal-street-pack v-else-if="view === 'pack'" />
+      <crystal-street-ending
+        v-else-if="run.ending"
+        @again="view = 'title'"
+        @scrapbook="view = 'scrapbook'"
+      />
+      <div
+        v-else-if="arrival"
+        class="cs-frame kr-stage relative overflow-hidden"
+      >
+        <crystal-street-art
+          class="absolute inset-0"
+          frame="h-full"
+          kind="villain"
+          :seed="villain!.id"
+          :src="`/crystal-street/villains/${villain!.id}-poster.webp`"
+          :palette="villain!.palette"
+          :sigil="villain!.sigil"
+          :alt="villain!.poster"
+        />
+        <div
+          class="absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black/90 to-transparent p-4 text-white"
+        >
+          <p class="cs-kicker text-secondary">
+            Saturday night. Something wakes under Crystal Street.
+          </p>
+          <h2 class="cs-display text-3xl leading-tight sm:text-5xl">
+            {{ villain!.name }}
+          </h2>
+          <p class="text-sm uppercase tracking-widest opacity-80">
+            {{ villain!.epithet }}
+          </p>
+          <p class="text-xs uppercase tracking-widest text-secondary">
+            {{ remixLine(villain!) }}
+          </p>
+          <p class="max-w-2xl">{{ villain!.logline }}</p>
+          <p class="cs-quote max-w-2xl">“{{ villain!.taunts[0] }}”</p>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm rounded-2xl"
+            data-testid="cs-face-night"
+            @click="arrivalSeen = run.seed"
+          >
+            Face the night
+          </button>
+        </div>
+      </div>
+      <crystal-street-encounter v-else-if="store.encounter" />
+      <crystal-street-map v-else />
+    </div>
+  </main>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
+import { MAX_DREAD, MAX_NERVE, remixLine } from '~/utils/crystalStreet/rules'
+import type { MenuView } from '~/utils/crystalStreet/menu'
+
+type MenuScreen =
+  'gallery' | 'endings' | 'roster' | 'guide' | 'settings' | 'credits'
+type View =
+  'title' | 'stage' | 'crew' | 'case' | 'pack' | 'scrapbook' | MenuScreen
+
+const MENU_TABS: { id: MenuScreen; label: string; icon: string }[] = [
+  { id: 'gallery', label: 'Monsters', icon: 'kind-icon:mask' },
+  { id: 'endings', label: 'Endings', icon: 'kind-icon:trophy' },
+  { id: 'roster', label: 'Friends', icon: 'kind-icon:users' },
+  { id: 'guide', label: 'How to play', icon: 'kind-icon:question' },
+  { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
+]
+const MENU_SCREENS = new Set<View>([...MENU_TABS.map((t) => t.id), 'credits'])
+
+const TABS: { id: View; label: string; icon: string }[] = [
+  { id: 'stage', label: 'Play', icon: 'kind-icon:map' },
+  { id: 'crew', label: 'Crew', icon: 'kind-icon:users' },
+  { id: 'case', label: 'Case', icon: 'kind-icon:search' },
+  { id: 'pack', label: 'Pack', icon: 'kind-icon:bag' },
+  { id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' },
+]
+
+const store = useCrystalStreetStore()
+const TEXT_SCALE = { small: '93.75%', medium: '', large: '112.5%' } as const
+
+useHead({
+  title: 'Terrors on Crystal Street',
+  htmlAttrs: {
+    style: computed(() => {
+      const size = TEXT_SCALE[store.settings.textSize]
+      return size ? `font-size: ${size}` : undefined
+    }),
+  },
+})
+
+const run = computed(() => store.run)
+const villain = computed(() => store.villain)
+const view = ref<View>('title')
+const focusVillain = ref<string | undefined>()
+const menuScreen = computed(
+  () =>
+    MENU_SCREENS.has(view.value) || (view.value === 'scrapbook' && !run.value),
+)
+
+function openMenu(target: MenuView): void {
+  focusVillain.value = undefined
+  view.value = target === 'crew' ? 'roster' : target
+}
+
+function openEndings(villainId: string): void {
+  focusVillain.value = villainId
+  view.value = 'endings'
+}
+const arrivalSeen = ref('')
+const arrival = computed(
+  () =>
+    !!run.value &&
+    run.value.phase === 'night' &&
+    run.value.day === 1 &&
+    run.value.log.every((l) => l.phase === 'day') &&
+    arrivalSeen.value !== run.value.seed,
+)
+
+onMounted(() => {
+  store.load()
+  if (store.run && !store.run.ending) view.value = 'stage'
+})
+</script>
+
+<style>
+.cs .cs-frame {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in oklch, var(--color-primary) 35%, transparent);
+  background: color-mix(in oklch, var(--color-base-100) 92%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in oklch, var(--color-secondary) 12%, transparent),
+    0 10px 30px -12px color-mix(in oklch, var(--color-primary) 45%, transparent);
+}
+.cs .cs-poster {
+  background: linear-gradient(#0d0221, #2a0a4a 45%, #7a1268 75%, #ff3d8b);
+}
+.cs.cs-night {
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      color-mix(in oklch, var(--color-primary) 22%, transparent),
+      transparent 55%
+    ),
+    var(--color-base-200);
+}
+.cs.cs-day {
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      color-mix(in oklch, var(--color-secondary) 18%, transparent),
+      transparent 55%
+    ),
+    var(--color-base-200);
+}
+.cs .cs-display {
+  font-family: Impact, 'Arial Black', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.02em;
+  color: var(--color-accent);
+  text-shadow: 0 0 12px
+    color-mix(in oklch, var(--color-primary) 60%, transparent);
+}
+.cs .cs-terrors {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ff2d55;
+  -webkit-text-stroke: 1.5px #1a0005;
+  text-shadow:
+    0 3px 0 #1a0005,
+    0 0 24px rgb(255 45 85 / 0.55);
+}
+.cs .cs-kicker {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+.cs .cs-bar {
+  border-radius: 1rem;
+  padding: 0.35rem 0.5rem;
+  background: color-mix(in oklch, var(--color-base-100) 90%, transparent);
+  border: 1px solid color-mix(in oklch, var(--color-primary) 30%, transparent);
+}
+.cs .cs-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.8rem;
+  background: color-mix(in oklch, var(--color-primary) 18%, transparent);
+}
+.cs .cs-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.cs .cs-dread {
+  display: block;
+  width: 3rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  overflow: hidden;
+}
+.cs .cs-dread > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-secondary),
+    var(--color-primary)
+  );
+}
+.cs .cs-menu-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 1rem;
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border: 1px solid color-mix(in oklch, var(--color-secondary) 30%, transparent);
+  background: color-mix(in oklch, var(--color-base-300) 55%, transparent);
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease;
+}
+.cs .cs-menu-item:hover,
+.cs .cs-menu-item:focus-visible {
+  border-color: var(--color-primary);
+  transform: translateX(2px);
+}
+.cs .cs-menu-primary {
+  background: color-mix(in oklch, var(--color-primary) 30%, transparent);
+  border-color: var(--color-primary);
+}
+.cs.cs-high-contrast .cs-frame,
+.cs.cs-high-contrast .cs-card,
+.cs.cs-high-contrast .cs-bar,
+.cs.cs-high-contrast .cs-choice,
+.cs.cs-high-contrast .cs-menu-item {
+  background: var(--color-base-100);
+  border-color: var(--color-base-content);
+  box-shadow: none;
+}
+.cs.cs-high-contrast [class*='opacity-'] {
+  opacity: 1;
+}
+.cs.cs-high-contrast .cs-display {
+  text-shadow: none;
+}
+.cs.cs-motion-reduced *,
+.cs.cs-motion-reduced *::before,
+.cs.cs-motion-reduced *::after {
+  animation: none !important;
+  transition: none !important;
+}
+.cs .cs-choice {
+  display: block;
+  border-radius: 1rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid color-mix(in oklch, var(--color-secondary) 35%, transparent);
+  background: color-mix(in oklch, var(--color-base-300) 55%, transparent);
+  transition:
+    transform 120ms ease,
+    border-color 120ms ease;
+}
+.cs .cs-choice:hover:not(:disabled),
+.cs .cs-choice:focus-visible {
+  border-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+.cs .cs-choice:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cs .cs-card {
+  border-radius: 1rem;
+  border: 1px solid
+    color-mix(in oklch, var(--color-base-content) 15%, transparent);
+  background: color-mix(in oklch, var(--color-base-300) 45%, transparent);
+}
+.cs .cs-pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.68rem;
+  border: 1px solid
+    color-mix(in oklch, var(--color-base-content) 25%, transparent);
+}
+.cs .cs-pill-good {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+.cs .cs-pill-bad {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+.cs .cs-pill-info,
+.cs .cs-pill-odds {
+  border-color: var(--color-secondary);
+  color: var(--color-secondary);
+}
+.cs .cs-tag {
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  background: rgb(0 0 0 / 0.6);
+  color: #fff;
+}
+.cs .cs-tag-ward {
+  background: color-mix(in oklch, var(--color-success) 70%, black);
+}
+.cs .cs-die {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 0.6rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  background: #fff;
+  color: #1b0b33;
+  box-shadow: 0 4px 0 rgb(0 0 0 / 0.4);
+}
+.cs .cs-die-win {
+  outline: 3px solid var(--color-success);
+}
+.cs .cs-die-lose {
+  outline: 3px solid var(--color-error);
+}
+.cs .cs-verdict {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cs .cs-verdict-win {
+  color: var(--color-success);
+}
+.cs .cs-verdict-lose {
+  color: var(--color-error);
+}
+.cs .cs-quote {
+  font-style: italic;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 0.6rem;
+}
+.cs .cs-stamp {
+  border-radius: 0.6rem;
+  padding: 0.25rem 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  transform: rotate(-4deg);
+  background: rgb(0 0 0 / 0.7);
+  border: 2px solid currentColor;
+}
+.cs .cs-stamp-best {
+  color: var(--color-accent);
+}
+.cs .cs-bar-best {
+  background-color: var(--color-accent);
+}
+.cs .cs-stamp-good {
+  color: var(--color-success);
+}
+.cs .cs-bar-good {
+  background-color: var(--color-success);
+}
+.cs .cs-stamp-bittersweet {
+  color: var(--color-secondary);
+}
+.cs .cs-bar-bittersweet {
+  background-color: var(--color-secondary);
+}
+.cs .cs-stamp-bad {
+  color: var(--color-error);
+}
+.cs .cs-bar-bad {
+  background-color: var(--color-error);
+}
+.cs .cs-polaroid {
+  background: #f8f4ec;
+  color: #1b0b33;
+  padding: 0.6rem 0.6rem 0.9rem;
+  border-radius: 0.4rem;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.45);
+}
+.cs .cs-polaroid:nth-child(odd) {
+  transform: rotate(-1.2deg);
+}
+.cs .cs-polaroid:nth-child(even) {
+  transform: rotate(1deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .cs .cs-choice,
+  .cs .cs-menu-item {
+    transition: none;
+  }
+}
+</style>

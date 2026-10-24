@@ -110,11 +110,21 @@ export type Villain = {
   centralIssue: { title: string; summary: string }
   poster: string
   portrait: string
+  /** The monster's ending photo, in the style of the Masking Up cover. */
+  endingPhoto: string
   taunts: string[]
   clues: Clue[]
   signature: Encounter[]
   finale: Encounter
   endings: Record<EndingTier, Ending>
+}
+
+/** A selectable player avatar: a full-body character in an exaggerated pose. */
+export type Avatar = {
+  id: string
+  name: string
+  blurb: string
+  art: string
 }
 
 export type CompanionPerk =

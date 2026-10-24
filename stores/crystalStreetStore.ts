@@ -28,13 +28,45 @@ import type { CompanionId, ItemId, LocationId } from '~/utils/crystalStreet/ids'
 
 const RUN_KEY = 'crystal-street-run-v1'
 const SCRAPBOOK_KEY = 'crystal-street-scrapbook-v1'
+const SETTINGS_KEY = 'crystal-street-settings-v1'
 const SCRAPBOOK_LIMIT = 80
+
+export type CrystalStreetSettings = {
+  textSize: 'small' | 'medium' | 'large'
+  contrast: 'normal' | 'high'
+  motion: 'full' | 'reduced'
+}
+
+export const DEFAULT_SETTINGS: CrystalStreetSettings = {
+  textSize: 'medium',
+  contrast: 'normal',
+  motion: 'full',
+}
+
+function restoreSettings(raw: unknown): CrystalStreetSettings {
+  const value = (raw && typeof raw === 'object' ? raw : {}) as Record<
+    string,
+    unknown
+  >
+  const pick = <T extends string>(key: string, options: readonly T[], d: T) =>
+    options.includes(value[key] as T) ? (value[key] as T) : d
+  return {
+    textSize: pick(
+      'textSize',
+      ['small', 'medium', 'large'],
+      DEFAULT_SETTINGS.textSize,
+    ),
+    contrast: pick('contrast', ['normal', 'high'], DEFAULT_SETTINGS.contrast),
+    motion: pick('motion', ['full', 'reduced'], DEFAULT_SETTINGS.motion),
+  }
+}
 
 export type ScrapbookRun = {
   seed: string
   villain: string
   tier: EndingTier
   name: string
+  avatar?: string
   archetype: string
   crew: string[]
   clues: number
@@ -75,6 +107,7 @@ export function highlightsOf(run: RunState): LogEntry[] {
 export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   const run = ref<RunState | null>(null)
   const scrapbook = ref<Scrapbook>(emptyScrapbook())
+  const settings = ref<CrystalStreetSettings>({ ...DEFAULT_SETTINGS })
   const loaded = ref(false)
   const storageWarning = ref('')
 
@@ -98,6 +131,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       if (run.value) localStorage.setItem(RUN_KEY, JSON.stringify(run.value))
       else localStorage.removeItem(RUN_KEY)
       localStorage.setItem(SCRAPBOOK_KEY, JSON.stringify(scrapbook.value))
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings.value))
       storageWarning.value = ''
     } catch {
       storageWarning.value =
@@ -113,9 +147,13 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
       scrapbook.value = restoreScrapbook(
         JSON.parse(localStorage.getItem(SCRAPBOOK_KEY) ?? 'null'),
       )
+      settings.value = restoreSettings(
+        JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? 'null'),
+      )
     } catch {
       run.value = null
       scrapbook.value = emptyScrapbook()
+      settings.value = { ...DEFAULT_SETTINGS }
     }
     loaded.value = true
     void loadPlaybookLiveText('crystal-street', CRYSTAL_STREET_LIVE_TEXT).then(
@@ -136,6 +174,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
           villain: next.villain,
           tier: next.ending.tier,
           name: next.name,
+          ...(next.avatar ? { avatar: next.avatar } : {}),
           archetype: next.archetype,
           crew: [...next.crew],
           clues: next.clues.length,
@@ -173,6 +212,19 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     persist()
   }
 
+  function setSetting<K extends keyof CrystalStreetSettings>(
+    key: K,
+    value: CrystalStreetSettings[K],
+  ): void {
+    settings.value = { ...settings.value, [key]: value }
+    persist()
+  }
+
+  function resetScrapbook(): void {
+    scrapbook.value = emptyScrapbook()
+    persist()
+  }
+
   function act<T extends unknown[]>(
     fn: (state: RunState, ...args: T) => RunState,
     ...args: T
@@ -183,6 +235,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
   return {
     run,
     scrapbook,
+    settings,
     loaded,
     storageWarning,
     encounter,
@@ -193,6 +246,8 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     load,
     start,
     abandon,
+    setSetting,
+    resetScrapbook,
     choose: (choiceId: string) => act(chooseInRun, choiceId),
     reroll: () => act(rerollInRun),
     resolve: () => act(resolveInRun),

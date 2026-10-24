@@ -1,0 +1,98 @@
+[
+  {
+    "id": "scream-queen",
+    "name": "The Scream Queen",
+    "blurb": "Born to shriek, built to survive.",
+    "art": "A lanky teenager with a buzzed platinum head and smeared mascara in an oversized sequined prom jacket over ripped jeans, mid-scream in a dramatic backbend, both hands pressed to their cheeks, one knee popped"
+  },
+  {
+    "id": "flashlight",
+    "name": "Flashlight Duelist",
+    "blurb": "Points the light where nobody wants to look.",
+    "art": "A round-faced teenager with warm brown skin and a high-top fade in a huge flannel shirt and cargo shorts, crouched low in a fencing stance, brandishing a giant chrome flashlight like a sword, one eye squinting"
+  },
+  {
+    "id": "rake-grandparent",
+    "name": "Rake-Wielding Neighbor",
+    "blurb": "Has seen three Halloweens like this.",
+    "art": "A wiry neighbor in their sixties with close-cropped silver hair and deep brown skin, in a mustard cardigan and orthopedic sneakers, lunging forward with a garden rake raised high overhead like a battle standard"
+  },
+  {
+    "id": "fainting-goth",
+    "name": "The Fainting Goth",
+    "blurb": "Swoons dramatically, gets back up.",
+    "art": "A soft, curvy teenager with pale freckled skin and long black hair, black lace top, velvet skirt and combat boots, collapsing in a theatrical swoon with one wrist pressed to the forehead and a silver crucifix swinging"
+  },
+  {
+    "id": "wrench",
+    "name": "The Wrench",
+    "blurb": "Fixes cars, fixes monsters.",
+    "art": "A broad, barrel-chested mechanic in their forties with a shaved head and tattooed forearms, grease-stained coveralls tied at the waist, mid-war-cry with a huge wrench raised in both hands"
+  },
+  {
+    "id": "roller",
+    "name": "Roller Derby",
+    "blurb": "Fastest wheels on Crystal Street.",
+    "art": "A teenager with big curly puffs of hair and freckles across dark cheeks on rainbow roller skates, spinning on one skate with arms flung wide, glow necklaces whirling, knee pads covered in stickers"
+  },
+  {
+    "id": "wheelie",
+    "name": "Wheelie King",
+    "blurb": "Pops a wheelie into every fight.",
+    "art": "A grinning teenager with a spiked violet mohawk popping a wheelie in a sticker-covered wheelchair, a baseball bat slung over one shoulder, studded fingerless gloves on the rims"
+  },
+  {
+    "id": "vampire-hunter",
+    "name": "Vampire Hunter",
+    "blurb": "Read every book in the occult aisle.",
+    "art": "A skinny teenager with thick round glasses and a tucked-in argyle sweater vest leaping into the air, a braid of garlic in one hand and a wooden stake in the other, tie flying over one shoulder"
+  },
+  {
+    "id": "vogue",
+    "name": "The Diva",
+    "blurb": "Strikes a pose, strikes back.",
+    "art": "A stocky person with a full black beard, golden glitter eyeshadow and a flowing satin kimono striking a sharp vogue pose, one hand framing the face and the other flaring a lace fan"
+  },
+  {
+    "id": "goalie",
+    "name": "The Goalie",
+    "blurb": "Nothing gets past.",
+    "art": "A tall, muscular teenager with short copper curls in a varsity jacket and knee socks, braced in a low athletic crouch with a field hockey stick, teeth bared in a fierce grin"
+  },
+  {
+    "id": "librarian",
+    "name": "The Night Librarian",
+    "blurb": "Shushes ghosts. It works.",
+    "art": "A plump middle-aged person with a sleek gray bob and reading glasses on a beaded chain, holding up a thick library book like a shield and hopping backward with one leg kicked up in comic fright"
+  },
+  {
+    "id": "stage-diver",
+    "name": "The Stage Diver",
+    "blurb": "Throws themself at the problem.",
+    "art": "A teenager with a tall green liberty-spike mohawk and a studded denim vest caught mid-air in a stage dive, arms spread wide, an electric guitar strapped across their back, sneakers kicking"
+  },
+  {
+    "id": "prep-shriek",
+    "name": "The Prep",
+    "blurb": "Collar popped, nerves shot.",
+    "art": "A teenager with a glossy black bob and a popped pink polo collar recoiling in an exaggerated shriek, gripping a tennis racket in both hands like a bat, sweater tied around their shoulders"
+  },
+  {
+    "id": "pizza-runner",
+    "name": "Pizza Runner",
+    "blurb": "Thirty minutes or the monster is free.",
+    "art": "A lanky twenty-something with long braids under a red delivery cap sprinting mid-stride, a tower of pizza boxes balanced up to the chin, one sneaker flying off"
+  },
+  {
+    "id": "cheer-captain",
+    "name": "Cheer Captain",
+    "blurb": "Gives the whole crew a spirit boost.",
+    "art": "A stocky teenager with a sweep of dark hair in a maroon and gold cheer uniform frozen at the top of a high kick, pom-poms thrown up like fireworks, a megaphone at their feet"
+  },
+  {
+    "id": "magician",
+    "name": "The Magician",
+    "blurb": "Knows a trick for every terror.",
+    "art": "A small, elderly stage magician with a pencil mustache and a sequined cape flinging a fan of playing cards into the air with a dramatic flourish, a white rabbit peeking out of their top hat"
+  }
+]

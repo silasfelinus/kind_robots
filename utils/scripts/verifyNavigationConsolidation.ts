@@ -36,7 +36,9 @@ assert.ok(
   'channel + tab pickers must remain the tablet/desktop navigation',
 )
 assert.ok(
-  channelSelect.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
+  channelSelect
+    .replace(/\s+/g, ' ')
+    .includes("activeChannel.channelKey === 'home' ? 'Explore'") &&
     channelSelect.includes('activeTab?.label || activeChannel.label'),
   'the unified phone picker must show the active tab label rather than only the channel label',
 )
@@ -482,7 +484,9 @@ assert.match(
 
 const channelStoreSource = source('stores/channelContentStore.ts')
 const pickerSource = source('components/navigation/channel-select.vue')
-const siteDirectorySource = source('components/navigation/navigation-trimmed.vue')
+const siteDirectorySource = source(
+  'components/navigation/navigation-trimmed.vue',
+)
 const accountHubSource = source('components/navigation/account-hub.vue')
 assert.ok(
   accountHubSource.includes(
@@ -493,19 +497,32 @@ assert.ok(
     accountHubSource.includes('sm:left-auto sm:right-0 sm:w-80'),
   'phone account menu must be anchored to the full header while its avatar badge and desktop dropdown keep their own positioning',
 )
-const homePageSource = source('components/home/home-page.vue').replace(/\s+/g, ' ')
-const visitorDirectorySource = source('components/home/home-visitor-directory.vue')
-assert.ok(channelStoreSource.includes('const navigationChannels = computed(() =>'))
+const homePageSource = source('components/home/home-page.vue').replace(
+  /\s+/g,
+  ' ',
+)
+const visitorDirectorySource = source(
+  'components/home/home-visitor-directory.vue',
+)
+assert.ok(
+  channelStoreSource.includes('const navigationChannels = computed(() =>'),
+)
 assert.ok(channelStoreSource.includes("channel.channelKey !== 'home'"))
 assert.ok(pickerSource.includes('channelContentStore.navigationChannels'))
-assert.ok(siteDirectorySource.includes('channelContentStore.navigationChannels'))
-assert.ok(pickerSource.replace(/\s+/g, ' ').includes("activeChannel.channelKey === 'home' ? 'Explore'"))
+assert.ok(
+  siteDirectorySource.includes('channelContentStore.navigationChannels'),
+)
+assert.ok(
+  pickerSource
+    .replace(/\s+/g, ' ')
+    .includes("activeChannel.channelKey === 'home' ? 'Explore'"),
+)
 assert.ok(
   homePageSource.includes("route.query.view !== 'dashboard'"),
   'Daily Dream visitors must be able to access the original dashboard by direct link',
 )
 assert.ok(
-  homePageSource.includes("@open-dashboard=\"homeMode = 'dashboard'\""),
+  homePageSource.includes('@open-dashboard="homeMode = \'dashboard\'"'),
   'admins must retain a way to open their dashboard from the compact homepage',
 )
 assert.ok(
@@ -536,7 +553,9 @@ assert.ok(visitorDirectorySource.includes('showcaseHref(card)'))
 assert.ok(visitorDirectorySource.includes('props.showcase.rails.art'))
 assert.ok(visitorDirectorySource.includes('props.showcase.rails.dreams'))
 assert.ok(homePageSource.includes('v-if="isAdmin"'))
-assert.ok(homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-hidden'))
+assert.ok(
+  homePageSource.includes('flex h-full min-h-0 flex-col gap-2 overflow-hidden'),
+)
 for (const route of [
   '/play/arcade',
   '/play/shifting-desks',
@@ -548,6 +567,7 @@ for (const route of [
   '/play/video-generator?studio=music',
   '/play/mandarin',
   '/play/emperor-of-dust',
+  '/play/crystal-street',
   '/play/zuzu-pinball',
   '/play/save-the-plumber',
   '/play/rainbow-bullet-hell-space-princess',
@@ -565,6 +585,7 @@ for (const image of [
   '/save-the-plumber/maps/world-1.webp',
   '/rainbow-princess-art/hero-pearl-palace.webp',
   '/zuzu-pinball/last-bell-cover.svg',
+  '/crystal-street/cover.webp',
 ]) {
   assert.ok(
     visitorDirectorySource.includes("image: '" + image + "'"),
@@ -581,6 +602,7 @@ assert.ok(
 )
 for (const internal of [
   '/admin/emperor-of-dust',
+  '/admin/crystal-street',
   '/admin/zuzu-lair',
   '/butterfly-gallery',
   '/tzaddik-gallery',
@@ -611,9 +633,13 @@ assert.equal(
 )
 const storybookTableSource = source('components/storybook/storybook-table.vue')
 const serverSelectorSource = source('components/navigation/server-selector.vue')
-assert.ok(storybookTableSource.includes('button-label="Add OpenAI / Claude key"'))
+assert.ok(
+  storybookTableSource.includes('button-label="Add OpenAI / Claude key"'),
+)
 assert.ok(storybookTableSource.includes('<server-selector'))
-assert.ok(storybookTableSource.includes('Story narration currently requires your own'))
+assert.ok(
+  storybookTableSource.includes('Story narration currently requires your own'),
+)
 assert.ok(serverSelectorSource.includes("buttonLabel || 'Server settings'"))
 assert.ok(serverSelectorSource.includes('saveOpenAi'))
 assert.ok(serverSelectorSource.includes('saveAnthropic'))
@@ -656,7 +682,9 @@ assert.doesNotMatch(
 )
 assert.ok(visitorDirectorySource.includes('activeSection'))
 assert.ok(visitorDirectorySource.includes('selectedCategory'))
-assert.ok(visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"))
+assert.ok(
+  visitorDirectorySource.includes("image: '/shifting-desks/front-poster.svg'"),
+)
 assert.ok(
   visitorDirectorySource.indexOf("title: 'Shifting Desks'") <
     visitorDirectorySource.indexOf("title: 'Storybook'"),
@@ -664,15 +692,29 @@ assert.ok(
 )
 
 for (const route of [
-  '/', '/account', '/achievements', '/messages', '/friends', '/themes',
-  '/servers', '/plan/newsfeed', '/about', '/navigation',
+  '/',
+  '/account',
+  '/achievements',
+  '/messages',
+  '/friends',
+  '/themes',
+  '/servers',
+  '/plan/newsfeed',
+  '/about',
+  '/navigation',
 ]) {
-  assert.ok(accountHubSource.includes(`route: '${route}'`),
-    `Account hub must retain ${route} without a Home channel`)
+  assert.ok(
+    accountHubSource.includes(`route: '${route}'`),
+    `Account hub must retain ${route} without a Home channel`,
+  )
 }
 assert.match(accountHubSource, /userStore.isLoggedIn/)
-assert.ok(source('content/channels/home/index.md').includes('contentType: channel'))
-assert.ok(source('content/channels/home/account.md').includes('route: /account'))
+assert.ok(
+  source('content/channels/home/index.md').includes('contentType: channel'),
+)
+assert.ok(
+  source('content/channels/home/account.md').includes('route: /account'),
+)
 
 console.log(
   'Navigation consolidation verified: Account tools, Resources triage access, Admin > Retired subtabs, hidden diagnostics, nested routes, access metadata, and ArtJob icon all hold.',

@@ -315,6 +315,15 @@ const features = [
     description: 'Original cabinets, high scores and quick-fire challenges.',
   },
   {
+    title: 'Terrors on Crystal Street',
+    tag: 'New · 80s horror comedy',
+    category: 'play',
+    route: '/play/crystal-street',
+    image: '/crystal-street/cover.webp',
+    description:
+      'Survive Halloween week, 1986, against twenty-two remixed nightmares.',
+  },
+  {
     title: 'Emperor of Dust',
     tag: 'Fortress adventure',
     category: 'play',
@@ -461,6 +470,15 @@ const filteredFeatures = computed(() =>
 )
 
 const updates = [
+  {
+    title: 'Terrors on Crystal Street opens',
+    description:
+      'A painted cast of nightmares and friends, a monster gallery and endings.',
+    category: 'Crystal Street',
+    date: 'Oct 24',
+    route: '/play/crystal-street',
+    pr: 4128,
+  },
   {
     title: 'A clearer Zuzu Pinball entrance',
     description: 'The public table opens without the oversized introduction.',

@@ -1,4 +1,5 @@
 import type {
+  Avatar,
   Companion,
   Encounter,
   Item,
@@ -26,11 +27,16 @@ export function allArtPrompts(content: {
   locations: Location[]
   decks: TagDeck[]
   items: Item[]
+  avatars: Avatar[]
+  title: string
 }): ArtPrompt[] {
   return [
+    { key: 'title/crystal-street', prompt: content.title },
+    ...content.avatars.map((a) => ({ key: `avatars/${a.id}`, prompt: a.art })),
     ...content.villains.flatMap((v) => [
       { key: `villains/${v.id}-poster`, prompt: v.poster },
       { key: `villains/${v.id}-portrait`, prompt: v.portrait },
+      { key: `villains/${v.id}-ending`, prompt: v.endingPhoto },
       ...v.clues.flatMap((c) => encounterPrompts(c.encounter)),
       ...v.signature.flatMap(encounterPrompts),
       ...encounterPrompts(v.finale),

@@ -35,6 +35,7 @@ function play(
   mystery: Mystery,
   pick: Pick,
   follow = true,
+  area = 0,
 ) {
   let state = advance(chooseEvent(createRun(seed, 'local', mystery.id), event))
   const lines: string[] = []
@@ -52,6 +53,10 @@ function play(
     const choices = openingLensChoices(card).filter((c) => !c.locked)
     const choiceId =
       pick(state, card.id) ??
+      (choices.some((c) => c.prospect)
+        ? choices[area % choices.length]
+        : undefined
+      )?.id ??
       (choices.find((c) => c.meet === true) ?? choices[0])!.id
     const choice = choices.find((c) => c.id === choiceId) ?? choices[0]!
     if (meta) {
@@ -116,6 +121,7 @@ function seedFor(
   want: (passes: number) => boolean,
   event: EventId = 'quiet',
   follow = true,
+  area = 0,
 ) {
   for (let seed = 1; seed < 2000; seed += 1) {
     const { state } = play(
@@ -127,6 +133,7 @@ function seedFor(
           ? findCard(id)!.choices[0]!.id
           : undefined,
       follow,
+      area,
     )
     if (want(mysteryPasses(state.flags))) return seed
   }
@@ -146,13 +153,24 @@ function transcript(mystery: Mystery): string {
       const event = (['quiet', 'green-ribbon', 'kinetic'] as EventId[])[
         index % 3
       ]!
-      const { state, lines } = play(truth, event, mystery, (s, id) => {
-        const kind = mysteryCardMeta(id)?.kind
-        if (kind === 'reveal' || kind === 'branch') return queue.shift()
-        return gateFirst(s, id)
-      })
+      const area = index
+      const follow = index % 2 === 1
+      const leafSeed =
+        seedFor(mystery, (p) => p >= 2, event, follow, area) ?? truth
+      const { state, lines } = play(
+        leafSeed,
+        event,
+        mystery,
+        (s, id) => {
+          const kind = mysteryCardMeta(id)?.kind
+          if (kind === 'reveal' || kind === 'branch') return queue.shift()
+          return gateFirst(s, id)
+        },
+        follow,
+        area,
+      )
       parts.push(
-        `\n## Playthrough ${index + 1}: true path via ${path.join(' > ')} (${event}, seed ${truth}, lead: ${state.activeLead ?? 'alone'}) → ${mysteryEnding(state)?.title ?? 'no ending'}`,
+        `\n## Playthrough ${index + 1}: true path via ${path.join(' > ')} (${event}, seed ${leafSeed}, lead: ${state.activeLead ?? 'alone'}) → ${mysteryEnding(state)?.title ?? 'no ending'}`,
         ...lines,
       )
     })

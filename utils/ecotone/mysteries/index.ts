@@ -528,6 +528,11 @@ export function validateMystery(mystery: Mystery): string[] {
     checkRecall(`gate ${index + 1}`, gate.recall, index + 1),
   )
   checkRecall('cold case', mystery.coldCase.recall, 4)
+  if (!mystery.coldCase.recall?.['g3:pass'])
+    at(
+      'cold case',
+      'recall g3:pass: the trail can go cold after a Gate III win (Gates I and II failed)',
+    )
   checkRecall('reveal', mystery.reveal.recall, 4)
   for (const [key, scene] of Object.entries(mystery.branches))
     checkRecall(`branch ${key}`, scene.recall, 4)

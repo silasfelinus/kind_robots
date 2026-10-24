@@ -45,7 +45,8 @@ export const EVENTS: EventInfo[] = [
     blurb:
       'A moss puppet looms over a crowded fair. Circus performers take the lawn. Drums echo from the trees.',
     arrival: 'Follow the green flyer to a meadow at the edge of the redwoods.',
-    possibilities: 'You might try the circus, follow an unfamiliar rhythm, or stumble into something stranger than the fair advertised.',
+    possibilities:
+      'You might try the circus, follow an unfamiliar rhythm, or stumble into something stranger than the fair advertised.',
     pick: 'You follow the green flyer out of town, to a meadow where the redwoods begin.',
     scene: 'meadow',
     art: 'scenes/prologue-meadow',
@@ -62,8 +63,10 @@ export const EVENTS: EventInfo[] = [
     kind: 'A human-powered art race and its invented afterparty',
     blurb:
       'Impossible pedal-powered sculptures gather in the Plaza. A three-day race will cross sand, water and roads.',
-    arrival: 'Stay near the Plaza as racing crews arrive, argue over repairs, and make room for one more set of hands.',
-    possibilities: 'You might help a team, find yourself in the race, or uncover the trouble behind the spectacle.',
+    arrival:
+      'Stay near the Plaza as racing crews arrive, argue over repairs, and make room for one more set of hands.',
+    possibilities:
+      'You might help a team, find yourself in the race, or uncover the trouble behind the spectacle.',
     pick: 'You stay on the Plaza. The race starts at noon tomorrow, and the sculptures are already rolling in, with costumes and people who trained all year to be ridiculous.',
     scene: 'plaza',
     art: 'chapters/the-impossible-festival',
@@ -80,8 +83,10 @@ export const EVENTS: EventInfo[] = [
     kind: 'No festival at all: the marsh, the zoo, or a trail nobody else knows',
     blurb:
       'Leave the flyers behind. The marsh, the zoo and a quiet trail offer other ways into the weekend.',
-    arrival: 'Leave the noisy Plaza and walk toward the marsh, where waterbirds are already awake.',
-    possibilities: 'You might follow tracks, visit the zoo, or learn why the quiet places have been changing.',
+    arrival:
+      'Leave the noisy Plaza and walk toward the marsh, where waterbirds are already awake.',
+    possibilities:
+      'You might follow tracks, visit the zoo, or learn why the quiet places have been changing.',
     pick: 'You leave both flyers on the pole and walk the other way, toward the water and the birds.',
     scene: 'marsh',
     art: 'encounters/arcata-marsh',

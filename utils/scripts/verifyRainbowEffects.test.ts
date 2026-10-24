@@ -4,12 +4,19 @@ import {
   RAINBOW_EFFECTS,
   createRainbowPrincessPreview,
 } from '../arcade/games/rainbowPrincessPreview'
+import {
+  RAINBOW_BOSS_LOOKS,
+  RAINBOW_CRAFT_LOOKS,
+  drawRainbowShot,
+  type RainbowShotLook,
+} from '../arcade/games/rainbowShotLooks'
 import { emptyInput } from '../arcade/types'
 
 // Conductor rainbow t-011: explosions as sparks within a budget (a boss's larger, with a shockwave), calm
 // motion (the arcade's still-camera / reduced-motion choice) that drops full-screen flashes and shockwaves,
 // thins the sparks and slows every scenery plane alike, and a dark halo under every solid hostile pellet so it
 // reads against any scenery. Effects never touch the game's rng: calm and full motion fly the same game.
+// t-032: every hostile shot is drawn in its family's own animated look, not one shared circle.
 
 const W = 480
 const H = 270
@@ -69,6 +76,7 @@ let maxStill = 0
 let firstCraft: { full: number; still: number } | null = null
 let bossBurst = 0
 let checkedHalo = false
+const looksSeen = new Set<RainbowShotLook>()
 let lastAct = full.snapshot.act
 for (let frame = 0; frame < 400000 && !full.over; frame++) {
   const before = full.snapshot.sparks
@@ -97,6 +105,11 @@ for (let frame = 0; frame < 400000 && !full.over; frame++) {
     checkedHalo = true
   }
   if (a.act !== lastAct) lastAct = a.act
+  for (const shot of a.enemyShots) {
+    if (shot.ghost || shot.burst) continue
+    assert.ok(shot.look, `every plain ${a.act} pellet carries a look`)
+    looksSeen.add(shot.look)
+  }
 }
 assert.ok(full.over && still.over, 'both reach THE END')
 assert.equal(full.score, still.score)
@@ -117,6 +130,29 @@ assert.ok(
 )
 assert.ok(maxStill < maxFull, 'calm motion keeps fewer sparks')
 assert.ok(checkedHalo)
+// The campaign fires most of the families, and no Act's fire is all one shape.
+assert.ok(
+  looksSeen.size >= 14,
+  `the campaign's fire takes many shapes (${[...looksSeen].join(', ')})`,
+)
+
+// Every look draws inside its halo and animates: the same pellet a few frames later draws differently.
+{
+  const looks = new Set<RainbowShotLook>([
+    ...Object.values(RAINBOW_CRAFT_LOOKS),
+    ...Object.values(RAINBOW_BOSS_LOOKS),
+    'star',
+  ])
+  for (const look of looks) {
+    const frames = [0, 7].map((t) => {
+      const { g, calls } = recorder()
+      drawRainbowShot(g, look, 100, 100, -1.5, 0.5, t)
+      return JSON.stringify(calls)
+    })
+    assert.ok(frames[0]!.length > 20, `${look} draws`)
+    assert.notEqual(frames[0], frames[1], `${look} is animated`)
+  }
+}
 
 // Calm motion slows the scenery: the farthest mote plane's first mote, 100 frames in.
 for (const stillCamera of [false, true]) {

@@ -283,6 +283,14 @@ import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import {
+  RAINBOW_BOSS_LOOKS,
+  RAINBOW_CRAFT_LOOKS,
+  RAINBOW_GUARDIAN_LOOK,
+  drawRainbowShot,
+  rainbowBurstLook,
+  type RainbowShotLook,
+} from './rainbowShotLooks'
+import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
   moonjellyBossWarning,
@@ -762,6 +770,9 @@ type EnemyShot = {
   bounces?: number
   /** A phantom pellet (mirror eel, Mirror guardian, Glass Eel afterimage): only light, it never hits. */
   ghost?: boolean
+  /** How the pellet is drawn, from whatever fired it (t-032), and the tick it was fired on. */
+  look?: RainbowShotLook
+  born?: number
 }
 type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
 /** U12 Recovery Cache: the power level a pilot lost with a life, waiting where it fell for its pilot alone. */
@@ -2817,7 +2828,30 @@ export function createRainbowPrincessPreview(
     options.sound.play('pop')
   }
 
+  /** A craft fires its pattern, every pellet in the craft's own look (t-032). */
   function fireEnemy(reef: Reef) {
+    const from = enemyShots.length
+    fireEnemyPattern(reef)
+    dressShots(from, RAINBOW_CRAFT_LOOKS[reef.kind] ?? 'pearl')
+  }
+
+  /** Give the pellets fired since `from` a look, unless they already carry one. */
+  function dressShots(from: number, look: RainbowShotLook) {
+    for (let i = from; i < enemyShots.length; i++) {
+      const bullet = enemyShots[i]!
+      bullet.look ??= look
+      bullet.born ??= tick
+    }
+  }
+
+  /** A boss or guardian's volley, in its look. */
+  function shootAs(look: RainbowShotLook, volley: EnemyShot[]) {
+    const from = enemyShots.length
+    enemyShots.push(...volley)
+    dressShots(from, look)
+  }
+
+  function fireEnemyPattern(reef: Reef) {
     const active = availableCoopTargets(ships, activePlayers)
     if (!active.length) return
     const nearestShip = active.reduce(
@@ -3617,7 +3651,7 @@ export function createRainbowPrincessPreview(
           options.sound.play('extra')
         }
       } else if (escapeFrame !== null) {
-        enemyShots.push(...eclipseEscapeWall(escapeFrame, W + 10))
+        shootAs('eclipse', eclipseEscapeWall(escapeFrame, W + 10))
         if (++escapeFrame >= ECLIPSE_ESCAPE.frames) {
           escapeFrame = null
           endingFrame = 0
@@ -3911,6 +3945,8 @@ export function createRainbowPrincessPreview(
           vx: -4.4,
           vy: 0,
           grazed: 0,
+          look: 'bolt',
+          born: tick,
         })
       // Plain craft keep firing while they cross the screen.
       if (reef.reload !== undefined && reef.fired && --reef.reload <= 0) {
@@ -3919,15 +3955,19 @@ export function createRainbowPrincessPreview(
       }
     }
     if (boss) {
-      enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
+      shootAs(
+        RAINBOW_BOSS_LOOKS[1],
+        stepPinkwakeBoss(boss, ships.slice(0, activePlayers)),
+      )
     }
     const guardianAct = currentAct()
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
       const section = guardianSections[act]
       const frame = actFrame(act)
-      enemyShots.push(
-        ...stepRainbowGuardian(
+      shootAs(
+        RAINBOW_GUARDIAN_LOOK,
+        stepRainbowGuardian(
           guardian,
           ships.slice(0, activePlayers),
           frame >= section.to - RAINBOW_GUARDIAN.escapeLead,
@@ -3939,23 +3979,27 @@ export function createRainbowPrincessPreview(
       }
     }
     if (moonBoss) {
-      enemyShots.push(
-        ...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[2],
+        stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
       )
     }
     if (clawBoss) {
-      enemyShots.push(
-        ...stepClawburstBoss(clawBoss, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[3],
+        stepClawburstBoss(clawBoss, ships.slice(0, activePlayers)),
       )
     }
     if (delphion) {
-      enemyShots.push(
-        ...stepDelphionBoss(delphion, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[4],
+        stepDelphionBoss(delphion, ships.slice(0, activePlayers)),
       )
     }
     if (sawtooth) {
-      enemyShots.push(
-        ...stepSawtoothBoss(sawtooth, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[5],
+        stepSawtoothBoss(sawtooth, ships.slice(0, activePlayers)),
       )
       // Phase 2 calls a hammerhead escort above and below the Regent, never more than two at once.
       const escorts = reefs.filter(
@@ -3968,8 +4012,9 @@ export function createRainbowPrincessPreview(
         spawn('hammerhead', y, null)
     }
     if (lanternRay) {
-      enemyShots.push(
-        ...stepLanternRayBoss(lanternRay, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[6],
+        stepLanternRayBoss(lanternRay, ships.slice(0, activePlayers)),
       )
       // Each surviving nursery launches an interceptor, never more than four at once.
       const drones = reefs.filter(
@@ -3979,18 +4024,21 @@ export function createRainbowPrincessPreview(
         spawn('drone', y, null)
     }
     if (glassEel) {
-      enemyShots.push(
-        ...stepGlassEelBoss(glassEel, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[7],
+        stepGlassEelBoss(glassEel, ships.slice(0, activePlayers)),
       )
     }
     if (leviathan) {
-      enemyShots.push(
-        ...stepPrismLeviathanBoss(leviathan, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[8],
+        stepPrismLeviathanBoss(leviathan, ships.slice(0, activePlayers)),
       )
     }
     if (crown) {
-      enemyShots.push(
-        ...stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[9],
+        stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
       )
     }
     if (navigator) {
@@ -4140,7 +4188,9 @@ export function createRainbowPrincessPreview(
       }
       if (bullet.fuse !== undefined && --bullet.fuse <= 0) {
         enemyShots.splice(bi, 1)
-        enemyShots.push(...burstShots(bullet))
+        const look = rainbowBurstLook(bullet.burst, bullet.look)
+        for (const pellet of burstShots(bullet))
+          enemyShots.push({ ...pellet, look, born: tick })
       }
     }
     for (const pickup of pickups) pickup.x -= 0.8
@@ -6647,7 +6697,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'left'
       }
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
-      g.fillStyle = '#05030fa6'
+      // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
+      // the family's shape read first.
+      g.fillStyle = '#05030f70'
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
@@ -6768,13 +6820,17 @@ export function createRainbowPrincessPreview(
           g.stroke()
           continue
         }
-        g.fillStyle = '#1b163e'
-        g.beginPath()
-        g.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2)
-        g.fill()
-        g.strokeStyle = '#fff5b3'
-        g.lineWidth = 2
-        g.stroke()
+        // Each family's own animated shape (t-032); calm motion slows the spin and pulse.
+        drawRainbowShot(
+          g,
+          bullet.look ?? 'pearl',
+          bullet.x,
+          bullet.y,
+          bullet.vx,
+          bullet.vy,
+          (tick - (bullet.born ?? 0)) * (calm ? 0.35 : 1),
+          (bullet.born ?? 0) % 5,
+        )
       }
       for (const cache of caches) {
         // A white chevron in its pilot's colour ring, the ring running down; it blinks in its last second.
@@ -6881,6 +6937,21 @@ export function createRainbowPrincessPreview(
       g.globalAlpha = 1
       for (const shot of shots) {
         if (shot.kind === 'beam') continue
+        // Every pilot shot leaves a fading wake and its white point twinkles (t-032).
+        const speed = Math.hypot(shot.vx, shot.vy) || 1
+        g.save()
+        g.strokeStyle = PILOT_COLORS[pilotOf(shot.seat)]!
+        g.lineCap = 'round'
+        g.globalAlpha = calm ? 0.25 : 0.4
+        g.lineWidth = 2
+        g.beginPath()
+        g.moveTo(shot.x, shot.y)
+        g.lineTo(
+          shot.x - (shot.vx / speed) * 14,
+          shot.y - (shot.vy / speed) * 14,
+        )
+        g.stroke()
+        g.restore()
         g.fillStyle = PILOT_COLORS[pilotOf(shot.seat)]!
         if (shot.kind === 'needle') {
           // Rose Needle: a long thin needle with a white point.

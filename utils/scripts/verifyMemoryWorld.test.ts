@@ -231,7 +231,7 @@ assert.match(
 assert.match(
   briarSceneOpening(BRIAR_SCENES['5,8']!, { '3,3': 'halt' }),
   /stopped gears/,
-  'The attorney's contract economy responds to the player's earlier mill choice',
+  "The attorney\'s contract economy responds to the player\'s earlier mill choice",
 )
 assert.equal(
   briarSceneOpening(BRIAR_SCENES['5,8']!, {}),

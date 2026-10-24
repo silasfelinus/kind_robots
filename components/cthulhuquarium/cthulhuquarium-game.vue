@@ -8,7 +8,7 @@
 
      Coin drops (cthulhuquarium/t-080, conductor LOOP.md): every fed fish
      drops a coin every tank.coinDropSeconds on its own timer, worth its
-     stock row's coinValue. Coins sink to the gravel, rest, and fade after
+     stock row's coinValue. Coins float near their swimmers and fade after
      tank.coinVisibleSeconds. Clicking one queues its value with the store's
      requestCollect(); the server credits at most what the tank's drop rate
      accrued (server/utils/aquariumCollect.ts coinAllowance), so the canvas
@@ -31,8 +31,9 @@
     <Teleport to="body" :disabled="!fullscreen">
       <div
         ref="gameRoot"
-        class="cq-game kr-container flex max-w-7xl flex-col gap-3"
+        class="cq-game flex min-h-0 w-full flex-1 flex-col gap-0 overflow-hidden"
         :class="{ 'cq-fullscreen': fullscreen }"
+        @keydown.esc="closePanel"
       >
         <cthulhuquarium-dialogue />
         <div
@@ -139,9 +140,16 @@
             class="cq-tank relative overflow-hidden rounded-2xl border border-base-300 bg-base-300 shadow-xl"
             :class="{ 'cq-focus': storyFocus === 'tank' }"
           >
+            <img
+              v-if="tankBackdrop"
+              :src="tankBackdrop"
+              alt=""
+              aria-hidden="true"
+              class="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover blur-xl brightness-[0.4]"
+            />
             <canvas
               ref="canvasRef"
-              class="block aspect-[16/9] w-full cursor-pointer touch-none"
+              class="relative z-[1] block aspect-[16/9] w-full cursor-pointer touch-none"
               :width="STAGE_WIDTH * RENDER_SCALE"
               :height="STAGE_HEIGHT * RENDER_SCALE"
               aria-label="Aquarium tank. Every fed fish drops coins; tap them to collect them, tap near a fish to startle it, or drag a placed decoration to move it."
@@ -153,7 +161,7 @@
             />
 
             <div
-              class="pointer-events-none flex flex-wrap items-center justify-between gap-2 bg-base-200 p-2 sm:absolute sm:inset-x-0 sm:top-0 sm:items-start sm:bg-transparent sm:p-3"
+              class="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-wrap items-start justify-between gap-2 bg-gradient-to-b from-black/30 to-transparent p-2 sm:p-3"
             >
               <div
                 class="flex items-center gap-3 rounded-full bg-base-100/80 px-3 py-1.5 text-sm font-bold shadow backdrop-blur-sm"
@@ -261,7 +269,7 @@
                 <button
                   type="button"
                   class="btn btn-secondary btn-sm min-h-11 min-w-11 shadow"
-                  @click="scrollToShop"
+                  @click="openFishMarket"
                 >
                   Buy fish
                 </button>
@@ -299,25 +307,75 @@
             </p>
           </div>
 
-          <div class="cq-side flex flex-col gap-3">
+          <nav class="cq-command-deck" aria-label="Aquarium rooms">
+            <button
+              v-for="panel in aquariumPanels"
+              :key="panel.id"
+              type="button"
+              class="cq-deck-button btn btn-sm min-h-11"
+              :class="activePanel === panel.id ? 'btn-primary' : 'btn-ghost'"
+              :aria-pressed="activePanel === panel.id"
+              :aria-expanded="activePanel === panel.id"
+              @click="selectPanel(panel.id)"
+            >
+              <Icon :name="panel.icon" class="kr-icon-4" />
+              {{ panel.title }}
+            </button>
+          </nav>
+          <button
+            v-if="activePanel"
+            type="button"
+            class="cq-room-shade"
+            :aria-label="`Close ${activePanelName} and return to aquarium`"
+            @click="closePanel"
+          />
+          <img
+            v-if="activePanelArt"
+            :src="activePanelArt"
+            alt=""
+            aria-hidden="true"
+            class="cq-room-backdrop pointer-events-none absolute object-cover"
+          />
+          <div v-if="activePanel" class="cq-room-heading">
+            <span class="min-w-0 truncate font-serif font-black">{{
+              activePanelName
+            }}</span>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm min-h-11 min-w-11 shrink-0"
+              :aria-label="`Close ${activePanelName}`"
+              @click="closePanel"
+            >
+              <Icon name="kind-icon:close" class="kr-icon-4" />
+            </button>
+          </div>
+          <div
+            v-show="activePanel === 'shop'"
+            class="cq-side flex flex-col gap-3"
+          >
             <div
-              ref="shopRef"
               class="flex scroll-mt-4 flex-col gap-2 rounded-2xl"
               :class="{ 'cq-focus p-2': storyFocus === 'shop' }"
             >
-              <!-- The shop's own header (canon videos.yaml screen-shop): the aisle
-             of lit tanks, moving; the still plate under reduced motion. -->
-              <div class="flex items-end justify-between gap-2">
-                <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-                  Buy a fish
-                </p>
+              <!-- The fish market gets an illustrated scene, not a catalog thumbnail. -->
+              <div
+                class="relative min-h-28 overflow-hidden rounded-xl bg-base-300 sm:min-h-40"
+              >
                 <img
                   v-if="shopHeaderArt"
                   :src="shopHeaderArt"
-                  alt="The shop's aisle of lit tanks"
-                  class="aspect-[16/5] w-28 rounded-xl border border-base-300 object-cover shadow"
+                  alt="Charlotte's curiosity shop, an aisle of mysterious lit tanks"
+                  class="absolute inset-0 h-full w-full object-cover"
                   loading="lazy"
                 />
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-base-100/90 via-transparent to-transparent"
+                />
+                <p
+                  class="absolute bottom-2 left-3 font-serif text-xl font-black drop-shadow"
+                >
+                  The Fish Market
+                </p>
               </div>
               <cthulhuquarium-bark context="shop" />
               <!-- t-030: the shop rotates -- this is a slice of what's never been
@@ -341,59 +399,97 @@
               >
                 The tank is full -- buy +4 room or release a fish to add more.
               </p>
-              <div v-if="!tankStore.catalogLoading" class="flex flex-col gap-1">
+              <div v-if="!tankStore.catalogLoading" class="flex flex-col gap-3">
                 <div
-                  v-for="entry in tankStore.catalog"
-                  :key="entry.id"
-                  class="flex items-center gap-2 rounded-2xl border border-base-300 bg-base-200 p-1"
+                  v-if="featuredFish"
+                  class="flex flex-col gap-3 rounded-2xl border border-base-300 bg-base-200 p-3"
+                  tabindex="0"
+                  aria-label="Featured fish. Use left or right arrow to browse."
+                  @keydown.left.prevent="shiftShop(-1)"
+                  @keydown.right.prevent="shiftShop(1)"
                 >
-                  <div
-                    class="size-11 shrink-0 overflow-hidden rounded-xl border border-base-300 bg-base-100"
-                  >
-                    <cthulhuquarium-sprite
-                      :slug="entry.slug"
-                      :label="entry.name"
-                      :fallback="withCthulhuquariumArt(entry)"
-                      :size="44"
-                      class="size-full"
-                    />
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="kr-text-bold-sm truncate">{{ entry.name }}</p>
-                    <p
-                      class="truncate font-serif text-xs italic opacity-80"
-                      :title="voiceFor(entry.slug, 'charlotte') || undefined"
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="cq-featured-frame size-40 shrink-0 overflow-hidden rounded-2xl border border-base-300 bg-base-100"
                     >
-                      {{
-                        voiceFor(entry.slug, 'charlotte')
-                          ? `“${voiceFor(entry.slug, 'charlotte')}”`
-                          : 'Not yet observed.'
-                      }}
-                    </p>
+                      <cthulhuquarium-sprite
+                        :slug="featuredFish.slug"
+                        :label="featuredFish.name"
+                        :fallback="withCthulhuquariumArt(featuredFish)"
+                        :size="240"
+                        class="size-full"
+                      />
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p
+                        class="text-[0.65rem] font-black uppercase tracking-widest text-primary"
+                      >
+                        Today's specimens
+                      </p>
+                      <h3 class="font-serif text-xl font-black">
+                        {{ featuredFish.name }}
+                      </h3>
+                      <p class="mt-1 font-serif text-sm italic opacity-80">
+                        {{
+                          voiceFor(featuredFish.slug, 'charlotte')
+                            ? `“${voiceFor(featuredFish.slug, 'charlotte')}”`
+                            : 'Not yet observed.'
+                        }}
+                      </p>
+                    </div>
                   </div>
                   <button
                     type="button"
-                    class="cq-price btn btn-primary btn-sm min-h-11 min-w-20 shrink-0 gap-1"
-                    :disabled="!canUnlock(entry)"
+                    class="cq-price btn btn-primary min-h-12 w-full gap-2"
+                    :disabled="!canUnlock(featuredFish)"
                     :title="
                       !fitsRoom()
                         ? 'Tank full'
-                        : entry.cost > tankStore.coins
-                          ? `${entry.cost - tankStore.coins} more coins needed`
+                        : featuredFish.cost > tankStore.coins
+                          ? `${featuredFish.cost - tankStore.coins} more coins needed`
                           : undefined
                     "
-                    @click="tankStore.unlock(entry.id)"
+                    @click="tankStore.unlock(featuredFish.id)"
                   >
-                    <template v-if="entry.cost === 0">Free</template>
-                    <template v-else>
+                    <span>Bring into the tank</span>
+                    <span v-if="featuredFish.cost === 0">Free</span>
+                    <span v-else class="inline-flex items-center gap-1">
                       <Icon name="kind-icon:coin" class="size-4 text-warning" />
-                      {{ entry.cost }}
-                    </template>
+                      {{ featuredFish.cost }}
+                    </span>
                   </button>
+                  <nav
+                    class="flex items-center justify-between gap-2"
+                    aria-label="Choose a market fish"
+                  >
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm min-h-11 min-w-11"
+                      aria-label="Previous fish"
+                      @click="shiftShop(-1)"
+                    >
+                      <Icon name="kind-icon:chevron-left" class="kr-icon-4" />
+                    </button>
+                    <p
+                      class="text-xs font-bold tabular-nums"
+                      aria-live="polite"
+                    >
+                      {{ selectedShopIndex + 1 }} /
+                      {{ tankStore.catalog.length }}
+                    </p>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm min-h-11 min-w-11"
+                      aria-label="Next fish"
+                      @click="shiftShop(1)"
+                    >
+                      <Icon name="kind-icon:chevron-right" class="kr-icon-4" />
+                    </button>
+                  </nav>
                 </div>
-                <p v-if="!tankStore.catalog.length" class="kr-text-faded-xs">
-                  Nothing new today -- buy more of a fish you own from its card
-                  below.
+                <p v-else class="kr-text-faded-xs">
+                  Nothing new today. You can re-order discoveries in the
+                  bestiary.
                 </p>
               </div>
             </div>
@@ -401,7 +497,10 @@
             <cthulhuquarium-upgrades />
           </div>
 
-          <div class="cq-roster flex flex-col gap-2">
+          <div
+            v-show="activePanel === 'roster'"
+            class="cq-roster flex flex-col gap-2"
+          >
             <div class="flex items-center justify-between">
               <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
                 The tank
@@ -492,9 +591,8 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
+          <!-- The Ichthyonomicon (cthulhuquarium/t-024, extended by t-031): the
            collection is the actual progression spine now ("ENDLESS BUT THE
            BESTIARY COMPLETES"), so it gets a view worth returning to rather
            than living only as a side effect of the unlock panel above.
@@ -502,279 +600,325 @@
            completionist book, not part of the tank's own poll loop. Formal
            name on the cover; Charlotte and Wilbur would just call it "the
            book" (SYSTEMS.md). -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 rounded-2xl text-left"
-            :class="{ 'cq-focus': storyFocus === 'bestiary' }"
-            @click="onToggleBestiary"
+          <div
+            v-show="activePanel === 'bestiary'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
-               formal name and a text label; now it has its cover. -->
-            <!-- cthulhuquarium/t-067: see the fish-list wrapper comment above --
-               same width-cascade fix, wrapper-owned size and border. -->
-            <div
-              v-if="artByName('ichthyonomicon')"
-              class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 rounded-2xl text-left"
+              :class="{ 'cq-focus': storyFocus === 'bestiary' }"
+              @click="onToggleBestiary"
             >
-              <kr-art-plate
-                :source="{
-                  imagePath:
-                    movingArt('ichthyonomicon') ?? artByName('ichthyonomicon'),
-                }"
-                variant="icon"
-                shape="square"
-                frame="none"
-                fit="cover"
-                placeholder-icon="kind-icon:book"
-              />
-            </div>
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              The Ichthyonomicon
-              <span v-if="tankStore.bestiaryTotalCount > 0" class="opacity-80">
-                — {{ tankStore.bestiaryCollectedCount }}/{{
-                  tankStore.bestiaryTotalCount
-                }}
-                observed
+              <!-- cthulhuquarium/t-065: the authored cover plate. The book had a
+               formal name and a text label; now it has its cover. -->
+              <!-- cthulhuquarium/t-067: see the fish-list wrapper comment above --
+               same width-cascade fix, wrapper-owned size and border. -->
+              <div
+                v-if="artByName('ichthyonomicon')"
+                class="kr-icon-10 shrink-0 overflow-hidden rounded-2xl border border-base-300"
+              >
+                <kr-art-plate
+                  :source="{
+                    imagePath:
+                      movingArt('ichthyonomicon') ??
+                      artByName('ichthyonomicon'),
+                  }"
+                  variant="icon"
+                  shape="square"
+                  frame="none"
+                  fit="cover"
+                  placeholder-icon="kind-icon:book"
+                />
+              </div>
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                The Ichthyonomicon
+                <span
+                  v-if="tankStore.bestiaryTotalCount > 0"
+                  class="opacity-80"
+                >
+                  — {{ tankStore.bestiaryCollectedCount }}/{{
+                    tankStore.bestiaryTotalCount
+                  }}
+                  observed
+                </span>
               </span>
-            </span>
-            <Icon
-              :name="
-                showBestiary ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
+              <Icon
+                :name="
+                  showBestiary
+                    ? 'kind-icon:chevron-up'
+                    : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-          <template v-if="showBestiary">
-            <cthulhuquarium-bark context="bestiary" />
-            <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
-              Reading the book…
-            </p>
-            <cthulhuquarium-ichthyonomicon v-else />
-          </template>
-        </div>
+            <template v-if="showBestiary">
+              <cthulhuquarium-bark context="bestiary" />
+              <p v-if="tankStore.bestiaryLoading" class="kr-text-faded-xs">
+                Reading the book…
+              </p>
+              <cthulhuquarium-ichthyonomicon v-else />
+            </template>
+          </div>
 
-        <!-- Set pieces (cthulhuquarium/t-026): the build layer. Fish provide
+          <!-- Set pieces (cthulhuquarium/t-026): the build layer. Fish provide
            colour and income; sets provide the variation and the surprise
            combos (SYSTEMS.md's own framing) -- so unlike the bestiary this
            panel is about a small, legible, COUNTED choice (setSlotsCap),
            not a big collected list. -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 text-left"
-            @click="onToggleSets"
+          <div
+            v-show="activePanel === 'sets'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              Set pieces
-              <span class="opacity-80">
-                — {{ tankStore.equippedSets.length }}/{{
-                  tankStore.setSlotsCap
-                }}
-                equipped
-              </span>
-            </span>
-            <Icon
-              :name="
-                showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
-
-          <template v-if="showSets">
-            <cthulhuquarium-bark context="sets" />
-            <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
-              Surveying the build layer…
-            </p>
-            <div
-              v-else
-              class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 text-left"
+              @click="onToggleSets"
             >
-              <div
-                v-for="entry in tankStore.setCatalog"
-                :key="entry.kind"
-                class="flex flex-col gap-1 kr-panel-compact"
-                :class="{ 'border-primary/60': entry.equipped }"
-              >
-                <img
-                  v-if="artForSetKind(entry.kind)"
-                  :src="artForSetKind(entry.kind) ?? undefined"
-                  :alt="entry.title"
-                  loading="lazy"
-                  class="aspect-square w-full rounded-xl bg-base-200 object-contain"
-                />
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">{{ entry.title }}</p>
-                  <span
-                    v-if="entry.equipped"
-                    class="kr-badge-primary-xs shrink-0"
-                  >
-                    Equipped
-                  </span>
-                </div>
-                <p class="text-xs italic opacity-70">{{ entry.description }}</p>
-                <button
-                  v-if="entry.equipped"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  @click="
-                    () => {
-                      const id = equippedSetId(entry.kind)
-                      if (id) tankStore.unequipSet(id)
-                    }
-                  "
-                >
-                  Unequip
-                </button>
-                <button
-                  v-else
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  :disabled="!canEquip(entry)"
-                  @click="tankStore.equipSet(entry.kind)"
-                >
-                  Equip ({{ entry.cost }})
-                </button>
-              </div>
-              <p v-if="!tankStore.setCatalog.length" class="kr-text-faded-xs">
-                No set pieces to show right now.
-              </p>
-            </div>
-          </template>
-        </div>
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                Set pieces
+                <span class="opacity-80">
+                  — {{ tankStore.equippedSets.length }}/{{
+                    tankStore.setSlotsCap
+                  }}
+                  equipped
+                </span>
+              </span>
+              <Icon
+                :name="
+                  showSets ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-        <!-- Decorate (cthulhuquarium/t-017): "they can decorate it" -- purely
+            <template v-if="showSets">
+              <cthulhuquarium-bark context="sets" />
+              <p v-if="tankStore.setCatalogLoading" class="kr-text-faded-xs">
+                Surveying the build layer…
+              </p>
+              <div
+                v-else
+                class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
+              >
+                <div
+                  v-for="entry in tankStore.setCatalog"
+                  :key="entry.kind"
+                  class="flex flex-col gap-1 kr-panel-compact"
+                  :class="{ 'border-primary/60': entry.equipped }"
+                >
+                  <img
+                    v-if="artForSetKind(entry.kind)"
+                    :src="artForSetKind(entry.kind) ?? undefined"
+                    :alt="entry.title"
+                    loading="lazy"
+                    class="aspect-square w-full rounded-xl bg-base-200 object-contain"
+                  />
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">{{ entry.title }}</p>
+                    <span
+                      v-if="entry.equipped"
+                      class="kr-badge-primary-xs shrink-0"
+                    >
+                      Equipped
+                    </span>
+                  </div>
+                  <p class="text-xs italic opacity-70">
+                    {{ entry.description }}
+                  </p>
+                  <button
+                    v-if="entry.equipped"
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    @click="
+                      () => {
+                        const id = equippedSetId(entry.kind)
+                        if (id) tankStore.unequipSet(id)
+                      }
+                    "
+                  >
+                    Unequip
+                  </button>
+                  <button
+                    v-else
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    :disabled="!canEquip(entry)"
+                    @click="tankStore.equipSet(entry.kind)"
+                  >
+                    Equip ({{ entry.cost }})
+                  </button>
+                </div>
+                <p v-if="!tankStore.setCatalog.length" class="kr-text-faded-xs">
+                  No set pieces to show right now.
+                </p>
+              </div>
+            </template>
+          </div>
+
+          <!-- Decorate (cthulhuquarium/t-017): "they can decorate it" -- purely
            cosmetic, unlike set pieces (no slot cap, no economy effect, and
            buying the same item twice is fine). Choosing an item here sets
            pendingDecorKind; the next tap on the tank places and pays for it.
            An already-placed item can be dragged directly on the canvas. -->
-        <div class="flex flex-col gap-2 kr-panel-divider">
-          <button
-            type="button"
-            class="flex items-center justify-between gap-2 text-left"
-            @click="onToggleDecor"
+          <div
+            v-show="activePanel === 'decor'"
+            class="cq-support-panel flex flex-col gap-2 kr-panel-divider"
           >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              Decorate
-              <span v-if="tankStore.placedDecor.length" class="opacity-80">
-                — {{ tankStore.placedDecor.length }} placed
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 text-left"
+              @click="onToggleDecor"
+            >
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                Decorate
+                <span v-if="tankStore.placedDecor.length" class="opacity-80">
+                  — {{ tankStore.placedDecor.length }} placed
+                </span>
               </span>
-            </span>
-            <Icon
-              :name="
-                showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
-              "
-              class="kr-icon-4 shrink-0 opacity-60"
-            />
-          </button>
+              <Icon
+                :name="
+                  showDecor ? 'kind-icon:chevron-up' : 'kind-icon:chevron-down'
+                "
+                class="kr-icon-4 shrink-0 opacity-60"
+              />
+            </button>
 
-          <template v-if="showDecor">
-            <cthulhuquarium-bark context="decor" />
-            <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
-              Sorting through the driftwood…
-            </p>
-            <div
-              v-else
-              class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
-            >
+            <template v-if="showDecor">
+              <cthulhuquarium-bark context="decor" />
+              <p v-if="tankStore.decorCatalogLoading" class="kr-text-faded-xs">
+                Sorting through the driftwood…
+              </p>
               <div
-                v-for="entry in tankStore.decorCatalog"
-                :key="entry.kind"
-                class="flex flex-col gap-1 kr-panel-compact"
-                :class="{
-                  'border-primary/60':
-                    tankStore.pendingDecorKind === entry.kind,
-                }"
+                v-else
+                class="grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-2"
               >
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">
-                    <span class="mr-1">{{ entry.icon }}</span
-                    >{{ entry.title }}
-                  </p>
-                </div>
-                <p class="text-xs italic opacity-70">{{ entry.description }}</p>
-                <button
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
-                  :disabled="tankStore.coins < entry.cost"
-                  @click="tankStore.chooseDecorToPlace(entry.kind)"
+                <div
+                  v-for="entry in tankStore.decorCatalog"
+                  :key="entry.kind"
+                  class="flex flex-col gap-1 kr-panel-compact"
+                  :class="{
+                    'border-primary/60':
+                      tankStore.pendingDecorKind === entry.kind,
+                  }"
                 >
-                  Place ({{ entry.cost }})
-                </button>
-              </div>
-              <p v-if="!tankStore.decorCatalog.length" class="kr-text-faded-xs">
-                Nothing to place right now.
-              </p>
-            </div>
-            <p
-              v-if="tankStore.placedDecor.length"
-              class="text-[0.65rem] uppercase tracking-wide opacity-60"
-            >
-              Drag anything placed in the tank to move it.
-            </p>
-          </template>
-        </div>
-
-        <details class="group flex flex-col gap-2 kr-panel-divider">
-          <summary
-            class="flex cursor-pointer list-none items-center justify-between gap-2"
-          >
-            <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-              More for the tank — backgrounds, the last aquarium, sharing
-            </span>
-            <Icon
-              name="kind-icon:chevron-down"
-              class="kr-icon-4 shrink-0 opacity-60 transition group-open:rotate-180"
-            />
-          </summary>
-          <div class="mt-2 flex flex-col gap-3">
-            <div class="flex flex-col gap-2">
-              <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
-                Behind the glass
-              </p>
-              <cthulhuquarium-bark context="backgrounds" />
-              <div class="flex snap-x gap-2 overflow-x-auto pb-1">
-                <button
-                  v-for="background in tankStore.backgrounds"
-                  :key="background.key"
-                  type="button"
-                  class="relative w-40 shrink-0 snap-start overflow-hidden rounded-2xl border-2 text-left transition"
-                  :class="
-                    background.key === tankStore.backgroundKey
-                      ? 'border-primary'
-                      : 'border-base-300'
-                  "
-                  :disabled="!background.unlocked || tankStore.backgroundSaving"
-                  :aria-pressed="background.key === tankStore.backgroundKey"
-                  @click="tankStore.chooseBackground(background.key)"
-                >
-                  <img
-                    v-if="backgroundArt(background.key)"
-                    :src="backgroundArt(background.key) ?? undefined"
-                    :alt="background.name"
-                    class="aspect-[16/9] w-full object-cover"
-                    :class="{
-                      'blur-sm grayscale opacity-40': !background.unlocked,
-                    }"
-                  />
-                  <div v-else class="aspect-[16/9] w-full bg-base-300" />
-                  <div class="p-1.5">
-                    <p class="truncate text-xs font-bold">
-                      {{ background.unlocked ? background.name : 'Not yet' }}
-                    </p>
-                    <p
-                      v-if="!background.unlocked"
-                      class="truncate text-[0.65rem] opacity-60"
-                    >
-                      {{ backgroundUnlockHint(background.unlock) }}
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">
+                      <span class="mr-1">{{ entry.icon }}</span
+                      >{{ entry.title }}
                     </p>
                   </div>
-                </button>
+                  <p class="text-xs italic opacity-70">
+                    {{ entry.description }}
+                  </p>
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1 self-start"
+                    :disabled="tankStore.coins < entry.cost"
+                    @click="
+                      () => {
+                        tankStore.chooseDecorToPlace(entry.kind)
+                        closePanel()
+                      }
+                    "
+                  >
+                    Place ({{ entry.cost }})
+                  </button>
+                </div>
+                <p
+                  v-if="!tankStore.decorCatalog.length"
+                  class="kr-text-faded-xs"
+                >
+                  Nothing to place right now.
+                </p>
               </div>
-            </div>
-            <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
+              <p
+                v-if="tankStore.placedDecor.length"
+                class="text-[0.65rem] uppercase tracking-wide opacity-60"
+              >
+                Drag anything placed in the tank to move it.
+              </p>
+            </template>
+          </div>
+
+          <details
+            v-show="activePanel === 'scenery'"
+            class="cq-support-panel group flex flex-col gap-2 kr-panel-divider"
+            open
+          >
+            <summary
+              class="flex cursor-pointer list-none items-center justify-between gap-2"
+            >
+              <span class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                More for the tank — backgrounds, the last aquarium, sharing
+              </span>
+              <Icon
+                name="kind-icon:chevron-down"
+                class="kr-icon-4 shrink-0 opacity-60 transition group-open:rotate-180"
+              />
+            </summary>
+            <div class="mt-2 flex flex-col gap-3">
+              <button
+                type="button"
+                class="btn btn-outline min-h-12 w-full justify-start gap-2"
+                @click="
+                  () => {
+                    closePanel()
+                    tankStore.replayIntro()
+                  }
+                "
+              >
+                <Icon name="kind-icon:play" class="kr-icon-4" />
+                Meet Charlotte and Wilbur · Replay the opening
+              </button>
+              <div class="flex flex-col gap-2">
+                <p class="kr-text-eyebrow text-xs tracking-wide opacity-60">
+                  Behind the glass
+                </p>
+                <cthulhuquarium-bark context="backgrounds" />
+                <div class="flex snap-x gap-2 overflow-x-auto pb-1">
+                  <button
+                    v-for="background in tankStore.backgrounds"
+                    :key="background.key"
+                    type="button"
+                    class="relative w-40 shrink-0 snap-start overflow-hidden rounded-2xl border-2 text-left transition"
+                    :class="
+                      background.key === tankStore.backgroundKey
+                        ? 'border-primary'
+                        : 'border-base-300'
+                    "
+                    :disabled="
+                      !background.unlocked || tankStore.backgroundSaving
+                    "
+                    :aria-pressed="background.key === tankStore.backgroundKey"
+                    @click="tankStore.chooseBackground(background.key)"
+                  >
+                    <img
+                      v-if="backgroundArt(background.key)"
+                      :src="backgroundArt(background.key) ?? undefined"
+                      :alt="background.name"
+                      class="aspect-[16/9] w-full object-cover"
+                      :class="{
+                        'blur-sm grayscale opacity-40': !background.unlocked,
+                      }"
+                    />
+                    <div v-else class="aspect-[16/9] w-full bg-base-300" />
+                    <div class="p-1.5">
+                      <p class="truncate text-xs font-bold">
+                        {{ background.unlocked ? background.name : 'Not yet' }}
+                      </p>
+                      <p
+                        v-if="!background.unlocked"
+                        class="truncate text-[0.65rem] opacity-60"
+                      >
+                        {{ backgroundUnlockHint(background.unlock) }}
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+              <!-- The last aquarium (cthulhuquarium/t-039): a single, standalone,
            one-time terminal purchase -- deliberately not folded into "Set
            pieces" above, since it never occupies a setSlotsCap slot and can
            never be unequipped. Charlotte sells it "cheerfully and without
@@ -783,96 +927,97 @@
            set-last-aquarium plate (cthulhuquarium/t-054) replaces what would
            otherwise be a text-only row, matching the fish catalog's
            icon-plus-text layout above. -->
-            <div
-              v-if="tankStore.finaleConfig"
-              class="flex items-start gap-2 kr-panel-divider"
-            >
-              <!-- cthulhuquarium/t-067: THE reported bug -- "The Last Aquarium" row
+              <div
+                v-if="tankStore.finaleConfig"
+                class="flex items-start gap-2 kr-panel-divider"
+              >
+                <!-- cthulhuquarium/t-067: THE reported bug -- "The Last Aquarium" row
              rendering one word per line because this plate stretched to the
              row's full width. See the fish-list wrapper comment above for the
              root cause and fix (same width-cascade issue, same fix here). -->
-              <div
-                class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
-              >
-                <kr-art-plate
-                  :source="{ imagePath: setLastAquariumArt }"
-                  variant="icon"
-                  shape="square"
-                  frame="none"
-                  fit="cover"
-                  placeholder-icon="kind-icon:box"
-                />
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-start justify-between gap-2">
-                  <p class="kr-text-bold-sm">
-                    {{ tankStore.finaleConfig.title }}
-                  </p>
-                  <span
-                    v-if="tankStore.finaleTriggered"
-                    class="kr-badge-primary-xs shrink-0"
-                  >
-                    Yours
-                  </span>
-                </div>
-                <p class="text-xs italic opacity-70">
-                  {{ tankStore.finaleConfig.description }}
-                </p>
-                <button
-                  v-if="!tankStore.finaleTriggered"
-                  type="button"
-                  class="btn btn-outline btn-xs min-h-11 mt-1"
-                  :disabled="tankStore.coins < tankStore.finaleConfig.cost"
-                  @click="tankStore.purchaseFinale()"
+                <div
+                  class="kr-icon-12 shrink-0 overflow-hidden rounded-2xl border border-base-300"
                 >
-                  Buy ({{ tankStore.finaleConfig.cost }})
-                </button>
+                  <kr-art-plate
+                    :source="{ imagePath: setLastAquariumArt }"
+                    variant="icon"
+                    shape="square"
+                    frame="none"
+                    fit="cover"
+                    placeholder-icon="kind-icon:box"
+                  />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="kr-text-bold-sm">
+                      {{ tankStore.finaleConfig.title }}
+                    </p>
+                    <span
+                      v-if="tankStore.finaleTriggered"
+                      class="kr-badge-primary-xs shrink-0"
+                    >
+                      Yours
+                    </span>
+                  </div>
+                  <p class="text-xs italic opacity-70">
+                    {{ tankStore.finaleConfig.description }}
+                  </p>
+                  <button
+                    v-if="!tankStore.finaleTriggered"
+                    type="button"
+                    class="btn btn-outline btn-xs min-h-11 mt-1"
+                    :disabled="tankStore.coins < tankStore.finaleConfig.cost"
+                    @click="tankStore.purchaseFinale()"
+                  >
+                    Buy ({{ tankStore.finaleConfig.cost }})
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
+              <!-- Visibility (cthulhuquarium/t-014): "Each user should be viewable"
            -- new tanks default public, and this is the one-click way to
            change that. Read-only for visitors either way: the toggle only
            ever writes the owner's own tank. -->
-            <div
-              class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider"
-            >
-              <label class="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  class="kr-toggle-success-sm"
-                  :checked="tankStore.tank?.isPublic ?? false"
-                  :disabled="visibilitySaving"
-                  @change="onToggleVisibility"
-                />
-                <span class="kr-text-bold-xs">
-                  {{
-                    tankStore.tank?.isPublic ? 'Public tank' : 'Private tank'
-                  }}
-                </span>
-              </label>
-              <NuxtLink
-                v-if="tankStore.tank?.isPublic && username"
-                :to="`/play/aquarium/browse/${username}/${tankStore.tank.slug}`"
-                class="link text-xs opacity-70"
+              <div
+                class="flex flex-wrap items-center justify-between gap-2 kr-panel-divider"
               >
-                View your public page
-              </NuxtLink>
-              <NuxtLink
-                to="/play/aquarium/browse"
-                class="link text-xs opacity-70"
-              >
-                Browse public tanks
-              </NuxtLink>
-              <NuxtLink
-                to="/play/aquarium/leaderboard"
-                class="link text-xs opacity-70"
-              >
-                Leaderboard
-              </NuxtLink>
+                <label class="flex cursor-pointer items-center gap-2">
+                  <input
+                    type="checkbox"
+                    class="kr-toggle-success-sm"
+                    :checked="tankStore.tank?.isPublic ?? false"
+                    :disabled="visibilitySaving"
+                    @change="onToggleVisibility"
+                  />
+                  <span class="kr-text-bold-xs">
+                    {{
+                      tankStore.tank?.isPublic ? 'Public tank' : 'Private tank'
+                    }}
+                  </span>
+                </label>
+                <NuxtLink
+                  v-if="tankStore.tank?.isPublic && username"
+                  :to="`/play/aquarium/browse/${username}/${tankStore.tank.slug}`"
+                  class="link text-xs opacity-70"
+                >
+                  View your public page
+                </NuxtLink>
+                <NuxtLink
+                  to="/play/aquarium/browse"
+                  class="link text-xs opacity-70"
+                >
+                  Browse public tanks
+                </NuxtLink>
+                <NuxtLink
+                  to="/play/aquarium/leaderboard"
+                  class="link text-xs opacity-70"
+                >
+                  Leaderboard
+                </NuxtLink>
+              </div>
             </div>
-          </div>
-        </details>
+          </details>
+        </div>
       </div>
     </Teleport>
 
@@ -1079,7 +1224,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   TANK_POLL_INTERVAL_MS,
   useCthulhuquariumTankStore,
@@ -1139,6 +1284,12 @@ import {
   stepAmbience,
 } from '~/utils/cthulhuquariumAmbience'
 import { decorIcon, LEGACY_PARLOUR_CROP } from '~/utils/cthulhuquariumStage'
+import {
+  makeFeedParticles,
+  nearestFood,
+  MAX_VISIBLE_FOOD,
+  type FeedParticle,
+} from '~/utils/cthulhuquariumFood'
 
 /* Fixed logical resolution; CSS scales it to the host width so the canvas
    survives phone widths without its own breakpoint logic. */
@@ -1152,7 +1303,7 @@ const RENDER_SCALE = 2
 // cthulhuquarium/t-080 coins: sink speed (stage px/s), where they come to
 // rest, how long the fade-out takes, and the most drawn at once (oldest go
 // first) so a 40-fish tank stays smooth on a phone.
-const COIN_SINK_SPEED = 34
+const COIN_DRIFT_SPEED = 9
 const COIN_REST_Y = STAGE_HEIGHT - 18
 const COIN_FADE_SECONDS = 1.5
 const COIN_MAX_ON_SCREEN = 90
@@ -1318,12 +1469,16 @@ type Collector = {
 /* The food is ALIVE (Silas, 2026-08-24) -- it wriggles on the way down and
    stops when eaten. `phase` drives the wriggle, `lean` gives each one its
    own bias so a handful never moves in unison. */
-type FeedCreature = { x: number; y: number; phase: number; lean: number }
+type FeedCreature = FeedParticle
 
 const tankStore = useCthulhuquariumTankStore()
 const shopHeaderArt =
   (prefersReducedMotion() ? null : movingArt('screen-shop')) ??
   artByName('screen-shop')
+// The illustrated surroundings cover letterbox space on tall mobile displays.
+const tankBackdrop = computed(
+  () => backgroundArt(tankStore.backgroundKey) ?? backgroundArt('parlour'),
+)
 // Held, like the dialogue itself, while anything else has the floor.
 const storyFocus = computed(() =>
   tankStore.storyShowing ? (tankStore.activeBeat?.focus ?? null) : null,
@@ -1333,13 +1488,13 @@ const storyFocus = computed(() =>
 // first fish the page is still down at the shop, and Wilbur's "press Feed"
 // ring would otherwise pulse on a button above the fold.
 const gameRoot = ref<HTMLElement | null>(null)
-watch(storyFocus, async (focus) => {
+watch(storyFocus, (focus) => {
   if (!focus) return
-  await nextTick()
-  gameRoot.value?.querySelector('.cq-focus')?.scrollIntoView({
-    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    block: 'center',
-  })
+  if (focus === 'shop') openPanel('shop')
+  if (focus === 'bestiary') openPanel('bestiary')
+  if (focus === 'sets') openPanel('sets')
+  if (focus === 'decor') openPanel('decor')
+  if (focus === 'tank' || focus === 'coins' || focus === 'feed') closePanel()
 })
 
 watch(
@@ -1425,6 +1580,58 @@ let coinPops: CoinPop[] = []
 const coinTimers = new Map<number, number>()
 const feed = ref<FeedCreature[]>([])
 const collector = ref<Collector | null>(null)
+type AquariumPanel =
+  'shop' | 'roster' | 'bestiary' | 'sets' | 'decor' | 'scenery'
+const aquariumPanels: { id: AquariumPanel; title: string; icon: string }[] = [
+  { id: 'shop', title: 'Fish market', icon: 'kind-icon:coin' },
+  { id: 'roster', title: 'My creatures', icon: 'kind-icon:fish' },
+  { id: 'bestiary', title: 'The bestiary', icon: 'kind-icon:book' },
+  { id: 'sets', title: 'Relics', icon: 'kind-icon:sparkles' },
+  { id: 'decor', title: 'Decorate', icon: 'kind-icon:box' },
+  { id: 'scenery', title: 'World & story', icon: 'kind-icon:image' },
+]
+const activePanel = ref<AquariumPanel | null>(null)
+function selectPanel(panel: AquariumPanel) {
+  if (activePanel.value === panel) {
+    closePanel()
+    return
+  }
+  openPanel(panel)
+}
+function openPanel(panel: AquariumPanel) {
+  activePanel.value = panel
+  if (panel === 'bestiary' && !showBestiary.value) onToggleBestiary()
+  if (panel === 'sets' && !showSets.value) onToggleSets()
+  if (panel === 'decor' && !showDecor.value) onToggleDecor()
+}
+const activePanelArt = computed(() => {
+  switch (activePanel.value) {
+    case 'shop':
+      return shopHeaderArt
+    case 'roster':
+      return backgroundArt('parlour')
+    case 'bestiary':
+      return (
+        (prefersReducedMotion() ? null : movingArt('ichthyonomicon')) ??
+        artByName('ichthyonomicon')
+      )
+    case 'sets':
+      return backgroundArt('counting-house')
+    case 'decor':
+      return backgroundArt('flooded-conservatory')
+    case 'scenery':
+      return backgroundArt(tankStore.backgroundKey)
+    default:
+      return null
+  }
+})
+const activePanelName = computed(
+  () =>
+    aquariumPanels.find((panel) => panel.id === activePanel.value)?.title ?? '',
+)
+function closePanel() {
+  activePanel.value = null
+}
 const showBestiary = ref(false)
 const showSets = ref(false)
 const showDecor = ref(false)
@@ -1454,6 +1661,29 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 // finer-grained ticking than the tank's existing poll loop already gives it.
 const now = ref(Date.now())
 
+// One specimen at a time, like a real game shop instead of an endless web list.
+const selectedShopIndex = ref(0)
+const featuredFish = computed(
+  () =>
+    tankStore.catalog[
+      Math.min(
+        selectedShopIndex.value,
+        Math.max(0, tankStore.catalog.length - 1),
+      )
+    ] ?? null,
+)
+function shiftShop(delta: number) {
+  const count = tankStore.catalog.length
+  if (count)
+    selectedShopIndex.value = (selectedShopIndex.value + delta + count) % count
+}
+watch(
+  () => tankStore.catalog.length,
+  (count) => {
+    if (selectedShopIndex.value >= count) selectedShopIndex.value = 0
+  },
+)
+
 // The unlock panel's live "refreshes in Xh Ym" readout, replacing the old
 // static "check back tomorrow" hint. Null (falls back to that static hint
 // in the template) until the catalog has loaded at least once, or for the
@@ -1470,12 +1700,8 @@ const shopRefreshLabel = computed(() => {
 // Unlock/Buy dead with no word why).
 // cthulhuquarium/t-083: the shop sits right under the tank; Buy fish jumps to
 // it on a phone, where the tank fills the first screen.
-const shopRef = ref<HTMLElement | null>(null)
-function scrollToShop() {
-  shopRef.value?.scrollIntoView({
-    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
-    block: 'start',
-  })
+function openFishMarket() {
+  openPanel('shop')
 }
 
 // Fullscreen is the page's own overlay first (it works on phones without the
@@ -1573,7 +1799,7 @@ function spawnSwimmer(stock: TankStock): Swimmer {
 const ambience = createAmbience(STAGE_WIDTH, STAGE_HEIGHT)
 let huntClock = 20
 
-// A dropped coin: a struck disc that turns as it sinks, catching the light
+// A dropped coin: a struck disc that turns as it floats, catching the light
 // in a travelling glint so it reads as something worth tapping. Common coins
 // are gold; rarer fish strike stranger metals.
 function coinHue(value: number): number {
@@ -1600,8 +1826,7 @@ function drawCoin(
       : 1
   if (alpha <= 0) return
   const r = coin.radius
-  const resting = coin.y >= COIN_REST_Y
-  const turn = resting ? 1 : Math.abs(Math.cos(coin.spin))
+  const turn = Math.abs(Math.cos(coin.spin))
   context.save()
   context.globalAlpha = alpha
   context.translate(coin.x, coin.y)
@@ -2113,7 +2338,6 @@ function render(context: CanvasRenderingContext2D) {
 function step(delta: number) {
   syncSwimmers()
 
-  const food = feed.value[0] ?? null
   for (const swimmer of swimmers.value) {
     stepSwimState(swimmer, {
       width: STAGE_WIDTH,
@@ -2121,7 +2345,7 @@ function step(delta: number) {
       delta,
       speedMultiplier: swimSpeedMultiplier.value,
       pointer: pointerOnStage,
-      food,
+      food: nearestFood(swimmer, feed.value),
     })
     swimmer.facing = facingOf(swimmer, swimmer.facing)
   }
@@ -2214,14 +2438,22 @@ function stepCoins(delta: number) {
 
   for (const coin of coins) {
     coin.age += delta
-    if (coin.y < COIN_REST_Y) {
-      coin.y = Math.min(COIN_REST_Y, coin.y + COIN_SINK_SPEED * delta)
-      coin.spin += delta * 4
-      coin.x = Math.min(
-        STAGE_WIDTH - 14,
-        Math.max(14, coin.x + coin.drift * delta),
-      )
-    }
+    // Treasure hangs in the water column instead of collecting in a
+    // hard-to-tap row along the bottom edge. Keep motion subtle so coins
+    // remain easy targets on touchscreens.
+    coin.y = Math.max(
+      20,
+      Math.min(
+        COIN_REST_Y - 20,
+        coin.y +
+          Math.sin(coin.age * 1.8 + coin.spin) * COIN_DRIFT_SPEED * delta,
+      ),
+    )
+    coin.spin += delta * 2
+    coin.x = Math.min(
+      STAGE_WIDTH - 14,
+      Math.max(14, coin.x + coin.drift * delta),
+    )
   }
   if (visible > 0) {
     coins = coins.filter((coin) => coin.age < visible)
@@ -2234,7 +2466,7 @@ function stepCoins(delta: number) {
 function spawnCoin(swimmer: Swimmer, value: number) {
   coins.push({
     x: swimmer.x,
-    y: Math.min(swimmer.y + 6, COIN_REST_Y),
+    y: Math.max(24, Math.min(swimmer.y + 6, COIN_REST_Y - 24)),
     drift: (Math.random() - 0.5) * 12,
     value,
     radius: coinRadius(value),
@@ -2350,7 +2582,7 @@ async function onCanvasPointerUp(event: PointerEvent) {
 }
 
 // cthulhuquarium/t-083: one tap feeds every hungry fish (tankStore.feedHungry);
-// food drops above up to three of them so the tank shows it happening.
+// food now scatters near fed fish, with a bounded particle budget.
 const feeding = ref(false)
 async function onFeed() {
   if (feeding.value) return
@@ -2360,20 +2592,18 @@ async function onFeed() {
     if (!fed.length) return
     tankSound.plop()
     tankStore.sayBark('fed', 0.5)
-    for (const id of fed.slice(0, 3)) dropFoodOver(id)
+    // Each successfully fed stock contributes to an animated scatter.
+    // The server decides who ate; this never changes hunger or rewards.
+    const drops = makeFeedParticles(
+      fed,
+      swimmers.value,
+      STAGE_WIDTH,
+      STAGE_HEIGHT,
+    )
+    feed.value = [...feed.value, ...drops].slice(-MAX_VISIBLE_FOOD)
   } finally {
     feeding.value = false
   }
-}
-
-function dropFoodOver(stockId: number) {
-  const swimmer = swimmers.value.find((entry) => entry.stockId === stockId)
-  feed.value.push({
-    x: swimmer?.x ?? 60 + Math.random() * (STAGE_WIDTH - 120),
-    y: 12,
-    phase: Math.random() * Math.PI * 2,
-    lean: (Math.random() - 0.5) * 1.6,
-  })
 }
 
 function onClean() {
@@ -2516,27 +2746,133 @@ onBeforeUnmount(() => {
 .cq-game {
   container-type: inline-size;
 }
+/* The route's kr-stage already owns viewport height. Do not establish a
+   second viewport-height calculation inside the game's nested surface. */
+.cq-game:not(.cq-fullscreen) {
+  flex: 1 1 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
 .cq-layout {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
   display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'tank' 'side' 'roster';
-  gap: 0.75rem;
-  align-items: start;
+  grid-template-areas: 'tank' 'deck';
+  gap: 0.4rem;
 }
 .cq-tank {
   grid-area: tank;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-base-300);
 }
-.cq-side {
-  grid-area: side;
+.cq-tank canvas {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
 }
-.cq-roster {
-  grid-area: roster;
+.cq-command-deck {
+  grid-area: deck;
+  position: relative;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  min-width: 0;
+  gap: 0.35rem;
+  padding: 0.25rem;
 }
-@container (min-width: 52rem) {
-  .cq-layout {
-    grid-template-columns: minmax(0, 1.9fr) minmax(17rem, 1fr);
-    grid-template-areas: 'tank side' 'roster side';
-    grid-template-rows: auto 1fr;
+.cq-deck-button {
+  min-width: 0;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.cq-room-shade {
+  position: absolute;
+  z-index: 12;
+  inset: 0 0 3.9rem;
+  background: rgb(0 0 0 / 0.4);
+  cursor: pointer;
+}
+.cq-room-backdrop {
+  z-index: 19;
+  inset: 0 0 3.7rem;
+  height: calc(100% - 3.7rem);
+  width: 100%;
+  filter: brightness(0.46) saturate(0.8);
+}
+.cq-room-heading {
+  position: absolute;
+  z-index: 25;
+  top: 0.45rem;
+  right: clamp(0.5rem, 2vw, 1.5rem);
+  left: clamp(0.5rem, 2vw, 1.5rem);
+  display: flex;
+  height: 3.15rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  border: 1px solid var(--color-base-300);
+  border-radius: 1rem;
+  background: var(--color-base-200);
+}
+.cq-side,
+.cq-roster,
+.cq-support-panel {
+  position: absolute;
+  z-index: 20;
+  inset: 0 0 3.75rem;
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  max-height: none;
+  flex-direction: column;
+  gap: 0.65rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(
+    90deg,
+    var(--color-base-100) 0%,
+    color-mix(in oklab, var(--color-base-100) 90%, transparent) 65%,
+    color-mix(in oklab, var(--color-base-100) 78%, transparent) 100%
+  );
+  padding: 4.15rem clamp(0.75rem, 3vw, 2rem) 1.2rem;
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.4);
+}
+.cq-side > * {
+  max-width: min(100%, 49rem);
+}
+.cq-featured-frame {
+  height: clamp(9rem, 27dvh, 22rem);
+  width: clamp(9rem, 27dvh, 22rem);
+}
+@container (max-width: 800px) {
+  .cq-command-deck {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .cq-deck-button {
+    flex: 0 0 auto;
+  }
+}
+@container (max-width: 520px) {
+  .cq-featured-frame {
+    height: clamp(7rem, 23dvh, 12rem);
+    width: clamp(7rem, 23dvh, 12rem);
   }
 }
 .cq-fullscreen {
@@ -2545,9 +2881,8 @@ onBeforeUnmount(() => {
   z-index: 60;
   max-width: none;
   margin: 0;
-  padding: 0.5rem 0.75rem 1rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  padding: 0.5rem;
+  overflow: hidden;
   background: var(--color-base-100);
 }
 .cq-price:disabled {

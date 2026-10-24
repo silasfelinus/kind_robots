@@ -165,7 +165,7 @@ const gallery = readFileSync(
 assert.match(gallery, /One-prompt experiment/)
 assert.match(gallery, /to="\/music-mentor"/)
 assert.deepEqual(PROJECT_PLACEMENTS['music-mentor'], {
-  channelKey: 'projects',
+  channelKey: 'admin',
   tabKey: 'daily-pitches',
   route: '/music-mentor',
 })

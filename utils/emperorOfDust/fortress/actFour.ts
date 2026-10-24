@@ -451,7 +451,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             label: 'Ask Dunmark who would be left on the walls.',
             effects: {},
             response:
-              'Dunmark glances at the rider, then the windows, and lowers his voice. For a wolf his size, a courtesy.',
+              'Dunmark glances at the rider, then the windows, and lowers his voice. For a captain his size, a courtesy.',
             next: 'walls',
           },
           {
@@ -502,7 +502,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               questAid: [BOXCARS_AT_FORD],
             },
             response:
-              'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. The magpies charge by the boxcar. The Freeholds will spend the winter fencing fields they kept.',
+              'By noon the Ford is walled with boxcars, the Yard’s spare rails and every fence for a mile. The rail salvagers charge by the boxcar. The Freeholds will spend the winter fencing fields they kept.',
           },
         ],
         beats: [
@@ -651,7 +651,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             npc: 'young-komodo',
             text: 'Eleven clerks keep the court’s hand, Keeper, and I keep the clerks. I can have each one write the word oil by supper. Left hand and right, if you like.',
           },
-          'The Keeper blinks at him once, slowly. From a sloth, that is a speech.',
+          'The Keeper blinks at him once, slowly. For Keeper Vellum, that is a speech.',
         ],
         options: [
           {
@@ -678,7 +678,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['ledger-page-kept', 'ledger-hand-studied'],
             },
             response:
-              'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
+              'Hollin turns the page under the lamp until midnight. “Left-handed,” Hollin says. “Taps the pen twice before every number, the way some people tap a claw.”',
           },
           {
             id: 'komodo',
@@ -738,7 +738,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['ledger-page-kept', 'ledger-hand-studied'],
                 },
                 response:
-                  'Hollin turns the page under the lamp until midnight. “Left-handed,” the owl says. “Taps the pen twice before every number, the way some people tap a claw.”',
+                  'Hollin turns the page under the lamp until midnight. “Left-handed,” Hollin says. “Taps the pen twice before every number, the way some people tap a claw.”',
               },
               {
                 id: 'komodo',
@@ -795,7 +795,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         faction: 'moles',
         requires: { standing: MOLE_REFORMS_OPEN },
         lines: [
-          'A prairie dog climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
+          'A reform organiser climbs the hall steps with a speaking trumpet made from a funnel and a sash stitched all over with names. She does not use the trumpet. The hall goes quiet anyway.',
           '“Lumen Shale. I organize for the assembly. Granny Umber says the crown has done two honest things. The assembly says two is luck. Three is a habit.”',
           '“This is the list. Three reforms. A council seat for the burrows in this hall. The crown’s tax ledger nailed to the gate where anyone can read it. And the sedition law burned. The one you can hang a singer with.”',
           '“Grant one and we keep talking. Grant two and I work for you. Grant none and I go home and tell them the truth. That’s worse.”',
@@ -808,7 +808,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'ask-split',
-            label: 'Ask whether every Mole wants this list.',
+            label: 'Ask whether the whole assembly wants this list.',
             effects: {},
             response:
               'Lumen looks at the trumpet in her paw for a moment. Then she puts it down.',
@@ -816,7 +816,8 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
           },
           {
             id: 'councils',
-            label: 'Grant the council seat. A Mole sits in this hall.',
+            label:
+              'Grant the council seat. A burrow delegate sits in this hall.',
             effects: {
               affinity: { moles: 10 },
               local: { 'old-houses': -3 },
@@ -1030,7 +1031,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         npc: 'hester-plowright',
         faction: 'freeholds',
         lines: [
-          'A hen in a mud-heavy skirt marches up to the throne, egg basket and all. No curtsey. Her reeve’s chain is crooked. She dressed on the horse.',
+          'Hester Plowright, in a mud-heavy skirt, marches up to the throne, egg basket and all. No curtsey. Her reeve’s chain is crooked. She dressed on the horse.',
           '“The Saltroad has guards and money and a hundred wagons. Thistledown has me and my sister and the goats. You know who needs you more, Majesty. Say it out loud.”',
           {
             who: 'Young Komodo',
@@ -1444,7 +1445,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         // Only a covenant still held, or broken, is owed (t-040).
         requires: { flags: ['crow-debt-called'] },
         lines: [
-          'Elder Corvane perches on the back of the empty petitioners’ bench and folds his wings like a shut umbrella. A crow sits on every windowsill. Every crow faces the throne.',
+          'Elder Corvane perches on the back of the empty petitioners’ bench and folds his wings like a shut umbrella. A Conclave lookout sits on every windowsill. Every Conclave watcher faces the throne.',
           '“The rain was lent, Majesty. The fields drank it. Now the rain is owed. We do not take back rain, so we take something else.”',
           '“Brass, if you have it. Hands, if you do not. Any shape of debt will do, so long as it is paid in full, in daylight.”',
           {
@@ -1514,7 +1515,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['crow-debt-defaulted'],
             },
             response:
-              'Corvane rises without a word. That night every crow on the Heights faces the tower. None of them sleep. By morning the roosts are armed. Crows keep spite the way farmers keep seed.',
+              'Corvane rises without a word. That night every Conclave watcher on the Heights faces the tower. None of them sleep. By morning the roosts are armed. Crows keep spite the way farmers keep seed.',
           },
         ],
         beats: [
@@ -1563,7 +1564,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-paid'],
                 },
                 response:
-                  'Corvane’s feathers lift and settle. “Paid with our own coin. Clever. We will remember clever.” The crow on the nearest sill turns its back on the throne.',
+                  'Corvane’s feathers lift and settle. “Paid with our own coin. Clever. We will remember clever.” The lookout on the nearest sill turns its back on the throne.',
               },
               {
                 id: 'refuse',
@@ -1574,7 +1575,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. That night every crow on the Heights faces the tower. By morning the roosts are armed. You do not sleep much either.',
+                  'Corvane rises without a word. That night every Conclave watcher on the Heights faces the tower. By morning the roosts are armed. You do not sleep much either.',
               },
               {
                 id: 'ford-rights',
@@ -1623,7 +1624,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. Tamsin watches the crows leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
+                  'Corvane rises without a word. Tamsin watches the Conclave sentries leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
               },
               {
                 id: 'wages',
@@ -1800,7 +1801,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['route-trestle', 'saffron-chose-route'],
             },
             response:
-              'Saffron does not hesitate. “The trestle. I know every weld in it, and which ones hold.” Granny Umber shrugs. On a mole that is mostly elbows. “The crown let its welder choose,” she says. “I’ll tell my grandmother’s bones.”',
+              'Saffron does not hesitate. “The trestle. I know every weld in it, and which ones hold.” Granny Umber shrugs. She draws her elbows in close. “The crown let its welder choose,” she says. “I’ll tell my grandmother’s bones.”',
             postsQuests: ['q-d35-trestle'],
           },
           {
@@ -1923,7 +1924,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         npc: 'sister-marrow',
         faction: 'abbey',
         lines: [
-          'A white goat in grey brings a card sealed with candle wax. She crosses the hall without a sound and stops exactly where petitioners are meant to stop. Nobody ever does.',
+          'An Abbey emissary in grey brings a card sealed with candle wax. She crosses the hall without a sound and stops exactly where petitioners are meant to stop. Nobody ever does.',
           '“The Abbess would be honoured if the emperor attended tonight’s rehearsal. There is a seat at the front. There is always a seat at the front.”',
           '“The children have practised for weeks. Such sweet voices. They sing toward the floor, the way the Abbess taught them, so the floor will learn the tune.”',
           {
@@ -2189,7 +2190,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['ledger-monopoly'],
             },
             response:
-              'Tallow’s whiskers twitch. “Now that is worth more than brass.” Somewhere on the Saltroad, a pelican will be furious by supper.',
+              'Tallow’s whiskers twitch. “Now that is worth more than brass.” Somewhere on the Saltroad, Oriel Saltmarsh will be furious by supper.',
           },
           {
             id: 'rustline',
@@ -2246,7 +2247,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['ledger-monopoly'],
                 },
                 response:
-                  'Tallow’s whiskers twitch. “Now that is worth more than brass.” Somewhere on the Saltroad, a pelican will be furious by supper.',
+                  'Tallow’s whiskers twitch. “Now that is worth more than brass.” Somewhere on the Saltroad, Oriel Saltmarsh will be furious by supper.',
               },
               {
                 id: 'rustline',
@@ -2539,12 +2540,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       {
         id: 'mole-caught',
         source: 'The Gate Watch',
-        text: 'A young Mole was caught leaving the tower before dawn with a satchel.',
+        text: 'A young courier was caught leaving the tower before dawn with a satchel.',
         truth: true,
         variants: [
           {
             flags: ['mole-messenger-arrested'],
-            text: 'A young Mole was caught leaving the tower before dawn with a satchel. He has Granny Umber’s squint.',
+            text: 'A young courier was caught leaving the tower before dawn with a satchel. He has Granny Umber’s squint.',
           },
         ],
       },
@@ -2562,12 +2563,12 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
       {
         id: 'd38-pardon',
         title: 'A Pardon for a Thief',
-        speaker: 'Captain Ferro Dunmark and a Mole prisoner',
+        speaker: 'Captain Ferro Dunmark and a jailed courier',
         npc: 'ferro-dunmark',
         faction: 'gate-watch',
         lines: [
-          'Dunmark brings in a young Mole in chains. Sixteen, no more. He has been crying and stopped, and wiped his face on his chains. There is rust on his cheek.',
-          '“I didn’t steal them. I carry them,” the Mole says. “Up the mission road at night, twice a week, for a year. I know who gives them to me. Pardon me and I’ll say the name.”',
+          'Dunmark brings in a young burrow courier in chains. Sixteen, no more. He has been crying and stopped, and wiped his face on his chains. There is rust on his cheek.',
+          '“I didn’t steal them. I carry them,” the prisoner says. “Up the mission road at night, twice a week, for a year. I know who gives them to me. Pardon me and I’ll say the name.”',
           'The court has turned out for a thief, which it never does. Clerks on the gallery rail. Lady Vask with her fan. Young Komodo at the foot of the dais with the morning’s papers.',
           {
             who: 'Young Komodo',
@@ -2612,7 +2613,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['prisoner-pardoned'],
             },
             response:
-              'The Mole whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Half the court carries a ledger.',
+              'The prisoner whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Half the court carries a ledger.',
           },
           {
             id: 'keep',
@@ -2623,7 +2624,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               flags: ['prisoner-kept'],
             },
             response:
-              'The Mole goes back down the stairs. In the morning his cell is empty. The lock has not been forced.',
+              'The prisoner goes back down the stairs. In the morning his cell is empty. The lock has not been forced.',
           },
           {
             id: 'komodo',
@@ -2660,7 +2661,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-pardoned'],
                 },
                 response:
-                  'The Mole whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Half the court carries a ledger. You count them anyway.',
+                  'The prisoner whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Half the court carries a ledger. You count them anyway.',
               },
               {
                 id: 'keep',
@@ -2671,7 +2672,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-kept'],
                 },
                 response:
-                  'The Mole goes back down the stairs. In the morning his cell is empty. The lock has not been forced.',
+                  'The prisoner goes back down the stairs. In the morning his cell is empty. The lock has not been forced.',
               },
               {
                 id: 'komodo',
@@ -2710,7 +2711,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
             speaker: 'Lumen Shale',
             npc: 'F010',
             lines: [
-              'The prairie dog stands up straight beside the throne, the way her people do at a burrow mouth. She watches the room, not the boy.',
+              'Lumen stands up straight beside the throne, the way her people do at a burrow mouth. She watches the room, not the boy.',
               '“He isn’t lying, Majesty. He isn’t afraid of the Watch. He’s afraid of somebody behind you, and he’s trying hard not to look at them.”',
               '“Clear the hall and he’ll talk. Keep it full and he’ll say whatever keeps him alive.”',
               {
@@ -2730,7 +2731,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-pardoned'],
                 },
                 response:
-                  'The Mole whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Lumen watches the whole court at once. She does not say who flinched.',
+                  'The prisoner whispers: “The one with the ledger. Under his arm, always.” Then he is out the gate. Lumen watches the whole court at once. She does not say who flinched.',
               },
               {
                 id: 'keep',
@@ -2741,7 +2742,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-kept'],
                 },
                 response:
-                  'The Mole goes back down. “Somebody will come for him tonight,” Lumen says. In the morning his cell is empty. The lock has not been forced.',
+                  'The prisoner goes back down. “Somebody will come for him tonight,” Lumen says. In the morning his cell is empty. The lock has not been forced.',
               },
               {
                 id: 'komodo',
@@ -2789,7 +2790,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['prisoner-kept'],
                 },
                 response:
-                  'The Mole goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
+                  'The courier goes down the stairs without a word. In the morning his cell is empty. The lock has not been forced.',
               },
               {
                 id: 'escort-home',
@@ -3067,7 +3068,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['d39-crown-at-foot'],
                 },
                 response:
-                  'The table goes quiet as you sit at the foot, between Komodo and a Mole. Hester laughs out loud. The Abbess, alone at the head by the empty throne, folds her hands and waits. Komodo does not look at you again.',
+                  'The table goes quiet as you sit at the foot, between Komodo and a burrow delegate. Hester laughs out loud. The Abbess, alone at the head by the empty throne, folds her hands and waits. Komodo does not look at you again.',
               },
               {
                 id: 'tally',
@@ -3445,7 +3446,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'boy',
                 label:
-                  'Repeat the Mole boy’s whisper: the one with the ledger, under his arm, always.',
+                  'Repeat the young courier’s whisper: the one with the ledger, under his arm, always.',
                 requires: { flags: ['prisoner-pardoned'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3455,7 +3456,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'escaped',
                 label:
-                  'Ask how the Mole boy got out of a locked cell the night you gave him to Komodo.',
+                  'Ask how the young courier got out of a locked cell the night you gave him to Komodo.',
                 requires: { flags: ['prisoner-to-komodo'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3475,7 +3476,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
               {
                 id: 'chain',
                 label:
-                  'Say nothing. Tap two fingers on the step, twice, the way the Mole boy did.',
+                  'Say nothing. Tap two fingers on the step, twice, the way the courier did.',
                 requires: { flags: ['d38-hall-cleared'] },
                 effects: { flags: ['d40-komodo-confronted'] },
                 response:
@@ -3613,7 +3614,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                 requires: { follower: 'F001' },
                 effects: { flags: ['d40-komodo-followed'] },
                 response:
-                  'Rook slips out the postern. Near midnight the hare comes back alone, ears flat. “He took the Saltroad fork. Then he walked his horse back across the scrub to the mission road, in the old ruts, so his tracks would lie. He knew someone would read them. I think he hoped it was me.”',
+                  'Rook slips out the postern. Near midnight Rook comes back alone, ears flat. “He took the Saltroad fork. Then he walked his horse back across the scrub to the mission road, in the old ruts, so his tracks would lie. He knew someone would read them. I think he hoped it was me.”',
               },
               {
                 id: 'cell',
@@ -3621,7 +3622,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   'Have the Watch hold him in the cells until morning, friend or not.',
                 effects: { flags: ['d40-komodo-held'] },
                 response:
-                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the Mole boy had.',
+                  'Komodo does not argue. He goes down the stair between two of Dunmark’s people, talking about the weather. At the bottom he asks the guard, kindly, which cell the courier had.',
               },
             ],
           },

@@ -169,7 +169,7 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     id: 'q-d42-crow-watch',
     title: 'Stand the Crow Watch',
     summary:
-      'Elder Corvane wants the court on the ledges at night. Every crow watches the Abbey road. So will you.',
+      'Elder Corvane wants the court on the ledges at night. Every Conclave sentinel keeps watch on the Abbey road. So will you.',
     region: 'storm-crow-heights',
     faction: 'storm-crows',
     durationDays: 1,
@@ -978,7 +978,7 @@ const HOST_PATIENCE: HostPatience[] = [
       label:
         'Leave Nera Gale with the Conclave. She flies its watch until the debt is paid.',
       response:
-        'Nera does not argue. She was a Crow before she was yours. Corvane writes her name in the book where your debt was. She goes up to the ledge and does not look back at the fire.',
+        'Nera does not argue. She belonged to the Conclave before she joined your court. Corvane writes her name in the book where your debt was. She goes up to the ledge and does not look back at the fire.',
       reason:
         'Nera Gale went back up to the Conclave’s ledge on the forty-sixth day, to fly its watch against the crown’s debt.',
     },
@@ -1051,7 +1051,7 @@ const HOST_PATIENCE: HostPatience[] = [
     surety: {
       follower: 'F007',
       label:
-        'Give her Ash Quill. A fennec who knows the salt roads drives for her until the war is done.',
+        'Give her Ash Quill. A courier who knows the salt roads drives for her until the war is done.',
       response:
         'Ash takes the reins of the fifth wagon like something they have wanted all their life. Oriel counts them. Driver. At the next halt Ash does not look back down the line.',
       reason:
@@ -1223,7 +1223,7 @@ const D45_ENVOY: SceneLine[] = [
 ]
 
 const D47_FLOUR: SceneLine[] = [
-  'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young rabbit, flour to the elbows, a letter crumpled in his fist.',
+  'Late, the one fire down to coals, Dunmore Ash brings you one of his cooks by the collar. A thin young cook, flour to the elbows, a letter crumpled in his fist.',
   'Behind them, the Gate Watch sergeant who caught him explains it, loud, to anyone awake.',
   '“He was leaving it at the stone on the road, Majesty,” says Dunmore. “For the grey sisters. It says where we are. How many. Good clear hand. I taught him his letters.”',
   '“I’m asking you for nothing. I brought him because it’s the law and I’m the foreman. Do what the law says.”',
@@ -1255,7 +1255,7 @@ const D49_COALITION = composed([
   },
   {
     flag: 'd44-dike-blown',
-    on: 'Sister Reedlight did not come. A heron you have never met stands where the firelight ends, a green lantern on a pole. She does not sit.',
+    on: 'Sister Reedlight did not come. A fen emissary you have never met stands where the firelight ends, a green lantern on a pole. She does not sit.',
     off: 'Sister Reedlight has set her lantern on the ground between the Moles and the Crows. Nobody looks at it.',
   },
   {
@@ -1288,7 +1288,7 @@ const D49_LEFT_OUT = composed([
   {
     flag: 'd44-dike-blown',
     on: {
-      who: 'The heron with the lantern',
+      who: 'The fen envoy with the lantern',
       text: '“Sister Reedlight sends one sentence. Every peace at this fire leaves out the fen. After the north water she would like to hear the crown say it.”',
     },
     off: {
@@ -1918,7 +1918,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           '“Twenty years we dug under your tower, Majesty. Twenty years we wanted it empty. Now it’s empty, and the wrong people sit in it.”',
           '“Stay as long as you like. But down here everybody digs. Even emperors.”',
           {
-            who: 'A young Mole organiser',
+            who: 'A young burrow organiser',
             text: '“Some of us dug to bring the crown down, Granny. Not to tuck it in.”',
           },
         ],
@@ -1982,7 +1982,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         hideout: 'crow-cave',
         bargainEffects: { flags: ['d42-messenger-silenced'] },
         collect: {
-          paid: 'Elder Corvane sent a young crow at dawn. The court never stood its watch. Twenty brass went into the stone basin. Nobody counted it aloud.',
+          paid: 'Elder Corvane sent a young messenger at dawn. The court never stood its watch. Twenty brass went into the stone basin. Nobody counted it aloud.',
           unpaid:
             'Elder Corvane came down off his ledge at dawn. The watch was never stood and the strongbox was empty. He wrote it in the Conclave’s book. Crows put everything in writing.',
           kept: 'Elder Corvane stopped by the court’s fire at dawn. “Clean,” he said. He went back up to his ledge.',
@@ -2375,12 +2375,12 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         accept: {
           label: 'Accept the terms. Pick up a wrench.',
           response:
-            'Jinx tosses you a wrench. “The shiny bolts are mine,” the magpie says. “All of them.” At dusk a grey cart stops at the east siding. Jinx goes out to it alone.',
+            'Jinx tosses you a wrench. “The shiny bolts are mine,” Jinx says. “All of them.” At dusk a grey cart stops at the east siding. Jinx goes out to it alone.',
         },
         ask: {
           label: 'Ask who the engine belonged to.',
           response:
-            'Jinx turns a bolt in the lantern light and does not look at you. “Belonged,” the magpie says. “Past tense. Good word.”',
+            'Jinx turns a bolt in the lantern light and does not look at you. “Belonged,” Jinx says. “Past tense. Good word.”',
         },
         truth: [
           '“Grey paint under the rust, Majesty. Abbey engine. Hauled the night carts up the mission road for years. Then the line flooded.”',
@@ -2394,7 +2394,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           label:
             'Strip it with Jinx. Fair shares. What Jinx does with Jinx’s half is Jinx’s business.',
           response:
-            'Jinx tosses you a wrench. “Fair shares,” the magpie says. “Meaning mine.” At dusk the grey cart comes for Jinx’s half. You hear it go up the mission road. Half an engine. Enough to start.',
+            'Jinx tosses you a wrench. “Fair shares,” Jinx says. “Meaning mine.” At dusk the grey cart comes for Jinx’s half. You hear it go up the mission road. Half an engine. Enough to start.',
         },
         bargainAgain: {
           label: 'Pay Jinx for the whole engine. Every part stays here, dead.',
@@ -2425,7 +2425,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               flags: ['d42-engine-wrecked'],
             },
             response:
-              'It takes all night and most of the court. Jinx watches, coat bristling, bottle caps rattling. Not a claw lifted. By morning the engine is scrap. The magpie won’t sell you a nail all week.',
+              'It takes all night and most of the court. Jinx watches, coat bristling, bottle caps rattling. Not a claw lifted. By morning the engine is scrap. Jinx won’t sell you a nail all week.',
           },
         ],
       }),
@@ -2762,14 +2762,14 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
       },
       {
-        // Callback: the crown pardoned the Mole courier (Day 38).
+        // Callback: the crown pardoned the burrow courier (Day 38).
         id: 'd42-the-courier',
         title: 'The Boy Who Carried Letters',
-        speaker: 'The young Mole courier',
+        speaker: 'The young burrow courier',
         faction: 'moles',
         requires: { flags: ['hideout:mole-tunnels', 'prisoner-pardoned'] },
         lines: [
-          'The Mole with the lantern at the tunnel mouth is sixteen, blinking at even this much light. You have seen him before. In chains, in your throne room, on the thirty-eighth day.',
+          'The courier with the lantern at the tunnel mouth is sixteen, blinking at even this much light. You have seen him before. In chains, in your throne room, on the thirty-eighth day.',
           '“You pardoned me, Majesty. I gave you the name and you let me go. Three days later he did exactly what I said.”',
           '“The sisters still think I’m his runner. They don’t know I’m down here. If I went up the mission road tonight with a letter, they’d open the gate. Like always.”',
           '“I could carry one more letter. Or stay down here and dig and never carry anything again.”',
@@ -3140,7 +3140,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
   },
   {
     day: 44,
-    title: 'The Crow’s Real Name',
+    title: 'The Elder’s True Name',
     advisor: VELLUM,
     briefings: [
       {
@@ -3168,14 +3168,14 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd44-crow-name',
-        title: 'The Crow’s Real Name',
+        title: 'The Elder’s True Name',
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',
         lines: [
-          'Elder Corvane arrives at dawn on foot. For a crow, that is formal. The young crows who carried him wait in the rocks.',
+          'Elder Corvane arrives at dawn on foot. For the Conclave elder, that is formal. The young porters who carried him wait in the rocks.',
           'He folds his wings and looks at you a long time. His clouded eyes move over the court, the fire, the empty place where an advisor stood.',
-          '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
+          '“We had a name for your advisor, Majesty. All year. The one who walks.”',
           '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
         ],
         // t-043: the rain debt the crown told to wait on Day 34.
@@ -3185,7 +3185,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             lines: [
               'Elder Corvane arrives at dawn on foot. The young crows who carried him wait in the rocks with spears across their knees. They have carried spears since the thirty-fourth day, when the crown said the debt would wait.',
               'He looks at you a long time. “It is still waiting, Majesty. I did not come about it. I wanted you to watch me not mention it.”',
-              '“We had a name for your advisor, Majesty. All year. The crow who walks.”',
+              '“We had a name for your advisor, Majesty. All year. The one who walks.”',
               '“He carried letters up the mission road at night, twice a week. Never once looked up to see who was watching. We thought you knew. We thought it was your errand.”',
             ],
           },
@@ -3373,7 +3373,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
                   flags: ['d44-powder-to-crypt', 'd44-fen-asked'],
                 },
                 response:
-                  'At dawn you stand on the dike with an old mole and a lantern-witch. Nobody bows. Reedlight says no, as promised. Then she says she will hold the north dike anyway, for the children. She does not say whose.',
+                  'At dawn you stand on the dike with an old revolutionary and a lantern-witch. Nobody bows. Reedlight says no, as promised. Then she says she will hold the north dike anyway, for the children. She does not say whose.',
               },
               {
                 id: 'dike',
@@ -3710,7 +3710,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         npc: 'sister-reedlight',
         faction: 'mire-mothers',
         lines: [
-          'A heron in a green cloak steps out of the dark at the edge of the firelight. Nobody saw her come. She holds a lantern of green glass. The flame does not move when the wind does.',
+          'A fen envoy in a green cloak steps out of the dark at the edge of the firelight. Nobody saw her come. She holds a lantern of green glass. The flame does not move when the wind does.',
           'Half the court reaches for something to throw. The other half has been to the Mirefen. They don’t.',
           '“The Mothers have always known what sleeps under the Abbey, Majesty. Longer than there has been an Abbey. We sank the bell’s clapper ourselves, so nobody could ring it the wrong way.”',
           '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
@@ -3720,8 +3720,8 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           {
             flags: ['d44-dike-blown'],
             lines: [
-              'A heron in a green cloak steps out of the dark at the edge of the firelight. Her hems are wet to the knee. She holds a lantern of green glass. The flame does not move when the wind does. The Moles at the fire stop talking.',
-              '“Forty lantern-houses stood on the north water, Majesty. Thirty-one stand. We counted the children twice. One short. A girl called Fennet. She went back for a heron chick.”',
+              'A fen envoy in a green cloak steps out of the dark at the edge of the firelight. Her hems are wet to the knee. She holds a lantern of green glass. The flame does not move when the wind does. The Moles at the fire stop talking.',
+              '“Forty lantern-houses stood on the north water, Majesty. Thirty-one stand. We counted the children twice. One short. A girl called Fennet. She went back for a lost child.”',
               '“I am not here for you. The thing under the hill does not care who drowned whom. We sank the bell’s clapper ourselves, long ago, so nobody could ring it the wrong way.”',
               '“Take the lantern. It burns down there, where nothing else will. The well your people go into speaks back. Carry a light that doesn’t.”',
             ],
@@ -3823,14 +3823,14 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
             speaker: 'Granny Umber of the Mole Revolutionaries',
             npc: 'granny-umber',
             lines: [
-              'Granny Umber comes up the tunnel with her cane, sees the heron, and stops dead. The lamp-boy walks into her back.',
+              'Granny Umber comes up the tunnel with her cane, sees the fen envoy, and stops dead. The lamp-boy walks into her back.',
               '“Not in my tunnels. Two hundred years the Mothers flooded our burrows and called it weather. They took the Silverbank cell in one night. With a song.”',
               {
                 who: 'Sister Reedlight',
                 npc: 'sister-reedlight',
                 text: '“And the Moles dug under our fen two hundred years and called it politics, Granny. We could argue until the Abbess wakes. She’d enjoy that.”',
               },
-              '“She would,” says Granny Umber, at last. “That’s the only reason I haven’t hit you with this cane.” To you: “Your court, Majesty. Your call. Do we carry a witch’s light down a Mole’s road?”',
+              '“She would,” says Granny Umber, at last. “That’s the only reason I haven’t hit you with this cane.” To you: “Your court, Majesty. Your call. Do we carry a witch’s light down the tunnels that kept us alive?”',
             ],
             options: [
               {
@@ -3961,6 +3961,43 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
       'A quiet night, Majesty. Perhaps the last. People will want to say things to you while they can. Let them.',
     quests: [],
     audiences: [
+      {
+        id: 'd47-watch-writ',
+        title: 'A Writ for the Roads',
+        speaker: 'Ferro Dunmark',
+        npc: 'ferro-dunmark',
+        lines: [
+          'Dunmark comes to the shared fire with three pages rolled tight in his fist. No battle maps. No orders for the Abbey. These orders begin the morning after.',
+          '“If we take the tower back, somebody has to hold the roads. Every bridge, every village gate. My Watch can do it. But I need the crown’s word before I ask them to search their own neighbors.”',
+          'The writ permits checkpoints without a village council, searches without witnesses, and detention until a Watch captain agrees to release a traveler. The first posts would take their rations from the Yard.',
+          '“Sign and I can stand behind an iron peace at the last fire. Refuse and I will tell them the Watch answers to their charters. Either way, Majesty, I am the one who has to look those people in the face.”',
+        ],
+        options: [
+          {
+            id: 'refuse',
+            label:
+              'Refuse the writ. No road belongs to the Watch without the people on it.',
+            effects: {
+              local: { 'gate-watch': -2, yard: 1 },
+              flags: ['watch-writ-refused'],
+            },
+            response:
+              'Dunmark burns the pages himself. The men watching the fire see him do it. “Then we ask permission at every gate,” he says. “Some will say no. I hope we listen.”',
+          },
+          {
+            id: 'sign-watch-writ',
+            label:
+              'Sign. Give the Watch every road, and take the rations from the Yard.',
+            effects: {
+              local: { 'gate-watch': 2, yard: -3 },
+              affinity: { freeholds: -8, moles: -8, saltroad: -5 },
+              flags: ['watch-writ-signed'],
+            },
+            response:
+              'Dunmark holds the signed pages while the ink dries. The first ration cart is already leaving the Yard. At the far end of the fire the Freehold delegates stand without saying goodbye. “They will obey,” he says. “That is not the same as forgiving us.”',
+          },
+        ],
+      },
       {
         id: 'd47-kiyo',
         title: 'A Letter for Later',
@@ -4509,7 +4546,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
           {
             id: 'iron',
             label: 'An iron peace: the Gate Watch keeps order everywhere.',
-            requires: { local: { 'gate-watch': 12 } },
+            requires: {
+              flags: ['watch-writ-signed'],
+              local: { 'gate-watch': 12 },
+            },
             effects: {
               local: { 'gate-watch': 3, 'old-houses': 2 },
               affinity: { moles: -10 },
@@ -4588,7 +4628,10 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
               {
                 id: 'iron',
                 label: 'An iron peace. Alive is better than happy.',
-                requires: { local: { 'gate-watch': 12 } },
+                requires: {
+                  flags: ['watch-writ-signed'],
+                  local: { 'gate-watch': 12 },
+                },
                 effects: {
                   local: { 'gate-watch': 3, 'old-houses': 2 },
                   affinity: { moles: -10 },

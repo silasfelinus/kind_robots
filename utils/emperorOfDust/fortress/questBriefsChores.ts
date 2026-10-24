@@ -25,7 +25,7 @@ export const CHORE_QUEST_CONTEXT: Readonly<Record<string, string>> = {
   'r-debt-collector':
     "The Ledger's collector has arrived in the Yard with a respectable seal and a list that includes people who have never held enough brass to owe anyone. He has started with tools because tools are easy to price; next he intends to take the beds. The Yard wants the crown to protect it, but the Ledger keeps the kingdom's own accounts. A confrontation may save households and create a larger debt.",
   'r-runaway-runner':
-    'A Crow messenger fled the roost after delivering a message whose contents nobody will repeat. The Conclave offers payment for news of her route. The Mirefen claims she asked for passage in a little boat and left no name behind. A search party may learn whether she is a thief, witness, or frightened young person caught between powerful houses. The first question is whom any answer would place in danger.',
+    'A Conclave messenger fled the roost after delivering a message whose contents nobody will repeat. The Conclave offers payment for news of her route. The Mirefen claims she asked for passage in a little boat and left no name behind. A search party may learn whether she is a thief, witness, or frightened young person caught between powerful houses. The first question is whom any answer would place in danger.',
   'r-fever-ward':
     "The Yard's sick room holds one narrow bed and a bowl of water that is already warm by noon. Nine names have been put on the healer's list, each attached to a person whose absence would be felt somewhere outside the ward. The court can send attendants, search for supplies, or make a choice nobody wants. The disease will not accept a fair queue simply because the records are neat.",
   'r-pack-raid':

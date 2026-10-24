@@ -96,7 +96,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'The Second Flood',
-        'Water comes from upstream before the storm. A mole engineer says the order of things is wrong.',
+        'Water comes from upstream before the storm. A tunnel engineer says the order of things is wrong.',
       ],
       [
         'The Wet Wasteland',
@@ -148,7 +148,7 @@ const MOTIFS: readonly Motif[] = [
     scenes: [
       [
         'Three Red Turnips',
-        "An old rabbit grows three turnips the size of a child's head in soil that should be dead.",
+        "An old farmer grows three turnips the size of a child's head in soil that should be dead.",
       ],
       [
         'Orchard Behind the Wall',
@@ -453,7 +453,7 @@ const MOTIFS: readonly Motif[] = [
         'A traveler offers a map of channels that change each night. The paper smells of river mud.',
       ],
       [
-        'The Owl Who Remembers',
+        'The Keeper Who Remembers',
         'A tired wanderer arrives with fifty sketches of buildings that no longer exist.',
       ],
       [
@@ -540,7 +540,7 @@ const MOTIFS: readonly Motif[] = [
       'For one night, enemies sleep on opposite sides of a fire without reaching for knives.',
     scenes: [
       [
-        'A Hyena at Breakfast',
+        'A Raider at Breakfast',
         'A Jackalwire messenger requests breakfast instead of a fight. The Watch cannot decide which is worse.',
       ],
       [
@@ -611,7 +611,7 @@ const MOTIFS: readonly Motif[] = [
       ],
       [
         'A Glass Seed',
-        'A crow drops a clear stone that sprouts a tiny glass leaf when warmed. The branch shatters at the sound of a bell.',
+        'A Conclave messenger leaves a clear stone that sprouts a tiny glass leaf when warmed. The branch shatters at the sound of a bell.',
       ],
       [
         'The Mirror with the Wrong Door',
@@ -958,7 +958,7 @@ const SECRET_VISITORS: readonly {
     act: 1,
     follower: 'F021',
     title: 'A Midwife at the South Gate',
-    text: 'A porcupine midwife arrives with red thread, no bedroll and the news that three Freehold households have disappeared. She would stay if the court can spare a bed.',
+    text: 'A midwife arrives with red thread, no bedroll and the news that three Freehold households have disappeared. She would stay if the court can spare a bed.',
     welcome: 'Invite Nettle to serve the wounded without swearing fealty.',
     decline: 'Give her safe passage to continue her search.',
     yes: 'Nettle looks at the infirmary, then the roads. She says she will wait by the gate until there is space for her.',
@@ -977,7 +977,7 @@ const SECRET_VISITORS: readonly {
   {
     act: 3,
     follower: 'F023',
-    title: 'The Ibis with the Clapper',
+    title: 'The Keeper with the Clapper',
     text: 'Sera Vell arrives with a bronze bell clapper and a list of names the Hollow Bell registers do not hold. The last name on her list is yours.',
     welcome: 'Invite Sera to read the bells alongside the court.',
     decline: 'Send an archivist with her to compare records.',
@@ -998,7 +998,7 @@ const SECRET_VISITORS: readonly {
     act: 5,
     follower: 'F025',
     title: 'A Rain Gauge Filled with Sand',
-    text: "A civet steps from a storm that hasn't reached the hideout. Odo Rainglass says the weather is arriving backwards and has brought news of one possible tomorrow.",
+    text: "A weather-reader steps from a storm that hasn't reached the hideout. Odo Rainglass says the weather is arriving backwards and has brought news of one possible tomorrow.",
     welcome: 'Invite Odo to face the coming road with the exiles.',
     decline: 'Ask for the forecast and let Odo travel freely.',
     yes: 'Odo pours out the dry rain. It makes a sound like water hitting the roof.',

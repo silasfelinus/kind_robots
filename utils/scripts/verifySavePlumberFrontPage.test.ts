@@ -145,21 +145,46 @@ assert.equal(
 
 const page = source('../../pages/play/save-the-plumber.vue')
 for (const part of [
-  '<PlumberTitleScene',
   '<PlumberWorldMap',
   '<PlumberCasting',
   '<PlumberCastPortrait',
   '<PlumberSprite',
-  'ArcadeCabinet slug="save-the-plumber"',
+  '<ConsoleTabs',
   'id="plumber-play"',
   'id="plumber-map"',
   'id="plumber-casting"',
+  'id="plumber-cast"',
+  'id="plumber-title"',
+  'plumber-motion-video',
 ])
   assert.ok(page.includes(part), `front page includes ${part}`)
+assert.match(page, /<ArcadeCabinet\s+slug="save-the-plumber"\s+contained/)
+assert.match(
+  page,
+  /:suspended="plumber\.screen !== 'play'"/,
+  'the cabinet pauses while another front-page tab is showing',
+)
 assert.doesNotMatch(page, /!user\.isAdmin/)
+assert.doesNotMatch(
+  page,
+  /PlumberTitleScene|href="#plumber-/,
+  'the title is painted motion art and the tabs replace scroll anchors',
+)
+assert.match(page, /prefers-reduced-motion: reduce/)
+assert.match(page, /v-if="!reducedMotion"/, 'reduced motion keeps the still')
+for (let world = 1; world <= 8; world++)
+  for (const extension of ['webp', 'webm', 'mp4'])
+    assert.ok(
+      existsSync(
+        new URL(
+          `../../public/save-the-plumber/maps/world-${world}.${extension}`,
+          import.meta.url,
+        ),
+      ),
+      `painted world ${world} ${extension} is committed`,
+    )
 
 const components = [
-  'plumber-title-scene',
   'plumber-world-map',
   'plumber-world-scene',
   'plumber-world-glyph',

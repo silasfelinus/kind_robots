@@ -66,12 +66,15 @@ for (const pilot of RAINBOW_PILOTS) {
   )
 }
 
+// The roster is one console screen: the chosen pilot's portrait and card, with a P1–P4 picker strip.
 assert.match(page, /id="princess-pilots"/)
-assert.match(page, /v-for="pilot in RAINBOW_PILOTS"/)
+assert.match(page, /aria-labelledby="princess-pilots-tab"/)
+assert.match(page, /key: 'pilots'/)
+assert.match(page, /v-for="option in RAINBOW_PILOTS"/)
 assert.match(page, /:alt="pilot\.portraitAlt"/)
-assert.match(page, /:aria-label="pilot\.glyphName"/)
+assert.match(page, /:aria-label="option\.glyphName"/)
 assert.match(page, /P\{\{ pilot\.seat \+ 1 \}\}/)
-assert.match(page, /href="#princess-pilots"/)
+assert.match(page, /P\{\{ option\.seat \+ 1 \}\}/)
 
 const hero = new URL(`public${RAINBOW_HERO_ART}`, root)
 assert.ok(existsSync(hero), `${RAINBOW_HERO_ART} is committed`)

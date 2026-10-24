@@ -66,6 +66,100 @@ export function witnessFromRun(
   }
 }
 
+/** Compact golden traces: each reducer action takes exactly two characters.
+ * Choice offsets include disabled choices, so choice reordering is caught.
+ */
+const FIGHT_ACTIONS: readonly BattleAction[] = [
+  'strike',
+  'guard',
+  'feint',
+  'quiet-draw',
+]
+
+export function encodeWitness(witness: EndingWitness): string {
+  let run = startRun(witness.seed)
+  const tokens: string[] = []
+  for (const move of witness.moves) {
+    let kind: string
+    let offset: number
+    if (move.kind === 'choice') {
+      kind = 'c'
+      offset = visibleChoices(run, scene(run.sceneId)).findIndex(
+        (choice) => choice.id === move.id,
+      )
+    } else if (move.kind === 'fight') {
+      kind = 'f'
+      offset = FIGHT_ACTIONS.indexOf(move.action)
+    } else {
+      kind = 'l'
+      offset = move.replace === null ? 0 : move.replace + 1
+    }
+    if (offset < 0 || offset > 35)
+      throw new Error('Cannot encode move at ' + run.sceneId)
+    const next = applyPlaytestMove(run, move)
+    if (next === run) throw new Error('Cannot encode rejected move')
+    tokens.push(kind + offset.toString(36))
+    run = next
+  }
+  if (run.sceneId !== witness.ending)
+    throw new Error('Witness ended somewhere unexpected: ' + run.sceneId)
+  return tokens.join('')
+}
+
+export function replayEncodedWitness(seed: number, encoded: string): Run {
+  if (encoded.length % 2) throw new Error('Truncated witness trace')
+  let run = startRun(seed)
+  for (let i = 0; i < encoded.length; i += 2) {
+    const kind = encoded[i]
+    const index = Number.parseInt(encoded[i + 1]!, 36)
+    if (!Number.isInteger(index) || index < 0)
+      throw new Error('Bad witness action at offset ' + i)
+    let move: PlaytestMove
+    if (kind === 'c') {
+      const choice = visibleChoices(run, scene(run.sceneId))[index]
+      if (!choice)
+        throw new Error('Unknown choice in witness at ' + run.sceneId)
+      move = { kind: 'choice', id: choice.id }
+    } else if (kind === 'f') {
+      const action = FIGHT_ACTIONS[index]
+      if (!action) throw new Error('Unknown battle move in witness')
+      move = { kind: 'fight', action }
+    } else if (kind === 'l') {
+      if (index > run.items.length)
+        throw new Error('Unknown loot slot in witness')
+      move = { kind: 'loot', replace: index === 0 ? null : index - 1 }
+    } else {
+      throw new Error('Unknown witness action: ' + kind)
+    }
+    const next = applyPlaytestMove(run, move)
+    if (next === run)
+      throw new Error(
+        'Witness move rejected at ' + run.sceneId + ' offset ' + i,
+      )
+    run = next
+  }
+  return run
+}
+
+/** A stable snapshot of the *route and consequences*, not just its ending. */
+export function witnessFingerprint(run: Run): string {
+  const text = [
+    run.visited.join('>'),
+    run.flags.join('|'),
+    run.items.join('|'),
+    run.sceneId,
+    run.health,
+    run.resolve,
+    run.seed,
+  ].join('~')
+  let hash = 2166136261
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 16777619)
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0')
+}
+
 /** Search only real reducer moves. Graph distance prioritizes branches without faking flags or rolls. */
 export function findEndingWitness(
   ending: string,
@@ -177,7 +271,20 @@ export function combatBenchmark(
   policy: CombatPolicy,
   seeds = 400,
   initialHealth = 12,
+  initialResolve = 4,
 ) {
+  if (
+    !Number.isInteger(initialHealth) ||
+    initialHealth < 1 ||
+    initialHealth > 12
+  )
+    throw new Error('Combat health must be between 1 and 12')
+  if (
+    !Number.isInteger(initialResolve) ||
+    initialResolve < 0 ||
+    initialResolve > 4
+  )
+    throw new Error('Combat Resolve must be between 0 and 4')
   const foe = scene(sceneId).battle
   if (!foe) throw new Error('No fight at ' + sceneId)
   let wins = 0,
@@ -188,6 +295,7 @@ export function combatBenchmark(
       ...startRun(n * 733 + 1),
       sceneId,
       health: initialHealth,
+      resolve: initialResolve,
       battle: { hp: foe.hp, exposed: false, turn: 1, log: '' },
     }
     let steps = 0

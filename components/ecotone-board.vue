@@ -1,6 +1,7 @@
 <template>
   <div
     class="ecotone-board @container flex min-h-0 w-full flex-1 flex-col bg-[#09141c] text-[#f3e6c8]"
+    :style="{ '--eco-text-scale': displayScale }"
   >
     <header
       class="kr-toolbar flex-nowrap gap-3 border-b border-[#c9a96e]/20 bg-[#070f15] px-3 py-2 @2xl:px-6 @2xl:py-3"
@@ -49,6 +50,15 @@
       <div class="ml-auto flex shrink-0 items-center gap-1.5">
         <template v-if="game.run">
           <span
+            class="hidden items-center gap-2 rounded-full border border-[#c9a96e]/40 bg-[#0c1a24] px-3 py-1 text-sm font-semibold @2xl:inline-flex"
+          >
+            <span aria-hidden="true">{{
+              PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
+                ?.emoji ?? '🧑‍🎤'
+            }}</span>
+            {{ game.run.playerName || 'Wanderer' }}
+          </span>
+          <span
             class="eco-pill hidden @xl:inline-flex"
             :title="`Nerve ${game.run.nerve} of ${MAX_METER}`"
             >Nerve {{ game.run.nerve }}</span
@@ -70,6 +80,19 @@
           >
           <span class="hidden @xl:inline"
             >Endings {{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
+          >
+        </button>
+        <button
+          type="button"
+          class="hidden eco-pill hover:border-[#d9b877] @md:inline-flex"
+          :title="`Cases opened: ${game.casesOpened} of ${game.caseTotal}`"
+          @click="tab = 'cases'"
+        >
+          <span class="@xl:hidden"
+            >{{ game.casesOpened }}/{{ game.caseTotal }}</span
+          >
+          <span class="hidden @xl:inline"
+            >Cases {{ game.casesOpened }}/{{ game.caseTotal }}</span
           >
         </button>
         <button
@@ -136,7 +159,64 @@
             >
               Who are you this weekend?
             </p>
-            <div class="kr-scroll -mx-1 px-1">
+            <div class="kr-scroll -mx-1 space-y-3 px-1">
+              <label class="block text-sm font-semibold">
+                What should the county call you?
+                <input
+                  v-model="characterName"
+                  type="text"
+                  maxlength="32"
+                  placeholder="Wanderer (or your own name)"
+                  autocomplete="nickname"
+                  class="mt-1 block w-full rounded-lg border border-[#c9a96e]/40 bg-[#0c1a24]/90 p-2.5 text-base text-[#f3e6c8] placeholder:text-[#f3e6c8]/50 focus:border-[#d9b877] focus:outline-none"
+                />
+              </label>
+              <div>
+                <p class="eco-label mb-2">Choose your look</p>
+                <div class="grid grid-cols-6 gap-1.5">
+                  <button
+                    v-for="avatar in PLAYER_AVATARS"
+                    :key="avatar.id"
+                    type="button"
+                    class="flex items-center justify-center rounded-xl border p-1.5"
+                    :class="
+                      pickedAvatar === avatar.id
+                        ? 'border-[#d9b877] bg-[#d9b877]/20'
+                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'
+                    "
+                    :aria-label="avatar.label"
+                    :title="avatar.label"
+                    :aria-pressed="pickedAvatar === avatar.id"
+                    @click="pickedAvatar = avatar.id"
+                  >
+                    <span class="text-3xl" aria-hidden="true">{{
+                      avatar.emoji
+                    }}</span>
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p class="eco-label mb-2">Your disposition</p>
+                <div class="grid grid-cols-2 gap-1.5 @xl:grid-cols-3">
+                  <button
+                    v-for="personality in PLAYER_PERSONALITIES"
+                    :key="personality.id"
+                    type="button"
+                    class="rounded-lg border px-2 py-2 text-left text-sm font-semibold"
+                    :title="personality.detail"
+                    :class="
+                      pickedPersonality === personality.id
+                        ? 'border-[#d9b877] bg-[#d9b877]/20'
+                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'
+                    "
+                    :aria-pressed="pickedPersonality === personality.id"
+                    @click="pickedPersonality = personality.id"
+                  >
+                    {{ personality.label }}
+                  </button>
+                </div>
+              </div>
+              <p class="eco-label">What do you do around here?</p>
               <div class="grid gap-2 @xl:grid-cols-2">
                 <button
                   v-for="background in ARCHETYPES"
@@ -166,6 +246,9 @@
                       >{{ skill.label }} {{ background.skills[skill.id] }}</span
                     >
                   </span>
+                  <span class="mt-2 block text-xs text-[#f3e6c8]/75">{{
+                    background.perk
+                  }}</span>
                 </button>
               </div>
             </div>
@@ -184,7 +267,7 @@
       <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
-        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
+        class="h-full overflow-y-auto overscroll-contain"
       >
         <div class="relative min-h-full @4xl:h-full">
           <div
@@ -210,7 +293,13 @@
               class="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-[#09141c] via-[#09141c]/50 to-transparent @4xl:block"
             />
             <div
-              v-if="stage.emblem && !portraitSrc"
+              v-if="stage.mysteryCard"
+              class="absolute right-4 top-4 w-20 rotate-3 drop-shadow-xl @xl:w-24 @4xl:right-10 @4xl:top-8 @4xl:w-36"
+            >
+              <EcotoneMysteryCard :mystery="stage.mysteryCard" compact />
+            </div>
+            <div
+              v-else-if="stage.emblem && !portraitSrc"
               class="absolute right-4 top-4 flex items-center gap-2 @4xl:right-10 @4xl:top-8"
             >
               <EcotoneEmblem
@@ -224,10 +313,10 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(300px,27rem)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:content-stretch @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
+            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[auto_auto] @4xl:content-start @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
           >
             <div
-              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[46rem] @4xl:justify-start @4xl:overflow-hidden"
+              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[72rem] @4xl:justify-start"
             >
               <span class="eco-kicker self-start">{{ stage.kicker }}</span>
               <h2
@@ -263,10 +352,17 @@
             </div>
 
             <div
-              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(20rem,36dvh)]"
+              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(34rem,65dvh)]"
               aria-live="polite"
             >
               <template v-if="pending">
+                <p
+                  v-if="stage.realEnding"
+                  class="eco-label flex items-center gap-2 text-[#f6c55a]"
+                >
+                  <Icon name="kind-icon:star" class="size-3.5" />
+                  Real Ending · {{ stage.realEnding }}
+                </p>
                 <p class="eco-label">{{ pending.choice }}</p>
                 <div
                   v-if="pending.roll"
@@ -327,8 +423,10 @@
                   </span>
                 </div>
                 <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p class="font-serif text-lg leading-relaxed @4xl:text-xl">
-                    {{ pending.text }}
+                  <p
+                    class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
+                  >
+                    {{ revealedResult }}
                   </p>
                 </div>
                 <div
@@ -372,7 +470,7 @@
                       game.ending.fate
                     ]"
                     :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                    class="eco-story-copy font-serif leading-relaxed"
                   >
                     {{ paragraph }}
                   </p>
@@ -408,6 +506,30 @@
                   >
                     {{ LENS_CODAS[game.ending.lens] }}
                   </p>
+                  <button
+                    v-if="runCase && game.mystery"
+                    type="button"
+                    class="flex items-center gap-3 rounded-xl border border-[#d9b877]/40 bg-black/35 p-2.5 text-left hover:border-[#d9b877]"
+                    @click="openCase(game.mystery.id)"
+                  >
+                    <EcotoneMysteryCard
+                      :mystery="game.mystery"
+                      compact
+                      class="w-12 shrink-0"
+                    />
+                    <span class="min-w-0">
+                      <span class="eco-label block">
+                        Case {{ caseNumeral(game.mystery.number) }} ·
+                        {{ caseVerdict(runCase) }}
+                      </span>
+                      <span class="block font-serif text-sm font-bold">{{
+                        game.mystery.title
+                      }}</span>
+                      <span class="block text-xs text-[#f3e6c8]/65">
+                        Gates {{ gateSummary(runCase) }} · open the Case Files
+                      </span>
+                    </span>
+                  </button>
                   <section
                     class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
                   >
@@ -487,10 +609,38 @@
                 <div
                   class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
                 >
+                  <figure
+                    v-if="stage.message"
+                    class="ecotone-message self-start rounded-2xl border p-3 text-sm"
+                    :class="
+                      stage.message.medium === 'text'
+                        ? 'rounded-bl-sm border-[#8fb8b0]/50 bg-[#8fb8b0]/15'
+                        : 'border-[#d9b877]/45 bg-black/40'
+                    "
+                  >
+                    <figcaption
+                      class="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                    >
+                      <Icon
+                        :name="messageIcon(stage.message)"
+                        class="size-3.5"
+                      />
+                      {{ messageLabel(stage.message) }} ·
+                      {{ stage.message.from }}
+                    </figcaption>
+                    <p
+                      v-for="(line, index) in stage.message.lines"
+                      :key="`msg-${index}`"
+                      class="leading-snug"
+                      :class="stage.message.medium === 'text' ? '' : 'italic'"
+                    >
+                      {{ line }}
+                    </p>
+                  </figure>
                   <p
-                    v-for="(paragraph, index) in stage.body"
+                    v-for="(paragraph, index) in revealedBody"
                     :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
+                    class="eco-story-copy font-serif leading-relaxed"
                   >
                     {{ paragraph }}
                   </p>
@@ -518,9 +668,41 @@
             </div>
 
             <div
-              class="eco-choices flex min-h-0 flex-col gap-2 self-end @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
+              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
             >
-              <template v-if="pending">
+              <button
+                v-if="game.canUndo && !stagedChoice"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/60 bg-[#8fb8b0]/15 px-3 py-2 text-base font-bold text-[#f3e6c8] hover:border-[#d9b877]"
+                @click="game.undo()"
+              >
+                ↶ Undo last decision
+              </button>
+              <template v-if="stagedChoice">
+                <p class="eco-label">Confirm your decision</p>
+                <p class="font-serif text-lg leading-relaxed">
+                  {{ stagedChoice.label }}
+                </p>
+                <p class="text-base text-[#f3e6c8]/80">
+                  Nothing has changed yet. Cancel or commit this choice. After
+                  committing, you can rewind before continuing.
+                </p>
+                <button
+                  type="button"
+                  class="eco-gold-button"
+                  @click="confirmDecision"
+                >
+                  Make this choice
+                </button>
+                <button
+                  type="button"
+                  class="eco-choice justify-center text-base"
+                  @click="stagedChoice = null"
+                >
+                  Change my mind
+                </button>
+              </template>
+              <template v-else-if="pending">
                 <button
                   ref="continueButton"
                   type="button"
@@ -546,61 +728,47 @@
               </template>
               <template v-else>
                 <details
-                  v-if="canTakeMoment"
+                  v-if="canTakeMoment && momentOffer"
                   :key="game.run?.card ?? ''"
                   class="rounded-xl border border-[#8fb8b0]/40 bg-black/30 p-2 text-sm"
                 >
                   <summary
                     class="cursor-pointer text-xs font-bold uppercase tracking-wider text-[#8fb8b0]"
                   >
-                    Optional moment · change the tempo
+                    An offer along the way · entirely optional
                   </summary>
                   <p class="my-2 text-xs text-[#f3e6c8]/75">
-                    Choose one or two experiences, or take a clear-headed break.
-                    Your first perspective stays in your story. No combination
-                    grants supernatural knowledge.
+                    {{ momentOffer.description }}
                   </p>
-                  <div class="grid grid-cols-2 gap-1.5">
-                    <button
-                      v-for="moment in SUBSTANCE_CHOICES"
-                      :key="moment.id"
-                      type="button"
-                      class="rounded-lg border px-2 py-2 text-left text-xs"
-                      :class="
-                        momentSelections.includes(moment.id)
-                          ? 'border-[#d9b877] bg-[#d9b877]/20'
-                          : 'border-white/20'
-                      "
-                      :aria-pressed="momentSelections.includes(moment.id)"
-                      :disabled="
-                        momentSelections.length >= 2 &&
-                        !momentSelections.includes(moment.id)
-                      "
-                      :title="moment.detail"
-                      @click="toggleMoment(moment.id)"
-                    >
-                      {{ moment.label }}
-                    </button>
-                  </div>
-                  <div class="mt-2 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
-                      :disabled="momentSelections.length === 0"
-                      @click="takeMoment(false)"
-                    >
-                      Take this moment
-                    </button>
+                  <div class="grid gap-2 @xl:grid-cols-2">
                     <button
                       type="button"
                       class="rounded-lg border border-[#8fb8b0] px-3 py-2 text-xs font-bold"
-                      @click="takeMoment(true)"
+                      @click="game.takeMoment([])"
                     >
-                      Water, air, a pause
+                      No thanks
+                    </button>
+                    <button
+                      type="button"
+                      class="rounded-lg border border-[#d9b877] px-3 py-2 text-xs font-bold"
+                      @click="game.takeMoment([momentOffer.id])"
+                    >
+                      {{ momentOffer.label }}
                     </button>
                   </div>
                 </details>
                 <p class="eco-label px-1">{{ stage.question }}</p>
+                <label
+                  v-if="options.some((option) => option.perkEligible)"
+                  class="flex items-center gap-2 rounded-lg border border-[#d9b877]/50 bg-black/35 px-3 py-2 text-xs text-[#f3e6c8]"
+                >
+                  <input
+                    v-model="perkSelected"
+                    type="checkbox"
+                    class="checkbox checkbox-xs border-[#d9b877]"
+                  />
+                  Use my origin perk on an eligible choice (once this chapter)
+                </label>
                 <div
                   class="flex max-h-full min-h-0 flex-col gap-2 overflow-y-auto"
                 >
@@ -612,7 +780,7 @@
                     :class="index === 0 && !option.disabled ? 'is-lead' : ''"
                     :disabled="option.disabled"
                     :title="option.chipTitle"
-                    @click="option.act()"
+                    @click="queueDecision(option)"
                   >
                     <span
                       v-if="option.thumb"
@@ -626,14 +794,21 @@
                       />
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block text-base font-bold leading-snug">{{
-                        option.label
-                      }}</span>
+                      <span
+                        class="eco-choice-main block font-bold leading-snug"
+                        >{{ option.label }}</span
+                      >
                       <span
                         v-if="option.chip || option.hint"
-                        class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
+                        class="mt-1 block text-sm leading-snug text-[#f3e6c8]/75 @4xl:text-base"
                         >{{
-                          [option.chip, option.hint].filter(Boolean).join(' · ')
+                          [
+                            option.chip,
+                            option.perkEligible ? 'Origin perk available' : '',
+                            option.hint,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')
                         }}</span
                       >
                     </span>
@@ -644,7 +819,192 @@
                   </button>
                 </div>
               </template>
+              <button
+                v-if="hasHiddenText"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/50 bg-[#09141c] px-3 py-2 text-base font-bold"
+                @click="revealAll"
+              >
+                Show full text
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="tab === 'settings'" class="kr-scroll h-full p-4 @xl:p-6">
+        <div class="mx-auto flex max-w-5xl flex-col gap-5">
+          <div>
+            <p class="eco-label">Your weekend, your rules</p>
+            <h2 class="mt-1 font-serif text-4xl font-black">
+              Settings &amp; Save Games
+            </h2>
+            <p class="mt-2 text-base text-[#f3e6c8]/80">
+              Read comfortably, travel at your own pace, and keep a copy of your
+              story. Preferences save automatically on this device and never
+              change your dice.
+            </p>
+          </div>
+          <div class="grid gap-4 @3xl:grid-cols-2">
+            <section
+              class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+            >
+              <h3 class="font-serif text-2xl font-bold">
+                Reading &amp; Accessibility
+              </h3>
+              <label
+                class="mt-4 block text-base font-semibold"
+                for="ecotone-text-size"
+              >
+                Text size
+              </label>
+              <select
+                id="ecotone-text-size"
+                v-model.number="displayScale"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option :value="1">Standard</option>
+                <option :value="1.2">Large (default)</option>
+                <option :value="1.4">Extra large</option>
+                <option :value="1.6">Maximum</option>
+              </select>
+              <label
+                class="mt-5 block text-base font-semibold"
+                for="ecotone-text-speed"
+              >
+                Text reveal speed
+              </label>
+              <select
+                id="ecotone-text-speed"
+                v-model="textSpeed"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option value="instant">Instant, no animation (default)</option>
+                <option value="normal">Gradual</option>
+                <option value="slow">Slow and cinematic</option>
+              </select>
+              <p class="mt-3 text-base leading-relaxed text-[#f3e6c8]/85">
+                When text is revealing, use “Show full text” to skip the
+                animation. Text effects stop automatically when reduced motion
+                is preferred.
+              </p>
+              <div
+                class="mt-4 rounded-xl border border-[#8fb8b0]/40 bg-black/25 p-3"
+              >
+                <p class="eco-label">Live reading preview</p>
+                <p class="eco-story-copy mt-2 font-serif leading-relaxed">
+                  The fog has opinions about your font size. You are free to
+                  disagree.
+                </p>
+              </div>
+            </section>
+            <section
+              class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+            >
+              <h3 class="font-serif text-2xl font-bold">Save Games</h3>
+              <p class="mt-1 text-base text-[#f3e6c8]/80">
+                Your active journey autosaves on this browser after each action.
+                Manual slots are independent checkpoints. Loading replaces the
+                active run, not your unlocked endings.
+              </p>
+              <div class="mt-4 grid gap-3">
+                <div
+                  v-for="slot in [1, 2, 3]"
+                  :key="slot"
+                  class="rounded-xl border border-[#c9a96e]/30 bg-[#09141c] p-3"
+                >
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <div>
+                      <p class="text-lg font-bold">Slot {{ slot }}</p>
+                      <p class="text-sm text-[#f3e6c8]/75">
+                        {{
+                          game.manualSaves.find((item) => item.slot === slot)
+                            ?.savedAt
+                            ? new Date(
+                                game.manualSaves.find(
+                                  (item) => item.slot === slot,
+                                )!.savedAt,
+                              ).toLocaleString()
+                            : 'Empty slot'
+                        }}
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#d9b877] px-3 py-2 text-sm font-bold"
+                        :disabled="!game.run"
+                        @click="saveGame(slot)"
+                      >
+                        Save here
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#8fb8b0]/70 px-3 py-2 text-sm font-bold"
+                        :disabled="
+                          !game.manualSaves.some((item) => item.slot === slot)
+                        "
+                        @click="loadGame(slot)"
+                      >
+                        Load
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#e08a5a]/60 px-3 py-2 text-sm font-bold"
+                        :disabled="
+                          !game.manualSaves.some((item) => item.slot === slot)
+                        "
+                        @click="removeSave(slot)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="eco-gold-button"
+                  :disabled="!game.run"
+                  @click="exportGame"
+                >
+                  Export save as JSON
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-[#8fb8b0]/70 px-4 py-3 text-base font-bold"
+                  @click="saveImportInput?.click()"
+                >
+                  Import saved journey
+                </button>
+                <input
+                  ref="saveImportInput"
+                  type="file"
+                  accept=".json,application/json"
+                  class="sr-only"
+                  aria-label="Select an Ecotone save JSON file"
+                  @change="importGame"
+                />
+              </div>
+              <p
+                v-if="saveNotice"
+                class="mt-3 text-base text-[#8fb8b0]"
+                role="status"
+              >
+                {{ saveNotice }}
+              </p>
+              <button
+                v-if="game.canUndo"
+                type="button"
+                class="mt-4 rounded-lg border border-[#d9b877]/60 px-4 py-2 text-base font-bold"
+                @click="rewindDecision"
+              >
+                ↶ Rewind last decision
+              </button>
+            </section>
           </div>
         </div>
       </div>
@@ -703,7 +1063,7 @@
           class="mt-4 rounded-3xl border border-white/10 bg-black/25 p-3 sm:p-4"
         >
           <h3 class="font-serif text-lg font-black">
-            You: {{ archetype.name }}
+            {{ game.run.playerName || 'Wanderer' }} · {{ archetype.name }}
           </h3>
           <p class="text-sm text-white/75">{{ archetype.vantage }}</p>
           <div class="mt-2 grid grid-cols-2 gap-2 @xl:grid-cols-5">
@@ -719,7 +1079,13 @@
             </div>
           </div>
           <p class="mt-2 text-xs text-white/60">
-            Perk (arrives with the full engine): {{ archetype.perk }}
+            Origin perk: {{ archetype.perk }}
+            <span
+              v-if="game.run.perkUsedChapters.includes(game.chapter)"
+              class="font-bold text-[#d9b877]"
+            >
+              · Used this chapter</span
+            >
           </p>
         </div>
       </div>
@@ -945,6 +1311,180 @@
         </template>
       </div>
 
+      <div v-else-if="tab === 'cases'" class="kr-scroll h-full p-3 sm:p-5">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <div class="max-w-2xl">
+            <h2 class="font-serif text-2xl font-black">
+              Case Files {{ game.casesOpened }}/{{ game.caseTotal }}
+            </h2>
+            <p class="text-sm text-white/70">
+              Every weekend, one local mystery finds you: a text, a voicemail, a
+              flyer on a pole. It interrupts the road three times. Pass two of
+              its three gates and the true path opens; what you decide at the
+              reveal chooses its Real Ending. Cases you have not opened come
+              first.
+            </p>
+          </div>
+          <div class="flex gap-3 text-xs text-white/70">
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#8fb8b0]" /> Passed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#e08a5a]" /> Failed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-white/20" /> Not
+              reached</span
+            >
+          </div>
+        </div>
+        <div
+          class="mt-4 grid gap-4 @4xl:grid-cols-[minmax(0,1fr)_minmax(320px,26rem)]"
+        >
+          <div
+            class="grid grid-cols-3 content-start gap-2.5 @md:grid-cols-4 @2xl:grid-cols-6 @4xl:grid-cols-4 @6xl:grid-cols-6"
+          >
+            <button
+              v-for="item in MYSTERIES"
+              :key="item.id"
+              type="button"
+              class="rounded-xl outline-offset-2 transition hover:-translate-y-0.5"
+              :class="
+                selectedCase?.id === item.id
+                  ? 'outline outline-2 outline-[#d9b877]'
+                  : ''
+              "
+              :aria-pressed="selectedCase?.id === item.id"
+              @click="caseId = item.id"
+            >
+              <EcotoneMysteryCard
+                :mystery="item"
+                :locked="!game.caseFiles[item.id]"
+                :record="game.caseFiles[item.id]"
+              />
+            </button>
+          </div>
+          <section
+            v-if="selectedCase"
+            class="self-start rounded-3xl border border-white/10 bg-black/30 p-4"
+          >
+            <p class="eco-label">
+              Case {{ caseNumeral(selectedCase.number) }}
+              <span
+                v-if="game.mystery?.id === selectedCase.id && game.run"
+                class="ml-1 rounded-full bg-[#d9b877] px-2 py-0.5 text-[10px] text-[#09141c]"
+                >This run</span
+              >
+            </p>
+            <template v-if="selectedRecord">
+              <h3 class="mt-1 font-serif text-2xl font-black leading-tight">
+                {{ selectedCase.title }}
+              </h3>
+              <p
+                class="text-xs font-bold uppercase tracking-[.18em] text-[#8fb8b0]"
+              >
+                {{ selectedCase.region }}
+              </p>
+              <p class="mt-3 font-serif leading-relaxed">
+                {{ selectedCase.hook }}
+              </p>
+              <ol class="mt-4 grid gap-2">
+                <li
+                  v-for="(gate, index) in selectedCase.gates"
+                  :key="index"
+                  class="flex items-center gap-3 rounded-xl border border-white/10 p-2.5"
+                >
+                  <span
+                    class="grid size-8 shrink-0 place-items-center rounded-full font-serif text-sm font-black"
+                    :class="gateClass(selectedRecord.gates[index] ?? null)"
+                    >{{ caseNumeral(index + 1) }}</span
+                  >
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-bold">{{
+                      selectedRecord.gates[index]
+                        ? gate.title
+                        : `Gate ${caseNumeral(index + 1)}`
+                    }}</span>
+                    <span class="block text-xs text-white/60">{{
+                      selectedRecord.gates[index] === 'pass'
+                        ? 'Passed'
+                        : selectedRecord.gates[index] === 'fail'
+                          ? 'Failed: another run can pass it'
+                          : 'Not reached yet'
+                    }}</span>
+                  </span>
+                </li>
+              </ol>
+              <div
+                class="mt-3 rounded-xl p-3 text-sm"
+                :class="
+                  selectedRecord.truePath
+                    ? 'border border-[#f6c55a]/50 bg-[#f6c55a]/10'
+                    : 'bg-black/30'
+                "
+              >
+                <p class="eco-label">
+                  True path ·
+                  {{
+                    selectedRecord.truePath
+                      ? 'opened'
+                      : `needs ${PASSES_FOR_TRUE_PATH} passed gates in one run`
+                  }}
+                </p>
+                <p
+                  v-if="selectedRecord.cold && !selectedRecord.truePath"
+                  class="mt-1 text-xs text-white/60"
+                >
+                  The trail has gone cold before. It can warm up again.
+                </p>
+              </div>
+              <p class="eco-label mt-4">
+                Real Endings {{ selectedRecord.endings.length }}/{{
+                  selectedCase.endings.length
+                }}
+              </p>
+              <ul class="mt-2 grid gap-1.5">
+                <li
+                  v-for="ending in selectedCase.endings"
+                  :key="ending.id"
+                  class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                  :class="
+                    selectedRecord.endings.includes(ending.id)
+                      ? 'border-[#d9b877]/50'
+                      : 'border-dashed border-white/15 text-white/45'
+                  "
+                >
+                  <Icon
+                    :name="
+                      selectedRecord.endings.includes(ending.id)
+                        ? 'kind-icon:star'
+                        : 'kind-icon:lock'
+                    "
+                    class="size-3.5 shrink-0"
+                  />
+                  <span class="flex-1 font-serif font-bold">{{
+                    selectedRecord.endings.includes(ending.id)
+                      ? ending.title
+                      : 'Unfound ending'
+                  }}</span>
+                  <span class="text-[10px] uppercase tracking-wider">{{
+                    TONE_LABEL[ending.tone]
+                  }}</span>
+                </li>
+              </ul>
+            </template>
+            <template v-else>
+              <h3 class="mt-1 font-serif text-2xl font-black">Unopened</h3>
+              <p class="mt-2 text-sm text-white/70">
+                Somewhere in the county a case is waiting. When its weekend
+                comes, someone will text you about it. Unopened cases come up
+                before ones you have seen.
+              </p>
+            </template>
+          </section>
+        </div>
+      </div>
+
       <div v-else class="kr-scroll h-full p-3 sm:p-5">
         <div class="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -1042,7 +1582,7 @@
         :key="item.value"
         type="button"
         role="tab"
-        class="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[.2em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @xl:px-4 @xl:text-xs"
+        class="rounded-full px-1.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @md:px-2.5 @md:text-[11px] @md:tracking-[.2em] @xl:px-4 @xl:text-xs"
         :class="
           tab === item.value
             ? 'bg-[#d9b877]/15 text-[#d9b877]'
@@ -1146,7 +1686,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  provide,
+  ref,
+  watch,
+} from 'vue'
 import { useEcotoneStore } from '~/stores/ecotoneStore'
 import {
   ARCHETYPES,
@@ -1171,6 +1719,7 @@ import {
   cardBody,
   chanceToSucceed,
   checkBonus,
+  originPerkAvailable,
   currentStep,
   dayName,
   fillText,
@@ -1200,21 +1749,58 @@ import {
   type EcotoneArtStyle,
 } from '~/utils/ecotone/artStyles'
 import { cardArtKey, endingArtKey } from '~/utils/ecotone/artSlots'
-import { openingLensChoices } from '~/utils/ecotone/openingLensChoices'
-import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import {
-  SUBSTANCE_CHOICES,
-  substanceEpilogue,
-  type SubstanceId,
-} from '~/utils/ecotone/substanceArc'
+  contextualOpeningChoices,
+  contextualOfferLine,
+  sceneMomentOffer,
+} from '~/utils/ecotone/sceneOffers'
+import {
+  PLAYER_AVATARS,
+  PLAYER_PERSONALITIES,
+} from '~/utils/ecotone/playerIdentity'
+import {
+  loadEcotoneDisplay,
+  saveEcotoneDisplay,
+} from '~/utils/ecotone/displaySettings'
+import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
+import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
+import {
+  MYSTERIES,
+  PASSES_FOR_TRUE_PATH,
+  caseNumeral,
+  caseRecord,
+  mysteryEndingArtKey,
+  type CaseRecord,
+  type GateResult,
+  type Mystery,
+  type MysteryEndingTone,
+  type MysteryMessage,
+} from '~/utils/ecotone/mysteries'
 
-type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
+type Tab =
+  'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases' | 'settings'
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
+const characterName = ref('')
+const pickedAvatar = ref<string>('glitter')
+const pickedPersonality = ref<string>('curious')
+const displayScale = ref(1.2)
+const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')
+const saveNotice = ref('')
+const saveImportInput = ref<HTMLInputElement | null>(null)
+const revealCount = ref(0)
+let revealTimer: ReturnType<typeof setInterval> | null = null
+const stagedChoice = ref<{ id: string; label: string; act: () => void } | null>(
+  null,
+)
+
 const continueButton = ref<HTMLButtonElement | null>(null)
-const momentSelections = ref<SubstanceId[]>([])
+const momentOffer = computed(() =>
+  game.run && game.card ? sceneMomentOffer(game.card, game.run) : null,
+)
+const perkSelected = ref(false)
 const canTakeMoment = computed(() => {
   const run = game.run
   return Boolean(
@@ -1222,6 +1808,7 @@ const canTakeMoment = computed(() => {
     !run.pending &&
     run.openingState &&
     run.card &&
+    momentOffer.value &&
     !run.substanceMoments.some((moment) => moment.source === run.card),
   )
 })
@@ -1232,23 +1819,10 @@ const philosophy = computed(() => (game.run ? philosophyNeedles(game.run) : []))
 watch(
   () => game.run?.card,
   () => {
-    momentSelections.value = []
+    perkSelected.value = false
+    stagedChoice.value = null
   },
 )
-
-function toggleMoment(id: SubstanceId) {
-  if (momentSelections.value.includes(id))
-    momentSelections.value = momentSelections.value.filter(
-      (entry) => entry !== id,
-    )
-  else if (momentSelections.value.length < 2)
-    momentSelections.value = [...momentSelections.value, id]
-}
-
-function takeMoment(clearHead: boolean) {
-  game.takeMoment(clearHead ? [] : momentSelections.value)
-  momentSelections.value = []
-}
 
 const tabs: { value: Tab; label: string }[] = [
   { value: 'road', label: 'Journey' },
@@ -1256,7 +1830,80 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'county', label: 'Map' },
   { value: 'journal', label: 'Journal' },
   { value: 'endings', label: 'Endings' },
+  { value: 'cases', label: 'Cases' },
+  { value: 'settings', label: 'Settings' },
 ]
+
+// Mysteries (conductor weird-humboldt t-062): the Case Files shelf and the
+// digressions that open each gate.
+const caseId = ref<string | null>(null)
+const selectedCase = computed<Mystery | null>(
+  () =>
+    MYSTERIES.find((item) => item.id === caseId.value) ??
+    (game.mystery && game.caseFiles[game.mystery.id] ? game.mystery : null) ??
+    MYSTERIES.find((item) => game.caseFiles[item.id]) ??
+    MYSTERIES[0] ??
+    null,
+)
+const selectedRecord = computed<CaseRecord | null>(() =>
+  selectedCase.value ? (game.caseFiles[selectedCase.value.id] ?? null) : null,
+)
+const runCase = computed(() => (game.run ? caseRecord(game.run) : null))
+const TONE_LABEL: Record<MysteryEndingTone, string> = {
+  true: 'True',
+  bittersweet: 'Bittersweet',
+  strange: 'Strange',
+}
+
+function rewindDecision() {
+  game.undo()
+  tab.value = 'road'
+}
+
+function openCase(id: string) {
+  caseId.value = id
+  tab.value = 'cases'
+}
+
+function gateClass(gate: GateResult) {
+  return gate === 'pass'
+    ? 'bg-[#8fb8b0] text-[#09141c]'
+    : gate === 'fail'
+      ? 'bg-[#e08a5a] text-[#09141c]'
+      : 'border border-white/20 text-white/50'
+}
+
+function gateSummary(record: CaseRecord) {
+  return record.gates
+    .map((gate) => (gate === 'pass' ? '✓' : gate === 'fail' ? '✗' : '·'))
+    .join(' ')
+}
+
+function caseVerdict(record: CaseRecord) {
+  if (record.endings.length) return 'Case closed'
+  if (record.cold) return 'Gone cold'
+  if (record.gates.every((gate) => gate === null)) return 'Walked away'
+  return 'Open'
+}
+
+function messageLabel(message: MysteryMessage) {
+  return {
+    text: 'Text',
+    voicemail: 'Voicemail',
+    note: 'Note',
+    flyer: 'Flyer',
+    radio: 'Radio',
+    email: 'Email',
+  }[message.medium]
+}
+
+function messageIcon(message: MysteryMessage) {
+  return message.medium === 'text' || message.medium === 'email'
+    ? 'kind-icon:message'
+    : message.medium === 'voicemail' || message.medium === 'radio'
+      ? 'kind-icon:phone'
+      : 'kind-icon:document'
+}
 
 // Art style (conductor weird-humboldt t-039): view-only, shared with every
 // scene through provide/inject, remembered per browser by the helpers.
@@ -1274,6 +1921,80 @@ function openStylePicker() {
   stylePicker.value?.showModal()
 }
 
+watch([displayScale, textSpeed], () =>
+  saveEcotoneDisplay({ scale: displayScale.value, speed: textSpeed.value }),
+)
+
+function stopReveal() {
+  if (revealTimer) clearInterval(revealTimer)
+  revealTimer = null
+}
+
+function revealAll() {
+  stopReveal()
+  revealCount.value = storyText.value.length
+}
+function saveGame(slot: number) {
+  saveNotice.value = game.saveSlot(slot)
+    ? `Saved in slot ${slot}.`
+    : 'Start a run before saving.'
+}
+function loadGame(slot: number) {
+  if (
+    game.run &&
+    !window.confirm(`Replace your active journey with slot ${slot}?`)
+  )
+    return
+  const loaded = game.loadSlot(slot)
+  saveNotice.value = loaded
+    ? `Loaded slot ${slot}.`
+    : 'That save could not be loaded.'
+  if (loaded) tab.value = 'road'
+}
+function removeSave(slot: number) {
+  if (!window.confirm(`Delete manual save in slot ${slot}?`)) return
+  game.deleteSlot(slot)
+  saveNotice.value = `Deleted slot ${slot}.`
+}
+function exportGame() {
+  const saved = game.exportSave()
+  if (!saved) {
+    saveNotice.value = 'Start a run before exporting.'
+    return
+  }
+  const blob = new Blob([saved], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'ecotone-save.json'
+  link.click()
+  URL.revokeObjectURL(url)
+  saveNotice.value = 'Exported a JSON copy of this journey.'
+}
+async function importGame(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  try {
+    if (file.size > 1024 * 1024) throw new Error('Save exceeds 1 MB.')
+    const data: unknown = JSON.parse(await file.text())
+    if (
+      game.run &&
+      !window.confirm('Replace this journey with the imported save?')
+    )
+      return
+    if (!game.importSave(data))
+      throw new Error('Unsupported or invalid save format.')
+    saveNotice.value = 'Imported journey successfully.'
+    tab.value = 'road'
+  } catch (error) {
+    saveNotice.value =
+      error instanceof Error ? error.message : 'Unable to import save.'
+  } finally {
+    input.value = ''
+  }
+}
+
 const PIPS: Record<number, number[]> = {
   1: [5],
   2: [1, 9],
@@ -1284,6 +2005,9 @@ const PIPS: Record<number, number[]> = {
 }
 
 onMounted(() => {
+  const savedDisplay = loadEcotoneDisplay()
+  displayScale.value = savedDisplay.scale
+  textSpeed.value = savedDisplay.speed
   artStyle.value = loadEcotoneArtStyle()
   game.initialize()
 })
@@ -1306,6 +2030,8 @@ watch(pending, async (value) => {
   await nextTick()
   continueButton.value?.focus()
 })
+
+onUnmounted(stopReveal)
 
 const eventInfo = computed(() => EVENTS.find((e) => e.id === game.run?.event))
 function pad(n: number) {
@@ -1345,11 +2071,16 @@ const archetype = computed(() =>
 
 function start() {
   if (!picked.value) return
-  game.begin(picked.value)
+  game.begin(picked.value, {
+    playerName: characterName.value,
+    avatarId: pickedAvatar.value,
+    personalityId: pickedPersonality.value,
+  })
   tab.value = 'road'
 }
 
 function restart() {
+  stagedChoice.value = null
   game.abandon()
   tab.value = 'road'
 }
@@ -1444,6 +2175,11 @@ type Stage = {
   asides: string[]
   portrait: boolean
   emblem: null | { id: CompanionId; name: string }[]
+  /** A mystery scene shows its case card and, at a gate, the digression. */
+  mysteryCard?: Mystery | null
+  message?: MysteryMessage | null
+  /** The Real Ending a finale choice just reached. */
+  realEnding?: string | null
 }
 
 const stage = computed<Stage>(() => {
@@ -1550,27 +2286,45 @@ const stage = computed<Stage>(() => {
       card.choices.some((choice) => choice.meet !== undefined) && !outcomeShown
     const prospect = game.prospect
     const cardArt = [cardArtKey(card.id), ...(card.art ? [card.art] : [])]
+    const meta = game.mysteryMeta
+    const numeral = meta ? caseNumeral(meta.mystery.number) : ''
+    const realEnding =
+      meta && pending.value && game.realEnding ? game.realEnding.title : null
     return {
       scene: card.scene,
       art:
         portrait && prospect
           ? prospect.art
           : outcome
-            ? [outcome, ...cardArt]
+            ? [
+                ...(realEnding && meta && game.realEnding
+                  ? [mysteryEndingArtKey(meta.mystery.id, game.realEnding.id)]
+                  : []),
+                outcome,
+                ...cardArt,
+              ]
             : cardArt,
       alt:
         portrait && prospect
           ? `${prospect.name}, ${prospect.role}`
           : card.title,
-      kicker: portrait
-        ? 'Companion encounter'
-        : card.id.startsWith('CO-')
-          ? 'Companion interlude'
-          : card.kind === 'spine'
-            ? `Story beat · ${card.id}`
-            : `Encounter · ${card.id}`,
-      title: card.title,
-      subtitle: card.place,
+      kicker: meta
+        ? realEnding
+          ? `Case ${numeral} · Real Ending`
+          : meta.kind === 'gate'
+            ? `Case ${numeral} · Gate ${caseNumeral(meta.gate ?? 1)} of III`
+            : meta.kind === 'cold'
+              ? `Case ${numeral} · The trail goes cold`
+              : `Case ${numeral} · The true path`
+        : portrait
+          ? 'Companion encounter'
+          : card.id.startsWith('CO-')
+            ? 'Companion interlude'
+            : card.kind === 'spine'
+              ? `Story beat · ${card.id}`
+              : `Encounter · ${card.id}`,
+      title: realEnding ?? card.title,
+      subtitle: realEnding && meta ? meta.mystery.title : card.place,
       place: card.place.split(',')[0] ?? card.place,
       meet:
         portrait && prospect
@@ -1581,9 +2335,14 @@ const stage = computed<Stage>(() => {
         ? 'Your first perspective stays with you. Every future remains possible.'
         : '',
       question: card.choices.some((choice) => choice.lens)
-        ? 'How do you enter the weekend?'
+        ? 'What draws your attention here?'
         : 'How do you answer?',
-      body: cardBody(card, run).map((paragraph) => fillText(paragraph, run)),
+      body: [
+        ...cardBody(card, run),
+        ...(contextualOfferLine(card, run)
+          ? [contextualOfferLine(card, run)!]
+          : []),
+      ].map((paragraph) => fillText(paragraph, run)),
       lensLine: run.currentState
         ? (card.lensLines?.[run.currentState] ?? '')
         : '',
@@ -1593,10 +2352,64 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? [{ id: prospect.id, name: prospect.name }]
           : leadEmblem,
+      mysteryCard: meta?.mystery ?? null,
+      message: meta?.message ?? null,
+      realEnding,
     }
   }
   return fallback
 })
+
+const storyText = computed(
+  () => pending.value?.text ?? stage.value.body.join('\n\n'),
+)
+const revealedBody = computed(() => {
+  if (textSpeed.value === 'instant') return stage.value.body
+  let remaining = revealCount.value
+  return stage.value.body
+    .map((paragraph) => {
+      const result = paragraph.slice(0, Math.max(0, remaining))
+      remaining -= paragraph.length + 2
+      return result
+    })
+    .filter(Boolean)
+})
+const revealedResult = computed(() =>
+  textSpeed.value === 'instant'
+    ? (pending.value?.text ?? '')
+    : (pending.value?.text ?? '').slice(0, revealCount.value),
+)
+const hasHiddenText = computed(
+  () =>
+    textSpeed.value !== 'instant' && revealCount.value < storyText.value.length,
+)
+watch(
+  [storyText, textSpeed, tab],
+  () => {
+    stopReveal()
+    if (
+      textSpeed.value === 'instant' ||
+      tab.value !== 'road' ||
+      (import.meta.client &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    ) {
+      revealCount.value = storyText.value.length
+      return
+    }
+    revealCount.value = 0
+    revealTimer = setInterval(
+      () => {
+        revealCount.value = Math.min(
+          storyText.value.length,
+          revealCount.value + (textSpeed.value === 'normal' ? 8 : 3),
+        )
+        if (revealCount.value >= storyText.value.length) stopReveal()
+      },
+      textSpeed.value === 'normal' ? 25 : 45,
+    )
+  },
+  { immediate: true },
+)
 
 const portraitSrc = computed(() =>
   stage.value.portrait
@@ -1611,8 +2424,20 @@ type Option = {
   chip?: string
   chipTitle?: string
   disabled?: boolean
+  perkEligible?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
+}
+
+function queueDecision(option: Option) {
+  if (option.disabled) return
+  stagedChoice.value = { id: option.id, label: option.label, act: option.act }
+}
+
+function confirmDecision() {
+  const decision = stagedChoice.value
+  stagedChoice.value = null
+  decision?.act()
 }
 
 const options = computed<Option[]>(() => {
@@ -1674,7 +2499,7 @@ const options = computed<Option[]>(() => {
   }
   const card = game.card
   if (run.phase === 'beat' && card) {
-    return openingLensChoices(card).map((choice) => {
+    return contextualOpeningChoices(card, run).map((choice) => {
       const lens = choice.lens
         ? LENSES.find((l) => l.id === choice.lens)
         : undefined
@@ -1710,7 +2535,11 @@ const options = computed<Option[]>(() => {
           : hint,
         chip: chip.chip,
         chipTitle: chip.title,
-        act: () => game.choose(choice.id),
+        perkEligible: originPerkAvailable(run, choice.id),
+        act: () => {
+          game.choose(choice.id, perkSelected.value)
+          perkSelected.value = false
+        },
       }
     })
   }
@@ -1759,6 +2588,19 @@ function endingsFor(id: EndingLine) {
 </script>
 
 <style scoped>
+.eco-story-copy {
+  font-size: calc(1.125rem * var(--eco-text-scale, 1.2));
+  line-height: 1.55;
+}
+.eco-choice-main {
+  font-size: calc(1rem * var(--eco-text-scale, 1.2));
+  line-height: 1.35;
+}
+@container (min-width: 64rem) {
+  .eco-story-copy {
+    font-size: calc(1.25rem * var(--eco-text-scale, 1.2));
+  }
+}
 .eco-pill {
   height: 2rem;
   align-items: center;
@@ -1784,14 +2626,14 @@ function endingsFor(id: EndingLine) {
   border: 1px solid rgb(143 184 176 / 0.55);
   background: rgb(18 40 44 / 0.75);
   padding: 0.3rem 0.9rem;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   backdrop-filter: blur(4px);
 }
 .eco-label {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1831,7 +2673,7 @@ function endingsFor(id: EndingLine) {
   border-radius: 0.65rem;
   border: 1px solid rgb(201 169 110 / 0.3);
   background: rgb(20 38 48 / 0.85);
-  padding: 0.7rem 0.9rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   transition:
     border-color 0.15s,

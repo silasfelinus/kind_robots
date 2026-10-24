@@ -53,6 +53,7 @@ export function useCthulhuquariumStory() {
   const state = ref<StoryState | null>(null)
   const queue = ref<string[]>([])
   const beatIndex = ref(0)
+  const replayingIntro = ref(false)
   const backgroundSaving = ref(false)
   const storyError = ref('')
   const spokenBark = ref<SpokenBark | null>(null)
@@ -164,7 +165,33 @@ export function useCthulhuquariumStory() {
     if (res.success && res.data) state.value = res.data
   }
 
+  // Existing players can revisit the cinematic opening without resetting
+  // their tank, forcing them to adopt/feed again, or rewriting seen scenes.
+  function replayIntro(): void {
+    if (!state.value || queue.value.length) return
+    queue.value = ['intro']
+    beatIndex.value = 0
+    replayingIntro.value = true
+  }
+
   async function advanceBeat(): Promise<void> {
+    if (replayingIntro.value && activeScene.value?.id === 'intro') {
+      const firstInteractive = activeScene.value.beats.findIndex(
+        (item) => item.focus !== null || item.await !== null,
+      )
+      const lastCinematicBeat =
+        firstInteractive >= 0
+          ? firstInteractive - 1
+          : activeScene.value.beats.length - 1
+      if (beatIndex.value >= lastCinematicBeat) {
+        queue.value.shift()
+        beatIndex.value = 0
+        replayingIntro.value = false
+        return
+      }
+      beatIndex.value += 1
+      return
+    }
     if (!activeScene.value) return
     if (isLastBeat.value) {
       await finishScene()
@@ -267,6 +294,7 @@ export function useCthulhuquariumStory() {
     queueScene,
     queueMissedMilestoneScene,
     advanceBeat,
+    replayIntro,
     finishScene,
     notifyAction,
     announceMilestones,

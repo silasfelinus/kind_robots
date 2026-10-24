@@ -2,6 +2,7 @@
 contentType: tab
 channelKey: admin
 tabKey: art-review
+parentTabKey: retired
 label: Checkpoint Review
 title: Checkpoint Review
 subtitle: Every Ecotone render side by side, in all four styles

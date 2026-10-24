@@ -163,6 +163,31 @@ const finishWithRecruitment = (
   assert.deepEqual(again.rewindableDays, [1, 2])
 }
 
+// --- a fresh reign, even after an old introduction, starts at court -------
+{
+  fresh()
+  const court = reload()
+  court.closeIntro()
+  finishWithRecruitment(court)
+  assert.equal(court.day, 2)
+  court.newRun()
+  assert.equal(court.day, 1)
+  assert.equal(court.introOpen, true, 'every fresh reign has its introduction')
+  assert.equal(court.run!.roster.length, 0, 'no followers are preassigned')
+  assert.equal(court.run!.audiencesHeard.length, 0)
+  assert.ok(court.run!.flags.includes(COURT_ONBOARDING_FLAG))
+  const petitions = audiencesToday(court.run!)
+  assert.equal(petitions.length, 4)
+  assert.equal(
+    petitions.filter((entry) => COURT_RECRUITMENT_IDS.includes(entry.id))
+      .length,
+    3,
+    'the new court has the guaranteed, random and rival-pair recruits',
+  )
+  assert.ok(court.run!.board.length <= 2, 'Day 1 stays uncluttered')
+  assert.equal(decodeBook(storage.data.get(AUTO)!)?.current.roster.length, 0)
+}
+
 // --- relic vault: ownership, next loadout, new runs and reloads -------------
 {
   fresh()

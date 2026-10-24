@@ -4,6 +4,7 @@ import {
   assignQuest,
   chooseAudienceOption,
   chooseTalkOption,
+  challengeRumour,
   chooseChanceEvent,
   createRun,
   earnFlag,
@@ -385,6 +386,8 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     book.value = newBook(createRun(newSeed(), equippedRelics()))
     lastReport.value = null
     lastResponse.value = ''
+    lastLearned.value = []
+    introOpen.value = true
     releaseAutosave()
     persist()
   }
@@ -409,6 +412,12 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
 
   function answerChanceEvent(eventId: string, choiceId: string): string {
     const outcome = chooseChanceEvent(current(), eventId, choiceId)
+    commit(outcome.run)
+    return outcome.response
+  }
+
+  function challengeReport(briefingId: string): string {
+    const outcome = challengeRumour(current(), briefingId)
     commit(outcome.run)
     return outcome.response
   }
@@ -559,6 +568,7 @@ export const useEmperorFortressStore = defineStore('emperorFortress', () => {
     answer,
     talk,
     answerChanceEvent,
+    challengeReport,
     preview,
     assign,
     withdraw,

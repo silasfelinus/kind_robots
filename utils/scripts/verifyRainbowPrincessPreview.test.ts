@@ -73,7 +73,12 @@ assert.deepEqual(
 )
 
 assert.match(tab, /Work in progress/)
-assert.match(page, /ArcadeCabinet slug="rainbow-bullet-hell-space-princess"/)
+assert.match(page, /ArcadeCabinet\s+slug="rainbow-bullet-hell-space-princess"/)
+assert.match(
+  page,
+  /:suspended="view !== 'flight'( \|\| openingShowing)?"/,
+  'the flight pauses while the Pilots or Seas tab is showing',
+)
 assert.match(
   registry,
   /PREVIEW_GAMES:[\s\S]*?rainbow-bullet-hell-space-princess/,

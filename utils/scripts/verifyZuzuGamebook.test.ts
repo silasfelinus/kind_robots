@@ -11,7 +11,10 @@ import { SECTION_PLATES } from '../zuzuGamebook/sectionArt'
 import {
   applyPlaytestMove,
   combatBenchmark,
+  encodeWitness,
   findEndingWitness,
+  replayEncodedWitness,
+  witnessFingerprint,
   replayWitness,
   witnessFromRun,
   type EndingWitness,
@@ -103,16 +106,23 @@ for (const node of Object.values(BOOK)) {
   const art = PLATES[node.art]
   assert.ok(art, node.id + ': unknown plate ' + node.art)
   assert.ok(art.alt.length > 40, node.art + ' needs descriptive alt text')
-  assert.ok(art.artImageId > 0, node.art + ' needs its ArtImage provenance')
   assert.ok(
-    existsSync(join(scenesDir, art.file + '.webp')),
+    art.format === 'svg' ? art.artImageId === 0 : art.artImageId > 0,
+    node.art +
+      ': a local SVG has no generated ArtImage, a WebP needs provenance',
+  )
+  assert.ok(
+    existsSync(join(scenesDir, art.file + '.' + (art.format ?? 'webp'))),
     node.art + ': plate file missing',
   )
-  assert.equal(platePath(art), '/zuzu-gamebook/scenes/' + art.file + '.webp')
+  assert.equal(
+    platePath(art),
+    '/zuzu-gamebook/scenes/' + art.file + '.' + (art.format ?? 'webp'),
+  )
   // A section's own plate (keyed by its id, one plate per section) wins over the shared one.
   const own = sectionPlate(node)
   assert.ok(
-    existsSync(join(scenesDir, own.file + '.webp')),
+    existsSync(join(scenesDir, own.file + '.' + (own.format ?? 'webp'))),
     node.id + ': own plate file missing',
   )
   assert.equal(
@@ -122,6 +132,24 @@ for (const node of Object.values(BOOK)) {
       ': wide plates sit above the text, tall and square ones to its right',
   )
 }
+// Regression: never show Hollow Bell on the lookout or an apple tree in the rain-bloom.
+for (const [nodeId, expectedFile] of [
+  ['a2-bell-view', 'bell-view-original.svg'],
+  ['a4-bloom', 'desert-bloom-original.svg'],
+] as const) {
+  const chosen = sectionPlate(BOOK[nodeId]!)
+  assert.equal(
+    platePath(chosen),
+    '/zuzu-gamebook/scenes/' + expectedFile,
+    nodeId + ': illustration must follow the authored scene',
+  )
+  assert.equal(chosen.fit, 'exact', nodeId + ': no unrelated stand-in')
+  assert.match(
+    readFileSync(join(scenesDir, expectedFile), 'utf8'),
+    /<svg[^>]+viewBox/,
+    nodeId + ': local scene illustration must be valid vector artwork',
+  )
+}
 const usedPlates = new Set(Object.values(BOOK).map((node) => node.art))
 for (const key of Object.keys(PLATES)) {
   assert.ok(usedPlates.has(key), 'plate ' + key + ' is not used by any scene')
@@ -129,7 +157,9 @@ for (const key of Object.keys(PLATES)) {
 for (const file of readdirSync(scenesDir, { withFileTypes: true })) {
   if (file.isDirectory()) continue
   assert.ok(
-    Object.values(PLATES).some((p) => p.file + '.webp' === file.name),
+    Object.values(PLATES).some(
+      (p) => p.file + '.' + (p.format ?? 'webp') === file.name,
+    ),
     'stray plate file ' + file.name,
   )
 }
@@ -459,6 +489,50 @@ assert.deepEqual(notes.deeds, [
 assert.deepEqual(notes.debts, ['Jeffery Mittens'])
 assert.deepEqual(notes.learned, ['wax', 'sister trust'])
 
+// Golden journeys must remain replayable without the search solver, including
+// rare moral endings and failures. Changes to choices, dice or consequences
+// require explicit editorial review and deliberate fixture refresh.
+type GoldenWitness = {
+  ending: string
+  seed: number
+  trace: string
+  health: number
+  resolve: number
+  scenes: number
+  fingerprint: string
+}
+const goldenFile = JSON.parse(
+  readFileSync(
+    join(process.cwd(), 'utils/scripts/fixtures/zuzuGamebookGolden.json'),
+    'utf8',
+  ),
+) as { version: number; witnesses: GoldenWitness[] }
+assert.equal(goldenFile.version, 1)
+assert.deepEqual(
+  goldenFile.witnesses.map((witness) => witness.ending).sort(),
+  [...endings].sort(),
+  'each authored ending must have exactly one golden full-journey transcript',
+)
+for (const fixture of goldenFile.witnesses) {
+  assert.ok(fixture.trace.length > 0 && fixture.trace.length % 2 === 0)
+  const replayed = replayEncodedWitness(fixture.seed, fixture.trace)
+  assert.equal(replayed.sceneId, fixture.ending)
+  assert.equal(replayed.health, fixture.health)
+  assert.equal(replayed.resolve, fixture.resolve)
+  assert.equal(replayed.visited.length, fixture.scenes)
+  assert.equal(
+    witnessFingerprint(replayed),
+    fixture.fingerprint,
+    fixture.ending + ': golden route or consequences unexpectedly changed',
+  )
+  if (fixture.ending === 'ending-wren-lamp') {
+    assert.ok(replayed.visited.includes('a5-wren-talk'))
+    assert.ok(replayed.flags.includes('wren-ally'))
+  }
+}
+assert.throws(() => replayEncodedWitness(1, 'c'), /Truncated witness/)
+assert.throws(() => replayEncodedWitness(1, 'x0'), /Unknown witness action/)
+
 // Seeded player journeys use actual dice and inventory decisions. Capture a
 // replayable witness for each ending rather than trusting synthetic scene flags.
 let rng = 20261009
@@ -512,6 +586,9 @@ for (const id of endings) {
   assert.deepEqual(replayed.visited, witness.visited)
   assert.equal(replayed.health, witness.health)
   assert.equal(replayed.resolve, witness.resolve)
+  const trace = encodeWitness(witness)
+  const compactReplay = replayEncodedWitness(witness.seed, trace)
+  assert.equal(witnessFingerprint(compactReplay), witnessFingerprint(replayed))
   assert.ok(witness.visited[0] === 'the-crossing')
   if (id === 'ending-wren-lamp') {
     assert.ok(
@@ -566,6 +643,68 @@ for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
         .join(' | '),
   )
 }
+// Wounded and exhausted players must still resolve battles deterministically.
+// We do not require an injured Zuzu to beat five jackals: failures can be story.
+for (const node of Object.values(BOOK).filter((entry) => !!entry.battle)) {
+  for (const resolve of [0, 2, 4]) {
+    for (const health of [3, 6, 9, 12]) {
+      const strike = combatBenchmark(node.id, 'strike', 90, health, resolve)
+      const exhausted = combatBenchmark(
+        node.id,
+        'quiet-draw',
+        90,
+        health,
+        resolve,
+      )
+      const feint = combatBenchmark(
+        node.id,
+        'feint-strike',
+        90,
+        health,
+        resolve,
+      )
+      const guard = combatBenchmark(
+        node.id,
+        'guard-strike',
+        90,
+        health,
+        resolve,
+      )
+      for (const outcome of [strike, exhausted, feint, guard]) {
+        assert.ok(outcome.averageRounds > 0 && outcome.averageRounds < 40)
+        // Losing some encounters restores HP during the authored aftermath.
+        assert.ok(outcome.averageHealth >= 0 && outcome.averageHealth <= 12)
+        assert.ok(outcome.wins >= 0 && outcome.wins <= 90)
+      }
+      if (resolve === 0)
+        assert.deepEqual(
+          exhausted,
+          strike,
+          'Quiet Draw cannot bypass 0 Resolve',
+        )
+      if (health === 3 || health === 12)
+        console.log(
+          'Gamebook wounded ' +
+            node.id +
+            ': health=' +
+            health +
+            ', resolve=' +
+            resolve +
+            ', strike=' +
+            strike.wins +
+            ', feint=' +
+            feint.wins +
+            ', guard=' +
+            guard.wins +
+            ', draw=' +
+            exhausted.wins,
+        )
+    }
+  }
+}
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 0))
+assert.throws(() => combatBenchmark('crocodile', 'strike', 10, 12, 5))
+
 const guardTestRuns = Array.from({ length: 120 }, (_, i) =>
   fight({ ...coyote, seed: i + 1 }, 'guard'),
 )
@@ -585,7 +724,7 @@ assert.ok(
       result.battle.hp === 5 &&
       result.health >= coyote.health - 1,
   ),
-  'successful feint should deal 2, expose and reduce retaliation',
+  'successful feint should deal 3, expose and reduce retaliation',
 )
 
 // The Keeper of the Empty Bell: from the tower, only when the children were freed.

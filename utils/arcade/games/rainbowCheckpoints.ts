@@ -35,6 +35,8 @@ export type RainbowCheckpoint = {
   rescuedNavigator: boolean
   /** Act VIII's captives whose collars the crew has broken. */
   captivesFreed: number
+  /** The crew's choice at Act V's memorial (t-040): turn on the empire or stay the course; null before it. */
+  allegiance?: 'rebel' | 'loyal' | null
   schoolBonuses: number
 }
 

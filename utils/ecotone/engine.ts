@@ -37,6 +37,7 @@ import {
 } from './finaleExpansion'
 import { applyCardEdit, type CardEdit } from '../playbook/edits'
 import { openingLensChoices } from './openingLensChoices'
+import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
   momentPerspective,
   openingSubstance,
@@ -46,6 +47,12 @@ import {
   type SubstanceId,
   type SubstanceMoment,
 } from './substanceArc'
+import {
+  MYSTERY_CARDS,
+  findMystery,
+  mysteryInterlude,
+  pickMystery,
+} from './mysteries'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -103,7 +110,13 @@ export type RunState = {
   version: number
   seed: number
   archetype: string
+  /** Optional role-play identity; legacy v4 saves use defaults. */
+  playerName?: string
+  avatarId?: string
+  personalityId?: string
   skills: Skills
+  /** Chapters where the origin-specific once-per-chapter action was spent. */
+  perkUsedChapters: number[]
   phase: Phase
   rolls: number
   event: EventId | null
@@ -137,6 +150,8 @@ export type RunState = {
   log: LogEntry[]
   pending: { entry: LogEntry; nextStep: number } | null
   ending: string | null
+  /** This run's one local mystery (mysteries/). Older saves derive it from the seed. */
+  mystery?: string
 }
 
 export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
@@ -147,7 +162,7 @@ let liveCards: Record<string, EncounterCard> = {}
 
 export function setLiveEdits(edits: Record<string, CardEdit>): void {
   liveCards = {}
-  for (const card of ALL_CARDS) {
+  for (const card of [...ALL_CARDS, ...MYSTERY_CARDS]) {
     const edit = edits[card.id]
     if (edit) liveCards[card.id] = applyCardEdit(card, edit)
   }
@@ -155,7 +170,11 @@ export function setLiveEdits(edits: Record<string, CardEdit>): void {
 
 export function findCard(id: string | null | undefined): EncounterCard | null {
   if (id && liveCards[id]) return liveCards[id]
-  return ALL_CARDS.find((card) => card.id === id) ?? null
+  return (
+    ALL_CARDS.find((card) => card.id === id) ??
+    MYSTERY_CARDS.find((card) => card.id === id) ??
+    null
+  )
 }
 
 /** Meeting a person does not make them part of the traveling crew. */
@@ -215,6 +234,7 @@ export function chanceToSucceed(need: number): number {
 export function checkParts(
   state: RunState,
   check: Check,
+  perkBonus = 0,
 ): { label: string; value: number }[] {
   const skillName = {
     rizz: 'Rizz',
@@ -240,6 +260,7 @@ export function checkParts(
     parts.push({ label: `${lead?.name ?? 'Guide'} helps`, value: 1 })
   }
   if (state.nerve <= 1) parts.push({ label: 'Rattled', value: -1 })
+  if (perkBonus) parts.push({ label: 'Origin perk', value: perkBonus })
   return parts
 }
 
@@ -247,9 +268,9 @@ export function checkBonus(state: RunState, check: Check): number {
   return checkParts(state, check).reduce((sum, part) => sum + part.value, 0)
 }
 
-function resolveCheck(state: RunState, check: Check): Roll {
+function resolveCheck(state: RunState, check: Check, perkBonus = 0): Roll {
   const dice = rollDice(state.seed, state.rolls)
-  const parts = checkParts(state, check)
+  const parts = checkParts(state, check, perkBonus)
   const bonus = parts.reduce((sum, part) => sum + part.value, 0)
   const natural =
     dice[0] + dice[1] === 2
@@ -281,10 +302,11 @@ function applyEffects(state: RunState, effects: Effects): RunState {
       effects.evidence && !state.evidence.includes(effects.evidence)
         ? [...state.evidence, effects.evidence]
         : state.evidence,
-    flags:
-      effects.flag && !state.flags.includes(effects.flag)
-        ? [...state.flags, effects.flag]
-        : state.flags,
+    flags: [effects.flag, ...(effects.flags ?? [])].reduce<string[]>(
+      (flags, flag) =>
+        flag && !flags.includes(flag) ? [...flags, flag] : flags,
+      state.flags,
+    ),
   }
 }
 
@@ -320,6 +342,8 @@ export function variantKey(
 }
 
 export function cardBody(card: EncounterCard, state: RunState): string[] {
+  for (const [flag, body] of Object.entries(card.flagBody ?? {}))
+    if (state.flags.includes(flag)) return body
   const key = variantKey(card, state)
   return (key ? card.variants?.[key] : undefined) ?? card.body
 }
@@ -500,14 +524,24 @@ export function computeEnding(state: RunState): Ending {
   // animals, not on stats. Fall short and it is the hermit's bittersweet ending.
   if (!state.activeLead && event?.wildTarget) {
     const target = event.wildTarget
-    const parts = [{ label: 'Animal-first choices', value: state.wild }]
-    const fate: Fate = state.wild >= target ? 'hope' : 'dark'
+    const restorationCredit =
+      state.wild >= 3 && state.flags.includes('creek_monitoring_committed')
+        ? 1
+        : 0
+    const parts = [
+      { label: 'Animal-first choices', value: state.wild },
+      ...(restorationCredit
+        ? [{ label: 'Sustained crew stewardship', value: restorationCredit }]
+        : []),
+    ]
+    const score = state.wild + restorationCredit
+    const fate: Fate = score >= target ? 'hope' : 'dark'
     return {
       id: `ecotopia.${lens}.${fate}`,
       lead: 'ecotopia',
       lens,
       fate,
-      score: state.wild,
+      score,
       target,
       parts,
     }
@@ -528,7 +562,12 @@ export function computeEnding(state: RunState): Ending {
   }
 }
 
-export function createRun(seed: number, archetypeId: string): RunState {
+export function createRun(
+  seed: number,
+  archetypeId: string,
+  mysteryId?: string,
+  identity: PlayerIdentity = {},
+): RunState {
   const archetype =
     ARCHETYPES.find((a) => a.id === archetypeId) ??
     (ARCHETYPES[0] as (typeof ARCHETYPES)[number])
@@ -536,7 +575,9 @@ export function createRun(seed: number, archetypeId: string): RunState {
     version: ECOTONE_SAVE_VERSION,
     seed: seed >>> 0,
     archetype: archetype.id,
+    ...normalizePlayerIdentity(identity),
     skills: { ...archetype.skills },
+    perkUsedChapters: [],
     phase: 'event',
     rolls: 0,
     event: null,
@@ -564,6 +605,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     log: [],
     pending: null,
     ending: null,
+    mystery: findMystery(mysteryId)?.id ?? pickMystery(seed >>> 0),
   }
 }
 
@@ -617,6 +659,11 @@ export function enterStep(state: RunState, index: number): RunState {
         ? { currentState: 'sober' as LensId, clarity: 3 }
         : {}),
     }
+    // A mystery gate arrives as a digression before this step. It sits on the
+    // previous step index, so the route resumes exactly here afterwards.
+    const interlude = mysteryInterlude(base, route, i)
+    if (interlude)
+      return { ...base, step: i - 1, phase: 'beat', card: interlude }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }
@@ -706,11 +753,54 @@ function meet(state: RunState, accept: boolean): RunState {
   }
 }
 
-export function chooseBeat(state: RunState, choiceId: string): RunState {
+/**
+ * The origin is a choice of approach, not a free passive stat boost.
+ * Each actionable perk can be used once per regional chapter. Existing version-4
+ * saves gain an empty spent list, preserving their established rolls and choices.
+ */
+export function originPerkAvailable(
+  state: RunState,
+  choiceId: string,
+): boolean {
+  if (state.phase !== 'beat' || state.pending) return false
+  const card = findCard(state.card)
+  const choice =
+    card && openingLensChoices(card).find((item) => item.id === choiceId)
+  if (!card || !choice || choice.locked) return false
+  if ((state.perkUsedChapters ?? []).includes(card.chapter)) return false
+  const skill = choice.check?.skill
+  switch (state.archetype) {
+    case 'reporter':
+      return skill === 'wits' || skill === 'lore'
+    case 'student':
+      return Boolean(choice.check && choice.failure)
+    case 'rower':
+      return [choice.success, choice.failure].some(
+        (result) => (result?.effects.nerve ?? 0) < 0,
+      )
+    case 'local':
+      return skill === 'lore' || skill === 'rizz'
+    case 'mechanic':
+      return skill === 'wits' || skill === 'burly'
+    case 'gardener':
+      return Boolean(choice.check)
+    case 'dealer':
+      return skill === 'rizz' || skill === 'wits'
+    default:
+      return false
+  }
+}
+
+export function chooseBeat(
+  state: RunState,
+  choiceId: string,
+  spendOriginPerk = false,
+): RunState {
   if (state.phase !== 'beat' || state.pending) return state
   const card = findCard(state.card)
   const choice = card && openingLensChoices(card).find((c) => c.id === choiceId)
   if (!card || !choice || choice.locked) return state
+  const usesPerk = spendOriginPerk && originPerkAvailable(state, choiceId)
   let next: RunState = state
   if (choice.lens) {
     const lens = LENSES.find((l) => l.id === choice.lens)
@@ -736,7 +826,14 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
   let outcome: Outcome = choice.success
   let result: OutcomeResult = 'success'
   if (choice.check) {
-    roll = resolveCheck(next, choice.check)
+    const perkBonus = !usesPerk
+      ? 0
+      : state.archetype === 'mechanic' || state.archetype === 'dealer'
+        ? 2
+        : state.archetype === 'student' || state.archetype === 'rower'
+          ? 0
+          : 1
+    roll = resolveCheck(next, choice.check, perkBonus)
     if (!roll.success && choice.failure) {
       outcome = choice.failure
       result = 'failure'
@@ -746,7 +843,61 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
   if (choice.prospect) next = { ...next, prospect: choice.prospect }
   if (choice.wild) next = { ...next, wild: next.wild + 1 }
   if (choice.meet !== undefined) next = meet(next, choice.meet)
-  next = applyEffects(next, outcome.effects)
+  const effects: Effects = { ...outcome.effects }
+  let perkLine = ''
+  if (usesPerk) {
+    next = {
+      ...next,
+      perkUsedChapters: [...(next.perkUsedChapters ?? []), card.chapter],
+    }
+    switch (state.archetype) {
+      case 'reporter':
+        perkLine =
+          'You ask the extra sourcing question: when was this first observed, and who can check it? A verifiable lead enters your notes.'
+        break
+      case 'student':
+        if (roll && !roll.success) {
+          effects.goodwill = (effects.goodwill ?? 0) + 1
+          perkLine =
+            'Your annotated notes rescue one useful piece of a failed attempt. You still face the setback, but somebody else can build on the partial result.'
+        } else {
+          perkLine =
+            'You annotate the reasoning while it is fresh. The next person can reproduce what worked.'
+        }
+        break
+      case 'rower':
+        if ((effects.nerve ?? 0) < 0) effects.nerve = 0
+        perkLine =
+          'You recognize the punishing terrain early and adjust the crossing. The physical setback costs no nerve this time.'
+        break
+      case 'local':
+        perkLine =
+          'You remember a local connection and ask for a second perspective before treating the first story as settled.'
+        break
+      case 'mechanic':
+        effects.nerve = (effects.nerve ?? 0) - 1
+        perkLine =
+          'You improvise with the supplies at hand. It works or fails on the roll, but the extra work takes a real toll on your nerve.'
+        break
+      case 'gardener':
+        if ((effects.nerve ?? 0) < 0) effects.nerve = 0
+        perkLine =
+          'You spot a practical hazard before it bites. The problem remains, but it cannot drain your nerve on this result.'
+        break
+      case 'dealer':
+        perkLine =
+          'You wait out a practiced bluff and watch the response instead of trusting the first claim.'
+        break
+    }
+  }
+  next = applyEffects(next, effects)
+  if (
+    usesPerk &&
+    (state.archetype === 'reporter' || state.archetype === 'local')
+  )
+    next = applyEffects(next, {
+      evidence: `origin_${state.archetype}_${card.id}`,
+    })
   if (!next.played.includes(card.id))
     next = { ...next, played: [...next.played, card.id] }
   return record(
@@ -759,10 +910,11 @@ export function chooseBeat(state: RunState, choiceId: string): RunState {
       text: [
         fillText(outcome.text, next),
         outcome.leadLines?.[next.activeLead ?? 'alone'],
+        perkLine,
       ]
         .filter(Boolean)
         .join('\n\n'),
-      effects: outcome.effects,
+      effects,
       art: outcomeArtKey(card.id, choice.id, result),
     },
     state.step + 1,
@@ -1012,8 +1164,16 @@ export function restoreRun(raw: unknown): RunState | null {
         : incoming.pending,
   }
   if (s.version !== ECOTONE_SAVE_VERSION) return null
+  if (s.mystery !== undefined && !findMystery(s.mystery)) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
+  if (
+    (s.playerName !== undefined &&
+      (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
+    (s.avatarId !== undefined && typeof s.avatarId !== 'string') ||
+    (s.personalityId !== undefined && typeof s.personalityId !== 'string')
+  )
+    return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))
     return null
   if (s.event !== null && !EVENTS.some((e) => e.id === s.event)) return null
@@ -1056,12 +1216,23 @@ export function restoreRun(raw: unknown): RunState | null {
   if (!s.skills || typeof s.skills !== 'object') return null
   if (typeof s.wild !== 'number') return null
   if (
+    s.perkUsedChapters !== undefined &&
+    (!Array.isArray(s.perkUsedChapters) ||
+      !s.perkUsedChapters.every(
+        (chapter) => Number.isInteger(chapter) && chapter >= 1 && chapter <= 6,
+      ) ||
+      new Set(s.perkUsedChapters).size !== s.perkUsedChapters.length)
+  )
+    return null
+  if (
     s.substanceMoments !== undefined &&
     !validSubstanceMoments(s.substanceMoments)
   )
     return null
   const restored: RunState = {
     ...(s as RunState),
+    ...normalizePlayerIdentity(s),
+    perkUsedChapters: s.perkUsedChapters ?? [],
     // Older version-4 saves have one guide but no optional fellow travelers.
     travelCompanions:
       s.travelCompanions === undefined

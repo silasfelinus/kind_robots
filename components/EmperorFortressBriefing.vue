@@ -77,39 +77,84 @@
           <strong class="not-italic text-warning">{{ advisorName }}:</strong>
           “{{ lines.komodo }}”
         </p>
-        <ul class="grid gap-2">
-          <li
-            v-for="report in reports"
-            :key="report.id"
-            class="rounded-md border p-3"
-            :class="
-              eyeReveals(run, report.truth) || forecastMark(run, report)
-                ? 'border-warning bg-warning/10'
-                : 'border-warning/20 bg-base-200/70'
-            "
+        <p
+          v-if="!challenge"
+          class="eod-reading mx-auto w-11/12 max-w-md text-center text-sm italic opacity-85"
+        >
+          <strong class="not-italic text-warning"
+            >{{ advisorName }} adds:</strong
           >
-            <span
-              v-if="eyeReveals(run, report.truth)"
-              class="block text-xs font-bold text-warning"
-              >The Eye marks this report false</span
+          “{{ prompt }}”
+        </p>
+        <ul class="mx-auto grid w-11/12 max-w-md gap-2 text-center">
+          <li v-for="report in reports" :key="report.id">
+            <button
+              type="button"
+              class="w-full rounded-md border p-3 text-center transition-colors"
+              :class="cardTone(report)"
+              :disabled="!!challenge || acting"
+              :aria-label="
+                challenge
+                  ? undefined
+                  : `Look into the report from ${report.source}`
+              "
+              @click="challengeReport(report.id)"
             >
-            <span
-              v-if="forecastMark(run, report)"
-              class="block text-xs font-bold text-warning"
-              >{{
-                forecastMark(run, report) === 'false'
-                  ? 'Nera reads the wind: this report is false'
-                  : 'Nera frowns: this report has no weather in it at all'
-              }}</span
-            >
-            <p
-              class="text-xs font-semibold uppercase tracking-wider opacity-75"
-            >
-              {{ report.source }}
-            </p>
-            <p class="eod-reading">{{ report.text }}</p>
+              <span
+                v-if="eyeReveals(run, report.truth)"
+                class="block text-xs font-bold text-warning"
+                >The Eye marks this report false</span
+              >
+              <span
+                v-if="forecastMark(run, report)"
+                class="block text-xs font-bold text-warning"
+                >{{
+                  forecastMark(run, report) === 'false'
+                    ? 'Nera reads the wind: this report is false'
+                    : 'Nera frowns: this report has no weather in it at all'
+                }}</span
+              >
+              <span
+                class="block text-xs font-semibold uppercase tracking-wider opacity-75"
+              >
+                {{ report.source }}
+              </span>
+              <span class="eod-reading block">{{ report.text }}</span>
+              <span
+                v-if="!challenge"
+                class="mt-2 block text-xs font-bold uppercase tracking-widest text-warning opacity-80"
+                >Look into it</span
+              >
+              <span
+                v-else-if="challenge.briefingId === report.id"
+                class="mt-2 block border-t pt-2"
+                :class="
+                  challenge.caught ? 'border-success/50' : 'border-warning/30'
+                "
+                role="status"
+              >
+                <span
+                  class="block text-xs font-bold uppercase tracking-widest"
+                  :class="challenge.caught ? 'text-success' : 'text-warning'"
+                  >{{
+                    challenge.caught
+                      ? `False rumour caught · +${RUMOUR_BOUNTY} brass`
+                      : 'Nothing incorrect found'
+                  }}</span
+                >
+                <span class="eod-reading mt-1 block text-sm italic">{{
+                  rumourVerdict(report)
+                }}</span>
+              </span>
+            </button>
           </li>
         </ul>
+        <p
+          v-if="tally.made"
+          class="mx-auto text-center text-xs uppercase tracking-widest opacity-70"
+        >
+          Rumours caught this reign · {{ tally.caught }} of {{ tally.made }}
+        </p>
         <p
           v-if="lines.whisper"
           class="eod-reading border-l-2 border-warning/50 pl-3 italic opacity-85"
@@ -188,9 +233,14 @@ import { chanceEvent } from '~/utils/emperorOfDust/fortress/dailyEvents'
 import type { ChanceEventChoice } from '~/utils/emperorOfDust/fortress/dailyEvents'
 import { illustration } from '~/utils/emperorOfDust/fortress/castArt'
 import {
+  RUMOUR_BOUNTY,
   dayBriefings,
   dayLines,
   komodoLiesInHindsight,
+  rumourPrompt,
+  rumourTally,
+  rumourVerdict,
+  todaysChallenge,
 } from '~/utils/emperorOfDust/fortress/briefings'
 import { candlesLine } from '~/utils/emperorOfDust/fortress/endings'
 import { komodoCourtingLine } from '~/utils/emperorOfDust/fortress/betrayal'
@@ -200,7 +250,10 @@ import {
   forecastMark,
 } from '~/utils/emperorOfDust/fortress/engine'
 import { eyeReveals } from '~/utils/emperorOfDust/fortress/relics'
-import type { FortressRun } from '~/utils/emperorOfDust/fortress/types'
+import type {
+  Briefing,
+  FortressRun,
+} from '~/utils/emperorOfDust/fortress/types'
 
 // The day opens here: the advisor's three dispatches, before court sits.
 const props = defineProps<{ run: FortressRun }>()
@@ -262,6 +315,33 @@ const courting = computed(() => komodoCourtingLine(props.run))
 const reports = computed(() => dayBriefings(props.run, today.value) ?? [])
 /** After the betrayal: every report that was Komodo's own lie. */
 const hindsight = computed(() => komodoLiesInHindsight(props.run))
+const challenge = computed(() => todaysChallenge(props.run))
+const prompt = computed(() => rumourPrompt(props.run))
+const tally = computed(() => rumourTally(props.run))
+const cardTone = (report: Briefing): string => {
+  const picked = challenge.value?.briefingId === report.id
+  if (picked)
+    return challenge.value?.caught
+      ? 'border-success bg-success/10'
+      : 'border-warning/60 bg-base-200/90'
+  const marked =
+    eyeReveals(props.run, report.truth) || forecastMark(props.run, report)
+  const base = marked
+    ? 'border-warning bg-warning/10'
+    : 'border-warning/20 bg-base-200/70'
+  return challenge.value
+    ? `${base} opacity-60`
+    : `${base} hover:border-warning hover:bg-warning/10`
+}
+function challengeReport(briefingId: string) {
+  if (challenge.value || acting.value) return
+  acting.value = true
+  try {
+    court.challengeReport(briefingId)
+  } finally {
+    acting.value = false
+  }
+}
 const advisorName = computed(() => today.value?.advisor?.name ?? 'Young Komodo')
 /** The advisor's portrait; Komodo is sad on his last morning at court. */
 const advisorArt = computed(() =>

@@ -323,11 +323,29 @@ const features = [
     description: 'Rule the wasteland, command followers and make hard choices.',
   },
   {
+    title: 'Save the Plumber',
+    tag: 'Playable preview',
+    category: 'play',
+    route: '/play/save-the-plumber',
+    image: '/save-the-plumber/maps/world-1.webp',
+    description:
+      'Run, jump and rescue your plumber through eight strange worlds.',
+  },
+  {
+    title: 'Rainbow Bullet Hell Space Princess',
+    tag: 'Playable preview',
+    category: 'play',
+    route: '/play/rainbow-bullet-hell-space-princess',
+    image: '/rainbow-princess-art/hero-pearl-palace.webp',
+    description:
+      'Pilot a pastel starfighter through ocean-born fleets and spectacular boss battles.',
+  },
+  {
     title: 'Zuzu Pinball',
     tag: 'Haunted pinball',
     category: 'play',
     route: '/play/zuzu-pinball',
-    image: '/zuzu-pinball/river-croc.webp',
+    image: '/zuzu-pinball/last-bell-cover.svg',
     description:
       'Ring the Last Bell and brave the River Croc on a 3D pinball table.',
   },

@@ -4,27 +4,42 @@ permissions:
   contents: read
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 15 * * *'
   pull_request:
     branches: [main]
     paths:
       - 'utils/emperorOfDust/**'
       - 'utils/scripts/verifyEmperorFortress.test.ts'
       - 'utils/scripts/verifyEmperorFortressBalance.test.ts'
+      - 'utils/scripts/verifyEmperorFortressAdversarial.test.ts'
       - 'utils/scripts/verifyEmperorFortressStore.test.ts'
+      - 'utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts'
+      - 'utils/scripts/verifyEmperorRoleFirstProse.test.ts'
       - 'utils/scripts/verifyEmperorFortressChanceEvents.test.ts'
       - 'utils/scripts/verifyEmperorQuestBriefs.test.ts'
       - 'utils/scripts/verifyEmperorFortressSecretTalks.test.ts'
       - 'utils/scripts/emperorFortressBalanceReport.ts'
       - 'stores/emperorFortressStore.ts'
-      - 'components/EmperorFortressBarracks.vue'
-      - 'components/EmperorFortressChronicle.vue'
-      - 'components/EmperorFortressDawn.vue'
-      - 'components/EmperorFortressDialogue.vue'
-      - 'components/EmperorFortressMapRoom.vue'
-      - 'components/EmperorFortressMarket.vue'
-      - 'components/EmperorFortressPortrait.vue'
-      - 'components/EmperorFortressQuests.vue'
       - 'components/EmperorFortressThrone.vue'
+      - 'components/EmperorFortressBarracks.vue'
+      - 'components/EmperorFortressDawn.vue'
+      - 'components/EmperorFortressChronicle.vue'
+      - 'components/EmperorFortressIntro.vue'
+      - 'components/EmperorFortressQuests.vue'
+      - 'components/EmperorFortressMapRoom.vue'
+      - 'components/EmperorFortressCodex.vue'
+      - 'components/EmperorFortressFinish.vue'
+      - 'components/EmperorFortressLedger.vue'
+      - 'components/EmperorFortressPortrait.vue'
+      - 'components/EmperorFortressDialogue.vue'
+      - 'components/EmperorFortressBriefing.vue'
+      - 'components/EmperorFortressEpilogue.vue'
+      - 'components/EmperorFortressMarket.vue'
+      - 'components/EmperorFortressMarketRow.vue'
+      - 'components/EmperorFortressCodexNote.vue'
+      - 'components/EmperorFortressQuestImage.vue'
       - 'pages/play/emperor-of-dust.vue'
       - '.github/workflows/emperor-dispatch-contract.yml'
 jobs:
@@ -44,6 +59,9 @@ jobs:
       - run: npx tsx utils/scripts/verifyEmperorFortress.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressBalance.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressStore.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressOnboardingLayout.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorRoleFirstProse.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressChanceEvents.test.ts
       - run: npx tsx utils/scripts/verifyEmperorQuestBriefs.test.ts
       - run: npx tsx utils/scripts/verifyEmperorFortressSecretTalks.test.ts
+      - run: npx tsx utils/scripts/verifyEmperorFortressAdversarial.test.ts

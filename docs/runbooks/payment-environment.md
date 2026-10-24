@@ -87,8 +87,15 @@ out of scope here.
 
 ### `STRIPE_PRICE_ID`
 
-- **For:** the Stripe Price ID for the paid membership subscription line
-  item.
+- **For:** the Stripe Price ID for the **Patron membership at $9 USD/month**
+  with **1,000 paid tokens per successfully paid monthly invoice**. Create a
+  $9 recurring monthly Price under the Patron product in the **Kind Robots**
+  Stripe account, first in test mode and later separately in live mode. Stripe
+  Price amounts are immutable: do not reuse the old $5 Price ID. Updating
+  `STRIPE_PRICE_ID` affects **new checkouts**, not existing subscriptions.
+  Migrate any existing $5 subscriptions deliberately in Stripe (including
+  proration/customer notices), rather than assuming the environment variable
+  changes their charges.
 - **Read by:** `server/api/stripe/subscribe.post.ts` only, via a
   `getSubscriptionPriceId()` helper.
 - **Missing-value behavior:** guarded and fails closed the same way as

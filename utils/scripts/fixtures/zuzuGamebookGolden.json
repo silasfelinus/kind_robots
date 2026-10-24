@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "description": "Golden reducer-only end-to-end journeys. Each trace uses c/f/l plus base36 index per action; do not regenerate without reviewing the altered scenes and consequences.",
+  "witnesses": [
+    {
+      "ending": "ending-water",
+      "seed": 7920,
+      "trace": "c1c1c0c3f0f0f2f3",
+      "health": 0,
+      "resolve": 2,
+      "scenes": 6,
+      "fingerprint": "a60bb7be"
+    },
+    {
+      "ending": "ending-alone",
+      "seed": 1,
+      "trace": "c2f2f2f1f2c1c0c1c0c1c2c0c2c0c1c6c1c1c0c0c1c0c0c0c0c0c0c0c0c0c0c0c1c0c2c0c1c1c0c1c0c3c0c2c0c1c1c0c0c0c0c0c1c0c2c2",
+      "health": 11,
+      "resolve": 4,
+      "scenes": 54,
+      "fingerprint": "7b899c6f"
+    },
+    {
+      "ending": "ending-warning",
+      "seed": 31677,
+      "trace": "c3c0c4c1c0c0c3c0c7c0c1c4c0c0c2c0c1c0c0c0c0c0c1c1c0c2c0c1c0c0c0c1c0c0c3c0c2c0c1c0c1c1c0c0c0c1c0c2c0c2",
+      "health": 11,
+      "resolve": 3,
+      "scenes": 51,
+      "fingerprint": "43b6481b"
+    },
+    {
+      "ending": "ending-altar",
+      "seed": 261328,
+      "trace": "c2f2f1f1f1f1f3c2c1c0c1c2c0c1c1c1c1c0c4c0c0c0c0c0c0c2c1c0c1c0c1c0c3c0c0c2c0c0c0c0c1c0c3c0c0c0c0c0c0c0c0c0c2l1c1c0c1c0c4c1c1c1c1c0c0c1c0c0c1c0c2c0c1c0c1c0c1c0c0c1c0c0c0c0c0c0c0c0c1c0c1c0c0c0c0f0f3f2c1",
+      "health": 0,
+      "resolve": 1,
+      "scenes": 92,
+      "fingerprint": "4a77f38e"
+    },
+    {
+      "ending": "ending-hunted",
+      "seed": 71272,
+      "trace": "c0c1c1c1c2c0c1c0c0c0c0c0c1c0c0c0c1c0c1c0c1c0c0c0c3c0c0c1c0c1c1c1c2c0c3c0c3c0c0c0c0c0c0c1c0c0c0c0c1c0c0c0c1c2c0c0c1c0c0c1c0c0c0c1c0c1c1c0",
+      "health": 9,
+      "resolve": 3,
+      "scenes": 69,
+      "fingerprint": "c3d241ea"
+    },
+    {
+      "ending": "ending-three",
+      "seed": 498898,
+      "trace": "c3c1c2c0c4c2c0c3c0c1c1c2f1f3f3c2c1c1c2c0c0c0c1c0c0c0c1c0c0c1c0c1c2c0c2c0c1c0c1c1c0c0c2c0c3c0c1c0c1c2c0c0c1c0c1c0c0c1c0c0c0c1c2c1c0c1c3c4c0c0c0c1c1c0c0c0c0c0c2c1c2f1f1f0f2f0c0f2f2f0c0c1c0c3c0c2c0c1c2c1c1c0",
+      "health": 2,
+      "resolve": 1,
+      "scenes": 95,
+      "fingerprint": "acf89860"
+    },
+    {
+      "ending": "ending-four",
+      "seed": 4030772,
+      "trace": "c1c2c0f1f1f0f2f2c0c0c1c0c0c1c0c1c3c1c1c0c0c0c2c1c0c1c2c0c0c0c0c0c1c1c1c1c0c0c3c0f1f1f2f1f0f1f1f0f0c0c1c0c0c0c1c0c1c0c0c2c0c1c0c2c0c1c4f2f0f0f1f0f1f1f0c0c0c0c0c1c0c3c0c1c0f1f1c0c0c0c1c3c3c3c3c1c5c1",
+      "health": 2,
+      "resolve": 1,
+      "scenes": 79,
+      "fingerprint": "36f6c3d8"
+    },
+    {
+      "ending": "ending-seal",
+      "seed": 2169807,
+      "trace": "c0c1c1c0c4c1c0c0c3c0c0c1c0c2c3c1c0c1c0c0c0c0c1c0c1c0c1c2c0c2c0c3c0c1c0c0c2c0c3c0c0c0c0c1c1c1c0c2c0c0c0c1c1c4c1c1c1c0c0c1c0c1c0c0c1c3c0c0c0c0c0c0c0c1c0c0c3c0c1c0c0c0c2c1c0c3c1c2c1c0c0c1c5c3",
+      "health": 7,
+      "resolve": 1,
+      "scenes": 95,
+      "fingerprint": "5378afa0"
+    },
+    {
+      "ending": "ending-bargain",
+      "seed": 411789,
+      "trace": "c4c1c2c0f3f0c0c2c1c1c0c1c0c0c3c0c7c0c1c3c0c0c1c0c1c0c0c1c0c1c0c1c0c0c1c0c1c0c3c0c0c0c0c0c0c2c0c0c0c1c0c1c1c0c0c0c3c0c0c2c0c0c2c0c0c4c0c0c1f0f3c0c0c2c0",
+      "health": 7,
+      "resolve": 2,
+      "scenes": 74,
+      "fingerprint": "03a53426"
+    },
+    {
+      "ending": "ending-ashes",
+      "seed": 174219,
+      "trace": "c0c1c1c1c2c0c1c0c1c1c0c0c1c2c0c0c0c0c2c0c2c0c0c0c0c0c1c2c0c3c0c0c2c0c1c0c0c0c0c1c2c2c0c1c0c0c0c0c0c0c0c0c1c0c0c1c0c0c1c0c0c2c1c0c1c1c1c2c1c3c0c0c1c0c0c1c1c0c5c2c0",
+      "health": 10,
+      "resolve": 3,
+      "scenes": 82,
+      "fingerprint": "c6ccc9be"
+    },
+    {
+      "ending": "ending-bell",
+      "seed": 514736,
+      "trace": "c2f2f1f3f2c0c2c1c0c1c0c3c0c0c3c0c0c0c0c0c0c1c0c1c0c0c0c0c1c0c0c0c1c0c0c0c1c0c0c0c3c0c0c3c0c0c2c0c1c0c2c0c0c0c1c0c1c2c0c1c0c0c1c1c0c0c0c0c0c1c0c1c0c0c2c0c1c0c1c1c1c0c0c0c4c1c0c0c0c1c0c2c1f3f0f0f1f1f2c0c0c0c1c0c2c2c0c2c3c0c0c0c0",
+      "health": 2,
+      "resolve": 0,
+      "scenes": 106,
+      "fingerprint": "fde0c85c"
+    },
+    {
+      "ending": "ending-hollow-saint",
+      "seed": 966119,
+      "trace": "c3c0c3c1c1c0c3c0c6c0c0c0c2c1c0c1c1c0c1c0c1c1c0c0c0c1c0c0c0c3c0c0c2c0c0c0c1c2c0c0c2c0f1f0f2c0c1c0c0c2c0c1c0c2c0c0c2c0c1c1c0c0c4f0f2f2f0c0c0c0c0c0c1c0c0c1c0c0c5c2c0c0c3c0c0",
+      "health": 11,
+      "resolve": 4,
+      "scenes": 81,
+      "fingerprint": "70b9ff9b"
+    },
+    {
+      "ending": "ending-coyote-road",
+      "seed": 10975735,
+      "trace": "c1c0f0f0f0c0c2c0c0c0c1c1c7c1c0c2c0c1c0c1c0c0c0c0c2c0c3c0c0c2c0c0c0c0c2c0c0c1c0c2c0c0c0c1c0c1c0c0c2c1c0c1c0c0c2c0c0c1c0c0f1f1f1f1f3f0f3c0c0c4c3c3c1c1c5c2c1",
+      "health": 3,
+      "resolve": 0,
+      "scenes": 70,
+      "fingerprint": "36c5ef4d"
+    },
+    {
+      "ending": "ending-wren-lamp",
+      "seed": 5891737,
+      "trace": "c1c2c0f1f1f0f2f2c0c0c1c0c0c1c0c1c3c1c1c0c0c0c2c1c0c1c2c0c0c0c0c0c1c1c1c1c1c0c3c0f1f1f2f1f0f1f1f0c0c0c0c1c2c0c1c0c1c0c0c0c0c0c0c2c0c1c1c2c0c1c1c0c1c1c0c0c2c0c2c2c0c0c0c1c0l2c0c3c3c1c1c3c0c0c2c1c1c1c0c0c0c0c5c0c0c0f2f3f2f2f0c0f0c0c0c0c1c4c2c2c3c2c1c4",
+      "health": 2,
+      "resolve": 1,
+      "scenes": 109,
+      "fingerprint": "f0fe6667"
+    },
+    {
+      "ending": "ending-bell-keeper",
+      "seed": 13129703,
+      "trace": "c4c0c1c0f0f2f1f3c1c0c1c1c3c0c1c7c1c0c4c0c0c0c0c1c0c0c0c0c0c1c2c0c2c0c1c0c0c0c0c1c0c0c2c0c1c0c1c0c0c0c1c0c1c0c0c0c2c0c3c4c1c2c1c3c0c1c0c0c0c1c0c0c0c3c0c1c0c0c0c0c0c0c3c3c3c1c3",
+      "health": 3,
+      "resolve": 2,
+      "scenes": 85,
+      "fingerprint": "091c9c60"
+    }
+  ]
+}

@@ -1,6 +1,16 @@
 export const RAINBOW_PORTRAIT_ROOT = '/rainbow-princess-portraits'
 export const RAINBOW_HERO_ART = '/rainbow-princess-art/hero-pearl-palace.webp'
 
+/**
+ * The princesses fly for the Motherland as C.A.T.S. (Cute And Tough Starfighters), each with a cat co-pilot, and
+ * every super is a Princess Kitty Power (Silas, 2026-10-23 PT; conductor rainbow PLOT-MOTHERLAND.md).
+ */
+export const RAINBOW_SQUADRON = {
+  name: 'C.A.T.S.',
+  stands: 'Cute And Tough Starfighters',
+} as const
+export const RAINBOW_KITTY_POWER = 'PRINCESS KITTY POWER'
+
 export type RainbowPilotGlyph = {
   shape: 'path' | 'rings'
   d?: string
@@ -21,6 +31,8 @@ export type RainbowPilot = {
   superName: string
   superDetail: string
   hook: string
+  /** Her C.A.T.S. cat co-pilot, who leaps in for her Princess Kitty Power. */
+  copilot: { name: string; cat: string }
   portrait: string
   portraitAlt: string
 }
@@ -44,6 +56,10 @@ export const RAINBOW_PILOTS: readonly RainbowPilot[] = [
     superName: 'Bloom Nova',
     superDetail: 'cancels nearby shots and breaks light armor',
     hook: 'Radio tinkerer who answers every distress call, then learns to call for backup.',
+    copilot: {
+      name: 'Biscuit',
+      cat: 'a ginger tabby with one torn ear who also loves a fight',
+    },
     portrait: `${RAINBOW_PORTRAIT_ROOT}/p1-maribel.webp`,
     portraitAlt:
       'Maribel Rowan, a short freckled pilot with a cropped copper haircut and a crooked grin, holding a wrench in a scuffed rose-pink flight jacket.',
@@ -63,6 +79,10 @@ export const RAINBOW_PILOTS: readonly RainbowPilot[] = [
     superName: 'Tidal Prism',
     superDetail: 'sustained forward beam with a guard wedge',
     hook: 'Star-cartographer who always sees the fastest route, and learns to hear testimony too.',
+    copilot: {
+      name: 'Comet',
+      cat: 'a sleek blue-cream Siamese who navigates by whisker',
+    },
     portrait: `${RAINBOW_PORTRAIT_ROOT}/p2-azure.webp`,
     portraitAlt:
       'Azure Lin, a tall pilot with a long black braid and side undercut, seated at a glowing star chart in a cyan flight coat.',
@@ -82,6 +102,10 @@ export const RAINBOW_PILOTS: readonly RainbowPilot[] = [
     superName: 'Halo Harbor',
     superDetail: 'brief shared shield and one team revive',
     hook: 'Squad captain and secret composer who learns to share the load.',
+    copilot: {
+      name: 'Butter',
+      cat: 'a huge fluffy golden Maine Coon who head-butts shields',
+    },
     portrait: `${RAINBOW_PORTRAIT_ROOT}/p3-solenne.webp`,
     portraitAlt:
       'Solenne Adisa, a powerfully muscular dark-skinned pilot with twists gathered up, smiling over a music notebook in gold shoulder armor.',
@@ -101,6 +125,7 @@ export const RAINBOW_PILOTS: readonly RainbowPilot[] = [
     superName: 'Comet Parade',
     superDetail: 'a target-locked rainbow fleet of drones',
     hook: 'Punk street-orchestra pilot who chases glory and learns that shared credit counts.',
+    copilot: { name: 'Glitch', cat: 'a lilac sphynx in a tiny leather jacket' },
     portrait: `${RAINBOW_PORTRAIT_ROOT}/p4-vivi.webp`,
     portraitAlt:
       'Vivi Reyes, a curvy punk pilot with a shaved side and lilac-streaked hair, grinning with a keytar in a patched lilac jacket.',

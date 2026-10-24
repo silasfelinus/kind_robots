@@ -610,4 +610,77 @@ check('every stage still fills the screen at every zoom and camera', () => {
   }
 })
 
+check('all Arcade viewport shapes fit available width and height', () => {
+  const viewports = [
+    [360, 640],
+    [390, 844],
+    [844, 390],
+    [800, 320],
+    [768, 1024],
+    [1024, 768],
+    [1440, 900],
+    [1920, 1080],
+  ] as const
+  const gameShapes = [
+    [480, 270],
+    [320, 240],
+    [480, 360],
+    [288, 488],
+  ] as const
+  for (const [width, height] of gameShapes)
+    for (const [available, availableHeight] of viewports)
+      for (const dpr of DPRS)
+        for (const style of ['pixel', 'hd'] as const) {
+          const fit = fitDisplay({
+            width,
+            height,
+            available,
+            availableHeight,
+            dpr,
+            style,
+          })
+          const label = `${width}x${height} in ${available}x${availableHeight} DPR${dpr} ${style}`
+          assert.ok(fit.cssWidth <= available, label)
+          assert.ok(
+            (fit.cssWidth * height) / width <= availableHeight + 1e-9,
+            label,
+          )
+        }
+})
+
+check('HD backing pixels respect the shared and mobile budgets', () => {
+  const capped = fitDisplay({
+    width: 480,
+    height: 270,
+    available: 1152,
+    dpr: 3,
+    style: 'hd',
+    maxCanvasPixels: 2_073_600,
+  })
+  assert.equal(capped.scale, 4)
+  assert.equal(capped.canvasWidth * capped.canvasHeight, 2_073_600)
+  const wideArcade = fitDisplay({
+    width: 480,
+    height: 360,
+    available: 1440,
+    dpr: 3,
+    style: 'hd',
+  })
+  assert.equal(wideArcade.scale, 4)
+  assert.ok(wideArcade.canvasWidth * wideArcade.canvasHeight <= 3_240_000)
+  const portraitCabinet = fitDisplay({
+    width: 288,
+    height: 488,
+    available: 390,
+    availableHeight: 600,
+    dpr: 3,
+    style: 'hd',
+    maxCanvasPixels: 2_073_600,
+  })
+  assert.ok((portraitCabinet.cssWidth * 488) / 288 <= 600)
+  assert.ok(
+    portraitCabinet.canvasWidth * portraitCabinet.canvasHeight <= 2_073_600,
+  )
+})
+
 console.log(`verifyZuzuShowdownDisplay: ${passed} checks passed`)

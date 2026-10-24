@@ -58,7 +58,8 @@ assert.match(board, /onMounted\(\(\) => \{/)
 assert.match(board, /game\.initialize\(\)/)
 assert.doesNotMatch(board, /\b(?:localStorage|\$fetch|fetch\()\b/)
 
-assert.match(store, /restoreJourneyLedgerV7\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV8\(JSON\.parse\(saved\)\)/)
+assert.match(store, /restoreJourneyLedgerV7\(JSON\.parse\(savedV7\)\)/)
 assert.match(store, /restoreJourneyLedgerV6\(JSON\.parse\(savedV6\)\)/)
 assert.match(store, /restoreJourneyLedgerV5\(JSON\.parse\(savedV5\)\)/)
 assert.match(store, /restoreJourneyLedgerV4\(JSON\.parse\(savedV4\)\)/)
@@ -76,7 +77,11 @@ assert.match(
 assert.match(store, /stepJourneyLedgerV5\(active, action as JourneyActionV5\)/)
 assert.match(store, /stepJourneyLedgerV6\(active, action as JourneyActionV6\)/)
 assert.match(store, /stepJourneyLedgerV7\(active, action as JourneyActionV7\)/)
-assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v7'/)
+assert.match(store, /const SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v8'/)
+assert.match(
+  store,
+  /const LEGACY_V7_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v7'/,
+)
 assert.match(
   store,
   /const LEGACY_V6_SAVE_KEY = 'kr\.shiftingLands\.journeyLedger\.v6'/,
@@ -109,11 +114,13 @@ assert.match(store, /if \(!import\.meta\.client\) return/)
 assert.match(store, /window\.localStorage\.setItem\(key/)
 assert.match(
   store,
-  /const key =\s+ledger\.value\.version === 7\s+\? SAVE_KEY\s+: ledger\.value\.version === 6\s+\? LEGACY_V6_SAVE_KEY\s+: ledger\.value\.version === 5/,
+  /const key =\s+ledger\.value\.version === 8\s+\? SAVE_KEY\s+: ledger\.value\.version === 7\s+\? LEGACY_V7_SAVE_KEY\s+: ledger\.value\.version === 6/,
 )
+assert.match(store, /if \(savedV7 !== null\) \{/)
 assert.match(store, /if \(savedV6 !== null\) \{/)
 assert.match(store, /if \(savedV3 !== null\) \{/)
 assert.match(board, /game\.prepareTrial\(\)/)
+assert.match(board, /trialSuccessPercent\(choice\)/)
 assert.match(board, /Requires two earned mercy or honesty marks/)
 assert.match(board, /game\.findCard\(/)
 assert.match(store, /v6Card\(id\) \?\? findFiveLandCard\(id\)/)

@@ -1,0 +1,892 @@
+<template>
+  <div
+    class="kr-surface relative flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl bg-[#141f24] text-[#f8edce]"
+    data-layout="console-fixed"
+  >
+    <header
+      class="flex shrink-0 items-center gap-2 border-b border-[#a98b5b]/40 bg-[#302b25] px-2 py-2 sm:gap-3 sm:px-4"
+    >
+      <span class="shrink-0 text-xl" aria-hidden="true">🌿</span>
+      <div class="min-w-0 flex-1">
+        <h2 class="truncate text-sm font-black tracking-tight sm:text-lg">
+          Memory Dungeon
+          <span class="font-normal text-[#d1c19c]">/ Briar Camp</span>
+        </h2>
+        <p class="hidden text-xs text-[#d1c19c] sm:block">
+          Remember matching pictures to reveal the world.
+        </p>
+      </div>
+      <span
+        class="shrink-0 rounded-lg bg-[#1c201d] px-2 py-1 text-xs font-bold tabular-nums sm:px-3"
+      >
+        Attempts {{ world.state.attempts }}
+      </span>
+      <span
+        class="shrink-0 text-xs"
+        :aria-label="`${world.state.hearts} hearts`"
+      >
+        ❤️ {{ world.state.hearts }}
+      </span>
+      <button
+        type="button"
+        class="rounded-lg border border-[#9f875e] p-2 text-xs hover:bg-[#514b3d]"
+        aria-label="Choose gallery and game settings"
+        @click="settingsOpen = !settingsOpen"
+      >
+        ⚙️
+      </button>
+      <button
+        type="button"
+        class="rounded-lg border border-[#9f875e] px-2 py-2 text-xs hover:bg-[#514b3d]"
+        @click="emit('leave')"
+      >
+        Menu
+      </button>
+    </header>
+
+    <div
+      v-if="settingsOpen"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-[#0b1617]/85 p-3 backdrop-blur-sm"
+      @click.self="settingsOpen = false"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Choose Memory Dungeon artwork"
+        class="kr-scroll max-h-[min(88dvh,42rem)] w-[min(94vw,46rem)] overflow-y-auto overscroll-contain rounded-xl border-2 border-[#9f875e] bg-[#302b25] p-3 shadow-2xl sm:p-4"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-sm font-bold"
+            >Artwork for the current map and dungeon rooms</span
+          >
+          <button
+            type="button"
+            class="rounded border border-[#9f875e] px-2 py-1 text-xs"
+            @click="settingsOpen = false"
+          >
+            Close
+          </button>
+        </div>
+        <memory-dungeon-deck-selector
+          :selected="world.deck"
+          :mature-available="world.matureAvailable"
+          @change="world.selectDeck"
+        />
+        <p class="mt-2 text-xs text-[#e7d29e]">
+          Selecting art refreshes unmatched cards immediately. Revealed terrain,
+          completed pairs and attempts stay intact.
+        </p>
+        <p
+          v-if="world.loading && world.mapMatching"
+          role="status"
+          class="mt-2 text-xs font-bold text-[#ffe09b]"
+        >
+          Loading images from the selected collection…
+        </p>
+        <p
+          v-if="world.mapDeckError"
+          role="alert"
+          class="mt-2 rounded-lg border border-[#eead8c] bg-[#5c2826] p-2 text-sm font-semibold text-[#fff0d9]"
+        >
+          {{ world.mapDeckError }}
+        </p>
+        <button
+          v-if="
+            world.mapMatching && (world.deckNeedsRefresh || world.mapDeckError)
+          "
+          type="button"
+          class="md-btn mt-2"
+          :disabled="world.loading"
+          @click="world.refreshMapDeck()"
+        >
+          Retry applying selected art
+        </button>
+        <button
+          type="button"
+          class="mt-1 rounded border border-[#9f875e] px-2 py-1 text-xs hover:bg-[#514b3d]"
+          @click="restart"
+        >
+          Begin a new overworld run
+        </button>
+      </div>
+    </div>
+
+    <div
+      v-if="world.state.room === 'map'"
+      class="md-map-stage relative min-h-0 flex-1 overflow-hidden p-2"
+      data-testid="memory-world-console-stage"
+    >
+      <div class="md-map-layout">
+        <div class="md-map-viewport">
+          <div
+            class="md-overworld-map relative aspect-square overflow-hidden rounded-lg border-2 border-[#aa9266] bg-[#253c35] shadow-2xl"
+            aria-label="Briar Camp eight by eight memory overworld"
+          >
+            <div
+              class="absolute inset-0 bg-cover bg-center"
+              style="background-image: url('/memory-dungeon/briar-camp.svg')"
+              role="img"
+              aria-label="Briar Camp: an illustrated woodland with stone paths, a bridge, ferns and a river. Individual locations are discovered through the overlay."
+            ></div>
+            <div class="absolute inset-0 grid grid-cols-8 grid-rows-8">
+              <div
+                v-for="tile in tiles"
+                :key="tile.key"
+                class="relative min-h-0 min-w-0"
+              >
+                <button
+                  v-if="
+                    world.mapMatching &&
+                    world.mapCardAt(tile.key) &&
+                    !world.state.revealed.includes(tile.key)
+                  "
+                  type="button"
+                  class="md-card-container relative h-full w-full border border-[#bba16e]/75 focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
+                  :disabled="
+                    world.turnLocked ||
+                    world.loading ||
+                    world.deckNeedsRefresh ||
+                    !!world.mapDeckError ||
+                    world.mapCardAt(tile.key)?.flipped
+                  "
+                  :aria-label="
+                    world.mapCardAt(tile.key)?.flipped
+                      ? 'Revealed memory picture; find its matching twin'
+                      : 'Flip map memory card'
+                  "
+                  @click="world.pickMapCard(tile.key)"
+                >
+                  <span
+                    class="md-card-inner"
+                    :class="{ flipped: world.mapCardAt(tile.key)?.flipped }"
+                  >
+                    <span
+                      class="md-card-back flex items-center justify-center bg-[#263951] text-[clamp(14px,2vw,28px)] text-[#e4cf9c]"
+                      aria-hidden="true"
+                      >✥</span
+                    >
+                    <img
+                      class="md-card-front h-full w-full bg-[#162733]"
+                      :src="world.mapCardAt(tile.key)?.image"
+                      alt="Picture to match"
+                      draggable="false"
+                    />
+                  </span>
+                </button>
+                <button
+                  v-else-if="world.state.revealed.includes(tile.key)"
+                  type="button"
+                  class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
+                  :class="{
+                    'bg-sky-300/25 ring-2 ring-inset ring-sky-200/80':
+                      progressFor(tile.key) === 'unvisited',
+                    'bg-amber-400/20 ring-2 ring-inset ring-amber-300/90':
+                      progressFor(tile.key) === 'unfinished',
+                    'bg-emerald-950/35 ring-1 ring-inset ring-emerald-300/70':
+                      progressFor(tile.key) === 'complete',
+                    'outline outline-2 outline-[#fff0a9]':
+                      world.state.player === tile.key,
+                  }"
+                  :data-progress="progressFor(tile.key)"
+                  :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}; ${progressLabel(tile.key)}`"
+                  @click="world.walk(tile.key)"
+                >
+                  <span
+                    v-if="sites[tile.key]"
+                    class="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-[#162522]/75 px-0.5 text-[clamp(11px,1.7vw,24px)] leading-tight shadow-lg"
+                    :title="sites[tile.key]?.name"
+                  >
+                    {{ siteSymbol(sites[tile.key]?.kind) }}
+                  </span>
+                  <span
+                    class="absolute right-0 top-0 z-20 rounded-bl bg-[#142521]/85 px-0.5 text-[clamp(10px,1.3vw,14px)] font-black leading-tight shadow"
+                    :class="
+                      progressFor(tile.key) === 'complete'
+                        ? 'text-emerald-200'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? 'text-amber-200'
+                          : 'text-sky-200'
+                    "
+                    aria-hidden="true"
+                    >{{
+                      progressFor(tile.key) === 'complete'
+                        ? '✓'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? '!'
+                          : '○'
+                    }}</span
+                  >
+                  <span
+                    v-if="world.state.player === tile.key"
+                    class="absolute bottom-0.5 left-1/2 z-20 -translate-x-1/2 rounded-full bg-[#f3d177] px-1 text-[clamp(10px,1.5vw,18px)] leading-tight text-[#1b2c22] shadow"
+                    aria-hidden="true"
+                    >🧭</span
+                  >
+                </button>
+                <div
+                  v-else-if="crossMapKeys.includes(tile.key)"
+                  class="relative h-full w-full border border-[#a98b5b]/50 bg-[#28283f]/95"
+                >
+                  <button
+                    v-if="world.state.waveIndex === 3 && !world.mapMatching"
+                    type="button"
+                    class="h-full w-full overflow-hidden rounded border border-amber-200/80 shadow-inner focus-visible:outline-2 focus-visible:outline-white"
+                    :aria-label="`Examine cross-world sigil: ${crossMapPuzzles[tile.key]?.title ?? 'Mystery'}`"
+                    @click="world.examineCrossMapSigil(tile.key)"
+                  >
+                    <img
+                      :src="crossMapImage(tile.key)"
+                      alt="A unique cross-world memory sigil"
+                      class="h-full w-full object-cover"
+                    />
+                    <span
+                      class="absolute bottom-0 right-0 rounded bg-[#201a2f] px-0.5 text-[11px]"
+                      aria-hidden="true"
+                      >🔒</span
+                    >
+                  </button>
+                  <span
+                    v-else
+                    class="flex h-full items-center justify-center text-sm text-[#c5b28a]/50"
+                    aria-label="A mysterious unrevealed seal awaits"
+                    >✧</span
+                  >
+                </div>
+                <div
+                  v-else
+                  class="h-full w-full border border-[#a99877]/20 bg-[#202935]/[0.98]"
+                  aria-hidden="true"
+                >
+                  <span
+                    class="flex h-full items-center justify-center text-[clamp(8px,1.4vw,18px)] text-[#b29c76]/20"
+                    >✦</span
+                  >
+                </div>
+              </div>
+            </div>
+            <div
+              class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
+            >
+              {{ completedCount }} cleared ·
+              {{ world.state.revealed.length }}/60 revealed
+            </div>
+          </div>
+        </div>
+
+        <aside
+          class="md-encounter-pane flex min-h-0 min-w-0 flex-col overflow-hidden rounded-xl border border-[#b69961] bg-[#f1dfba]/95 p-3 text-[#322819] shadow-xl backdrop-blur-sm sm:p-4"
+          aria-label="Map location and encounter information"
+        >
+          <div
+            class="mb-2 flex shrink-0 flex-wrap items-center gap-2 text-xs font-bold text-[#735128]"
+          >
+            <span>Round {{ world.state.waveIndex + 1 }}/4</span>
+            <span v-if="world.mapMatching"
+              >Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span
+            >
+            <span v-else>Explore the map</span>
+            <span v-if="!world.mapMatching" class="ml-auto whitespace-nowrap">
+              <span class="text-sky-800">○ Unvisited</span>
+              <span class="text-amber-800">! Unfinished</span>
+              <span class="text-emerald-800">✓ Clear</span>
+            </span>
+          </div>
+          <button
+            v-if="world.mapMatching && !world.state.mapCards.length"
+            type="button"
+            class="md-btn mb-2 w-full"
+            :disabled="world.loading"
+            @click="world.prepareWave()"
+          >
+            {{
+              world.loading
+                ? 'Preparing picture cards…'
+                : 'Retry loading picture cards'
+            }}
+          </button>
+          <button
+            v-if="!world.mapMatching && world.state.waveIndex < 3"
+            type="button"
+            class="md-btn mb-2 w-full"
+            :disabled="world.loading"
+            @click="world.nextWave()"
+          >
+            Begin next memory round · {{ nextWaveCount }} cards
+          </button>
+          <div
+            class="md-scene-overview"
+            data-testid="memory-world-encounter-display"
+          >
+            <div
+              class="md-scene-art"
+              aria-label="Illustrated image detail for the current memory or map location"
+            >
+              <img
+                v-if="world.mapMatching && world.activeMapCard"
+                :src="world.activeMapCard.image"
+                class="h-full w-full bg-[#19322f] object-contain"
+                alt="Enlarged picture from the selected memory card"
+                draggable="false"
+              />
+              <div
+                v-else-if="!world.mapMatching"
+                class="h-full w-full bg-cover"
+                :style="currentSceneStyle"
+                role="img"
+                :aria-label="`Detailed view of ${world.selectedSite?.name ?? 'the selected map square'}`"
+              ></div>
+              <div v-else class="md-scene-mystery" aria-hidden="true">✥</div>
+              <span class="md-scene-art-label">
+                {{ world.mapMatching ? 'Memory image' : 'Map detail' }}
+              </span>
+            </div>
+            <div class="md-scene-copy">
+              <p
+                class="text-xs font-black uppercase tracking-widest text-[#795a32]"
+              >
+                {{
+                  world.mapMatching
+                    ? `Reveal ${world.state.waveIndex + 1} of 4`
+                    : 'Current location'
+                }}
+              </p>
+              <h3
+                class="font-serif text-xl font-black leading-tight sm:text-2xl"
+              >
+                {{
+                  world.mapMatching
+                    ? 'The Whispering Fog'
+                    : (world.activeScene?.title ??
+                      world.selectedSite?.name ??
+                      'The Crooked Trail')
+                }}
+              </h3>
+              <p
+                class="md-scene-status text-sm leading-snug sm:text-base"
+                role="status"
+              >
+                {{
+                  world.mapMatching
+                    ? world.state.status
+                    : world.currentSceneText || world.state.status
+                }}
+              </p>
+              <p
+                v-if="
+                  !world.mapMatching &&
+                  world.currentSceneText &&
+                  world.currentSceneText !== world.state.status
+                "
+                class="text-xs font-semibold text-[#805023]"
+                role="status"
+              >
+                {{ world.state.status }}
+              </p>
+              <p
+                v-if="world.mapMatching && world.activeMapCard"
+                class="text-xs font-semibold text-[#775b3c]"
+              >
+                Find the matching picture to reveal two squares.
+              </p>
+            </div>
+          </div>
+          <p
+            v-if="world.mapDeckError"
+            role="alert"
+            class="md-scene-alert mt-2 rounded-lg border border-[#bd6651] bg-[#fbe5da] p-2 text-sm font-bold text-[#682821]"
+          >
+            {{ world.mapDeckError }}
+          </p>
+          <button
+            v-if="world.mapMatching && world.deckNeedsRefresh && !world.loading"
+            type="button"
+            class="md-btn mt-2"
+            @click="world.refreshMapDeck()"
+          >
+            Retry loading selected gallery
+          </button>
+
+          <div
+            v-if="
+              !world.mapMatching && (world.selectedSite || world.activeScene)
+            "
+            class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
+          >
+            <template
+              v-if="
+                world.activeScene &&
+                !world.state.sceneChoices[world.state.player]
+              "
+            >
+              <button
+                v-for="choice in world.activeScene.choices"
+                :key="choice.id"
+                type="button"
+                class="md-btn"
+                :disabled="!canChooseBriarScene(choice, world.state)"
+                @click="world.chooseScene(choice.id)"
+              >
+                {{ choice.label }}
+              </button>
+            </template>
+            <span
+              v-else-if="world.activeScene"
+              class="text-xs font-bold text-emerald-900"
+              >✓ Story decision remembered</span
+            >
+            <button
+              v-if="world.selectedSite?.kind === 'merchant'"
+              type="button"
+              class="md-btn"
+              :disabled="world.state.wildflowers < 1"
+              @click="world.buyLantern()"
+            >
+              Buy Lantern (1 🌼)
+            </button>
+            <button
+              v-if="
+                world.selectedSite?.kind === 'chest' &&
+                !world.state.chestClaims.includes(world.state.player)
+              "
+              type="button"
+              class="md-btn"
+              @click="world.claimChest()"
+            >
+              Open chest
+            </button>
+            <span
+              v-if="
+                world.selectedSite?.kind === 'chest' &&
+                world.state.chestClaims.includes(world.state.player)
+              "
+              class="text-xs font-bold"
+              >✓ Chest claimed</span
+            >
+            <button
+              v-if="world.selectedSite?.kind === 'dungeon'"
+              type="button"
+              class="md-btn"
+              :disabled="world.loading"
+              @click="world.startEncounter('dungeon')"
+            >
+              {{ world.loading ? 'Loading gallery…' : 'Enter Rootbound Vault' }}
+            </button>
+            <button
+              v-if="
+                world.selectedSite?.kind === 'enemy' &&
+                !world.state.completedEncounters.includes(world.state.player)
+              "
+              type="button"
+              class="md-btn"
+              :disabled="world.loading"
+              @click="
+                world.startEncounter(
+                  world.state.player === '5,5' ? 'sprite' : 'patrol',
+                )
+              "
+            >
+              {{ world.loading ? 'Loading…' : 'Accept memory duel' }}
+            </button>
+            <button
+              v-if="
+                world.selectedSite?.kind === 'gate' &&
+                world.hasChime &&
+                !world.state.gateOpened
+              "
+              type="button"
+              class="md-btn"
+              @click="world.openGate()"
+            >
+              Ring Bramble Chime
+            </button>
+            <span
+              v-if="
+                world.selectedSite?.kind === 'gate' && world.state.gateOpened
+              "
+              class="text-xs font-bold"
+              >✓ Briar Camp cleared</span
+            >
+            <template
+              v-if="
+                world.selectedSite?.kind === 'puzzle' &&
+                !world.state.puzzleSolved
+              "
+            >
+              <button
+                type="button"
+                class="md-btn"
+                @click="world.enterRune('leaf')"
+              >
+                🍃 Leaf
+              </button>
+              <button
+                type="button"
+                class="md-btn"
+                @click="world.enterRune('sun')"
+              >
+                ☀️ Sun
+              </button>
+              <span class="w-full text-xs"
+                >{{ world.runeInput.length }}/3 runes</span
+              >
+            </template>
+            <span
+              v-if="
+                world.selectedSite?.kind === 'puzzle' &&
+                world.state.puzzleSolved
+              "
+              class="text-xs font-bold"
+              >✓ Stones solved</span
+            >
+          </div>
+
+          <div
+            class="md-encounter-inventory mt-auto flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 border-t border-[#bda47b] pt-2 text-sm font-semibold"
+          >
+            <span>🌼 {{ world.state.wildflowers }}</span>
+            <span>🏮 {{ world.state.lanterns }}</span>
+            <span
+              >🔔 {{ world.hasChime ? 'Chime found' : 'Chime missing' }}</span
+            >
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div
+      v-else
+      class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#536b4e,#1b242b_75%)] p-3"
+    >
+      <div class="flex shrink-0 flex-wrap items-center justify-between gap-2">
+        <div>
+          <h3 class="text-lg font-black">{{ roomTitle }}</h3>
+          <p class="text-xs text-[#dccca9]">{{ world.state.status }}</p>
+        </div>
+        <div class="flex gap-2">
+          <button
+            v-if="!world.state.combat"
+            type="button"
+            class="rounded-lg border border-[#c4aa72] bg-[#342e2a] px-3 py-2 text-xs font-bold"
+            :disabled="world.turnLocked"
+            @click="world.peekPair()"
+          >
+            🏮 Peek ({{ world.state.lanterns }})
+          </button>
+          <button
+            type="button"
+            class="rounded-lg border border-[#c4aa72] bg-[#342e2a] px-3 py-2 text-xs font-bold"
+            @click="world.leaveRoom()"
+          >
+            Retreat to map
+          </button>
+        </div>
+      </div>
+      <template v-if="world.state.combat">
+        <memory-dungeon-combat-board class="mt-2" />
+        <button
+          v-if="world.roomComplete"
+          type="button"
+          :disabled="world.turnLocked || world.loading"
+          class="mx-auto mt-2 shrink-0 rounded-lg bg-[#f2d68f] px-4 py-2 font-black text-[#2b271b]"
+          @click="world.finishRoom()"
+        >
+          Claim victory ✓
+        </button>
+      </template>
+      <div
+        v-else
+        class="flex min-h-0 flex-1 flex-col items-center justify-center gap-3"
+      >
+        <div
+          class="grid aspect-square max-h-full w-full max-w-[min(100%,65vh)] grid-cols-4 gap-2 sm:gap-3"
+        >
+          <button
+            v-for="card in world.state.cards"
+            :key="card.id"
+            type="button"
+            class="md-card-container relative aspect-square min-h-0 min-w-0 overflow-hidden rounded-xl border-2 border-[#c1a56f] shadow-xl hover:brightness-110 focus-visible:outline-2 focus-visible:outline-white"
+            :class="card.matched ? 'border-[#b6dc88] opacity-65' : ''"
+            :disabled="
+              card.flipped ||
+              card.matched ||
+              world.turnLocked ||
+              world.roomComplete
+            "
+            :aria-label="
+              card.flipped || card.matched
+                ? 'Revealed gallery image'
+                : 'Reveal memory image'
+            "
+            @click="world.pickCard(card.id)"
+          >
+            <span
+              class="md-card-inner"
+              :class="{ flipped: card.flipped || card.matched }"
+            >
+              <span
+                class="md-card-back bg-[#29384b] text-3xl text-[#dec28a]"
+                aria-hidden="true"
+                >✦</span
+              >
+              <img
+                class="md-card-front"
+                :src="card.image"
+                alt="Selected gallery art"
+                draggable="false"
+              />
+            </span>
+          </button>
+        </div>
+        <div
+          class="flex shrink-0 items-center gap-4 rounded-lg bg-[#172120]/85 px-4 py-2 text-sm"
+        >
+          <span
+            >Pairs {{ world.matchedPairs }}/{{
+              world.state.cards.length / 2
+            }}</span
+          >
+          <span>Mistakes {{ world.state.roomMisses }}/3</span>
+          <button
+            v-if="world.roomComplete"
+            type="button"
+            :disabled="world.turnLocked || world.loading"
+            class="rounded-lg bg-[#f2d68f] px-3 py-2 font-black text-[#2b271b]"
+            @click="world.finishRoom()"
+          >
+            {{
+              world.state.roomId === 'vault-1'
+                ? 'Continue deeper →'
+                : 'Claim victory ✓'
+            }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import {
+  BRIAR_SITES,
+  BRIAR_TILES,
+  type BriarSiteKind,
+  briarTileProgress,
+} from '~/utils/memoryDungeonWorld'
+import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
+import {
+  BRIAR_CROSS_MAP_KEYS,
+  BRIAR_CROSS_MAP_PUZZLES,
+  BRIAR_WAVE_SIZES,
+} from '~/utils/memoryDungeonWaves'
+import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
+import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
+import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
+
+const emit = defineEmits<{ leave: [] }>()
+const world = useMemoryWorldStore()
+const tiles = BRIAR_TILES
+const crossMapKeys: readonly string[] = BRIAR_CROSS_MAP_KEYS
+const crossMapPuzzles: Record<string, { hint: string; title: string }> =
+  BRIAR_CROSS_MAP_PUZZLES
+const nextWaveCount = computed(
+  () => BRIAR_WAVE_SIZES[world.state.waveIndex + 1] ?? 0,
+)
+function crossMapImage(key: string): string {
+  const index = BRIAR_CROSS_MAP_KEYS.indexOf(
+    key as (typeof BRIAR_CROSS_MAP_KEYS)[number],
+  )
+  return DESIGNED_DUNGEON_ART[30 + index]?.imagePath ?? ''
+}
+const currentSceneStyle = computed(() => {
+  const [x = 1, y = 1] = world.state.player.split(',').map(Number)
+  return {
+    backgroundImage: "url('/memory-dungeon/briar-camp.svg')",
+    backgroundSize: '800% 800%',
+    backgroundPosition: `${((x - 1) / 7) * 100}% ${((y - 1) / 7) * 100}%`,
+  }
+})
+const sites = BRIAR_SITES
+const completedCount = computed(
+  () => tiles.filter((tile) => progressFor(tile.key) === 'complete').length,
+)
+function progressFor(key: string) {
+  return briarTileProgress(world.state, key)
+}
+function progressLabel(key: string): string {
+  const progress = progressFor(key)
+  return progress === 'unvisited'
+    ? 'revealed but not visited'
+    : progress === 'unfinished'
+      ? 'visited, unresolved interaction'
+      : progress === 'complete'
+        ? 'fully explored'
+        : 'hidden'
+}
+const settingsOpen = ref(false)
+const roomTitle = computed(() =>
+  world.state.roomId === 'vault-1'
+    ? 'Rootbound Vault · Echo Chamber'
+    : world.state.roomId === 'vault-2'
+      ? 'Rootbound Vault · The Warden'
+      : 'Forest Memory Duel',
+)
+
+function restart(): void {
+  if (
+    window.confirm(
+      'Start a new Briar Camp run? This resets your exploration and match-attempt counter.',
+    )
+  ) {
+    world.reset()
+    settingsOpen.value = false
+  }
+}
+
+function siteSymbol(kind: BriarSiteKind | undefined): string {
+  const icons: Record<BriarSiteKind, string> = {
+    camp: '⛺',
+    merchant: '🏡',
+    dungeon: '🏰',
+    chest: '🎁',
+    puzzle: '✨',
+    sealed: '🔒',
+    enemy: '⚔️',
+    gate: '🌿',
+    rune: '🪨',
+    story: '◇',
+  }
+  return kind ? icons[kind] : ''
+}
+
+onMounted(() => {
+  world.hydrate()
+  void world.syncActiveMapDeck()
+})
+</script>
+
+<style scoped>
+/* A named game-stage container, not the browser viewport, determines whether
+   map + encounter can share a full-height landscape console screen. */
+.md-map-stage {
+  container: md-world / size;
+}
+.md-map-layout {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 0.57fr) minmax(0, 0.43fr);
+  overflow: hidden;
+}
+.md-map-viewport {
+  display: grid;
+  min-height: 0;
+  min-width: 0;
+  place-items: center;
+  overflow: hidden;
+  container: md-map / size;
+}
+.md-overworld-map {
+  width: min(100cqw, 100cqh);
+  max-width: 100%;
+  max-height: 100%;
+}
+.md-encounter-pane {
+  min-height: 0;
+}
+.md-scene-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 0.43fr) minmax(0, 0.57fr);
+  gap: clamp(0.5rem, 1vw, 1rem);
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.md-scene-art {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  border: 2px solid #b69665;
+  border-radius: 0.65rem;
+  background: #314c43;
+}
+.md-scene-mystery {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  font-size: clamp(3rem, 8cqw, 8rem);
+  color: #e4ce9e;
+  background: radial-gradient(circle at 40% 30%, #465f6a, #25334a 75%);
+}
+.md-scene-art-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 0.15rem 0.4rem;
+  background: #142524da;
+  color: #fff1c9;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+.md-scene-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  justify-content: center;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.md-scene-status {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+.md-scene-alert {
+  flex: 0 0 auto;
+}
+@container md-world (min-width: 760px) {
+  .md-map-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .md-scene-overview {
+    grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+  }
+}
+@container md-world (max-height: 500px) {
+  .md-scene-status {
+    -webkit-line-clamp: 3;
+  }
+  .md-encounter-actions {
+    margin-top: 0.35rem;
+  }
+}
+.md-btn {
+  border: 1px solid #927043;
+  border-radius: 0.5rem;
+  background: #4a5b36;
+  min-height: 2.5rem;
+  padding: 0.65rem 0.9rem;
+  color: #fff4da;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+.md-btn:hover:not(:disabled) {
+  background: #617746;
+}
+.md-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>

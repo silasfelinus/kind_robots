@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Enchanted open storybook with a golden star">
+  <path d="M24 21C18 17 12 16 4 18v23c9-2 15-1 20 4 5-5 11-6 20-4V18c-8-2-14-1-20 3Z" fill="#151b38" stroke="#151b38" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M24 22C19 18 13 17 6 19v19c7-2 13 0 18 4Z" fill="#51ddf3"/>
+  <path d="M24 22c5-4 11-5 18-3v19c-7-2-13 0-18 4Z" fill="#ff77be"/>
+  <path d="M10 24c4-.2 8 .5 11 2.5M10 30c4-.1 8 1 11 3M38 24c-4-.2-8 .5-11 2.5M38 30c-4-.1-8 1-11 3" fill="none" stroke="#202944" stroke-width="2" stroke-linecap="round" opacity=".68"/>
+  <path d="M24 22v20" fill="none" stroke="#fff0a5" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="m24 2 3.6 8.4L36 14l-8.4 3.6L24 26l-3.6-8.4L12 14l8.4-3.6Z" fill="#ffe46b" stroke="#18203c" stroke-width="2.3" stroke-linejoin="round"/>
+  <path d="m6 6 1.3 3L10 10.2l-2.7 1.1L6 14l-1.2-2.7L2 10.2 4.8 9Z" fill="#63f4e3"/>
+  <path d="m40 6 1.2 2.8L44 10l-2.8 1.2L40 14l-1.2-2.8L36 10l2.8-1.2Z" fill="#ffa0d9"/>
+  <path d="M24 44c5-4.5 11-6 20-4" fill="none" stroke="#ffdb6b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M24 44c-5-4.5-11-6-20-4" fill="none" stroke="#ffdb6b" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

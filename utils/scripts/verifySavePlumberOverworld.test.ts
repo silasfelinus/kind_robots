@@ -8,6 +8,7 @@ import { existsSync } from 'node:fs'
 import { emptyInput } from '../arcade/types'
 import { createSavePlumberPreview } from '../arcade/games/savePlumberPreview'
 import { CAMPAIGN } from '../arcade/games/savePlumberLevels'
+import { MAP_CLIP_WORLDS } from '../arcade/games/savePlumberMapClips'
 import {
   OVERWORLD,
   SKY_WORLD,
@@ -49,6 +50,18 @@ assert.equal(
   CAMPAIGN.length,
   'each Gen-1 stage is played from exactly one node',
 )
+for (const world of MAP_CLIP_WORLDS)
+  assert.ok(
+    existsSync(`public/save-the-plumber/maps/world-${world}.mp4`) &&
+      existsSync(`public/save-the-plumber/maps/world-${world}.webm`),
+    `world ${world}'s motion loop ships`,
+  )
+for (const map of OVERWORLD)
+  assert.equal(
+    map.clip !== null,
+    MAP_CLIP_WORLDS.includes(map.world),
+    `world ${map.world} plays a motion loop only once one has shipped`,
+  )
 for (const map of OVERWORLD) {
   if (map.special) continue
   assert.equal(map.nodes.filter((n) => n.kind === 'castle').length, 1)

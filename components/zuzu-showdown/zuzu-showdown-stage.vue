@@ -95,6 +95,7 @@ import {
 import { setGamePageLock } from '~/utils/arcade/pageLock'
 import {
   fitDisplay,
+  MOBILE_HD_CANVAS_PIXELS,
   type DisplayFit,
   type RenderStyle,
 } from '~/utils/arcade/display'
@@ -1241,6 +1242,8 @@ function fitCanvas() {
     height: VIEW_HEIGHT,
     available,
     dpr: window.devicePixelRatio || 1,
+    availableHeight: fullscreen.value && box ? box.clientHeight : undefined,
+    maxCanvasPixels: touchControls.value ? MOBILE_HD_CANVAS_PIXELS : undefined,
     style: store.renderStyle,
   })
   canvasWidth.value = `${fit.value.cssWidth}px`

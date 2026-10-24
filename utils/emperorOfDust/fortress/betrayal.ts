@@ -74,7 +74,7 @@ export const FALL_OPENING =
 export const FALL_OPENINGS: TextVariant[] = [
   {
     flags: ['d40-komodo-held'],
-    text: 'Young Komodo spent midnight in your cells. He left by the drain in the Mole boy’s old cell, and the postern was already open.',
+    text: 'Young Komodo spent midnight in your cells. He left by the drain in the young courier’s old cell, and the postern was already open.',
   },
   {
     flags: ['d40-seals-checked'],
@@ -463,7 +463,7 @@ export const PRECAUTIONS: readonly Precaution[] = [
   {
     id: 'followed',
     flags: ['d40-komodo-followed'],
-    line: 'Rook was on the ridge when the gate opened. “He walked his horse back in the old ruts,” the hare says. “I know which ruts now.”',
+    line: 'Rook was on the ridge when the gate opened. “He walked his horse back in the old ruts,” Rook says. “I know which ruts now.”',
   },
   {
     id: 'sealed-name',

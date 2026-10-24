@@ -1,15 +1,16 @@
 ---
 contentType: tab
-channelKey: projects
+channelKey: admin
 tabKey: daily-pitches
 label: Daily Dream Projects
 title: Daily Dream Projects
-subtitle: Explore the ideas that became projects
+subtitle: Review ideas that became projects
 description: Browse approved Daily Dream ideas and see which experiences are ready to play or coming soon.
-summary: Daily Dream builds and previews.
+summary: Review Daily Dream builds and previews.
 icon: kind-icon:dream
 route: /play/daily-pitches
 sort: 118
+requiredRole: ADMIN
 # Reuse queued legacy Plan artwork for this project-building workshop.
 backgroundMobile: /api/art/backdrop/plan-mobile
 backgroundTablet: /api/art/backdrop/plan-tablet

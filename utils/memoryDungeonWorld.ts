@@ -21,6 +21,7 @@ export type BriarSiteKind =
   | 'enemy'
   | 'gate'
   | 'rune'
+  | 'story'
 
 export interface BriarSite {
   kind: BriarSiteKind
@@ -29,6 +30,12 @@ export interface BriarSite {
 }
 
 export const BRIAR_SITES: Record<string, BriarSite> = {
+  ...Object.fromEntries(
+    Object.entries(BRIAR_SCENES).map(([key, scene]) => [
+      key,
+      { kind: 'story' as const, name: scene.title, description: scene.opening },
+    ]),
+  ),
   '2,4': {
     kind: 'camp',
     name: 'Briar Camp',
@@ -125,13 +132,13 @@ const LINK_ENTRIES: [string, string[]][] = [
   ['2,6', ['2,7', '3,6']],
   ['3,5', ['3,6', '4,5']],
   ['7,5', ['7,6', '8,5']],
-  ['5,5', ['5,6']],
+  ['5,5', ['5,6', '6,5']],
   ['3,2', ['2,2', '3,1']],
-  ['2,2', ['2,1']],
+  ['2,2', ['2,1', '2,3']],
   ['3,1', ['4,1']],
-  ['1,5', ['1,6']],
+  ['1,5', ['1,6', '1,4']],
   ['1,6', ['1,7']],
-  ['1,7', ['2,7']],
+  ['1,7', ['2,7', '1,8']],
   ['3,6', ['4,6']],
   ['4,5', ['4,6']],
   ['4,6', ['4,7']],
@@ -140,13 +147,25 @@ const LINK_ENTRIES: [string, string[]][] = [
   ['5,6', ['5,7']],
   ['5,7', ['6,7']],
   ['6,7', ['6,8']],
-  ['7,6', ['8,6']],
+  ['7,6', ['8,6', '7,7']],
   ['8,5', ['8,6']],
   ['8,6', ['8,7']],
   ['6,2', ['6,1']],
   ['7,3', ['7,2']],
-  ['7,2', ['7,1']],
+  ['7,2', ['7,1', '8,2']],
   ['8,4', ['8,3']],
+  ['1,4', ['1,3']],
+  ['1,3', ['1,2']],
+  ['1,2', ['1,1']],
+  ['2,3', ['3,3']],
+  ['4,1', ['5,1']],
+  ['8,2', ['8,1']],
+  ['6,5', ['6,6']],
+  ['7,7', ['7,8']],
+  ['7,8', ['8,8']],
+  ['1,8', ['2,8']],
+  ['3,8', ['4,8']],
+  ['4,8', ['5,8']],
 ]
 
 export const BRIAR_LINKS: Record<string, readonly string[]> =
@@ -185,6 +204,21 @@ export function validateBriarLinks(): string[] {
       if (!briarNeighbors(from).includes(to)) {
         errors.push(`Non-adjacent step ${from} → ${to}`)
       }
+    }
+  }
+  const reached = new Set([BRIAR_START])
+  const todo = [BRIAR_START]
+  for (let i = 0; i < todo.length; i++) {
+    for (const target of BRIAR_LINKS[todo[i]!] ?? []) {
+      if (!reached.has(target)) {
+        reached.add(target)
+        todo.push(target)
+      }
+    }
+  }
+  for (const tile of BRIAR_TILES) {
+    if (!reached.has(tile.key)) {
+      errors.push(`Unreachable map square ${tile.key}`)
     }
   }
   return errors

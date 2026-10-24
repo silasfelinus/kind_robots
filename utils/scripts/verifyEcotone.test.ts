@@ -1,3 +1,4 @@
+import './verifyEcotoneClarityRecovery.test'
 import './verifyEcotoneAdversarial.test'
 import './verifyEcotoneSoloRepair.test'
 import './verifyEcotonePerks.test'

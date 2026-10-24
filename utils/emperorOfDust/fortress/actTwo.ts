@@ -3587,7 +3587,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
         flags: ['d34-runner-home', 'd34-runner-bought'],
       },
       response:
-        'A Conclave courier takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every Conclave watcher on the sills sits with their back to the throne.',
+        'A Conclave courier takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week the Conclave watchers on the sills sit with their backs to the throne.',
     },
     {
       id: 'leave',

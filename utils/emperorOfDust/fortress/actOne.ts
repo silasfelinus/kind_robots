@@ -301,7 +301,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { moles: -5 } },
     outcomes: {
       success:
-        'An elderly burrow witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not the burrow clerk’s. She asks for the clerk’s name, and waits while the court decides whether to give it.',
+        'An elderly burrow witness places the forged tithe receipt beside her own empty ledger. The handwriting is a tower clerk’s, not hers. She asks for the clerk’s name, and waits while the court decides whether to give it.',
       partial:
         'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
       failure:

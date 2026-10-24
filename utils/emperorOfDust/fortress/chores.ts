@@ -249,7 +249,7 @@ export const CHORES: readonly QuestDef[] = [
     expired: { affinity: { 'storm-crows': -2 } },
     outcomes: {
       success:
-        'Every fledgling is back in a dry nest. A roost elder watched the whole climb and said nothing, which from that elder is thanks.',
+        'Every fledgling is back in a dry nest. An elder watched the whole climb without a word. That was thanks enough.',
       partial: 'The party brought up five. The ledge kept the sixth.',
       failure:
         'The rock was wet and the rope was short. The Crows took it from there, and did not look at the party once.',
@@ -352,7 +352,7 @@ export const CHORES: readonly QuestDef[] = [
     id: 'r-tunnel-rescue',
     title: 'A Tunnel Caved In',
     summary:
-      'A side tunnel under the badlands came down in the night with two tunnel diggers behind it. The Moles are digging. They need more hands.',
+      'A side tunnel under the badlands came down in the night with two diggers trapped behind it. The Moles are digging. They need more hands.',
     region: 'mole-tunnels',
     faction: 'moles',
     durationDays: 1,

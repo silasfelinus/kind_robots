@@ -808,7 +808,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'ask-split',
-            label: 'Ask whether every member of the cells wants this list.',
+            label: 'Ask whether the whole assembly wants this list.',
             effects: {},
             response:
               'Lumen looks at the trumpet in her paw for a moment. Then she puts it down.',

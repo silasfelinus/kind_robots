@@ -111,6 +111,31 @@ const road = ['2,4', '3,4', '4,4', '5,4', '6,4', '7,4', '8,4']
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road), true)
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road.slice(0, -1)), false)
 
+const firstBriarExpansion = ['1,5', '1,6', '1,7', '2,7', '2,2', '2,1', '3,1', '4,1', '6,1', '7,1', '7,2', '4,5', '5,3', '5,6', '6,7', '7,5']
+for (const key of firstBriarExpansion) {
+  assert.ok(BRIAR_SCENES[key], `Expanded scene ${key} is authored`)
+  assert.equal(BRIAR_SCENES[key]?.choices.length, 2)
+  assert.ok(visited.has(key), `Scene ${key} is reachable from Briar Camp`)
+  const savedChoices = Object.fromEntries(
+    firstBriarExpansion.map((site) => [site, BRIAR_SCENES[site]!.choices[0]!.id]),
+  )
+  const save = restoreBriarSave({
+    ...newBriarSave(),
+    sceneChoices: savedChoices,
+  })
+  assert.equal(save.sceneChoices[key], BRIAR_SCENES[key]?.choices[0]?.id)
+}
+assert.equal(
+  new Set(firstBriarExpansion).size,
+  16,
+  'First Briar expansion adds exactly sixteen unique coordinates',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['7,2']!, { '2,2': 'observe' }),
+  /wolf patrol tracks/,
+  'Forest court reflects the player's earlier investigation',
+)
+
 const sceneCoordinates = Object.keys(BRIAR_SCENES)
 assert.ok(
   sceneCoordinates.length >= 12,

@@ -1917,6 +1917,7 @@ import {
   watch,
 } from 'vue'
 import { useEcotoneStore } from '~/stores/ecotoneStore'
+import { readPrivateEcotonePortrait, uploadPrivateEcotonePortrait } from '~/utils/ecotone/privatePortrait'
 import {
   ARCHETYPES,
   CHAPTERS,
@@ -2331,23 +2332,8 @@ function changePlayerLook(id: string) {
 async function loadPrivatePortrait(id: number) {
   if (!import.meta.client || !Number.isInteger(id) || id <= 0) return
   try {
-    const result = await $fetch<{
-      success: boolean
-      data?: { imageData?: string | null; fileType?: string | null }
-    }>(`/api/art/image/${id}?includeImageData=true`)
-    if (
-      result.success &&
-      result.data?.imageData &&
-      customPortraitId.value === id
-    ) {
-      const mime =
-        result.data.fileType === 'png'
-          ? 'image/png'
-          : result.data.fileType === 'jpeg' || result.data.fileType === 'jpg'
-            ? 'image/jpeg'
-            : 'image/webp'
-      customPortraitUrl.value = `data:${mime};base64,${result.data.imageData}`
-    }
+    const src = await readPrivateEcotonePortrait(id)
+    if (customPortraitId.value === id) customPortraitUrl.value = src
   } catch {
     portraitNotice.value =
       'This private portrait could not be loaded. Select another look or upload it again.'
@@ -2377,19 +2363,7 @@ async function uploadPortrait(event: Event) {
   uploadingPortrait.value = true
   portraitNotice.value = ''
   try {
-    const form = new FormData()
-    form.append('file', file)
-    form.append('galleryName', 'ecotone-players')
-    form.append('isPublic', 'false')
-    form.append('isMature', 'false')
-    const result = await $fetch<{
-      success: boolean
-      message?: string
-      data?: { id?: number }
-    }>('/api/art/upload', { method: 'POST', body: form })
-    const id = result.data?.id
-    if (!result.success || !Number.isInteger(id) || !id || id <= 0)
-      throw new Error(result.message || 'Portrait upload did not finish.')
+    const id = await uploadPrivateEcotonePortrait(file)
     if (uploadedPreviewUrl.value) URL.revokeObjectURL(uploadedPreviewUrl.value)
     uploadedPreviewUrl.value = URL.createObjectURL(file)
     customPortraitUrl.value = uploadedPreviewUrl.value

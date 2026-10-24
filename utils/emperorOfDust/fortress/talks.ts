@@ -4278,7 +4278,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'The Watch took a Conclave runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
-      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold Crow children.',
+      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold the Conclave’s children.',
       'Send her back and she carries till she dies. Keep her and the Conclave says the crown steals runners. Which is what they do. Pick one.',
     ],
     options: [

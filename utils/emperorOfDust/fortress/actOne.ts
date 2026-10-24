@@ -305,7 +305,7 @@ export const ACT_ONE_QUESTS: readonly QuestDef[] = [
       partial:
         'The auditors return with a clean Mole ledger and a badly smudged receipt. The numbers disagree by forty brass. Marisol Tallow offers to settle the difference for a fee.',
       failure:
-        'The Moles walk your auditors back to daylight with cloth over their eyes. A burrow clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
+        'Burrow wardens walk your auditors back to daylight with cloth over their eyes. A burrow clerk gives them their counting rods and keeps the forged warrant. She says she will remember who signed it.',
       expired:
         'The false receipt passes from clerk to clerk until it is entered as revenue. The tunnel elders refuse to pay a debt she never owed. Marisol Tallow asks where the missing brass has gone.',
     },

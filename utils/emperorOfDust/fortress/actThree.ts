@@ -951,7 +951,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             lines: [
               'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a burrow-digger’s root-knife lives in soil like a spoon lives in soup.',
               'One side of the grip is filed smooth, a neat patch, right where a cutler stamps his mark.',
-              '“Moles may own a clean knife,” says Lady Vask. “Even Moles wash. And many knives are filed, Majesty. Thieves file them.”',
+              '“A burrow cutler might own a clean knife,” says Lady Vask. “Even a thief washes up. And many knives are filed, Majesty. Thieves file them.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',

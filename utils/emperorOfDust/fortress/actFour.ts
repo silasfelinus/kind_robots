@@ -1624,7 +1624,7 @@ export const ACT_FOUR_DAYS: readonly DayDef[] = [
                   flags: ['crow-debt-defaulted'],
                 },
                 response:
-                  'Corvane rises without a word. Tamsin watches the crows leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
+                  'Corvane rises without a word. Tamsin watches the Conclave sentries leave the sills one by one. “They’ll arm the roosts tonight,” she says. “Then they’ll come back for it. They always do.”',
               },
               {
                 id: 'wages',

@@ -2363,6 +2363,14 @@ const SECRET_BARRACKS: readonly EpilogueSubject[] = [
         text: "Tarn's map ends at the place they died. The Gate Watch draws a line through it and writes a warning to those who follow.",
       },
       {
+        when: { flags: ['tarn-oil-funded'] },
+        text: 'The lamps at the pass burn every night, and the crossing is never blind. Tarn draws a small flame beside each guard post and teaches the children what it means.',
+      },
+      {
+        when: { flags: ['tarn-toll-written'] },
+        text: 'The Archive keeps a ledger of the pass tolls, kept in plain ink. Tarn reads it each season, and every year the page gets shorter.',
+      },
+      {
         when: { flags: ['tarn-families-sheltered'] },
         text: 'Tarn draws safe roads on the schoolroom floor so the children can learn them as a game. When they grow old enough to leave the hideout, each carries three stones in a pocket.',
       },

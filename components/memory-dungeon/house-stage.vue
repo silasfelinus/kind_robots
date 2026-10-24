@@ -4,18 +4,27 @@
     aria-label="The House That Remembers, thirty-six-room dungeon"
     data-testid="memory-house-console"
   >
-    <header class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-lg border border-[#8e795a] bg-[#29251f] px-3 py-2 text-sm">
+    <header
+      class="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2 rounded-lg border border-[#8e795a] bg-[#29251f] px-3 py-2 text-sm"
+    >
       <div>
         <h2 class="font-serif text-lg font-black">The House That Remembers</h2>
-        <p class="text-xs text-[#d6c4a1]">{{ progress?.visited.length ?? 0 }}/36 rooms explored · each decision remembered</p>
+        <p class="text-xs text-[#d6c4a1]">
+          {{ progress?.visited.length ?? 0 }}/36 rooms explored · each decision
+          remembered
+        </p>
       </div>
       <button
         v-if="world.houseMayExit"
         type="button"
         class="rounded-lg border border-[#ad946d] bg-[#463e33] px-3 py-2 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
         @click="world.exitHouse()"
-      >Return to Briar ↗</button>
-      <span v-else class="text-xs text-[#e4d3b2]">Find a marked safe return passage</span>
+      >
+        Return to Briar ↗
+      </button>
+      <span v-else class="text-xs text-[#e4d3b2]"
+        >Find a marked safe return passage</span
+      >
     </header>
     <div class="md-house-grid min-h-0 flex-1">
       <div
@@ -28,24 +37,51 @@
           type="button"
           class="min-h-0 min-w-0 rounded-md border text-center focus-visible:outline-2 focus-visible:outline-white"
           :class="{
-            'border-[#f8d681] bg-[#786537] text-white shadow-[inset_0_0_12px_#e7c777]': progress?.current === item.id,
-            'border-[#9bcdb6] bg-[#405949] text-white': progress?.visited.includes(item.id) && progress?.current !== item.id,
-            'border-[#c6ad77] bg-[#505340] text-white': available.includes(item.id) && !progress?.visited.includes(item.id),
-            'border-[#374754] bg-[#15212b] text-[#75818c]': !available.includes(item.id) && !progress?.visited.includes(item.id),
+            'border-[#f8d681] bg-[#786537] text-white shadow-[inset_0_0_12px_#e7c777]':
+              progress?.current === item.id,
+            'border-[#9bcdb6] bg-[#405949] text-white':
+              progress?.visited.includes(item.id) &&
+              progress?.current !== item.id,
+            'border-[#c6ad77] bg-[#505340] text-white':
+              available.includes(item.id) &&
+              !progress?.visited.includes(item.id),
+            'border-[#374754] bg-[#15212b] text-[#75818c]':
+              !available.includes(item.id) &&
+              !progress?.visited.includes(item.id),
           }"
-          :disabled="!available.includes(item.id) || progress?.current === item.id"
-          :title="progress?.visited.includes(item.id) || available.includes(item.id) ? item.title : 'Unexplored chamber'"
+          :disabled="
+            !available.includes(item.id) || progress?.current === item.id
+          "
+          :title="
+            progress?.visited.includes(item.id) || available.includes(item.id)
+              ? item.title
+              : 'Unexplored chamber'
+          "
           :aria-label="`${item.id}: ${progress?.visited.includes(item.id) || available.includes(item.id) ? item.title : 'unknown'}${progress?.current === item.id ? ', current location' : ''}`"
           @click="world.houseMove(item.id)"
         >
-          <span class="block text-[clamp(9px,1.15vw,13px)] font-black">{{ item.id.slice(3) }}</span>
+          <span class="block text-[clamp(9px,1.15vw,13px)] font-black">{{
+            item.id.slice(3)
+          }}</span>
           <span class="block text-[clamp(10px,1.5vw,19px)]" aria-hidden="true">
-            {{ progress?.current === item.id ? '✦' : progress?.visited.includes(item.id) ? '✓' : available.includes(item.id) ? '◇' : '·' }}
+            {{
+              progress?.current === item.id
+                ? '✦'
+                : progress?.visited.includes(item.id)
+                  ? '✓'
+                  : available.includes(item.id)
+                    ? '◇'
+                    : '·'
+            }}
           </span>
         </button>
       </div>
-      <div class="md-house-encounter min-h-0 overflow-hidden rounded-xl border-2 border-[#ae9263] bg-[#e7d3a9] text-[#2e261a]">
-        <div class="md-house-portrait relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_55%_30%,#59726a,#25333e_75%)]">
+      <div
+        class="md-house-encounter min-h-0 overflow-hidden rounded-xl border-2 border-[#ae9263] bg-[#e7d3a9] text-[#2e261a]"
+      >
+        <div
+          class="md-house-portrait relative min-h-0 overflow-hidden bg-[radial-gradient(circle_at_55%_30%,#59726a,#25333e_75%)]"
+        >
           <img
             v-if="room && !artFailed"
             :key="room.id"
@@ -55,21 +91,35 @@
             draggable="false"
             @error="artFailed = true"
           />
-          <div v-else class="flex h-full w-full items-center justify-center p-5 text-center text-lg font-serif font-bold text-[#d6c39b]" role="img" :aria-label="`Illustration pending from the art queue for ${room?.title ?? 'the House'}`">
+          <div
+            v-else
+            class="flex h-full w-full items-center justify-center p-5 text-center text-lg font-serif font-bold text-[#d6c39b]"
+            role="img"
+            :aria-label="`Illustration pending from the art queue for ${room?.title ?? 'the House'}`"
+          >
             <span aria-hidden="true">❖</span>
           </div>
-          <span class="absolute bottom-0 left-0 rounded-tr-md bg-[#1a2627]/90 px-2 py-1 text-xs font-bold text-white">
+          <span
+            class="absolute bottom-0 left-0 rounded-tr-md bg-[#1a2627]/90 px-2 py-1 text-xs font-bold text-white"
+          >
             {{ room?.id }} · {{ room?.kind }}
           </span>
         </div>
-        <div class="md-house-copy kr-scroll min-h-0 overflow-y-auto p-3 sm:p-4" data-testid="memory-house-choice-column">
+        <div
+          class="md-house-copy kr-scroll min-h-0 overflow-y-auto p-3 sm:p-4"
+          data-testid="memory-house-choice-column"
+        >
           <h3 class="font-serif text-xl font-black">{{ room?.title }}</h3>
-          <p class="mt-2 text-sm leading-relaxed sm:text-base">{{ room?.opening }}</p>
+          <p class="mt-2 text-sm leading-relaxed sm:text-base">
+            {{ room?.opening }}
+          </p>
           <p
             v-if="selectedChoice"
             class="mt-3 rounded-md border border-[#9a804c] bg-[#f9e9c7] p-2 text-sm font-semibold"
             role="status"
-          >{{ selectedChoice.outcome }}</p>
+          >
+            {{ selectedChoice.outcome }}
+          </p>
           <div v-else class="mt-3 flex flex-col gap-2">
             <button
               v-for="choice in room?.choices ?? []"
@@ -78,21 +128,39 @@
               type="button"
               :disabled="!world.canChooseHouse(choice.id)"
               @click="world.chooseHouse(choice.id)"
-            >{{ choice.label }}</button>
+            >
+              {{ choice.label }}
+            </button>
           </div>
-          <p v-if="room?.id === 'HD-32' && !world.canChooseHouse('petition') && !progress?.wardenPassed" class="mt-2 text-xs font-semibold">
-            Peaceful passage requires witness testimony from the House or the Briar patrol. The telegraphed memory-card challenge remains available.
+          <p
+            v-if="
+              room?.id === 'HD-32' &&
+              !world.canChooseHouse('petition') &&
+              !progress?.wardenPassed
+            "
+            class="mt-2 text-xs font-semibold"
+          >
+            Peaceful passage requires witness testimony from the House or the
+            Briar patrol. The telegraphed memory-card challenge remains
+            available.
           </p>
           <p v-if="room?.id === 'HD-35'" class="mt-2 text-xs">
-            Three outcomes have different consequences. The House will keep whichever promise you make here.
+            Three outcomes have different consequences. The House will keep
+            whichever promise you make here.
           </p>
-          <p v-if="room?.id === 'HD-36' && progress?.ending" class="mt-2 text-sm font-bold">
-            The {{ progress.ending }} resolution is recorded. The Bramble Chime is within reach.
+          <p
+            v-if="room?.id === 'HD-36' && progress?.ending"
+            class="mt-2 text-sm font-bold"
+          >
+            The {{ progress.ending }} resolution is recorded. The Bramble Chime
+            is within reach.
           </p>
         </div>
       </div>
     </div>
-    <footer class="mt-2 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs">
+    <footer
+      class="mt-2 flex shrink-0 flex-wrap items-center gap-2 rounded-lg border border-[#776749] bg-[#272d2b] p-2 text-xs"
+    >
       <span class="font-bold text-[#e6d49d]">Open passages</span>
       <button
         v-for="exit in available"
@@ -100,8 +168,12 @@
         type="button"
         class="rounded-md border border-[#ac966f] bg-[#3c4f46] px-2 py-1 font-bold text-white focus-visible:outline-2 focus-visible:outline-white"
         @click="world.houseMove(exit)"
-      >{{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}</button>
-      <span v-if="!available.length">Complete the current challenge to open the next door.</span>
+      >
+        {{ exit }} · {{ HOUSE_ROOMS[exit]?.title }}
+      </button>
+      <span v-if="!available.length"
+        >Complete the current challenge to open the next door.</span
+      >
     </footer>
   </section>
 </template>
@@ -118,20 +190,29 @@ const room = computed(() => world.activeHouseRoom)
 const available = computed(() => world.houseAvailableDoors)
 const artFailed = ref(false)
 const artPath = computed(() => {
-  if (room.value?.id === 'HD-01') return '/images/memory-dungeon/house/foyer.webp'
-  if (room.value?.id === 'HD-32') return '/images/memory-dungeon/house/rootbound-warden.webp'
+  if (room.value?.id === 'HD-01')
+    return '/images/memory-dungeon/house/foyer.webp'
+  if (room.value?.id === 'HD-32')
+    return '/images/memory-dungeon/house/rootbound-warden.webp'
   if (room.value?.id === 'HD-35' && progress.value?.ending)
     return `/images/memory-dungeon/house/ending-${progress.value.ending}.webp`
   return room.value?.imagePath ?? ''
 })
-watch(artPath, () => { artFailed.value = false })
-const selectedChoice = computed(() => room.value?.choices.find(
-  (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
-) ?? null)
+watch(artPath, () => {
+  artFailed.value = false
+})
+const selectedChoice = computed(
+  () =>
+    room.value?.choices.find(
+      (choice) => choice.id === progress.value?.decisions[room.value?.id ?? ''],
+    ) ?? null,
+)
 </script>
 
 <style scoped>
-.md-house-stage { container: md-house / size; }
+.md-house-stage {
+  container: md-house / size;
+}
 .md-house-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -139,12 +220,26 @@ const selectedChoice = computed(() => room.value?.choices.find(
   gap: 0.6rem;
   overflow: hidden;
 }
-.md-house-map { aspect-ratio: 1 / 1; place-self: center; height: min(100%, 100cqh); width: min(100%, 100cqh); }
-.md-house-encounter { display: grid; grid-template-columns: minmax(0, 0.41fr) minmax(0, 0.59fr); min-width: 0; }
+.md-house-map {
+  aspect-ratio: 1 / 1;
+  place-self: center;
+  height: min(100%, 100cqh);
+  width: min(100%, 100cqh);
+}
+.md-house-encounter {
+  display: grid;
+  grid-template-columns: minmax(0, 0.41fr) minmax(0, 0.59fr);
+  min-width: 0;
+}
 @container md-house (min-width: 760px) {
-  .md-house-grid { grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.52fr); grid-template-rows: minmax(0, 1fr); }
+  .md-house-grid {
+    grid-template-columns: minmax(0, 0.48fr) minmax(0, 0.52fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
 }
 @container md-house (max-width: 560px) {
-  .md-house-encounter { grid-template-columns: minmax(0, 0.35fr) minmax(0, 0.65fr); }
+  .md-house-encounter {
+    grid-template-columns: minmax(0, 0.35fr) minmax(0, 0.65fr);
+  }
 }
 </style>

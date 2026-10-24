@@ -4,8 +4,21 @@
  * Exactly two meaningful choices per room, except the three Memory Hearth endings.
  */
 export type HouseRoomId = `HD-${string}`
-export type HouseKind = 'entry' | 'lore' | 'puzzle' | 'treasure' | 'choice' | 'combat' |
-  'companion' | 'shortcut' | 'rest' | 'secret' | 'hazard' | 'guardian' | 'climax' | 'exit'
+export type HouseKind =
+  | 'entry'
+  | 'lore'
+  | 'puzzle'
+  | 'treasure'
+  | 'choice'
+  | 'combat'
+  | 'companion'
+  | 'shortcut'
+  | 'rest'
+  | 'secret'
+  | 'hazard'
+  | 'guardian'
+  | 'climax'
+  | 'exit'
 export type HouseEnding = 'release' | 'renew' | 'break'
 export type HouseCombatOrigin = 'HD-09' | 'HD-19' | 'HD-22' | 'HD-28' | 'HD-32'
 export interface HouseChoice {
@@ -37,210 +50,520 @@ export interface HouseProgress {
 export const HOUSE_ROOMS: Record<string, HouseRoom> = {
   'HD-01': {
     id: 'HD-01',
-    title: "Porch of Borrowed Faces",
+    title: 'Porch of Borrowed Faces',
     kind: 'entry',
-    opening: "The house does not ask who you are. It asks whose name you brought. An empty chair appears on the porch for every answer you don't give.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Living Grimm manor porch, borrowed reflections in brass door-knocker, root arches and empty chairs. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "The house does not ask who you are. It asks whose name you brought. An empty chair appears on the porch for every answer you don't give.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Living Grimm manor porch, borrowed reflections in brass door-knocker, root arches and empty chairs. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-01.webp',
-    exits: ["HD-02","HD-07"],
-    choices: [{"id":"name","label":"Offer your borrowed name","outcome":"The threshold admits a visitor who knows that a name may have two rightful witnesses."},{"id":"silence","label":"Refuse to surrender someone else's name","outcome":"The house calls you a guest instead of an owner, which turns out to be a useful distinction."}],
+    exits: ['HD-02', 'HD-07'],
+    choices: [
+      {
+        id: 'name',
+        label: 'Offer your borrowed name',
+        outcome:
+          'The threshold admits a visitor who knows that a name may have two rightful witnesses.',
+      },
+      {
+        id: 'silence',
+        label: "Refuse to surrender someone else's name",
+        outcome:
+          'The house calls you a guest instead of an owner, which turns out to be a useful distinction.',
+      },
+    ],
   },
   'HD-02': {
     id: 'HD-02',
-    title: "Umbrella Stand",
+    title: 'Umbrella Stand',
     kind: 'lore',
-    opening: "The rack holds umbrellas wet with other people's last rain. One drips salt water in a town where the sea has never reached.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Elegant dusty umbrella stand dripping different tiny weather systems inside enchanted foyer. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "The rack holds umbrellas wet with other people's last rain. One drips salt water in a town where the sea has never reached.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Elegant dusty umbrella stand dripping different tiny weather systems inside enchanted foyer. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-02.webp',
-    exits: ["HD-03"],
-    choices: [{"id":"weather","label":"Describe the rain you actually remember","outcome":"The stand recalls a research-office drizzle from Earth without asking who deserves it."},{"id":"shelter","label":"Leave a dry umbrella for the next guest","outcome":"A housekeeper nods from somewhere beyond the wall; care leaves a mark even in an archive."}],
+    exits: ['HD-03'],
+    choices: [
+      {
+        id: 'weather',
+        label: 'Describe the rain you actually remember',
+        outcome:
+          'The stand recalls a research-office drizzle from Earth without asking who deserves it.',
+      },
+      {
+        id: 'shelter',
+        label: 'Leave a dry umbrella for the next guest',
+        outcome:
+          'A housekeeper nods from somewhere beyond the wall; care leaves a mark even in an archive.',
+      },
+    ],
   },
   'HD-03': {
     id: 'HD-03',
-    title: "Boot-Rack Maze",
+    title: 'Boot-Rack Maze',
     kind: 'puzzle',
-    opening: "Pairs of boots line the floor, but the Rack remembers owners by the roads they walked, not the size of their feet. Three boots lead home; three lead back into the house.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Twisted fairytale boot-rack labyrinth, muddy footprints forming inspectable routes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Pairs of boots line the floor, but the Rack remembers owners by the roads they walked, not the size of their feet. Three boots lead home; three lead back into the house.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Twisted fairytale boot-rack labyrinth, muddy footprints forming inspectable routes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-03.webp',
-    exits: ["HD-04"],
-    choices: [{"id":"route","label":"Sort the boots by the mud of their journeys","outcome":"You trace the mill path, the river ford and the old orchard. A small wardrobe later recognizes your method."},{"id":"ask","label":"Ask the boots which feet they miss","outcome":"The left boots all answer first. You learn that their owners left willingly, even where the court said they were taken."}],
+    exits: ['HD-04'],
+    choices: [
+      {
+        id: 'route',
+        label: 'Sort the boots by the mud of their journeys',
+        outcome:
+          'You trace the mill path, the river ford and the old orchard. A small wardrobe later recognizes your method.',
+      },
+      {
+        id: 'ask',
+        label: 'Ask the boots which feet they miss',
+        outcome:
+          'The left boots all answer first. You learn that their owners left willingly, even where the court said they were taken.',
+      },
+    ],
   },
   'HD-04': {
     id: 'HD-04',
-    title: "Clockwork Pantry",
+    title: 'Clockwork Pantry',
     kind: 'treasure',
-    opening: "A clock strikes dinner with no one at the table. The pantry offers food enough for one traveler, then asks which hungry person will not eat.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Clockwork pantry with tiny automaton cook, turning brass clock, single bread and empty place setting. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'A clock strikes dinner with no one at the table. The pantry offers food enough for one traveler, then asks which hungry person will not eat.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Clockwork pantry with tiny automaton cook, turning brass clock, single bread and empty place setting. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-04.webp',
-    exits: ["HD-05"],
-    choices: [{"id":"share","label":"Divide the rations with the absent guest","outcome":"The pantry gives you a lantern in gratitude for admitting there is a shortage.","gain":{"lanterns":1}},{"id":"record","label":"Write down who did not get supper","outcome":"The meal is not a victory, but the missing place gains a name in the House's ledger."}],
+    exits: ['HD-05'],
+    choices: [
+      {
+        id: 'share',
+        label: 'Divide the rations with the absent guest',
+        outcome:
+          'The pantry gives you a lantern in gratitude for admitting there is a shortage.',
+        gain: { lanterns: 1 },
+      },
+      {
+        id: 'record',
+        label: 'Write down who did not get supper',
+        outcome:
+          "The meal is not a victory, but the missing place gains a name in the House's ledger.",
+      },
+    ],
   },
   'HD-05': {
     id: 'HD-05',
     title: "The Wolf's Latch",
     kind: 'choice',
-    opening: "A gate was put here to keep wolves out. The scratches are on the inside: someone barred the village's protectors from reaching the road.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Iron latch with claw scratches on interior, moonlit silhouettes of guardians outside. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A gate was put here to keep wolves out. The scratches are on the inside: someone barred the village's protectors from reaching the road.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Iron latch with claw scratches on interior, moonlit silhouettes of guardians outside. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-05.webp',
-    exits: ["HD-06"],
-    choices: [{"id":"open","label":"Unlatch the defenders' forgotten patrol route","outcome":"Wind carries the smell of rain and wool blankets. The village loses one comfortable lie."},{"id":"test","label":"Ask who paid to have the latch installed","outcome":"A ledger shows the charge was for protection against witnesses, not predators."}],
+    exits: ['HD-06'],
+    choices: [
+      {
+        id: 'open',
+        label: "Unlatch the defenders' forgotten patrol route",
+        outcome:
+          'Wind carries the smell of rain and wool blankets. The village loses one comfortable lie.',
+      },
+      {
+        id: 'test',
+        label: 'Ask who paid to have the latch installed',
+        outcome:
+          'A ledger shows the charge was for protection against witnesses, not predators.',
+      },
+    ],
   },
   'HD-06': {
     id: 'HD-06',
-    title: "Broom Closet Exit",
+    title: 'Broom Closet Exit',
     kind: 'shortcut',
-    opening: "Oren's immaculate emergency plan is tucked between a broom and a ceremonial coffin. A sign lists departure times, including one that has already happened.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Comedic dark fantasy broom closet with perfect maps and formidable hooded headsman organizing supplies. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "Oren's immaculate emergency plan is tucked between a broom and a ceremonial coffin. A sign lists departure times, including one that has already happened.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Comedic dark fantasy broom closet with perfect maps and formidable hooded headsman organizing supplies. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-06.webp',
-    exits: ["HD-01","HD-13"],
-    choices: [{"id":"route","label":"Follow Oren's accurately labelled return path","outcome":"You memorize a safe shortcut back to the porch. Oren corrects your spelling without removing his hood."},{"id":"stock","label":"Restock the emergency water cask","outcome":"Someone else will be able to escape without a heroic last stand."}],
+    exits: ['HD-01', 'HD-13'],
+    choices: [
+      {
+        id: 'route',
+        label: "Follow Oren's accurately labelled return path",
+        outcome:
+          'You memorize a safe shortcut back to the porch. Oren corrects your spelling without removing his hood.',
+      },
+      {
+        id: 'stock',
+        label: 'Restock the emergency water cask',
+        outcome:
+          'Someone else will be able to escape without a heroic last stand.',
+      },
+    ],
   },
   'HD-07': {
     id: 'HD-07',
-    title: "Family Portrait Hall",
+    title: 'Family Portrait Hall',
     kind: 'lore',
-    opening: "Portraits crowd the hall. Each family has one painted guest nobody recalls inviting, and none of the guests seem to know who painted them.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Tall portrait hall with dignified fantasy families and barely perceptible extra figure in each oil portrait. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Portraits crowd the hall. Each family has one painted guest nobody recalls inviting, and none of the guests seem to know who painted them.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Tall portrait hall with dignified fantasy families and barely perceptible extra figure in each oil portrait. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-07.webp',
-    exits: ["HD-08"],
-    choices: [{"id":"count","label":"Count the uninvited guests","outcome":"You find eleven visitors who signed contracts but vanished from the official count."},{"id":"speak","label":"Ask a painted stranger what they wanted","outcome":"They wanted a room where nobody would ask whether a memory was legally theirs."}],
+    exits: ['HD-08'],
+    choices: [
+      {
+        id: 'count',
+        label: 'Count the uninvited guests',
+        outcome:
+          'You find eleven visitors who signed contracts but vanished from the official count.',
+      },
+      {
+        id: 'speak',
+        label: 'Ask a painted stranger what they wanted',
+        outcome:
+          'They wanted a room where nobody would ask whether a memory was legally theirs.',
+      },
+    ],
   },
   'HD-08': {
     id: 'HD-08',
-    title: "Staircase of Three Apologies",
+    title: 'Staircase of Three Apologies',
     kind: 'puzzle',
-    opening: "Three apologies are pinned to the steps. The sincerest sounds least polished, because the people who suffered helped write it.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Skewed grand staircase with three illustrated parchment apologies and spectral listeners. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Three apologies are pinned to the steps. The sincerest sounds least polished, because the people who suffered helped write it.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Skewed grand staircase with three illustrated parchment apologies and spectral listeners. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-08.webp',
-    exits: ["HD-09"],
-    choices: [{"id":"harm","label":"Sort the apologies by what was repaired","outcome":"The staircase lets you ascend after you name the person harmed before the person forgiven."},{"id":"listen","label":"Ask the person harmed to choose the order","outcome":"A voice declines to forgive but still opens the stair. The House makes room for that answer."}],
+    exits: ['HD-09'],
+    choices: [
+      {
+        id: 'harm',
+        label: 'Sort the apologies by what was repaired',
+        outcome:
+          'The staircase lets you ascend after you name the person harmed before the person forgiven.',
+      },
+      {
+        id: 'listen',
+        label: 'Ask the person harmed to choose the order',
+        outcome:
+          'A voice declines to forgive but still opens the stair. The House makes room for that answer.',
+      },
+    ],
   },
   'HD-09': {
     id: 'HD-09',
-    title: "Hearth-Guard",
+    title: 'Hearth-Guard',
     kind: 'combat',
-    opening: "A coal-shaped defender bars the hearth. It has burned nobody yet, but its warning markings pulse in a fair three-beat pattern.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Animated fiery hearth guardian with glowing protective sigils telegraphing a fair duel. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'A coal-shaped defender bars the hearth. It has burned nobody yet, but its warning markings pulse in a fair three-beat pattern.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Animated fiery hearth guardian with glowing protective sigils telegraphing a fair duel. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-09.webp',
-    exits: ["HD-10"],
-    choices: [{"id":"parley","label":"Offer to put the fire out safely","outcome":"The guard lowers its sparks when you demonstrate where the children are sleeping."},{"id":"study","label":"Learn the three-beat warning before moving on","outcome":"You memorize the coal's cooling pattern; a later Warden telegraph becomes less mysterious."},{"id":"duel","label":"Challenge the Hearth-Guard to a telegraphed matching duel","outcome":"The hearth admits a defender can change their mind after fair combat."}],
+    exits: ['HD-10'],
+    choices: [
+      {
+        id: 'parley',
+        label: 'Offer to put the fire out safely',
+        outcome:
+          'The guard lowers its sparks when you demonstrate where the children are sleeping.',
+      },
+      {
+        id: 'study',
+        label: 'Learn the three-beat warning before moving on',
+        outcome:
+          "You memorize the coal's cooling pattern; a later Warden telegraph becomes less mysterious.",
+      },
+      {
+        id: 'duel',
+        label: 'Challenge the Hearth-Guard to a telegraphed matching duel',
+        outcome:
+          'The hearth admits a defender can change their mind after fair combat.',
+      },
+    ],
   },
   'HD-10': {
     id: 'HD-10',
     title: "Scylla's Inventory",
     kind: 'companion',
-    opening: "Scylla has prepared seven emergency wardrobes, two court complaints, and a waterproof plan. Oren calmly removes the duplicate provisions and adds breakfast.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Sturdy farm-built proper mermaid princess Scylla with crisp coat examining inventory; hooded headsman Oren with ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Scylla has prepared seven emergency wardrobes, two court complaints, and a waterproof plan. Oren calmly removes the duplicate provisions and adds breakfast.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Sturdy farm-built proper mermaid princess Scylla with crisp coat examining inventory; hooded headsman Oren with ledger. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-10.webp',
-    exits: ["HD-11"],
-    choices: [{"id":"manifest","label":"Trust the twins' manifest and mark the service route","outcome":"A private service shortcut becomes obvious. Scylla is delighted; Oren had already labelled it."},{"id":"improvise","label":"Let Char improvise while Scylla manages the supplies","outcome":"The twins disagree eloquently, then save a stranded maid together."}],
+    exits: ['HD-11'],
+    choices: [
+      {
+        id: 'manifest',
+        label: "Trust the twins' manifest and mark the service route",
+        outcome:
+          'A private service shortcut becomes obvious. Scylla is delighted; Oren had already labelled it.',
+      },
+      {
+        id: 'improvise',
+        label: 'Let Char improvise while Scylla manages the supplies',
+        outcome:
+          'The twins disagree eloquently, then save a stranded maid together.',
+      },
+    ],
   },
   'HD-11': {
     id: 'HD-11',
     title: "Char's Wardrobe",
     kind: 'companion',
-    opening: "Char's clothes are genuine subculture, not a dress-up gag: patched velvet, silverwork, old boots and handmade protective sigils. She dares you to call one a costume.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Authentic goth mermaid princess Char matching Scylla's facial structure and broad sturdy physique, handmade gothic streetwear with protective charms. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "Char's clothes are genuine subculture, not a dress-up gag: patched velvet, silverwork, old boots and handmade protective sigils. She dares you to call one a costume.",
+    artPrompt:
+      "Western animated mature Grimm fantasy, a single story scene: Authentic goth mermaid princess Char matching Scylla's facial structure and broad sturdy physique, handmade gothic streetwear with protective charms. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
     imagePath: '/images/memory-dungeon/house/rooms/hd-11.webp',
-    exits: ["HD-12"],
-    choices: [{"id":"respect","label":"Ask Char how her protective charm was made","outcome":"She teaches the labor behind each protective stitch and gives you an unexpectedly practical ward."},{"id":"help","label":"Repair the buckled boot instead of admiring it","outcome":"Char lends you a needle as heavy as a tiny dagger. The gesture earns a laugh and her trust."}],
+    exits: ['HD-12'],
+    choices: [
+      {
+        id: 'respect',
+        label: 'Ask Char how her protective charm was made',
+        outcome:
+          'She teaches the labor behind each protective stitch and gives you an unexpectedly practical ward.',
+      },
+      {
+        id: 'help',
+        label: 'Repair the buckled boot instead of admiring it',
+        outcome:
+          'Char lends you a needle as heavy as a tiny dagger. The gesture earns a laugh and her trust.',
+      },
+    ],
   },
   'HD-12': {
     id: 'HD-12',
     title: "Servants' Passage",
     kind: 'shortcut',
-    opening: "A narrow corridor connects a forgotten servant's kitchen to a grand hallway without asking whether servants were permitted to use the doors.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Root-lined concealed service tunnel with hand-painted floor marks and dim lamps. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A narrow corridor connects a forgotten servant's kitchen to a grand hallway without asking whether servants were permitted to use the doors.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Root-lined concealed service tunnel with hand-painted floor marks and dim lamps. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-12.webp',
-    exits: ["HD-07","HD-13"],
-    choices: [{"id":"open","label":"Keep the service passage accessible to everyone","outcome":"The workers have a free path between the galleries again. The nearest officer is deeply irritated."},{"id":"map","label":"Map its bends for safe future retreats","outcome":"The passage becomes a known loop, rather than a secret the next visitor must pay to discover."}],
+    exits: ['HD-07', 'HD-13'],
+    choices: [
+      {
+        id: 'open',
+        label: 'Keep the service passage accessible to everyone',
+        outcome:
+          'The workers have a free path between the galleries again. The nearest officer is deeply irritated.',
+      },
+      {
+        id: 'map',
+        label: 'Map its bends for safe future retreats',
+        outcome:
+          'The passage becomes a known loop, rather than a secret the next visitor must pay to discover.',
+      },
+    ],
   },
   'HD-13': {
     id: 'HD-13',
-    title: "Letterpress Kitchen",
+    title: 'Letterpress Kitchen',
     kind: 'puzzle',
-    opening: "The recipe is missing its middle line. A printing press stamps dinner menus on every dish, each with a different missing instruction.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Gothic kitchen with letterpress, culinary ciphers, enchanted pies and fractured recipe plates. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The recipe is missing its middle line. A printing press stamps dinner menus on every dish, each with a different missing instruction.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Gothic kitchen with letterpress, culinary ciphers, enchanted pies and fractured recipe plates. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-13.webp',
-    exits: ["HD-14"],
-    choices: [{"id":"sequence","label":"Read the ingredient sequence backward","outcome":"You reconstruct the missing recipe without needing to guess which of three nearly identical pans is cursed."},{"id":"invite","label":"Ask a servant to read the smudged line","outcome":"The servant knows the whole recipe by memory and finally receives credit for inventing it."}],
+    exits: ['HD-14'],
+    choices: [
+      {
+        id: 'sequence',
+        label: 'Read the ingredient sequence backward',
+        outcome:
+          'You reconstruct the missing recipe without needing to guess which of three nearly identical pans is cursed.',
+      },
+      {
+        id: 'invite',
+        label: 'Ask a servant to read the smudged line',
+        outcome:
+          'The servant knows the whole recipe by memory and finally receives credit for inventing it.',
+      },
+    ],
   },
   'HD-14': {
     id: 'HD-14',
-    title: "First Memory Jar",
+    title: 'First Memory Jar',
     kind: 'treasure',
-    opening: "A glass jar holds the sound of the village's last festival. The laughter belongs to people who may prefer not to remember the day.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Translucent glass memory jar projecting a village festival with uncertain faces. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A glass jar holds the sound of the village's last festival. The laughter belongs to people who may prefer not to remember the day.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Translucent glass memory jar projecting a village festival with uncertain faces. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-14.webp',
-    exits: ["HD-15"],
-    choices: [{"id":"witness","label":"Listen without taking the memory","outcome":"The village's festival returns to the Chronicle as testimony, not somebody else's loot.","gain":{"wildflowers":1}},{"id":"seal","label":"Protect the jar until its speakers can consent","outcome":"The House records a request for witnesses instead of a theft."}],
+    exits: ['HD-15'],
+    choices: [
+      {
+        id: 'witness',
+        label: 'Listen without taking the memory',
+        outcome:
+          "The village's festival returns to the Chronicle as testimony, not somebody else's loot.",
+        gain: { wildflowers: 1 },
+      },
+      {
+        id: 'seal',
+        label: 'Protect the jar until its speakers can consent',
+        outcome:
+          'The House records a request for witnesses instead of a theft.',
+      },
+    ],
   },
   'HD-15': {
     id: 'HD-15',
-    title: "The Polite Guest",
+    title: 'The Polite Guest',
     kind: 'choice',
-    opening: "A cursed dinner guest insists on signing away their grief. Their host insists this is hospitality. Both ask you to witness.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Formal dinner table with courteous ghostly guest, hovering pen and unsigned consent form. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'A cursed dinner guest insists on signing away their grief. Their host insists this is hospitality. Both ask you to witness.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Formal dinner table with courteous ghostly guest, hovering pen and unsigned consent form. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-15.webp',
-    exits: ["HD-16"],
-    choices: [{"id":"decline","label":"Refuse to sign for somebody else","outcome":"The host is furious; the guest looks relieved to be treated as a person."},{"id":"question","label":"Ask whether consent can be withdrawn","outcome":"The host admits the original contract had no exit clause. You note the omission."}],
+    exits: ['HD-16'],
+    choices: [
+      {
+        id: 'decline',
+        label: 'Refuse to sign for somebody else',
+        outcome:
+          'The host is furious; the guest looks relieved to be treated as a person.',
+      },
+      {
+        id: 'question',
+        label: 'Ask whether consent can be withdrawn',
+        outcome:
+          'The host admits the original contract had no exit clause. You note the omission.',
+      },
+    ],
   },
   'HD-16': {
     id: 'HD-16',
-    title: "Thornbound Housekeeper",
+    title: 'Thornbound Housekeeper',
     kind: 'combat',
-    opening: "The housekeeper wears armor made of returned keys. She is defending residents against memory thieves, and suspects that you may be one.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Rootwood armored housekeeper with many dangling keys, defensive stance, humane face and long thorn broom. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The housekeeper wears armor made of returned keys. She is defending residents against memory thieves, and suspects that you may be one.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Rootwood armored housekeeper with many dangling keys, defensive stance, humane face and long thorn broom. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-16.webp',
-    exits: ["HD-17"],
-    choices: [{"id":"return-name","label":"Return the name you found in the portraits","outcome":"She pockets the name as gently as a letter. A later guardian may recognize your intention."},{"id":"inspect","label":"Ask who ordered the house locked","outcome":"She shows you the order, signed by a council that no longer exists."}],
+    exits: ['HD-17'],
+    choices: [
+      {
+        id: 'return-name',
+        label: 'Return the name you found in the portraits',
+        outcome:
+          'She pockets the name as gently as a letter. A later guardian may recognize your intention.',
+      },
+      {
+        id: 'inspect',
+        label: 'Ask who ordered the house locked',
+        outcome:
+          'She shows you the order, signed by a council that no longer exists.',
+      },
+    ],
   },
   'HD-17': {
     id: 'HD-17',
-    title: "Gallery of Unsent Letters",
+    title: 'Gallery of Unsent Letters',
     kind: 'lore',
-    opening: "Some letters explain why villagers asked the House to hold pain. Others explain why they were never allowed to ask for it back.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Long archive gallery with sealed letters drifting above unread desks, warm and moody light. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'Some letters explain why villagers asked the House to hold pain. Others explain why they were never allowed to ask for it back.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Long archive gallery with sealed letters drifting above unread desks, warm and moody light. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-17.webp',
-    exits: ["HD-18"],
-    choices: [{"id":"read","label":"Read both sides of the village elder's bargain","outcome":"You learn the difference between shelter and captivity. The Warden's terms now have witnesses."},{"id":"preserve","label":"Archive the unsent responses together","outcome":"Neither side's account can be erased without leaving an obvious empty space."}],
+    exits: ['HD-18'],
+    choices: [
+      {
+        id: 'read',
+        label: "Read both sides of the village elder's bargain",
+        outcome:
+          "You learn the difference between shelter and captivity. The Warden's terms now have witnesses.",
+      },
+      {
+        id: 'preserve',
+        label: 'Archive the unsent responses together',
+        outcome:
+          "Neither side's account can be erased without leaving an obvious empty space.",
+      },
+    ],
   },
   'HD-18': {
     id: 'HD-18',
-    title: "Quiet Bedchamber",
+    title: 'Quiet Bedchamber',
     kind: 'rest',
-    opening: "The mattress smells of thyme and clean linen. A sign does not promise safety, only one night without questions. The walls listen but keep their distance.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Cozy candlelit fairytale rest room with simple bed and blooming thyme against intimidating hall. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The mattress smells of thyme and clean linen. A sign does not promise safety, only one night without questions. The walls listen but keep their distance.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Cozy candlelit fairytale rest room with simple bed and blooming thyme against intimidating hall. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-18.webp',
-    exits: ["HD-19","HD-25"],
-    choices: [{"id":"rest","label":"Take an honest rest and recover","outcome":"You recover one heart, up to the expedition limit, and leave no debt to the house.","gain":{"hearts":1}},{"id":"listen","label":"Stay awake to hear the building settle","outcome":"You learn which staircase creaks when visitors speak their own names."}],
+    exits: ['HD-19', 'HD-25'],
+    choices: [
+      {
+        id: 'rest',
+        label: 'Take an honest rest and recover',
+        outcome:
+          'You recover one heart, up to the expedition limit, and leave no debt to the house.',
+        gain: { hearts: 1 },
+      },
+      {
+        id: 'listen',
+        label: 'Stay awake to hear the building settle',
+        outcome:
+          'You learn which staircase creaks when visitors speak their own names.',
+      },
+    ],
   },
   'HD-19': {
     id: 'HD-19',
-    title: "Mirror Corridor",
+    title: 'Mirror Corridor',
     kind: 'puzzle',
-    opening: "The mirrors show a pair of identical paintings, then reverse one line. You can solve the old Echo Chamber with real card matching or reason through its mirrored geometry.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Endless gothic mirror hall showing recognizable reversed tile geometry and memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      'The mirrors show a pair of identical paintings, then reverse one line. You can solve the old Echo Chamber with real card matching or reason through its mirrored geometry.',
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Endless gothic mirror hall showing recognizable reversed tile geometry and memory cards. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-19.webp',
-    exits: ["HD-20"],
-    choices: [{"id":"match","label":"Solve the mirrored memory-card chamber","outcome":"The hallway demands actual matching skill; your cleared pairs become the proof of passage."},{"id":"geometry","label":"Follow the visible reversed handrail","outcome":"You bypass the optional match board by observing which reflection disagrees with the real wall."}],
+    exits: ['HD-20'],
+    choices: [
+      {
+        id: 'match',
+        label: 'Solve the mirrored memory-card chamber',
+        outcome:
+          'The hallway demands actual matching skill; your cleared pairs become the proof of passage.',
+      },
+      {
+        id: 'geometry',
+        label: 'Follow the visible reversed handrail',
+        outcome:
+          'You bypass the optional match board by observing which reflection disagrees with the real wall.',
+      },
+    ],
   },
   'HD-20': {
     id: 'HD-20',
     title: "Missing Daughter's Room",
     kind: 'choice',
-    opening: "A young woman's room contains letters she wrote after leaving home. Her family kept calling her missing long after she chose to go.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Quiet bedroom with packed traveling bag, window to old forest, handwritten letters facedown. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A young woman's room contains letters she wrote after leaving home. Her family kept calling her missing long after she chose to go.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Quiet bedroom with packed traveling bag, window to old forest, handwritten letters facedown. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-20.webp',
-    exits: ["HD-21"],
-    choices: [{"id":"testify","label":"Tell the family she left of her own accord","outcome":"The truth hurts, but it respects her right to leave."},{"id":"protect","label":"Keep her address private","outcome":"You return the letters but not her location. A family's longing does not overrule her safety."}],
+    exits: ['HD-21'],
+    choices: [
+      {
+        id: 'testify',
+        label: 'Tell the family she left of her own accord',
+        outcome: 'The truth hurts, but it respects her right to leave.',
+      },
+      {
+        id: 'protect',
+        label: 'Keep her address private',
+        outcome:
+          "You return the letters but not her location. A family's longing does not overrule her safety.",
+      },
+    ],
   },
   'HD-21': {
     id: 'HD-21',
-    title: "Parlor of Embarrassments",
+    title: 'Parlor of Embarrassments',
     kind: 'lore',
-    opening: "A mirror repeats Morrow's first humiliating attempts at being you. The laughter is loud enough to hide how frightened they were.",
-    artPrompt: "Western animated mature Grimm fantasy, a single story scene: Vintage parlor with ornate mirror showing awkward Earth office scenes as memory echoes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.",
+    opening:
+      "A mirror repeats Morrow's first humiliating attempts at being you. The laughter is loud enough to hide how frightened they were.",
+    artPrompt:
+      'Western animated mature Grimm fantasy, a single story scene: Vintage parlor with ornate mirror showing awkward Earth office scenes as memory echoes. Nuanced human and fantasy subjects, no readable lettering, no watermark, no collage.',
     imagePath: '/images/memory-dungeon/house/rooms/hd-21.webp',
     exits: ["HD-22"],
     choices: [{"id":"archive","label":"Keep the humiliating memory as evidence","outcome":"The Chronicle records Morrow's early harm without pretending it is their whole character."},{"id":"turn","label":"Turn the mirror toward the empty room","outcome":"The laughter stops. You are still allowed to feel angry, but you stop inviting an audience."}],
@@ -411,7 +734,9 @@ export function houseExits(
 ): HouseRoomId[] {
   const forward = [...(HOUSE_ROOMS[roomId]?.exits ?? [])]
   const backtrack = Object.values(HOUSE_ROOMS)
-    .filter((room) => room.exits.includes(roomId))
+    .filter((room) =>
+      room.exits.includes(roomId) && progress.visited.includes(room.id),
+    )
     .map((room) => room.id)
   const exits = [...new Set([...forward, ...backtrack])]
   if (roomId === 'HD-10' && progress.decisions['HD-10'] === 'manifest')

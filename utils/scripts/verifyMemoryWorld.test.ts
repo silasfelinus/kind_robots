@@ -86,6 +86,13 @@ assert.deepEqual(
   ['HD-02', 'HD-07'],
   'Opening exploration genuinely forks rather than following a linear room list',
 )
+assert.ok(
+  houseExits('HD-01', {
+    ...newHouseProgress(),
+    visited: ['HD-01', 'HD-06'],
+  }).includes('HD-06'),
+  'A discovered return shortcut can be used from the entry porch',
+)
 assert.ok(!houseExits('HD-32', { ...newHouseProgress(), current: 'HD-32' }).includes('HD-33'))
 assert.ok(houseExits('HD-32', { ...newHouseProgress(), current: 'HD-32', wardenPassed: true }).includes('HD-33'))
 assert.ok(!houseExits('HD-35', { ...newHouseProgress(), current: 'HD-35' }).includes('HD-36'))

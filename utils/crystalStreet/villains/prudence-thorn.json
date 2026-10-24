@@ -235,6 +235,7 @@
     "signature": [
       {
         "id": "prudence-thorn-warm-up-burning",
+        "act": 1,
         "title": "The Warm-Up Burning",
         "place": "The Heartstone roundabout, Crystal Street",
         "text": "The Concerned Parents are holding a weeknight warm-up burning on the roundabout. A pickup truck is backed up to the Heartstone, full of records, comic books and a stack of Caverns and Chimeras binders with Priya's name on the cover. Pastor Prudence stands on a lawn chair with a bullhorn. When the first album hits the flames, the smoke curls into two horns and a grin, and the parents gasp and throw in more.",
@@ -326,6 +327,7 @@
       },
       {
         "id": "prudence-thorn-play-it-backward",
+        "act": 2,
         "title": "Play It Backward",
         "place": "Every house on Crystal Street, midnight",
         "text": "At midnight every turntable, tape deck and Walkman on Crystal Street starts playing backward at once. Under the warble, a smoky voice is saying something to each listener alone. In house after house, lights snap on and parents start locking their kids in their rooms \"for their own protection.\" Your own door clicks shut. Through the wall you hear your boombox whisper your name in reverse.",
@@ -389,6 +391,7 @@
       },
       {
         "id": "prudence-thorn-hallelujah-house",
+        "act": 1,
         "title": "Hallelujah House",
         "place": "The Lamplight Fellowship on Route 9, 9 p.m.",
         "text": "The Lamplight Fellowship has turned its old carpet showroom into a Hallelujah House, a walk-through scare tour of the Dangers Facing Today's Teens. Room one: a boy in a cape is dragged off by a man in a red devil suit for playing Caverns and Chimeras. Room two: a girl with a Walkman loses her soul to a fog machine. But in room three the fog machine is unplugged and the fog is still rising, the actor in the devil suit is screaming for real, and something made of smoke and melted vinyl is climbing out of the prop record crate, grinning.",
@@ -480,6 +483,7 @@
       },
       {
         "id": "prudence-thorn-game-night-raid",
+        "act": 2,
         "title": "Deliver Us From Dungeons",
         "place": "A Caverns and Chimeras game in the Ramans' basement, 10 p.m.",
         "text": "You're three hours into Priya's Caverns and Chimeras campaign when the doorbell rings. It's Mrs. Kettering from the Concerned Parents, with a Polaroid camera, a pamphlet titled Is Your Child Playing With Demons? and four more worried parents behind her, here to rescue you all from the game. Their fear rolls down the basement stairs like cold air. On the battle map, the little pewter minotaur stands up on its own, stretches, and starts to grow.",
@@ -569,6 +573,7 @@
       },
       {
         "id": "prudence-thorn-call-in",
+        "act": 3,
         "title": "Prudence Says, Live",
         "place": "Your living room, 1:30 a.m., public-access Channel 23",
         "text": "You can't sleep, so you flip on the TV, and Channel 23 is running Prudence Says live in the middle of the night. Prudence sits at a desk with a turntable, a stack of seized records and a telephone, and she is looking straight into the camera. Straight at you. \"Lines are open, sweetie,\" she says. \"Call in and tell me what you're afraid of.\" Behind her, in the dark of the studio, a shape of smoke and vinyl is leaning over the camera operator's shoulder, waiting for the phone to ring.",
@@ -664,6 +669,7 @@
       },
       {
         "id": "prudence-thorn-emergency-meeting",
+        "act": 3,
         "title": "Emergency Meeting of the Concerned Parents",
         "place": "The Grange Hall on Route 9",
         "text": "The Concerned Parents have called an emergency meeting to cancel Halloween. Folding chairs fill the Grange Hall, and Prudence is clicking through a slideshow titled Satan in the Sandbox. Every parent's shadow on the wood-paneled wall has horns. In the very back row, too big for its chair, sits Backmask itself, made of smoke and melted records, eating a bag of fear like popcorn and nodding along.",
@@ -763,7 +769,7 @@
           "label": "Play its own voice back to it, forward, at full volume",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "flag": "prudence-echo",
             "amount": 2
@@ -788,7 +794,7 @@
           "label": "Kneel beside Prudence and play her son's record, forward and then backward",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

@@ -240,6 +240,7 @@
     "signature": [
       {
         "id": "big-gertie-the-line",
+        "act": 1,
         "title": "The Line",
         "place": "Glimmer Falls High cafeteria, midnight",
         "text": "You don't remember coming to school. You're holding a beige tray in a cafeteria lit by one buzzing tube, standing in a line that stretches back into the dark: every kid in Glimmer Falls since 1956, in letterman jackets and poodle skirts and Members Only, shuffling forward without a word. At the steam table, a tall shape in a hairnet ladles something that moves. \"Tray,\" it says. \"Fork. Napkin. Next.\"",
@@ -318,6 +319,7 @@
       },
       {
         "id": "big-gertie-mystery-meat",
+        "act": 2,
         "title": "The Mystery Meat Is Moving",
         "place": "Crystal Street storm drains, 1 a.m.",
         "text": "Barnaby howls at midnight. Then you hear it: a wet, cheerful squelch from every storm drain on Crystal Street. Gray-brown blobs of Salisbury Surprise ooze up out of the gutters, roll across the lawns and gather into one quivering mound the size of a station wagon, with two canned peas for eyes. It smells exactly like Tuesday. It wants to form a line.",
@@ -382,6 +384,7 @@
       },
       {
         "id": "big-gertie-family-dinner",
+        "act": 1,
         "title": "Family Dinner",
         "place": "The Home Ec classroom, Glimmer Falls High, 2 a.m.",
         "text": "You wake up seated at a long dinner table in the Home Ec room, a paper napkin tucked into your collar. Around you sit the classroom's dress-form mannequins, each wearing a hairnet and an apron, each with a lunch tray set neatly in front of it. A 1958 filmstrip called Feeding the Family clicks on the wall projector. Big Gertie ducks through the supply closet door carrying a casserole the size of a bathtub, sets it down at the head of the table, and waits. Nobody has ever stayed for dinner before.",
@@ -472,6 +475,7 @@
       },
       {
         "id": "big-gertie-wont-start",
+        "act": 2,
         "title": "The Car Won't Start",
         "place": "The faculty parking lot, Glimmer Falls High, 11 p.m.",
         "text": "Joey's '71 Duster has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
@@ -561,6 +565,7 @@
       },
       {
         "id": "big-gertie-right-back",
+        "act": 3,
         "title": "I'll Be Right Back",
         "place": "The Fall Lock-In, Glimmer Falls High gym, 1 a.m.",
         "text": "The student council's overnight Fall Lock-In is winding down: sleeping bags on the gym floor, a dead boombox, a mountain of pizza crusts. Chip Merriweather stands up and stretches. \"I'm getting pudding cups from the cafeteria,\" he says. \"I'll be right back.\" That was twenty minutes ago. Now, from far down the dark hallway, comes a sound like a ladle being dragged along every locker, one at a time, getting closer.",
@@ -650,6 +655,7 @@
       },
       {
         "id": "big-gertie-walk-in",
+        "act": 3,
         "title": "The Walk-In",
         "place": "The cafeteria walk-in freezer, 3 a.m.",
         "text": "The heavy freezer door thunks shut behind you. Frost on everything. Tater-tot boxes stacked to the ceiling, and hanging from steel hooks in a neat row, rimed white, are the letterman jackets, cheer sweaters and Walkmans of every kid who skipped her line this week. Down the aisle comes the scrape of a cleaver on a sharpening steel, slow and patient. \"I know you,\" says Big Gertie. \"I know every face. I just never bothered with the names.\"",
@@ -774,7 +780,7 @@
           "label": "Start a food fight so big she can't run the line",
           "intent": "camp",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "glow-bracelet",
             "amount": 1
@@ -799,7 +805,7 @@
           "label": "Say her name, and get the whole room to say thank you",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

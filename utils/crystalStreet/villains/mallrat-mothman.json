@@ -235,6 +235,7 @@
     "signature": [
       {
         "id": "mallrat-mothman-closing-time",
+        "act": 1,
         "title": "Closing Time",
         "place": "Starlight Mall, 9 p.m.",
         "text": "The security gates rattle down storefront by storefront. The PA chimes: \"Will the parent of Tyler, age eight, please come to the arcade.\" Nobody comes. In the arcade a small boy is playing the attract screen of a machine with no quarters, pretending. The lights go out one wing at a time. Above the skylight, something as big as a car settles onto the glass, and dust drifts down through the cracks like snow.",
@@ -296,6 +297,7 @@
       },
       {
         "id": "mallrat-mothman-porch-lights",
+        "act": 2,
         "title": "Porch Lights",
         "place": "11 Crystal Street, eleven p.m.",
         "text": "It comes to Crystal Street. Every porch light on the cul-de-sac flickers as the Mothman glides overhead, slow and huge, wings whispering. It lands on the roof of number 11. On the front steps below sits ten-year-old Benji Ferreira in his pajamas, waiting for his parents to get home from the cannery's late shift, the way he does every night. He is looking up at it. He is not scared. That is the scary part.",
@@ -383,6 +385,7 @@
       },
       {
         "id": "mallrat-mothman-have-you-seen-me",
+        "act": 1,
         "title": "Have You Seen Me?",
         "place": "The all-night Quik-Mart on Quarry Road, 1 a.m.",
         "text": "You stop at the all-night Quik-Mart for a Bolt Cola, and the dairy case is wrong. Every milk carton has a kid's face printed on the side under HAVE YOU SEEN ME?, and they are faces you know from the arcade, the food court, the bus stop. Their mouths move. They are whispering their own names, so softly you can barely hear. The clerk has his headphones on and has not looked up once. On the roof, something heavy shifts, and gray dust sifts past the front window like snow.",
@@ -475,6 +478,7 @@
       },
       {
         "id": "mallrat-mothman-ready-or-not",
+        "act": 2,
         "title": "Ready or Not",
         "place": "The Glimmer Falls Elementary playground, 1 a.m.",
         "text": "The swings at Glimmer Falls Elementary are moving on a windless night. All across the playground, little kids in pajamas are hiding: behind the tube slide, under the merry-go-round, curled in the tire tunnel, giggling. A voice is counting through the dark, slow and buzzing, like a voice played through a box fan: \"Ninety-seven. Ninety-eight.\" On top of the jungle gym, the Mothman has its huge wings folded over its eyes. It is It. It is the only one who ever comes looking for them.",
@@ -561,6 +565,7 @@
       },
       {
         "id": "mallrat-mothman-mirror-moth",
+        "act": 3,
         "title": "Something in the Mirror",
         "place": "Your bathroom mirror, 1 a.m., home alone",
         "text": "Everyone at your house is working late tonight. The note on the fridge says pizza money is on the counter, and the house is so quiet you can hear the refrigerator think. Brushing your teeth, you notice fine gray fuzz on your shoulders and two feathery antennae curling out of your bangs. In the mirror your pupils catch the light and glow red. Downstairs, the porch light keeps clicking on by itself, and you want, very badly, to go and stand under it.",
@@ -654,6 +659,7 @@
       },
       {
         "id": "mallrat-mothman-dead-wing",
+        "act": 3,
         "title": "The Dead Wing",
         "place": "Moonbeam Court, Starlight Mall, after midnight",
         "text": "You slip behind the plywood into Moonbeam Court. The neon signs are dead, but they hum. From every one of them hang soft gray cocoons, dozens, swaying like paper lanterns, and through the silk you can see sleeping faces: Marcy Holcomb, Tyler Gaskins, kids you have seen at the arcade a hundred times and never once learned the names of. On the dead sign of Bergdahl's Department Store, the Mothman watches you with its clock-face eyespots, wings slowly opening.",
@@ -754,7 +760,7 @@
           "label": "Rewire the mall's rooftop sign into the brightest light in Glimmer Falls",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "joey-benally",
             "amount": 1
@@ -779,7 +785,7 @@
           "label": "Get on the old PA and page every parent in Glimmer Falls by name",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

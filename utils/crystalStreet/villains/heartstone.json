@@ -263,6 +263,7 @@
     "signature": [
       {
         "id": "heartstone-the-hum",
+        "act": 1,
         "title": "The Hum",
         "place": "The roundabout, Crystal Street, midnight",
         "text": "At midnight the Heartstone starts to hum, low enough to feel in your teeth. Porch lights blink on up and down the cul-de-sac, and in every lit window a neighbor is crying for no reason they can name: Mr. Dobbs at his kitchen sink, the twins at number 6, your own reflection in a station wagon window. The geode pulses violet, drinking it all in, and grows by the width of a fingernail.",
@@ -327,6 +328,7 @@
       },
       {
         "id": "heartstone-under-the-lawn",
+        "act": 2,
         "title": "Under the Lawn",
         "place": "Front yard of 4 Crystal Street, after midnight",
         "text": "With a sound like a dropped tray of dishes, the Dobbses' front lawn caves in. The hole goes down and down into black water, and far below, fourteen small amber lights are moving in a slow line, the way men walk at the end of a long shift. Something down there is calling your name in a voice like rock grinding on rock.",
@@ -394,6 +396,7 @@
       },
       {
         "id": "heartstone-who-goes-there",
+        "act": 1,
         "title": "Who Goes There?",
         "place": "Joey's garage at Rusty's Junkyard, 2 a.m.",
         "text": "The power dies at Joey's garage, and your crew huddles around a camp lantern between stripped-down cars. Then someone knocks: Gus Petrakis from number 8 Crystal Street, in his bathrobe and slippers, smiling, saying he is \"fine, just fine\" in a voice as flat as a dial tone. His eyes have a violet sheen. Crystal glitters across his knuckles like frost. And out in the dark, polite knocks begin on every wall of the garage at once.",
@@ -485,6 +488,7 @@
       },
       {
         "id": "heartstone-nobody-believes",
+        "act": 2,
         "title": "Nobody Believes Teenagers",
         "place": "The front desk of the Glimmer Falls police station, 12:30 a.m.",
         "text": "You burst into the police station to report that the rock on the Crystal Street roundabout is humming, cracking the asphalt and making people cry. Sergeant Lyle Haas does not look up from his crossword. \"Kid, that rock's been sitting there since 1958.\" Behind him the water cooler glugs one slow violet bubble, and the fluorescent lights hum the same low note you heard on the roundabout. Every drive-in monster movie you have ever seen says nobody is going to listen to the next line, and the next line is yours.",
@@ -575,6 +579,7 @@
       },
       {
         "id": "heartstone-dont-look-back",
+        "act": 3,
         "title": "Don't Look Back",
         "place": "The old quarry fence at the end of Quarry Road, 1 a.m., in fog",
         "text": "You are walking home along the chain-link fence of the old quarry when fog rises off the pit, cold and smelling of wet stone. Behind you, footsteps fall into step with yours: heavy work boots, a lot of them, and a lamp swinging with a creak. Someone back there is humming a hymn. In 1952 the quarry owner told the whole town over the radio that Glimmer Falls does not look back. Every story you know says you shouldn't either.",
@@ -665,6 +670,7 @@
       },
       {
         "id": "heartstone-crystal-garden",
+        "act": 3,
         "title": "The Crystal Garden",
         "place": "Crystal Street, before dawn",
         "text": "Crystal Street has become a sculpture garden. Neighbors stand on their lawns cased in violet crystal, each frozen in one feeling: Mrs. Dobbs mid-sob, the mailman mid-laugh, the twins from number 6 holding hands and terrified. The crystal is creeping down the sidewalks toward your crew, and from the roundabout the Heartstone speaks at last, in fourteen voices at once: \"Feel it for us. Somebody has to.\"",
@@ -789,7 +795,7 @@
           "label": "Feed it a fake feeling: a big, hammy, soap-opera breakdown",
           "intent": "camp",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "zelda-fishbein",
             "amount": 2
@@ -814,7 +820,7 @@
           "label": "Read the fourteen names, play the vigil song and grieve together",
           "intent": "kind",
           "skill": "nerve",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

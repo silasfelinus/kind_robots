@@ -4,6 +4,8 @@ import { loadPlaybookLiveText } from './utils/playbookLiveText'
 import {
   CRYSTAL_STREET_LIVE_TEXT,
   VILLAINS,
+  awaitingDraw,
+  drawFrom as drawFromInRun,
   buy as buyInRun,
   choose as chooseInRun,
   currentEncounter,
@@ -19,6 +21,7 @@ import {
   useItem as useItemInRun,
   villainOf,
   type DayActivity,
+  type DeckChoice,
   type LogEntry,
   type NewRunOptions,
   type RunState,
@@ -115,6 +118,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     run.value ? currentEncounter(run.value) : null,
   )
   const outcome = computed(() => (run.value ? pendingOutcome(run.value) : null))
+  const drawing = computed(() => !!run.value && awaitingDraw(run.value))
   const villain = computed(() => (run.value ? villainOf(run.value) : null))
   const bestFound = computed(
     () =>
@@ -240,6 +244,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     storageWarning,
     encounter,
     outcome,
+    drawing,
     villain,
     bestFound,
     metVillains,
@@ -254,6 +259,7 @@ export const useCrystalStreetStore = defineStore('crystalStreet', () => {
     activity: (location: LocationId, activity: DayActivity) =>
       act(doActivity, location, activity),
     nightfall: () => act(nightfallInRun),
+    drawFrom: (deck: DeckChoice) => act(drawFromInRun, deck),
     buy: (item: ItemId) => act(buyInRun, item),
     useItem: (item: ItemId) => act(useItemInRun, item),
     dismiss: (id: CompanionId) => act(dismissInRun, id),

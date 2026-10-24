@@ -3,6 +3,14 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   ARCHETYPES,
+  EDGE_BONUS,
+  NIGHT_DRAWS,
+  actOf,
+  awaitingDraw,
+  drawFrom,
+  edgesOf,
+  modifierFor,
+  villainDeck,
   DAYS,
   AVATARS,
   BEST_WINS,
@@ -190,7 +198,20 @@ assert.ok(
 run = nightfall(run)
 assert.equal(run.phase, 'night')
 assert.equal(run.revealed, true)
-assert.ok(run.current, 'the first night deals a card')
+assert.equal(run.current, null, 'the night waits for a deck choice')
+assert.ok(awaitingDraw(run))
+assert.equal(run.draws, NIGHT_DRAWS)
+assert.ok(
+  villainDeck(run).every((e) => e.act === 1),
+  'act one deals act one',
+)
+run = drawFrom(run, 'villain')
+assert.equal(
+  run.current?.kind,
+  'signature',
+  'the villain deck deals its own card',
+)
+assert.equal(run.draws, NIGHT_DRAWS - 1)
 const firstNight = allEncounters().find((e) => e.id === run.current!.id)!
 run = resolve(choose(run, firstNight.choices.find((c) => !c.requires)!.id))
 assert.equal(run.rolls, 1)
@@ -205,31 +226,61 @@ assert.deepEqual(
   'seeded weeks replay exactly',
 )
 
-// Signature pools: the climax always lands on the night before Halloween, the
-// other special moments are drawn from the rest of the pool and never repeat,
-// and every week sees at least three.
+// Acts: nights 1-2, 3-4 and 5-6 deal only that act's villain cards, never
+// repeat one, and a week can see every card of an act. Beating any card of an
+// act earns its edge; edges add to every finale roll.
+assert.equal(actOf(1), 1)
+assert.equal(actOf(4), 2)
+assert.equal(actOf(6), 3)
 for (const v of VILLAINS) {
-  const climax = v.signature.at(-1)!.id
-  const pool = new Set(v.signature.slice(0, -1).map((e) => e.id))
+  const actById = new Map(v.signature.map((e) => [e.id, e.act]))
   const orders = new Set<string>()
-  for (let i = 0; i < 12; i++) {
-    const week = autoplay(`pool-${v.id}-${i}`, v.id as VillainId)
-    const seen = week.log
-      .filter((l) => l.phase === 'night')
-      .map((l) => l.encounterId)
-      .filter((id, n, all) => all.indexOf(id) === n)
-      .filter((id) => id === climax || pool.has(id))
-    const playedClimaxNight = week.log.some(
-      (l) => l.phase === 'night' && l.day === DAYS - 1,
+  for (let i = 0; i < 10; i++) {
+    const week = autoplay(`acts-${v.id}-${i}`, v.id as VillainId)
+    const dealt = week.log.filter(
+      (l) => l.phase === 'night' && actById.has(l.encounterId),
     )
-    if (!playedClimaxNight) continue
-    assert.ok(seen.includes(climax), `${v.id} reaches its climax`)
-    assert.equal(seen.at(-1), climax, `${v.id} climax comes last`)
-    assert.ok(seen.length >= 3, `${v.id} deals three or more special moments`)
-    orders.add(seen.slice(0, -1).join(','))
+    for (const l of dealt)
+      assert.equal(
+        actById.get(l.encounterId),
+        actOf(l.day),
+        `${v.id} act order`,
+      )
+    const ids = dealt.map((l) => l.encounterId)
+    assert.equal(
+      new Set(ids).size,
+      ids.length,
+      `${v.id} villain cards never repeat`,
+    )
+    for (const l of dealt.filter((d) => d.success))
+      assert.ok(
+        week.flags.includes(`edge-${actOf(l.day)}`),
+        `${v.id} edge earned`,
+      )
+    orders.add(ids.join(','))
   }
-  if (pool.size > 2)
-    assert.ok(orders.size > 1, `${v.id} special moments vary week to week`)
+  assert.ok(orders.size > 1, `${v.id} villain cards vary week to week`)
+}
+
+// Finale edges: each edge adds to the finale roll, and a week with no edges
+// still has a real chance at every approach.
+{
+  const v = VILLAINS[0]!
+  const w = newRun({
+    seed: 'edges',
+    name: 'E',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    villain: v.id as VillainId,
+  })
+  w.day = DAYS
+  w.phase = 'night'
+  w.current = { id: v.finale.id, kind: 'finale' }
+  const fight = v.finale.choices.find((c) => c.id === 'fight')!
+  const bare = modifierFor(w, fight).modifier
+  w.flags.push('edge-1', 'edge-3')
+  assert.equal(modifierFor(w, fight).modifier, bare + 2 * EDGE_BONUS)
+  assert.equal(edgesOf(w).length, 2)
 }
 
 const tiers: Record<string, number> = {

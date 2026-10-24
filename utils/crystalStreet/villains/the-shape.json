@@ -264,6 +264,7 @@
     "signature": [
       {
         "id": "the-shape-the-phone",
+        "act": 1,
         "title": "The Babysitter Answers the Phone",
         "place": "The Quintero house, babysitting, Sunday night",
         "text": "The Quintero twins are finally asleep and the Creature Feature is on. At 9:41 the kitchen wall phone rings. On the line, nobody speaks. There is only a slow click, click, click, like knitting needles, and then a girl's soft voice: \"A good sitter doesn't tie up the line.\" Across the street, under the streetlight, a pale face is watching the window. You blink, and the streetlight is empty.",
@@ -345,6 +346,7 @@
       },
       {
         "id": "the-shape-the-couch",
+        "act": 2,
         "title": "The Couple on the Couch",
         "place": "A Halloween-week party on Pinecone Lane",
         "text": "Somebody's parents are in Reno, so half of Glimmer Falls High is in their rec room. Two of your friends are sharing the plaid couch and a bowl of popcorn, holding hands under an afghan, finally. Through the sliding glass door, past a clothesline of white sheets in the backyard, a pale blank face is watching them. When the sheets flap, she is one sheet closer.",
@@ -439,6 +441,7 @@
       },
       {
         "id": "the-shape-right-back",
+        "act": 1,
         "title": "I'll Be Right Back",
         "place": "The Delgado house, co-sitting with a friend, after dark",
         "text": "You and Tina Vasquez are co-sitting the Delgado kids, who are asleep upstairs under a night-light shaped like a moon. Tina spills a whole bowl of buttered popcorn down her shirt and stands up. \"There's a washer in the garage,\" she says. \"I'll be right back.\" The garage door closes behind her. The washing machine starts, thump, thump, thump. Five minutes. Ten. On the kitchen counter the phone cord has begun to sway by itself, and from somewhere very close comes a slow click, click, click.",
@@ -531,6 +534,7 @@
       },
       {
         "id": "the-shape-behind-the-hedge",
+        "act": 2,
         "title": "Behind the Hedge",
         "place": "Walking home down Crystal Street at dusk",
         "text": "You are walking home from school with Ricky Alvarez, who is talking about the Pine Ridge game and not looking where you are looking. A pale face in a cranberry cardigan is standing behind the Hendersons' hedge, perfectly still. You blink and there is only hedge. Two houses later she is beside a parked station wagon. \"There's no such thing as the boogeyman,\" Ricky says, without turning around. Up ahead, beside the next hedge, a pale shape is waiting, and your house is still four doors away.",
@@ -618,6 +622,7 @@
       },
       {
         "id": "the-shape-stay-with-your-group",
+        "act": 3,
         "title": "Stay With Your Group",
         "place": "The Jaycees Haunted House in the old Woolco on Route 49",
         "text": "The Jaycees Haunted House fills the dead Woolco on Route 49 with plywood hallways, fog machines and dads in rubber masks. A hand-painted board at the entrance lists the house rules: STAY WITH YOUR GROUP. NO RUNNING. NO SCREAMING. In the Babysitter Room, a set with a plaid couch and a wall phone, a volunteer in a white mask and a cardigan lies face down on the carpet as a prop. Your group walks past. You look back. The prop is sitting up, head tilted, counting you with one steel needle.",
@@ -701,6 +706,7 @@
       },
       {
         "id": "the-shape-the-laugh",
+        "act": 3,
         "title": "The Girl Who Laughs Too Loud",
         "place": "Mischief Night skate, Pump Iron roller rink annex",
         "text": "It is Mischief Night, the disco ball is spinning, and somebody tells a joke so bad you laugh until you snort. The music cuts out. Under the strobe light, between one flash and the next, a pale shape in a cardigan is standing in the middle of the rink without skates. Every flash, she is closer. She is walking toward whoever laughed the loudest, and that was you.",
@@ -824,7 +830,7 @@
           "label": "Stage a final-girl ending straight out of Zelda's movies",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "zelda-fishbein",
             "amount": 2
@@ -849,7 +855,7 @@
           "label": "Answer the phone together and tell her what really happened",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

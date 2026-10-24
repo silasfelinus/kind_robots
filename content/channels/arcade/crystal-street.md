@@ -21,17 +21,19 @@ tutorial:
     perk.
 
 
-    At nightfall the nightmare comes. Its own scenes arrive on nights two,
-    four and six, and the rest are pulled from the decks it shares with its
-    kind (paranormal, slasher, creature, cosmic, tech, camp, cult, dream).
-    Every choice rolls two dice plus your skill, crew and gear against 7, 9 or
-    11. Nerve is your health; Dread makes nights harder.
+    At nightfall the nightmare comes. The week runs in three acts of two
+    nights, and each night deals two cards: for each one, choose the
+    nightmare's own deck for the current act (harder, and a win earns that
+    act's edge for Halloween) or the street deck its kind shares. Every
+    choice rolls two dice plus your skill, crew and gear against 7, 9 or 11.
+    Nerve is your health; Dread makes nights harder.
 
 
     On Halloween you face it. Fight it, trick it, or, if you found all three
-    leads, reach its heart. The Best ending needs the heart and at least
-    ten night wins that week. Every week is pasted into your
-    scrapbook; collect a Best ending for every nightmare.
+    leads, reach its heart. Each edge you carry adds +1 to every Halloween
+    roll and can open a straighter way through. The Best ending needs the
+    heart and at least ten night wins that week. Every week is pasted into
+    your scrapbook; collect a Best ending for every nightmare.
   image: /crystal-street/cover.webp
 ---
 

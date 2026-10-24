@@ -261,6 +261,7 @@
     "signature": [
       {
         "id": "varsity-beast-two-a-days",
+        "act": 1,
         "title": "Two-a-Days",
         "place": "The practice field, Glimmer Falls High, midnight",
         "text": "You cut across the practice field at midnight and the stadium lights slam on, every bank at once. A whistle shrieks. Something huge is running suicides on the forty-yard line, goal line and back, goal line and back, its letterman jacket shredded across its shoulders. It stops. It sniffs the air. Over the PA, a man's recorded voice says, \"Walk it off, son. Walk it off.\"",
@@ -320,6 +321,7 @@
       },
       {
         "id": "varsity-beast-bonfire-rally",
+        "act": 2,
         "title": "The Bonfire Rally",
         "place": "The pep rally bonfire, behind Prospector Stadium",
         "text": "The Monster Bowl pep rally bonfire is three stories tall and burning a Pine Ridge dummy in effigy. The boosters have the crowd chanting BE A MAN, BE A MAN, BE A MAN, and with every chant the shape at the edge of the firelight gets bigger: shoulders, claws, a cracked helmet with ears forcing through. Duke Delaney stands on a flatbed with a bullhorn, leading the chant, not looking at it.",
@@ -385,6 +387,7 @@
       },
       {
         "id": "varsity-beast-pizza-surfing",
+        "act": 1,
         "title": "Surfin' Route 49",
         "place": "Route 49 in Lyle's Pizza delivery van, after midnight",
         "text": "You catch a ride home from the late session at Pump Iron in Lyle's Pizza delivery van, sitting on a stack of flat boxes, when something lands on the roof hard enough to dent it. In the side mirror a huge furry shape is crouched on top of the giant fiberglass pizza, letterman jacket flapping, arms out like a surfer, howling at the moon. Behind you a Camaro full of linebackers is honking and chanting, \"WOLF! WOLF! WOLF!\" Lyle grips the wheel. \"Kid,\" he says carefully, \"there's a werewolf on my pizza.\"",
@@ -470,6 +473,7 @@
       },
       {
         "id": "varsity-beast-howling-deal",
+        "act": 2,
         "title": "The Howling Deal of the Year",
         "place": "Delaney Motors on Route 49, a midnight commercial shoot",
         "text": "Duke Delaney is filming a TV spot at midnight on his car lot, under strings of pennant flags, beside a waving inflatable tube man and a giant cardboard cutout of himself giving a thumbs-up. \"Delaney men never back down!\" he bellows at the camera, take after take. His son is supposed to be in the next shot. Instead you find Brick locked in the showroom restroom, shaving his forearms with his father's electric razor while the fur grows back faster than he can cut it. \"I can't go out there,\" he whispers through the door. \"Not like this.\"",
@@ -558,6 +562,7 @@
       },
       {
         "id": "varsity-beast-torches-and-pitchforks",
+        "act": 3,
         "title": "Torches and Pitchforks",
         "place": "The edge of Crystal Woods, behind the quarry, after dark",
         "text": "The Glimmer Falls Booster Club has decided to handle the wolf problem themselves before it ruins the Monster Bowl. Forty grown men in maroon windbreakers are marching into Crystal Woods with flashlights, rakes, a borrowed hunting dog and, for some reason, the silver-plated trophy bat from the 1966 state title. Booster president Ron Stavros is out front, shouting about real men protecting their town. You know who they are hunting. So does the shaking, furry shape curled up in the drainage culvert at your feet.",
@@ -649,6 +654,7 @@
       },
       {
         "id": "varsity-beast-lock-the-door",
+        "act": 3,
         "title": "Lock the Door",
         "place": "The varsity locker room, the night before the Monster Bowl",
         "text": "Brick calls you from the pay phone outside the locker room at eleven. \"Please come,\" he says. \"I can feel it coming, and I don't want to hurt anybody.\" You find him tied to a bench with jump ropes, half wolf and shaking. Then headlights sweep across the frosted windows. Duke Delaney's truck. Brick's eyes flare stadium white. \"He can't see me like this.\"",
@@ -745,7 +751,7 @@
           "label": "Kill the stadium lights and play something soft over the PA",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "frankie-fontaine",
             "amount": 2
@@ -770,7 +776,7 @@
           "label": "Walk onto the field with the tap shoes, the notebook and the yearbook",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

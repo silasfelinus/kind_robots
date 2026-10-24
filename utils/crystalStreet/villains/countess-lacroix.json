@@ -237,6 +237,7 @@
     "signature": [
       {
         "id": "countess-lacroix-velvet-rope",
+        "act": 1,
         "title": "The Velvet Rope",
         "place": "A back alley off Main Street, midnight",
         "text": "A door that was not there yesterday glows red in the alley behind the Glitter Box. A velvet rope, a bouncer with leathery wings folded under his tuxedo, and a sign in gold script: CLUB LACROIX, TONIGHT ONLY, FOREVER 1977. A line of kids from school snakes down the block. As you watch, a sophomore stumbles out the exit in a cardigan, rubbing her lower back, complaining about property taxes.",
@@ -297,6 +298,7 @@
       },
       {
         "id": "countess-lacroix-roller-boogie",
+        "act": 2,
         "title": "Moonlight Roller Boogie",
         "place": "The roller-rink annex, Pump Iron Gym, after hours",
         "text": "The rink lights are off but the mirror ball is spinning. The Countess glides out of the dark on white roller skates, cape snapping, followed by her backup dancers, the Lacroix Lovelies, four pale skaters in matching gold hot pants with bat-wing capes. \"A little race, darling,\" she purrs. \"Ten laps. You win, the kids go home. I win, I keep your twenties.\"",
@@ -364,6 +366,7 @@
       },
       {
         "id": "countess-lacroix-invite-me-in",
+        "act": 1,
         "title": "You Have to Invite Me In",
         "place": "Your front door, Crystal Street, 11 p.m.",
         "text": "The doorbell plays the first four notes of a disco song it does not know. On the porch stands a tall woman in a white fur stole, gold platform boots and sunglasses at night, twirling a long-stemmed black rose. \"Darling, my Cadavrillac has died on your charming little street. May I use your telephone?\" She smiles with a few too many teeth and does not step over the threshold. \"Of course,\" she adds lightly, \"you'll have to say the words. House rules. Old-fashioned of me.\"",
@@ -454,6 +457,7 @@
       },
       {
         "id": "countess-lacroix-glamour-snaps",
+        "act": 2,
         "title": "Mirror, Mirror at Glamour Snaps",
         "place": "Glamour Snaps portrait studio, Starlight Mall, 10 p.m.",
         "text": "Glamour Snaps is running a midnight special: LOOK LIKE 1977 AGAIN! A line of kids from school sits in the makeover chairs while pale assistants in gold hot pants feather their hair and dab glitter on their cheeks. Each time the big flash pops, the kid in the chair sags a little, and gets up with crow's feet. You are next in line. In the huge lit makeup mirror you can see yourself, the chairs, the hairdryers and the assistants. You cannot see the woman in the gold jumpsuit standing right behind you, her hand resting on your shoulder.",
@@ -548,6 +552,7 @@
       },
       {
         "id": "countess-lacroix-at-the-window",
+        "act": 3,
         "title": "Tapping at the Window",
         "place": "Your bedroom window, second floor, 2 a.m.",
         "text": "Tap. Tap. Tap. You open your eyes. Outside your second-floor window, floating in the air with her roller skates dangling, is one of the Lacroix Lovelies: pale as milk, gold hot pants, bat-wing cape fluttering, a feathered hairdo that has not moved since 1979. She drags one long nail down the glass with a squeal. \"Let me in, honey,\" she sings. \"The party's just getting started. It's always just getting started.\" Her eyes look very, very tired.",
@@ -639,6 +644,7 @@
       },
       {
         "id": "countess-lacroix-mirror-ball-moon",
+        "act": 3,
         "title": "Mirror Ball Moon",
         "place": "Crystal Street, one a.m.",
         "text": "A mirror ball the size of a station wagon rises over the Heartstone like a second moon, scattering light across every lawn on Crystal Street. Every teenager on the block is out in their pajamas, dancing in their yards, and with every song they get a little older. Bea is doing her taxes on the porch. Your best friend has reading glasses on a chain and is telling you to turn that racket down. On top of the ball, cape billowing, the Countess blows you a kiss.",
@@ -739,7 +745,7 @@
           "label": "Have Frankie throw the house lights: last call",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "frankie-fontaine",
             "amount": 2
@@ -764,7 +770,7 @@
           "label": "Bring Glory, Zelda and Sal onto the floor and let the last song end",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

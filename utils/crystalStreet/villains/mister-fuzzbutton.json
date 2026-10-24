@@ -234,6 +234,7 @@
     "signature": [
       {
         "id": "mister-fuzzbutton-press-my-tummy",
+        "act": 1,
         "title": "Press My Tummy",
         "place": "Your bedroom, midnight",
         "text": "There's a Mister Fuzzbutton on your pillow. You don't own a Mister Fuzzbutton. Its cassette window glows faint blue and the reels start turning by themselves. \"Hi! I'm Mister Fuzzbutton! Wanna hear a secret?\" Then, in your best friend's voice, it plays back something you said about them last week that you would never, ever want them to hear.",
@@ -316,6 +317,7 @@
       },
       {
         "id": "mister-fuzzbutton-bear-pile",
+        "act": 2,
         "title": "Bear Pile",
         "place": "A rec-room slumber party, 1 a.m.",
         "text": "Somebody brought their little sister's Mister Fuzzbutton to the slumber party as a joke. Now there are nine of them, on the shelves and the TV and the beanbag, and they're taking turns. The bear on the TV tells who has a crush on whom. The bear on the shelf tells whose parents are splitting up. Each secret lands like a slap, and your crew is drifting into separate corners of the rec room, alone.",
@@ -383,6 +385,7 @@
       },
       {
         "id": "mister-fuzzbutton-red-light",
+        "act": 1,
         "title": "Red Light, Green Light",
         "place": "Your upstairs hallway, 1 a.m., during a blackout",
         "text": "The power is out on Crystal Street, and your flashlight beam lands on a Mister Fuzzbutton at the far end of the upstairs hallway. You don't own a Mister Fuzzbutton. You swing the light toward the bathroom for one second, and when you swing it back, the bear is three steps closer. Its cassette window glows faint blue. \"Red light, green light!\" it chirps in a small boy's voice. \"You're it. You're always it.\"",
@@ -470,6 +473,7 @@
       },
       {
         "id": "mister-fuzzbutton-comes-back",
+        "act": 2,
         "title": "It Keeps Coming Back",
         "place": "Your front porch, every hour on the hour",
         "text": "At ten o'clock you threw the Mister Fuzzbutton in the trash can by the curb. At eleven it was sitting on your porch swing. At eleven-thirty you tossed it in Crystal Creek and watched it float away. Now it's midnight, and it's on the welcome mat again, soaking wet, one button eye dangling by a thread, reels turning. \"I came back!\" it says. \"Bears always come back. Not like people.\"",
@@ -556,6 +560,7 @@
       },
       {
         "id": "mister-fuzzbutton-always-home",
+        "act": 3,
         "title": "The Friend Who's Always Home",
         "place": "Your den, 3 a.m., Channel 8",
         "text": "You fall asleep on the couch and wake to the TV playing the Mister Fuzzbutton commercial from 1985, over and over. \"The friend who's always home!\" sings the jingle. But tonight the kids in the commercial are kids you know: the Delgado twins, Kev's little brother, a girl from your bus stop, each one alone in a bright cartoon bedroom with a bear. They're pressing their hands against the inside of the screen. Behind them, every bear turns its head to look at you.",
@@ -641,6 +646,7 @@
       },
       {
         "id": "mister-fuzzbutton-march",
+        "act": 3,
         "title": "Every Bear in Glimmer Falls",
         "place": "Crystal Street, 2 a.m.",
         "text": "They come down the sidewalks in a slow, waddling wave: every Mister Fuzzbutton in Glimmer Falls, hundreds of them, tummies glowing blue, all speaking in the same small voice. \"Everybody go home. Everybody stay home. Friends tell. Bears don't.\" Porch lights snap off one after another. Kids in pajamas stand in their doorways with bears in their arms, nodding along.",
@@ -768,7 +774,7 @@
           "label": "Record over the tape with the whole crew's voices",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "cassette-recorder",
             "amount": 2
@@ -793,7 +799,7 @@
           "label": "Ask Ollie to come trick-or-treating with the crew",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

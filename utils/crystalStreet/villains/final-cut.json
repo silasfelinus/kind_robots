@@ -303,6 +303,7 @@
     "signature": [
       {
         "id": "final-cut-places-everyone",
+        "act": 1,
         "title": "Places, Everyone",
         "place": "The Glitter Box midnight show",
         "text": "The midnight double feature is a rowdy sing-along until the second reel. Then the house lights dim on their own, a clapperboard snaps somewhere in the dark like a gunshot, and two hundred people in the audience turn to look at you. \"Line!\" booms a megaphone from the projection beam. The person next to you hands you a page of sides. Your name is typed at the top. Your role: EXTRA #4 (DIES).",
@@ -362,6 +363,7 @@
       },
       {
         "id": "final-cut-kill-order",
+        "act": 2,
         "title": "The Kill Order",
         "place": "Crystal Street, lit like a soundstage",
         "text": "Crystal Street has become a set. Klieg lights on the roundabout, cables snaking across lawns, the Heartstone glowing like a key light. The Slate floats over the cul-de-sac in its beam of light, megaphone raised, reading from a clipboard. \"First the gay friend. Then the Black friend. Then the girl who went to the boathouse. That's the order. That's always the order.\" Spotlights swing across the porches, hunting for the neighbors it means.",
@@ -447,6 +449,7 @@
       },
       {
         "id": "final-cut-be-right-back",
+        "act": 1,
         "title": "I'll Be Right Back",
         "place": "The Starlight Drive-In, closed for the season, midnight",
         "text": "The Starlight Drive-In has been shuttered since Labor Day, but tonight its giant screen flickers on while your crew sits in a borrowed station wagon, and the feature is Lights Out at Crystal Pines. The teenagers on screen are wearing your clothes. One of them, in your friend's exact jacket, stretches and says, \"I'll be right back.\" In the back seat, your friend stretches the same way, lips moving in sync, and reaches for the door handle.",
@@ -537,6 +540,7 @@
       },
       {
         "id": "final-cut-cat-scare",
+        "act": 2,
         "title": "The Cat Scare",
         "place": "Your basement, one a.m., lit like a soundstage",
         "text": "You go down to the basement for a flashlight and find it has been dressed for a scene: a fog machine hissing behind the furnace, a boom mic dangling from the rafters, and a tape X on the floor in front of the laundry-room door. From nowhere, violins start to build, high and thin and climbing. Every movie you have ever seen says something is about to jump out of that door. Behind you, very quietly, a slate pencil squeaks.",
@@ -626,6 +630,7 @@
       },
       {
         "id": "final-cut-killer-pov",
+        "act": 3,
         "title": "Point of View",
         "place": "Crystal Street sidewalks, 2 a.m., through a viewfinder",
         "text": "You blink and you are looking through a camera viewfinder, gliding low along the sidewalk at walking speed, while somebody breathes heavily in your ears. The breathing is on the soundtrack. You are the killer's point-of-view shot. The dolly is carrying you toward a lit garage where Ricky Alvarado, who runs the follow spot at the Glitter Box, is rehearsing a lip-sync alone in a feather boa. A chalk slate floats at the edge of your vision: FRIEND #1. FIRST.",
@@ -712,6 +717,7 @@
       },
       {
         "id": "final-cut-the-twist",
+        "act": 3,
         "title": "The Twist",
         "place": "The Glitter Box stage, after midnight",
         "text": "The Slate has rolled a wardrobe rack onto the Glitter Box stage. On it hangs the script's 'Killer' costume: a rental wig, a thrift-store housedress and a rubber knife, the outfit a 1980 producer thought was a punchline. A dress is just a dress. What is frightening is the beam: wherever it lands, it tries to staple that costume to someone and make the audience gasp. \"And now,\" the megaphone purrs, \"the twist.\" The spotlight swings toward you.",
@@ -834,7 +840,7 @@
           "label": "Splice the Saturday cartoons into the last reel",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "success": {
             "text": "You splice a reel of cartoons into the slasher at the worst possible moment. The Slate bellows \"ACTION!\" and gets a coyote holding an anvil. It cannot do menace through a pie fight. The whole audience laughs as themselves, the beam sputters, and the cursed print unspools across the booth floor.",
             "art": "A movie screen showing a cartoon coyote with an anvil while a ghostly clapperboard-faced figure in the projector beam clutches its head, an audience in costumes laughing",
@@ -855,7 +861,7 @@
           "label": "Screen the ending they wrote, with Celeste in the room",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "frankie-fontaine",
             "amount": 2

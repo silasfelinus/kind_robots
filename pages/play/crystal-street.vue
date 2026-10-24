@@ -197,6 +197,7 @@
         </div>
       </div>
       <crystal-street-encounter v-else-if="store.encounter" />
+      <crystal-street-draw v-else-if="store.drawing" />
       <crystal-street-map v-else />
     </div>
   </main>

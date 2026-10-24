@@ -205,6 +205,7 @@
     "signature": [
       {
         "id": "screwhead-aisle-nine",
+        "act": 1,
         "title": "Aisle Nine Goes On Forever",
         "place": "A HomeMax that isn't there, 2 a.m.",
         "text": "You walked out for a Bolt Cola and walked into a hardware store that should be the 7-Eleven. Orange aisles stretch to a vanishing point under humming fluorescent light. Every item is faced, priced and identical. A calm voice like a dentist's comes over the PA: \"Attention shoppers. Please remain in your aisle. Order is being restored.\" Far down Aisle Nine, a tall woman with a crown of brass screws is restocking, and she does not look up.",
@@ -266,6 +267,7 @@
       },
       {
         "id": "screwhead-the-leveling",
+        "act": 2,
         "title": "The Leveling",
         "place": "Crystal Street, midnight",
         "text": "You wake to a sound like a thousand ratchets. Out your window, Crystal Street is rearranging itself: the houses grinding on their foundations into a perfect grid, crooked mailboxes snapping plumb, the round Heartstone garden squaring off into a box. Neighbors stand at their mailboxes in pajamas with silver chains looped kindly around their wrists. Even Mr. and Mr. Abernathy-Cole, who mow in zigzags on principle, are standing at attention. \"Nobody asked us,\" one of them says through a fixed smile, \"but it's fine.\" \"It doesn't hurt,\" calls Mrs. Delgado. \"Nothing moves. Isn't it wonderful?\"",
@@ -311,6 +313,7 @@
       },
       {
         "id": "screwhead-some-assembly",
+        "act": 1,
         "title": "Some Assembly Required",
         "place": "Your bedroom, 2 a.m.",
         "text": "The flat-pack wardrobe your mom bought at HomeMax has been leaning in its box against your wall for a week. At 2 a.m. the box splits open by itself. Panels slide out, cam locks spin, dowels pop into holes, and an Allen key turns in midair with a patient click, click, click. The instruction booklet flutters open on your carpet to the last page. Step 47 is a neat little drawing of you, folded up and tucked into the bottom drawer, with a smiley face.",
@@ -397,6 +400,7 @@
       },
       {
         "id": "screwhead-screwed-shut",
+        "act": 2,
         "title": "Screwed Shut",
         "place": "Your house, 3 a.m.",
         "text": "You wake to the whine of a power drill. Then another, and another, all around the house. Through the gap in your curtains you see neighbors in pajamas screwing plywood over your windows, a brass screw every four inches, perfectly spaced, and the same thing is happening to every house on Crystal Street. The front door is already sealed. Through the mail slot comes a calm voice like a store intercom: \"Stay in. It's safer. Nothing that's fastened can ever be lost.\"",
@@ -482,6 +486,7 @@
       },
       {
         "id": "screwhead-clockwise-forever",
+        "act": 3,
         "title": "Clockwise Forever",
         "place": "The roller-rink annex at Pump Iron, 11 p.m.",
         "text": "The rink should be closed, but the mirror ball is turning and the organ is playing the same eight bars over and over. Out on the floor, fifty skaters glide in a perfect circle, clockwise, single file, each exactly one arm's length from the next, linked wrist to wrist by thin silver chains. Their faces are calm. Their ankles are wobbling. A freshly painted banner over the DJ booth, in neat capitals, reads: ALL SKATE. CLOCKWISE. FOREVER.",
@@ -572,6 +577,7 @@
       },
       {
         "id": "screwhead-the-box",
+        "act": 3,
         "title": "The Box Solves Itself",
         "place": "Your bedroom, 3:33 a.m.",
         "text": "The brass puzzle box is on your nightstand. You never brought it home. It's turning by itself, panels clicking and sliding, each click a little louder, and with every click your room gets neater: posters squared, sheets tucked hospital-tight, cassettes alphabetized. From a seam of gold light, chains begin to unspool across the walls, and a woman's voice like a store intercom says, \"One more turn and you'll never lose anything again. You don't have to say yes. I've already decided.\"",
@@ -667,7 +673,7 @@
           "label": "Swap the labels on one drawer and let her try to fix it",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "success": {
             "text": "You swap the quarter-inch and the three-eighths. She can't stand it. She fixes it. You swap two more. The crew starts swapping every label in the store, and she spins in place trying to correct everything at once until the box can't hold its own disorder and pops open, spilling the whole street out onto the lawn.",
             "art": "A teen crew frantically swapping labels on hundreds of hardware drawers while a woman with brass screws in her hair spins in panic trying to fix them, the walls of the store cracking open to the night sky",
@@ -684,7 +690,7 @@
           "label": "Show her the sign, the ledger and her father's letter, then ask before you loosen anything",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": { "clues": 3 },
           "success": {
             "text": "You set the old sign on the counter, open the green ledger to FORGIVEN, and read Laszlo's letter out loud. Magda's hands stop on the wheel. \"He forgave all of them,\" she says. \"Even the ones who went to the mall.\" You hold out your hand, palm up, and ask: \"Can I loosen one?\" Nobody has asked her anything in a year. She stares at you, then nods. One screw comes out of her crown, then another, falling ringing to the floor. \"A chain somebody chooses is a promise,\" she says slowly. \"One you put on them is a cage.\" She takes off the orange apron and goes aisle to aisle, asking each neighbor, \"Do you want this off?\", and turning each chain a quarter-turn the other way when they say yes.",

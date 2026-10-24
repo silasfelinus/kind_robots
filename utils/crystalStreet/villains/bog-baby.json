@@ -242,6 +242,7 @@
     "signature": [
       {
         "id": "bog-baby-soft-spot",
+        "act": 1,
         "title": "The Soft Spot",
         "place": "Lot C, Starlight Mall, 11 p.m.",
         "text": "Lot C is empty except for one sputtering sodium light and a lone shopping cart in a parking space. The asphalt under the cart is bulging up like bread dough. Bubbles of golden grease ooze from the cracks. The cart sinks to its handle with a satisfied gloop, and then the sound rises out of the ground: a thousand frogs crying at once, like a baby who wants its mother.",
@@ -302,6 +303,7 @@
       },
       {
         "id": "bog-baby-feeding-time",
+        "act": 2,
         "title": "Feeding Time",
         "place": "Starlight Mall food court, after closing",
         "text": "After closing, the food court is dark except for the neon of Corn Dog Castle. Every fryer has turned itself on. Grease bubbles over the counters in slow golden waterfalls, slides across the tile and pours into a crack that is splitting the fountain in two. Something under the mall is gulping and growing. The floor heaves. A pretzel kiosk tilts and begins to slide toward the crack.",
@@ -365,6 +367,7 @@
       },
       {
         "id": "bog-baby-lovers-lane",
+        "act": 1,
         "title": "Something on the Roof",
         "place": "The top deck of the Starlight Mall parking garage, overlooking Lot C, midnight",
         "text": "The top deck of the parking garage is where Glimmer Falls teens go to park and look at the lights, and tonight you are up here in Wade's van with the radio on. The song cuts out. \"We interrupt this broadcast,\" says a shaky KGLM announcer, \"to report something large moving under Lot C.\" Then, on the roof of the van: a wet slap. Another. A slow, sticky dragging sound, like a webbed hand feeling its way toward the windshield.",
@@ -456,6 +459,7 @@
       },
       {
         "id": "bog-baby-baby-monitor",
+        "act": 2,
         "title": "The Baby Monitor",
         "place": "The Lindqvist bathroom, next door, 2 a.m.",
         "text": "Bea's walkie-talkie crackles you awake. \"Get over here. The baby monitor is picking up something, and it isn't my brother.\" Through the little speaker on the Lindqvists' dresser comes a wet gurgle, then a hiccup, then a long, lonely wail. Bea's baby brother is asleep in his crib, perfectly quiet. The sound is coming from the bathtub, where the drain is bubbling up duckweed, tadpoles and a slow tide of warm brown water that smells like the fryers at Corn Dog Castle.",
@@ -545,6 +549,7 @@
       },
       {
         "id": "bog-baby-pet-palace",
+        "act": 3,
         "title": "Locked In After Closing",
         "place": "Pet Palace in Starlight Mall, after closing, 1 a.m.",
         "text": "You hid in the stockroom on a dare and now the gates are down and the mall is dark. In Pet Palace every animal is awake: the turtles, the goldfish, the green anoles and a tank of fire-bellied toads, all pressed against the glass facing the same direction, toward Lot C. The aquariums are overflowing. The floor drain in the middle of the store gurgles, and a hand made of mud rises out of it, small and soft and grabbing, like a baby reaching for a mobile. Down the dark concourse, the mall cop's flashlight swings your way.",
@@ -629,6 +634,7 @@
       },
       {
         "id": "bog-baby-hatching",
+        "act": 3,
         "title": "It's Hatching",
         "place": "Lot C, Starlight Mall, 3 a.m.",
         "text": "Lot C has split open like an eggshell. In the crater, wreathed in steam and cattails, something the size of a city bus is uncurling: a giant baby made of black mud and golden grease, its skin dotted with blinking frog eyes, a crown of reeds on its head and a violet light pulsing in its chest like a geode. It opens its mouth, and the wail rattles every window in Glimmer Falls. Parked cars are sliding into the crater. So is the edge of the mall's dead wing.",
@@ -730,7 +736,7 @@
           "label": "Lure it back underground with a trail of food-court fries",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "success": {
             "text": "You raid every fryer in the food court and lay a golden trail of fries back to the crater. It follows, slurping, settles into the pit with an enormous contented belch, and falls asleep. The lot gets roped off with orange cones. It'll wake up again next year, bigger.",
             "art": "A trail of french fries leading across a parking lot into a crater where a giant mud baby is curling up to sleep, orange traffic cones around the edge",
@@ -751,7 +757,7 @@
           "label": "Break open the culvert and give it back its water",
           "intent": "kind",
           "skill": "lore",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

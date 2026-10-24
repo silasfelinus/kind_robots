@@ -262,6 +262,7 @@
     "signature": [
       {
         "id": "brightwaters-welcome-casserole",
+        "act": 1,
         "title": "The Welcome Casserole",
         "place": "Your kitchen, nine p.m.",
         "text": "Donna Brightwater is standing in your kitchen, and nobody remembers letting her in. Your family is at the table eating something green and creamy with crunchy onions on top, and they are smiling so gently. \"I saved you a plate,\" Donna says. The casserole steams. Inside it, very slowly, something pulses.",
@@ -348,6 +349,7 @@
       },
       {
         "id": "brightwaters-block-party",
+        "act": 2,
         "title": "The Block Party",
         "place": "Crystal Street, midnight",
         "text": "A block party has sprung up around the Heartstone at midnight. Picnic tables, a potato-sack race, lawn chairs in perfect rows, and a hundred neighbors in pastel polo shirts eating potato salad in rhythm. The Brightwater twins skip over to you holding hands. \"Want to see our basement?\" Kip asks. \"Everyone ends up seeing our basement.\"",
@@ -407,6 +409,7 @@
       },
       {
         "id": "brightwaters-stay-awake",
+        "act": 1,
         "title": "Don't Fall Asleep",
         "place": "Priya Raman's basement slumber party, 2 a.m.",
         "text": "Rule one of tonight's slumber party, written in marker on Priya's dungeon master screen: NOBODY SLEEPS. Everybody knows by now that the replacing happens while you dream. The VCR has eaten the second movie, the Bolt Cola is gone, and one by one your friends' eyelids are drooping. Under every sleeping bag on the shag carpet, something green and soft is swelling, patient as a houseplant. Out on the lawn, the Brightwater twins are standing at the basement window, holding hands, waiting for the lights to go out.",
@@ -501,6 +504,7 @@
       },
       {
         "id": "brightwaters-the-point",
+        "act": 2,
         "title": "The Point",
         "place": "Thriftee-Mart Supermarket on Main Street, 10 p.m.",
         "text": "The Thriftee-Mart is open late and every shopper in it is moving in step: carts rolling down the aisles at the same speed, hands reaching for the same brand of mayonnaise at the same moment, everyone humming the same jingle. Mr. Abernathy, the band teacher who wore a different novelty tie every day for twenty years, is in plain khaki now, stacking cans into a perfect pyramid. You are holding a box of Count Cocoa-Bites. He turns, sees you, and slowly raises one finger to point. His mouth opens wider, and wider, and wider.",
@@ -589,6 +593,7 @@
       },
       {
         "id": "brightwaters-sport",
+        "act": 3,
         "title": "The Dog Knows",
         "place": "Your front porch, Crystal Street, midnight",
         "text": "Sport, the Brightwaters' golden retriever, is sitting on your doormat with your missing sneaker in his mouth. His tail wags left, right, left, right, exactly once per second, like a metronome. Barnaby has never been afraid of any dog in his life, and right now he is hiding behind your legs, growling low. Sport sets the sneaker down neatly, squared to the edge of the mat. \"Woof,\" he says, pronouncing it.",
@@ -680,6 +685,7 @@
       },
       {
         "id": "brightwaters-pod-night",
+        "act": 3,
         "title": "Pod Night",
         "place": "Your bedroom closet, three a.m.",
         "text": "Something in your closet is breathing. You open the door and there, between your jackets and your old Halloween costumes, is a green pod the size of a sleeping bag. Inside it, half-finished, is you. It has your face, your hair, your crooked tooth. It opens its eyes and practices your laugh, and gets it almost right.",
@@ -801,7 +807,7 @@
           "label": "Hijack the parade PA and blast the loudest, strangest song you own",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "mixtape",
             "amount": 2
@@ -826,7 +832,7 @@
           "label": "Gather the town's weirdos and make everyone say out loud what they love about them",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

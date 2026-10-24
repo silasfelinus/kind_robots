@@ -203,6 +203,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }),
     )
     realmArtReady.value = results.every(Boolean)
+    if (!realmArtReady.value && deck.value.family === 'realm') {
+      selectDeck({ family: 'designed' })
+      state.value.status =
+        'The painted realm gallery is incomplete. Enchanted Deck restored without changing your expedition.'
+    }
   }
 
   function selectCardBack(selection: MemoryCardBackId): void {

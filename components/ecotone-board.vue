@@ -347,14 +347,17 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[auto_auto] @4xl:content-start @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
+            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[minmax(0,1fr)] @4xl:content-start @4xl:gap-6 @4xl:p-8 @4xl:pt-8"
           >
             <div
-              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[72rem] @4xl:justify-start"
+              class="flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:h-full @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:pr-2"
             >
+              <div
+                class="flex min-h-[12rem] flex-col justify-end gap-2 @4xl:min-h-0 @4xl:shrink-0 @4xl:justify-start"
+              >
               <span class="eco-kicker self-start">{{ stage.kicker }}</span>
               <h2
-                class="font-serif text-4xl font-black uppercase leading-[.95] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-5xl @6xl:text-6xl @[100rem]:text-7xl"
+                class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
               >
                 {{ stage.title }}
               </h2>
@@ -386,7 +389,7 @@
             </div>
 
             <div
-              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(34rem,65dvh)]"
+              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:shrink-0 @4xl:max-h-none"
               aria-live="polite"
             >
               <template v-if="pending">
@@ -700,9 +703,10 @@
                 </p>
               </template>
             </div>
+            </div>
 
             <div
-              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
+              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-start-1 @4xl:max-h-full"
             >
               <button
                 v-if="game.canUndo && !stagedChoice"
@@ -713,27 +717,46 @@
                 ↶ Undo last decision
               </button>
               <template v-if="stagedChoice">
-                <p class="eco-label">Confirm your decision</p>
-                <p class="font-serif text-lg leading-relaxed">
+                <p class="eco-label">{{ stagedChoice.preview ? 'A look down the road' : 'Confirm your decision' }}</p>
+                <div
+                  v-if="stagedChoice.preview && stagedChoice.thumb"
+                  class="relative aspect-[16/8] shrink-0 overflow-hidden rounded-xl border border-[#d9b877]/40"
+                >
+                  <EcotoneScene
+                    :kind="stagedChoice.thumb.scene"
+                    :art="stagedChoice.thumb.art"
+                    :label="stagedChoice.label"
+                    class="absolute inset-0"
+                  />
+                </div>
+                <p class="font-serif text-lg font-bold leading-snug">
                   {{ stagedChoice.label }}
                 </p>
-                <p class="text-base text-[#f3e6c8]/80">
-                  Nothing has changed yet. Cancel or commit this choice. After
-                  committing, you can rewind before continuing.
+                <template v-if="stagedChoice.preview">
+                  <p class="font-serif text-base leading-relaxed">{{ stagedChoice.preview }}</p>
+                  <p class="text-sm leading-relaxed text-[#f3e6c8]/80">
+                    {{ stagedChoice.possibilities }}
+                  </p>
+                  <p class="text-xs text-[#8fb8b0]">
+                    These are possibilities, not promises. The story responds to your decisions.
+                  </p>
+                </template>
+                <p v-else class="text-sm text-[#f3e6c8]/80">
+                  Nothing has changed yet. You can still change your mind.
                 </p>
                 <button
                   type="button"
                   class="eco-gold-button"
                   @click="confirmDecision"
                 >
-                  Make this choice
+                  {{ stagedChoice.preview ? 'Go there' : 'Make this choice' }}
                 </button>
                 <button
                   type="button"
                   class="eco-choice justify-center text-base"
                   @click="stagedChoice = null"
                 >
-                  Change my mind
+                  {{ stagedChoice.preview ? 'Explore other places' : 'Change my mind' }}
                 </button>
               </template>
               <template v-else-if="pending">
@@ -1827,9 +1850,14 @@ const saveNotice = ref('')
 const saveImportInput = ref<HTMLInputElement | null>(null)
 const revealCount = ref(0)
 let revealTimer: ReturnType<typeof setInterval> | null = null
-const stagedChoice = ref<{ id: string; label: string; act: () => void } | null>(
-  null,
-)
+const stagedChoice = ref<{
+  id: string
+  label: string
+  preview?: string
+  possibilities?: string
+  thumb?: { scene: SceneKind; art?: string | string[] }
+  act: () => void
+} | null>(null)
 
 const continueButton = ref<HTMLButtonElement | null>(null)
 const momentOffer = computed(() =>
@@ -2458,6 +2486,8 @@ type Option = {
   hint?: string
   chip?: string
   chipTitle?: string
+  preview?: string
+  possibilities?: string
   disabled?: boolean
   perkEligible?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
@@ -2466,7 +2496,14 @@ type Option = {
 
 function queueDecision(option: Option) {
   if (option.disabled) return
-  stagedChoice.value = { id: option.id, label: option.label, act: option.act }
+  stagedChoice.value = {
+    id: option.id,
+    label: option.label,
+    preview: option.preview,
+    possibilities: option.possibilities,
+    thumb: option.thumb,
+    act: option.act,
+  }
 }
 
 function confirmDecision() {
@@ -2484,7 +2521,9 @@ const options = computed<Option[]>(() => {
       label: event.name,
       hint: `${event.kind}. ${event.blurb}`,
       chip: `${event.days.length} days`,
-      chipTitle: `Meet ${event.companions.map(companionName).join(' or ')}${event.wildTarget ? ', or nobody' : ''}`,
+      chipTitle: 'Preview this route before committing',
+      preview: event.arrival,
+      possibilities: event.possibilities,
       thumb: { scene: event.scene, art: event.art },
       act: () => game.pickEvent(event.id),
     }))

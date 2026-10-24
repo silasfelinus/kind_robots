@@ -52,9 +52,16 @@
           <span
             class="hidden items-center gap-2 rounded-full border border-[#c9a96e]/40 bg-[#0c1a24] px-3 py-1 text-sm font-semibold @2xl:inline-flex"
           >
-            <span aria-hidden="true">{{
+            <img
+              v-if="activePlayerPortrait && !headerPortraitFailed"
+              :src="activePlayerPortrait"
+              alt=""
+              class="size-7 rounded-full object-cover"
+              @error="headerPortraitFailed = true"
+            />
+            <span v-else aria-hidden="true">{{
               PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
-                ?.emoji ?? '🧑‍🎤'
+                ?.emoji ?? '🖼️'
             }}</span>
             {{ game.run.playerName || 'Wanderer' }}
           </span>
@@ -201,7 +208,7 @@
                     >
                       <img
                         v-if="!failedAvatarPortraits.includes(avatar.id)"
-                        :src="avatar.portrait"
+                        :src="`${avatar.portrait}?retry=${portraitRetry}`"
                         :alt="avatar.label"
                         loading="lazy"
                         class="h-full w-full object-cover object-top"
@@ -228,6 +235,35 @@
                     </span>
                   </button>
                 </div>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-[#d9b877]/65 bg-[#0c1a24]/85 px-3 py-2 text-sm font-bold"
+                    :disabled="uploadingPortrait"
+                    @click="openPortraitUpload"
+                  >
+                    {{ uploadingPortrait ? 'Uploading portrait…' : 'Upload your own portrait' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-[#8fb8b0]/50 bg-[#0c1a24]/85 px-3 py-2 text-xs font-bold"
+                    @click="retryPortraits"
+                  >
+                    Refresh portraits
+                  </button>
+                </div>
+                <button
+                  v-if="customPortraitId && customPortraitUrl"
+                  type="button"
+                  class="mt-2 flex items-center gap-2 rounded-lg border p-2 text-left text-sm"
+                  :class="pickedAvatar === 'custom' ? 'border-[#d9b877]' : 'border-[#8fb8b0]/40'"
+                  :aria-pressed="pickedAvatar === 'custom'"
+                  @click="pickedAvatar = 'custom'"
+                >
+                  <img :src="customPortraitUrl" alt="" class="h-16 w-12 rounded object-cover" />
+                  My uploaded portrait
+                </button>
+                <p v-if="portraitNotice" role="status" class="mt-2 text-xs text-[#f3e6c8]/85">{{ portraitNotice }}</p>
               </div>
               <div>
                 <p class="eco-label mb-2">Your disposition</p>
@@ -902,6 +938,56 @@
               change your dice.
             </p>
           </div>
+          <section
+            v-if="game.run"
+            class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+          >
+            <h3 class="font-serif text-2xl font-bold">Your character portrait</h3>
+            <p class="mt-1 text-sm text-[#f3e6c8]/75">
+              Change your look without restarting the story. Your uploaded image remains private.
+            </p>
+            <div class="mt-3 flex gap-2 overflow-x-auto pb-3" aria-label="Change player portrait">
+              <button
+                v-for="avatar in PLAYER_AVATARS"
+                :key="avatar.id"
+                type="button"
+                class="w-20 shrink-0 rounded-lg border p-1"
+                :class="game.run.avatarId === avatar.id ? 'border-[#d9b877]' : 'border-[#c9a96e]/25'"
+                :aria-pressed="game.run.avatarId === avatar.id"
+                :aria-label="avatar.label"
+                @click="changePlayerLook(avatar.id)"
+              >
+                <img
+                  v-if="!failedAvatarPortraits.includes(avatar.id)"
+                  :src="`${avatar.portrait}?retry=${portraitRetry}`"
+                  :alt="avatar.label"
+                  class="aspect-[2/3] w-full rounded object-cover"
+                  @error="failedAvatarPortraits.push(avatar.id)"
+                />
+                <span v-else class="flex aspect-[2/3] items-center justify-center text-2xl">{{ avatar.emoji }}</span>
+              </button>
+              <button
+                v-if="customPortraitId && customPortraitUrl"
+                type="button"
+                class="w-20 shrink-0 rounded-lg border p-1"
+                :class="game.run.avatarId === 'custom' ? 'border-[#d9b877]' : 'border-[#c9a96e]/25'"
+                aria-label="My uploaded portrait"
+                :aria-pressed="game.run.avatarId === 'custom'"
+                @click="changePlayerLook('custom')"
+              >
+                <img :src="customPortraitUrl" alt="" class="aspect-[2/3] w-full rounded object-cover" />
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="rounded-lg border border-[#d9b877]/70 px-3 py-2 text-sm font-bold" :disabled="uploadingPortrait" @click="openPortraitUpload">
+                {{ uploadingPortrait ? 'Uploading…' : 'Upload a new portrait' }}
+              </button>
+              <button type="button" class="rounded-lg border border-[#8fb8b0]/60 px-3 py-2 text-sm font-bold" @click="retryPortraits">
+                Retry missing portraits
+              </button>
+            </div>
+            <p v-if="portraitNotice" role="status" class="mt-2 text-sm">{{ portraitNotice }}</p>
+          </section>
           <div class="grid gap-4 @3xl:grid-cols-2">
             <section
               class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
@@ -1652,6 +1738,15 @@
       </button>
     </nav>
 
+    <input
+      ref="portraitInput"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      class="sr-only"
+      aria-label="Upload a private Ecotone character portrait"
+      @change="uploadPortrait"
+    />
+
     <dialog
       ref="stylePicker"
       class="modal"
@@ -1843,6 +1938,22 @@ const picked = ref<string>('reporter')
 const characterName = ref('')
 const pickedAvatar = ref<string>('glitter')
 const failedAvatarPortraits = ref<string[]>([])
+const portraitRetry = ref(0)
+const headerPortraitFailed = ref(false)
+const portraitInput = ref<HTMLInputElement | null>(null)
+const uploadingPortrait = ref(false)
+const portraitNotice = ref('')
+const customPortraitId = ref<number | null>(null)
+const customPortraitUrl = ref('')
+const uploadedPreviewUrl = ref('')
+const activePlayerPortrait = computed(() =>
+  game.run?.avatarId === 'custom'
+    ? customPortraitUrl.value
+    : PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)?.portrait
+        ? `${PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait}?retry=${portraitRetry.value}`
+        : '',
+)
+watch(activePlayerPortrait, () => { headerPortraitFailed.value = false })
 const pickedPersonality = ref<string>('curious')
 const displayScale = ref(1.2)
 const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')
@@ -2132,12 +2243,92 @@ const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),
 )
 
+function retryPortraits() {
+  failedAvatarPortraits.value = []
+  headerPortraitFailed.value = false
+  portraitRetry.value += 1
+}
+function openPortraitUpload() {
+  portraitInput.value?.click()
+}
+function changePlayerLook(id: string) {
+  game.setPlayerLook(id, customPortraitId.value)
+  retryPortraits()
+}
+async function loadPrivatePortrait(id: number) {
+  if (!import.meta.client || !Number.isInteger(id) || id <= 0) return
+  try {
+    const result = await $fetch<{
+      success: boolean
+      data?: { imageData?: string | null; fileType?: string | null }
+    }>(`/api/art/image/${id}?includeImageData=true`)
+    if (result.success && result.data?.imageData && customPortraitId.value === id) {
+      const mime = result.data.fileType === 'png' ? 'image/png' : result.data.fileType === 'jpeg' || result.data.fileType === 'jpg' ? 'image/jpeg' : 'image/webp'
+      customPortraitUrl.value = `data:${mime};base64,${result.data.imageData}`
+    }
+  } catch {
+    portraitNotice.value = 'This private portrait could not be loaded. Select another look or upload it again.'
+  }
+}
+watch(
+  () => game.run?.portraitArtId,
+  (id) => {
+    if (!id) return
+    customPortraitId.value = id
+    void loadPrivatePortrait(id)
+  },
+  { immediate: true },
+)
+async function uploadPortrait(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+  if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 8 * 1024 * 1024) {
+    portraitNotice.value = 'Choose a JPEG, PNG or WebP image under 8 MB.'
+    return
+  }
+  uploadingPortrait.value = true
+  portraitNotice.value = ''
+  try {
+    const form = new FormData()
+    form.append('file', file)
+    form.append('galleryName', 'ecotone-players')
+    form.append('isPublic', 'false')
+    form.append('isMature', 'false')
+    const result = await $fetch<{
+      success: boolean
+      message?: string
+      data?: { id?: number }
+    }>('/api/art/upload', { method: 'POST', body: form })
+    const id = result.data?.id
+    if (!result.success || !Number.isInteger(id) || !id || id <= 0)
+      throw new Error(result.message || 'Portrait upload did not finish.')
+    if (uploadedPreviewUrl.value) URL.revokeObjectURL(uploadedPreviewUrl.value)
+    uploadedPreviewUrl.value = URL.createObjectURL(file)
+    customPortraitUrl.value = uploadedPreviewUrl.value
+    customPortraitId.value = id
+    if (game.run) game.setPlayerLook('custom', id)
+    else pickedAvatar.value = 'custom'
+    portraitNotice.value = 'Private portrait saved. You can switch looks at any time.'
+    retryPortraits()
+  } catch {
+    portraitNotice.value = 'Unable to upload. Sign in and try again; your current look is unchanged.'
+  } finally {
+    uploadingPortrait.value = false
+  }
+}
+onUnmounted(() => {
+  if (uploadedPreviewUrl.value) URL.revokeObjectURL(uploadedPreviewUrl.value)
+})
+
 function start() {
   if (!picked.value) return
   game.begin(picked.value, {
     playerName: characterName.value,
     avatarId: pickedAvatar.value,
     personalityId: pickedPersonality.value,
+    portraitArtId: customPortraitId.value,
   })
   tab.value = 'road'
 }

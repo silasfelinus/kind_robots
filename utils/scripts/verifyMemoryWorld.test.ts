@@ -136,7 +136,7 @@ assert.match(BRIAR_SCENES['4,3']!.opening, /executioner’s hood/)
 assert.match(
   briarSceneOpening(BRIAR_SCENES['4,3']!, { '4,4': 'escort' }),
   /UNNECESSARY BUT BINDING/,
-  'Oren responds to the player's earlier choice',
+  "Oren responds to the player's earlier choice",
 )
 
 assert.match(

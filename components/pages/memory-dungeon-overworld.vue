@@ -82,11 +82,18 @@
               :key="back.id"
               type="button"
               class="flex min-w-0 items-center gap-2 rounded-lg border-2 bg-[#182d32] p-2 text-left transition focus-visible:outline-2 focus-visible:outline-[#f6db9a]"
-              :class="world.cardBack === back.id ? 'border-[#ffe29a]' : 'border-[#7b806b]'"
+              :class="
+                world.cardBack === back.id
+                  ? 'border-[#ffe29a]'
+                  : 'border-[#7b806b]'
+              "
               :aria-pressed="world.cardBack === back.id"
               @click="world.selectCardBack(back.id)"
             >
-              <span class="relative flex h-16 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#e3c78c] bg-[#354b48] text-xl text-[#f6db9a]" aria-hidden="true">
+              <span
+                class="relative flex h-16 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#e3c78c] bg-[#354b48] text-xl text-[#f6db9a]"
+                aria-hidden="true"
+              >
                 ✥
                 <img
                   :src="back.path"
@@ -103,7 +110,8 @@
           </div>
           <p class="mt-2 text-xs text-[#e4d0a8]">
             Card-back choices are saved separately from your expedition.
-            Illustrated crests appear automatically when their Comfy artwork is delivered.
+            Illustrated crests appear automatically when their Comfy artwork is
+            delivered.
           </p>
         </fieldset>
         <p class="mt-2 text-xs text-[#e7d29e]">

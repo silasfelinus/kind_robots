@@ -1,6 +1,6 @@
 <template>
   <div class="w-full text-[#f7e6c7]">
-    <div class="grid grid-cols-3 gap-2 sm:gap-3">
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
       <button
         v-for="choice in families"
         :key="choice.key"
@@ -10,8 +10,10 @@
           selected.family === choice.key
             ? 'border-[#ffe29a] shadow-[#f5c66c]/20'
             : 'border-[#8f7a57]/50'
+        
         "
         :aria-pressed="selected.family === choice.key"
+        :disabled="choice.key === 'realm' && !realmDeckReady"
         @click="choose({ family: choice.key })"
       >
         <div class="absolute inset-0 grid grid-cols-3">
@@ -35,6 +37,12 @@
           </p>
         </div>
         <span
+          v-if="choice.key === 'realm' && !realmDeckReady"
+          class="absolute right-1 top-1 rounded bg-[#1c2927]/95 px-1.5 py-0.5 text-[10px] font-bold text-[#f5dbab]"
+        >
+          {{ unlockedRealms.includes(1) ? 'Art pending' : 'Locked' }}
+        </span>
+        <span
           v-if="selected.family === choice.key"
           class="absolute right-2 top-2 rounded-full bg-[#ebd098] px-2 py-1 text-xs font-black text-[#2e362c]"
           >✓</span
@@ -50,6 +58,9 @@
           >✦ Thirty-six original fantasy card illustrations. Two-card matching
           with original game art.</span
         >
+      </template>
+      <template v-else-if="selected.family === 'realm'">
+        <span class="font-semibold">Briar Marches · 30 story images + 2 cross-realm collaboration cards. Unlock with the Bramble Chime; playable once all 32 Comfy paintings are delivered.</span>
       </template>
       <template v-else-if="selected.family === 'gallery'">
         <label class="flex items-center gap-1.5">
@@ -81,7 +92,7 @@
           · {{ selected.collectionIds.length }}
         </button>
       </template>
-      <template v-else>
+      <template v-else-if="selected.family === 'entities'">
         <label class="flex items-center gap-2">
           <span class="font-bold">Worlds of Kind Robots:</span>
           <select
@@ -102,7 +113,7 @@
       </template>
 
       <label
-        v-if="selected.family !== 'designed' && matureAvailable"
+        v-if="selected.family !== 'designed' && selected.family !== 'realm' && matureAvailable"
         class="ml-auto flex items-center gap-2 rounded-lg bg-[#29352d] px-2 py-1.5"
       >
         <span class="font-semibold">Artwork rating:</span>
@@ -121,7 +132,7 @@
         </select>
       </label>
       <span
-        v-if="selected.family !== 'designed'"
+        v-if="selected.family === 'gallery' || selected.family === 'entities'"
         class="w-full text-[11px] text-[#e0cdad]"
       >
         All-art uses public images only. Your explicitly chosen owned
@@ -156,6 +167,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useArtStore } from '~/stores/artStore'
+import { WORLD_ONE_GALLERY } from '~/utils/memoryDungeon/realmGallery'
 import {
   DESIGNED_DUNGEON_ART,
   imageUrlForDeck,
@@ -169,10 +181,15 @@ import type { CollectionPickerMode } from '@/components/art/collection-picker.vu
 const props = defineProps<{
   selected: DungeonDeckSelection
   matureAvailable: boolean
+  unlockedRealms: number[]
+  realmArtReady: boolean
 }>()
 const emit = defineEmits<{ change: [choice: Partial<DungeonDeckSelection>] }>()
 const artStore = useArtStore()
 const collectionsOpen = ref(false)
+const realmDeckReady = computed(
+  () => props.unlockedRealms.includes(1) && props.realmArtReady,
+)
 const families: {
   key: DungeonDeckFamily
   title: string
@@ -182,6 +199,11 @@ const families: {
     key: 'designed',
     title: 'Enchanted Deck',
     description: 'Original painted sigils',
+  },
+  {
+    key: 'realm',
+    title: 'Realm Gallery',
+    description: 'Collect 32 painted memories',
   },
   { key: 'gallery', title: 'Your Art', description: 'Random gallery memories' },
   {
@@ -215,6 +237,10 @@ const publicPreview = computed(() =>
 function preview(family: DungeonDeckFamily): string[] {
   if (family === 'designed')
     return DESIGNED_DUNGEON_ART.slice(0, 3).map((art) => art.imagePath)
+  if (family === 'realm')
+    return realmDeckReady.value
+      ? WORLD_ONE_GALLERY.slice(0, 3).map((card) => card.artPath)
+      : ['/images/background/memorydungeon.webp']
   if (family === 'gallery')
     return publicPreview.value.length
       ? publicPreview.value

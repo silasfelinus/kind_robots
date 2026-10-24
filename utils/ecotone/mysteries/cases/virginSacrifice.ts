@@ -281,6 +281,10 @@ export const VIRGIN_SACRIFICE: Mystery = {
       'The harvest moon wanes and the lanterns stop. A month later a fresh road scar shows on Gleaner Ridge from the highway, and the blue-flagged trees are gone. Nobody on campus talks about the cult anymore. Brynn has moved on to a sea-lion poltergeist.',
       'On the laundromat corkboard, someone has pinned one last note in library-hand: Thank you to the young people who tried. We counted 371 of 412. It was not enough. It was something.',
     ],
+    recall: {
+      'g3:pass':
+        'You got close enough on that last night to know it was never a cult. It turned out that knowing was not enough.',
+    },
     choices: [
       {
         id: 'wrist',
@@ -302,12 +306,14 @@ export const VIRGIN_SACRIFICE: Mystery = {
     chapter: 5,
     scene: 'grove',
     body: [
-      'The circle stops. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us. The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
-      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the land trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” She looks up at the eldest tree. “My father was a faller for forty-one years. At the end, in the hospital, he asked me how many of the big ones were left. Nobody could tell him. So we are counting. Every one. So the next time somebody asks, there is an answer.”',
+      'The circle stops. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us.”',
+      '“The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Agnes turns to Brynn. “And the ribbon on your mirror, dear: you were parked on R-114’s roots, down at the pullout. She was owed an apology, and your car was the nearest thing to write it on.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “Most of us were cataloguers, forty years each, give or take. This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
     ],
     afterMiss: [
-      'Your plan for the night has failed in every particular, and it turns out not to matter at all. The circle stops anyway. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us. The robes are so nobody asks whether we have a permit. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
-      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the land trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” She looks up at the eldest tree. “My father was a faller for forty-one years. At the end, in the hospital, he asked me how many of the big ones were left. Nobody could tell him. So we are counting. Every one. So the next time somebody asks, there is an answer.”',
+      'Your plan for the night has failed in every particular, and the Sisters, who between them have watched plans fail for three hundred years, do not hold it against you. The circle stops anyway. All eight robed figures turn toward you in the lantern light, and eight retired women lower their hoods. The tallest has close-cropped white hair, a pencil behind each ear, and the posture of a woman who once spent a long time kneeling and now declines to. “Agnes Whitcomb,” she says. “Formerly Sister Agnes. These are the Sisters of the Understory: retired librarians, mostly; Dr. Raman, our botanist, who has not let go of that padded case all night; and Ofelia, who taught fourth grade and frightens all of us.”',
+      '“The robes are so nobody asks whether we have a permit. We are too old to sit in a tree for seven hundred and thirty-eight days, the way that young woman did in Luna, so we brought tape measures. And before you ask, ‘virgin stand’ is the correct term. Winnie wrote the flyer. Winnie has never been on the internet.” Agnes turns to Brynn. “And the ribbon on your mirror, dear: you were parked on R-114’s roots, down at the pullout. She was owed an apology, and your car was the nearest thing to write it on.” Behind you, Brynn’s ring light clicks off, slowly, out of respect.',
+      '“Quillmark bought this ridge from an out-of-county estate last year,” Ofelia says. “If we prove the stand is old growth with nesting birds, measured tree by tree, the Lower Eel Commons Trust can buy an easement before the harvest goes through. Our contact there, Spencer, takes every number to the board. Our deadline is sunrise.” Agnes looks up at the eldest tree. “Most of us were cataloguers, forty years each, give or take. This ridge has never been catalogued. Nobody has the right to cut something nobody has counted.” She taps the binder. “Also, Winnie cannot abide a blank field. None of us can.”',
     ],
     recall: {
       'g1:fail':
@@ -319,7 +325,7 @@ export const VIRGIN_SACRIFICE: Mystery = {
       {
         id: 'tape',
         label: 'Pick up a diameter tape and start counting',
-        text: 'You take a diameter tape. Ofelia hands you a pencil she has already sharpened.',
+        text: 'You take a tape off the stump. Ofelia hands you a pencil she has already sharpened.',
         next: 'the-count',
       },
       {
@@ -408,8 +414,8 @@ export const VIRGIN_SACRIFICE: Mystery = {
       title: 'Every Tree Counted',
       tone: 'true',
       text: [
-        'Four hundred and twelve trees, measured to the centimeter, with seven murrelet detections and a botanist’s signature on every page. The Sisters carry the binder to the land trust’s board themselves, by hand, and by spring Quillmark has sold a conservation easement on all of Gleaner Ridge for a sum that makes it feel clever. The trees never notice.',
-        'The Sisters throw a potluck in a community hall in Rio Dell. Brynn’s club attends in robes. You are given one too, brown, hemmed precisely to your height by someone who never asked it, with a pencil sewn into the sleeve. Ofelia reads the final count aloud and then, softly, adds her father’s name at the bottom of the list.',
+        'Four hundred and twelve trees, measured to the centimeter, with seven murrelet detections and a botanist’s signature on every page. The Sisters carry the binder to the Lower Eel Commons Trust’s board themselves, by hand, around Spencer. Quillmark spends the winter paying lawyers to argue that a seabird is not a tree, loses, and by spring sells an easement on all of Gleaner Ridge for far less than the timber would have brought. The trees never notice.',
+        'On the first clear morning after, the Sisters climb back up to measure the eldest one more time, just to watch the number hold. Brynn’s club comes in robes and is allowed to read the numbers out. You are given a robe too, brown, hemmed precisely to your height by someone who never asked it, with a pencil sewn into the sleeve. At the bottom of the final count, in Winnie’s hand, someone has added one line: Counted by people who were told it didn’t matter.',
       ],
     },
     {

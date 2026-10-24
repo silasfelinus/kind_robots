@@ -303,7 +303,7 @@ export const WATER_BEARER: Mystery = {
       'g3:pass':
         'You got closer to the light than anybody on the gravel bar ever has, close enough to see a rental sticker and a man who did not want to be seen. By the time you came back with Nell, the turnout held nothing but fresh tire marks.',
       'g3:fail':
-        'The light got away from you in that meadow, and it never comes back over the river. Whoever was flying it already has what he came for.',
+        'The light got away from you in that meadow, humming off-key on its way down the hill. Whoever was flying it already has what he came for.',
     },
   },
   reveal: {

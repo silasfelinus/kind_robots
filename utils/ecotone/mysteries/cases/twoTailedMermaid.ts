@@ -415,7 +415,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       tone: 'true',
       text: [
         'The show starts eleven minutes later, on the beach below the bluff, by firelight. Half the Plaza sits on the logs in a silence that would astonish anyone who has met the Plaza, and whatever tourists are left stay to watch for free. Coral walks up out of the river and does the old act, slower: fire, glass, a song for the seals. Between tricks she talks plainly about burning out, and about walking out of the sea on purpose because she wanted to keep living. Nobody claps until the seals do.',
-        'Dex watches from the pullout in a wet sequined tail, a man learning what a guaranteed sighting costs. At the end Nadia hands Coral the green hat, full of the night’s tips, and Coral walks it up to him and puts it in his hands. “Down payment,” she says. “The rest goes through a lawyer, like grown-ups.” Then she walks back down to the river mouth where Nadia is waiting with a blanket, and the two of them sit on the sand until the tide makes them move.',
+        'Dex watches from the pullout in a wet sequined tail, a man learning what a guaranteed sighting costs. At the end Nadia hands Coral the green hat, which the Plaza crew has quietly filled with tips anyway, and Coral walks it up to him and puts it in his hands. “Down payment,” she says. “The rest goes through a lawyer, like grown-ups.” Then she walks back down to the river mouth with Nadia and a blanket, and the two of them sit on the sand until the tide makes them move.',
       ],
     },
     {
@@ -424,7 +424,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
       tone: 'bittersweet',
       text: [
         'You keep the secret, and Nadia keeps it too. The Mermaid Cove van disappears from Scenic Drive within a week; nobody books a tour whose mermaid is a soaked man in a wig. Coral stays at the river mouth through the winter, and Gordon notes in his survey that the local seals have unusually refined taste in music. The hat stops appearing on the Plaza. The sea glass stops.',
-        'In spring the camp under the bluff is gone, swept clean. Nobody knows where she went, but in May Nadia gets a postcard from a harbor town up the coast, no return address, one line: Still laughing. — C. Gordon’s survey sheet for the last evening in April reads, in his careful shop-teacher capitals: Seals present: 14. Mermaid: absent. Song: still going, somewhere.',
+        'In spring the camp under the bluff is gone, swept clean. Nobody knows where she went, but that summer Nadia gets a postcard from a harbor town up the coast, no return address, one line: Still laughing. — C. Gordon’s survey sheet for the last evening in April reads, in his careful shop-teacher capitals: Seals present: 14. Mermaid: absent. Song: still going, somewhere.',
       ],
     },
     {

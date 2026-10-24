@@ -1,14 +1,16 @@
 <template>
-  <div class="@container">
-    <div class="grid gap-5 @4xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-      <div class="@container min-w-0 space-y-3">
+  <div class="@container h-full min-h-0">
+    <div
+      class="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-3 @4xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] @4xl:grid-rows-1"
+    >
+      <div class="flex min-h-0 min-w-0 flex-col gap-2">
         <div
-          class="relative overflow-hidden rounded-[1.75rem] border-4 border-[#e2bc7c] bg-[#0f3446] shadow-[0_18px_40px_-18px_rgba(8,32,44,.8)]"
+          class="relative overflow-hidden rounded-[1.75rem] border-4 border-[#e2bc7c] bg-[#123f52] @4xl:min-h-0 @4xl:flex-1"
         >
           <svg
             viewBox="0 0 1000 620"
             xmlns="http://www.w3.org/2000/svg"
-            class="block h-auto w-full"
+            class="block h-auto w-full @4xl:h-full"
             role="group"
             aria-label="Overworld map of the eight worlds"
             @keydown="onKey"
@@ -181,7 +183,7 @@
         </div>
 
         <div
-          class="grid grid-cols-4 gap-2 @lg:grid-cols-8"
+          class="grid shrink-0 grid-cols-8 gap-1.5"
           role="tablist"
           aria-label="Choose a world"
         >
@@ -191,7 +193,8 @@
             type="button"
             role="tab"
             :aria-selected="index === selected"
-            class="group flex flex-col items-center gap-1 rounded-2xl border-2 px-1 py-2 text-[11px] font-bold leading-tight transition"
+            :aria-label="`World ${world.id}: ${world.name}`"
+            class="group flex flex-col items-center gap-1 rounded-2xl border-2 px-1 py-1.5 text-[11px] font-bold leading-tight transition"
             :class="
               index === selected
                 ? 'border-[#e2bc7c] bg-[#123f52] text-[#fff6df] shadow-md'
@@ -199,17 +202,17 @@
             "
             @click="select(index)"
           >
-            <svg viewBox="-26 -26 52 52" class="h-9 w-9" aria-hidden="true">
+            <svg viewBox="-26 -26 52 52" class="h-8 w-8" aria-hidden="true">
               <circle r="25" :fill="world.palette.skyTop" />
               <PlumberWorldGlyph :world="world" />
             </svg>
-            <span>World {{ world.id }}</span>
+            <span class="hidden @4xl:inline">World {{ world.id }}</span>
           </button>
         </div>
       </div>
 
       <article
-        class="min-w-0 overflow-hidden rounded-[1.75rem] border border-base-content/10 bg-base-200 shadow-lg"
+        class="kr-scroll min-w-0 rounded-[1.75rem] border border-base-content/10 bg-base-200"
         aria-live="polite"
       >
         <div class="relative aspect-[16/9] overflow-hidden">
@@ -264,12 +267,14 @@
                     :class="beatClass[stage.beat]"
                     >{{ stage.beat }}</span
                   >
-                  <a
+                  <button
                     v-if="stage.playable"
-                    href="#plumber-play"
+                    type="button"
                     class="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-white hover:bg-emerald-600"
-                    >▶ Playable</a
+                    @click="plumber.setScreen('play')"
                   >
+                    ▶ Playable
+                  </button>
                   <span
                     v-if="plumber.gears.has(stage.code)"
                     class="rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-950"

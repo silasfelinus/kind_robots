@@ -11,6 +11,7 @@ import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_SITES,
+  BRIAR_START,
   briarConnected,
   newBriarSave,
   restoreBriarSave,
@@ -18,6 +19,11 @@ import {
   type BriarMemoryCard,
   type BriarSave,
 } from '~/utils/memoryDungeonWorld'
+import {
+  BRIAR_SCENES,
+  briarSceneOpening,
+  canChooseBriarScene,
+} from '~/utils/memoryDungeon/scenes'
 import {
   describeEvents,
   index as cellIndex,
@@ -71,6 +77,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   let roomEpoch = 0
 
   const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
+  const activeScene = computed(() =>
+    state.value.room === 'map' &&
+    state.value.wavePhase === 'exploring' &&
+    state.value.visited.includes(state.value.player)
+      ? (BRIAR_SCENES[state.value.player] ?? null)
+      : null,
+  )
+  const currentSceneText = computed(() => {
+    const scene = activeScene.value
+    if (!scene) return ''
+    const chosenId = state.value.sceneChoices[state.value.player]
+    return (
+      scene.choices.find((option) => option.id === chosenId)?.outcome ??
+      briarSceneOpening(scene, state.value.sceneChoices)
+    )
+  })
   const mapMatching = computed(
     () => state.value.room === 'map' && state.value.wavePhase === 'matching',
   )
@@ -379,6 +401,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         for (const tile of [first.tile, card.tile]) {
           if (!state.value.revealed.includes(tile))
             state.value.revealed.push(tile)
+          if (tile === BRIAR_START && !state.value.visited.includes(tile))
+            state.value.visited.push(tile)
         }
         state.value.status =
           'A remembered pair! Two pieces of Briar Camp have emerged.'
@@ -430,8 +454,40 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       return
     if (!briarConnected(state.value.player, key, state.value.revealed)) return
     state.value.player = key
+    if (!state.value.visited.includes(key)) state.value.visited.push(key)
+    const scene = BRIAR_SCENES[key]
     state.value.status =
-      BRIAR_SITES[key]?.description ?? 'You retrace a familiar path.'
+      scene && !state.value.sceneChoices[key]
+        ? briarSceneOpening(scene, state.value.sceneChoices)
+        : (BRIAR_SITES[key]?.description ?? 'You retrace a familiar path.')
+    persist()
+  }
+
+  function chooseScene(id: string): void {
+    const key = state.value.player
+    const scene = BRIAR_SCENES[key]
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      !state.value.visited.includes(key) ||
+      state.value.sceneChoices[key] ||
+      !scene
+    )
+      return
+    const choice = scene.choices.find((option) => option.id === id)
+    if (!choice || !canChooseBriarScene(choice, state.value)) return
+    state.value.wildflowers -= choice.cost?.wildflowers ?? 0
+    state.value.lanterns -= choice.cost?.lanterns ?? 0
+    state.value.wildflowers += choice.gain?.wildflowers ?? 0
+    state.value.lanterns += choice.gain?.lanterns ?? 0
+    state.value.sceneChoices[key] = choice.id
+    if (
+      choice.settleDuel &&
+      BRIAR_SITES[key]?.kind === 'enemy' &&
+      !state.value.completedEncounters.includes(key)
+    )
+      state.value.completedEncounters.push(key)
+    state.value.status = choice.outcome
     persist()
   }
 
@@ -833,6 +889,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     combatPick,
     combatNote,
     selectedSite,
+    activeScene,
+    currentSceneText,
     mapMatching,
     mapPairsMatched,
     activeMapCard,
@@ -854,6 +912,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     reset,
     reveal,
     walk,
+    chooseScene,
     claimChest,
     buyLantern,
     enterRune,

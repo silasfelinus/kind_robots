@@ -3,6 +3,7 @@ import {
   restoreBriarCombat,
   type BriarCombat,
 } from './memoryDungeon/rooms'
+import { BRIAR_SCENES } from './memoryDungeon/scenes'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -239,6 +240,8 @@ export interface BriarSave {
   mapDeckSignature: string
   version: number
   revealed: string[]
+  visited: string[]
+  sceneChoices: Record<string, string>
   frontier: string[]
   player: string
   attempts: number
@@ -264,6 +267,8 @@ export function newBriarSave(): BriarSave {
   return {
     version: BRIAR_SAVE_VERSION,
     revealed: [],
+    visited: [],
+    sceneChoices: {},
     frontier: [],
     waveIndex: 0,
     wavePhase: 'matching',
@@ -315,6 +320,27 @@ export function restoreBriarSave(input: unknown): BriarSave {
         ]
       : []
   const revealed = validKeys(saved.revealed)
+  const visited = validKeys([
+    ...(Array.isArray(saved.visited) ? saved.visited : []),
+    saved.player,
+    ...(Array.isArray(saved.chestClaims) ? saved.chestClaims : []),
+    ...(Array.isArray(saved.completedEncounters)
+      ? saved.completedEncounters
+      : []),
+    ...(saved.puzzleSolved ? ['2,7'] : []),
+    ...(saved.gateOpened ? [BRIAR_GATE] : []),
+  ]).filter((key) => revealed.includes(key))
+  const sceneChoices: Record<string, string> = {}
+  if (saved.sceneChoices && typeof saved.sceneChoices === 'object') {
+    for (const [key, choice] of Object.entries(saved.sceneChoices)) {
+      if (
+        typeof choice === 'string' &&
+        BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
+      ) {
+        sceneChoices[key] = choice
+      }
+    }
+  }
   const frontier = validKeys(saved.frontier).filter(
     (key) => !revealed.includes(key),
   )
@@ -380,6 +406,8 @@ export function restoreBriarSave(input: unknown): BriarSave {
       ]),
     ],
     revealed,
+    visited,
+    sceneChoices,
     frontier,
     player:
       typeof saved.player === 'string' && revealed.includes(saved.player)
@@ -420,5 +448,35 @@ export function restoreBriarSave(input: unknown): BriarSave {
       typeof saved.status === 'string'
         ? saved.status.slice(0, 220)
         : fresh.status,
+  }
+}
+
+export type BriarTileProgress =
+  'hidden' | 'unvisited' | 'unfinished' | 'complete'
+
+/** A revealed square is not "clear" until its one-time story and site work are settled. */
+export function briarTileProgress(
+  save: BriarSave,
+  key: string,
+): BriarTileProgress {
+  if (!save.revealed.includes(key)) return 'hidden'
+  if (!save.visited.includes(key)) return 'unvisited'
+  if (BRIAR_SCENES[key] && !save.sceneChoices[key]) return 'unfinished'
+
+  switch (BRIAR_SITES[key]?.kind) {
+    case 'chest':
+      return save.chestClaims.includes(key) ? 'complete' : 'unfinished'
+    case 'puzzle':
+      return save.puzzleSolved ? 'complete' : 'unfinished'
+    case 'enemy':
+      return save.completedEncounters.includes(key) ? 'complete' : 'unfinished'
+    case 'dungeon':
+      return save.relics.includes('bramble-chime') ? 'complete' : 'unfinished'
+    case 'gate':
+      return save.gateOpened ? 'complete' : 'unfinished'
+    case 'sealed':
+      return 'unfinished'
+    default:
+      return 'complete'
   }
 }

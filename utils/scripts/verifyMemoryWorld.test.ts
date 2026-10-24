@@ -26,10 +26,16 @@ import {
   BRIAR_START,
   BRIAR_TILES,
   briarConnected,
+  briarTileProgress,
   newBriarSave,
   restoreBriarSave,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
+import {
+  BRIAR_SCENES,
+  briarSceneOpening,
+  canChooseBriarScene,
+} from '../memoryDungeon/scenes'
 
 assert.deepEqual(
   validateBriarLinks(),
@@ -81,6 +87,101 @@ assert.equal(BRIAR_SITES['5,2']?.kind, 'sealed')
 const road = ['2,4', '3,4', '4,4', '5,4', '6,4', '7,4', '8,4']
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road), true)
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road.slice(0, -1)), false)
+
+const sceneCoordinates = Object.keys(BRIAR_SCENES)
+assert.ok(
+  sceneCoordinates.length >= 12,
+  'World 1 begins with authored individual scenes',
+)
+for (const key of sceneCoordinates) {
+  assert.ok(
+    BRIAR_TILES.some((tile) => tile.key === key),
+    `Scene ${key} is on map`,
+  )
+  const scene = BRIAR_SCENES[key]!
+  assert.ok(scene.opening.length > 100, `Scene ${key} has prose`)
+  assert.ok(scene.artPrompt.length > 40, `Scene ${key} has an art brief`)
+  assert.equal(scene.choices.length, 2, `Scene ${key} has two decisions`)
+  assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
+}
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['6,4']!, { '3,5': 'light' }),
+  /own voice thanks to you/,
+  'Pip recalls an earlier decision',
+)
+assert.equal(
+  canChooseBriarScene(BRIAR_SCENES['2,4']!.choices[0]!, {
+    lanterns: 0,
+    wildflowers: 0,
+  }),
+  false,
+  'Players cannot spend a lantern they lack',
+)
+assert.equal(
+  canChooseBriarScene(BRIAR_SCENES['2,4']!.choices[1]!, {
+    lanterns: 0,
+    wildflowers: 0,
+  }),
+  true,
+  'A no-cost story continuation remains available',
+)
+const visitSave = {
+  ...newBriarSave(),
+  revealed: ['2,4', '3,4', '3,6', '5,5', '5,2', '6,2', '8,4', '2,7'],
+  visited: ['2,4', '3,6', '5,5', '5,2', '6,2', '8,4', '2,7'],
+}
+assert.equal(briarTileProgress(visitSave, '4,8'), 'hidden')
+assert.equal(briarTileProgress(visitSave, '3,4'), 'unvisited')
+assert.equal(briarTileProgress(visitSave, '2,4'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '3,6'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '5,5'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '5,2'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '6,2'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '8,4'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '2,7'), 'unfinished')
+const settledSave = {
+  ...visitSave,
+  sceneChoices: { '2,4': 'copy', '5,5': 'gift' },
+  chestClaims: ['3,6'],
+  completedEncounters: ['5,5'],
+  relics: ['bramble-chime'],
+  gateOpened: true,
+  puzzleSolved: true,
+}
+for (const key of ['2,4', '3,6', '5,5', '6,2', '8,4', '2,7']) {
+  assert.equal(
+    briarTileProgress(settledSave, key),
+    'complete',
+    `${key} clears only when resolved`,
+  )
+}
+assert.equal(
+  briarTileProgress({ ...settledSave, completedEncounters: [] }, '5,5'),
+  'unfinished',
+  'Hearing the Sprite without completing its duel does not clear the square',
+)
+assert.equal(
+  briarTileProgress(settledSave, '5,2'),
+  'unfinished',
+  'Cross-world seals remain pending',
+)
+const restoredScene = restoreBriarSave({
+  ...settledSave,
+  sceneChoices: { ...settledSave.sceneChoices, '3,4': 'invalid' },
+})
+assert.equal(restoredScene.sceneChoices['2,4'], 'copy')
+assert.equal(restoredScene.sceneChoices['3,4'], undefined)
+assert.ok(restoredScene.visited.includes('3,6'))
+assert.ok(
+  restoreBriarSave({
+    ...newBriarSave(),
+    revealed: ['2,4'],
+    player: '2,4',
+    visited: undefined,
+    sceneChoices: undefined,
+  }).visited.includes('2,4'),
+  'Older saves recover the last visited square',
+)
 
 const saved = {
   ...newBriarSave(),
@@ -438,6 +539,11 @@ assert.match(
   'Classic rejects duplicate card faces',
 )
 
+assert.match(mapScreen, /:data-progress="progressFor\(tile\.key\)"/)
+assert.match(mapScreen, /progressLabel\(tile\.key\)/)
+assert.match(mapScreen, /world\.chooseScene\(choice\.id\)/)
+assert.match(worldStoreSource, /state\.value\.sceneChoices\[key\] = choice\.id/)
+assert.match(worldStoreSource, /state\.value\.visited\.push\(key\)/)
 assert.match(
   mapScreen,
   /world\.pickMapCard/,

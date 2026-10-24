@@ -177,10 +177,18 @@
                   v-else-if="world.state.revealed.includes(tile.key)"
                   type="button"
                   class="group relative h-full w-full outline-offset-[-3px] focus-visible:outline-2 focus-visible:outline-[#fff0a9]"
-                  :class="
-                    world.state.player === tile.key ? 'bg-yellow-200/10' : ''
-                  "
-                  :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}`"
+                  :class="{
+                    'bg-sky-300/25 ring-2 ring-inset ring-sky-200/80':
+                      progressFor(tile.key) === 'unvisited',
+                    'bg-amber-400/20 ring-2 ring-inset ring-amber-300/90':
+                      progressFor(tile.key) === 'unfinished',
+                    'bg-emerald-950/35 ring-1 ring-inset ring-emerald-300/70':
+                      progressFor(tile.key) === 'complete',
+                    'outline outline-2 outline-[#fff0a9]':
+                      world.state.player === tile.key,
+                  }"
+                  :data-progress="progressFor(tile.key)"
+                  :aria-label="`Travel to square ${tile.x}, ${tile.y}${sites[tile.key]?.name ? ', ' + sites[tile.key]?.name : ''}; ${progressLabel(tile.key)}`"
                   @click="world.walk(tile.key)"
                 >
                   <span
@@ -190,6 +198,24 @@
                   >
                     {{ siteSymbol(sites[tile.key]?.kind) }}
                   </span>
+                  <span
+                    class="absolute right-0 top-0 z-20 rounded-bl bg-[#142521]/85 px-0.5 text-[clamp(10px,1.3vw,14px)] font-black leading-tight shadow"
+                    :class="
+                      progressFor(tile.key) === 'complete'
+                        ? 'text-emerald-200'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? 'text-amber-200'
+                          : 'text-sky-200'
+                    "
+                    aria-hidden="true"
+                    >{{
+                      progressFor(tile.key) === 'complete'
+                        ? '✓'
+                        : progressFor(tile.key) === 'unfinished'
+                          ? '!'
+                          : '○'
+                    }}</span
+                  >
                   <span
                     v-if="world.state.player === tile.key"
                     class="absolute bottom-0.5 left-1/2 z-20 -translate-x-1/2 rounded-full bg-[#f3d177] px-1 text-[clamp(10px,1.5vw,18px)] leading-tight text-[#1b2c22] shadow"
@@ -241,8 +267,8 @@
             <div
               class="pointer-events-none absolute bottom-1 left-2 rounded-md bg-[#1d2a24]/90 px-2 py-1 text-[10px] font-bold text-[#f5e7c7]"
             >
-              {{ world.state.revealed.length }}/60 paired squares · 4
-              cross-region seals
+              {{ completedCount }} cleared ·
+              {{ world.state.revealed.length }}/60 revealed
             </div>
           </div>
         </div>
@@ -259,6 +285,11 @@
               >Pairs {{ world.mapPairsMatched }}/{{ world.waveSize / 2 }}</span
             >
             <span v-else>Explore the map</span>
+            <span v-if="!world.mapMatching" class="ml-auto whitespace-nowrap">
+              <span class="text-sky-800">○ Unvisited</span>
+              <span class="text-amber-800">! Unfinished</span>
+              <span class="text-emerald-800">✓ Clear</span>
+            </span>
           </div>
           <button
             v-if="world.mapMatching && !world.state.mapCards.length"
@@ -325,11 +356,28 @@
                 {{
                   world.mapMatching
                     ? 'The Whispering Fog'
-                    : (world.selectedSite?.name ?? 'The Crooked Trail')
+                    : (world.activeScene?.title ??
+                      world.selectedSite?.name ??
+                      'The Crooked Trail')
                 }}
               </h3>
               <p
                 class="md-scene-status text-sm leading-snug sm:text-base"
+                role="status"
+              >
+                {{
+                  world.mapMatching
+                    ? world.state.status
+                    : world.currentSceneText || world.state.status
+                }}
+              </p>
+              <p
+                v-if="
+                  !world.mapMatching &&
+                  world.currentSceneText &&
+                  world.currentSceneText !== world.state.status
+                "
+                class="text-xs font-semibold text-[#805023]"
                 role="status"
               >
                 {{ world.state.status }}
@@ -359,11 +407,35 @@
           </button>
 
           <div
-            v-if="world.selectedSite && !world.mapMatching"
+            v-if="
+              !world.mapMatching && (world.selectedSite || world.activeScene)
+            "
             class="md-encounter-actions mt-3 flex min-h-0 shrink-0 flex-wrap items-start gap-2"
           >
+            <template
+              v-if="
+                world.activeScene &&
+                !world.state.sceneChoices[world.state.player]
+              "
+            >
+              <button
+                v-for="choice in world.activeScene.choices"
+                :key="choice.id"
+                type="button"
+                class="md-btn"
+                :disabled="!canChooseBriarScene(choice, world.state)"
+                @click="world.chooseScene(choice.id)"
+              >
+                {{ choice.label }}
+              </button>
+            </template>
+            <span
+              v-else-if="world.activeScene"
+              class="text-xs font-bold text-emerald-900"
+              >✓ Story decision remembered</span
+            >
             <button
-              v-if="world.selectedSite.kind === 'merchant'"
+              v-if="world.selectedSite?.kind === 'merchant'"
               type="button"
               class="md-btn"
               :disabled="world.state.wildflowers < 1"
@@ -373,7 +445,7 @@
             </button>
             <button
               v-if="
-                world.selectedSite.kind === 'chest' &&
+                world.selectedSite?.kind === 'chest' &&
                 !world.state.chestClaims.includes(world.state.player)
               "
               type="button"
@@ -384,14 +456,14 @@
             </button>
             <span
               v-if="
-                world.selectedSite.kind === 'chest' &&
+                world.selectedSite?.kind === 'chest' &&
                 world.state.chestClaims.includes(world.state.player)
               "
               class="text-xs font-bold"
               >✓ Chest claimed</span
             >
             <button
-              v-if="world.selectedSite.kind === 'dungeon'"
+              v-if="world.selectedSite?.kind === 'dungeon'"
               type="button"
               class="md-btn"
               :disabled="world.loading"
@@ -401,7 +473,7 @@
             </button>
             <button
               v-if="
-                world.selectedSite.kind === 'enemy' &&
+                world.selectedSite?.kind === 'enemy' &&
                 !world.state.completedEncounters.includes(world.state.player)
               "
               type="button"
@@ -417,7 +489,7 @@
             </button>
             <button
               v-if="
-                world.selectedSite.kind === 'gate' &&
+                world.selectedSite?.kind === 'gate' &&
                 world.hasChime &&
                 !world.state.gateOpened
               "
@@ -429,14 +501,14 @@
             </button>
             <span
               v-if="
-                world.selectedSite.kind === 'gate' && world.state.gateOpened
+                world.selectedSite?.kind === 'gate' && world.state.gateOpened
               "
               class="text-xs font-bold"
               >✓ Briar Camp cleared</span
             >
             <template
               v-if="
-                world.selectedSite.kind === 'puzzle' &&
+                world.selectedSite?.kind === 'puzzle' &&
                 !world.state.puzzleSolved
               "
             >
@@ -460,7 +532,8 @@
             </template>
             <span
               v-if="
-                world.selectedSite.kind === 'puzzle' && world.state.puzzleSolved
+                world.selectedSite?.kind === 'puzzle' &&
+                world.state.puzzleSolved
               "
               class="text-xs font-bold"
               >✓ Stones solved</span
@@ -599,7 +672,9 @@ import {
   BRIAR_SITES,
   BRIAR_TILES,
   type BriarSiteKind,
+  briarTileProgress,
 } from '~/utils/memoryDungeonWorld'
+import { canChooseBriarScene } from '~/utils/memoryDungeon/scenes'
 import {
   BRIAR_CROSS_MAP_KEYS,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -633,6 +708,22 @@ const currentSceneStyle = computed(() => {
   }
 })
 const sites = BRIAR_SITES
+const completedCount = computed(
+  () => tiles.filter((tile) => progressFor(tile.key) === 'complete').length,
+)
+function progressFor(key: string) {
+  return briarTileProgress(world.state, key)
+}
+function progressLabel(key: string): string {
+  const progress = progressFor(key)
+  return progress === 'unvisited'
+    ? 'revealed but not visited'
+    : progress === 'unfinished'
+      ? 'visited, unresolved interaction'
+      : progress === 'complete'
+        ? 'fully explored'
+        : 'hidden'
+}
 const settingsOpen = ref(false)
 const roomTitle = computed(() =>
   world.state.roomId === 'vault-1'

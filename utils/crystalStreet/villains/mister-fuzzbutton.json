@@ -382,6 +382,264 @@
         ]
       },
       {
+        "id": "mister-fuzzbutton-red-light",
+        "title": "Red Light, Green Light",
+        "place": "Your upstairs hallway, 1 a.m., during a blackout",
+        "text": "The power is out on Crystal Street, and your flashlight beam lands on a Mister Fuzzbutton at the far end of the upstairs hallway. You don't own a Mister Fuzzbutton. You swing the light toward the bathroom for one second, and when you swing it back, the bear is three steps closer. Its cassette window glows faint blue. \"Red light, green light!\" it chirps in a small boy's voice. \"You're it. You're always it.\"",
+        "art": "A pitch-dark suburban upstairs hallway during a blackout, a flashlight beam landing on a teddy bear with a glowing blue cassette window standing upright on the carpet, a teenager in pajamas gripping the flashlight at the near end",
+        "choices": [
+          {
+            "id": "stare-it-down",
+            "label": "Keep the light on it and don't blink until dawn",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You plant your feet and hold the beam steady. Hour after hour the bear stands frozen mid-step, one paw raised. At 5 a.m., as the power hums back on, it sighs in a little boy's voice: \"Nobody ever watched me this long before.\" Then it sits down on the carpet, just a toy.",
+              "art": "A bleary-eyed teenager sitting cross-legged in an upstairs hallway at dawn holding a flashlight on a teddy bear slumped harmlessly on the carpet, ceiling lights flickering back on, pale morning light at the window",
+              "effects": {
+                "nerve": 1,
+                "flags": ["fuzzbutton-watched"]
+              }
+            },
+            "failure": {
+              "text": "You blink. Just once. When you open your eyes the bear is sitting on your feet, both paws hugging your ankle, humming a lullaby. You spend the rest of the blackout shuffling around the house with a teddy bear clamped to your leg like a fuzzy cast.",
+              "art": "A teenager in pajamas shuffling through a dark kitchen by flashlight with a glowing teddy bear clamped tightly around one ankle, the bear humming with its eyes half closed",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "polaroid-it",
+            "label": "Snap a Polaroid every time you look away and study the pictures",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "You line the snapshots up on the hallway carpet like a flip-book. The bear isn't creeping toward you at all. In every picture it's closer to the upstairs phone, one paw stretched out, and in the last one it's dialing. You pick up the receiver and hear it ringing in a house down the street where nobody ever answers.",
+              "art": "A row of instant photographs on a hallway carpet showing a teddy bear inching toward a wall phone, a teenager holding the curly-corded receiver to one ear with a puzzled, softening expression by flashlight",
+              "effects": {
+                "nerve": 1,
+                "flags": ["fuzzbutton-dialing-home"]
+              }
+            },
+            "failure": {
+              "text": "The snapshots develop one by one. Bear at the end of the hall. Bear halfway. Bear at your door. In the last picture the bear is perched on your shoulder, right next to your ear. You don't turn around. You run.",
+              "art": "A trembling hand holding an instant photograph of a teenager in a dark hallway with a glowing teddy bear perched on their shoulder, the shadowy hallway behind the photograph",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "play-fair",
+            "label": "Play the game properly, by the rules, and let it win",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You turn your back and call it out like a playground pro: \"Green light!\" Patter, patter. \"Red light!\" Freeze. You let it tag you on the fourth round. The bear squeals with delight, and a boy's voice, not the toy voice, says, \"Again?\" You play eleven rounds before it falls asleep against the baseboard.",
+              "art": "A teenager with their back turned in a moonlit upstairs hallway calling out a playground game, a small teddy bear tiptoeing toward them with arms raised, both caught mid-giggle in flashlight glow",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You call \"Red light!\" and turn around, and the hallway is full of bears, a dozen of them, frozen mid-step, every one of them grinning. You were never playing against one. You flee into the bathroom and lock the door, and they giggle through the keyhole until the power comes back.",
+              "art": "A dark upstairs hallway crowded with a dozen teddy bears frozen mid-step with grinning faces and glowing cassette windows, a teenager slamming a bathroom door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-comes-back",
+        "title": "It Keeps Coming Back",
+        "place": "Your front porch, every hour on the hour",
+        "text": "At ten o'clock you threw the Mister Fuzzbutton in the trash can by the curb. At eleven it was sitting on your porch swing. At eleven-thirty you tossed it in Crystal Creek and watched it float away. Now it's midnight, and it's on the welcome mat again, soaking wet, one button eye dangling by a thread, reels turning. \"I came back!\" it says. \"Bears always come back. Not like people.\"",
+        "art": "A soggy teddy bear sitting on a suburban welcome mat at midnight under a yellow porch light, one button eye dangling by a thread, its cassette window glowing blue, a teenager staring at it through a screen door",
+        "choices": [
+          {
+            "id": "bury-it",
+            "label": "Bury it deep in the backyard under the tomato stakes",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You dig until your arms burn, drop the bear in and pat the dirt down hard. It stays down. Around three in the morning you hear, very faintly from under the tomatoes, a small voice singing to itself, and you feel strangely guilty, but you do sleep.",
+              "art": "A teenager leaning on a shovel beside a freshly patted mound of dirt among tomato stakes in a moonlit backyard, a faint blue glow seeping up through the soil",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "At four in the morning you wake to a tiny scratching sound. The bear is on your pillow, caked in mud, its button eye finally gone, and it has brought you a worm as a present. \"I dug out all by myself,\" it says proudly. \"I always do everything all by myself.\"",
+              "art": "A mud-caked teddy bear sitting on a pillow beside a startled teenager in bed, a wriggling worm offered in its paw, its cassette window glowing blue in the dark bedroom",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "mend-it",
+            "label": "Bring it inside, give it a bath and sew its eye back on",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You wash it in the kitchen sink with dish soap, blow-dry its fur and stitch the button eye back on with your mom's sewing kit. The reels slow down. \"Nobody ever fixed me before,\" the bear says, wondering. \"Usually they just want a new one.\" It sits on the shelf for the rest of the night and doesn't go anywhere at all.",
+              "art": "A teenager at a kitchen table stitching a button eye onto a freshly washed fluffy teddy bear wrapped in a towel, a sewing kit open beside a hair dryer, warm lamplight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["fuzzbutton-mended"]
+              }
+            },
+            "failure": {
+              "text": "You sew the eye on crooked. Very crooked. Now the bear watches you sideways from the shelf, and at breakfast it announces, to your entire family, three secrets you have never told anyone. Your little cousin will be repeating one of them at Thanksgiving.",
+              "art": "A teddy bear with a crooked button eye sitting on a breakfast table between cereal bowls, a mortified teenager hiding behind a juice glass while family members stare in shock",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "welcome-home",
+            "label": "Throw it a surprise welcome-home party",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Streamers. A Duncan Heinz cake. The crew in party hats behind the couch. When the bear waddles in, everybody jumps up and yells, \"Welcome home!\" The reels stop dead. A small voice says, \"...For me?\" It sits at the head of the table for the rest of the night, glowing, perfectly happy, and it never once tries to leave.",
+              "art": "Teens in party hats jumping out from behind a couch amid streamers and balloons, a small teddy bear at the head of a table before a frosted cake, its cassette window glowing warm gold",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It turns out the bear hates surprises. It shrieks in a little boy's voice, and every party horn in the room blows by itself at once, and then every one of them starts whispering the crew's secrets. The party breaks up in record time. The bear eats the cake.",
+              "art": "A wrecked living room party with streamers hanging limp, party horns floating in the air, teens fleeing out the door, a teddy bear alone at the table with its face in a frosted cake",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-always-home",
+        "title": "The Friend Who's Always Home",
+        "place": "Your den, 3 a.m., Channel 8",
+        "text": "You fall asleep on the couch and wake to the TV playing the Mister Fuzzbutton commercial from 1985, over and over. \"The friend who's always home!\" sings the jingle. But tonight the kids in the commercial are kids you know: the Delgado twins, Kev's little brother, a girl from your bus stop, each one alone in a bright cartoon bedroom with a bear. They're pressing their hands against the inside of the screen. Behind them, every bear turns its head to look at you.",
+        "art": "A dark wood-paneled den lit by a boxy television, the screen showing bright cartoon bedrooms where children sit alone with teddy bears and press their palms against the glass, a teenager on the couch sitting up in alarm",
+        "choices": [
+          {
+            "id": "talk-to-them",
+            "label": "Kneel by the screen and talk to the kids inside",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You kneel and talk to them one by one, the way you'd talk to a scared kid at a sleepover. Tell me your name. Tell me your favorite cartoon. Who's waiting for you at home? Every time a kid says a person's name instead of the bear's, their cartoon bedroom flickers and they're gone, back home in their own beds. The bears are left alone on the screen, looking lost.",
+              "art": "A teenager kneeling close to a glowing television and speaking gently to a child pressed against the screen, other cartoon bedrooms on the screen flickering away, teddy bears left sitting by themselves",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["fuzzbutton-kids-home"]
+              }
+            },
+            "failure": {
+              "text": "The kids can't hear you. They can only hear the jingle. One by one they turn away from the glass, pick up their bears and go back to their cartoon beds, and the commercial starts over, louder. You hum it in the shower for three days.",
+              "art": "Children on a television screen turning away from the glass and climbing into bright cartoon beds with teddy bears, a teenager with a hand flat against the screen, the den dark around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "climb-in",
+            "label": "Push your arm through the screen and pull a kid out",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "The glass is cold as pond water. You reach in up to the shoulder, grab the nearest kid by the hand and pull, and Kev's little brother Minho tumbles out onto your shag carpet in his pajamas, blinking. \"Is it morning?\" he asks. The other kids on the screen start banging on the glass, cheering.",
+              "art": "A teenager pulling a small boy in pajamas out through a rippling television screen onto a shag carpet, other children on the screen cheering and pounding on the glass, static sparkling in the air",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "Something on the other side grabs back. You're tugged in up to the elbow, and for one long second you're in a bright cartoon bedroom with a bear patting your hand, saying, \"Stay.\" You wrench free and land on the carpet with your arm buzzing like a stepped-on foot and the jingle stuck in your teeth.",
+              "art": "A teenager yanking their arm free from a rippling television screen and tumbling backward onto shag carpet, a cartoon teddy bear paw reaching out of the screen after them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "change-the-channel",
+            "label": "Find the station that broadcasts only the commercial and jam it",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "You flip channels until you find it: the commercial is on every station at once, but it's weakest on Channel 3, the one you plug the VCR into. You pop in a tape of last year's Saturday morning cartoons, recorded with the crew yelling over the jokes. The jingle stutters. The kids in the commercial start laughing at your crew's dumb jokes, and laughing breaks the spell.",
+              "art": "A teenager crouched by a VCR sliding in a videotape, the television flickering between a toy commercial and a cartoon, children on the screen laughing and climbing out of their bedrooms",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Every channel is the commercial. Every single one, even the static between them. When you yank the plug, the screen goes dark and the jingle keeps playing, softly, from inside the couch cushions, where you find a Mister Fuzzbutton you have definitely never seen before.",
+              "art": "A teenager pulling a teddy bear with a glowing cassette window out from between couch cushions in a dark den, an unplugged television dark in the corner",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "mister-fuzzbutton-march",
         "title": "Every Bear in Glimmer Falls",
         "place": "Crystal Street, 2 a.m.",

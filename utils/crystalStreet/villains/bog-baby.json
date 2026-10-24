@@ -364,6 +364,270 @@
         ]
       },
       {
+        "id": "bog-baby-lovers-lane",
+        "title": "Something on the Roof",
+        "place": "The top deck of the Starlight Mall parking garage, overlooking Lot C, midnight",
+        "text": "The top deck of the parking garage is where Glimmer Falls teens go to park and look at the lights, and tonight you are up here in Wade's van with the radio on. The song cuts out. \"We interrupt this broadcast,\" says a shaky KGLM announcer, \"to report something large moving under Lot C.\" Then, on the roof of the van: a wet slap. Another. A slow, sticky dragging sound, like a webbed hand feeling its way toward the windshield.",
+        "art": "A customized 1970s van parked alone on the top deck of a mall parking garage at midnight, sodium lights glowing, a muddy webbed handprint smeared across the windshield, teenagers inside lit by the dashboard radio",
+        "choices": [
+          {
+            "id": "floor-it",
+            "label": "Hit the gas and peel out down the ramp",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 2
+            },
+            "success": {
+              "text": "The van screeches down five levels of ramps in a spiral, tires squealing, and something slides off the roof on the third turn with an offended croak. At the bottom you find a long smear of mud and duckweed across the roof and three bewildered bullfrogs riding in the luggage rack.",
+              "art": "A van screeching down a spiral parking garage ramp with headlights blazing, a long streak of mud across its roof, three bullfrogs clinging to the luggage rack",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The van coughs and stalls. The radio crackles back on by itself, and out of it comes the sound of a thousand frogs crying. Mud slides down the windshield in a thick brown curtain, and the wipers only spread it around until dawn.",
+              "art": "Thick brown mud sliding down a van windshield as the wipers smear it, a dashboard radio glowing, frightened teenagers inside in a dark parking garage",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "offer-water",
+            "label": "Roll down the window and pour out your cooler of ice water",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "bog-baby-soothed",
+              "amount": 1
+            },
+            "success": {
+              "text": "You lean out and tip the cooler over the side. Ice water splashes across the concrete. The dragging stops. A long, cool, rubbery tongue unrolls past your face, laps up every drop, and withdraws with a satisfied gulp. In the morning there is a ring of cattails growing out of a crack on the top deck.",
+              "art": "A teenager leaning out of a van window tipping a cooler of ice water onto concrete, a long rubbery frog-like tongue lapping the splash, cattails sprouting from a crack nearby",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-gave-water"]
+              }
+            },
+            "failure": {
+              "text": "You grab the wrong cooler and pour out a liter of Bolt Cola. The creature drinks it, every drop, and goes absolutely berserk with sugar, bouncing the van on its springs like a carnival ride until the hubcaps fly off.",
+              "art": "A van bouncing wildly on its springs on a parking garage deck, hubcaps flying off, a spilled soda puddle fizzing on the concrete, muddy handprints all over the doors",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "loseItems": ["jolt-cola"]
+              }
+            }
+          },
+          {
+            "id": "croak-back",
+            "label": "Tune the radio to static and croak along with it",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You find the static between stations and croak into it, deep and long. Wade joins in. The thing on the roof goes quiet, then croaks back, then the whole parking lot below joins in, a chorus of frogs echoing off the concrete. It sounds, for one second, like a summer night at a pond that is not there anymore.",
+              "art": "Teenagers in a van croaking into a glowing dashboard radio, the whole moonlit parking lot below dotted with small frogs looking up, a soft mist rising from cracks in the asphalt",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You croak something rude by accident. The roof caves in an inch. A muddy webbed hand slaps the window right by your face and leaves a print the size of a hubcap, and Wade spends the next week trying to scrub it off.",
+              "art": "A giant muddy webbed handprint pressed against a van side window at night, a startled teenager recoiling inside, the van roof dented, sodium lights glowing over a lonely parking garage deck",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-baby-monitor",
+        "title": "The Baby Monitor",
+        "place": "The Lindqvist bathroom, next door, 2 a.m.",
+        "text": "Bea's walkie-talkie crackles you awake. \"Get over here. The baby monitor is picking up something, and it isn't my brother.\" Through the little speaker on the Lindqvists' dresser comes a wet gurgle, then a hiccup, then a long, lonely wail. Bea's baby brother is asleep in his crib, perfectly quiet. The sound is coming from the bathtub, where the drain is bubbling up duckweed, tadpoles and a slow tide of warm brown water that smells like the fryers at Corn Dog Castle.",
+        "art": "A pastel 1980s bathroom at night, a bathtub filling with murky brown water, duckweed and swirling tadpoles, a kid genius in pajamas holding a baby monitor, a teenager in the doorway with a walkie-talkie",
+        "choices": [
+          {
+            "id": "fill-the-tub",
+            "label": "Run the cold tap full blast and give it clean water",
+            "intent": "kind",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "flag": "bog-baby-water",
+              "amount": 2
+            },
+            "success": {
+              "text": "You crank the cold tap and let it run. The brown tide clears to green, then to clean. On the monitor, the wail softens to a gurgle, then a slow, sleepy croak, like a baby finally getting its bottle. Bea scoops three tadpoles into a jar. \"For science,\" she says, and she is crying a little.",
+              "art": "A bathtub of clear green water with tadpoles and duckweed floating gently, cold water pouring from the tap, a kid genius in pajamas holding up a jar of tadpoles",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-bathtime"]
+              }
+            },
+            "failure": {
+              "text": "The cold tap shrieks and spits out grease instead of water. The tub overflows across the tile, and both of you slip and go down together in a puddle of tadpoles. Mrs. Lindqvist finds you there at dawn and asks no questions, which is somehow worse.",
+              "art": "Two kids sprawled on a flooded bathroom floor in a puddle of murky water and wriggling tadpoles, an overflowing bathtub, grease dripping from the faucet",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "plunge-it",
+            "label": "Grab the plunger and fight it back down the drain",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Plunge, plunge, PLUNGE. Something down there pushes back like a toddler refusing bedtime, then gives up with a long, sulky burp. The water drains away. On the monitor, the wail turns into a hiccupping sob, and then silence, and you feel oddly like you just won an argument with a baby.",
+              "art": "A teenager working a plunger furiously over a bathtub drain as murky water swirls down, a kid genius cheering from the toilet lid, steam fogging the mirror",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The plunger gets sucked in to the handle with a pop and stays there, quivering. Then the drain spits it back at you along with a geyser of warm mud that paints the ceiling. Bea, dripping, says only, \"Well, that was a hypothesis.\"",
+              "art": "A geyser of mud erupting from a bathtub drain and splattering a pastel bathroom ceiling, a plunger flying through the air, two kids dripping with mud",
+              "effects": {
+                "nerve": -2,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "record-the-cry",
+            "label": "Record the crying for Dr. Haddad to hear",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "cassette-recorder",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hold the recorder to the drain for ten full minutes. In the morning, Dr. Haddad listens with his eyes closed, then slows the tape down. Under the wail are heron calls, rain on cattails, and the deep, slow pulse of a spring. \"That's not one animal,\" he says. \"That's a whole marsh.\"",
+              "art": "A veterinarian in a garage clinic listening to a cassette recorder with his eyes closed, a teenager and a kid genius leaning in beside him, jars of tadpoles on the shelf",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                },
+                "flags": ["bog-baby-recorded"]
+              }
+            },
+            "failure": {
+              "text": "The tape plays back nothing but you, screaming, at double speed. Somehow, while you were holding the recorder to the drain, a frog got into your pajama pants. You do not remember screaming, but the tape does.",
+              "art": "A teenager hopping around a bathroom shaking a frog out of their pajama leg, a cassette recorder spinning on the edge of the bathtub, a kid genius laughing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-pet-palace",
+        "title": "Locked In After Closing",
+        "place": "Pet Palace in Starlight Mall, after closing, 1 a.m.",
+        "text": "You hid in the stockroom on a dare and now the gates are down and the mall is dark. In Pet Palace every animal is awake: the turtles, the goldfish, the green anoles and a tank of fire-bellied toads, all pressed against the glass facing the same direction, toward Lot C. The aquariums are overflowing. The floor drain in the middle of the store gurgles, and a hand made of mud rises out of it, small and soft and grabbing, like a baby reaching for a mobile. Down the dark concourse, the mall cop's flashlight swings your way.",
+        "art": "A dark mall pet store at night, glowing aquariums overflowing onto the floor, turtles, goldfish and toads pressed against the glass all facing one way, a small mud hand rising from a floor drain, a flashlight beam approaching down the concourse",
+        "choices": [
+          {
+            "id": "free-the-animals",
+            "label": "Carry the frogs and turtles out the service door to the storm channel",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Bucket by bucket you carry them out the service door to the concrete storm channel behind the mall, where a trickle of spring water still runs. The toads leap in singing. The mud hand in the drain waves after you, slow and sleepy, and sinks away. In the morning Pet Palace has a sign up: SHIPMENT MISSING, and the storm channel is full of song.",
+              "art": "A teenager pouring a bucket of frogs and turtles into a moonlit concrete storm channel behind a mall, a trickle of clear water glowing, toads leaping and singing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-freed"]
+              }
+            },
+            "failure": {
+              "text": "Halfway out the service door the bucket tips, and a dozen toads go bounding off down the concourse. The mall cop finds you on your hands and knees under the Orange Jubilee counter, chasing one. You spend the rest of the night explaining yourself to his flashlight.",
+              "art": "A teenager on hands and knees under a mall snack counter grabbing at a hopping toad, a security guard's flashlight beam pinning them in the dark",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hide-with-the-mannequins",
+            "label": "Slip across into the boutique and freeze among the mannequins",
+            "intent": "sneaky",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You strike a pose between two mannequins in acid-wash and hold it. The flashlight sweeps over you and moves on. Then the mud hand oozes across the concourse, pats each mannequin on the shoe, curious, and pats yours too. It moves on. You breathe for the first time in a minute.",
+              "art": "A teenager frozen in a pose between mannequins in acid-wash denim in a dark mall boutique, a small curious mud hand patting their sneaker, a flashlight beam sweeping past",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your nose itches. You sneeze. The flashlight snaps to you, and so does the mud hand, which wraps itself happily around your ankle and holds on like a toddler at the shoe store. It lets go at dawn and leaves you with one very muddy leg.",
+              "art": "A teenager posed among boutique mannequins in acid-wash denim caught mid-sneeze in a security flashlight beam, a small soft mud hand wrapped happily around their ankle, a dark mall concourse behind",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "warn-the-guard",
+            "label": "Run to the mall cop and make him look at the drain",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "Officer Duane does not believe you, until he does. He shines his light on the drain just as the little mud hand gives him a wave. He sits down hard on a bench, takes off his hat, and says, \"My granddad used to catch frogs out there, before the lot.\" Then he radios maintenance to shut off the grease line for the night.",
+              "art": "A heavyset mall security guard sitting stunned on a concourse bench with his hat in his hands, his flashlight lighting a small mud hand waving from a floor drain, a teenager beside him",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "He thinks you are the prank. By the time he turns his light on the drain there is only a puddle and a single cattail. He walks you out to the curb, writes you a trespassing warning, and tells your mother all about it in the morning.",
+              "art": "A mall security guard escorting a sheepish teenager out the glass doors of a dark mall at night, a lone cattail rising from a puddle behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "bog-baby-hatching",
         "title": "It's Hatching",
         "place": "Lot C, Starlight Mall, 3 a.m.",

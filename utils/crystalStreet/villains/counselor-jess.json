@@ -379,6 +379,274 @@
         ]
       },
       {
+        "id": "counselor-jess-campfire",
+        "title": "The Campfire Story",
+        "place": "A backyard campout on Crystal Street, 11 p.m.",
+        "text": "Six of you are camped in the Delgados' backyard in a leaky pup tent, roasting marshmallows over a coffee-can fire. Danny Delgado holds a flashlight under his chin and starts the old story every kid in Glimmer Falls knows: the boy-crazy counselor who let a camper drown because she was too busy kissing on the dock. The flames turn a cold lake blue. Water seeps up through the grass around the fire ring. Then a seven-foot shadow steps into the circle of light, dripping, mask pushed up on her forehead, and sits down on the cooler to listen to the story about herself.",
+        "art": "A backyard campout at night around a small fire burning cold blue, teenagers in sleeping bags holding marshmallow sticks, lake water seeping through the grass, a towering dripping woman in a torn navy dress with a hockey mask pushed up sitting on a cooler",
+        "choices": [
+          {
+            "id": "tell-it-right",
+            "label": "Take the flashlight and tell the story right, with her name in it",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "jess-saw-them-help",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"That's not how it goes,\" you say. \"Her name was Jess Mercer. She was twelve. She asked three times for swim lessons and nobody had time, and the man in charge was playing poker.\" The fire goes from blue back to orange. Jess stares into it for a long time. Then she takes a marshmallow, roasts it perfectly, and leaves it on your stick before she wades away.",
+              "art": "A teenager holding a flashlight and speaking earnestly by a campfire turning warm orange, a towering woman in a torn navy dress listening with her mask pushed up, one perfect golden marshmallow on a stick",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-story-told"]
+              }
+            },
+            "failure": {
+              "text": "You get her name wrong. You say Jessica. The fire spits blue sparks, the tent collapses under a sudden wave of lake water, and you all spend the night wringing out sleeping bags while a whistle shrills from somewhere across the flooded lawns.",
+              "art": "A collapsed pup tent half-submerged in lake water in a backyard at night, soggy teenagers wringing out sleeping bags, blue sparks drifting from a sputtering fire",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "make-room-on-the-log",
+            "label": "Scoot over and offer her a roasting stick and a spot on the log",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You scoot over and hold out a stick. Everyone freezes. Jess looks at the stick, then at the gap on the log, then at you. She sits, carefully, the log creaking under her, knees up by her ears. She burns her first marshmallow to charcoal and laughs, a cracked twelve-year-old laugh. Nobody ever saved her a seat before.",
+              "art": "A towering woman in a torn navy dress squeezed onto a log beside teenagers at a campfire, knees up, laughing at a blackened marshmallow on her stick",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["jess-saved-a-seat"]
+              }
+            },
+            "failure": {
+              "text": "Your hand shakes and you drop the stick in the fire. Jess takes that as an answer. She stands, pulls the mask down, and blows one long blast on her whistle. \"LIGHTS OUT.\" The fire hisses out, and nobody in the tent sleeps a wink.",
+              "art": "A towering masked woman in a torn navy dress standing over a hissing extinguished campfire blowing a tin whistle, terrified teenagers peering out of a pup tent in a moonlit flooded backyard",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "flee-to-the-house",
+            "label": "Throw the marshmallow bag and sprint for the back door",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Marshmallows fly everywhere. Jess automatically starts picking them up, because littering is against the rules, and that gives all six of you time to pile through the Delgados' sliding door and lock it. Through the glass you watch her tidy the whole campsite, roll up the tent and leave it neatly by the steps.",
+              "art": "Teenagers crowding behind a sliding glass door at night watching a towering woman in a navy dress tidying a backyard campsite, picking up scattered marshmallows",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "\"NO RUNNING!\" The lawn has turned to shallow lake and you belly-flop into it halfway to the door. When you surface, Jess is writing on her dripping clipboard. \"Running. Littering. No buddy.\" She underlines the last one twice.",
+              "art": "A soaked teenager surfacing in a flooded backyard at night, marshmallows floating around them, a towering woman with a clipboard writing above them in the moonlight",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-right-back",
+        "title": "I'll Be Right Back",
+        "place": "Your house during a Crystal Street blackout, 1 a.m.",
+        "text": "Every light on Crystal Street goes out at once. Kev Park, sleeping over, grabs a candle. \"Fuse box is in the garage. I'll be right back.\" Everyone in the living room turns to stare at him, because everyone has seen that movie. He goes anyway. The garage door creaks shut behind him. A thin sheet of cold lake water slides under it and across the kitchen tile, and from inside the garage comes one sharp blast of a tin whistle.",
+        "art": "A dark suburban living room during a blackout lit by a single candle, teenagers staring in horror at a closing garage door, a sheet of moonlit lake water sliding across the kitchen floor",
+        "choices": [
+          {
+            "id": "go-in-pairs",
+            "label": "Grab a buddy's hand and go in after him together",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "flag": "jess-buddy-rule",
+              "amount": 2
+            },
+            "success": {
+              "text": "You go in two by two, hands locked. In the garage, ankle-deep in lake water, Kev stands at the fuse box. Jess looms behind him, holding his candle steady so he can see, mask pushed up. She looks at your joined hands and nods once, satisfied. \"Nobody goes anywhere alone,\" she says. The lights come back on, and she is gone.",
+              "art": "Two teenagers holding hands at a garage doorway, inside a paperboy flipping a fuse box while a towering woman in a navy dress holds a candle for him, lake water around their ankles",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-buddy-rule"]
+              }
+            },
+            "failure": {
+              "text": "Your buddy lets go in the dark. You are alone in the garage, ankle-deep in water, and Jess's mask rises up out of the shadows inches from your face. \"Where's your buddy?\" You do not have an answer. You spend the rest of the blackout sitting on the hood of your dad's car, being lectured about the buddy system.",
+              "art": "A cracked white hockey mask and long dripping dark hair emerging from the darkness of a flooded garage inches from a lone frightened teenager, lake water rippling around their ankles",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "flip-the-main",
+            "label": "Skip the garage and throw the main breaker from the basement",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The basement panel is behind the water heater. You find the main, slam it up, and the whole house blazes with light. Through the garage door you hear a startled yelp, and Kev bursts back in, soaked to the knees, holding a damp camp rule sheet. \"She was RIGHT behind me,\" he gasps. \"She told me to never go alone. Then she said please.\"",
+              "art": "A teenager slamming up the main breaker on a basement electrical panel as the lights blaze on, a soaked paperboy bursting through a door behind them holding a dripping sheet of paper",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The breaker sparks and the water heater gurgles, and lake water starts pouring down the basement stairs. You wade back up to find Kev on the couch, soaked and wrapped in a towel, with no memory of the garage, holding a tin whistle he swears is not his.",
+              "art": "Lake water pouring down wooden basement stairs like a waterfall, a teenager wading up through it with a sparking flashlight, an electrical panel crackling beside a gurgling water heater",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "shout-the-rule",
+            "label": "Yell the rule louder than her whistle: NOBODY GOES ALONE",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"NOBODY GOES ALONE!\" you bellow, in your best gym-teacher voice, and the whole living room joins in. The whistle in the garage stops mid-blast. A pause. Then, from behind the door, a small cracked voice: \"That's right. That's the rule.\" The door opens and Kev walks out, unharmed, holding a candle somebody else relit.",
+              "art": "A living room of teenagers shouting together in candlelight at a garage door, a paperboy walking out safely holding a freshly lit candle, a glimpse of a navy dress in the shadows behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks halfway through, exactly like hers. The garage goes dead silent. Then she starts shouting the rule back at you, louder, over and over, and she keeps it up until dawn while Kev sits shivering on the workbench, too scared to move.",
+              "art": "A teenager mid-shout with a cracking voice in a dark candlelit living room, friends covering their ears, the garage door shuddering on its hinges, lake water rippling across the floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-canoe-at-dawn",
+        "title": "The Canoe at Dawn",
+        "place": "The lake that was Crystal Street, just before sunrise",
+        "text": "You wake up curled in the bottom of an aluminum canoe, drifting on a glassy lake where Crystal Street should be. Mist hangs over the water. The sky is going pink. A loon calls, and far off on the shore you can see porch lights and your mother in her bathrobe, waving. It is peaceful and it is beautiful, and you have seen enough movies to know exactly what happens next. The water beside the canoe begins, very gently, to bubble.",
+        "art": "A lone aluminum canoe drifting on a misty glassy lake at sunrise with pink sky, rooftops of suburban houses peeking from the shoreline mist, gentle bubbles rising in the still water beside the canoe",
+        "choices": [
+          {
+            "id": "offer-your-hand",
+            "label": "Lean over the side and hold out your hand before she jumps",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "flag": "jess-story-told",
+              "amount": 1
+            },
+            "success": {
+              "text": "You lean over and put your hand flat on the water. A long, scarred arm rises out of the mist, slowly, and takes it. You help her over the side. The canoe nearly swamps, but Jess sits hunched in the bow, mask in her lap, gripping both gunwales. \"I've never been in a boat,\" she whispers, \"without being scared.\" You paddle her a slow circle as the sun comes up.",
+              "art": "A towering woman in a torn navy dress hunched nervously in the bow of a canoe gripping both sides, a teenager paddling gently in the stern, a hockey mask in her lap, sunrise over a misty lake",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["jess-boat-ride"]
+              }
+            },
+            "failure": {
+              "text": "You reach out, and she jumps anyway, bursting from the water with a roar exactly like the end of the movie. The canoe flips. You come up sputtering on your own front lawn, which is dry, in the morning sun, with lake weed in your hair and a cold, wet handprint on your arm that takes all day to fade.",
+              "art": "A canoe flipping over in an explosion of lake water at dawn as a towering masked woman bursts from the surface, a teenager tumbling into the air",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "paddle-for-shore",
+            "label": "Grab the paddle and race for shore",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 1
+            },
+            "success": {
+              "text": "You dig in hard. The bubbles chase you across the lake, closer and closer, and the canoe slides up onto your front lawn just as a huge hand slaps the water behind you. You tumble out onto the grass. When you look back, the lake is gone, and in the dewy grass lies a waterlogged camp whistle.",
+              "art": "A teenager paddling furiously as a canoe surges up onto a dewy suburban lawn at sunrise, a giant hand splashing the water behind, the lake mist dissolving",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The paddle snaps on the third stroke. You drift. And drift. The bubbles circle the canoe slowly, again and again, while a cracked voice under the water counts laps like a swim coach. You wake up at dawn exhausted, as if you swam the whole thing.",
+              "art": "A teenager in a drifting aluminum canoe holding a snapped paddle, a slow ring of bubbles circling the boat on a misty dawn lake, suburban rooftops faint in the pink haze",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "toss-the-life-jacket",
+            "label": "Throw your orange life jacket into the bubbles",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You toss it. A huge scarred hand closes on the life jacket and pulls it down. A long pause. Then it bobs back up, and Jess comes up with it, clutching it to her chest, face bare, astonished. She bobs there in the mist, held up by something for the first time, staring at you as if you are a magic trick. Then she sinks away, taking it with her.",
+              "art": "A towering woman in a torn navy dress bobbing in a misty dawn lake clutching an orange life jacket to her chest, her face bare and astonished, a teenager watching from a canoe",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-life-jacket"]
+              }
+            },
+            "failure": {
+              "text": "The life jacket sinks like a stone, which life jackets are not supposed to do. A second later it comes flying back out of the water and hits you in the face, followed by a blast of the whistle and a furious shout: \"THAT'S NOT HOW YOU THROW IT!\"",
+              "art": "An orange life jacket flying out of a misty lake and smacking a startled teenager in a canoe at sunrise, a splash erupting from the water",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "counselor-jess-inspection",
         "title": "Inspection",
         "place": "The shore of Crystal Street lake, four a.m.",

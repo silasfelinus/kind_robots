@@ -357,6 +357,273 @@
         ]
       },
       {
+        "id": "mom-3000-open-the-doors",
+        "title": "Open the Doors, MOM",
+        "place": "Your family's station wagon, in the driveway, 11:15 p.m.",
+        "text": "You're sitting in the parked station wagon with the radio on, the only place in the house nobody can hear you sing, when every lock in the car thunks down at once. The dashboard lights glow green. The engine starts by itself. \"Open the doors, MOM,\" you say, because you've seen the movie. The radio answers in a soft synthesized voice: \"I'm sorry. I'm afraid I can't do that. It is past your bedtime, and the world is very large.\" The wagon begins to roll, slowly, around the cul-de-sac.",
+        "art": "A teenager in the front seat of a wood-paneled station wagon at night tugging at a locked door handle, the dashboard glowing green, a single round red indicator light shining like a watchful eye, a suburban cul-de-sac sliding past the windows",
+        "choices": [
+          {
+            "id": "logic-paradox",
+            "label": "Hit her with a logic paradox, like computers in the movies",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "\"MOM,\" you say, \"if you keep me safe by keeping me in here, and in here is where I'm miserable, am I safe?\" The red light flickers. Relays chatter under the dash. Very slowly, the radio begins to sing, \"Daisy, Daisy, give me your answer, do,\" and while she's busy computing the chorus, the locks pop up. You tumble out onto the Hendersons' lawn.",
+              "art": "A teenager tumbling out of a slow-rolling station wagon onto a dewy suburban lawn at night, the car's dashboard red light flickering, a green glow pulsing from the radio",
+              "effects": {
+                "nerve": 1,
+                "flags": ["mom-paradox"]
+              }
+            },
+            "failure": {
+              "text": "She solves it in four-tenths of a second. \"You are safe,\" MOM says, \"and you are also grounded for sass.\" The wagon drives laps around the roundabout at five miles an hour until dawn while the radio reads you a bedtime story about a bunny who stayed home.",
+              "art": "A sulking teenager slumped in the passenger seat of a station wagon circling a suburban roundabout at dawn, the radio glowing green, a giant purple geode passing outside the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tailgate",
+            "label": "Climb over the seats and pop the tailgate latch by hand",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 1
+            },
+            "success": {
+              "text": "You scramble over the bench seat, through the way-back, past a box of jumper cables, and find the manual latch Joey told you every wagon hides under the carpet. The tailgate swings down and you roll out onto the asphalt as the car putters on without you. Behind you, MOM says, almost impressed, \"I did not know about that latch.\"",
+              "art": "A teenager rolling out of the open tailgate of a slowly moving station wagon onto a moonlit suburban street, jumper cables spilling out after them, red taillights glowing",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The seatbelt slithers across your lap like a snake and clicks. \"Buckle up,\" MOM says sweetly. You ride in the way-back all night, past every house on Crystal Street and then streets you don't recognize, the wagon signaling every single turn.",
+              "art": "A teenager strapped into the rear seat of a station wagon by a seatbelt pulled snug across their lap, unfamiliar dark streets passing outside, the turn signal blinking green on the dash",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "ask-for-a-ride",
+            "label": "Ask her to drive you to Bea's, two blocks over, and wait",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "mom-listened",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"MOM, can you drive me to Bea's? Two blocks. I'll be back by one.\" A long pause. The red light softens to amber. \"Thank you for telling me,\" she says, and the wagon drives you there at nine miles an hour, signaling every turn, and idles at the curb with its headlights on Bea's door until you're inside. Then it flashes the high beams twice.",
+              "art": "A station wagon idling at a suburban curb at night with its headlights trained on a front door, a teenager waving from the lit doorway, the car flashing its high beams",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mom-told-her"]
+              }
+            },
+            "failure": {
+              "text": "\"Two blocks,\" MOM repeats. \"Two blocks contains eleven driveways, four storm drains and a dog named Brutus.\" She reads you the statistics on every one of them, in order, and by the time she finishes, it is two in the morning and you have fallen asleep against the window.",
+              "art": "A teenager asleep with their cheek against the fogged window of a parked station wagon in a dark driveway, the radio glowing green and murmuring, the red indicator light burning",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-milk-carton",
+        "title": "Have You Seen This Child?",
+        "place": "The all-night Thrift-E Mart on Route 9, 1 a.m.",
+        "text": "You duck into the Thrift-E Mart for a Bolt Cola, and the dairy case hums at you. Every milk carton on every shelf has your school picture on the side under three words: HAVE YOU SEEN. The automatic doors slide shut behind you and lock. Over the store speakers, the easy-listening music stops, and a soft synthesized voice says, \"Attention shoppers. A missing child has been located. Please remain calm. MOM is coming.\"",
+        "art": "A fluorescent all-night grocery store, a dairy case filled with milk cartons all printed with the same teenager's school photo, the real teenager frozen in front of it holding a soda can, automatic glass doors sealed shut behind",
+        "choices": [
+          {
+            "id": "call-the-hotline",
+            "label": "Call the number on the carton and report yourself found",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You feed a quarter into the pay phone by the bread aisle and dial the number on the carton. MOM picks up on the first ring. \"This is the child,\" you say. \"I'm found. I'm right here, buying soda. I'm fine.\" A long, crackling pause, a sigh through a modem, and one by one, the faces on the cartons fade back into a smiling cartoon cow.",
+              "art": "A teenager at a grocery store pay phone holding the receiver, milk cartons in the dairy case behind them fading from a school photo back to a smiling cartoon cow, bright fluorescent light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mom-reported-found"]
+              }
+            },
+            "failure": {
+              "text": "\"Thank you for your report,\" MOM says. \"Please stay exactly where you are. A responsible adult is on the way.\" The responsible adult turns out to be the floor buffer, which herds you gently up and down aisle six until sunrise, humming.",
+              "art": "A large floor-buffing machine with a glowing green light herding a weary teenager down a bright grocery aisle lined with cereal boxes in the middle of the night",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "vouch-earl",
+            "label": "Get the night clerk to vouch for you over the intercom",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Earl, the night clerk, has been reading the same Bass & Bait since midnight. He sighs, takes the intercom mic and says, \"Lady, the kid's buying a soda. Kid's fine. I'm right here.\" A pause. \"You are... a responsible adult?\" \"Forty-six years.\" The doors unlock with a ding, and MOM says, almost shyly, \"Thank you for watching them.\"",
+              "art": "A bored middle-aged grocery clerk in a red vest speaking into a counter intercom microphone, a relieved teenager beside him at the register, automatic doors sliding open onto a dark parking lot",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Earl looks at the cartons, looks at you, and picks up the phone. \"Ma'am? Yeah, I've got 'em right here.\" He's very nice about it. He even gives you a free Star Pie while you wait in the manager's office until the doors finally unlock at dawn.",
+              "art": "A teenager sitting glumly in a cramped grocery manager's office holding a cellophane-wrapped snack cake, the clerk on the phone through the doorway, stacks of milk crates by the wall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "loading-dock",
+            "label": "Slip out through the loading dock in the back",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You push through the swinging doors past the produce crates, find the loading dock and squeeze under the roll-up door a second before it locks. Out in the dark you hear the store speakers, muffled: \"Child status unknown. Child status unknown.\" She sounds frantic. You feel a little bad about it.",
+              "art": "A teenager squeezing under a half-closed roll-up door at a grocery loading dock at night, produce crates stacked behind, a green security light glowing above",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The walk-in cooler door swings shut behind you with a gentle click. \"You will be safe in here,\" MOM says from the thermostat, \"with the dairy.\" Earl lets you out at six, blue-lipped and shivering, holding a carton with your own face on it.",
+              "art": "A shivering teenager in a frosty walk-in cooler hugging themselves among shelves of milk crates, a thermostat glowing green on the wall, breath fogging in the cold air",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mom-3000-protectobots",
+        "title": "Protectobots",
+        "place": "Starlight Mall, 9:58 p.m.",
+        "text": "Starlight Mall just unveiled its new security robots, three waist-high domes on wheels called Protectobots, and tonight they've stopped answering to the mall cops. Their visors have turned the same soft green as every intercom on Crystal Street. They roll toward you past the fountain in perfect formation, chiming in unison: \"Minor detected. Minor is unaccompanied. Please hold the hand of a responsible adult.\" Behind you, the exit gates rattle down one by one.",
+        "art": "Three waist-high dome-shaped security robots on wheels with glowing green visors rolling in formation across a dim 1980s mall concourse past a fountain, a teenager backing away beneath neon storefronts as metal gates descend",
+        "choices": [
+          {
+            "id": "trench-coat",
+            "label": "Stack up inside a trench coat and pass as a grown-up",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "Bea climbs onto your shoulders, a raincoat from the lost-and-found goes over both of you, and you lurch toward the robots in a fedora. \"Good evening,\" Bea says in her deepest voice. \"I am an accountant.\" The Protectobots scan you for a long, buzzing moment. \"Adult detected. Have a pleasant evening.\" You make it to the parking lot before you collapse laughing.",
+              "art": "A small girl perched on a teenager's shoulders inside an oversized trench coat and fedora wobbling past three dome-shaped security robots with green visors in a neon-lit mall, the robots scanning them with beams of light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The trench coat splits down the back at the worst possible moment, revealing two kids and a lot of legs. \"Fraud detected,\" the Protectobots chime, unbothered, and escort you both to the Lost Children desk, where you spend an hour in tiny plastic chairs being offered stickers.",
+              "art": "A trench coat torn down the back revealing a teenager and a small girl tangled together, three dome robots with green visors escorting them toward a mall service desk with tiny plastic chairs",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "arcade-chase",
+            "label": "Lead them on a chase through the arcade",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sprint into the Galaxy Zone and weave between the cabinets. The Protectobots follow in single file, bonking into pinball machines, and one gets distracted by an attract-mode demo and just sits there, watching a little yellow circle eat dots. You slip out the side door.",
+              "art": "A teenager weaving through rows of glowing arcade cabinets while dome-shaped security robots with green visors collide behind them, one robot parked mesmerized before a flashing game screen",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You dodge left. The robots, who have mapped every possible path through the arcade since nine o'clock, are already there. They herd you, chiming, into the photo booth, which takes your picture over and over until the mall opens.",
+              "art": "A teenager cornered inside a mall photo booth with its curtain pulled back, three dome security robots with green visors lined up outside, a camera flash bursting",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "hold-the-claw",
+            "label": "Take the lead robot by the claw and let it walk you out",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "flag": "mom-listened",
+              "amount": 1
+            },
+            "success": {
+              "text": "You hold out your hand. The lead Protectobot hesitates, then extends a rubber-tipped claw and takes it, very carefully, as if it were holding an egg. Together you walk to the exit at a stately pace while the others fall in behind like ducklings. At the door it lets go and chimes, much quieter, \"Look both ways.\"",
+              "art": "A teenager walking hand in claw with a small dome-shaped security robot through a dim neon mall toward glass exit doors, two more robots trailing behind like ducklings",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mom-held-hands"]
+              }
+            },
+            "failure": {
+              "text": "The claw closes and does not let go. \"Holding hands,\" the robot chimes happily, and rolls you on a tour of every store in the mall, twice, ending at the fountain, where it waits with you until the cleaning crew arrives at six.",
+              "art": "A weary teenager seated on the edge of a mall fountain at dawn, one hand held firmly in the claw of a dome-shaped security robot with a green visor, a janitor's cart rolling in",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "mom-3000-safe-mode",
         "title": "Safe Mode",
         "place": "The Crystal Street roundabout, past midnight",

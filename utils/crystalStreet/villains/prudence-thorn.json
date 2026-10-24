@@ -388,6 +388,281 @@
         ]
       },
       {
+        "id": "prudence-thorn-hallelujah-house",
+        "title": "Hallelujah House",
+        "place": "The Lamplight Fellowship on Route 9, 9 p.m.",
+        "text": "The Lamplight Fellowship has turned its old carpet showroom into a Hallelujah House, a walk-through scare tour of the Dangers Facing Today's Teens. Room one: a boy in a cape is dragged off by a man in a red devil suit for playing Caverns and Chimeras. Room two: a girl with a Walkman loses her soul to a fog machine. But in room three the fog machine is unplugged and the fog is still rising, the actor in the devil suit is screaming for real, and something made of smoke and melted vinyl is climbing out of the prop record crate, grinning.",
+        "art": "A church scare walk-through built of plywood rooms inside an old carpet showroom, red gel lights and fog, a terrified actor in a cheap red devil costume backing away from a grinning creature of smoke and melted vinyl rising from a crate of records",
+        "choices": [
+          {
+            "id": "heckle",
+            "label": "Heckle the whole tour like it's a midnight movie",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"Ooh, not the TWENTY-SIDED DIE!\" you wail at room one, and the tour group cracks up. You do commentary on every room: the fog, the Walkman, the moment the actor's tail falls off. Parents who came in clutching their kids are laughing by room three, and the smoke-thing deflates like a whoopee cushion and slithers back into its crate.",
+              "art": "A teenager cupping their hands and heckling inside a red-lit plywood scare room, a tour group of parents and kids laughing, a creature of smoke and vinyl shrinking back into a crate of records",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-laughter"]
+              }
+            },
+            "failure": {
+              "text": "Nobody laughs. A youth leader shushes you with a flashlight, the tour group edges away like you might be contagious, and the smoke-thing drinks up every drop of their nervousness and gets taller. On your way out, somebody hands you a pamphlet with a cartoon of a troubled teen who looks exactly like you.",
+              "art": "Nervous parents edging away from a teenager in a red-lit plywood corridor, a youth leader aiming a flashlight, a smoke creature growing taller in the fog behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rescue-the-devil",
+            "label": "Run in and get the actor in the devil suit out",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The actor is a sixteen-year-old named Jeremy who joined youth group because his mom asked him to. You grab his pitchfork hand and haul him out the emergency exit as the smoke snaps at his costume tail. In the parking lot he pulls off the horns, shaking. \"I don't even think the game is evil,\" he says. \"I just wanted to be in a play.\"",
+              "art": "A teenager hauling a shaken boy in a red devil costume out of an emergency exit into a gravel parking lot at night, a plume of smoke snapping at his costume tail in the doorway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-jeremy"]
+              }
+            },
+            "failure": {
+              "text": "You trip over a fog-machine cord and land in the room-two set, where a man with a clipboard mistakes you for the next actor. Before you can explain, you've been handed a Walkman, shoved into a spotlight and told to lose your soul convincingly. You do it for forty minutes, for three tour groups.",
+              "art": "A bewildered teenager in a spotlight holding a portable cassette player on a fog-filled plywood stage set, a man with a clipboard gesturing from the side, tour groups watching",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "work-lights",
+            "label": "Find the breaker panel and throw on the work lights",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "You find the panel behind a cardboard Pearly Gates and throw every switch. The red gels die, and harsh fluorescent work lights flood the showroom: plywood walls, gaffer tape, a rented fog machine with the price tag still on it. Caught in plain light with nothing scary to stand on, the smoke-thing shrinks to the size of a cat and scuttles under the carpet samples.",
+              "art": "Harsh fluorescent work lights flooding a plywood scare house in an old carpet showroom, a teenager at an open breaker panel, a small smoke creature the size of a cat scuttling under stacks of carpet samples",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You throw the wrong breaker. Every light dies, the fog machines kick to full blast, and in the absolute dark the tour group begins to scream, which is exactly what the smoke-thing came for. Somewhere near the exit, you hear it laughing backward.",
+              "art": "A pitch-dark carpet showroom filled with thick churning fog, a single flashlight beam catching frightened faces, a pair of glowing red eyes near a glowing green exit light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-game-night-raid",
+        "title": "Deliver Us From Dungeons",
+        "place": "A Caverns and Chimeras game in the Ramans' basement, 10 p.m.",
+        "text": "You're three hours into Priya's Caverns and Chimeras campaign when the doorbell rings. It's Mrs. Kettering from the Concerned Parents, with a Polaroid camera, a pamphlet titled Is Your Child Playing With Demons? and four more worried parents behind her, here to rescue you all from the game. Their fear rolls down the basement stairs like cold air. On the battle map, the little pewter minotaur stands up on its own, stretches, and starts to grow.",
+        "art": "A cozy wood-paneled basement game night with teens around a table of dice and hand-drawn maps, worried parents crowding the stairs with a camera, a pewter minotaur figurine on the map swelling huge and smoky",
+        "choices": [
+          {
+            "id": "deal-them-in",
+            "label": "Invite the parents to roll up characters and play",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"There's room at the table,\" you say, and Priya hands Mrs. Kettering a pencil before she can object. Twenty minutes later she is a halfling cleric named Sister Brambleberry, and she is yelling at a goblin. Every time a grown-up laughs, the minotaur shrinks, until it's a two-inch figurine again, tipped over on its side.",
+              "art": "A middle-aged woman in a cardigan gleefully rolling dice at a basement game table surrounded by laughing teens and parents, a tiny pewter minotaur tipped over on the map",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-played"]
+              }
+            },
+            "failure": {
+              "text": "Mrs. Kettering opens the rulebook to a random page, sees the word \"spell,\" and drops it like it's hot. The parents back up the stairs in a panicked clump, and the minotaur, fat on their fear, knocks the ceiling tiles loose with its horns.",
+              "art": "Panicked parents scrambling up basement stairs, a woman dropping a thick rulebook, a smoky minotaur grown to ceiling height knocking loose ceiling tiles above a scattered game table",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "roll-for-it",
+            "label": "Finish the battle in the game, right now, with everyone watching",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"Roll initiative!\" Priya shouts, and you describe your character's charge so vividly that even the parents on the stairs lean in. It doesn't take a sword. It takes a whole room paying attention to a story instead of a fear. The minotaur clatters back down to pewter size, and one of the dads asks if he can watch next week.",
+              "art": "A teenager standing on a chair dramatically narrating at a basement game table, a many-sided die glowing on the map, parents on the stairs leaning in, a smoky minotaur shrinking",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You roll a one. Everyone at the table groans. The parents see you all groan, decide the game has finally possessed you, and the fear in the room doubles. The minotaur, now the size of a station wagon, sits on the snack table and eats all the cheese puffs.",
+              "art": "A huge smoky minotaur sitting on a crushed snack table eating cheese puffs in a wood-paneled basement, teens groaning over a single die, parents frozen in horror on the stairs",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "brace-the-door",
+            "label": "Hold the basement door shut and keep the fear out",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You and Moose brace the door while the knob rattles. With the grown-ups' fear shut out on the other side, the minotaur stops growing, wobbles, and shrinks to the size of a hamster. Priya traps it under a dice cup. The parents give up and go home to phone each other about it.",
+              "art": "Two teens bracing a basement door shut with their backs while the knob rattles, a tiny smoky minotaur trapped under an upturned dice cup on the game table",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The door holds, but the parents' worry seeps under it like smoke, and it's worse this way, because now they can't see you, so they imagine. The minotaur doubles. By the time you let them in, it has rearranged the furniture with its horns.",
+              "art": "Two teens pressed against a rattling basement door as wisps of gray smoke curl beneath it, a huge smoky minotaur looming behind them amid overturned furniture",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-call-in",
+        "title": "Prudence Says, Live",
+        "place": "Your living room, 1:30 a.m., public-access Channel 23",
+        "text": "You can't sleep, so you flip on the TV, and Channel 23 is running Prudence Says live in the middle of the night. Prudence sits at a desk with a turntable, a stack of seized records and a telephone, and she is looking straight into the camera. Straight at you. \"Lines are open, sweetie,\" she says. \"Call in and tell me what you're afraid of.\" Behind her, in the dark of the studio, a shape of smoke and vinyl is leaning over the camera operator's shoulder, waiting for the phone to ring.",
+        "art": "A dark living room lit by a boxy television showing a public-access studio set, a woman pastor in a lavender pantsuit at a desk with a turntable and telephone, a smoky horned shape looming in the studio shadows, a teenager on the couch clutching a phone",
+        "choices": [
+          {
+            "id": "ask-about-her",
+            "label": "Call in and ask Prudence what she was afraid of at your age",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 1
+            },
+            "success": {
+              "text": "She isn't ready for the question. For a second the on-air smile slips. \"Thunderstorms,\" she says. \"And my mother.\" Then, softer, \"And being left.\" She catches herself and cuts to a slide of a sunset. In the studio shadows, the smoke-shape sags like somebody let the air out of it.",
+              "art": "A television screen showing a woman pastor at a studio desk with her composed smile faltering into quiet sadness, a smoky shape in the studio behind her sagging and thinning",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-asked"]
+              }
+            },
+            "failure": {
+              "text": "\"What was I afraid of?\" Prudence repeats, smiling wider. \"Callers like you, dear.\" She spends ten live minutes on your voice as an example of what heavy metal does to a child's tone, and your aunt in Redding calls the next morning to ask if you're okay.",
+              "art": "A mortified teenager on a couch holding a phone receiver while a television shows a smiling woman pastor pointing at the camera, a smoky shape grinning behind her",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "brother-thrash",
+            "label": "Call in as a reformed metalhead with the wildest testimony ever",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 2
+            },
+            "success": {
+              "text": "With Wade feeding you lines, you become Brother Thrash, who once heard a backward message on an Iron Lamb record telling him to clean his room. You weep about how he cleaned it. Then vacuumed. Then did his mother's taxes. Prudence nods gravely until a camera operator snorts on air, then another, and the whole crew dissolves in laughter. The smoke-shape shrivels to a wisp.",
+              "art": "A metalhead with a mullet whispering lines to a teenager sobbing theatrically into a phone, a television behind them showing studio crew members doubled over laughing and a smoky shape shriveling",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-laughter"]
+              }
+            },
+            "failure": {
+              "text": "You overplay it. Prudence believes every word, gasps, and plays a Thunderhawk record backward live on air to hunt for the message that corrupted Brother Thrash. Across town, porch lights snap on in fear, and the smoke-shape fattens like a tick.",
+              "art": "A woman pastor at a studio desk spinning a vinyl record backward on a turntable with a horrified expression, a swelling smoky horned shape behind her, seen on a living room television",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "tape-it",
+            "label": "Tape the broadcast and play it back in slow motion",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "You hit record, rewind, and play it back at quarter speed. The smoke-shape appears only in the instant after Prudence says a scary word. Pause on any calm moment and it isn't there at all, just a bored camera operator in a sweater. It doesn't live in the studio. It lives in the fear, one sentence at a time.",
+              "art": "A teenager kneeling close to a television with a remote, a paused fuzzy image of a studio showing a bored camera operator in a sweater, a boy with a camcorder pointing at the screen excitedly",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The tape jams and starts eating itself, and when you pry it out, the shiny ribbon is warm and twitching. Played back, it's just your own living room, shot from the TV's point of view: you on the couch, and something tall and smoky standing right behind you.",
+              "art": "A teenager pulling a tangled ribbon of videotape from a VCR in a dark living room, the television glowing with a fuzzy image of the same room and a tall smoky shape behind the couch",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "prudence-thorn-emergency-meeting",
         "title": "Emergency Meeting of the Concerned Parents",
         "place": "The Grange Hall on Route 9",

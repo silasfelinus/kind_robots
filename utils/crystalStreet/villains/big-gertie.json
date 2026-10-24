@@ -381,6 +381,274 @@
         ]
       },
       {
+        "id": "big-gertie-family-dinner",
+        "title": "Family Dinner",
+        "place": "The Home Ec classroom, Glimmer Falls High, 2 a.m.",
+        "text": "You wake up seated at a long dinner table in the Home Ec room, a paper napkin tucked into your collar. Around you sit the classroom's dress-form mannequins, each wearing a hairnet and an apron, each with a lunch tray set neatly in front of it. A 1958 filmstrip called Feeding the Family clicks on the wall projector. Big Gertie ducks through the supply closet door carrying a casserole the size of a bathtub, sets it down at the head of the table, and waits. Nobody has ever stayed for dinner before.",
+        "art": "A dim school home economics classroom at night, a long dinner table lined with dress-form mannequins in hairnets and aprons, a teenager seated with a napkin tucked into their collar, a towering lunch lady setting down a giant steaming casserole",
+        "choices": [
+          {
+            "id": "compliment-the-cook",
+            "label": "Take a big bite and compliment the cook by name",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "big-gertie-named",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"This is really good,\" you say, and you mean it: tuna, egg noodles, crushed potato chips, somebody's mother's recipe. Big Gertie sits down for the first time in thirty years. The mannequins tip their hairnets to her, one by one. When you wake up, there is a recipe card in your pocket in neat block print, signed R.B.",
+              "art": "A towering lunch lady seated at the head of a dinner table for the first time, her shoulders relaxed, a teenager smiling with a forkful of casserole, mannequins in hairnets tipping their heads toward her",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["big-gertie-dinner-guest"]
+              }
+            },
+            "failure": {
+              "text": "Your mouth is full and the compliment comes out as a muffled honk. She takes it for a complaint. The filmstrip speeds up, the mannequins swivel to stare, and the casserole slowly slides itself down the table toward you, wanting to be finished.",
+              "art": "A giant casserole dish sliding down a long dinner table toward a teenager with puffed cheeks, dress-form mannequins in hairnets all turned toward them, a filmstrip flickering on the wall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "under-the-tablecloth",
+            "label": "Slip under the tablecloth and crawl for the door",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Under the tablecloth it is dark and smells like starch. You crawl past a forest of mannequin legs and the hem of a huge stained apron, and out into the hall. Behind you, a long, tired sigh. She is clearing your place setting, carefully, like she always does.",
+              "art": "A teenager crawling beneath a long tablecloth past mannequin legs and the hem of a stained apron, a strip of hallway light glowing at the far end",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The tablecloth goes up like a curtain. Big Gertie is crouched at the far end, eye level with you, ladle in hand. \"Elbows off the floor,\" she says, and you spend the rest of the dream sitting up very straight, eating everything on your tray, one pea at a time.",
+              "art": "A towering lunch lady crouched at the end of a dinner table lifting the tablecloth to reveal a startled teenager on hands and knees, ladle raised",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "do-the-dishes",
+            "label": "Roll up your sleeves and do the dishes beside her",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You scrub. She dries. Neither of you says anything for a long while, and it is the most comfortable silence of your life. Halfway through the stack she starts humming a Patsy Cline song, very low, and then she hands you the last dry plate like it is a medal.",
+              "art": "A teenager with rolled sleeves scrubbing dishes at a deep steel sink beside a towering lunch lady drying a plate, steam rising, the two working side by side in warm lamplight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                },
+                "flags": ["big-gertie-helped"]
+              }
+            },
+            "failure": {
+              "text": "The stack never ends. For every plate you wash, two more slide out of the pass-through window, crusted with thirty years of gravy. By dawn your fingers are pruned to raisins and the pile still reaches the ceiling tiles.",
+              "art": "A teenager at a steel sink buried behind a towering stack of dirty plates reaching the ceiling, more plates sliding out of a pass-through window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-wont-start",
+        "title": "The Car Won't Start",
+        "place": "The faculty parking lot, Glimmer Falls High, 11 p.m.",
+        "text": "Joey's '71 Duster has never failed him, and tonight it coughs, clicks and dies in the faculty lot. Through the fogged rear window you see the cafeteria loading dock slide open. A tall shape in a hairnet steps into the floodlight, and the night fills with a sound you know from every school day of your life: the high, grinding whine of the industrial potato masher, revving. It starts walking toward the car. It is in no hurry at all.",
+        "art": "A rusty muscle car stalled in a dark school parking lot, teenagers peering through a fogged rear window, a towering lunch lady in a hairnet stepping out of a floodlit loading dock holding a huge whirring potato masher",
+        "choices": [
+          {
+            "id": "hotwire-it",
+            "label": "Pop the steering column and hotwire it",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "Two wires, one spark, and the Duster roars. You peel out of the lot as the potato masher bites into the space where your bumper was. In the rearview mirror she stands alone under the floodlight, watching you go, and for one strange second she lifts a hand like she is waving goodbye to a bus.",
+              "art": "A muscle car roaring out of a school parking lot with its taillights blazing, a lone lunch lady standing under a floodlight behind it lifting one hand in a wave",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The wires spark, the dome light dies, and the horn sticks on, blaring across the whole lot. The masher stops whining. In the sudden quiet a shadow falls across the windshield, and a ladle taps the glass three times, politely. Tray. Fork. Napkin.",
+              "art": "A huge shadow falling across a car windshield at night, a soup ladle tapping on the glass, teenagers inside clutching sparking wires under the dashboard",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "push-start",
+            "label": "Jump out and push-start it down the hill",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You throw your shoulder into the trunk and shove. The Duster rolls, gathers speed down the bus lane, coughs and catches. You dive into the back seat through the open door like a stunt double. Behind you, the potato masher winds down with a disappointed groan.",
+              "art": "A teenager diving into the open back door of a rolling car speeding down a school bus lane, exhaust smoke curling, a hairnetted giant far behind in the floodlight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The car rolls three feet and settles into a pothole with a clunk. You look up from the bumper straight into a stained apron. \"Pushing in line,\" says Big Gertie. \"Back of the line.\" You wake up at the very end of the carpool queue, in your pajamas, at dawn.",
+              "art": "A teenager bent behind a stalled car bumper looking up at a towering lunch lady in a stained apron looming over them in the floodlight",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "offer-a-ride",
+            "label": "Roll down the window and offer her a ride home",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "big-gertie-thanked",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"You need a lift, ma'am? It's late.\" The masher clicks off. She folds herself into the back seat with her knees around her ears, hairnet brushing the roof, and the Duster starts on the first try. You drop her outside the Suds-O-Mat. \"Thirty years,\" she mutters, climbing out, \"and I always took the bus.\"",
+              "art": "A towering lunch lady folded into the back seat of a small muscle car with her knees up, hairnet brushing the roof, teenagers in front glancing back nervously, a glowing laundromat sign outside",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["big-gertie-ride"]
+              }
+            },
+            "failure": {
+              "text": "She bends to the window and studies you for a long moment, like a face she has seen five thousand times. \"You don't know where I live,\" she says. \"Nobody does.\" The masher revs, and the tires go flat one by one, gently, like sighs.",
+              "art": "A towering lunch lady bending to peer into a car window at night, her face shadowed under a hairnet, the car tires sagging flat in the floodlight",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-right-back",
+        "title": "I'll Be Right Back",
+        "place": "The Fall Lock-In, Glimmer Falls High gym, 1 a.m.",
+        "text": "The student council's overnight Fall Lock-In is winding down: sleeping bags on the gym floor, a dead boombox, a mountain of pizza crusts. Chip Merriweather stands up and stretches. \"I'm getting pudding cups from the cafeteria,\" he says. \"I'll be right back.\" That was twenty minutes ago. Now, from far down the dark hallway, comes a sound like a ladle being dragged along every locker, one at a time, getting closer.",
+        "art": "A dark high school gym at night scattered with sleeping bags and pizza boxes, teenagers sitting up in alarm, a long shadowy hallway beyond the open double doors with a faint glow at its far end",
+        "choices": [
+          {
+            "id": "go-get-chip",
+            "label": "Grab a flashlight and go after Chip",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your beam finds Chip in the cafeteria doorway, frozen, holding a pudding cup. Big Gertie looms over him with her ladle raised, and then she sees your light, sees that somebody came looking. She lowers the ladle, takes a spoon from her apron and puts it in Chip's hand. \"You forgot a spoon,\" she says, and walks into the dark.",
+              "art": "A flashlight beam cutting across a dark cafeteria doorway onto a frozen preppy teenager holding a pudding cup, a towering lunch lady lowering her ladle and offering him a spoon",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The flashlight dies halfway down the hall. In the dark, the ladle scrapes the locker right beside your head, and a voice says, \"Hall pass?\" You run back to the gym. Chip turns up at dawn in a hairnet, wiping tables, with no memory of the night.",
+              "art": "A teenager running down a pitch-dark school hallway clutching a dead flashlight, a long steel ladle scraping along the lockers behind them, a towering hairnetted shadow at the far end of the hall",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "use-the-pa",
+            "label": "Break into the office and call everyone back on the PA",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You jimmy the office door and flip the PA to ALL ROOMS. \"Chip Merriweather to the gym, please. Chip Merriweather to the gym.\" Down the hall a door bangs, sneakers squeak, and Chip skids in clutching an armful of pudding cups. Then the speaker crackles, and a deep voice says, \"And thank the kitchen.\"",
+              "art": "A teenager leaning into a school office microphone at night under a glowing desk lamp, a preppy teenager skidding into a gym doorway clutching an armful of pudding cups",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You key the PA, and the voice that comes out is not yours. \"Tray,\" it booms through every speaker in the building. \"Fork. Napkin. Next.\" The whole lock-in shuffles into a line in their sleeping bags, and you spend the night standing at the end of it.",
+              "art": "Teenagers in sleeping bags shuffling into a single file line across a dark gym, a school loudspeaker on the wall glowing, one teenager staring at a microphone in horror",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "thank-you-note",
+            "label": "Slide a thank-you napkin under the kitchen door",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "big-gertie-thanked",
+              "amount": 2
+            },
+            "success": {
+              "text": "You write THANK YOU FOR LUNCH on a napkin and slide it under the kitchen door. A long silence. Then the door swings open and Chip walks out holding a tray of pudding cups, one for every kid at the lock-in. \"She said I was the first kid in thirty years to ask what was for dessert,\" he whispers.",
+              "art": "A school kitchen door swinging open into a dark hallway, a preppy teenager stepping out carrying a tray stacked with pudding cups, warm kitchen light spilling around him",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "items": ["jolt-cola"],
+                "flags": ["big-gertie-dessert"]
+              }
+            },
+            "failure": {
+              "text": "The napkin slides back out under the door, folded into a neat triangle. Written on it in block print: SEE ME AFTER LUNCH. You do not sleep for the rest of the lock-in, and every time you close your eyes you hear a ladle tapping.",
+              "art": "A folded paper napkin lying on a school hallway floor in a strip of light under a kitchen door, a nervous teenager crouched beside it in the dark",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "big-gertie-walk-in",
         "title": "The Walk-In",
         "place": "The cafeteria walk-in freezer, 3 a.m.",

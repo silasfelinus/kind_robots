@@ -438,6 +438,268 @@
         ]
       },
       {
+        "id": "the-shape-right-back",
+        "title": "I'll Be Right Back",
+        "place": "The Delgado house, co-sitting with a friend, after dark",
+        "text": "You and Tina Vasquez are co-sitting the Delgado kids, who are asleep upstairs under a night-light shaped like a moon. Tina spills a whole bowl of buttered popcorn down her shirt and stands up. \"There's a washer in the garage,\" she says. \"I'll be right back.\" The garage door closes behind her. The washing machine starts, thump, thump, thump. Five minutes. Ten. On the kitchen counter the phone cord has begun to sway by itself, and from somewhere very close comes a slow click, click, click.",
+        "art": "A dim 1980s kitchen at night, a yellow wall phone with its curly cord swaying by itself, a door to the garage standing closed, a teenager on the couch with a bowl of spilled popcorn glancing toward it, a moon night-light glowing upstairs",
+        "choices": [
+          {
+            "id": "go-after-her",
+            "label": "Grab the flashlight and go after her",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You open the garage onto a wall of soap bubbles and Tina, perfectly fine and absolutely furious, standing on top of the dryer. \"Somebody knitted the door shut,\" she hisses. The inside knob is wrapped in neat cranberry rows. You cut her loose with the kitchen scissors. In the driveway, a pale shape watches the two of you walk back inside together, and slowly lowers her needles.",
+              "art": "A teenager with a flashlight in a garage overflowing with soap bubbles, a furious friend standing on top of a dryer, a doorknob wrapped in neat cranberry knitting, a pale masked figure in a cardigan watching from the dark driveway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The garage is dark and full of thumping. Your flashlight finds the washer, the dryer, a rake, and then a pale mask at the side window, inches from the glass, which is exactly when Tina taps you on the shoulder from behind. You both scream loud enough to wake the block, the Delgado kids included.",
+              "art": "A teenager's flashlight beam landing on a pale plaster mask pressed close to a dark garage window, a friend tapping their shoulder from behind, both mid-scream, a rumbling washing machine beside them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "everyone-in-one-room",
+            "label": "Call everyone into the living room: new rule, everybody stays together",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hand out walkie-talkies, carry the sleeping kids down in their blankets and drag Tina back from the garage door by her popcorn-stained sleeve. Everybody stays in one room. At the window, the shape outside tilts her head at the sight, the way a sitter does when she finds the kids already tucked in, and walks on down the street.",
+              "art": "A cozy living room with sleeping kids bundled in blankets on the couch, two teenagers holding walkie-talkies beside them, through the window a pale masked figure in a cardigan tilting her head under a streetlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-all-together"]
+              }
+            },
+            "failure": {
+              "text": "By the time you have everyone together, you count heads and come up one short. Tina went for the garage after all, and the big garage door is rumbling up on its own, slow as a theatre curtain, onto a driveway lit by one streetlight. She is fine. Neither of you sleeps.",
+              "art": "A garage door slowly rising by itself onto a dark driveway lit by a single streetlight, a startled teenager standing in the garage in a popcorn-stained shirt, a friend peering from the kitchen doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "shout-the-rule",
+            "label": "Shout the oldest rule in the horror-movie book after her",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"You can't say I'll be right back!\" you holler. \"It's the first rule!\" Tina freezes in the doorway, considers it, and walks back to the couch, shirt and all. \"Fine. But you're watching me eat popcorn off myself.\" Out on the lawn the pale shape stands very still, like someone hearing a rule she has never heard before: one that keeps a girl alive.",
+              "art": "Two teenagers laughing on a plaid couch, one picking popcorn off her shirt, a camcorder and horror videotapes on the coffee table, through the window a pale masked figure standing very still on the moonlit lawn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Tina laughs and says it again, louder, on purpose: \"I'll be right back!\" The lights go out. When they come back on, you are both locked in the garage with a washer full of popcorn shirt, and the inside knob has been knitted shut in tidy cranberry rows.",
+              "art": "Two teenagers locked in a dim garage beside a rumbling washing machine, one tugging at a doorknob wrapped tight in neat cranberry knitting, a bare bulb swinging overhead",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "the-shape-behind-the-hedge",
+        "title": "Behind the Hedge",
+        "place": "Walking home down Crystal Street at dusk",
+        "text": "You are walking home from school with Ricky Alvarez, who is talking about the Pine Ridge game and not looking where you are looking. A pale face in a cranberry cardigan is standing behind the Hendersons' hedge, perfectly still. You blink and there is only hedge. Two houses later she is beside a parked station wagon. \"There's no such thing as the boogeyman,\" Ricky says, without turning around. Up ahead, beside the next hedge, a pale shape is waiting, and your house is still four doors away.",
+        "art": "A suburban street at dusk lined with trimmed hedges and fallen leaves, two teenagers walking home with backpacks, one glancing nervously at a pale masked figure in a cranberry cardigan standing perfectly still beside a hedge farther down the sidewalk",
+        "choices": [
+          {
+            "id": "snap-a-polaroid",
+            "label": "Snap a Polaroid of her so Ricky has to believe you",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "The flash pops. Ricky laughs at you right up until the photo develops in his hand: the Hendersons' hedge and, beside it, crisp and clear, a girl in a plaster mask and a hand-knit cardigan, feet together like she is waiting for school picture day. Ricky goes pale and quiet. When you both look up, the hedge is just a hedge, and he walks you all the way to your door.",
+              "art": "A pale wide-eyed teenage boy holding an instant photo showing a masked girl in a hand-knit cardigan beside a hedge, his friend holding the camera, the real hedge beside them in the dusk light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The flash pops, and the photo develops into a picture of you, from behind, taken a moment ago from somewhere very close. Ricky stops laughing. You both run the last four houses and slam your front door, and the Polaroid lies face-up on the welcome mat all night where you dropped it.",
+              "art": "An instant photo lying on a doormat in porch light showing a teenager from behind on a dusky sidewalk, shot from very close, two teenagers peeking out through a front door window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "look-behind-it",
+            "label": "Walk straight up to the hedge and look behind it",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You part the branches. Behind the hedge is a strip of lawn, a garden gnome, and a skein of cranberry yarn wound neatly around a stake, tidy as a sitter's workbasket. Tied on top with a bow is a paper tag in round, careful handwriting: Home by dark. You realize she wasn't stalking you. She was making sure you got home.",
+              "art": "A teenager parting the branches of a hedge at dusk to find a garden gnome and a neat skein of cranberry yarn wound around a wooden stake, tied with a small paper tag and a bow",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                },
+                "flags": ["shape-home-by-dark"]
+              }
+            },
+            "failure": {
+              "text": "You part the branches and she is right there, a plaster face an inch from yours, the eyeholes dark. Neither of you moves. Then Ricky yells your name, you flinch, and when you look back the hedge is just a hedge, and your jacket's zipper pull has been replaced with a tiny knitted pom-pom.",
+              "art": "A teenager frozen nose to nose with a pale plaster mask between parted hedge branches at dusk, a tiny cranberry knitted pom-pom dangling from the zipper of their jacket",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "wave-hello",
+            "label": "Wave and call \"Happy Halloween!\" like she's any other neighbor",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Evening! Happy Halloween!\" you call, cheerful as a mail carrier. The pale shape behind the hedge stands still for a long, long time. Then one hand rises, stiffly, and waves back, exactly the way a polite girl waves at the neighbors when her mother is watching. \"Who are you waving at?\" Ricky asks. You don't answer. You are trying to remember the last time anyone said hello to her.",
+              "art": "A teenager on a dusky suburban sidewalk waving cheerfully toward a hedge, a pale masked figure in a cranberry cardigan raising one stiff hand to wave back, a puzzled friend looking the wrong way",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-waved-back"]
+              }
+            },
+            "failure": {
+              "text": "Your wave comes out shaky and your voice cracks halfway through Halloween. The shape tilts her head, as if correcting your posture. All the way home, every hedge you pass rustles once, politely, in the order you pass it, and your porch light is already on when you get there, though the house is dark.",
+              "art": "A nervous teenager hurrying down a dark suburban sidewalk past a row of rustling hedges, a single porch light glowing over the front steps of a dark house at the end of the street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "the-shape-stay-with-your-group",
+        "title": "Stay With Your Group",
+        "place": "The Jaycees Haunted House in the old Woolco on Route 49",
+        "text": "The Jaycees Haunted House fills the dead Woolco on Route 49 with plywood hallways, fog machines and dads in rubber masks. A hand-painted board at the entrance lists the house rules: STAY WITH YOUR GROUP. NO RUNNING. NO SCREAMING. In the Babysitter Room, a set with a plaid couch and a wall phone, a volunteer in a white mask and a cardigan lies face down on the carpet as a prop. Your group walks past. You look back. The prop is sitting up, head tilted, counting you with one steel needle.",
+        "art": "A cheap plywood haunted house set built inside an old dime store, a fake living room with a plaid couch and a yellow wall phone, fog curling across the carpet, a pale masked figure in a cardigan sitting up from the floor, a group of teens walking past",
+        "choices": [
+          {
+            "id": "topple-the-rack",
+            "label": "Topple a rack of rubber bats on her and run for it",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "The rack comes down in a rubbery avalanche and buries her to the shoulders. You herd your whole group through three rooms at a dead sprint, breaking two house rules at once, and burst out the emergency exit into the parking lot. When you look back through the door she is sitting up again among the bats, head tilted, watching you go.",
+              "art": "A pale masked figure in a cardigan buried to the shoulders in a heap of rubber bats on a haunted house floor, teenagers bursting through a glowing emergency exit into a dark parking lot",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The rack wobbles and stays put. You turn to run and she is already standing, right behind you, close enough that you smell the cedar chest on her cardigan. You run anyway, straight into a fog machine, and come out the far side alone in the Mad Scientist Room.",
+              "art": "A frightened teenager stumbling out of thick fog into a haunted house mad scientist lab set with bubbling plastic beakers, a pale masked figure in a cardigan looming in the haze behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "flip-the-breakers",
+            "label": "Find the breaker box and flip on the store's old fluorescent lights",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "Behind a plywood tombstone you find the old Woolco breaker panel and throw every switch. The fluorescents stutter on, humming, and the haunted house becomes a cheap maze of painted plywood and embarrassed dads. In the bald white light the figure in the cardigan raises her hands against the glare, steps back into the one dark hallway left, and is gone.",
+              "art": "Harsh fluorescent tube lights flickering on over a maze of painted plywood walls, embarrassed dads in rubber masks blinking, a pale masked figure in a cardigan shielding her face and backing into a shadowy hallway",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The switch you throw is the one marked SPECIAL EFFECTS. Every strobe, fog machine and recorded scream in the building goes off at once, and in each strobe flash the shape in the cardigan is one room closer, until the volunteers evacuate and you wait in the parking lot with your heart in your throat.",
+              "art": "A haunted house corridor exploding with strobe lights and billowing fog, a pale masked figure in a cardigan caught mid-step in a strobe flash, a teenager gripping an old breaker panel",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "count-out-loud",
+            "label": "Link everyone hand in hand and walk through slowly, counting heads out loud",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "\"One, two, three, four,\" you count, and your group counts back. Everyone walks. Everyone stays quiet. You cross the whole house in a chain, and the shape in the cardigan follows at a careful sitter's distance, the way you trail a line of little kids home from the bus stop. At the exit she stops on the threshold, and very softly, she finishes the count: \"All here.\"",
+              "art": "A chain of teenagers holding hands walking slowly through a foggy haunted house corridor, a pale masked figure in a cardigan following at a careful distance behind them like a babysitter counting heads",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-all-here"]
+              }
+            },
+            "failure": {
+              "text": "The chain breaks in the fog room when somebody's hand slips. When you count again you come up one short, and you have to go back in alone, through every room, calling a name while a pair of needles clicks somewhere in the dark. The missing kid turns out to be outside already, eating a caramel apple.",
+              "art": "A lone teenager calling into a dark foggy haunted house hallway lit by a red bulb, a pair of steel knitting needles glinting in the shadows ahead",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "the-shape-the-laugh",
         "title": "The Girl Who Laughs Too Loud",
         "place": "Mischief Night skate, Pump Iron roller rink annex",

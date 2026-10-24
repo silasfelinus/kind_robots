@@ -380,6 +380,261 @@
         ]
       },
       {
+        "id": "vonda-velour-operators-standing-by",
+        "title": "Operators Are Standing By",
+        "place": "Your kitchen, 3 a.m.",
+        "text": "You come downstairs for water and find your aunt at the kitchen table in her robe, phone pressed to her ear, credit card in her hand, eyes fixed on the little TV on the counter. On screen, Vonda Velour is selling the Burn Belt in three easy payments. \"Call now, Burners! Operators are standing by!\" Behind her, a bank of operators in magenta sweatbands answers ringing phones, and one of them has your aunt's face. The TV screen is breathing, in and out, slow and warm, like a sleeping animal.",
+        "art": "A dark 1980s kitchen at 3 a.m., a woman in a bathrobe at the table clutching a phone and a credit card, a small countertop television bulging outward and glowing magenta, an aerobics star on screen with a bank of sweatbanded telephone operators",
+        "choices": [
+          {
+            "id": "hang-up-gently",
+            "label": "Take the phone from her gently and ask what she loves about herself",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You set the receiver back in its cradle and sit down with her. It takes a minute for her eyes to clear. \"My legs,\" she says at last, surprising herself. \"I won a jitterbug contest at the Rialto in 1961 with these legs.\" She laughs, and on the counter the TV stops breathing, like it just lost a customer.",
+              "art": "A teenager and their laughing aunt in a bathrobe sitting together at a kitchen table at night, a phone back on its cradle, a small television on the counter flattening into quiet static",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-hung-up"]
+              }
+            },
+            "failure": {
+              "text": "She clutches the phone like a lifeline. \"Just three easy payments, sweetie,\" she says, in a voice that isn't quite hers. The operator on the line reads back her address, then yours, then every address on Crystal Street, and in the morning there is a Burn Belt on every doorstep.",
+              "art": "A row of suburban doorsteps at dawn each holding an identical shiny magenta exercise belt box, a tired teenager standing on their porch staring down the street at them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "jam-the-line",
+            "label": "Grab the upstairs extension and flood the order line with fake calls",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You dial the 1-800 number and order nine thousand Burn Belts to a post office box in Antarctica. Then again. Then you call KGLM, and Mix reads the number on air with a dare attached, and half the insomniacs in Glimmer Falls start prank-ordering. The operators on screen drown in ringing phones. Vonda's smile glitches, and the signal collapses into color bars.",
+              "art": "A grinning teenager on a bedroom phone extension dialing furiously, a small television showing frantic sweatbanded operators buried in ringing phones, an aerobics star glitching into rainbow color bars",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The line picks up on the first ring, and Vonda herself answers. \"Oh, a new Burner! Let's start with a weigh-in!\" You can't hang up. You spend the rest of the night on the upstairs extension doing phone-cord lunges while she counts.",
+              "art": "An exhausted teenager doing lunges in a dark upstairs hallway with a phone receiver pinned to their shoulder, the curly cord stretched taut, a magenta glow spilling up the stairs",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "push-the-screen",
+            "label": "Put both hands on the bulging screen and shove it back",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "The screen swells toward you like a balloon about to pop, warm and rubbery and humming. You plant your feet and push. It pushes back, then gives with a squeak like a gym shoe on hardwood, and the picture shrinks to a tiny glowing dot in the middle of the glass. Your aunt blinks, sets down the phone and says, \"Why am I awake?\"",
+              "art": "A teenager bracing both hands against a television screen that bulges outward like a warm rubber balloon, magenta light pulsing around their fingers, a drowsy woman in a bathrobe blinking at the kitchen table",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your hands sink into the screen up to the wrists. It's warm and spongy, like a gym mat, and Vonda's voice is right inside your ears: \"Crunches, sweetie! Let's go!\" You come to on the kitchen linoleum at dawn, mid sit-up, abs on fire, your aunt asleep at the table.",
+              "art": "A teenager doing sit-ups on kitchen linoleum at dawn, wrists glowing faint magenta, a woman asleep at the table with her head on her arms, a small television on the counter softly breathing",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "vonda-velour-fitness-test",
+        "title": "Fitness Test Day",
+        "place": "Glimmer Falls High gym, midnight",
+        "text": "The gym doors bang open as you pass the high school, and inside, under the caged lights, is the worst day of everyone's life: fitness test day. Kids in gym uniforms from every decade since 1959 are climbing ropes, straining at the pull-up bar and reaching for the sit-and-reach box, sweating and terrified. Vonda Velour paces among them with a clipboard and a whistle. \"Fail and you're a before, forever!\" she sings. Marisol Ochoa, a freshman from your bus stop, is dangling halfway up the rope, crying, and she can't let go.",
+        "art": "A high school gym at midnight under caged lights, ghostly students in gym uniforms from many decades climbing ropes and straining on pull-up bars, an aerobics star in a magenta leotard pacing with a clipboard and whistle, a crying girl clinging halfway up a rope",
+        "choices": [
+          {
+            "id": "climb-the-rope",
+            "label": "Climb the rope and talk Marisol down",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You go up hand over hand until your arms scream, hook Marisol's belt and talk her down one inch at a time. Your feet hit the mat together. The whole gym stops. Vonda raises her clipboard to write down your time, and you snatch it out of her hands and fling it into the bleachers. \"She came down safe,\" you say. \"That's the score.\"",
+              "art": "A teenager and a freshman girl landing together on a blue gym mat at the foot of a climbing rope, a clipboard spinning through the air toward the bleachers, a stunned aerobics star with an open mouth",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You make it four feet up and freeze, rope burning your palms, while the whistle shrieks in time with your heartbeat. \"Oh, honey,\" Vonda says. \"We'll mark you incomplete.\" You hang there beside Marisol until the caged lights flicker out at dawn and you both drop onto the mat, sore and giggling with relief.",
+              "art": "Two teenagers dangling from climbing ropes in a dim high school gym, an aerobics star blowing a whistle below with a clipboard, caged lights flickering",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "sit-in",
+            "label": "Sit down in the middle of the gym floor and refuse to be measured",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sit cross-legged on the center line and fold your arms. The whistle shrieks. You stay put. Coach Pruitt sits down beside you like she has waited twenty years for someone to start this. Then a girl in a 1962 gym suit lets go of the pull-up bar and sits too, and a boy in 1975 tube socks leaves the sit-and-reach box. Soon the whole gym is sitting and breathing, and Vonda is pacing around a floor full of people who will not be graded.",
+              "art": "A crowd of students in gym uniforms from many decades sitting cross-legged on a gym floor around a teenager and a big fierce softball coach, an aerobics star in magenta pacing around them with a clipboard",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-sit-in"]
+              }
+            },
+            "failure": {
+              "text": "You sit down. Vonda leans over you, all teeth and hairspray. \"Look at that,\" she coos, loud enough for the whole gym. \"Quitters always sit first.\" Everyone keeps climbing and straining around you, and you sit alone on the cold floor with your face burning until the lights go out.",
+              "art": "An aerobics star with huge teased hair leaning over a teenager sitting alone on a gym floor, students in gym uniforms climbing ropes and straining on bars all around them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "swipe-the-clipboard",
+            "label": "Swipe the clipboard and change every score to PRESENT",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You slide in behind her during a whistle blast, palm the clipboard and go to work with your pencil eraser. Every number, every red check, every FAIL becomes PRESENT. When Vonda reads the scores aloud, kids from every decade hear their names and one word, present, and one by one they drop off the ropes and bars and walk out into the night, still in their uniforms, lighter.",
+              "art": "A sneaky teenager crouched behind the bleachers furiously erasing a clipboard, students in old gym uniforms from many decades letting go of ropes and walking out open gym doors into the night",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She catches your wrist without looking. \"Cheating, sweetie? That's ten laps.\" You run them. Then ten more. The gym floor stretches with every lap, the far wall drifting away, and you are still running when the sun comes up and the janitor finds you jogging in place by the bleachers.",
+              "art": "An exhausted teenager jogging laps around an impossibly long stretched gym floor at sunrise, an aerobics star with a whistle and clipboard watching, a puzzled janitor with a mop by the bleachers",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "vonda-velour-after-picture",
+        "title": "Your After Picture",
+        "place": "The Glitter Box dressing room, after the late show",
+        "text": "The Glitter Box dressing room has cleared out after the late show, leaving a long counter of wigs and greasepaint under a row of bulb-ringed mirrors. You sit down to wipe off your Halloween face paint, and your reflection does not wipe along with you. It is smiling. It is glossy, airbrushed and perfectly toned, in a magenta sweatband and leotard: the you Vonda's tape says you are supposed to be. It leans out of the glass and offers you its hand. \"Don't you want to be your after picture?\" it asks, in Vonda's voice. \"I'll take it from here.\"",
+        "art": "A theatre dressing room with bulb-ringed mirrors over a counter of wigs and greasepaint, a teenager in smeared face paint seated before a mirror, their glossy airbrushed reflection in a magenta sweatband leaning out of the glass with an outstretched hand",
+        "choices": [
+          {
+            "id": "the-whole-movie",
+            "label": "Tell your After everything your body already does right",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "\"My body carries my crew home,\" you tell it. \"It dances badly and hugs hard and runs from monsters every single night this week. It isn't a before. It's the whole movie.\" Your After's smile flickers. Its gloss smears like wet paint, and it slides back into the glass, just your ordinary reflection again, face paint on its chin, looking proud of you.",
+              "art": "A teenager with smeared face paint speaking firmly to a bulb-ringed mirror, their glossy airbrushed reflection smearing like wet paint and melting back into an ordinary proud reflection of themselves",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["vonda-whole-movie"]
+              }
+            },
+            "failure": {
+              "text": "You open your mouth and what comes out is Vonda's voice, listing your flaws. Your After nods along sweetly. You stagger away from the mirror an hour later remembering every mean thing anyone ever said about your body, and the reflection in the bus window home keeps smiling the wrong smile.",
+              "art": "A downcast teenager riding a night bus staring at the window, their reflection in the glass smiling a glossy airbrushed smile in a magenta sweatband, streetlights streaking past",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "vogue-off",
+            "label": "Challenge your After to a vogue-off it can't count its way through",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Glory sweeps in from the wings, takes one look and calls the category: \"Realness, honey, and the realness is you.\" You hit a dip, a duckwalk and hand choreography so committed it counts as a sport. Your After can only do Vonda's count, five, six, seven, eight, and it cannot follow a single beat it wasn't programmed for. It stammers, glitches and folds back into the mirror like a tape rewinding.",
+              "art": "A teenager striking a dramatic vogue dip in a theatre dressing room while a drag queen in sequins judges with a fan, a glossy reflection in a magenta sweatband glitching and folding back into a bulb-ringed mirror",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your After matches you move for move, crisp and perfect, until you stumble and it doesn't. \"See?\" it says, sympathetic. \"Isn't it easier to just be me?\" Every mirror on the counter shows your After now, smiling, and you have to leave the dressing room walking backward.",
+              "art": "A row of bulb-ringed dressing room mirrors each showing the same glossy smiling reflection in a magenta sweatband, a stumbling teenager backing away toward the door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "shove-it-back",
+            "label": "Grab its glossy wrist and shove it back into the glass",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You catch its wrist and shove. It's strong, but it has never had to work for anything, and you have been running from nightmares all week. It slips back into the mirror with a squeak like a sneaker on a gym floor, and you hang a feather boa over the glass for good measure.",
+              "art": "A teenager shoving a glossy airbrushed reflection back into a bulb-ringed mirror by the wrist, a pink feather boa draped ready on the counter among wigs and greasepaint",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "It grabs you back, and for one dizzy second you are on the other side of the glass, inside a gold-flecked aerobics studio, while your After sits at the counter in your clothes, smiling. You claw your way out through the bulbs, but the burn in your thighs lasts all night.",
+              "art": "A teenager trapped inside a gold-flecked aerobics studio seen through a bulb-ringed mirror, pressing hands to the glass, their glossy smiling double seated at the dressing room counter wearing their clothes",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "vonda-velour-no-cool-down",
         "title": "No Cool-Down",
         "place": "Pump Iron Gym, midnight",

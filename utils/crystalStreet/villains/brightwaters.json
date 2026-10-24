@@ -406,6 +406,279 @@
         ]
       },
       {
+        "id": "brightwaters-stay-awake",
+        "title": "Don't Fall Asleep",
+        "place": "Priya Raman's basement slumber party, 2 a.m.",
+        "text": "Rule one of tonight's slumber party, written in marker on Priya's dungeon master screen: NOBODY SLEEPS. Everybody knows by now that the replacing happens while you dream. The VCR has eaten the second movie, the Bolt Cola is gone, and one by one your friends' eyelids are drooping. Under every sleeping bag on the shag carpet, something green and soft is swelling, patient as a houseplant. Out on the lawn, the Brightwater twins are standing at the basement window, holding hands, waiting for the lights to go out.",
+        "art": "A cozy 1980s basement slumber party at night, sleepy teenagers in sleeping bags on shag carpet, green pod shapes swelling beneath the sleeping bags, two smiling blond twins peering in through a high basement window",
+        "choices": [
+          {
+            "id": "caffeine-marathon",
+            "label": "Rally everyone with soda, scary stories and jumping jacks",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "jolt-cola",
+              "amount": 2
+            },
+            "success": {
+              "text": "You crack the emergency Bolt Cola, tell the hook-hand story with full sound effects and lead a round of jumping jacks at three in the morning. Nobody sleeps. By dawn the pods under the sleeping bags have shriveled into dry husks, and the twins at the window look, for the first time, tired.",
+              "art": "Wide-awake teenagers doing jumping jacks in a basement at dawn, soda cans scattered, dried-out green husks lying on the shag carpet, pale morning light at the window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You keep everyone up until 4:58, and then you close your eyes for one second. When you open them, the sun is up, Priya is folding her sleeping bag into a perfect square, and she says \"Isn't it a beautiful day?\" She blinks, shudders, and says it was a joke. You are almost sure it was a joke.",
+              "art": "A teenager waking in a sleeping bag at dawn, staring at a friend folding her sleeping bag into a perfect square with an eerie serene smile",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "weird-truth-or-dare",
+            "label": "Start a game of Truth or Dare too weird for any pod to copy",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "Truth: Raven once held a funeral for a mushroom. Dare: Priya sings the entire Bill of Rights in a Muppet voice. By the time somebody confesses they put ketchup on their Froot Rings, everyone is shrieking with laughter and fully awake, and the pods under the sleeping bags are quivering in confusion. One of them pops like a soap bubble.",
+              "art": "Teenagers laughing hysterically in a circle of sleeping bags in a basement at night, a goth teen in velvet gesturing dramatically, a green pod popping into a puff of glitter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-too-weird"]
+              }
+            },
+            "failure": {
+              "text": "You dare yourself to go knock on the basement window. The twins are waiting. \"Truth or dare?\" Kimmy asks, in the same voice as you. You run back to your sleeping bag and lie awake in it, facing the window, until the sun comes up.",
+              "art": "Two smiling blond twins in matching pastel clothes pressed close to a high basement window at night, a frightened teenager in pajamas backing away from the glass across a shag carpet",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-the-lumps",
+            "label": "Lift each sleeping bag and pull the pods out before they finish",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "flag": "brightwaters-basement",
+              "amount": 1
+            },
+            "success": {
+              "text": "You go bag by bag, quietly, while the others watch the movie. Under each one, a soft green pod the size of a pillow, half-shaped like whoever is lying on it. You roll them into a laundry basket and push it out the bulkhead door. The twins catch it, look at you, and for a second their smiles go flat with something like disappointment.",
+              "art": "A teenager lifting a sleeping bag to reveal a soft green pod shaped like a sleeping friend, a laundry basket full of pods beside them, a basement lit by a flickering television",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The first pod you lift is warm and smells like cut grass, and it sighs a sound so peaceful that your knees go weak. You wake up curled around it on the carpet at dawn with green on your cheek, feeling calm and agreeable and deeply wrong.",
+              "art": "A teenager curled asleep around a soft glowing green pod on shag carpet at dawn, a green smudge on their cheek, friends in pajamas staring down in alarm, pale light at the window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-the-point",
+        "title": "The Point",
+        "place": "Thriftee-Mart Supermarket on Main Street, 10 p.m.",
+        "text": "The Thriftee-Mart is open late and every shopper in it is moving in step: carts rolling down the aisles at the same speed, hands reaching for the same brand of mayonnaise at the same moment, everyone humming the same jingle. Mr. Abernathy, the band teacher who wore a different novelty tie every day for twenty years, is in plain khaki now, stacking cans into a perfect pyramid. You are holding a box of Count Cocoa-Bites. He turns, sees you, and slowly raises one finger to point. His mouth opens wider, and wider, and wider.",
+        "art": "A brightly lit late-night supermarket with shoppers in matching khakis pushing carts in perfect unison, a band teacher in plain clothes pointing at a teenager holding a cereal box, his mouth stretched open impossibly wide",
+        "choices": [
+          {
+            "id": "blend-in",
+            "label": "Smile, push your cart in rhythm and say it with them",
+            "intent": "sneaky",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "chip-merriweather",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Isn't it a beautiful day,\" you say, smiling the smile, and you match their rhythm to the cereal aisle and out the automatic doors. In the parking lot you drop the act and shake for a full minute. But you got a good look at the receipt Mr. Abernathy dropped: a hundred cans of cream-of-mushroom soup, all delivered to 7 Crystal Street.",
+              "art": "A teenager pushing a shopping cart through automatic supermarket doors with a forced eerie smile, matching khaki shoppers behind, a long receipt fluttering on the floor",
+              "effects": {
+                "nerve": 1,
+                "flags": ["brightwaters-receipt"]
+              }
+            },
+            "failure": {
+              "text": "You say it too well. Every shopper turns to you, delighted, and a dozen hands pat your shoulders. \"Welcome,\" they say together. Somebody hands you a coupon for casserole. You walk out with a cart full of mayonnaise you do not remember choosing.",
+              "art": "A dozen smiling shoppers in matching khakis patting a dazed teenager on the shoulders in a bright supermarket aisle, a shopping cart overflowing with identical mayonnaise jars under fluorescent lights",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          },
+          {
+            "id": "topple-the-pyramid",
+            "label": "Knock over the soup pyramid and run for the exit",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You shove. Two hundred cans of cream-of-mushroom avalanche across the floor, and every shopper in the store stops to restack them in perfect unison, because a mess is unbearable to them. You are out the door before the pyramid is half rebuilt.",
+              "art": "An avalanche of soup cans rolling across a supermarket floor, shoppers in khakis kneeling in unison to restack them, a teenager sprinting for the glowing exit",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The cans roll under your feet and you go down like a cartoon, flat on your back in aisle six. When you look up, a ring of smiling faces looks down at you, and Mr. Abernathy finishes his point, and the shriek he lets out is so high every jar of pickles in the store shatters.",
+              "art": "A teenager sprawled on their back among rolling soup cans in a supermarket aisle, a ring of smiling shoppers looking down, a band teacher shrieking with his finger pointed",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "shriek-back-a-showtune",
+            "label": "Beat him to it and belt a showtune at the top of your lungs",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Before he can shriek, you belt the first big note of a Broadway showstopper, arms wide, right there by the cereal. The hive has never heard anything like it. Mr. Abernathy's mouth snaps shut. His finger drops. And very faintly, under the khaki, his foot starts tapping. \"Hello, Dolly,\" he whispers. \"1964. I played the trumpet.\"",
+              "art": "A teenager belting a showtune with arms flung wide in a supermarket cereal aisle, a band teacher in khakis frozen with his finger lowered and his foot tapping, shoppers staring",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-showtune"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks on the high note. The hive hears it, learns it, and every shopper in the Thriftee-Mart sings your cracked note back at you in perfect harmony, over and over, all the way to the parking lot.",
+              "art": "Rows of shoppers in identical khakis singing in eerie unison down a bright supermarket aisle at a fleeing teenager, mouths all open in the same shape, shopping carts lined up behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-sport",
+        "title": "The Dog Knows",
+        "place": "Your front porch, Crystal Street, midnight",
+        "text": "Sport, the Brightwaters' golden retriever, is sitting on your doormat with your missing sneaker in his mouth. His tail wags left, right, left, right, exactly once per second, like a metronome. Barnaby has never been afraid of any dog in his life, and right now he is hiding behind your legs, growling low. Sport sets the sneaker down neatly, squared to the edge of the mat. \"Woof,\" he says, pronouncing it.",
+        "art": "A suburban front porch at midnight under a yellow porch light, a perfectly groomed golden retriever sitting upright on the doormat beside a neatly placed sneaker, a basset hound growling from behind a teenager's legs",
+        "choices": [
+          {
+            "id": "let-barnaby-sniff",
+            "label": "Kneel down and let Barnaby sniff him out",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 2
+            },
+            "success": {
+              "text": "Barnaby creeps forward and sniffs, nose to nose. Sport's tail falters. Then he sneezes, a huge sneeze, and a green seed the size of a jellybean pops out onto the mat. The golden coat fades into scruffy brown, one ear flops over, and there stands Pickles, the Kesslers' mutt who went missing in July, wagging like crazy and licking everybody's face.",
+              "art": "A scruffy brown mutt with one floppy ear joyfully licking a laughing teenager and a basset hound on a porch at night, a small green seed lying on the doormat",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-pickles"]
+              }
+            },
+            "failure": {
+              "text": "Barnaby sniffs, and Sport sniffs back, and Barnaby's tail starts to wag left, right, left, right, once per second. You scoop up your dog and slam the door. He is himself again by morning, but he spends the whole day chewing your other sneaker, as if to prove it.",
+              "art": "A teenager scooping up a basset hound and backing through a front door, a golden retriever on the porch wagging its tail in perfect rhythm, eerie calm on its face",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "throw-a-stick",
+            "label": "Throw a stick into the mud and see if he acts like a real dog",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You chuck a stick into the muddiest flower bed on the street. A real dog would dive in and roll. Sport walks around the mud on the sidewalk, picks up the stick with clean paws, and returns it, spotless, at precisely the same speed he left. Now you know for sure. So does he. He trots home looking, somehow, embarrassed.",
+              "art": "A spotless golden retriever stepping carefully around a muddy flower bed on a moonlit sidewalk carrying a clean stick, a teenager watching from the porch with narrowed eyes",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Sport fetches the stick, then fetches another, then another, faster each time, until there is a neat stack of sticks on your porch as high as the railing, and he is still going at dawn, perfectly happy, perfectly polite, perfectly wrong.",
+              "art": "A towering neat stack of sticks piled against a porch railing at dawn, a golden retriever trotting up with yet another stick, a tired teenager slumped in a porch chair",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-him-home",
+            "label": "Follow Sport back to 7 Crystal Street and look in the window",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 1
+            },
+            "success": {
+              "text": "He leads you up the Brightwaters' lawn and through the dog door. You creep to the living room window. Inside, in the dark, Rex, Donna, Kip and Kimmy stand in a row facing the wall, perfectly still, smiling at the wallpaper, recharging. You snap a photo. They never turn around.",
+              "art": "A dark suburban living room seen through a window at night, a smiling blond family of four standing in a row facing the wall perfectly still, a golden retriever sitting beside them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["brightwaters-recharging"]
+              }
+            },
+            "failure": {
+              "text": "You creep to the window. The living room is dark and still. Then, all at once, four smiling faces pop up on the other side of the glass, an inch from yours. \"Sport found you!\" says Donna, beaming. \"Good boy.\" You run home through four backyards and two sprinklers.",
+              "art": "Four smiling blond faces of a perfect family suddenly pressed against a dark living room window an inch from a startled teenager crouched in the bushes outside at night, a golden retriever beside them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "brightwaters-pod-night",
         "title": "Pod Night",
         "place": "Your bedroom closet, three a.m.",

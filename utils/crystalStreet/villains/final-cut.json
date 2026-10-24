@@ -446,6 +446,271 @@
         ]
       },
       {
+        "id": "final-cut-be-right-back",
+        "title": "I'll Be Right Back",
+        "place": "The Starlight Drive-In, closed for the season, midnight",
+        "text": "The Starlight Drive-In has been shuttered since Labor Day, but tonight its giant screen flickers on while your crew sits in a borrowed station wagon, and the feature is Lights Out at Crystal Pines. The teenagers on screen are wearing your clothes. One of them, in your friend's exact jacket, stretches and says, \"I'll be right back.\" In the back seat, your friend stretches the same way, lips moving in sync, and reaches for the door handle.",
+        "art": "A deserted 1980s drive-in theater at midnight, a wood-paneled station wagon full of teens facing a giant flickering screen showing teens in matching outfits, one teen in the back seat reaching for the door handle, rows of speaker poles",
+        "choices": [
+          {
+            "id": "heckle-the-screen",
+            "label": "Heckle the screen like it's opening night",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Nobody says that line and lives!\" you yell, and the whole wagon joins in, honking the horn and pelting the windshield with popcorn. On screen, the actor freezes mid-step and glares out at the lot, offended. Your friend lets go of the door handle, laughing too hard to go anywhere.",
+              "art": "Teens in a station wagon at a deserted drive-in at midnight honking and hurling popcorn at a giant flickering screen, an actor on the screen frozen and scowling out at the lot, laughter fogging the windshield",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["final-cut-heckled"]
+              }
+            },
+            "failure": {
+              "text": "Your heckle comes out as the next line of the script: \"Hurry back.\" Your friend climbs out and walks to the snack bar, and twenty minutes later you find them behind the counter in a paper usher's hat, sweeping the same square of floor over and over. It takes the whole crew to walk them back to the car.",
+              "art": "A dazed teen in a paper usher's hat sweeping one square of floor behind a dim drive-in snack bar counter at midnight, a popcorn machine glowing, friends peering in through the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "nobody-splits-up",
+            "label": "Nobody splits up: the whole crew goes with them",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You grab your friend's sleeve and the whole crew piles out together, arm in arm, all the way to the snack bar. Inside, a popcorn machine is popping chalk dust and a clapperboard hangs from a nail. With everyone in one shot, the scene has nowhere to cut. You pocket the quarters from the abandoned register on your way out.",
+              "art": "A crew of teens marching arm in arm into an abandoned drive-in snack bar at midnight, a popcorn machine spilling chalk dust, a clapperboard hanging on a nail, coins glittering on the counter",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Halfway across the lot the speaker poles scream with feedback and the crew scatters like startled pigeons. For an hour you hear each other's voices calling from the snack bar, the projection hut and the restrooms, every one of them saying, \"It's fine, come in here.\"",
+              "art": "Teens scattering across a dark drive-in lot between rows of speaker poles, a giant flickering screen looming, the doorways of a snack bar and a projection hut glowing invitingly",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "start-the-car",
+            "label": "Get the wagon started and drive out before the reel ends",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "The key does the movie thing: click, click, nothing. You were expecting that. You pop the hood, wiggle the battery cable the way every mechanic in Glimmer Falls swears by, and the engine roars. You bounce over the exit ramp as the screen behind you snaps to white with a sound like tearing film.",
+              "art": "A teenager slamming the hood of a wood-paneled station wagon as its headlights blaze on at a deserted drive-in, the giant screen behind snapping to blinding white, gravel spraying from the tires",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Click, click, click. On the giant screen, the same station wagon sits in the same lot, and a clapperboard drifts down to tap on its driver's window. You look at your own window. Tap, tap. You bail out the far door and run for the road.",
+              "art": "A frightened teenager behind the wheel of a stalled station wagon at a midnight drive-in, a floating clapperboard tapping on the driver's window, the giant screen above showing the very same car",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-cat-scare",
+        "title": "The Cat Scare",
+        "place": "Your basement, one a.m., lit like a soundstage",
+        "text": "You go down to the basement for a flashlight and find it has been dressed for a scene: a fog machine hissing behind the furnace, a boom mic dangling from the rafters, and a tape X on the floor in front of the laundry-room door. From nowhere, violins start to build, high and thin and climbing. Every movie you have ever seen says something is about to jump out of that door. Behind you, very quietly, a slate pencil squeaks.",
+        "art": "A suburban basement at night dressed like a film set, stage fog curling from behind a furnace, a boom microphone dangling from the rafters, a taped mark on the floor before a laundry-room door, a teenager holding their breath",
+        "choices": [
+          {
+            "id": "open-on-the-beat",
+            "label": "Hit your mark and yank the door open on the big note",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You yank it open on the shriek of the strings and the neighbors' fat orange cat, Mr. Biscuits, explodes out of the laundry basket, yowling. That was the fake scare. You were ready for the real one, so you spin around and catch the Slate right in its lens with your flashlight. It recoils, blinded, and the violins limp to a stop.",
+              "art": "A fat orange cat leaping out of a laundry basket in a foggy basement, a teenager spinning around with a flashlight beam striking a ghostly clapperboard-faced figure that recoils, a boom microphone dangling overhead",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["final-cut-saw-it-coming"]
+              }
+            },
+            "failure": {
+              "text": "The cat explodes out of the laundry basket and you scream so loud the boom mic swings. While you are clutching your heart, the real scare taps you on the shoulder: the Slate, close enough to touch, chalking TAKE ONE across its face. You take the stairs three at a time.",
+              "art": "A screaming teenager clutching their chest in a foggy basement as an orange cat streaks past, a clapperboard-faced ghostly figure looming right behind their shoulder in a hard projector beam",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hum-over-it",
+            "label": "Refuse the cue: sit on the dryer and hum louder than the violins",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 1
+            },
+            "success": {
+              "text": "You hop on the dryer and hum the theme from a Saturday-morning cartoon, loud and gloriously off-key. The violins try to climb over you, falter, and get stuck going around and around like a broken music box. A jump scare needs a held breath, and you are not holding one. The fog machine sputters out in a sulk.",
+              "art": "A grinning teenager perched cross-legged on a clothes dryer humming loudly in a foggy basement, a boom microphone drooping from the rafters, a fog machine sputtering, ghostly violin shapes tangled in the air",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The violins swallow your humming and keep climbing until the light bulbs buzz along with them. Then they stop dead. In the silence, the laundry-room door creaks open one inch on its own, and the dark inside waits for you to look. You do not sleep until dawn.",
+              "art": "A frozen teenager on a basement dryer staring at a laundry-room door creaked open an inch onto deep darkness, bare light bulbs glowing, wisps of stage fog curling along the floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "swing-the-boom",
+            "label": "Grab the boom pole and swing it at whatever is behind you",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You yank the boom pole off its hook and swing without looking. It clangs off something hollow, and the Slate's chalk scatters across the concrete like spilled rice. The violins hit a sour note and quit. When the fog clears, your basement is only a basement again.",
+              "art": "A teenager swinging a long boom microphone pole through stage fog in a basement, a ghostly clapperboard-faced figure bursting into a cloud of chalk dust, a stack of laundry baskets toppling",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You swing, miss, and hook the furnace pipe with an enormous clang that wakes the whole house. By the time your family stumbles downstairs, the fog, the tape and the mic are gone, and you are standing alone in the basement holding a broom, trying to explain.",
+              "art": "A sheepish teenager holding a broom in a plain basement beside a dented furnace pipe, a family in bathrobes peering down the stairs with flashlights, an orange cat watching from a laundry basket",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-killer-pov",
+        "title": "Point of View",
+        "place": "Crystal Street sidewalks, 2 a.m., through a viewfinder",
+        "text": "You blink and you are looking through a camera viewfinder, gliding low along the sidewalk at walking speed, while somebody breathes heavily in your ears. The breathing is on the soundtrack. You are the killer's point-of-view shot. The dolly is carrying you toward a lit garage where Ricky Alvarado, who runs the follow spot at the Glitter Box, is rehearsing a lip-sync alone in a feather boa. A chalk slate floats at the edge of your vision: FRIEND #1. FIRST.",
+        "art": "A low gliding view along a dark suburban sidewalk at night from atop a film dolly on metal track rails, a lit garage ahead where a young man in a feather boa lip-syncs into a hairbrush, a floating chalk slate glowing nearby",
+        "choices": [
+          {
+            "id": "turn-the-camera",
+            "label": "Wrench the camera around and point it at yourself",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You fight the dolly and swing the lens around until it is staring at you. A killer's-eye shot only works while nobody sees who is holding the camera. Caught on film, the breathing stops with an embarrassed cough, the track buckles, and you tumble onto the Alvarados' lawn as yourself.",
+              "art": "A teenager wrestling a heavy film camera on a dolly to point its lens back at their own face on a dark suburban sidewalk, a lit garage glowing behind them, buckled metal track rails",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The camera will not turn. It glides you right up to the garage window, and Ricky looks up and screams, because from his side of the glass all he can see is you, pressed to the window, breathing hard. You spend the rest of the night apologizing through his mail slot.",
+              "art": "A teenager pressed against a garage window at night, breath fogging the glass, while inside a startled young man in a feather boa shrieks and drops a hairbrush microphone",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "join-the-number",
+            "label": "Break out of the shot, knock, and join his lip-sync",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 1
+            },
+            "success": {
+              "text": "You stumble off the dolly, knock, and grab the second hairbrush. Ricky cues up the tape and the two of you lip-sync the duet of your lives in his parents' garage. Two people in one spotlight make a scene, not a victim, and the floating slate's chalk smears into a heart. Ricky makes you promise to come to Saturday's revue.",
+              "art": "Two teens lip-syncing a joyful duet into hairbrush microphones in a cluttered suburban garage at night, one in a feather boa, a boombox blaring, a string of holiday lights glowing, a chalk heart drifting in the air",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["final-cut-duet"]
+              }
+            },
+            "failure": {
+              "text": "Ricky cannot hear you knock over the music. You keep knocking, and the breathing on the soundtrack keeps getting louder until it is your own breathing, and the dolly reverses you all the way to the end of the street. The last thing you see is the slate: TAKE TWO.",
+              "art": "A teenager knocking on a closed garage door glowing with music and colored light, a dolly track stretching behind them down a dark suburban street, a floating chalk slate hovering at their shoulder",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "derail-the-dolly",
+            "label": "Stomp the dolly's brake and derail the shot",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You find the brake with your foot and stomp. The track jumps, the shot shakes like a home movie, and the whole contraption rolls into the Fergusons' hedge with a crunch. The heavy breathing turns to wheezing, then coughing, then silence, and you climb out of the leaves holding a perfectly good flashlight that fell off the rig.",
+              "art": "A film dolly tipped over into a suburban hedge at night with its camera askew, a teenager climbing out of the leaves holding a flashlight, metal track rails scattered across the sidewalk",
+              "effects": {
+                "nerve": 1,
+                "items": ["flashlight"]
+              }
+            },
+            "failure": {
+              "text": "The brake is a gas pedal. The dolly shoots forward, the shot goes woozy and slow-motion, and you find yourself on a completely different street with no idea how you got there, still breathing heavily, which is somehow the most embarrassing part.",
+              "art": "A dizzy teenager riding a runaway film dolly at speed down an unfamiliar dark street, streetlights smearing into long glowing streaks, a camera bucking on its mount",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "final-cut-the-twist",
         "title": "The Twist",
         "place": "The Glitter Box stage, after midnight",

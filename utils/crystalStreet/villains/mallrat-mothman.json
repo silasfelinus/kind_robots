@@ -382,6 +382,277 @@
         ]
       },
       {
+        "id": "mallrat-mothman-have-you-seen-me",
+        "title": "Have You Seen Me?",
+        "place": "The all-night Quik-Mart on Quarry Road, 1 a.m.",
+        "text": "You stop at the all-night Quik-Mart for a Bolt Cola, and the dairy case is wrong. Every milk carton has a kid's face printed on the side under HAVE YOU SEEN ME?, and they are faces you know from the arcade, the food court, the bus stop. Their mouths move. They are whispering their own names, so softly you can barely hear. The clerk has his headphones on and has not looked up once. On the roof, something heavy shifts, and gray dust sifts past the front window like snow.",
+        "art": "A fluorescent-lit convenience store at 1 a.m., a teenager staring into a glowing dairy case of milk cartons printed with small kids' faces, a clerk in headphones at the counter, gray dust drifting past the front window",
+        "choices": [
+          {
+            "id": "make-him-look",
+            "label": "Slide off the clerk's headphones and make him look",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You set a carton on the counter and ease his headphones off. \"Look. Do you know her?\" The clerk, Gary, squints, and then his face falls. \"That's Marcy. She bought gum here every Saturday, until she didn't.\" He picks up the phone to call it in. On the roof, the heavy thing shifts once more and goes still, as if it is listening.",
+              "art": "A teenager holding up a milk carton to a startled convenience-store clerk with headphones around his neck at 1 a.m., fluorescent lights, a glowing dairy case behind, gray dust drifting past the front window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mallrat-mothman-someone-noticed"]
+              }
+            },
+            "failure": {
+              "text": "Gary glances at the carton and shrugs. \"Kids run off. Their folks'll call.\" He puts his headphones back on. On every carton in the case, the faces turn away from you, and the whispering stops, which is worse than the whispering.",
+              "art": "A bored convenience-store clerk in headphones ignoring a teenager at 1 a.m., a dairy case behind them full of milk cartons with tiny printed faces turned away, gray dust sifting past the window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-the-dust",
+            "label": "Follow the trail of dust around back",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The dust leads past the dumpsters to the loading dock, where a boy in a too-big jacket is curled up asleep on a pile of flattened boxes. Crouched over him, wings folded like a tent, is the Mothman. It looks at you with eyes like exit signs. Then, slowly, it steps back and lets you wake him and walk him inside to the warm.",
+              "art": "A towering moth creature with folded dusty wings and glowing red eyes crouched protectively over a boy asleep on flattened boxes at a store loading dock at night, a teenager approaching with a flashlight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your flashlight lands on two red eyes the size of hubcaps, and the light is exactly what it wanted. It lifts off with a sound like a hundred pages turning, and dust pours over you in a cloud. When you can see again, the loading dock is empty and your flashlight is coated gray.",
+              "art": "A teenager coughing in a cloud of gray dust on a store loading dock at night, a flashlight beam caught on two huge glowing red eyes above, enormous dusty wings beating overhead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "buy-every-carton",
+            "label": "Buy every carton and take them to the police station",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "You empty your pockets on the counter and wheel forty cartons of milk out in a shopping cart. At the station you line them up along the front desk, faces out, and the night officer starts counting the kids nobody ever filed a report on. By dawn there is a list. It is a long list.",
+              "art": "A teenager pushing a shopping cart heaped with milk cartons into a small-town police station at dawn, an officer at the front desk staring at a long row of cartons lined up face out",
+              "effects": {
+                "nerve": 1,
+                "quarters": -2,
+                "flags": ["mallrat-mothman-cartons"]
+              }
+            },
+            "failure": {
+              "text": "You get the cartons as far as the door, and every one of them is suddenly ordinary: a cartoon cow, a sale price, and that is all. Gary makes you pay anyway. You drink milk for a week, and every glass tastes faintly of dust.",
+              "art": "A glum teenager at a kitchen table surrounded by a towering stack of ordinary milk cartons with cartoon cows, a glass of milk in hand, morning light through the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "quarters": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-ready-or-not",
+        "title": "Ready or Not",
+        "place": "The Glimmer Falls Elementary playground, 1 a.m.",
+        "text": "The swings at Glimmer Falls Elementary are moving on a windless night. All across the playground, little kids in pajamas are hiding: behind the tube slide, under the merry-go-round, curled in the tire tunnel, giggling. A voice is counting through the dark, slow and buzzing, like a voice played through a box fan: \"Ninety-seven. Ninety-eight.\" On top of the jungle gym, the Mothman has its huge wings folded over its eyes. It is It. It is the only one who ever comes looking for them.",
+        "art": "A moonlit elementary school playground at 1 a.m., swings swaying on their own, small kids in pajamas hiding behind a tube slide and inside a tire tunnel, a giant moth creature atop the jungle gym covering its eyes with folded dusty wings",
+        "choices": [
+          {
+            "id": "find-them-first",
+            "label": "Play to win: find every kid before it opens its eyes",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You know every hiding spot on this playground; you were a kid here. Tube slide, tire tunnel, behind the dumpster, inside the rocket. You round up seven sleepy kids before the voice reaches a hundred, and when the Mothman lowers its wings, the only one left to find is you. It looks at you a long time, then tags your shoulder, gently, and flies away.",
+              "art": "A teenager leading a line of sleepy small kids in pajamas across a moonlit school playground, a giant moth creature atop a jungle gym lowering its dusty wings to look, swings swaying gently",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"One hundred. Ready or not.\" The wings open, and every hidden kid squeals with delight and runs to it, not away. By the time you reach the jungle gym they are all fast asleep under its wings in a soft gray heap, and it hisses at you like a goose guarding goslings.",
+              "art": "A heap of small kids in pajamas asleep under the spread dusty wings of a giant moth creature on a playground at night, the creature hissing at a teenager like a guarding goose",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hide-with-rosie",
+            "label": "Crawl into the tire tunnel and keep the littlest kid company",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Inside the tunnel is a girl named Rosie, maybe six, hugging a stuffed rabbit. \"I'm winning,\" she whispers, \"because nobody ever finds me.\" You tell her you found her, and that being found is how you win hide-and-seek. She thinks about it and takes your hand. When the wings open, the Mothman finds the two of you together and leaves you be.",
+              "art": "A teenager and a little girl with a stuffed rabbit crouched inside a playground tire tunnel at night, holding hands and smiling, the dusty wingtip and glowing red eye of a huge moth creature peering in",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["mallrat-mothman-found-rosie"]
+              }
+            },
+            "failure": {
+              "text": "Rosie shoves you. \"You'll give us away!\" She scrambles out the far end toward the jungle gym, and you crawl after her too slowly. When you come out, gray dust is drifting down the slide, and every kid on the playground is gone, along with the thing that was counting.",
+              "art": "A teenager crawling out of a playground tire tunnel at night onto bare wood chips, gray dust drifting down a metal slide, swings creaking, a stuffed rabbit lying alone in the sand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "olly-olly",
+            "label": "Stand in the open and shout \"Olly olly oxen free!\"",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You climb onto the merry-go-round and bellow the magic words loud enough to wake the block. Game over, everybody home. The kids pop out of their hiding places, yawning, and porch lights snap on across the street as parents come out in bathrobes, calling names. On the jungle gym, the Mothman unfolds its wings and drifts away, as if relieved its shift is over.",
+              "art": "A teenager standing on a playground merry-go-round shouting with cupped hands at night, small kids in pajamas popping out of hiding, porch lights glowing across the street, a giant moth flying away",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks halfway through and comes out a squeak. The kids laugh at you from every hiding place. The Mothman laughs too, a dry, papery rattle, and the game goes on, and on, until dawn sends everyone home.",
+              "art": "A red-faced teenager on a playground merry-go-round at night, giggling kids peeking from behind a slide and a tire tunnel, a giant moth creature atop the jungle gym shaking with papery laughter",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mallrat-mothman-mirror-moth",
+        "title": "Something in the Mirror",
+        "place": "Your bathroom mirror, 1 a.m., home alone",
+        "text": "Everyone at your house is working late tonight. The note on the fridge says pizza money is on the counter, and the house is so quiet you can hear the refrigerator think. Brushing your teeth, you notice fine gray fuzz on your shoulders and two feathery antennae curling out of your bangs. In the mirror your pupils catch the light and glow red. Downstairs, the porch light keeps clicking on by itself, and you want, very badly, to go and stand under it.",
+        "art": "A teenager brushing their teeth at a bathroom mirror late at night, fine gray fuzz on their shoulders, two feathery moth antennae curling from their bangs, pupils glowing red in the reflection, a porch light glowing through the window",
+        "choices": [
+          {
+            "id": "call-someone",
+            "label": "Pick up the phone and call anyone, just to talk",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You dial the KGLM request line, and a velvet voice answers on the first ring. You talk about nothing: records, cereal, whether moths have favorite songs. Every minute on the line, the antennae shrink a little, and by the time you hang up the fuzz brushes off your shoulders like pollen. The cure for being unwatched, it turns out, is somebody listening.",
+              "art": "A smiling teenager on a kitchen wall phone late at night twirling the curly cord, gray fuzz brushing off their shoulders like pollen, tiny feathery antennae shrinking from their bangs, a radio glowing on the counter",
+              "effects": {
+                "nerve": 2,
+                "flags": ["mallrat-mothman-called-in"]
+              }
+            },
+            "failure": {
+              "text": "Busy signal. Busy signal. Nobody home. You end up on the porch under the light without remembering how you got there, and across the street the Mothman lands on a roof and watches you, head tilted, like a cousin waiting for you to come along.",
+              "art": "A teenager with feathery antennae standing under a glowing porch light at night, gray dust on their shoulders, a giant moth creature perched on a rooftop across the street tilting its head",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "science-it",
+            "label": "Put the fuzz under your old science-fair microscope",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "Under the lens it is not moth fuzz at all. It is glitter, fountain grime and the dust off dead neon, the stuff of a thousand Saturday afternoons spent waiting at the mall. This is not a mutation. It is loneliness, and loneliness washes off. You scrub until the sink runs gray and the antennae fall out like loose hairs.",
+              "art": "A teenager peering into a small science-fair microscope on a bathroom counter at night, a slide of glittering gray dust under the lens, feathery antennae dropping into the sink",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The longer you study it, the more it spreads, down your arms and across your knuckles, soft as felt. You sneeze, and a gray cloud fills the bathroom and swirls toward the night-light. You sleep under three blankets and wake with dust on your pillow.",
+              "art": "A teenager sneezing a billowing cloud of gray moth dust in a small bathroom at night, the cloud swirling toward a glowing night-light, soft gray fuzz spreading down their arms",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "dance-party",
+            "label": "Turn on every light and throw a one-person dance party",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "If you are going to be drawn to the light, it will be on your own terms. Every lamp on, the mixtape cranked, you dance through every room in your socks. When your family gets home at two, they find you breathless and laughing on the living room floor, and the antennae are lying on the carpet like two lost feathers.",
+              "art": "A teenager dancing wildly in socks through a brightly lit 1980s living room late at night, every lamp blazing, a boombox on the coffee table, two feathery antennae lying on the shag carpet",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every light blazing makes your house a beacon. Something enormous lands on the porch with a thump that rattles the windows, and dust drifts down past the living room curtains. You switch off every lamp and hide under the dining table until dawn, listening to it breathe.",
+              "art": "A teenager hiding under a dining table in a dark 1980s living room, gray dust drifting past the curtains, the huge shadow of moth wings spread across the front window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
         "id": "mallrat-mothman-dead-wing",
         "title": "The Dead Wing",
         "place": "Moonbeam Court, Starlight Mall, after midnight",

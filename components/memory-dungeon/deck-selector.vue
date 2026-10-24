@@ -10,7 +10,6 @@
           selected.family === choice.key
             ? 'border-[#ffe29a] shadow-[#f5c66c]/20'
             : 'border-[#8f7a57]/50'
-        
         "
         :aria-pressed="selected.family === choice.key"
         :disabled="choice.key === 'realm' && !realmDeckReady"
@@ -60,7 +59,11 @@
         >
       </template>
       <template v-else-if="selected.family === 'realm'">
-        <span class="font-semibold">Briar Marches · 30 story images + 2 cross-realm collaboration cards. Unlock with the Bramble Chime; playable once all 32 Comfy paintings are delivered.</span>
+        <span class="font-semibold"
+          >Briar Marches · 30 story images + 2 cross-realm collaboration cards.
+          Unlock with the Bramble Chime; playable once all 32 Comfy paintings
+          are delivered.</span
+        >
       </template>
       <template v-else-if="selected.family === 'gallery'">
         <label class="flex items-center gap-1.5">
@@ -113,7 +116,11 @@
       </template>
 
       <label
-        v-if="selected.family !== 'designed' && selected.family !== 'realm' && matureAvailable"
+        v-if="
+          selected.family !== 'designed' &&
+          selected.family !== 'realm' &&
+          matureAvailable
+        "
         class="ml-auto flex items-center gap-2 rounded-lg bg-[#29352d] px-2 py-1.5"
       >
         <span class="font-semibold">Artwork rating:</span>

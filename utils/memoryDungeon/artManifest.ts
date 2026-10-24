@@ -1,4 +1,5 @@
 import { BRIAR_EARTH_PHOTOS } from './chronicle'
+import { WORLD_ONE_GALLERY, validateRealmGallery } from './realmGallery'
 import { HOUSE_ROOMS } from './house'
 import { BRIAR_TILES } from '../memoryDungeonWorld'
 import { BRIAR_STORY_ATLAS } from '../memoryDungeonStoryAtlas'
@@ -15,6 +16,7 @@ export type MemoryArtKind =
   | 'card-back'
   | 'photograph'
   | 'cinematic'
+  | 'match-gallery'
 
 export type MemoryArtFormat = 'landscape' | 'portrait' | 'square' | 'card'
 
@@ -289,10 +291,21 @@ export const WORLD_ONE_ART_SHOTS: readonly MemoryArtShot[] = [
   ...tileShots,
   ...roomShots,
   ...photoShots,
+  ...WORLD_ONE_GALLERY.map((card) =>
+    shot(
+      card.id,
+      'match-gallery',
+      'card',
+      card.title,
+      card.prompt,
+      card.artPath,
+      'hero',
+    ),
+  ),
 ]
 
 export function validateWorldOneArtManifest(): string[] {
-  const issues: string[] = []
+  const issues: string[] = validateRealmGallery(WORLD_ONE_GALLERY, 1)
   const ids = new Set<string>()
   const paths = new Set<string>()
   for (const shot of WORLD_ONE_ART_SHOTS) {

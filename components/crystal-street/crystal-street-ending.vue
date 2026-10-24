@@ -9,11 +9,10 @@
       frame="h-full"
       kind="ending"
       :seed="`${villain.id}:${run.ending.tier}`"
-      :src="`/crystal-street/endings/${villain.id}-${run.ending.tier}.webp`"
+      :src="`/crystal-street/villains/${villain.id}-ending.webp`"
       :palette="villain.palette"
       :sigil="villain.sigil"
-      :alt="ending.art"
-      :brief="ending.art"
+      :alt="villain.endingPhoto"
     >
       <span
         class="cs-stamp absolute right-3 top-3"

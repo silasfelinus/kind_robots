@@ -31,6 +31,7 @@ for (const key of [
   'zuzu-pinball',
   'emperor-of-dust',
   'zuzu-ghost-trail',
+  'crystal-street',
 ]) {
   assert.match(nav(`arcade/${key}`), /\nchannelKey: arcade\n/)
 }

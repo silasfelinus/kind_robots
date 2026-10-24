@@ -30,7 +30,7 @@
               </p>
               <p class="flex gap-1" aria-label="Endings found">
                 <span
-                  v-for="tier in TIERS"
+                  v-for="tier in ENDING_TIERS"
                   :key="tier"
                   class="h-2 flex-1 rounded-full"
                   :class="
@@ -56,13 +56,13 @@
             class="cs-polaroid"
           >
             <crystal-street-art
-              frame="aspect-[4/3]"
+              frame="aspect-[3/4]"
               kind="ending"
               :seed="`${entry.villain}:${entry.tier}`"
-              :src="`/crystal-street/endings/${entry.villain}-${entry.tier}.webp`"
+              :src="`/crystal-street/villains/${entry.villain}-ending.webp`"
               :palette="villainById(entry.villain)?.palette ?? []"
               :sigil="villainById(entry.villain)?.sigil ?? ''"
-              :alt="villainById(entry.villain)?.endings[entry.tier].art"
+              :alt="villainById(entry.villain)?.endingPhoto"
             />
             <p class="mt-2 font-semibold leading-tight">
               {{ villainById(entry.villain)?.endings[entry.tier].title }}
@@ -104,6 +104,7 @@
 <script setup lang="ts">
 import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
+  ENDING_TIERS,
   TIER_LABELS,
   VILLAINS,
   companionById,
@@ -113,7 +114,6 @@ import {
 } from '~/utils/crystalStreet/rules'
 import type { EndingTier } from '~/utils/crystalStreet/types'
 
-const TIERS: EndingTier[] = ['best', 'good', 'bittersweet', 'bad']
 const store = useCrystalStreetStore()
 const met = (id: string) => store.metVillains.has(id)
 const found = (id: string, tier: EndingTier) =>

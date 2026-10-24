@@ -3,6 +3,7 @@ import {
   SKILLS,
   TAGS,
   TARGETS,
+  type Avatar,
   type Choice,
   type Companion,
   type Effects,
@@ -154,6 +155,7 @@ export function validateVillain(p: Problems, v: Villain): void {
   text(p, `${w}.centralIssue.summary`, v.centralIssue?.summary, 80)
   art(p, `${w}.poster`, v.poster, 60)
   art(p, `${w}.portrait`, v.portrait, 60)
+  art(p, `${w}.endingPhoto`, v.endingPhoto, 120)
   if (!Array.isArray(v.taunts) || v.taunts.length < 3)
     p.push(`${w}: needs 3+ taunts`)
   if (!Array.isArray(v.clues) || v.clues.length !== 3)
@@ -276,6 +278,14 @@ export function validateItem(p: Problems, item: Item): void {
   if (!Number.isInteger(item.price) || item.price < 1) p.push(`${w}: price`)
   if (item.skill && !has(SKILLS, item.skill)) p.push(`${w}: skill`)
   if (item.ward && !has(TAGS, item.ward)) p.push(`${w}: ward`)
+}
+
+export function validateAvatar(p: Problems, a: Avatar): void {
+  const w = `avatar ${a?.id}`
+  if (!/^[a-z][a-z-]+$/.test(a.id ?? '')) p.push(`${w}: id`)
+  text(p, `${w}.name`, a.name, 3)
+  text(p, `${w}.blurb`, a.blurb, 10)
+  art(p, `${w}.art`, a.art, 80)
 }
 
 export function duplicateIds(encounters: Encounter[]): string[] {

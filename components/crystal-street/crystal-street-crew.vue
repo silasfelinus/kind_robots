@@ -1,13 +1,16 @@
 <template>
   <section
-    v-if="run"
     class="kr-panes grid-cols-1 gap-3 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]"
     aria-label="Your crew"
   >
     <div class="kr-pane cs-frame">
       <div class="kr-toolbar px-3 pt-3">
         <h2 class="cs-display text-xl">
-          Crew {{ run.crew.length }}/{{ CREW_LIMIT }}
+          {{
+            run
+              ? `Crew ${run.crew.length}/${CREW_LIMIT}`
+              : 'Friends of Crystal Street'
+          }}
         </h2>
         <div class="join ml-auto">
           <button
@@ -24,22 +27,24 @@
       </div>
       <div class="kr-pane-scroll p-3">
         <ul class="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-3">
-          <li v-for="c in roster" :key="c.id">
+          <li v-for="c in friends" :key="c.id">
             <button
               type="button"
               class="cs-card w-full text-left"
               :class="[
                 selected === c.id ? 'ring-2 ring-primary' : '',
-                inCrew(c.id) ? '' : 'opacity-60',
+                inCrew(c.id) || !run ? '' : 'opacity-60',
               ]"
               @click="selected = c.id"
             >
               <crystal-street-portrait
                 :companion="c"
-                :emotion="inCrew(c.id) ? emotionOf(run, c.id) : 'neutral'"
+                :emotion="
+                  run && inCrew(c.id) ? emotionOf(run, c.id) : 'neutral'
+                "
                 :format="format"
                 :frame="format === 'poster' ? 'aspect-[2/3]' : 'aspect-[4/5]'"
-                :shaken="run.shaken.includes(c.id as CompanionId)"
+                :shaken="!!run?.shaken.includes(c.id as CompanionId)"
               />
               <span class="mt-1 block truncate text-sm font-semibold">{{
                 c.name
@@ -48,7 +53,7 @@
                 class="block truncate text-[11px] uppercase tracking-wider opacity-70"
                 >{{
                   inCrew(c.id)
-                    ? run.shaken.includes(c.id as CompanionId)
+                    ? run?.shaken.includes(c.id as CompanionId)
                       ? 'Shaken till dawn'
                       : 'In your crew'
                     : met(c.id)
@@ -101,7 +106,7 @@
           v-if="inCrew(focus.id)"
           type="button"
           class="btn btn-sm btn-outline rounded-2xl"
-          :disabled="!!run.pending"
+          :disabled="!!run?.pending"
           @click="store.dismiss(focus.id as CompanionId)"
         >
           Send {{ shortName(focus.name) }} home for now
@@ -126,8 +131,10 @@ import {
 import { EMOTIONS, type Emotion } from '~/utils/crystalStreet/types'
 import type { CompanionId } from '~/utils/crystalStreet/ids'
 
+// roster: browse every friend from the main menu, outside any week.
+const props = defineProps<{ roster?: boolean }>()
 const store = useCrystalStreetStore()
-const run = computed(() => store.run)
+const run = computed(() => (props.roster ? null : store.run))
 const format = ref<'portrait' | 'poster'>('portrait')
 const selected = ref<string>(run.value?.crew[0] ?? COMPANIONS[0]!.id)
 const previewEmotion = ref<Emotion | null>(null)
@@ -135,7 +142,7 @@ watch(selected, () => (previewEmotion.value = null))
 
 const inCrew = (id: string) => !!run.value?.crew.includes(id as CompanionId)
 const met = (id: string) => !!run.value?.flags.includes(`recruit:${id}`)
-const roster = computed(() =>
+const friends = computed(() =>
   [...COMPANIONS].sort(
     (a, b) =>
       Number(inCrew(b.id)) - Number(inCrew(a.id)) ||

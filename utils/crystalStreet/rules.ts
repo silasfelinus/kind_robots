@@ -1,12 +1,15 @@
+import avatarsData from './avatars.json'
 import companionsData from './companions.json'
 import decksData from './decks.json'
 import itemsData from './items.json'
 import locationsData from './locations.json'
+import titleArtData from './title-art.json'
 import { VILLAINS } from './villains'
 import { editChoices, joinBody, liveTextStore } from '../playbook/textOverlay'
 import {
   SKILLS,
   type Archetype,
+  type Avatar,
   type Choice,
   type Companion,
   type Effects,
@@ -23,7 +26,10 @@ import {
 import type { CompanionId, ItemId, LocationId, VillainId } from './ids'
 
 export { VILLAINS }
+export const AVATARS = avatarsData as Avatar[]
 export const COMPANIONS = companionsData as Companion[]
+/** The idyllic daytime Crystal Street behind the title. */
+export const TITLE_ART: string = titleArtData.title
 export const DECKS = decksData as TagDeck[]
 export const ITEMS = itemsData as Item[]
 export const LOCATIONS = locationsData as Location[]
@@ -107,6 +113,15 @@ export const TIER_LABELS: Record<EndingTier, string> = {
   bad: 'Taken',
 }
 
+export const ENDING_TIERS: EndingTier[] = ['best', 'good', 'bittersweet', 'bad']
+
+export const TIER_HOW: Record<EndingTier, string> = {
+  best: `Reach its heart on Halloween after a week with at least ${BEST_WINS} night wins.`,
+  good: 'Win the Halloween finale by fighting or tricking it, or reach its heart with fewer night wins.',
+  bittersweet: 'Lose the Halloween finale with more than 3 nerve left.',
+  bad: 'Run out of nerve, or lose the finale with 3 nerve or less.',
+}
+
 const PAWNSHOP_SPOTS = [
   'the far end of the Starlight Mall parking lot',
   'the gravel lot behind St. Jude’s',
@@ -154,6 +169,8 @@ export type RunState = {
   rng: number
   name: string
   pronouns: string
+  /** Chosen avatar id; weeks saved before avatars existed have none. */
+  avatar?: string
   archetype: string
   villain: VillainId
   day: number
@@ -237,8 +254,23 @@ export function allEncounters(): Encounter[] {
   return [...ENCOUNTERS.values()]
 }
 
+export function avatarById(id: string): Avatar | null {
+  return AVATARS.find((a) => a.id === id) ?? null
+}
+
 export function villainById(id: string): Villain | null {
   return VILLAINS.find((v) => v.id === id) ?? null
+}
+
+/** "A gender flip of Jason Voorhees · Friday the 13th (1980)". */
+export function remixLine(villain: Villain): string {
+  const i = villain.inspiration
+  const verb = {
+    flip: 'A gender flip of',
+    bend: 'A gender-bent',
+    remix: 'A remix of',
+  }[i.kind]
+  return `${verb} ${i.original} · ${i.film} (${i.year})`
 }
 
 /** What friends call them: a quoted nickname, else the first name after any title. */
@@ -320,6 +352,7 @@ export type NewRunOptions = {
   name: string
   pronouns: string
   archetype: string
+  avatar?: string | null
   villain?: VillainId | null
 }
 
@@ -332,6 +365,7 @@ export function newRun(options: NewRunOptions): RunState {
     rng: hashSeed(options.seed),
     name: options.name.trim().slice(0, 24) || 'You',
     pronouns: options.pronouns.trim().slice(0, 16) || 'they/them',
+    ...(avatarById(options.avatar ?? '') ? { avatar: options.avatar! } : {}),
     archetype: archetype.id,
     villain: VILLAINS[0]!.id as VillainId,
     day: 1,

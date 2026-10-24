@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   ARCHETYPES,
+  AVATARS,
   BEST_WINS,
   COMPANIONS,
   CREW_LIMIT,
@@ -33,6 +34,7 @@ import {
 } from '../crystalStreet/ids'
 import {
   duplicateIds,
+  validateAvatar,
   validateCompanion,
   validateDeck,
   validateItem,
@@ -73,6 +75,10 @@ for (const c of COMPANIONS) validateCompanion(problems, c)
 for (const l of LOCATIONS) validateLocation(problems, l)
 for (const d of DECKS) validateDeck(problems, d)
 for (const i of ITEMS) validateItem(problems, i)
+// Player avatars (Silas, 2026-10-24 PT): a real cast to choose from.
+assert.ok(AVATARS.length >= 12, 'twelve or more avatars')
+assert.equal(new Set(AVATARS.map((a) => a.id)).size, AVATARS.length)
+for (const a of AVATARS) validateAvatar(problems, a)
 assert.deepEqual(problems, [], problems.slice(0, 20).join('\n'))
 
 const encounters = [
@@ -112,6 +118,28 @@ for (const c of COMPANIONS)
     LOCATIONS.some((l) => l.id === c.location),
     `${c.id} can be met somewhere`,
   )
+
+// A chosen avatar rides along with the week; an unknown one is dropped.
+assert.equal(
+  newRun({
+    seed: 'a',
+    name: 'A',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    avatar: AVATARS[0]!.id,
+  }).avatar,
+  AVATARS[0]!.id,
+)
+assert.equal(
+  newRun({
+    seed: 'a',
+    name: 'A',
+    pronouns: 'they/them',
+    archetype: 'jock',
+    avatar: 'nobody',
+  }).avatar,
+  undefined,
+)
 
 // Ending rules.
 const probe = newRun({
@@ -217,11 +245,25 @@ assert.ok(
 )
 assert.ok(tiers.bad! + tiers.bittersweet! > 0, 'weeks can go wrong')
 
-// Surface contracts: admin route, tab, store-owned storage, playbook.
-assert.ok(existsSync(file('../../pages/admin/crystal-street.vue')))
-const tab = asset('../../content/channels/admin/crystal-street.md')
-assert.match(tab, /requiredRole: ADMIN/)
-assert.match(tab, /route: \/admin\/crystal-street/)
+// Surface contracts: public play route, legacy admin redirect, arcade tab,
+// store-owned storage, playbook.
+assert.ok(existsSync(file('../../pages/play/crystal-street.vue')))
+assert.match(
+  asset('../../pages/admin/crystal-street.vue'),
+  /navigateTo\('\/play\/crystal-street', \{ redirectCode: 301 \}\)/,
+)
+assert.equal(
+  existsSync(file('../../content/channels/admin/crystal-street.md')),
+  false,
+)
+const tab = asset('../../content/channels/arcade/crystal-street.md')
+assert.match(tab, /\nchannelKey: arcade\n/)
+assert.doesNotMatch(tab, /requiredRole/)
+assert.match(tab, /route: \/play\/crystal-street/)
+assert.match(
+  asset('../../components/home/home-visitor-directory.vue'),
+  /route: '\/play\/crystal-street'/,
+)
 for (const name of readdirSync(file('../../components/crystal-street')))
   assert.ok(
     !/localStorage|\$fetch/.test(
@@ -230,7 +272,7 @@ for (const name of readdirSync(file('../../components/crystal-street')))
     `${name} leaves storage to the store`,
   )
 assert.ok(
-  !/localStorage|\$fetch/.test(asset('../../pages/admin/crystal-street.vue')),
+  !/localStorage|\$fetch/.test(asset('../../pages/play/crystal-street.vue')),
 )
 assert.match(
   asset('../../stores/crystalStreetStore.ts'),

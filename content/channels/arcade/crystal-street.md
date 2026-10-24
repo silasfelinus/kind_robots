@@ -1,17 +1,16 @@
 ---
 contentType: tab
-channelKey: admin
+channelKey: arcade
 tabKey: crystal-street
 label: Crystal Street
 title: Terrors on Crystal Street
-subtitle: One week, seven nights, twenty-two nightmares
+subtitle: Work in progress · One week, seven nights, twenty-two nightmares
 summary: Survive Halloween week, 1986.
-description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. Admin-only development preview.'
+description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. A public work in progress.'
 icon: kind-icon:ghost
 image: /crystal-street/cover.webp
-route: /admin/crystal-street
+route: /play/crystal-street
 sort: 141
-requiredRole: ADMIN
 tutorial:
   title: Survive the week
   body: >-
@@ -37,4 +36,5 @@ tutorial:
 ---
 
 Glimmer Falls, California. Halloween week, 1986. Something under Crystal Street is
-waking up, and it wears a different face every year. Private admin-only preview.
+waking up, and it wears a different face every year. Encounter scenes and endings are
+still being painted, so some still use drawn placeholders.

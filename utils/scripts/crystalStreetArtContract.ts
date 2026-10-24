@@ -2,10 +2,12 @@ import { checkArtPromptContract } from '../../server/utils/artPromptContract'
 import { allArtPrompts } from '../crystalStreet/artPrompts'
 import {
   ART_STYLE,
+  AVATARS,
   COMPANIONS,
   DECKS,
   ITEMS,
   LOCATIONS,
+  TITLE_ART,
   VILLAINS,
 } from '../crystalStreet/rules'
 
@@ -15,6 +17,8 @@ const prompts = allArtPrompts({
   locations: LOCATIONS,
   decks: DECKS,
   items: ITEMS,
+  avatars: AVATARS,
+  title: TITLE_ART,
 })
 let bad = 0
 for (const { key, prompt } of prompts) {

@@ -29,7 +29,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Dunmore Ash cuts the first sack open with a kitchen knife. Flour coats his sleeves and the floor. The ovens burn through the night, but the Ledger leaves its bill on his desk.',
-      partial: 'Half the barrels arrive. Dunmore draws lines on the loaves before they cool. The cooks cut on those lines and nobody asks for seconds.',
+      partial:
+        'Half the barrels arrive. Dunmore draws lines on the loaves before they cool. The cooks cut on those lines and nobody asks for seconds.',
       failure:
         'The Saltroad factor counts the tower’s brass twice. Then she shuts the flour wagons. Dunmore hangs his apron on the locked pantry door and lets the kitchens hear who refused them.',
       expired:
@@ -74,11 +75,14 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'For two days the painted wagons sit in the ditch while the Saltroad crosses. Gristle Vane returns the watch captain’s salute with two fingers and a smile. He keeps every name.',
-      success: 'The last cart crosses as dusk takes the ford. Gristle Vane stands on the parapet and counts the wheels aloud. He says the number will matter later.',
-      partial: 'Half the carts clear the bridge. The Pack closes its painted wagons behind them. A baker on the wrong bank holds up three fingers: the price of flour has tripled.',
+      success:
+        'The last cart crosses as dusk takes the ford. Gristle Vane stands on the parapet and counts the wheels aloud. He says the number will matter later.',
+      partial:
+        'Half the carts clear the bridge. The Pack closes its painted wagons behind them. A baker on the wrong bank holds up three fingers: the price of flour has tripled.',
       failure:
         'The Watch returns without its bridge keys. By midnight Gristle Vane has hung them from a painted pole above the crossing. The guards on the wall hear the keys ring in the wind.',
-      expired: 'At dusk the Saltroad takes the northern detour. One driver leaves a broken wheel at the tower gate and asks the Watch to put it where the throne can see.',
+      expired:
+        'At dusk the Saltroad takes the northern detour. One driver leaves a broken wheel at the tower gate and asks the Watch to put it where the throne can see.',
     },
   },
   {
@@ -108,9 +112,12 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The Pack brings every wagon home. A Saltroad merchant checks the seals, then finds one caravan goat missing. Gristle Vane hands over a receipt for it, signed with the crown’s name.',
-      partial: 'The wagons arrive under a borrowed Pack banner. Three crates have been pried open and nailed shut again. Their drivers insist the guards were polite.',
-      failure: 'The guards disappear at the second mile-marker. Three sealed crates disappear with them. A merchant lays the empty escort contract on the throne floor, beside the fee the crown already paid.',
-      expired: 'Nobody answers the Pack’s offer. Gristle Vane sends back the unsigned contract, folded into the shape of a knife. His riders have already taken the bridge road.',
+      partial:
+        'The wagons arrive under a borrowed Pack banner. Three crates have been pried open and nailed shut again. Their drivers insist the guards were polite.',
+      failure:
+        'The guards disappear at the second mile-marker. Three sealed crates disappear with them. A merchant lays the empty escort contract on the throne floor, beside the fee the crown already paid.',
+      expired:
+        'Nobody answers the Pack’s offer. Gristle Vane sends back the unsigned contract, folded into the shape of a knife. His riders have already taken the bridge road.',
     },
   },
   {
@@ -142,9 +149,12 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The horses are found grazing below an abandoned mill. The stable latch has been filed through from the inside, every cut in the same place. The stablemaster will not look at the postern gate.',
-      partial: 'Most mounts come back sweating and without tack. A stablehand has replaced the filed latch before the Watch can inspect it. The old one is missing.',
-      failure: 'The tracker finds a saddle strap beneath a ford stone. No tracks survive the water. At home the stable doors stand open, and nobody volunteers to shut them.',
-      expired: 'The empty stable begins charging for feed nobody needs. Dunmore sends the bill to the throne. Every petition needing a messenger stays on the board.',
+      partial:
+        'Most mounts come back sweating and without tack. A stablehand has replaced the filed latch before the Watch can inspect it. The old one is missing.',
+      failure:
+        'The tracker finds a saddle strap beneath a ford stone. No tracks survive the water. At home the stable doors stand open, and nobody volunteers to shut them.',
+      expired:
+        'The empty stable begins charging for feed nobody needs. Dunmore sends the bill to the throne. Every petition needing a messenger stays on the board.',
     },
   },
   {
@@ -179,7 +189,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
         'The Mirefen accepts the parcel but refuses to sign the receipt. The envoy stares at the water stains on its wrapping. She folds the receipt into her sleeve without a word.',
       failure:
         'The courier returns without the parcel. Reed stems have grown through the strap of their satchel. At the gate they ask for water to wash their hands and will not say why.',
-      expired: 'No courier takes the road. At sunset the Conclave’s warning slate is scraped clean in the court foyer. The sky above the ford darkens anyway.',
+      expired:
+        'No courier takes the road. At sunset the Conclave’s warning slate is scraped clean in the court foyer. The sky above the ford darkens anyway.',
     },
   },
   {
@@ -250,10 +261,12 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The family sleeps above the Hollow Bell bakery. The youngest gave the escort a drawing of a horse that is mostly legs.',
-      partial: 'The family reaches Hollow Bell on foot, carrying the smallest child’s blanket between them. Mara Reedbell offers beds above the bakery. They ask where the cart went, and nobody answers.',
+      partial:
+        'The family reaches Hollow Bell on foot, carrying the smallest child’s blanket between them. Mara Reedbell offers beds above the bakery. They ask where the cart went, and nobody answers.',
       failure:
         'The escort finds four of the five hiding beneath a culvert. They leave a lamp at the roadside for the missing one. The lamp burns through the night.',
-      expired: 'The escort order stays pinned to the board. By morning the family’s cart is gone. An Abbey sister leaves a receipt for five beds, with all five names recorded.',
+      expired:
+        'The escort order stays pinned to the board. By morning the family’s cart is gone. An Abbey sister leaves a receipt for five beds, with all five names recorded.',
     },
   },
   {
@@ -296,10 +309,14 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'Every wagon crossed by dawn. The caravan master pressed a salvaged crowbar on the escort to keep.',
-      success: 'All five iron wagons reach the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
-      partial: 'Two wagons make the far bank. A third burns in the canyon mouth. The caravan master asks whether the pay is counted by wagons saved or friends buried.',
-      failure: 'At dawn a single broken axle washes out of the rail canyon. The Saltroad factor recognizes a ribbon tied to it. The expedition list stays on the wall because nobody can yet say who came home.',
-      expired: 'The convoy leaves without the crown’s seal. Two days later its bells turn up for sale at the canyon market. No one has seen the drivers.',
+      success:
+        'All five iron wagons reach the Saltroad depot. The escort takes its pay standing up. They refuse to put their names on the depot’s casualty register.',
+      partial:
+        'Two wagons make the far bank. A third burns in the canyon mouth. The caravan master asks whether the pay is counted by wagons saved or friends buried.',
+      failure:
+        'At dawn a single broken axle washes out of the rail canyon. The Saltroad factor recognizes a ribbon tied to it. The expedition list stays on the wall because nobody can yet say who came home.',
+      expired:
+        'The convoy leaves without the crown’s seal. Two days later its bells turn up for sale at the canyon market. No one has seen the drivers.',
     },
   },
   {
@@ -354,7 +371,8 @@ export const ACT_ONE_LATE_QUESTS: readonly QuestDef[] = [
       triumph:
         'The defenders hold the gate until the grain carts are safe. At dawn a farmer sets a splintered crossbow on the tower steps, returned for repair. They have begun calling it the crown’s road.',
       success: 'Thistledown held. Its granary did not.',
-      partial: 'The raiders leave with half the winter stores and none of the village banners. Thistledown’s reeve sends the crown a list of what was taken, written on the back of a funeral notice.',
+      partial:
+        'The raiders leave with half the winter stores and none of the village banners. Thistledown’s reeve sends the crown a list of what was taken, written on the back of a funeral notice.',
       failure:
         'Thistledown burns. The survivors walk toward the Eastern Ford carrying doors as stretchers and cooking pots still warm from supper. The reeve keeps the village key on a string.',
       expired:

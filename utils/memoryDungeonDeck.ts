@@ -1,5 +1,5 @@
 import { resolveEntityArtwork } from './artImageSrc'
-export type DungeonDeckFamily = 'designed' | 'gallery' | 'entities'
+export type DungeonDeckFamily = 'designed' | 'gallery' | 'entities' | 'realm'
 export type DungeonEntityKind =
   'dreams' | 'characters' | 'bots' | 'rewards' | 'scenarios' | 'facets'
 
@@ -10,6 +10,7 @@ export interface DungeonDeckSelection {
   /** Exclusive rating filter: false = non-mature only, true = mature only. */
   includeMature: boolean
   entityKind: DungeonEntityKind
+  realmId: number
 }
 
 export const DEFAULT_DUNGEON_DECK: DungeonDeckSelection = {
@@ -18,6 +19,7 @@ export const DEFAULT_DUNGEON_DECK: DungeonDeckSelection = {
   collectionIds: [],
   includeMature: false,
   entityKind: 'characters',
+  realmId: 1,
 }
 
 const entities = new Set<DungeonEntityKind>([
@@ -37,7 +39,8 @@ export function normalizeDungeonDeck(input: unknown): DungeonDeckSelection {
     family:
       entry.family === 'designed' ||
       entry.family === 'gallery' ||
-      entry.family === 'entities'
+      entry.family === 'entities' ||
+      entry.family === 'realm'
         ? entry.family
         : fresh.family,
     gallery:
@@ -54,6 +57,12 @@ export function normalizeDungeonDeck(input: unknown): DungeonDeckSelection {
         ]
       : [],
     includeMature: entry.includeMature === true,
+    realmId:
+      Number.isSafeInteger(entry.realmId) &&
+      entry.realmId! >= 1 &&
+      entry.realmId! <= 16
+        ? entry.realmId!
+        : 1,
     entityKind: entities.has(entry.entityKind as DungeonEntityKind)
       ? (entry.entityKind as DungeonEntityKind)
       : fresh.entityKind,

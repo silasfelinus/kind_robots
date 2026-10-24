@@ -3895,7 +3895,7 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'flinch',
         label:
-          'Ask her about the thirty-eighth day. The Mole boy’s whisper. She was watching the court. Who flinched?',
+          'Ask her about the thirty-eighth day. The young courier’s whisper. She was watching the court. Who flinched?',
         requires: { flags: ['prisoner-pardoned'] },
         effects: {},
         response: 'Lumen stops stitching.',
@@ -5408,7 +5408,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'Isolde comes back from the Yard with her lantern dark and her jaw set.',
-      'Mole family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
+      'A family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
       'They won’t let me through the door. A Mother’s hand on their child. They’d rather it died clean. The Watch would carry me in if you said so. I’m asking whether you say so.',
     ],
     options: [

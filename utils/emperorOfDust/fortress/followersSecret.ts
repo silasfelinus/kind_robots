@@ -141,7 +141,7 @@ export const SECRET_FOLLOWERS: readonly FollowerDef[] = [
     origin: 'jackalwire',
     region: 'jackalwire',
     biography:
-      'Once a Jackalwire toll runner, Moss still sleeps with their boots on. They carry a map of every ambush and a list of people they helped escape one, including the people who might kill them for it.',
+      'Once a Jackalwire toll runner, Tarn still sleeps with their boots on. They carry a map of every ambush and a list of people they helped escape one, including the people who might kill them for it.',
     stats: { might: 6, guile: 8, wits: 4, heart: 5, lore: 2 },
     traits: [
       {

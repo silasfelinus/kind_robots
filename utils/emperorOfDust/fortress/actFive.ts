@@ -3140,7 +3140,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
   },
   {
     day: 44,
-    title: 'The Crow’s Real Name',
+    title: 'The Elder’s True Name',
     advisor: VELLUM,
     briefings: [
       {
@@ -3168,7 +3168,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd44-crow-name',
-        title: 'The Crow’s Real Name',
+        title: 'The Elder’s True Name',
         speaker: 'Elder Corvane of the Storm Crows',
         npc: 'elder-corvane',
         faction: 'storm-crows',

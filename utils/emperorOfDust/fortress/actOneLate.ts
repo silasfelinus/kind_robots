@@ -1229,7 +1229,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
   },
   {
     day: 7,
-    title: 'A Crow’s Warning',
+    title: 'The Conclave’s Warning',
     whisper: {
       source: 'A Freehold reeve, waiting in the gatehouse',
       text: 'My gran sat out every dust storm in the old Mole galleries under the Ford. Nobody’s been down there in years, they tell me. Funny. The path to the old door is still worn smooth.',
@@ -1263,7 +1263,7 @@ export const ACT_ONE_LATE_DAYS: readonly DayDef[] = [
     audiences: [
       {
         id: 'd07-crow-warning',
-        title: 'A Crow’s Warning',
+        title: 'The Conclave’s Warning',
         speaker: 'A Storm Crow envoy',
         faction: 'storm-crows',
         // t-035: the rain the crown bought, or the rain it fenced.

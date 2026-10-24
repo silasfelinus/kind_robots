@@ -13,7 +13,7 @@
               <span class="badge badge-primary">{{ project.status.toLowerCase() }}</span>
               <span class="badge badge-ghost">Project sheet</span>
             </div>
-            <h1 class="text-3xl font-black sm:text-5xl">{{ project.title }}</h1>
+            <h2 class="text-3xl font-black sm:text-5xl">{{ project.title }}</h2>
             <p class="max-w-2xl text-sm leading-relaxed sm:text-base">{{ project.flavorText || project.description }}</p>
           </div>
         </div>
@@ -28,7 +28,7 @@
             <img v-if="project.cardPath" :src="project.cardPath" :alt="`${project.title} card art`" class="max-h-40 w-full rounded-xl object-cover" />
             <span class="text-xs font-bold uppercase tracking-wider text-base-content/60">Discover more</span>
             <a v-if="endpoint" :href="endpoint" class="btn btn-primary btn-sm">
-              <Icon name="kind-icon:arrow-up-right" class="kr-icon-4" /> Open project
+              <Icon name="kind-icon:arrow-right" class="kr-icon-4" /> Open project
             </a>
             <p v-else class="text-sm text-base-content/60">This project's experience is being prepared. You're viewing its public information sheet.</p>
             <NuxtLink to="/conductor" class="btn btn-ghost btn-sm">All projects</NuxtLink>
@@ -36,7 +36,7 @@
         </div>
       </div>
       <section v-else class="mx-auto max-w-md rounded-2xl border border-base-300 p-6 text-center">
-        <h1 class="text-xl font-bold">Project not available</h1>
+        <h2 class="text-xl font-bold">Project not available</h2>
         <p class="mt-2 text-sm text-base-content/70">This project is not public, or it could not be found.</p>
         <NuxtLink to="/conductor" class="btn btn-primary btn-sm mt-4">Browse projects</NuxtLink>
       </section>

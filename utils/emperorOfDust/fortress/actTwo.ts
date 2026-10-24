@@ -2135,7 +2135,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'honest-count',
             label:
-              'Remind her the crown once counted the Mole ledger honestly. Offer a survey of the flooded burrows.',
+              'Remind her the crown once counted the burrow ledger honestly. Offer a survey of the flooded burrows.',
             requires: { flags: ['mole-ledger-counted'] },
             effects: {
               affinity: { moles: 5 },

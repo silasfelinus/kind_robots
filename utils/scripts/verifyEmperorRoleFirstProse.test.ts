@@ -138,6 +138,44 @@ assert.doesNotMatch(
   roleMatch,
 )
 
+// Political faction titles are permitted; ordinary description of a person
+// or group must not fall back to an animal-species shorthand.
+const BARE_SPECIES_SHORTHAND =
+  /\b(?:Mole\s+(?:cells?|families|ledger|forgery|tunnels)|Crow\s+(?:dead-drop|fledgling)|Hyena\s+pups)\b/i
+
+for (const file of [
+  'actOne.ts',
+  'actTwo.ts',
+  'actThree.ts',
+  'actFour.ts',
+  'questBriefsEarly.ts',
+  'questBriefsChores.ts',
+]) {
+  const prose = readFileSync(
+    new URL('../emperorOfDust/fortress/' + file, import.meta.url),
+    'utf8',
+  )
+  assert.doesNotMatch(
+    prose,
+    BARE_SPECIES_SHORTHAND,
+    file + ': use affiliations, roles and locations rather than species',
+  )
+}
+
+const barracks = readFileSync(
+  new URL('../../components/EmperorFortressBarracks.vue', import.meta.url),
+  'utf8',
+)
+assert.doesNotMatch(
+  barracks,
+  /\{\{\s*def\.species\s*\}\}|:subtitle="[^"]*\.species"|return followerDef\(id\)\?\.species/,
+)
+const throne = readFileSync(
+  new URL('../../components/EmperorFortressThrone.vue', import.meta.url),
+  'utf8',
+)
+assert.doesNotMatch(throne, /:subtitle="[^"]*\.species"/)
+
 console.log(
   `Role-first Emperor prose contract: ${inspected} source and UI files checked`,
 )

@@ -603,7 +603,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-pups-guests', 'pack-alliance'],
                 },
                 response:
-                  'That evening six hyena pups walk into the Yard in a line, each holding the tail in front. The cooks feed them. Vane does not watch them go in.',
+                  'That evening six young Jackalwire recruits walk into the Yard in a line, each holding the coat hem of the one ahead. The cooks feed them. Vane does not watch them go in.',
               },
               {
                 id: 'tincture-debt',
@@ -917,7 +917,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         faction: 'old-houses',
         lines: [
           'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a root-knife from the burrows.',
-          'Three dead at the Ford, Majesty, and the Mole tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
+          'Three dead at the Ford, Majesty, and the burrow tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
           'Justice delayed is only a longer funeral. The Moles were told the Ford would be argued in council. They argued in the river instead.',
           {
             who: 'Young Komodo',
@@ -2402,7 +2402,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'mole-truce',
         source: 'Granny Umber’s cell',
-        text: 'The Mole cells will talk truce, if the crown meant its talks.',
+        text: 'The revolutionary cells will talk truce, if the crown meant its talks.',
         truth: true,
         variants: [
           {
@@ -2413,7 +2413,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             flags: ['moles-blamed'],
-            text: 'The Mole cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
+            text: 'The revolutionary cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
           },
         ],
       },

@@ -245,7 +245,10 @@ assert.equal(
 )
 assert.equal(
   briarTileProgress(
-    { ...settledSave, sceneChoices: { ...settledSave.sceneChoices, '2,7': '' } },
+    {
+      ...settledSave,
+      sceneChoices: { ...settledSave.sceneChoices, '2,7': '' },
+    },
     '2,7',
   ),
   'unfinished',

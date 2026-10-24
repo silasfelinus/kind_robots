@@ -19,7 +19,7 @@ import {
   type PlaybookRoute,
 } from './types'
 
-// It Came from the Terrors on Crystal Street in the Playbook Manager (conductor crystal-street
+// Terrors on Crystal Street in the Playbook Manager (conductor crystal-street
 // t-001). One route per nightmare: its three leads, three signature nights and
 // the Halloween finale. Daylight locations and the shared night decks are forks
 // whose pools list the cards they can deal. Scene text takes the live text overlay (rules.ts encounterById).
@@ -229,7 +229,7 @@ export function buildCrystalStreetPlaybook(): Playbook {
 
   return {
     game: 'crystal-street',
-    title: 'It Came from the Terrors on Crystal Street',
+    title: 'Terrors on Crystal Street',
     blurb:
       'Twenty-two nightmares, many of them gender-flipped classic villains, each with three leads, three signature nights and a Halloween finale.',
     routes,

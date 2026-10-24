@@ -10,6 +10,16 @@
         id-prefix="princess"
       >
         <button
+          v-if="RAINBOW_OPENING"
+          type="button"
+          class="btn btn-circle btn-ghost shrink-0 border border-base-300 bg-base-200"
+          aria-label="Play the opening music video"
+          title="Opening"
+          @click="replayOpening"
+        >
+          <Icon name="kind-icon:movie" class="kr-icon-5" />
+        </button>
+        <button
           type="button"
           class="btn btn-circle btn-ghost shrink-0 border border-base-300 bg-base-200"
           aria-label="Open the flight manual in the sidebar"
@@ -25,12 +35,18 @@
         id="princess-flight"
         role="tabpanel"
         aria-labelledby="princess-flight-tab"
-        class="princess-stage flex min-h-0 flex-1 flex-col"
+        class="princess-stage relative flex min-h-0 flex-1 flex-col"
       >
         <ArcadeCabinet
           slug="rainbow-bullet-hell-space-princess"
           contained
-          :suspended="view !== 'flight'"
+          :suspended="view !== 'flight' || openingShowing"
+        />
+        <RainbowOpening
+          v-if="RAINBOW_OPENING"
+          ref="opening"
+          :opening="RAINBOW_OPENING"
+          @showing="openingShowing = $event"
         />
       </section>
 
@@ -240,6 +256,7 @@ import {
   RAINBOW_PILOTS,
 } from '~/utils/arcade/games/rainbowPilots'
 import { rainbowSuperCutin } from '~/utils/arcade/games/rainbowGameArt'
+import { RAINBOW_OPENING } from '~/utils/arcade/games/rainbowOpening'
 
 const navStore = useNavStore()
 
@@ -249,6 +266,13 @@ const views = [
   { key: 'seas', label: 'Seas', icon: 'kind-icon:map' },
 ] as const
 const view = ref<string>('flight')
+const opening = ref<{ offer: () => void; play: () => void } | null>(null)
+const openingShowing = ref(false)
+
+function replayOpening() {
+  view.value = 'flight'
+  opening.value?.play()
+}
 const chosen = ref(0)
 const pilot = computed(() => RAINBOW_PILOTS[chosen.value]!)
 

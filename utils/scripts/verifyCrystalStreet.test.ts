@@ -339,6 +339,11 @@ const tab = asset('../../content/channels/arcade/crystal-street.md')
 assert.match(tab, /\nchannelKey: arcade\n/)
 assert.doesNotMatch(tab, /requiredRole/)
 assert.match(tab, /route: \/play\/crystal-street/)
+// The theme music video (MusicVideo 15) ships with the game.
+assert.ok(existsSync(file('../../public/crystal-street/video/theme.mp4')))
+assert.ok(
+  existsSync(file('../../public/crystal-street/video/theme-poster.webp')),
+)
 assert.match(
   asset('../../components/home/home-visitor-directory.vue'),
   /route: '\/play\/crystal-street'/,

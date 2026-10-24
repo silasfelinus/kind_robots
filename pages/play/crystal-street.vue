@@ -140,6 +140,7 @@
       <crystal-street-guide v-else-if="view === 'guide'" section="guide" />
       <crystal-street-guide v-else-if="view === 'credits'" section="credits" />
       <crystal-street-settings v-else-if="view === 'settings'" />
+      <crystal-street-theme v-else-if="view === 'theme'" />
       <crystal-street-scrapbook v-else-if="view === 'scrapbook'" />
       <crystal-street-title
         v-else-if="view === 'title' || !run"
@@ -210,7 +211,7 @@ import { MAX_DREAD, MAX_NERVE, remixLine } from '~/utils/crystalStreet/rules'
 import type { MenuView } from '~/utils/crystalStreet/menu'
 
 type MenuScreen =
-  'gallery' | 'endings' | 'roster' | 'guide' | 'settings' | 'credits'
+  'gallery' | 'endings' | 'roster' | 'guide' | 'settings' | 'credits' | 'theme'
 type View =
   'title' | 'stage' | 'crew' | 'case' | 'pack' | 'scrapbook' | MenuScreen
 
@@ -221,7 +222,11 @@ const MENU_TABS: { id: MenuScreen; label: string; icon: string }[] = [
   { id: 'guide', label: 'How to play', icon: 'kind-icon:question' },
   { id: 'settings', label: 'Settings', icon: 'kind-icon:settings' },
 ]
-const MENU_SCREENS = new Set<View>([...MENU_TABS.map((t) => t.id), 'credits'])
+const MENU_SCREENS = new Set<View>([
+  ...MENU_TABS.map((t) => t.id),
+  'credits',
+  'theme',
+])
 
 const TABS: { id: View; label: string; icon: string }[] = [
   { id: 'stage', label: 'Play', icon: 'kind-icon:map' },

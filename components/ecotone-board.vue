@@ -174,7 +174,8 @@
               <div>
                 <p class="eco-label mb-2">Choose your look</p>
                 <p class="mb-2 text-xs text-[#f3e6c8]/70">
-                  Twelve faces, one weekend. Swipe sideways to explore the whole cast.
+                  Twelve faces, one weekend. Swipe sideways to explore the whole
+                  cast.
                 </p>
                 <div
                   class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-3"
@@ -220,7 +221,9 @@
                         Selected
                       </span>
                     </span>
-                    <span class="mt-1.5 block truncate text-center text-[11px] font-semibold text-[#f3e6c8]">
+                    <span
+                      class="mt-1.5 block truncate text-center text-[11px] font-semibold text-[#f3e6c8]"
+                    >
                       {{ avatar.label }}
                     </span>
                   </button>

@@ -477,7 +477,7 @@ const updates = [
     category: 'Crystal Street',
     date: 'Oct 24',
     route: '/play/crystal-street',
-    pr: 4123,
+    pr: 4128,
   },
   {
     title: 'A clearer Zuzu Pinball entrance',

@@ -146,7 +146,7 @@ export const WANDERING_ARROWS: Mystery = {
           label: 'Help Hap run his ewes through the gate while he talks',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You work the gate while Hap works the dog, and he talks the whole time, mostly about lambing, which turns out to be the price of admission. It pays. “Folks call her the Professor,” he says, between ewes. “She’s a doctor. Not the useful kind. Philosophy. Taught back east twenty years, then rode in here on a horse named Socrates. Brings my wife paperbacks and argues with her about them. They both love it.”',
+            text: 'You work the gate while Hap works the dog, and he talks the whole time, mostly about lambing, which turns out to be the price of admission. It pays. “Folks call the rider the Professor,” he says, between ewes. “A doctor. Not the useful kind. Philosophy. Taught back east twenty years, then rode in here on a horse named Socrates. Brings my wife paperbacks and argues with her about them. They both love it.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -209,7 +209,7 @@ export const WANDERING_ARROWS: Mystery = {
       },
       body: [
         'At the bottom of the minus tide, deep in the night, the impassable stretch is passable for exactly as long as the sea allows. The surf has pulled back off the black sand and left it shining like a road, and the rock shelf from the trailhead arrow stands out of the water, dry. Headlamps bob: yours, and two more far down the beach, where two men in matching beach-cleanup vests are pulling arrows out of the logs and bagging them as litter, with the cheerful thoroughness of people who have never once been lost. Every arrow they bag is a route that stops existing. Spray hangs over the water like it is waiting to be introduced. Then the sound: hooves, big ones, coming hard from the north, and out of the dark comes the silhouette from every Lost Coast campfire story, a horse’s body and a rider’s back in one long shape, moving at an arrow’s speed.',
-        'Dmitri swears the log was empty when he went to bed. He also admits, watching the surf, that he wasn’t only lost on the trail the other night. He’s been lost about hydrology for a semester. “I think she could tell,” he says. The deal is plain: keep up and she answers one question. She has had years of practice at not being kept up with. Behind you, the water has already started to come back.',
+        'Dmitri swears the log was empty when he went to bed. He also admits, watching the surf, that he wasn’t only lost on the trail the other night. He’s been lost about hydrology for a semester. “The rider could tell, I think,” he says. The deal is plain: keep up and get one question answered. Whoever rides that horse has had years of practice at not being kept up with. Behind you, the water has already started to come back.',
       ],
       approaches: [
         {
@@ -218,7 +218,7 @@ export const WANDERING_ARROWS: Mystery = {
           check: { skill: 'burly', target: 11 },
           cost: 'A flat sprint on black sand, at night, with the sea coming back.',
           success: {
-            text: 'You run like the tide is behind you, because it is. The horse could lose you in a heartbeat. It doesn’t. The rider looks back, sees you still coming, and laughs out loud, a big honest bark of delight, and reins in at the far rocks. “Most people quit at the creek,” she says. “That’s either very stupid or very interesting. Let’s find out which.”',
+            text: 'You run like the tide is behind you, because it is. The horse could lose you in a heartbeat. It doesn’t. The rider looks back, sees you still coming, and laughs out loud, a big honest bark of delight, and reins in at the far rocks. “Most people quit at the creek,” the rider says. “That’s either very stupid or very interesting. Let’s find out which.”',
             effects: { nerve: 1 },
           },
           failure: {
@@ -231,7 +231,7 @@ export const WANDERING_ARROWS: Mystery = {
           label: 'Pretend to be lost so the rider comes to find you',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'You sit on a rock with your headlamp off and your best lost face, which turns out to be very convincing. Five minutes later a big gray horse stops beside you, and a woman in an oilskin coat leans down with a marker uncapped, ready to draw you a route home. Then she sees the tide chart in your lap. “Oh, that’s dirty,” she says, admiring. “The arrow did say you were lost. You are, a little. Just not the way you’re pretending.”',
+            text: 'You sit on a rock with your headlamp off and your best lost face, which turns out to be very convincing. Five minutes later a big gray horse stops beside you, and someone in an oilskin coat leans down with a marker uncapped, ready to draw you a route home. Then the rider sees the tide chart in your lap. “Oh, that’s dirty,” the rider says, admiring. “The arrow did say you were lost. You are, a little. Just not the way you’re pretending.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -244,11 +244,11 @@ export const WANDERING_ARROWS: Mystery = {
           label: 'Shout one honest question into the fog',
           check: { skill: 'psyche', target: 7 },
           success: {
-            text: 'You cup your hands and shout the only question you have: “Who finds you when you get lost?” The hooves stop. The fog is quiet for a long time. Then a woman’s voice, rough from not being used much: “That is the first good question anybody has asked me in nine years.” She rides out of the fog at a walk.',
+            text: 'You cup your hands and shout the only question you have: “Who finds you when you get lost?” The hooves stop. The fog is quiet for a long time. Then a voice, rough from not being used much: “That is the first good question anybody has asked me in nine years.” The rider comes out of the fog at a walk.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You shout a question. It turns out to be “Are you a horse?” The dark is quiet for a long time. Then a woman’s voice says, very clearly, “No,” and the hooves go away north at a gallop, and you will have to live with having asked that for the rest of your life.',
+            text: 'You shout a question. It turns out to be “Are you a horse?” The dark is quiet for a long time. Then a voice says, very clearly, “No,” and the hooves go away north at a gallop, and you will have to live with having asked that for the rest of your life.',
             effects: { nerve: -1 },
           },
         },
@@ -282,7 +282,7 @@ export const WANDERING_ARROWS: Mystery = {
     ],
     recall: {
       'g3:pass':
-        'Out on the minus tide you got close enough to the rider to hear her voice, and still she rode north before the water came back, without telling you her name or where she sleeps.',
+        'Out on the minus tide you got close enough to hear the rider’s voice, and still they rode north before the water came back, without telling you their name or where they sleep.',
     },
     choices: [
       {
@@ -305,38 +305,38 @@ export const WANDERING_ARROWS: Mystery = {
     chapter: 5,
     scene: 'meadow',
     body: [
-      'She lets you walk at the horse’s shoulder up a deer trail out of the tide’s reach, two hours in the dark, to a camp high in the King Range: a spring, a tarp, a fire ring and four crates of paperbacks swollen with damp. There the centaur from every campfire story climbs down and becomes two creatures: Socrates, a gray horse the size of a small barn, who goes back to eating, and Dr. Wren Okonkwo-Barlow, sixty-one, in an oilskin coat, a ring of fletching thread on a carabiner, one lens of her glasses taped, a quiver of driftwood arrows on her back.',
-      '“One question was the deal,” she says, without preamble. “I have never once stuck to it. There’s no signal out here. People get lost. A phone is a brick. A map gets wet. An arrow in a log doesn’t need batteries. I mark the routes, I find the ones who wander off them, and I draw them home on the backs of their hands, because a hand is the one thing nobody loses.” Hap’s barn? “His jig. He trades me oats and sailcloth for paperbacks and lets me fletch there when it rains. He tells everybody about ’92 so nobody asks him about me.” And the headlamps down the beach? Her mouth goes flat. “Cleaning up. They bag my arrows as litter. Last week they tidied away the only route off the beach for a family with a toddler. Very tidy. Nearly fatal. I would like a word with them that my old department would not approve of.” She hands you an arrow. It turns in your palm like a compass needle and settles, pointing back down the mountain. “Most of them I make,” she says. “Some of them I honestly can’t explain.”',
+      'The rider lets you walk at the horse’s shoulder up a deer trail out of the tide’s reach, two hours in the dark, to a camp high in the King Range: a spring, a tarp, a fire ring and four crates of paperbacks swollen with damp. There the centaur from every campfire story climbs down and becomes two creatures: Socrates, a gray horse the size of a small barn, who goes back to eating, and Dr. Wren Okonkwo-Barlow, sixty-one, in an oilskin coat, a ring of fletching thread on a carabiner, glasses with one lens taped, a quiver of driftwood arrows on their back.',
+      '“One question was the deal,” they say, without preamble. “I have never once stuck to it. There’s no signal out here. People get lost. A phone is a brick. A map gets wet. An arrow in a log doesn’t need batteries. I mark the routes, I find the ones who wander off them, and I draw them home on the backs of their hands, because a hand is the one thing nobody loses.” Hap’s barn? “His jig. He trades me oats and sailcloth for paperbacks and lets me fletch there when it rains. He tells everybody about ’92 so nobody asks him about me.” And the headlamps down the beach? Wren’s mouth goes flat. “Cleaning up. They bag my arrows as litter. Last week they tidied away the only route off the beach for a family with a toddler. Very tidy. Nearly fatal. I would like a word with them that my old department would not approve of.” Wren hands you an arrow. It turns in your palm like a compass needle and settles, pointing back down the mountain. “Most of them I make,” they say. “Some of them I honestly can’t explain.”',
     ],
     afterMiss: [
-      'You don’t catch her. You spend the rest of the night on a high boulder waiting out the tide, exactly as the sign told you to, and in the morning you trudge back to the trailhead. There is a fresh arrow wedged behind the sign, neatly, not through it, aimed up into the King Range. Scratched on the shaft: COFFEE. The route it points to is on no map, and it is exactly right. At the top, by a spring: a tarp, a fire ring, four crates of paperbacks swollen with damp, a gray horse the size of a small barn grazing, and, pouring coffee into every cup she owns, Dr. Wren Okonkwo-Barlow, sixty-one, in an oilskin coat, a ring of fletching thread on a carabiner, one lens of her glasses taped, a quiver of driftwood arrows on her back. The centaur from every campfire story, in two pieces. “You didn’t keep up,” she says. “Sit anyway. The coffee doesn’t care.”',
-      '“There’s no signal out here,” she says, without preamble. “People get lost. A phone is a brick. A map gets wet. An arrow in a log doesn’t need batteries. I mark the routes, I find the ones who wander off them, and I draw them home on the backs of their hands, because a hand is the one thing nobody loses.” Hap’s barn? “His jig. He trades me oats and sailcloth for paperbacks and lets me fletch there when it rains. He tells everybody about ’92 so nobody asks him about me.” And the headlamps down the beach? Her mouth goes flat. “Cleaning up. They bag my arrows as litter. Last week they tidied away the only route off the beach for a family with a toddler. Very tidy. Nearly fatal. I would like a word with them that my old department would not approve of.” She hands you an arrow. It turns in your palm like a compass needle and settles, pointing back down the mountain. “Most of them I make,” she says. “Some of them I honestly can’t explain.”',
+      'You don’t catch the rider. You spend the rest of the night on a high boulder waiting out the tide, exactly as the sign told you to, and in the morning you trudge back to the trailhead. There is a fresh arrow wedged behind the sign, neatly, not through it, aimed up into the King Range. Scratched on the shaft: COFFEE. The route it points to is on no map, and it is exactly right. At the top, by a spring: a tarp, a fire ring, four crates of paperbacks swollen with damp, a gray horse the size of a small barn grazing, and Dr. Wren Okonkwo-Barlow, sixty-one, in an oilskin coat, a ring of fletching thread on a carabiner, glasses with one lens taped, a quiver of driftwood arrows on their back, pouring coffee into every cup they own. The centaur from every campfire story, in two pieces. “You didn’t keep up,” Wren says. “Sit anyway. The coffee doesn’t care.”',
+      '“There’s no signal out here,” they say, without preamble. “People get lost. A phone is a brick. A map gets wet. An arrow in a log doesn’t need batteries. I mark the routes, I find the ones who wander off them, and I draw them home on the backs of their hands, because a hand is the one thing nobody loses.” Hap’s barn? “His jig. He trades me oats and sailcloth for paperbacks and lets me fletch there when it rains. He tells everybody about ’92 so nobody asks him about me.” And the headlamps down the beach? Wren’s mouth goes flat. “Cleaning up. They bag my arrows as litter. Last week they tidied away the only route off the beach for a family with a toddler. Very tidy. Nearly fatal. I would like a word with them that my old department would not approve of.” Wren hands you an arrow. It turns in your palm like a compass needle and settles, pointing back down the mountain. “Most of them I make,” they say. “Some of them I honestly can’t explain.”',
     ],
     recall: {
       'g1:hand-map':
-        '“You were the one squinting at Dmitri’s hand at the trailhead,” she says. “I know. My minus sign looks like a dash. I’ve been told.”',
+        '“You were the one squinting at Dmitri’s hand at the trailhead,” Wren says. “I know. My minus sign looks like a dash. I’ve been told.”',
       'g3:question':
-        '“Technically you spent your one question out on the sand,” she says. “You can see how well I keep that rule. Ask another. Don’t tell anybody I’m soft.”',
+        '“Technically you spent your one question out on the sand,” they say. “You can see how well I keep that rule. Ask another. Don’t tell anybody I’m soft.”',
       'g2:sheep':
-        '“Hap says somebody spent a morning in his sheep pen asking about me,” she says. “He described your face. Not kindly, but accurately.”',
+        '“Hap says somebody spent a morning in his sheep pen asking about me,” Wren says. “He described your face. Not kindly, but accurately.”',
     },
     choices: [
       {
         id: 'why',
-        label: 'Ask her why a professor quit to live on a beach',
-        text: 'You ask. She looks at you over her taped glasses for a long moment, deciding whether you deserve the true answer. Then she sits down by the fire.',
+        label: 'Ask Wren why a professor quit to live on a beach',
+        text: 'You ask. Wren studies you over those taped glasses for a long moment, deciding whether you deserve the true answer, then sits down by the fire.',
         next: 'what-it-cost',
       },
       {
         id: 'sea-arrows',
-        label: 'Ask her about the arrows she can’t explain',
-        text: 'You hold up the arrow she just handed you. It has turned again in your hand. Her face lights up the way only a professor’s does when somebody finally asks the question she was hoping for.',
+        label: 'Ask Wren about the unexplained arrows',
+        text: 'You hold up the arrow Wren just handed you. It has turned again in your hand. Wren’s face lights up the way only a professor’s does when somebody finally asks the right question.',
         next: 'arrows-i-didnt-make',
       },
       {
         id: 'let-ride',
-        label: 'Thank her and let her ride on',
-        text: 'You thank her, and you mean it. She tips her glasses at you like a hat and swings back up onto Socrates.',
+        label: 'Thank Wren and let them ride on',
+        text: 'You thank Wren, and you mean it. They tip their glasses at you like a hat and swing back up onto Socrates.',
         ending: 'rider-moves-on',
       },
     ],
@@ -349,7 +349,7 @@ export const WANDERING_ARROWS: Mystery = {
         'Cedar checks Socrates’s shoes. “Shod on a new moon, I’d bet. Old farriers swear by it. I swear at it, but I do it.”',
     },
     aloneLine:
-      'Alone at her fire, you get her full attention, which is a lot, like sitting in the front row of the only lecture that ever mattered.',
+      'Alone at the fire with Wren, you get their full attention, which is a lot, like sitting in the front row of the only lecture that ever mattered.',
   },
   branches: {
     'what-it-cost': {
@@ -359,20 +359,20 @@ export const WANDERING_ARROWS: Mystery = {
       scene: 'meadow',
       body: [
         '“I taught ethics for nineteen years,” Wren says. “Freedom, duty, what we owe each other. In a room with no windows. Then my nephew got lost out here for three days. A stranger found him, someone who’d marked a route with sticks. No name. Never thanked. I read about the sticks and I couldn’t teach anymore. I’d been lecturing about the good life for two decades, and somebody out here was just living it.”',
-        'She feeds the fire. “Here is the honest part, since you asked. My sister called on a Tuesday to say Mom was in the hospital. I got the message on a Friday, when I rode into Petrolia for oats. The funeral was the next week. I made it to that, at least, but the Tuesday is the one I think about.” She does not look away from you. “I would make the same choice again. That’s the part I don’t like about myself. Freedom costs. It just bills you in a currency nobody else can see.”',
+        'Wren feeds the fire. “Here is the honest part, since you asked. My sister called on a Tuesday to say Mom was in the hospital. I got the message on a Friday, when I rode into Petrolia for oats. The funeral was the next week. I made it to that, at least, but the Tuesday is the one I think about.” They do not look away from you. “I would make the same choice again. That’s the part I don’t like about myself. Freedom costs. It just bills you in a currency nobody else can see.”',
       ],
       choices: [
         {
           id: 'search-rescue',
           label:
             'Offer to help turn the arrows into routes search and rescue can use',
-          text: 'You tell her the arrows save people, but only the ones who happen to find them. She thinks about it the way she thinks about everything, hard and out loud. “Fine,” she says. “But I keep the horse, and I don’t carry a phone.” Before she can change her mind, you walk down to the one bar of signal on the ridge and make the call. The team says first light.',
+          text: 'You tell Wren the arrows save people, but only the ones who happen to find them. Wren thinks about it like everything else, hard and out loud. “Fine,” they say. “But I keep the horse, and I don’t carry a phone.” Before Wren can change their mind, you walk down to the one bar of signal on the ridge and make the call. The team says first light.',
           ending: 'coffee-for-ten',
         },
         {
           id: 'go-home',
-          label: 'Tell her honestly she should go home for a while',
-          text: 'You tell her the truth, because she would know if you didn’t: there are people waiting for her who aren’t lost. She is quiet a long time. “Good argument,” she says at last. “I hate it.”',
+          label: 'Tell Wren honestly it’s time to go home for a while',
+          text: 'You tell Wren the truth, because they would know if you didn’t: somewhere there are people who aren’t lost, still waiting for Wren to come home. The quiet goes on a long time. “Good argument,” Wren says at last. “I hate it.”',
           ending: 'rider-moves-on',
         },
       ],
@@ -383,20 +383,20 @@ export const WANDERING_ARROWS: Mystery = {
       chapter: 5,
       scene: 'meadow',
       body: [
-        'Wren lays the strange arrows out on a tarp. Twelve of them, fletched in a hand that is not hers. “Some mornings there’s one in my quiver I don’t remember making,” she says. “It always points at somebody lost. A hiker off the trail. A kid in a hayloft. A student who picked the wrong major.” On the tarp the arrows stir like sleeping dogs, each one turning slowly toward its own somebody, out there in the dark.',
-        'All but one. The last arrow lies pointed straight at her, and it does not move. “That one’s been pointing at me for nine years,” she says. “I’ve never had the nerve to follow it.”',
+        'Wren lays the strange arrows out on a tarp. Twelve of them, fletched in a hand that is not Wren’s. “Some mornings there’s one in my quiver I don’t remember making,” they say. “It always points at somebody lost. A hiker off the trail. A kid in a hayloft. A student who picked the wrong major.” On the tarp the arrows stir like sleeping dogs, each one turning slowly toward its own somebody, out there in the dark.',
+        'All but one. The last arrow lies pointed straight at Wren, and it does not move. “That one’s been pointing at me for nine years. I’ve never had the nerve to follow it.”',
       ],
       choices: [
         {
           id: 'follow-hers',
-          label: 'Take the arrow that points at her and follow it tonight',
-          text: 'You pick it up. It does not point at her where she sits. It pulls, hard, up into the King Range and away from the fire. Wren gives you her headlamp and a look of pure envy.',
+          label: 'Take the arrow that points at Wren and follow it tonight',
+          text: 'You pick it up. It does not point at Wren where they sit. It pulls, hard, up into the King Range and away from the fire. Wren gives you their headlamp and a look of pure envy.',
           ending: 'arrow-at-her',
         },
         {
           id: 'map-now',
           label:
-            'Help her map the routes that exist now, for the people lost today',
+            'Help Wren map the routes that exist now, for the people lost today',
           text: 'You slide the strange arrows back into the quiver, gently, and spread out a real map. “Let the strange ones find who they find,” you say. “Let’s make sure everybody else gets found too.” Wren laughs. “That’s practically a thesis.” You walk down to the one bar of signal on the ridge and make a call. The team says first light.',
           ending: 'coffee-for-ten',
         },
@@ -409,8 +409,8 @@ export const WANDERING_ARROWS: Mystery = {
       title: 'Coffee for Ten',
       tone: 'true',
       text: [
-        'At first light, eight volunteers from the search and rescue team come up the deer trail, and Wren is furious. She is furious while she builds up the fire. She is furious while she grinds coffee for ten in a hand mill, and furious while she lays every arrow on the tarp and explains every creek, every tide window, every place a lost person tends to sit down and give up, while a retired court stenographer in a reflective vest writes it all down. By the fire sits a duffel bag of Wren’s arrows, which the stenographer took off the two beach-cleanup volunteers at the trailhead on her way up, along with their solemn promise to stop tidying, with a speed that suggests long practice.',
-        '“I don’t join anything with a meeting schedule,” Wren says, pouring the last cup. “Noted,” says the stenographer, and writes her down anyway. Before they go, Wren draws a route home on the back of the youngest volunteer’s hand, out of habit, and under it, for the first time, the team’s phone number. Then she hands you a paperback, margins full of arguments, with an arrow on the flyleaf pointing at you. Underneath: Wrong about Kant. Write back.',
+        'At first light, eight volunteers from the search and rescue team come up the deer trail, and Wren is furious. Furious while building up the fire, furious while grinding coffee for ten in a hand mill, and furious while laying every arrow on the tarp and explaining every creek, every tide window, every place a lost person tends to sit down and give up, while a retired court stenographer in a reflective vest writes it all down. By the fire sits a duffel bag of Wren’s arrows, which the stenographer took off the two beach-cleanup volunteers at the trailhead on her way up, along with their solemn promise to stop tidying, with a speed that suggests long practice.',
+        '“I don’t join anything with a meeting schedule,” Wren says, pouring the last cup. “Noted,” says the stenographer, and writes the name down anyway. Before they go, Wren draws a route home on the back of the youngest volunteer’s hand, out of habit, and under it, for the first time, the team’s phone number. Last, Wren hands you a paperback, margins full of arguments, with an arrow on the flyleaf pointing at you. Underneath: Wrong about Kant. Write back.',
       ],
     },
     {
@@ -418,17 +418,17 @@ export const WANDERING_ARROWS: Mystery = {
       title: 'The Rider Moves On',
       tone: 'bittersweet',
       text: [
-        'Wren packs the paperbacks into Socrates’s saddlebags, leaves the camp cleaner than she found it, and rides north out of the King Range toward wherever the next lost people are. Maybe home. She doesn’t say. She doesn’t promise anything. She never has.',
+        'Wren packs the paperbacks into Socrates’s saddlebags, leaves the camp cleaner than they found it, and rides north out of the King Range toward wherever the next lost people are. Maybe home. Wren doesn’t say, doesn’t promise anything, never has.',
         'The arrows stop. The beach-cleanup volunteers get a very long letter in square handwriting and never bag a piece of driftwood again. The trailhead sign gets a fresh coat of paint. But one morning at Black Sands Beach there is a last arrow wedged behind the sign, neatly, not through it, pointing up the trail toward the parking lot. Toward the way out. Toward you. Scratched on the shaft: Thank you for the company.',
       ],
     },
     {
       id: 'arrow-at-her',
-      title: 'The Arrow That Points at Her',
+      title: 'The Arrow That Points at Wren',
       tone: 'strange',
       text: [
-        'You follow it all night through the King Range, over ridges you could not name, past creeks that run the wrong way in the dark, the arrow tugging in your hand like a dog on a lead. It never once points back. Then, at the gray end of the night, it brings you out of the trees and back to her own fire, from the other side.',
-        'Wren is sitting by it exactly the way lost hikers sit down to give up: knees up, hood up, having stopped. She looks up at you as if you have found her. You sit down beside her and don’t say anything. When you look at your hand, there is a route drawn on the back of it that you did not draw, in a hand that is not hers: a long one, east, to a town she has not been back to in nine years.',
+        'You follow it all night through the King Range, over ridges you could not name, past creeks that run the wrong way in the dark, the arrow tugging in your hand like a dog on a lead. It never once points back. Then, at the gray end of the night, it brings you out of the trees and back to the very fire you left, from the other side.',
+        'Wren is sitting by it exactly the way lost hikers sit down to give up: knees up, hood up, having stopped, and looks up at you as if you have found them. You sit down beside them and don’t say anything. When you look at your hand, there is a route drawn on the back of it that you did not draw, in a hand that is not Wren’s: a long one, east, to a town they have not been back to in nine years.',
       ],
     },
   ],

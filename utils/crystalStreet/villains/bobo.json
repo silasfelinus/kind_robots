@@ -239,6 +239,7 @@
     "signature": [
       {
         "id": "bobo-balloon-zoo",
+        "act": 1,
         "title": "The Balloon Zoo",
         "place": "Your front steps, midnight",
         "text": "There is a balloon dog on your doormat. Then a balloon giraffe on the mailbox, a balloon poodle on the porch rail, and a whole squeaking zoo going up your stairs to your bedroom door. They turn to look at you when you come home, rubber necks creaking, and you see that every one of them has a mouthful of thumbtacks.",
@@ -321,6 +322,7 @@
       },
       {
         "id": "bobo-laugh-track",
+        "act": 2,
         "title": "The Laugh Track",
         "place": "Your living room, one a.m.",
         "text": "The TV turns itself on to a test pattern. Then the laugh track starts. You drop a cup and the room roars with recorded laughter. You say \"what the heck\" and the audience howls. Down the block, every TV on Crystal Street is laughing too, and in the dark hallway of your house, something in size-twenty shoes takes one squeaky step closer.",
@@ -381,6 +383,7 @@
       },
       {
         "id": "bobo-storm-drain",
+        "act": 1,
         "title": "Down in the Drain",
         "place": "The storm drain at the corner of Crystal Street, in the rain, 11 p.m.",
         "text": "It is pouring, and Kev's whole bundle of Sunday papers has blown out of his bike basket and gone sailing down the gutter like a fleet of soggy boats. The last one swirls into the storm drain on the corner. You crouch to look. Two yellow eyes blink up at you from the dark, and a white glove holds out the newspaper, dry as toast. \"Hiya, kiddo! Lose something? Come and get it! Everything down here bounces!\"",
@@ -473,6 +476,7 @@
       },
       {
         "id": "bobo-hall-of-mirrors",
+        "act": 2,
         "title": "Hall of Mirrors",
         "place": "The Harvest Carnival funhouse, Glimmer Falls High football field, midnight",
         "text": "The Harvest Carnival closed hours ago, but the funhouse lights are still blinking. Inside the hall of mirrors, a hundred of you walk beside you, stretched and squashed and wobbling. Then you notice that every reflection is wearing white greasepaint and a red nose. You stop. They stop. All except one, three mirrors down, which keeps walking, waves, and takes a slow, deliberate pratfall.",
@@ -560,6 +564,7 @@
       },
       {
         "id": "bobo-calls-from-inside",
+        "act": 3,
         "title": "Have You Checked the Birthday Kid?",
         "place": "The Okafor house on Crystal Street, babysitting, 11 p.m.",
         "text": "Little Ada Okafor is finally asleep and you are halfway through a bag of cheese puffs when the kitchen phone rings. A squeaky honk, then a cheerful voice: \"Is the birthday kid asleep yet? I have a delivery!\" You hang up. It rings again. \"Have you checked the birthday kid?\" Upstairs, very faintly, a bike horn goes honk honk. The phone cord, you notice, is stretched taut across the kitchen and up the stairs.",
@@ -647,6 +652,7 @@
       },
       {
         "id": "bobo-party-for-you",
+        "act": 3,
         "title": "A Party in Your Honor",
         "place": "Captain Cheddar's Pizza Cavern, three a.m.",
         "text": "You wake up at a birthday party. It is yours. Captain Cheddar's is lit up like 1979, and everyone you know is wearing a paper hat and smiling stiffly at a cake with seven blue candles. The robot band plays Happy Birthday in the wrong key. Then the kitchen doors bang open and Bobo ducks through them, eight feet tall, holding a cream pie in one hand and a seltzer bottle in the other. \"Everybody laugh!\" he roars.",
@@ -766,7 +772,7 @@
           "label": "Out-clown the clown with a banana peel and a seltzer ambush",
           "intent": "camp",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "glory-hallelujah",
             "amount": 1
@@ -791,7 +797,7 @@
           "label": "Bring Trevor forward with the balloon dog and laugh with Bobo, not at him",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

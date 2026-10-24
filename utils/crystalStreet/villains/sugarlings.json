@@ -264,6 +264,7 @@
     "signature": [
       {
         "id": "sugarlings-after-midnight",
+        "act": 1,
         "title": "After Midnight",
         "place": "Your bedroom, 12:01 a.m.",
         "text": "You did not feed it. You know you did not feed it. But the Halloween candy bowl on your dresser is empty, and the Sugarling your cousin mailed you is sitting in the middle of it with candy corn on its whiskers. It purrs. It shivers. It splits. There are two now. Then four. They look up at you with moon eyes and sing, very softly, \"More?\"",
@@ -350,6 +351,7 @@
       },
       {
         "id": "sugarlings-mall-never-closes",
+        "act": 2,
         "title": "The Mall Never Closes",
         "place": "Starlight Mall, two a.m.",
         "text": "Starlight Mall is lit up at two in the morning. The escalators are running, the fountain is full of fuzz, and the jingle is playing over the PA on a loop. Dozens of grown-ups in bathrobes shuffle from store to store, eyes half closed, swiping credit cards at empty registers. In the food court, a purring pastel mountain is eating the pretzel stand, and it is taller than it was an hour ago.",
@@ -436,6 +438,7 @@
       },
       {
         "id": "sugarlings-midnight-sing-along",
+        "act": 1,
         "title": "Sing-Along at Midnight",
         "place": "The Glitter Box Playhouse, the midnight movie",
         "text": "Frankie Fontaine's midnight movie tonight is a sing-along print of an old cartoon musical about a princess and seven miners, and every seat in the Glitter Box is full. Not with people. Hundreds of Sugarlings sit in the velvet rows in perfect stillness, moon eyes shining with the light of the screen, singing along in squeaky harmony. The concession stand behind you holds forty pounds of candy. One of them turns around in its seat, sees the licorice rope in your hand, and stops singing.",
@@ -524,6 +527,7 @@
       },
       {
         "id": "sugarlings-trick-or-treat",
+        "act": 2,
         "title": "Trick or Treat? More!",
         "place": "Mr. Fennimore's front porch, number 3 Crystal Street, after dark",
         "text": "You are house-sitting for Mr. Fennimore at number 3, and the doorbell keeps ringing, even though Halloween is still days away. On the porch stands a crowd of tiny trick-or-treaters in perfect little costumes, a ghost, a pirate, a pumpkin, a miniature astronaut, all knee high, pillowcases held out. \"Trick or treat!\" they squeak, and then, all together and much softer, \"More?\" You drop one candy bar into the pirate's bag. The doorbell rings again. Now there are twice as many.",
@@ -614,6 +618,7 @@
       },
       {
         "id": "sugarlings-cocoon-season",
+        "act": 3,
         "title": "Cocoon Season",
         "place": "The Glimmer Falls Grange Hall, five a.m., before the PTA bake sale",
         "text": "You and the crew volunteered for bake sale setup at the Grange Hall, which seemed like a nice idea until you flip on the lights at five in the morning. A dozen folding tables of brownies and caramel apples stand ready, and the ceiling above them is covered in cocoons, hundreds of them, glittering, spun from candy wrappers and rustling like a bag of chips. One splits along its seam. Something drops onto the brownie table: still fuzzy, bigger than before, wearing a crinkly wrapper like a suit of armor. It looks at the caramel apples. Sunrise is forty minutes away.",
@@ -701,6 +706,7 @@
       },
       {
         "id": "sugarlings-mischief-night",
+        "act": 3,
         "title": "Mischief Night",
         "place": "Crystal Street, October 30",
         "text": "It is the night before Halloween, and every kid on Crystal Street has stockpiled candy for tomorrow. The Sugarlings know. They pour out of storm drains and over fences in a pastel tide, hundreds of them, then thousands, flowing toward the houses with the biggest bowls. A little kid in a dinosaur costume is sitting on his porch hugging a pillowcase full of candy, and the tide is turning toward him.",
@@ -801,7 +807,7 @@
           "label": "Broadcast the jingle backward over KGLM and scramble their chips",
           "intent": "clever",
           "skill": "brains",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "debug-disk",
             "amount": 2
@@ -826,7 +832,7 @@
           "label": "Hold up the first Mallow and get the whole street to share everything they have",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

@@ -238,6 +238,7 @@
     "signature": [
       {
         "id": "spring-queen-may-i-have-this-dance",
+        "act": 1,
         "title": "May I Have This Dance?",
         "place": "Glimmer Falls High gym, Spring Fling 1966, in a dream",
         "text": "You fall asleep and walk straight into 1966. Paper moons hang from the basketball hoops, a band in white jackets plays the same eight bars over and over, and every couple on the floor is dancing without faces. A girl in a mint gown and a gardenia crown cuts through them toward you, dripping wet. \"Have you seen her?\" Roz asks. \"She said she'd be here.\"",
@@ -298,6 +299,7 @@
       },
       {
         "id": "spring-queen-rain-on-the-roof",
+        "act": 2,
         "title": "Rain on the Roof",
         "place": "The roof of the Glimmer Falls High gym",
         "text": "You wake up soaked, on the flat tar roof of the high school gym, in a storm that did not exist when you went to bed. Your crew is up here too, blinking in their pajamas. The ladder is gone. At the edge of the roof stands Roz, crown streaming, staring down at the parking lot. \"This is where they left me,\" she says. \"Let's see who comes for you.\"",
@@ -387,6 +389,7 @@
       },
       {
         "id": "spring-queen-look-up",
+        "act": 1,
         "title": "Look Up",
         "place": "Glimmer Falls High gym, Halloween Hop rehearsal, after dark",
         "text": "The student council is rehearsing the Halloween Hop crowning, and Chip Merriweather is standing on the stage in a cardboard crown beside Tasha Greene, who is practicing her surprised face. You glance up. In the rafters above the stage hangs a galvanized bucket on a fraying rope, dripping, and next to it, sitting on the catwalk with her mint gown hanging down like a curtain, is Roz. \"Every year somebody thinks it's funny,\" she says. \"And every year nobody looks up.\"",
@@ -470,6 +473,7 @@
       },
       {
         "id": "spring-queen-say-her-name",
+        "act": 2,
         "title": "Say Her Name Three Times",
         "place": "A slumber party at the Okafor house, midnight",
         "text": "Nkechi Okafor's slumber party has reached the part of the night where somebody lights a candle and lines everyone up in front of the bathroom mirror. \"Say Spring Queen three times,\" Nkechi whispers, \"and she crowns you.\" Five sleepy kids and you giggle through it. On the third time the giggling stops, because in the mirror everyone is wearing a 1966 gown or a white dinner jacket, and standing behind them, dripping, is Roz. She does not look flattered. \"A game,\" she says. \"I'm a game now.\"",
@@ -557,6 +561,7 @@
       },
       {
         "id": "spring-queen-need-a-lift",
+        "act": 3,
         "title": "Need a Lift?",
         "place": "Quarry Road in the rain, 11 p.m.",
         "text": "The late activity bus home from the Pine Ridge away game is crawling down Quarry Road through a storm that came out of a clear sky. In the headlights a girl in a mint gown stands on the shoulder with her shoes in her hand and her crown streaming, and Mrs. Dombrowski stops, because Mrs. Dombrowski always stops. The girl climbs on, drips down the aisle and sits beside you. \"Is this the bus to the gym?\" Roz asks. \"I'm so late. She's waiting.\" You know this story from every sleepover of your life, and it never ends with the girl getting where she's going.",
@@ -638,6 +643,7 @@
       },
       {
         "id": "spring-queen-couples-skate",
+        "act": 3,
         "title": "Couples Only",
         "place": "Crystal Street, two a.m.",
         "text": "Every radio on Crystal Street switches on at once and plays the same slow song, skipping on the same scratch. Out of every front door come couples in their pajamas and curlers, sound asleep, waltzing down the driveways toward the high school. The Szymanskis. The newlyweds at number 9. Your own parents, eyes closed, dancing better than you have ever seen them dance. Roz sits on the Heartstone like a throne, conducting.",
@@ -759,7 +765,7 @@
           "label": "Crown a new Spring Queen and start the coronation without her",
           "intent": "camp",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "glow-bracelet",
             "amount": 1
@@ -784,7 +790,7 @@
           "label": "Play the song she requested in 1966 and open the doors for Delphine",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

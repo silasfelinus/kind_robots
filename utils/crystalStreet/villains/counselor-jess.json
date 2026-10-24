@@ -232,6 +232,7 @@
     "signature": [
       {
         "id": "counselor-jess-lights-out",
+        "act": 1,
         "title": "Lights Out!",
         "place": "Crystal Street, which is a lakeshore after curfew",
         "text": "At midnight the storm drains on Crystal Street start running backward. By the time you reach the porch the cul-de-sac is gone: in its place lies a moonlit lakeshore, cattails where the lawns were, a wooden dock where the Delgados' driveway used to be, and a lit cabin across black water where the roundabout should be. Somebody's folding chairs and a cooler sit abandoned on the grass beside an inner tube. Then the whistle: one long blast. A woman seven feet tall wades out of the shallows, long dark hair streaming, torn navy dress clinging, a machete gleaming at her side. She pulls a cracked hockey mask down over her face. \"LIGHTS OUT WAS AN HOUR AGO!\" Her voice cracks on the last word like a twelve-year-old's. \"Buddy check! Where's your buddy?\"",
@@ -296,6 +297,7 @@
       },
       {
         "id": "counselor-jess-night-swim",
+        "act": 2,
         "title": "The Night Swim",
         "place": "Crystal Street, now a lake, two a.m.",
         "text": "The water is waist-deep now and the moon is enormous. Old dock posts stick up out of the roundabout, and in the middle of the lake floats a wooden swimming raft, the Heartstone glowing purple beneath it like a sunken moon. At the end of the nearest dock sit a heap of clothes, two pairs of sneakers, a cooler and a radio playing Bananarama: two teens from down the street are skinny-dipping off the end, shoulders above the water, laughing, completely oblivious. Out past them, little Petey Marchetti, nine years old, is paddling for the raft on a leaky inner tube on a dare. On the far shore, by the lit cabin, a tall masked shape lifts a machete and wades in.",
@@ -380,6 +382,7 @@
       },
       {
         "id": "counselor-jess-campfire",
+        "act": 1,
         "title": "The Campfire Story",
         "place": "A backyard campout on Crystal Street, 11 p.m.",
         "text": "Six of you are camped in the Delgados' backyard in a leaky pup tent, roasting marshmallows over a coffee-can fire. Danny Delgado holds a flashlight under his chin and starts the old story every kid in Glimmer Falls knows: the boy-crazy counselor who let a camper drown because she was too busy kissing on the dock. The flames turn a cold lake blue. Water seeps up through the grass around the fire ring. Then a seven-foot shadow steps into the circle of light, dripping, mask pushed up on her forehead, and sits down on the cooler to listen to the story about herself.",
@@ -463,6 +466,7 @@
       },
       {
         "id": "counselor-jess-right-back",
+        "act": 2,
         "title": "I'll Be Right Back",
         "place": "Your house during a Crystal Street blackout, 1 a.m.",
         "text": "Every light on Crystal Street goes out at once. Kev Park, sleeping over, grabs a candle. \"Fuse box is in the garage. I'll be right back.\" Everyone in the living room turns to stare at him, because everyone has seen that movie. He goes anyway. The garage door creaks shut behind him. A thin sheet of cold lake water slides under it and across the kitchen tile, and from inside the garage comes one sharp blast of a tin whistle.",
@@ -558,6 +562,7 @@
       },
       {
         "id": "counselor-jess-canoe-at-dawn",
+        "act": 3,
         "title": "The Canoe at Dawn",
         "place": "The lake that was Crystal Street, just before sunrise",
         "text": "You wake up curled in the bottom of an aluminum canoe, drifting on a glassy lake where Crystal Street should be. Mist hangs over the water. The sky is going pink. A loon calls, and far off on the shore you can see porch lights and your mother in her bathrobe, waving. It is peaceful and it is beautiful, and you have seen enough movies to know exactly what happens next. The water beside the canoe begins, very gently, to bubble.",
@@ -648,6 +653,7 @@
       },
       {
         "id": "counselor-jess-inspection",
+        "act": 3,
         "title": "Inspection",
         "place": "The shore of Crystal Street lake, four a.m.",
         "text": "Jess has made camp. Folding chairs stand in a perfect row along the moonlit waterline, a cooler serves as her podium, and every teenager on Crystal Street has been marched out of bed and lined up on the wet grass in pajamas. She paces in front of you with her mask pushed up on her head and the machete resting on her shoulder, like a drill sergeant at a summer camp in a nightmare. \"Camp rules,\" she reads from a dripping clipboard. \"Rule one: it's the girls' fault. Rule two: nobody's coming. Rule three: everyone takes the swim test.\" She points the machete at the raft, very far away. \"Starting with you.\"",
@@ -774,7 +780,7 @@
           "label": "Blow the camp's all-out-of-the-water signal on her own whistle",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "flag": "jess-saw-them-help",
             "amount": 1
@@ -799,7 +805,7 @@
           "label": "Say her name, form a buddy line, swim out to her and teach her to float",
           "intent": "kind",
           "skill": "nerve",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

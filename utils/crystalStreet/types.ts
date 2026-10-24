@@ -58,6 +58,8 @@ export type Choice = {
   skill: Skill
   target: Target
   bonus?: { item?: string; companion?: string; flag?: string; amount: number }
+  /** Finale only: which ending path a success counts as (defaults to the id). */
+  approach?: 'fight' | 'trick' | 'heart'
   requires?: { clues?: number; item?: string; flag?: string }
   success: Outcome
   failure: Outcome
@@ -70,6 +72,8 @@ export type Encounter = {
   text: string
   art: string
   choices: Choice[]
+  /** Villain-deck cards only: the act (nights 1-2, 3-4, 5-6) that deals it. */
+  act?: 1 | 2 | 3
 }
 
 export type Clue = {

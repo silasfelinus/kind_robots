@@ -261,6 +261,7 @@
     "signature": [
       {
         "id": "hungry-house-open-house",
+        "act": 1,
         "title": "Open House, Tonight Only",
         "place": "The sidewalk outside 13 Crystal Street",
         "text": "At eleven p.m. a sign appears on the lawn at 13: OPEN HOUSE, TONIGHT ONLY. The porch light is on, the door is ajar, and the whole street smells of chocolate-chip cookies. A woman in an apron waves from the bay window with a smile that does not move at all. Your feet are already on the welcome mat.",
@@ -343,6 +344,7 @@
       },
       {
         "id": "hungry-house-family-portrait",
+        "act": 2,
         "title": "The Family Portrait",
         "place": "Your own house, after midnight",
         "text": "You come downstairs for water and the photos on your own walls have changed. Your family is in every frame, smiling with perfect teeth, wearing sweaters nobody owns. You are not in any of them. The hall carpet has turned pale mint, and from the kitchen comes the sound of someone humming while she wipes a counter that is already clean.",
@@ -432,6 +434,7 @@
       },
       {
         "id": "hungry-house-chair-stack",
+        "act": 1,
         "title": "Turn Your Back",
         "place": "Mrs. Varga's kitchen, 10 Crystal Street, house-sitting at midnight",
         "text": "You are house-sitting for Mrs. Varga at 10 Crystal Street while she visits her sister, and her kitchen is a glorious disaster: dishes in the sink, a cereal box on the stove, the cat's bowl upside down. You turn your back for one second to fill the cat's water. When you turn around, every kitchen chair is stacked on the table in a perfect, impossible tower, the dishes are gone, and the counter shines. Out the window, the porch light at 13 is blinking on and off, like it is winking at you.",
@@ -518,6 +521,7 @@
       },
       {
         "id": "hungry-house-one-minute",
+        "act": 2,
         "title": "One Minute on the Lawn",
         "place": "The front lawn of 13 Crystal Street, 2 a.m.",
         "text": "The dare is simple: stand on the lawn of 13 Crystal Street for one full minute. Your crew watches from behind the Dombrowskis' station wagon. The grass under your sneakers is greener than any grass has a right to be, mowed into perfect diagonal stripes, and as you stand there the stripes slowly turn to point at the front door. The pink plastic flamingos swivel their heads. Upstairs, two windows light up at once, like eyes opening, and the porch steps settle into a smile.",
@@ -605,6 +609,7 @@
       },
       {
         "id": "hungry-house-get-out",
+        "act": 3,
         "title": "Get Out",
         "place": "Your bedroom, 3 a.m.",
         "text": "You wake up because your room is clean. Not tidied: clean. Everything on your walls hangs perfectly level, your clothes are folded into squares, your comics are boxed and labeled, and you are tucked into a bed you did not make, with hospital corners so tight you can barely breathe. The room smells like lemon polish and warm cookies. From the heating vent, a woman's voice whispers, urgent: \"Get out. Get out while it still thinks you're tidy.\"",
@@ -691,6 +696,7 @@
       },
       {
         "id": "hungry-house-rooms-that-werent",
+        "act": 3,
         "title": "The Rooms That Weren't There",
         "place": "Inside 13 Crystal Street",
         "text": "You fall asleep on your bed and wake on a sofa wrapped in plastic. You are inside 13, and it has grown: a nursery for a baby who was never born, a den where a TV plays the 1959 promo film on an endless loop, a staircase that goes up into more staircase. At the end of the hall, from inside a coat closet, someone is knocking. Three soft knocks. Then three more.",
@@ -813,7 +819,7 @@
           "label": "Hand the house a signed contract and tell it it has finally been sold",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "frankie-fontaine",
             "amount": 1
@@ -838,7 +844,7 @@
           "label": "Hang Marjorie's paintings over the perfect portraits and say her name",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

@@ -114,8 +114,14 @@ export function validateEncounter(
   text(p, `${where}.place`, e.place, 3)
   text(p, `${where}.text`, e.text, 80)
   art(p, `${where}.art`, e.art, 40)
-  if (!Array.isArray(e.choices) || e.choices.length < 2 || e.choices.length > 3)
-    p.push(`${where}: needs 2 or 3 choices`)
+  // A finale holds fight, trick and heart plus up to three edge choices.
+  const most = where.endsWith('.finale') ? 6 : 3
+  if (
+    !Array.isArray(e.choices) ||
+    e.choices.length < 2 ||
+    e.choices.length > most
+  )
+    p.push(`${where}: needs 2 to ${most} choices`)
   const ids = new Set<string>()
   for (const [i, c] of (e.choices ?? []).entries()) {
     if (ids.has(c.id)) p.push(`${where}: duplicate choice id ${c.id}`)
@@ -180,16 +186,32 @@ export function validateVillain(p: Problems, v: Villain): void {
     )
       p.push(`${cw}: every choice's success must grant the clue`)
   }
-  if (!Array.isArray(v.signature) || v.signature.length < 3)
-    p.push(
-      `${w}: needs at least 3 signature encounters (the last is the climax)`,
-    )
+  for (const act of [1, 2, 3] as const) {
+    const cards = (v.signature ?? []).filter((e) => e.act === act).length
+    if (cards < 2) p.push(`${w}: act ${act} needs at least 2 villain cards`)
+  }
+  for (const e of v.signature ?? [])
+    if (![1, 2, 3].includes(e.act as number))
+      p.push(`${w}: villain card ${e.id} needs act 1, 2 or 3`)
   for (const [i, e] of (v.signature ?? []).entries())
     validateEncounter(p, `${w}.signature[${i}]`, e)
   validateEncounter(p, `${w}.finale`, v.finale)
-  const finaleIds = (v.finale?.choices ?? []).map((c) => c.id).sort()
-  if (finaleIds.join() !== 'fight,heart,trick')
-    p.push(`${w}.finale: choices must be fight, trick and heart`)
+  const finaleIds = (v.finale?.choices ?? []).map((c) => c.id)
+  for (const id of ['fight', 'trick', 'heart'])
+    if (!finaleIds.includes(id)) p.push(`${w}.finale: needs a ${id} choice`)
+  // Edge choices: unlocked by beating an act's villain card, they count as one
+  // of the three approaches and offer a straighter path than the base checks.
+  for (const c of v.finale?.choices ?? []) {
+    if (['fight', 'trick', 'heart'].includes(c.id)) continue
+    if (!/^edge-[123]$/.test(c.requires?.flag ?? ''))
+      p.push(
+        `${w}.finale.${c.id}: an extra finale choice must require edge-1, edge-2 or edge-3`,
+      )
+    if (!['fight', 'trick', 'heart'].includes(c.approach ?? ''))
+      p.push(`${w}.finale.${c.id}: an extra finale choice needs an approach`)
+    if (c.approach === 'heart' && c.requires?.clues !== 3)
+      p.push(`${w}.finale.${c.id}: a heart edge must also require 3 clues`)
+  }
   const heart = v.finale?.choices?.find((c) => c.id === 'heart')
   if (heart && heart.requires?.clues !== 3)
     p.push(`${w}.finale: heart must require 3 clues`)

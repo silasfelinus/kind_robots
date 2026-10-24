@@ -43,6 +43,10 @@ export const MAX_DREAD = 10
 export const SKILL_CAP = 5
 export const TRAIN_CAP = 4
 export const BEST_WINS = 10
+export const NIGHT_DRAWS = 2
+export const ACTS = 3
+/** Finale rolls gain +1 for each act whose villain card you beat. */
+export const EDGE_BONUS = 1
 export const CREW_BONUS_CAP = 1
 export const NIGHT_PENALTY = 1
 export const DREAD_STEP = 4
@@ -116,7 +120,7 @@ export const TIER_LABELS: Record<EndingTier, string> = {
 export const ENDING_TIERS: EndingTier[] = ['best', 'good', 'bittersweet', 'bad']
 
 export const TIER_HOW: Record<EndingTier, string> = {
-  best: `Reach its heart on Halloween after a week with at least ${BEST_WINS} night wins.`,
+  best: `Reach its heart on Halloween after a week with at least ${BEST_WINS} night wins (the finale counts).`,
   good: 'Win the Halloween finale by fighting or tricking it, or reach its heart with fewer night wins.',
   bittersweet: 'Lose the Halloween finale with more than 3 nerve left.',
   bad: 'Run out of nerve, or lose the finale with 3 nerve or less.',
@@ -194,6 +198,8 @@ export type RunState = {
   stock: ItemId[]
   pawnshopSpot: string
   queue: { id: string; kind: EncounterKind }[]
+  /** Cards still to draw tonight; the player picks the deck for each. */
+  draws?: number
   teleported: boolean
   current: { id: string; kind: EncounterKind; location?: LocationId } | null
   pending: Pending | null
@@ -513,6 +519,13 @@ export function modifierFor(
       breakdown.push(`Ward vs ${ward} +2`)
     }
   }
+  if (run.current?.kind === 'finale') {
+    const edges = edgesOf(run).length * EDGE_BONUS
+    if (edges) {
+      modifier += edges
+      breakdown.push(`Edges from the week +${edges}`)
+    }
+  }
   const penalty = dreadPenalty(run)
   if (penalty) {
     modifier -= penalty
@@ -664,10 +677,18 @@ export function resolve(run: RunState): RunState {
     art: outcome.art,
   })
   const kind = next.current!.kind
+  if (success && kind === 'signature') {
+    const act = actOfSignature(next, encounter.id)
+    if (act && !next.flags.includes(`edge-${act}`))
+      next.flags.push(`edge-${act}`)
+  }
   next.pending = null
   next.current = null
   if (kind === 'finale') {
-    next.ending = { tier: finaleTier(next, choice.id, success), at: Date.now() }
+    next.ending = {
+      tier: finaleTier(next, choice.approach ?? choice.id, success),
+      at: Date.now(),
+    }
     next.phase = 'ended'
     return next
   }
@@ -857,50 +878,68 @@ function drawDeck(run: RunState, tag: Tag): string | null {
   return id
 }
 
-/** Chance an odd night brings a bonus special moment, once the pool is deep enough. */
-export const BONUS_SIGNATURE_CHANCE = 1 / 3
-export const BONUS_SIGNATURE_POOL = 6
+// The week runs in three acts of two nights each, then Halloween. Each night
+// deals {NIGHT_DRAWS} cards, and for each one the player chooses the nightmare's own
+// deck (cards of the current act, harder, and every win earns that act's edge
+// for the finale) or the street deck its kind shares (Silas, 2026-10-24 PT: "a
+// night cycle where they draw from either the generic encounter deck or the
+// villain deck. A villain deck should have at least 2-3 encounters for each Act,
+// with remembered consequences for the finale").
+export type DeckChoice = 'villain' | 'street'
 
-// A nightmare's signature list is a pool (Silas, 2026-10-24 PT: "at least three
-// interstitial exciting moments (decided from a random collection of monster
-// encounters special to that monster"). The last entry is the climax, always on
-// the night before Halloween; nights 2 and 4 draw unseen scenes from the rest,
-// and with a deep pool nights 3 and 5 can bring one more.
-function drawSignature(run: RunState, villain: Villain): string | null {
-  const fresh = villain.signature
-    .slice(0, -1)
-    .filter((e) => !run.usedDeck.includes(e.id))
-  if (!fresh.length) return null
-  const id = pick(run, fresh).id
-  run.usedDeck.push(id)
-  return id
+export function actOf(day: number): 1 | 2 | 3 {
+  return Math.min(ACTS, Math.max(1, Math.ceil(day / 2))) as 1 | 2 | 3
 }
 
-function signatureTonight(run: RunState, villain: Villain): string | null {
-  const climaxNight = DAYS - 1
-  if (run.day === climaxNight) return villain.signature.at(-1)?.id ?? null
-  if (run.day % 2 === 0) return drawSignature(run, villain)
-  if (
-    run.day > 1 &&
-    villain.signature.length >= BONUS_SIGNATURE_POOL &&
-    random(run) < BONUS_SIGNATURE_CHANCE
+export function villainDeck(run: RunState): Encounter[] {
+  const act = actOf(run.day)
+  return villainOf(run).signature.filter(
+    (e) => e.act === act && !run.usedDeck.includes(e.id),
   )
-    return drawSignature(run, villain)
-  return null
+}
+
+export function awaitingDraw(run: RunState): boolean {
+  return (
+    run.phase === 'night' &&
+    !run.current &&
+    !run.pending &&
+    (run.draws ?? 0) > 0
+  )
+}
+
+export function drawFrom(run: RunState, deck: DeckChoice): RunState {
+  if (!awaitingDraw(run)) return run
+  const next = cloneRun(run)
+  const villainCards = villainDeck(next)
+  let card: { id: string; kind: EncounterKind } | null = null
+  if (deck === 'villain' && villainCards.length) {
+    const id = pick(next, villainCards).id
+    next.usedDeck.push(id)
+    card = { id, kind: 'signature' }
+  } else {
+    const id = drawDeck(next, pick(next, villainOf(next).tags))
+    if (id) card = { id, kind: 'night' }
+  }
+  next.draws = (next.draws ?? 1) - 1
+  if (card) next.current = card
+  else advanceNight(next)
+  return next
+}
+
+/** Edges: one per act whose villain card you beat this week. */
+export function edgesOf(run: RunState): number[] {
+  return [1, 2, 3].filter((act) => run.flags.includes(`edge-${act}`))
+}
+
+function actOfSignature(run: RunState, id: string): number | null {
+  return villainOf(run).signature.find((e) => e.id === id)?.act ?? null
 }
 
 function nightQueue(run: RunState): { id: string; kind: EncounterKind }[] {
   const villain = villainOf(run)
   if (run.day >= DAYS) return [{ id: villain.finale.id, kind: 'finale' }]
-  const queue: { id: string; kind: EncounterKind }[] = []
-  const sig = signatureTonight(run, villain)
-  if (sig) queue.push({ id: sig, kind: 'signature' })
-  while (queue.length < 2) {
-    const id = drawDeck(run, pick(run, villain.tags))
-    if (!id) break
-    queue.push({ id, kind: 'night' })
-  }
-  return queue
+  run.draws = NIGHT_DRAWS
+  return []
 }
 
 export function nightfall(run: RunState): RunState {
@@ -924,6 +963,7 @@ function advanceNight(run: RunState): void {
     run.current = { id: upcoming.id, kind: upcoming.kind }
     return
   }
+  if ((run.draws ?? 0) > 0) return
   dawn(run)
 }
 

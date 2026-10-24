@@ -77,6 +77,7 @@ import {
   TIER_LABELS,
   VILLAINS,
   ENDING_TIERS,
+  NIGHT_DRAWS,
 } from '~/utils/crystalStreet/rules'
 
 const props = defineProps<{ section: 'guide' | 'credits' }>()
@@ -102,8 +103,8 @@ const RULES = [
   {
     title: 'Nights',
     lines: [
-      'At nightfall dread rises. The nightmare reveals itself on the first night and brings its own scenes on nights two, four and six.',
-      'Other nights pull from the decks it shares with its kind (paranormal, slasher, creature, cosmic, tech, camp, cult, dream), and some outcomes drag you into a second card the same night.',
+      'At nightfall dread rises, and the nightmare reveals itself on the first night. The week runs in three acts: nights one and two, three and four, five and six.',
+      `Each night deals ${NIGHT_DRAWS} cards, and you choose the deck for each. The nightmare's own deck holds its cards for the current act: harder, and beating any of them earns that act's edge for Halloween. The street deck holds the ordinary terrors its kind shares (paranormal, slasher, creature, cosmic, tech, camp, cult, dream). Some outcomes drag you into a second card the same night.`,
     ],
   },
   {
@@ -123,8 +124,9 @@ const RULES = [
   {
     title: 'Halloween',
     lines: [
-      'On the last night you face it: fight it, trick it, or, if you found all three of its leads, reach its heart.',
-      `The Best ending needs the heart and at least ${BEST_WINS} night wins that week.`,
+      'On the last night you face it: fight it, trick it, or, if you found all three of its leads, reach its heart. Each is a hard roll on its own.',
+      'Every edge you carry adds +1 to every Halloween roll and can open a straighter way through, built from what you did that act. A bad first act never locks you out; it only means fewer edges.',
+      `The Best ending needs the heart and at least ${BEST_WINS} night wins that week, the finale included.`,
     ],
   },
   {

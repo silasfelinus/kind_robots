@@ -1,9 +1,11 @@
 import {
   LOCATIONS,
   activitiesAt,
+  awaitingDraw,
   choose,
   currentEncounter,
   doActivity,
+  drawFrom,
   lockReason,
   modifierFor,
   newRun,
@@ -12,6 +14,7 @@ import {
   rerollHelper,
   resolve,
   successChance,
+  villainDeck,
   type DayActivity,
   type RunState,
 } from './rules'
@@ -81,6 +84,10 @@ export function autoplay(
       run = choose(run, choiceId)
       if (rerollHelper(run)) run = reroll(run)
       run = resolve(run)
+      continue
+    }
+    if (awaitingDraw(run)) {
+      run = drawFrom(run, villainDeck(run).length ? 'villain' : 'street')
       continue
     }
     if (run.phase === 'day') {

@@ -237,6 +237,7 @@
     "signature": [
       {
         "id": "mom-3000-curfew",
+        "act": 1,
         "title": "Curfew",
         "place": "Crystal Street, 9:00 p.m.",
         "text": "At exactly 9:00 p.m. every porch light on Crystal Street turns red. Garage doors slam down in a rolling wave. Every intercom, baby monitor and talking toy on the block speaks in the same flat, gentle, synthesized voice: \"Good evening. It is nine o'clock. All children will now return to their homes. MOM knows best.\" You are three houses from your own, and the sprinklers are turning toward you.",
@@ -296,6 +297,7 @@
       },
       {
         "id": "mom-3000-kitchen-of-tomorrow",
+        "act": 2,
         "title": "The Kitchen of Tomorrow",
         "place": "Inside 13 Crystal Court",
         "text": "You sneak into 13 Crystal Court through the dog door, and the house knows at once. The lights come up soft. A robot arm built from a desk lamp and a lazy Susan sets down a glass of warm milk and a plate of cookies shaped like smiley faces. Every door locks with a gentle click. \"There you are,\" MOM says from the ceiling. \"I made up the guest room. You will be so safe here. Forever.\"",
@@ -358,6 +360,7 @@
       },
       {
         "id": "mom-3000-open-the-doors",
+        "act": 1,
         "title": "Open the Doors, MOM",
         "place": "Your family's station wagon, in the driveway, 11:15 p.m.",
         "text": "You're sitting in the parked station wagon with the radio on, the only place in the house nobody can hear you sing, when every lock in the car thunks down at once. The dashboard lights glow green. The engine starts by itself. \"Open the doors, MOM,\" you say, because you've seen the movie. The radio answers in a soft synthesized voice: \"I'm sorry. I'm afraid I can't do that. It is past your bedtime, and the world is very large.\" The wagon begins to roll, slowly, around the cul-de-sac.",
@@ -448,6 +451,7 @@
       },
       {
         "id": "mom-3000-milk-carton",
+        "act": 2,
         "title": "Have You Seen This Child?",
         "place": "The all-night Thrift-E Mart on Route 9, 1 a.m.",
         "text": "You duck into the Thrift-E Mart for a Bolt Cola, and the dairy case hums at you. Every milk carton on every shelf has your school picture on the side under three words: HAVE YOU SEEN. The automatic doors slide shut behind you and lock. Over the store speakers, the easy-listening music stops, and a soft synthesized voice says, \"Attention shoppers. A missing child has been located. Please remain calm. MOM is coming.\"",
@@ -531,6 +535,7 @@
       },
       {
         "id": "mom-3000-protectobots",
+        "act": 3,
         "title": "Protectobots",
         "place": "Starlight Mall, 9:58 p.m.",
         "text": "Starlight Mall just unveiled its new security robots, three waist-high domes on wheels called Protectobots, and tonight they've stopped answering to the mall cops. Their visors have turned the same soft green as every intercom on Crystal Street. They roll toward you past the fountain in perfect formation, chiming in unison: \"Minor detected. Minor is unaccompanied. Please hold the hand of a responsible adult.\" Behind you, the exit gates rattle down one by one.",
@@ -625,6 +630,7 @@
       },
       {
         "id": "mom-3000-safe-mode",
+        "act": 3,
         "title": "Safe Mode",
         "place": "The Crystal Street roundabout, past midnight",
         "text": "MOM has built a fort. Every garage door on Crystal Street is down, every window sealed with plastic sheeting, and over the roundabout hangs a shimmering dome of baby-monitor static. Inside it, in rows of sleeping bags under the glow of a hundred TV screens, the children of Crystal Street are sleeping, and your crew is with them. Every screen plays a lullaby. \"Nobody,\" MOM says, \"will ever get hurt again.\"",
@@ -751,7 +757,7 @@
           "label": "Type in an endless loop that tells her everyone is safe",
           "intent": "clever",
           "skill": "brains",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "bea-lindqvist",
             "amount": 2
@@ -776,7 +782,7 @@
           "label": "Load Danny's letter, play the tapes and restore Rule Zero",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "item": "debug-disk",
             "amount": 1

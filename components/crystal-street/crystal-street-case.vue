@@ -96,6 +96,15 @@
           Best ending: reach the heart on Halloween with all three leads and at
           least {{ BEST_WINS }} night wins this week (you have {{ run.wins }}).
         </p>
+        <p class="text-xs opacity-75" data-testid="cs-case-edges">
+          Edges for Halloween:
+          {{
+            edges.length
+              ? edges.map((n) => `Act ${['I', 'II', 'III'][n - 1]}`).join(', ')
+              : 'none yet'
+          }}. Each act where you beat one of the nightmare's own cards adds +1
+          to every Halloween roll and can open a straighter way through.
+        </p>
       </div>
     </div>
   </section>
@@ -107,6 +116,7 @@ import { useCrystalStreetStore } from '~/stores/crystalStreetStore'
 import {
   BEST_WINS,
   caseBoard,
+  edgesOf,
   locationById,
   villainOf,
 } from '~/utils/crystalStreet/rules'
@@ -119,6 +129,7 @@ const KIND_LABELS = {
 const store = useCrystalStreetStore()
 const run = computed(() => store.run)
 const villain = computed(() => villainOf(store.run!))
+const edges = computed(() => (store.run ? edgesOf(store.run) : []))
 const leads = computed(() => (store.run ? caseBoard(store.run) : []))
 const taunt = computed(
   () =>

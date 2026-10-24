@@ -233,6 +233,7 @@
     "signature": [
       {
         "id": "frieda-krueger-the-chair",
+        "act": 1,
         "title": "The Chair",
         "place": "The Shear Delight salon, in a dream",
         "text": "You do not remember falling asleep. You are in a pink vinyl salon chair, the cape snapped at your throat, and in the mirror a woman with a silver beehive is combing your hair with one shear-blade fingernail. \"Just a trim,\" Frieda says. \"Something sensible. Something gray.\"",
@@ -294,6 +295,7 @@
       },
       {
         "id": "frieda-krueger-gray-street",
+        "act": 2,
         "title": "The Gray Street",
         "place": "Crystal Street, in a dream",
         "text": "Crystal Street is perfectly gray. The lawns, the station wagons, the neighbors standing on every porch in matching gray bathrobes and matching gray bobs. They turn their heads toward you all at once. \"Your turn,\" they say, in your neighbors' voices.",
@@ -354,6 +356,7 @@
       },
       {
         "id": "frieda-krueger-jump-rope",
+        "act": 1,
         "title": "One, Two, Frieda's Coming",
         "place": "The Crystal Street sidewalk, in a dream, at a dusk that never ends",
         "text": "It is dusk on Crystal Street, and it has been dusk for hours. Under the streetlight, three little girls in matching gray pinafores and matching gray bobs are jumping rope, and the rope makes a sound like scissors closing. \"One, two, Frieda's coming for you,\" they chant. \"Three, four, sweep the salon floor. Five, six, bobby pins and picks.\" On seven, all three of them turn and say your name.",
@@ -444,6 +447,7 @@
       },
       {
         "id": "frieda-krueger-shampoo-bowl",
+        "act": 2,
         "title": "The Rinse",
         "place": "Your bathroom sink, one a.m.",
         "text": "You are rinsing shampoo out of your hair at the bathroom sink, eyes squeezed shut, so tired you are swaying. The water gets warmer. The sink gets deeper. When you crack one eye, the basin has become a black porcelain salon shampoo bowl, the faucet a chrome sprayer, and someone behind you is humming the old Shear Delight radio jingle. Up out of the suds beside your ear rise five polished shears, like the fin of a shark.",
@@ -526,6 +530,7 @@
       },
       {
         "id": "frieda-krueger-bring-something-back",
+        "act": 3,
         "title": "Bring Something Back",
         "place": "Frieda's basement, in a dream, one minute before your alarm",
         "text": "You fall asleep on purpose, alarm set for three, clutching the old horror-movie rule: grab something in a dream and hold on, and you can bring it back. You land in a cold basement lit by one bare bulb, a salon chair bolted to the concrete beside a dead boiler, and shelves of foam wig heads with faces painted gray. Frieda sits at a card table with her back to you, writing in a pink appointment book. Your alarm will ring in one minute.",
@@ -610,6 +615,7 @@
       },
       {
         "id": "frieda-krueger-slumber-party",
+        "act": 3,
         "title": "Slumber Party Rules",
         "place": "Your living room, three a.m.",
         "text": "Your crew is camped on your living room floor in sleeping bags, swearing nobody will fall asleep. It is three a.m. One by one, heads are nodding. In the dark kitchen, very softly, someone is sharpening scissors.",
@@ -708,7 +714,7 @@
           "label": "Spin her own chair until she falls asleep inside her dream",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "success": {
             "text": "You lure her into the pink chair, snap the cape around her and spin. A dream inside a dream is too deep even for a ghost. Frieda sleeps, finally, and the salon folds up around her like a closing compact.",
             "art": "A ghostly beautician spinning in her own pink salon chair, wrapped in a cape and falling asleep, the salon folding shut like a makeup compact",
@@ -729,7 +735,7 @@
           "label": "Show her the portfolio, the newspaper and the apology",
           "intent": "kind",
           "skill": "charm",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

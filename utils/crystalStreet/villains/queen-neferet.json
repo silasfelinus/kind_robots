@@ -233,6 +233,7 @@
     "signature": [
       {
         "id": "queen-neferet-night-drop",
+        "act": 1,
         "title": "The Night Drop",
         "place": "The book-return slot, Glimmer Falls Public Library, midnight",
         "text": "You are returning an overdue paperback at midnight when the library's brass book-return slot breathes out warm air that smells of cedar and river mud. Fine golden sand trickles out over your sneakers. A woman's voice, low and very old and perfectly polite, speaks from inside the slot in a language you don't know, then tries again in English: \"What is your name? Tell me yours, and I will tell you mine.\"",
@@ -288,6 +289,7 @@
       },
       {
         "id": "queen-neferet-another-sky",
+        "act": 2,
         "title": "Another Sky",
         "place": "Crystal Street, three a.m.",
         "text": "You look up and the sky is wrong. The Big Dipper is gone. Instead an immense figure made of stars arches over Crystal Street from horizon to horizon, a woman's body bent like a bridge, and beneath her shine the stars of a sky four thousand years and eight thousand miles away. Down the street, the names are lifting off the mailboxes, letter by letter, and drifting upward like sparks.",
@@ -352,6 +354,7 @@
       },
       {
         "id": "queen-neferet-machine-parts",
+        "act": 1,
         "title": "Machine Parts",
         "place": "The library loading dock, 11 p.m.",
         "text": "The Halvorsen Foundation's truck is backed up to the library loading dock, and in the back, under a moving blanket, sits the original 1911 shipping crate, stenciled MACHINE PARTS. Mr. Ferreira, the night custodian, won't go near it. \"It knocks,\" he tells you, and crosses himself. As if on cue, from inside the crate come three slow, polite knocks, the way a guest knocks when she has been kept waiting at the door for a very long time.",
@@ -441,6 +444,7 @@
       },
       {
         "id": "queen-neferet-not-how-it-happened",
+        "act": 2,
         "title": "That Is Not How It Happened",
         "place": "The Glitter Box Playhouse, midnight double feature",
         "text": "Frankie Fontaine has booked the 1932 mummy picture for the Glitter Box midnight show, and the crowd is having a ball, booing the villain and tossing popcorn. Then the movie stops. On the screen, the bandaged figure turns, looks straight out at the audience and unwinds its wrappings, and underneath is a woman in white linen and gold. She steps out of the light onto the stage, and the theater goes silent. \"That,\" says Queen Neferet, \"is not how it happened.\"",
@@ -534,6 +538,7 @@
       },
       {
         "id": "queen-neferet-walks-home",
+        "act": 3,
         "title": "Everything Walks Home",
         "place": "Crystal Street, 2 a.m.",
         "text": "A soft scraping sound wakes you. Out on Crystal Street, things are walking home. A stolen stop sign is hopping back to the corner of Vista Way. The Lindgrens' garden gnome, swiped in 1979, is trudging up their driveway trailing golden sand. A library book eleven years overdue flaps past like a tired bird. A cool, patient voice says, \"Everything taken wants to go home.\" And in your own dresser drawer, something is knocking to be let out.",
@@ -618,6 +623,7 @@
       },
       {
         "id": "queen-neferet-hall-of-cases",
+        "act": 3,
         "title": "The Hall of Glass Cases",
         "place": "The exhibit room, endlessly, in a dream",
         "text": "You fall asleep at the kitchen table and wake up in the exhibit room, except now it goes on forever: case after glass case under humming lights, and in every case lies someone from Glimmer Falls, eyes closed, hands folded. Your neighbors. Your crew. Every placard reads UNKNOWN, PROVENANCE PRIVATE. At the far end, a tall woman in white linen and a gold crown stands with her back to you. \"Now you know,\" she says, \"how it feels.\"",
@@ -720,7 +726,7 @@
           "label": "Swap the shipping labels and tell her the crate is going to Egypt",
           "intent": "clever",
           "skill": "hustle",
-          "target": 9,
+          "target": 11,
           "bonus": {
             "companion": "toby-nakamura",
             "amount": 1
@@ -745,7 +751,7 @@
           "label": "Speak her name and show her the cartouche, the diary and the letter",
           "intent": "kind",
           "skill": "lore",
-          "target": 9,
+          "target": 11,
           "requires": {
             "clues": 3
           },

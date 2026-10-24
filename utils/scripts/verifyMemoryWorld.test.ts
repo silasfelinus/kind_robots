@@ -24,6 +24,8 @@ import {
   validateBriarStoryAtlas,
 } from '../memoryDungeonStoryAtlas'
 
+import { firstWorldPhotoChronicle } from '../memoryDungeon/chronicle'
+
 import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
@@ -50,6 +52,57 @@ assert.deepEqual(
 )
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
+
+assert.deepEqual(firstWorldPhotoChronicle({}), [])
+assert.deepEqual(
+  firstWorldPhotoChronicle({ '8,6': 'promise', '2,5': 'grieve' }).map(
+    (photo) => photo.key,
+  ),
+  ['2,5', '8,6'],
+  'Photographs are stored in Earth chronology even when collected in reverse map order',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle(
+    restoreBriarSave({
+      ...newBriarSave(),
+      sceneChoices: { '8,6': 'record', '2,5': 'archive' },
+    }).sceneChoices,
+  ).map((photo) => photo.key),
+  ['2,5', '8,6'],
+  'Photograph records survive saving and reloading',
+)
+
+assert.equal(
+  Object.keys(BRIAR_SCENES).length,
+  64,
+  'Every fixed Briar coordinate has original narrative, art direction and two choices',
+)
+for (const tile of BRIAR_TILES) {
+  const scene = BRIAR_SCENES[tile.key]
+  assert.ok(scene, `Missing authored experience at ${tile.key}`)
+  assert.ok(
+    scene.title.trim() && scene.opening.trim() && scene.artPrompt.trim(),
+  )
+  assert.ok(scene.choices.length >= 2)
+  assert.ok(
+    new Set(scene.choices.map((choice) => choice.id)).size ===
+      scene.choices.length,
+  )
+  for (const choice of scene.choices) {
+    assert.ok(choice.label.trim() && choice.outcome.trim())
+    const save = restoreBriarSave({
+      ...newBriarSave(),
+      revealed: [tile.key],
+      visited: [tile.key],
+      sceneChoices: { [tile.key]: choice.id },
+    })
+    assert.equal(
+      save.sceneChoices[tile.key],
+      choice.id,
+      `Choice at ${tile.key} restores`,
+    )
+  }
+}
 
 assert.deepEqual(
   validateBriarStoryAtlas(),
@@ -261,8 +314,8 @@ for (const key of secondBriarExpansion) {
 }
 assert.equal(
   Object.keys(BRIAR_SCENES).length,
-  47,
-  'Original 15 encounters plus two sixteen-scene batches are authored',
+  64,
+  'All 64 Briar Marches authored scene records exist',
 )
 assert.match(
   briarSceneOpening(BRIAR_SCENES['1,4']!, { '2,2': 'observe' }),
@@ -348,7 +401,14 @@ assert.equal(briarTileProgress(visitSave, '8,4'), 'unfinished')
 assert.equal(briarTileProgress(visitSave, '2,7'), 'unfinished')
 const settledSave = {
   ...visitSave,
-  sceneChoices: { '2,4': 'copy', '5,5': 'gift', '2,7': 'rehearse' },
+  sceneChoices: {
+    '2,4': 'copy',
+    '3,6': 'read',
+    '5,5': 'gift',
+    '6,2': 'witness',
+    '8,4': 'law',
+    '2,7': 'rehearse',
+  },
   chestClaims: ['3,6'],
   completedEncounters: ['5,5'],
   relics: ['bramble-chime'],
@@ -691,6 +751,21 @@ const launcherScreen = readFileSync(
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(
+  worldStoreSource,
+  /inspectedSigil\.value = key/,
+  'Inspecting a reserved sigil activates its individually authored response',
+)
+assert.match(
+  worldStoreSource,
+  /isInspectedSeal/,
+  'Regional seal choices are saved without falsely completing the paired puzzle',
+)
+assert.match(
+  mapScreen,
+  /world\.activeSiteKey/,
+  'Decision buttons use the inspected seal instead of the previous map square',
+)
 const deckLoaderSource = readFileSync(
   'stores/helpers/memoryDungeonDeckSource.ts',
   'utf8',

@@ -69,6 +69,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const latestMapCardKey = ref<string | null>(null)
   const mapDeckError = ref('')
   const runeInput = ref<string[]>([])
+  const inspectedSigil = ref<string | null>(null)
   /** Combat cells face up after the last action (by board index), until they turn back. */
   const combatShown = ref<number[]>([])
   /** The first Scout pick, shown face up while the second is chosen. */
@@ -77,18 +78,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const combatNote = ref('')
   let roomEpoch = 0
 
-  const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
+  const activeSiteKey = computed(
+    () => inspectedSigil.value ?? state.value.player,
+  )
+  const selectedSite = computed(() => BRIAR_SITES[activeSiteKey.value] ?? null)
   const activeScene = computed(() =>
     state.value.room === 'map' &&
     state.value.wavePhase === 'exploring' &&
-    state.value.visited.includes(state.value.player)
-      ? (BRIAR_SCENES[state.value.player] ?? null)
+    (inspectedSigil.value !== null ||
+      state.value.visited.includes(state.value.player))
+      ? (BRIAR_SCENES[activeSiteKey.value] ?? null)
       : null,
   )
   const currentSceneText = computed(() => {
     const scene = activeScene.value
     if (!scene) return ''
-    const chosenId = state.value.sceneChoices[state.value.player]
+    const chosenId = state.value.sceneChoices[activeSiteKey.value]
     return (
       scene.choices.find((option) => option.id === chosenId)?.outcome ??
       briarSceneOpening(scene, state.value.sceneChoices)
@@ -249,6 +254,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     latestMapCardKey.value = null
     mapDeckError.value = ''
     runeInput.value = []
+    inspectedSigil.value = null
     state.value = newBriarSave()
     persist()
     void prepareWave()
@@ -459,6 +465,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.waveIndex >= BRIAR_REVEAL_WAVES.length - 1
     )
       return
+    inspectedSigil.value = null
     state.value.waveIndex++
     state.value.wavePhase = 'matching'
     state.value.mapCards = []
@@ -475,6 +482,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring')
       return
     if (!briarConnected(state.value.player, key, state.value.revealed)) return
+    inspectedSigil.value = null
     state.value.player = key
     if (!state.value.visited.includes(key)) state.value.visited.push(key)
     const scene = BRIAR_SCENES[key]
@@ -486,12 +494,16 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function chooseScene(id: string): void {
-    const key = state.value.player
+    const key = activeSiteKey.value
     const scene = BRIAR_SCENES[key]
+    const isInspectedSeal =
+      inspectedSigil.value === key &&
+      state.value.waveIndex === 3 &&
+      key in BRIAR_CROSS_MAP_PUZZLES
     if (
       state.value.room !== 'map' ||
       state.value.wavePhase !== 'exploring' ||
-      !state.value.visited.includes(key) ||
+      (!isInspectedSeal && !state.value.visited.includes(key)) ||
       state.value.sceneChoices[key] ||
       !scene
     )
@@ -886,6 +898,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const sigil =
       BRIAR_CROSS_MAP_PUZZLES[key as keyof typeof BRIAR_CROSS_MAP_PUZZLES]
     if (!sigil) return
+    inspectedSigil.value = key
     state.value.status = `${sigil.title}: ${sigil.hint} Its true match awaits in ${sigil.counterpart}.`
     persist()
   }
@@ -911,6 +924,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     combatPick,
     combatNote,
     selectedSite,
+    activeSiteKey,
+    inspectedSigil,
     activeScene,
     currentSceneText,
     mapMatching,

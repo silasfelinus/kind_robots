@@ -157,7 +157,7 @@ const TABS: { id: View; label: string; icon: string }[] = [
   { id: 'scrapbook', label: 'Scrapbook', icon: 'kind-icon:book' },
 ]
 
-useHead({ title: 'Nightmare on Crystal Street' })
+useHead({ title: 'It Came from the Terrors on Crystal Street' })
 
 const store = useCrystalStreetStore()
 const run = computed(() => store.run)

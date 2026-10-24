@@ -3,6 +3,7 @@ import { readRainbowSave } from '../arcade/games/rainbowLoadouts'
 import {
   RAINBOW_DIFFICULTY,
   createRainbowPrincessPreview,
+  isRainbowCheckpoint,
 } from '../arcade/games/rainbowPrincessPreview'
 import { emptyInput } from '../arcade/types'
 import type { InputFrame } from '../arcade/types'
@@ -160,9 +161,9 @@ assert.equal(
     save = demo.save ?? undefined
   }
   const kept = { ...(save as object), pilot: 3 }
-  assert.equal(readRainbowSave(kept)?.pilot, 3)
+  assert.equal(readRainbowSave(kept, isRainbowCheckpoint)?.pilot, 3)
   assert.equal(
-    readRainbowSave({ ...kept, pilot: 9 })?.pilot,
+    readRainbowSave({ ...kept, pilot: 9 }, isRainbowCheckpoint)?.pilot,
     undefined,
     'a bad pilot is dropped',
   )

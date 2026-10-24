@@ -70,6 +70,8 @@
         <memory-dungeon-deck-selector
           :selected="world.deck"
           :mature-available="world.matureAvailable"
+          :unlocked-realms="world.unlockedRealms"
+          :realm-art-ready="world.realmArtReady"
           @change="world.selectDeck"
         />
         <fieldset class="mt-3 border-t border-[#9f875e]/50 pt-3">

@@ -283,6 +283,14 @@ import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import {
+  RAINBOW_ALLEGIANCE_LABEL,
+  RAINBOW_TURN,
+  RAINBOW_TURN_REVEAL_FRAMES,
+  allegianceFor,
+  rainbowTurnLines,
+  type RainbowAllegiance,
+} from './rainbowAllegiance'
+import {
   RAINBOW_BOSS_LOOKS,
   RAINBOW_CRAFT_LOOKS,
   RAINBOW_GUARDIAN_LOOK,
@@ -953,6 +961,8 @@ export type RainbowCombatSnapshot = {
   actSixFrame: number
   /** Frames the crew has rested at Act V's memorial, or null when not resting. */
   resting: number | null
+  /** The crew's choice at the memorial (t-040): turn on the empire, stay the course, or null before it. */
+  allegiance: RainbowAllegiance | null
   /** Act VI's route, the relay pylons broken, and the story flag the relay earns. */
   reefRoute: ReefRoute | null
   pylonsDown: number
@@ -1148,6 +1158,8 @@ export function createRainbowPrincessPreview(
   let savedAct: number | null = null
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
+  /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
+  let allegiance: RainbowAllegiance | null = null
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
   const medals: Partial<
     Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
@@ -1311,8 +1323,16 @@ export function createRainbowPrincessPreview(
     return rested >= 0 ? rested : null
   }
 
-  /** Leave the memorial for Act VI: one bounded repair (a shield each), then the Crown Reef. */
+  /** Leave the memorial for Act VI: the crew's allegiance, one bounded repair (a shield each), then the Crown Reef. */
   function launchCrownReef() {
+    // The turn: where the living crew flies as it launches is its choice (t-040).
+    allegiance = allegianceFor(livingShips().map((ship) => ship.y))
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: RAINBOW_ALLEGIANCE_LABEL[allegiance],
+      age: 0,
+    })
     reefStart = tick
     shots.length = 0
     pickups.length = 0
@@ -2148,6 +2168,7 @@ export function createRainbowPrincessPreview(
       rescuedNavigator,
       captivesFreed,
       schoolBonuses,
+      allegiance,
     }
     if (frame > 0) {
       popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
@@ -2273,6 +2294,7 @@ export function createRainbowPrincessPreview(
     rescuedNavigator = c.rescuedNavigator
     navigatorDone = c.act > 7
     captivesFreed = c.captivesFreed
+    allegiance = c.allegiance ?? null
     schoolBonuses = c.schoolBonuses
     for (const act of [1, 2, 3, 4, 5, 6, 7, 8] as const)
       guardians[act] =
@@ -2464,6 +2486,7 @@ export function createRainbowPrincessPreview(
       )
         navigatorDone = rescuedNavigator
       captivesFreed = checkpoint.captivesFreed
+      allegiance = checkpoint.allegiance ?? null
       schoolBonuses = checkpoint.schoolBonuses
     }
     reefs.length = 0
@@ -3904,6 +3927,14 @@ export function createRainbowPrincessPreview(
             Math.sin(tick / 33 + seat) * 14
           ship.y += (lane - ship.y) * Math.min(1, reefLead / 60)
         }
+        if (restingFrames() !== null) {
+          // At the memorial the attract demo shows both roads: odd crews turn on the empire, even crews stay
+          // the course (t-040).
+          const lane =
+            (activePlayers % 2 === 1 ? 88 : 182) +
+            Math.sin(tick / 33 + seat) * 14
+          ship.y += (lane - ship.y) * Math.min(1, restingFrames()! / 60)
+        }
         if (navigator) {
           // The rescue is optional, so the demo shows both: odd crews meet the pod, even crews hug the
           // floor below the lowest point of its weave and let it drift past.
@@ -4994,6 +5025,7 @@ export function createRainbowPrincessPreview(
         actFiveFrame: wreckFrame(),
         actSixFrame: reefFrame(),
         resting: restingFrames(),
+        allegiance,
         reefRoute,
         pylonsDown,
         stoppedRelay:
@@ -7387,6 +7419,7 @@ export function createRainbowPrincessPreview(
                 scene.elapsed,
                 activePlayers,
                 palaceFlags(),
+                allegiance,
               )
             : act === 7
               ? glassDialogue(
@@ -7394,6 +7427,7 @@ export function createRainbowPrincessPreview(
                   scene.elapsed,
                   activePlayers,
                   rescuedNavigator,
+                  allegiance,
                 )
               : act === 6
                 ? reefDialogue(
@@ -7402,6 +7436,7 @@ export function createRainbowPrincessPreview(
                     activePlayers,
                     reefRoute,
                     reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
+                    allegiance,
                   )
                 : act === 5
                   ? wreckDialogue(
@@ -7537,20 +7572,61 @@ export function createRainbowPrincessPreview(
         g.fillRect(40, commsTop, W - 80, 33)
         g.fillStyle = '#ffd1ec'
         g.textAlign = 'center'
-        g.font = 'bold 11px monospace'
-        g.fillText(
-          'SAWTOOTH REGENT DISABLED · ACT V PREVIEW CLEAR',
-          W / 2,
-          commsTop + 19,
-        )
-        g.font = '8px monospace'
-        g.fillText(
-          restingFrames()! >= CROWN_REEF.restMinFrames
-            ? `Shields +1 at launch · PRESS A for the Crown Reef (${Math.ceil((CROWN_REEF.restMaxFrames - restingFrames()!) / 60)})`
-            : `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'}`,
-          W / 2,
-          commsTop + 30,
-        )
+        const rested = restingFrames()!
+        if (rested < RAINBOW_TURN_REVEAL_FRAMES) {
+          // The Motherland turn (t-040): the reveal, a line at a time.
+          const line = crewLine(
+            rainbowTurnLines(activePlayers)[
+              Math.floor(rested / RAINBOW_TURN.lineFrames)
+            ]!,
+          )
+          g.font = 'bold 8px monospace'
+          g.fillText(line.speaker.toUpperCase(), W / 2, commsTop + 11)
+          g.font = '8px monospace'
+          const words = line.text.split(' ')
+          const half = Math.ceil(words.length / 2)
+          g.fillText(words.slice(0, half).join(' '), W / 2, commsTop + 21)
+          g.fillText(words.slice(half).join(' '), W / 2, commsTop + 30)
+        } else {
+          g.font = 'bold 9px monospace'
+          g.fillText(
+            'FLY HIGH: TURN ON THE EMPIRE · FLY LOW: STAY THE COURSE',
+            W / 2,
+            commsTop + 17,
+          )
+          g.font = '8px monospace'
+          g.fillText(
+            rested >= CROWN_REEF.restMinFrames
+              ? `Shields +1 at launch · PRESS A to choose and launch (${Math.ceil((CROWN_REEF.restMaxFrames - rested) / 60)})`
+              : `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'}`,
+            W / 2,
+            commsTop + 29,
+          )
+          // The two lanes of the choice, the half the crew flies in lit brighter.
+          const ys = livingShips().map((ship) => ship.y)
+          const leaning = ys.length ? allegianceFor(ys) : null
+          for (const [side, top, bottom] of [
+            ['rebel', WALL_TOP, RAINBOW_TURN.split],
+            ['loyal', RAINBOW_TURN.split, WALL_BOTTOM],
+          ] as const) {
+            g.fillStyle =
+              side === 'rebel'
+                ? leaning === side
+                  ? '#ff9fd84d'
+                  : '#ff9fd822'
+                : leaning === side
+                  ? '#9ee7ff4d'
+                  : '#9ee7ff22'
+            g.fillRect(0, top, W, bottom - top)
+            g.fillStyle = side === 'rebel' ? '#ffb8f0' : '#bff3ff'
+            g.font = 'bold 10px monospace'
+            g.fillText(
+              `${side === 'rebel' ? '▲ ' : '▼ '}${RAINBOW_ALLEGIANCE_LABEL[side]}`,
+              W / 2,
+              side === 'rebel' ? commsTop + 52 : bottom - 12,
+            )
+          }
+        }
         g.textAlign = 'left'
       } else if (dockedFrames() !== null) {
         // ACT-STRUCTURE: Act III ends on a quiet salvage-dock tableau: a bounded repair, then the crew launches.

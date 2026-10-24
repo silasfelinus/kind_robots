@@ -180,8 +180,10 @@ export function validateVillain(p: Problems, v: Villain): void {
     )
       p.push(`${cw}: every choice's success must grant the clue`)
   }
-  if (!Array.isArray(v.signature) || v.signature.length !== 3)
-    p.push(`${w}: needs exactly 3 signature encounters`)
+  if (!Array.isArray(v.signature) || v.signature.length < 3)
+    p.push(
+      `${w}: needs at least 3 signature encounters (the last is the climax)`,
+    )
   for (const [i, e] of (v.signature ?? []).entries())
     validateEncounter(p, `${w}.signature[${i}]`, e)
   validateEncounter(p, `${w}.finale`, v.finale)

@@ -857,14 +857,44 @@ function drawDeck(run: RunState, tag: Tag): string | null {
   return id
 }
 
+/** Chance an odd night brings a bonus special moment, once the pool is deep enough. */
+export const BONUS_SIGNATURE_CHANCE = 1 / 3
+export const BONUS_SIGNATURE_POOL = 6
+
+// A nightmare's signature list is a pool (Silas, 2026-10-24 PT: "at least three
+// interstitial exciting moments (decided from a random collection of monster
+// encounters special to that monster"). The last entry is the climax, always on
+// the night before Halloween; nights 2 and 4 draw unseen scenes from the rest,
+// and with a deep pool nights 3 and 5 can bring one more.
+function drawSignature(run: RunState, villain: Villain): string | null {
+  const fresh = villain.signature
+    .slice(0, -1)
+    .filter((e) => !run.usedDeck.includes(e.id))
+  if (!fresh.length) return null
+  const id = pick(run, fresh).id
+  run.usedDeck.push(id)
+  return id
+}
+
+function signatureTonight(run: RunState, villain: Villain): string | null {
+  const climaxNight = DAYS - 1
+  if (run.day === climaxNight) return villain.signature.at(-1)?.id ?? null
+  if (run.day % 2 === 0) return drawSignature(run, villain)
+  if (
+    run.day > 1 &&
+    villain.signature.length >= BONUS_SIGNATURE_POOL &&
+    random(run) < BONUS_SIGNATURE_CHANCE
+  )
+    return drawSignature(run, villain)
+  return null
+}
+
 function nightQueue(run: RunState): { id: string; kind: EncounterKind }[] {
   const villain = villainOf(run)
   if (run.day >= DAYS) return [{ id: villain.finale.id, kind: 'finale' }]
   const queue: { id: string; kind: EncounterKind }[] = []
-  if (run.day % 2 === 0) {
-    const sig = villain.signature[run.day / 2 - 1]
-    if (sig) queue.push({ id: sig.id, kind: 'signature' })
-  }
+  const sig = signatureTonight(run, villain)
+  if (sig) queue.push({ id: sig, kind: 'signature' })
   while (queue.length < 2) {
     const id = drawDeck(run, pick(run, villain.tags))
     if (!id) break

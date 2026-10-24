@@ -3,6 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import {
   ARCHETYPES,
+  DAYS,
   AVATARS,
   BEST_WINS,
   COMPANIONS,
@@ -203,6 +204,33 @@ assert.deepEqual(
   { ...b, ending: { ...b.ending!, at: a.ending!.at } },
   'seeded weeks replay exactly',
 )
+
+// Signature pools: the climax always lands on the night before Halloween, the
+// other special moments are drawn from the rest of the pool and never repeat,
+// and every week sees at least three.
+for (const v of VILLAINS) {
+  const climax = v.signature.at(-1)!.id
+  const pool = new Set(v.signature.slice(0, -1).map((e) => e.id))
+  const orders = new Set<string>()
+  for (let i = 0; i < 12; i++) {
+    const week = autoplay(`pool-${v.id}-${i}`, v.id as VillainId)
+    const seen = week.log
+      .filter((l) => l.phase === 'night')
+      .map((l) => l.encounterId)
+      .filter((id, n, all) => all.indexOf(id) === n)
+      .filter((id) => id === climax || pool.has(id))
+    const playedClimaxNight = week.log.some(
+      (l) => l.phase === 'night' && l.day === DAYS - 1,
+    )
+    if (!playedClimaxNight) continue
+    assert.ok(seen.includes(climax), `${v.id} reaches its climax`)
+    assert.equal(seen.at(-1), climax, `${v.id} climax comes last`)
+    assert.ok(seen.length >= 3, `${v.id} deals three or more special moments`)
+    orders.add(seen.slice(0, -1).join(','))
+  }
+  if (pool.size > 2)
+    assert.ok(orders.size > 1, `${v.id} special moments vary week to week`)
+}
 
 const tiers: Record<string, number> = {
   best: 0,

@@ -1,6 +1,6 @@
 import type { Mystery } from '../types'
 
-// Case IV. Seed: home, shell, protection, mothering, memory, moodiness.
+// Case IV. Seed: home, shell, protection, nurturing, memory, moodiness.
 
 export const CRAB_POT_GHOST: Mystery = {
   id: 'crab-pot-ghost',
@@ -32,7 +32,7 @@ export const CRAB_POT_GHOST: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. A weathered wooden crab boat moored in a misty Humboldt Bay slough at dawn, geraniums in a coffee can on the wheelhouse roof, woodsmoke curling from a tiny stovepipe, the low houses of King Salmon behind with every porch light glowing. In the foreground a round steel crab pot sits on a wet porch step, its steel ribs and mesh echoing a crab’s shell, a yellow oilskin coat hung on the rail beside it. Faint pearl stars above the mist form an unlabeled small inverted-Y constellation. Deep teal, abyss blue and pearl. No text, no letters, no logos.',
   provenance:
-    'King Salmon, Fields Landing and Buhne Point are real places on Humboldt Bay. Dungeness crab is a real local fishery with separate sport and commercial seasons and a legal minimum size. Ione and Arne Sorensen, the Moon Snail, Lindqvist’s yard, the chalked delivery list, the 1970 radio traffic, Teo, Graciela, Royce and every household are invented. No real boatyard, harbor office, vessel-removal program or landlord is depicted.',
+    'King Salmon, Fields Landing and Buhne Point are real places on Humboldt Bay. Dungeness crab is a real local fishery with separate sport and commercial seasons and a legal minimum size. Arne and Ione Sorensen, the Moon Snail, Lindqvist’s yard, the chalked delivery list, the 1970 radio traffic, Teo, Graciela, Royce and every household are invented. No real boatyard, harbor office, vessel-removal program or landlord is depicted.',
   decline: {
     label: 'Tell Teo you don’t do ghosts before breakfast',
     text: 'You reply that it is five in the morning and the ghost can wait. Teo replies, “the CRABS cannot wait,” and then sends nine photos of nine crabs, each captioned with a name. You mute the thread at Gerald.',
@@ -48,13 +48,13 @@ export const CRAB_POT_GHOST: Mystery = {
         from: 'A tag wired to a crab pot, photographed by Teo at 5 a.m.',
         lines: [
           'FOR THE BLUE HOUSE. NINE, ALL LEGAL SIZE. KEEP THEM COLD.',
-          'On the back, in tidy sign-painter capitals: THE RUG WILL DRY. — A.S.',
+          'On the back, in tidy sign-painter capitals: THE RUG WILL DRY. — I.S.',
           'Teo’s caption: are u up. crustacean emergency. this was in my abuela’s LIVING ROOM. blue house past the bait shop. bring a cooler',
         ],
       },
       body: [
         'King Salmon sits on the bay so low that the high tide always seems to be thinking about coming in the front door. Teo’s grandmother, Graciela, sits in her recliner beside a steel crab pot that holds nine furious Dungeness and drips onto a rug she has owned since the Carter administration. The front door was locked all night. The pot is still cold from the water.',
-        '“A man in yellow,” Graciela says. “I saw him off Buhne Point at four this morning, out in the drizzle, pulling pots like it was 1970. Then I went back to bed and he’d made a delivery.” The buoy tied to the pot is hand-painted. On the windowsill someone has left a stick of spearmint gum, folded in half. Through the window, next door, a retired welder named Royce is hosing out a skiff on a trailer at five in the morning, in a yellow rain jacket. He waves. Graciela does not wave back. “He’s fixed every lock on this street,” she says. “And he hates the new landlord more than I do.”',
+        '“Somebody in yellow,” Graciela says. “I saw them off Buhne Point at four this morning, out in the drizzle, pulling pots like it was 1970. Then I went back to bed and they’d made a delivery.” The buoy tied to the pot is hand-painted. On the windowsill someone has left a stick of spearmint gum, folded in half. Through the window, next door, a retired welder named Royce is hosing out a skiff on a trailer at five in the morning, in a yellow rain jacket. He waves. Graciela does not wave back. “He’s fixed every lock on this street,” she says. “And he hates the new landlord more than I do.”',
       ],
       approaches: [
         {
@@ -88,7 +88,7 @@ export const CRAB_POT_GHOST: Mystery = {
           label: 'Ask the old-timers at the bait counter about yellow oilskins',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'The old men at the bait counter go quiet the way men do when you say a name they used to say every day. The old buttoned-hood oilskins in that yellow haven’t been sold around here in years. Only one boat on the bay still crewed in them: the Moon Snail, Arne Sorensen’s boat. A.S. “Arne passed two winters back,” says the man at the register. “Boat’s been sitting in the slough behind Lindqvist’s yard, waiting on the scrapper. Nobody’s seen her move.”',
+            text: 'The old men at the bait counter go quiet the way men do when you say a name they used to say every day. The old buttoned-hood oilskins in that yellow haven’t been sold around here in years. Only one skipper on the bay still wore them: Ione Sorensen, off the Moon Snail. I.S. “Ione passed two winters back,” says the man at the register. “Her husband went up to his brother’s in Oregon. Boat’s been sitting in the slough behind Lindqvist’s yard, waiting on the scrapper. Nobody’s seen her move.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -120,7 +120,7 @@ export const CRAB_POT_GHOST: Mystery = {
           'Teo: “GUYS my scanner just picked this up”',
           '“…Moon Snail, Moon Snail. Pots are pulled. Six for the dark windows.”',
           'Static, then someone humming an old waltz, too worn to tell man from woman.',
-          'Teo: “my tío says moon snail is that dead guy’s boat. sitting in the slough behind lindqvist’s yard??”',
+          'Teo: “my tío says moon snail is that dead lady’s boat. sitting in the slough behind lindqvist’s yard??”',
         ],
       },
       body: [
@@ -133,11 +133,11 @@ export const CRAB_POT_GHOST: Mystery = {
           label: 'Sit on the dock and wait for whoever is aboard',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You sit on the cold dock with your feet over the water and do nothing, which is harder than it sounds. After forty minutes, a voice behind the wheelhouse door says, “You’re letting the cold into your bones, sitting like that.” Nobody comes out. But a hand sets a thermos on the rail, and two mugs. The coffee is perfect. Both mugs have a lopsided painted snail on them. One is chipped from fifty years of use. The other is Arne’s, and nobody has drunk from it in two winters, until now.',
+            text: 'You sit on the cold dock with your feet over the water and do nothing, which is harder than it sounds. After forty minutes, a voice behind the wheelhouse door says, “You’re letting the cold into your bones, sitting like that.” Nobody comes out. But a hand sets a thermos on the rail, and two mugs. The coffee is perfect. Both mugs have a lopsided painted snail on them. One is chipped from fifty years of use. The other is Ione’s, and nobody has drunk from it in two winters, until now.',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You last eleven minutes before your phone buzzes: Teo, asking if you have died. The lamp aboard stays dark. When you creep to the rail, the wheelhouse is locked, the stovepipe is cold, and a note is tucked under a cleat: GO HOME, IT’S LATE, PUT ON A HAT. It is the most motherly threat you have ever received.',
+            text: 'You last eleven minutes before your phone buzzes: Teo, asking if you have died. The lamp aboard stays dark. When you creep to the rail, the wheelhouse is locked, the stovepipe is cold, and a note is tucked under a cleat: GO HOME, IT’S LATE, PUT ON A HAT. It is the most grandfatherly threat you have ever received.',
             effects: { nerve: -1 },
           },
         },
@@ -146,7 +146,7 @@ export const CRAB_POT_GHOST: Mystery = {
           label: 'Read the boat’s history in the yard’s old logbook',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'The yard office is open because the lock rusted open in 2011. In a logbook going back to the sixties, the Moon Snail is on every other page: hauled out, painted, put back in, always signed A. & I. Sorensen. The last entry, two winters ago, is in one hand only, shakier than the rest: “Arne gone. Boat stays in till I say.” Beside the scrap date someone has written, very neatly, “No.”',
+            text: 'The yard office is open because the lock rusted open in 2011. In a logbook going back to the sixties, the Moon Snail is on every other page: hauled out, painted, put back in, always signed A. & I. Sorensen. The last entry, two winters ago, is in one hand only, shakier than the rest: “Ione gone. Boat stays in till I say.” Beside the scrap date someone has written, very neatly, “No.”',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -164,7 +164,7 @@ export const CRAB_POT_GHOST: Mystery = {
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'The skiff has a leak nobody mentioned. Halfway out you are rowing a bathtub. You make it back to the dock ankle-deep and squelching, and someone aboard the Moon Snail, unseen, laughs once, a warm, raspy laugh, and calls across the water, “Bail with your left hand, honey, and row with your back.”',
+            text: 'The skiff has a leak nobody mentioned. Halfway out you are rowing a bathtub. You make it back to the dock ankle-deep and squelching, and someone aboard the Moon Snail, unseen, laughs once, a warm, raspy laugh, and calls across the water, “Bail with your left hand, kid, and row with your back.”',
             effects: { nerve: -1 },
           },
         },
@@ -175,7 +175,7 @@ export const CRAB_POT_GHOST: Mystery = {
         juniper:
           'Juniper watches the geraniums. “Nobody waters flowers on a boat they’re leaving,” she says.',
         cedar:
-          'Cedar’s CB crackles with a crab count in a man’s voice, at 1970 prices. He switches it off. “Wrong decade. The moon pulls the tide and the tide pulls the radio, and nobody ever asks the moon to knock it off.”',
+          'Cedar’s CB crackles with a crab count in a woman’s voice, at 1970 prices. He switches it off. “Wrong decade. The moon pulls the tide and the tide pulls the radio, and nobody ever asks the moon to knock it off.”',
       },
       aloneLine:
         'Alone in the boatyard, you hear the Moon Snail creak against her lines like something breathing in its sleep.',
@@ -249,7 +249,7 @@ export const CRAB_POT_GHOST: Mystery = {
         mara: 'Mara has drawn a tiny yellow raincoat on her wrist in ballpoint. “If this goes wrong, at least it’s documented.”',
         kit: 'Kit has run Graciela’s clothesline from the porch rail down to the dock piling, with a pulley and a bent coat hanger for a hook. “A full pot rides down this,” she says, testing it with the cooler. “Whoever’s been carrying them on one hip all month can stop.”',
         juniper:
-          'Juniper has claimed Graciela’s porch swing and the good blanket. “If the ghost turns out to be handsome, I saw him first,” she says. “If it’s somebody’s grandmother, you can have her.”',
+          'Juniper has claimed Graciela’s porch swing and the good blanket. “If the ghost turns out to be handsome, I saw him first,” she says. “If it’s somebody’s grandpa, you can have him.”',
         cedar:
           'Cedar has the CB on low, tuned to the channel. “Whoever it is has been up since two,” he says. “Tide turns at five. If I were a ghost, I’d come in on it.”',
       },
@@ -274,7 +274,7 @@ export const CRAB_POT_GHOST: Mystery = {
     ],
     recall: {
       'g3:pass':
-        'Last night you got close enough to touch the yellow oilskins. But with nothing from the street or the slough to go on, you did not know what to say, and the ghost could tell. “Go home, honey. Put on a hat,” said a raspy voice from under the hood, and by the time anybody on the street stood up, there was only a wake going out into the mist.',
+        'Last night you got close enough to touch the yellow oilskins. But with nothing from the street or the slough to go on, you did not know what to say, and the ghost could tell. “Go home, kid. Put on a hat,” said a raspy voice from under the hood, and by the time anybody on the street stood up, there was only a wake going out into the mist.',
     },
     choices: [
       {
@@ -297,25 +297,25 @@ export const CRAB_POT_GHOST: Mystery = {
     chapter: 3,
     scene: 'bay',
     body: [
-      'Nobody lets her fade this time, least of all the street. By ten past five the whole night has moved down to the little King Salmon dock: the Moon Snail tied at the end of it, where she always ties up to make her deliveries, engine ticking as it cools; thirty neighbors in rubber boots on the planks; and the figure in yellow in the middle of them with nowhere left to go. The hands come first, big-knuckled and bait-scarred, unwrapping a stick of spearmint gum and folding it in half before she chews it, the way the one on Graciela’s windowsill was folded. Then the hood comes back on a white braid and a pair of very bright, very tired eyes. Royce, still in his yellow rain jacket, lets out a breath like a man being crossed off a list. “Ione,” Graciela says, and her voice cracks. “Ione Sorensen. We thought you went to your sister’s in Oregon.”',
-      '“I told everyone that,” Ione says. “When Arne died, the king tide came through the house we rented for forty years, and they red-tagged it, and the owner sold the lot instead of fixing it. The yard wanted the boat for scrap to cover what we owed. So I moved aboard. Arne always said the first haul of the season goes to the house with the dark windows, so I signed them his. This year there were a lot of dark windows.” She measures a crab with a brass gauge, gently, and drops it back in. “Every one legal size, before you ask. I’m a few weeks early on the calendar, and I’ll answer to Arne for that.” Then, quieter: “If they find out I live aboard, I lose the last home I have.”',
+      'Nobody lets him fade this time, least of all the street. By ten past five the whole night has moved down to the little King Salmon dock: the Moon Snail tied at the end of it, where he always ties up to make his deliveries, engine ticking as it cools; thirty neighbors in rubber boots on the planks; and the figure in yellow in the middle of them with nowhere left to go. The hands come first, big-knuckled and bait-scarred, unwrapping a stick of spearmint gum and folding it in half before he chews it, the way the one on Graciela’s windowsill was folded. Then the hood comes back on a white beard trimmed square with kitchen scissors and a pair of very bright, very tired eyes. Royce, still in his yellow rain jacket, lets out a breath like a man being crossed off a list. “Arne,” Graciela says, and her voice cracks. “Arne Sorensen. We thought you went to your brother’s in Oregon.”',
+      '“I told everyone that,” Arne says. “When Ione died, the king tide came through the house we rented for forty years, and they red-tagged it, and the owner sold the lot instead of fixing it. The yard wanted the boat for scrap to cover what we owed. So I moved aboard. Ione always said the first haul of the season goes to the house with the dark windows, so I signed them hers. This year there were a lot of dark windows.” He measures a crab with a brass gauge, gently, and drops it back in. “Every one legal size, before you ask. I’m a few weeks early on the calendar, and I’ll answer to Ione for that.” Then, quieter: “If they find out I live aboard, I lose the last home I have.”',
     ],
     afterMiss: [
       'You lost the ghost in the dark. The street didn’t. Graciela, who has lived on this block since the Carter administration, says out loud the one thing everybody knows about the ghost: it feeds dark windows. “Lights off,” she says, and walks down the street saying it at every step. One porch at a time, King Salmon goes dark. A quarter of an hour later an old diesel heartbeat comes back across the water, and the Moon Snail noses into the little King Salmon dock with a full string of pots, because a whole street of dark windows is more than whoever wears those oilskins has ever been able to leave hungry.',
-      'Thirty neighbors are waiting on the planks in the dark. The figure in yellow ties up, sees them, and does not run. The hands come first, big-knuckled and bait-scarred, unwrapping a stick of spearmint gum and folding it in half before she chews it, the way the one on Graciela’s windowsill was folded. Then the hood comes back on a white braid and a pair of very bright, very tired eyes. Royce, still in his yellow rain jacket, lets out a breath like a man being crossed off a list. “Ione,” Graciela says, and her voice cracks. “Ione Sorensen. We thought you went to your sister’s in Oregon.”',
-      '“I told everyone that,” Ione says. “When Arne died, the king tide came through the house we rented for forty years, and they red-tagged it, and the owner sold the lot instead of fixing it. The yard wanted the boat for scrap to cover what we owed. So I moved aboard. Arne always said the first haul of the season goes to the house with the dark windows, so I signed them his. This year there were a lot of dark windows.” She measures a crab with a brass gauge, gently, and drops it back in. “Every one legal size, before you ask. I’m a few weeks early on the calendar, and I’ll answer to Arne for that.” Then, quieter: “If they find out I live aboard, I lose the last home I have.”',
+      'Thirty neighbors are waiting on the planks in the dark. The figure in yellow ties up, sees them, and does not run. The hands come first, big-knuckled and bait-scarred, unwrapping a stick of spearmint gum and folding it in half before he chews it, the way the one on Graciela’s windowsill was folded. Then the hood comes back on a white beard trimmed square with kitchen scissors and a pair of very bright, very tired eyes. Royce, still in his yellow rain jacket, lets out a breath like a man being crossed off a list. “Arne,” Graciela says, and her voice cracks. “Arne Sorensen. We thought you went to your brother’s in Oregon.”',
+      '“I told everyone that,” Arne says. “When Ione died, the king tide came through the house we rented for forty years, and they red-tagged it, and the owner sold the lot instead of fixing it. The yard wanted the boat for scrap to cover what we owed. So I moved aboard. Ione always said the first haul of the season goes to the house with the dark windows, so I signed them hers. This year there were a lot of dark windows.” He measures a crab with a brass gauge, gently, and drops it back in. “Every one legal size, before you ask. I’m a few weeks early on the calendar, and I’ll answer to Ione for that.” Then, quieter: “If they find out I live aboard, I lose the last home I have.”',
     ],
     recall: {
       'g1:fail':
         'Graciela looks at you sideways. “You took your time,” she says. “But you came back. That counts on this street.”',
       'g2:fail':
-        '“You’re the one who was poking around my slough,” Ione says. “I watched you from the wheelhouse. You need a hat.”',
+        '“You’re the one who was poking around my slough,” Arne says. “I watched you from the wheelhouse. You need a hat.”',
     },
     choices: [
       {
         id: 'see-home',
-        label: 'Ask to see her home',
-        text: 'You ask, the way you would ask anybody, if you can see her place. Ione hesitates, then opens the wheelhouse door.',
+        label: 'Ask to see his home',
+        text: 'You ask, the way you would ask anybody, if you can see his place. Arne hesitates, then opens the wheelhouse door.',
         next: 'aboard',
       },
       {
@@ -326,21 +326,21 @@ export const CRAB_POT_GHOST: Mystery = {
       },
       {
         id: 'cast-off',
-        label: 'Lift her lines and let her go into the mist',
-        text: 'You lift her lines off the cleat and hand them aboard. Ione looks at you for a long moment, nods once, and puts the Moon Snail in gear. The street steps back to let her go.',
+        label: 'Lift his lines and let him go into the mist',
+        text: 'You lift his lines off the cleat and hand them aboard. Arne looks at you for a long moment, nods once, and puts the Moon Snail in gear. The street steps back to let her go.',
         ending: 'moored-in-1970',
       },
     ],
     leadLines: {
-      mara: 'Mara drapes her jacket over Ione’s shoulders without asking. “You’re frozen. Argue with me later.”',
-      kit: 'Kit is already coiling the pot lines the way Ione had them. “Tell us what needs hauling. We’re strong and we work for chowder.”',
+      mara: 'Mara drapes her jacket over Arne’s shoulders without asking. “You’re frozen. Argue with me later.”',
+      kit: 'Kit is already coiling the pot lines the way Arne had them. “Tell us what needs hauling. We’re strong and we work for chowder.”',
       juniper:
-        'Juniper is eyeing the bunk through the wheelhouse door. “If you ever want a lodger,” she tells Ione, “I don’t eat much and I’m very good with geraniums.”',
+        'Juniper is eyeing the bunk through the wheelhouse door. “If you ever want a lodger,” she tells Arne, “I don’t eat much and I’m very good with geraniums.”',
       cedar:
         'Cedar lays a hand on the Moon Snail’s rail like he is checking a horse. “Sixty years of the moon yanking her up and down twice a day,” he says, “and she’s sound. Somebody’s kept her sound.”',
     },
     aloneLine:
-      'With nobody beside you, it is just you and Ione and thirty strangers in rubber boots, and she looks at you like a grandmother deciding whether you have eaten.',
+      'With nobody beside you, it is just you and Arne and thirty strangers in rubber boots, and he looks at you like a grandfather deciding whether you have eaten.',
   },
   branches: {
     aboard: {
@@ -349,24 +349,24 @@ export const CRAB_POT_GHOST: Mystery = {
       chapter: 3,
       scene: 'bay',
       body: [
-        'The wheelhouse is a whole life in eighty square feet: a woodstove the size of a breadbox, a bunk under a quilt patched from old oilskins, Arne’s reading glasses still folded on the chart table, a calendar from two years ago that nobody has turned. A rack by the stove holds two lopsided painted snail mugs, one chipped from fifty years of coffee and one that has sat clean for two winters. Every morning she sets out both and fills one.',
-        'Ione gives the tour like any proud homeowner, which is what she is. “Arne and I lived aboard the first six years we were married, before the house,” she says. “I told him I’d come back to her someday. I didn’t mean like this.” She laughs, and then she doesn’t. “It’s not a good place to get old. But it’s mine.”',
+        'The wheelhouse is a whole life in eighty square feet: a woodstove the size of a breadbox, a bunk under a quilt patched from old oilskins, Ione’s reading glasses still folded on the chart table, a calendar from two years ago that nobody has turned. A rack by the stove holds two lopsided painted snail mugs, one chipped from fifty years of coffee and one that has sat clean for two winters. Every morning he sets out both and fills one.',
+        'Arne gives the tour like any proud homeowner, which is what he is. “Ione and I lived aboard the first six years we were married, before the house,” he says. “I promised her we’d move back aboard someday. I didn’t mean like this.” He laughs, and then he doesn’t. “It’s not a good place to get old. But it’s mine.”',
       ],
       recall: {
         'g2:dock':
-          '“You sat out on my dock in the cold,” Ione says, not looking up from the stove. “Arne used to sit right there when he was in trouble with me. Same slouch.”',
+          '“You sat out on my dock in the cold,” Arne says, not looking up from the stove. “Ione used to sit right there when she was in trouble with me. Same slouch.”',
       },
       choices: [
         {
           id: 'mooring',
-          label: 'Find her a legal mooring, tonight',
-          text: 'You get out your phone and start calling everyone Ione has ever fed. It turns out to be most of King Salmon, and all of them are awake.',
+          label: 'Find him a legal mooring, tonight',
+          text: 'You get out your phone and start calling everyone Arne has ever fed. It turns out to be most of King Salmon, and all of them are awake.',
           ending: 'home-port',
         },
         {
           id: 'one-more-string',
-          label: 'Help her pull one last string of pots',
-          text: 'You pull on borrowed boots and haul until your arms shake while Ione steers and tells you about every house on the route.',
+          label: 'Help him pull one last string of pots',
+          text: 'You pull on borrowed boots and haul until your arms shake while Arne steers and tells you about every house on the route.',
           ending: 'last-haul',
         },
       ],
@@ -378,25 +378,25 @@ export const CRAB_POT_GHOST: Mystery = {
       scene: 'bay',
       body: [
         'By six there are thirty people on the little dock in rubber boots and borrowed coats, and the crab pot from Graciela’s living room has been carried down to serve as a coffee table. Royce brought donuts. Teo is taking minutes on his phone, badly.',
-        '“She fed us all winter,” Graciela tells the crowd, “and not one of us noticed she was hungry too.” Nobody speaks for a while. Woodsmoke from the Moon Snail’s stovepipe drifts up the street, smelling of coffee and bait and sixty years of the same stove. Royce, who spent a week as the street’s favorite suspect without knowing it, passes the donuts to Ione first.',
+        '“He fed us all winter,” Graciela tells the crowd, “and not one of us noticed he was hungry too.” Nobody speaks for a while. Woodsmoke from the Moon Snail’s stovepipe drifts up the street, smelling of coffee and bait and sixty years of the same stove. Royce, who spent a week as the street’s favorite suspect without knowing it, passes the donuts to Arne first.',
       ],
       choices: [
         {
           id: 'pass-the-pot',
           label: 'Pass the crab pot around for slip fees',
-          text: 'You turn the pot upside down and hold it out. It comes back full: cash, two checks, an IOU, a pie, and Royce’s promise to weld anything Ione needs for life.',
+          text: 'You turn the pot upside down and hold it out. It comes back full: cash, two checks, an IOU, a pie, and Royce’s promise to weld anything Arne needs for life.',
           ending: 'home-port',
         },
         {
           id: 'her-call',
-          label: 'Let Ione decide, with all of them watching',
-          text: 'You step back. Ione looks at the crowd, then the boat, then the bay, and makes up her own mind, the way she always has.',
+          label: 'Let Arne decide, with all of them watching',
+          text: 'You step back. Arne looks at the crowd, then the boat, then the bay, and makes up his own mind, the way he always has.',
           ending: 'last-haul',
         },
         {
           id: 'old-street',
-          label: 'Ask Ione who the vacant lots on her list are for',
-          text: 'You ask about the three numbers on her chalked list that are only grass now. Ione looks at you for a long moment. “They still get hungry,” she says, and goes to start the engine. When you turn around, her lines are already off the cleat.',
+          label: 'Ask Arne who the vacant lots on his list are for',
+          text: 'You ask about the three numbers on his chalked list that are only grass now. Arne looks at you for a long moment. “They still get hungry,” he says, and goes to start the engine. When you turn around, his lines are already off the cleat.',
           ending: 'moored-in-1970',
         },
       ],
@@ -408,8 +408,8 @@ export const CRAB_POT_GHOST: Mystery = {
       title: 'Home Port',
       tone: 'true',
       text: [
-        'It takes three weeks, two potlucks and one very patient woman at the harbor office, but the Moon Snail gets a legal liveaboard slip, registered, inspected and paid six months ahead by thirty households who each put in what they could. Royce welds her a new rail. Graciela hangs curtains in the wheelhouse whether Ione wants them or not.',
-        'On opening day of the commercial season there is a potluck on the dock, and Ione serves crab to the whole street, measuring every one with the brass gauge out of habit. Your plate comes first. “Anybody who sat up all night for a ghost eats first,” she says. “That’s the new rule. Arne would’ve liked it.”',
+        'It takes three weeks, two potlucks and one very patient woman at the harbor office, but the Moon Snail gets a legal liveaboard slip, registered, inspected and paid six months ahead by thirty households who each put in what they could. Royce welds her a new rail. Graciela hangs curtains in the wheelhouse whether Arne wants them or not.',
+        'On opening day of the commercial season there is a potluck on the dock, and Arne serves crab to the whole street, measuring every one with the brass gauge out of habit. Your plate comes first. “Anybody who sat up all night for a ghost eats first,” he says. “That’s the new rule. Ione would’ve liked it.”',
       ],
     },
     {
@@ -417,7 +417,7 @@ export const CRAB_POT_GHOST: Mystery = {
       title: 'The Last Haul',
       tone: 'bittersweet',
       text: [
-        'The Moon Snail goes to the cutter the next morning after all. Ione watches from the dock with Graciela’s arm through hers and doesn’t cry, because she says she did all of that two winters ago. She moves into a ground-floor apartment in Eureka off a waitlist she had been on for a year, with one window that looks at a parking lot. She puts the geraniums in it anyway.',
+        'The Moon Snail goes to the cutter the next morning after all. Arne watches from the dock with Graciela’s arm through his and doesn’t cry, because he says he did all of that two winters ago. He moves into a ground-floor apartment in Eureka off a waitlist he had been on for a year, with one window that looks at a parking lot. He puts the geraniums in it anyway.',
         'The last haul goes to every dark window in King Salmon at once. On the next king tide, the brass crab gauge is hanging on your door handle in a mesh bait bag, with a note in tidy sign-painter letters: “You’ll know who’s hungry. Measure fair.”',
       ],
     },
@@ -426,8 +426,8 @@ export const CRAB_POT_GHOST: Mystery = {
       title: 'Moored in 1970',
       tone: 'strange',
       text: [
-        'The Moon Snail slides out past Buhne Point into the woodsmoke and the morning mist and does not come out the other side. The tow arrives at eight to find nothing to tow, and the yard lists her as lost. Ione is never found, and nobody in King Salmon looks very hard.',
-        'But if you leave a scanner on the old fishing channel, a young couple sometimes calls pot counts back and forth at 1970 prices, and one of them laughs the way Ione must have laughed at thirty. On king tides, full pots turn up on the three vacant lots from her list, set neatly where the front steps used to be, and by morning every crab is gone. Once you drive out to Buhne Point at four and find nothing on the water but two wakes, side by side, heading in.',
+        'The Moon Snail slides out past Buhne Point into the woodsmoke and the morning mist and does not come out the other side. The tow arrives at eight to find nothing to tow, and the yard lists her as lost. Arne is never found, and nobody in King Salmon looks very hard.',
+        'But if you leave a scanner on the old fishing channel, a young couple sometimes calls pot counts back and forth at 1970 prices, and one of them laughs the way Arne must have laughed at thirty. On king tides, full pots turn up on the three vacant lots from his list, set neatly where the front steps used to be, and by morning every crab is gone. Once you drive out to Buhne Point at four and find nothing on the water but two wakes, side by side, heading in.',
       ],
     },
   ],

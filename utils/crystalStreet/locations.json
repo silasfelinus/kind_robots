@@ -1,0 +1,2891 @@
+[
+  {
+    "id": "crystal-street",
+    "name": "Crystal Street",
+    "blurb": "The showpiece cul-de-sac of Glimmer Falls: twelve identical split-levels, a roundabout garden, and the purple Heartstone humming at its center like a fridge nobody can find.",
+    "art": "A sunny 1980s suburban cul-de-sac of identical split-level houses with tidy lawns, a roundabout garden at its center holding a car-sized purple geode, bikes on driveways, jack-o-lanterns on porches, faint violet shimmer in the air above the stone",
+    "train": "nerve",
+    "x": 50,
+    "y": 55,
+    "beats": [
+      {
+        "id": "crystal-street-garage-sale",
+        "title": "Everything Must Go",
+        "place": "A driveway garage sale, 4 Crystal Street",
+        "text": "The Okonkwo family is moving out with three days' notice, and their whole life is on card tables in the driveway: lava lamps, a Spell-a-Tron toy computer, a shoebox of loose photos. Mrs. Okonkwo won't say why they're leaving. She just keeps glancing at the Heartstone and pricing things lower.",
+        "art": "A cluttered suburban driveway garage sale with card tables of 1980s junk, a lava lamp, a toy spelling computer, a shoebox of old photos, a worried mother with price stickers glancing toward a purple geode in the roundabout",
+        "choices": [
+          {
+            "id": "haggle",
+            "label": "Haggle the whole table down to pocket change",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You walk away with a box of treasures for a quarter and a handshake: a working flashlight, a pack of batteries and a Spell-a-Tron that, when you turn it on, says \"W-E-L-C-O-M-E\" in a voice it should not have.",
+              "art": "A teenager walking down a sunny driveway carrying a cardboard box of garage-sale finds, a flashlight on top, a toy computer screen glowing with a single word",
+              "effects": {
+                "items": ["flashlight"],
+                "quarters": -1
+              }
+            },
+            "failure": {
+              "text": "You lowball so hard Mrs. Okonkwo's husband takes the box back and puts it in the moving van. Through the van's back window you see the Spell-a-Tron light up by itself and spell out your name.",
+              "art": "A moving van with its rear doors half shut, a toy spelling computer glowing inside among boxes, its screen showing letters",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-why",
+            "label": "Help pack the van and ask why they're really leaving",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Between boxes, Mrs. Okonkwo finally talks. \"Every October that rock hums louder. My son started sleepwalking to it.\" She presses an old photo of the street into your hands: the Heartstone, and a crowd of grieving faces. \"Somebody should remember.\"",
+              "art": "A mother handing a teenager an old black-and-white photograph of a crowd gathered around a purple geode, packed boxes stacked behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["okonkwo-photo"]
+              }
+            },
+            "failure": {
+              "text": "You drop the box marked FRAGILE. Grandma's china, all of it. Mrs. Okonkwo is too tired to yell, which is worse. She thanks you anyway and you feel like a dropped plate for the rest of the day.",
+              "art": "A cardboard box marked fragile tipped on a driveway, broken blue china spilling out, a teenager wincing beside it",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "photo-box",
+            "label": "Dig through the shoebox of loose photos",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Most are birthdays and barbecues. But in every single one, no matter the year, the same pale kid in a striped shirt stands at the edge of the frame, never aging. You pocket the clearest one. Knowledge is armor.",
+              "art": "A spread of old snapshots on a card table, birthday parties and barbecues from different decades, the same pale child in a striped shirt at the edge of each snapshot",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The photos are warm, like they were just pulled from a dryer. The striped-shirt kid in one of them is looking straight at the camera now. You drop the box and the photos scatter across the drive in a wind that isn't blowing anywhere else.",
+              "art": "Old snapshots blowing across a suburban driveway in a sudden private wind, one photo face-up showing a pale child staring out of the picture",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "crystal-street-storm-drain",
+        "title": "Mr. Pickles Is Down There",
+        "place": "The storm drain by the Heartstone roundabout",
+        "text": "Little Hector Ruiz is sobbing on the curb. His grandmother's poodle, Mr. Pickles, chased a squirrel straight into the storm drain, and now a tiny bark is echoing up from the dark, getting farther away. Something else down there is barking back, a beat too late, a pitch too low.",
+        "art": "A crying young boy kneeling at a curbside storm drain in a sunny cul-de-sac, a tiny white poodle's eyes shining in the dark grate, a second pair of larger eyes far behind it",
+        "choices": [
+          {
+            "id": "climb-in",
+            "label": "Pry up the grate and climb down after him",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The drain is cold, wet and full of echoes. You crawl twenty feet on your elbows, scoop up a shivering Mr. Pickles, and back out fast without ever turning around to see what was breathing behind him. Hector's grandmother pays you in quarters and pan dulce.",
+              "art": "A grimy, grinning teenager climbing out of a storm drain holding a soaked white poodle aloft, a boy and his grandmother cheering on the curb",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You get Mr. Pickles, but something gets your sneaker. You come out with one shoe, a scraped knee and a dog that will not stop shaking. Hector thinks you're a hero. You think you heard your name whispered in the pipe.",
+              "art": "A teenager sitting on a curb missing one sneaker, holding a trembling poodle, the dark mouth of a storm drain behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "lure-him",
+            "label": "Lure him back with a trail of lunchmeat",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Bologna, folded into a trail, works better than courage. Mr. Pickles comes trotting up out of the dark, licking his lips. Behind him, the low bark stops, like something decided it wasn't hungry for bologna.",
+              "art": "A white poodle trotting out of a storm drain toward a trail of folded bologna slices on the asphalt, a kid clapping",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bologna vanishes slice by slice into the dark, and Mr. Pickles does not come back. Then he does, an hour later, at Hector's front door, dry as a bone and smelling of crushed purple rock. Nobody can explain it.",
+              "art": "A small white poodle sitting on a suburban doormat at dusk, eerily dry and clean, a faint violet glow on its curly fur",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-the-vet",
+            "label": "Run for Dr. Haddad's garage clinic",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dr. Haddad arrives with a catch pole, a headlamp and the calm of a man who once treated a three-legged goat for possession. He has Mr. Pickles out in four minutes and checks Hector for scratches too, just to be thorough.",
+              "art": "A veterinarian with a headlamp lifting a poodle out of a storm drain with a padded catch pole, a relieved boy and grandmother beside him",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Dr. Haddad is out on a call. His answering machine plays a message about after-hours emergencies and then, under the beep, a low bark. By the time you get back, Hector's grandmother has called the fire department and you spend an hour giving statements.",
+              "art": "A teenager standing in a cluttered garage clinic beside a blinking answering machine, animal cages in the shadows behind them",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "crystal-street-watch-meeting",
+        "title": "Neighborhood Watch",
+        "place": "The Delacortes' living room, 2 Crystal Street",
+        "text": "Folding chairs, a plate of deviled eggs and Mr. Delacorte at an easel with a pointer. The Crystal Street Neighborhood Watch is voting tonight on a Halloween curfew for \"unsupervised youth\" and \"people who don't fit the character of the street.\" Everyone looks at the Ruiz family, the new couple at number 11 and you.",
+        "art": "A crowded 1980s suburban living room with folding chairs and a deviled-egg tray, a stern man at an easel chart reading curfew, neighbors turning to stare at a teenager in the back row",
+        "choices": [
+          {
+            "id": "speak-up",
+            "label": "Stand up and speak against the curfew",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Your voice shakes but it holds. You name the kids who mow lawns and walk dogs and shovel driveways, and you ask Mr. Delacorte which of them is the problem. The vote fails, eight to four. Pearl Washington winks at you from the front row.",
+              "art": "A teenager standing up in a crowded living room meeting, neighbors raising hands in a vote, an old woman in the front row giving a wink",
+              "effects": {
+                "nerve": 2,
+                "flags": ["watch-curfew-defeated"]
+              }
+            },
+            "failure": {
+              "text": "Mr. Delacorte talks over you, then thanks you for your \"passion\" in a voice like a pat on the head. The curfew passes. On the walk home, every porch light on the street clicks on as you pass, like the houses are watching too.",
+              "art": "A teenager walking home along a dark cul-de-sac as porch lights click on one by one, a man silhouetted in a front window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pearl-backup",
+            "label": "Get Pearl Washington to take the floor",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "Pearl rises with her cane. \"I was on this street in 1959 when you were in short pants, Harold, and I remember who they called unsuitable then.\" She names names. The room goes very quiet. The motion is withdrawn and the eggs are passed in shame.",
+              "art": "An elderly Black woman standing with a cane in a suburban living room, finger raised, a mustached man wilting at his easel",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["watch-curfew-defeated"]
+              }
+            },
+            "failure": {
+              "text": "Pearl is asleep in her chair, and waking her would be a war crime. The vote goes through. As you leave she squeezes your hand and murmurs, \"Curfews never stopped anything that walks at night, baby.\"",
+              "art": "A dozing elderly woman in a floral chair at a suburban meeting, a teenager gently holding her hand as neighbors file out",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "sabotage",
+            "label": "Swap the meeting tape for something funnier",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "When Mr. Delacorte presses play on his \"Dangers of Halloween\" slideshow tape, the room fills with a disco remix of a Halloween novelty song. Mrs. Kwan starts dancing. So does the mailman. Nobody can hold a curfew vote after that. They try next week; it never happens.",
+              "art": "Neighbors in a suburban living room breaking into an awkward, joyful dance as a slide projector shows a disco ball, a red-faced man pressing buttons on a tape deck",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "You're caught with the cassette in your hand. Mr. Delacorte calls your parents, then writes your name on his easel under the heading CONCERNS. Somebody draws a heart next to it in the night, which is either a kindness or a threat.",
+              "art": "A flip chart easel with the word concerns and a list of names, a small heart drawn in purple marker beside one name, the room empty and dim",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "crystal-street-paper-route",
+        "title": "The Porch With Seven Papers",
+        "place": "Mr. Ferris's porch, 10 Crystal Street",
+        "text": "Kev Park's paper route has one problem house. Mr. Ferris at number 10 hasn't picked up his Gazette in seven days. They're piled on the porch, the TV inside is flickering through the curtains, and the screen door creaks open and shut in a breeze that isn't there.",
+        "art": "A suburban front porch stacked with seven rolled newspapers, a screen door hanging ajar, blue television light flickering behind lace curtains, a young paperboy on a bike watching nervously",
+        "choices": [
+          {
+            "id": "go-in",
+            "label": "Knock, then let yourself in to check on him",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Mr. Ferris is on the kitchen floor with a twisted ankle and a very dry throat, alive and furious about it. You call the ambulance, feed his cat, and he insists on tipping you three quarters and a rabbit's foot \"that's done me fine for sixty years.\"",
+              "art": "A teenager kneeling beside an old man on a 1960s kitchen floor, phone cord stretched, a fat orange cat watching from the counter",
+              "effects": {
+                "nerve": 1,
+                "quarters": 3
+              }
+            },
+            "failure": {
+              "text": "The house is empty. The TV is playing a test pattern and a recording of Mr. Ferris laughing at a show that went off the air in 1971. You back out. He turns up on Tuesday, says he was at his sister's, and refuses to discuss the TV.",
+              "art": "A dim 1960s living room with an empty armchair facing a television showing a test pattern, a teenager backing out the door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-kev",
+            "label": "Ask Kev what the route knows about Mr. Ferris",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "Kev knows everything: Mr. Ferris has a bad ankle, a daughter in Fresno and a spare key under the ceramic frog. You let yourselves in, find him stuck in his recliner, and call his daughter. Kev adds a gold star to the house on his route map.",
+              "art": "A young paperboy and a teenager crouching over a ceramic garden frog to find a spare key, a hand-drawn route map in the boy's other hand",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Kev is too spooked to talk, and the only thing he'll say is \"nobody on my route goes in a house where the TV's on and nobody's laughing.\" You leave a note. In the morning, the note is on your own porch, read and folded.",
+              "art": "A folded handwritten note sitting on a doormat at dawn, a paperboy's bike disappearing down the street",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "library",
+    "name": "Glimmer Falls Public Library",
+    "blurb": "A brick Carnegie library with a modern wing bolted on: microfiche, an occult section nobody admits to using, a traveling exhibit room, and Ms. Hart's motorcycle parked out front.",
+    "art": "A red-brick Carnegie library with white columns and a boxy 1970s annex, autumn leaves on the steps, a motorcycle parked by the book drop, tall arched windows glowing warm in afternoon light",
+    "train": "brains",
+    "x": 22,
+    "y": 30,
+    "beats": [
+      {
+        "id": "library-overdue-1959",
+        "title": "Overdue Since 1959",
+        "place": "The circulation desk, Glimmer Falls Public Library",
+        "text": "A copy of Field Guide to the Birds of the Sierra lands in the return slot with a thump. The card in its pocket shows one borrower, one date: October 26, 1959. The fine notice clipped to it is in the same handwriting as today's date stamp, and the ink is still wet.",
+        "art": "A library return slot with a battered old hardcover bird guide sliding through, a yellowed checkout card showing a single 1959 date, a fine notice with wet ink",
+        "choices": [
+          {
+            "id": "trace-borrower",
+            "label": "Look up the borrower in the old patron files",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The patron card belongs to Wendell Moss, age 12, who borrowed a bird book the morning of the 1959 quarry-lake drainage and was never listed as missing because his family moved that week. The address is now a parking lot. You return the book properly and stamp it paid in full. The library feels lighter.",
+              "art": "A teenager at a wooden card catalog drawer holding a yellowed patron card with a child's signature, a stamped bird guide beside them",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The patron drawer for M is jammed. When you finally wrench it open, every card inside reads WENDELL MOSS in a child's careful cursive. The drawer slides shut on your fingers by itself.",
+              "art": "An open card catalog drawer stuffed with identical index cards bearing the same child's signature, a teenager pulling back a pinched hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-margins",
+            "label": "Read the notes scribbled in the margins",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Tiny pencil notes beside each bird: SAW ONE AT THE LAKE. SAW ONE AT THE LAKE. Then, on the last page: THE LAKE IS LEAVING. THE BIRDS KNOW. You copy the notes. Somebody, long ago, noticed something, and now you have.",
+              "art": "Close view of a field guide page with a painted bird and tiny pencil notes crowding the margin, a teenager's hand copying them into a notebook",
+              "effects": {
+                "nerve": 1,
+                "flags": ["bird-book-notes"]
+              }
+            },
+            "failure": {
+              "text": "The margins are full of birds drawn in pencil, more on every page, until the last pages are solid gray with wings. A rustle comes from the book as you close it. You decide it's the air conditioning.",
+              "art": "An old book's final pages crowded edge to edge with pencil-drawn birds, a few feathers resting on the library table",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pay-fine",
+            "label": "Just pay the fine and say nothing",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "Twenty-seven years at a penny a day is too much, so Ms. Hart forgives all but a quarter. When the coin drops into the fine jar, a single sparrow lands on the windowsill outside, looks at you, and flies off toward the hills.",
+              "art": "A quarter dropping into a glass fine jar on a library desk, a sparrow on the windowsill beyond, afternoon light",
+              "effects": {
+                "quarters": -1,
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You reach for your quarter and find a 1959 dime in its place. The fine jar rattles. Ms. Hart looks at the dime for a long time and puts it in her cardigan pocket without a word.",
+              "art": "A tarnished 1959 dime in a teenager's open palm over a library desk, a librarian's hand reaching for it",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "library-campaign-night",
+        "title": "The Fifth Player",
+        "place": "Meeting room B, Glimmer Falls Public Library",
+        "text": "Priya Raman's Saturday campaign is short a player, and the sign-up sheet on the meeting-room door says THE DUNGEON MASTER WELCOMES ALL. Graph paper, a bag of dice, a map of a town that looks exactly like Glimmer Falls, and a dungeon drawn right where the Heartstone sits.",
+        "art": "A library meeting room table covered in graph paper maps, colorful polyhedral dice, character sheets and pizza boxes, a hand-drawn map of a suburban town with a dungeon marked at its center",
+        "choices": [
+          {
+            "id": "play-hero",
+            "label": "Roll up a character and play the hero",
+            "intent": "brave",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your character, a half-elf with a tape deck, saves the party with a crit on the last roll. Priya grins. \"That trap was real, by the way. Not in the game. Under the roundabout.\" She gives you a page of her notes, just in case.",
+              "art": "A group of teens cheering around a game table as a twenty-sided die shows its top number, a girl behind a cardboard screen grinning",
+              "effects": {
+                "nerve": 1,
+                "flags": ["priya-notes"]
+              }
+            },
+            "failure": {
+              "text": "You roll a one. Then another. Your character falls into a pit Priya swears she didn't write. When you look at the map again, there's a little pencil figure at the bottom of the pit that looks a lot like you.",
+              "art": "A tiny pencil figure drawn at the bottom of a pit on graph paper, a pair of dice both showing one beside it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "study-map",
+            "label": "Study the dungeon map instead of playing",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Priya's map is better than the city's. She's marked the old quarry tunnels, the drained lake bed and three rooms under the roundabout she says \"came to me in a dream, very rudely.\" You trace a copy. Maps are weapons in this town.",
+              "art": "A teenager tracing a hand-drawn dungeon map onto tracing paper, tunnels marked under a suburban street grid, dice used as paperweights",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The longer you look at the map, the more it looks back. The dungeon rooms seem to shift a quarter-inch when you blink. Priya takes it gently out of your hands. \"Yeah. It does that. Don't stare.\"",
+              "art": "A graph-paper dungeon map with ink lines subtly out of place, a girl's hand pulling it away from a dazed teenager",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "library-book-drop",
+        "title": "The Book Drop Bandit",
+        "place": "Behind the library, by the book drop",
+        "text": "Somebody keeps checking out every copy of the library's few books about gay and lesbian lives and dumping them in the dumpster behind the building. Ms. Hart keeps fishing them out. Today a note is taped to the book drop: THESE BOOKS DON'T BELONG IN OUR TOWN. The handwriting is shaky, and young.",
+        "art": "A teenager and a librarian in a cardigan beside a library dumpster, rescued paperbacks stacked on a step, a handwritten note taped to a metal book drop",
+        "choices": [
+          {
+            "id": "stakeout",
+            "label": "Stake out the book drop at closing",
+            "intent": "sneaky",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "It's a sophomore from church youth group, crying, with three books in his arms. He's not throwing them away. He's been reading them and dumping them so nobody at home finds out. Ms. Hart gives him a library card in a different name, and a lot of tissues.",
+              "art": "A tearful teenage boy clutching paperbacks behind a library at dusk, a kind librarian kneeling to hand him a library card",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["book-drop-solved"]
+              }
+            },
+            "failure": {
+              "text": "You fall asleep in the bushes. When you wake, the dumpster is full of books again, the note has been replaced with one that says I'M SORRY, and you have a crick in your neck that lasts until Tuesday.",
+              "art": "A teenager waking up in library shrubbery at night, a dumpster full of books in the glow of a security light, a new apologetic note on the book drop",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ask-delphine",
+            "label": "Help Ms. Hart build a display instead",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Ms. Hart build a whole display right by the front door: READ WHAT YOU WANT, with paper stars and every rescued book. By closing, three of them are checked out by people who leave very fast, smiling at the floor.",
+              "art": "A library display table with paper stars and a hand-lettered sign reading read what you want, books standing upright, a librarian and teen admiring it",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Before the glue is dry, a library board member sweeps through and has the display taken down \"pending review.\" Ms. Hart's jaw is tight. \"Pending review means never,\" she says, and puts every book back on the shelf where it belongs, with a little star on the spine.",
+              "art": "A half-dismantled library display being carried off by a stern man in a suit, a librarian in a cardigan watching with arms folded",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "library-story-hour",
+        "title": "Story Hour Emergency",
+        "place": "The children's corner, Glimmer Falls Public Library",
+        "text": "The puppeteer for Saturday story hour has the flu, and twenty-two kindergartners on a carpet shaped like a rainbow are getting restless. Ms. Hart shoves a sock puppet named Professor Hoot into your hand and a picture book in the other. In the back of the reading nook, the old marionette nobody uses has turned its head to watch.",
+        "art": "A restless group of small children on a rainbow carpet in a library reading nook, a teenager holding a sock owl puppet and a picture book, an old wooden marionette slumped in the corner with its head turned",
+        "choices": [
+          {
+            "id": "perform",
+            "label": "Give Professor Hoot the performance of a lifetime",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Professor Hoot does voices. Professor Hoot does a dramatic death scene and a resurrection. The kindergartners scream with joy and one of the moms slips you two quarters \"for the owl.\" The marionette in the corner has slumped back down, satisfied.",
+              "art": "A teenager performing with a sock owl puppet to a crowd of laughing kindergartners, one parent pressing coins into their hand",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Professor Hoot's voice cracks, the kids start crying, and a girl in the front announces that the other puppet is better. When you turn around, the marionette is sitting upright in its chair, strings slack, legs crossed.",
+              "art": "A wooden marionette sitting upright in a small chair with its legs crossed, kindergartners pointing at it, a sock puppet drooping on a teen's hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "marionette",
+            "label": "Use the old marionette instead",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 11,
+            "success": {
+              "text": "The strings feel warm. The marionette dances like it's been waiting decades to, and the kids go silent with wonder. Afterwards you find a tag inside its jacket: PROPERTY OF THE GLITTER BOX, 1948. Some things just want to perform again.",
+              "art": "A teenager working a vintage wooden marionette in a graceful dance before awestruck children, a faded tag visible inside its jacket",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The marionette dances, all right. It dances when you stop moving your hands, too. Ms. Hart gently takes the control bar from you, locks the puppet in a cabinet, and tells the kids it was a magic trick.",
+              "art": "A librarian locking an old marionette inside a glass cabinet, its painted face pressed to the glass, children applauding behind her",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "gym",
+    "name": "Pump Iron Gym and Aerobics",
+    "blurb": "Chrome weights, mirrored aerobics studio, a sauna that is always too hot, and a roller-rink annex where the disco ball still spins. The high-school gym is next door, all trophies and old prom banners.",
+    "art": "A 1980s strip-mall gym with a neon Pump Iron sign, chrome weight machines visible through the front window, a mirrored aerobics studio and an attached roller rink with a spinning disco ball, afternoon sun on the parking lot",
+    "train": "brawn",
+    "x": 75,
+    "y": 28,
+    "beats": [
+      {
+        "id": "gym-roller-dance-off",
+        "title": "Skate or Die",
+        "place": "The roller-rink annex, Pump Iron Gym",
+        "text": "The Velvet Wheels, four seniors in matching satin jackets, have claimed the rink every Saturday since August. Today they've thrown down: one couples skate, winner takes the rink, loser buys everyone nachos. The DJ cues up a synth track and the disco ball starts to spin faster than any motor should allow.",
+        "art": "A neon-lit 1980s roller rink with a spinning disco ball, four teens in matching satin jackets on skates striking a pose, a challenger lacing up rental skates at the edge of the floor",
+        "choices": [
+          {
+            "id": "skate-hard",
+            "label": "Skate fast, skate fearless, go for the spin",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You hit the spin and it keeps going, a perfect blur of light and wheels, and the rink erupts. The Velvet Wheels buy the nachos with good grace, and their captain hands you her satin jacket for the week. \"You earned it, freak.\" It's the nicest thing anyone's said to you all month.",
+              "art": "A teenager mid-spin on roller skates under a disco ball, light scattering everywhere, a crowd of skaters cheering in satin jackets",
+              "effects": {
+                "nerve": 2,
+                "quarters": -1
+              }
+            },
+            "failure": {
+              "text": "Wheels, floor, ceiling, floor. You wipe out spectacularly into the carpeted wall. The disco ball stops dead. Everyone looks up at it. Nobody touched the switch. You buy the nachos.",
+              "art": "A teenager sprawled against a carpeted rink wall in rental skates, a stopped disco ball overhead, skaters staring up at it uneasily",
+              "effects": {
+                "nerve": -1,
+                "quarters": -1
+              }
+            }
+          },
+          {
+            "id": "partner-up",
+            "label": "Skate with Sunny and let her lead",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 7,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "Sunny Castellanos rolls onto the floor in her racing chair and you skate beside her, hands linked, cutting the corners so tight the Velvet Wheels just stop and watch. It isn't a contest after that. It's a show.",
+              "art": "A woman in a racing wheelchair and a teenager on roller skates gliding hand in hand around a neon rink, other skaters stopping to watch",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You and Sunny are in perfect sync until the lights go out. In the dark, you hear more wheels on the floor than there should be, circling. When the lights snap back, it's just the two of you, and Sunny says, quietly, \"Let's go get nachos.\"",
+              "art": "A roller rink plunged into darkness, only the disco ball's faint glints showing fresh wheel tracks across an empty rink",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "routine",
+            "label": "Bring the camp with a full choreographed routine",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 2
+            },
+            "success": {
+              "text": "Jazz hands. A hairbrush microphone. A slide on your knees to the final note. The Velvet Wheels laugh so hard they forfeit. Somebody's little brother asks for your autograph on his skate.",
+              "art": "A teenager on roller skates in leg warmers ending a flamboyant routine on their knees with arms raised, rival skaters doubled over laughing",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Your big finish involves a scarf that catches in a wheel. You spin out into the snack bar, taking a tray of soft pretzels with you. The Velvet Wheels win, but their captain helps you up and says it was \"honestly iconic.\"",
+              "art": "A teenager tangled in a scarf sliding into a roller-rink snack bar, pretzels flying, a rival skater offering a hand",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "gym-locker-31",
+        "title": "Locker 31",
+        "place": "The sauna and locker room, Pump Iron Gym",
+        "text": "The sauna is empty and fogged solid. As you sit, letters appear in the steam on the glass, written from the inside by a finger nobody owns: LOCKER 31. Locker 31 has had the same rusted padlock on it since the gym opened, and the staff swear nobody's ever had the key.",
+        "art": "A steamy wood-paneled sauna with words traced from inside the fogged glass door, a row of old metal gym lockers outside, one sealed with a rusted padlock",
+        "choices": [
+          {
+            "id": "break-lock",
+            "label": "Snap the padlock off with your bare hands",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "The lock gives with a shriek. Inside: a 1974 gym bag, a pair of lucky leg warmers, and a bodybuilding trophy for M. TESSARO, who, the manager says, disappeared on a dare. You leave the trophy on the front desk. The fog on the sauna glass never writes again.",
+              "art": "An open gym locker with a snapped padlock hanging off it, inside a vintage duffel bag, striped leg warmers and a small gold trophy",
+              "effects": {
+                "nerve": 1,
+                "items": ["leg-warmers"],
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your hands slip on the hot metal and the lock doesn't budge. When you look up, the steam on the locker-room mirror says NOT LIKE THAT, and the sauna door slams shut on its own.",
+              "art": "A steamy locker-room mirror with words traced in condensation, a teenager rubbing sore hands beside a padlocked locker",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-moose",
+            "label": "Get Moose to help you pick it",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "Moose holds the flashlight and talks you through it like knitting: \"gentle, gentle, now loop.\" The padlock clicks open. Inside is an old letter, never mailed: I'm sorry I left. Tell the guys I'm okay. Moose quietly folds it and promises to track down M. Tessaro's family.",
+              "art": "A huge gentle football lineman holding a flashlight for a teenager picking a padlock with a bobby pin, a folded old letter visible inside the locker",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bobby pin snaps off inside the lock. Moose winces. \"Okay, so that's in there forever now.\" As you walk away, a slow, polite knock comes from inside locker 31. Three times. Then nothing.",
+              "art": "A broken bobby pin jammed in a rusty padlock on a gym locker, two teens backing away down a tiled locker room",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "gym-sweat-a-thon",
+        "title": "The Sweat-a-Thon",
+        "place": "The aerobics studio, Pump Iron Gym",
+        "text": "Pump Iron is running a Sweat-a-Thon to raise money for the free clinic, and every minute you last earns pledges from the regulars. The music is loud, the leg warmers are many and the mirrors along the wall show a few more people in the back row than are actually in the room.",
+        "art": "A packed mirrored aerobics studio with sweatbands, leg warmers and a boombox, a hand-lettered banner for a charity sweat-a-thon, the mirror reflecting a few extra pale figures in the back row",
+        "choices": [
+          {
+            "id": "go-the-distance",
+            "label": "Last the full ninety minutes",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Ninety minutes. Your legs are noodles, your headband is soup, and the clinic jar is full. Your share of the pledges comes to three quarters and a free smoothie. The extra figures in the mirror applaud as you leave, and then they're not there.",
+              "art": "An exhausted, triumphant teenager collapsed on an aerobics mat holding up a full donation jar, faint figures in the mirror applauding",
+              "effects": {
+                "quarters": 3,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "At minute forty you get dizzy and see the back-row people clearly for a second: gray faces, frozen smiles, still doing jumping jacks from some other decade. You sit down hard. Someone hands you a Bolt Cola and you drink it all.",
+              "art": "A dizzy teenager sitting on an aerobics studio floor, in the mirror behind them a row of gray figures in old-fashioned workout clothes mid-jumping-jack",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "work-the-room",
+            "label": "Skip the workout and work the pledge sheet",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You hit up every lifter on the floor and the manager's mother for pledges, and you get the car dealership next door to match. The clinic gets double. You get two quarters and the manager's eternal respect.",
+              "art": "A teenager with a clipboard grinning at a muscular man signing a pledge sheet, a full charity jar on a gym counter",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Nobody wants to pledge to someone who isn't sweating. The manager suggests, kindly, that you either dance or leave. Behind her, the mirror shows you dancing, perfectly, though you're standing still.",
+              "art": "A mirrored aerobics studio where a teenager's reflection is dancing while they stand still holding a clipboard",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "gym-rope-climb",
+        "title": "Top of the Rope",
+        "place": "The high-school gym next door",
+        "text": "Coach Pruitt's makeup fitness test is running in the old high-school gym, and a freshman named Arlo is frozen at the top of the climbing rope, thirty feet up, white-knuckled and crying. The rope is creaking. The ceiling beam it hangs from has a crack you've never noticed before.",
+        "art": "A high-school gymnasium with a scared freshman clinging to the top of a climbing rope near a cracked ceiling beam, a big softball coach and students looking up, old prom banners on the walls",
+        "choices": [
+          {
+            "id": "climb-up",
+            "label": "Climb up and talk him down hand over hand",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You get above him, talk about anything but heights, and guide his feet one knot at a time. When you both hit the mat, the beam groans and the rope drops an inch. Coach Pruitt writes you both an A and walks you to the nurse herself.",
+              "art": "Two teens descending a climbing rope together in a gym, one guiding the other's feet, a coach below with arms out ready to catch",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Halfway up, the rope swings and you both slide down hard, rope-burned and shaking. Arlo is okay. You are mostly okay. Coach Pruitt has the rope taken down, and nobody can explain why the crack in the beam is shaped like a grin.",
+              "art": "A crack in a gym ceiling beam shaped like a crooked smile, a climbing rope lying coiled on a mat below, two teens nursing rope-burned palms",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "crash-mats",
+            "label": "Rally the class to drag every crash mat underneath",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "You get the whole class hauling blue mats until there's a padded mountain under the rope. Arlo lets go, lands like a starfish in the middle and laughs for the first time all week. Coach Pruitt says she's never seen a class move that fast for anything.",
+              "art": "A crowd of teenagers dragging blue crash mats into a towering pile beneath a climbing rope, a boy dropping safely into the middle",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The class drags their feet and the mats don't cover enough. Coach Pruitt climbs up herself, which she should not do at forty-five, and brings Arlo down with a cussing streak that would peel paint. She glares at all of you.",
+              "art": "A big fierce softball coach climbing a gym rope with a frightened freshman on her back, students below looking guilty",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "high-school",
+    "name": "Glimmer Falls High",
+    "blurb": "Home of the Fighting Geodes: endless lockers, a trophy case nobody dusts, a yearbook darkroom and a shop class building the homecoming float out of chicken wire and hope.",
+    "art": "A sprawling 1960s brick high school with a marquee sign reading go geodes, a football field behind it, rows of lockers glimpsed through glass doors, kids with backpacks on the front steps in autumn light",
+    "train": "brains",
+    "x": 40,
+    "y": 16,
+    "beats": [
+      {
+        "id": "high-school-saturday-detention",
+        "title": "Saturday Detention",
+        "place": "The library annex, Glimmer Falls High",
+        "text": "Saturday detention, 7 a.m. to 3 p.m. Vice Principal Kroll locks the door and leaves you with a jock, a burnout and a girl in black lace who has not blinked once. The wall clock reads 1:13 and doesn't move. Hours pass. The clock doesn't. The door is still locked.",
+        "art": "Five mismatched teenagers slumped at library tables during Saturday detention, a wall clock stuck at one-thirteen, gray morning light through tall windows, a locked door",
+        "choices": [
+          {
+            "id": "bond",
+            "label": "Get everyone talking, for real",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "It starts with snacks and ends with secrets. The jock wants to dance. The burnout writes poems. The girl in lace just wanted someone to ask. When you all laugh at the same time, the clock jumps to 3:00 and the door clicks open.",
+              "art": "Five teenagers sitting in a circle on a library floor sharing snacks and laughing, a wall clock behind them suddenly reading three",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["detention-friends"]
+              }
+            },
+            "failure": {
+              "text": "Nobody wants to talk. The silence gets heavier until you can hear the clock not ticking. At 3:00, which you know only because the janitor unlocks the door, you all leave without a word, and the girl in lace is gone before she reaches the hall.",
+              "art": "A school hallway with four teens walking separately and silently away from detention, an empty space where a fifth figure should be",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "vent-escape",
+            "label": "Escape through the air vent",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "The vent leads to the teachers' lounge, where you liberate a box of doughnuts and the master key to the vending machines. Back through the vent before Kroll checks in. The clock starts ticking again, as if it lost interest.",
+              "art": "A teenager crawling out of a ceiling air vent into a cluttered 1980s teachers' lounge, a box of doughnuts on the table, a ring of keys on a hook",
+              "effects": {
+                "quarters": 2,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The vent goes on much farther than the building does. You crawl for what feels like an hour past grates that look into classrooms from other years. You come out in detention again, exactly where you started. The clock still says 1:13.",
+              "art": "A long metal air duct receding into darkness, slatted grates along it showing faded classrooms from different decades",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "dream"
+              }
+            }
+          },
+          {
+            "id": "fix-clock",
+            "label": "Climb up and fix the clock",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Somebody wedged a pencil in the clock's gears. Under the pencil, a note in old ballpoint: DETENTION 10/25/66, THEY FORGOT ABOUT ME. You free the gears, the hands spin forward, and the door unlocks. You keep the note.",
+              "art": "A teenager standing on a chair prying open a school wall clock, a pencil stuck in the gears, a folded old note falling out",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You fall off the chair and take the clock with you. It shatters on the floor, and in the broken glass you see every detention since 1959, faces staring up. Kroll writes you up for property damage.",
+              "art": "A smashed school clock on linoleum, the broken glass reflecting a crowd of faces from different eras, a vice principal looming in the doorway",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "high-school-darkroom",
+        "title": "Somebody Else in the Picture",
+        "place": "The yearbook darkroom, Glimmer Falls High",
+        "text": "The yearbook editor, a frazzled junior named Marisol, swears the darkroom is broken. Every photo she develops of the empty hallway comes out with a figure in it, standing in a different spot each time, getting closer to the camera. Deadline is Monday. She needs someone to print the last roll.",
+        "art": "A red-lit high school darkroom with photos hanging from a clothesline, each print of the same empty hallway showing a blurry figure closer to the camera, a nervous yearbook editor holding tongs",
+        "choices": [
+          {
+            "id": "develop",
+            "label": "Develop the last roll yourself",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You print the roll steady-handed. In the last frame, the figure is right at the lens: a smiling boy in a 1962 letterman jacket holding up a sign that says DON'T FORGET ME. Marisol finds his photo missing from the 1962 yearbook and puts it in this one.",
+              "art": "A wet photograph hanging in a red darkroom showing a smiling boy in a vintage letterman jacket holding a hand-lettered sign, two teens staring at it",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["darkroom-boy"]
+              }
+            },
+            "failure": {
+              "text": "The last print is just your face, in close-up, from behind the camera, taken a second ago. You drop the tongs. Marisol decides the yearbook will feature cartoon drawings this year instead.",
+              "art": "A dripping photograph in a darkroom tray showing a close-up of a startled teenager's face from an impossible angle",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "polaroid-test",
+            "label": "Test the hallway with your instant camera",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your instant photo of the hallway shows the figure too, which rules out bad chemicals. You find the spot it's always nearest to, a dented locker, and inside the vent slats someone has jammed a lost class ring from 1962. You hand it to the office.",
+              "art": "A teenager in a school hallway holding a freshly developed instant photo next to a dented locker, a tarnished class ring glinting in the vent slats",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Your instant photo develops slowly, and the figure in it raises a hand and waves. You decide to stop taking pictures of hallways for the rest of your life.",
+              "art": "An instant photograph of an empty school hallway in a teenager's hand, a faint figure in it with a hand raised in greeting",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "high-school-float-build",
+        "title": "Chicken Wire and Hope",
+        "place": "The shop class garage, Glimmer Falls High",
+        "text": "The homecoming float is a giant papier-mache geode mascot named Rocky, and it's due Friday. Class president Chip Merriweather is losing it: half the committee quit, the glue gun is on fire and Rocky's head keeps turning toward the window when nobody's looking at it.",
+        "art": "A school shop garage with a giant half-built papier-mache purple rock mascot on a parade trailer, chicken wire, tissue paper and paint cans, a preppy class president holding a clipboard in despair",
+        "choices": [
+          {
+            "id": "build-all-night",
+            "label": "Roll up your sleeves and build",
+            "intent": "kind",
+            "skill": "brawn",
+            "target": 7,
+            "bonus": {
+              "companion": "chip-merriweather",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Chip work until the janitor kicks you out. Rocky is magnificent: googly eyes, tissue-paper sparkles, a tiny football helmet. Chip, glue in his hair, says you're the first person who's helped him this year without wanting something.",
+              "art": "Two teenagers covered in paint and tissue paper high-fiving in front of a finished glittering purple rock mascot float, the shop garage lit by a single bulb",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The chicken wire fights you, and wins. You leave with scratches on both arms and Rocky still headless. In the morning his head is back on, finished, painted in perfect detail. Nobody admits to doing it.",
+              "art": "A parade float of a purple rock mascot in a dim garage at dawn, its head mysteriously complete and gleaming, a teenager with scratched arms staring at it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rally-committee",
+            "label": "Talk the quitters back onto the committee",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You promise pizza and credit in the yearbook. Eleven kids show up. Chip looks like he might cry, then makes a speech so earnest that the whole room cheers. Rocky is finished by Wednesday.",
+              "art": "A crowded shop garage full of teens painting a giant rock mascot float together, pizza boxes stacked on a workbench, a class president mid-speech",
+              "effects": {
+                "nerve": 1,
+                "quarters": -1
+              }
+            },
+            "failure": {
+              "text": "The quitters all say they're busy, and one of them says the float \"gives her the creeps\" and won't explain. Chip pretends he's fine. He isn't. Rocky's head turns to watch you go.",
+              "art": "A preppy teen sitting alone on an overturned bucket in a shop garage beside a half-finished rock mascot whose head is turned toward the door",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "high-school-locker-notes",
+        "title": "Notes in Locker 214",
+        "place": "The B-wing lockers, Glimmer Falls High",
+        "text": "For a week, folded notes have been slipping into your locker. HELP. THEY WON'T STOP. Today's says GYM BLEACHERS, 3:15. Under the bleachers you find a freshman, Teddy Albright, whose backpack has been dumped and stomped three days running by the same pack of seniors.",
+        "art": "A shy freshman sitting under high-school gym bleachers among scattered papers and a muddy backpack, a teenager crouching with a folded note in hand, slatted light falling across them",
+        "choices": [
+          {
+            "id": "confront",
+            "label": "Walk him to his locker and face the seniors",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "The seniors try their usual routine. You stand in front of Teddy and don't move. Coach Pruitt happens to round the corner at exactly the right moment and spends ten very loud minutes educating them. Teddy walks home with his head up.",
+              "art": "A teenager standing protectively in front of a freshman in a school hallway, a group of senior bullies backing off as a fierce coach rounds the corner",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The seniors laugh and knock your books out of your hands too. But Teddy picks up your books for you, and you pick up his, and now there are two of you. That counts for something. It doesn't feel like enough.",
+              "art": "Two teenagers kneeling in a school hallway gathering each other's scattered books, laughing bullies walking away in the background",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "buddy-system",
+            "label": "Set up a buddy system with your friends",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You get five people to rotate walking Teddy between classes. By Thursday the seniors give up out of sheer boredom. Teddy draws you a comic where you're a superhero with a walkie-talkie. You tape it inside your locker.",
+              "art": "A hand-drawn comic taped inside a school locker showing a teenage superhero with a walkie-talkie, a freshman grinning beside it",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["teddy-friend"]
+              }
+            },
+            "failure": {
+              "text": "Your friends forget their shifts, and Teddy gets cornered in the bathroom. He finds you after school, damp and furious and quietly brave. \"I'm still glad you tried,\" he says. You'll do better.",
+              "art": "A damp, defiant freshman standing in an empty school hallway after hours, facing a guilty teenager",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "rewind-video",
+    "name": "Rewind Video",
+    "blurb": "Wall-to-wall VHS and a few loyal Betamax holdouts, a horror aisle lit like a crypt, a beaded curtain to the back room, and a night-drop slot that sometimes returns tapes nobody rented.",
+    "art": "A cozy 1980s video rental store in a strip mall, walls of VHS boxes, a horror aisle lit purple, a retro counter with a rewinder machine, a night-drop slot beside the glass door, afternoon sun through window posters",
+    "train": "lore",
+    "x": 64,
+    "y": 74,
+    "beats": [
+      {
+        "id": "rewind-video-night-drop",
+        "title": "Returned by Mr. Gill",
+        "place": "The night-drop bin, Rewind Video",
+        "text": "Zelda Fishbein empties the night-drop and goes pale. A Betamax copy of Blood Harvest, returned in its case with a sticky note in shaky pencil: SORRY IT'S LATE. The membership card it's checked out on belongs to Walter Gill, who rented it in October 1979. Zelda went to his funeral that November.",
+        "art": "A sixty-something former movie star at a video store counter holding an old Betamax tape case with a sticky note, an open night-drop bin, a dusty membership card on the counter",
+        "choices": [
+          {
+            "id": "watch-it",
+            "label": "Put the tape in the old Betamax deck in back",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "The tape plays Blood Harvest, and then after the credits, Mr. Gill sitting in his recliner. \"Tell Zelda the ending still gets me.\" He smiles and the tape runs out. Zelda laughs until she cries. Some people just want to finish the movie.",
+              "art": "An old Betamax deck glowing in a cluttered back room, a television showing a smiling old man in a recliner waving, a woman with tears and laughter watching",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The tape plays nothing but snow, and in the snow, a shape leans closer to the glass. The deck ejects the tape hot to the touch. Zelda puts it in the freezer, which she says is what you do, according to every movie.",
+              "art": "A television screen of static with a faint shape pressing toward the glass, a smoking Betamax tape ejecting from a deck",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "waive-fee",
+            "label": "Help Zelda close out his account properly",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 7,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "Zelda waives seven years of late fees and stamps the card RETURNED, THANK YOU. The bell over the door rings once, though nobody comes in. Zelda says Walter always said goodbye like that. She gives you a free rental and a hug.",
+              "art": "A woman stamping an old video store membership card at a counter, the bell over the glass door swinging gently on its own",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You type the old account into the computer and the screen fills with late fees, then rows of the same title, then the word SORRY, over and over. The computer shuts off with a pop. The tape is back in the night-drop the next day.",
+              "art": "An early 1980s computer terminal at a video store counter with a green screen filled with the repeated word sorry",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewind-video-be-kind",
+        "title": "Be Kind, Rewind",
+        "place": "The counter, Rewind Video",
+        "text": "Two hundred tapes came back un-rewound this week, and the manager will pay a quarter for every forty you run through the rewinder. It's a dull job, until one tape keeps rewinding past its start. The counter keeps going, into negative numbers, and the motor whines like it's in pain.",
+        "art": "A teenager behind a video store counter surrounded by stacks of VHS tapes, a boxy car-shaped rewinder whirring, its counter display showing negative numbers",
+        "choices": [
+          {
+            "id": "finish-job",
+            "label": "Finish the stack and ignore the weird one",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "You rewind all two hundred, sort them alphabetically and put the weird one in a drawer marked DO NOT RENT. The manager pays you five quarters, and Toby Nakamura asks if he can borrow the weird one for \"research.\" You say absolutely not.",
+              "art": "A teenager handing coins across a video counter beside neatly stacked tapes, a single tape locked in a drawer with a red warning label",
+              "effects": {
+                "quarters": 4
+              }
+            },
+            "failure": {
+              "text": "You get bored, you get careless, and you jam three tapes in a row. Ribbons of tape spill across the counter. The manager docks your pay. The weird one sits on top of the pile, perfectly rewound, waiting.",
+              "art": "Tangled ribbons of magnetic tape spilling across a video store counter, one pristine cassette sitting on top of the mess",
+              "effects": {
+                "quarters": 1,
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "play-negative",
+            "label": "See what's on the tape before the beginning",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Before the movie's opening titles: shaky footage of this very store at 3 a.m., lights off, the horror aisle glowing. A woman in a shop apron puts a tape on the shelf and looks into the camera. \"Pick me up anytime.\" You know a strange shop when you see one.",
+              "art": "A small TV showing grainy footage of a dark video store at night, a mysterious woman in an apron placing a tape on a shelf and looking into the camera",
+              "effects": {
+                "dread": -1,
+                "flags": ["oddment-tape"]
+              }
+            },
+            "failure": {
+              "text": "Before the beginning is static, then a test pattern, then you, sitting at this counter, watching this tape. Then the you on screen turns around. The power goes out. You don't finish the job.",
+              "art": "A dark video store during a power outage, the only light a television showing a teenager at a counter looking over their shoulder",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewind-video-zombie-short",
+        "title": "Toby Needs a Zombie",
+        "place": "The horror aisle, Rewind Video",
+        "text": "Toby Nakamura is shooting a zombie short on his camcorder in the horror aisle after hours and his lead zombie went home sick. He has a jar of homemade fake blood, a bag of oatmeal guts and a borrowed fog machine that has started making fog shaped like hands.",
+        "art": "A teenage filmmaker with a shoulder camcorder in a video store horror aisle after hours, a fog machine pouring mist shaped like reaching hands, a jar of fake blood and a bag of oatmeal on a shelf",
+        "choices": [
+          {
+            "id": "act",
+            "label": "Shamble, moan and commit to the role",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You are the best zombie in Glimmer Falls history. Toby screams \"CUT!\" in joy. Your death scene, eaten by the fog, will play at the Glitter Box midnight show. You're famous for about four minutes, which is plenty.",
+              "art": "A teenager in pale zombie makeup lurching dramatically down a VHS aisle in fog, a filmmaker with a camcorder shouting with delight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You trip over the fog machine cord and land in the oatmeal. The tape catches the fog-hands grabbing your ankle a second before you fell. Toby wants to use it. You want to go home.",
+              "art": "A teenager in zombie makeup sprawled face down in oatmeal guts in a foggy video aisle, misty hand shapes curling around an ankle",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hold-boom",
+            "label": "Run sound and keep an eye on that fog",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 7,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hold the boom mic and unplug the fog machine the second it starts reaching for Toby. In the playback you both hear it: a tiny sigh on the audio when it switches off. Toby gives you a producer credit and two quarters.",
+              "art": "A teenager holding a boom microphone and an unplugged fog machine cord, a filmmaker reviewing footage on a camcorder screen",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You miss the cue, the fog machine chugs on, and the shot fills with gray hands. Toby, white as paper, says \"okay, that's a wrap\" and you both leave through the front instead of the back.",
+              "art": "A video store aisle drowning in fog full of gray hand shapes, two teens bolting for the front door",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "rewind-video-staff-pick",
+        "title": "Staff Pick",
+        "place": "The new-release wall, Rewind Video",
+        "text": "A handwritten STAFF PICK card has appeared on the new-release wall, in handwriting nobody at Rewind recognizes. It recommends Nightmare on Crystal Street (1986): \"A real scream! You'll feel like you're in it!\" The box is there. The cover shows your street. The back cover shows your house.",
+        "art": "A video store new-release wall with a handwritten staff pick card, a VHS box whose cover art shows a suburban cul-de-sac with a glowing purple geode, a teenager reaching for it",
+        "choices": [
+          {
+            "id": "rent-it",
+            "label": "Rent it and read the back cover closely",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "The back-cover blurb lists the cast as \"you and your friends\" and the tagline: THE ONLY WAY OUT IS TOGETHER. A useful thought. You return it unwatched. The rental is free; the card says \"staff discount.\"",
+              "art": "A teenager reading the back of a VHS box under a desk lamp, the cover showing a suburban street at night with a gang of silhouetted kids holding flashlights",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The box is empty. Inside the case, someone has written in red marker: COMING SOON. The staff pick card on the wall has changed. Now it says the movie is \"too scary to rent.\"",
+              "art": "An empty VHS case open on a counter with coming soon scrawled inside in red marker, a staff pick card on the wall behind it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-zelda",
+            "label": "Ask Zelda how this kind of movie ends",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "Zelda leans on the counter. \"Final girl, final boy, final whoever. It ends when the kids stop splitting up and start listening to each other.\" She gives you a flashlight from under the counter. \"And always check the batteries.\"",
+              "art": "A retired scream queen leaning on a video store counter handing a flashlight to a teenager, posters of 1950s monster movies behind her",
+              "effects": {
+                "items": ["flashlight"],
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Zelda looks at the box and her face changes. \"I don't remember making this one,\" she says, \"but that's my scream.\" She takes it into the back room and doesn't come out for an hour.",
+              "art": "A woman staring in shock at a VHS box on a counter, a beaded curtain to a back room swinging behind her",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "starlight-mall",
+    "name": "Starlight Mall and Arcade",
+    "blurb": "Two floors of neon, a food court that smells like pretzels and orange-cream smoothies, the Galaxy Zone arcade, and a dead wing behind plywood where the old department store went dark in 1983.",
+    "art": "A bustling two-story 1980s shopping mall atrium with neon signs, a fountain full of coins, escalators, a glowing arcade entrance, and at the far end a plywood barrier sealing off a dim abandoned wing",
+    "train": "hustle",
+    "x": 84,
+    "y": 58,
+    "beats": [
+      {
+        "id": "starlight-mall-high-score",
+        "title": "DTH",
+        "place": "The Galaxy Zone arcade, Starlight Mall",
+        "text": "There's a fight brewing at the Galaxy Gobbler cabinet. Every top-ten score has been knocked off the board by three initials, DTH, and nobody has ever seen who plays. The regulars are accusing each other. A kid named Vince is about to throw a punch. The machine is warm, and nobody's touched it all morning.",
+        "art": "A crowded 1980s arcade with teens shouting around a glowing cabinet game, the high-score screen showing the initials DTH in every slot, one kid winding up a punch",
+        "choices": [
+          {
+            "id": "beat-the-score",
+            "label": "Drop a quarter and take the score back",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "Two hours, one quarter, zero blinks. You beat DTH's score by forty points and type your initials in gold. The arcade erupts. On the next screen, DTH's initials are gone, replaced with GG. Good game. The machine cools down.",
+              "art": "A teenager at an arcade cabinet surrounded by a cheering crowd, the high-score screen showing new initials at the top",
+              "effects": {
+                "quarters": -1,
+                "nerve": 2,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You die on level nine. The screen flashes DTH, and then, slowly, it types your initials beneath it, in the slot marked NEXT. The crowd goes quiet. Vince buys you a soda.",
+              "art": "An arcade game over screen showing the initials DTH with a teenager's initials typed beneath under the word next, a crowd gone silent",
+              "effects": {
+                "quarters": -1,
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "break-it-up",
+            "label": "Break up the fight before it starts",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You get between Vince and the other kid and point out that nobody in this room could have done it. They all look at the machine. The machine looks back. Everybody agrees to hate it together, which is the closest thing to peace an arcade has.",
+              "art": "A teenager standing between two angry kids in an arcade, everyone slowly turning to look at a glowing cabinet game",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Vince swings anyway. You catch it on the shoulder and the manager throws all three of you out. From the doorway you see the Galaxy Gobbler start a game all by itself.",
+              "art": "Three teens being shoved out of an arcade by a manager, behind them a cabinet game starting a round by itself at empty controls",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ask-lou",
+            "label": "Ask Lou Tran to watch the machine with you",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 2
+            },
+            "success": {
+              "text": "Lou plays one round and frowns. \"Those scores aren't possible. Board's got a ghost or a short.\" He pops the back panel and finds a burned-out 1981 quarter jammed in the coin mech, etched with the initials D.T.H. Mystery solved, mostly.",
+              "art": "An arcade champion with the back panel off a game cabinet, holding up a scorched old quarter between two fingers, wires and circuit boards glowing",
+              "effects": {
+                "quarters": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Lou plays one round, gets very quiet and walks away from the cabinet. \"Something was playing with me,\" he says, which is the first time you've ever seen him lose. He doesn't want to talk about it.",
+              "art": "A young arcade champion stepping back from a cabinet game with a stunned expression, the screen glowing with a game over message",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "starlight-mall-fountain",
+        "title": "The Kid at the Fountain",
+        "place": "The wishing fountain, Starlight Mall",
+        "text": "A girl of about six sits on the lip of the wishing fountain, holding a balloon and not crying, which is worse. Her name is Penny, her mom said she'd \"be right back\" two hours ago, and she says the fountain told her to wait. The coins at the bottom are all arranged in a spiral.",
+        "art": "A small girl with a balloon sitting alone on the edge of a mall wishing fountain, coins arranged in a spiral on the fountain floor, shoppers passing by, oblivious",
+        "choices": [
+          {
+            "id": "find-mom",
+            "label": "Comb the mall for her mom",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You find Penny's mom in the dead-end corridor by the restrooms, dazed, swearing she only stepped away for a minute. When they hug, the coins in the fountain scatter out of their spiral. Her mom presses three quarters into your hand and won't take them back.",
+              "art": "A tearful mother hugging her small daughter by a mall fountain, a teenager standing nearby with a balloon string, coins scattered in the water",
+              "effects": {
+                "nerve": 1,
+                "quarters": 3
+              }
+            },
+            "failure": {
+              "text": "You search every store and find nothing. When you come back, Penny is with mall security and her mother, who never looks at you. As they leave, Penny waves and says, \"The fountain says you owe it one.\"",
+              "art": "A small girl waving over her shoulder as a mall guard leads her away, a teenager standing alone by a fountain glinting with coins",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wish",
+            "label": "Toss a coin and make a wish for her",
+            "intent": "reckless",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You flip your last quarter. It lands at the center of the spiral and the water goes still as glass. A second later, Penny's mom comes running down the escalator, calling her name, saying she got \"turned around for hours.\" You decide not to wish for anything else today.",
+              "art": "A coin landing at the center of a spiral of coins in a still mall fountain, a mother running down an escalator toward a child",
+              "effects": {
+                "quarters": -1,
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The coin hits the water and the spiral swallows it. Penny's balloon pops. Her mom appears and scoops her up, but looks right through you. So does everyone else, for the rest of the afternoon.",
+              "art": "A popped balloon string dangling over a mall fountain, a teenager looking around a crowded concourse while shoppers walk through them unseeing",
+              "effects": {
+                "quarters": -1,
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "starlight-mall-dead-wing",
+        "title": "The Dead Wing Dare",
+        "place": "Behind the plywood, Starlight Mall",
+        "text": "The mall rats have a rule: you're not one of them until you bring back a mannequin head from Woolmart, the department store that closed in 1983 behind the plywood. Dani Ortega is holding the loose board open. Inside, the escalators are still, the fountains are dry and somewhere far in the dark, music is playing.",
+        "art": "A group of mall rat teens holding back a loose sheet of plywood revealing a dark abandoned mall wing, a frozen escalator and a dusty closed department store with faded signage",
+        "choices": [
+          {
+            "id": "go-in",
+            "label": "Walk in alone and grab a head",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Dust, mannequins, a dry fountain full of pennies. You grab the first head you see and walk out without running, which is the real test. The mall rats chant your name. Dani gives you a glow-stick bracelet as membership.",
+              "art": "A teenager walking out of a dark abandoned mall wing holding a mannequin head aloft, a group of punks cheering at the plywood",
+              "effects": {
+                "nerve": 1,
+                "items": ["glow-bracelet"]
+              }
+            },
+            "failure": {
+              "text": "Every mannequin in Woolmart is facing the door. You don't remember them all facing the door. You run. The mall rats laugh, but kindly, and Dani says nobody makes it the first time.",
+              "art": "A dim department store aisle full of dusty mannequins all turned toward the camera, a teenager fleeing in the far distance",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "skate-it",
+            "label": "Skate it with Dani, fast and loud",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Dani bomb down the dead escalator on skateboards, scream through Woolmart, snag two heads and are back in ninety seconds. Whatever lives in the dead wing has no idea what just happened. Neither do you. It's the best day of the week.",
+              "art": "Two teens on skateboards rocketing through a dark abandoned department store, each holding a mannequin head, wheels sparking",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "Your wheel catches a crack and you go down hard in the dark. Dani drags you out by the back of your jacket. Your knee is bleeding and your skateboard stays in there. In the morning, someone has propped it against the plywood, outside.",
+              "art": "A skateboard leaning against a plywood barrier in an empty mall at dawn, a single mannequin hand resting on its deck",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "starlight-mall-mascot",
+        "title": "Pretzel Pete",
+        "place": "The food court, Starlight Mall",
+        "text": "The pretzel stand needs someone in the Pretzel Pete costume for the afternoon rush, a giant foam pretzel with eyes, paying a quarter an hour plus all the salt you can eat. The suit smells like old cheese and a stranger's sweat. Something in the left arm moves when you put it on.",
+        "art": "A giant foam pretzel mascot costume hanging on a hook in a mall food court back room, a teenager holding it up skeptically, neon food stall signs beyond",
+        "choices": [
+          {
+            "id": "work-the-crowd",
+            "label": "Wave, dance and hand out samples",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "Pretzel Pete becomes a legend: you do the robot, you dance with a grandmother, you lead a conga line through the food court. The stand sells out by four. You get four quarters, a pretzel and a fan club of six toddlers.",
+              "art": "A foam pretzel mascot leading a conga line of laughing shoppers through a neon food court, a cluster of toddlers trailing behind",
+              "effects": {
+                "quarters": 4,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Kids kick Pretzel Pete. Teenagers kick Pretzel Pete harder. Inside the suit, something in the left arm squeezes your hand, sympathetically. You quit at the first break and leave the costume very carefully on its hook.",
+              "art": "A pretzel mascot costume slumped on a food court bench being poked by a gang of kids, its left foam arm curled oddly",
+              "effects": {
+                "quarters": 1,
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "check-arm",
+            "label": "Check what's inside the left arm first",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Tucked inside the arm is a raccoon kit, very small and very scared. You smuggle it out the service door to the drainage creek, where its mother is waiting. Then you do the shift with a lighter heart and an emptier sleeve.",
+              "art": "A tiny baby raccoon peeking out of a foam costume sleeve, a teenager gently lifting it out by a mall service door",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "There's nothing in the arm. Nothing at all. You put the suit on and the arm moves again, waving, all on its own. The manager says it's always done that, and that's why the job pays a quarter an hour.",
+              "art": "A pretzel mascot costume standing alone in a back room with one foam arm raised in a wave, hollow and empty",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "glitter-box",
+    "name": "The Glitter Box Playhouse",
+    "blurb": "A converted 1920s vaudeville house: community theatre by day, drag revue by night and a Saturday midnight double feature. Sequins in every crack of the floorboards, and the bravest people in town.",
+    "art": "A small ornate 1920s vaudeville theatre with a bulb-lit marquee reading drag revue and midnight double feature, gold paint peeling on the facade, a glass display case of sequined performer photos, afternoon sun on the sidewalk",
+    "train": "charm",
+    "x": 30,
+    "y": 76,
+    "beats": [
+      {
+        "id": "glitter-box-understudy",
+        "title": "The Show Must Go On",
+        "place": "Backstage, The Glitter Box Playhouse",
+        "text": "Twenty minutes to curtain on the Saturday matinee revue and Miss Coco Mango has a broken heel, a bad back and a sold-out house. Glory Hallelujah's eyes land on you. \"You know the choreography. Don't lie, I've seen you mouthing it in the wings for weeks.\" There's a sequined jumpsuit in your size, which is suspicious and also perfect.",
+        "art": "A chaotic theatre dressing room with bulb mirrors, a drag queen in a feathered robe holding up a sparkling sequined jumpsuit to a startled teenager, another performer nursing a broken heel",
+        "choices": [
+          {
+            "id": "go-on",
+            "label": "Take the stage and lip-sync for your life",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You hit every beat, every hair flip, every dramatic collapse. The house roars. Miss Coco cheers from the wings with an ice pack on her back. Glory hugs you so hard sequins stick to your face for a week.",
+              "art": "A teenager in a sparkling jumpsuit striking a dramatic pose center stage under a spotlight, an audience on its feet, a drag queen cheering from the wings",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You blank on the second verse and freeze. Then the audience starts singing it for you, all of them, every word, and you finish to a standing ovation for the worst performance in Glitter Box history. Glory says it was honestly the best kind.",
+              "art": "A frozen teenager in sequins on a theatre stage as the audience sings along with arms in the air, warm spotlight",
+              "effects": {
+                "nerve": -1,
+                "dread": -1
+              }
+            }
+          },
+          {
+            "id": "coach-coco",
+            "label": "Talk Coco through it with a stool and a slower number",
+            "intent": "kind",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You rework the number into a torch song Coco can do sitting on a stool. She brings the house to tears. Afterward she presses a silver lame scrunchie into your hand. \"For my stage manager. You've got an eye, baby.\"",
+              "art": "A drag performer singing a torch song seated on a stool in a single spotlight, a teenager watching proudly from the wings holding a clipboard",
+              "effects": {
+                "nerve": 1,
+                "items": ["silver-scrunchie"]
+              }
+            },
+            "failure": {
+              "text": "The rewrite doesn't come together in time, Coco goes on in pain, and Glory has to cover with a twelve-minute monologue about her divorce. The audience loves it. Coco does not. You owe her a heating pad.",
+              "art": "A drag queen in sequins delivering a long monologue to a laughing audience, a pained performer limping off in the background",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "glitter-box-projector",
+        "title": "Reel Two Is Missing",
+        "place": "The projection booth, The Glitter Box Playhouse",
+        "text": "Saturday midnight double feature, and reel two of Attack of the 50-Foot Prom Queen has vanished from the booth. Frankie Fontaine has her headset on, a flashlight in her teeth and an audience of two hundred stamping their feet below. The empty film can is labeled in someone else's handwriting: BORROWED. BACK SOON.",
+        "art": "A cramped theatre projection booth with a big film projector, a trans woman stage manager with a headset and a flashlight in her teeth, an empty film can marked borrowed, a stamping audience visible through the booth window",
+        "choices": [
+          {
+            "id": "find-reel",
+            "label": "Search the theatre for the missing reel",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You find it in the balcony, seat M13, threaded neatly on its spool as if someone was holding it in their lap to watch. You rush it up to Frankie and the movie roars back to life. Seat M13 is empty, but the cushion is warm.",
+              "art": "A film reel resting on a velvet theatre seat in a dark balcony, a teenager reaching for it, the projector beam cutting overhead",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You search every seat and every closet. When you come back to the booth, the reel is on the projector, already running. Frankie didn't put it there. The movie that plays is not the one on the label.",
+              "art": "A projector running in an empty booth, its beam throwing a strange flickering image on a distant screen, a teenager in the doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "rig-it",
+            "label": "Help Frankie rig the next film early",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 7,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Frankie swap in the second feature on the fly, splice a cartoon in between, and the audience never knows. Frankie lets you announce the switch on the PA. Afterward she hands you a roll of tape and a headset. \"You're crew now.\"",
+              "art": "A stage manager and a teenager working side by side splicing film at a booth workbench, a cartoon flickering on the screen below",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The splice snaps, the film burns on screen in a bubbling brown blot, and the audience howls. Frankie keeps her cool, kills the lamp and leads a sing-along in the dark until the second feature is ready.",
+              "art": "A movie screen with burning celluloid melting in bubbles of light, an audience in the dark lit by lighters",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "glitter-box-picket",
+        "title": "Two Signs on the Sidewalk",
+        "place": "The sidewalk outside the Glitter Box",
+        "text": "Two picketers are back on the sidewalk outside the matinee: a hard-jawed man with a sign that reads TURN BACK, and a teenage boy holding a sign he won't look at. Patrons are hesitating at the curb. The boy keeps glancing at the poster of the revue like it's a window he wants to climb through.",
+        "art": "A sunny sidewalk outside a sparkling theatre marquee, a stern man holding a protest sign, a teenage boy beside him holding his own sign limply while staring at a glamorous painted revue billboard",
+        "choices": [
+          {
+            "id": "talk-to-boy",
+            "label": "Quietly talk to the boy",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "His name is Caleb, and his dad drags him here every Saturday. While his dad is arguing with the usher, you slip him a program and tell him the stage door is always open on Thursdays. He folds it into his sock. He smiles, a tiny real one.",
+              "art": "A teenager discreetly handing a folded theatre program to a nervous boy on a sidewalk, a man arguing with an usher in the background",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["caleb-program"]
+              }
+            },
+            "failure": {
+              "text": "His dad sees you talking and drags Caleb away by the arm. Caleb looks back once. You don't know if you made his week better or worse. It sits in your chest all day.",
+              "art": "A man pulling a teenage boy away down a sidewalk by the arm, the boy looking back over his shoulder at a theatre",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "drown-out",
+            "label": "Lead the line in a show-tune sing-along",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "You start the first line and the whole ticket line joins in: grandmothers, couples, a busload of theatre kids. The picketer's chant disappears under four-part harmony. Patrons stream in. Glory comes out to take a bow on the sidewalk.",
+              "art": "A long line of theatregoers singing joyfully outside a theatre marquee, a drag queen bowing on the sidewalk, a picketer drowned out",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You get two lines in before your voice cracks, and the man laughs at you. The ticket line goes quiet. Then an old woman in a fur hat takes your hand and walks you to the door, head high, past him.",
+              "art": "An elderly woman in a fur hat leading a teenager by the hand past a picketer to a theatre door",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "glitter-box-balcony",
+        "title": "The Lady in M13",
+        "place": "The balcony, The Glitter Box Playhouse",
+        "text": "Everyone at the Glitter Box knows not to sell seat M13 in the balcony. It belongs to the Lady, a silent-film actress who opened here in 1926, who leaves a lipstick print on a program every closing night. This week there's no program on the seat, and the chandelier keeps swaying even when the doors are closed.",
+        "art": "A dim gilded theatre balcony with one velvet seat marked M13, a faint woman's silhouette in a 1920s cloche hat, a crystal chandelier swaying slightly",
+        "choices": [
+          {
+            "id": "leave-program",
+            "label": "Leave her a program with a note",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 7,
+            "success": {
+              "text": "You leave a program on M13 with a note: The show's not the same without you. By the next morning the program has a perfect red lipstick print, and the chandelier is still. The house manager tips you two quarters for \"keeping the Lady happy.\"",
+              "art": "A theatre program on a velvet seat bearing a crisp red lipstick kiss, morning light through dusty balcony windows",
+              "effects": {
+                "quarters": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The program is torn in half by morning. The chandelier swings so hard during rehearsal that Frankie clears the stage. Somebody upset the Lady, and now the whole theatre has to apologize for it.",
+              "art": "A torn theatre program on a velvet seat, a crystal chandelier swinging wildly over a cleared stage",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-performance",
+            "label": "Sit in M14 and ask her what's wrong",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You sit beside her seat in the dark and wait. A cool hand rests on yours. A whisper: \"They took my picture down from the lobby.\" You find it in the basement, dust it off and rehang it by the box office. The chandelier never sways again.",
+              "art": "A teenager sitting in a dark theatre balcony with a translucent gloved hand resting on theirs, a framed old headshot of a 1920s actress in their lap",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You wait an hour in the dark. Nothing. Then, as you stand to go, a voice right behind your ear says \"Shh, it's starting,\" and the stage lights snap on for a show nobody is performing.",
+              "art": "A dark empty theatre stage suddenly lit by spotlights on an empty stage, a teenager frozen in a balcony seat",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pinecrest",
+    "name": "St. Jude's and Pinecrest Cemetery",
+    "blurb": "A stone church with a basement that hosts bingo, AA and punk band practice, and the cemetery out back: mausoleums, crooked oaks and the founders' graves on the hill, where the grass grows wrong.",
+    "art": "A small stone church with a bell tower beside a hilly cemetery of crooked oaks, mausoleums and leaning headstones, fallen leaves, a groundskeeper's shed and a wrought-iron gate in late afternoon light",
+    "train": "lore",
+    "x": 12,
+    "y": 56,
+    "beats": [
+      {
+        "id": "pinecrest-groundskeeper-key",
+        "title": "Otis Lost the Key",
+        "place": "The groundskeeper's shed, Pinecrest Cemetery",
+        "text": "Otis Fenn has been groundskeeper at Pinecrest for forty years, and this morning he lost the key to the Whitcomb mausoleum. Not misplaced. Lost. It was on his ring at dusk and gone at dawn, and the mausoleum door, which was locked, is now standing an inch open.",
+        "art": "An old groundskeeper in overalls holding a jangling key ring with one empty hook, a stone mausoleum behind him with its iron door standing slightly ajar, morning mist among the graves",
+        "choices": [
+          {
+            "id": "search-grounds",
+            "label": "Search the grounds for the key",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You follow the trail of wet, tiny footprints from the shed to a crow's nest in the oak by the gate. The key is in it, along with bottle caps and a ring. Otis tips you three quarters and lets you keep the bottle caps.",
+              "art": "A teenager reaching into a crow's nest in a cemetery oak, a shiny old key glinting among bottle caps, an old groundskeeper pointing from below",
+              "effects": {
+                "quarters": 3,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The footprints lead to the mausoleum. Inside, the key is resting on a stone coffin lid, placed there neatly. When you pick it up, something inside the coffin knocks, twice, polite as a houseguest.",
+              "art": "A small brass key resting on a stone coffin lid inside a dark mausoleum, a teenager's hand reaching for it, light from the open door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "close-door",
+            "label": "Push the mausoleum door shut and hold it",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You put your shoulder to the iron door. It fights you, then slams. In the quiet afterward, the lost key drops from the lintel above into your hand, as if returned by someone who has decided you're all right.",
+              "art": "A teenager straining with a shoulder against a heavy iron mausoleum door, a key falling from the stone lintel above",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The door pushes back. Hard. You land in the leaves, and the door swings open another inch. Otis helps you up and says, \"Well, they want air, I suppose.\" He brings out a padlock and chain.",
+              "art": "A teenager sprawled in fallen leaves in front of a mausoleum, its iron door opened wider, an old groundskeeper bringing a chain",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-iggy",
+            "label": "Ask Father Iggy to bless the door first",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 7,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "Father Iggy shows up in a hand-painted punk band T-shirt and a stole, blesses the door, then the shed, then Otis, then you. The key turns up in Otis's coffee can. Iggy fills your squirt gun with holy water on the way out, no questions asked.",
+              "art": "A young priest in a punk band T-shirt and a stole sprinkling holy water on a mausoleum door, a teenager holding out a squirt gun",
+              "effects": {
+                "items": ["holy-water"],
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Iggy's blessing gets interrupted by a sudden gust of leaves that blows his prayer book shut. He laughs it off, but he walks you to the gate and tells you to stay off the hill after dark this week.",
+              "art": "A priest's prayer book snapped shut by a swirl of autumn leaves in a cemetery, the priest and a teenager shielding their faces",
+              "effects": {
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pinecrest-bingo",
+        "title": "B-13",
+        "place": "The church basement, St. Jude's",
+        "text": "Saturday bingo in St. Jude's basement: folding tables, dabbers, a coffee urn and fifty serious grandmothers. The caller, a cheerful volunteer named Mrs. Petrakis, keeps calling numbers that aren't on anyone's card. B-13. B-13. B-13. She doesn't seem to notice. The grandmothers have noticed.",
+        "art": "A church basement full of folding tables and elderly women with bingo cards and dabbers, a cheerful volunteer at a ball cage pulling out a ball, every player looking up uneasily",
+        "choices": [
+          {
+            "id": "play-to-win",
+            "label": "Play your card straight and win the pot",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You dab every legitimate number and catch the caller's real calls between the B-13s. BINGO. The grandmothers applaud, the pot is four quarters and the B-13 calls stop the second you win, as if the game just wanted a winner.",
+              "art": "A teenager standing up with a bingo card raised in triumph in a church basement, elderly women applauding, a stack of coins on the table",
+              "effects": {
+                "quarters": 4,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your card fills up with B-13 even though you never dabbed it. The ink is still wet. The grandmothers move their chairs away from you, politely. You lose.",
+              "art": "A bingo card covered in identical dabbed squares all marked B-13 in wet ink, elderly women edging their chairs away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-cage",
+            "label": "Check the bingo cage while nobody looks",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "Among the balls is one too many: an old wooden B-13 from the 1950s, carved by hand. Pearl Washington, at the next table, recognizes it: \"That's from the quarry-workers' benefit night in '52. Lot of those men never came home.\" You hand it to the priest to keep safe.",
+              "art": "A teenager holding up a hand-carved wooden bingo ball beside a wire bingo cage, an elderly woman at the next table recognizing it",
+              "effects": {
+                "dread": -1,
+                "flags": ["bingo-ball-1952"]
+              }
+            },
+            "failure": {
+              "text": "You stick your hand in the cage and something cold closes around your fingers. You yank it out holding nothing, and all the balls in the cage now read B-13.",
+              "art": "A wire bingo cage full of balls all marked with the same number, a teenager clutching their hand, startled grandmothers",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pinecrest-grave-rubbing",
+        "title": "The Name Chiseled Off",
+        "place": "The founders' hill, Pinecrest Cemetery",
+        "text": "Your history teacher assigned grave rubbings from the founders' hill. Six tall stones of the families who built Glimmer Falls in 1859, and a seventh, smaller, off to the side, its name chiseled away so hard there's a groove. The grass around it grows in a perfect circle, greener than anything else on the hill.",
+        "art": "A grassy cemetery hilltop with six tall weathered founders' headstones and one small stone set apart, its name gouged away, encircled by a ring of unnaturally green grass, a teenager kneeling with paper and charcoal",
+        "choices": [
+          {
+            "id": "rub-it",
+            "label": "Make a rubbing of the chiseled stone",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "The charcoal finds what the chisel missed: a faint name, a date in 1859 and a carved sprig of herbs. Raven, reading over your shoulder, says that whoever this was, the town wanted them forgotten. Now someone remembers.",
+              "art": "A sheet of paper held against a small worn headstone, charcoal rubbing revealing a faint name, a date and a carved sprig of herbs, a goth teen peering over",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The rubbing comes out black, solid black, no matter how lightly you press. When you hold it up to the sun, there's a handprint in the middle of it, smaller than yours.",
+              "art": "A sheet of paper rubbed solid black with charcoal held up against a bright sky, a faint small handprint visible in the middle",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tend-it",
+            "label": "Pull the weeds and leave flowers",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "You clear the moss and leave a handful of wild chicory from the fence line. The green ring of grass shivers once in no wind. On the way down the hill, you feel lighter, like you did a favor for someone who doesn't get many.",
+              "art": "A small bouquet of wildflowers resting at the base of a nameless headstone in a ring of green grass, a teenager walking away down a cemetery hill",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The weeds have roots like wire. You pull and pull and the ground pulls back. You fall into the founders' stones and scrape your palms. The green ring is wider than it was when you came.",
+              "art": "A teenager fallen against tall weathered founders' headstones with scraped palms, a ring of bright green grass spreading across a cemetery hill",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pinecrest-empty-funeral",
+        "title": "Nobody Came",
+        "place": "The chapel, St. Jude's",
+        "text": "Father Iggy is about to say a funeral mass for Mrs. Edna Pruett, ninety-four, no family, no friends left alive. The pews are empty. He catches you in the doorway and asks, quietly, if you'd stay. As you sit, the guestbook on the stand by the door starts filling with names, one by one, in different handwritings.",
+        "art": "An empty church chapel with a single casket and flowers at the altar, a young priest in vestments, a teenager sitting alone in a pew, a guestbook by the door filling with handwritten names on its own",
+        "choices": [
+          {
+            "id": "stay",
+            "label": "Stay, and say something kind about her",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You didn't know Mrs. Pruett, but you read the obituary and you tell the empty church she grew roses that won the county fair four times. Every candle flickers at once. The guestbook has forty names now. Iggy hugs you at the door.",
+              "art": "A teenager speaking at a church lectern to empty pews, every candle on the altar flaring at once, a priest bowing his head",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You stand to speak and your words dry up. The silence stretches. Then, in the back, the pew creaks under a weight nobody can see, and someone softly starts to hum a hymn. You sit back down and let them.",
+              "art": "An empty church pew in the back of a chapel, its cushion dented under an invisible weight, a teenager at the front turning to look",
+              "effects": {
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-guestbook",
+            "label": "Read the names in the guestbook",
+            "intent": "brave",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "The names are all from the 1952 quarry collapse: workers, a foreman, a water boy. Iggy reads them aloud at the end of the mass. Mrs. Pruett, it turns out, was the town telephone operator who called every family that night.",
+              "art": "A priest reading aloud from an old guestbook at the altar of an empty chapel, a teenager beside him holding the book open",
+              "effects": {
+                "nerve": 1,
+                "flags": ["quarry-names"]
+              }
+            },
+            "failure": {
+              "text": "The names start appearing faster than you can read, filling page after page, until the pen by the book rolls off the stand and lands at your feet. You pick it up. Something wants you to sign.",
+              "art": "A guestbook overflowing with handwriting on a stand by a chapel door, a pen lying at a teenager's feet",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "kglm-radio",
+    "name": "KGLM 103.3 and the Water Tower",
+    "blurb": "A cinderblock radio station on the hill under the town water tower, all blinking consoles and a call-in line that rings a little too late at night. Climb the tower ladder and you can see the whole valley.",
+    "art": "A small cinderblock radio station on a grassy hilltop beneath a tall round water tower painted Glimmer Falls, a red-blinking transmitter antenna, a pickup truck parked outside, golden afternoon light over the valley",
+    "train": "charm",
+    "x": 62,
+    "y": 10,
+    "beats": [
+      {
+        "id": "kglm-radio-dead-air-caller",
+        "title": "Line Three",
+        "place": "The broadcast booth, KGLM 103.3",
+        "text": "Mix Bell lets you sit in on the afternoon show, and line three lights up. The caller asks for a song from 1958 in a voice full of bubbles, like she's calling from under water. The light on the console says the call is coming from the old quarry pay phone, which was flooded and removed in 1959.",
+        "art": "A teenage DJ with big headphones in a small radio booth beside a teenager, a console with a single blinking call-line button, a dusty 1958 record held up from a crate, rain on the window",
+        "choices": [
+          {
+            "id": "play-song",
+            "label": "Find the record and play her song",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You find the single in the station's dusty archive and Mix spins it on air. The caller sighs, happy, and the line clicks off. For the rest of the afternoon, every radio on Crystal Street plays a little warmer. Mix gives you the record.",
+              "art": "A teenager handing a vintage vinyl single to a DJ in a radio booth, the record spinning on a turntable, a call button going dark",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "items": ["mixtape"]
+              }
+            },
+            "failure": {
+              "text": "You can't find the record. Mix plays something close and the caller goes very quiet, then says \"That's not it\" in a voice right next to your ear instead of in the headphones. The whole console fizzes.",
+              "art": "A radio console sparking with static in a dim booth, two teens leaning away from a microphone, a blinking call line",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "keep-talking",
+            "label": "Keep her talking on air",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You ask her name, Lillian, and her favorite dance, the stroll. She tells you about the lake before it drained, the dock, the boy she was meeting. The town hears her on air. A dozen old folks call in to say they remember her. The line clicks off kindly.",
+              "art": "A teenager speaking gently into a radio microphone, a phone board lighting up with incoming calls, an old photo of a lakeside dock taped to the wall",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You ask the wrong question. \"Where are you?\" The bubbles get louder, the line fills with rushing water, and the booth's floor is suddenly wet. Mix pulls the plug. The puddle doesn't dry for a day.",
+              "art": "A radio booth floor with a spreading puddle of dark water around the chair legs, a DJ yanking a cord from the console",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "kglm-radio-tower-ladder",
+        "title": "Halfway Up the Tower",
+        "place": "The water tower ladder, above KGLM",
+        "text": "A kid named Jun climbed the water tower to paint his crush's initials on the tank, and now he's stuck forty feet up, clinging to a ladder rung that's peeling away from the rivets. Below him is a can of red spray paint, dented. Above him, painted by someone else, letters older than both of you: GO BACK.",
+        "art": "A boy clinging to a rusty water tower ladder high above a hilltop, a rung pulling loose from its rivets, faded painted letters on the tank above him, a teenager looking up from the base",
+        "choices": [
+          {
+            "id": "climb",
+            "label": "Climb up and guide his feet down",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You climb, steady and slow, and talk about anything else: cartoons, cereal, his crush. You guide his sneakers rung by rung. At the bottom, he tells you the crush is a boy named Theo, and he's going to tell him with words instead of paint.",
+              "art": "A teenager on a water tower ladder guiding a younger boy's sneaker onto a rung below, sunset behind them, the valley spread out far below",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The rung snaps under your hand and for one long second you're both hanging. Mix comes running with a rope from the station and gets you both down. Jun is okay. Your hands shake until dinner.",
+              "art": "A snapped ladder rung falling through the air beside a water tower, two figures clinging to the ladder, a DJ running with a coil of rope",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "call-help",
+            "label": "Run inside and get on air for help",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "You grab the mic and ask anyone with a ladder truck to come to the KGLM hill. Within ten minutes three pickups and the volunteer fire department show up. Jun comes down in a bucket. The whole valley heard you save him.",
+              "art": "A fire department ladder truck extended to a water tower, a boy climbing into its bucket, pickup trucks and onlookers gathered on the hill",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice goes out on dead air, the transmitter hiccuping static, and nobody hears. By the time you run back out, Jun has climbed down himself, pale and furious, and the words on the tank above now read GO BACK NOW.",
+              "art": "A pale boy standing at the base of a water tower glaring at a teenager, painted letters high on the tank reading go back now",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "kglm-radio-caller-thirteen",
+        "title": "Be Caller Thirteen",
+        "place": "A pay phone outside the Kwik Mart, then KGLM",
+        "text": "KGLM is giving away two tickets to the Halloween night Thrash Bash at the fairgrounds to caller number thirteen. Every phone in town is ringing the station. You've got one quarter, a pay phone and a busy signal. The busy signal, if you listen closely, is counting.",
+        "art": "A teenager at a strip-mall pay phone with the receiver to one ear and a quarter in hand, a convenience store glowing behind them, a radio playing on a nearby car dashboard",
+        "choices": [
+          {
+            "id": "redial",
+            "label": "Redial with lightning fingers",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Eleven. Twelve. You hit the hook, redial, and Mix's voice says \"Caller thirteen, you're on KGLM!\" You win the tickets, which you sell to Wade for three quarters and a ride wherever you want this week.",
+              "art": "A teenager shouting with joy into a pay phone receiver, fist in the air, a convenience store parking lot at dusk",
+              "effects": {
+                "quarters": 3,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You get through, but you're caller fourteen. Mix sounds sorry. Then, behind him, a different voice on the line says \"I'll take thirteen\" and the call drops. On air, the winner never gives a name.",
+              "art": "A pay phone receiver dangling on its cord at a lonely strip-mall wall, a teenager staring at it",
+              "effects": {
+                "quarters": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "go-station",
+            "label": "Skip the phone and bike to the station",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You pedal up the KGLM hill like your life depends on it and barge through the door just as the twelfth caller hangs up. Mix laughs so hard he lets you win in person. Also, he gives you a station mixtape for pure nerve.",
+              "art": "A sweaty teenager bursting through a radio station door with a bike behind them, a DJ in the booth doubling over laughing",
+              "effects": {
+                "nerve": 1,
+                "items": ["mixtape"]
+              }
+            },
+            "failure": {
+              "text": "The hill is steeper than you remember. You arrive gasping as the winner is announced, then coast all the way back down with no brakes and land in a hedge. The radio in the hedge-owner's kitchen is playing your heavy breathing on air.",
+              "art": "A teenager tangled in a hedge beside a crashed bicycle, a kitchen window above with a radio on the sill",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "kglm-radio-ad-read",
+        "title": "Live From Sal's Mattress Kingdom",
+        "place": "The production booth, KGLM 103.3",
+        "text": "The station manager's voice talent quit, and Sal's Mattress Kingdom's Halloween Spooktacular ad runs live in ninety seconds. The copy is three pages of puns. The manager shoves it at you. The microphone has a little piece of tape on it that says DON'T SAY IT THREE TIMES, and nobody will tell you what IT is.",
+        "art": "A cluttered radio production booth with a vintage microphone wrapped in a strip of tape, a panicked station manager handing a teenager pages of ad copy, an on-air light about to go red",
+        "choices": [
+          {
+            "id": "sell-it",
+            "label": "Read the copy like your life depends on it",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"At Sal's, our prices are SO LOW, they're SIX FEET UNDER!\" You nail every pun. Sal himself calls the station crying with joy. You get four quarters and a lifetime offer of a free mattress, which you decline, because nobody should own a free mattress from Sal.",
+              "art": "A teenager leaning into a microphone with dramatic gestures in a radio booth, a station manager giving a thumbs-up through the glass",
+              "effects": {
+                "quarters": 4,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You say \"Spooktacular\" three times without thinking. The on-air light flickers, the tape on the mic peels off by itself and the ad finishes in a voice that is not yours. Sal loves it. You don't sleep well.",
+              "art": "A strip of tape peeling off a microphone by itself in a dim radio booth, an on-air light flickering red",
+              "effects": {
+                "quarters": 2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rewrite",
+            "label": "Rewrite it fast into something less cursed",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You cut every Spooktacular and write a jingle on the spot. Sal's sales double. The station manager pins your copy on the wall and asks if you want a job writing ads. The tape on the mic is quietly replaced with fresh tape.",
+              "art": "A teenager scribbling furiously on a page of ad copy in a radio booth, a station manager reading over their shoulder delighted",
+              "effects": {
+                "quarters": 2,
+                "dread": -1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You run out of time mid-rewrite and read half of each version. The ad makes no sense, Sal threatens to sue and the manager pays you in mints. Somewhere in the transmitter, something laughs once.",
+              "art": "A station manager angrily on the phone in a radio office, a teenager slumped holding a crumpled page and a handful of mints",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "junkyard",
+    "name": "Rusty's Junkyard",
+    "blurb": "Acres of rust behind a chain-link fence: a maze of stacked cars three high, a crusher that groans like a whale, Joey Benally's garage in a converted bus, and a basset hound who howls before trouble arrives.",
+    "art": "A sprawling junkyard of rusted 1950s and 1970s cars stacked in towering rows behind a chain-link fence, a hulking car crusher, a converted school bus garage with tools hanging outside, a basset hound napping by the gate in hazy afternoon sun",
+    "train": "hustle",
+    "x": 88,
+    "y": 88,
+    "beats": [
+      {
+        "id": "junkyard-car-maze",
+        "title": "The Car Maze",
+        "place": "The stacks, Rusty's Junkyard",
+        "text": "Joey Benally needs a hubcap off a '57 Bel Air somewhere in the car maze, and he'll pay three quarters for it. The stacks are three cars high, the paths fork every twenty feet, and the junkyard maps never agree. Barnaby the basset hound plants himself at the entrance and refuses to go one step farther.",
+        "art": "A towering maze of rusted cars stacked three high in a junkyard, narrow dirt paths forking into shadow, a teenager at the entrance with a basset hound sitting stubbornly beside them",
+        "choices": [
+          {
+            "id": "navigate",
+            "label": "Go in with a plan and a chalk mark at every turn",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Chalk arrow, chalk arrow, Bel Air. You pop the hubcap, follow your arrows back out and hand it to Joey, who nods his highest compliment: \"Not bad.\" Three quarters, and he lets you sit in the garage and drink his good soda.",
+              "art": "A teenager holding up a gleaming chrome hubcap in a junkyard maze, chalk arrows marked on the rusted cars behind them",
+              "effects": {
+                "quarters": 3,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your chalk arrows are pointing the wrong way when you turn around. All of them. The path behind you is a wall of cars that wasn't there. You walk for an hour, and come out somewhere the maze shouldn't lead.",
+              "art": "A narrow junkyard path where every chalk arrow on the rusted cars points back the way a lost teenager came, a dead end of stacked cars ahead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "follow-barnaby",
+            "label": "Coax Barnaby along and follow his nose",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 7,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 2
+            },
+            "success": {
+              "text": "With half a hot dog and a lot of praise, Barnaby leads you on a crooked path that avoids every place he growls at. The Bel Air is right where he finally sits down. Moral of the story: always trust the dog.",
+              "art": "A basset hound leading a teenager through a junkyard car maze, nose to the ground, a classic chrome car at the end of the path",
+              "effects": {
+                "quarters": 3,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Barnaby leads you in, then stops, howls and bolts. You're alone in the stacks, and somewhere ahead, a car door creaks open and slams. You leave without the hubcap and Joey says, \"Yeah, the dog knows.\"",
+              "art": "A basset hound running away down a junkyard path with ears flying, a teenager alone between towering stacks of rusted cars",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "junkyard-crusher",
+        "title": "Something in the Trunk",
+        "place": "The crusher, Rusty's Junkyard",
+        "text": "Rusty is about to drop a 1959 Cadillac into the crusher, and from the trunk comes a knock. Three slow knocks. Rusty can't hear it over the engine and won't stop the job for \"a teenager's imagination.\" The crusher plates are already grinding open like the jaws of something hungry.",
+        "art": "A hulking junkyard car crusher with its plates open, a crane lowering a pink 1959 Cadillac with tailfins toward it, a gruff man in the operator's seat, a teenager waving their arms frantically",
+        "choices": [
+          {
+            "id": "jump-on",
+            "label": "Climb onto the Cadillac and pop the trunk",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You leap onto the tailfin and yank the trunk open. A family of raccoons pours out, along with a dusty steel box: a 1959 time capsule from the Glimmer Falls Elementary class, never buried. Rusty stops the crane and turns very red. He pays you not to tell anyone.",
+              "art": "A teenager clinging to the tailfin of a pink Cadillac dangling from a crane, the trunk open, raccoons tumbling out with a dusty metal box",
+              "effects": {
+                "quarters": 3,
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You slip off the bumper and hit the dirt hard. The Cadillac drops into the crusher. The knocking stops before the plates close. You'll never know. That's the worst part.",
+              "art": "A teenager lying in junkyard dirt looking up at a crushed pink car between steel plates, dust hanging in the air",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "talk-rusty",
+            "label": "Get Joey to make Rusty shut it down",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "Joey walks up, turns the key in the crusher's panel himself and says \"Hear that?\" Rusty finally hears the knocking. Inside the trunk: an old radio still tuned to KGLM, playing a station ID from 1959. Rusty gives it to you, spooked.",
+              "art": "A young mechanic with a key in a crusher control panel, a gruff junkyard owner staring at an opened Cadillac trunk revealing a glowing vintage radio",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["cadillac-radio"]
+              }
+            },
+            "failure": {
+              "text": "Rusty brushes you both off and drops the Cadillac. As the plates close, every car radio in the junkyard switches on at once to the same song, and then off. Rusty shuts down for the day without a word.",
+              "art": "Dozens of junked car dashboards lighting up at once across a dusk junkyard, a crushed Cadillac in the crusher",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "junkyard-scrap-haul",
+        "title": "Pay by the Pound",
+        "place": "The scrap scale, Rusty's Junkyard",
+        "text": "Rusty pays by the pound for copper and aluminum, and the old station wagons at the back are full of it. You have a wagon, a pair of pliers and the whole afternoon. The trouble is the back of the lot, where the wagons are parked in a circle facing inward, like they're having a meeting.",
+        "art": "A teenager pulling a rusty little red wagon heaped with copper wire and aluminum cans past a circle of old wood-paneled station wagons parked facing inward in a junkyard",
+        "choices": [
+          {
+            "id": "strip-fast",
+            "label": "Strip wire fast and haul it to the scale",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Two full wagonloads. Rusty weighs it, grumbles and pays you four quarters. In the last wagon you find a pair of walkie-talkies still in the box. Nobody's going to miss them.",
+              "art": "A grimy, grinning teenager beside a junkyard scale stacked with copper wire, holding up a boxed pair of walkie-talkies",
+              "effects": {
+                "quarters": 4,
+                "items": ["walkie-talkies"]
+              }
+            },
+            "failure": {
+              "text": "You cut the wrong wire in the third wagon and every horn in the circle honks at once. You drop everything and run. When you go back for your wagon, it's parked in the middle of the circle, with them.",
+              "art": "A little red wagon sitting in the middle of a circle of old station wagons facing inward, headlights on in daylight",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hum-along",
+            "label": "Find the working radio and hum along while you work",
+            "intent": "camp",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "One of the wagons has a radio that still works. You hum along, the circle of cars seems to settle, and the job goes easy. The radio's dial is stuck on a station that doesn't exist, playing a weather report for October 31, 1986. You write it down.",
+              "art": "A teenager humming while stripping wire in the open door of a wood-paneled station wagon, its dashboard radio glowing, other cars around it",
+              "effects": {
+                "quarters": 2,
+                "dread": -1,
+                "flags": ["future-forecast"]
+              }
+            },
+            "failure": {
+              "text": "You hum, and the radio hums back, a half-beat behind, in your voice. You haul one load and leave the rest. Rusty pays you a quarter and asks why you look like you saw a ghost.",
+              "art": "A junkyard car radio glowing alone on a dashboard in an empty car, a teenager walking briskly away with a half-empty wagon",
+              "effects": {
+                "quarters": 1,
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "junkyard-wade-van",
+        "title": "Wade's Van Won't Start",
+        "place": "Joey's garage bus, Rusty's Junkyard",
+        "text": "Wade Whitfield's van, a brown panel van with a wizard airbrushed on the side, won't start, and tonight is open-mic night at the Glitter Box. He's never read a poem out loud before. He's been trying to back out for a week, and now the van is giving him the excuse. He doesn't look relieved.",
+        "art": "A burnout metalhead with a mullet slumped against a brown van with a wizard airbrushed on the side, its hood up, a crumpled notebook of poems in his hand, a converted bus garage behind",
+        "choices": [
+          {
+            "id": "fix-van",
+            "label": "Get under the hood and fix it",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "It's the starter. You tap it with a wrench the way Joey taught you, and the van roars. Wade looks at the notebook, then at you. \"Guess I gotta go now.\" His poem is about his little sister, and the Glitter Box gives him a standing ovation.",
+              "art": "A teenager with a wrench under a van's hood as the engine roars to life, a metalhead in the driver's seat grinning nervously, a notebook on the dash",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You fix the starter and break the alternator. Joey sighs and promises to have it running by next week. Wade says \"There's always next open mic,\" and you both know that's the excuse winning.",
+              "art": "A young mechanic sighing at a smoking van engine, a metalhead and a teenager standing beside it in the evening light",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "ride-bikes",
+            "label": "Give him a ride on your handlebars",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Two miles on handlebars with a six-foot metalhead is not a ride, it's a sport. You make it to the Glitter Box with three minutes to spare. Wade reads his poem with his voice cracking and his hands shaking, and Glory cries, and so does Wade.",
+              "art": "A teenager pedaling a bicycle with a long-haired metalhead perched on the handlebars clutching a notebook, a sparkling theatre marquee ahead at dusk",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "You hit a pothole on Elm and both go down. Wade's notebook goes into a storm drain. He sits on the curb a long time, then starts reciting the poem from memory to you, right there. It's good. He still doesn't go.",
+              "art": "A metalhead sitting on a curb beside a fallen bicycle reciting from memory to a teenager under a streetlight, a storm drain nearby",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pawnshop",
+    "name": "Oddment and Daughters",
+    "blurb": "A traveling pawnshop that is never in the same lot twice: crammed shelves, a bell that rings before you touch the door, and Ms. Oddment behind the counter, who always has exactly what you need and always wants something odd in trade.",
+    "art": "A narrow, crooked little shop wedged into an empty lot, its windows crammed with clocks, music boxes, dolls and brass curiosities, a hand-painted sign reading Oddment and Daughters, warm lamplight inside in broad daylight",
+    "train": "lore",
+    "x": 46,
+    "y": 90,
+    "beats": [
+      {
+        "id": "pawnshop-appraisal",
+        "title": "The Appraisal",
+        "place": "The counter, Oddment and Daughters",
+        "text": "Ms. Oddment is a tall woman in a velvet waistcoat with a jeweler's loupe on a chain and eyes the color of tea. She looks you up and down as if you were an estate sale. \"I don't buy things, dear. I buy afternoons. Memories. A little bit of the way you laugh.\" She taps a brass scale. \"What will you sell me?\"",
+        "art": "A tall mysterious woman in a velvet waistcoat behind a cluttered antique pawnshop counter, a jeweler's loupe on a chain, a brass scale with empty pans, shelves of curios glowing in lamplight",
+        "choices": [
+          {
+            "id": "sell-memory",
+            "label": "Sell her the memory of your worst birthday",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "She draws it out of you with a silver spoon, a little gray cloud, and drops it in a jar. You can't remember why you ever hated that cake. She pays you in quarters and throws in a deck of tarot cards. \"They were already looking for you.\"",
+              "art": "A tall woman lifting a small gray glowing cloud from a teenager's forehead with a silver spoon into a glass jar, a deck of tarot cards and coins on the counter",
+              "effects": {
+                "quarters": 3,
+                "items": ["tarot-deck"],
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She takes the wrong memory, the one of your best birthday. You can feel the gap where it was. She frowns, apologizes, and gives you three quarters you'd trade back in a heartbeat. \"My hand slipped. It does, near Halloween.\"",
+              "art": "A glass jar on a pawnshop counter holding a warm golden glowing cloud, a woman looking apologetic, a teenager touching their temple",
+              "effects": {
+                "quarters": 3,
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "haggle",
+            "label": "Haggle her down to something harmless",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "You offer her your worst knock-knock joke. She laughs, a real laugh, and the lamps flare. \"Done.\" She hands you a can of Aqua-Glow Max Hold. \"Hairspray burns brighter than you'd think, and a bad joke is priceless.\"",
+              "art": "A tall woman laughing behind a pawnshop counter, lamps flaring brightly, sliding a can of hairspray across to a grinning teenager",
+              "effects": {
+                "items": ["aqua-net"],
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Every offer you make, she counters with a stranger one: your shadow on Tuesdays, your middle name, the sound of your footsteps. You leave with nothing, and for an hour your footsteps make no sound at all.",
+              "art": "A teenager walking out of a crooked pawnshop onto a sunny sidewalk, oddly shadowless in the bright sun, a woman watching from the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-who",
+            "label": "Ask her what she does with it all",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "She looks at you a long moment. \"Some things the world forgets, I keep. Some things the world should forget, I keep somewhere safer.\" She shows you a locked case at the back, very full and very quiet. \"Everything cursed passes through a shop like mine eventually, dear. I only make sure it finds the right owner.\"",
+              "art": "A tall woman holding a lamp beside a locked glass case at the back of a pawnshop, shadowy objects inside, a teenager peering in",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"Curiosity is a lovely currency,\" she says, and the brass scale tips as if you'd paid. You feel a little lighter and can't remember the name of your second-grade teacher. She smiles politely and rings up the sale.",
+              "art": "A brass pawnshop scale tipping under an invisible weight, a woman's long fingers ringing up a sale on an antique register",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pawnshop-returns",
+        "title": "All Sales Final",
+        "place": "The front door, Oddment and Daughters",
+        "text": "A sweating man in a golf visor is trying to return a snow globe of Glimmer Falls. \"It shows tomorrow's weather,\" he babbles, \"and tomorrow's weather has my house on fire in it.\" Ms. Oddment points at a sign: ALL SALES FINAL. He turns to you, holding it out, shaking. Inside the globe, tiny flames flicker over a tiny roof.",
+        "art": "A frantic man in a golf visor holding out a snow globe of a little town in a cramped pawnshop, tiny flames flickering inside the glass over one house, a tall shopkeeper pointing at a sign reading all sales final",
+        "choices": [
+          {
+            "id": "buy-it",
+            "label": "Take the globe off his hands for a quarter",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The second it's yours, the flames inside go out and snow falls instead. The man nearly faints with relief. You set the globe on your windowsill. Every morning it shows the weather, honestly, and once, a warning you were glad to have.",
+              "art": "A teenager holding a snow globe in which gentle snow falls over a tiny peaceful town, a relieved man in a golf visor sagging against a counter",
+              "effects": {
+                "quarters": -1,
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["weather-globe"]
+              }
+            },
+            "failure": {
+              "text": "The moment you touch the glass, the tiny flames move from his roof to yours. Your roof. You put it down fast. Ms. Oddment takes it back for free with a sigh. \"That's the trouble with gifts that see. They never lie, only change their minds.\"",
+              "art": "A snow globe on a pawnshop counter showing tiny flames over a different house, a teenager snatching their hand away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "check-house",
+            "label": "Run to his house and check the wiring",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "His furnace has a cracked flue and a pile of dry newspapers stacked right against it. You move them, he calls a repairman and the flames in the globe shrink to a candle on a birthday cake. He tips you two quarters and a first-aid kit from his trunk.",
+              "art": "A teenager pulling stacks of old newspapers away from a rusty basement furnace, a man in a golf visor on the phone, a snow globe on a shelf showing a small birthday candle",
+              "effects": {
+                "quarters": 2,
+                "items": ["first-aid"]
+              }
+            },
+            "failure": {
+              "text": "You check everything and find nothing. That night, a fire truck rolls past your window with its siren off. In the morning, the man's house is fine, but his garage is a black square. The snow globe is back in Ms. Oddment's window.",
+              "art": "A suburban house with a burned-out garage beside it at dawn, a fire truck pulling away, smoke drifting",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pawnshop-daughter",
+        "title": "One of the Daughters",
+        "place": "The back room, Oddment and Daughters",
+        "text": "Behind the beaded curtain a girl about your age is restocking a shelf of glass eyes. She has Ms. Oddment's tea-colored eyes and a name tag that says WEDNESDAY. \"There are seven of us. We're never allowed out of the shop.\" She lowers her voice. \"I want to see the mall. Just once. Will you take me?\"",
+        "art": "A girl in an old-fashioned smock with tea-colored eyes restocking a shelf of glass eyes in a dim pawnshop back room, a beaded curtain behind her, a teenager peeking through",
+        "choices": [
+          {
+            "id": "sneak-out",
+            "label": "Sneak her out the back for an hour",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You take Wednesday to Starlight Mall. She eats a pretzel, rides the escalator six times and laughs at the fountain. When you bring her back, Ms. Oddment is waiting, arms crossed, then sighs and gives you a box of glow-stick bracelets. \"For keeping her safe. Don't do it again. Do it again.\"",
+              "art": "A girl with tea-colored eyes laughing on a mall escalator with a pretzel, a teenager beside her, neon lights all around",
+              "effects": {
+                "nerve": 1,
+                "items": ["glow-bracelet"],
+                "flags": ["wednesday-friend"]
+              }
+            },
+            "failure": {
+              "text": "The back door opens onto a different street, then a different town, then a field you don't recognize. Wednesday drags you back inside before the door forgets where it is. \"It does that,\" she says, disappointed. \"Next time.\"",
+              "art": "A pawnshop back door opening onto an unfamiliar misty field at noon, a girl yanking a teenager back inside by the sleeve",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "ask-mother",
+            "label": "Ask Ms. Oddment to let her go",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "Ms. Oddment listens, very still. Then she takes off her loupe. \"My mother never let me out either.\" She hands Wednesday a coat. They walk out together, mother and daughter, for the first time in a very long time. The shop smells like rain.",
+              "art": "A tall shopkeeper helping a girl into a coat at the door of a crooked pawnshop, both stepping out into afternoon sunlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"The world is not kind to things like us, dear,\" Ms. Oddment says gently, and closes the curtain. Wednesday waves through the beads. You hear a lock click, and you feel you just made something worse.",
+              "art": "A beaded curtain swaying closed in a dim pawnshop, a girl's hand waving through the beads, a tall shadow behind her",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "pawnshop-dusting",
+        "title": "The Things on the Shelves",
+        "place": "The aisles, Oddment and Daughters",
+        "text": "Ms. Oddment will pay a quarter a shelf to dust. \"Don't touch anything that hums. Don't answer anything that asks you a question. And if the monkey with the cymbals starts clapping, leave the aisle at once.\" The first shelf has a music box, a baby shoe and a lighter engraved KEEP ME. The music box hums.",
+        "art": "A teenager with a feather duster in a narrow pawnshop aisle crammed with curios, a humming music box, a single baby shoe, an engraved lighter, a wind-up cymbal monkey on a high shelf watching",
+        "choices": [
+          {
+            "id": "dust-carefully",
+            "label": "Dust every shelf slowly and follow the rules",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "Four shelves, no touching, no answering. The music box asks you its question three times and you never answer. At the end, Ms. Oddment counts out four quarters and nods. \"Most people answer.\" You don't ask what happens to them.",
+              "art": "A teenager carefully dusting a pawnshop shelf around curios with careful fingertips, a shopkeeper counting coins into their palm at the end of the aisle",
+              "effects": {
+                "quarters": 4,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The music box asks, \"Do you want to know how it ends?\" and you say \"What?\" before you can stop yourself. The cymbal monkey starts clapping. You run. Ms. Oddment pays you anyway, minus one quarter \"for the excitement.\"",
+              "art": "A wind-up monkey clashing its cymbals on a high pawnshop shelf, a teenager sprinting down the aisle dropping a feather duster",
+              "effects": {
+                "quarters": 1,
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pocket-something",
+            "label": "Slip the KEEP ME lighter into your pocket",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "You pocket it. It's warm. At the door, Ms. Oddment says without looking up, \"Keep the flashlight too, then. You'll want light more than fire.\" When you check your pocket, the lighter is gone, and a heavy six-cell flashlight is in its place.",
+              "art": "A teenager at a pawnshop door pulling a heavy flashlight out of their jacket pocket in surprise, a shopkeeper absorbed in her ledger",
+              "effects": {
+                "items": ["flashlight"],
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The lighter burns your fingers, and you drop it. When you pick it up, the engraving reads KEEP ME AWAY. Ms. Oddment is standing right behind you. \"Thieves dust for free, dear.\" You finish the shelves unpaid.",
+              "art": "An engraved silver lighter lying on a pawnshop floor, a teenager blowing on burnt fingertips, a tall shopkeeper standing right behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

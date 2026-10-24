@@ -1,0 +1,531 @@
+[
+  {
+    "id": "countess-lacroix",
+    "name": "Countess Lacroix",
+    "epithet": "Queen of the Night Shift",
+    "tags": ["paranormal", "camp", "creature"],
+    "palette": ["#ffd23f", "#8b0a3a", "#d9d9e3"],
+    "sigil": "mirrorball",
+    "logline": "Club Lacroix closed in 1980, but under the Glitter Box dance floor the Countess is still throwing the party of the century. Dance under her mirror ball and she takes a little of your youth with every song.",
+    "backstory": "She told everyone she was a countess from the Carpathians. She was Doreen Mudge from Modesto, a 1950s bit actress whom the studios fired at twenty-five for being too old to play the girl. So she moved to Glimmer Falls, bought a dead feed store and turned it into Club Lacroix, the only disco in a hundred miles where the mirror ball shone on everybody: farm kids, drag queens, shy boys in borrowed platforms, anyone who needed one night to be fabulous. Her motto was painted over the bar: EVERYBODY IS SOMEBODY UNDER THE BALL. On New Year's Eve 1977, terrified of turning forty at midnight, she let a mysterious guest who called himself the Baron kiss her on the neck in exchange for forever. It worked, and the world aged without her anyway. Disco died. A KGLM shock jock blew up a crate of disco records at the high school stadium. Her regulars got mortgages and reading glasses, and she turned them away at her own velvet rope for being bad for the look. In 1980 she locked the doors, lifted the needle off the last song before it could end, and sealed herself in a mirrored coffin under the dance floor. A year later a drag queen named Glory bought the building for a dollar and made it the Glitter Box. Now the Heartstone has woken the Countess, platform boots first, and she is hungry for the one thing she never had enough of.",
+    "centralIssue": {
+      "title": "Clinging to youth and a lost golden age",
+      "summary": "The Countess believes getting older means disappearing, because the first world she loved told her so at twenty-five. She drains the young to stay forever 1977, but what she really lost was not her youth; it was the people she pushed away for aging. Learn who told her she had an expiration date, what she did to her own regulars, and why she never let the last song end, and show her that growing older can be fabulous."
+    },
+    "poster": "A glamorous vampire disco diva in a white jumpsuit with a towering collar and a black satin cape, a lion's mane of golden hair, fangs glinting, arms raised beneath a giant glowing mirror ball over a crowded dance floor, teenage dancers below graying and slumping in cardigans as golden light streams from them up into the ball",
+    "portrait": "Close portrait of a camp 1970s vampire countess with sky-high feathered golden hair, glitter eyeshadow, wine-dark lipstick over two delicate fangs, a rhinestone choker, a single silver strand of hair she is pretending to ignore, lit by spinning mirror ball sparkles",
+    "taunts": [
+      "Darling, nobody ages on my dance floor. Nobody leaves it, either.",
+      "Gray is a color for pigeons.",
+      "Hustle, sweetie. Hustle until you drop.",
+      "It's always 1977 somewhere, and that somewhere is me."
+    ],
+    "clues": [
+      {
+        "id": "countess-lacroix-guestbook",
+        "title": "The last page of the guest book",
+        "location": "glitter-box",
+        "hint": "The Glitter Box was a disco before it was a playhouse. The stage manager has found a trapdoor nobody remembers building.",
+        "encounter": {
+          "id": "countess-lacroix-clue-trapdoor",
+          "title": "Under the Stage",
+          "place": "Beneath the stage, The Glitter Box Playhouse",
+          "text": "Frankie Fontaine is flat on her stomach on the stage with a flashlight in her teeth, prying at a square of floorboards that sparkle when the light hits them. \"Glitter in the grout,\" she says. \"Real glitter, under thirty years of paint. This was a dance floor.\" Below it, a ladder leads down into a mirrored DJ booth, cobwebs strung with sequins, and a white leather guest book still open on the console.",
+          "art": "A trans woman stage manager in a headset lying on a theater stage prying open a sparkling trapdoor, below it a cobwebbed mirrored 1970s DJ booth with turntables and an open white leather guest book",
+          "choices": [
+            {
+              "id": "help-frankie",
+              "label": "Help Frankie get the trapdoor open and climb down first",
+              "intent": "brave",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "frankie-fontaine",
+                "amount": 2
+              },
+              "success": {
+                "text": "The guest book is a love letter to a nightclub. Hundreds of signatures from 1976: Best night of my life! First time I danced with a boy! Gloria, age 34, I felt like a STAR. Then the pages thin. By 1980 there is only one hand: July 4. Found a gray hair. ONE. The Baron swore. Told Sal and Gloria not to come back, the regulars are getting old and it shows. If I can't stay young, I'll stay 1977.",
+                "art": "A teenager in a mirrored underground DJ booth reading a white leather guest book by flashlight, the early pages crowded with joyful signatures, the last page a single lonely entry in looping script",
+                "effects": {
+                  "clues": ["countess-lacroix-guestbook"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The trapdoor drops open and the turntable below starts spinning by itself. A woman's laugh, husky and delighted, rises out of the dark with a blast of cold air and perfume. Frankie slams the trapdoor and sits on it. \"Nope. We are calling Glory first.\"",
+                "art": "A trap door on a stage slamming shut on a blast of cold glittering air, a stage manager sitting on it firmly, a teen staggering back, faint disco light leaking through the cracks",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-glory",
+              "label": "Ask Glory who Gloria, age 34, might be",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "glory-hallelujah",
+                "amount": 2
+              },
+              "success": {
+                "text": "Glory turns the guest book page and touches her own signature like an old photograph. \"I hosted her Thursday nights. She was the first person who ever paid me to be fabulous.\" Her voice goes quiet. \"Then one night, at her own rope, she looked at my crow's feet and said I was bad for the look. I bought this building to prove her wrong. I didn't know she was still under it.\"",
+                "art": "A drag queen in a sequined robe at a backstage vanity holding an old white leather guest book, touching a signature with a long painted nail, bittersweet expression, bulb lights glowing",
+                "effects": {
+                  "clues": ["countess-lacroix-guestbook"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Glory is gluing on lashes ten minutes to curtain and has no time for ghosts. \"Later, baby.\" As you leave, her vanity mirror fogs, and in the fog a woman in a white jumpsuit blows you a kiss with two very sharp teeth.",
+                "art": "A fogged backstage vanity mirror showing a glamorous woman in a white jumpsuit blowing a kiss with tiny fangs, a drag queen gluing on lashes oblivious",
+                "effects": {
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "countess-lacroix-bat-bride",
+        "title": "Bat Bride Number Three",
+        "location": "rewind-video",
+        "hint": "The woman at the Rewind Video counter was a 1950s scream queen. Ask her who played the third bat bride.",
+        "encounter": {
+          "id": "countess-lacroix-clue-bat-brides",
+          "title": "Attack of the Bat Brides",
+          "place": "The back room, Rewind Video",
+          "text": "Zelda Fishbein is rewinding returns at the counter when you mention Club Lacroix. She stops the tape with one long red nail. \"Oh, honey. Doreen.\" She pulls a dusty clamshell from under the counter: ATTACK OF THE BAT BRIDES, 1956. On the cover a young Zelda screams in a negligee, and behind her, third bat from the left, a blonde with very familiar cheekbones.",
+          "art": "A glamorous older woman with a silver bouffant at a video store counter holding up a dusty 1950s horror VHS cover showing screaming women and bat brides, shelves of horror tapes behind her",
+          "choices": [
+            {
+              "id": "ask-zelda",
+              "label": "Ask Zelda how she knew Doreen",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "\"She was my roommate on Gower Street, eighteen years old, with a hot plate and a cat.\" Zelda smiles. \"At twenty-five the studio told her she was too old to play the girl. They told me the same thing ten years before. I decided to rot gracefully, and I'm having a ball. Doreen decided she would never rot at all.\" She taps the cover. \"She was a terrible actress and the best friend I ever had. Tell her Zelda says her roots are showing.\"",
+                "art": "An older former scream queen laughing behind a video store counter, holding a 1950s publicity photo of two young actresses arm in arm, a teen listening",
+                "effects": {
+                  "clues": ["countess-lacroix-bat-bride"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Zelda waves the tape at you. \"Rent it like everybody else. Two-night rental, a dollar fifty.\" When you check it out, the clamshell is ice cold, and the bat bride on the cover has turned her head to look at you.",
+                "art": "A VHS clamshell on a video store counter with one bat bride on the cover turned to stare out at the viewer, frost forming at the edges",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            },
+            {
+              "id": "watch-the-tape",
+              "label": "Watch the movie on the back-room TV and look for Doreen",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 1
+              },
+              "success": {
+                "text": "Bat Bride Number Three gets one line: \"The night is young, and so am I.\" You rewind it four times. On the fifth, the tape skips to something that was never in the movie: a young blonde crying in a dressing room while a man in a suit tells her she has \"an expiration date, like milk.\" Then the tape goes back to bats.",
+                "art": "A teenager in a cramped video store back room watching a flickering TV showing a black and white scene of a young actress crying in a dressing room while a studio executive lectures her",
+                "effects": {
+                  "clues": ["countess-lacroix-bat-bride"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The tape eats itself halfway through, spewing ribbon across the floor, and the TV static forms a face with very shiny teeth. \"Be kind, rewind,\" it purrs. The back room lights pop, one after another, and you leave owing Zelda a late fee and a lightbulb.",
+                "art": "A VCR spewing tangled tape ribbon in a dark video store back room, a TV screen of static forming a fanged smiling face, lightbulbs popping overhead",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "paranormal"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "countess-lacroix-last-song",
+        "title": "The song that never ended",
+        "location": "gym",
+        "hint": "Tuesday is Disco Night at the roller-rink annex behind Pump Iron. The rink manager used to be somebody's dance partner.",
+        "encounter": {
+          "id": "countess-lacroix-clue-disco-tuesday",
+          "title": "Disco Tuesday",
+          "place": "The roller-rink annex, Pump Iron Gym",
+          "text": "Disco Night at the rink draws exactly four regulars, all over fifty, and they are having more fun than anyone you have ever seen. The best of them is Sal Gennaro, the rink manager, a barrel-chested man with a silver pompadour skating backward in a satin jacket, spinning, hands in the air. When he sees the Club Lacroix matchbook in your hand, he coasts to a stop.",
+          "art": "A small roller rink with colored lights and four joyful older skaters in satin jackets, a barrel-chested man with a silver pompadour skating backward with arms up, a teenager at the rail holding a vintage nightclub matchbook",
+          "choices": [
+            {
+              "id": "couples-skate",
+              "label": "Ask Sal for the couples skate and talk while you roll",
+              "intent": "camp",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "item": "leg-warmers",
+                "amount": 1
+              },
+              "success": {
+                "text": "Sal steers you around the rink like a pro. \"Doreen and me won the Glimmer Falls Hustle Championship three years running.\" He spins you. \"When the regulars got old, she shut us out. Said we were bad for the look. Last night the club was open, she was playing our song, Night Fever Forever. She lifted the needle before it could end. Couldn't stand to let anything finish.\" He presses a scratched record into your hands. \"I've kept it. Somebody should let it end.\"",
+                "art": "A teenager and a silver-haired older man couples-skating under colored rink lights, the man mid-spin, a scratched disco record tucked under his arm",
+                "effects": {
+                  "clues": ["countess-lacroix-last-song"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Your skates go out from under you on the first turn and you take Sal down with you. He laughs it off, but by the time you are both up, the lights flicker and the rink speakers start playing a song with no ending, the same chorus, over and over. Sal goes pale and shuts the rink early.",
+                "art": "A teenager and an older man sprawled on a roller rink floor, the colored lights flickering, a rink speaker glowing as a looping record plays",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "check-the-record-booth",
+              "label": "Slip into the rink's record booth and dig through Sal's crates",
+              "intent": "sneaky",
+              "skill": "lore",
+              "target": 9,
+              "success": {
+                "text": "In a crate labeled CLUB L, LAST NIGHT, is one record with a deep scratch three minutes in, as if a needle had been dragged off it in a hurry. Taped to the sleeve, in Sal's handwriting: She never let it end. July 4, 1980. Under that, newer, in pencil: Doreen, if you ever come back, I'll still skate with you. Gray hair and all.",
+                "art": "A cramped roller rink DJ booth with crates of records, a teenager holding a disco single with a deep scratch and a handwritten note taped to its sleeve",
+                "effects": {
+                  "clues": ["countess-lacroix-last-song"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The booth door swings shut behind you. Every record in the crates starts spinning in its sleeve with a dry whisper, and in the booth window, reflected but not behind you, a woman in a cape is tapping her platform boot, waiting for you to dance.",
+                "art": "A dark rink DJ booth with records spinning in their sleeves, a booth window reflecting a vampire diva in a cape tapping her platform boot behind a frightened teen",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "countess-lacroix-velvet-rope",
+        "title": "The Velvet Rope",
+        "place": "A back alley off Main Street, midnight",
+        "text": "A door that was not there yesterday glows red in the alley behind the Glitter Box. A velvet rope, a bouncer with leathery wings folded under his tuxedo, and a sign in gold script: CLUB LACROIX, TONIGHT ONLY, FOREVER 1977. A line of kids from school snakes down the block. As you watch, a sophomore stumbles out the exit in a cardigan, rubbing her lower back, complaining about property taxes.",
+        "art": "A glowing red nightclub door in a dark alley with a velvet rope and a bouncer with bat wings folded under his tuxedo, a line of teens waiting, a dazed teen girl exiting in a frumpy cardigan rubbing her back",
+        "choices": [
+          {
+            "id": "talk-past-the-bouncer",
+            "label": "Sweet-talk the bouncer and get inside to pull the kids out",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 2
+            },
+            "success": {
+              "text": "You tell the bat-bouncer you are on the list as \"the Hustle Champion of 1978,\" and he is so impressed with your nerve that he unhooks the rope. Inside, you grab hands and yank kids off the dance floor one by one, out the back door, still young, still giggling. Their youth sticks to them like glitter.",
+              "art": "A teen leading a chain of dancing teenagers out the back of a glittering disco club by the hands, a bat-winged bouncer looking impressed at the velvet rope",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bouncer looks you up and down. \"Not tonight, sweetheart. Shoes.\" When you push past anyway, the music hits you like a wave of warm syrup, and you dance two songs before you can stop. You walk out with your knees aching and an inexplicable urge to watch the evening news.",
+              "art": "A teen stumbling out of a glowing club exit with a hand on their aching knee, holding a newspaper they cannot remember picking up, a bouncer smirking",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "flags": ["countess-aged"]
+              }
+            }
+          },
+          {
+            "id": "pull-the-alarm",
+            "label": "Find the alley fire alarm and empty the club",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "The alarm bell screams and the sprinklers kick on inside. Kids pour out of the door shrieking and laughing, soaked, hair flattened, young as ever. From somewhere deep in the club a woman's voice howls, \"My HAIR!\" and the glowing door snaps shut like a compact.",
+              "art": "Soaked laughing teens pouring out of a nightclub door into an alley as sprinklers spray inside, a fire alarm bell ringing on the brick wall",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The alarm handle comes off in your hand. Glitter, not water, sprays from the sprinklers inside, and the kids dance harder. A cold hand with very long nails rests on your shoulder. \"You're cute. Come back when you're ready to dance.\"",
+              "art": "A teenager holding a broken fire alarm handle in an alley, glitter spraying from inside a club doorway, a long-nailed hand resting on their shoulder from behind",
+              "effects": {
+                "nerve": -2,
+                "teleport": "camp"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-roller-boogie",
+        "title": "Moonlight Roller Boogie",
+        "place": "The roller-rink annex, Pump Iron Gym, after hours",
+        "text": "The rink lights are off but the mirror ball is spinning. The Countess glides out of the dark on white roller skates, cape snapping, followed by her backup dancers, the Lacroix Lovelies, four pale skaters in matching gold hot pants with bat-wing capes. \"A little race, darling,\" she purrs. \"Ten laps. You win, the kids go home. I win, I keep your twenties.\"",
+        "art": "A dark roller rink lit only by a spinning mirror ball, a vampire diva in a white jumpsuit and cape gliding on white roller skates, four pale backup skaters in gold hot pants and bat-wing capes behind her, a teenager lacing up skates",
+        "choices": [
+          {
+            "id": "race-her",
+            "label": "Race her lap for lap",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "Ten laps, elbows out, the Lovelies hissing on every turn. On the last straightaway you dig in and pass the Countess by a skate length. She skids to a stop in a spray of glitter, gasping, not because she lost, but because she cannot remember the last time anyone gave her a real race. \"Again,\" she says, almost smiling. \"Some other night.\"",
+              "art": "A teenager crossing the finish line on a dark roller rink a skate-length ahead of a vampire diva, glitter spraying from her skidding wheels, backup skaters gasping",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "She laps you twice and pats your head as she passes. When you finally coast off the rink, your reflection in the rail shows a little crease between your eyebrows that was not there yesterday. The Countess, meanwhile, looks radiant.",
+              "art": "An exhausted teen gripping the rink rail, their reflection showing a new worry line, a radiant vampire diva gliding past with a smug wave",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "flags": ["countess-aged"]
+              }
+            }
+          },
+          {
+            "id": "out-dance-her",
+            "label": "Skip the race and challenge her to a dance-off instead",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "glow-bracelet",
+              "amount": 1
+            },
+            "success": {
+              "text": "You do the worm on roller skates. You do a move from a breakdancing video that you have only ever seen once. The Lovelies forget to hiss. The Countess stares, horrified, delighted, and starts copying you. \"What on earth is that called?\" For one song she is not 1977. She is just dancing. The kids slip out the side door.",
+              "art": "A teenager breakdancing on roller skates under a mirror ball, a vampire diva awkwardly trying to copy the move, backup dancers watching openmouthed, kids sneaking out a side door",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["countess-new-moves"]
+              }
+            },
+            "failure": {
+              "text": "You trip on your own laces mid-spin and land in a heap. The Countess sighs. \"This is why the eighties are a tragedy.\" The Lovelies circle you, and when you limp home your hair has one stubborn silver strand that will not pull out.",
+              "art": "A teen sprawled on a rink floor in tangled skate laces, four bat-caped skaters circling under a mirror ball, a vampire diva rolling her eyes",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "countess-lacroix-mirror-ball-moon",
+        "title": "Mirror Ball Moon",
+        "place": "Crystal Street, one a.m.",
+        "text": "A mirror ball the size of a station wagon rises over the Heartstone like a second moon, scattering light across every lawn on Crystal Street. Every teenager on the block is out in their pajamas, dancing in their yards, and with every song they get a little older. Bea is doing her taxes on the porch. Your best friend has reading glasses on a chain and is telling you to turn that racket down. On top of the ball, cape billowing, the Countess blows you a kiss.",
+        "art": "A giant glowing mirror ball floating over a purple geode on a suburban cul-de-sac at night, teens in pajamas dancing on their lawns and aging into frumpy cardigans and reading glasses, a vampire diva in a cape posing on top of the ball",
+        "choices": [
+          {
+            "id": "play-the-mixtape",
+            "label": "Crank a synth-pop mixtape so loud it drowns out her disco",
+            "intent": "camp",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "You set a boombox on the hood of a station wagon and blast the most aggressively 1986 synth-pop you own. The disco warps. The kids stop dancing her way and start dancing your way, jerky, robotic, ridiculous, and young. The Countess clutches her ears. \"What is this? Is it a car alarm? Is it music?\"",
+              "art": "A boombox on a station wagon hood blasting sound waves across a suburban street, teens doing robotic 1980s dance moves, a vampire diva on a floating mirror ball clutching her ears",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your batteries die halfway through the first chorus. In the silence, the disco comes back twice as loud, and you find your foot tapping. Then your hips. You dance until dawn, and in the morning your back hurts in a way that feels personal.",
+              "art": "A dead boombox with its battery door hanging open on a lawn, a teen helplessly dancing under the light of a giant mirror ball at dawn",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "flags": ["countess-aged"]
+              }
+            }
+          },
+          {
+            "id": "soak-the-ball",
+            "label": "Climb the Heartstone and soak the mirror ball with holy water",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "holy-water",
+              "amount": 2
+            },
+            "success": {
+              "text": "You scramble up the geode and let fly. The blessed water hits the mirror ball and every tile it touches goes dark, like a disco on a Monday. The Countess shrieks, the ball sinks behind the rooftops, and the kids on the lawns blink and rub their eyes and are fifteen again, extremely confused about the cardigans.",
+              "art": "A teen standing on top of a giant purple geode spraying a squirt gun at a floating mirror ball whose tiles go dark where the water hits, a vampire diva shrieking, teens on lawns blinking awake",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You slip on the geode's glassy side and slide right back down into a hydrangea. The mirror light finds you there and you start to sway. When it finally sets at dawn, you catch yourself humming along to an easy-listening station, and liking it.",
+              "art": "A teen tangled in a hydrangea bush at the base of a purple geode, mirror ball light falling across them, a squirt gun lying in the grass",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "countess-lacroix-finale",
+      "title": "The Last Song at Club Lacroix",
+      "place": "The Glitter Box Playhouse, Halloween night",
+      "text": "Halfway through the Glitter Box Halloween revue, the stage splits open and the playhouse remembers what it used to be. Red velvet rolls over the seats, the mirror ball descends from the fly loft, and the audience is on its feet dancing, aging a year with every chorus. The Countess rises from the DJ booth in a jumpsuit of solid gold sequins, lit from within by everyone else's youth, glowing like 1977. \"Darling,\" she says, raising a goblet, \"the party never ends.\"",
+      "art": "A theater transformed into a glittering 1977 disco with red velvet and a giant descending mirror ball, a crowd of costumed revue-goers dancing and graying, a radiant vampire diva in a gold sequin jumpsuit rising from a DJ booth with a goblet, teens in Halloween costumes pushing to the front",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Climb the fly rail and cut the mirror ball down",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 1
+          },
+          "success": {
+            "text": "You climb the rigging hand over hand, swing at the cable and the mirror ball plummets, bursting on the dance floor into ten thousand silver tiles. Golden light floods out of it and back into the crowd. The Countess screams and comes apart into a flock of sequined bats that pours out the stage door into the night.",
+            "art": "A giant mirror ball shattering on a dance floor in a burst of silver tiles and golden light, a vampire diva dissolving into a flock of sequined bats fleeing out a stage door",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The cable will not cut. The Countess floats up beside you on the rigging. \"Oh, you're sweet,\" she murmurs, and kisses you on the cheek, and you feel ten years slide out of you like a breath.",
+            "art": "A vampire diva floating beside a teen clinging to theater rigging, kissing their cheek as golden light flows out of them into her",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Have Frankie throw the house lights: last call",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "frankie-fontaine",
+            "amount": 2
+          },
+          "success": {
+            "text": "\"LAST CALL!\" you bellow, and every fluorescent work light in the Glitter Box slams on at once. The most dreaded words in nightlife. In the flat white glare, the disco is just a sticky floor and a cheap ball, and the magic drains out of it like flat soda. The Countess shields her eyes and flees, wailing, \"Not the house lights! Not the house lights!\"",
+            "art": "Harsh white fluorescent work lights blasting on over a glittering disco, revealing a sticky floor and tacky decorations, a vampire diva shielding her face and fleeing, a stage manager at a light board grinning",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The breaker sparks and the work lights die. In the dark, only the mirror ball keeps spinning, brighter than ever. \"Sweetie,\" says the Countess, \"in my club, it is never last call.\"",
+            "art": "A sparking breaker box in a dark theater, a mirror ball spinning brighter than ever over dancers, a vampire diva laughing in the spotlight",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Bring Glory, Zelda and Sal onto the floor and let the last song end",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "companion": "glory-hallelujah",
+            "amount": 2
+          },
+          "success": {
+            "text": "You put Sal's scratched record on the turntable, Night Fever Forever, and this time you do not stop it. Onto the floor walk three people with gray in their hair and nothing to apologize for: Glory in full drag, Zelda in her best furs, Sal on his roller skates. \"Doreen,\" Zelda calls, \"your roots are showing, and you look marvelous.\" The Countess stares at them, her old friends, older and happier than she has ever let herself be. The needle reaches the scratch, and passes it.",
+            "art": "Three joyful older people with gray hair dancing onto a disco floor, a drag queen in sequins, a former scream queen in furs and a silver-haired man on roller skates, holding their hands out to a stunned vampire diva, a record spinning past a scratch on a turntable",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The record skips at the scratch and jumps back to the chorus, again and again. The Countess laughs, a little too loudly. \"See? It never ends. Nothing has to end.\" She is not ready to look at her friends' faces yet.",
+            "art": "A turntable needle skipping on a scratched record, a vampire diva laughing too loudly with her back turned to three older friends holding out their hands",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Let the Song End",
+        "text": "The song ends. For the first time since 1980, there is silence on Doreen's dance floor, and then the whole Glitter Box applauds. The golden light flows out of her and back into the crowd, and every gray hair she stole goes back where it came from. The doors open on dawn. Doreen walks into the sunrise, flinches, and does not burn. She just gets older, nine years in nine seconds: a silver streak like a lightning bolt, laugh lines, reading glasses she pretends are a fashion choice. She is forty-nine, and she is gorgeous, and she knows it. The next Saturday, the Glitter Box revue debuts a new act, Countess Doreen, Forever Fabulous, and Disco Tuesday at the roller rink is packed to the rails with every regular Club Lacroix ever had.",
+        "art": "A glamorous woman in her late forties with a silver lightning-bolt streak in golden hair stepping into sunrise outside a theater, laughing, flanked by a drag queen, an older scream queen in furs and a silver-haired man on roller skates, teens in rumpled Halloween costumes cheering"
+      },
+      "good": {
+        "title": "House Lights Up",
+        "text": "The Countess flees into the night, and the youth she stole flows back into the crowd like the bass returning after a skip. Nobody in the audience remembers much except the best dance of their lives. The trapdoor under the Glitter Box stage gets nailed shut. Sometimes, on very slow Tuesday nights, Sal swears he sees a figure in a cape watching the rink from the parking lot.",
+        "art": "A teen hammering nails into a sparkling trapdoor on an empty theater stage at dawn, a scatter of glitter and a single sequined bat-wing feather beside them"
+      },
+      "bittersweet": {
+        "title": "A Little Gray Around the Edges",
+        "text": "You end the party, but not before the Countess takes her tithe. A few kids from the revue keep their reading glasses and an inexplicable love of the evening news, and you have a single silver strand in your hair that never goes away. The Countess is sealed back under the stage in her mirrored coffin, still thirty-nine, still 1977, still alone.",
+        "art": "A teen looking in a bathroom mirror at a single silver strand in their hair, a mirrored coffin glimpsed through cracks in a theater floor below"
+      },
+      "bad": {
+        "title": "Forever 1977",
+        "text": "Your crew leaves the Glitter Box at dawn, and you do not. They only see you now in reflections: in the mirror ball, in shop windows, in the chrome of Joey's bumper, always dancing in gold hot pants and a bat-wing cape, the newest of the Lacroix Lovelies. You look young. You look happy. You look like you are trying very hard to tell them something over the music.",
+        "art": "A shop window at dawn reflecting a teen dancing in gold hot pants and a bat-wing cape inside a sparkling disco, while on the real sidewalk their worried friends press their hands to the glass"
+      }
+    }
+  }
+]

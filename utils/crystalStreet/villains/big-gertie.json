@@ -1,0 +1,569 @@
+[
+  {
+    "id": "big-gertie",
+    "name": "Big Gertie",
+    "epithet": "The Lunch Lady",
+    "tags": ["slasher", "camp"],
+    "palette": ["#a4b83a", "#f2e6c9", "#7a1f1f"],
+    "sigil": "ladle",
+    "logline": "Thirty years behind the steam table and not one kid ever learned her name. Now the lunch line runs all night, the mystery meat crawls out of the drains, and her hairnet hides a cleaver.",
+    "backstory": "Ruthanne Bixby drove rivets into destroyer hulls at the Mare Island Navy Yard when she was eighteen. In September 1956 she took a job on the lunch line at Glimmer Falls High, and she has served there every school day since: more than two million lunches, every tray handed over with the same four words. Tray. Fork. Napkin. Next. She is six foot one, and some smart-mouthed freshman in 1957 named her Big Gertie. The name got passed down like a dare for thirty years. In 1971 a senior leaned over the sneeze guard and asked, \"Do you even have a real name, Gertie?\" She told him, and he laughed so hard he dropped his tray. She has not said her name in that building since, and she decided that if they would not learn hers, she would not learn theirs. This October the Heartstone woke up. Every night now Ruthanne falls asleep in her recliner above the Suds-O-Mat, and every morning she wakes with gravy on her shoes. In between, something eight feet tall in a hairnet and a stained apron walks the halls of Glimmer Falls High with a ladle like a mace and a cleaver tucked under the net. The mystery meat walks with her.",
+    "centralIssue": {
+      "title": "Treated like furniture",
+      "summary": "For thirty years Ruthanne fed every kid in Glimmer Falls and nobody bothered to learn her name. Big Gertie is what happens when a person is used like a fixture until she starts to believe she is one. Learn who she is, and get the town to say thank you out loud."
+    },
+    "poster": "A towering lunch lady in a stained white apron and a hairnet stretched over the shape of a cleaver, a huge steel ladle raised over a shadowy school cafeteria, quivering gray-brown mystery meat oozing across the floor toward fleeing teens with lunch trays",
+    "portrait": "Close portrait of a tall, broad-shouldered woman in her sixties with steel-gray hair under a tight hairnet, the silhouette of a cleaver pressing through the net, tired eyes that have seen everything, steam from a serving tray lighting her face from below",
+    "taunts": [
+      "Tray. Fork. Napkin. Next.",
+      "Keep the line moving, sugar.",
+      "I've seen your face five thousand times. You've never once seen mine.",
+      "You want seconds? Nobody ever wants seconds.",
+      "Clean plates, everybody. Clean."
+    ],
+    "clues": [
+      {
+        "id": "big-gertie-yearbooks",
+        "title": "Thirty years, no name",
+        "location": "high-school",
+        "hint": "The yearbook office keeps every Glimmer Light annual since 1956. Check the staff pages.",
+        "encounter": {
+          "id": "big-gertie-clue-staff-page",
+          "title": "Cafeteria Staff (Unidentified)",
+          "place": "The yearbook office, Glimmer Falls High",
+          "text": "The yearbook office smells like rubber cement and deadline panic. A long shelf holds every Glimmer Light annual since 1956, the spines faded from maroon to pink. Chip Merriweather is at the light table pretending he isn't hiding in here. Someone has left a lunch tray of tater tots beside the books. They're still steaming. Nobody in the room brought them.",
+          "art": "A cramped high school yearbook office with a shelf of thirty faded annuals, a preppy teen at a glowing light table, a lunch tray of steaming tater tots sitting ominously beside the books",
+          "choices": [
+            {
+              "id": "flip-the-staff-pages",
+              "label": "Flip to the staff page in every yearbook",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 1
+              },
+              "success": {
+                "text": "1956 through 1986: the same tall woman, the same hairnet, the same ladle, thirty times. The caption under every photo reads Cafeteria Staff. In 1971 someone typed Big Gertie (?). In 1979, unidentified. Not once her name. In the margin of this year's proof, in red ballpoint, in handwriting nobody in this office claims, someone has written: I FED YOU.",
+                "art": "A row of open yearbooks spread across a table, each showing the same tall lunch lady in a hairnet over decades of changing fashions, the newest page scrawled with red ink in the margin",
+                "effects": {
+                  "clues": ["big-gertie-yearbooks"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The pages flip on their own to the cafeteria photo, year after year, and in each one the woman with the ladle is a little closer to the camera. In 1986 she's gone from the frame entirely. So are the tater tots.",
+                "art": "Yearbook pages flipping by themselves, a lunch lady growing closer to the camera in each photo, an empty frame on the final page and an empty tray beside it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-chip",
+              "label": "Ask Chip to pull the staff records for a caption",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "chip-merriweather",
+                "amount": 2
+              },
+              "success": {
+                "text": "Chip digs a payroll photocopy out of the files the yearbook uses for staff names. R. BIXBY, FOOD SERVICE, HIRED SEPT 1956. He goes very quiet. \"We just never asked,\" he says. He takes out his best class-president pen and writes RUTHANNE BIXBY on a sticky note, then presses it onto this year's proof like a promise.",
+                "art": "A preppy teen in a sweater vest pressing a handwritten sticky note onto a yearbook proof photo of a lunch lady, an old payroll sheet beside it, his expression ashamed and determined",
+                "effects": {
+                  "clues": ["big-gertie-yearbooks"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Chip has a proof due at four and three student-council crises and says staff photos aren't his department. On the bulletin board behind him, every caption on every photo has changed to unidentified. Including the one of you.",
+                "art": "A cork bulletin board of school photos with every caption reading unidentified, a stressed teen in a sweater vest buried in paperwork in front of it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "big-gertie-thanksgiving",
+        "title": "Miss Ruthie's roasting pans",
+        "location": "glitter-box",
+        "hint": "Every Thanksgiving the Glitter Box hosts a dinner for kids with nowhere else to go. Ask who does the cooking.",
+        "encounter": {
+          "id": "big-gertie-clue-roasting-pans",
+          "title": "The Kitchen Behind the Stage",
+          "place": "Backstage kitchen, The Glitter Box Playhouse",
+          "text": "Behind the stage, under a rack of sequined gowns, is a kitchen nobody talks about: six enormous dented roasting pans, a wall of cast iron and a hand-lettered banner from last November that says THANK YOU MISS RUTHIE! 47 KIDS FED! Glory is ironing a feather boa. Frankie is on her headset. Neither has noticed the pot of gravy simmering on a burner nobody lit.",
+          "art": "A cluttered theatre kitchen behind racks of sequined gowns, dented roasting pans stacked high, a hand-painted thank-you banner, a pot of gravy bubbling on an unlit stove, a drag queen ironing a boa in the background",
+          "choices": [
+            {
+              "id": "ask-glory",
+              "label": "Ask Glory who Miss Ruthie is",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "glory-hallelujah",
+                "amount": 2
+              },
+              "success": {
+                "text": "Glory sets the iron down. \"Ruthanne. Every Thanksgiving since 1972, she has cooked for our kids, the ones whose families put them out for being who they are. Never stays to eat. Never lets me thank her in front of anybody.\" She shows you a photo: a tall woman in a hairnet surrounded by teenagers in glitter and borrowed gowns, almost smiling.",
+                "art": "A snapshot of a tall lunch lady in a hairnet standing at a long table of laughing teens in glitter and thrift-store gowns, roasting pans and a carved turkey in front of her",
+                "effects": {
+                  "clues": ["big-gertie-thanksgiving"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Glory is in a full rehearsal panic and shoos you out with a boa. On your way past the stove, the gravy rolls a slow, thick bubble that pops into a single word: NEXT.",
+                "art": "A pot of brown gravy on a stove with a bubble bursting into the shape of a word, a teenager backing away past racks of sequined costumes",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "open-the-recipe-tin",
+              "label": "Open the battered recipe tin on the shelf",
+              "intent": "sneaky",
+              "skill": "lore",
+              "target": 9,
+              "success": {
+                "text": "Index cards in a careful hand: Turkey for 50. Cornbread, Mare Island Style. Gravy That Forgives Everything. Each one signed R.B. Tucked in the back is a 1944 photo of a young woman in coveralls and a bandana with a rivet gun on her shoulder, and a pay stub from the Mare Island Navy Yard. Ruthanne Bixby built warships before she fed this town.",
+                "art": "An open tin recipe box spilling handwritten index cards, a black-and-white 1940s photograph of a tall young woman in coveralls holding a rivet gun, a yellowed shipyard pay stub",
+                "effects": {
+                  "clues": ["big-gertie-thanksgiving"],
+                  "skills": {
+                    "lore": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "The tin snaps shut on your fingers like a mousetrap and the cards burst out across the floor. Every one of them says the same thing: TRAY. FORK. NAPKIN. NEXT. Frankie catches you and makes you scrub roasting pans until midnight.",
+                "art": "A teenager scrubbing an enormous roasting pan at a theatre sink late at night, a stage manager in a headset watching with arms crossed, identical index cards scattered on the floor",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "big-gertie-dedication",
+        "title": "The Friday Night Lady",
+        "location": "kglm-radio",
+        "hint": "For fifteen years a caller to KGLM's overnight show has dedicated a song to the kids at Glimmer Falls High every Friday. Mix keeps the logs.",
+        "encounter": {
+          "id": "big-gertie-clue-request-line",
+          "title": "The Request Line",
+          "place": "The overnight booth, KGLM 103.3",
+          "text": "At two in the morning the KGLM booth glows like a fish tank: reels turning, the ON AIR light burning red. Mix Bell slides a battered request log across the console. Every Friday since 1971 there's the same entry: Friday Night Lady. \"Stand By Me.\" For the kids at the high school. Tell them to eat their vegetables. The request line starts blinking. It's Friday.",
+          "art": "A late-night radio booth glowing with VU meters and spinning reel-to-reel tapes, a teen DJ sliding a worn logbook across the console, a blinking request-line phone in the foreground",
+          "choices": [
+            {
+              "id": "answer-the-line",
+              "label": "Pick up the request line yourself",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
+              "success": {
+                "text": "A woman's voice, low and tired: \"Is Marcus on? I've got my dedication.\" You ask her name. A long pause. \"Nobody's asked me that in fifteen years. It's Ruthanne.\" She tells you about the boy who laughed in 1971. \"Figured if they didn't want mine, I wouldn't learn theirs. Easier that way. You can't miss a face you never put a name to.\"",
+                "art": "A teenager holding a curly-corded studio phone to their ear in a dim radio booth, eyes wide and gentle, the red on-air light glowing behind them",
+                "effects": {
+                  "clues": ["big-gertie-dedication"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Heavy breathing, and then a voice like a steam table: \"Keep the line moving.\" A wet chop, like a cleaver into a cutting board, and then dial tone. The booth smells like creamed corn for a week.",
+                "art": "A radio booth phone dangling off its hook, a teenager recoiling, faint steam curling out of the receiver",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "play-the-airchecks",
+              "label": "Ask Mix to play back his old tapes of her calls",
+              "intent": "clever",
+              "skill": "charm",
+              "target": 7,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "Mix threads up a reel of old airchecks. Fifteen years of the same voice getting a little more tired every year. On the oldest tape, from spring 1971, she sounds young and bright and says her name like it's nothing: \"This is Ruthanne, I work the lunch line, and I just love these kids.\" By 1972, she's only the Friday Night Lady.",
+                "art": "A teen DJ in headphones threading an old reel-to-reel tape, a label marked 1971 on the box, a teenager listening intently beside the glowing console",
+                "effects": {
+                  "clues": ["big-gertie-dedication"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The reel plays backward with a hiss like a steam table, and every needle on the board pins into the red. Mix has to kill the transmitter, and four thousand insomniacs in Glimmer Falls hear thirty seconds of dead air and the clatter of trays.",
+                "art": "A radio console with every meter pinned in the red, a teen DJ slamming a kill switch, a reel of tape spinning backward in a blur",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "big-gertie-the-line",
+        "title": "The Line",
+        "place": "Glimmer Falls High cafeteria, midnight",
+        "text": "You don't remember coming to school. You're holding a beige tray in a cafeteria lit by one buzzing tube, standing in a line that stretches back into the dark: every kid in Glimmer Falls since 1956, in letterman jackets and poodle skirts and Members Only, shuffling forward without a word. At the steam table, a tall shape in a hairnet ladles something that moves. \"Tray,\" it says. \"Fork. Napkin. Next.\"",
+        "art": "A dark school cafeteria at midnight lit by one flickering fluorescent tube, a ghostly line of teenagers from three decades of fashion holding beige trays, a towering lunch lady in a hairnet ladling quivering food at the steam table",
+        "choices": [
+          {
+            "id": "say-thank-you",
+            "label": "Look her in the eye and say thank you",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "The ladle stops halfway. The whole line goes silent. For one second you see under the hairnet: a tired woman's face, astonished. \"Well,\" she says, \"nobody's ever...\" The cafeteria fades into morning, and on your tray sits a perfect cinnamon roll, still warm.",
+              "art": "A towering lunch lady frozen mid-scoop, her stern face softening in astonishment, a teenager holding a tray with a single glowing cinnamon roll, the dark cafeteria dissolving into morning light",
+              "effects": {
+                "nerve": 2,
+                "flags": ["big-gertie-thanked"]
+              }
+            },
+            "failure": {
+              "text": "She doesn't hear you over the clatter of thirty years of trays. A scoop of Salisbury Surprise slaps onto your tray and starts crawling up your arm. You wake in bed with gravy in your sneakers.",
+              "art": "A lump of gray-brown mystery meat crawling up a teenager's sleeve from a lunch tray, a hairnetted giant already turning to the next kid in line",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "cut-the-line",
+            "label": "Duck under the rail and bolt for the kitchen door",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You slide under the sneeze guard, past the dish pit, past a walk-in freezer humming like a hornet's nest, and out the loading dock into the cold. You wake in your own bed, panting, clutching a carton of chocolate milk you definitely did not pay for.",
+              "art": "A teenager sliding under a cafeteria sneeze guard and sprinting through a steamy school kitchen toward a loading dock door glowing with moonlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"NO CUTTING.\" The cleaver comes down on the tray rail an inch from your fingers, and the line closes around you like water. When you look up you're at the very back again, behind 1962.",
+              "art": "A cleaver embedded in a steel tray rail inches from a teenager's hand, the ghostly lunch line closing around them",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "eat-what-she-serves",
+            "label": "Eat whatever she serves without a single complaint",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "It tastes like Sunday dinner at somebody's grandma's house. The mystery meat on your tray stops wriggling and settles with something like a purr. Behind the steam table, the giant grunts. It might be approval. It might be the first compliment she's had since Nixon.",
+              "art": "A teenager bravely eating from a lunch tray, eyes closed in surprised delight, the mystery meat on the tray resting contentedly, a towering lunch lady watching with a grunt",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It eats back. You spend the rest of the dream wrestling your lunch across the cafeteria floor while the line shuffles past without looking down.",
+              "art": "A teenager wrestling a writhing blob of mystery meat on a cafeteria floor while a line of ghostly students steps around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-mystery-meat",
+        "title": "The Mystery Meat Is Moving",
+        "place": "Crystal Street storm drains, 1 a.m.",
+        "text": "Barnaby howls at midnight. Then you hear it: a wet, cheerful squelch from every storm drain on Crystal Street. Gray-brown blobs of Salisbury Surprise ooze up out of the gutters, roll across the lawns and gather into one quivering mound the size of a station wagon, with two canned peas for eyes. It smells exactly like Tuesday. It wants to form a line.",
+        "art": "A suburban street at night with gray-brown mystery meat oozing from storm drains and merging into a car-sized quivering blob with two pea eyes, a basset hound howling on a porch",
+        "choices": [
+          {
+            "id": "lacquer-it",
+            "label": "Blast it with Aqua-Glow until it hardens",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "aqua-net",
+              "amount": 2
+            },
+            "success": {
+              "text": "A choking cloud of Max Hold, and the meat lacquers into a shiny brown sculpture right in the middle of the Okafors' lawn. It will stay there until Thanksgiving. Mrs. Okafor puts a pumpkin on it and calls it art.",
+              "art": "A glossy hardened blob of brown mystery meat shaped like a lumpy statue on a suburban lawn, a teenager lowering a can of hairspray in a cloud of mist",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It drinks the hairspray. It gets glossier. It gets bigger. Then it sneezes, and you are launched backward into the Okafors' hedge with your hair standing straight up and locked that way for two days.",
+              "art": "A teenager flying backward into a hedge with their hair blasted straight up, a giant glossy blob of mystery meat mid-sneeze in the street",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "whistle-it-into-line",
+            "label": "Blow a whistle and march it single file",
+            "intent": "camp",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "One sharp blast and the meat obeys like every freshman ever born: it splits into a dozen blobs, forms a single-file line and squelches off down Crystal Street toward the high school, where it files neatly into the dumpster and lies down.",
+              "art": "A line of small mystery meat blobs marching single file down a moonlit suburban street toward a school dumpster, a figure with a coach's whistle leading them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "It obeys too well. It lines up behind you, and only you, and follows you all night, squelching at your heels. In the morning your mother asks why the porch smells like gravy.",
+              "art": "A long line of mystery meat blobs following a dismayed teenager up their porch steps at dawn, the front door opening on a confused parent",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "big-gertie-walk-in",
+        "title": "The Walk-In",
+        "place": "The cafeteria walk-in freezer, 3 a.m.",
+        "text": "The heavy freezer door thunks shut behind you. Frost on everything. Tater-tot boxes stacked to the ceiling, and hanging from steel hooks in a neat row, rimed white, are the letterman jackets, cheer sweaters and Walkmans of every kid who skipped her line this week. Down the aisle comes the scrape of a cleaver on a sharpening steel, slow and patient. \"I know you,\" says Big Gertie. \"I know every face. I just never bothered with the names.\"",
+        "art": "A frost-covered walk-in freezer lit blue, letterman jackets and Walkmans hanging frozen on meat hooks, a towering hairnetted silhouette sharpening a cleaver at the far end of the aisle",
+        "choices": [
+          {
+            "id": "trade-names",
+            "label": "Tell her your name and ask for hers",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "big-gertie-thanked",
+              "amount": 2
+            },
+            "success": {
+              "text": "You tell her your name. You ask for hers. The cleaver stops on the steel. Frost melts off a nametag on her apron you never noticed: R. BIXBY. \"Ruthanne,\" she whispers, trying it out like a word in a foreign language. Behind you, the freezer door clicks open.",
+              "art": "A towering lunch lady in a frosted freezer lowering her cleaver, frost melting off a small nametag on her apron, a teenager standing their ground with an open hand",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["big-gertie-named"]
+              }
+            },
+            "failure": {
+              "text": "\"Names,\" she says, \"are for people who stay.\" The light goes out. You spend the night pounding on the inside of the door and wake up at home with frost in your eyebrows and one shoe missing.",
+              "art": "A teenager pounding on the inside of a dark freezer door, breath fogging, frost forming on their eyebrows",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "jam-the-door",
+            "label": "Wedge the door with a lunch tray and drag the jackets out",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 1
+            },
+            "success": {
+              "text": "The tray wedges, the door groans, and you haul out two frozen letterman jackets before it slams. In the morning, two kids who'd been home sick with mysterious chills wake up warm and starving. You find a few quarters in the pockets, and decide that's a fair reward.",
+              "art": "A teenager squeezing out of a freezer door propped by a bent lunch tray, arms full of frost-covered letterman jackets, a cleaver flashing in the dark behind them",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The tray snaps like a cracker. The cleaver thunks into the shelf beside your ear and a box of tots explodes over your head. You get out, but you leave something behind, hanging on a hook.",
+              "art": "A cleaver lodged in a freezer shelf beside a teenager's head, frozen tater tots raining down, the teenager diving for a narrowing gap in the door",
+              "effects": {
+                "nerve": -2,
+                "loseItems": ["walkie-talkies"]
+              }
+            }
+          },
+          {
+            "id": "hide-in-the-tots",
+            "label": "Burrow into the tater-tot boxes and hold very still",
+            "intent": "sneaky",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "She passes so close you could touch her apron. Up close you see what nobody has seen in thirty years: tears freezing on her cheeks. She doesn't find you. When she's gone, you slip out, and you can't stop thinking about her face.",
+              "art": "A teenager hidden among frozen cardboard boxes, peering at a towering lunch lady passing by with frozen tears glittering on her cheeks",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "A box tips. An avalanche of frozen tots buries you to the neck, and a huge hand plucks you out by the collar. \"Hiding from lunch,\" she says. \"In my day we were grateful.\"",
+              "art": "A huge hand lifting a teenager by the collar out of a pile of spilled frozen tater tots, a hairnetted giant scowling in the blue freezer light",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "big-gertie-finale",
+      "title": "Last Call at the Lunch Line",
+      "place": "Glimmer Falls High cafeteria, Halloween night",
+      "text": "On Halloween the whole town comes to lunch. The cafeteria has grown enormous and endless, every table full of neighbors in costume eating gray food with their heads down, nobody looking up. The steam table runs the length of the room, and behind it Big Gertie towers to the ceiling tiles, hairnet stretched over a cleaver like a shark's fin, ladle as big as a canoe paddle. \"Thirty years,\" she booms. \"Two million lunches. And not one of you ever looked up.\"",
+      "art": "An endless school cafeteria on Halloween night packed with townspeople in costumes eating gray food with bowed heads, a gigantic lunch lady behind a steam table that stretches into darkness, a teen crew in costumes standing in the aisle facing her",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Flip the steam table and pull the plug on the line",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "companion": "moose-kowalski",
+            "amount": 2
+          },
+          "success": {
+            "text": "The steam table goes over with a crash like a car wreck and the steam dies in a long hiss. Big Gertie shrinks and shrinks until she is a tired woman asleep in a plastic chair by the dish pit. The town wakes up in costume, confused, and goes home. Nobody thinks to ask who she was.",
+            "art": "A long steel steam table crashing over in a cloud of steam, a giant lunch lady shrinking into an ordinary tired woman asleep in a plastic chair, costumed townspeople blinking awake",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The steam table doesn't budge. The ladle scoops you up like a dumpling and sets you on a tray. \"Next,\" she says, without looking at you.",
+            "art": "A teenager sitting stunned on a giant lunch tray, scooped by an enormous ladle, a hairnetted giant already turning away",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Start a food fight so big she can't run the line",
+          "intent": "camp",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "item": "glow-bracelet",
+            "amount": 1
+          },
+          "success": {
+            "text": "You hurl the first tater tot. Then the whole town is flinging creamed corn and jello cubes and laughing, and nobody's head is down anymore. Nobody can run a lunch line in that kind of chaos, and the cafeteria dissolves around you in a shower of green jello.",
+            "art": "An explosive cafeteria food fight with townspeople in Halloween costumes flinging jello, corn and tater tots, a giant lunch lady staring in dismay as the walls dissolve",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Every tot you throw she catches on a tray without looking. Then she sends them all back at once, two million of them, and you go down under a hot golden avalanche.",
+            "art": "A wall of tater tots flying back across a cafeteria toward a teenager, a giant lunch lady flicking a tray like a catapult",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Say her name, and get the whole room to say thank you",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "\"Ruthanne Bixby,\" you say, loud. \"Mare Island riveter. Thanksgiving cook. Friday Night Lady.\" You hold up the yearbook with Chip's sticky note. One by one, the neighbors lift their heads from their trays. \"Thank you, Ruthanne.\" Two million thank yous, all at once. The cleaver clatters onto the steam table. The hairnet slips, and she's only a tall woman in an apron, crying and laughing, telling everybody to eat their vegetables. Then she asks you, finally, for your name.",
+            "art": "A vast cafeteria full of costumed townspeople raising their heads and applauding, a tall lunch lady shrinking to human size with tears and laughter, her cleaver dropped, a teen holding up a yearbook with a handwritten note",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your voice is swallowed by the clatter of trays. Nobody looks up from their plates. You know every word you need to say, but the room isn't ready to hear it yet.",
+            "art": "A teenager shouting into a sea of bowed heads in an endless cafeteria, trays clattering, a giant lunch lady looming, oblivious",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Ruthanne Bixby Day",
+        "text": "On November first the school board names the cafeteria the Ruthanne Bixby Dining Hall, and the whole kitchen staff finally gets the raise they've been asking for since 1979. Every staff photo in the 1987 Glimmer Light has a name under it. Ruthanne retires at Thanksgiving with a party at the Glitter Box, where two hundred former students line up to say her name to her face. She learns yours. She never forgets it, and she still yells it across the street when she sees you skipping breakfast.",
+        "art": "A joyful retirement party in a glittering theatre, a tall woman in her sixties in a corsage laughing as a line of former students of every decade hugs her, a banner reading thank you Ruthanne overhead"
+      },
+      "good": {
+        "title": "Lunch Is Over",
+        "text": "The cafeteria goes quiet and the mystery meat stays in the drains where it belongs. The lunch lady is just a tired woman you pass in the hall with a cart of trays. You never quite learn why any of it happened. But you say thank you at the steam table every single day now, just in case it matters.",
+        "art": "A sunny school cafeteria at lunchtime, a teenager saying thank you to a tall lunch lady at the steam table, her face unreadable, students chattering at tables behind them"
+      },
+      "bittersweet": {
+        "title": "Seconds",
+        "text": "You survive, and the kids from the walk-in mostly thaw out, though a couple of them shiver all winter. Then Ruthanne retires without a word one Friday in November. No party, no card. By the time you think to look up her name in the payroll files, she has moved to a sister's place in Vallejo, and the Friday Night Lady never calls KGLM again.",
+        "art": "An empty cafeteria serving line with a single hairnet left folded on the steam table, a radio booth phone silent in the background, gray November light through the windows"
+      },
+      "bad": {
+        "title": "Tray, Fork, Napkin",
+        "text": "On November first you're behind the steam table in a hairnet and a stained apron, serving. Nobody looks up at you. Your crew comes through the line on Monday and takes their trays and doesn't recognize your face. You open your mouth to say your name, and all that comes out is the word next.",
+        "art": "A teenager in a hairnet and apron behind a cafeteria steam table holding a ladle, their friends in the lunch line staring at their trays like strangers"
+      }
+    }
+  }
+]

@@ -1,0 +1,511 @@
+[
+  {
+    "id": "frieda-krueger",
+    "name": "Frieda Krueger",
+    "epithet": "The Stylist of Sleep",
+    "tags": ["dream", "slasher", "paranormal"],
+    "palette": ["#e0115f", "#2b1a3d", "#c0c0c8"],
+    "sigil": "shears",
+    "logline": "Fall asleep on Crystal Street and Frieda will be happy to give you a little off the top. Wherever she cuts, your color drains to gray.",
+    "backstory": "In 1961 Frieda Krueger ran the Shear Delight salon at the end of the Glimmer Falls shopping plaza. Every bride, prom queen and church soloist in town sat in her chair, and she gave the girls nobody else would touch their first pixie cuts, mohawks and dyed-blue bobs. When the founding PTA mothers decided her salon was \"a bad influence,\" one of them started a rumor that Frieda was poisoning hair dye. The plaza owners evicted her by Christmas. Frieda kept cutting hair in her basement until the night the boiler went out and she fell asleep in her own chair and never woke up. Now she cuts in dreams, with a glove of five polished shears, and she is determined to make the children of those mothers perfect: neat, gray and exactly alike.",
+    "centralIssue": {
+      "title": "The rumor that made her a monster",
+      "summary": "Frieda was not a poisoner. Someone lied her out of town for letting kids look like themselves. Her rage is real, but it is aimed at the wrong generation. Uncover who started the rumor and help her be seen as the artist she was."
+    },
+    "poster": "A towering woman in a 1961 beautician's smock and a beehive of silver hair, a glove of five gleaming shears raised over a sleeping suburban street, curlers floating like moons, the houses below draining from color to gray",
+    "portrait": "Close portrait of a sharp-cheeked 1960s beautician ghost, silver beehive, cat-eye glasses with cracked lenses, a glove of five shears held near her face, half her face lit hot pink by a salon mirror",
+    "taunts": [
+      "Sit still, sugar. Perfect takes time.",
+      "Your mother had this exact cowlick. I fixed hers, too.",
+      "Gray is very in this season. Everyone will be wearing it.",
+      "Nobody ever leaves my chair unhappy. Nobody ever leaves."
+    ],
+    "clues": [
+      {
+        "id": "frieda-krueger-eviction",
+        "title": "The eviction notice",
+        "location": "library",
+        "hint": "The library keeps the Glimmer Falls Gazette on microfiche back to 1959.",
+        "encounter": {
+          "id": "frieda-krueger-clue-microfiche",
+          "title": "Reel 1961-12",
+          "place": "Microfiche room, Glimmer Falls Public Library",
+          "text": "The microfiche reader hums like a refrigerator. December 1961 is missing from the drawer, but the reshelving cart has a reel labeled in someone's tidy script: DO NOT CIRCULATE. Ms. Hart is busy at the front desk, and the reel is still warm, as if someone was just reading it.",
+          "art": "A teenager in a dim library microfiche room, a glowing green reader screen showing a 1961 newspaper headline about a salon eviction, a reel with a stern red restricted label",
+          "choices": [
+            {
+              "id": "read-the-reel",
+              "label": "Thread the forbidden reel and read fast",
+              "intent": "reckless",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "SHEAR DELIGHT CLOSED AFTER 'DYE SCARE,' reads the headline. No test ever found poison. The only source quoted is an unnamed PTA officer. You print the page before the reel snaps.",
+                "art": "A printed microfiche page sliding out of a library printer, headline about a dye scare, a hand-drawn heart circling the key line of the article",
+                "effects": {
+                  "clues": ["frieda-krueger-eviction"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The reel spins loose and clatters across the floor. When you look up, the reader screen shows your own reflection with gray hair, smiling with somebody else's lipstick. The lights flicker and the reel is gone.",
+                "art": "A library microfiche screen showing a teenager's reflection with gray hair and a stranger's red smile, a film reel unspooling across the carpet",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-ms-hart",
+              "label": "Ask Ms. Hart why this reel is restricted",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 7,
+              "bonus": {
+                "companion": "delphine-hart",
+                "amount": 2
+              },
+              "success": {
+                "text": "Ms. Hart lowers her glasses. \"Because the woman who started that rumor sits on the library board.\" She lets you read the article in her office, then tucks a photocopy into a book jacket so it looks like homework.",
+                "art": "A librarian in a cardigan sliding a photocopied newspaper inside a hardcover book jacket across a desk to a teenager, warm lamp light",
+                "effects": {
+                  "clues": ["frieda-krueger-eviction"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Ms. Hart says the reel is \"being repaired\" in a voice that means a grown-up has told her to say that. On your way out you notice a library board photo on the wall. One woman's face has been scratched out with something very sharp.",
+                "art": "A framed library board photograph in a hallway with one woman's face scratched out by five parallel blade marks",
+                "effects": {
+                  "dread": 1,
+                  "flags": ["frieda-board-photo"]
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "frieda-krueger-portfolio",
+        "title": "Frieda's portfolio",
+        "location": "glitter-box",
+        "hint": "Somebody at the Glitter Box Playhouse has been doing wigs since the sixties.",
+        "encounter": {
+          "id": "frieda-krueger-clue-wig-room",
+          "title": "The wig room",
+          "place": "Backstage, The Glitter Box Playhouse",
+          "text": "Glory Hallelujah's wig room is a wall of foam heads, each with a name: Cher, Dusty, Big Sandy, Miss Frieda. That last one wears a towering silver beehive, and under it, taped to the foam, is an old photo album bursting with Polaroids of kids in impossible haircuts, all of them grinning.",
+          "art": "A backstage wig room lined with foam mannequin heads wearing sparkling wigs, one silver beehive labeled Miss Frieda, an old photo album open beneath it full of 1960s haircut snapshots",
+          "choices": [
+            {
+              "id": "ask-glory",
+              "label": "Ask Glory who Miss Frieda was",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "glory-hallelujah",
+                "amount": 2
+              },
+              "success": {
+                "text": "Glory sits down hard. \"She cut my hair when I was nine, the first time anyone let me look how I felt inside. Lost her shop over a lie.\" She hands you the album. Every page is signed: You're perfect already. Love, F.",
+                "art": "A drag queen in a feathered robe sitting at a vanity mirror, holding an old photo album to her chest, tearful and smiling, bulb lights glowing",
+                "effects": {
+                  "clues": ["frieda-krueger-portfolio"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Glory is mid-rehearsal and waves you off with a fan. When you reach for the album, the beehive wig turns on its foam head to face you. You leave very quickly.",
+                "art": "A silver beehive wig on a foam mannequin head turned toward the viewer in a dark backstage room, one curler dropping to the floor",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "photograph-the-album",
+              "label": "Snap the album pages before anyone notices",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "item": "polaroid",
+                "amount": 2
+              },
+              "success": {
+                "text": "Click, whirr, click. Twelve Polaroids develop in your pocket: a boy with a lightning-bolt part, twin girls with matching blue bobs, a kid in a tiara who looks a lot like a young Glory. Frieda made people brave.",
+                "art": "A spread of fresh Polaroid photos on a backstage floor showing 1960s kids with bold, joyful haircuts, a camera beside them",
+                "effects": {
+                  "clues": ["frieda-krueger-portfolio"],
+                  "quarters": 1
+                }
+              },
+              "failure": {
+                "text": "The flash goes off in a mirror and the whole wig wall is lit up. Frankie catches you, sighs, and makes you sweep the stage. By the time you finish, the album is locked in Glory's trunk.",
+                "art": "A teenager sweeping a glittery stage under a single work light while a stage manager in headphones watches with arms crossed",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "frieda-krueger-confession",
+        "title": "Mrs. Whitlock's confession",
+        "location": "crystal-street",
+        "hint": "The oldest house on Crystal Street belongs to a founding PTA mother who never sleeps anymore.",
+        "encounter": {
+          "id": "frieda-krueger-clue-porch",
+          "title": "The woman who never sleeps",
+          "place": "1 Crystal Street",
+          "text": "Old Mrs. Whitlock sits on her porch at noon in a quilted robe, a pot of coffee at her elbow and every light in her house on. Her hair is perfectly, uniformly gray. \"I haven't slept in twenty-five years,\" she says, before you ask anything at all.",
+          "art": "An elderly suburban woman in a quilted robe on a porch at noon, every window of her split-level house lit, a coffee pot beside her, hair perfectly gray, purple shadows under her eyes",
+          "choices": [
+            {
+              "id": "sit-with-her",
+              "label": "Sit down and pour her another cup",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "Over the second pot she tells you. She started the rumor because Frieda gave her daughter a pixie cut and the other mothers laughed at her. \"I was jealous and cruel,\" she whispers. \"Tell her I'm sorry, if you see her. I see her every time I blink.\"",
+                "art": "A teenager and an elderly woman sharing coffee on a porch swing, the woman weeping into a handkerchief, a faded photo of a girl with a pixie cut between them",
+                "effects": {
+                  "clues": ["frieda-krueger-confession"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "She gets defensive, then frightened, then furious, and calls your parents to report you for loitering. Behind her, in the dark front window, a gloved hand with five shears taps the glass in rhythm.",
+                "art": "A dark front window of a suburban house, a glove of five shears tapping the glass from inside, an old woman on the porch shouting into a cordless phone",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "show-the-evidence",
+              "label": "Lay out what you know and make her admit it",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "flag": "frieda-board-photo",
+                "amount": 1
+              },
+              "success": {
+                "text": "You list the dates, the missing reel, the scratched photo. Her coffee cup rattles. \"Yes. It was me. I said the dye was poison and they believed me because I was the sort of woman people believed.\" She signs a note you can carry: I LIED. I'M SORRY. — J.W.",
+                "art": "A shaking elderly hand signing an apology note on a porch table beside a coffee cup, a teenager standing firm, late afternoon light",
+                "effects": {
+                  "clues": ["frieda-krueger-confession"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "She laughs at you, a brittle, practiced laugh, and goes inside. Every light in her house goes out at once. For the first time in twenty-five years, Mrs. Whitlock is asleep, and the whole street hears her scream.",
+                "art": "A split-level house on a cul-de-sac with every light suddenly out, a single scream line drawn in the air above it, neighbors' porch lights flicking on",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 2
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "frieda-krueger-the-chair",
+        "title": "The Chair",
+        "place": "The Shear Delight salon, in a dream",
+        "text": "You do not remember falling asleep. You are in a pink vinyl salon chair, the cape snapped at your throat, and in the mirror a woman with a silver beehive is combing your hair with one shear-blade fingernail. \"Just a trim,\" Frieda says. \"Something sensible. Something gray.\"",
+        "art": "A teenager trapped in a pink vinyl salon chair in a dreamy, warped 1961 beauty parlor, a ghostly beautician with a five-shear glove looming in the mirror, hair dryers hanging like moons",
+        "choices": [
+          {
+            "id": "wake-yourself",
+            "label": "Pinch yourself awake before she cuts",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "You twist the skin on your wrist until the salon smears like wet paint. You jolt upright in bed, the cape still around your neck, a single silver curler on your pillow. You are wide awake and very, very alive.",
+              "art": "A teenager bolting upright in a 1980s bedroom with posters on the walls, a salon cape still around their neck, a silver curler on the pillow",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Snip. A lock of your hair falls into your lap, gray as cigarette ash. When you wake, that streak is still gray, and you feel a little more tired than you did before.",
+              "art": "A single gray lock of hair falling onto a pink salon cape, a reflection of shears flashing in a mirror",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "compliment-her-work",
+            "label": "Ask for her best cut, the one nobody else would dare",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "Frieda's shears stop. In the mirror, something like delight crosses her face. \"Nobody has asked me that in twenty-five years.\" She gives you a cut so fierce it survives waking up, and then she lets you go.",
+              "art": "A teenager in a salon chair with a fierce, glittering, rainbow-streaked haircut, a ghostly beautician behind them almost smiling in the mirror",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "charm": 1
+                },
+                "flags": ["frieda-delighted"]
+              }
+            },
+            "failure": {
+              "text": "\"Dare?\" She laughs. \"Darling, I tried daring. Look where it got me.\" The chair spins and spins and you wake on the floor of your room, dizzy, with a crown of curlers tangled in your hair.",
+              "art": "A dizzy teenager waking on a bedroom carpet tangled in pink foam curlers, a spinning salon chair fading into the wallpaper",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-gray-street",
+        "title": "The Gray Street",
+        "place": "Crystal Street, in a dream",
+        "text": "Crystal Street is perfectly gray. The lawns, the station wagons, the neighbors standing on every porch in matching gray bathrobes and matching gray bobs. They turn their heads toward you all at once. \"Your turn,\" they say, in your neighbors' voices.",
+        "art": "A 1980s suburban cul-de-sac drained entirely of color, neighbors in identical gray bathrobes and identical gray haircuts on every porch turning toward one colorful teenager in the street",
+        "choices": [
+          {
+            "id": "run-for-color",
+            "label": "Run for the one house still in color",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Your sneakers slap gray asphalt. Grandma Pearl's porch light is still yellow, and you dive through it like a finish line. Inside, everything is warm and loud and real, and you wake up laughing.",
+              "art": "A teenager diving through a glowing yellow porch light into a warm, colorful living room while a gray suburban street reaches after them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The neighbors move without walking, like a slide show. Every time you blink they are closer. When you wake, your favorite jacket is gray, and so is the poster above your bed.",
+              "art": "Gray-robed neighbors frozen mid-step much closer than before, like slides in a slideshow, surrounding a frightened teenager on a gray street",
+              "effects": {
+                "nerve": -2,
+                "loseItems": ["leg-warmers"]
+              }
+            }
+          },
+          {
+            "id": "paint-the-street",
+            "label": "Pull out a lipstick and start drawing color back",
+            "intent": "camp",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "You draw a hot pink star on the asphalt and it blazes. Then a turquoise lightning bolt, a purple heart. Color spreads in rings and the neighbors blink like people waking from a long, dull dream.",
+              "art": "A teenager drawing glowing neon pink stars and turquoise lightning bolts on gray asphalt with a lipstick, color spreading outward across a suburban street",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["frieda-color-spell"]
+              }
+            },
+            "failure": {
+              "text": "The lipstick comes out gray. Everything you draw comes out gray. A gloved hand rests gently on your shoulder, and you wake with five neat, bloodless lines in your pajama sleeve.",
+              "art": "A gray lipstick star smeared on gray asphalt, a glove of shears resting on a teenager's shoulder from behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "frieda-krueger-slumber-party",
+        "title": "Slumber Party Rules",
+        "place": "Your living room, three a.m.",
+        "text": "Your crew is camped on your living room floor in sleeping bags, swearing nobody will fall asleep. It is three a.m. One by one, heads are nodding. In the dark kitchen, very softly, someone is sharpening scissors.",
+        "art": "A 1980s living room slumber party at 3 a.m., teens in sleeping bags fighting sleep around a glowing TV, a silhouette in the dark kitchen sharpening scissors",
+        "choices": [
+          {
+            "id": "keep-everyone-awake",
+            "label": "Start the loudest game of Truth or Dare in history",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "By dawn everyone knows who kissed who at the roller rink, Moose has confessed to knitting a sweater for his cat, and nobody slept a wink. The scissor sound stops at sunrise, sulking.",
+              "art": "Teens laughing hysterically in sleeping bags at dawn, popcorn everywhere, sunlight through the blinds, a pair of scissors abandoned on the kitchen counter",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The game peters out. Someone starts snoring. You hear a snip, a gasp, and in the morning one friend has a perfect gray bowl cut and will not talk about what they saw.",
+              "art": "A morning living room after a slumber party, one teen with a perfect gray bowl cut staring blankly into space, friends gathered around worried",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "flags": ["crew-shaken"]
+              }
+            }
+          },
+          {
+            "id": "set-a-trap",
+            "label": "Booby-trap the kitchen with every pot you own",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "At 3:33 the kitchen explodes in a crash of saucepans and a shriek of outrage. In the morning there is a silver beehive hairpin on the linoleum, and you feel, for the first time, that Frieda can be surprised.",
+              "art": "A dark kitchen exploding in falling pots and pans, a startled ghostly beehive silhouette, a silver hairpin spinning on linoleum",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The pots fall on you, not her. By the time you dig yourself out, half the party is asleep and dreaming the same dream: a pink chair, waiting.",
+              "art": "A teenager buried under a pile of pots and pans in a dark kitchen while friends sleep behind them, a pink salon chair glowing faintly in a dream bubble",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "frieda-krueger-finale",
+      "title": "Closing Time at the Shear Delight",
+      "place": "The Shear Delight salon, Halloween night",
+      "text": "On Halloween night the whole street falls asleep at once and you all wake up in the Shear Delight. Every neighbor is in a chair. Every chair faces a mirror. Frieda stands in the center with her shears raised, and for the first time you notice she is crying. \"I only wanted them to be perfect,\" she says, \"so nobody could take anything away from them.\"",
+      "art": "A vast dream beauty salon with endless rows of pink chairs holding sleeping neighbors, a weeping ghostly beautician with a raised five-shear glove at the center, the teen crew facing her in Halloween costumes",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Smash every mirror in the salon",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "Mirror after mirror bursts into glitter. With nowhere left to see herself, Frieda comes apart like smoke from a curling iron. The neighbors wake up in their own beds, a little grayer, a little shaken, and safe.",
+            "art": "A teen swinging a baseball bat through a salon mirror that bursts into glittering shards, a beautician ghost dissolving into pink smoke",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The glass will not break. In every mirror, your reflection is getting a neat, sensible, gray haircut, and it looks so relieved.",
+            "art": "Endless salon mirrors each reflecting a teenager calmly receiving a gray haircut, the real teenager pounding unbroken glass",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Spin her own chair until she falls asleep inside her dream",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "success": {
+            "text": "You lure her into the pink chair, snap the cape around her and spin. A dream inside a dream is too deep even for a ghost. Frieda sleeps, finally, and the salon folds up around her like a closing compact.",
+            "art": "A ghostly beautician spinning in her own pink salon chair, wrapped in a cape and falling asleep, the salon folding shut like a makeup compact",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She catches the chair with one shear-tipped hand. \"Oh, sweetheart. I invented that trick.\" The cape snaps around your throat instead.",
+            "art": "A beautician ghost stopping a spinning salon chair with one bladed hand, a cape snapping around a teenager instead",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Show her the portfolio, the newspaper and the apology",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "You hold up the article that proved her innocent, the album full of brave kids, and the note: I LIED. I'M SORRY. Frieda reads it three times. Then she lowers the shears, takes off the glove finger by finger, and asks, very quietly, if anyone wants a real haircut.",
+            "art": "A ghostly beautician removing a glove of shears finger by finger, reading an apology note, surrounded by teens holding up a photo album and a newspaper, color flooding back into the salon",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She cannot hear you over twenty-five years of anger. The salon tilts. You have the truth in your hands, but she needs to see it more clearly than this.",
+            "art": "A tilting dream salon, a teen holding up an apology note that a raging beautician ghost cannot see through a storm of hair clippings",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "You're Perfect Already",
+        "text": "Frieda spends her last night on Crystal Street giving the most glorious haircuts in Glimmer Falls history: a purple mohawk for Moose, silver stars for Bea, something unrepeatable and rainbow for you. Mrs. Whitlock comes in last, and the two women talk for a long time with the door closed. At dawn the salon is empty except for a signed photo on the mirror: You're perfect already. Love, F. Every November after, someone leaves fresh curlers on the old plaza steps.",
+        "art": "A joyful dream salon at dawn full of teens with wild rainbow haircuts, a softly glowing beautician ghost waving goodbye, a signed photo tucked in the mirror frame"
+      },
+      "good": {
+        "title": "Lights Out at the Salon",
+        "text": "The Shear Delight goes dark for good and Crystal Street wakes up rested for the first time all week. Nobody remembers much, except a smell of hairspray and a vague feeling that they should be kinder to the strange kids. You remember. You keep a single silver curler on your desk, and sometimes you wonder what she was so afraid of.",
+        "art": "A shuttered 1960s beauty salon at dawn with a closed sign, a teenager outside holding one silver curler, morning light on a quiet suburban plaza"
+      },
+      "bittersweet": {
+        "title": "A Little Off the Top",
+        "text": "You survive the week, and so does most of Crystal Street, but a few neighbors wake up with gray in their hair that never washes out. Frieda is quiet now, not gone. On the coldest nights you still hear scissors, very far away, and you sleep with the radio on.",
+        "art": "A teenager in bed with a clock radio glowing, a faint silhouette of shears in the frosty window, a gray streak in their hair"
+      },
+      "bad": {
+        "title": "Something Sensible",
+        "text": "You wake on November first with a neat gray haircut and no memory of the week. Your clothes are beige now. You like them. Your crew tries to remind you who you were, and you smile politely, and you sit perfectly still while they talk.",
+        "art": "A teenager with a neat gray haircut in beige clothes sitting perfectly still at a kitchen table, worried friends in colorful jackets crowded around them"
+      }
+    }
+  }
+]

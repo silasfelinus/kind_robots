@@ -1,0 +1,661 @@
+[
+  {
+    "id": "goody-hale",
+    "name": "Goody Hale",
+    "epithet": "The Witch of Crystal Woods",
+    "tags": ["paranormal", "cult"],
+    "palette": ["#6b8f4e", "#e0a526", "#2e1f3a"],
+    "sigil": "mortar",
+    "logline": "Every October Glimmer Falls burns a straw witch on the roundabout for Founders' Day. This year the briars are growing over the founders' houses, the town's women are sleepwalking into the woods, and the witch has come to watch.",
+    "backstory": "Temperance Hale came west in 1849 and stayed when the gold ran out, a widow living in a cabin by Crystal Springs with the best herb garden in the foothills. She learned the local plants from Nisenan women who had tended them for thousands of years, and she set bones, broke fevers and delivered more than two hundred babies for miners' wives, Chinese laborers and anyone else who knocked. In 1859 three men decided to build a town on her springs: Josiah Crane, the Reverend Amos Pell and Dr. Lucius Averill, the new doctor who wanted her patients. That summer Crane's daughter Eliza took a fever. Averill bled her four times, and she died. Crane needed someone to blame, and Temperance had sat up with the girl. At a township meeting they named her a witch, voided her land claim and burned her garden while she watched. She died in the woods that winter. The women she had helped buried her in secret under her own garden, which is now the roundabout around the Heartstone, and every Founders' Day since, the town has burned her in effigy.",
+    "centralIssue": {
+      "title": "A healer called a witch, and a grave with no name",
+      "summary": "Temperance Hale healed this valley before it was a town. The founders took her land, burned her garden and branded her a witch to cover their own failure, and she lies under the roundabout with no name while their obelisks stand at Pinecrest. Her healing was never the evil here. Tell the truth, honor her, and give her grave a name."
+    },
+    "poster": "A tall woman in gray 1850s homespun rising from a suburban roundabout garden at night, a crown of briars and marigolds on her loose gray hair, a lantern burning green in one hand and a stone mortar in the other, thorny vines spiraling over split-level houses, a straw effigy toppled at her feet",
+    "portrait": "Close portrait of a weathered woman in her late forties with gray-streaked hair falling loose, a crown of briars and orange calendula, deep lines of grief around kind, furious eyes, a sprig of yarrow tucked behind one ear, lit green from below by a lantern",
+    "taunts": [
+      "I sat up with your great-great-grandmother through three nights of fever. Did they tell you that?",
+      "Every year you burn me. Every year I watch.",
+      "My garden fed this valley. Your founders salted it.",
+      "Names are cheap in Glimmer Falls. They gave me theirs for free: witch."
+    ],
+    "clues": [
+      {
+        "id": "goody-hale-register",
+        "title": "The 1859 register",
+        "location": "pinecrest",
+        "hint": "The founders are buried under obelisks at Pinecrest. The old township ledger and burial register sit in a box in St. Jude's basement.",
+        "encounter": {
+          "id": "goody-hale-clue-founders-row",
+          "title": "Founders' Row",
+          "place": "Pinecrest Cemetery and St. Jude's basement",
+          "text": "Founders' Row has three tall obelisks: CRANE, PELL, AVERILL. Overnight, briars have grown up all three, thick as rope, studded with white roses. A small, plain stone beside the Crane obelisk reads ELIZA, AGED 11, and it is the only one with no thorns on it. Down the hill, the basement door of St. Jude's is propped open, and Father Iggy is carrying out a water-stained box marked UNION CHAPEL 1855-1870.",
+          "art": "Three tall founders' obelisks in a hillside cemetery wrapped in thick briars and white roses, a small plain child's headstone untouched beside them, a priest in a band shirt carrying a water-stained archive box from a church basement",
+          "choices": [
+            {
+              "id": "search-the-register",
+              "label": "Help Father Iggy go through the old register",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "iggy-reyes",
+                "amount": 2
+              },
+              "success": {
+                "text": "Page after page of births: Delivered by T. Hale, midwife. Two hundred and twelve times. Then, August 1859: Eliza Crane, fever, attended by Dr. L. Averill, bled four times. Died. Two weeks later, the township minutes: Resolved, that the Widow Hale's claim upon the springs is void, she being of ill repute. Iggy crosses himself. \"They needed her land, and they needed somebody to blame.\"",
+                "art": "A teenager and a punk priest leaning over an old leather register under a basement bulb, a column of births listing one midwife's name again and again",
+                "effects": {
+                  "clues": ["goody-hale-register"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The pages are so water-damaged they crumble when you turn them. As the last one flakes away, every briar on Founders' Row tightens with a creak you can hear from the basement, and a white rose petal drifts down the stairs.",
+                "art": "Crumbling yellowed register pages flaking apart in a teenager's hands in a dim church basement, a single white rose petal drifting down the steps",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "clear-elizas-stone",
+              "label": "Kneel and clear the moss off Eliza's little headstone",
+              "intent": "kind",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "Under the moss, on the back of the stone, someone has scratched letters with a nail, long ago: MRS. HALE SAT WITH HER THREE NIGHTS. FATHER WOULD NOT LET HER STAY THE FOURTH. Under that, smaller: I AM SORRY. M. CRANE. Eliza's mother knew. She just never said it out loud.",
+                "art": "A teenager kneeling to scrape moss from the back of a small weathered child's headstone, revealing faint scratched letters, briar-wrapped obelisks looming above",
+                "effects": {
+                  "clues": ["goody-hale-register"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The moss will not come off. As you scrub, the briars on the Crane obelisk lean down toward you, slowly, almost curious, and a thorn catches your sleeve and holds it. You tear free and leave a strip of flannel behind.",
+                "art": "A thorny briar from a founder's obelisk leaning down to snag a teenager's flannel sleeve as they kneel at a small headstone",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "read-the-cards",
+              "label": "Lay out a tarot spread on Founders' Row",
+              "intent": "camp",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "item": "tarot-deck",
+                "amount": 2
+              },
+              "success": {
+                "text": "The Empress, reversed. Justice. The Tower. Then the cards blow over in a breeze that smells like yarrow, and they land on the church steps pointing straight at the basement box. Inside: the register, the births, Eliza's death under Dr. Averill's lancet, and the vote that took Temperance's land.",
+                "art": "Tarot cards scattering in a sudden breeze across a cemetery path toward a church basement door, a teenager chasing them past briar-wrapped obelisks",
+                "effects": {
+                  "clues": ["goody-hale-register"],
+                  "skills": {
+                    "lore": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "Every card you turn is the same card: a woman tied to a stake, a town watching with torches. On the fourth one, the woman in the picture turns her head and looks at you. You put the deck away very carefully.",
+                "art": "A tarot card on a cemetery path showing a woman at a stake surrounded by a torch-lit crowd, her painted head turned toward the viewer",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "goody-hale-receipt-book",
+        "title": "Temperance's receipt book",
+        "location": "library",
+        "hint": "The occult stacks at the library hold a 1922 book called Witches and Wonders of the Gold Country. It is thicker than it should be.",
+        "encounter": {
+          "id": "goody-hale-clue-occult-stacks",
+          "title": "Witches and Wonders",
+          "place": "Occult stacks, Glimmer Falls Public Library",
+          "text": "Witches and Wonders of the Gold Country has a lurid cover: a cackling hag over a cauldron, labeled THE WITCH OF CRYSTAL WOODS. Inside, the middle pages have been cut into a hollow, and nested in it is a small leather book tied with faded green ribbon. It smells like lavender and woodsmoke. On the first page, in brown ink: Receipts for the Sick, kept by T. Hale.",
+          "art": "A lurid 1920s book with a cackling witch on the cover lying open in the library stacks, a hollowed-out middle holding a small leather notebook tied with green ribbon, dried lavender falling out",
+          "choices": [
+            {
+              "id": "read-the-receipts",
+              "label": "Read the receipt book with Priya in the stacks",
+              "intent": "clever",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "priya-raman",
+                "amount": 2
+              },
+              "success": {
+                "text": "Willow bark for Mrs. O'Day's fever, both twins well. Yarrow and clean linen for Ah Ling's boy's leg, healing. Feverfew for Mr. Pell's headaches, no charge. Priya traces the last entry: \"Josiah says the township needs the springs. I told him the land needs no one, only tending. I fear they will make me a story.\" Priya looks up. \"They made her a story.\"",
+                "art": "Two teenagers on the floor of library stacks reading a small leather herbal by lamplight, pressed flowers between the pages, careful handwritten remedies",
+                "effects": {
+                  "clues": ["goody-hale-receipt-book"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The ink fades as you read, word by word, until the pages are blank. Through the window, the roundabout on Crystal Street is a mile away, but you can see from here that every plant in it has turned to face the library.",
+                "art": "A small leather notebook whose handwriting fades away on the page, through a library window a distant roundabout garden with every plant turned the same way",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "check-it-out",
+              "label": "Take the book to the desk and check it out properly",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 7,
+              "success": {
+                "text": "The due-date card has been stamped once, in 1923, by M. CRANE. Some Crane descendant read this and hid it inside a book calling her a witch, the one place no one would think to look for the truth. At home you read it cover to cover: remedies, babies, fevers broken, and the founders' threat in her own careful hand.",
+                "art": "A library due-date card stamped once in 1923, slid from the pocket of an old book, a teenager reading a leather herbal at a kitchen table at night",
+                "effects": {
+                  "clues": ["goody-hale-receipt-book"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The desk computer says the book does not exist. When you turn around to argue, the hollow is empty. You find it two hours later on your own bed at home, open, with a sprig of rue across the page that reads: Not yet.",
+                "art": "A small leather herbal lying open on a teenager's bedspread at dusk, a sprig of rue laid across the page, the window open to the trees",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "goody-hale-river-stone",
+        "title": "The stone under the Heartstone",
+        "location": "crystal-street",
+        "hint": "Grandma Pearl says the same herbs come up in the Heartstone roundabout every spring no matter how many times the HOA sprays it.",
+        "encounter": {
+          "id": "goody-hale-clue-roundabout-garden",
+          "title": "The Garden That Comes Back",
+          "place": "The Heartstone roundabout, Crystal Street",
+          "text": "The HOA plants marigolds in the roundabout every spring, neat in rows. Every spring something else comes up through them: feverfew, yarrow, rue, calendula, in a patch about six feet long and two feet wide, right against the Heartstone's lip. Pearl Washington is out on her porch with her shotgun across her knees and her coffee in her hand, watching you look at it. \"Took you kids long enough,\" she says.",
+          "art": "A suburban roundabout garden around a giant purple geode, neat rows of marigolds interrupted by a wild six-foot rectangle of feverfew, yarrow and calendula, an elderly woman on a porch nearby with coffee and a shotgun on her knees",
+          "choices": [
+            {
+              "id": "ask-pearl",
+              "label": "Sit on Pearl's steps and ask what she knows",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 7,
+              "bonus": {
+                "companion": "pearl-washington",
+                "amount": 2
+              },
+              "success": {
+                "text": "\"My grandmother grew those same plants in Louisiana for fevers and births. You don't get them in a rectangle by accident.\" Pearl walks you to the Heartstone and taps a flat river stone wedged under it with her cane. Scratched in it, worn soft: T.H. 1859. SHE HEALED US. \"That's a grave, child. Somebody's been tending it for a hundred and twenty-seven years.\"",
+                "art": "An elderly woman tapping a flat river stone wedged beneath a purple geode with her cane, faint scratched initials and words visible, a teenager crouching beside her among wild herbs",
+                "effects": {
+                  "clues": ["goody-hale-river-stone"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Pearl only rocks and sips. \"Some things you find for yourself.\" When you step into the roundabout, the yarrow wraps gently around your ankles and will not let you closer to the stone. It is not angry. It is guarding something.",
+                "art": "Feathery yarrow stems wrapping gently around a teenager's sneakers in a roundabout garden, holding them back from the base of a purple geode",
+                "effects": {
+                  "nerve": -1
+                }
+              }
+            },
+            {
+              "id": "ask-dr-haddad",
+              "label": "Bring Dr. Haddad to identify the plants",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "amir-haddad",
+                "amount": 2
+              },
+              "success": {
+                "text": "Dr. Haddad kneels and names them like old friends. \"Feverfew, for fever. Yarrow, to stop bleeding. Calendula for wounds, rue for pain. Somebody planted a medicine chest.\" Under the calendula he brushes away dirt from a river stone: T.H. 1859. SHE HEALED US. He takes off his glasses. \"Somebody planted this on a grave.\"",
+                "art": "A veterinarian kneeling in a roundabout garden naming herbs, brushing soil from a flat river stone with scratched initials, a teenager holding a field guide",
+                "effects": {
+                  "clues": ["goody-hale-river-stone"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Dr. Haddad reaches for a calendula and pulls his hand back with a hiss. Every plant in the patch has grown thorns it never had. \"These are not supposed to do that,\" he says, and wraps his thumb in his handkerchief.",
+                "art": "A veterinarian pulling back a pricked hand from calendula flowers that have suddenly sprouted thorns, a teenager staring at the bristling garden",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "brush-at-night",
+              "label": "Come back at midnight and brush the leaves from the Heartstone's base",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 1
+              },
+              "success": {
+                "text": "Your flashlight finds the stone. T.H. 1859. SHE HEALED US. As you read it, the whole patch of herbs breathes out at once, a smell of lavender and woodsmoke, and you hear a woman's voice say, very tired: \"Someone finally read it.\" Nothing else happens. You walk home slowly.",
+                "art": "A flashlight beam on a scratched river stone under a purple geode at midnight, wild herbs swaying in still air, a faint gray figure in homespun at the edge of the light",
+                "effects": {
+                  "clues": ["goody-hale-river-stone"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The Heartstone pulses purple, and every porch light on the street goes out. In the dark, the herbs rise up around you to waist height. When the lights come back on, you are standing on the far side of the street with dirt on your hands and no memory of crossing.",
+                "art": "A dark cul-de-sac with porch lights out, wild herbs rising waist-high around a pulsing purple geode, a teenager standing dazed across the street",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "paranormal"
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "goody-hale-briar-hedge",
+        "title": "The Briar Hedge",
+        "place": "3 Crystal Street, the Crane house",
+        "text": "Overnight, briars have swallowed 3 Crystal Street, home of Councilman Hollis Crane, great-great-grandson of the founder. Thorny canes as thick as your wrist wrap the doors, the garage and the satellite dish, blooming with white roses. Upstairs, his daughter Abigail is pounding on her window. Her father is asleep in a chair on the lawn, briars curled gently around his ankles, like a cat.",
+        "art": "A suburban split-level house completely wrapped in thick thorny briars and white roses at night, a teenage girl pounding on an upstairs window, a man asleep in a lawn chair with vines curled around his ankles",
+        "choices": [
+          {
+            "id": "cut-through",
+            "label": "Hack a path through the briars to the front door",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "Coach Pruitt rips out canes with leather gloves while you chop with a garden spade. You reach the door, kick it in and lead Abigail out. Behind you the briars sigh and slowly grow back, not to trap anyone now, only to hide the house, like a hand over a face.",
+              "art": "A fierce softball coach in leather gloves tearing out thorny canes beside a teenager with a garden spade, leading a girl out of a briar-choked front door",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Every cane you cut sends up two more. Thorns rake your arms, and when you finally give up, panting, the roses have all turned red. Abigail is still at the window. She has stopped pounding. She is just watching.",
+              "art": "A scratched, panting teenager surrounded by regrowing briars whose roses have turned blood red, a girl watching silently from an upstairs window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "speak-to-briars",
+            "label": "Put your hand on the briars and say you know whose garden they came from",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"You were a garden,\" you tell them. \"Somebody burned you.\" The canes shiver. A path opens, thorns folding back like cats' claws, all the way to the door. As Abigail runs out, a single white rose drops into your hand, thornless.",
+              "art": "A teenager with a hand pressed gently to a wall of briars as the thorny canes fold back to open a path to a front door, a single thornless white rose falling into their palm",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-rose"]
+              }
+            },
+            "failure": {
+              "text": "The briars do not know you. They know only one family name on this street, and tonight it makes them furious. A cane slaps your hand away, hard, and you hear something in the roses whisper: Crane. Crane. Crane.",
+              "art": "A briar cane lashing a teenager's hand away from a thorny hedge, white roses trembling and whispering in the dark",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "climb-to-window",
+            "label": "Climb the briars like a trellis to Abigail's window",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "first-aid",
+              "amount": 1
+            },
+            "success": {
+              "text": "You find handholds between the thorns, climb, and pry the window open. Abigail climbs onto your back. She whispers the whole way down: \"I keep dreaming about a woman in a gray dress grinding something in a bowl. She isn't scary. She's sad.\"",
+              "art": "A teenager climbing a briar-covered wall with a girl clinging to their back, moonlight through white roses, a lit window above them",
+              "effects": {
+                "nerve": 1,
+                "flags": ["goody-hale-abigail"]
+              }
+            },
+            "failure": {
+              "text": "Halfway up, the briars shift their grip and hang you upside down by your sneaker. You dangle there, scratched and swearing, until dawn loosens them and dumps you in the rosebushes.",
+              "art": "A teenager hanging upside down by one sneaker from a briar-wrapped house at night, scratched and furious, white roses all around",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-midnight-circle",
+        "title": "The Midnight Circle",
+        "place": "The last stand of Crystal Woods, behind the cul-de-sac",
+        "text": "Behind the cul-de-sac's back fences, in the last few acres of oak woods the developer never cleared, a circle of women and girls kneels around a green lantern. Their eyes are closed. They are sleepwalking. Abigail Crane is there, and your English teacher, and the PTA treasurer in curlers. Each grinds herbs in a stone mortar and murmurs the same long chant, and the air smells like lavender, woodsmoke and something sharper, like a storm.",
+        "art": "A moonlit oak grove behind suburban back fences, a circle of sleepwalking women and girls in nightgowns and curlers kneeling around a green lantern, grinding herbs in stone mortars, eyes closed",
+        "choices": [
+          {
+            "id": "kneel-and-listen",
+            "label": "Kneel in the circle and listen to the chant",
+            "intent": "brave",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "It is not a curse. It is a list. Mary O'Day, twins, both well. Ah Ling's boy, leg mended. Sarah Pell, a daughter. Name after name after name, every person Temperance Hale ever healed. Raven squeezes your hand. \"She's not casting anything,\" they whisper. \"She's remembering. They took her name, so she keeps everyone else's.\"",
+              "art": "A teenager and a goth tarot reader kneeling side by side in a circle of sleepwalking women, eyes wide as faint glowing names drift up from the stone mortars into the dark",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-names"]
+              }
+            },
+            "failure": {
+              "text": "The chant gets into your mouth. You find yourself grinding herbs with your bare hands, saying names you have never heard, and under them a new one, hissed: Crane, Pell, Averill. You come to at dawn with green-stained fingers.",
+              "art": "A teenager waking at dawn in an oak grove with green-stained fingers and a stone mortar in their lap, the circle of sleepwalkers gone",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wake-them-gently",
+            "label": "Wake them one at a time, gently, so nobody gets hurt",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "first-aid",
+              "amount": 1
+            },
+            "success": {
+              "text": "You kneel by each woman and say her name softly until she blinks. They wake confused and embarrassed, but every one of them is holding a little cloth packet. Your English teacher sniffs hers. \"This is a poultice. My mother made these for my knee.\" Whatever Goody Hale is doing out here, the medicine is real.",
+              "art": "A teenager gently waking a woman in curlers in a moonlit grove, other women blinking awake holding small cloth herb packets, a green lantern dimming",
+              "effects": {
+                "nerve": 1,
+                "items": ["first-aid"]
+              }
+            },
+            "failure": {
+              "text": "The first one you touch wakes screaming, and then they all do. In the chaos the lantern flares, and a tall shadow in a gray dress stands up behind the circle and turns its face toward you. You do not remember running, but you are home.",
+              "art": "Sleepwalking women waking up screaming in a grove as a lantern flares green, a tall gray shadow rising behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "take-the-lantern",
+            "label": "Sneak into the middle and snatch the green lantern",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "Your fingers close on the handle. It is cold, not hot, and the flame inside is green and steady. The circle sighs and all the sleepers settle onto the moss, peaceful. In the lantern's glow you see an old cabin, a garden, and a woman in gray laughing with a baby in her arms. Then the flame shrinks to a pinprick, and you set it down very gently.",
+              "art": "A teenager holding a cold green lantern in a moonlit grove, its flame revealing a ghostly image of a cabin, an herb garden and a laughing woman holding a baby",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The lantern is not where it was. It is behind you. It is in a gray hand. A voice says, quiet and tired: \"They took everything else. Not this.\" A gust of cold air pushes you out of the woods and onto the cul-de-sac on your back.",
+              "art": "A teenager sprawled on their back on a suburban street at night, blown out of the woods, a green lantern glowing between the trees behind them",
+              "effects": {
+                "nerve": -2,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-effigy",
+        "title": "The Effigy",
+        "place": "The Heartstone roundabout, October 30",
+        "text": "The Founders' Day committee has built tomorrow's effigy: a straw witch with a pointed hat, a green paper face and a sign around its neck that says BEGONE, tied to a stake in the roundabout. At midnight you find a woman standing beside it, tall and gray, in homespun with her hair loose. She is touching its straw cheek. All down Crystal Street, briars are bursting up through the lawns of every house that a founder's family still owns, and crows are landing on every roof.",
+        "art": "A straw witch effigy with a pointed hat and a begone sign tied to a stake on a suburban roundabout at midnight, a tall gray woman in homespun touching its cheek, briars bursting through lawns and crows lining the rooftops",
+        "choices": [
+          {
+            "id": "speak-to-her",
+            "label": "Walk up and tell her you know they lied",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "goody-hale-names",
+              "amount": 1
+            },
+            "success": {
+              "text": "She does not turn around. \"One hundred and twenty-seven years they've burned me,\" Temperance says. \"Children cheer. I delivered their great-grandparents.\" Then she looks at you, and her eyes are not cruel at all, only exhausted. \"If you know, then say it tomorrow. Out loud. In front of all of them.\" The crows lift off the roofs at once.",
+              "art": "A tall gray woman in homespun turning from a straw effigy to face a teenager on a roundabout at midnight, her eyes weary and kind, a cloud of crows lifting off the rooftops",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["goody-hale-promise"]
+              }
+            },
+            "failure": {
+              "text": "She turns and looks through you as if you were one more face in the crowd with a torch. \"They all say they're different,\" she says. The briars along the street surge a foot higher, and the crows begin, all together, to scream.",
+              "art": "A gray ghostly woman looking past a teenager on a dark roundabout, briars surging up along the street, crows screaming from every roof",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "hide-the-effigy",
+            "label": "Cut the effigy down and hide it in Wade's van",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 2
+            },
+            "success": {
+              "text": "You saw through the ropes, Wade backs the van onto the curb with the lights off, and the straw witch goes in the back under a pile of jackets. The gray woman watches you do it. She does not stop you. When you look again, she is gone, and the briars on the nearest lawn have stopped growing.",
+              "art": "Two teens loading a straw witch effigy into the back of a battered metalhead's van at midnight, a gray ghostly woman watching silently from the roundabout",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Halfway through the ropes, porch lights snap on. The committee chairman is in his bathrobe on the curb shouting about vandals, and the effigy stays up. Behind him, a briar is climbing his porch post, faster now.",
+              "art": "A councilman in a bathrobe shouting from his porch at teens caught sawing at an effigy's ropes, a briar racing up his porch post behind him",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stand-against-crows",
+            "label": "Light up the roundabout and stand your ground against the crows",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The crows dive, and you hold your flashlight high and do not run. They pull up at the last second, wheel around the Heartstone and settle on the roundabout curb in a ring, watching you with bright, considering eyes. Something has noticed that you stayed.",
+              "art": "A teenager holding a flashlight high on a roundabout as a flock of crows pulls up from a dive and settles in a ring on the curb around them",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The crows come down in a black storm of wings and you go flat on the grass with your arms over your head. When they lift, your flashlight is gone and so is the gray woman, and the effigy's paper face is smiling now.",
+              "art": "A teenager flat on a roundabout lawn under a storm of crow wings, a straw effigy above them with its paper face now smiling",
+              "effects": {
+                "nerve": -2,
+                "loseItems": ["flashlight"]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "goody-hale-finale",
+      "title": "The Burning Garden",
+      "place": "The Heartstone roundabout, Halloween night",
+      "text": "On Halloween night the Founders' Day bonfire never gets lit. Briars burst from the roundabout and weave a thorn cathedral around the Heartstone, caging Councilman Crane, the committee and every founder's descendant on the street. The sleepwalking women kneel in a ring outside it, grinding herbs. And from the earth of her own garden rises Temperance Hale, crowned with briars and calendula, lantern burning green. \"They burned my garden and called it God's work,\" she says. \"They took my land and my name. Tonight, I take theirs.\"",
+      "art": "A towering cathedral of thorny briars around a glowing purple geode at night, a councilman and townspeople caged inside, sleepwalking women kneeling in a ring, a gray woman crowned with briars and orange flowers rising from the garden with a green lantern, teens in Halloween costumes facing her",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Hack through the thorn cathedral and pull everyone out",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "You tear the briars apart cane by cane and drag the councilman and the committee out through the gap, scratched and sobbing. The cathedral collapses. Temperance looks at you once, without anger, only disappointment, and sinks back into her garden. The grave is quiet. It is still nameless.",
+            "art": "A teen tearing a gap in a thorn cathedral and pulling scratched townspeople free, a gray woman sinking back into a garden with a disappointed look",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The briars close faster than you can cut. A cane wraps your wrist, gently but completely, and draws you inside the cathedral with the founders' families. You were never her enemy. You were just in the way.",
+            "art": "A briar cane wrapping a teen's wrist and drawing them into a thorn cathedral among frightened townspeople",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Rig the floodlights for a false dawn",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "frankie-fontaine",
+            "amount": 1
+          },
+          "success": {
+            "text": "Frankie hotwires the Founders' Day floodlights to every porch light on the street and throws the switch. It looks like sunrise. Temperance flinches, the briars wilt, and the women in the ring sink into ordinary sleep. She fades with the false dawn, and her lantern goes out with a sigh. She will sleep. She will not rest.",
+            "art": "A trans stage manager in a headset throwing a giant switch as floodlights and porch lights blaze like sunrise over a roundabout, a gray woman fading and briars wilting",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The floodlights blow in a shower of sparks. In the real dark, Temperance's lantern is the only light left, and every face on Crystal Street turns toward it.",
+            "art": "Floodlights bursting in a shower of sparks over a dark roundabout, a single green lantern glowing as faces turn toward it",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Read the truth out loud, say the names she saved, and promise her a stone",
+          "intent": "kind",
+          "skill": "lore",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "goody-hale-promise",
+            "amount": 1
+          },
+          "success": {
+            "text": "You read the register: Eliza Crane, attended by Dr. Averill, bled four times. You read the township vote that stole her land. You read from her receipt book, and the women in the ring wake and say the names with you: Mary O'Day, Ah Ling's boy, Sarah Pell. Then Hollis Crane steps up to the thorns and says, voice shaking, \"My family lied about you. I'm sorry. You'll have your name.\" Temperance lowers the lantern. The briars burst into calendula and feverfew, the cathedral opens like a gate, and for the first time in a hundred and twenty-seven years, the healer of Crystal Springs smiles.",
+            "art": "A teenager reading aloud from an old register beside a weeping councilman at a wall of briars bursting into orange calendula and white feverfew, waking women holding herb packets, a gray woman lowering her green lantern and smiling",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your voice is lost in the wind and the crows. Temperance has heard apologies before, from men who went home and changed nothing. The thorns hold. You have the truth. Make her believe someone will act on it.",
+            "art": "A teenager shouting from a register into a storm of crows and wind before a wall of thorns, a gray woman turning her face away",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Here Lies Temperance Hale",
+        "text": "In November the town council votes, on Councilman Crane's own motion, to set a granite marker in the roundabout: TEMPERANCE HALE, 1811-1859, MIDWIFE AND HEALER. SHE TENDED THIS VALLEY. The effigy is retired for good, and the Glitter Box rewrites the Founders' Day pageant with Glory as Temperance, receiving a standing ovation from half the town. The HOA stops spraying the herbs. Pearl and Dr. Haddad tend them now, and whenever someone on Crystal Street has a fever, a sprig of feverfew appears on their pillow.",
+        "art": "A granite grave marker engraved with a healer's name set among thriving herbs in a suburban roundabout, a drag queen in 1850s homespun bowing on a theater stage, an old woman and a veterinarian tending the garden"
+      },
+      "good": {
+        "title": "Back to Sleep",
+        "text": "The briars die back, the women stop sleepwalking, and the crows leave Crystal Street. Goody Hale sleeps under her garden again. But nobody carves her name, and next October the committee builds a brand-new straw witch with a pointed hat. You do not go to the bonfire. You leave a handful of calendula on the river stone instead.",
+        "art": "A teenager leaving a handful of orange calendula flowers on a scratched river stone beneath a geode while a new straw effigy is built in the distance"
+      },
+      "bittersweet": {
+        "title": "Thorns That Stay",
+        "text": "Everyone gets out of the thorn cathedral, but the briars never leave the Crane house, and the Cranes move away by spring. Women all over Glimmer Falls wake some mornings with dirt under their nails and names on their lips they do not know. Temperance sleeps, but not easily, and neither do you.",
+        "art": "A suburban split-level still wrapped in thorny briars with a moving truck outside, a woman at a kitchen sink staring at dirt beneath her fingernails"
+      },
+      "bad": {
+        "title": "Another Name for the List",
+        "text": "On November first you do not come home. Your crew finds you in the last stand of Crystal Woods, kneeling in the sleepwalkers' ring with your eyes closed, grinding herbs in a stone mortar and murmuring an endless list of names and grudges. Every night you go back. Every night the list gets longer, and the grave stays nameless.",
+        "art": "A teenager kneeling with closed eyes in a moonlit oak grove grinding herbs in a stone mortar among sleepwalking women, worried friends watching from behind a back fence with flashlights"
+      }
+    }
+  }
+]

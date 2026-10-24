@@ -1,0 +1,36 @@
+name: Crystal Street gameplay contract
+permissions:
+  contents: read
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'utils/crystalStreet/**'
+      - 'stores/crystalStreetStore.ts'
+      - 'components/crystal-street/**'
+      - 'pages/admin/crystal-street.vue'
+      - 'content/channels/admin/crystal-street.md'
+      - 'public/crystal-street/**'
+      - 'utils/playbook/crystalStreet.ts'
+      - 'utils/scripts/verifyCrystalStreet.test.ts'
+      - 'utils/scripts/checkCrystalStreetFile.ts'
+      - 'utils/scripts/crystalStreetArtContract.ts'
+      - 'server/utils/artPromptContract.ts'
+      - '.github/workflows/crystal-street-gameplay.yml'
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+        env:
+          CYPRESS_INSTALL_BINARY: '0'
+      - run: npx tsx utils/scripts/verifyCrystalStreet.test.ts
+      - run: npx tsx utils/scripts/crystalStreetArtContract.ts
+      - run: npx tsx utils/scripts/verifyPlaybook.test.ts

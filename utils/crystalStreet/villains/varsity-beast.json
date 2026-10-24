@@ -1,0 +1,422 @@
+[
+  {
+    "id": "varsity-beast",
+    "name": "The Varsity Beast",
+    "epithet": "The Big Man on Campus",
+    "tags": ["creature", "slasher"],
+    "palette": ["#8b1e2d", "#f2b632", "#26262b"],
+    "sigil": "helmet",
+    "logline": "Glimmer Falls High's star quarterback has three days to become a man before the Halloween Monster Bowl. Something inside him has decided to become a wolf instead.",
+    "backstory": "Brick Delaney is seventeen, six foot three, and the best quarterback Glimmer Falls High has had since his father, Duke Delaney, won state in 1966 and then sold cars on the strength of it for twenty years. Duke wakes Brick at five every morning for the Delaney Man Plan: drills, raw eggs, and three rules taped to the fridge. Delaneys don't cry. Delaneys don't quit. Delaneys don't dance. The last rule is personal. Duke's own father, Augie \"Featherfoot\" Delaney, was a tap dancer who headlined the old Rialto, the theatre that became the Glitter Box, and Duke spent his whole childhood being mocked for it until he swore his son would never be soft. Brick has been holding himself together like a clenched fist for years. This Halloween week, with the Heartstone amplifying every feeling on Crystal Street, everything Brick is not allowed to feel has turned into fur and teeth. When the pressure peaks (a coach screaming, a crowd chanting, his father going silent), Brick becomes the Varsity Beast: a seven-foot wolf in a shredded letterman jacket, his helmet cracked over its ears, hunting anyone who looks soft. The Monster Bowl against Pine Ridge is Friday night, Halloween, and the whole town will be watching.",
+    "centralIssue": {
+      "title": "The pressure to be a man",
+      "summary": "Brick is not a monster. He is a gentle kid crushed by three generations of \"be a man,\" and the Beast is everything he has been forced to swallow. Beating him only proves his father's rules right. He needs permission, from his family and his town, to be soft."
+    },
+    "poster": "A towering wolf in a shredded maroon and gold letterman jacket and a cracked football helmet with ears bursting through, howling under stadium floodlights and a full moon over a small-town football field, a bonfire and packed bleachers behind, a teenage crew in Halloween costumes in the end zone",
+    "portrait": "Close portrait of a huge gray-furred wolf wearing a cracked maroon football helmet, number 33 on a torn jersey, eyes glowing like stadium floodlights, a single tear tracking through the fur of a young, frightened face",
+    "taunts": [
+      "Walk it off.",
+      "Big boys don't cry. Big boys don't do anything.",
+      "You look soft. I can smell soft.",
+      "MAN UP. MAN UP. MAN UP."
+    ],
+    "clues": [
+      {
+        "id": "varsity-beast-playbook",
+        "title": "The secret playbook",
+        "location": "gym",
+        "hint": "Brick Delaney trains at Pump Iron Gym every morning at five, and he never leaves without the same spiral notebook.",
+        "encounter": {
+          "id": "varsity-beast-clue-locker-33",
+          "title": "Locker 33",
+          "place": "Locker room, Pump Iron Gym and Aerobics",
+          "text": "Locker 33 at Pump Iron is held shut with athletic tape and hope. Inside, under a protein shaker and a letterman jacket that smells like menthol rub, is a spiral notebook labeled PLAYS, PRIVATE. Down the hall the aerobics class is doing grapevines to a synth beat, and a radio is counting down to the Monster Bowl. Brick will be back from the showers in five minutes.",
+          "art": "A gym locker room with a dented locker numbered 33 taped shut, a spiral notebook labeled plays private peeking out beneath a maroon letterman jacket, steam drifting from the showers",
+          "choices": [
+            {
+              "id": "ask-moose",
+              "label": "Ask Moose what Brick keeps in that notebook",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": { "companion": "moose-kowalski", "amount": 2 },
+              "success": {
+                "text": "Moose looks at his knitting for a long time. \"Those aren't plays,\" he says. \"I mean, they look like plays. X's and O's. But the X's are feet. Shuffle, ball-change, flap. He's been writing tap routines since we were twelve.\" He hands you one torn-out page: a perfect time step, drawn like a quarterback sneak.",
+                "art": "A huge gentle lineman sitting on a locker room bench with half-knitted maroon yarn in his lap, handing over a notebook page of football diagrams labeled with dance steps",
+                "effects": { "clues": ["varsity-beast-playbook"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Moose shakes his head. \"Not mine to tell.\" Then Brick comes around the corner, towel around his neck, sees you by his locker, and goes so still and so quiet that the fluorescent tube above him pops. For a second, his shadow on the tile has ears.",
+                "art": "A tall teenage quarterback with a towel around his neck frozen in a locker room doorway, a fluorescent light bursting overhead, his shadow on the tiles showing wolf ears",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "peek-inside",
+              "label": "Open the notebook and read fast before he's back",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": { "item": "polaroid", "amount": 1 },
+              "success": {
+                "text": "X's and O's, arrows and loops, and in the margins in tiny careful letters: shuffle, ball-change, flap, wings. Every play is a tap routine. On the last page, pressed so hard the pen tore through: I'M SO TIRED OF BEING SCARY. You snap a Polaroid and slide the notebook back with ten seconds to spare.",
+                "art": "A notebook page covered in football X's and O's with tiny dance step notes in the margins, the words so tired of being scary pressed through the paper, a fresh Polaroid developing beside it",
+                "effects": { "clues": ["varsity-beast-playbook"], "dread": -1 }
+              },
+              "failure": {
+                "text": "The notebook falls open to a page of claw marks, five deep grooves torn through the paper. A low growl comes from the showers, and then the sound of a big teenager crying very quietly so that nobody will hear. You put the notebook back and leave before either of you has to be embarrassed.",
+                "art": "A notebook page slashed by five deep claw marks lying on a locker room bench, steam and a hunched shadow visible through the shower doorway",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "spot-him",
+              "label": "Offer to spot Brick on the bench press and just talk",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "success": {
+                "text": "You spot him and say nothing clever. Somewhere around rep twelve he says, \"Do you ever just want to stop being the thing everybody needs?\" Then he shows you the notebook himself: tap routines drawn like football plays, years of them. \"Don't tell my dad,\" he says, and almost smiles.",
+                "art": "A teenager spotting a big quarterback on a bench press in a dawn-lit gym, the quarterback sitting up afterward and shyly showing an open notebook",
+                "effects": {
+                  "clues": ["varsity-beast-playbook"],
+                  "skills": { "brawn": 1 }
+                }
+              },
+              "failure": {
+                "text": "The bar is heavier than you are. Brick catches it one-handed before it pins you, and for a moment his knuckles are furred and his nails are long and black. He slams the bar onto the rack and walks out without a word.",
+                "art": "A furred hand with long black nails gripping a loaded barbell above a startled teenager on a weight bench, gym mirrors reflecting a hulking shadow",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "varsity-beast-yearbook",
+        "title": "Duke's yearbook",
+        "location": "high-school",
+        "hint": "The trophy case at Glimmer Falls High is a shrine to the 1966 state champions, and the yearbook office keeps every copy since 1959.",
+        "encounter": {
+          "id": "varsity-beast-clue-trophy-case",
+          "title": "The Shrine",
+          "place": "Trophy case and yearbook office, Glimmer Falls High",
+          "text": "The trophy case outside the gym glows like a chapel: the 1966 state trophy, a game ball signed DUKE, and the banner the boosters hang every October, MAN UP, PROSPECTORS. Next door the yearbook office is unlocked and smells of rubber cement. The 1966 Gold Nugget sits on a shelf with its spine cracked open at a single page.",
+          "art": "A glowing high school trophy case with a 1966 state trophy and a signed football under a maroon banner reading man up, an open doorway to a cluttered yearbook office beside it",
+          "choices": [
+            {
+              "id": "read-the-yearbook",
+              "label": "Open the yearbook to the cracked-spine page",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "Senior portrait: Duke Delaney, crew cut, hard eyes. Under it, his chosen quote: \"My father dances. I win.\" Someone has doodled a tiny pair of tap shoes in the margin, and someone else has scratched them out so hard the paper tore. Three generations of hurt in one square inch.",
+                "art": "A 1966 yearbook page with a crew-cut senior portrait and a printed quote, a tiny doodle of tap shoes in the margin violently scratched out",
+                "effects": { "clues": ["varsity-beast-yearbook"], "dread": -1 }
+              },
+              "failure": {
+                "text": "The yearbook flops open to the team photo, and every 1966 Prospector in it has turned his head toward you. In the back row, young Duke is not smiling, and his eyes are wet. The book slams itself shut, and the office suddenly smells like wet dog.",
+                "art": "A black and white 1966 football team photo where every player has turned to stare out of the page, one young player in the back row with wet eyes",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "ask-coach-pruitt",
+              "label": "Ask Coach Pruitt what the football staff says about Brick",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": { "companion": "tammy-jo-pruitt", "amount": 2 },
+              "success": {
+                "text": "Coach Pruitt marches you into the field house and points at Coach Hollings's whiteboard: BRICK. NO CRYING. NO QUITTING. NO SOFTNESS. Below it, in a different hand: HE HAS TO BE A MAN BY FRIDAY. D.D. Pruitt photographs it. \"I have been yelling at that man about this for years,\" she says. \"Let's yell louder.\"",
+                "art": "A big fierce softball coach pointing at a field house whiteboard covered in harsh rules in marker, a teenager beside her holding a camera",
+                "effects": { "clues": ["varsity-beast-yearbook"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Coach Hollings catches you instead. He blows his whistle in your face, calls you \"sweetheart\" like it's an insult, and writes you up for loitering. From the locker room, over the slam of the door, something howls right along with his whistle.",
+                "art": "A red-faced football coach in a maroon windbreaker blowing a whistle at a teenager in a school hallway, a locker room door shaking behind him",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "varsity-beast-tap-shoes",
+        "title": "Featherfoot's tap shoes",
+        "location": "glitter-box",
+        "hint": "The Glitter Box was the Rialto before the war, and its lobby still remembers who headlined.",
+        "encounter": {
+          "id": "varsity-beast-clue-rialto-lobby",
+          "title": "Featherfoot",
+          "place": "The lobby, The Glitter Box Playhouse",
+          "text": "The Glitter Box lobby is a hall of fame in sequins and dust. Between a poster for the 1977 Miss Glitter Pageant and a signed photo of a 1950s torch singer hangs an old black-and-white of a skinny young man mid-leap, tails flying: AUGIE \"FEATHERFOOT\" DELANEY, THE RIALTO, 1946. Below it, in a glass box, sits a pair of tap shoes so big they look like they belong to a boy who never stopped growing.",
+          "art": "A sparkly theatre lobby wall covered in old show posters, a black and white photo of a young tap dancer mid-leap in tails, a glass case below holding a pair of huge worn tap shoes",
+          "choices": [
+            {
+              "id": "ask-glory-about-augie",
+              "label": "Ask Glory about the dancer in the photo",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": { "companion": "glory-hallelujah", "amount": 2 },
+              "success": {
+                "text": "\"Featherfoot? He taught me my first time step in 1953, when I was eleven and nobody else would.\" Glory unlocks the case. \"His son Duke left these at the stage door in 1966. Said his old man had embarrassed him enough. Augie cried for a week. Gentlest man I ever knew, and the strongest.\"",
+                "art": "A drag queen in a sequined robe unlocking a glass case in a theatre lobby and lifting out a pair of old tap shoes, a misty smile on her face",
+                "effects": { "clues": ["varsity-beast-tap-shoes"], "nerve": 1 }
+              },
+              "failure": {
+                "text": "Glory is mid-fitting with six pins in her mouth and waves you off. When you lean close to the glass, the tap shoes begin to tap all on their own: a soft, sad shuffle. A dancer's shadow crosses the old photo and is gone. You decide to come back when someone else is around.",
+                "art": "A pair of empty tap shoes tapping by themselves inside a glass case, a faint dancer's shadow sliding across an old photograph above",
+                "effects": { "nerve": -1, "dread": 1 }
+              }
+            },
+            {
+              "id": "try-the-shoes",
+              "label": "Borrow the shoes and try a step on the empty stage",
+              "intent": "camp",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": { "item": "leg-warmers", "amount": 1 },
+              "success": {
+                "text": "The shoes flop on you like clown shoes, but the stage loves them. Your clumsy shuffle comes back off the walls as a crisp, joyful rhythm, as if someone is dancing right beside you. Tucked inside the left toe is a folded note in shaky pencil: For my grandson, whoever he turns out to be. Love, Pop.",
+                "art": "A teenager in leg warmers and oversized tap shoes on an empty glittery stage under one work light, a faint ghostly dancer in tails tapping beside them",
+                "effects": { "clues": ["varsity-beast-tap-shoes"], "dread": -1 }
+              },
+              "failure": {
+                "text": "You trip on the very first step and slide across the stage on your back. Frankie leans out of the lighting booth, says \"Ten out of ten, no notes,\" and makes you put the shoes back in the case. You never got to look inside them.",
+                "art": "A teenager sprawled on their back on a glittery stage in giant tap shoes, a stage manager in a headset leaning out of a lighting booth applauding",
+                "effects": { "nerve": -1 }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "varsity-beast-two-a-days",
+        "title": "Two-a-Days",
+        "place": "The practice field, Glimmer Falls High, midnight",
+        "text": "You cut across the practice field at midnight and the stadium lights slam on, every bank at once. A whistle shrieks. Something huge is running suicides on the forty-yard line, goal line and back, goal line and back, its letterman jacket shredded across its shoulders. It stops. It sniffs the air. Over the PA, a man's recorded voice says, \"Walk it off, son. Walk it off.\"",
+        "art": "A high school practice field at midnight under blazing floodlights, a hulking wolf in a torn letterman jacket mid-sprint on the yard lines, a small teenager frozen at the fence",
+        "choices": [
+          {
+            "id": "run-for-bleachers",
+            "label": "Sprint for the bleachers and climb",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": { "companion": "sunny-castellanos", "amount": 1 },
+            "success": {
+              "text": "You hit the bleachers and climb three rows at a time while the Beast's claws gouge the aluminum behind you. At the top row it stops, panting, ears flat, and looks up at you with something that is almost embarrassment. Then it lopes off into the dark, still running drills.",
+              "art": "A teenager at the top of aluminum bleachers at night, a huge wolf in a letterman jacket stopped a few rows below with its ears flat, claw scratches down the seats",
+              "effects": { "nerve": 1 }
+            },
+            "failure": {
+              "text": "You slip on the dew-wet grass and the Beast is over you, breath like hot sports drink and fear. It doesn't bite. It shoves you, hard, the way linemen shove, and roars \"GET UP\" in a voice that is almost Brick's. You limp home shaped like one big bruise.",
+              "art": "A huge wolf in a shredded jersey standing over a teenager sprawled on wet turf under floodlights, roaring down at them",
+              "effects": { "nerve": -2, "dread": 1 }
+            }
+          },
+          {
+            "id": "call-timeout",
+            "label": "Grab the dropped whistle and call a time-out",
+            "intent": "clever",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You blow the whistle and make a T with your hands. The Beast freezes mid-stride, trained to the bone. It stands there, chest heaving, waiting to be told what to do. \"Water break,\" you say. It sits down on the bench, very carefully, and you swear it sighs.",
+              "art": "A teenager making a time-out T with their hands, a whistle in their mouth, a giant wolf in a letterman jacket sitting obediently on a team bench under floodlights",
+              "effects": { "nerve": 1, "flags": ["varsity-timeout"] }
+            },
+            "failure": {
+              "text": "The whistle is slick with dew and your blast comes out a squeak. The Beast hears weakness in it, and weakness is the one thing it was built to hunt. It chases you off the field and through two backyards, howling, and you hide in a doghouse until the lights click off.",
+              "art": "A teenager crammed inside a backyard doghouse at night, a wolf's huge shadow passing over the fence, stadium lights glowing in the distance",
+              "effects": { "nerve": -1, "dread": 1, "teleport": "slasher" }
+            }
+          }
+        ]
+      },
+      {
+        "id": "varsity-beast-bonfire-rally",
+        "title": "The Bonfire Rally",
+        "place": "The pep rally bonfire, behind Prospector Stadium",
+        "text": "The Monster Bowl pep rally bonfire is three stories tall and burning a Pine Ridge dummy in effigy. The boosters have the crowd chanting BE A MAN, BE A MAN, BE A MAN, and with every chant the shape at the edge of the firelight gets bigger: shoulders, claws, a cracked helmet with ears forcing through. Duke Delaney stands on a flatbed with a bullhorn, leading the chant, not looking at it.",
+        "art": "A towering high school pep rally bonfire at night, a chanting crowd in maroon and gold, a broad man with a bullhorn on a flatbed truck, and at the edge of the firelight a growing wolf silhouette in a cracked helmet",
+        "choices": [
+          {
+            "id": "change-the-chant",
+            "label": "Grab the cheer squad's megaphone and change the chant",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": { "companion": "chip-merriweather", "amount": 2 },
+            "success": {
+              "text": "\"BE YOURSELF!\" you scream. It sounds dumb. Then Chip, class president, grabs the other megaphone and yells it too, and the cheer squad picks it up because it's fun to shout and has a better rhythm anyway. In the dark, the shape shrinks, ears folding. Duke lowers the bullhorn, confused.",
+              "art": "A teenager and a preppy class president shouting into megaphones in front of a bonfire, cheerleaders joining in, a wolf silhouette at the edge of the light shrinking",
+              "effects": { "nerve": 1, "flags": ["varsity-new-chant"] }
+            },
+            "failure": {
+              "text": "Your megaphone squeals feedback and the crowd boos you, laughing, and the laughter feeds the Beast like gasoline. It rises out of the dark ten feet tall and roars, and the bonfire leans away from it. Everyone screams, then cheers, because they think it's the mascot.",
+              "art": "A ten-foot wolf in a cracked football helmet rising behind a bonfire roaring, a crowd cheering wildly as if it were a mascot, a teenager with a squealing megaphone",
+              "effects": { "nerve": -2, "dread": 1 }
+            }
+          },
+          {
+            "id": "find-brick",
+            "label": "Slip out of the firelight and find Brick before the Beast does",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": { "item": "flashlight", "amount": 1 },
+            "success": {
+              "text": "Behind the bleachers, Brick is on his knees, half changed, fur coming and going like TV static. \"Make them stop,\" he whispers. You sit with him in the dirt. You don't tell him to man up. The chanting goes on, but here, just for a minute, his hands are only hands.",
+              "art": "A teenager sitting beside a kneeling quarterback under dark bleachers, his arms flickering between fur and skin, bonfire light leaking through the slats",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["varsity-sat-with-brick"]
+              }
+            },
+            "failure": {
+              "text": "You find the Beast instead. It pins you to the bleacher struts with one huge paw, nose to nose, and growls \"Don't look at me\" in a voice that cracks in the middle. Then it's gone, and your jacket hangs off you in four long stripes.",
+              "art": "A wolf in a cracked helmet pinning a teenager against steel bleacher struts nose to nose in the dark, firelight through the gaps",
+              "effects": { "nerve": -2, "dread": 1, "teleport": "creature" }
+            }
+          }
+        ]
+      },
+      {
+        "id": "varsity-beast-lock-the-door",
+        "title": "Lock the Door",
+        "place": "The varsity locker room, the night before the Monster Bowl",
+        "text": "Brick calls you from the pay phone outside the locker room at eleven. \"Please come,\" he says. \"I can feel it coming, and I don't want to hurt anybody.\" You find him tied to a bench with jump ropes, half wolf and shaking. Then headlights sweep across the frosted windows. Duke Delaney's truck. Brick's eyes flare stadium white. \"He can't see me like this.\"",
+        "art": "A dim high school locker room at night, a half-transformed teenage quarterback tied to a bench with jump ropes, truck headlights sweeping across frosted windows",
+        "choices": [
+          {
+            "id": "stand-in-the-door",
+            "label": "Stand in the doorway and tell Duke he has to wait",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": { "companion": "tammy-jo-pruitt", "amount": 2 },
+            "success": {
+              "text": "Duke is a big man used to doors opening for him. This one doesn't. \"Your son asked for space,\" you say, voice wobbling and holding. Duke looks past you at the shaking, furred shape on the bench, and something in his face cracks like a frozen pond. He goes back to his truck and sits there, and doesn't drive away.",
+              "art": "A teenager blocking a locker room doorway with arms spread before a broad middle-aged man in a car-dealer blazer, his stern face beginning to crumple",
+              "effects": { "nerve": 2, "flags": ["varsity-duke-saw"] }
+            },
+            "failure": {
+              "text": "Duke moves you aside like a traffic cone. He sees his son, and before he can say a word, Brick snaps the jump ropes, crashes through the back door and is gone into the night, howling. Duke stands in the empty locker room holding a frayed rope and says nothing at all.",
+              "art": "A broad man standing alone in a locker room holding a snapped jump rope, a burst-open back door showing a dark field and a fleeing wolf shape",
+              "effects": { "nerve": -2, "dread": 1 }
+            }
+          },
+          {
+            "id": "hide-brick",
+            "label": "Hide Brick in the equipment cage and bluff",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You stack tackling dummies in front of the cage, kill the lights and tell Duke the janitor already locked up. He grumbles off. Inside the cage, Brick laughs, a real, wet, startled laugh, the first you've heard from him all week. Laughing, he looks a lot less like a wolf.",
+              "art": "A chain-link equipment cage stacked with tackling dummies in a dark locker room, a half-wolf quarterback inside laughing with a hand over his mouth",
+              "effects": { "nerve": 1, "dread": -1 }
+            },
+            "failure": {
+              "text": "A tackling dummy topples. Duke hits the lights and sees fur through the chain-link. \"Son?\" Brick hears the disappointment before Duke even finishes the word, and the change slams through him. The cage door bends like a paper clip, and you chase a howl across the parking lot.",
+              "art": "A chain-link cage door bent outward in a brightly lit locker room, a toppled tackling dummy, a stunned father in the doorway",
+              "effects": { "nerve": -1, "dread": 1, "teleport": "slasher" }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "varsity-beast-finale",
+      "title": "The Monster Bowl",
+      "place": "Prospector Stadium, Halloween night",
+      "text": "Fourth quarter, Halloween night, and the full moon has come up over the scoreboard like a spotlight. The Prospectors are down by six. Coach Hollings is screaming, the stands are chanting BE A MAN, and on the fifty-yard line Brick Delaney comes apart in front of three thousand people: shoulder pads splitting, jersey 33 shredding, a seven-foot wolf in a cracked maroon helmet howling at the moon. The crowd thinks it's the halftime show. Then it charges the stands where Duke is sitting.",
+      "art": "A small-town football stadium on Halloween night under a huge full moon, a seven-foot wolf in shredded jersey 33 and a cracked maroon helmet charging toward packed bleachers, a teen crew in Halloween costumes racing onto the field",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Tackle the Beast at the twenty before it reaches the stands",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": { "companion": "moose-kowalski", "amount": 2 },
+          "success": {
+            "text": "You hit it low, the way Moose taught you, and Moose hits it high, and the Beast goes down in a spray of turf. Under the pile it shrinks and shrinks until it's just Brick, out cold in shredded pads. The crowd goes wild. It goes down as the greatest tackle in Glimmer Falls history, and nobody asks why he was a wolf.",
+            "art": "A teenager and a huge lineman tackling a giant wolf on a moonlit football field in a spray of turf, the wolf shrinking back into a boy in torn shoulder pads",
+            "effects": { "nerve": 1 }
+          },
+          "failure": {
+            "text": "It's like tackling a pickup truck. The Beast flicks you away, and you sail into the marching band's tuba section. When you sit up, dizzy, it has reached the stands, the chant is louder than ever, and the Beast is still growing.",
+            "art": "A teenager tumbling into a marching band's tuba section on a football sideline, a giant wolf climbing the stadium railing toward the crowd",
+            "effects": { "nerve": -3 }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Kill the stadium lights and play something soft over the PA",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": { "companion": "frankie-fontaine", "amount": 2 },
+          "success": {
+            "text": "You throw the breaker. The lights die, the chant falters, and in the dark the PA crackles into a scratchy old record: a tap number from 1946, all brushes and clarinet. The Beast stops at the railing, swaying, and slumps down on the track to listen. When the lights come back, he's Brick, curled up asleep, and the town is too spooked to finish the game.",
+            "art": "A darkened stadium lit only by the moon, a giant wolf slumped peacefully on the running track beside the railing, an old record player glowing in the press box",
+            "effects": { "nerve": 1 }
+          },
+          "failure": {
+            "text": "The breaker sparks and the lights stay on. The PA blares the fight song instead, the crowd roars along, and the Beast roars louder. Its claws hit the railing three feet from Duke, who doesn't run. He just stares, as every flashbulb in the stands goes off at once.",
+            "art": "A giant wolf with its claws on a stadium railing inches from a frozen middle-aged man, a hundred flashbulbs firing in the bleachers, sparks from a press box breaker",
+            "effects": { "nerve": -3 }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Walk onto the field with the tap shoes, the notebook and the yearbook",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": { "clues": 3 },
+          "success": {
+            "text": "You walk out to the fifty with Featherfoot's tap shoes, Brick's notebook and Duke's yearbook, and you hold up the shoes. The Beast stops. Then Duke climbs over the railing and walks onto the field in front of the whole town. He takes the yearbook and tears out his own page. \"I was wrong,\" he says. \"You don't have to be anything. You're my kid.\" The Beast sits down on the turf and cries, and as it cries it gets smaller, until a boy in torn pads is sobbing into his father's jacket.",
+            "art": "A moonlit football field, a teenager holding up old tap shoes, a broad father kneeling to hug a sobbing quarterback in torn pads, the last wisps of wolf fur drifting away, a hushed crowd in the stands",
+            "effects": { "nerve": 2 }
+          },
+          "failure": {
+            "text": "The Beast swats the notebook out of your hands, and its pages scatter across the field like confetti. Everything you brought is true, but Brick can't hear it over three thousand people chanting for him to be something else. You need the crowd to go quiet first.",
+            "art": "Notebook pages of dance diagrams scattering across a floodlit football field, a teenager reaching after them while a towering wolf roars at a chanting crowd",
+            "effects": { "nerve": -2 }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Featherfoot Junior",
+        "text": "On the first Saturday in November, the Glitter Box revue has a new act. Brick Delaney, in Featherfoot's tap shoes and a maroon sequined letterman jacket that Moose knitted the trim for, taps a routine he wrote in a notebook disguised as a playbook, and he is magnificent. Moose plays the snare. Glory cries through her lashes. Duke sits in the back row for the first number, then the third row, then the front, and by the finale he is on his feet. Brick still plays football. He also cries at movies now, out loud, and nobody on the team says a word except \"same.\"",
+        "art": "A tall teenage boy tap dancing joyfully on a glittery theatre stage in a maroon sequined letterman jacket and old tap shoes, a big lineman drumming a snare beside him, a drag queen and a broad father cheering from the front row"
+      },
+      "good": {
+        "title": "Final Score",
+        "text": "The Beast never comes back, and Brick plays out the season like nothing happened, all clean spirals and polite interviews. The Prospectors win state. His father is very proud. Sometimes, walking past the Glitter Box at night, you see Brick standing across the street with his hands in his jacket pockets, looking at an old photo in the lobby, before he turns and walks home.",
+        "art": "A teenage quarterback in a letterman jacket standing alone on a dark sidewalk at night, looking across the street at a lit theatre lobby with an old dancer's photo in the window"
+      },
+      "bittersweet": {
+        "title": "Howl at the Moon",
+        "text": "Brick is human again by November, but he quits the team and moves to his aunt's in Fresno before Thanksgiving without saying goodbye to anyone. Duke puts the house up for sale. On full moons you hear a howl from the foothills, not angry anymore, only lonely. You leave your porch light on, in case he ever wants to come back and try being soft.",
+        "art": "A full moon over dark foothills behind a quiet suburb, a lone wolf silhouette on a ridge, a single porch light glowing on a split-level house below"
+      },
+      "bad": {
+        "title": "Man of the House",
+        "text": "The Beast wins the Monster Bowl single-handed, and nobody ever sees Brick Delaney again, only the thing in jersey 33 that the town keeps cheering for. And you? You wake up on November first in a letterman jacket that won't come off. You do two hundred push-ups before breakfast. When your crew asks if you're okay, you say \"walk it off,\" and you can't remember ever saying anything else.",
+        "art": "A teenager with a blank, hard stare doing push-ups on a bedroom floor in a maroon letterman jacket, worried friends crowded in the doorway, a wolf howling on a stadium scoreboard through the window"
+      }
+    }
+  }
+]

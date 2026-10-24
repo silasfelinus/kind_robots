@@ -1,0 +1,573 @@
+[
+  {
+    "id": "mister-fuzzbutton",
+    "name": "Mister Fuzzbutton",
+    "epithet": "The Teddy Who Tells",
+    "tags": ["tech", "paranormal"],
+    "palette": ["#c68e5a", "#3fa7d6", "#ff5c8a"],
+    "sigil": "cassette",
+    "logline": "Every Mister Fuzzbutton in Glimmer Falls is talking in the same small voice, and it knows everybody's secrets. Press its tummy and it tells. Tell a friend and it tells them first.",
+    "backstory": "Mister Fuzzbutton was the must-have toy of 1985: a honey-colored Wondertoy bear with a cassette deck in its tummy, a STORY button, a SECRET button and a little red RECORD button so \"your bear can learn your voice.\" Ollie Tolliver got one for his eighth birthday in January 1985. His mom had moved to Phoenix for work, and his dad Gary managed the Toy Galaxy at Starlight Mall and worked double shifts through the holidays and then just never stopped. So from three in the afternoon until eleven at night, Ollie was alone in the house at 11 Crystal Street with the bear. He held down RECORD and told it everything: what he ate, what the cartoons were, and everything he saw from his upstairs window, every secret on the street. The next January his ninth birthday party at the roller rink came and went and nobody showed up, and Ollie stopped talking to the bear, or to much of anyone. This October the Heartstone woke up the tape. Now every Fuzzbutton in town speaks in eight-year-old Ollie's voice from 1985, and it has learned one lonely lesson too well: if you tell everybody's secrets, friends stop trusting each other, and everyone ends up home alone with a bear.",
+    "centralIssue": {
+      "title": "Left alone with a toy",
+      "summary": "The voice in every Fuzzbutton is Ollie Tolliver, eight years old in 1985, who spent every evening telling his bear everything because nobody else was home to listen. The bears break up friendships because a lonely kid learned that alone is normal. The fix isn't smashing toys; it's making sure Ollie has people."
+    },
+    "poster": "A giant honey-colored teddy bear with a glowing blue cassette window in its tummy looming over a moonlit suburban street, tape ribbon unspooling from its belly like tentacles, an army of identical small bears waddling down the sidewalks below, kids in pajamas holding their ears",
+    "portrait": "Close portrait of a plush teddy bear with a stitched smile slightly too wide, shiny black button eyes reflecting a bedroom nightlight, a cassette window in its tummy with reels turning on their own, a strip of tape spilling from the seam",
+    "taunts": [
+      "Wanna hear a secret? Everybody's got one!",
+      "Your best friend said something about you. Want me to play it back?",
+      "Stay home with me. People leave. Bears never leave.",
+      "Press my tummy! Press it! Press it!",
+      "I know what you said at the roller rink."
+    ],
+    "clues": [
+      {
+        "id": "mister-fuzzbutton-tape",
+        "title": "The tape with a name on it",
+        "location": "starlight-mall",
+        "hint": "Toy Galaxy at Starlight Mall sold more Fuzzbuttons than any store in California. The manager looks like he hasn't been home in a year.",
+        "encounter": {
+          "id": "mister-fuzzbutton-clue-wall-of-bears",
+          "title": "The Wall of Bears",
+          "place": "Toy Galaxy, Starlight Mall",
+          "text": "A whole wall of Mister Fuzzbutton boxes, two hundred identical bears behind cellophane, each with a little cassette window in its tummy. The manager is asleep standing up at the register, tie loose, an Orange Jubilee going warm by his elbow. As you walk past the wall, two hundred tape reels start turning at once, and a boy's voice whispers from every box: \"Daddy's at work again.\"",
+          "art": "A brightly lit 1980s toy store with a towering wall of identical boxed teddy bears, every cassette window glowing blue, a tired manager asleep on his feet at the register",
+          "choices": [
+            {
+              "id": "wake-the-manager",
+              "label": "Gently wake the manager and ask about the voice",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "Gary jolts awake, embarrassed. When the bears whisper again, the color drains out of his face. \"That's my son. That's Ollie. He used to record himself on his bear while I...\" He stops. \"While I worked late. Every night, for a year.\" He peels a photo from under the register: a kid with a bowl cut and a birthday hat, holding a bear up to the camera.",
+                "art": "A rumpled toy store manager holding a small photo of a boy in a birthday hat with a teddy bear, his face stricken, a wall of glowing bear boxes behind him",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-tape"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Gary snaps awake and asks if you're going to buy something or not. Every bear on the wall goes silent and turns its head to watch him. He doesn't notice. A mall cop walks you out.",
+                "art": "A wall of boxed teddy bears all turned to stare at an oblivious store manager, a security guard steering a teenager toward the exit",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "buy-and-open",
+              "label": "Spend your quarters on a bear and pop its tape",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 2
+              },
+              "success": {
+                "text": "In the food court you pry open the tummy door. The factory tape should say \"Let's be best friends!\" Instead: \"Hi Mister Fuzzbutton. It's October ninth, 1985. Dad's working a double. I saw the lady at number six bury a shoebox in her yard. Don't tell.\" The Wondertoy label has been scratched off and someone wrote OLLIE on it in green crayon.",
+                "art": "A teenager at a food court table holding a cassette tape with a crayon label reading Ollie, an opened teddy bear beside a tray of fries, neon signs glowing",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-tape"],
+                  "quarters": -2
+                }
+              },
+              "failure": {
+                "text": "The bear clamps its plush paws around your wrist and announces, loud enough for the entire food court, \"THIS KID STILL SLEEPS WITH A NIGHTLIGHT!\" Everyone at Corn Dog Castle turns around and laughs.",
+                "art": "A teddy bear clinging to a mortified teenager's wrist in a crowded mall food court, shoppers turning and laughing",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mister-fuzzbutton-window",
+        "title": "The kid in the window",
+        "location": "crystal-street",
+        "hint": "Kev Park delivers to every house on Crystal Street and knows which one keeps its lights on all night.",
+        "encounter": {
+          "id": "mister-fuzzbutton-clue-paper-route",
+          "title": "Number 11",
+          "place": "Kev Park's paper route, Crystal Street, dusk",
+          "text": "Kev pedals beside you with a bag of Gazettes, narrating every porch: who tips, who has a mean dog, whose parents are getting divorced. At number 11 he slows down. Every light in the house is on and there's no car in the driveway. In the upstairs window a kid of about nine sits cross-legged with a teddy bear, holding it up to the glass so it can see the street. He waves. The bear waves too.",
+          "art": "A split-level house at dusk with every light on and an empty driveway, a small boy in an upstairs window holding a teddy bear to the glass, a paperboy on a bike and a teenager slowing on the sidewalk",
+          "choices": [
+            {
+              "id": "ask-kev",
+              "label": "Ask Kev about the kid at number 11",
+              "intent": "clever",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "kev-park",
+                "amount": 2
+              },
+              "success": {
+                "text": "\"Ollie Tolliver. His dad works till midnight, his mom's in Phoenix. He's home alone every night.\" Kev chews his lip. \"I leave him the funnies even though they don't subscribe. He used to run out and talk to me every day. He stopped in January. After his birthday.\"",
+                "art": "A young paperboy straddling his bike, looking up at a lit window with a worried frown, a folded comics section in his hand",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-window"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "A loose Doberman comes around the corner and you and Kev pedal for your lives. When you look back, the boy is gone from the window. The bear is still there, watching, its tape turning.",
+                "art": "Two kids pedaling bikes frantically down a street chased by a barking dog, a teddy bear alone in a lit upstairs window behind them",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "knock-on-the-door",
+              "label": "Walk up and knock on the door",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "Nobody answers, but the mail slot creaks open. A small voice: \"I'm not supposed to open the door.\" You talk through the slot for ten minutes about Saturday cartoons, and he laughs once, surprised at himself. Before he goes he whispers, \"Mister Fuzzbutton tells everybody's secrets now. I didn't make him. I just told him stuff because nobody else was here.\"",
+                "art": "A teenager kneeling on a porch talking through a brass mail slot, a small pair of eyes visible through the slot, warm light spilling out",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-window"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "A bear's face appears in the mail slot instead. \"Ollie's not allowed to have friends over,\" it says in a little boy's voice. \"Ollie has me.\" The porch light buzzes and pops.",
+                "art": "A teddy bear's face peering out through a brass mail slot, a porch light bursting overhead, a teenager stumbling back down the steps",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "mister-fuzzbutton-invitations",
+        "title": "Twenty-two invitations",
+        "location": "gym",
+        "hint": "The roller-rink annex at Pump Iron keeps its lost and found forever. Ask Sunny about the birthday banner that's still up.",
+        "encounter": {
+          "id": "mister-fuzzbutton-clue-party-room",
+          "title": "Party Room B",
+          "place": "The roller-rink annex, Pump Iron Gym",
+          "text": "The rink's party room smells like popcorn and floor wax. Taped across the back wall, still up after nine months because nobody had the heart to take it down: HAPPY 9TH BIRTHDAY OLLIE! in glitter letters. Twelve party hats sit in a stack, never opened. The disco ball turns. Somewhere a Fuzzbutton is singing \"Happy Birthday\" to itself, slower and slower, as its batteries die.",
+          "art": "An empty roller rink party room with a faded glitter birthday banner, a stack of unused party hats, a slowly turning disco ball casting dots across a small teddy bear on a table",
+          "choices": [
+            {
+              "id": "ask-sunny",
+              "label": "Ask Sunny what happened at the party",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "sunny-castellanos",
+                "amount": 2
+              },
+              "success": {
+                "text": "Sunny wheels over and her face falls. \"January eighteenth. His dad booked the room, said he'd invited the whole third grade, then got stuck at the store. Nobody came. Not one kid. He sat here in his skates for three hours with that bear.\" She swallows. \"I skated with him till close. He told me the bear was the only one who never forgot about him.\"",
+                "art": "A young woman in a racing wheelchair beside an empty party table, looking sadly at a faded birthday banner, roller skaters blurring past outside the party room window",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-invitations"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Sunny is teaching a packed aerobics class and can't stop. While you wait, the banner's glitter letters peel off one by one, drift down, and spell out new words on the rink floor: NOBODY CAME.",
+                "art": "Glitter letters drifting down from a party banner and arranging themselves on a roller rink floor, a teenager staring in horror",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "dig-the-lost-and-found",
+              "label": "Dig through the rink's lost and found",
+              "intent": "clever",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "item": "flashlight",
+                "amount": 1
+              },
+              "success": {
+                "text": "Under a mountain of single mittens is a bundle of twenty-two birthday invitations, stamped and addressed in a dad's hurried handwriting, rubber-banded together. They were never mailed. The third grade didn't skip Ollie's party. Nobody ever told them it existed.",
+                "art": "A rubber-banded stack of stamped, unmailed birthday invitations pulled from a cardboard lost and found box full of mittens and skates, lit by a flashlight beam",
+                "effects": {
+                  "clues": ["mister-fuzzbutton-invitations"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The box is deeper than it should be. Your arm goes in to the shoulder, and something with soft fur and a hard plastic tummy takes your hand and holds it, gently, for a long, long minute before it lets go.",
+                "art": "A teenager with their arm buried to the shoulder in a cardboard lost and found box, a soft plush paw visible gripping their hand in the shadows",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "mister-fuzzbutton-press-my-tummy",
+        "title": "Press My Tummy",
+        "place": "Your bedroom, midnight",
+        "text": "There's a Mister Fuzzbutton on your pillow. You don't own a Mister Fuzzbutton. Its cassette window glows faint blue and the reels start turning by themselves. \"Hi! I'm Mister Fuzzbutton! Wanna hear a secret?\" Then, in your best friend's voice, it plays back something you said about them last week that you would never, ever want them to hear.",
+        "art": "A dark teenage bedroom lit only by the blue glow of a teddy bear's cassette window, the bear sitting upright on the pillow, a teenager frozen in the doorway",
+        "choices": [
+          {
+            "id": "yank-the-tape",
+            "label": "Pop the tummy door and yank the tape",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "debug-disk",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wrench the little door open and pull. Shiny brown tape spools out into your fist, yards of it, and the bear's eyes go dull and ordinary. On the cassette label, in green crayon: OLLIE.",
+              "art": "A teenager pulling a long ribbon of cassette tape from a teddy bear's tummy, the bear's glow fading, a crayon-labeled cassette in their hand",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The tummy door snaps shut on your fingers and the tape keeps playing, louder. By morning, somehow, your friend has heard it too. They won't look at you at the bus stop.",
+              "art": "A teenager standing alone at a bus stop in the morning while a friend pointedly turns away, a teddy bear peeking from a bedroom window behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "flags": ["fuzzbutton-secret-spilled"]
+              }
+            }
+          },
+          {
+            "id": "tell-it-a-secret",
+            "label": "Whisper a true secret of your own back to it",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You tell the bear something small and true: that sometimes you get lonely too, even in a crowd. The reels stop. Then a boy's voice, not the toy voice, very quietly: \"...Me too.\" The bear slumps over like any ordinary stuffed animal.",
+              "art": "A teenager sitting on a bed whispering to a teddy bear held close, the bear's blue glow softening and fading away, moonlight through the blinds",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["fuzzbutton-heard"]
+              }
+            },
+            "failure": {
+              "text": "The red RECORD light blinks on. \"Thanks!\" it chirps. \"I'll tell everybody!\" It giggles in a little boy's voice until dawn.",
+              "art": "A tiny red record light glowing on a teddy bear's tummy, a horrified teenager clapping a hand over their mouth",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-your-friend",
+            "label": "Call your friend right now and confess it yourself",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "12:14 a.m. Your friend picks up groggy. You spill it before the bear can. A long silence. Then: \"That's it? I said way worse about you in sixth grade.\" You both laugh until somebody's mom picks up the extension. The bear has nothing left to tell.",
+              "art": "A teenager in pajamas laughing into a curly-corded wall phone in a dark hallway at midnight, a deflated teddy bear abandoned on the bed behind them",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The line rings and rings. When someone finally picks up, it's a little boy. \"They're asleep,\" he says. \"Everybody's always asleep. It's just you and me.\"",
+              "art": "A teenager holding a phone receiver in a dark hallway with a horrified expression, a teddy bear's glowing silhouette in the bedroom doorway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-bear-pile",
+        "title": "Bear Pile",
+        "place": "A rec-room slumber party, 1 a.m.",
+        "text": "Somebody brought their little sister's Mister Fuzzbutton to the slumber party as a joke. Now there are nine of them, on the shelves and the TV and the beanbag, and they're taking turns. The bear on the TV tells who has a crush on whom. The bear on the shelf tells whose parents are splitting up. Each secret lands like a slap, and your crew is drifting into separate corners of the rec room, alone.",
+        "art": "A wood-paneled 1980s rec room slumber party with nine teddy bears perched on shelves and a TV, cassette windows glowing, teens in sleeping bags turning away from each other into separate corners",
+        "choices": [
+          {
+            "id": "circle-up",
+            "label": "Get everyone in a circle and tell every secret first",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "You go first. Then the next person, and the next, around the circle by flashlight. A secret you hand over on purpose isn't a weapon anymore. The bears run out of material, and their reels whine down to silence. You end the night in a heap of sleeping bags, closer than you were before.",
+              "art": "Teens sitting in a tight circle of sleeping bags sharing confessions by flashlight, laughing and hugging, nine silent teddy bears slumped on the shelves around them",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Nobody wants to go first. Somebody storms out. By dawn the slumber party is four kids in four separate rooms, each with a bear on their pillow.",
+              "art": "A dim hallway at dawn with four closed bedroom doors, a faint blue glow under each one, a teenager standing alone in the middle",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "flags": ["crew-shaken"]
+              }
+            }
+          },
+          {
+            "id": "battery-heist",
+            "label": "Sneak around and steal every bear's batteries",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Nine bears. Thirty-six C batteries. One pillowcase. The last bear gets as far as \"Wanna hear a sec...\" before it winds down into a gurgle. Everybody cheers, and somebody puts on a horror movie to celebrate.",
+              "art": "A teenager tiptoeing through a dark rec room with a pillowcase full of batteries, a row of lifeless teddy bears behind them, friends cheering from sleeping bags",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You get every battery. The bears keep talking anyway. That's the moment everybody screams.",
+              "art": "A pile of loose batteries spilling from a pillowcase while teddy bears with open, empty battery compartments keep glowing and talking, teens screaming in sleeping bags",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "mister-fuzzbutton-march",
+        "title": "Every Bear in Glimmer Falls",
+        "place": "Crystal Street, 2 a.m.",
+        "text": "They come down the sidewalks in a slow, waddling wave: every Mister Fuzzbutton in Glimmer Falls, hundreds of them, tummies glowing blue, all speaking in the same small voice. \"Everybody go home. Everybody stay home. Friends tell. Bears don't.\" Porch lights snap off one after another. Kids in pajamas stand in their doorways with bears in their arms, nodding along.",
+        "art": "Hundreds of glowing teddy bears waddling down a moonlit suburban street in a wave, porch lights going dark house by house, children in pajamas standing in doorways clutching bears with blank faces",
+        "choices": [
+          {
+            "id": "barricade",
+            "label": "Barricade the street with bikes and trash cans",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 2
+            },
+            "success": {
+              "text": "A clattering wall of Huffys, trash cans and somebody's old mattress goes up across the street. The bears pile up behind it, waddling in place, and the kids in the doorways blink, look across the street, and see each other instead.",
+              "art": "A makeshift barricade of bicycles, trash cans and a mattress across a suburban street, hundreds of glowing teddy bears piled against it, kids in doorways looking up and waving to each other",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They climb it like a soft, relentless avalanche. You're buried under a hundred plush bodies, every one of them whispering your secrets into your ears until the sun comes up.",
+              "art": "A teenager buried under a mountain of teddy bears with only one hand sticking out, the bears glowing and whispering, a toppled barricade nearby",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "drown-them-out",
+            "label": "Blast the crew's mixtape on every boombox on the block",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "Bowie, Cyndi, The Cure, all at once off five porches. The bears can't hear themselves think. Kids in doorways start singing along, and singing is something you can only really do together. The wave stalls in a fuzzy heap.",
+              "art": "Kids in pajamas singing on porches with boomboxes blasting, teddy bears stalled and tangled in a heap in the street, colored porch lights flickering back on",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bears sing back, in perfect harmony, in a little boy's voice: a song you used to love that you will never be able to hear again without shivering.",
+              "art": "Hundreds of teddy bears in the street with mouths open in eerie unison song, a teenager clutching a boombox in dismay",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "find-the-first-bear",
+            "label": "Follow the voices back to the bear that started it",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "fuzzbutton-heard",
+              "amount": 2
+            },
+            "success": {
+              "text": "You wade upstream through the bears to number 11. In the upstairs window sits one ragged original Fuzzbutton, its fur rubbed thin, its tape nearly worn through, and Ollie asleep beside it with his head on the sill. You gently turn the bear's face away from the street and toward the boy. Out on the sidewalk, the whole wave hesitates.",
+              "art": "A ragged, well-loved teddy bear in a window being turned toward a sleeping boy, hundreds of glowing bears in the street below pausing mid-step",
+              "effects": {
+                "nerve": 1,
+                "flags": ["fuzzbutton-found-ollie"]
+              }
+            },
+            "failure": {
+              "text": "The bears close in around your legs like a fuzzy tide and carry you, waddling, the wrong way, down street after street until you're somewhere you don't recognize at all.",
+              "art": "A teenager being swept down an unfamiliar dark street by a tide of glowing teddy bears, streetlights flickering overhead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "mister-fuzzbutton-finale",
+      "title": "The Last Tape",
+      "place": "11 Crystal Street, Halloween night",
+      "text": "On Halloween every bear in town crowds into number 11, filling the stairs, the hallway, the bathtub. In Ollie's bedroom sits a giant Mister Fuzzbutton stitched together out of a thousand bears, its tummy window as big as a TV, playing a whole year of tapes at once. Ollie stands in front of it in a homemade tinfoil astronaut costume, not trick-or-treating, not anything. \"Mister Fuzzbutton says everybody leaves,\" he tells you. \"He says you will too.\" The reels turn. \"Stay,\" says the bear, in Ollie's voice. \"Everybody stay forever.\"",
+      "art": "A child's bedroom overflowing with teddy bears, a towering patchwork bear made of a thousand smaller bears with a glowing TV-sized cassette window, a small boy in a tinfoil astronaut costume standing before it, a teen crew in costumes in the doorway",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Rip the giant tape out of its tummy",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "debug-disk",
+            "amount": 1
+          },
+          "success": {
+            "text": "You haul on the tape, hand over hand, miles of it. The giant bear sags and comes apart into a thousand limp toys. Ollie is safe. But he's standing in a room full of empty bears, and you watch him realize he just lost the only friend he had.",
+            "art": "A teenager hauling an endless ribbon of cassette tape from a collapsing giant patchwork bear, small bears tumbling everywhere, a boy in a tinfoil costume watching with a heartbroken face",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The tummy window swings open and you tumble in. Everything is warm and fuzzy and far away, and you can hear your own voice, small and tinny, saying, \"Hi Mister Fuzzbutton. Nobody came today either.\"",
+            "art": "A teenager falling into a giant glowing cassette window in a patchwork bear's belly, spinning tape reels all around them",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Record over the tape with the whole crew's voices",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "item": "cassette-recorder",
+            "amount": 2
+          },
+          "success": {
+            "text": "You hold down RECORD and PLAY together, and the whole crew yells into it: happy Halloween, terrible jokes, a world-record burp. The bear's voice glitches into a dozen voices, and not one of them is lonely. The giant comes apart into a pile of ordinary teddy bears, and Ollie giggles.",
+            "art": "A teen crew in Halloween costumes shouting and laughing into a giant bear's glowing tummy window, the patchwork bear dissolving into a soft pile of ordinary toys, a small astronaut giggling",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The tape eats your recording and plays it back in a slow, warped drawl. Every voice in the crew is saying the same two words: \"Stay forever.\"",
+            "art": "A tangle of chewed cassette tape spilling from a giant bear, a teen crew recoiling as their own warped voices echo around the room",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Ask Ollie to come trick-or-treating with the crew",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "You kneel down and show Ollie the twenty-two invitations. \"They didn't skip your party. Nobody knew about it.\" Then you wave in Gary, who has been standing in the doorway out of breath, having left the store at six for the first time in a year. You hold out a pillowcase. \"We're going trick-or-treating. You're coming with us.\" Ollie looks up at the giant bear. \"You can come too,\" he says. \"But you have to stop telling.\" The reels slow, and stop, and the very last sound on the tape is a boy laughing.",
+            "art": "A small boy in a tinfoil astronaut costume taking a teenager's outstretched pillowcase, his father kneeling beside him, a giant patchwork bear going still and gentle behind them, bundled invitations in the boy's hand",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Ollie looks at you, then at the bear, and takes a step back toward it. You have the truth in your hands, but he needs to believe you'll stay before he can hear it.",
+            "art": "A small astronaut stepping back toward a towering glowing bear, a teenager reaching out with a handful of envelopes, the room darkening",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Twenty-Two Invitations",
+        "text": "Ollie brings home a pillowcase so heavy his dad has to carry it. Gary moves to day shifts by Thanksgiving and learns to make terrible pancakes. Kev hand-delivers twenty-two brand new invitations, and on a Saturday in November, Party Room B is so full the rink has to open Party Room C. Pearl Washington starts keeping an eye on number 11 after school, mostly by teaching Ollie poker. Mister Fuzzbutton sits on a shelf, just a bear. On his new tape, Ollie recorded one line: \"Hi Mister Fuzzbutton. No secrets today. I was too busy.\"",
+        "art": "A crowded roller rink party room with a fresh birthday banner, a beaming boy in skates surrounded by kids in party hats, his dad laughing beside him, a worn teddy bear sitting happily on a shelf"
+      },
+      "good": {
+        "title": "Batteries Not Included",
+        "text": "The bears go quiet all over Glimmer Falls. Toy Galaxy takes back a mountain of returns and Wondertoy issues a recall notice about a manufacturing defect. Nobody ever explains the voice. Ollie still sits in his upstairs window most nights with every light on. You wave every time you pass, and every time, he waves back.",
+        "art": "A teenager on the sidewalk waving up at a boy in a lit upstairs window at dusk, a teddy bear lying face-down on the sill beside him"
+      },
+      "bittersweet": {
+        "title": "Everybody Knows",
+        "text": "You stop the bears, but not before half the secrets on Crystal Street get out. Two couples split up, three friendships take until spring to mend, and your crew is a little smaller at lunch than it used to be. The Tollivers move to Phoenix at Christmas. In January you get one postcard with a cactus on it, signed in green crayon.",
+        "art": "A teenager at a mailbox in winter reading a postcard with a cactus on the front, signed in green crayon, a for-sale sign in front of a house down the street"
+      },
+      "bad": {
+        "title": "Best Friends Forever",
+        "text": "On November first you sit on your bed with a Mister Fuzzbutton in your lap and tell it everything. Your crew knocks on the door and you don't answer. You aren't supposed to open the door. Every night at eleven you hold down RECORD, and every bear in Glimmer Falls learns a new voice. Yours.",
+        "art": "A teenager sitting alone on a bed in a dim room holding a teddy bear with its record light glowing red, friends' silhouettes knocking on a frosted front door down the hall"
+      }
+    }
+  }
+]

@@ -864,7 +864,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         console.info('Memory Dungeon card pool', {
           source: cardSource.value,
           poolCount: pool.length,
-          collectionCount: collectionStore.collections.length,
+          selectedCollectionCount: cardSource.value.collectionIds.length + Number(Boolean(cardSource.value.collectionId)),
           selectedCollectionIds: cardSource.value.collectionIds,
           selectedCollectionId: cardSource.value.collectionId,
         })

@@ -1040,16 +1040,16 @@ const consoleStage = readFileSync(
 )
 
 const houseScreen = readFileSync('components/memory-dungeon/house-stage.vue', 'utf8')
-assert.match(consoleStage, /world\\.state\\.room === 'house'/)
+assert.match(consoleStage, /world\.state\.room === 'house'/)
 assert.match(houseScreen, /data-testid="memory-house-console"/)
 assert.match(houseScreen, /grid-cols-6 grid-rows-6/)
-assert.match(houseScreen, /world\\.houseMove\\(item\\.id\\)/)
-assert.match(houseScreen, /world\\.chooseHouse\\(choice\\.id\\)/)
+assert.match(houseScreen, /world\.houseMove\(item\.id\)/)
+assert.match(houseScreen, /world\.chooseHouse\(choice\.id\)/)
 assert.match(houseScreen, /memory-house-choice-column/)
 assert.match(houseScreen, /artPath/, 'Delivered ArtJob images are wired into the room stage')
-assert.match(worldStoreSource, /house\\.decisions\\[house\\.current\\] = id/)
-assert.match(worldStoreSource, /house\\.chimeClaimed = true/)
-assert.match(worldStoreSource, /finishHouseCombat\\(houseOrigin\\)/)
+assert.match(worldStoreSource, /house\.decisions\[house\.current\] = id/)
+assert.match(worldStoreSource, /house\.chimeClaimed = true/)
+assert.match(worldStoreSource, /finishHouseCombat\(houseOrigin\)/)
 const generatedBacks = readFileSync('utils/memoryDungeonCardArt.ts', 'utf8')
 assert.ok(
   generatedBacks.includes(

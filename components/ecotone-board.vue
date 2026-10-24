@@ -1772,6 +1772,7 @@ import {
   PASSES_FOR_TRUE_PATH,
   caseNumeral,
   caseRecord,
+  mysteryEndingArtKey,
   type CaseRecord,
   type GateResult,
   type Mystery,
@@ -2293,7 +2294,13 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? prospect.art
           : outcome
-            ? [outcome, ...cardArt]
+            ? [
+                ...(realEnding && meta && game.realEnding
+                  ? [mysteryEndingArtKey(meta.mystery.id, game.realEnding.id)]
+                  : []),
+                outcome,
+                ...cardArt,
+              ]
             : cardArt,
       alt:
         portrait && prospect

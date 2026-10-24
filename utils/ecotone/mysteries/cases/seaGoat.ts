@@ -11,7 +11,7 @@ export const SEA_GOAT: Mystery = {
     'Half goat, half fish, all work: something climbs the dead mill stack at midnight.',
   region:
     'The Samoa Peninsula: the old pulp mill, its pier and the company-town cottages',
-  hook: 'Something surfaces by the old pulp mill pier on Samoa after dark: horns and a beard in front, a long scaled tail behind. It climbs the dead smokestack hand over hoof, and at midnight the mill whistle blows, though nothing out there has had power since 2008. The scrap thieves have stopped coming. Nobody is sure whether to be grateful.',
+  hook: 'Something surfaces by the old pulp mill pier on Samoa after dark: horns and a beard in front, a long scaled tail behind. It climbs the dead smokestack hand over hoof, and at midnight the mill whistle blows, though nothing out there has had power since 2008. The scrap thieves have started leaving in a hurry, sometimes without their trucks. Nobody is sure whether to be grateful.',
   design: {
     element: 'earth',
     motif: 'sea-goat',
@@ -42,10 +42,10 @@ export const SEA_GOAT: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. The Samoa Peninsula on Humboldt Bay at night: a weathered timber pier running out over black water and eelgrass, the rusted bulk of an abandoned pulp mill and its tall smokestack, a brass steam whistle on a pipe catching the moonlight. Climbing the smokestack ladder, a figure with curled goat horns and a rope beard above and a long green-scaled fishtail below, half creature and half homemade costume. Fog rolls off the bay; Eureka’s lights glow small across the water. Faint brass stars above form an unlabeled sea-goat constellation. Moss green, umber and brass. No text, no letters, no logos.',
   provenance:
-    'Samoa, on the peninsula across Humboldt Bay from Eureka, was built as a lumber company town, and many of its cottages still stand. A pulp mill on the peninsula closed in 2008, and in the years after, federal cleanup crews removed millions of gallons of caustic pulping liquor left behind in its tanks. Eelgrass restoration is real work in Humboldt Bay. Marisol Keough, her father Walt, Dolores, Ruthie, the mill whistle, the restoration crew, the scrap crew, the creature and every other person and event here are invented. No real business or person is depicted.',
+    'Samoa, on the peninsula across Humboldt Bay from Eureka, was built as a lumber company town, and many of its cottages still stand. A pulp mill on the peninsula closed in 2008, and in the years after, federal cleanup crews removed millions of gallons of caustic pulping liquor left behind in its tanks. Eelgrass restoration is real work in Humboldt Bay. Tess Keough, her father Walt, Dolores Ybarra, Jojo, the mill whistle, the restoration grant, the scrap crew, the creature and every other person and event here are invented. No real business or person is depicted.',
   decline: {
-    label: 'Tell Ruthie goats aren’t your department',
-    text: 'You text back that you don’t do livestock. Ruthie sends one goat emoji and one fish emoji, and somehow the two of them together feel like a curse. At midnight, across the bay, a whistle blows that nobody else in Arcata seems to hear.',
+    label: 'Let Jojo’s voicemail sit with the others',
+    text: 'You don’t call back. At two in the morning Jojo leaves one more message: eleven seconds of a whistle across water, then her voice, quietly, “Okay. Never mind. I’ll handle it.” You lie awake wondering how a tow truck handles a goat.',
   },
   gates: [
     {
@@ -54,16 +54,16 @@ export const SEA_GOAT: Mystery = {
       chapter: 3,
       scene: 'bay',
       message: {
-        medium: 'text',
-        from: 'Ruthie (night-shift tow truck)',
+        medium: 'voicemail',
+        from: 'Jojo (night-shift tow), 0:47',
         lines: [
-          'ok weird question. do u do monsters',
-          'towed a scrap guy’s truck off the mill road at 2am. he left it running. he was CRYING',
-          'says a goat came out of the bay. a goat with a TAIL. meet me at the pier, I have maple bars and a crowbar',
+          '“Hey, it’s Jojo, night tow, we met at that thing. Okay. Weird question. Do you do monsters?',
+          'I just pulled a scrap guy’s truck off the mill road on Samoa. Engine running, door open. He was crying. Grown man.',
+          'Says a goat came up out of the bay. With a tail. I’m at the pier with maple bars and a crowbar. Just come.”',
         ],
       },
       body: [
-        'The old mill pier runs out into Humboldt Bay on pilings the color of burnt toast. Behind it the pulp mill sits dead and enormous, its smokestack raised into the fog like a finger making a point nobody stayed to hear. Ruthie leans on her bumper with a box of maple bars and a crowbar she describes as “emotional support.”',
+        'The old mill pier runs out into Humboldt Bay on pilings the color of burnt toast. Behind it the pulp mill sits dead and enormous, its smokestack raised into the fog like a finger making a point nobody stayed to hear. Jojo leans on her bumper with a box of maple bars and a crowbar she describes as “emotional support.” Before hello, she photographs the abandoned truck’s plate for her invoice: third tow off this road this month. “Not complaining,” she says, not complaining.',
         'On the pier planks: wet prints. Cloven, deep, and behind each pair a long smooth drag. They climb out of the water and stop at the base of the stack, beside an abandoned bolt cutter and a coil of stripped copper wire somebody left in a hurry. At the end of the pier, a bundle of fresh eelgrass is tied to a piling with a mill rigger’s knot.',
       ],
       approaches: [
@@ -76,7 +76,7 @@ export const SEA_GOAT: Mystery = {
             effects: { weird: 1 },
           },
           failure: {
-            text: 'The plaster sets around your shoe. Ruthie frees you with a tow strap, gently, which is the least dignified rescue of your life, and she films all of it for her group chat. By the time you are loose, the tide has come up the ladder and licked every print off the planks.',
+            text: 'The plaster sets around your shoe. Jojo frees you with a tow strap, gently, which is the least dignified rescue of your life, and she films all of it for her group chat. By the time you are loose, a crab boat’s wake has slopped over the low end of the pier and licked every print off the planks.',
             effects: { nerve: -1 },
           },
         },
@@ -86,22 +86,35 @@ export const SEA_GOAT: Mystery = {
           check: { skill: 'burly', target: 9 },
           cost: 'The ladder cage is rust and good intentions, and it is a long way up.',
           success: {
-            text: 'Forty rungs up you find a rest platform scrubbed clean of gull droppings, which no gull has ever done. There is a thermos, still warm, binoculars aimed at the scrap road, and a laminated tide table annotated in a firm, square hand. Whoever climbs this stack is not hiding up here. They are on shift.',
+            text: 'Forty rungs up you find a rest platform scrubbed clean of gull droppings, which no gull has ever done. There is a thermos, still warm, binoculars aimed at the scrap road, and a trail camera bolted to the rail, pointed not at the road but down the ladder, at whoever climbs it. Whoever climbs this stack is not hiding up here. They are on shift, and they want it on the record.',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'Twenty rungs up, the rust bites your palm and your legs vote, unanimously, to go home. You come down slower than you went up. On the bottom step of the stack, someone has left a clean bandage and a tube of ointment, which is helpful, and thoughtful, and deeply unsettling.',
+            text: 'Twenty rungs up, the rust bites your palm and your legs vote, unanimously, to go home. You come down slower than you went up. At the bottom, a scrap-crew lookout you never noticed is leaning on the fence with a cigarette, and he gives you a long, slow clap. “It’s the county,” he tells you, with total conviction. “Costume budget.” Then he walks off into the dark.',
+            effects: { nerve: -1 },
+          },
+        },
+        {
+          id: 'jojo',
+          label: 'Ask Jojo what the crying scrap guy actually said',
+          check: { skill: 'rizz', target: 7 },
+          success: {
+            text: 'You buy Jojo a maple bar with her own maple bars, and she tells it properly. The scrap guy swore the goat never touched him. It climbed onto his hood, looked at its wrist where a watch would be, and said, in a woman’s voice, “You’re not on the schedule.” Jojo grins. “Third tow this month. Thirty bucks a mile. I’m not saying I’m rooting for the goat. I’m saying I’m not not.”',
+            effects: { goodwill: 1 },
+          },
+          failure: {
+            text: 'Jojo gets a tow call mid-sentence, and you ride along to pull a sedan out of a ditch in Manila, which takes two hours and a great deal of commentary. You learn what the mill road pays per hook, which is more than you expected, and nothing at all about the goat. When you get back, the gulls have walked all over the prints, on purpose, you assume.',
             effects: { nerve: -1 },
           },
         },
       ],
       leadLines: {
-        mara: 'Mara photographs a print with a coin for scale. “Cloven in front, smooth behind. Either it’s a myth or it’s a person with a very specific weekend.”',
+        mara: 'Mara crouches over a print. “Cloven in front, smooth behind. Either it’s a myth or it’s somebody with fins and no shame.”',
         kit: 'Kit eyes the ladder cage and flexes her fingers. “Whoever goes up that every night has better grip strength than me, and I’m annoyed about it.”',
         juniper:
           'Juniper dips a hand in the bay and frowns. “The eelgrass down there is new. Somebody’s been gardening underwater.”',
         cedar:
-          'Cedar looks up at the stack a long time. “My dad sold logs to this place,” he says. “Never thought anybody’d still be punching in here.”',
+          'Cedar looks from the stack to the abandoned truck. “I’ve hauled out of this mill road at two in the morning,” he says. “Never saw a goat. Saw plenty of guys who should’ve been scared of one.”',
       },
       aloneLine:
         'Alone on the pier, you hear something heavy and patient shift beneath the planks, waiting for you to leave so it can get back to work.',
@@ -112,29 +125,30 @@ export const SEA_GOAT: Mystery = {
       chapter: 3,
       scene: 'dunes',
       message: {
-        medium: 'voicemail',
-        from: 'Unknown number, 1:12',
+        medium: 'text',
+        from: 'Unknown number',
         lines: [
-          '“Hi. You don’t know me. Dolores Ybarra. I worked the bleach plant at the mill for nineteen years.',
-          'Ruthie says you’re asking about the whistle. That whistle was Walt Keough’s. Walt was our last foreman. Walt passed in March.',
-          'I’m in the yellow cottage on the end. Coffee’s on. Don’t knock on Walt’s door. Somebody answers it.”',
+          'THIS IS DOLORES YBARRA. MY GRANDSON IS TYPING. I DO NOT TEXT.',
+          'jojo says you are asking about the goat. it is WALT KEOUGHS whistle. walt was our last foreman. he is in yuma with his sister and very much alive, he wants that known',
+          'yellow cottage on the end. i am on the porch. do not knock on walts door. somebody answers it',
         ],
       },
       body: [
-        'The cottages stand in tidy rows with the dunes at their backs, built a century ago for mill families and kept painted ever since by people who refuse to let anything go shabby. Dolores Ybarra, seventy-six, pours coffee strong enough to strip a deck and tells you about the whistle: brass, the size of a fire hydrant, blown by hand at every shift change by Walt Keough for twenty-two years. It vanished from the mill the week the doors closed.',
-        'Walt’s cottage is two doors down. The lawn is mowed in perfect stripes. The garage light is on. Through the window you can see a sewing machine, a bolt of green neoprene, and a pair of curved horns drying on a hanger like a winter coat.',
+        'The cottages stand in tidy rows with the dunes at their backs, built a century ago for mill families and kept painted ever since by people who refuse to let anything go shabby. Dolores Ybarra, seventy-six, is re-caning a porch chair on her front step and does not stop for visitors. She tells you about the whistle without looking up: brass, the size of a fire hydrant, blown by hand at every shift change by Walt Keough, the last foreman, from the year he made foreman until the very last shift. “The day the doors closed, Walt carried it home on his shoulder, and the whole street came out to watch. When he went south to his sister’s, it stayed in his garage. Hasn’t made a sound since. Until last month.”',
+        'Walt’s cottage is two doors down. The lawn is mowed in perfect stripes, which is a lot of effort for a man in Arizona. The garage light is on. Through the window you can see a sewing machine, a laptop open to a spreadsheet titled INCIDENTS, and something long and green draped over the workbench, half covered by a tarp.',
       ],
       approaches: [
         {
           id: 'dolores',
-          label: 'Sit with Dolores and let her tell the mill stories',
+          label:
+            'Hold the cane strips for Dolores while she tells the mill stories',
           check: { skill: 'rizz', target: 7 },
           success: {
-            text: 'You ask the right question, which is “What was the best day?”, and Dolores talks for an hour. Walt had a daughter, Marisol, who rode on his shoulders up the catwalk every bring-your-kid day and who now studies the bay for a living. “She called the mill a dragon when she was little,” Dolores says. “Walt said no, mija, it’s a goat. It climbs, and it doesn’t quit.”',
+            text: 'You ask the right question, which is “What was the best day?”, and Dolores talks for an hour. Walt has a daughter, Tess, who rode on his shoulders up the catwalk every bring-your-kid day and who now runs the eelgrass project under the old pier. “Nine years in waders, grant to grant. If it isn’t on the record, to Tess, it didn’t happen.” Dolores smiles. “She called the mill a dragon when she was little. Walt said no, mija, it’s a goat. It climbs, and it doesn’t quit.”',
             effects: { goodwill: 1 },
           },
           failure: {
-            text: 'You ask what the mill made, and Dolores spends forty minutes explaining pulping with diagrams on napkins. It is fascinating. It is also, it turns out, a quiz. When you get the bleaching sequence wrong, she takes your coffee back, kindly, and tells you to come again when you’ve studied.',
+            text: 'You ask what the mill made, and Dolores spends forty minutes explaining pulping with diagrams on napkins. It is fascinating. It is also, it turns out, a quiz. When you get the bleaching sequence wrong, she takes the cane strips back, kindly, and tells you to come again when you’ve studied.',
             effects: { nerve: -1 },
           },
         },
@@ -144,7 +158,7 @@ export const SEA_GOAT: Mystery = {
             'Find Walt in the mill’s old shift ledgers at the community hall',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'The ledgers live in a locked cabinet at the community hall, and Dolores has the key, because of course she does. Walt Keough clocked in for twenty-two years and missed four days: three for his daughter’s birth and one for his wife’s funeral. In the margin of the final page, the last shift in 2008, someone has written in square pencil: Whistle goes home with me. Somebody has to keep the hours.',
+            text: 'The ledgers live in a locked cabinet at the community hall, and Dolores has the key, because of course she does. In his whole working life Walt Keough missed four shifts: three for his daughter’s birth and one for a World Series game he has never once apologized for. In the margin of the final page, the last shift in 2008, someone has written in square pencil: Whistle goes home with me. Somebody has to keep the hours.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -152,17 +166,35 @@ export const SEA_GOAT: Mystery = {
             effects: { nerve: -1 },
           },
         },
+        {
+          id: 'door',
+          label: 'Knock on Walt’s door anyway',
+          check: { skill: 'psyche', target: 9 },
+          cost: 'Dolores told you not to, and Dolores is watching from her porch.',
+          success: {
+            text: 'You knock. The door opens four inches on its chain, and a woman with wet hair, glue on her fingers and a wetsuit peeled to the waist says Walt is in Yuma, she is watering his tomatoes, and the thing on the workbench is a kayak cover. She is polite, quick and a terrible liar. Behind her on the hall table, a stack of county incident forms sits squared to the edge like a deck of cards.',
+            effects: { nerve: 1 },
+          },
+          failure: {
+            text: 'The door is answered by a motion-activated speaker in Walt’s voice: “Not now, I’m on shift.” You apologize to it twice, and then, because you are rattled, a third time. When you turn around, Dolores is on her porch with her half-caned chair, not saying I told you so in a way that is louder than saying it.',
+            effects: { nerve: -1 },
+          },
+        },
       ],
       leadLines: {
-        mara: 'Mara studies the horns through the window. “Steam-bent ash, wrapped in leather. That’s not a costume. That’s a commission somebody gave themselves.”',
-        kit: 'Kit reads the garage like a workshop she wants to rob. “Neoprene with reinforced knees and palms. Built to climb, and built to last.”',
+        mara: 'Mara studies the garage through the window. “Somebody’s hemming neoprene on a walking-foot machine at midnight. That isn’t a hobby. That’s a deadline.”',
+        kit: 'Kit reads the garage like a workshop she wants to rob. “Dive tank, sprinkler timer, industrial glue. Whoever works in there finishes things.”',
         juniper:
-          'Juniper sniffs the porch roses. “Somebody kept these alive out of pure stubbornness. I love her already.”',
+          'Juniper sniffs the porch roses. “Somebody kept these alive out of pure stubbornness. I want her to do mine.”',
         cedar:
           'Cedar shakes Dolores’s hand with both of his. “My dad says the bleach plant crew were the toughest people on the bay.” Dolores says, “Your dad is correct.”',
       },
       aloneLine:
         'With no one to cover for you, Dolores feeds you three cookies and tells you exactly which window to look through, which is its own kind of crew.',
+      recall: {
+        'g1:fail':
+          'Dolores has already heard how your first night on the pier went. Everyone on the peninsula has; Jojo talks on the tow radio.',
+      },
     },
     {
       title: 'Midnight on the Stack',
@@ -170,30 +202,31 @@ export const SEA_GOAT: Mystery = {
       chapter: 3,
       scene: 'bay',
       message: {
-        medium: 'flyer',
-        from: 'Stapled to the pier gate',
+        medium: 'text',
+        from: 'Jojo (night-shift tow)',
         lines: [
-          'NOTICE TO WHOEVER KEEPS TAKING THE COPPER:',
-          'This pier is on shift. The whistle blows at midnight. Clock out.',
-          'Underneath, in a different hand and a worse marker: fri 1130 last load. bring the torch.',
+          'scrap guy left his phone in my cab when i towed him lol',
+          'their group chat: “2nite 1130 last load. bring the torch”',
+          'also somebody stapled THIS PIER IS ON SHIFT. CLOCK OUT. to the gate. the goat has a printer',
         ],
       },
       body: [
-        'Friday, eleven-thirty. You have a plan, which is more than the scrap crew has. They roll in with their headlights off, four guys and somebody’s cousin, dragging a cutting torch toward the last copper on the pier. Ruthie waits up the road with her tow truck idling and a strong opinion about trespassers.',
-        'At eleven fifty-eight, the water by the ladder goes flat and glassy. Horns break the surface. Then the beard, then the shoulders, then a long scaled tail that thumps the planks once like a gavel. The sea-goat begins to climb. At the base of the stack, a brass whistle waits on a pipe with no power to it at all.',
+        'Eleven-thirty. You have a plan, which is more than the scrap crew has. They roll in with their headlights off, four guys and somebody’s cousin, dragging a cutting torch toward the last copper on the pier. Up the road Jojo waits with her tow truck idling and every beacon she owns aimed at the gravel lot. “Thirty bucks a mile,” she says, with a grin you cannot read. “Whatever’s out there, it’s been very good for business.”',
+        'At eleven fifty-seven, the water by the ladder goes flat and glassy. Horns break the surface. Then the beard, then the shoulders, then a long scaled tail that thumps the planks once like a gavel. The sea-goat begins to climb. At the base of the stack, a brass whistle waits on a pipe with no power to it at all.',
       ],
       approaches: [
         {
-          id: 'net',
-          label: 'Beat it up the ladder and rig a cargo net at the top',
-          check: { skill: 'burly', target: 11 },
-          cost: 'You have to out-climb it, in the dark, in the wind.',
+          id: 'early',
+          label:
+            'Go up on the old graveyard-shift schedule and be on the platform first',
+          check: { skill: 'lore', target: 9 },
+          cost: 'You have to know how this mill kept time, and trust it in the dark.',
           success: {
-            text: 'You climb like it is your job. You reach the rest platform three rungs ahead and swing an old cargo net across the cage. The sea-goat climbs straight into it, kicks once, and goes still. From inside the net, a woman’s voice says, “Okay. Fair. That was well planned,” in the tone of a supervisor writing you up for excellence.',
+            text: 'You know how a pulp mill ran: graveyard clocked in at eleven forty-five, and the foreman was up top fifteen minutes before that, so nobody on his crew was ever early but him. At eleven-thirty you are on the rest platform, sitting on the cold grating with your watch out. When the horns rise over the edge, they stop dead. “…You’re early,” says a woman’s voice from inside the goat, honestly impressed. “Write that down. I want it in the log.”',
             effects: { nerve: 1 },
           },
           failure: {
-            text: 'Halfway up, the wind finds you. You hang there hugging the cage while the creature climbs past you on the outside of the ladder, hand over hoof, and pauses to check that your carabiner is clipped. It is not. The sea-goat clips it for you, pats your helmet, and keeps climbing.',
+            text: 'You have the graveyard schedule exactly right and are on the ladder at eleven-thirty sharp. What no ledger mentions is the fog: by rung twenty the cage is slick, your hands have gone numb, and you are clinging there, perfectly punctual and going nowhere, when the horns go past you on the outside of the cage, hand over hoof. From somewhere inside the costume comes, faintly, the click of a stopwatch.',
             effects: { nerve: -1 },
           },
         },
@@ -203,7 +236,7 @@ export const SEA_GOAT: Mystery = {
             'Lure the scrap crew off with a fake copper pile and tow lights',
           check: { skill: 'wits', target: 9 },
           success: {
-            text: 'You stack spray-painted pipe in the gravel lot and dust it with copper glitter, because you are a professional. The scrap crew goes for it. Ruthie lights them up from three sides with her tow beacons, and they bolt for the road. With the pier clear, the sea-goat stops on the ladder and looks down at you, surprised to have backup.',
+            text: 'You stack spray-painted pipe in the gravel lot and dust it with copper glitter, because you are a professional. The scrap crew goes for it. Jojo lights them up from three sides with her beacons, and they bolt for the road, leaving a truck behind that she pointedly does not tow. With the pier clear, the sea-goat stops on the ladder and looks down at you, surprised to have backup.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -216,50 +249,60 @@ export const SEA_GOAT: Mystery = {
           label: 'Stand guard at the brass whistle and wait for midnight',
           check: { skill: 'psyche', target: 9 },
           success: {
-            text: 'You plant yourself beside the whistle and do not move, not when the scrap crew curses, not when the stack groans, not when the bay goes strangely bright. At midnight a valve hisses somewhere you cannot see and the whistle screams shift change across the water. For one second the dead mill windows are full of light, and people in hard hats look out at a bay you do not recognize.',
+            text: 'You plant yourself beside the whistle and do not move, not when the scrap crew curses, not when the stack groans. At eleven fifty-nine, a minute early, a valve hisses somewhere you cannot see and the whistle screams shift change across the water. Then, from far out past the eelgrass, something answers in the same note, an octave lower, from a stretch of bay with no boat on it. It holds for one breath and stops. Your ears ring for an hour.',
             effects: { weird: 1 },
           },
           failure: {
-            text: 'At eleven fifty-nine your nerve goes and you grab the pull chain to stop it. The whistle blows anyway, right next to your head. You spend the rest of the night hearing only one long, ringing midnight, and the scrap crew, who stood farther back, laughs about it all the way to the road.',
+            text: 'At eleven fifty-eight your nerve goes and you grab the pull chain to stop it. The whistle blows anyway, a minute later, right next to your head. For the next hour everything anyone says to you arrives under one long, ringing note, and the scrap crew, who stood farther back, laughs about it all the way to the road.',
             effects: { nerve: -1 },
           },
         },
       ],
       leadLines: {
-        mara: 'Mara has drawn a tiny goat on her wrist in ballpoint. “Not for luck. For the record. Somebody should document this properly.”',
-        kit: 'Kit is halfway up the ladder cage before anyone says go. “If it’s climbing, I’m climbing. That’s just manners.”',
+        mara: 'Mara has rigged her phone on a tripod of zip ties. “If a fish-goat climbs a smokestack and nobody gets it in focus, I’m quitting art.”',
+        kit: 'Kit is knotting Jojo’s spare tow strap into a bosun’s chair on a pulley off the ladder cage. “Nobody falls off this stack tonight. They get lowered. Slowly. With dignity.”',
         juniper:
-          'Juniper wades out to her knees and whispers to the eelgrass. “Hold on. The night shift’s here.”',
+          'Juniper wades out to her knees. “I’m guarding the eelgrass. You can guard the goat. I picked the easy job on purpose.”',
         cedar:
-          'Cedar stands with Ruthie by the tow truck, arms folded. “Scrap guys know me from the valley. They’ll go easier if they see a familiar face.”',
+          'Cedar stands with Jojo by the tow truck, arms folded. “Scrap guys know me from the valley,” he says. “Also, Saturn’s been sitting right over this stack all month. Bad month to steal from a goat.”',
       },
       aloneLine:
-        'You run the whole trap yourself, with Ruthie on the radio, which is the closest thing to a crew this mill has had in years.',
+        'You run the whole trap yourself, with Jojo on the radio, which is the closest thing to a crew this mill has had in years.',
+      recall: {
+        'g2:pass':
+          'Your phone buzzed at eleven-fifteen: GOOD LUCK. DO NOT FALL. WALT SAYS THE THIRTIETH RUNG IS LOOSE. — D. (GRANDSON TYPING)',
+      },
     },
   ],
   coldCase: {
     title: 'The Whistle Goes Quiet',
-    place: 'The old pulp mill pier, Saturday',
+    place: 'The old pulp mill pier, the next morning',
     chapter: 3,
     scene: 'bay',
     body: [
-      'Saturday morning, the pier gate has a new padlock and a county notice. Either the scrap crew got the last of the copper or the creature drove them off for good; nobody on the peninsula can agree which. The smokestack is just a smokestack again.',
-      'Ruthie texts a photo of a plaster hoofprint riding on her dashboard like a hula girl. “Never saw it up close,” she writes. “Kind of wish I had. Kind of glad I didn’t.”',
+      'By morning, the pier gate has a new padlock and a county notice. Either the scrap crew got the last of the copper or the creature drove them off for good; nobody on the peninsula can agree which. The smokestack is just a smokestack again.',
+      'Jojo texts a photo of a little plastic goat and a plastic fish zip-tied together on her dashboard like a hula girl. “Never saw it up close,” she writes. “Kind of wish I had. Kind of glad I didn’t.”',
     ],
     choices: [
       {
         id: 'eelgrass',
-        label: 'Volunteer a Saturday with the eelgrass crew',
-        text: 'You spend a morning knee-deep in bay mud, planting shoots by hand. The crew lead has curved rust scars across both palms, like ladder rungs. She won’t say where she got them.',
+        label: 'Volunteer a morning with the eelgrass crew',
+        text: 'You spend a morning knee-deep in bay mud, planting shoots by hand. The crew lead has curved rust scars across both palms, like ladder rungs, and a camera on a tripod filming every minute of your work for a grant report. She won’t say where she got the scars.',
         effects: { goodwill: 1 },
       },
       {
         id: 'listen',
         label: 'Listen for the whistle from across the bay',
-        text: 'At midnight you stand on the Eureka waterfront and listen. Nothing. Then, very faint, a breath of brass, like the shift is changing somewhere you cannot follow.',
+        text: 'At midnight you stand on the Eureka waterfront and listen. Nothing. Then, a minute early, very faint, a breath of brass, like a shift is changing somewhere you cannot follow.',
         effects: { weird: 1 },
       },
     ],
+    recall: {
+      'g3:pass':
+        'Your plan on the pier worked, more or less, and the sea-goat still went off the far side of the stack into the bay without telling you its name.',
+      'g3:whistle':
+        'Your ears have mostly forgiven the whistle. At midnight you still catch yourself listening for it, a minute early.',
+    },
   },
   reveal: {
     title: 'The Sea-Goat Unmasked',
@@ -267,39 +310,55 @@ export const SEA_GOAT: Mystery = {
     chapter: 3,
     scene: 'bay',
     body: [
-      'The scrap trucks are taillights on the peninsula road. At the top of the stack the sea-goat sits on the rest platform with its tail hanging over the edge and its horns tipped back, breathing hard, waiting for you to do the thing everybody always does at this part.',
-      'Up close, the costume is magnificent: a hand-sewn wetsuit with a beard of dyed rope, horns of steam-bent ash, and a fishtail of green neoprene scales, hundreds of them, each one glued on by hand. A dive tank is strapped to the base of the stack below, its hose running to the brass whistle. The tide is turning.',
+      'Forty rungs above the pier, on a rest platform scrubbed cleaner than any gull would leave it, the sea-goat sits breathing hard and makes no move to leave. It lets you come up beside it, tail hanging over the edge, horns tipped back. Below, Jojo’s beacons sweep an empty gravel lot. Bolted to the rail, a trail camera blinks red.',
+      'Up close, the costume is magnificent: a hand-sewn wetsuit with a beard of dyed rope, horns of steam-bent ash, and a fishtail of green neoprene scales, hundreds of them, each one glued on by hand. Far below, a dive tank is strapped to the base of the stack, its hose running to the brass whistle. Clipped to the creature’s belt, of all things, is a county incident form in a zip-top bag.',
+    ],
+    afterMiss: [
+      'The trap is a bust. The scrap crew leaves anyway, faster than anything you did would explain, glancing back at the water as if something out there you never saw had spooked them, and Jojo’s beacons are left sweeping an empty gravel lot. At the top of the stack, the sea-goat leans over the rail, looks down at you, and does something no monster has ever done. It waits.',
+      'You climb up to it on shaking arms. It sits on the rest platform beside a trail camera blinking red: a hand-sewn wetsuit, a rope beard, horns of steam-bent ash, a fishtail of neoprene scales glued on one by one. From up here you can see a dive tank strapped to the base of the stack, its hose running to the brass whistle. Clipped to its belt, of all things, is a county incident form in a zip-top bag.',
     ],
     choices: [
       {
         id: 'unmask',
-        label: 'Pull back the hood, the way it always goes',
+        label: 'Pull back the hood and see who’s been punching in',
         text: 'You reach for the horns. The sea-goat lets you, and sighs like someone clocking out.',
         next: 'foreman',
       },
       {
         id: 'ask-whistle',
-        label: 'Ask who taught it to blow the whistle',
+        label: 'Ask how a dead whistle blows with no power',
         text: 'You ask about the whistle instead. The sea-goat goes very still, then pulls off its own hood.',
         next: 'shift-change',
       },
       {
         id: 'climb-down',
         label: 'Climb down and let the night shift keep its secret',
-        text: 'You climb down without a word. The sea-goat watches you all the way to the ground, then turns back to the bay and the plots it has guarded for months. At midnight the whistle blows again, and this time it sounds almost like thanks.',
+        text: 'You climb down without a word. The sea-goat watches you all the way to the ground, then turns back to the bay and the eelgrass under the pier. Halfway to the car you hear the whistle once more, softly, like a shift being signed off.',
         ending: 'half-new',
       },
     ],
     leadLines: {
-      mara: 'Mara keeps her hands in her pockets. “Whoever’s in there has been doing this alone a long time. Be gentle.”',
+      mara: 'Mara counts the scales under her breath and stops at two hundred. “I charge by the hour. Whoever glued these would bankrupt me.”',
       kit: 'Kit sits on the rail beside the creature, legs swinging over a very long fall. “Nice climb. Truly. Your form is great.”',
       juniper:
-        'Juniper looks at the scaled tail and smiles. “Half one thing, half another. Most of us are.”',
+        'Juniper flicks the scaled tail. “I want this when you’re done with it. Don’t say no. I saw your face; you were going to say no.”',
       cedar:
-        'Cedar takes his cap off. “Whoever you are,” he says, “I think I know your dad’s work.”',
+        'Cedar looks the costume up and down. “Half goat, half fish, all overtime. The sky made one of you a long time ago and quit. Somebody down here didn’t.”',
     },
     aloneLine:
       'Alone at the top, you and the sea-goat are just two people on a ledge in the wind, both of you out of breath.',
+    recall: {
+      'g1:fail':
+        'The pier gave you almost nothing that first night. Up here, the evidence is all in one place, and it is breathing hard.',
+      'g2:fail':
+        'Without Dolores’s stories you have no name to put to the horns, only a stranger who knows this ladder better than you know your own stairs.',
+      'g3:early':
+        'It looks from you to your watch and back again, the way a foreman checks a new hire’s punch card and decides whether to dock it.',
+      'g3:decoy':
+        'There is still copper glitter on your hands from the fake pile, and the sea-goat studies it for a long moment, like someone filing a report.',
+      'g3:whistle':
+        'You came up the ladder with the whistle still ringing in your skull, past a dive tank you stood three feet from at midnight and took for scrap.',
+    },
   },
   branches: {
     foreman: {
@@ -308,20 +367,25 @@ export const SEA_GOAT: Mystery = {
       chapter: 3,
       scene: 'bay',
       body: [
-        'Under the horns is a woman in her thirties with salt in her eyebrows and eelgrass in her ponytail: Marisol Keough, marine biologist, the last foreman’s daughter. “Scrap crews dragging copper off the pier were ripping up my eelgrass plots,” she says. “That grass is the bay’s nursery. So I gave them something to be scared of.”',
-        'Then she looks down at the dead mill, and her voice changes. “My dad blew that whistle every working day for twenty-two years. The day the mill closed, he swept his station, oiled the whistle, and carried it home on his shoulder up the middle of the street, and every family on the block came out on their porches and stood there. He kept the hours on it in the garage until March. Somebody has to keep the hours.”',
+        'Under the horns is a woman in her thirties with salt in her eyebrows and eelgrass in her ponytail: Tess Keough, marine biologist, the last foreman’s daughter. “My restoration grant comes up on the first,” she says. “Nine years of eelgrass under this pier, and the scrap crews drag copper right through it. The county won’t fence a pier until something documented happens on it. I reported the copper for two years. Copper is ‘ongoing.’ A monster is an incident. So I documented something.” She taps the incident form. “Forty-one reports. Three tows. One grown man crying. I put a monster on the clock.”',
+        'Then she looks down at the dead mill, and her voice changes. “Nine years of being the most reliable person on this bay, and the grant committee still calls me ‘the field tech.’ The program-lead job opens in spring, and they don’t give it to field techs. Nobody writes down eelgrass. They write down monsters.” She laughs, short. “Dad blew that whistle his whole working life and got a handshake and a sheet cake. I wanted a line item. So I climbed.”',
+        'Out past the eelgrass plots, the bay heaves. A head the size of a rowboat lifts out of the black water: horns like wheel wells, a beard of living kelp, one green eye turned up at the stack. It looks at Tess. It looks at the costume. Then it sinks without a ripple, and the water goes flat again. Tess does not move for a long moment. “That one,” she says, “is not mine.”',
       ],
+      recall: {
+        'g2:pass':
+          'You half expected her. Walt Keough had one daughter, and everything on that street pointed at her.',
+      },
       choices: [
         {
           id: 'crew',
-          label: 'Tell her she doesn’t have to keep them alone',
-          text: 'You tell her about Dolores, and the ledgers, and Ruthie with her tow lights, and a whole street of people who still mow in stripes. Marisol laughs, then covers her face with a neoprene glove for a long moment.',
+          label: 'Tell her the pier needs a real night watch, not a monster',
+          text: 'You tell her about Dolores, and Jojo and her tow truck, and a whole street of people who still mow in stripes, who would stand on a pier at midnight for nothing if anyone asked. Tess laughs, then covers her face with a neoprene glove for a long moment.',
           ending: 'the-climb',
         },
         {
           id: 'rest',
-          label: 'Tell her the scrap crew won’t be back and she can rest',
-          text: 'You tell her the pier is safe now, that she has done enough. Marisol nods slowly, unbuckles the tail, and sets it on the platform like a lunchbox at the end of a double shift.',
+          label: 'Tell her the footage worked and nobody needs to know',
+          text: 'You tell her the pier is safe, the grant is as good as hers, and a monster is nobody’s business. Tess nods slowly, unbuckles the tail, and sets it on the platform like a lunchbox at the end of a double shift.',
           ending: 'whistle-stops',
         },
       ],
@@ -332,20 +396,24 @@ export const SEA_GOAT: Mystery = {
       chapter: 3,
       scene: 'bay',
       body: [
-        '“It runs on compressed air,” says the woman under the hood: Marisol Keough, marine biologist, daughter of Walt, the last foreman. “Dad’s whistle, my dive tank, a timer off a sprinkler system. Nothing spooky.” She frowns at her watch. “Except it’s been blowing early. Like it’s keeping time for somebody else.”',
-        'At midnight the tank hisses, the whistle sings, and the bay changes under you. The mill is gone. Where its tanks stood there is a tidal wetland silver with channels, and beyond it a working port: cranes, long white turbine blades stacked like giant oars, people in hard hats walking to shift. A whistle answers from across that water. It is the same note. Marisol grips the rail. “That’s Dad’s pitch,” she whispers. “Somebody over there kept it.”',
+        '“It runs on compressed air,” says the woman under the hood: Tess Keough, marine biologist, daughter of Walt, the last foreman. “Dad’s whistle, my dive tank, a timer off a sprinkler system. Nothing spooky.” She taps the incident form. “The scrap guys drag copper through nine years of my eelgrass, and the county won’t fence a pier until something on it is documented. Copper is ‘ongoing.’ A monster is an incident. So I documented a monster. The grant committee reads incident reports. It does not read eelgrass.” She frowns at her watch. “The one thing I can’t fix is the timer. It blows a minute early every night, however I set it. Like it’s clearing the way for somebody else.”',
+        'Then true midnight arrives, and out on the water something answers hers, much nearer than the bay should allow, a note no brass makes. The bay goes flat as poured glass. Past the eelgrass plots something surfaces and keeps surfacing: horns the size of wheel wells, a beard of living kelp, a tail that runs back into the dark farther than the pier is long. It sets one hoof on the bottom rung of the stack and waits, the way a worker waits at a time clock. Tess grips the rail with both neoprene hands. “I didn’t put that in the grant,” she whispers.',
       ],
+      recall: {
+        'g3:whistle':
+          'Your ears met that brass up close earlier tonight, and they know the second note is wrong before you do.',
+      },
       choices: [
         {
           id: 'answer',
-          label: 'Pull the chain with her and answer the other whistle',
-          text: 'You pull the chain together. The two whistles hold the note across years of water, and the future shift, very small and very far, waves back.',
+          label: 'Pull the whistle line with her and answer it',
+          text: 'Tess opens the valve by hand and you pull the line together, the cord running forty rungs down to the brass. The two whistles hold one note across the bay, and out past the eelgrass the great horned head dips once, like a foreman initialing a card.',
           ending: 'half-new',
         },
         {
           id: 'gather',
-          label: 'Get Marisol down and wake everyone who should see this',
-          text: 'You climb down fast and start knocking on cottage doors. Dolores is already dressed. So, it turns out, is half the street.',
+          label: 'Get Tess down and wake everyone who should see this',
+          text: 'You climb down fast and start knocking on cottage doors. Dolores is already dressed. So, it turns out, is half the street. They heard two whistles tonight, and only one of them was brass.',
           ending: 'the-climb',
         },
       ],
@@ -354,11 +422,11 @@ export const SEA_GOAT: Mystery = {
   endings: [
     {
       id: 'the-climb',
-      title: 'The Climb',
+      title: 'The Night Watch',
       tone: 'true',
       text: [
-        'By summer the old pier has a crew again. Retired mill workers show up at dawn with tool belts older than you, Marisol’s restoration volunteers show up in waders, and together they rebuild the deck plank by plank, gapped so light reaches the eelgrass below. Dolores runs the schedule. Nobody is late twice.',
-        'On the day the pier reopens, Marisol mounts her father’s whistle at the far end on a post of salvaged mill timber, and at noon every retired worker on the peninsula takes a turn on the chain. Your turn comes last. The note goes out across the bay, and something out there, far off and not yet built, answers.',
+        'A little before one in the morning the old crew walks out onto the pier in mill jackets with their names still stitched over the pockets, Dolores at the front. She calls the shifts in Walt’s old cadence, because somebody on this street has always known it by heart, and everybody takes a turn on the chain. The whistle goes out over the black bay again and again, and across the water in Eureka, porch lights come on one at a time.',
+        'Between pulls, Tess calls the county’s overnight line and, with the whole crew listening, reports one sea-goat, homemade, hers. Then, after a pause, a second one, not hers, which she declines to describe further. She asks for the fence anyway. Dolores takes the phone and adds that the pier now has a night watch of eleven retirees and a tow truck. When the chain comes around to you, Dolores says, “Pull like you’re on the clock.” You do, and far out on the bay a lower note answers.',
       ],
     },
     {
@@ -366,17 +434,17 @@ export const SEA_GOAT: Mystery = {
       title: 'The Whistle Stops',
       tone: 'bittersweet',
       text: [
-        'The scrap crew never comes back, and by fall the plots under the pier fill in thick and green. Marisol takes a research job down the coast. Before she leaves, she sets the whistle on Dolores’s porch with a note: Keep the hours, would you. Dolores does, for a while.',
-        'The costume ends up in a box at the community hall, horns on top. Some nights, kids on the peninsula swear they see something with a tail sitting on the old stack, watching the bay. But the whistle doesn’t blow at midnight anymore, and the cottages sleep straight through.',
+        'The grant renews. The footage goes in an appendix nobody reads closely, the county fences the pier, and by fall the plots under it fill in thick and green. Tess gets the program-lead job she has been climbing toward for nine years. Before she leaves she carries the whistle to Dolores’s porch and hands it over in person. “Keep the hours?” Dolores does, for a while.',
+        'The costume ends up in a box at the community hall, horns on top. Before she goes, Tess files one last incident report, unpaid and unprompted: Large horned animal, bay side of the pier. Not mine. The county stamps it RECEIVED. The whistle on Dolores’s porch never blows again, timer or no timer, and the cottages sleep straight through midnight.',
       ],
     },
     {
       id: 'half-new',
-      title: 'Half of Something New',
+      title: 'The Graveyard Shift',
       tone: 'strange',
       text: [
-        'Marisol never fully comes off the night shift. She works days at the lab and nights on the pier, and the whistle keeps blowing at midnight, sometimes answered, sometimes not. Crab boats coming in late report a fish-tailed shape climbing a smokestack that some nights isn’t there at all, and other nights has cranes beside it.',
-        'A year later you get a postcard with no stamp. On the front is a photograph of a tidal wetland and a working port that do not exist yet. On the back, in square pencil: Shift change went well. Your plank is the fourth from the end. — M.',
+        'The night shift never fully clocks out. Someone works days at the lab and nights on the pier, and the whistle keeps blowing a minute before midnight, as if clearing the way. Crab boats coming in late report a fish-tailed shape on the smokestack, and some nights a second wake in the channel, far too long for any boat, keeping pace with theirs.',
+        'Dolores keeps a tally on her fridge. Some midnights the crab boats count two figures on the stack, one in neoprene and one in barnacles, and only one of them has a time card.',
       ],
     },
   ],

@@ -60,7 +60,15 @@ export type MysteryGate = {
   approaches: MysteryApproach[]
   leadLines?: Partial<Record<CompanionId, string>>
   aloneLine?: string
+  recall?: MysteryRecall
 }
+
+/**
+ * Lines a scene adds when an earlier gate went a certain way, keyed `g<N>:pass`,
+ * `g<N>:fail` or `g<N>:<approach id>` (only gates before this scene). They are how
+ * a failure, or what one approach turned up, carries forward.
+ */
+export type MysteryRecall = Record<string, string>
 
 export type MysteryEndingTone = 'true' | 'bittersweet' | 'strange'
 
@@ -91,6 +99,7 @@ export type MysteryScene = {
   choices: MysteryFinaleChoice[]
   leadLines?: Partial<Record<CompanionId, string>>
   aloneLine?: string
+  recall?: MysteryRecall
 }
 
 export type MysteryMotif =
@@ -138,7 +147,10 @@ export type Mystery = {
   /** Fewer than two passed gates: the trail goes cold. Two plain choices, no next/ending. */
   coldCase: MysteryScene
   /** Two passed gates: the true path opens here. */
-  reveal: MysteryScene
+  reveal: MysteryScene & {
+    /** The reveal's body when Gate III failed but Gates I and II passed: the trap missed, yet the truth still surfaces. */
+    afterMiss: string[]
+  }
   branches: Record<string, MysteryScene>
   /** The Real Endings, at least three, one of them tone 'true'. */
   endings: MysteryEnding[]

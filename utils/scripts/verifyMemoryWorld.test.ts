@@ -133,7 +133,7 @@ assert.equal(
 assert.match(
   briarSceneOpening(BRIAR_SCENES['7,2']!, { '2,2': 'observe' }),
   /wolf patrol tracks/,
-  'Forest court reflects the player's earlier investigation',
+  "Forest court reflects the player's earlier investigation",
 )
 
 const sceneCoordinates = Object.keys(BRIAR_SCENES)

@@ -236,16 +236,29 @@ const turnDone = (s: Snapshot) =>
       if (s.act === 'S02' && s.actTwoFrame >= 300 && s.ships[1]!.lives > 0) {
         const ram = emptyInput()
         const ship = s.ships[1]!
-        const prey = [...s.enemies, ...s.enemyShots]
-          .filter((hazard) => hazard.x > 40 && hazard.x < 300)
-          .sort((a, b) => a.x - b.x)[0]
+        // The nearest craft, else the nearest pellet, so the ram lands however the craft swim and fire (t-033).
+        const nearest = (hazards: ReadonlyArray<{ x: number; y: number }>) =>
+          hazards
+            .filter((hazard) => hazard.x > 40 && hazard.x < 440)
+            .sort(
+              (a, b) =>
+                Math.hypot(a.x - ship.x, a.y - ship.y) -
+                Math.hypot(b.x - ship.x, b.y - ship.y),
+            )[0]
+        const prey = nearest(s.enemies) ?? nearest(s.enemyShots)
         if (!(ship.lives === 1 && ship.shield === 1) && prey)
           steer(ram, ship, prey.x, prey.y)
         else {
           // One hit left: hold Nemi's lane and meet whatever crosses it, so the last hit lands there.
           const crossing = [...s.enemies, ...s.enemyShots]
-            .filter((hazard) => Math.abs(hazard.y - NEMI_LANE) < 20)
-            .sort((a, b) => a.x - b.x)[0]
+            .filter(
+              (hazard) => hazard.x > 40 && Math.abs(hazard.y - NEMI_LANE) < 40,
+            )
+            .sort(
+              (a, b) =>
+                Math.hypot(a.x - ship.x, a.y - ship.y) -
+                Math.hypot(b.x - ship.x, b.y - ship.y),
+            )[0]
           steer(ram, ship, crossing ? Math.max(40, crossing.x) : 140, NEMI_LANE)
         }
         inputs[1] = ram

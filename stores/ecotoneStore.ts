@@ -27,7 +27,7 @@ import {
 } from '~/utils/ecotone/engine'
 import type { CardEdit } from '~/utils/playbook/edits'
 import type { SubstanceId } from '~/utils/ecotone/substanceArc'
-import type { PlayerIdentity } from '~/utils/ecotone/playerIdentity'
+import { normalizePlayerIdentity, type PlayerIdentity } from '~/utils/ecotone/playerIdentity'
 import {
   MYSTERIES,
   caseRecord,
@@ -236,6 +236,19 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     )
   }
 
+  /** Cosmetic change: persistent, but never a story decision or undo step. */
+  function setPlayerLook(avatarId: string, portraitArtId?: number | null) {
+    if (!run.value) return
+    const identity = normalizePlayerIdentity({
+      playerName: run.value.playerName,
+      personalityId: run.value.personalityId,
+      avatarId,
+      portraitArtId: portraitArtId ?? run.value.portraitArtId,
+    })
+    run.value = { ...run.value, avatarId: identity.avatarId, portraitArtId: identity.portraitArtId }
+    persist()
+  }
+
   function saveSlot(slot: number) {
     if (!run.value || !Number.isInteger(slot) || slot < 1 || slot > 3)
       return false
@@ -379,6 +392,7 @@ export const useEcotoneStore = defineStore('ecotone', () => {
     realEnding,
     initialize,
     begin,
+    setPlayerLook,
     pickEvent,
     pickFork,
     choose,

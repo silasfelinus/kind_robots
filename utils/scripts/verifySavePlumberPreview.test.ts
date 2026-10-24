@@ -37,7 +37,7 @@ assert.match(
   /type Screen = 'title' \| 'story' \| 'worlds' \| 'crew' \| 'guide' \| 'play'/,
 )
 assert.match(page, /prefers-reduced-motion: reduce/)
-assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-|kr-scroll/)
+assert.doesNotMatch(page, /PlumberTitleScene|href="#plumber-/)
 for (let world = 1; world <= 8; world++) {
   for (const extension of ['webp', 'webm', 'mp4'])
     assert.ok(

@@ -5,7 +5,7 @@ tabKey: crystal-street
 label: Crystal Street
 title: Nightmare on Crystal Street
 subtitle: One week, seven nights, twenty nightmares
-summary: Survive Halloween week 1986 on the creepiest cul-de-sac in California.
+summary: Survive Halloween week, 1986.
 description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. Admin-only development preview.'
 icon: kind-icon:ghost
 image: /crystal-street/cover.webp

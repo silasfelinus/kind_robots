@@ -91,7 +91,7 @@ export const FINALE_AID: FlagAid[] = [
 
 /**
  * The plans of what stood on the Abbey's hill (t-043): copied first and
- * locked away on Day 14, still in the crown's hands on Day 50. They show the
+ * locked away on Day 14, still in the crown’s hands on Day 50. They show the
  * stair from the old well to the lowest room.
  */
 const HILL_PLANS_AID: FlagAid = {
@@ -130,10 +130,12 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Eleven cooks, four guards and one angry goat came in from the dark. The Yard cooks again.',
-      partial: 'A few came in. The rest had chosen other roads.',
+      partial:
+        'Six stragglers answer the summons: two cooks, a tired guard, and three road hands carrying the keys to rooms they can no longer enter. The others have taken work under banners that stayed standing.',
       failure:
-        'The ditches were empty. Or the people in them did not want finding.',
-      expired: 'Nobody went looking. The stragglers stopped waiting.',
+        'The searchers find abandoned blankets and an old Yard ration tin in the drainage ditch. Nobody answers the watch signal. At dusk Dunmore serves supper for people who are not coming.',
+      expired:
+        'No patrol goes out. By the second morning the roadside fires have gone cold. A gate clerk pins six unclaimed names to the inner wall and waits for someone to ask after them.',
     },
   },
   // Day 42: one host quest per hideout, posted by accepting the host's terms.
@@ -160,9 +162,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { moles: -10 } },
     outcomes: {
       success:
-        'The props hold. Granny Umber knocks on one and listens. She nods.',
-      failure: 'A section came down. Nobody was under it. This time.',
-      expired: 'The Moles propped it themselves. They say so. Often.',
+        'Every support holds beneath the burrow roof. Granny Umber strikes the newest brace with her walking stick and listens for the answer. She opens the inner gate, but keeps the keys.',
+      failure:
+        'One brace snaps and half a passage fills with dust. The families reach the deeper gallery unharmed, carrying their bedding through ankle-high rubble. Granny Umber asks for timber before she asks for thanks.',
+      expired:
+        'The tunnel wardens finish their own repairs overnight. Granny Umber leaves the crown a bill in careful handwriting, beside a drawing of the roof they saved without royal help.',
     },
   },
   {
@@ -192,8 +196,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Three nights on the ledges. On the third, a line of lanterns went up the Abbey road. None came down.',
-      failure: 'The watch fell asleep. The crows did not. They told Corvane.',
-      expired: 'The crows stood the watch alone. They noted it.',
+      failure:
+        'Two watchers miss the change of lanterns on the Abbey road. Corvane’s sentries record it in their night ledger and deliver a copy to the court. They keep the original.',
+      expired:
+        'The Conclave keeps watch without the crown. At dawn its sentries hand over a list of every lamp that moved along the Abbey road. The last line is blank where the tower’s signature should be.',
     },
   },
   {
@@ -223,9 +229,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The aqueduct runs. Mara Reedbell rings the chapel bell once, quietly. For the court.',
-      failure: 'The leak won. The town is rationing again.',
+      failure:
+        'The aqueduct loses water through a broken joint near the chapel. Mara Reedbell orders the public taps shut between bells. By afternoon a row of empty jars stands against the town hall.',
       expired:
-        'The town carried water by hand. Nobody complained where you could hear.',
+        'No royal repair crew comes. Hollow Bell’s residents haul their water in clay jars from the river stairs. Mara writes down every missed delivery and sends the total to the hideout.',
     },
   },
   {
@@ -255,8 +262,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Every wagon rolls. Vane paints a small crown on the axle of his own.',
-      failure: 'Two wagons are still on blocks. Vane is counting.',
-      expired: 'The Pack fixed its own wheels. Then it raised its prices.',
+      failure:
+        'The Pack gets half its wagons moving. Vane paints a number on each stalled axle and sets the repair bill beneath the crown’s borrowed flag. He can still count what he is owed.',
+      expired:
+        'The crown sends no wheelwright. Pack mechanics salvage their own axles in the dark. Vane adds the repair hours to every future escort contract, including the emperor’s.',
     },
   },
   {
@@ -287,8 +296,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The caravan made the salt flats by dawn. Not a wheel lost. Not a guest.',
-      failure: 'Riders took two wagons on the night road.',
-      expired: 'Oriel hired guards elsewhere. She mentions the price daily.',
+      failure:
+        'The caravan limps into the salt flats missing two wagons. Oriel Saltmarsh sets out two empty harnesses in front of the paymaster and asks which account covers the drivers who were hired to bring them home.',
+      expired:
+        'Oriel hires a private escort at twice the crown’s rate. Her factor brings the receipt to the hideout each morning. The first copy is an invoice; the second is a warning.',
     },
   },
   {
@@ -318,8 +329,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The field is in. Hester hands every reaper a warm egg, like pinning on a medal.',
-      failure: 'Half the field burned before the sheaves were stood.',
-      expired: 'Hester and her sister brought it in alone. It took all night.',
+      failure:
+        'Half the harvest is lost before the sheaves are stacked. Hester keeps the remaining sacks under guard. Her sister counts how many households they can feed, then stops when she reaches winter.',
+      expired:
+        'Hester and her sister finish the harvest by lantern light, without the promised helpers. By morning the grain is dry and their hands are raw. The crown receives a sack with an unpaid labor tally tied to it.',
     },
   },
   {
@@ -350,8 +363,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The engine is stripped to the bolts. Jinx keeps the shiny ones.',
-      failure: 'Someone else got to the engine first.',
-      expired: 'Jinx stripped it alone. Slowly. She remembers.',
+      failure:
+        'Jinx finds the salvage engine stripped of its copper and good bolts. Only a broken brass nameplate remains. They hold it up to the sun and say the crown can have that much for free.',
+      expired:
+        'Jinx works the abandoned engine alone until moonrise. Every usable screw goes into a cloth pouch. The work is finished without royal help, and the invoice arrives with their signature.',
     },
   },
   {
@@ -377,8 +392,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Roots, a snared hare, somebody’s abandoned flour. Tonight nobody is hungry.',
-      failure: 'The hills were bare. The cave ate the last of the bread.',
-      expired: 'Nobody went. The cave slept hungry.',
+      failure:
+        'The party comes back carrying dry roots and one cracked cooking pot. The last bread is gone before the evening fire. Dunmore measures tomorrow’s portions with a string.',
+      expired:
+        'No foragers go out. The hideout’s last flour tin is scraped clean, and the cooks hang the empty scoop where everyone can see it. The sentries are offered their ration first.',
     },
   },
   {
@@ -412,8 +429,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'It is all in his neat hand. The Abbess promised that what sleeps under the Abbey would sleep through every life now living, if her order got the throne and the payments kept coming. In the margin Komodo underlined the price twice: “Cheaper than war.”',
       partial:
         'One page survived: the Abbess’s promise, and Komodo’s note beside it. “Cheaper than war.” The rest was ash.',
-      failure: 'The ledgers were gone. So was everyone who held them.',
-      expired: 'Nobody asked. Komodo’s reasons stayed unread.',
+      failure:
+        'The ledger cart is found burned beside a dry wash. Three empty satchels lie in the ash, their buckles still locked. The court has lost both the evidence and the people sent to bring it home.',
+      expired:
+        'No one follows the ledger trail. A clerk closes the file with the last order Komodo signed still folded inside. By the final council, no one can say what he thought the throne was buying.',
     },
   },
   {
@@ -443,10 +462,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'The well does speak. It repeats you a heartbeat late, in a voice almost yours. Forty steps down is a door with no lock on this side. The party marked the way.',
       partial:
-        'The party marked the way to the door and came up fast. Nobody says what the well said back.',
-      failure: 'The rope came back up. No bucket. No knot.',
+        'The investigators scratch forty notches into the well wall and climb out before reaching the lockless door. Their notes agree on the depth but not on the words they heard below.',
+      failure:
+        'The rope returns from the well frayed and cleanly severed, the bucket missing. A mason who tied the knot insists it was sound. The watch sets a lantern by the rim and does not lower it.',
       expired:
-        'Nobody went down. At night you can hear the well from the road.',
+        'No one descends the speaking well. Each night a voice reaches the road a heartbeat after the watch calls its hour. The sentries begin changing their calls so nobody below can learn them.',
     },
   },
   {
@@ -489,8 +509,10 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. The Mire Mothers kept it there on purpose. They gave it up on purpose. Older treasures lay beside it. Those came home too.',
       success:
         'The clapper lay in the Mirefen’s deepest pool, in prayer cloth older than the Abbey. It is heavy. It hums when nobody touches it.',
-      failure: 'The fen kept it. The fen keeps most things.',
-      expired: 'Nobody went. The clapper stayed in the fen.',
+      failure:
+        'The recovery party returns with empty cloth and river mud in its boots. Sister Reedlight says the old pool has changed its banks. The throne must decide whether the bell can ring without its heart.',
+      expired:
+        'No one searches the Mirefen pool. The bell tower waits with its ropes tested and the striker missing. On the last night, the bell keeper sets an empty brass cradle beneath the frame.',
     },
   },
   {
@@ -525,10 +547,11 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       success:
         'The crypt door is shut. Whatever kept time beneath the floor has stopped. The Abbess is gone. The sisters will not say where.',
       partial:
-        'The door is shut. Barely. The party came home fewer, and older.',
+        'The crypt door holds behind a row of broken braces. The survivors climb the stairs in silence and place the absent companions’ badges on the court table. Below them, the last note fades slowly.',
       failure:
-        'The party came back up the stair. The door is still open. The singing has not stopped.',
-      expired: 'Nobody went to the Abbey. Nobody had to. It came to everyone.',
+        'The party retreats up the crypt stair, leaving a trail of extinguished lanterns. The door remains open at the bottom. The sisters stop singing in the chapel, but the rhythm beneath the floor continues.',
+      expired:
+        'No expedition takes the Abbey road. At dawn the same low note sounds from the town wells, then the fortress drain. The gate watch closes every door it can reach, with no one left to guard the locks.',
     },
   },
   {
@@ -560,12 +583,14 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       triumph:
         'They came up through the floor behind the Abbess mid-song. The crypt is shut. The sisters scattered at dawn.',
-      success: 'The back door led to the right room. The crypt is shut.',
+      success:
+        'The hidden passage opens behind the crypt and the party bars the inner door before the last bell note. They return by the well with wet boots and a map that will never again be sold.',
       partial:
         'They reached the room late and shut the door on the singing from the wrong side. They came back up the well one at a time, counting each other in the dark.',
       failure:
-        'The well led somewhere. Not the crypt. The party came back silent.',
-      expired: 'Nobody took the well road.',
+        'The passage from the well opens into a room of old stone seats, untouched and empty. The scouts return without finding the crypt. They leave a trail of chalk marks for whoever must try again.',
+      expired:
+        'No one attempts the hidden path. The well mouth is sealed with a board and the map folded into the emperor’s coat. The party must face the chapel doors in full view.',
     },
   },
   {
@@ -604,8 +629,9 @@ export const ACT_FIVE_QUESTS: readonly QuestDef[] = [
       partial:
         'The Silent Bell rang once and split down its whole length on the note. Under the Abbey, something went quiet. Hollow Bell will never hear it again.',
       failure:
-        'The clapper struck. The bell cracked down its whole length without a sound.',
-      expired: 'The clapper stayed in its cloth. Nobody climbed.',
+        'The clapper hits once. The Silent Bell splits from crown to lip without making a note. At the Abbey, the sisters halt their song and look toward the valley. They are listening for an answer.',
+      expired:
+        'The bell keeper folds the clapper back into its prayer cloth. Nobody climbs the tower. As the last daylight drains from Hollow Bell, its ropes hang motionless above the empty street.',
     },
   },
 ]
@@ -1610,7 +1636,7 @@ export const ACT_FIVE_DAYS: readonly DayDef[] = [
         ],
       },
       {
-        // Callback: the emperor let Komodo ride out on the crown's business (Day 40).
+        // Callback: the emperor let Komodo ride out on the crown’s business (Day 40).
         id: 'd41-trusted-road',
         title: 'The Leave You Gave',
         speaker: 'Keeper Abelard Vellum',

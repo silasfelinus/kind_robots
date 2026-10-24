@@ -598,6 +598,10 @@
       </div>
     </div>
 
+    <memory-dungeon-house-stage
+      v-else-if="world.state.room === 'house'"
+      class="min-h-0 flex-1"
+    />
     <div
       v-else
       class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_35%,#536b4e,#1b242b_75%)] p-3"
@@ -746,6 +750,7 @@ import {
 } from '~/utils/memoryDungeonCardArt'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 import MemoryDungeonCombatBoard from '~/components/memory-dungeon/combat-board.vue'
+import MemoryDungeonHouseStage from '~/components/memory-dungeon/house-stage.vue'
 
 const emit = defineEmits<{ leave: [] }>()
 const world = useMemoryWorldStore()

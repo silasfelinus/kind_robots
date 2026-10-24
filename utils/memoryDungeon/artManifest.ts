@@ -203,9 +203,21 @@ const openingShots: MemoryArtShot[] = [
     ),
   ),
   ...[
-    ['moss-sprite', 'Moss Sprite', 'Impish moss-covered forest spirit springing from a branch.'],
-    ['thorn-patrol', 'Thorn Patrol', 'Two armed sentries of the bramble road, clear combat silhouettes and readable expressions.'],
-    ['rootbound-warden', 'Rootbound Warden', 'Ancient guardian of remembered names, roots and brass keys for armor, grave and imposing but capable of mercy.'],
+    [
+      'moss-sprite',
+      'Moss Sprite',
+      'Impish moss-covered forest spirit springing from a branch.',
+    ],
+    [
+      'thorn-patrol',
+      'Thorn Patrol',
+      'Two armed sentries of the bramble road, clear combat silhouettes and readable expressions.',
+    ],
+    [
+      'rootbound-warden',
+      'Rootbound Warden',
+      'Ancient guardian of remembered names, roots and brass keys for armor, grave and imposing but capable of mercy.',
+    ],
   ].map(([key, title, subject]) =>
     shot(
       `monster-${key}`,
@@ -314,7 +326,11 @@ export function validateWorldOneArtManifest(): string[] {
       issues.push(`Duplicate art destination: ${shot.targetPath}`)
     if (!shot.prompt.trim() || !shot.targetPath.startsWith('/images/'))
       issues.push(`Incomplete art brief: ${shot.id}`)
-    if (shot.jobId !== null || shot.deliveredUrl !== null || shot.delivery !== 'not-submitted')
+    if (
+      shot.jobId !== null ||
+      shot.deliveredUrl !== null ||
+      shot.delivery !== 'not-submitted'
+    )
       issues.push(`Brief claims unverified delivery: ${shot.id}`)
     ids.add(shot.id)
     paths.add(shot.targetPath)
@@ -327,7 +343,14 @@ export function validateWorldOneArtManifest(): string[] {
     if (!ids.has(`house-${room.id}`))
       issues.push(`Missing dungeon art: ${room.id}`)
   }
-  for (const kind of ['card-back', 'portrait', 'monster', 'backdrop', 'transition', 'photograph'] as const) {
+  for (const kind of [
+    'card-back',
+    'portrait',
+    'monster',
+    'backdrop',
+    'transition',
+    'photograph',
+  ] as const) {
     if (!WORLD_ONE_ART_SHOTS.some((shot) => shot.kind === kind))
       issues.push(`Missing artwork category: ${kind}`)
   }

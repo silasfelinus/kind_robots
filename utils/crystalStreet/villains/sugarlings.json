@@ -3,6 +3,14 @@
     "id": "sugarlings",
     "name": "The Sugarlings",
     "epithet": "Collect Them All!",
+    "inspiration": {
+      "original": "The Gremlins",
+      "film": "Gremlins",
+      "year": 1984,
+      "kind": "remix",
+      "oldScript": "Break the rules and chaos multiplies; the cute thing turns monstrous.",
+      "newLens": "Greed and overconsumption sold on Saturday-morning TV. Sharing the candy is the cure."
+    },
     "tags": ["creature", "tech"],
     "palette": ["#ff9ad5", "#9be7ff", "#5b2a86"],
     "sigil": "lollipop",
@@ -39,7 +47,10 @@
               "intent": "sneaky",
               "skill": "hustle",
               "target": 9,
-              "bonus": { "companion": "lou-tran", "amount": 1 },
+              "bonus": {
+                "companion": "lou-tran",
+                "amount": 1
+              },
               "success": {
                 "text": "The shipping log says Toy Planet ordered four hundred Sugarlings. Four thousand are purring on the shelves. The Happimore memo is worse: ENCOURAGE MULTIPLE PURCHASES. A CHILD WITH ONE SUGARLING SHOULD FEEL INCOMPLETE. Somebody at Happimore headquarters wrote that on purpose, and it worked.",
                 "art": "A teenager crouched between stockroom shelves crammed with fuzzy critters, reading a corporate memo by the light of a hundred glowing eyes",
@@ -51,7 +62,11 @@
               "failure": {
                 "text": "You step on a Sugarling. It squeaks \"More!\" and the whole stockroom answers. A landslide of fuzz pours off the shelves, and you are swept out the door on a purring wave and deposited in the fountain by the escalator.",
                 "art": "A teenager being swept out of a toy store stockroom on a purring wave of fuzzy pastel critters, splashing into a mall fountain",
-                "effects": { "nerve": -1, "dread": 1, "teleport": "creature" }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "creature"
+                }
               }
             },
             {
@@ -71,7 +86,10 @@
               "failure": {
                 "text": "The manager catches you behind the counter without a name tag and marches you out. On your way past the shelf, every Sugarling turns its head to follow you, and the one nearest the end mouths: Take me home.",
                 "art": "A toy store manager escorting a teenager out past a shelf of fuzzy critters all turning their heads in unison to follow them",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -95,7 +113,10 @@
               "intent": "clever",
               "skill": "brains",
               "target": 9,
-              "bonus": { "companion": "mix-bell", "amount": 2 },
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
               "success": {
                 "text": "Backward, the children's choir is a single flat voice: More. Never enough. More. Never enough. Under that, a high data whine like a modem. \"That's a signal,\" Mix says. \"That's not for us. That's for the chips in their bellies.\" The jingle is not an ad. It is a feeding bell.",
                 "art": "A teen DJ and a teenager hunched over a reel-to-reel deck spinning backward, a VU meter spiking red, sound waves shaped like tiny open mouths drifting from the speakers",
@@ -107,7 +128,10 @@
               "failure": {
                 "text": "The reel spins backward, then forward, then both ways at once. Every Sugarling in Glimmer Falls hears it. Across the valley, house lights flick on as kids wake up to find their critters wide awake and singing.",
                 "art": "A night view of a suburban valley with house lights snapping on one by one, tiny glowing eyes in every window, a radio tower blinking on a hill",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -116,7 +140,10 @@
               "intent": "kind",
               "skill": "nerve",
               "target": 9,
-              "bonus": { "item": "cassette-recorder", "amount": 1 },
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 1
+              },
               "success": {
                 "text": "\"Please,\" says a woman with a soft Portuguese accent. \"My name is Ines Coelho. I sewed the first one for my daughter. Only one. I wrote on its tag, one friend is enough. They took that out and put in a chip that says more.\" She starts to cry. \"Don't feed them after midnight. They don't stop. They don't know how.\"",
                 "art": "A teenager pressing a radio station phone to their ear at 3 a.m., a cassette recorder taped to the handset, a faint image of a seamstress at a sewing machine in the window's reflection",
@@ -128,7 +155,10 @@
               "failure": {
                 "text": "The voice on the line is not a woman. It is a hundred tiny voices purring into the receiver: \"Request: more. Request: more.\" The booth's candy jar is suddenly empty, and something small and fuzzy squeaks under the console.",
                 "art": "An empty candy jar on a radio console, a telephone receiver dangling, tiny glowing eyes peering out from beneath the soundboard",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -155,12 +185,18 @@
               "success": {
                 "text": "The plush is soft and smells like lavender. Its tag, hand-stitched, says MALLOW: ONE FRIEND IS ENOUGH. The notebook is Ines Coelho's sketchbook. Page one: a drawing of a little girl hugging Mallow. Last page, in angry pen: They want a hundred of her. She was only ever supposed to be one.",
                 "art": "A teenager perched in an overturned truck cab holding a lavender-stuffed handmade plush with a stitched tag, a sketchbook open to a drawing of a girl hugging the toy",
-                "effects": { "clues": ["sugarlings-first-mallow"], "nerve": 1 }
+                "effects": {
+                  "clues": ["sugarlings-first-mallow"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "The cab door gives under your sneaker and you drop halfway into the trailer. A thousand moon eyes open in the dark below you, and a thousand mouths say \"Hello! Did you bring more?\" You claw your way out minus a shoe.",
                 "art": "A teenager dangling into a dark truck trailer packed with glowing critter eyes, kicking free while losing a sneaker",
-                "effects": { "nerve": -2, "dread": 1 }
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
               }
             },
             {
@@ -169,19 +205,27 @@
               "intent": "clever",
               "skill": "hustle",
               "target": 9,
-              "bonus": { "companion": "joey-benally", "amount": 2 },
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 2
+              },
               "success": {
                 "text": "The trailer door groans open. Inside is a cathedral of Sugarlings, stacked to the roof, eating the cardboard boxes they came in. They are not angry. They are hungry, always, and confused, like toddlers at a buffet. On the dashboard Joey finds the original Mallow, and it is the only one that is not eating.",
                 "art": "A junkyard winch cable dragging open a truck trailer to reveal a towering heap of fuzzy critters munching cardboard boxes, a teen mechanic holding up a lone handmade plush",
                 "effects": {
                   "clues": ["sugarlings-first-mallow"],
-                  "skills": { "hustle": 1 }
+                  "skills": {
+                    "hustle": 1
+                  }
                 }
               },
               "failure": {
                 "text": "The winch snaps and the trailer door bursts open on its own. Sugarlings pour out across the junkyard in a pastel flood, eating Joey's lunch, Wade's air freshener and the vinyl off a Buick seat. It takes all afternoon to herd them back.",
                 "art": "A pastel flood of fuzzy critters pouring out of a truck across a junkyard, nibbling car seats and a lunch bag, two teens chasing them with brooms",
-                "effects": { "nerve": -1, "quarters": -1 }
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
               }
             },
             {
@@ -190,16 +234,26 @@
               "intent": "reckless",
               "skill": "lore",
               "target": 9,
-              "bonus": { "item": "jolt-cola", "amount": 1 },
+              "bonus": {
+                "item": "jolt-cola",
+                "amount": 1
+              },
               "success": {
                 "text": "Daylight, no midnight rule, so the candy just fills them up instead of multiplying them. The nest trundles off after your trail toward the far fence, and in the quiet you climb into the cab and find the handmade Mallow and Ines's sketchbook: One friend is enough.",
                 "art": "A trail of candy leading a parade of fuzzy critters across a sunny junkyard, a teenager slipping into an overturned truck cab behind them",
-                "effects": { "clues": ["sugarlings-first-mallow"], "dread": -1 }
+                "effects": {
+                  "clues": ["sugarlings-first-mallow"],
+                  "dread": -1
+                }
               },
               "failure": {
                 "text": "You lose track of time. When you look at your Casio, it reads 12:01, and every Sugarling that ate your candy is shivering and splitting, two, four, eight. You run for the gate under a sky full of purring.",
                 "art": "A teenager staring in horror at a digital watch reading midnight while fuzzy critters around them split in two in a moonlit junkyard",
-                "effects": { "nerve": -2, "dread": 1, "teleport": "creature" }
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1,
+                  "teleport": "creature"
+                }
               }
             }
           ]
@@ -223,12 +277,18 @@
             "success": {
               "text": "You scoop them up in a laundry basket, eight purring armfuls, and dump them in the tub. They roll around happily in the dry porcelain and fall asleep in a pile. No sugar, no splitting. For once, the bathroom is the safest room in the house.",
               "art": "A teenager dumping a laundry basket of sleepy fuzzy critters into a bathtub, the creatures curling into a contented pile",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "Two escape under the bed, and under the bed is where you hid the good candy. By the time you fish them out with a hockey stick, there are thirty-two, and one is wearing your retainer like a crown.",
               "art": "A teenager on their stomach poking a hockey stick under a bed while dozens of fuzzy critters swarm out, one wearing a retainer like a crown",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -237,16 +297,25 @@
             "intent": "kind",
             "skill": "charm",
             "target": 9,
-            "bonus": { "item": "mixtape", "amount": 1 },
+            "bonus": {
+              "item": "mixtape",
+              "amount": 1
+            },
             "success": {
               "text": "You hum the only lullaby you know, which turns out to be a Cyndi Lauper song. The Sugarlings stop purring \"more\" and start purring something softer. They curl up in a pile on your pillow, warm as a hot-water bottle. You sleep on the floor, smiling.",
               "art": "A dark bedroom where a teenager sits on the floor humming, a pile of fuzzy critters curled asleep on their pillow, moonlight through the blinds",
-              "effects": { "nerve": 1, "flags": ["sugarlings-lullaby"] }
+              "effects": {
+                "nerve": 1,
+                "flags": ["sugarlings-lullaby"]
+              }
             },
             "failure": {
               "text": "They hum back, the jingle, in perfect harmony. Collect them all, collect them all, collect them all. You lie awake until dawn while sixteen of them sing it at your ceiling.",
               "art": "A teenager lying awake in bed staring at the ceiling while a row of fuzzy critters lined up on the headboard sing with open mouths",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -260,14 +329,20 @@
               "art": "A teenager carefully handing out single gumdrops to a row of fuzzy critters, three of them pausing thoughtfully, one fast asleep after a tiny burp",
               "effects": {
                 "dread": -1,
-                "skills": { "lore": 1 },
+                "skills": {
+                  "lore": 1
+                },
                 "flags": ["sugarlings-enough"]
               }
             },
             "failure": {
               "text": "One candy each becomes two critters each, and now you are out of gumdrops and very popular. By two a.m. your room is a carpet of fuzz, and the carpet is chewing on your bedspread.",
               "art": "A bedroom carpeted wall to wall in fuzzy pastel critters chewing a bedspread, a teenager standing on the bed holding an empty gumdrop bag",
-              "effects": { "nerve": -2, "dread": 1, "teleport": "tech" }
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
             }
           }
         ]
@@ -285,16 +360,26 @@
             "intent": "clever",
             "skill": "brains",
             "target": 9,
-            "bonus": { "item": "debug-disk", "amount": 2 },
+            "bonus": {
+              "item": "debug-disk",
+              "amount": 2
+            },
             "success": {
               "text": "Behind the security office you find the PA rack and a tape deck with a Happimore promo cassette in it. You pull it. The jingle stops mid-chorus. All across the mall, sleepwalking shoppers stop, blink, look at their bathrobes and their credit cards, and say \"What am I doing here?\"",
               "art": "A teenager ejecting a cassette from a mall PA rack in a cramped security room, through the window sleepwalking shoppers stopping and looking around confused",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "You press the wrong switch and the jingle goes to every speaker at once, full volume, including the ones in the parking lot. The pastel mountain in the food court rises, purring, and turns toward the security office.",
               "art": "A purring mountain of fuzzy critters rising in a mall food court and turning toward a security office window, speakers blaring overhead",
-              "effects": { "nerve": -1, "dread": 1, "teleport": "tech" }
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
             }
           },
           {
@@ -303,16 +388,24 @@
             "intent": "kind",
             "skill": "charm",
             "target": 9,
-            "bonus": { "companion": "dani-ortega", "amount": 1 },
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
             "success": {
               "text": "Dani skates loops around the bathrobes yelling \"Wake up, Dad!\" while you take wrists and talk softly. One by one they wake. A mom sees what is in her shopping bag, forty Sugarlings, and drops it like it is hot. \"I don't even like them,\" she whispers. \"I just couldn't stop.\"",
               "art": "A skate punk girl looping around sleepwalking adults in bathrobes while a teenager gently wakes a mother who stares in shock at a bag full of fuzzy critters",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "The shoppers do not wake. They turn to you with their credit cards out and say, in one tired voice, \"Just one more.\" They follow you to the exit and stand pressed against the glass doors until dawn.",
               "art": "Sleepwalking adults in bathrobes pressed against glass mall doors at night holding out credit cards, a teenager backing away into the parking lot",
-              "effects": { "nerve": -2 }
+              "effects": {
+                "nerve": -2
+              }
             }
           },
           {
@@ -324,12 +417,18 @@
             "success": {
               "text": "You slide down the rail, leap, and snatch the glittering Golden Sugarling off the peak. The mountain freezes. Without its rarest piece, the heap loses interest in itself. It slumps, dozes and slowly spreads into ordinary fuzz. The Golden one bites your thumb and pays you in arcade tokens.",
               "art": "A teenager leaping from an escalator rail to snatch a glittering golden critter from the top of a mountain of fuzz in a mall food court",
-              "effects": { "nerve": 2, "quarters": 2 }
+              "effects": {
+                "nerve": 2,
+                "quarters": 2
+              }
             },
             "failure": {
               "text": "You land on the mountain and sink to your waist. It is warm and purring and it really, really wants your candy bar. By the time Lou and Dani pull you out, it has also eaten your jacket sleeve and the glow bracelet on your wrist.",
               "art": "A teenager sunk to the waist in a warm mountain of purring critters, two friends hauling them out by the arms, a half-eaten jacket left behind",
-              "effects": { "nerve": -2, "loseItems": ["glow-bracelet"] }
+              "effects": {
+                "nerve": -2,
+                "loseItems": ["glow-bracelet"]
+              }
             }
           }
         ]
@@ -347,7 +446,10 @@
             "intent": "kind",
             "skill": "charm",
             "target": 9,
-            "bonus": { "flag": "sugarlings-enough", "amount": 1 },
+            "bonus": {
+              "flag": "sugarlings-enough",
+              "amount": 1
+            },
             "success": {
               "text": "You sit down beside him and start handing his candy out to the neighbors, the paperboy, his big sister. \"Everyone gets one.\" When there is nothing left to hoard, the tide of Sugarlings slows at the bottom of his steps, sniffs, and flows on past, uninterested. He is crying a little. Then he laughs.",
               "art": "A teenager and a small child in a dinosaur costume handing out candy to neighbors on a porch, a tide of fuzzy critters flowing past the steps uninterested",
@@ -360,7 +462,10 @@
             "failure": {
               "text": "He will not let go. \"It's MINE.\" The tide hits the porch and swarms the pillowcase, and the kid tumbles backward into a pile of purring fuzz. He is fine, just furious, and the Sugarlings have doubled again.",
               "art": "A small boy in a dinosaur costume tumbling backward into a purring heap of critters that swarm his pillowcase, a teenager reaching for him",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -369,16 +474,25 @@
             "intent": "brave",
             "skill": "hustle",
             "target": 9,
-            "bonus": { "companion": "sunny-castellanos", "amount": 2 },
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
             "success": {
               "text": "You race down Crystal Street flinging candy behind you like a parade float, and Sunny blazes ahead to open the gate of the empty lot. The whole tide follows you in. You slam the gate. Thousands of Sugarlings sit in the lot, happily sugar-drunk and stuck.",
               "art": "A teenager sprinting down a dark street tossing candy behind them, a wheelchair racer speeding ahead to open a gate, a pastel tide of critters following",
-              "effects": { "nerve": 1 }
+              "effects": {
+                "nerve": 1
+              }
             },
             "failure": {
               "text": "The swarm catches you at the corner. They do not hurt you. They just climb you, purring, for every last candy, until you are a walking pastel snowman. They leave with your candy and your shoelaces.",
               "art": "A teenager standing at a street corner completely covered in purring fuzzy critters like a pastel snowman, only their eyes visible",
-              "effects": { "nerve": -1, "dread": 1, "teleport": "creature" }
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
             }
           }
         ]
@@ -397,16 +511,23 @@
           "intent": "brave",
           "skill": "brawn",
           "target": 11,
-          "bonus": { "item": "baseball-bat", "amount": 2 },
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
           "success": {
             "text": "You plunge into the fuzz and haul out armload after armload of candy and dump it down the storm drain. Starved, the mountain shrinks and shrinks until it is just a lawn full of sleepy, ordinary toys with dead batteries. They will never move again.",
             "art": "A teen hauling armloads of candy out of a mountain of fuzz and dumping them down a storm drain, the mountain shrinking into a lawn of limp toys",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "The mountain takes your candy and then it takes you, gently, the way it takes everything. You are buried in warm, purring fuzz, and it would be so easy to just want more along with it.",
             "art": "A teen sinking into a warm mountain of pastel critters, one hand reaching out, candy wrappers swirling",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -415,16 +536,23 @@
           "intent": "clever",
           "skill": "brains",
           "target": 9,
-          "bonus": { "item": "debug-disk", "amount": 2 },
+          "bonus": {
+            "item": "debug-disk",
+            "amount": 2
+          },
           "success": {
             "text": "Mix spins the reversed jingle on every frequency, and the data whine hits the mountain like cold water. Ten thousand belly chips fizzle. The Sugarlings tumble apart and fall asleep in heaps all over Crystal Street, silent forever, adorable and inert.",
             "art": "A radio tower blasting visible sound waves over a suburb as a mountain of critters crumbles apart into sleeping heaps across the lawns",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "The backward jingle only plays half a second before the mountain eats the transmitter cable. Then it starts singing the signal back at you, louder, and every belly light turns red.",
             "art": "A mountain of critters chewing a thick radio cable, ten thousand red belly lights glowing at once, a teen with a walkie-talkie backing away",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -433,17 +561,26 @@
           "intent": "kind",
           "skill": "charm",
           "target": 9,
-          "requires": { "clues": 3 },
-          "bonus": { "flag": "sugarlings-shared", "amount": 1 },
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "sugarlings-shared",
+            "amount": 1
+          },
           "success": {
             "text": "You climb onto the roundabout curb holding the handmade Mallow over your head and read its tag out loud: \"One friend is enough.\" Then you dump your candy on the grass and say \"Everyone, take what you need.\" The kid in the dinosaur costume does it next. Then Bea, then the parents, until the whole street is sitting together, trading and sharing. The mountain stops singing. It sniffs. It purrs a different sound, softer, and folds down, and down, into one round fuzzy creature that climbs into your arms and goes to sleep.",
             "art": "A teenager holding a handmade plush overhead on a roundabout while neighbors and trick-or-treaters pile their candy together on the grass to share, a giant mountain of fuzz folding down into one small sleepy creature",
-            "effects": { "nerve": 2 }
+            "effects": {
+              "nerve": 2
+            }
           },
           "failure": {
             "text": "You read the tag, but the mountain is too loud and the street is too hungry. Nobody lets go of their pillowcase. The Mallow trembles in your hands. They need to understand where the wanting came from first.",
             "art": "A teenager holding a small handmade plush up to a roaring mountain of critters while neighbors clutch their candy bags tightly",
-            "effects": { "nerve": -2 }
+            "effects": {
+              "nerve": -2
+            }
           }
         }
       ]

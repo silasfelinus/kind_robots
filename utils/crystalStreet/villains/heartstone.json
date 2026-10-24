@@ -3,6 +3,14 @@
     "id": "heartstone",
     "name": "The Heartstone Hunger",
     "epithet": "The Grief Beneath Crystal Street",
+    "inspiration": {
+      "original": "The Thing",
+      "film": "The Thing",
+      "year": 1982,
+      "kind": "remix",
+      "oldScript": "The alien from outside that hides inside us and must be burned out before it spreads.",
+      "newLens": "The grief inside a town that never mourned its quarry dead. The Best ending is a funeral thirty-four years late."
+    },
     "tags": ["cosmic", "dream", "creature"],
     "palette": ["#8a2be2", "#1b1630", "#e8a33d"],
     "sigil": "lamp",

@@ -3,6 +3,14 @@
     "id": "vonda-velour",
     "name": "Vonda Velour",
     "epithet": "Queen of Jazzercide",
+    "inspiration": {
+      "original": "Max Renn and the Videodrome signal",
+      "film": "Videodrome",
+      "year": 1983,
+      "kind": "flip",
+      "oldScript": "The tape that rewires its viewer was body horror told through a man's gaze at women's bodies on a screen.",
+      "newLens": "An aerobics queen whose real voice was dubbed over by her producer. The monster is the diet-culture voice that calls every body a 'before'."
+    },
     "tags": ["tech", "cult", "camp"],
     "palette": ["#ff2fa8", "#2de2e6", "#f9f871"],
     "sigil": "sweatband",
@@ -40,16 +48,25 @@
               "intent": "kind",
               "skill": "charm",
               "target": 9,
-              "bonus": { "companion": "sunny-castellanos", "amount": 2 },
+              "bonus": {
+                "companion": "sunny-castellanos",
+                "amount": 2
+              },
               "success": {
                 "text": "Sunny was nineteen and an extra in the back row. \"Wanda. That was her real name. Best dancer I ever saw. Brannigan put a scale in the middle of this floor and weighed her every morning in front of everybody. By day five she couldn't climb the stairs.\" Sunny's jaw sets. \"That tape is his. It was never hers.\"",
                 "art": "A young woman in a wheelchair speaking with fierce emotion in an aerobics studio, pointing at a spot on the floor where a scale once stood, a teenager listening",
-                "effects": { "clues": ["vonda-velour-weigh-in"], "nerve": 1 }
+                "effects": {
+                  "clues": ["vonda-velour-weigh-in"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "Sunny's class starts and the music is too loud to talk over. Your reflection keeps going, faster and faster, and you realize your own knees have started bouncing in time. It takes two full minutes to make them stop.",
                 "art": "A teenager struggling to hold still in a packed aerobics class while their reflection in the mirror wall bounces frantically, knees already starting to bob",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -61,12 +78,19 @@
               "success": {
                 "text": "On the back, in looping purple ink, someone wrote notes to herself: Day 5. He changed my lines again. I said, dance because it feels good. He wants, every bite is a betrayal. I won't say it. He says fine, he'll dub it. Signed with a little heart: W.F.",
                 "art": "The back of a yellowed call sheet covered in looping purple handwriting, a small drawn heart beside the initials, a teenager holding it up to the studio light",
-                "effects": { "clues": ["vonda-velour-weigh-in"], "dread": -1 }
+                "effects": {
+                  "clues": ["vonda-velour-weigh-in"],
+                  "dread": -1
+                }
               },
               "failure": {
                 "text": "The paper tears in half. The mirror wall ripples like water, and a hundred reflections of a woman in a magenta leotard lean forward through the glass and chant, \"Weigh in. Weigh in. Weigh in.\"",
                 "art": "A rippling mirror wall with dozens of reflections of a glossy aerobics star leaning out and chanting, a teenager clutching a torn paper and backing away",
-                "effects": { "nerve": -1, "dread": 1, "teleport": "tech" }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "tech"
+                }
               }
             }
           ]
@@ -90,16 +114,25 @@
               "intent": "clever",
               "skill": "lore",
               "target": 9,
-              "bonus": { "companion": "zelda-fishbein", "amount": 2 },
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
               "success": {
                 "text": "Zelda snorts. \"Rex Brannigan. Produced two of my pictures in '57 and docked my pay for every pound I gained.\" She hands you the unlabeled tape. \"The raw footage. Before he got his scissors on it.\" On the store monitor, a radiant, round, sweaty woman grins straight into the lens: \"Your body isn't a before picture, baby. It's the whole movie.\"",
                 "art": "A small video store monitor showing a joyful, sweaty, curvy dancer in a leotard laughing into the camera, a teenager and an older woman watching side by side in the dim back room",
-                "effects": { "clues": ["vonda-velour-raw-tape"], "nerve": 1 }
+                "effects": {
+                  "clues": ["vonda-velour-raw-tape"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "Zelda gets pulled away by a man arguing about late fees. When you reach for the box, every monitor in the store clicks on at once, and Vonda points straight out of the screen at you: \"You! In the back! Burn it!\"",
                 "art": "A wall of video store monitors all showing the same glossy aerobics star pointing directly out of the screen, a teenager frozen beside a cardboard box",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -108,19 +141,27 @@
               "intent": "sneaky",
               "skill": "hustle",
               "target": 9,
-              "bonus": { "companion": "toby-nakamura", "amount": 2 },
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 2
+              },
               "success": {
                 "text": "Two VCRs, one patch cable, a lot of jiggling. The raw footage plays as it copies: take after take of Wanda laughing, flubbing, dancing off the count for the pure fun of it. Once she looks straight down the lens and says, \"If anybody ever tells you to burn yourself up, you tell them Wanda said no.\"",
                 "art": "Two stacked VCRs connected by a patch cable in a messy back room, a monitor showing a laughing dancer, a teenager's hands pressing record",
                 "effects": {
                   "clues": ["vonda-velour-raw-tape"],
-                  "skills": { "hustle": 1 }
+                  "skills": {
+                    "hustle": 1
+                  }
                 }
               },
               "failure": {
                 "text": "The tape heads chew the raw reel and spit it out crinkled. The copy you made is only the dubbed version, and it keeps playing on the monitor even after you yank the plug.",
                 "art": "A crinkled ribbon of videotape spilling out of a VCR, an unplugged monitor still glowing with an aerobics star mid-kick",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -144,16 +185,25 @@
               "intent": "brave",
               "skill": "nerve",
               "target": 9,
-              "bonus": { "companion": "tammy-jo-pruitt", "amount": 2 },
+              "bonus": {
+                "companion": "tammy-jo-pruitt",
+                "amount": 2
+              },
               "success": {
                 "text": "Coach slams down the phone. \"I will not weigh children. Not in my gym.\" She slides you the cards: anonymous notes kids left in the counselor's box after doing the tape at home. Skipping lunch. Dizzy in class. Hearing Vonda's voice every time they eat. \"Same voice, every kid,\" she says. \"That's not some lady on a tape. That's every grown-up who ever told a kid her body was wrong.\"",
                 "art": "A fierce gray-haired coach leaning across her desk to hand a stack of index cards to a teenager, a crumpled district memo in the trash can beside her",
-                "effects": { "clues": ["vonda-velour-index-cards"], "nerve": 1 }
+                "effects": {
+                  "clues": ["vonda-velour-index-cards"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "Coach is too deep in the fight to talk and points you at the door. In the hallway the PA crackles, a perky voice counts to eight, and the whole lunch line starts doing silent step-touches.",
                 "art": "A school hallway where a line of students with lunch trays all step-touch in eerie unison beneath a crackling PA speaker, a teenager staring",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -173,7 +223,9 @@
               "failure": {
                 "text": "Coach catches you mid-card. \"Those are private.\" She's right, and the look she gives you is worse than detention. The cards go into a locked drawer, and the guilt goes home with you.",
                 "art": "A coach with a phone still to her ear placing a firm hand over a stack of index cards, a guilty teenager looking at the floor",
-                "effects": { "nerve": -1 }
+                "effects": {
+                  "nerve": -1
+                }
               }
             }
           ]
@@ -197,12 +249,17 @@
             "success": {
               "text": "Your legs keep grapevining toward the TV, so you drop and crawl on your elbows. The plug comes out with a pop and a fat blue spark. Static. You lie on the carpet laughing and panting and refusing to move a single muscle for an hour.",
               "art": "A teenager sprawled on shag carpet triumphantly holding a yanked power plug, the television screen collapsing to a dot of static",
-              "effects": { "nerve": 1 }
+              "effects": {
+                "nerve": 1
+              }
             },
             "failure": {
               "text": "The TV keeps playing without the plug. Vonda leans halfway out of the screen. \"Quitters don't get results!\" You dance until four in the morning and wake up with legs like wet noodles.",
               "art": "An aerobics star leaning out of an unplugged television toward an exhausted teenager still dancing, the cord dangling uselessly",
-              "effects": { "nerve": -2, "dread": 1 }
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
             }
           },
           {
@@ -211,16 +268,26 @@
             "intent": "camp",
             "skill": "charm",
             "target": 9,
-            "bonus": { "item": "leg-warmers", "amount": 2 },
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 2
+            },
             "success": {
               "text": "You do the Sprinkler. The Robot. A disco point so bad it's art. Vonda's count stumbles. \"And burn, and, and...\" She can't sync to someone having fun. The tape stretches like taffy, and the VCR spits it out onto the carpet.",
               "art": "A teenager doing a goofy disco pose in lucky leg warmers in front of a television showing a glitching, confused aerobics star, a videotape ejecting from the VCR",
-              "effects": { "nerve": 1, "dread": -1, "flags": ["vonda-joy"] }
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-joy"]
+              }
             },
             "failure": {
               "text": "You try, but your body snaps back into her count like a rubber band. \"Cute,\" says Vonda. \"Now do it right.\" You do a hundred jumping jacks. Somewhere upstairs, so do your parents.",
               "art": "A teenager doing rigid jumping jacks in front of a smirking aerobics star on TV, shadows of parents doing the same on the upstairs landing",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           }
         ]
@@ -238,16 +305,26 @@
             "intent": "clever",
             "skill": "lore",
             "target": 9,
-            "bonus": { "item": "rock-salt", "amount": 2 },
+            "bonus": {
+              "item": "rock-salt",
+              "amount": 2
+            },
             "success": {
               "text": "The column hits the line and stumbles. Sweatbands slip. A dozen people blink like they've just woken up in the street in their running shorts. The kid from your homeroom sits down hard on the curb and asks for a glass of water.",
               "art": "Joggers stumbling over a glittering white line of rock salt across asphalt, sweatbands slipping off, a young teen sitting dazed on the curb",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "They jog right over it, crunching, chanting louder, and somehow you are in the column too, running and chanting, until the sun comes up and you fold onto somebody's lawn like a lawn chair.",
               "art": "A teenager jogging glassy-eyed inside a column of sweatbanded runners at sunrise, a scattered line of rock salt crushed underfoot behind them",
-              "effects": { "nerve": -2, "dread": 1, "teleport": "cult" }
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cult"
+              }
             }
           },
           {
@@ -256,16 +333,25 @@
             "intent": "brave",
             "skill": "brawn",
             "target": 9,
-            "bonus": { "companion": "dani-ortega", "amount": 1 },
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
             "success": {
               "text": "You hook their arm and haul them onto a lawn. They fight you, then sag, crying. \"She said if I stopped, I'd get fat,\" they whisper. You sit on the curb with them until their breathing slows, and you tell them there is nothing wrong with their body. You mean it. They believe you a little.",
               "art": "A teenager sitting on a curb at dawn with an arm around a crying younger teen in a magenta sweatband, joggers streaming past in the background",
-              "effects": { "nerve": 1, "flags": ["vonda-rescued"] }
+              "effects": {
+                "nerve": 1,
+                "flags": ["vonda-rescued"]
+              }
             },
             "failure": {
               "text": "The column closes around them like a school of fish. Mrs. Haskins turns the boombox up. By the time you get your breath back, they're three blocks gone.",
               "art": "A column of joggers swallowing a young teen like a school of fish, a woman cranking a boombox, a teenager left bent over and panting",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -277,12 +363,17 @@
             "success": {
               "text": "Runners pound past. Then one stops, for an orange slice. Then another. A body that's being cared for is hard to command. Mrs. Haskins herself slows down, takes a paper cup, and starts to cry, and you hand her another slice and don't say anything at all.",
               "art": "A folding card table with paper cups and orange slices on a dawn sidewalk, joggers pausing to drink, a woman with a boombox at her feet crying gratefully",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "Nobody stops. Cups go flying. Mrs. Haskins jogs past without breaking stride and calls out, \"Water weight, sweetie!\" The table folds up on your foot.",
               "art": "Paper cups flying off a toppled card table as joggers stampede past, orange slices scattered across a lawn, a teenager hopping on one foot",
-              "effects": { "nerve": -1 }
+              "effects": {
+                "nerve": -1
+              }
             }
           }
         ]
@@ -300,16 +391,25 @@
             "intent": "reckless",
             "skill": "brawn",
             "target": 9,
-            "bonus": { "item": "baseball-bat", "amount": 2 },
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 2
+            },
             "success": {
               "text": "CRACK. The numbers die mid-flash. The beat stutters. Half the room stops and looks down at themselves like they've just remembered they have bodies, and that those bodies are tired, and that's allowed.",
               "art": "A teenager swinging a bat into a sparking digital scale in an aerobics studio, the numbers shattering, people stopping mid-exercise and looking at themselves",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "The scale flashes one word across every mirror in the room: BEFORE. Every Burner turns to look at you. \"Oh, honey,\" says Vonda, so sweetly that it stings for a week.",
               "art": "A mirror wall flashing a single cruel word in neon pink, a room full of sweatbanded people turning to stare at a frozen teenager holding a bat",
-              "effects": { "nerve": -2, "dread": 1 }
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
             }
           },
           {
@@ -318,16 +418,27 @@
             "intent": "clever",
             "skill": "hustle",
             "target": 9,
-            "bonus": { "companion": "frankie-fontaine", "amount": 2 },
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
             "success": {
               "text": "In the booth you swap cassettes: slow jams, Sade, Cyndi singing \"Time After Time.\" Bodies slow. People stretch. People breathe. People sit down on the floor and hold hands with strangers. On the mirror, Vonda glitches into slow motion, confused, her smile sagging at the corners.",
               "art": "An aerobics studio softening into a gentle cool-down, people stretching and sitting together on the floor, a glitching aerobics star moving in slow motion on the mirror screen, a teen in the sound booth window",
-              "effects": { "nerve": 1, "skills": { "hustle": 1 } }
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
             },
             "failure": {
               "text": "The tape won't eject. The booth door locks behind you. You watch through the glass, pounding, as the class goes faster, and faster, and faster.",
               "art": "A teenager pounding on the glass of a locked sound booth while a frenzied aerobics class speeds up into a blur beyond it",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           }
         ]
@@ -349,12 +460,16 @@
           "success": {
             "text": "You plow through three rings of Burners, hit the master deck shoulder-first and tear the tape out in a shining ribbon. Every TV on the street snaps to snow. Vonda freezes mid-kick and dissolves into tracking lines. The town collapses onto the lawns, aching and confused and free.",
             "art": "A teenager ripping a ribbon of videotape from a VCR as every television on a suburban street fills with static, a glittering aerobics star breaking into tracking lines, exhausted townspeople collapsing on lawns",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "Vonda catches you by the collar with one glittering hand. \"Look at all that energy! Let's put it to work!\" You're in the front row now, doing burpees, and you can't stop.",
             "art": "An aerobics star holding a teenager by the collar and setting them in the front row of a frantic outdoor workout",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -363,16 +478,23 @@
           "intent": "camp",
           "skill": "charm",
           "target": 9,
-          "bonus": { "item": "glow-bracelet", "amount": 1 },
+          "bonus": {
+            "item": "glow-bracelet",
+            "amount": 1
+          },
           "success": {
             "text": "You flap your elbows. The crew flaps theirs. Then the Haskinses, the mailman and your science teacher. Nobody can hate their body while doing the Chicken Dance; it's scientifically impossible. The rhythm breaks, Vonda's count dissolves into clucking, and she flickers out like a TV at sign-off.",
             "art": "An entire suburban street in Halloween costumes doing the Chicken Dance and laughing around a glowing geode, an aerobics star flickering out like a television signing off",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "They chicken dance, all right: in perfect unison, at triple speed, to her count. \"Ooh, a new routine,\" Vonda purrs. \"Again!\"",
             "art": "A crowd doing a frantic synchronized chicken dance at impossible speed around a glowing geode, a delighted aerobics star clapping the beat",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -381,16 +503,22 @@
           "intent": "kind",
           "skill": "charm",
           "target": 9,
-          "requires": { "clues": 3 },
+          "requires": {
+            "clues": 3
+          },
           "success": {
             "text": "You slam the raw tape into the master deck. Every screen on Crystal Street flickers, and there she is, the real Wanda, round and radiant and laughing: \"Your body isn't a before picture, baby. It's the whole movie. Dance because it feels good.\" The Burners stop. Vonda stops. She looks down at her own glittering hands like she's hearing her own voice for the first time in three years. \"That's me,\" she whispers. \"That was always me.\" She peels off her sweatband and dances, off the count, for joy, and the whole street dances with her, slow and silly and sitting down when they want to.",
             "art": "Every television on a Halloween street showing a joyful, curvy dancer laughing, a glittering aerobics star pulling off her sweatband with wonder, townspeople of every shape dancing freely and sitting together on lawns around a softly glowing geode",
-            "effects": { "nerve": 2 }
+            "effects": {
+              "nerve": 2
+            }
           },
           "failure": {
             "text": "The deck jams and the raw tape won't seat. You have Wanda's real voice right there in your hands, but the town can't hear it over the count, not yet.",
             "art": "A teenager struggling to jam a videotape into a stubborn VCR while the workout around them roars on, an aerobics star laughing overhead",
-            "effects": { "nerve": -2 }
+            "effects": {
+              "nerve": -2
+            }
           }
         }
       ]

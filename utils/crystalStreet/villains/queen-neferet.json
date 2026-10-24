@@ -3,6 +3,14 @@
     "id": "queen-neferet",
     "name": "Queen Neferet",
     "epithet": "The Lady Who Wants to Go Home",
+    "inspiration": {
+      "original": "Imhotep",
+      "film": "The Mummy",
+      "year": 1932,
+      "kind": "flip",
+      "oldScript": "The orientalist mummy's curse: a foreign dead man menacing the West for revenge.",
+      "newLens": "A queen taken from her tomb by a collector who wants to go home. The Best ending is repatriation with dignity."
+    },
     "tags": ["paranormal", "cosmic"],
     "palette": ["#d4a72c", "#16325c", "#2fa39a"],
     "sigil": "scarab",
@@ -39,16 +47,25 @@
               "intent": "clever",
               "skill": "brains",
               "target": 9,
-              "bonus": { "companion": "priya-raman", "amount": 2 },
+              "bonus": {
+                "companion": "priya-raman",
+                "amount": 2
+              },
               "success": {
                 "text": "It takes an hour, three reference books and a lot of Priya muttering. The oval is a cartouche, the frame around a royal name. The heart-and-windpipe sign for nefer, beautiful. A bread loaf for the t. A seated woman. \"Neferet,\" Priya breathes. \"And that title before it means Great Royal Wife. She isn't unknown. She's a queen.\" The thunder tape clicks off by itself.",
                 "art": "Two teenagers hunched over reference books and notebooks beside a glass exhibit case, one pointing at a carved cartouche on a painted coffin lid, sketches of hieroglyphs spread across the floor",
-                "effects": { "clues": ["queen-neferet-cartouche"], "nerve": 1 }
+                "effects": {
+                  "clues": ["queen-neferet-cartouche"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "The glyphs swim. Your library book falls open to a lurid chapter about curses written in 1950 by a man who never left Ohio, and the fake torches gutter like real ones. When you look up, the placard reads UNKNOWN in bigger letters than before, and for one horrible second, so does the name patch on your jacket.",
                 "art": "A teenager in a dim exhibit room staring at a placard reading unknown in large letters, the same word appearing on the name patch of their jacket, fake torches flickering",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -57,16 +74,25 @@
               "intent": "kind",
               "skill": "charm",
               "target": 9,
-              "bonus": { "companion": "delphine-hart", "amount": 2 },
+              "bonus": {
+                "companion": "delphine-hart",
+                "amount": 2
+              },
               "success": {
                 "text": "Ms. Hart pulls the contract from a folder with visible distaste. \"I asked them for a real Egyptologist's notes. They sent a press kit with a cartoon skeleton on it.\" Stapled to the back is a 1958 conservator's report the Foundation forgot to remove: Cartouche reads NEFERET, Great Royal Wife. Recommend correcting placard. Nobody ever did.",
                 "art": "A librarian in a cardigan at her desk holding up a stapled contract with a typed conservator's report attached, a glossy cartoon skeleton press kit tossed aside",
-                "effects": { "clues": ["queen-neferet-cartouche"], "nerve": 1 }
+                "effects": {
+                  "clues": ["queen-neferet-cartouche"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "Ms. Hart is on the phone with the Foundation's touring manager, who is shouting about ticket sales. She mouths \"later.\" On your way out, the coffin's painted eyes follow you to the door, patient and unblinking, and the air smells like cedar and hot sand.",
                 "art": "A painted coffin face in a glass case whose eyes seem to follow a teenager leaving the room, a librarian on a phone in the background, a thin drift of sand on the floor",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -102,7 +128,10 @@
               "failure": {
                 "text": "Gil gives you the tourist speech, the one about eerie happenings at every tour stop, and he gives it like a man reading his own ransom note. When you ask about the journal he says \"What journal?\" and lays his hand flat on the counter. Every plaster scarab on the shelf turns to face the library.",
                 "art": "Rows of plaster scarabs on a kiosk shelf all turned in the same direction, a man in a pith helmet pressing his hand flat on a counter, a teenager looking uneasy",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             },
             {
@@ -111,16 +140,25 @@
               "intent": "sneaky",
               "skill": "hustle",
               "target": 9,
-              "bonus": { "companion": "lou-tran", "amount": 2 },
+              "bonus": {
+                "companion": "lou-tran",
+                "amount": 2
+              },
               "success": {
                 "text": "Lou challenges Gil to one game of Galaxia for a free T-shirt, and Gil, who is very bored, accepts. Behind the pretzel stand you read: \"The village men are angry. They say she is their queen and their ancestor. I paid the inspector double.\" You photocopy six pages at the drugstore and slip the journal back before Gil loses his last life.",
                 "art": "A teenager reading an old leather journal behind a pretzel stand while in the background an arcade kid and a man in a pith helmet play a glowing cabinet game",
-                "effects": { "clues": ["queen-neferet-diary"], "dread": -1 }
+                "effects": {
+                  "clues": ["queen-neferet-diary"],
+                  "dread": -1
+                }
               },
               "failure": {
                 "text": "The cash drawer pops open with a ding when you tug the journal free. Mall security walks you to the exit and bans you from the food court for the day. Through the glass doors you see Gil reading the journal himself, his face in his hands.",
                 "art": "A teenager being escorted out of a mall by a security guard, through the glass doors a man in a pith helmet sitting at a kiosk with his face in his hands over an open journal",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -147,12 +185,17 @@
               "success": {
                 "text": "She tells you about Neferet the way you'd talk about a famous great-aunt: the famine year, the open granaries, the house of healing. Then she brings out a carbon copy from a shoebox. \"My brother typed this in 1972, at the Antiquities Organization in Cairo. A formal request for her return. They never even wrote back.\" She presses it into your hands. \"Maybe they will listen to children.\"",
                 "art": "An older woman on a porch handing a faded carbon-copy letter to a teenager, a shoebox of papers and photographs open between them, a lemon tree and tea glasses in afternoon light",
-                "effects": { "clues": ["queen-neferet-request"], "nerve": 1 }
+                "effects": {
+                  "clues": ["queen-neferet-request"],
+                  "nerve": 1
+                }
               },
               "failure": {
                 "text": "She asks why you want to know, and you mumble something about the curse because you're nervous, and her face closes like a door. \"There is no curse,\" she says quietly. \"There is only a theft.\" She goes inside. The lemon tree drops a single lemon onto the step, and it rolls downhill toward the library.",
                 "art": "A closed front door on a quiet porch, a single lemon rolling down the steps and along the sidewalk, a teenager left alone with an untouched glass of tea",
-                "effects": { "nerve": -1 }
+                "effects": {
+                  "nerve": -1
+                }
               }
             },
             {
@@ -161,16 +204,25 @@
               "intent": "clever",
               "skill": "lore",
               "target": 9,
-              "bonus": { "item": "polaroid", "amount": 1 },
+              "bonus": {
+                "item": "polaroid",
+                "amount": 1
+              },
               "success": {
                 "text": "She reads it before you finish holding it up. \"Neferet. Great Royal Wife.\" Her eyes fill. \"On the west bank where I grew up, the old women still say her name at the harvest. We never stopped.\" From a drawer she takes her brother's 1972 letter to the Halvorsen Foundation, and the Foundation's reply, a single line from a lawyer: NO RESPONSE REQUIRED.",
                 "art": "An older woman with tears in her eyes holding up a sketch of a cartouche on her porch, a teenager beside her, an old typed letter and a curt one-line reply laid on the table",
-                "effects": { "clues": ["queen-neferet-request"], "dread": -1 }
+                "effects": {
+                  "clues": ["queen-neferet-request"],
+                  "dread": -1
+                }
               },
               "failure": {
                 "text": "Your sketch is smudged and upside down, and Mrs. Mansour has to turn it the right way with a patient sigh. Before she can read it, the sky over Crystal Street dims in the middle of the afternoon, and a cold wind smelling of river mud tears the paper from your hand and down a storm drain.",
                 "art": "A sheet of paper whirling away down a suburban storm drain in a sudden dim wind, an older woman and a teenager on a porch shielding their eyes, the afternoon sky darkening",
-                "effects": { "nerve": -1, "dread": 1 }
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
               }
             }
           ]
@@ -194,12 +246,18 @@
             "success": {
               "text": "You say your name into the slot. There is a long pause, then a sound like a smile. \"Thank you. It has been so long since anyone gave me their name freely.\" The sand stops. On the step lies a tiny blue faience bead, cool and smooth, and holding it makes you feel braver.",
               "art": "A teenager kneeling to speak into a glowing library book slot at night, a tiny blue faience bead resting on the stone step before them",
-              "effects": { "nerve": 1, "flags": ["neferet-trusted"] }
+              "effects": {
+                "nerve": 1,
+                "flags": ["neferet-trusted"]
+              }
             },
             "failure": {
               "text": "Your voice catches and your name comes out wrong, half a name. The slot sighs. For the rest of the night you keep almost forgetting what to call yourself, and before morning you have to read it off your library card twice.",
               "art": "A teenager in bed at night squinting at their own library card by flashlight, a faint drift of golden sand on the blanket",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -211,12 +269,18 @@
             "success": {
               "text": "\"Rambo,\" you say. The voice pauses, then laughs, warm and startled, like a queen at a clever jester. \"A name of war. Very well, small warrior. Keep your true one safe. I understand that better than anyone.\" The sand blows back into the slot and the brass flap clicks shut.",
               "art": "Golden sand swirling back up into a library book slot at night, a teenager grinning nervously on the steps, a faint glow fading behind the brass flap",
-              "effects": { "nerve": 1 }
+              "effects": {
+                "nerve": 1
+              }
             },
             "failure": {
               "text": "\"That is not your name,\" she says, and suddenly she sounds every one of her four thousand years. \"I know what it is to be called by the wrong name.\" Sand pours from the slot in a rushing golden wave that buries you to the knees, and you dig yourself out with your library card.",
               "art": "A golden wave of sand pouring from a library book slot burying a teenager to the knees on the front steps at night",
-              "effects": { "nerve": -2, "dread": 1, "teleport": "paranormal" }
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
             }
           }
         ]
@@ -234,16 +298,25 @@
             "intent": "brave",
             "skill": "hustle",
             "target": 9,
-            "bonus": { "companion": "kev-park", "amount": 2 },
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
             "success": {
               "text": "You and Kev sprint down the street plucking glowing letters out of the air. Kev knows every mailbox by heart: that D belongs to the Dobbses, that loose O is the Oyelaran twins. By four a.m. every name is back, slightly crooked, and the starry woman overhead seems to nod.",
               "art": "A teenager and a young paperboy leaping to catch glowing letters out of the night air and pressing them onto suburban mailboxes under a starry sky figure",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "The letters slip through your fingers like hot sparks. By dawn three mailboxes are blank, and the families inside wake up confused, calling each other \"hey, you\" over breakfast, unable to remember what to call their own dog.",
               "art": "Three blank mailboxes on a suburban street at dawn, a confused family at a kitchen table visible through a window, a puzzled dog with a blank name tag",
-              "effects": { "nerve": -1, "dread": 1 }
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
             }
           },
           {
@@ -252,16 +325,26 @@
             "intent": "clever",
             "skill": "lore",
             "target": 9,
-            "bonus": { "companion": "bea-lindqvist", "amount": 1 },
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
             "success": {
               "text": "Bea brings her star chart and you both lie in the wet grass, comparing. \"That's Orion,\" she says, \"but tilted, like from way farther south.\" The arching woman's starry hand points one way, steady as a compass needle: east, across the ocean. She is not attacking. She is showing you where home is.",
               "art": "A teenager and a small girl with a star chart lying on a dewy suburban lawn at night, pointing up at a giant starry woman arching overhead whose hand points toward the horizon",
-              "effects": { "nerve": 1, "flags": ["neferet-saw-the-way"] }
+              "effects": {
+                "nerve": 1,
+                "flags": ["neferet-saw-the-way"]
+              }
             },
             "failure": {
               "text": "You stare too long. The stars rush closer, and for a dizzy moment you are very small and very far away, lying in a sealed wooden crate in the dark hold of a ship, with no idea where you are going or why. You wake on the lawn crying, sand in your hair.",
               "art": "A dreamlike vision of a sealed wooden crate stenciled machine parts in the dark hold of an old steamship, overlaid with a teenager curled up on a dewy lawn",
-              "effects": { "nerve": -2, "dread": 1, "teleport": "cosmic" }
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
             }
           }
         ]
@@ -279,16 +362,25 @@
             "intent": "kind",
             "skill": "brains",
             "target": 9,
-            "bonus": { "flag": "neferet-trusted", "amount": 1 },
+            "bonus": {
+              "flag": "neferet-trusted",
+              "amount": 1
+            },
             "success": {
               "text": "You uncap a marker and go case to case: Pearl Washington. Bea Lindqvist. Mr. Dobbs from number 4, Harold, it turns out. Each time you write a name, the person inside opens their eyes and sits up. When you turn around, the queen is watching you, and her face is no longer carved stone. \"Yes,\" she says. \"Like that. Do it for me.\"",
               "art": "A teenager writing names on museum placards with a marker as sleeping neighbors sit up inside their glass cases, a queen in white linen and gold watching with softened eyes",
-              "effects": { "nerve": 1, "dread": -1 }
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
             },
             "failure": {
               "text": "The marker is dry. Then it is full of sand. You scrape at the placards with your fingernails until a guard in a pith helmet, with no face beneath it, takes your elbow very gently and leads you toward an empty case with your height written on the side.",
               "art": "A faceless guard in a pith helmet gently leading a teenager by the elbow toward an empty glass display case, sand spilling from a broken marker",
-              "effects": { "nerve": -2, "dread": 1 }
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
             }
           },
           {
@@ -297,16 +389,28 @@
             "intent": "reckless",
             "skill": "brawn",
             "target": 9,
-            "bonus": { "companion": "dani-ortega", "amount": 1 },
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
             "success": {
               "text": "Glass rains down and your friend gasps awake in your arms. An alarm wails and the whole endless hall shivers. The queen turns her head. \"You would break a case to bring someone home,\" she says. \"Then you understand everything. Why does no one break mine?\" You wake gripping your friend's hand across the kitchen table.",
               "art": "A teenager pulling a friend out of a shattered display case in a dreamlike museum hall, glass shards glittering in the air, a crowned queen turning to look",
-              "effects": { "nerve": 1, "skills": { "brawn": 1 } }
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
             },
             "failure": {
               "text": "The glass is as thick as a bank vault. Your knuckles thud uselessly and your friend sleeps on, placard and all. The lights dim one row at a time, closing in on you, and you wake on the kitchen floor at dawn with your name traced in sand on the linoleum, misspelled.",
               "art": "A teenager pounding bruised fists on thick display glass as rows of museum lights go dark behind them, a friend sleeping peacefully inside the case",
-              "effects": { "nerve": -2, "dread": 1, "teleport": "paranormal" }
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
             }
           }
         ]
@@ -325,16 +429,23 @@
           "intent": "brave",
           "skill": "brawn",
           "target": 11,
-          "bonus": { "companion": "wade-whitfield", "amount": 2 },
+          "bonus": {
+            "companion": "wade-whitfield",
+            "amount": 2
+          },
           "success": {
             "text": "You and Wade throw your weight onto the lid as the sand roars. It bucks once, twice, then goes still. The sky folds back into an ordinary October night. By morning the Foundation has packed the crate and driven off to the next town, and nothing in Glimmer Falls is cursed. Nothing is fixed, either.",
             "art": "A teenager and a mullet-haired metalhead pressing down on a coffin lid with all their weight as swirling sand settles around them in a dark library",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "The lid lifts you like a leaf. The queen regards you without anger, the way a mountain regards weather, and your own name begins to drift up out of you like a spark. You grab for it, and miss.",
             "art": "A teenager lifted off their feet by a rising coffin lid, a glowing word drifting up out of their chest like a spark, a calm crowned queen watching",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -343,16 +454,23 @@
           "intent": "clever",
           "skill": "hustle",
           "target": 9,
-          "bonus": { "companion": "toby-nakamura", "amount": 1 },
+          "bonus": {
+            "companion": "toby-nakamura",
+            "amount": 1
+          },
           "success": {
             "text": "You and Toby type up a perfect fake label on the AV room typewriter, LUXOR, EGYPT, URGENT, and paste it on the crate. The queen reads it, and her starlight softens. She lies down. The lid closes gently. At dawn the crate drives off toward the next tour stop in Fresno, and you feel sick about it for a long, long time.",
             "art": "A teenager pasting a typed shipping label onto a wooden crate in a dark library, a queen lying back down in her coffin with softening starlight, a guilty-looking kid with a camcorder nearby",
-            "effects": { "nerve": 1 }
+            "effects": {
+              "nerve": 1
+            }
           },
           "failure": {
             "text": "She reads the label, and then she reads you. \"Another lie in a box,\" she says. The sand stops pouring and starts rising, filling the room to your waist, your chest. \"I have been lied to by greater men than you, and they are all dust now.\"",
             "art": "Golden sand rising to a teenager's chest in a dark library, a fake shipping label floating on its surface, a queen in gold looking down with ancient disappointment",
-            "effects": { "nerve": -3 }
+            "effects": {
+              "nerve": -3
+            }
           }
         },
         {
@@ -361,16 +479,22 @@
           "intent": "kind",
           "skill": "lore",
           "target": 9,
-          "requires": { "clues": 3 },
+          "requires": {
+            "clues": 3
+          },
           "success": {
             "text": "You wade through the sand and say it: \"Neferet, Great Royal Wife.\" Beside you, Mrs. Mansour speaks the old offering words, bread and beer and every good and pure thing, and the queen goes still. You hold up the cartouche, the confession in the diary and the 1972 letter. Then Gil Halvorsen pushes through the crowd, pith helmet gone, and signs a release on the back of a gala program. \"She's going home,\" he says. \"I'll pay for the flight.\" The queen looks at all of you for a long time. Then she smiles, and lies down to wait, for the last time, a little longer.",
             "art": "A crowned Egyptian queen in white linen with a gentle smile lowering herself back into her coffin as sand settles, an older woman speaking with hands raised in blessing, teens holding up a journal and a letter, a man signing a paper on a gala program",
-            "effects": { "nerve": 2 }
+            "effects": {
+              "nerve": 2
+            }
           },
           "failure": {
             "text": "You stumble over her name, and the gala crowd's screaming drowns out your voice. The queen hears that someone knows the truth, but not who, and not loudly enough. The sand keeps rising. You need the whole room to stop and listen.",
             "art": "A teenager shouting into a panicking gala crowd in a dark library, sand rising around their legs, a queen in gold turning her head as if straining to hear",
-            "effects": { "nerve": -2 }
+            "effects": {
+              "nerve": -2
+            }
           }
         }
       ]

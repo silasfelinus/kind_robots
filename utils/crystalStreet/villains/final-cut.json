@@ -1,0 +1,640 @@
+[
+  {
+    "id": "final-cut",
+    "name": "The Final Cut",
+    "epithet": "The Twist in the Last Reel",
+    "inspiration": {
+      "original": "The killer-reveal slashers",
+      "film": "Psycho / Dressed to Kill / Sleepaway Camp",
+      "year": 1980,
+      "kind": "bend",
+      "oldScript": "The last-reel twist that unmasks the killer as a man in a dress, as if gender variance were the explanation for murder, plus the unwritten kill order that sends the gay friend, the Black friend and the girl who had sex to die first so the 'pure' heroine can live.",
+      "newLens": "Here the twist itself is the villain: a cursed reel that recasts a whole town into those stereotypes. The heroes are the people the script slandered, a trans actress who was promised a real part and a closeted writer facing what his fear wrote, and the Best ending screens the dawn they wrote together, where everyone walks out alive."
+    },
+    "tags": ["slasher", "camp"],
+    "palette": ["#f2e2a0", "#171214", "#d6246e"],
+    "sigil": "clapperboard",
+    "logline": "At the Glitter Box midnight show, a cursed 1980 slasher reel threads itself, dims the lights and recasts Crystal Street into its ugliest roles. Hit your mark, die on cue, or rewrite the third act.",
+    "backstory": "In the summer of 1980, schlock producer Barry Kotch shot Lights Out at Crystal Pines at the old summer camp above Glimmer Falls in twenty-six days. Screenwriter Len Carraway, a closeted local English teacher, wrote a story where Nurse Robin leads her campers out of the woods at dawn, and Barry cast Celeste Navarro, a young trans actress from the Glitter Box revue, as Robin with a handshake and a promise that this was her big break. Then Barry decided audiences wanted a twist. He cut the dawn ending, shot one close-up of Celeste in a cheap wig and housedress under false pretenses, and spliced it into the last reel as the killer's 'reveal,' with a stranger's voice dubbed over her mouth. He ran the kill order every slasher ran: the gay friend first, then the Black friend, then the girl who went to the boathouse with her boyfriend. Len, terrified of being found out, wrote the monster's monologue in the voice his own shame used on him every night. The film premiered at the Starlight Drive-In that October, and a carload of boys honked at the reveal while Celeste sat three cars away. Barry skipped town owing everyone money, and the answer print ended up in a box of unpaid reels in the Glitter Box projection booth. Six years later the Heartstone has woken it. Now it plays itself at midnight: a projector-beam director with a slate for a face and a megaphone for a voice, recasting the whole street into the script's lies.",
+    "centralIssue": {
+      "title": "The twist that was a lie",
+      "summary": "The Final Cut is the ghost of a story, not a person: a script that slandered real people and taught a town to laugh at them. Celeste was never a twist, Len's shame was never a monster, and the kill order was never a law. Find the call sheet, the original draft and the cut ending, and give the people the script erased the third act they actually wrote."
+    },
+    "poster": "A towering figure made of pale gold projector light, its face a black-and-white clapperboard slate, a chrome director's megaphone raised, hovering above a glowing 1980s movie palace marquee at midnight, beams of light falling over a crowd of teens and neighbors in Halloween costumes clutching script pages, a strip of film unspooling across the purple sky like a ribbon",
+    "portrait": "Close portrait of a ghostly figure woven from dusty projector light and drifting film grain, its face a clapperboard slate with chalk scrawl and a cracked hinge, a chrome megaphone held where a mouth would be, scratches and sprocket holes flickering through its body, lit hot magenta from below",
+    "taunts": [
+      "Places, everyone! You know the order. The order never changes.",
+      "Quiet on the set. Rolling. And... ACTION.",
+      "Nobody pays to see the ending where everybody lives.",
+      "Hit your mark, sweetheart. The audience is waiting for the twist.",
+      "That line is not in the script. CUT!"
+    ],
+    "clues": [
+      {
+        "id": "final-cut-call-sheet",
+        "title": "The 1980 call sheet",
+        "location": "rewind-video",
+        "hint": "Rewind Video's night-drop slot keeps returning a tape that nobody rented.",
+        "encounter": {
+          "id": "final-cut-clue-night-drop",
+          "title": "Returned by Nobody",
+          "place": "The night-drop slot, Rewind Video",
+          "text": "Rewind Video's night-drop slot clunks at noon, which it should never do while the store is open. Out slides a VHS of Lights Out at Crystal Pines, the 1980 slasher nobody rents, its box cover a shadow holding a kitchen knife. Zelda Fishbein picks it up with two fingers. \"Third time this week. It keeps coming back on its own.\" Something stiff is folded inside the clamshell.",
+          "art": "A VHS tape in a battered clamshell case sliding out of a video store's night-drop slot at noon, a silver-haired woman behind the counter eyeing it, a wall of horror tapes glowing in neon light",
+          "choices": [
+            {
+              "id": "ask-zelda",
+              "label": "Ask Zelda what she knows about this one",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "zelda-fishbein",
+                "amount": 2
+              },
+              "success": {
+                "text": "\"I know how every monster movie ends,\" Zelda says. \"That one ended wrong.\" She pries out a folded call sheet: DAY 23, SC. 88, DAWN, ALL CAMPERS EXIT THE WOODS. Top of the cast list: Celeste Navarro, Nurse Robin (LEAD). The movie on the tape has no Nurse Robin in it at all.",
+                "art": "A silver-haired woman at a video store counter unfolding a yellowed 1980 film call sheet under a desk lamp, a teenager leaning in beside her, horror tapes stacked all around",
+                "effects": {
+                  "clues": ["final-cut-call-sheet"],
+                  "dread": -1,
+                  "flags": ["final-cut-robin-billed"]
+                }
+              },
+              "failure": {
+                "text": "Zelda is ringing up a customer. When you crack the case yourself, the tape leader slithers out and loops around your wrist, and from every TV on the wall a tinny megaphone voice says, \"Wrong set, kid. Back to one.\"",
+                "art": "A shiny brown ribbon of videotape coiling around a teenager's wrist in a video store, a wall of TV screens all showing the same chalk clapperboard",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "freeze-the-credits",
+              "label": "Play the tape on the store monitor and freeze the end credits",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "You jog-shuttle to the credits and pause. One line has been scratched off the film by hand, but the ghost of it still glows: Nurse Robin, Celeste Navarro. When you eject the tape, the folded call sheet drops out of the box, as if it had been waiting for someone to look.",
+                "art": "A paused end-credits film still on a chunky 1980s TV monitor, one scratched line of credits glowing faintly, a teenager's hand on a VCR remote, a folded paper dropping from a tape box",
+                "effects": {
+                  "clues": ["final-cut-call-sheet"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Every monitor in the store switches to the same shot: a clapperboard snapping shut. \"Scene one, take one.\" Then every screen shows the back of your own head, filmed from a few steps behind you. You do not turn around fast enough to see who is holding the camera.",
+                "art": "A video store wall of TV screens all showing the back of a teenager's head, the teenager standing frozen in front of them, a clapperboard flickering on one screen",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "slasher"
+                }
+              }
+            },
+            {
+              "id": "pocket-the-box",
+              "label": "Slip the box into your jacket and read it in the back room",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "success": {
+                "text": "Behind the bead curtain you unfold a call sheet with a coffee ring on it. Scene 88 is circled twice in pencil, and beside it someone wrote: EVERYBODY LIVES. DON'T LET BARRY CUT IT. Under the cast list, a lipstick heart next to the name Celeste Navarro.",
+                "art": "A teenager in a cluttered video store back room reading a coffee-stained 1980 call sheet by the light of a single bulb, a lipstick heart beside one name, a bead curtain behind them",
+                "effects": {
+                  "clues": ["final-cut-call-sheet"],
+                  "quarters": 1
+                }
+              },
+              "failure": {
+                "text": "Zelda's security mirror catches you, and so does Zelda. She makes you rewind forty tapes by hand as penance. The Crystal Pines box sits on top of the stack the whole time, and you could swear it is laughing.",
+                "art": "A teenager rewinding a tall stack of VHS tapes by hand at a video store counter, a convex security mirror above, one horror tape box perched on top of the pile",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "final-cut-draft",
+        "title": "Draft three, the real ending",
+        "location": "high-school",
+        "hint": "The drama teacher at Glimmer Falls High wrote a movie once, and he never talks about it.",
+        "encounter": {
+          "id": "final-cut-clue-drama-room",
+          "title": "Mr. Carraway Keeps the Lights On",
+          "place": "The drama room, Glimmer Falls High",
+          "text": "Mr. Len Carraway teaches sophomore English and directs every school play with the house lights on full, because he hates a dark room. He is grading essays under every light in the drama room when you walk in. On his desk is a locked drawer with a strip of masking tape across it, and on the tape, in faded marker: CRYSTAL PINES.",
+          "art": "A gentle middle-aged teacher in a tweed blazer grading papers in a brightly lit high-school drama room, a wooden desk with a taped-shut drawer, stage flats and old costumes in the background",
+          "choices": [
+            {
+              "id": "tell-him-the-truth",
+              "label": "Tell him what his movie is doing at the Glitter Box",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "He goes pale and opens the drawer. Draft three, yellowed, the last ten pages in two hands: his typing and Celeste's pencil. \"Barry wanted a twist. I gave him one so nobody would look at me too closely. I wrote that monster in the voice I heard in my own head every night. It was never her. It was never anyone. It was a lie I was taught.\"",
+                "art": "A teacher handing a yellowed movie script to a teenager across a desk, the final pages covered in pencil notes in a second handwriting, his eyes wet, bright classroom light",
+                "effects": {
+                  "clues": ["final-cut-draft"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "\"I don't discuss that picture,\" he says, too fast. One by one the drama room lights click off until a single spotlight sits on you. On the chalkboard behind him, chalk begins to write by itself: KILL ORDER, and a list.",
+                "art": "A dark high-school drama room with one spotlight on a teenager, a chalkboard behind them where a floating stick of chalk scrawls a list, a teacher frozen at his desk",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-him-to-read",
+              "label": "Show him the call sheet and ask him to read Scene 88",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "flag": "final-cut-robin-billed",
+                "amount": 1
+              },
+              "success": {
+                "text": "He reads it aloud. Nurse Robin leads Duane, Kip and Cheryl out of the woods at dawn, all four of them carrying the canoe. His voice breaks on the last line: \"Robin looks back once, and laughs, because she made it.\" He hands you the draft. \"Celeste wrote that line. Give it back to her.\"",
+                "art": "A teacher reading aloud from a worn movie script in an empty high-school auditorium, a teenager listening in the front row, morning light slanting across the stage",
+                "effects": {
+                  "clues": ["final-cut-draft"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "He starts to read, but the words leave his mouth in a crackling megaphone voice: \"Scene 88 is CUT.\" He drops the pages as if they burned him and asks you, very politely and very shakily, to go to your next class.",
+                "art": "A startled teacher dropping a script in a drama room, pages scattering, a faint ghostly megaphone shape glowing in the air in front of his mouth",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "search-the-storage-room",
+              "label": "Dig through the drama storage room for old scripts",
+              "intent": "sneaky",
+              "skill": "lore",
+              "target": 9,
+              "success": {
+                "text": "In a box labeled STRIKE 1980 you find draft three, and paper-clipped to its cover, a note in red grease pencil: Nobody pays for a happy ending. Make the nurse the twist. Make it a guy in a dress, kids love that. B.K. Under it, in Len's typing: This is wrong and I know it. I'm sorry, C.",
+                "art": "A teenager in a cramped drama storage room holding up a yellowed script with a red-penciled note clipped to the cover, cardboard boxes and costume racks under a bare bulb",
+                "effects": {
+                  "clues": ["final-cut-draft"],
+                  "skills": {
+                    "lore": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "The costume racks roll aside on their own, and a follow-spot swings onto you from somewhere above. \"You're not on the call sheet,\" booms a voice. The door slams, and you spend an hour climbing out through the fly loft with dust in your teeth.",
+                "art": "A teenager climbing a rope ladder through a dusty theater fly loft, costume racks scattered below, a single spotlight beam pinning them from the dark",
+                "effects": {
+                  "nerve": -2,
+                  "teleport": "camp"
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "final-cut-trims",
+        "title": "The can marked DO NOT DESTROY",
+        "location": "glitter-box",
+        "hint": "The woman in the Glitter Box box office knows every regular by name, and she has stopped staying for the midnight show.",
+        "encounter": {
+          "id": "final-cut-clue-box-office",
+          "title": "Row F",
+          "place": "The box office, The Glitter Box Playhouse",
+          "text": "Celeste Navarro has worked the Glitter Box box office for six years. She does the crossword in pen, wears cat-eye glasses on a beaded chain, and knows every regular's candy order by heart. This week she leaves before the midnight show and will not say why. When you say the words Crystal Pines, she sets down her pen.",
+          "art": "A poised woman in her thirties with dark curls, cat-eye glasses on a beaded chain and a crossword in hand, seated inside a glowing glass theater box office booth at dusk, a marquee blazing above her",
+          "choices": [
+            {
+              "id": "ask-about-robin",
+              "label": "Ask her, gently, about Nurse Robin",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "flag": "final-cut-robin-billed",
+                "amount": 1
+              },
+              "success": {
+                "text": "She laughs, a real one. \"Robin was mine. Barry promised. Then he shot me in a cheap wig 'for a gag reel' and cut it into his ending under some stranger's voice.\" She leads you to the coat closet: a film can, TRIMS REEL 6 DO NOT DESTROY. \"I stole the real ending out of his trash. I could never watch it alone.\"",
+                "art": "A woman in cat-eye glasses lifting a dented round film can from a theater coat closet and placing it in a teenager's hands, red velvet coats hanging behind them, warm lobby light",
+                "effects": {
+                  "clues": ["final-cut-trims"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Her smile goes polite and professional. \"Ticket's two dollars, hon.\" Above you the marquee letters spin on their own and rearrange into THE TWIST, and she pulls the booth shade down without another word.",
+                "art": "A theater marquee at dusk with its letters spinning and rearranging by themselves, a box office booth below with its shade pulled down, a teenager looking up",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "say-it-lied",
+              "label": "Buy a ticket and tell her you think the movie lied",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "She looks at you for a long time. \"Six years I've waited for one person to say that before I did.\" She closes the booth, takes you up to the projection booth, and shows you the film can she has hidden behind the rewind bench since 1980: the dawn ending, every frame of it.",
+                "art": "A woman and a teenager in a cramped theater projection booth, the woman pulling a dented film can from behind a rewind bench, a hulking projector glowing beside them",
+                "effects": {
+                  "clues": ["final-cut-trims"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The ticket machine chatters before she can answer and spits out a stub of its own: ADMIT ONE. EXTRA. DIES IN REEL TWO. Celeste tears it in half, hands you a regular ticket, and stares at the torn halves for a very long time.",
+                "art": "A paper movie ticket curling out of a brass box office ticket machine, a woman in cat-eye glasses tearing it in half, a teenager watching through the glass",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "work-the-rush",
+              "label": "Help her through the Saturday rush first",
+              "intent": "camp",
+              "skill": "hustle",
+              "target": 7,
+              "success": {
+                "text": "You work the candy counter in a paper hat, sell four hundred boxes of Choco-Nuggets and settle a feud over the last pickle. At closing Celeste hands you a dented film can like a tip. \"You earned the real ending. It's in here. Be careful with her, she's all I kept.\"",
+                "art": "A teenager in a paper hat behind a busy theater candy counter, popcorn flying, a smiling woman in cat-eye glasses holding out a dented round film can at closing time",
+                "effects": {
+                  "clues": ["final-cut-trims"],
+                  "quarters": 1
+                }
+              },
+              "failure": {
+                "text": "The popcorn machine erupts like a volcano. Somewhere a megaphone voice shouts, \"CUT! Again, from the top!\" and the machine does it again. Celeste sends you home buttered and apologetic.",
+                "art": "A theater popcorn machine erupting in a geyser of popcorn over a panicked teenager in a paper hat, a lobby carpet buried in kernels",
+                "effects": {
+                  "nerve": -1,
+                  "quarters": -1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "final-cut-places-everyone",
+        "title": "Places, Everyone",
+        "place": "The Glitter Box midnight show",
+        "text": "The midnight double feature is a rowdy sing-along until the second reel. Then the house lights dim on their own, a clapperboard snaps somewhere in the dark like a gunshot, and two hundred people in the audience turn to look at you. \"Line!\" booms a megaphone from the projection beam. The person next to you hands you a page of sides. Your name is typed at the top. Your role: EXTRA #4 (DIES).",
+        "art": "A packed 1980s movie theater at midnight with every audience member turned in their seats toward one teenager holding a script page, a hard projector beam slicing overhead with a clapperboard shape inside it",
+        "choices": [
+          {
+            "id": "improvise",
+            "label": "Crumple the sides and improvise",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Actually,\" you announce, \"EXTRA #4 has a car, and is leaving.\" The audience howls, laughing at the movie instead of with it. The beam stutters like a scratched record, the house lights pop back on, and Frankie calls intermission over the PA.",
+              "art": "A teenager standing on a theater seat grinning and tossing a crumpled script page, the audience laughing, the house lights blazing back on, a flickering projector beam overhead",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your mouth says the line anyway, in someone else's voice: \"I'll just go check the boathouse.\" Your feet start walking toward the exit sign. You get all the way to the alley before the spell snaps and you find yourself somewhere much worse.",
+              "art": "A teenager walking stiffly toward a glowing red exit sign in a dark theater aisle, a spotlight following them, a script page fluttering from their hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "kill-the-lamp",
+            "label": "Climb to the booth and pull the projector's plug",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You take the booth stairs three at a time. The projector is running with the booth empty, a reel you have never seen on the feed arm. You yank the plug. The film keeps turning for one long beat after the power dies, then gives up. On the floor: a scatter of quarters and a chalk-dusted slate pencil.",
+              "art": "A teenager yanking a thick power cord from a hulking theater projector in a dim booth, a film reel still spinning, quarters and chalk dust on the floor",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The booth door is locked from the inside. Through the little porthole you watch the projector thread a fresh reel by itself, and a clapperboard on a stand slowly swivels to face you. It claps once. You feel it in your teeth.",
+              "art": "A teenager peering through a round porthole window into a projection booth where a projector threads itself and a clapperboard on a stand turns toward the glass",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-kill-order",
+        "title": "The Kill Order",
+        "place": "Crystal Street, lit like a soundstage",
+        "text": "Crystal Street has become a set. Klieg lights on the roundabout, cables snaking across lawns, the Heartstone glowing like a key light. The Slate floats over the cul-de-sac in its beam of light, megaphone raised, reading from a clipboard. \"First the gay friend. Then the Black friend. Then the girl who went to the boathouse. That's the order. That's always the order.\" Spotlights swing across the porches, hunting for the neighbors it means.",
+        "art": "A 1980s suburban cul-de-sac turned into a film set at night, klieg lights and cables across the lawns, a glowing purple geode at the center, a ghostly figure with a clapperboard face floating in a projector beam with a megaphone and clipboard, spotlights sweeping the porches",
+        "choices": [
+          {
+            "id": "one-spotlight",
+            "label": "Pull everyone into one spotlight together",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You grab hands and drag neighbors off their porches until you are all crammed into one circle of light, arms linked, too many to cast. The Slate's chalk squeaks and stalls. A slasher only works on people who split up, and this crowd is not splitting up for anybody.",
+              "art": "A crowd of teens and neighbors of every age crammed together arm in arm inside one bright spotlight on a suburban street, a ghostly clapperboard-faced figure above them hesitating, chalk dust drifting",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["final-cut-ensemble"]
+              }
+            },
+            "failure": {
+              "text": "The spotlights snap apart like a dealt deck of cards, and every one of them carries someone away into the dark. By the time the lights die, the street is empty except for you and a clapperboard lying in the gutter, chalked: TAKE TWO TOMORROW.",
+              "art": "Spotlight beams scattering in every direction across a dark suburban street, a lone teenager in the center, a clapperboard lying in the gutter beside them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rewrite-the-scene",
+            "label": "Snatch the clipboard and rewrite the scene",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You leap, grab the clipboard and cross out the whole list. Underneath you write: AND THEN THEY ALL WENT OUT FOR PANCAKES. The klieg lights flicker, confused. Up and down the street, porch lights come on warm and yellow, and somewhere a neighbor actually starts making pancakes.",
+              "art": "A teenager scribbling over a film clipboard under klieg lights on a suburban street, warm yellow porch lights blinking on behind them, a ghostly figure recoiling in its projector beam",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The pencil writes what it wants, in red, in a handwriting you have never seen. The list gets longer. Your name is on it now, near the bottom, under the words: EVERYBODY ELSE.",
+              "art": "A pencil writing by itself in red across a film clipboard held by a frightened teenager, klieg lights glaring, a long list running down the page",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-it-back",
+            "label": "Read the kill order back to it, out loud, like a punchline",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 1
+            },
+            "success": {
+              "text": "You grab a walkie and broadcast it in your best late-night DJ voice: \"Coming up next, the oldest, tiredest rule in Hollywood!\" The whole street groans and then cracks up. A rule people laugh at stops being a rule. The Slate lowers its megaphone, sulking.",
+              "art": "A teenager on a suburban lawn speaking into a walkie-talkie like a radio DJ, neighbors on porches laughing, a ghostly clapperboard-faced figure lowering its megaphone in a dimming beam",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The laughter comes, but it is a canned laugh track, booming out of the klieg lights on cue. The neighbors' faces stay blank. They laugh at exactly the right moments and look at nothing at all.",
+              "art": "Blank-faced neighbors standing on porches with mouths open in identical laughs, klieg lights glaring, a teenager on the lawn looking around in horror",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "final-cut-the-twist",
+        "title": "The Twist",
+        "place": "The Glitter Box stage, after midnight",
+        "text": "The Slate has rolled a wardrobe rack onto the Glitter Box stage. On it hangs the script's 'Killer' costume: a rental wig, a thrift-store housedress and a rubber knife, the outfit a 1980 producer thought was a punchline. A dress is just a dress. What is frightening is the beam: wherever it lands, it tries to staple that costume to someone and make the audience gasp. \"And now,\" the megaphone purrs, \"the twist.\" The spotlight swings toward you.",
+        "art": "A theater stage after midnight with a wardrobe rack holding a limp thrift-store housedress, a curly rental wig and a rubber prop knife, a hard projector beam with a clapperboard-faced figure inside it swinging a spotlight across the stage toward a teenager",
+        "choices": [
+          {
+            "id": "glory-takes-the-stage",
+            "label": "Let Glory take the dress and wear it like a showstopper",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Glory sweeps into the beam, lifts the housedress off the hanger, belts it with a sequined sash, swaps the rubber knife for a microphone and sings \"I Am What I Am\" to the rafters. The audience gasps, then stands and cheers. A dress was always just a dress. The beam has nothing left to twist, and it flickers out.",
+              "art": "A radiant drag queen center stage in a housedress belted with a sequined sash, singing into a microphone in a warm spotlight, a theater audience on its feet cheering, a projector beam fading above",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["final-cut-no-twist"]
+              }
+            },
+            "failure": {
+              "text": "The curtain slams down between Glory and the beam before she reaches the rack. The projector rewinds the whole scene with a shriek and starts it again from the top. Glory is furious on your behalf, and you are back where you started, in the spotlight.",
+              "art": "A heavy red theater curtain slamming down across a stage, a drag queen on one side with hands on her hips, a teenager caught in a spotlight on the other",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "your-own-line",
+            "label": "Step into the spotlight and say your own line",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You stand in the beam and say exactly who you are, in your own words, which are in nobody's script. The costume slides off its hanger and lies on the stage like laundry. The Slate's chalk snaps in half with a crack that echoes to the balcony.",
+              "art": "A teenager standing tall center stage in a blazing spotlight speaking out to an empty theater, a housedress fallen in a heap beside a wardrobe rack, a broken stick of chalk spinning in the air",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The beam pins you like a moth. Line after line pours into your head from the megaphone, every one of them a lie, and it takes everything you have just to keep your mouth shut. You stumble offstage into the wings and keep stumbling.",
+              "art": "A teenager pinned in a harsh white spotlight with hands over their ears, ghostly script pages swirling around them, a clapperboard-faced figure looming in the beam above",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "drop-the-backdrop",
+            "label": "Cut the fly rope and drop the painted forest on the Slate",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You haul on the rope lock and the painted Crystal Pines backdrop crashes down through the beam. The Slate shrieks like tearing film and scatters into dust motes. The wardrobe rack tips over, and Frankie, from the wings, drags it off to the costume shop where it belongs.",
+              "art": "A huge painted forest backdrop crashing down through a projector beam on a theater stage, a ghostly clapperboard figure scattering into glittering dust, a teenager gripping a fly rope",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Wrong rope. A sandbag drops two feet from you and a cloud of sixty years of stage dust swallows you whole. When it clears, the Slate is gone, and so is your jacket, pinned to the rack like a new costume.",
+              "art": "A teenager coughing in a billowing cloud of stage dust beside a fallen sandbag, a wardrobe rack in the haze with a teen's jacket hanging on it",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "final-cut-finale",
+      "title": "The Final Cut",
+      "place": "The Glitter Box Playhouse, Halloween midnight",
+      "text": "On Halloween the whole street ends up in the Glitter Box without remembering buying tickets. Every seat holds a neighbor in costume, every neighbor clutching sides with a role typed at the top. The Slate looms in the projector beam above the stage, chalk squealing out the last scene number. \"Final reel,\" it booms. \"Everybody knows how this ends.\" Up in the booth, Frankie Fontaine has her headset on, and in the aisle, in row F, Celeste Navarro is standing exactly where she sat in 1980.",
+      "art": "A packed movie palace on Halloween midnight with neighbors in costumes holding script pages, a giant figure of projector light with a clapperboard face and megaphone looming over the stage, a teen crew in Halloween costumes facing it, a poised woman in cat-eye glasses standing in the aisle",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Storm the booth and smash the projector lamp",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "The lamp bursts in a shower of sparks. The beam dies mid-sentence and the Slate crumbles into a drift of chalk dust over the front rows. The neighbors blink, drop their sides and wander home confused. In the booth, the answer print is a melted lump on the reel.",
+            "art": "A teen swinging a baseball bat into a theater projector lamp that bursts into sparks, the projector beam snapping out, chalk dust raining over the audience below",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The beam swings onto you before you reach the booth. For a long, grainy moment you are inside the movie, flickering at twenty-four frames a second, saying a line you never agreed to say.",
+            "art": "A teenager rendered in flickering black-and-white film grain on a giant movie screen, mouth open mid-line, the real theater audience staring up",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Splice the Saturday cartoons into the last reel",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "success": {
+            "text": "You splice a reel of cartoons into the slasher at the worst possible moment. The Slate bellows \"ACTION!\" and gets a coyote holding an anvil. It cannot do menace through a pie fight. The whole audience laughs as themselves, the beam sputters, and the cursed print unspools across the booth floor.",
+            "art": "A movie screen showing a cartoon coyote with an anvil while a ghostly clapperboard-faced figure in the projector beam clutches its head, an audience in costumes laughing",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The splice holds for exactly four seconds. Then the tape gives, the cartoon burns away in a bubbling brown blot, and the Slate chalks TAKE TWO across the screen with a sound like nails on a blackboard.",
+            "art": "A movie screen with a spreading bubbling brown burn in the film, chalk scrawl appearing across it, a teen in the projection booth clutching a snapped strip of film",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Screen the ending they wrote, with Celeste in the room",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "bonus": {
+            "companion": "frankie-fontaine",
+            "amount": 2
+          },
+          "requires": {
+            "clues": 3
+          },
+          "success": {
+            "text": "Frankie threads the trims onto the reel. You hand the draft to Len and the call sheet to Celeste. Celeste takes the Slate's own megaphone and says, \"Scene 88. Take one.\" On screen: dawn at Crystal Pines, Nurse Robin leading Duane, Kip and Cheryl out of the woods with the canoe on their shoulders, all four laughing. The neighbors sit back down as themselves. The Slate chalks THE END, and for the first time it means it.",
+            "art": "A movie screen glowing with a sunrise film still of a nurse and three young campers carrying a canoe out of a pine forest, laughing, a woman in cat-eye glasses holding a megaphone in the aisle, a teen crew watching in awe",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The trims jam in the gate and the Slate's megaphone drowns Celeste out. You have every piece of the truth in your hands, but the reel needs threading more carefully than this.",
+            "art": "A theater projector with a strip of film jammed and buckling in its gate, a stage manager in a headset wrestling with it, a ghostly megaphone booming from the beam",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Curtain Call",
+        "text": "The restored ending plays to a packed house, and everybody lives. When the lights come up, Glory pushes Celeste onto the stage and the Glitter Box gives her a standing ovation that lasts longer than the movie. Len stands in the back row and cries. Reggie Mabry, who played Duane, drives up from Sacramento the next weekend, and Donna Sayer and Tommy Kincaid call long distance. Frankie runs the writers' cut every Halloween after that, and the credits roll with one name restored: Nurse Robin, Celeste Navarro. She takes a bow every time.",
+        "art": "A woman in a sequined gown and cat-eye glasses taking a bow center stage in a warm spotlight, roses landing at her feet, a drag queen applauding beside her, a cheering audience on its feet, a sunrise film still glowing on the movie screen behind"
+      },
+      "good": {
+        "title": "Print Burned",
+        "text": "The answer print is a melted lump and Crystal Street wakes up remembering nothing but a smell of hot popcorn. Next Saturday the Glitter Box runs cartoons. Celeste goes back to her crossword and never tells you what the movie was about. You keep a curl of melted film in your jacket pocket, and sometimes you wonder who it was really trying to hurt.",
+        "art": "A teenager outside a theater box office at dawn holding a curl of melted film up to the light, a woman in cat-eye glasses doing a crossword inside the glass booth, a quiet marquee above"
+      },
+      "bittersweet": {
+        "title": "Rental Return",
+        "text": "You survive the week, but the curse slips out on tape. Copies of the theatrical cut keep turning up in the Rewind Video night drop, and once in a while a neighbor hums the kill-order music without knowing why. Frankie cancels the midnight show for the season, and for the first time since 1948 the Glitter Box is dark on Saturdays. Celeste still sells tickets to the matinees. She still leaves before midnight.",
+        "art": "A darkened theater marquee on a Saturday night, a stack of identical horror VHS tapes in a video store night-drop bin, a lone woman in cat-eye glasses walking away down a rainy sidewalk"
+      },
+      "bad": {
+        "title": "Extra #4",
+        "text": "On November first, your crew finds the cursed print still spooled in the booth, and when they run it you are in it: EXTRA #4, a flicker in the background of reel two, walking toward the boathouse forever. Every midnight showing, if they look closely, you wave. They keep buying tickets, and they keep trying to find the splice that will bring you home.",
+        "art": "A grainy black-and-white film still projected on a movie screen with a tiny teenager in the background waving toward the camera beside a lakeside boathouse, worried friends in the front row staring up"
+      }
+    }
+  }
+]

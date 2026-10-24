@@ -78,7 +78,7 @@
   <g filter="url(#neon)" font-family="Impact, 'Arial Black', sans-serif" text-anchor="middle">
     <text x="640" y="120" font-size="54" fill="#4df2ff" letter-spacing="10">NIGHTMARE ON</text>
     <text x="640" y="230" font-size="128" fill="url(#title)" stroke="#2a0a4a" stroke-width="4" letter-spacing="4">CRYSTAL STREET</text>
-    <text x="640" y="285" font-size="26" fill="#ffe3f4" letter-spacing="8">ONE WEEK · SEVEN NIGHTS · TWENTY NIGHTMARES</text>
+    <text x="640" y="285" font-size="26" fill="#ffe3f4" letter-spacing="8">ONE WEEK · SEVEN NIGHTS · TWENTY-TWO NIGHTMARES</text>
   </g>
   <rect width="1280" height="720" fill="url(#scan)"/>
 </svg>

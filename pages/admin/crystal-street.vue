@@ -121,6 +121,9 @@
           <p class="text-sm uppercase tracking-widest opacity-80">
             {{ villain!.epithet }}
           </p>
+          <p class="text-xs uppercase tracking-widest text-secondary">
+            {{ remixLine }}
+          </p>
           <p class="max-w-2xl">{{ villain!.logline }}</p>
           <p class="cs-quote max-w-2xl">“{{ villain!.taunts[0] }}”</p>
           <button
@@ -160,6 +163,16 @@ const store = useCrystalStreetStore()
 const run = computed(() => store.run)
 const villain = computed(() => store.villain)
 const view = ref<View>('title')
+const remixLine = computed(() => {
+  const i = villain.value?.inspiration
+  if (!i) return ''
+  const verb = {
+    flip: 'A gender flip of',
+    bend: 'A gender-bent',
+    remix: 'A remix of',
+  }[i.kind]
+  return `${verb} ${i.original} · ${i.film} (${i.year})`
+})
 const arrivalSeen = ref('')
 const arrival = computed(
   () =>

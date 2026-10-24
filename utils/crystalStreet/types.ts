@@ -88,10 +88,20 @@ export type Ending = {
   art: string
 }
 
+export type Inspiration = {
+  original: string
+  film: string
+  year: number
+  kind: 'flip' | 'bend' | 'remix'
+  oldScript: string
+  newLens: string
+}
+
 export type Villain = {
   id: string
   name: string
   epithet: string
+  inspiration: Inspiration
   tags: Tag[]
   palette: [string, string, string]
   sigil: string

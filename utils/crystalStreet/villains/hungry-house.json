@@ -3,6 +3,14 @@
     "id": "hungry-house",
     "name": "The Hungry House",
     "epithet": "The Model Home at 13 Crystal Street",
+    "inspiration": {
+      "original": "The house on Ocean Avenue",
+      "film": "The Amityville Horror",
+      "year": 1979,
+      "kind": "remix",
+      "oldScript": "The haunted house that drives the father mad and destroys the family.",
+      "newLens": "The suburban facade itself: a model home that eats anyone who won't keep up appearances, learned from the woman paid to perform a perfect life inside it."
+    },
     "tags": ["paranormal", "dream"],
     "palette": ["#8fd3c1", "#f4a6a0", "#3b2a2f"],
     "sigil": "doorknob",

@@ -3,6 +3,14 @@
     "id": "bobo",
     "name": "Bobo",
     "epithet": "The Birthday Clown",
+    "inspiration": {
+      "original": "Pennywise",
+      "film": "IT (1986 novel)",
+      "year": 1986,
+      "kind": "bend",
+      "oldScript": "The man in makeup as predator: clown panic that bled into drag panic, a painted face as proof of menace.",
+      "newLens": "A performer who fell on purpose to make a crying kid laugh, and a town that laughed at him instead. The Best ending is laughing with him."
+    },
     "tags": ["slasher", "camp"],
     "palette": ["#ff3b3b", "#ffd23f", "#2b2d42"],
     "sigil": "balloon",

@@ -48,7 +48,7 @@ export const PLAYBOOK_GAMES = [
   {
     id: 'crystal-street',
     title: 'Nightmare on Crystal Street',
-    cover: '/crystal-street/poster.svg',
+    cover: '/crystal-street/cover.webp',
     build: buildCrystalStreetPlaybook,
   },
 ] as const

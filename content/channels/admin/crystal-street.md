@@ -8,7 +8,7 @@ subtitle: One week, seven nights, twenty nightmares
 summary: Survive Halloween week 1986 on the creepiest cul-de-sac in California.
 description: 'An 80s horror-comedy card adventure. Spend your days at the library, the gym, the mall and the traveling pawnshop gathering friends, gear and clues; spend your nights surviving whichever nightmare has come for Crystal Street this year. Admin-only development preview.'
 icon: kind-icon:ghost
-image: /crystal-street/poster.svg
+image: /crystal-street/cover.webp
 route: /admin/crystal-street
 sort: 141
 requiredRole: ADMIN
@@ -33,7 +33,7 @@ tutorial:
     leads, reach its heart. The Best ending needs the heart and at least
     ten night wins that week. Every week is pasted into your
     scrapbook; collect a Best ending for all twenty nightmares.
-  image: /crystal-street/poster.svg
+  image: /crystal-street/cover.webp
 ---
 
 Glimmer Falls, California. Halloween week, 1986. Something under Crystal Street is

@@ -3,21 +3,23 @@
     class="kr-panes grid-cols-1 grid-rows-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-3 @3xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] @3xl:grid-rows-1"
     aria-label="Start a week on Crystal Street"
   >
-    <div class="cs-frame cs-poster relative min-h-0 overflow-hidden">
+    <div class="cs-frame relative min-h-0 overflow-hidden bg-black">
       <img
-        src="/crystal-street/poster.svg"
-        alt="Nightmare on Crystal Street poster: a glowing geode in a suburban cul-de-sac under a magenta moon"
-        class="absolute inset-0 h-full w-full object-contain object-top"
+        src="/crystal-street/cover.webp"
+        alt="A towering masked woman with a machete pulls on a cracked hockey mask beside a moonlit lake while skinny-dippers run into the water"
+        class="absolute inset-0 h-full w-full object-cover object-[50%_18%]"
       />
-      <img
-        v-if="!heroFailed"
-        src="/crystal-street/title/key-art.webp"
-        alt=""
-        class="absolute inset-0 h-full w-full object-cover transition-opacity duration-700"
-        :class="heroLoaded ? 'opacity-100' : 'opacity-0'"
-        @load="heroLoaded = true"
-        @error="heroFailed = true"
-      />
+      <div
+        class="cs-cover-title absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent px-4 pb-10 pt-3 text-right"
+      >
+        <p class="cs-kicker text-xs tracking-[0.4em]">Nightmare on</p>
+        <h2 class="cs-display text-4xl leading-none @3xl:text-6xl">
+          Crystal Street
+        </h2>
+        <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-white/80">
+          One week · seven nights · {{ VILLAINS.length }} nightmares
+        </p>
+      </div>
       <div
         class="absolute inset-x-0 bottom-0 flex flex-wrap items-end gap-2 bg-gradient-to-t from-black/85 to-transparent p-3 text-white"
       >
@@ -173,8 +175,6 @@ const pronouns = ref('they/them')
 const customPronouns = ref('')
 const archetype = ref(ARCHETYPES[2]!.id)
 const villain = ref<VillainId | null>(null)
-const heroLoaded = ref(false)
-const heroFailed = ref(false)
 
 const inProgress = computed(() => !!store.run && !store.run.ending)
 const metList = computed(() =>

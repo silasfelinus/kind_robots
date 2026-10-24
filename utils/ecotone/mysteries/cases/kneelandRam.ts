@@ -33,7 +33,7 @@ export const KNEELAND_RAM: Mystery = {
   artPrompt:
     'Portrait 2:3 collectible mystery card, painted. The top of Kneeland ridge at night, a two-lane mountain road dropping into a sea of white fog lit from below by unseen headlights, a lone windsock and a short rural runway light above the cloud line. Racing down the road, a homemade gravity cart built from a church pew, and ahead of it a shaggy escaped ram mid-gallop. The road curls back on itself in the shape of a ram’s spiraling horns. Faint ember stars above the ridge form an unlabeled small bent constellation. Ember orange, gold and charcoal. No text, no letters, no logos.',
   provenance:
-    'Kneeland Road climbs from the Freshwater area onto Kneeland ridge, and the small Kneeland airport on the ridge is real and often sits above the coastal fog; they appear here as geography only. The Ridge Ram, the Ridgetop Senior Gravity League, Bev Ostrander, Sergeant Butters, the Ridge Ram Watchers and every other person and event are invented. No real organization, race or business is depicted.',
+    'Kneeland Road climbs from the Freshwater area onto Kneeland ridge, and the small Kneeland airport on the ridge is real and often sits above the coastal fog; they appear here as geography only. The Ridge Ram, the Ridgetop Senior Gravity League, Hollis Ostrander, Sergeant Butters, the Ridge Ram Watchers and every other person and event are invented. No real organization, race or business is depicted.',
   decline: {
     label: 'Tell Dwight that rams are a sheep problem, not a you problem',
     text: 'You send back a thumbs-up and turn your phone face down. Dwight replies with a photo of a dented door and the word COWARD in all capitals, then an apology, then a coupon code for Ridge Ram merch. You go to bed at ten like a reasonable person, and at 11:04 you sit straight up in the dark, certain you heard ball bearings.',
@@ -170,7 +170,7 @@ export const KNEELAND_RAM: Mystery = {
             'Study the scratched-out road-crew paddle and its owner’s helmet hook',
           check: { skill: 'lore', target: 9 },
           success: {
-            text: 'The paddle is old county road-crew issue, the handle wrapped in thirty years of electrical tape. Below it, on the hook, there is a welding helmet with two big curled horns bolted to the sides, the horns made from bent exhaust pipe and painted bone white. Inside the helmet, written on masking tape in neat block capitals: PROPERTY OF B. OSTRANDER. IF FOUND, I AM STILL GOING.',
+            text: 'The paddle is old county road-crew issue, the handle wrapped in thirty years of electrical tape. Below it, on the hook, there is a welding helmet with two big curled horns bolted to the sides, the horns made from bent exhaust pipe and painted bone white. Inside the helmet, written on masking tape in neat block capitals: PROPERTY OF H. OSTRANDER. IF FOUND, I AM STILL GOING.',
             effects: { goodwill: 1 },
           },
           failure: {
@@ -335,7 +335,7 @@ export const KNEELAND_RAM: Mystery = {
       {
         id: 'follow-ram',
         label: 'Ignore everyone and follow Sergeant Butters into the fog',
-        text: 'Sergeant Butters looks at you, flicks an ear and trots off uphill into the white. You go after him before you can think better of it. Behind you, the horned helmet comes off, and you hear Glenda say, “Bev?” in the voice of someone who was flagged through a rockslide in 1994.',
+        text: 'Sergeant Butters looks at you, flicks an ear and trots off uphill into the white. You go after him before you can think better of it. Behind you, the horned helmet comes off, and you hear Glenda say, “Hollis?” in the voice of someone who was flagged through a rockslide in 1994.',
         ending: 'headfirst',
         effects: { weird: 1 },
       },
@@ -353,28 +353,28 @@ export const KNEELAND_RAM: Mystery = {
   },
   branches: {
     unmasked: {
-      title: 'Bev Ostrander',
+      title: 'Hollis Ostrander',
       place: 'Kneeland Road, the gravel turnout',
       chapter: 4,
       scene: 'highway',
       body: [
-        'The helmet comes off with a crackle of static, and a silver buzz cut stands straight up: Bev Ostrander, seventy-one, wind-burned, who spent thirty-one years on the county road crew holding a STOP/SLOW paddle in the rain on this exact road. Glenda, the oldest Watcher, gasps. “Bev? You flagged my rig through a rockslide in 1994.”',
-        '“Thirty-one years,” Bev says, “I stood still and told everybody else when they could go. I never once got to go first. Then last spring a doctor looked at my heart and said, Beverly, you need to slow down. And I thought, I have been slowing down since 1983.” She pats the gurney. “He meant well. But I wanted to be first at something, once, before I’m last at everything. So we built the League. Flaggers on every curve. Nobody passes the ram. And the dents are on us. Anybody parked in the blind curve got kissed by the bumper, and we left twenty dollars and a jar of honey under every wiper.” Behind her, eight old racers are nodding.',
+        'The helmet comes off with a crackle of static, and a silver flattop stands straight up: Hollis Ostrander, seventy-one, wind-burned, who spent thirty-one years on the county road crew holding a STOP/SLOW paddle in the rain on this exact road. Glenda, the oldest Watcher, gasps. “Hollis? You flagged my rig through a rockslide in 1994.”',
+        '“Thirty-one years,” Hollis says, “I stood still and told everybody else when they could go. I never once got to go first. Then last spring a doctor looked at my heart and said, Mr. Ostrander, you need to slow down. And I thought, I have been slowing down since 1983.” He pats the gurney. “The doc meant well. But I wanted to be first at something, once, before I’m last at everything. So we built the League. Flaggers on every curve. Nobody passes the ram. And the dents are on us. Anybody parked in the blind curve got kissed by the bumper, and we left twenty dollars and a jar of honey under every wiper.” Behind him, eight old racers are nodding.',
       ],
       choices: [
         {
           id: 'go-public',
           label:
-            'Tell Bev the Watchers would buy tickets, and so would everyone else',
-          text: 'You point at Dwight, who is crying openly and already designing a new beanie. Bev looks at the turnout full of people who drove up a mountain at midnight to see her, and starts to laugh.',
+            'Tell Hollis the Watchers would buy tickets, and so would everyone else',
+          text: 'You point at Dwight, who is crying openly and already designing a new beanie. Hollis looks at the turnout full of people who drove up a mountain at midnight to see him, and starts to laugh.',
           ending: 'first-down',
           effects: { goodwill: 1 },
         },
         {
           id: 'keep-secret',
           label:
-            'Put the helmet back on her head and tell the Watchers the Ram got away',
-          text: 'You set the helmet back on Bev’s head. Twenty Watchers saw her face. Glenda looks around the turnout, and twenty Watchers decide, one by one, that they did not. Dwight very quietly puts his phone away.',
+            'Put the helmet back on his head and tell the Watchers the Ram got away',
+          text: 'You set the helmet back on Hollis’s head. Twenty Watchers saw his face. Glenda looks around the turnout, and twenty Watchers decide, one by one, that they did not. Dwight very quietly puts his phone away.',
           ending: 'ram-stays-wild',
         },
       ],
@@ -385,14 +385,14 @@ export const KNEELAND_RAM: Mystery = {
       chapter: 4,
       scene: 'meadow',
       body: [
-        'At the top of the ridge, above the clouds, the stars are so bright they look loud. You are sitting in the spare church pew. Beside you, the horned figure lifts the helmet for just a second to wipe the fog off her goggles, and you see a silver buzz cut and a grin seventy-one years in the making. “Bev Ostrander,” she says. “Thirty-one years on the road crew. Doctor told me to slow down. Ready?”',
+        'At the top of the ridge, above the clouds, the stars are so bright they look loud. You are sitting in the spare church pew. Beside you, the horned figure lifts the helmet for just a second to wipe the fog off his goggles, and you see a silver flattop and a grin seventy-one years in the making. “Hollis Ostrander,” he says. “Thirty-one years on the road crew. Doctor told me to slow down. Ready?”',
         'Sergeant Butters steps to the front, the way he always does. Hector, a sixty-nine-year-old in a bathtub cart, drops a bandana. You go. The fog rises to meet you, the ridge drops away, and for six curves there is nothing in the world but the whir, the cold and a pair of horns just ahead.',
       ],
       choices: [
         {
           id: 'lose-gloriously',
           label: 'Give it everything and lose by a horn',
-          text: 'You lean into every curve. You are faster than you have ever been. Bev beats you by the length of one painted horn, and the ram beats both of you by a mile. At the bottom, in front of every phone in the turnout, Bev takes the helmet all the way off. Glenda gasps her name. Dwight starts crying and does not stop.',
+          text: 'You lean into every curve. You are faster than you have ever been. Hollis beats you by the length of one painted horn, and the ram beats both of you by a mile. At the bottom, in front of every phone in the turnout, Hollis takes the helmet all the way off. Glenda gasps his name. Dwight starts crying and does not stop.',
           ending: 'first-down',
           effects: { nerve: 1 },
         },
@@ -404,8 +404,8 @@ export const KNEELAND_RAM: Mystery = {
         },
         {
           id: 'stop-and-flag',
-          label: 'Brake at the curve and wave Bev through first',
-          text: 'You pull over at the blind curve, stand up in the pew and wave her past, the way she waved the whole county past for thirty-one years.',
+          label: 'Brake at the curve and wave Hollis through first',
+          text: 'You pull over at the blind curve, stand up in the pew and wave him past, the way he waved the whole county past for thirty-one years.',
           ending: 'ram-stays-wild',
         },
       ],
@@ -417,8 +417,8 @@ export const KNEELAND_RAM: Mystery = {
       title: 'First Down the Mountain',
       tone: 'true',
       text: [
-        'The turnout does not empty. Somebody’s pickup becomes a podium, a cooler of root beer becomes the trophy table, and Dwight, between sobs, writes the plan for a real charity downhill on the back of a merch flyer: road closure, flaggers on every curve, an ambulance at the bottom, every dollar to the senior center van. By one in the morning the Watchers have turned their beanies inside out and written on them in marker: WE SAW HER FIRST.',
-        'Then there is one last run, slow, for the record, with Watchers on foot holding flashlights at every bend. You ride the spare pew at the very back, dead last behind a seventy-nine-year-old in the coffin cart, and it is the best night of your life. Bev crosses first among the carts. Sergeant Butters crosses before all of you, as he always will, and nobody tries to pass him.',
+        'The turnout does not empty. Somebody’s pickup becomes a podium, a cooler of root beer becomes the trophy table, and Dwight, between sobs, writes the plan for a real charity downhill on the back of a merch flyer: road closure, flaggers on every curve, an ambulance at the bottom, every dollar to the senior center van. By one in the morning the Watchers have turned their beanies inside out and written on them in marker: WE SAW HIM FIRST.',
+        'Then there is one last run, slow, for the record, with Watchers on foot holding flashlights at every bend. You ride the spare pew at the very back, dead last behind a seventy-nine-year-old in the coffin cart, and it is the best night of your life. Hollis crosses first among the carts. Sergeant Butters crosses before all of you, as he always will, and nobody tries to pass him.',
       ],
     },
     {
@@ -426,7 +426,7 @@ export const KNEELAND_RAM: Mystery = {
       title: 'The Ram Stays Wild',
       tone: 'bittersweet',
       text: [
-        'Every photo the Watchers took that night comes out as fog: every phone, every frame, just white. The League keeps racing on Tuesdays and Fridays, flaggers on every curve and no cameras allowed, until one spring Bev hangs the horned helmet on the shed hook and leaves it there. Her heart is fine. She got what she wanted, she says. She got to go first.',
+        'Every photo the Watchers took that night comes out as fog: every phone, every frame, just white. The League keeps racing on Tuesdays and Fridays, flaggers on every curve and no cameras allowed, until one spring Hollis hangs the horned helmet on the shed hook and leaves it there. His heart is fine. He got what he wanted, he says. He got to go first.',
         'Some nights, driving Kneeland Road in the fog, you still hear the whir, and you pull over and let it pass. You never see who is driving. You always see the ram.',
       ],
     },
@@ -435,7 +435,7 @@ export const KNEELAND_RAM: Mystery = {
       title: 'Waved Through',
       tone: 'strange',
       text: [
-        'The fog closes over you like water. The ram runs, and you run after him, and the road under your feet changes three times: cracked asphalt, oiled gravel, two ruts in the grass. On every version of the road a flagger stands on the center line in the fog, in a hard hat, then a canvas coat, then a wool cap, and every one of them turns the paddle to SLOW and waves the ram through, first, without a word. The first of them, in the hard hat, looks a lot like Bev at thirty. She winks.',
+        'The fog closes over you like water. The ram runs, and you run after him, and the road under your feet changes three times: cracked asphalt, oiled gravel, two ruts in the grass. On every version of the road a flagger stands on the center line in the fog, in a hard hat, then a canvas coat, then a wool cap, and every one of them turns the paddle to SLOW and waves the ram through, first, without a word. The first of them, in the hard hat, looks a lot like Hollis at thirty. He winks.',
         'You come out of the fog at the gravel turnout at 11:01, panting. Dwight is setting up his folding chair. Your thermos is on the hood of your car, still warm, though you remember finishing it an hour ago. Sergeant Butters stands beside you, chewing, entirely unbothered, ready to go first again.',
       ],
     },

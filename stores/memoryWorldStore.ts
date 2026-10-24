@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useUserStore } from './userStore'
+import { WORLD_ONE_GALLERY } from '~/utils/memoryDungeon/realmGallery'
 import {
   normalizeMemoryCardBack,
   type MemoryCardBackId,
@@ -77,6 +78,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const deck = ref<DungeonDeckSelection>({ ...DEFAULT_DUNGEON_DECK })
   const cardBack = ref<MemoryCardBackId>('briar')
   const unlockedRealms = ref<number[]>([])
+  const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
   const ready = ref(false)
   const loading = ref(false)
@@ -185,6 +187,24 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       userStore.showMature === true,
   )
 
+  async function checkRealmGalleryReady(): Promise<void> {
+    if (!import.meta.client || !unlockedRealms.value.includes(1)) return
+    const results = await Promise.all(
+      WORLD_ONE_GALLERY.map(async (card) => {
+        try {
+          const response = await fetch(card.artPath, { method: 'HEAD' })
+          return (
+            response.ok &&
+            (response.headers.get('content-type') ?? '').startsWith('image/')
+          )
+        } catch {
+          return false
+        }
+      }),
+    )
+    realmArtReady.value = results.every(Boolean)
+  }
+
   function selectCardBack(selection: MemoryCardBackId): void {
     cardBack.value = normalizeMemoryCardBack(selection)
     if (!import.meta.client) return
@@ -197,7 +217,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   }
 
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {
-    if (selection.family === 'realm' && !unlockedRealms.value.includes(selection.realmId ?? deck.value.realmId)) {
+    if (
+      selection.family === 'realm' &&
+      (!unlockedRealms.value.includes(selection.realmId ?? deck.value.realmId) ||
+        !realmArtReady.value)
+    ) {
       state.value.status = 'Finish a realm and collect its painted gallery before reusing that deck.'
       return
     }
@@ -247,12 +271,22 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
         const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
-        unlockedRealms.value = savedUnlocks
-          ? (JSON.parse(savedUnlocks) as unknown[]).filter(
+        const parsedUnlocks: unknown = savedUnlocks
+          ? JSON.parse(savedUnlocks)
+          : []
+        unlockedRealms.value = Array.isArray(parsedUnlocks)
+          ? parsedUnlocks.filter(
               (value): value is number =>
-                Number.isSafeInteger(value) && Number(value) >= 1 && Number(value) <= 16,
+                typeof value === 'number' &&
+                Number.isSafeInteger(value) &&
+                value >= 1 &&
+                value <= 16,
             )
           : []
+        if (state.value.gateOpened && !unlockedRealms.value.includes(1)) {
+          unlockedRealms.value.push(1)
+          window.localStorage.setItem(REALM_UNLOCKS_KEY, JSON.stringify(unlockedRealms.value))
+        }
         cardBack.value = normalizeMemoryCardBack(
           window.localStorage.getItem(CARD_BACK_KEY),
         )
@@ -274,6 +308,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
     }
     ready.value = true
+    if (import.meta.client) void checkRealmGalleryReady()
   }
 
   /** A saved round can predate the source selector; resync it without losing matches. */
@@ -1133,6 +1168,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         state.value.status = 'Realm gallery unlock is active but could not be saved.'
       }
     }
+    void checkRealmGalleryReady()
     state.value.status =
       'The Bramble Chime parts the thorns! Briar Camp is complete. Bloom Orchard is the next region to build.'
     persist()
@@ -1144,6 +1180,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     cardBack,
     selectCardBack,
     unlockedRealms,
+    realmArtReady,
+    checkRealmGalleryReady,
     matureAvailable,
     selectDeck,
     ready,

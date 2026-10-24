@@ -30,7 +30,7 @@
           class="btn btn-ghost btn-xs"
           aria-label="Open project endpoint"
         >
-          <Icon name="kind-icon:arrow-up-right" class="kr-icon-3" /> Open
+          <Icon name="kind-icon:arrow-right" class="kr-icon-3" /> Open
         </a>
         <span v-else class="badge badge-warning badge-sm" role="status">No project endpoint</span>
         <span class="mx-0.5 h-3.5 w-px shrink-0 bg-base-content/10" />

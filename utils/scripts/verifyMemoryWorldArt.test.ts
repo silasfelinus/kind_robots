@@ -103,7 +103,7 @@ const overworld = readFileSync(
 )
 assert.match(worldStore, /REALM_UNLOCKS_KEY/)
 assert.match(worldStore, /state\.value\.gateOpened = true[\s\S]*unlockedRealms\.value\.push\(1\)/)
-assert.match(worldStore, /window\.localStorage\.setItem\(REALM_UNLOCKS_KEY/)
+assert.match(worldStore, /window\.localStorage\.setItem\(\s*REALM_UNLOCKS_KEY/)
 assert.match(worldStore, /realmArtReady\.value = results\.every\(Boolean\)/)
 assert.match(resolver, /choice\.family === 'realm'/)
 assert.match(resolver, /loadDungeonImagePaths\(candidates, needed\)/)

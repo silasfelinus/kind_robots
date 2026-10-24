@@ -1000,10 +1000,7 @@
                 v-if="game.canUndo"
                 type="button"
                 class="mt-4 rounded-lg border border-[#d9b877]/60 px-4 py-2 text-base font-bold"
-                @click="
-                  game.undo()
-                  tab = 'road'
-                "
+                @click="rewindDecision"
               >
                 ↶ Rewind last decision
               </button>
@@ -1772,6 +1769,7 @@ import {
   PASSES_FOR_TRUE_PATH,
   caseNumeral,
   caseRecord,
+  mysteryEndingArtKey,
   type CaseRecord,
   type GateResult,
   type Mystery,
@@ -1855,6 +1853,11 @@ const TONE_LABEL: Record<MysteryEndingTone, string> = {
   true: 'True',
   bittersweet: 'Bittersweet',
   strange: 'Strange',
+}
+
+function rewindDecision() {
+  game.undo()
+  tab.value = 'road'
 }
 
 function openCase(id: string) {
@@ -2293,7 +2296,13 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? prospect.art
           : outcome
-            ? [outcome, ...cardArt]
+            ? [
+                ...(realEnding && meta && game.realEnding
+                  ? [mysteryEndingArtKey(meta.mystery.id, game.realEnding.id)]
+                  : []),
+                outcome,
+                ...cardArt,
+              ]
             : cardArt,
       alt:
         portrait && prospect

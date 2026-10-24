@@ -48,7 +48,7 @@ import {
   drawRainbowStageStrip,
   drawRainbowSuperCutin,
 } from './rainbowGameArt'
-import { RAINBOW_PILOTS } from './rainbowPilots'
+import { RAINBOW_PILOTS, RAINBOW_KITTY_POWER } from './rainbowPilots'
 import { ACT_TERRAIN_PALETTE, actCallout, actTerrain } from './rainbowActBeats'
 import type { ActBeatAct } from './rainbowActBeats'
 import {
@@ -283,6 +283,24 @@ import { RAINBOW_FAILURE, failureLines } from './rainbowFailure'
 import { rainbowMusicFor } from './rainbowScore'
 import type { RainbowMedal, RainbowSave } from './rainbowLoadouts'
 import {
+  RAINBOW_ALLEGIANCE_LABEL,
+  RAINBOW_TURN,
+  RAINBOW_TURN_REVEAL_FRAMES,
+  allegianceFor,
+  rainbowTurnLines,
+  type RainbowAllegiance,
+} from './rainbowAllegiance'
+import {
+  RAINBOW_BOSS_LOOKS,
+  RAINBOW_CRAFT_LOOKS,
+  RAINBOW_GUARDIAN_LOOK,
+  drawRainbowHeart,
+  drawRainbowShot,
+  drawRainbowStarShot,
+  rainbowBurstLook,
+  type RainbowShotLook,
+} from './rainbowShotLooks'
+import {
   AURELIA_MAX_HP,
   createMoonjellyBoss,
   moonjellyBossWarning,
@@ -371,6 +389,113 @@ const ACT_NUMERALS = [
 const ACT_SEVEN_CHECKPOINTS = actCheckpoints(GLASS_SECTIONS, GLASS.bossStarts)
 const ACT_EIGHT_CHECKPOINTS = actCheckpoints(PALACE_SECTIONS, PALACE.bossStarts)
 const FINALE_CHECKPOINTS = actCheckpoints(FINALE_SECTIONS, FINALE.bossStarts)
+/** The co-pilot's face on a Princess Kitty Power banner (t-039): ears, glossy eyes, a pink nose and whiskers. */
+function drawKittyFace(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  color: string,
+) {
+  g.save()
+  g.translate(x, y)
+  g.fillStyle = color
+  g.strokeStyle = '#2a1450'
+  g.lineWidth = 1.5
+  g.beginPath()
+  g.moveTo(-13, -4)
+  g.lineTo(-10, -18)
+  g.lineTo(-3, -11)
+  g.lineTo(3, -11)
+  g.lineTo(10, -18)
+  g.lineTo(13, -4)
+  g.quadraticCurveTo(14, 12, 0, 13)
+  g.quadraticCurveTo(-14, 12, -13, -4)
+  g.fill()
+  g.stroke()
+  g.fillStyle = '#2a1450'
+  for (const side of [-1, 1]) {
+    g.beginPath()
+    g.ellipse(side * 5, -1, 2.6, 3.4, 0, 0, Math.PI * 2)
+    g.fill()
+  }
+  g.fillStyle = '#ffffff'
+  for (const side of [-1, 1]) g.fillRect(side * 5 - 1.5, -3.5, 1.5, 1.5)
+  g.fillStyle = '#ff9fd8'
+  g.beginPath()
+  g.moveTo(-2, 4)
+  g.lineTo(2, 4)
+  g.lineTo(0, 6.5)
+  g.fill()
+  g.strokeStyle = '#2a1450'
+  g.lineWidth = 0.8
+  g.beginPath()
+  for (const side of [-1, 1])
+    for (const dy of [-1.5, 1.5]) {
+      g.moveTo(side * 4, 6 + dy / 2)
+      g.lineTo(side * 15, 5 + dy)
+    }
+  g.stroke()
+  g.restore()
+}
+
+/** An Act's checkpoint frames: its start, each authored section and the boss. */
+function actCheckpointFrames(act: RainbowCheckpoint['act']): readonly number[] {
+  return act === 1
+    ? ACT_ONE_CHECKPOINTS
+    : act === 2
+      ? ACT_TWO_CHECKPOINTS
+      : act === 3
+        ? ACT_THREE_CHECKPOINTS
+        : act === 4
+          ? ACT_FOUR_CHECKPOINTS
+          : act === 5
+            ? ACT_FIVE_CHECKPOINTS
+            : act === 6
+              ? ACT_SIX_CHECKPOINTS
+              : act === 7
+                ? ACT_SEVEN_CHECKPOINTS
+                : act === 8
+                  ? ACT_EIGHT_CHECKPOINTS
+                  : FINALE_CHECKPOINTS
+}
+/** What the CONTINUE? screen and the flight log call a checkpoint: its section, the boss or the Act start. */
+function checkpointName(c: Readonly<RainbowCheckpoint>): string {
+  return c.act === 1
+    ? checkpointLabel(PINKWAKE_SECTIONS, PINKWAKE.bossStarts, c.frame)
+    : c.act === 2
+      ? checkpointLabel(MOONJELLY_SECTIONS, MOONJELLY.bossStarts, c.frame)
+      : c.act === 3
+        ? checkpointLabel(
+            trenchSections(c.trenchRoute),
+            TRENCH.bossStarts,
+            c.frame,
+          )
+        : c.act === 4
+          ? checkpointLabel(ROSEFIN_SECTIONS, ROSEFIN.bossStarts, c.frame)
+          : c.act === 5
+            ? checkpointLabel(WRECK_SECTIONS, WRECK.bossStarts, c.frame)
+            : c.act === 6
+              ? checkpointLabel(
+                  CROWN_REEF_SECTIONS,
+                  CROWN_REEF.bossStarts,
+                  c.frame,
+                )
+              : c.act === 7
+                ? checkpointLabel(GLASS_SECTIONS, GLASS.bossStarts, c.frame)
+                : c.act === 8
+                  ? checkpointLabel(PALACE_SECTIONS, PALACE.bossStarts, c.frame)
+                  : checkpointLabel(FINALE_SECTIONS, FINALE.bossStarts, c.frame)
+}
+/** A checkpoint a saved flight may continue from: any of an Act's checkpoints but the very start of Act I. */
+export function isRainbowCheckpoint(act: number, frame: number): boolean {
+  return (
+    Number.isInteger(act) &&
+    act >= 1 &&
+    act <= 9 &&
+    (act > 1 || frame > 0) &&
+    actCheckpointFrames(act as RainbowCheckpoint['act']).includes(frame)
+  )
+}
 /** E23 crystal squids glint for this long, then fire a pellet that splits in three after its fuse. */
 const SQUID = { glintFrames: 36, splitFuse: 60 } as const
 /** E24 harbingers warm their prism, then alternate a lane bolt and a ring bubble. */
@@ -501,12 +626,44 @@ const DARTING = new Set([
   'spiral',
   'lantern',
   'relay',
-  'skimmer',
   'pistol',
   'angler',
-  'skate',
   'squid',
 ])
+/**
+ * Silas, 2026-10-23 PT: "enemies should move and attack in different ways." Each plain craft swims its own way
+ * (WORLD-BIBLE fleet): pickets weave a wide lane, spiral scouts loop the loop, anchors wallow, urchins roll from
+ * wall to wall, lanterns pulse-swim, relays hold their lane, skimmers ride the ceiling or the floor, coral
+ * drifters settle to the floor, and skates swoop like mantas.
+ */
+const SWIM = {
+  weave: { period: 24, amp: 0.95 },
+  loop: { period: 14, amp: 1.5, reach: 1.6 },
+  wallow: { period: 40, amp: 0.4 },
+  roll: { speed: 0.75, top: 52, bottom: 218 },
+  pulse: { period: 18, surge: 1.7, lift: 0.5, sink: 0.15 },
+  skim: { top: 58, bottom: 214, ease: 0.03 },
+  settle: { floor: 222, ease: 0.025 },
+  swoop: { period: 30, amp: 1.5 },
+  /** Every plain craft stays inside these lanes. */
+  top: 44,
+  bottom: 226,
+} as const
+/**
+ * And each attacks its own way: a picket leads where a sidestep would go, a spiral scout turns three spokes,
+ * an anchor lays slow mines, an urchin fans eight spines with two gaps, a lantern rings out a pulse with one
+ * wide gap, a relay throws a stretching link, a skimmer drops a column of beads and a coral drifter lobs shells.
+ */
+const VOLLEY = {
+  picketLead: 22,
+  spokes: { count: 3, turn: 0.5, speed: 1.7 },
+  mine: -0.45,
+  urchin: { slots: 10, speed: 1.5 },
+  lantern: { slots: 10, gap: 3, speed: 1.2, swing: 0.63 },
+  link: [2.5, 2.05, 1.6],
+  beads: { vx: -0.6, vy: [1.0, 1.35, 1.7] },
+  lob: { vx: [-1.0, -1.5], vy: -2.1, gravity: 0.03 },
+} as const
 
 /**
  * A pistol bubble bursts into an eight-pellet ring; an angler lure into a four-way cross; a split pellet
@@ -684,6 +841,8 @@ type Reef = {
   terrain?: ActBeatAct
   /** The lane a darting craft is sliding to. */
   dartY?: number
+  /** An urchin's roll between the walls (t-033). */
+  vy?: number
   wave: number | null
 }
 type EnemyShot = {
@@ -704,6 +863,9 @@ type EnemyShot = {
   bounces?: number
   /** A phantom pellet (mirror eel, Mirror guardian, Glass Eel afterimage): only light, it never hits. */
   ghost?: boolean
+  /** How the pellet is drawn, from whatever fired it (t-032), and the tick it was fired on. */
+  look?: RainbowShotLook
+  born?: number
 }
 type Pickup = { x: number; y: number; kind: 'power' | 'shield' | 'charge' }
 /** U12 Recovery Cache: the power level a pilot lost with a life, waiting where it fell for its pilot alone. */
@@ -799,6 +961,8 @@ export type RainbowCombatSnapshot = {
   actSixFrame: number
   /** Frames the crew has rested at Act V's memorial, or null when not resting. */
   resting: number | null
+  /** The crew's choice at the memorial (t-040): turn on the empire, stay the course, or null before it. */
+  allegiance: RainbowAllegiance | null
   /** Act VI's route, the relay pylons broken, and the story flag the relay earns. */
   reefRoute: ReefRoute | null
   pylonsDown: number
@@ -994,6 +1158,8 @@ export function createRainbowPrincessPreview(
   let savedAct: number | null = null
   /** Calm motion: no flashes or shockwaves, fewer sparks, slower scenery (t-011). */
   let calm = options.stillCamera === true
+  /** The crew's choice at Act V's memorial (t-040, PLOT-MOTHERLAND.md), or null before it. */
+  let allegiance: RainbowAllegiance | null = null
   /** Medals won by Act, and the hits taken and continues spent in the Act under way (t-010). */
   const medals: Partial<
     Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9, RainbowMedal>
@@ -1005,7 +1171,9 @@ export function createRainbowPrincessPreview(
   /** The progress the cabinet keeps: written at each Act start, cleared at THE END. */
   let saveRecord: RainbowSave | null | undefined = undefined
   /** A saved flight to offer before the game begins: continue from its Act, or start a new one. */
-  const offered = options.demo ? null : readRainbowSave(options.resume)
+  const offered = options.demo
+    ? null
+    : readRainbowSave(options.resume, isRainbowCheckpoint)
   let resumeMenu: { save: RainbowSave; pick: 0 | 1; frame: number } | null =
     offered ? { save: offered, pick: 0, frame: 0 } : null
   /** P1's pilot (the select screen): the seats fly the pilots in order from it. */
@@ -1155,8 +1323,16 @@ export function createRainbowPrincessPreview(
     return rested >= 0 ? rested : null
   }
 
-  /** Leave the memorial for Act VI: one bounded repair (a shield each), then the Crown Reef. */
+  /** Leave the memorial for Act VI: the crew's allegiance, one bounded repair (a shield each), then the Crown Reef. */
   function launchCrownReef() {
+    // The turn: where the living crew flies as it launches is its choice (t-040).
+    allegiance = allegianceFor(livingShips().map((ship) => ship.y))
+    popups.push({
+      x: W / 2,
+      y: 92,
+      text: RAINBOW_ALLEGIANCE_LABEL[allegiance],
+      age: 0,
+    })
     reefStart = tick
     shots.length = 0
     pickups.length = 0
@@ -1868,6 +2044,42 @@ export function createRainbowPrincessPreview(
     }
   }
 
+  /** A plain craft's own way of swimming (t-033); a clawstrike holds its lane so its mark is its bolt's lane. */
+  function swim(reef: Reef) {
+    const k = reef.kind
+    if (k === 'clawstrike' || k === 'relay') return
+    if (k === 'spiral') {
+      const a = tick / SWIM.loop.period + reef.phase
+      reef.y += Math.sin(a) * SWIM.loop.amp
+      reef.x += Math.cos(a) * SWIM.loop.reach
+    } else if (k === 'picket')
+      reef.y += Math.sin(tick / SWIM.weave.period + reef.phase) * SWIM.weave.amp
+    else if (k === 'anchor')
+      reef.y +=
+        Math.sin(tick / SWIM.wallow.period + reef.phase) * SWIM.wallow.amp
+    else if (k === 'urchin') {
+      reef.vy ??= Math.sin(reef.phase) >= 0 ? SWIM.roll.speed : -SWIM.roll.speed
+      reef.y += reef.vy
+      if (reef.y < SWIM.roll.top || reef.y > SWIM.roll.bottom) {
+        reef.vy = -reef.vy
+        reef.y = Math.max(SWIM.roll.top, Math.min(SWIM.roll.bottom, reef.y))
+      }
+    } else if (k === 'lantern') {
+      const surge =
+        Math.max(0, Math.sin(tick / SWIM.pulse.period + reef.phase)) ** 3
+      reef.x -= surge * SWIM.pulse.surge
+      reef.y += SWIM.pulse.sink - surge * SWIM.pulse.lift
+    } else if (k === 'skimmer') {
+      const rail = Math.sin(reef.phase) >= 0 ? SWIM.skim.top : SWIM.skim.bottom
+      reef.y += (rail - reef.y) * SWIM.skim.ease
+    } else if (k === 'coral')
+      reef.y += (SWIM.settle.floor - reef.y) * SWIM.settle.ease
+    else if (k === 'skate')
+      reef.y += Math.sin(tick / SWIM.swoop.period + reef.phase) * SWIM.swoop.amp
+    else reef.y += Math.sin(tick / 24 + reef.phase) * 0.55
+    reef.y = Math.max(SWIM.top, Math.min(SWIM.bottom, reef.y))
+  }
+
   /** A diver cruises in, locks the nearest pilot's lane with an aimed pellet, then swoops along it. */
   function stepDiver(reef: Reef) {
     if (reef.dive === undefined) {
@@ -1936,28 +2148,7 @@ export function createRainbowPrincessPreview(
     act: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9,
     frame: number,
   ) {
-    if (
-      !(
-        act === 1
-          ? ACT_ONE_CHECKPOINTS
-          : act === 2
-            ? ACT_TWO_CHECKPOINTS
-            : act === 3
-              ? ACT_THREE_CHECKPOINTS
-              : act === 4
-                ? ACT_FOUR_CHECKPOINTS
-                : act === 5
-                  ? ACT_FIVE_CHECKPOINTS
-                  : act === 6
-                    ? ACT_SIX_CHECKPOINTS
-                    : act === 7
-                      ? ACT_SEVEN_CHECKPOINTS
-                      : act === 8
-                        ? ACT_EIGHT_CHECKPOINTS
-                        : FINALE_CHECKPOINTS
-      ).includes(frame)
-    )
-      return
+    if (!actCheckpointFrames(act).includes(frame)) return
     if (checkpoint.act === act && frame <= checkpoint.frame) return
     checkpoint = {
       act,
@@ -1977,8 +2168,13 @@ export function createRainbowPrincessPreview(
       rescuedNavigator,
       captivesFreed,
       schoolBonuses,
+      allegiance,
     }
-    if (frame > 0) popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+    if (frame > 0) {
+      popups.push({ x: W / 2, y: 74, text: 'CHECKPOINT', age: 0 })
+      // Every checkpoint is kept, so a flight left mid-Act comes back where it was.
+      writeSave()
+    }
     if (frame === 0 && act >= 2) {
       awardMedal((act - 1) as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8)
       if (act === 9) {
@@ -2055,10 +2251,6 @@ export function createRainbowPrincessPreview(
     }
   }
 
-  /**
-   * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
-   * before it flown and its own Act about to begin (its first update is its frame 0).
-   */
   /** Fly at `chosen` from the start: its lives, pellets, hulls and score. */
   function setDifficulty(chosen: ArcadeDifficulty) {
     difficulty = chosen
@@ -2078,6 +2270,10 @@ export function createRainbowPrincessPreview(
     return { ...line, speaker: swap(line.speaker), text: swap(line.text) }
   }
 
+  /**
+   * Continue a saved flight: its difficulty, score, rescues, routes, guardians and medals, with every Act
+   * before it flown and its own Act resuming at the saved checkpoint (its first update is that frame).
+   */
   function continueFrom(save: RainbowSave) {
     setDifficulty(save.difficulty)
     pick = save.pilot ?? 0
@@ -2098,6 +2294,7 @@ export function createRainbowPrincessPreview(
     rescuedNavigator = c.rescuedNavigator
     navigatorDone = c.act > 7
     captivesFreed = c.captivesFreed
+    allegiance = c.allegiance ?? null
     schoolBonuses = c.schoolBonuses
     for (const act of [1, 2, 3, 4, 5, 6, 7, 8] as const)
       guardians[act] =
@@ -2124,6 +2321,29 @@ export function createRainbowPrincessPreview(
     finaleStart = start(9)
     checkpoint = { ...c }
     savedAct = n
+    if (c.frame > 0) {
+      // A save from mid-Act: its Act clock picks up at the checkpoint itself, past the escort or the
+      // navigator if their pods had already set off, and past a guardian whose section had begun.
+      tick = resumeTick(
+        c,
+        moonStart,
+        trenchStart,
+        rosefinStart,
+        wreckStart,
+        reefStart,
+        glassStart,
+        palaceStart,
+        finaleStart,
+      )
+      if (n === 4 && c.frame > ROSEFIN_ESCORT.podAppears) escortDone = true
+      if (n === 7 && c.frame > GLASS_NAVIGATOR.podAppears) navigatorDone = true
+      if (
+        n !== 9 &&
+        guardians[n] === 'waiting' &&
+        c.frame > guardianSections[n].from
+      )
+        guardians[n] = 'escaped'
+    }
   }
 
   /**
@@ -2266,6 +2486,7 @@ export function createRainbowPrincessPreview(
       )
         navigatorDone = rescuedNavigator
       captivesFreed = checkpoint.captivesFreed
+      allegiance = checkpoint.allegiance ?? null
       schoolBonuses = checkpoint.schoolBonuses
     }
     reefs.length = 0
@@ -2751,7 +2972,30 @@ export function createRainbowPrincessPreview(
     options.sound.play('pop')
   }
 
+  /** A craft fires its pattern, every pellet in the craft's own look (t-032). */
   function fireEnemy(reef: Reef) {
+    const from = enemyShots.length
+    fireEnemyPattern(reef)
+    dressShots(from, RAINBOW_CRAFT_LOOKS[reef.kind] ?? 'pearl')
+  }
+
+  /** Give the pellets fired since `from` a look, unless they already carry one. */
+  function dressShots(from: number, look: RainbowShotLook) {
+    for (let i = from; i < enemyShots.length; i++) {
+      const bullet = enemyShots[i]!
+      bullet.look ??= look
+      bullet.born ??= tick
+    }
+  }
+
+  /** A boss or guardian's volley, in its look. */
+  function shootAs(look: RainbowShotLook, volley: EnemyShot[]) {
+    const from = enemyShots.length
+    enemyShots.push(...volley)
+    dressShots(from, look)
+  }
+
+  function fireEnemyPattern(reef: Reef) {
     const active = availableCoopTargets(ships, activePlayers)
     if (!active.length) return
     const nearestShip = active.reduce(
@@ -2979,76 +3223,104 @@ export function createRainbowPrincessPreview(
       })
       return
     }
-    const vx = (dx / length) * 2.15
-    const vy = (dy / length) * 2.15
-    enemyShots.push({ x: reef.x - 8, y: reef.y, vx, vy, grazed: 0 })
-    if (reef.kind === 'lantern') {
-      const theta = Math.atan2(vy, vx)
-      for (const spread of [-0.6, -0.3, 0.3, 0.6]) {
-        enemyShots.push({
-          x: reef.x - 8,
-          y: reef.y,
-          vx: Math.cos(theta + spread) * 1.65,
-          vy: Math.sin(theta + spread) * 1.65,
-          grazed: 0,
-        })
-      }
-    } else if (reef.kind === 'relay') {
+    const aim = Math.atan2(dy, dx)
+    const volley = (reef.volleys = (reef.volleys ?? 0) + 1)
+    const shoot = (
+      angle: number,
+      speed: number,
+      extra: Partial<EnemyShot> = {},
+    ) =>
       enemyShots.push({
         x: reef.x - 8,
         y: reef.y,
-        vx: vx * 0.7,
-        vy: vy * 0.7 + 0.85,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
         grazed: 0,
+        ...extra,
       })
-    } else if (reef.kind === 'skimmer') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y - 11,
-        vx: -1.25,
-        vy: 1.1,
-        grazed: 0,
-      })
-    } else if (reef.kind === 'coral') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y + 13,
-        vx: -1.35,
-        vy: -0.8,
-        grazed: 0,
-      })
+    if (reef.kind === 'picket') {
+      // Pre-aim and sidestep: one pellet at the pilot, one where a sidestep (alternating sides) would take her.
+      const side = volley % 2 ? 1 : -1
+      for (const lead of [0, side * VOLLEY.picketLead])
+        shoot(Math.atan2(target.y + lead - reef.y, dx), 2.15)
+      return
     }
     if (reef.kind === 'spiral') {
-      for (const offset of [-0.45, 0.45]) {
-        const angle = Math.atan2(vy, vx) + offset
-        enemyShots.push({
-          x: reef.x - 8,
-          y: reef.y,
-          vx: Math.cos(angle) * 1.7,
-          vy: Math.sin(angle) * 1.7,
-          grazed: 0,
-        })
-      }
+      // Three spokes that turn a little further each volley, so its fire winds into a spiral.
+      const { count, turn, speed } = VOLLEY.spokes
+      for (let k = 0; k < count; k++)
+        shoot(aim + volley * turn + (k / count) * Math.PI * 2, speed)
+      return
     }
     if (reef.kind === 'anchor') {
-      enemyShots.push({ x: reef.x - 8, y: reef.y, vx: -0.75, vy: 0, grazed: 0 })
+      // An aimed pellet, and a mine bead laid almost still in its lane.
+      shoot(aim, 2.15)
+      enemyShots.push({
+        x: reef.x - 8,
+        y: reef.y,
+        vx: VOLLEY.mine,
+        vy: 0,
+        grazed: 0,
+      })
+      return
     }
     if (reef.kind === 'urchin') {
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y,
-        vx: vx * 0.9 - vy * 0.4,
-        vy: vy * 0.9 + vx * 0.4,
-        grazed: 0,
-      })
-      enemyShots.push({
-        x: reef.x - 8,
-        y: reef.y,
-        vx: vx * 0.9 + vy * 0.4,
-        vy: vy * 0.9 - vx * 0.4,
-        grazed: 0,
-      })
+      // Eight spines from ten slots: the two gaps sit one slot off the pilot's line and opposite it, alternating
+      // sides, so slow focus finds the opening.
+      const { slots, speed } = VOLLEY.urchin
+      const step = (Math.PI * 2) / slots
+      const near = Math.round(aim / step) + (volley % 2 ? 1 : -1)
+      for (let k = 0; k < slots; k++) {
+        const slot = (((k - near) % slots) + slots) % slots
+        if (slot === 0 || slot === slots / 2) continue
+        shoot(k * step, speed)
+      }
+      return
     }
+    if (reef.kind === 'lantern') {
+      // An expanding pulsed ring with one wide gap, swung across the pilot's line volley by volley.
+      const { slots, gap, speed, swing } = VOLLEY.lantern
+      const step = (Math.PI * 2) / slots
+      const centre = aim + ((volley % 3) - 1) * swing
+      for (let k = 0; k < slots; k++) {
+        const angle = centre + Math.PI + (k - (slots - gap - 1) / 2) * step
+        if (k >= slots - gap) continue
+        shoot(angle, speed)
+      }
+      return
+    }
+    if (reef.kind === 'relay') {
+      // A link that stretches as it flies: three pellets down one line at falling speeds.
+      for (const speed of VOLLEY.link) shoot(aim, speed)
+      return
+    }
+    if (reef.kind === 'skimmer') {
+      // A column of electric beads falling away from its rail.
+      const fall = reef.y < H / 2 ? 1 : -1
+      for (const vy of VOLLEY.beads.vy)
+        enemyShots.push({
+          x: reef.x - 4,
+          y: reef.y + fall * 8,
+          vx: VOLLEY.beads.vx,
+          vy: fall * vy,
+          grazed: 0,
+        })
+      return
+    }
+    if (reef.kind === 'coral') {
+      // Two shells lobbed up off the floor that arc back down.
+      for (const vx of VOLLEY.lob.vx)
+        enemyShots.push({
+          x: reef.x - 8,
+          y: reef.y - 8,
+          vx,
+          vy: VOLLEY.lob.vy,
+          ay: VOLLEY.lob.gravity,
+          grazed: 0,
+        })
+      return
+    }
+    shoot(aim, 2.15)
   }
 
   /** Bring on the Act's guardian once its section opens, unless it was already destroyed or escaped. */
@@ -3551,7 +3823,7 @@ export function createRainbowPrincessPreview(
           options.sound.play('extra')
         }
       } else if (escapeFrame !== null) {
-        enemyShots.push(...eclipseEscapeWall(escapeFrame, W + 10))
+        shootAs('eclipse', eclipseEscapeWall(escapeFrame, W + 10))
         if (++escapeFrame >= ECLIPSE_ESCAPE.frames) {
           escapeFrame = null
           endingFrame = 0
@@ -3654,6 +3926,14 @@ export function createRainbowPrincessPreview(
             (activePlayers % 2 === 1 ? 88 : 182) +
             Math.sin(tick / 33 + seat) * 14
           ship.y += (lane - ship.y) * Math.min(1, reefLead / 60)
+        }
+        if (restingFrames() !== null) {
+          // At the memorial the attract demo shows both roads: odd crews turn on the empire, even crews stay
+          // the course (t-040).
+          const lane =
+            (activePlayers % 2 === 1 ? 88 : 182) +
+            Math.sin(tick / 33 + seat) * 14
+          ship.y += (lane - ship.y) * Math.min(1, restingFrames()! / 60)
         }
         if (navigator) {
           // The rescue is optional, so the demo shows both: odd crews meet the pod, even crews hug the
@@ -3823,12 +4103,10 @@ export function createRainbowPrincessPreview(
                     ? 0.8
                     : reef.kind === 'urchin'
                       ? 0.9
-                      : 1.25
-      // A clawstrike holds its lane steady so the mark it shows is the lane its bolt flies.
-      if (reef.kind !== 'clawstrike')
-        reef.y +=
-          Math.sin(tick / (reef.kind === 'spiral' ? 14 : 24) + reef.phase) *
-          (reef.kind === 'spiral' ? 1.3 : 0.55)
+                      : reef.kind === 'lantern'
+                        ? 0.75
+                        : 1.25
+      swim(reef)
       if (!reef.fired && reef.x < W - 50) {
         reef.fired = true
         if (reef.kind === 'clawstrike') reef.charge = CLAWSTRIKE_CHARGE_FRAMES
@@ -3845,6 +4123,8 @@ export function createRainbowPrincessPreview(
           vx: -4.4,
           vy: 0,
           grazed: 0,
+          look: 'bolt',
+          born: tick,
         })
       // Plain craft keep firing while they cross the screen.
       if (reef.reload !== undefined && reef.fired && --reef.reload <= 0) {
@@ -3853,15 +4133,19 @@ export function createRainbowPrincessPreview(
       }
     }
     if (boss) {
-      enemyShots.push(...stepPinkwakeBoss(boss, ships.slice(0, activePlayers)))
+      shootAs(
+        RAINBOW_BOSS_LOOKS[1],
+        stepPinkwakeBoss(boss, ships.slice(0, activePlayers)),
+      )
     }
     const guardianAct = currentAct()
     if (guardian && guardianAct !== 9) {
       const act = guardianAct
       const section = guardianSections[act]
       const frame = actFrame(act)
-      enemyShots.push(
-        ...stepRainbowGuardian(
+      shootAs(
+        RAINBOW_GUARDIAN_LOOK,
+        stepRainbowGuardian(
           guardian,
           ships.slice(0, activePlayers),
           frame >= section.to - RAINBOW_GUARDIAN.escapeLead,
@@ -3873,23 +4157,27 @@ export function createRainbowPrincessPreview(
       }
     }
     if (moonBoss) {
-      enemyShots.push(
-        ...stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[2],
+        stepMoonjellyBoss(moonBoss, ships.slice(0, activePlayers)),
       )
     }
     if (clawBoss) {
-      enemyShots.push(
-        ...stepClawburstBoss(clawBoss, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[3],
+        stepClawburstBoss(clawBoss, ships.slice(0, activePlayers)),
       )
     }
     if (delphion) {
-      enemyShots.push(
-        ...stepDelphionBoss(delphion, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[4],
+        stepDelphionBoss(delphion, ships.slice(0, activePlayers)),
       )
     }
     if (sawtooth) {
-      enemyShots.push(
-        ...stepSawtoothBoss(sawtooth, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[5],
+        stepSawtoothBoss(sawtooth, ships.slice(0, activePlayers)),
       )
       // Phase 2 calls a hammerhead escort above and below the Regent, never more than two at once.
       const escorts = reefs.filter(
@@ -3902,8 +4190,9 @@ export function createRainbowPrincessPreview(
         spawn('hammerhead', y, null)
     }
     if (lanternRay) {
-      enemyShots.push(
-        ...stepLanternRayBoss(lanternRay, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[6],
+        stepLanternRayBoss(lanternRay, ships.slice(0, activePlayers)),
       )
       // Each surviving nursery launches an interceptor, never more than four at once.
       const drones = reefs.filter(
@@ -3913,18 +4202,21 @@ export function createRainbowPrincessPreview(
         spawn('drone', y, null)
     }
     if (glassEel) {
-      enemyShots.push(
-        ...stepGlassEelBoss(glassEel, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[7],
+        stepGlassEelBoss(glassEel, ships.slice(0, activePlayers)),
       )
     }
     if (leviathan) {
-      enemyShots.push(
-        ...stepPrismLeviathanBoss(leviathan, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[8],
+        stepPrismLeviathanBoss(leviathan, ships.slice(0, activePlayers)),
       )
     }
     if (crown) {
-      enemyShots.push(
-        ...stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
+      shootAs(
+        RAINBOW_BOSS_LOOKS[9],
+        stepEclipseCrownBoss(crown, ships.slice(0, activePlayers)),
       )
     }
     if (navigator) {
@@ -3977,10 +4269,11 @@ export function createRainbowPrincessPreview(
       }
     }
     if (escort) {
-      // The courier pod rides the rails; shots that reach it wear its hull down.
+      // The courier pod rides the rails; shots that reach it wear its hull down until it crosses the left
+      // edge, where it is through and out of the fight.
       escort.x -= ROSEFIN_ESCORT.podSpeed
       escort.y = ROSEFIN_ESCORT.podY + Math.sin(rosefinFrame() / 40) * 14
-      for (let bi = enemyShots.length - 1; bi >= 0; bi--) {
+      for (let bi = enemyShots.length - 1; escort.x >= 0 && bi >= 0; bi--) {
         const bullet = enemyShots[bi]!
         if (
           Math.hypot(bullet.x - escort.x, bullet.y - escort.y) <
@@ -4074,7 +4367,9 @@ export function createRainbowPrincessPreview(
       }
       if (bullet.fuse !== undefined && --bullet.fuse <= 0) {
         enemyShots.splice(bi, 1)
-        enemyShots.push(...burstShots(bullet))
+        const look = rainbowBurstLook(bullet.burst, bullet.look)
+        for (const pellet of burstShots(bullet))
+          enemyShots.push({ ...pellet, look, born: tick })
       }
     }
     for (const pickup of pickups) pickup.x -= 0.8
@@ -4730,6 +5025,7 @@ export function createRainbowPrincessPreview(
         actFiveFrame: wreckFrame(),
         actSixFrame: reefFrame(),
         resting: restingFrames(),
+        allegiance,
         reefRoute,
         pylonsDown,
         stoppedRelay:
@@ -6581,7 +6877,9 @@ export function createRainbowPrincessPreview(
         g.textAlign = 'left'
       }
       // Every solid hostile pellet sits on a dark halo inside its light rim, so it reads against any scenery.
-      g.fillStyle = '#05030fa6'
+      // Since t-032 each pellet carries its own dark outline too, so the halo is a softer shadow that lets
+      // the family's shape read first.
+      g.fillStyle = '#05030f70'
       for (const bullet of enemyShots) {
         if (bullet.ghost) continue
         g.beginPath()
@@ -6702,13 +7000,17 @@ export function createRainbowPrincessPreview(
           g.stroke()
           continue
         }
-        g.fillStyle = '#1b163e'
-        g.beginPath()
-        g.arc(bullet.x, bullet.y, 5, 0, Math.PI * 2)
-        g.fill()
-        g.strokeStyle = '#fff5b3'
-        g.lineWidth = 2
-        g.stroke()
+        // Each family's own animated shape (t-032); calm motion slows the spin and pulse.
+        drawRainbowShot(
+          g,
+          bullet.look ?? 'pearl',
+          bullet.x,
+          bullet.y,
+          bullet.vx,
+          bullet.vy,
+          (tick - (bullet.born ?? 0)) * (calm ? 0.35 : 1),
+          (bullet.born ?? 0) % 5,
+        )
       }
       for (const cache of caches) {
         // A white chevron in its pilot's colour ring, the ring running down; it blinks in its last second.
@@ -6815,6 +7117,21 @@ export function createRainbowPrincessPreview(
       g.globalAlpha = 1
       for (const shot of shots) {
         if (shot.kind === 'beam') continue
+        // Every pilot shot leaves a fading wake and its white point twinkles (t-032).
+        const speed = Math.hypot(shot.vx, shot.vy) || 1
+        g.save()
+        g.strokeStyle = PILOT_COLORS[pilotOf(shot.seat)]!
+        g.lineCap = 'round'
+        g.globalAlpha = calm ? 0.25 : 0.4
+        g.lineWidth = 2
+        g.beginPath()
+        g.moveTo(shot.x, shot.y)
+        g.lineTo(
+          shot.x - (shot.vx / speed) * 14,
+          shot.y - (shot.vy / speed) * 14,
+        )
+        g.stroke()
+        g.restore()
         g.fillStyle = PILOT_COLORS[pilotOf(shot.seat)]!
         if (shot.kind === 'needle') {
           // Rose Needle: a long thin needle with a white point.
@@ -6827,22 +7144,23 @@ export function createRainbowPrincessPreview(
           g.fillStyle = '#fff'
           g.fillRect(shot.x - 8, shot.y - 0.5, 22, 1)
         } else if (shot.kind === 'link' || shot.kind === 'arc') {
-          // Halo Link orbs and Comet Arc sparks.
-          g.beginPath()
-          g.arc(
-            shot.x + 4,
+          // Halo Link orbs and Comet Arc sparks: C.A.T.S. stars (t-037).
+          drawRainbowStarShot(
+            g,
+            shot.x,
             shot.y,
-            shot.kind === 'arc' ? 3 : 3.5,
-            0,
-            Math.PI * 2,
+            PILOT_COLORS[pilotOf(shot.seat)]!,
+            tick + shot.x / 9,
           )
-          g.fill()
-          g.fillStyle = '#fff'
-          g.fillRect(shot.x + 3, shot.y - 1, 2, 2)
         } else {
-          g.fillRect(shot.x, shot.y - 2, 12, 4)
-          g.fillStyle = '#fff'
-          g.fillRect(shot.x + 8, shot.y - 1, 5, 2)
+          // Spread fire: C.A.T.S. hearts in the pilot's colour (t-037).
+          drawRainbowHeart(
+            g,
+            shot.x,
+            shot.y,
+            PILOT_COLORS[pilotOf(shot.seat)]!,
+            tick + shot.y,
+          )
         }
       }
       for (let seat = 0; seat < activePlayers; seat++) {
@@ -7101,6 +7419,7 @@ export function createRainbowPrincessPreview(
                 scene.elapsed,
                 activePlayers,
                 palaceFlags(),
+                allegiance,
               )
             : act === 7
               ? glassDialogue(
@@ -7108,6 +7427,7 @@ export function createRainbowPrincessPreview(
                   scene.elapsed,
                   activePlayers,
                   rescuedNavigator,
+                  allegiance,
                 )
               : act === 6
                 ? reefDialogue(
@@ -7116,6 +7436,7 @@ export function createRainbowPrincessPreview(
                     activePlayers,
                     reefRoute,
                     reefRoute === 'relay' && pylonsDown >= CROWN_REEF_PYLONS,
+                    allegiance,
                   )
                 : act === 5
                   ? wreckDialogue(
@@ -7251,20 +7572,61 @@ export function createRainbowPrincessPreview(
         g.fillRect(40, commsTop, W - 80, 33)
         g.fillStyle = '#ffd1ec'
         g.textAlign = 'center'
-        g.font = 'bold 11px monospace'
-        g.fillText(
-          'SAWTOOTH REGENT DISABLED · ACT V PREVIEW CLEAR',
-          W / 2,
-          commsTop + 19,
-        )
-        g.font = '8px monospace'
-        g.fillText(
-          restingFrames()! >= CROWN_REEF.restMinFrames
-            ? `Shields +1 at launch · PRESS A for the Crown Reef (${Math.ceil((CROWN_REEF.restMaxFrames - restingFrames()!) / 60)})`
-            : `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'}`,
-          W / 2,
-          commsTop + 30,
-        )
+        const rested = restingFrames()!
+        if (rested < RAINBOW_TURN_REVEAL_FRAMES) {
+          // The Motherland turn (t-040): the reveal, a line at a time.
+          const line = crewLine(
+            rainbowTurnLines(activePlayers)[
+              Math.floor(rested / RAINBOW_TURN.lineFrames)
+            ]!,
+          )
+          g.font = 'bold 8px monospace'
+          g.fillText(line.speaker.toUpperCase(), W / 2, commsTop + 11)
+          g.font = '8px monospace'
+          const words = line.text.split(' ')
+          const half = Math.ceil(words.length / 2)
+          g.fillText(words.slice(0, half).join(' '), W / 2, commsTop + 21)
+          g.fillText(words.slice(half).join(' '), W / 2, commsTop + 30)
+        } else {
+          g.font = 'bold 9px monospace'
+          g.fillText(
+            'FLY HIGH: TURN ON THE EMPIRE · FLY LOW: STAY THE COURSE',
+            W / 2,
+            commsTop + 17,
+          )
+          g.font = '8px monospace'
+          g.fillText(
+            rested >= CROWN_REEF.restMinFrames
+              ? `Shields +1 at launch · PRESS A to choose and launch (${Math.ceil((CROWN_REEF.restMaxFrames - rested) / 60)})`
+              : `A memorial for the lost ships · ${wreckRoute === 'depot' ? `${podsSaved} survivors home` : 'armory raided'}`,
+            W / 2,
+            commsTop + 29,
+          )
+          // The two lanes of the choice, the half the crew flies in lit brighter.
+          const ys = livingShips().map((ship) => ship.y)
+          const leaning = ys.length ? allegianceFor(ys) : null
+          for (const [side, top, bottom] of [
+            ['rebel', WALL_TOP, RAINBOW_TURN.split],
+            ['loyal', RAINBOW_TURN.split, WALL_BOTTOM],
+          ] as const) {
+            g.fillStyle =
+              side === 'rebel'
+                ? leaning === side
+                  ? '#ff9fd84d'
+                  : '#ff9fd822'
+                : leaning === side
+                  ? '#9ee7ff4d'
+                  : '#9ee7ff22'
+            g.fillRect(0, top, W, bottom - top)
+            g.fillStyle = side === 'rebel' ? '#ffb8f0' : '#bff3ff'
+            g.font = 'bold 10px monospace'
+            g.fillText(
+              `${side === 'rebel' ? '▲ ' : '▼ '}${RAINBOW_ALLEGIANCE_LABEL[side]}`,
+              W / 2,
+              side === 'rebel' ? commsTop + 52 : bottom - 12,
+            )
+          }
+        }
         g.textAlign = 'left'
       } else if (dockedFrames() !== null) {
         // ACT-STRUCTURE: Act III ends on a quiet salvage-dock tableau: a bounded repair, then the crew launches.
@@ -7528,75 +7890,33 @@ export function createRainbowPrincessPreview(
         g.lineWidth = 2
         g.strokeRect(x, commsTop, 270, 52)
         const textX = x + artWidth + 10
+        // A Princess Kitty Power (t-039): the pilot and her cat co-pilot, the cry, and the super's own name.
         g.fillStyle = '#fff4fa'
         g.font = 'bold 8px monospace'
         g.fillText(
-          `P${cut.seat + 1} ${pilot.name.split(' ')[0]!.toUpperCase()}`,
+          `P${cut.seat + 1} ${pilot.name.split(' ')[0]!.toUpperCase()} + ${pilot.copilot.name.toUpperCase()}`,
           textX,
-          commsTop + 17,
+          commsTop + 14,
         )
         g.fillStyle = PILOT_COLORS[cut.pilot]!
-        g.font = 'bold 13px monospace'
-        g.fillText(`${pilot.superName.toUpperCase()}!`, textX, commsTop + 34)
+        g.font = 'bold 12px monospace'
+        g.fillText(`${RAINBOW_KITTY_POWER}!`, textX, commsTop + 30)
+        g.fillStyle = '#e8ddff'
+        g.font = 'bold 8px monospace'
+        g.fillText(pilot.superName.toUpperCase(), textX, commsTop + 44)
+        drawKittyFace(
+          g,
+          x + 246,
+          commsTop + 26 + Math.sin(cut.age / 3) * 2,
+          PILOT_COLORS[cut.pilot]!,
+        )
         g.restore()
       }
       if (continueLeft > 0) {
         const where =
-          checkpoint.act === 1
-            ? checkpointLabel(
-                PINKWAKE_SECTIONS,
-                PINKWAKE.bossStarts,
-                checkpoint.frame,
-              )
-            : checkpoint.act === 2
-              ? checkpointLabel(
-                  MOONJELLY_SECTIONS,
-                  MOONJELLY.bossStarts,
-                  checkpoint.frame,
-                )
-              : checkpoint.act === 3
-                ? checkpointLabel(
-                    trenchSections(checkpoint.trenchRoute),
-                    TRENCH.bossStarts,
-                    checkpoint.frame,
-                  )
-                : checkpoint.act === 4
-                  ? checkpointLabel(
-                      ROSEFIN_SECTIONS,
-                      ROSEFIN.bossStarts,
-                      checkpoint.frame,
-                    )
-                  : checkpoint.act === 5
-                    ? checkpointLabel(
-                        WRECK_SECTIONS,
-                        WRECK.bossStarts,
-                        checkpoint.frame,
-                      )
-                    : checkpoint.act === 6
-                      ? checkpointLabel(
-                          CROWN_REEF_SECTIONS,
-                          CROWN_REEF.bossStarts,
-                          checkpoint.frame,
-                        )
-                      : checkpoint.act === 7
-                        ? checkpointLabel(
-                            GLASS_SECTIONS,
-                            GLASS.bossStarts,
-                            checkpoint.frame,
-                          )
-                        : checkpoint.act === 8
-                          ? checkpointLabel(
-                              PALACE_SECTIONS,
-                              PALACE.bossStarts,
-                              checkpoint.frame,
-                            )
-                          : escapeFrame !== null
-                            ? 'Escape'
-                            : checkpointLabel(
-                                FINALE_SECTIONS,
-                                FINALE.bossStarts,
-                                checkpoint.frame,
-                              )
+          checkpoint.act === 9 && escapeFrame !== null
+            ? 'Escape'
+            : checkpointName(checkpoint)
         g.save()
         g.fillStyle = '#0c0620d0'
         g.fillRect(0, 0, W, H)
@@ -7783,7 +8103,9 @@ export function createRainbowPrincessPreview(
         g.font = 'bold 18px monospace'
         g.fillText('FLIGHT LOG', W / 2, 88)
         const lines = [
-          `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]}`,
+          saved.checkpoint.frame > 0
+            ? `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]} · ${checkpointName(saved.checkpoint).toUpperCase()}`
+            : `CONTINUE · ${ACT_NUMERALS[saved.checkpoint.act - 1]}`,
           'NEW FLIGHT · ACT I',
         ]
         lines.forEach((line, i) => {

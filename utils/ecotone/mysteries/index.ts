@@ -50,6 +50,11 @@ export function mysteryCardId(
   return `MY-${pad(mystery.number)}-${part}`
 }
 
+/** A Real Ending's own picture, shown when the finale choice lands on it. */
+export function mysteryEndingArtKey(caseId: string, endingId: string): string {
+  return `mysteries/${caseId}/${endingId}`
+}
+
 export function caseNumeral(n: number): string {
   return (
     ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'][
@@ -61,8 +66,30 @@ export function caseNumeral(n: number): string {
 function withFlag(
   effects: MysteryEffects | undefined,
   flag: string,
+  also: string[] = [],
 ): Choice['success']['effects'] {
-  return { ...(effects ?? {}), flag }
+  return { ...(effects ?? {}), flag, ...(also.length ? { flags: also } : {}) }
+}
+
+/** `g2:pass`, `g2:fail` or `g2:<approach>` as the flag the engine sets. */
+export function recallFlag(key: string): string | null {
+  const match = /^g([123]):([a-z0-9-]+)$/.exec(key)
+  if (!match?.[1] || !match[2]) return null
+  const [, gate, what] = match
+  return what === 'pass' || what === 'fail'
+    ? `mystery_g${gate}_${what}`
+    : `mystery_g${gate}_via_${what}`
+}
+
+function recallLines(
+  recall: Record<string, string> | undefined,
+): EncounterCard['flagLines'] {
+  const lines: NonNullable<EncounterCard['flagLines']> = {}
+  for (const [key, text] of Object.entries(recall ?? {})) {
+    const flag = recallFlag(key)
+    if (flag) lines[flag] = { all: text }
+  }
+  return Object.keys(lines).length ? lines : undefined
 }
 
 function sceneCard(
@@ -81,6 +108,7 @@ function sceneCard(
     body: scene.body,
     leadLines: scene.leadLines,
     aloneLine: scene.aloneLine,
+    flagLines: recallLines(scene.recall),
     choices,
     provenance: mystery.provenance,
   }
@@ -124,12 +152,16 @@ export function compileMystery(mystery: Mystery): EncounterCard[] {
       cost: approach.cost,
       success: {
         text: approach.success.text,
-        effects: withFlag(approach.success.effects, `mystery_g${n}_pass`),
+        effects: withFlag(approach.success.effects, `mystery_g${n}_pass`, [
+          `mystery_g${n}_via_${approach.id}`,
+        ]),
         leadLines: approach.success.leadLines,
       },
       failure: {
         text: approach.failure.text,
-        effects: withFlag(approach.failure.effects, `mystery_g${n}_fail`),
+        effects: withFlag(approach.failure.effects, `mystery_g${n}_fail`, [
+          `mystery_g${n}_via_${approach.id}`,
+        ]),
         leadLines: approach.failure.leadLines,
       },
     }))
@@ -153,6 +185,7 @@ export function compileMystery(mystery: Mystery): EncounterCard[] {
       body: gate.body,
       leadLines: gate.leadLines,
       aloneLine: gate.aloneLine,
+      flagLines: recallLines(gate.recall),
       choices,
       provenance: mystery.provenance,
     }
@@ -170,12 +203,17 @@ export function compileMystery(mystery: Mystery): EncounterCard[] {
       },
     })),
   )
-  const reveal = sceneCard(
-    mystery,
-    mysteryCardId(mystery, 'REVEAL'),
-    mystery.reveal,
-    finaleChoices(mystery, mystery.reveal),
-  )
+  const reveal = {
+    ...sceneCard(
+      mystery,
+      mysteryCardId(mystery, 'REVEAL'),
+      mystery.reveal,
+      finaleChoices(mystery, mystery.reveal),
+    ),
+    ...(mystery.reveal.afterMiss?.length
+      ? { flagBody: { mystery_g3_fail: mystery.reveal.afterMiss } }
+      : {}),
+  }
   const branches = Object.entries(mystery.branches).map(([key, scene]) =>
     sceneCard(
       mystery,
@@ -394,6 +432,7 @@ function playerText(mystery: Mystery): string[] {
       ...gate.body,
       ...Object.values(gate.leadLines ?? {}),
       gate.aloneLine ?? '',
+      ...Object.values(gate.recall ?? {}),
       ...gate.approaches.flatMap((approach) => [
         approach.label,
         approach.cost ?? '',
@@ -407,8 +446,10 @@ function playerText(mystery: Mystery): string[] {
       ...scene.body,
       ...Object.values(scene.leadLines ?? {}),
       scene.aloneLine ?? '',
+      ...Object.values(scene.recall ?? {}),
       ...scene.choices.flatMap((choice) => [choice.label, choice.text]),
     ]),
+    ...(mystery.reveal.afterMiss ?? []),
     ...mystery.endings.flatMap((ending) => [ending.title, ...ending.text]),
   ]
 }
@@ -460,6 +501,41 @@ export function validateMystery(mystery: Mystery): string[] {
   if (cold.choices.length !== 2) at('cold case', 'two choices')
   if (cold.choices.some((choice) => choice.next || choice.ending))
     at('cold case', 'no next or ending')
+  const checkRecall = (
+    where: string,
+    recall: Record<string, string> | undefined,
+    before: number,
+  ) => {
+    for (const [key, text] of Object.entries(recall ?? {})) {
+      const match = /^g([123]):([a-z0-9-]+)$/.exec(key)
+      const gate = Number(match?.[1])
+      const what = match?.[2] ?? ''
+      if (!match || gate >= before)
+        at(
+          where,
+          `recall ${key} must name an earlier gate as g<N>:pass|fail|<approach>`,
+        )
+      else if (
+        what !== 'pass' &&
+        what !== 'fail' &&
+        !mystery.gates[gate - 1]?.approaches.some((a) => a.id === what)
+      )
+        at(where, `recall ${key}: gate ${gate} has no approach ${what}`)
+      if (text.length < 40) at(where, `recall ${key} is written out`)
+    }
+  }
+  mystery.gates.forEach((gate, index) =>
+    checkRecall(`gate ${index + 1}`, gate.recall, index + 1),
+  )
+  checkRecall('cold case', mystery.coldCase.recall, 4)
+  if (!mystery.coldCase.recall?.['g3:pass'])
+    at(
+      'cold case',
+      'recall g3:pass: the trail can go cold after a Gate III win (Gates I and II failed)',
+    )
+  checkRecall('reveal', mystery.reveal.recall, 4)
+  for (const [key, scene] of Object.entries(mystery.branches))
+    checkRecall(`branch ${key}`, scene.recall, 4)
   const endingIds = mystery.endings.map((ending) => ending.id)
   if (mystery.endings.length < 3) at('endings', 'at least three')
   if (!mystery.endings.some((ending) => ending.tone === 'true'))
@@ -491,6 +567,11 @@ export function validateMystery(mystery: Mystery): string[] {
     }
   }
   finale('reveal', mystery.reveal, true)
+  if (!mystery.reveal.afterMiss?.length || mystery.reveal.afterMiss.length > 3)
+    at(
+      'reveal',
+      'afterMiss: 1-3 paragraphs for a reveal after a failed Gate III',
+    )
   for (const id of COMPANION_IDS)
     if (!mystery.reveal.leadLines?.[id]) at('reveal', `lead line for ${id}`)
   for (const [key, scene] of Object.entries(mystery.branches)) {

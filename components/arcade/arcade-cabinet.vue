@@ -489,7 +489,11 @@ import {
   type InputFrame,
 } from '~/utils/arcade/types'
 
-const props = defineProps<{ slug: string; contained?: boolean }>()
+const props = defineProps<{
+  slug: string
+  contained?: boolean
+  suspended?: boolean
+}>()
 const contained = computed(() => props.contained === true)
 const emit = defineEmits<{ (e: 'scored', score: number): void }>()
 
@@ -1881,8 +1885,20 @@ function releaseInterruptedInput() {
   for (const seatIn of inputs) seatIn.clear()
 }
 
+/** A cabinet behind another tab holds still: no ticks and no keys reach it. */
+function tickUnlessSuspended() {
+  if (!props.suspended) tick()
+}
+
+function onWindowKey(event: KeyboardEvent) {
+  if (!props.suspended) onKey(event)
+}
+
 function onVisibility() {
-  if (!document.hidden) return
+  if (document.hidden) suspendPlay()
+}
+
+function suspendPlay() {
   releaseInterruptedInput()
   if (machine.phase === 'playing') dispatch({ type: 'pause' })
 }
@@ -1974,7 +1990,7 @@ onMounted(() => {
   applySeats()
   window.addEventListener('gamepadconnected', applySeats)
   window.addEventListener('gamepaddisconnected', applySeats)
-  window.addEventListener('keydown', onKey)
+  window.addEventListener('keydown', onWindowKey)
   window.addEventListener('blur', onWindowBlur)
   window.addEventListener('online', onOnline)
   document.addEventListener('visibilitychange', onVisibility)
@@ -1989,8 +2005,15 @@ onMounted(() => {
     doc.fullscreenEnabled ?? doc.webkitFullscreenEnabled,
   )
   document.addEventListener('webkitfullscreenchange', syncFullscreen)
-  loop = startFixedLoop(tick, render, onLoopError)
+  loop = startFixedLoop(tickUnlessSuspended, render, onLoopError)
 })
+
+watch(
+  () => props.suspended,
+  (suspended) => {
+    if (suspended) suspendPlay()
+  },
+)
 
 watch(
   () => props.slug,
@@ -2036,7 +2059,7 @@ onBeforeUnmount(() => {
   for (const seatIn of inputs) seatIn.detach()
   window.removeEventListener('gamepadconnected', applySeats)
   window.removeEventListener('gamepaddisconnected', applySeats)
-  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('keydown', onWindowKey)
   window.removeEventListener('blur', onWindowBlur)
   window.removeEventListener('online', onOnline)
   document.removeEventListener('visibilitychange', onVisibility)

@@ -900,7 +900,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         npc: 'ottoline-vask',
         faction: 'old-houses',
         lines: [
-          'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a Mole root-knife.',
+          'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a root-knife from the burrows.',
           'Three dead at the Ford, Majesty, and the Mole tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
           'Justice delayed is only a longer funeral. The Moles were told the Ford would be argued in council. They argued in the river instead.',
           {
@@ -949,9 +949,9 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'knife',
             lines: [
-              'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a Mole’s root-knife lives in soil like a spoon lives in soup.',
+              'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a burrow-digger’s root-knife lives in soil like a spoon lives in soup.',
               'One side of the grip is filed smooth, a neat patch, right where a cutler stamps his mark.',
-              '“Moles may own a clean knife,” says Lady Vask. “Even Moles wash. And many knives are filed, Majesty. Thieves file them.”',
+              '“A burrow cutler might own a clean knife,” says Lady Vask. “Even a thief washes up. And many knives are filed, Majesty. Thieves file them.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -2730,7 +2730,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
-            text: 'Forty sacks went down a Mole hole, Majesty. Out of the crown store. Out of my Yard’s winter. My cooks’ children ate soup water that month. I’m not with the Houses. I’m with the soup.',
+            text: 'Forty sacks went down a flooded burrow, Majesty. Out of the crown store. Out of my Yard’s winter. My cooks’ children ate soup water that month. I’m not with the Houses. I’m with the soup.',
           },
           'Flint says nothing in her own defense. Only: “Read the ledgers.”',
           {
@@ -3379,7 +3379,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         truth: false,
         komodoLie: true,
         hindsight:
-          'No Mole touched that page. He wanted the ledger shut, and the burrows blamed for shutting it.',
+          'No one from the burrows touched that page. He wanted the ledger shut, and the burrows blamed for shutting it.',
         variants: [
           {
             flags: ['mole-truce'],

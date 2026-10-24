@@ -46,7 +46,7 @@ const SPECIES_AS_IDENTITY =
 // A faction's proper title is allowed, but a child, courier or prisoner
 // must be identified by their role rather than a bare species/faction shorthand.
 // The Storm Crow proper faction name is intentionally excluded.
-const SPECIES_ROLE = /(?<!Storm\\s)\\b(?:Mole|Crow)\\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\\b|\\b(?:a|an|the)\\s+(?:Mole|Crow)\\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\\b/gi
+const SPECIES_ROLE = /(?<!Storm\s)\b(?:Mole|Crow)\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\b|\b(?:a|an|the)\s+(?:Mole|Crow)\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\b/gi
 
 let inspected = 0
 for (const file of STORY_FILES) {

@@ -12,7 +12,7 @@
       <div
         class="cs-cover-title absolute inset-x-0 top-0 bg-gradient-to-b from-black/80 via-black/40 to-transparent px-4 pb-10 pt-3 text-right"
       >
-        <p class="cs-kicker text-xs tracking-[0.4em]">Nightmare on</p>
+        <p class="cs-kicker text-xs tracking-[0.3em]">Terrors on</p>
         <h2 class="cs-display text-4xl leading-none @3xl:text-6xl">
           Crystal Street
         </h2>

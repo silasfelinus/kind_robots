@@ -47,7 +47,7 @@ export const PLAYBOOK_GAMES = [
   },
   {
     id: 'crystal-street',
-    title: 'Nightmare on Crystal Street',
+    title: 'Terrors on Crystal Street',
     cover: '/crystal-street/cover.webp',
     build: buildCrystalStreetPlaybook,
   },

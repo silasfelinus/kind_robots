@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Nightmare on Crystal Street: a glowing purple geode in a suburban cul-de-sac under a magenta moon">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-label="Terrors on Crystal Street: a glowing purple geode in a suburban cul-de-sac under a magenta moon">
   <defs>
     <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#0d0221"/>
@@ -76,7 +76,7 @@
     <circle cx="541" cy="532" r="11"/><circle cx="762" cy="526" r="12"/>
   </g>
   <g filter="url(#neon)" font-family="Impact, 'Arial Black', sans-serif" text-anchor="middle">
-    <text x="640" y="120" font-size="54" fill="#4df2ff" letter-spacing="10">NIGHTMARE ON</text>
+    <text x="640" y="120" font-size="54" fill="#4df2ff" letter-spacing="10">TERRORS ON</text>
     <text x="640" y="230" font-size="128" fill="url(#title)" stroke="#2a0a4a" stroke-width="4" letter-spacing="4">CRYSTAL STREET</text>
     <text x="640" y="285" font-size="26" fill="#ffe3f4" letter-spacing="8">ONE WEEK · SEVEN NIGHTS · TWENTY-TWO NIGHTMARES</text>
   </g>

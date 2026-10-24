@@ -74,6 +74,16 @@ export const PLAYER_AVATARS = [
   },
 ] as const
 
+/**
+ * Rendered project portraits are delivered to the public self-hosted media
+ * origin, not the app's /images route on every deployment. Keep the canonical
+ * relative asset path in the manifest and resolve it for display.
+ * Private player uploads use the authenticated ArtImage endpoint instead.
+ */
+export function playerAvatarSrc(path: string): string {
+  return `https://media.acrocatranch.com${path}`
+}
+
 export const PLAYER_PERSONALITIES = [
   {
     id: 'curious',

@@ -86,7 +86,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/storybook',
   },
   sketchy: {
-    channelKey: 'admin',
+    channelKey: 'projects',
     tabKey: 'projects',
     route: '/plan/projects/sketchy',
   },
@@ -179,7 +179,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/watchlist',
   },
   'coat-dance': {
-    channelKey: 'admin',
+    channelKey: 'projects',
     tabKey: 'projects',
     route: '/plan/projects/coat-dance',
   },
@@ -206,7 +206,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/plan/newsfeed',
   },
   'humboldt-scoop': {
-    channelKey: 'admin',
+    channelKey: 'projects',
     tabKey: 'projects',
     route: '/plan/projects/humboldt-scoop',
   },
@@ -246,7 +246,7 @@ export const PROJECT_PLACEMENTS: Record<string, ProjectPlacement> = {
     route: '/brainstorm',
   },
   conductor: {
-    channelKey: 'admin',
+    channelKey: 'projects',
     tabKey: 'projects',
     route: '/conductor',
   },

@@ -170,8 +170,8 @@
           <memory-dungeon-deck-selector
             :selected="world.deck"
             :mature-available="world.matureAvailable"
-          :unlocked-realms="world.unlockedRealms"
-          :realm-art-ready="world.realmArtReady"
+            :unlocked-realms="world.unlockedRealms"
+            :realm-art-ready="world.realmArtReady"
             @change="world.selectDeck"
           />
           <div

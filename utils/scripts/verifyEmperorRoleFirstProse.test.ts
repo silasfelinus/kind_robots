@@ -75,7 +75,8 @@ const SPECIES_AS_IDENTITY =
 // A faction's proper title is allowed, but a child, courier or prisoner
 // must be identified by their role rather than a bare species/faction shorthand.
 // The Storm Crow proper faction name is intentionally excluded.
-const SPECIES_ROLE = /(?<!Storm\s)\b(?:Mole|Crow)\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\b|\b(?:a|an|the)\s+(?:Mole|Crow)\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\b/gi
+const SPECIES_ROLE =
+  /(?<!Storm\s)\b(?:Mole|Crow)\s+(?:boy|girl|child|children|prisoner|courier|digger|diggers|family|widow|person|people|worker|workers|scout|guard|guards|elder|woman|man|messenger)\b|\b(?:a|an|the)\s+(?:Mole|Crow)\s+(?:goes|walks|asks|says|said|speaks|waits|stands|holds|knows)\b/gi
 
 let inspected = 0
 for (const file of PLAYER_FILES) {
@@ -85,7 +86,10 @@ for (const file of PLAYER_FILES) {
     .replaceAll('a snared hare', 'snared game')
     .replaceAll('A jackal’s jaw', 'A metal crest')
     .replaceAll('A small armadillo is scratched', 'A small figure is scratched')
-    .replaceAll('the pig turns out to be a boar', 'the pig turns out to be a wild pig')
+    .replaceAll(
+      'the pig turns out to be a boar',
+      'the pig turns out to be a wild pig',
+    )
   const matches = [
     ...namesOnly.matchAll(SPECIES_AS_IDENTITY),
     ...namesOnly.matchAll(SPECIES_ROLE),
@@ -125,8 +129,14 @@ assert.match('A Crow messenger demands brass.', roleMatch)
 assert.match('The Mole goes downstairs.', roleMatch)
 assert.doesNotMatch('A Storm Crow messenger requests an audience.', roleMatch)
 assert.doesNotMatch('The Mole Revolutionaries hold the galleries.', roleMatch)
-assert.doesNotMatch('A goat climbs the stairs; a wild boar crosses the road.', roleMatch)
-assert.doesNotMatch('Young Komodo studies a root-knife from the burrows.', roleMatch)
+assert.doesNotMatch(
+  'A goat climbs the stairs; a wild boar crosses the road.',
+  roleMatch,
+)
+assert.doesNotMatch(
+  'Young Komodo studies a root-knife from the burrows.',
+  roleMatch,
+)
 
 console.log(
   `Role-first Emperor prose contract: ${inspected} source and UI files checked`,

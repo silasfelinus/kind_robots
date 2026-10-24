@@ -77,16 +77,13 @@ assert.deepEqual(
 )
 assert.equal(normalizeMemoryCardBack('mangled'), 'briar')
 assert.equal(normalizeMemoryCardBack('arcane'), 'arcane')
+assert.equal(memoryCardBackPath('arcane'), MEMORY_CARD_BACKS[1]!.path)
 assert.equal(
-  memoryCardBackPath('arcane'),
-  MEMORY_CARD_BACKS[1]!.path,
+  normalizeDungeonDeck({ family: 'realm', realmId: 1 }).family,
+  'realm',
 )
-assert.equal(normalizeDungeonDeck({ family: 'realm', realmId: 1 }).family, 'realm')
 assert.equal(normalizeDungeonDeck({ family: 'realm', realmId: 200 }).realmId, 1)
-assert.equal(
-  normalizeDungeonDeck(DEFAULT_DUNGEON_DECK).family,
-  'designed',
-)
+assert.equal(normalizeDungeonDeck(DEFAULT_DUNGEON_DECK).family, 'designed')
 
 const worldStore = readFileSync('stores/memoryWorldStore.ts', 'utf8')
 const resolver = readFileSync(
@@ -102,7 +99,10 @@ const overworld = readFileSync(
   'utf8',
 )
 assert.match(worldStore, /REALM_UNLOCKS_KEY/)
-assert.match(worldStore, /state\.value\.gateOpened = true[\s\S]*unlockedRealms\.value\.push\(1\)/)
+assert.match(
+  worldStore,
+  /state\.value\.gateOpened = true[\s\S]*unlockedRealms\.value\.push\(1\)/,
+)
 assert.match(worldStore, /window\.localStorage\.setItem\(\s*REALM_UNLOCKS_KEY/)
 assert.match(worldStore, /realmArtReady\.value = results\.every\(Boolean\)/)
 assert.match(resolver, /choice\.family === 'realm'/)

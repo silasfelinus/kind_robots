@@ -11,13 +11,20 @@ import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_SITES,
+  BRIAR_START,
   briarConnected,
   newBriarSave,
   restoreBriarSave,
   type BriarMapCard,
   type BriarMemoryCard,
   type BriarSave,
+  type BriarPrologueChoice,
 } from '~/utils/memoryDungeonWorld'
+import {
+  BRIAR_SCENES,
+  briarSceneOpening,
+  canChooseBriarScene,
+} from '~/utils/memoryDungeon/scenes'
 import {
   describeEvents,
   index as cellIndex,
@@ -32,6 +39,15 @@ import {
   isCombatRoom,
   startCombatRoom,
 } from '~/utils/memoryDungeon/rooms'
+import {
+  HOUSE_EXIT_POINTS,
+  HOUSE_ROOMS,
+  houseExits,
+  houseRoom,
+  houseWitnessEvidence,
+  newHouseProgress,
+  type HouseCombatOrigin,
+} from '~/utils/memoryDungeon/house'
 import {
   BRIAR_REVEAL_WAVES,
   BRIAR_CROSS_MAP_PUZZLES,
@@ -59,8 +75,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const turnLocked = ref(false)
   const firstCard = ref<number | null>(null)
   const firstMapCard = ref<string | null>(null)
+  const latestMapCardKey = ref<string | null>(null)
   const mapDeckError = ref('')
   const runeInput = ref<string[]>([])
+  const inspectedSigil = ref<string | null>(null)
   /** Combat cells face up after the last action (by board index), until they turn back. */
   const combatShown = ref<number[]>([])
   /** The first Scout pick, shown face up while the second is chosen. */
@@ -69,7 +87,56 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const combatNote = ref('')
   let roomEpoch = 0
 
-  const selectedSite = computed(() => BRIAR_SITES[state.value.player] ?? null)
+  const activeSiteKey = computed(
+    () => inspectedSigil.value ?? state.value.player,
+  )
+  const selectedSite = computed(() => BRIAR_SITES[activeSiteKey.value] ?? null)
+  const activeHouseRoom = computed(() =>
+    houseRoom(state.value.house?.current ?? 'HD-01'),
+  )
+  const houseAvailableDoors = computed(() =>
+    state.value.house
+      ? houseExits(state.value.house.current, state.value.house)
+      : [],
+  )
+  const houseMayExit = computed(() =>
+    Boolean(
+      state.value.house &&
+      HOUSE_EXIT_POINTS.includes(state.value.house.current),
+    ),
+  )
+  function canChooseHouse(id: string): boolean {
+    const house = state.value.house
+    if (
+      !house ||
+      state.value.room !== 'house' ||
+      house.decisions[house.current]
+    )
+      return false
+    const room = HOUSE_ROOMS[house.current]
+    if (!room?.choices.some((choice) => choice.id === id)) return false
+    if (house.current === 'HD-32' && id === 'petition')
+      return houseWitnessEvidence(house, state.value.sceneChoices)
+    if (house.current === 'HD-36' && !house.ending) return false
+    return true
+  }
+  const activeScene = computed(() =>
+    state.value.room === 'map' &&
+    state.value.wavePhase === 'exploring' &&
+    (inspectedSigil.value !== null ||
+      state.value.visited.includes(state.value.player))
+      ? (BRIAR_SCENES[activeSiteKey.value] ?? null)
+      : null,
+  )
+  const currentSceneText = computed(() => {
+    const scene = activeScene.value
+    if (!scene) return ''
+    const chosenId = state.value.sceneChoices[activeSiteKey.value]
+    return (
+      scene.choices.find((option) => option.id === chosenId)?.outcome ??
+      briarSceneOpening(scene, state.value.sceneChoices)
+    )
+  })
   const mapMatching = computed(
     () => state.value.room === 'map' && state.value.wavePhase === 'matching',
   )
@@ -94,6 +161,14 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function mapCardAt(key: string): BriarMapCard | undefined {
     return state.value.mapCards.find((card) => card.tile === key)
   }
+  // A readable, enlarged card face belongs in the encounter panel while the
+  // player is examining a picture, not squeezed into a 1/8-scale terrain tile.
+  const activeMapCard = computed(() => {
+    const key = latestMapCardKey.value
+    if (!key || !mapMatching.value) return null
+    const card = mapCardAt(key)
+    return card && card.flipped && !card.matched ? card : null
+  })
 
   const matureAvailable = computed(
     () =>
@@ -188,13 +263,36 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     }
   })
 
+  function recordPrologueChoice(choice: BriarPrologueChoice): void {
+    if (
+      state.value.prologueChoice !== null ||
+      state.value.revealed.length > 0 ||
+      state.value.mapCards.length > 0 ||
+      state.value.attempts > 0
+    )
+      return
+    state.value.prologueChoice = choice
+    if (choice === 'terms') {
+      state.value.lanterns += 1
+      state.value.status =
+        'You demanded the terms of the exchange. You awaken holding a second lantern, though Morrow kept the answers.'
+    } else {
+      state.value.wildflowers += 1
+      state.value.status =
+        'You held fast to the memory of an ordinary morning. A single silver flower survives the crossing with you.'
+    }
+    persist()
+  }
+
   function reset(): void {
     roomEpoch++
     turnLocked.value = false
     firstCard.value = null
     firstMapCard.value = null
+    latestMapCardKey.value = null
     mapDeckError.value = ''
     runeInput.value = []
+    inspectedSigil.value = null
     state.value = newBriarSave()
     persist()
     void prepareWave()
@@ -344,6 +442,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       return
     const card = mapCardAt(key)
     if (!card || card.matched || card.flipped) return
+    latestMapCardKey.value = key
     card.flipped = true
     if (!firstMapCard.value) {
       firstMapCard.value = key
@@ -368,6 +467,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
         for (const tile of [first.tile, card.tile]) {
           if (!state.value.revealed.includes(tile))
             state.value.revealed.push(tile)
+          if (tile === BRIAR_START && !state.value.visited.includes(tile))
+            state.value.visited.push(tile)
         }
         state.value.status =
           'A remembered pair! Two pieces of Briar Camp have emerged.'
@@ -402,6 +503,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.waveIndex >= BRIAR_REVEAL_WAVES.length - 1
     )
       return
+    inspectedSigil.value = null
     state.value.waveIndex++
     state.value.wavePhase = 'matching'
     state.value.mapCards = []
@@ -418,9 +520,46 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     if (state.value.room !== 'map' || state.value.wavePhase !== 'exploring')
       return
     if (!briarConnected(state.value.player, key, state.value.revealed)) return
+    inspectedSigil.value = null
     state.value.player = key
+    if (!state.value.visited.includes(key)) state.value.visited.push(key)
+    const scene = BRIAR_SCENES[key]
     state.value.status =
-      BRIAR_SITES[key]?.description ?? 'You retrace a familiar path.'
+      scene && !state.value.sceneChoices[key]
+        ? briarSceneOpening(scene, state.value.sceneChoices)
+        : (BRIAR_SITES[key]?.description ?? 'You retrace a familiar path.')
+    persist()
+  }
+
+  function chooseScene(id: string): void {
+    const key = activeSiteKey.value
+    const scene = BRIAR_SCENES[key]
+    const isInspectedSeal =
+      inspectedSigil.value === key &&
+      state.value.waveIndex === 3 &&
+      key in BRIAR_CROSS_MAP_PUZZLES
+    if (
+      state.value.room !== 'map' ||
+      state.value.wavePhase !== 'exploring' ||
+      (!isInspectedSeal && !state.value.visited.includes(key)) ||
+      state.value.sceneChoices[key] ||
+      !scene
+    )
+      return
+    const choice = scene.choices.find((option) => option.id === id)
+    if (!choice || !canChooseBriarScene(choice, state.value)) return
+    state.value.wildflowers -= choice.cost?.wildflowers ?? 0
+    state.value.lanterns -= choice.cost?.lanterns ?? 0
+    state.value.wildflowers += choice.gain?.wildflowers ?? 0
+    state.value.lanterns += choice.gain?.lanterns ?? 0
+    state.value.sceneChoices[key] = choice.id
+    if (
+      choice.settleDuel &&
+      BRIAR_SITES[key]?.kind === 'enemy' &&
+      !state.value.completedEncounters.includes(key)
+    )
+      state.value.completedEncounters.push(key)
+    state.value.status = choice.outcome
     persist()
   }
 
@@ -500,7 +639,123 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       state.value.completedEncounters.includes(position)
     )
       return
-    await beginRoom(kind === 'dungeon' ? 'vault-1' : kind)
+    if (kind === 'dungeon') {
+      state.value.house ??= newHouseProgress()
+      state.value.room = 'house'
+      state.value.roomId = null
+      state.value.combat = null
+      state.value.cards = []
+      state.value.status =
+        HOUSE_ROOMS[state.value.house.current]?.opening ?? 'The House opens.'
+      persist()
+      return
+    }
+    await beginRoom(kind)
+  }
+
+  function houseMove(next: string): void {
+    const house = state.value.house
+    if (!house || state.value.room !== 'house' || loading.value) return
+    if (!houseAvailableDoors.value.includes(next as typeof house.current))
+      return
+    house.current = next as typeof house.current
+    if (!house.visited.includes(house.current))
+      house.visited.push(house.current)
+    state.value.status =
+      HOUSE_ROOMS[house.current]?.opening ?? 'The house shifts.'
+    persist()
+  }
+
+  async function chooseHouse(id: string): Promise<void> {
+    const house = state.value.house
+    if (!house || !canChooseHouse(id)) return
+    const choice = HOUSE_ROOMS[house.current]?.choices.find(
+      (item) => item.id === id,
+    )
+    if (!choice) return
+    if (
+      (house.current === 'HD-32' && id === 'fight') ||
+      (house.current === 'HD-19' && id === 'match') ||
+      (['HD-09', 'HD-22', 'HD-28'].includes(house.current) && id === 'duel')
+    ) {
+      house.combatOrigin = house.current as HouseCombatOrigin
+      persist()
+      const combatRoom =
+        house.current === 'HD-32'
+          ? 'vault-2'
+          : house.current === 'HD-19'
+            ? 'vault-1'
+            : house.current === 'HD-09'
+              ? 'sprite'
+              : 'patrol'
+      await beginRoom(combatRoom)
+      if (state.value.room !== 'memory') {
+        house.combatOrigin = null
+        persist()
+      }
+      return
+    }
+
+    house.decisions[house.current] = id
+    if (choice.gain?.lanterns) state.value.lanterns += choice.gain.lanterns
+    if (choice.gain?.wildflowers)
+      state.value.wildflowers += choice.gain.wildflowers
+    if (choice.gain?.hearts)
+      state.value.hearts = Math.min(3, state.value.hearts + choice.gain.hearts)
+    if (house.current === 'HD-32' && id === 'petition')
+      house.wardenPassed = true
+    if (
+      house.current === 'HD-35' &&
+      (id === 'release' || id === 'renew' || id === 'break')
+    )
+      house.ending = id
+    if (house.current === 'HD-36') {
+      house.chimeClaimed = true
+      if (!state.value.relics.includes('bramble-chime'))
+        state.value.relics.push('bramble-chime')
+      state.value.room = 'map'
+      state.value.status = `${choice.outcome} The Bramble Chime now opens the next realm's gate.`
+      persist()
+      return
+    }
+    state.value.status = choice.outcome
+    persist()
+  }
+
+  function exitHouse(): void {
+    const house = state.value.house
+    if (!house || state.value.room !== 'house' || !houseMayExit.value) return
+    state.value.room = 'map'
+    state.value.roomId = null
+    state.value.status =
+      'You take a safe return route to Briar Marches. The House remembers every room and decision.'
+    persist()
+  }
+
+  function finishHouseCombat(origin: HouseCombatOrigin): void {
+    const house = state.value.house
+    if (!house) return
+    house.decisions[origin] =
+      origin === 'HD-32' ? 'fight' : origin === 'HD-19' ? 'match' : 'duel'
+    if (origin === 'HD-32') house.wardenPassed = true
+    house.combatOrigin = null
+    state.value.room = 'house'
+    state.value.roomId = null
+    state.value.combat = null
+    state.value.cards = []
+    state.value.roomMisses = 0
+    firstCard.value = null
+    turnLocked.value = false
+    combatShown.value = []
+    combatPick.value = null
+    combatNote.value = ''
+    state.value.status =
+      origin === 'HD-32'
+        ? "The Warden yields to remembered pairs, not to ownership of anyone else's past."
+        : origin === 'HD-19'
+          ? 'The Echo Chamber accepts your matched memories and opens the mirrored passage.'
+          : 'You resolved a fair House duel by remembering pairs. Your progress and its outcome are recorded.'
+    persist()
   }
 
   async function beginRoom(
@@ -747,11 +1002,30 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   async function finishRoom(): Promise<void> {
     if (!roomComplete.value || turnLocked.value) return
     const room = state.value.roomId
+    const houseOrigin = state.value.house?.combatOrigin
+    if (
+      houseOrigin &&
+      ((houseOrigin === 'HD-19' && room === 'vault-1') ||
+        (houseOrigin === 'HD-32' && room === 'vault-2') ||
+        (['HD-09', 'HD-22', 'HD-28'].includes(houseOrigin) &&
+          (room === 'sprite' || room === 'patrol')))
+    ) {
+      finishHouseCombat(houseOrigin)
+      return
+    }
     if (room === 'vault-1') {
+      if (state.value.house?.combatOrigin === 'HD-19') {
+        finishHouseCombat('HD-19')
+        return
+      }
       await beginRoom('vault-2')
       return
     }
     if (room === 'vault-2') {
+      if (state.value.house?.combatOrigin === 'HD-32') {
+        finishHouseCombat('HD-32')
+        return
+      }
       if (!state.value.relics.includes('bramble-chime'))
         state.value.relics.push('bramble-chime')
       leaveRoom(
@@ -772,7 +1046,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     message = 'You step out of the challenge and return to the same place on the map.',
   ): void {
     roomEpoch++
-    state.value.room = 'map'
+    const houseOrigin = state.value.house?.combatOrigin
+    if (houseOrigin && state.value.house) {
+      state.value.house.combatOrigin = null
+      state.value.house.current = 'HD-18'
+      if (!state.value.house.visited.includes('HD-18'))
+        state.value.house.visited.push('HD-18')
+      state.value.room = 'house'
+      message = `${message} You recover in the House's quiet bedchamber without losing your discoveries.`
+    } else {
+      state.value.room = 'map'
+    }
     state.value.roomId = null
     state.value.cards = []
     state.value.combat = null
@@ -797,6 +1081,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     const sigil =
       BRIAR_CROSS_MAP_PUZZLES[key as keyof typeof BRIAR_CROSS_MAP_PUZZLES]
     if (!sigil) return
+    inspectedSigil.value = key
     state.value.status = `${sigil.title}: ${sigil.hint} Its true match awaits in ${sigil.counterpart}.`
     persist()
   }
@@ -822,8 +1107,20 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     combatPick,
     combatNote,
     selectedSite,
+    activeHouseRoom,
+    houseAvailableDoors,
+    houseMayExit,
+    canChooseHouse,
+    houseMove,
+    chooseHouse,
+    exitHouse,
+    activeSiteKey,
+    inspectedSigil,
+    activeScene,
+    currentSceneText,
     mapMatching,
     mapPairsMatched,
+    activeMapCard,
     waveSize,
     waveComplete,
     mapCardAt,
@@ -840,8 +1137,10 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
     matchedPairs,
     hydrate,
     reset,
+    recordPrologueChoice,
     reveal,
     walk,
+    chooseScene,
     claimChest,
     buyLantern,
     enterRune,

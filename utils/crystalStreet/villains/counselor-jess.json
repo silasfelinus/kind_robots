@@ -1,0 +1,581 @@
+[
+  {
+    "id": "counselor-jess",
+    "name": "Counselor Jess",
+    "epithet": "Keeper of the Night Swim",
+    "inspiration": {
+      "original": "Jason Voorhees",
+      "film": "Friday the 13th",
+      "year": 1980,
+      "kind": "flip",
+      "oldScript": "Friday the 13th made sex a death sentence: skinny-dippers and counselors who fool around get killed, all because a drowned boy's avenging mother blamed the teens who looked away.",
+      "newLens": "Jess is a drowned girl the counselors ignored and the grown-ups failed, while the town has blamed \"boy-crazy teen girls\" ever since and forgotten her name. The skinny-dippers turn out to be helpers, the director who cut the lifeguard is named, and the crew wins by getting in the water with her so she learns she is not alone."
+    },
+    "tags": ["slasher", "paranormal"],
+    "palette": ["#1b2340", "#d7263d", "#e8dcb5"],
+    "sigil": "mask",
+    "logline": "Every night this week the drained quarry lake comes back to Crystal Street, a little deeper each time, and out of the moonlit water wades a towering woman in a torn navy dress and a cracked hockey mask, machete in hand, enforcing camp rules on every teenager she catches not watching.",
+    "backstory": "Before Glimmer Falls existed, the land under Crystal Street was the Crystal Springs quarry lake, and on its shore stood Camp Crystal Pines. In August 1957 twelve-year-old Jessamyn \"Jess\" Mercer was the most enthusiastic camper there: tin whistle, borrowed clipboard, a hand-me-down navy counselor's dress her mother had taken in, and a habit of reminding everyone of the rules. She wanted to be a counselor more than anything. She also could not swim. Three times she asked the junior counselors to teach her, and three times they said tomorrow; the director, Harlan Pratt, told her to stop pestering the big kids, because girls her age only wanted attention. So she pencilled SWIMMER over BEGINNER on her own swim card. On the last night of camp Pratt saved on staff by leaving two sixteen-year-old junior counselors, Judy Kessler and Bobby Teague, alone with forty kids at the night swim, no lifeguard, while he played poker in the lodge. The two teens looked away for one minute, at each other. Jess swam for the raft to prove she belonged. Afterward Pratt told the newspaper his girl counselor had been \"boy-crazy,\" and the whole county agreed. Bobby went off to college. Judy became a cautionary tale, and the county printed a swim-safety poster that has hung in every school since: EYES ON THE WATER, GIRLS. NOT ON THE BOYS. Jess's name is nowhere on it. Two years later the lake was drained and Crystal Street was built on the lakebed. Now the Heartstone has called the water back, and Jess with it, grown in death into the counselor nobody would let her be: a towering, muscular woman in that navy dress, torn and laced up the front, long dark hair streaming lake water, quarry-rock scars stitched up her arms and thigh, a camp machete in her fist, and a cracked hockey mask she pulls on whenever she remembers that the town only ever saw a monster at the lake. Her voice still cracks like a twelve-year-old's.",
+    "centralIssue": {
+      "title": "Neglect, and blaming the girls",
+      "summary": "Jess was not a cautionary tale, and the girl on the dock was not the reason she drowned. A grown-up left kids in charge of kids, then blamed a sixteen-year-old girl for being boy-crazy, and the town has been warning its daughters ever since while forgetting the drowned girl's name. Jess rages at every teen who looks away, and she wears the mask the town handed her, but what she never had was someone who would get in the water with her. Find her swim card, hear Judy's side and learn what her mother wrote, then say her name and teach her she is not alone in the water."
+    },
+    "poster": "A towering, muscular adult woman with long dark wavy hair streaming lake water, pulling a cracked, scarred hockey-style mask over her face with one hand, wearing a torn sleeveless dark navy lace-up dress cinched with a leather belt, stitched scars along her arms and thigh, a big gleaming machete in her other hand, standing in tall reeds on a moonlit lakeshore beside a wooden dock, teens skinny-dipping in the silver water behind her, a lit cabin across the lake, a cooler, folding chairs, an inner tube and scattered clothes on the grass, a full moon over dark pines",
+    "portrait": "Close portrait of a towering, muscular woman lifting a cracked, scarred hockey-style mask off her face to reveal wide, hurt eyes much younger than the rest of her, freckles on lake-pale skin, long dark wavy hair dripping water, a torn sleeveless dark navy lace-up dress, stitched scars across her bare shoulders, lit by moonlight and a teal glow from the water below",
+    "taunts": [
+      "NO RUNNING!",
+      "Buddy check! Where's your buddy? Nobody? Figures.",
+      "Rule number one: it's always the girls' fault. Everybody says so.",
+      "I passed my swim test. I passed it. I PASSED IT.",
+      "Say my name. Go on. Nobody in this town ever does."
+    ],
+    "clues": [
+      {
+        "id": "counselor-jess-swim-card",
+        "title": "Jess's swim card",
+        "location": "junkyard",
+        "hint": "When Camp Crystal Pines was torn down, its office trailer and campers' footlockers were hauled to Rusty's Junkyard.",
+        "encounter": {
+          "id": "counselor-jess-clue-camp-trailer",
+          "title": "Lost and Found, 1957",
+          "place": "A rusted camp office trailer, Rusty's Junkyard",
+          "text": "Deep in the car maze, half swallowed by blackberry bushes, sits a mint-green trailer with CAMP CRYSTAL PINES OFFICE still stenciled on the door. Inside: bunk lists, a rack of rotted life jackets and a stack of camper footlockers. One has a name in careful block letters: J. MERCER, FUTURE COUNSELOR. A puddle of lake water spreads slowly out from under it, though it has not rained in weeks.",
+          "art": "A rusted mint-green camp office trailer overgrown with blackberry brambles in a junkyard, the door stenciled with a camp name, inside rotted life jackets and a camper footlocker labeled future counselor with a puddle of water spreading beneath it",
+          "choices": [
+            {
+              "id": "open-the-footlocker",
+              "label": "Pop the footlocker's rusted latch",
+              "intent": "brave",
+              "skill": "brawn",
+              "target": 9,
+              "bonus": {
+                "companion": "joey-benally",
+                "amount": 2
+              },
+              "success": {
+                "text": "The latch gives with a gasp of damp air. A tin whistle. A clipboard with rules copied in a girl's round handwriting. A letter never mailed: Dear Mom, I asked Judy and Bobby three times to teach me to swim and they said tomorrow. Mr. Pratt says girls my age only want to hang around the big kids. I told them I can swim so I can do the night swim. I'll figure it out. Don't tell Dad. And the swim card: BEGINNER, DOES NOT SWIM, with SWIMMER pencilled over it, pressed so hard it tore.",
+                "art": "An open camper footlocker in a junkyard trailer holding a tin whistle, a child's handwritten clipboard, an unmailed letter and a swim card with a word pencilled over the official stamp",
+                "effects": {
+                  "clues": ["counselor-jess-swim-card"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The latch snaps back on your fingers and the footlocker floods from the inside, lake water pouring out across the trailer floor, cold and smelling of pine needles. Somewhere behind you, very close, a whistle blows one long blast, and something heavy and sharp drags along the trailer's outside wall. You get out fast.",
+                "art": "Dark lake water gushing out of a closed footlocker across a trailer floor, a teen bolting out of the door into moonlight, the shadow of a tall figure with a machete on the trailer wall",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "slasher"
+                }
+              }
+            },
+            {
+              "id": "read-the-bunk-lists",
+              "label": "Go through the camp's office files instead",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "The swim test log for August 1957 has one line crossed out and rewritten in a kid's pencil: Mercer, J., PASSED. Beside it, in an adult's red pen, written after: Should have checked. Under the log, two memos from Director Pratt. One: Camper Mercer asking for swim lessons again. Tell her to stop pestering the staff. Girls that age just want attention. Two: Night swim, 40 campers, J. Kessler and B. Teague (age 16) supervising. Lifeguard not required. Save the expense.",
+                "art": "A teenager reading a water-stained 1957 camp swim log by flashlight in a rusted trailer, two typed memos beside it with lines underlined in red",
+                "effects": {
+                  "clues": ["counselor-jess-swim-card"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The files have turned to soggy pulp. Every page you peel apart is the same printed swim-safety poster, rotted and simpering: a cartoon teen girl on a dock with hearts for eyes, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. The drowned girl is on none of them. On the last one, someone has scratched JESS into the cartoon water in careful block letters.",
+                "art": "Soggy old file folders in a junkyard trailer revealing rotted swim-safety placards of a cartoon teen girl with heart eyes on a dock, a name scratched into the cartoon water",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "counselor-jess-dock",
+        "title": "What happened on the dock",
+        "location": "high-school",
+        "hint": "The school nurse at Glimmer Falls High was a junior counselor at Camp Crystal Pines in 1957. She has never once gone near the pool.",
+        "encounter": {
+          "id": "counselor-jess-clue-nurses-office",
+          "title": "The Nurse's Office",
+          "place": "Nurse's office, Glimmer Falls High",
+          "text": "Nurse Judy Kessler keeps a bowl of butterscotch candies, a cot with a scratchy blanket and, on the wall where she can see it from her desk, the old county swim-safety poster: a cartoon teen girl on a dock with hearts for eyes while a small shape sinks behind her, EYES ON THE WATER, GIRLS. NOT ON THE BOYS. Every September the school still hands out a pamphlet built on it. She keeps the original up. Her hands, you notice, shake whenever the water fountain in the hall runs.",
+          "art": "A small school nurse's office with a cot and a bowl of butterscotch candies, a middle-aged nurse at her desk staring at a faded swim-safety placard of a cartoon teen girl with heart eyes on a dock",
+          "choices": [
+            {
+              "id": "ask-about-the-poster",
+              "label": "Ask her gently why she keeps that poster up",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "tammy-jo-pruitt",
+                "amount": 1
+              },
+              "success": {
+                "text": "She is quiet a long time. \"Because I'm the girl on it. I was sixteen. Bobby Teague and I had forty kids and no lifeguard, and I looked at him for one minute, because I'd never been kissed. Before that, a little girl named Jess Mercer asked me three times to teach her to float, and three times I said tomorrow.\" She folds her hands. \"Mr. Pratt was in the lodge playing poker. He told the paper I was boy-crazy. Bobby went to college. I've spent twenty-nine years being the reason every girl in this county gets told to keep her eyes off the boys. And nobody ever says Jess's name.\"",
+                "art": "A middle-aged school nurse speaking quietly at her desk with tears in her eyes, a teenager sitting on the edge of the cot listening, an old swim-team pennant on the wall between them",
+                "effects": {
+                  "clues": ["counselor-jess-dock"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Nurse Kessler's face closes like a door. \"Do you have a fever? No? Then back to class.\" As you go, the water fountain in the hall turns on by itself and runs and runs, overflowing onto the linoleum, and behind you she starts, very quietly, to cry.",
+                "art": "A school hallway water fountain overflowing onto linoleum by itself, a teen walking away, a nurse's office door half closed behind them",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "fake-sick",
+              "label": "Fake a stomachache and lie on the cot to look around",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "success": {
+                "text": "While she gets you ginger ale, you see it in her open desk drawer: a photo of two teenagers in camp staff shirts laughing on a dock, a freckled girl in a too-big navy dress tagging behind them with a whistle, and a newspaper clipping, BOY-CRAZY COUNSELOR BLAMED IN CAMP DROWNING. Someone has written across it in red ink, decades ago: WHERE WAS THE LIFEGUARD, HARLAN? When she comes back, you tell her what you saw, and she tells you everything.",
+                "art": "A teenager on a nurse's cot peeking into an open desk drawer at an old photo of two teen camp counselors on a dock with a freckled little girl behind them and a newspaper clipping scrawled with red ink",
+                "effects": {
+                  "clues": ["counselor-jess-dock"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "She takes your temperature, and the thermometer reads 57 degrees, the temperature of a quarry lake at night. You both stare at it. The scratchy blanket on the cot is suddenly soaking wet. Nurse Kessler sends you home and locks her door.",
+                "art": "A nurse holding up a glass thermometer reading impossibly low, a teen on a cot under a suddenly dripping wet blanket, both staring in alarm",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "counselor-jess-grave",
+        "title": "Nobody had time",
+        "location": "pinecrest",
+        "hint": "Jess Mercer is buried at the far edge of Pinecrest Cemetery. The parish register at St. Jude's lists who came to her funeral.",
+        "encounter": {
+          "id": "counselor-jess-clue-grave",
+          "title": "The Small Grave",
+          "place": "The far edge, Pinecrest Cemetery",
+          "text": "Jess's headstone is small and tilted, at the very edge of Pinecrest where the mowers do not reach. Beside it lies her mother's, newer, with words carved too small to read from the path. Someone has left an old cork life ring leaning against Jess's stone, sun-bleached and recent. The grass around the grave is soaking wet in a perfect circle, and it is a dry October afternoon.",
+          "art": "A small tilted child's headstone at the overgrown edge of a cemetery beside a newer adult headstone, a sun-bleached cork life ring leaning against it, a perfect circle of wet grass around the grave on a dry autumn afternoon",
+          "choices": [
+            {
+              "id": "check-the-register",
+              "label": "Ask Father Iggy to open the 1957 parish register",
+              "intent": "kind",
+              "skill": "lore",
+              "target": 9,
+              "bonus": {
+                "companion": "iggy-reyes",
+                "amount": 2
+              },
+              "success": {
+                "text": "Iggy finds the page. Funeral of Jessamyn Mercer, age 12. Attending: her mother. One camp counselor, a girl, who stood at the back. The director sent flowers and did not attend. Her father did not attend. In the margin, in an old priest's hand: The girl never learned to swim. Her mother says she asked everyone to teach her, and nobody had time. Iggy closes the book softly. \"So the poor kid was alone in the water. Then alone here, too.\"",
+                "art": "A young priest in a clerical collar and band t-shirt showing a teenager a handwritten entry in an old parish register at a wooden church desk, afternoon light through stained glass",
+                "effects": {
+                  "clues": ["counselor-jess-grave"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The register is in a locked cabinet, and the key is missing. While you search, every holy water font in St. Jude's starts to overflow at once, quietly, a little lake spreading down the aisle. Iggy blesses the puddle out of habit, then hustles you outside.",
+                "art": "Holy water fonts overflowing in a quiet church, water spreading down the center aisle between the pews, a priest and a teen backing away",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "teleport": "paranormal"
+                }
+              }
+            },
+            {
+              "id": "clean-the-stones",
+              "label": "Kneel and scrub the moss off her mother's headstone",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 9,
+              "success": {
+                "text": "The water soaks your knees, cold as a lake, but you keep scrubbing. The words come up out of the moss: RUTH MERCER, 1921 to 1970. And under that, the lines she chose: HER NAME WAS JESS. SHE ASKED TO LEARN TO SWIM. NOBODY HAD TIME TO TEACH HER. I WISH I HAD. As you read it, the wet circle around Jess's grave slowly soaks away into the earth.",
+                "art": "A teenager kneeling in wet grass scrubbing moss off a headstone to reveal a heartbreaking inscription, the wet circle around a small grave beside it drying away",
+                "effects": {
+                  "clues": ["counselor-jess-grave"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "The ground under your knees goes soft, then wet, then deep. For one horrible second you are up to your waist in cold black water in the middle of a cemetery. Then it is just mud, and you are just filthy, and a whistle is blowing somewhere among the mausoleums.",
+                "art": "A teen sunk to the waist in black water among cemetery headstones, reaching for the grass, mausoleums in the misty background",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "counselor-jess-lights-out",
+        "title": "Lights Out!",
+        "place": "Crystal Street, which is a lakeshore after curfew",
+        "text": "At midnight the storm drains on Crystal Street start running backward. By the time you reach the porch the cul-de-sac is gone: in its place lies a moonlit lakeshore, cattails where the lawns were, a wooden dock where the Delgados' driveway used to be, and a lit cabin across black water where the roundabout should be. Somebody's folding chairs and a cooler sit abandoned on the grass beside an inner tube. Then the whistle: one long blast. A woman seven feet tall wades out of the shallows, long dark hair streaming, torn navy dress clinging, a machete gleaming at her side. She pulls a cracked hockey mask down over her face. \"LIGHTS OUT WAS AN HOUR AGO!\" Her voice cracks on the last word like a twelve-year-old's. \"Buddy check! Where's your buddy?\"",
+        "art": "A moonlit lakeshore where a suburban cul-de-sac should be, a wooden dock, a lit cabin across black water, folding chairs, a cooler and an inner tube on the grass, a towering muscular woman in a torn navy lace-up dress wading out of the shallows pulling a cracked hockey mask over her face, a gleaming machete at her side",
+        "choices": [
+          {
+            "id": "buddy-up",
+            "label": "Grab the nearest friend's hand and shout \"Buddy check!\"",
+            "intent": "clever",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "You grab a hand and hold it up high. \"BUDDY CHECK!\" Jess stops dead. She pushes the mask up onto her forehead to see better and looks at your joined hands for a long, strange moment, the machete hanging forgotten at her side. \"Okay,\" she says, in a small voice. \"Okay. That's the rule.\" She wades backward into the dark, and the lake drains away after her.",
+              "art": "Two teens on a moonlit lakeshore holding joined hands high, a towering woman in a torn navy dress stopping short in the shallows, her cracked hockey mask pushed up on her forehead, a machete lowered at her side",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-buddy-rule"]
+              }
+            },
+            "failure": {
+              "text": "You reach for a hand, and it is not there. Your friend is three docks away, running. Jess splits the nearest folding chair in half with one swing, neat as kindling, and blows her whistle right in your face. \"NO BUDDY? THEN YOU'RE ON CANOE DUTY!\" You spend the rest of the night bailing your flooded basement with a saucepan, and her whistle never stops.",
+              "art": "A teen bailing a flooded basement with a saucepan at night, the moonlit silhouette of a towering masked woman with a machete visible through a basement window",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "run-for-it",
+            "label": "Splash for your front door as fast as you can",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "aqua-net",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"NO RUNNING!\" she roars, but you are already up your front steps, through the door and slamming it. The machete bites into the porch post once, hard enough to rattle the family photos. Then quiet. In the morning there is a deep notch in the post, a wet handprint on the door, and a single damp, folded camp rule sheet on the welcome mat.",
+              "art": "A front porch in the morning with a deep notch cut in the wooden post, a wet handprint on the door, a damp folded camp rule sheet on the welcome mat, puddles drying on the steps",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You slip in the shallows and go down hard. When you look up, Jess is standing over you, dripping, the moon behind her, and she looks almost sad. \"This is why we don't run,\" she says, and writes your name on the soggy clipboard tucked in her belt. You can feel it, after that. Being on the list.",
+              "art": "A teen sprawled in moonlit lake shallows looking up at a towering dripping woman in a cracked hockey mask writing their name on a soggy clipboard, a machete through her leather belt",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-night-swim",
+        "title": "The Night Swim",
+        "place": "Crystal Street, now a lake, two a.m.",
+        "text": "The water is waist-deep now and the moon is enormous. Old dock posts stick up out of the roundabout, and in the middle of the lake floats a wooden swimming raft, the Heartstone glowing purple beneath it like a sunken moon. At the end of the nearest dock sit a heap of clothes, two pairs of sneakers, a cooler and a radio playing Bananarama: two teens from down the street are skinny-dipping off the end, shoulders above the water, laughing, completely oblivious. Out past them, little Petey Marchetti, nine years old, is paddling for the raft on a leaky inner tube on a dare. On the far shore, by the lit cabin, a tall masked shape lifts a machete and wades in.",
+        "art": "A moonlit lake over a drowned suburban cul-de-sac, a wooden swim raft above a glowing purple geode under the surface, two teens swimming shoulder-deep off the end of a dock beside a heap of clothes, sneakers, a cooler and a radio, a small boy on a sagging inner tube paddling toward the raft, a towering masked woman with a machete wading in from a lit cabin on the far shore",
+        "choices": [
+          {
+            "id": "swim-for-petey",
+            "label": "Dive in and swim for Petey yourself",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 1
+            },
+            "success": {
+              "text": "The water is shockingly cold. You reach Petey just as the tube folds under him, haul him up by the pajama collar and tow him back to the dock, coughing and furious that he did not win the dare. Jess surfaces beside you, mask pushed up, close enough to touch. She looks at you, at Petey, at the two of you together, and sinks again without a word.",
+              "art": "A teen towing a coughing small boy in pajamas through moonlit black water to a dock, a deflated inner tube drifting away, a woman's face with a cracked hockey mask pushed up on her forehead just breaking the surface nearby, watching",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The cold punches the air out of you. Something grips your ankle, not hard, almost curiously, and pulls you under for three long seconds. When you burst back up, Petey is standing on the dock, soaked and fine, staring at you. \"The big lady with the mask put me there,\" he says. \"She said you weren't watching.\"",
+              "art": "A teen bursting up out of black moonlit water gasping, a soaked small boy safe on a dock staring at them, ripples spreading where something sank",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "yell-at-the-dock",
+            "label": "Yell at the skinny-dippers to look up and help",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"HEY! KID IN THE WATER!\" They do not hesitate. The girl kicks out for Petey, bare-shouldered and fast as a seal, and the boy shoves the cooler lid across the water like a kickboard. Together they get him up onto the dock and wrap him in somebody's beach towel. Jess, shin-deep in the shallows with the machete raised, stops. She watches the girl rub Petey's arms warm, and slowly lowers the blade, like she is seeing the end of a movie she never got to see.",
+              "art": "Two teens shoulder-deep in moonlit water at the end of a dock pushing a small boy wrapped in a beach towel up onto the planks, a heap of clothes and a cooler beside them, a towering masked woman shin-deep in the shallows slowly lowering a gleaming machete",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-saw-them-help"]
+              }
+            },
+            "failure": {
+              "text": "They do not hear you over the radio. They are sixteen and the moon is out. By the time you reach Petey he is sitting on the raft beside Jess, who has her mask pushed up and is showing him how to blow a tin whistle properly. They both turn and look at the skinny-dippers. Jess writes one name on her soggy clipboard: the girl's. Then she writes yours.",
+              "art": "A small boy sitting on a moonlit swim raft beside a towering woman with a cracked hockey mask pushed up on her head, showing him how to blow a tin whistle, both looking toward two teens swimming off a dock, the woman writing on a soggy clipboard",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          },
+          {
+            "id": "throw-the-ring",
+            "label": "Rip a life ring off the old dock post and throw it",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "The ring is rotten cork from 1957, but it flies true, landing right in front of Petey with a splash. He grabs it, and you haul him in hand over hand. As he climbs out, the cork ring dissolves into lake mist in your hands, and from somewhere out in the dark you hear a girl's voice, cracking: \"Nice throw.\"",
+              "art": "A teen on a moonlit dock hauling a rope attached to an old cork life ring, a small boy clinging to it in black water, the ring beginning to dissolve into mist",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The rope is rotted through and the ring sails off into the dark alone. You have to wade in after Petey, and the water is deeper than it looks, deeper than the street could possibly be. You get him out. It takes everything you have.",
+              "art": "A rotted rope snapping as a life ring sails away into the moonlit dark, a teen wading neck-deep toward a small boy in black water",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-inspection",
+        "title": "Inspection",
+        "place": "The shore of Crystal Street lake, four a.m.",
+        "text": "Jess has made camp. Folding chairs stand in a perfect row along the moonlit waterline, a cooler serves as her podium, and every teenager on Crystal Street has been marched out of bed and lined up on the wet grass in pajamas. She paces in front of you with her mask pushed up on her head and the machete resting on her shoulder, like a drill sergeant at a summer camp in a nightmare. \"Camp rules,\" she reads from a dripping clipboard. \"Rule one: it's the girls' fault. Rule two: nobody's coming. Rule three: everyone takes the swim test.\" She points the machete at the raft, very far away. \"Starting with you.\"",
+        "art": "Teens in pajamas lined up on wet grass along a moonlit lakeshore beside a row of folding chairs and a cooler, a towering muscular woman in a torn navy dress pacing in front of them with a machete on her shoulder and a cracked hockey mask pushed up on her head, reading from a clipboard, a distant swim raft glowing over a purple geode",
+        "choices": [
+          {
+            "id": "find-the-missing-rule",
+            "label": "Point out the rule her clipboard is missing",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "flag": "jess-buddy-rule",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"You forgot Rule Zero,\" you say. \"The grown-up in charge is responsible for the kids. Not the kids. Not the girls.\" Jess stares at her clipboard. She flips the page. She flips it back. Her lip trembles. \"Mr. Pratt never said that one.\" She lets the line go back to bed, and sits alone in a folding chair at the water's edge, rereading her rules until sunrise.",
+              "art": "A teen speaking firmly to a towering woman who stares in confusion at her clipboard, pajama-clad teens slipping away behind them toward their houses at dawn, a row of folding chairs by the water",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"That's not a rule!\" Jess bellows, and her voice cracks so hard it echoes off the houses. \"If that was a rule, somebody would've...\" She cannot finish. She yanks the mask down and blows her whistle until dawn, and nobody on Crystal Street sleeps.",
+              "art": "A towering masked woman blowing a whistle furiously at a moonlit water's edge, teens covering their ears, lights on in every house",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "refuse-the-test",
+            "label": "Step out of line and refuse the swim test for everyone",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"No,\" you say. \"Nobody swims tonight. Nobody gets left in the water.\" The line goes silent. Then, one by one, every teen on Crystal Street steps out beside you. Jess looks at all of you standing together and the machete sinks slowly to her side. \"That's,\" she says. \"That's what counselors are supposed to say.\"",
+              "art": "A line of teens in pajamas stepping forward together in defiance on a moonlit lakeshore, a towering woman in a torn navy dress lowering her machete in astonishment",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice comes out a squeak. Jess blows her whistle. \"Insubordination! Swim test, now!\" You make it halfway to the raft before you wake on the shore, gasping, coughing up something that tastes like pine needles, with no idea who pulled you out.",
+              "art": "A teen gasping and coughing on the wet edge of a flooded street at dawn, lake weed in their hair, a tin whistle lying on the asphalt beside them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "sing-the-camp-song",
+            "label": "Start singing the Camp Crystal Pines song from the rule sheet",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You only know the first verse, but you belt it, and Moose joins in with a baritone like a foghorn. \"Crystal Pines, oh Crystal Pines, where friendship never ends!\" Jess's mouth falls open. Then, very quietly, she sings the second verse. She knows every word. By the end she is sitting on the cooler, the mask in her lap, her huge shoulders shaking.",
+              "art": "Teens in pajamas singing a camp song arm in arm on a moonlit lakeshore, a towering woman sitting on a cooler with her shoulders shaking, a cracked hockey mask in her lap",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks on the high note exactly the way hers does. Jess takes it as mockery. \"Oh, you think that's FUNNY?\" The whole line gets canoe duty, and you spend the night paddling a rotting canoe around the drowned cul-de-sac while she shouts strokes.",
+              "art": "Teens in pajamas paddling a rotting wooden canoe in circles across a moonlit lake over a drowned cul-de-sac, a towering masked woman on a dock post shouting through cupped hands",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "counselor-jess-finale",
+      "title": "The Last Night Swim",
+      "place": "Crystal Springs lake, which is Crystal Street, Halloween night",
+      "text": "On Halloween night the lake comes all the way back. Moonlight pours over black water lapping at the porch roofs of Crystal Street, jack-o'-lanterns bob past a drifting cooler and a tangle of folding chairs, and the old raft rides over the drowned Heartstone, glowing purple from below. Every teen in Glimmer Falls is treading water around it in their Halloween costumes, too cold to scream. Jess stands on the raft, mask down, machete raised to the moon. \"Nobody watched me,\" she says, and her voice is twelve years old. \"Nobody even says my name. They just tell girls to keep their eyes off the boys. So nobody gets out of the water. Not until somebody watches.\"",
+      "art": "A suburban cul-de-sac completely flooded under a full moon with black water up to the porch roofs, jack-o'-lanterns, a cooler and folding chairs floating, a wooden swim raft glowing purple from a sunken geode below, a towering muscular woman in a torn navy lace-up dress and cracked hockey mask standing on it with a machete raised, teens in Halloween costumes treading water around her",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Swim for the raft and wrestle the machete away from her",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 1
+          },
+          "success": {
+            "text": "You haul yourself onto the raft, grab her wrist with both hands and twist until the machete spins away into the lake. Without it, Jess staggers, slips and falls back with an enormous splash. The water goes with her, pouring down every storm drain on Crystal Street at once like a bathtub draining, and you are left standing on a wooden raft in the middle of a dry roundabout.",
+            "art": "A teen twisting a machete from a towering masked woman's grip on a moonlit raft as she topples backward into the water, black floodwater swirling down storm drains, the street draining dry",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She is too big and too strong and she has been underwater a very long time. She lifts you off the raft by your costume like a kitten and sets you back in the water. \"Swim test,\" she says, and the lake closes over your head.",
+            "art": "A towering masked woman holding a teen by the back of their costume over moonlit black water, about to set them down, the purple glow of a sunken geode below",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Blow the camp's all-out-of-the-water signal on her own whistle",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "flag": "jess-saw-them-help",
+            "amount": 1
+          },
+          "success": {
+            "text": "You snatch the tin whistle off her belt and blow three short blasts, the signal printed on every Camp Crystal Pines rule sheet: swim is over, everybody out. It is the only rule Jess never got to hear. She freezes. Every teen kicks for the porches. And Jess, by habit, by rule, turns and wades out of the water too, into the dark between the houses, and is gone.",
+            "art": "A teen on a moonlit raft blowing a tin whistle, costumed teens swimming for porches, a towering masked woman turning obediently to wade away into darkness between houses",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The whistle is full of lake water and gurgles pathetically. Jess laughs, a horrible cracking laugh, and takes it back. \"Nobody blows my whistle.\" She blows it herself: one long blast, which means everybody under.",
+            "art": "A teen blowing a waterlogged tin whistle that only gurgles, a towering masked woman laughing and reaching to take it back, black water rising under the moon",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Say her name, form a buddy line, swim out to her and teach her to float",
+          "intent": "kind",
+          "skill": "nerve",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "companion": "tammy-jo-pruitt",
+            "amount": 1
+          },
+          "success": {
+            "text": "You hold up her swim card, Judy's story and her mother's words, and you say it out loud: \"Jess.\" Then you do what nobody did in 1957: you get in the water with her. Your crew links hands, porch to raft, a human chain. Nurse Judy Kessler wades in at the end of it in her coat, into lake water for the first time in twenty-nine years. You take Jess's enormous cold hand. \"It wasn't your fault,\" you say. \"And it wasn't Judy's, or any girl's. Lie back. We've got you. You're not alone in the water.\" The machete slides from her fingers and sinks. Slowly she pushes the mask up, then off, and lets it float away. Then, shaking, Jess lies back on the black lake, and a dozen hands hold her up.",
+            "art": "A human chain of teens in Halloween costumes linking hands from a porch to a raft across moonlit black water, a nurse in a coat wading in at the end, a towering woman in a torn navy dress floating on her back held up by many hands, her cracked hockey mask drifting away, the sunken geode glowing purple below",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You reach for her hand and she flinches away and yanks the mask back down. \"Nobody gets in the water with me. Nobody ever has.\" She sinks out of reach, and the lake rises another foot. You have the truth, but she does not believe yet that anyone will stay.",
+            "art": "A towering masked woman flinching away from a teen's outstretched hand and sinking into moonlit black water, the flood rising around a broken human chain",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Buddy Check",
+        "text": "Jess floats. For the first time in her life, or after it, she floats, and she starts to laugh, a twelve-year-old's laugh, high and astonished. As she laughs she grows smaller and the scars fade, until the hands are holding up a skinny freckled girl in a too-big navy dress with a tin whistle. Judy Kessler takes the faded staff patch off her old camp jacket and pins it on Jess's collar. \"Counselor Jess,\" she says. \"I'm sorry I said tomorrow.\" Jess salutes her, and the whole lake drains away like a long sigh, leaving dew on every lawn, a raft on the roundabout and a cracked hockey mask lying empty in a puddle. That winter every EYES ON THE WATER, GIRLS poster in the county comes down. Next summer the Glimmer Falls public pool opens the Jess Mercer Learn-to-Swim Program, free for every kid, with a sign at the gate that says GROWN-UPS: WATCH THE WATER. Its first three lifeguards are teenage girls. Judy teaches the first class.",
+        "art": "A skinny freckled girl ghost in a too-big navy dress floating on her back on a moonlit lake, laughing, held up by many hands of teens in Halloween costumes, a middle-aged nurse pinning a camp staff patch on her collar, an empty cracked hockey mask drifting away, dawn breaking pink over a suburban cul-de-sac"
+      },
+      "good": {
+        "title": "Swim's Over",
+        "text": "The lake drains down the storm drains at dawn and Crystal Street dries out by lunch, leaving a raft on the roundabout that nobody can explain. The town calls it a water main break. The poster in Nurse Kessler's office stays on the wall, and the pamphlet goes out again in September. Every so often, at the high school pool, a lifeguard swears she saw a tall woman in a cracked hockey mask standing in the deep end, watching.",
+        "art": "A dry suburban roundabout at sunrise with a waterlogged wooden swim raft sitting on the grass beside a purple geode, a cracked hockey mask resting on the raft, puzzled neighbors in bathrobes gathered around it"
+      },
+      "bittersweet": {
+        "title": "High Water Mark",
+        "text": "Jess goes back under, and the water goes with her, but not all the way. Every basement on Crystal Street stays a little damp. Every Halloween after, the storm drains gurgle at midnight, the moon comes up too big, and the water rises an inch, then two, then stops. Nurse Kessler retires that spring without ever taking down the poster, and still nobody in town says Jess's name.",
+        "art": "A flooded suburban basement with a faint waterline on the wall, a storm drain on the moonlit street outside gurgling under a jack-o'-lantern"
+      },
+      "bad": {
+        "title": "Swim Lessons",
+        "text": "The lake drains away at dawn and takes you with it. Every Halloween after, when the storm drains run backward and the moonlit water rises over Crystal Street, your crew sees you under the surface: in a faded staff t-shirt with a tin whistle, standing beside a towering woman in a cracked hockey mask, lining up teenagers who are not watching each other. You look like you are blowing your whistle. Nobody can hear it.",
+        "art": "Black moonlit floodwater over a suburban street with the faint underwater figures of a teen in a camp staff t-shirt with a tin whistle standing beside a towering masked woman in a torn navy dress, worried friends peering down from a porch roof"
+      }
+    }
+  }
+]

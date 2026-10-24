@@ -145,47 +145,50 @@ assert.equal(
 
 const page = source('../../pages/play/save-the-plumber.vue')
 for (const part of [
-  '<PlumberTitleScene',
-  '<PlumberWorldMap',
-  '<PlumberCasting',
-  '<PlumberCastPortrait',
-  '<PlumberSprite',
-  'ArcadeCabinet slug="save-the-plumber"',
-  'id="plumber-play"',
-  'id="plumber-map"',
-  'id="plumber-casting"',
+  'plumber-console',
+  'plumber-viewport',
+  'plumber-motion-video',
+  'plumber-main-menu',
+  'plumber-stage-grid',
+  'plumber-crew-portrait',
+  '<PlumberHeroineFace',
+  'plumber-guide-grid',
+  'plumber-footer-back',
+  'ArcadeCabinet slug="save-the-plumber" contained',
 ])
-  assert.ok(page.includes(part), `front page includes ${part}`)
-assert.doesNotMatch(page, /!user\.isAdmin/)
-
-const components = [
-  'plumber-title-scene',
-  'plumber-world-map',
-  'plumber-world-scene',
-  'plumber-world-glyph',
-  'plumber-casting',
-  'plumber-cast-portrait',
-  'plumber-heroine-portrait',
-  'plumber-heroine-runner',
-  'plumber-painted',
-  'plumber-sprite',
-]
-for (const name of components) {
-  const path = new URL(
-    `../../components/save-the-plumber/${name}.vue`,
-    import.meta.url,
-  )
-  assert.ok(existsSync(path), `${name}.vue exists`)
-  const body = readFileSync(path, 'utf8')
-  assert.ok(
-    !/localStorage|\$fetch/.test(body),
-    `${name} leaves storage and APIs to stores`,
-  )
+  assert.ok(page.includes(part), `console experience includes ${part}`)
+assert.match(
+  page,
+  /type Screen = 'title' \\| 'story' \\| 'worlds' \\| 'crew' \\| 'guide' \\| 'play'/,
+)
+assert.doesNotMatch(
+  page,
+  /PlumberTitleScene|<ConsoleTabs|href="#plumber-|!user\\.isAdmin/,
+  'the Play route is a role-neutral console without retired title or scroll tabs',
+)
+assert.match(page, /prefers-reduced-motion: reduce/)
+assert.match(page, /v-if="!reducedMotion"/, 'reduced motion keeps the still')
+assert.match(page, /@keydown="onScreenKey"/, 'menu has keyboard navigation')
+for (let world = 1; world <= 8; world++) {
+  for (const extension of ['webp', 'webm', 'mp4']) {
+    assert.ok(
+      existsSync(
+        new URL(
+          `../../public/save-the-plumber/maps/world-${world}.${extension}`,
+          import.meta.url,
+        ),
+      ),
+      `painted world ${world} ${extension} is committed`,
+    )
+  }
 }
-assert.ok(!/localStorage/.test(page), 'the page leaves storage to the store')
+assert.ok(
+  !/localStorage|\\$fetch/.test(page),
+  'the page leaves storage and APIs to stores',
+)
 assert.match(
   source('../../stores/savePlumberStore.ts'),
-  /readPlumberSave\(arcade\.saveFor\(PLUMBER_SLUG\)\)/,
+  /readPlumberSave\\(arcade\\.saveFor\\(PLUMBER_SLUG\\)\\)/,
   'the page stars the heroine chosen in the cabinet',
 )
 

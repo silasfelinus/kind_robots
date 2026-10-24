@@ -1,7 +1,7 @@
 // /utils/arcade/games/rainbowLoadouts.ts
 //
 // Rainbow Bullet Hell Space Princess, conductor rainbow t-010: the four ships' focused weapon families,
-// the per-Act medals, the cabinet's mastery ladder, and the save a long campaign keeps at each Act start.
+// the per-Act medals, the cabinet's mastery ladder, and the save a long campaign keeps at each checkpoint.
 // Pure data and checks (no canvas), so the arcade registry can import the ladder.
 
 import { ARCADE_DIFFICULTIES } from '../types'
@@ -136,7 +136,7 @@ export const RAINBOW_MASTERY: readonly ArcadeMasteryGoal[] = [
   },
 ]
 
-/** The progress the cabinet keeps: where the last Act began, at what difficulty, and how it went. */
+/** The progress the cabinet keeps: the last checkpoint passed, at what difficulty, and how it went. */
 export type RainbowSave = {
   v: 1
   difficulty: ArcadeDifficulty
@@ -161,16 +161,22 @@ const oneOf = (value: unknown, choices: readonly unknown[]) =>
   choices.includes(value)
 
 /**
- * A saved Act start, or null if `raw` is not one: the cabinet hands the save back untrusted, so every field
- * is checked and only an Act start (II to the finale) is ever continued from.
+ * A saved checkpoint, or null if `raw` is not one: the cabinet hands the save back untrusted, so every field
+ * is checked and only a real checkpoint is ever continued from. `isCheckpoint` names the checkpoints the
+ * campaign has (the engine passes its own); left out, only an Act start from Act II on is accepted.
  */
-export function readRainbowSave(raw: unknown): RainbowSave | null {
+export function readRainbowSave(
+  raw: unknown,
+  isCheckpoint: (act: number, frame: number) => boolean = (act, frame) =>
+    act >= 2 && frame === 0,
+): RainbowSave | null {
   if (!raw || typeof raw !== 'object') return null
   const save = raw as Record<string, unknown>
   if (save.v !== 1 || !oneOf(save.difficulty, ARCADE_DIFFICULTIES)) return null
   const c = save.checkpoint as Record<string, unknown> | null
   if (!c || typeof c !== 'object') return null
-  if (!count(c.act, 9) || (c.act as number) < 2 || c.frame !== 0) return null
+  if (!count(c.act, 9) || !count(c.frame, 1e6)) return null
+  if (!isCheckpoint(c.act as number, c.frame as number)) return null
   if (!count(c.score, 1e9)) return null
   for (const key of [
     'rescuedStation',
@@ -185,6 +191,7 @@ export function readRainbowSave(raw: unknown): RainbowSave | null {
   if (!oneOf(c.trenchRoute, ['vault', 'safe', null])) return null
   if (!oneOf(c.wreckRoute, ['depot', 'armory', null])) return null
   if (!oneOf(c.reefRoute, ['relay', 'cache', null])) return null
+  if (!oneOf(c.allegiance, ['rebel', 'loyal', null, undefined])) return null
   for (const key of [
     'podsSaved',
     'pylonsDown',
@@ -213,7 +220,7 @@ export function readRainbowSave(raw: unknown): RainbowSave | null {
     // Only the checkpoint's own fields come back in.
     checkpoint: {
       act: saved.act,
-      frame: 0,
+      frame: saved.frame,
       score: saved.score,
       rescuedStation: saved.rescuedStation,
       rescuedNemi: saved.rescuedNemi,
@@ -228,6 +235,7 @@ export function readRainbowSave(raw: unknown): RainbowSave | null {
       pylonsDown: saved.pylonsDown,
       rescuedNavigator: saved.rescuedNavigator,
       captivesFreed: saved.captivesFreed,
+      allegiance: saved.allegiance ?? null,
       schoolBonuses: saved.schoolBonuses,
     },
     guardians,

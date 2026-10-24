@@ -20,8 +20,9 @@ export const LADYBOT_RADIUS = 3.5
 export const LADYBOT_POP_SCORE = 40
 export const RING_CLEAR_SCORE = 400
 
-/** Vine Hall (house 1) rings one crate on its Hanging Garden and Rose Window walls. */
+/** Vine Hall (house 1) rings one crate on its Tangle Column, Hanging Garden and Rose Window walls. */
 const RING_WALLS: Readonly<Record<string, { col: number; row: number }>> = {
+  'vine-2b': { col: 5, row: 2 },
   'vine-3b': { col: 5, row: 0 },
   'vine-4b': { col: 5, row: 3 },
 }

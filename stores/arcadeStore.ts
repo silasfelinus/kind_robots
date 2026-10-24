@@ -72,6 +72,8 @@ type ArcadePrefs = {
   players?: Record<string, number>
   /** The difficulty last chosen at each cabinet that offers one, by game slug. */
   difficulties?: Record<string, ArcadeDifficulty>
+  /** Games whose opening this device has watched or skipped, by slug. */
+  openings?: Record<string, boolean>
 }
 
 function readPrefs(): ArcadePrefs {
@@ -337,7 +339,19 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
       initials: savedInitials.value,
       players: seatedPlayers.value,
       difficulties: difficulties.value,
+      openings: readPrefs().openings,
     })
+  }
+
+  /** Whether this device has already watched (or skipped) a game's opening. */
+  function openingSeen(game: string): boolean {
+    return readPrefs().openings?.[game] === true
+  }
+
+  /** Remember that a game's opening was watched or skipped, so it is offered rather than shown next time. */
+  function markOpeningSeen(game: string) {
+    const prefs = readPrefs()
+    writePrefs({ ...prefs, openings: { ...prefs.openings, [game]: true } })
   }
 
   /** How many to seat at this cabinet: the last choice, within its limit. */
@@ -517,5 +531,7 @@ export const useArcadeStore = defineStore('arcadeStore', () => {
     difficultyFor,
     setDifficulty,
     rememberInitials,
+    openingSeen,
+    markOpeningSeen,
   }
 })

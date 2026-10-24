@@ -37,6 +37,7 @@ import {
 } from './finaleExpansion'
 import { applyCardEdit, newBeatCard, type CardEdit } from '../playbook/edits'
 import { openingLensChoices } from './openingLensChoices'
+import { normalizePlayerIdentity, type PlayerIdentity } from './playerIdentity'
 import {
   momentPerspective,
   openingSubstance,
@@ -46,6 +47,12 @@ import {
   type SubstanceId,
   type SubstanceMoment,
 } from './substanceArc'
+import {
+  MYSTERY_CARDS,
+  findMystery,
+  mysteryInterlude,
+  pickMystery,
+} from './mysteries'
 
 Object.assign(SIGNATURES, NEW_SIGNATURES)
 for (const [key, fates] of Object.entries(REVISED_COMPANION_SIGNATURES)) {
@@ -103,6 +110,11 @@ export type RunState = {
   version: number
   seed: number
   archetype: string
+  /** Optional role-play identity; legacy v4 saves use defaults. */
+  playerName?: string
+  avatarId?: string
+  personalityId?: string
+  portraitArtId?: number | null
   skills: Skills
   /** Chapters where the origin-specific once-per-chapter action was spent. */
   perkUsedChapters: number[]
@@ -139,6 +151,8 @@ export type RunState = {
   log: LogEntry[]
   pending: { entry: LogEntry; nextStep: number } | null
   ending: string | null
+  /** This run's one local mystery (mysteries/). Older saves derive it from the seed. */
+  mystery?: string
 }
 
 export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
@@ -146,7 +160,7 @@ export const ALL_CARDS: EncounterCard[] = [...BEATS, ...ENCOUNTERS]
 // Playbook Manager edits an admin marked live (conductor weird-humboldt t-033).
 // They rewrite text and may add choices; card ids and authored mechanics stay.
 let liveCards: Record<string, EncounterCard> = {}
-// Studio "+ New beat" rows: whole encounters dealt from a chapter's fork pool.
+// Playbook Studio "+ New beat" entries are dealt from chapter fork pools.
 let liveBeats: GatedEncounter[] = []
 
 export function setLiveEdits(edits: Record<string, CardEdit>): void {
@@ -155,7 +169,7 @@ export function setLiveEdits(edits: Record<string, CardEdit>): void {
     const card = newBeatCard(key, edit)
     return card ? [card] : []
   })
-  for (const card of ALL_CARDS) {
+  for (const card of [...ALL_CARDS, ...MYSTERY_CARDS]) {
     const edit = edits[card.id]
     if (edit) liveCards[card.id] = applyCardEdit(card, edit)
   }
@@ -165,6 +179,7 @@ export function findCard(id: string | null | undefined): EncounterCard | null {
   if (id && liveCards[id]) return liveCards[id]
   return (
     ALL_CARDS.find((card) => card.id === id) ??
+    MYSTERY_CARDS.find((card) => card.id === id) ??
     liveBeats.find((card) => card.id === id) ??
     null
   )
@@ -295,10 +310,11 @@ function applyEffects(state: RunState, effects: Effects): RunState {
       effects.evidence && !state.evidence.includes(effects.evidence)
         ? [...state.evidence, effects.evidence]
         : state.evidence,
-    flags:
-      effects.flag && !state.flags.includes(effects.flag)
-        ? [...state.flags, effects.flag]
-        : state.flags,
+    flags: [effects.flag, ...(effects.flags ?? [])].reduce<string[]>(
+      (flags, flag) =>
+        flag && !flags.includes(flag) ? [...flags, flag] : flags,
+      state.flags,
+    ),
   }
 }
 
@@ -334,6 +350,8 @@ export function variantKey(
 }
 
 export function cardBody(card: EncounterCard, state: RunState): string[] {
+  for (const [flag, body] of Object.entries(card.flagBody ?? {}))
+    if (state.flags.includes(flag)) return body
   const key = variantKey(card, state)
   return (key ? card.variants?.[key] : undefined) ?? card.body
 }
@@ -552,7 +570,12 @@ export function computeEnding(state: RunState): Ending {
   }
 }
 
-export function createRun(seed: number, archetypeId: string): RunState {
+export function createRun(
+  seed: number,
+  archetypeId: string,
+  mysteryId?: string,
+  identity: PlayerIdentity = {},
+): RunState {
   const archetype =
     ARCHETYPES.find((a) => a.id === archetypeId) ??
     (ARCHETYPES[0] as (typeof ARCHETYPES)[number])
@@ -560,6 +583,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     version: ECOTONE_SAVE_VERSION,
     seed: seed >>> 0,
     archetype: archetype.id,
+    ...normalizePlayerIdentity(identity),
     skills: { ...archetype.skills },
     perkUsedChapters: [],
     phase: 'event',
@@ -589,6 +613,7 @@ export function createRun(seed: number, archetypeId: string): RunState {
     log: [],
     pending: null,
     ending: null,
+    mystery: findMystery(mysteryId)?.id ?? pickMystery(seed >>> 0),
   }
 }
 
@@ -642,6 +667,11 @@ export function enterStep(state: RunState, index: number): RunState {
         ? { currentState: 'sober' as LensId, clarity: 3 }
         : {}),
     }
+    // A mystery gate arrives as a digression before this step. It sits on the
+    // previous step index, so the route resumes exactly here afterwards.
+    const interlude = mysteryInterlude(base, route, i)
+    if (interlude)
+      return { ...base, step: i - 1, phase: 'beat', card: interlude }
     if (step.kind === 'beat') {
       if (step.ifProspect && !base.prospect) continue
       return { ...base, phase: 'beat', card: step.id }
@@ -1142,8 +1172,19 @@ export function restoreRun(raw: unknown): RunState | null {
         : incoming.pending,
   }
   if (s.version !== ECOTONE_SAVE_VERSION) return null
+  if (s.mystery !== undefined && !findMystery(s.mystery)) return null
   if (typeof s.seed !== 'number' || typeof s.archetype !== 'string') return null
   if (!ARCHETYPES.some((a) => a.id === s.archetype)) return null
+  if (
+    (s.playerName !== undefined &&
+      (typeof s.playerName !== 'string' || s.playerName.length > 32)) ||
+    (s.avatarId !== undefined && typeof s.avatarId !== 'string') ||
+    (s.personalityId !== undefined && typeof s.personalityId !== 'string') ||
+    (s.portraitArtId !== undefined &&
+      s.portraitArtId !== null &&
+      (!Number.isInteger(s.portraitArtId) || Number(s.portraitArtId) <= 0))
+  )
+    return null
   if (!['event', 'beat', 'fork', 'crossroads', 'end'].includes(String(s.phase)))
     return null
   if (s.event !== null && !EVENTS.some((e) => e.id === s.event)) return null
@@ -1201,6 +1242,7 @@ export function restoreRun(raw: unknown): RunState | null {
     return null
   const restored: RunState = {
     ...(s as RunState),
+    ...normalizePlayerIdentity(s),
     perkUsedChapters: s.perkUsedChapters ?? [],
     // Older version-4 saves have one guide but no optional fellow travelers.
     travelCompanions:

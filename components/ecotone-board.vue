@@ -1,6 +1,7 @@
 <template>
   <div
     class="ecotone-board @container flex min-h-0 w-full flex-1 flex-col bg-[#09141c] text-[#f3e6c8]"
+    :style="{ '--eco-text-scale': displayScale }"
   >
     <header
       class="kr-toolbar flex-nowrap gap-3 border-b border-[#c9a96e]/20 bg-[#070f15] px-3 py-2 @2xl:px-6 @2xl:py-3"
@@ -49,6 +50,22 @@
       <div class="ml-auto flex shrink-0 items-center gap-1.5">
         <template v-if="game.run">
           <span
+            class="hidden items-center gap-2 rounded-full border border-[#c9a96e]/40 bg-[#0c1a24] px-3 py-1 text-sm font-semibold @2xl:inline-flex"
+          >
+            <img
+              v-if="activePlayerPortrait && !headerPortraitFailed"
+              :src="activePlayerPortrait"
+              alt=""
+              class="size-7 rounded-full object-cover"
+              @error="headerPortraitFailed = true"
+            />
+            <span v-else aria-hidden="true">{{
+              PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
+                ?.emoji ?? '🖼️'
+            }}</span>
+            {{ game.run.playerName || 'Wanderer' }}
+          </span>
+          <span
             class="eco-pill hidden @xl:inline-flex"
             :title="`Nerve ${game.run.nerve} of ${MAX_METER}`"
             >Nerve {{ game.run.nerve }}</span
@@ -70,6 +87,19 @@
           >
           <span class="hidden @xl:inline"
             >Endings {{ pad(game.unlockedCount) }}/{{ game.endingTotal }}</span
+          >
+        </button>
+        <button
+          type="button"
+          class="hidden eco-pill hover:border-[#d9b877] @md:inline-flex"
+          :title="`Cases opened: ${game.casesOpened} of ${game.caseTotal}`"
+          @click="tab = 'cases'"
+        >
+          <span class="@xl:hidden"
+            >{{ game.casesOpened }}/{{ game.caseTotal }}</span
+          >
+          <span class="hidden @xl:inline"
+            >Cases {{ game.casesOpened }}/{{ game.caseTotal }}</span
           >
         </button>
         <button
@@ -136,7 +166,145 @@
             >
               Who are you this weekend?
             </p>
-            <div class="kr-scroll -mx-1 px-1">
+            <div class="kr-scroll -mx-1 space-y-3 px-1">
+              <label class="block text-sm font-semibold">
+                What should the county call you?
+                <input
+                  v-model="characterName"
+                  type="text"
+                  maxlength="32"
+                  placeholder="Wanderer (or your own name)"
+                  autocomplete="nickname"
+                  class="mt-1 block w-full rounded-lg border border-[#c9a96e]/40 bg-[#0c1a24]/90 p-2.5 text-base text-[#f3e6c8] placeholder:text-[#f3e6c8]/50 focus:border-[#d9b877] focus:outline-none"
+                />
+              </label>
+              <div>
+                <p class="eco-label mb-2">Choose your look</p>
+                <p class="mb-2 text-xs text-[#f3e6c8]/70">
+                  Twelve faces, one weekend. Swipe sideways to explore the whole
+                  cast.
+                </p>
+                <div
+                  class="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-3"
+                  aria-label="Choose a character portrait"
+                >
+                  <button
+                    v-for="avatar in PLAYER_AVATARS"
+                    :key="avatar.id"
+                    type="button"
+                    class="group w-28 shrink-0 snap-start rounded-xl border p-1.5 text-left transition-colors @2xl:w-32"
+                    :class="
+                      pickedAvatar === avatar.id
+                        ? 'border-[#d9b877] bg-[#d9b877]/20 ring-2 ring-[#d9b877]/35'
+                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80 hover:border-[#d9b877]/70'
+                    "
+                    :aria-label="avatar.label"
+                    :title="avatar.label"
+                    :aria-pressed="pickedAvatar === avatar.id"
+                    @click="pickedAvatar = avatar.id"
+                  >
+                    <span
+                      class="relative block aspect-[2/3] w-full overflow-hidden rounded-lg bg-gradient-to-b from-[#315d63] to-[#10212e]"
+                    >
+                      <img
+                        v-if="!failedAvatarPortraits.includes(avatar.id)"
+                        :src="`${playerAvatarSrc(avatar.portrait)}?retry=${portraitRetry}`"
+                        :alt="avatar.label"
+                        loading="lazy"
+                        class="h-full w-full object-cover object-top"
+                        @error="failedAvatarPortraits.push(avatar.id)"
+                      />
+                      <span
+                        v-else
+                        class="flex h-full w-full items-center justify-center bg-[#152c36] text-3xl"
+                        aria-hidden="true"
+                      >
+                        {{ avatar.emoji }}
+                      </span>
+                      <span
+                        v-if="pickedAvatar === avatar.id"
+                        class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#06121b]/95 to-transparent px-1 pb-1 pt-5 text-center text-xs font-bold text-[#f9e3a5]"
+                      >
+                        Selected
+                      </span>
+                    </span>
+                    <span
+                      class="mt-1.5 block truncate text-center text-[11px] font-semibold text-[#f3e6c8]"
+                    >
+                      {{ avatar.label }}
+                    </span>
+                  </button>
+                </div>
+                <div class="mt-2 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="rounded-lg border border-[#d9b877]/65 bg-[#0c1a24]/85 px-3 py-2 text-sm font-bold"
+                    :disabled="uploadingPortrait"
+                    @click="openPortraitUpload"
+                  >
+                    {{
+                      uploadingPortrait
+                        ? 'Uploading portrait…'
+                        : 'Upload your own portrait'
+                    }}
+                  </button>
+                  <button
+                    type="button"
+                    class="rounded-lg border border-[#8fb8b0]/50 bg-[#0c1a24]/85 px-3 py-2 text-xs font-bold"
+                    @click="retryPortraits"
+                  >
+                    Refresh portraits
+                  </button>
+                </div>
+                <button
+                  v-if="customPortraitId && customPortraitUrl"
+                  type="button"
+                  class="mt-2 flex items-center gap-2 rounded-lg border p-2 text-left text-sm"
+                  :class="
+                    pickedAvatar === 'custom'
+                      ? 'border-[#d9b877]'
+                      : 'border-[#8fb8b0]/40'
+                  "
+                  :aria-pressed="pickedAvatar === 'custom'"
+                  @click="pickedAvatar = 'custom'"
+                >
+                  <img
+                    :src="customPortraitUrl"
+                    alt=""
+                    class="h-16 w-12 rounded object-cover"
+                  />
+                  My uploaded portrait
+                </button>
+                <p
+                  v-if="portraitNotice"
+                  role="status"
+                  class="mt-2 text-xs text-[#f3e6c8]/85"
+                >
+                  {{ portraitNotice }}
+                </p>
+              </div>
+              <div>
+                <p class="eco-label mb-2">Your disposition</p>
+                <div class="grid grid-cols-2 gap-1.5 @xl:grid-cols-3">
+                  <button
+                    v-for="personality in PLAYER_PERSONALITIES"
+                    :key="personality.id"
+                    type="button"
+                    class="rounded-lg border px-2 py-2 text-left text-sm font-semibold"
+                    :title="personality.detail"
+                    :class="
+                      pickedPersonality === personality.id
+                        ? 'border-[#d9b877] bg-[#d9b877]/20'
+                        : 'border-[#c9a96e]/25 bg-[#0c1a24]/80'
+                    "
+                    :aria-pressed="pickedPersonality === personality.id"
+                    @click="pickedPersonality = personality.id"
+                  >
+                    {{ personality.label }}
+                  </button>
+                </div>
+              </div>
+              <p class="eco-label">What do you do around here?</p>
               <div class="grid gap-2 @xl:grid-cols-2">
                 <button
                   v-for="background in ARCHETYPES"
@@ -187,7 +355,7 @@
       <div
         v-else-if="tab === 'road' && game.run"
         ref="playScroll"
-        class="h-full overflow-y-auto overscroll-contain @4xl:overflow-hidden"
+        class="h-full overflow-y-auto overscroll-contain"
       >
         <div class="relative min-h-full @4xl:h-full">
           <div
@@ -213,7 +381,13 @@
               class="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-[#09141c] via-[#09141c]/50 to-transparent @4xl:block"
             />
             <div
-              v-if="stage.emblem && !portraitSrc"
+              v-if="stage.mysteryCard"
+              class="absolute right-4 top-4 w-20 rotate-3 drop-shadow-xl @xl:w-24 @4xl:right-10 @4xl:top-8 @4xl:w-36"
+            >
+              <EcotoneMysteryCard :mystery="stage.mysteryCard" compact />
+            </div>
+            <div
+              v-else-if="stage.emblem && !portraitSrc"
               class="absolute right-4 top-4 flex items-center gap-2 @4xl:right-10 @4xl:top-8"
             >
               <EcotoneEmblem
@@ -227,303 +401,437 @@
           </div>
 
           <div
-            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(300px,27rem)] @4xl:grid-rows-[minmax(0,1fr)_auto] @4xl:content-stretch @4xl:gap-6 @4xl:p-10 @4xl:pt-12"
+            class="relative grid min-h-full grid-cols-1 content-end gap-4 p-4 pt-10 @xl:p-6 @4xl:h-full @4xl:grid-cols-[minmax(0,1fr)_minmax(22rem,40%)] @4xl:grid-rows-[minmax(0,1fr)] @4xl:content-start @4xl:gap-6 @4xl:p-8 @4xl:pt-8"
           >
             <div
-              class="flex min-h-[19rem] flex-col justify-end gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:min-h-0 @4xl:max-w-[46rem] @4xl:justify-start @4xl:overflow-hidden"
+              class="flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-1 @4xl:h-full @4xl:overflow-y-auto @4xl:overscroll-contain @4xl:pr-2"
             >
-              <span class="eco-kicker self-start">{{ stage.kicker }}</span>
-              <h2
-                class="font-serif text-4xl font-black uppercase leading-[.95] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-5xl @6xl:text-6xl @[100rem]:text-7xl"
+              <div
+                class="flex min-h-[12rem] flex-col justify-end gap-2 @4xl:min-h-0 @4xl:shrink-0 @4xl:justify-start"
               >
-                {{ stage.title }}
-              </h2>
-              <p
-                v-if="stage.subtitle"
-                class="font-serif text-lg text-[#f3e6c8]/85 @4xl:text-xl"
-                :class="stage.meet ? '@4xl:hidden' : ''"
+                <span class="eco-kicker self-start">{{ stage.kicker }}</span>
+                <h2
+                  class="font-serif text-3xl font-black uppercase leading-[.98] drop-shadow-[0_3px_12px_rgba(0,0,0,.6)] @xl:text-4xl @6xl:text-5xl"
+                >
+                  {{ stage.title }}
+                </h2>
+                <p
+                  v-if="stage.subtitle"
+                  class="font-serif text-lg text-[#f3e6c8]/85 @4xl:text-xl"
+                  :class="stage.meet ? '@4xl:hidden' : ''"
+                >
+                  {{ stage.subtitle }}
+                </p>
+                <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
+                  <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
+                  <p
+                    class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
+                  >
+                    {{ stage.meet.name }}
+                  </p>
+                  <p
+                    class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
+                  >
+                    {{ stage.meet.role }}
+                  </p>
+                  <p
+                    class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
+                  >
+                    {{ stage.meet.line }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="eco-panel flex min-h-0 flex-col gap-3 @4xl:shrink-0 @4xl:max-h-none"
+                aria-live="polite"
               >
-                {{ stage.subtitle }}
-              </p>
-              <div v-if="stage.meet" class="mt-2 flex flex-col gap-2">
-                <span class="h-0.5 w-full max-w-md bg-[#d9b877]/75" />
-                <p
-                  class="font-serif text-3xl font-black uppercase tracking-[.08em] @4xl:text-4xl"
-                >
-                  {{ stage.meet.name }}
-                </p>
-                <p
-                  class="text-xs font-bold uppercase tracking-[.22em] text-[#8fb8b0] @4xl:text-sm"
-                >
-                  {{ stage.meet.role }}
-                </p>
-                <p
-                  class="max-w-xl font-serif text-lg leading-snug @4xl:text-xl"
-                >
-                  {{ stage.meet.line }}
-                </p>
+                <template v-if="pending">
+                  <p
+                    v-if="stage.realEnding"
+                    class="eco-label flex items-center gap-2 text-[#f6c55a]"
+                  >
+                    <Icon name="kind-icon:star" class="size-3.5" />
+                    Real Ending · {{ stage.realEnding }}
+                  </p>
+                  <p class="eco-label">{{ pending.choice }}</p>
+                  <div
+                    v-if="pending.roll"
+                    class="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+                    :class="
+                      pending.roll.success
+                        ? 'border-[#8fb8b0]/60 bg-[#8fb8b0]/10'
+                        : 'border-[#e08a5a]/60 bg-[#e08a5a]/10'
+                    "
+                  >
+                    <div class="flex gap-2" aria-hidden="true">
+                      <span
+                        v-for="(die, index) in pending.roll.dice"
+                        :key="index"
+                        class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
+                      >
+                        <span
+                          v-for="cell in 9"
+                          :key="cell"
+                          class="rounded-full"
+                          :class="
+                            PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''
+                          "
+                        />
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-lg font-black">
+                        {{ pending.roll.dice[0] + pending.roll.dice[1] }}
+                        <span
+                          v-if="pending.roll.bonus"
+                          class="text-[#f3e6c8]/70"
+                          >{{ pending.roll.bonus > 0 ? '+' : '−'
+                          }}{{ Math.abs(pending.roll.bonus) }}</span
+                        >
+                        = {{ pending.roll.total }}
+                        <span class="text-[#f3e6c8]/70"
+                          >vs {{ pending.roll.target }}</span
+                        >
+                      </p>
+                      <p class="text-xs text-[#f3e6c8]/70">
+                        {{ rollParts(pending.roll) }}
+                      </p>
+                    </div>
+                    <span
+                      class="rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider"
+                      :class="
+                        pending.roll.success
+                          ? 'bg-[#8fb8b0] text-[#09141c]'
+                          : 'bg-[#e08a5a] text-[#09141c]'
+                      "
+                    >
+                      {{
+                        pending.roll.natural === 'boxcars'
+                          ? 'Boxcars!'
+                          : pending.roll.natural === 'snake-eyes'
+                            ? 'Snake eyes'
+                            : pending.roll.success
+                              ? 'Success'
+                              : 'Complication'
+                      }}
+                    </span>
+                  </div>
+                  <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
+                    <p
+                      class="eco-story-copy whitespace-pre-line font-serif leading-relaxed"
+                    >
+                      {{ revealedResult }}
+                    </p>
+                  </div>
+                  <div
+                    v-if="effectChips(pending.effects).length"
+                    class="flex flex-wrap gap-1.5"
+                  >
+                    <span
+                      v-for="chip in effectChips(pending.effects)"
+                      :key="chip"
+                      class="rounded-full border border-[#c9a96e]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
+                      >{{ chip }}</span
+                    >
+                  </div>
+                </template>
+
+                <template v-else-if="game.run.phase === 'end' && game.ending">
+                  <p class="eco-label flex items-center gap-2">
+                    <span
+                      class="size-3 shrink-0 rounded-full"
+                      :class="
+                        game.ending.fate === 'hope'
+                          ? 'ecotone-fate-hope'
+                          : 'ecotone-fate-dark'
+                      "
+                    />
+                    {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }}
+                    future · {{ leadName(game.ending.lead) }} ·
+                    {{ lensLabel(game.ending.lens) }}
+                  </p>
+                  <div
+                    class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
+                  >
+                    <p
+                      v-if="signature"
+                      class="font-serif text-base italic text-[#f3e6c8]/80"
+                    >
+                      {{ signature.line }}
+                    </p>
+                    <p
+                      v-for="(paragraph, index) in FUTURES[game.ending.lead][
+                        game.ending.fate
+                      ]"
+                      :key="index"
+                      class="eco-story-copy font-serif leading-relaxed"
+                    >
+                      {{ paragraph }}
+                    </p>
+                    <p
+                      v-if="sharedFuture"
+                      class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm leading-relaxed"
+                    >
+                      {{ sharedFuture }}
+                    </p>
+                    <p
+                      v-for="(callback, index) in hangoutCallbacks"
+                      :key="`companion-callback-${index}`"
+                      class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ callback }}
+                    </p>
+                    <p
+                      v-for="(callback, index) in questCallbacks"
+                      :key="`quest-callback-${index}`"
+                      class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ callback }}
+                    </p>
+                    <p
+                      v-if="substanceCoda"
+                      class="border-l-2 border-[#d9b877] pl-3 font-serif text-sm italic leading-relaxed"
+                    >
+                      {{ substanceCoda }}
+                    </p>
+                    <p
+                      v-if="LENS_CODAS[game.ending.lens]"
+                      class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                    >
+                      {{ LENS_CODAS[game.ending.lens] }}
+                    </p>
+                    <button
+                      v-if="runCase && game.mystery"
+                      type="button"
+                      class="flex items-center gap-3 rounded-xl border border-[#d9b877]/40 bg-black/35 p-2.5 text-left hover:border-[#d9b877]"
+                      @click="openCase(game.mystery.id)"
+                    >
+                      <EcotoneMysteryCard
+                        :mystery="game.mystery"
+                        compact
+                        class="w-12 shrink-0"
+                      />
+                      <span class="min-w-0">
+                        <span class="eco-label block">
+                          Case {{ caseNumeral(game.mystery.number) }} ·
+                          {{ caseVerdict(runCase) }}
+                        </span>
+                        <span class="block font-serif text-sm font-bold">{{
+                          game.mystery.title
+                        }}</span>
+                        <span class="block text-xs text-[#f3e6c8]/65">
+                          Gates {{ gateSummary(runCase) }} · open the Case Files
+                        </span>
+                      </span>
+                    </button>
+                    <section
+                      class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
+                    >
+                      <h3 class="eco-label">Four philosophical rolls</h3>
+                      <p class="mt-1 text-xs text-[#f3e6c8]/65">
+                        Repeated perspectives tilt the odds. Decisions can agree
+                        or push back. The 2d6 rolls settle a point of view, not
+                        whether your future deserves hope.
+                      </p>
+                      <div class="mt-3 grid gap-3">
+                        <div
+                          v-for="value in philosophy"
+                          :key="value.id"
+                          class="rounded-lg border border-white/10 p-2"
+                        >
+                          <div
+                            class="flex items-center justify-between gap-2 text-xs font-bold"
+                          >
+                            <span>{{ value.left }} ↔ {{ value.right }}</span>
+                            <span class="text-[#d9b877]">{{
+                              value.outcome
+                            }}</span>
+                          </div>
+                          <div
+                            class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35"
+                          >
+                            <span
+                              class="absolute inset-y-0 left-1/2 w-px bg-white/40"
+                            />
+                            <span
+                              class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
+                              :style="{ left: value.position + '%' }"
+                            />
+                          </div>
+                          <p
+                            class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85"
+                          >
+                            {{ value.reflection }}
+                          </p>
+                          <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
+                            Chemistry {{ value.chemistry >= 0 ? '+' : ''
+                            }}{{ value.chemistry }} · decisions
+                            {{ value.decisions >= 0 ? '+' : ''
+                            }}{{ value.decisions }} · 2d6 ({{ value.dice[0] }} +
+                            {{ value.dice[1] }}) + pull {{ value.pull }} =
+                            {{ value.total }}
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+                    <div class="rounded-xl bg-black/30 p-3">
+                      <p class="eco-label">
+                        What decided it: {{ game.ending.score }} of
+                        {{ game.ending.target }} needed
+                      </p>
+                      <p class="mt-1 text-sm text-[#f3e6c8]/85">
+                        {{
+                          game.ending.parts
+                            .map(
+                              (part) =>
+                                `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
+                            )
+                            .join(' · ')
+                        }}
+                      </p>
+                    </div>
+                    <p class="text-xs text-[#f3e6c8]/60">
+                      Ending earned and added to your gallery. These finales are
+                      authored drafts. Only choices made in this run appear as
+                      callbacks; images and final editorial approval remain
+                      open.
+                    </p>
+                  </div>
+                </template>
+
+                <template v-else>
+                  <p class="eco-label">{{ stage.panelKicker }}</p>
+                  <div
+                    class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
+                  >
+                    <figure
+                      v-if="stage.message"
+                      class="ecotone-message self-start rounded-2xl border p-3 text-sm"
+                      :class="
+                        stage.message.medium === 'text'
+                          ? 'rounded-bl-sm border-[#8fb8b0]/50 bg-[#8fb8b0]/15'
+                          : 'border-[#d9b877]/45 bg-black/40'
+                      "
+                    >
+                      <figcaption
+                        class="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                      >
+                        <Icon
+                          :name="messageIcon(stage.message)"
+                          class="size-3.5"
+                        />
+                        {{ messageLabel(stage.message) }} ·
+                        {{ stage.message.from }}
+                      </figcaption>
+                      <p
+                        v-for="(line, index) in stage.message.lines"
+                        :key="`msg-${index}`"
+                        class="leading-snug"
+                        :class="stage.message.medium === 'text' ? '' : 'italic'"
+                      >
+                        {{ line }}
+                      </p>
+                    </figure>
+                    <p
+                      v-for="(paragraph, index) in revealedBody"
+                      :key="index"
+                      class="eco-story-copy font-serif leading-relaxed"
+                    >
+                      {{ paragraph }}
+                    </p>
+                    <p
+                      v-if="stage.lensLine"
+                      class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
+                    >
+                      {{ stage.lensLine }}
+                    </p>
+                    <p
+                      v-for="(aside, index) in stage.asides"
+                      :key="`aside-${index}`"
+                      class="border-l-2 border-[#e08a5a] pl-3 text-sm"
+                    >
+                      {{ aside }}
+                    </p>
+                  </div>
+                  <p
+                    v-if="stage.panelFooter"
+                    class="text-[11px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
+                  >
+                    {{ stage.panelFooter }}
+                  </p>
+                </template>
               </div>
             </div>
 
             <div
-              class="eco-panel flex min-h-0 flex-col gap-3 @4xl:col-start-1 @4xl:row-start-2 @4xl:max-h-[min(20rem,36dvh)]"
-              aria-live="polite"
+              class="eco-choices flex min-h-0 flex-col gap-3 self-start @4xl:col-start-2 @4xl:row-start-1 @4xl:max-h-full"
             >
-              <template v-if="pending">
-                <p class="eco-label">{{ pending.choice }}</p>
+              <button
+                v-if="game.canUndo && !stagedChoice"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/60 bg-[#8fb8b0]/15 px-3 py-2 text-base font-bold text-[#f3e6c8] hover:border-[#d9b877]"
+                @click="game.undo()"
+              >
+                ↶ Undo last decision
+              </button>
+              <template v-if="stagedChoice">
+                <p class="eco-label">
+                  {{
+                    stagedChoice.preview
+                      ? 'A look down the road'
+                      : 'Confirm your decision'
+                  }}
+                </p>
                 <div
-                  v-if="pending.roll"
-                  class="flex flex-wrap items-center gap-3 rounded-xl border p-3"
-                  :class="
-                    pending.roll.success
-                      ? 'border-[#8fb8b0]/60 bg-[#8fb8b0]/10'
-                      : 'border-[#e08a5a]/60 bg-[#e08a5a]/10'
-                  "
+                  v-if="stagedChoice.preview && stagedChoice.thumb"
+                  class="relative aspect-[16/8] shrink-0 overflow-hidden rounded-xl border border-[#d9b877]/40"
                 >
-                  <div class="flex gap-2" aria-hidden="true">
-                    <span
-                      v-for="(die, index) in pending.roll.dice"
-                      :key="index"
-                      class="ecotone-die grid size-11 grid-cols-3 grid-rows-3 gap-0.5 rounded-lg bg-[#f4efe1] p-1.5"
-                    >
-                      <span
-                        v-for="cell in 9"
-                        :key="cell"
-                        class="rounded-full"
-                        :class="PIPS[die]?.includes(cell) ? 'bg-[#1b1b1b]' : ''"
-                      />
-                    </span>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="text-lg font-black">
-                      {{ pending.roll.dice[0] + pending.roll.dice[1] }}
-                      <span v-if="pending.roll.bonus" class="text-[#f3e6c8]/70"
-                        >{{ pending.roll.bonus > 0 ? '+' : '−'
-                        }}{{ Math.abs(pending.roll.bonus) }}</span
-                      >
-                      = {{ pending.roll.total }}
-                      <span class="text-[#f3e6c8]/70"
-                        >vs {{ pending.roll.target }}</span
-                      >
-                    </p>
-                    <p class="text-xs text-[#f3e6c8]/70">
-                      {{ rollParts(pending.roll) }}
-                    </p>
-                  </div>
-                  <span
-                    class="rounded-full px-2.5 py-1 text-xs font-black uppercase tracking-wider"
-                    :class="
-                      pending.roll.success
-                        ? 'bg-[#8fb8b0] text-[#09141c]'
-                        : 'bg-[#e08a5a] text-[#09141c]'
-                    "
-                  >
-                    {{
-                      pending.roll.natural === 'boxcars'
-                        ? 'Boxcars!'
-                        : pending.roll.natural === 'snake-eyes'
-                          ? 'Snake eyes'
-                          : pending.roll.success
-                            ? 'Success'
-                            : 'Complication'
-                    }}
-                  </span>
-                </div>
-                <div class="max-h-full min-h-0 flex-1 overflow-y-auto">
-                  <p class="font-serif text-lg leading-relaxed @4xl:text-xl">
-                    {{ pending.text }}
-                  </p>
-                </div>
-                <div
-                  v-if="effectChips(pending.effects).length"
-                  class="flex flex-wrap gap-1.5"
-                >
-                  <span
-                    v-for="chip in effectChips(pending.effects)"
-                    :key="chip"
-                    class="rounded-full border border-[#c9a96e]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider"
-                    >{{ chip }}</span
-                  >
-                </div>
-              </template>
-
-              <template v-else-if="game.run.phase === 'end' && game.ending">
-                <p class="eco-label flex items-center gap-2">
-                  <span
-                    class="size-3 shrink-0 rounded-full"
-                    :class="
-                      game.ending.fate === 'hope'
-                        ? 'ecotone-fate-hope'
-                        : 'ecotone-fate-dark'
-                    "
+                  <EcotoneScene
+                    :kind="stagedChoice.thumb.scene"
+                    :art="stagedChoice.thumb.art"
+                    :label="stagedChoice.label"
+                    class="absolute inset-0"
                   />
-                  {{ game.ending.fate === 'hope' ? 'Hopeful' : 'Dark' }} future
-                  · {{ leadName(game.ending.lead) }} ·
-                  {{ lensLabel(game.ending.lens) }}
-                </p>
-                <div
-                  class="flex max-h-full min-h-0 flex-1 flex-col gap-3 overflow-y-auto"
-                >
-                  <p
-                    v-if="signature"
-                    class="font-serif text-base italic text-[#f3e6c8]/80"
-                  >
-                    {{ signature.line }}
-                  </p>
-                  <p
-                    v-for="(paragraph, index) in FUTURES[game.ending.lead][
-                      game.ending.fate
-                    ]"
-                    :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
-                  >
-                    {{ paragraph }}
-                  </p>
-                  <p
-                    v-if="sharedFuture"
-                    class="border-l-2 border-[#8fb8b0] pl-3 font-serif text-sm leading-relaxed"
-                  >
-                    {{ sharedFuture }}
-                  </p>
-                  <p
-                    v-for="(callback, index) in hangoutCallbacks"
-                    :key="`companion-callback-${index}`"
-                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ callback }}
-                  </p>
-                  <p
-                    v-for="(callback, index) in questCallbacks"
-                    :key="`quest-callback-${index}`"
-                    class="border-l-2 border-[#d6a962] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ callback }}
-                  </p>
-                  <p
-                    v-if="substanceCoda"
-                    class="border-l-2 border-[#d9b877] pl-3 font-serif text-sm italic leading-relaxed"
-                  >
-                    {{ substanceCoda }}
-                  </p>
-                  <p
-                    v-if="LENS_CODAS[game.ending.lens]"
-                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
-                  >
-                    {{ LENS_CODAS[game.ending.lens] }}
-                  </p>
-                  <section
-                    class="rounded-xl border border-[#8fb8b0]/40 bg-black/35 p-3"
-                  >
-                    <h3 class="eco-label">Four philosophical rolls</h3>
-                    <p class="mt-1 text-xs text-[#f3e6c8]/65">
-                      Repeated perspectives tilt the odds. Decisions can agree
-                      or push back. The 2d6 rolls settle a point of view, not
-                      whether your future deserves hope.
-                    </p>
-                    <div class="mt-3 grid gap-3">
-                      <div
-                        v-for="value in philosophy"
-                        :key="value.id"
-                        class="rounded-lg border border-white/10 p-2"
-                      >
-                        <div
-                          class="flex items-center justify-between gap-2 text-xs font-bold"
-                        >
-                          <span>{{ value.left }} ↔ {{ value.right }}</span>
-                          <span class="text-[#d9b877]">{{
-                            value.outcome
-                          }}</span>
-                        </div>
-                        <div
-                          class="relative mt-2 h-2 rounded-full bg-[#8fb8b0]/35"
-                        >
-                          <span
-                            class="absolute inset-y-0 left-1/2 w-px bg-white/40"
-                          />
-                          <span
-                            class="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#09141c] bg-[#d9b877]"
-                            :style="{ left: value.position + '%' }"
-                          />
-                        </div>
-                        <p
-                          class="mt-2 font-serif text-sm italic leading-relaxed text-[#f3e6c8]/85"
-                        >
-                          {{ value.reflection }}
-                        </p>
-                        <p class="mt-2 text-[11px] text-[#f3e6c8]/65">
-                          Chemistry {{ value.chemistry >= 0 ? '+' : ''
-                          }}{{ value.chemistry }} · decisions
-                          {{ value.decisions >= 0 ? '+' : ''
-                          }}{{ value.decisions }} · 2d6 ({{ value.dice[0] }} +
-                          {{ value.dice[1] }}) + pull {{ value.pull }} =
-                          {{ value.total }}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-                  <div class="rounded-xl bg-black/30 p-3">
-                    <p class="eco-label">
-                      What decided it: {{ game.ending.score }} of
-                      {{ game.ending.target }} needed
-                    </p>
-                    <p class="mt-1 text-sm text-[#f3e6c8]/85">
-                      {{
-                        game.ending.parts
-                          .map(
-                            (part) =>
-                              `${part.label} ${part.value >= 0 ? '+' : '−'}${Math.abs(part.value)}`,
-                          )
-                          .join(' · ')
-                      }}
-                    </p>
-                  </div>
-                  <p class="text-xs text-[#f3e6c8]/60">
-                    Ending earned and added to your gallery. These finales are
-                    authored drafts. Only choices made in this run appear as
-                    callbacks; images and final editorial approval remain open.
-                  </p>
                 </div>
-              </template>
-
-              <template v-else>
-                <p class="eco-label">{{ stage.panelKicker }}</p>
-                <div
-                  class="flex max-h-full min-h-12 flex-1 flex-col gap-3 overflow-y-auto"
-                >
-                  <p
-                    v-for="(paragraph, index) in stage.body"
-                    :key="index"
-                    class="font-serif text-base leading-relaxed @4xl:text-lg"
-                  >
-                    {{ paragraph }}
-                  </p>
-                  <p
-                    v-if="stage.lensLine"
-                    class="border-l-2 border-[#8fb8b0] pl-3 text-sm italic"
-                  >
-                    {{ stage.lensLine }}
-                  </p>
-                  <p
-                    v-for="(aside, index) in stage.asides"
-                    :key="`aside-${index}`"
-                    class="border-l-2 border-[#e08a5a] pl-3 text-sm"
-                  >
-                    {{ aside }}
-                  </p>
-                </div>
-                <p
-                  v-if="stage.panelFooter"
-                  class="text-[11px] font-bold uppercase tracking-[.2em] text-[#8fb8b0]"
-                >
-                  {{ stage.panelFooter }}
+                <p class="font-serif text-lg font-bold leading-snug">
+                  {{ stagedChoice.label }}
                 </p>
+                <template v-if="stagedChoice.preview">
+                  <p class="font-serif text-base leading-relaxed">
+                    {{ stagedChoice.preview }}
+                  </p>
+                  <p class="text-sm leading-relaxed text-[#f3e6c8]/80">
+                    {{ stagedChoice.possibilities }}
+                  </p>
+                  <p class="text-xs text-[#8fb8b0]">
+                    These are possibilities, not promises. The story responds to
+                    your decisions.
+                  </p>
+                </template>
+                <p v-else class="text-sm text-[#f3e6c8]/80">
+                  Nothing has changed yet. You can still change your mind.
+                </p>
+                <button
+                  type="button"
+                  class="eco-gold-button"
+                  @click="confirmDecision"
+                >
+                  {{ stagedChoice.preview ? 'Go there' : 'Make this choice' }}
+                </button>
+                <button
+                  type="button"
+                  class="eco-choice justify-center text-base"
+                  @click="stagedChoice = null"
+                >
+                  {{
+                    stagedChoice.preview
+                      ? 'Explore other places'
+                      : 'Change my mind'
+                  }}
+                </button>
               </template>
-            </div>
-
-            <div
-              class="eco-choices flex min-h-0 flex-col gap-2 self-end @4xl:col-start-2 @4xl:row-span-2 @4xl:row-start-1 @4xl:max-h-full"
-            >
-              <template v-if="pending">
+              <template v-else-if="pending">
                 <button
                   ref="continueButton"
                   type="button"
@@ -601,7 +909,7 @@
                     :class="index === 0 && !option.disabled ? 'is-lead' : ''"
                     :disabled="option.disabled"
                     :title="option.chipTitle"
-                    @click="option.act()"
+                    @click="queueDecision(option)"
                   >
                     <span
                       v-if="option.thumb"
@@ -615,12 +923,13 @@
                       />
                     </span>
                     <span class="min-w-0 flex-1">
-                      <span class="block text-base font-bold leading-snug">{{
-                        option.label
-                      }}</span>
+                      <span
+                        class="eco-choice-main block font-bold leading-snug"
+                        >{{ option.label }}</span
+                      >
                       <span
                         v-if="option.chip || option.hint"
-                        class="mt-0.5 line-clamp-2 block text-xs text-[#f3e6c8]/65"
+                        class="mt-1 block text-sm leading-snug text-[#f3e6c8]/75 @4xl:text-base"
                         >{{
                           [
                             option.chip,
@@ -639,7 +948,275 @@
                   </button>
                 </div>
               </template>
+              <button
+                v-if="hasHiddenText"
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/50 bg-[#09141c] px-3 py-2 text-base font-bold"
+                @click="revealAll"
+              >
+                Show full text
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else-if="tab === 'settings'" class="kr-scroll h-full p-4 @xl:p-6">
+        <div class="mx-auto flex max-w-5xl flex-col gap-5">
+          <div>
+            <p class="eco-label">Your weekend, your rules</p>
+            <h2 class="mt-1 font-serif text-4xl font-black">
+              Settings &amp; Save Games
+            </h2>
+            <p class="mt-2 text-base text-[#f3e6c8]/80">
+              Read comfortably, travel at your own pace, and keep a copy of your
+              story. Preferences save automatically on this device and never
+              change your dice.
+            </p>
+          </div>
+          <section
+            v-if="game.run"
+            class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+          >
+            <h3 class="font-serif text-2xl font-bold">
+              Your character portrait
+            </h3>
+            <p class="mt-1 text-sm text-[#f3e6c8]/75">
+              Change your look without restarting the story. Your uploaded image
+              remains private.
+            </p>
+            <div
+              class="mt-3 flex gap-2 overflow-x-auto pb-3"
+              aria-label="Change player portrait"
+            >
+              <button
+                v-for="avatar in PLAYER_AVATARS"
+                :key="avatar.id"
+                type="button"
+                class="w-20 shrink-0 rounded-lg border p-1"
+                :class="
+                  game.run.avatarId === avatar.id
+                    ? 'border-[#d9b877]'
+                    : 'border-[#c9a96e]/25'
+                "
+                :aria-pressed="game.run.avatarId === avatar.id"
+                :aria-label="avatar.label"
+                @click="changePlayerLook(avatar.id)"
+              >
+                <img
+                  v-if="!failedAvatarPortraits.includes(avatar.id)"
+                  :src="`${playerAvatarSrc(avatar.portrait)}?retry=${portraitRetry}`"
+                  :alt="avatar.label"
+                  class="aspect-[2/3] w-full rounded object-cover"
+                  @error="failedAvatarPortraits.push(avatar.id)"
+                />
+                <span
+                  v-else
+                  class="flex aspect-[2/3] items-center justify-center text-2xl"
+                  >{{ avatar.emoji }}</span
+                >
+              </button>
+              <button
+                v-if="customPortraitId && customPortraitUrl"
+                type="button"
+                class="w-20 shrink-0 rounded-lg border p-1"
+                :class="
+                  game.run.avatarId === 'custom'
+                    ? 'border-[#d9b877]'
+                    : 'border-[#c9a96e]/25'
+                "
+                aria-label="My uploaded portrait"
+                :aria-pressed="game.run.avatarId === 'custom'"
+                @click="changePlayerLook('custom')"
+              >
+                <img
+                  :src="customPortraitUrl"
+                  alt=""
+                  class="aspect-[2/3] w-full rounded object-cover"
+                />
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                class="rounded-lg border border-[#d9b877]/70 px-3 py-2 text-sm font-bold"
+                :disabled="uploadingPortrait"
+                @click="openPortraitUpload"
+              >
+                {{ uploadingPortrait ? 'Uploading…' : 'Upload a new portrait' }}
+              </button>
+              <button
+                type="button"
+                class="rounded-lg border border-[#8fb8b0]/60 px-3 py-2 text-sm font-bold"
+                @click="retryPortraits"
+              >
+                Retry missing portraits
+              </button>
+            </div>
+            <p v-if="portraitNotice" role="status" class="mt-2 text-sm">
+              {{ portraitNotice }}
+            </p>
+          </section>
+          <div class="grid gap-4 @3xl:grid-cols-2">
+            <section
+              class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+            >
+              <h3 class="font-serif text-2xl font-bold">
+                Reading &amp; Accessibility
+              </h3>
+              <label
+                class="mt-4 block text-base font-semibold"
+                for="ecotone-text-size"
+              >
+                Text size
+              </label>
+              <select
+                id="ecotone-text-size"
+                v-model.number="displayScale"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option :value="1">Standard</option>
+                <option :value="1.2">Large (default)</option>
+                <option :value="1.4">Extra large</option>
+                <option :value="1.6">Maximum</option>
+              </select>
+              <label
+                class="mt-5 block text-base font-semibold"
+                for="ecotone-text-speed"
+              >
+                Text reveal speed
+              </label>
+              <select
+                id="ecotone-text-speed"
+                v-model="textSpeed"
+                class="mt-2 w-full rounded-lg border border-[#c9a96e]/50 bg-[#09141c] p-3 text-base"
+              >
+                <option value="instant">Instant, no animation (default)</option>
+                <option value="normal">Gradual</option>
+                <option value="slow">Slow and cinematic</option>
+              </select>
+              <p class="mt-3 text-base leading-relaxed text-[#f3e6c8]/85">
+                When text is revealing, use “Show full text” to skip the
+                animation. Text effects stop automatically when reduced motion
+                is preferred.
+              </p>
+              <div
+                class="mt-4 rounded-xl border border-[#8fb8b0]/40 bg-black/25 p-3"
+              >
+                <p class="eco-label">Live reading preview</p>
+                <p class="eco-story-copy mt-2 font-serif leading-relaxed">
+                  The fog has opinions about your font size. You are free to
+                  disagree.
+                </p>
+              </div>
+            </section>
+            <section
+              class="rounded-2xl border border-[#c9a96e]/40 bg-[#0c1a24] p-4"
+            >
+              <h3 class="font-serif text-2xl font-bold">Save Games</h3>
+              <p class="mt-1 text-base text-[#f3e6c8]/80">
+                Your active journey autosaves on this browser after each action.
+                Manual slots are independent checkpoints. Loading replaces the
+                active run, not your unlocked endings.
+              </p>
+              <div class="mt-4 grid gap-3">
+                <div
+                  v-for="slot in [1, 2, 3]"
+                  :key="slot"
+                  class="rounded-xl border border-[#c9a96e]/30 bg-[#09141c] p-3"
+                >
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <div>
+                      <p class="text-lg font-bold">Slot {{ slot }}</p>
+                      <p class="text-sm text-[#f3e6c8]/75">
+                        {{
+                          game.manualSaves.find((item) => item.slot === slot)
+                            ?.savedAt
+                            ? new Date(
+                                game.manualSaves.find(
+                                  (item) => item.slot === slot,
+                                )!.savedAt,
+                              ).toLocaleString()
+                            : 'Empty slot'
+                        }}
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#d9b877] px-3 py-2 text-sm font-bold"
+                        :disabled="!game.run"
+                        @click="saveGame(slot)"
+                      >
+                        Save here
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#8fb8b0]/70 px-3 py-2 text-sm font-bold"
+                        :disabled="
+                          !game.manualSaves.some((item) => item.slot === slot)
+                        "
+                        @click="loadGame(slot)"
+                      >
+                        Load
+                      </button>
+                      <button
+                        type="button"
+                        class="rounded-lg border border-[#e08a5a]/60 px-3 py-2 text-sm font-bold"
+                        :disabled="
+                          !game.manualSaves.some((item) => item.slot === slot)
+                        "
+                        @click="removeSave(slot)"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="eco-gold-button"
+                  :disabled="!game.run"
+                  @click="exportGame"
+                >
+                  Export save as JSON
+                </button>
+                <button
+                  type="button"
+                  class="rounded-lg border border-[#8fb8b0]/70 px-4 py-3 text-base font-bold"
+                  @click="saveImportInput?.click()"
+                >
+                  Import saved journey
+                </button>
+                <input
+                  ref="saveImportInput"
+                  type="file"
+                  accept=".json,application/json"
+                  class="sr-only"
+                  aria-label="Select an Ecotone save JSON file"
+                  @change="importGame"
+                />
+              </div>
+              <p
+                v-if="saveNotice"
+                class="mt-3 text-base text-[#8fb8b0]"
+                role="status"
+              >
+                {{ saveNotice }}
+              </p>
+              <button
+                v-if="game.canUndo"
+                type="button"
+                class="mt-4 rounded-lg border border-[#d9b877]/60 px-4 py-2 text-base font-bold"
+                @click="rewindDecision"
+              >
+                ↶ Rewind last decision
+              </button>
+            </section>
           </div>
         </div>
       </div>
@@ -698,7 +1275,7 @@
           class="mt-4 rounded-3xl border border-white/10 bg-black/25 p-3 sm:p-4"
         >
           <h3 class="font-serif text-lg font-black">
-            You: {{ archetype.name }}
+            {{ game.run.playerName || 'Wanderer' }} · {{ archetype.name }}
           </h3>
           <p class="text-sm text-white/75">{{ archetype.vantage }}</p>
           <div class="mt-2 grid grid-cols-2 gap-2 @xl:grid-cols-5">
@@ -946,6 +1523,180 @@
         </template>
       </div>
 
+      <div v-else-if="tab === 'cases'" class="kr-scroll h-full p-3 sm:p-5">
+        <div class="flex flex-wrap items-end justify-between gap-2">
+          <div class="max-w-2xl">
+            <h2 class="font-serif text-2xl font-black">
+              Case Files {{ game.casesOpened }}/{{ game.caseTotal }}
+            </h2>
+            <p class="text-sm text-white/70">
+              Every weekend, one local mystery finds you: a text, a voicemail, a
+              flyer on a pole. It interrupts the road three times. Pass two of
+              its three gates and the true path opens; what you decide at the
+              reveal chooses its Real Ending. Cases you have not opened come
+              first.
+            </p>
+          </div>
+          <div class="flex gap-3 text-xs text-white/70">
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#8fb8b0]" /> Passed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-[#e08a5a]" /> Failed</span
+            >
+            <span class="flex items-center gap-1.5"
+              ><span class="h-1.5 w-4 rounded-full bg-white/20" /> Not
+              reached</span
+            >
+          </div>
+        </div>
+        <div
+          class="mt-4 grid gap-4 @4xl:grid-cols-[minmax(0,1fr)_minmax(320px,26rem)]"
+        >
+          <div
+            class="grid grid-cols-3 content-start gap-2.5 @md:grid-cols-4 @2xl:grid-cols-6 @4xl:grid-cols-4 @6xl:grid-cols-6"
+          >
+            <button
+              v-for="item in MYSTERIES"
+              :key="item.id"
+              type="button"
+              class="rounded-xl outline-offset-2 transition hover:-translate-y-0.5"
+              :class="
+                selectedCase?.id === item.id
+                  ? 'outline outline-2 outline-[#d9b877]'
+                  : ''
+              "
+              :aria-pressed="selectedCase?.id === item.id"
+              @click="caseId = item.id"
+            >
+              <EcotoneMysteryCard
+                :mystery="item"
+                :locked="!game.caseFiles[item.id]"
+                :record="game.caseFiles[item.id]"
+              />
+            </button>
+          </div>
+          <section
+            v-if="selectedCase"
+            class="self-start rounded-3xl border border-white/10 bg-black/30 p-4"
+          >
+            <p class="eco-label">
+              Case {{ caseNumeral(selectedCase.number) }}
+              <span
+                v-if="game.mystery?.id === selectedCase.id && game.run"
+                class="ml-1 rounded-full bg-[#d9b877] px-2 py-0.5 text-[10px] text-[#09141c]"
+                >This run</span
+              >
+            </p>
+            <template v-if="selectedRecord">
+              <h3 class="mt-1 font-serif text-2xl font-black leading-tight">
+                {{ selectedCase.title }}
+              </h3>
+              <p
+                class="text-xs font-bold uppercase tracking-[.18em] text-[#8fb8b0]"
+              >
+                {{ selectedCase.region }}
+              </p>
+              <p class="mt-3 font-serif leading-relaxed">
+                {{ selectedCase.hook }}
+              </p>
+              <ol class="mt-4 grid gap-2">
+                <li
+                  v-for="(gate, index) in selectedCase.gates"
+                  :key="index"
+                  class="flex items-center gap-3 rounded-xl border border-white/10 p-2.5"
+                >
+                  <span
+                    class="grid size-8 shrink-0 place-items-center rounded-full font-serif text-sm font-black"
+                    :class="gateClass(selectedRecord.gates[index] ?? null)"
+                    >{{ caseNumeral(index + 1) }}</span
+                  >
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-sm font-bold">{{
+                      selectedRecord.gates[index]
+                        ? gate.title
+                        : `Gate ${caseNumeral(index + 1)}`
+                    }}</span>
+                    <span class="block text-xs text-white/60">{{
+                      selectedRecord.gates[index] === 'pass'
+                        ? 'Passed'
+                        : selectedRecord.gates[index] === 'fail'
+                          ? 'Failed: another run can pass it'
+                          : 'Not reached yet'
+                    }}</span>
+                  </span>
+                </li>
+              </ol>
+              <div
+                class="mt-3 rounded-xl p-3 text-sm"
+                :class="
+                  selectedRecord.truePath
+                    ? 'border border-[#f6c55a]/50 bg-[#f6c55a]/10'
+                    : 'bg-black/30'
+                "
+              >
+                <p class="eco-label">
+                  True path ·
+                  {{
+                    selectedRecord.truePath
+                      ? 'opened'
+                      : `needs ${PASSES_FOR_TRUE_PATH} passed gates in one run`
+                  }}
+                </p>
+                <p
+                  v-if="selectedRecord.cold && !selectedRecord.truePath"
+                  class="mt-1 text-xs text-white/60"
+                >
+                  The trail has gone cold before. It can warm up again.
+                </p>
+              </div>
+              <p class="eco-label mt-4">
+                Real Endings {{ selectedRecord.endings.length }}/{{
+                  selectedCase.endings.length
+                }}
+              </p>
+              <ul class="mt-2 grid gap-1.5">
+                <li
+                  v-for="ending in selectedCase.endings"
+                  :key="ending.id"
+                  class="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                  :class="
+                    selectedRecord.endings.includes(ending.id)
+                      ? 'border-[#d9b877]/50'
+                      : 'border-dashed border-white/15 text-white/45'
+                  "
+                >
+                  <Icon
+                    :name="
+                      selectedRecord.endings.includes(ending.id)
+                        ? 'kind-icon:star'
+                        : 'kind-icon:lock'
+                    "
+                    class="size-3.5 shrink-0"
+                  />
+                  <span class="flex-1 font-serif font-bold">{{
+                    selectedRecord.endings.includes(ending.id)
+                      ? ending.title
+                      : 'Unfound ending'
+                  }}</span>
+                  <span class="text-[10px] uppercase tracking-wider">{{
+                    TONE_LABEL[ending.tone]
+                  }}</span>
+                </li>
+              </ul>
+            </template>
+            <template v-else>
+              <h3 class="mt-1 font-serif text-2xl font-black">Unopened</h3>
+              <p class="mt-2 text-sm text-white/70">
+                Somewhere in the county a case is waiting. When its weekend
+                comes, someone will text you about it. Unopened cases come up
+                before ones you have seen.
+              </p>
+            </template>
+          </section>
+        </div>
+      </div>
+
       <div v-else class="kr-scroll h-full p-3 sm:p-5">
         <div class="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -1043,7 +1794,7 @@
         :key="item.value"
         type="button"
         role="tab"
-        class="rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[.2em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @xl:px-4 @xl:text-xs"
+        class="rounded-full px-1.5 py-1 text-[10px] font-bold uppercase tracking-[.1em] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#d9b877] @md:px-2.5 @md:text-[11px] @md:tracking-[.2em] @xl:px-4 @xl:text-xs"
         :class="
           tab === item.value
             ? 'bg-[#d9b877]/15 text-[#d9b877]'
@@ -1055,6 +1806,15 @@
         {{ item.label }}
       </button>
     </nav>
+
+    <input
+      ref="portraitInput"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      class="sr-only"
+      aria-label="Upload a private Ecotone character portrait"
+      @change="uploadPortrait"
+    />
 
     <dialog
       ref="stylePicker"
@@ -1147,8 +1907,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, provide, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  provide,
+  ref,
+  watch,
+} from 'vue'
 import { useEcotoneStore } from '~/stores/ecotoneStore'
+import {
+  readPrivateEcotonePortrait,
+  uploadPrivateEcotonePortrait,
+} from '~/utils/ecotone/privatePortrait'
 import {
   ARCHETYPES,
   CHAPTERS,
@@ -1207,14 +1979,74 @@ import {
   contextualOfferLine,
   sceneMomentOffer,
 } from '~/utils/ecotone/sceneOffers'
+import {
+  PLAYER_AVATARS,
+  PLAYER_PERSONALITIES,
+  playerAvatarSrc,
+} from '~/utils/ecotone/playerIdentity'
+import {
+  loadEcotoneDisplay,
+  saveEcotoneDisplay,
+} from '~/utils/ecotone/displaySettings'
 import { philosophyNeedles } from '~/utils/ecotone/valueNeedles'
 import { substanceEpilogue } from '~/utils/ecotone/substanceArc'
+import {
+  MYSTERIES,
+  PASSES_FOR_TRUE_PATH,
+  caseNumeral,
+  caseRecord,
+  mysteryEndingArtKey,
+  type CaseRecord,
+  type GateResult,
+  type Mystery,
+  type MysteryEndingTone,
+  type MysteryMessage,
+} from '~/utils/ecotone/mysteries'
 
-type Tab = 'road' | 'guides' | 'county' | 'journal' | 'endings'
+type Tab =
+  'road' | 'guides' | 'county' | 'journal' | 'endings' | 'cases' | 'settings'
 
 const game = useEcotoneStore()
 const tab = ref<Tab>('road')
 const picked = ref<string>('reporter')
+const characterName = ref('')
+const pickedAvatar = ref<string>('glitter')
+const failedAvatarPortraits = ref<string[]>([])
+const portraitRetry = ref(0)
+const headerPortraitFailed = ref(false)
+const portraitInput = ref<HTMLInputElement | null>(null)
+const uploadingPortrait = ref(false)
+const portraitNotice = ref('')
+const customPortraitId = ref<number | null>(null)
+const customPortraitUrl = ref('')
+const uploadedPreviewUrl = ref('')
+const activePlayerPortrait = computed(() =>
+  game.run?.avatarId === 'custom'
+    ? customPortraitUrl.value
+    : PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)
+          ?.portrait
+      ? `${playerAvatarSrc(PLAYER_AVATARS.find((avatar) => avatar.id === game.run?.avatarId)!.portrait)}?retry=${portraitRetry.value}`
+      : '',
+)
+watch(activePlayerPortrait, () => {
+  headerPortraitFailed.value = false
+})
+const pickedPersonality = ref<string>('curious')
+const displayScale = ref(1.2)
+const textSpeed = ref<'instant' | 'normal' | 'slow'>('instant')
+const saveNotice = ref('')
+const saveImportInput = ref<HTMLInputElement | null>(null)
+const revealCount = ref(0)
+let revealTimer: ReturnType<typeof setInterval> | null = null
+const stagedChoice = ref<{
+  id: string
+  label: string
+  preview?: string
+  possibilities?: string
+  thumb?: { scene: SceneKind; art?: string | string[] }
+  act: () => void
+} | null>(null)
+
 const continueButton = ref<HTMLButtonElement | null>(null)
 const momentOffer = computed(() =>
   game.run && game.card ? sceneMomentOffer(game.card, game.run) : null,
@@ -1239,6 +2071,7 @@ watch(
   () => game.run?.card,
   () => {
     perkSelected.value = false
+    stagedChoice.value = null
   },
 )
 
@@ -1248,7 +2081,80 @@ const tabs: { value: Tab; label: string }[] = [
   { value: 'county', label: 'Map' },
   { value: 'journal', label: 'Journal' },
   { value: 'endings', label: 'Endings' },
+  { value: 'cases', label: 'Cases' },
+  { value: 'settings', label: 'Settings' },
 ]
+
+// Mysteries (conductor weird-humboldt t-062): the Case Files shelf and the
+// digressions that open each gate.
+const caseId = ref<string | null>(null)
+const selectedCase = computed<Mystery | null>(
+  () =>
+    MYSTERIES.find((item) => item.id === caseId.value) ??
+    (game.mystery && game.caseFiles[game.mystery.id] ? game.mystery : null) ??
+    MYSTERIES.find((item) => game.caseFiles[item.id]) ??
+    MYSTERIES[0] ??
+    null,
+)
+const selectedRecord = computed<CaseRecord | null>(() =>
+  selectedCase.value ? (game.caseFiles[selectedCase.value.id] ?? null) : null,
+)
+const runCase = computed(() => (game.run ? caseRecord(game.run) : null))
+const TONE_LABEL: Record<MysteryEndingTone, string> = {
+  true: 'True',
+  bittersweet: 'Bittersweet',
+  strange: 'Strange',
+}
+
+function rewindDecision() {
+  game.undo()
+  tab.value = 'road'
+}
+
+function openCase(id: string) {
+  caseId.value = id
+  tab.value = 'cases'
+}
+
+function gateClass(gate: GateResult) {
+  return gate === 'pass'
+    ? 'bg-[#8fb8b0] text-[#09141c]'
+    : gate === 'fail'
+      ? 'bg-[#e08a5a] text-[#09141c]'
+      : 'border border-white/20 text-white/50'
+}
+
+function gateSummary(record: CaseRecord) {
+  return record.gates
+    .map((gate) => (gate === 'pass' ? '✓' : gate === 'fail' ? '✗' : '·'))
+    .join(' ')
+}
+
+function caseVerdict(record: CaseRecord) {
+  if (record.endings.length) return 'Case closed'
+  if (record.cold) return 'Gone cold'
+  if (record.gates.every((gate) => gate === null)) return 'Walked away'
+  return 'Open'
+}
+
+function messageLabel(message: MysteryMessage) {
+  return {
+    text: 'Text',
+    voicemail: 'Voicemail',
+    note: 'Note',
+    flyer: 'Flyer',
+    radio: 'Radio',
+    email: 'Email',
+  }[message.medium]
+}
+
+function messageIcon(message: MysteryMessage) {
+  return message.medium === 'text' || message.medium === 'email'
+    ? 'kind-icon:message'
+    : message.medium === 'voicemail' || message.medium === 'radio'
+      ? 'kind-icon:phone'
+      : 'kind-icon:document'
+}
 
 // Art style (conductor weird-humboldt t-039): view-only, shared with every
 // scene through provide/inject, remembered per browser by the helpers.
@@ -1266,6 +2172,80 @@ function openStylePicker() {
   stylePicker.value?.showModal()
 }
 
+watch([displayScale, textSpeed], () =>
+  saveEcotoneDisplay({ scale: displayScale.value, speed: textSpeed.value }),
+)
+
+function stopReveal() {
+  if (revealTimer) clearInterval(revealTimer)
+  revealTimer = null
+}
+
+function revealAll() {
+  stopReveal()
+  revealCount.value = storyText.value.length
+}
+function saveGame(slot: number) {
+  saveNotice.value = game.saveSlot(slot)
+    ? `Saved in slot ${slot}.`
+    : 'Start a run before saving.'
+}
+function loadGame(slot: number) {
+  if (
+    game.run &&
+    !window.confirm(`Replace your active journey with slot ${slot}?`)
+  )
+    return
+  const loaded = game.loadSlot(slot)
+  saveNotice.value = loaded
+    ? `Loaded slot ${slot}.`
+    : 'That save could not be loaded.'
+  if (loaded) tab.value = 'road'
+}
+function removeSave(slot: number) {
+  if (!window.confirm(`Delete manual save in slot ${slot}?`)) return
+  game.deleteSlot(slot)
+  saveNotice.value = `Deleted slot ${slot}.`
+}
+function exportGame() {
+  const saved = game.exportSave()
+  if (!saved) {
+    saveNotice.value = 'Start a run before exporting.'
+    return
+  }
+  const blob = new Blob([saved], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'ecotone-save.json'
+  link.click()
+  URL.revokeObjectURL(url)
+  saveNotice.value = 'Exported a JSON copy of this journey.'
+}
+async function importGame(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+  try {
+    if (file.size > 1024 * 1024) throw new Error('Save exceeds 1 MB.')
+    const data: unknown = JSON.parse(await file.text())
+    if (
+      game.run &&
+      !window.confirm('Replace this journey with the imported save?')
+    )
+      return
+    if (!game.importSave(data))
+      throw new Error('Unsupported or invalid save format.')
+    saveNotice.value = 'Imported journey successfully.'
+    tab.value = 'road'
+  } catch (error) {
+    saveNotice.value =
+      error instanceof Error ? error.message : 'Unable to import save.'
+  } finally {
+    input.value = ''
+  }
+}
+
 const PIPS: Record<number, number[]> = {
   1: [5],
   2: [1, 9],
@@ -1276,6 +2256,9 @@ const PIPS: Record<number, number[]> = {
 }
 
 onMounted(() => {
+  const savedDisplay = loadEcotoneDisplay()
+  displayScale.value = savedDisplay.scale
+  textSpeed.value = savedDisplay.speed
   artStyle.value = loadEcotoneArtStyle()
   game.initialize()
 })
@@ -1298,6 +2281,8 @@ watch(pending, async (value) => {
   await nextTick()
   continueButton.value?.focus()
 })
+
+onUnmounted(stopReveal)
 
 const eventInfo = computed(() => EVENTS.find((e) => e.id === game.run?.event))
 function pad(n: number) {
@@ -1335,13 +2320,86 @@ const archetype = computed(() =>
   ARCHETYPES.find((a) => a.id === game.run?.archetype),
 )
 
+function retryPortraits() {
+  failedAvatarPortraits.value = []
+  headerPortraitFailed.value = false
+  portraitRetry.value += 1
+}
+function openPortraitUpload() {
+  portraitInput.value?.click()
+}
+function changePlayerLook(id: string) {
+  game.setPlayerLook(id, customPortraitId.value)
+  retryPortraits()
+}
+async function loadPrivatePortrait(id: number) {
+  if (!import.meta.client || !Number.isInteger(id) || id <= 0) return
+  try {
+    const src = await readPrivateEcotonePortrait(id)
+    if (customPortraitId.value === id) customPortraitUrl.value = src
+  } catch {
+    portraitNotice.value =
+      'This private portrait could not be loaded. Select another look or upload it again.'
+  }
+}
+watch(
+  () => game.run?.portraitArtId,
+  (id) => {
+    if (!id) return
+    customPortraitId.value = id
+    void loadPrivatePortrait(id)
+  },
+  { immediate: true },
+)
+async function uploadPortrait(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+  if (
+    !['image/jpeg', 'image/png', 'image/webp'].includes(file.type) ||
+    file.size > 8 * 1024 * 1024
+  ) {
+    portraitNotice.value = 'Choose a JPEG, PNG or WebP image under 8 MB.'
+    return
+  }
+  uploadingPortrait.value = true
+  portraitNotice.value = ''
+  try {
+    const id = await uploadPrivateEcotonePortrait(file)
+    if (uploadedPreviewUrl.value) URL.revokeObjectURL(uploadedPreviewUrl.value)
+    uploadedPreviewUrl.value = URL.createObjectURL(file)
+    customPortraitUrl.value = uploadedPreviewUrl.value
+    customPortraitId.value = id
+    if (game.run) game.setPlayerLook('custom', id)
+    else pickedAvatar.value = 'custom'
+    portraitNotice.value =
+      'Private portrait saved. You can switch looks at any time.'
+    retryPortraits()
+  } catch {
+    portraitNotice.value =
+      'Unable to upload. Sign in and try again; your current look is unchanged.'
+  } finally {
+    uploadingPortrait.value = false
+  }
+}
+onUnmounted(() => {
+  if (uploadedPreviewUrl.value) URL.revokeObjectURL(uploadedPreviewUrl.value)
+})
+
 function start() {
   if (!picked.value) return
-  game.begin(picked.value)
+  game.begin(picked.value, {
+    playerName: characterName.value,
+    avatarId: pickedAvatar.value,
+    personalityId: pickedPersonality.value,
+    portraitArtId: customPortraitId.value,
+  })
   tab.value = 'road'
 }
 
 function restart() {
+  stagedChoice.value = null
   game.abandon()
   tab.value = 'road'
 }
@@ -1436,6 +2494,11 @@ type Stage = {
   asides: string[]
   portrait: boolean
   emblem: null | { id: CompanionId; name: string }[]
+  /** A mystery scene shows its case card and, at a gate, the digression. */
+  mysteryCard?: Mystery | null
+  message?: MysteryMessage | null
+  /** The Real Ending a finale choice just reached. */
+  realEnding?: string | null
 }
 
 const stage = computed<Stage>(() => {
@@ -1542,27 +2605,45 @@ const stage = computed<Stage>(() => {
       card.choices.some((choice) => choice.meet !== undefined) && !outcomeShown
     const prospect = game.prospect
     const cardArt = [cardArtKey(card.id), ...(card.art ? [card.art] : [])]
+    const meta = game.mysteryMeta
+    const numeral = meta ? caseNumeral(meta.mystery.number) : ''
+    const realEnding =
+      meta && pending.value && game.realEnding ? game.realEnding.title : null
     return {
       scene: card.scene,
       art:
         portrait && prospect
           ? prospect.art
           : outcome
-            ? [outcome, ...cardArt]
+            ? [
+                ...(realEnding && meta && game.realEnding
+                  ? [mysteryEndingArtKey(meta.mystery.id, game.realEnding.id)]
+                  : []),
+                outcome,
+                ...cardArt,
+              ]
             : cardArt,
       alt:
         portrait && prospect
           ? `${prospect.name}, ${prospect.role}`
           : card.title,
-      kicker: portrait
-        ? 'Companion encounter'
-        : card.id.startsWith('CO-')
-          ? 'Companion interlude'
-          : card.kind === 'spine'
-            ? `Story beat · ${card.id}`
-            : `Encounter · ${card.id}`,
-      title: card.title,
-      subtitle: card.place,
+      kicker: meta
+        ? realEnding
+          ? `Case ${numeral} · Real Ending`
+          : meta.kind === 'gate'
+            ? `Case ${numeral} · Gate ${caseNumeral(meta.gate ?? 1)} of III`
+            : meta.kind === 'cold'
+              ? `Case ${numeral} · The trail goes cold`
+              : `Case ${numeral} · The true path`
+        : portrait
+          ? 'Companion encounter'
+          : card.id.startsWith('CO-')
+            ? 'Companion interlude'
+            : card.kind === 'spine'
+              ? `Story beat · ${card.id}`
+              : `Encounter · ${card.id}`,
+      title: realEnding ?? card.title,
+      subtitle: realEnding && meta ? meta.mystery.title : card.place,
       place: card.place.split(',')[0] ?? card.place,
       meet:
         portrait && prospect
@@ -1573,7 +2654,7 @@ const stage = computed<Stage>(() => {
         ? 'Your first perspective stays with you. Every future remains possible.'
         : '',
       question: card.choices.some((choice) => choice.lens)
-        ? 'How do you enter the weekend?'
+        ? 'What draws your attention here?'
         : 'How do you answer?',
       body: [
         ...cardBody(card, run),
@@ -1590,10 +2671,64 @@ const stage = computed<Stage>(() => {
         portrait && prospect
           ? [{ id: prospect.id, name: prospect.name }]
           : leadEmblem,
+      mysteryCard: meta?.mystery ?? null,
+      message: meta?.message ?? null,
+      realEnding,
     }
   }
   return fallback
 })
+
+const storyText = computed(
+  () => pending.value?.text ?? stage.value.body.join('\n\n'),
+)
+const revealedBody = computed(() => {
+  if (textSpeed.value === 'instant') return stage.value.body
+  let remaining = revealCount.value
+  return stage.value.body
+    .map((paragraph) => {
+      const result = paragraph.slice(0, Math.max(0, remaining))
+      remaining -= paragraph.length + 2
+      return result
+    })
+    .filter(Boolean)
+})
+const revealedResult = computed(() =>
+  textSpeed.value === 'instant'
+    ? (pending.value?.text ?? '')
+    : (pending.value?.text ?? '').slice(0, revealCount.value),
+)
+const hasHiddenText = computed(
+  () =>
+    textSpeed.value !== 'instant' && revealCount.value < storyText.value.length,
+)
+watch(
+  [storyText, textSpeed, tab],
+  () => {
+    stopReveal()
+    if (
+      textSpeed.value === 'instant' ||
+      tab.value !== 'road' ||
+      (import.meta.client &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    ) {
+      revealCount.value = storyText.value.length
+      return
+    }
+    revealCount.value = 0
+    revealTimer = setInterval(
+      () => {
+        revealCount.value = Math.min(
+          storyText.value.length,
+          revealCount.value + (textSpeed.value === 'normal' ? 8 : 3),
+        )
+        if (revealCount.value >= storyText.value.length) stopReveal()
+      },
+      textSpeed.value === 'normal' ? 25 : 45,
+    )
+  },
+  { immediate: true },
+)
 
 const portraitSrc = computed(() =>
   stage.value.portrait
@@ -1607,10 +2742,30 @@ type Option = {
   hint?: string
   chip?: string
   chipTitle?: string
+  preview?: string
+  possibilities?: string
   disabled?: boolean
   perkEligible?: boolean
   thumb?: { scene: SceneKind; art?: string | string[] }
   act: () => void
+}
+
+function queueDecision(option: Option) {
+  if (option.disabled) return
+  stagedChoice.value = {
+    id: option.id,
+    label: option.label,
+    preview: option.preview,
+    possibilities: option.possibilities,
+    thumb: option.thumb,
+    act: option.act,
+  }
+}
+
+function confirmDecision() {
+  const decision = stagedChoice.value
+  stagedChoice.value = null
+  decision?.act()
 }
 
 const options = computed<Option[]>(() => {
@@ -1622,7 +2777,9 @@ const options = computed<Option[]>(() => {
       label: event.name,
       hint: `${event.kind}. ${event.blurb}`,
       chip: `${event.days.length} days`,
-      chipTitle: `Meet ${event.companions.map(companionName).join(' or ')}${event.wildTarget ? ', or nobody' : ''}`,
+      chipTitle: 'Preview this route before committing',
+      preview: event.arrival,
+      possibilities: event.possibilities,
       thumb: { scene: event.scene, art: event.art },
       act: () => game.pickEvent(event.id),
     }))
@@ -1761,6 +2918,19 @@ function endingsFor(id: EndingLine) {
 </script>
 
 <style scoped>
+.eco-story-copy {
+  font-size: calc(1.125rem * var(--eco-text-scale, 1.2));
+  line-height: 1.55;
+}
+.eco-choice-main {
+  font-size: calc(1rem * var(--eco-text-scale, 1.2));
+  line-height: 1.35;
+}
+@container (min-width: 64rem) {
+  .eco-story-copy {
+    font-size: calc(1.25rem * var(--eco-text-scale, 1.2));
+  }
+}
 .eco-pill {
   height: 2rem;
   align-items: center;
@@ -1786,14 +2956,14 @@ function endingsFor(id: EndingLine) {
   border: 1px solid rgb(143 184 176 / 0.55);
   background: rgb(18 40 44 / 0.75);
   padding: 0.3rem 0.9rem;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   backdrop-filter: blur(4px);
 }
 .eco-label {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1833,7 +3003,7 @@ function endingsFor(id: EndingLine) {
   border-radius: 0.65rem;
   border: 1px solid rgb(201 169 110 / 0.3);
   background: rgb(20 38 48 / 0.85);
-  padding: 0.7rem 0.9rem;
+  padding: 0.9rem 1rem;
   text-align: left;
   transition:
     border-color 0.15s,

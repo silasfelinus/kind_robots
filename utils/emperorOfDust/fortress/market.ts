@@ -396,7 +396,7 @@ const STALL_LINES: Record<KingdomFactionId | 'stores', string> = {
   moles: 'A tunnel trader sells lamps from a sack and watches the Gate Watch.',
   rustline:
     'Rustline merchants lay salvage out on oilcloth. Nobody asks where it was dug up.',
-  'black-verge': 'A gorilla in a velvet coat. He sells from the shade only.',
+  'black-verge': 'A broker in a velvet coat. He sells from the shade only.',
   stores: 'The quartermaster unlocks the stores and counts out loud.',
 }
 

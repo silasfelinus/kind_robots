@@ -2,7 +2,7 @@ import type { DayDef, DueDef, QuestDef, SceneLine, SceneVariant } from './types'
 import type { EpilogueSubject } from './epilogue'
 
 // Act III, Days 21-30, "Kind Roads" (conductor DAY-PLAN.md): the Black
-// Verge at the border, the mission road, the Abbess at court, Flint's trial,
+// Verge at the border, the mission road, the Abbess at court, Flint’s trial,
 // Mara's secret page and the terms of shelter before the faction wars
 // resolve on the map. Harm to children stays off-screen: neat empty cots,
 // tracks that only lead in, a door kept locked (WORLD-GUIDE.md).
@@ -165,10 +165,11 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
       success:
         'Not Moles. Not knives. River water in the lungs. Each wore a mission-road token, the kind the Abbey gives parents who visit. Their boots were worn through at the toe. They walked a long way after the Abbey sent them home. Where, the court does not know.',
       partial:
-        'The travellers wore mission-road tokens. Nobody learned more before the river took them back.',
+        'The searchers recover two mission-road tokens lodged in the reeds. They bear different dates but the same punched hole. Before anyone can inspect the far bank, the current rises and takes the last tracks.',
       failure:
         'The party came back with nothing. The Old Houses filled the silence: the Moles did it. The burrows will remember.',
-      expired: 'Nobody looked close. The Moles were blamed by suppertime.',
+      expired:
+        'No one comes to the ford. By supper an Old House clerk has blamed the Mole Revolutionaries. A burrow warden brings the accusation back to court with river silt on the paper.',
     },
   },
   {
@@ -206,9 +207,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
         'The blue lantern led to a Rustline cache: tincture, lamp glass, a crate of clean needles. The smuggler was a girl of fifteen with a burned hand. She offered the crown a fifth before anyone drew.',
       success:
         'The lantern carries medicine past the Ledger’s tolls to the Freehold farms. Now the court knows the route. So does its purse.',
-      partial: 'The lantern went underground. The party did not follow.',
-      failure: 'The lantern went out. The party walked home in the dark.',
-      expired: 'The lantern moved to another line.',
+      partial:
+        'The blue lantern vanishes through a hatch beneath a boarded tollhouse. A farmer insists the cellar belongs to nobody. At dawn fresh bootprints cross the frost between the door and the road.',
+      failure:
+        'The lantern goes out under the rail bridge. The party returns with soot on their gloves and boiled herbs in their coats. The Freehold clinic still has no medicine.',
+      expired:
+        'The unguarded route changes overnight. At the tollhouse a used bandage lies beside an empty medicine bottle. Whoever carried the blue lantern now trusts another road.',
     },
   },
   {
@@ -239,11 +243,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The road was swept. Not well enough. Small bare footprints, many, going up to the Abbey gate. Coming down, fewer, in new boots, in step with a grown pair.',
-      partial: 'The road had been swept that morning. Carefully.',
+      partial:
+        'The mission road has been freshly swept, even between the stones. A wheel rut leads to the Abbey gate and ends at its threshold. Sister Marrow says the courtyard was cleaned for guests.',
       failure:
-        'Two sisters in grey met the party on the road and walked them home. Kindly. All the way.',
+        'Two sisters meet the investigators halfway up the mission road and escort them home through the rain. They offer tea and a dry place to sleep. The party returns unsure whether they were protected or turned away.',
       expired:
-        'Nobody walked the road. Bett Ormond went home to wait for the next letter.',
+        'Bett Ormond stands by the empty escort bench until dusk, then folds the Abbey directions into her coat. The next morning she asks whether a letter has arrived. The courier has nothing for her.',
     },
   },
   {
@@ -273,9 +278,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Sister Marrow showed them the dormitory, three cots made tight, then the schoolroom. The two older Coldbrooks were there, scrubbed, reading aloud. They ran to their mother. The youngest was in the fever ward, below. The party was not let down the stair.',
-      partial: 'The gate stayed shut. A sister promised a visit next week.',
-      failure: 'The sisters were so sorry. The children were sleeping.',
-      expired: 'Nobody went. Wenna was relieved. She said so twice.',
+      partial:
+        'Sister Marrow speaks through the half-open gate and promises a supervised visit next week. She sends the family a clean blanket and a school exercise. The child who wrote it did not sign a name.',
+      failure:
+        'The sisters say the children have gone to bed early after a fever round. They show three folded coats in the schoolroom but decline the stairs to the infirmary. There is no proof of harm and no proof all is well.',
+      expired:
+        'No one takes the road. Wenna keeps the visit papers on her kitchen shelf and says the youngest needs rest. She says it again when the next Abbey letter arrives, before she opens it.',
     },
   },
   {
@@ -309,9 +317,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The dry-well jackals are scattered. Vane threw a feast in their own camp and sat the freed Freehold farmers at the head of the table. He served them himself. Badly.',
-      partial: 'The jackals pulled back into the dry well. They will be back.',
-      failure: 'The dry well held. Two Freehold farms were emptied that night.',
-      expired: 'Vane fought alone and lost wagons.',
+      partial:
+        'The raiders retreat into the dry well and drag a painted wagon across its mouth. Farmers bring the crown a map of the escape route. Vane offers to settle the account before the raiders find another gate.',
+      failure:
+        'The raiders keep the dry well. Two Freehold families reach the ford before dawn with their doors strapped to a cart. Vane leaves his feast untouched and asks for another chance.',
+      expired:
+        'The crown sends no escort. Vane attacks with his own riders and returns with one painted wagon less. The freed farmers know whose banner they did not see.',
     },
   },
   {
@@ -337,9 +348,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The grain went to the Moles, yes. From the Old Houses’ own granary, at three times market price. Flint was trying to stop it.',
-      partial: 'The ledgers are muddled. Nobody cleared, nobody condemned.',
-      failure: 'The ledgers say what the Old Houses wanted.',
-      expired: 'The court never read the ledgers.',
+      partial:
+        'The grain accounts disagree. One bears Flint’s signature; another names a broker dead three years. The Old Houses demand a verdict before either book can be traced.',
+      failure:
+        'The auditors return clean accounts bearing the Old House seal. Flint’s witnesses were not asked to sign. By evening the tower steps are crowded with people holding missing receipts.',
+      expired:
+        'The ledger packet sits unopened through the hearing. Flint is judged by rumor instead. A junior clerk keeps the sealed packet beneath her desk in case someone still wants the facts.',
     },
   },
   {
@@ -373,10 +387,12 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The charm kills the rot. The grain stays cold to the touch. Always. The Yard eats it anyway.',
-      partial: 'The charm slowed the rot. Nobody likes the taste.',
+      partial:
+        'The charm arrests mold along the outer sacks, but the grain tastes of iron. Dunmore keeps one loaf beneath a glass bell. He wants the court to decide whether to serve the rest.',
       failure:
         'Two of the testers walked to the north gate in their sleep and stood facing the Verge until dawn. Neither remembers it. Both are cold to the touch.',
-      expired: 'The rot took another storeroom.',
+      expired:
+        'No one tests the charm. By the third morning the rot climbs the next storeroom wall, leaving a tide mark on the sacks. The Yard asks which families will lose their rations first.',
     },
   },
   {
@@ -464,7 +480,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         variants: [
           {
             flags: ['d03-tincture-fee-lapsed'],
-            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the hyena price. Triple, since the crown stopped paying.',
+            text: 'Gristle Vane wants an alliance against the riders in plum. He crossed the Saltroad bridge to ask, at the Pack’s price. Triple, since the crown stopped paying.',
           },
         ],
       },
@@ -551,7 +567,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'price',
             lines: [
-              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every hyena who doesn’t come home.”',
+              '“Three things. The crown’s colours on my wagons, so the Freeholds stop shooting at them. The southern bridge toll, legal, under your seal. And when the plum riders come, the Pack fights in front and you pay for every rider who doesn’t come home.”',
               '“Or.” He leans in. His ear-chain jangles. “Keep a few of my pups in your tower this winter. Guests. Fed, warm, safe. Every captain in the canyon would know the Pack can’t turn on you while its children eat your bread.”',
               {
                 who: 'Young Komodo',
@@ -587,7 +603,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-pups-guests', 'pack-alliance'],
                 },
                 response:
-                  'That evening six hyena pups walk into the Yard in a line, each holding the tail in front. The cooks feed them. Vane does not watch them go in.',
+                  'That evening six young Jackalwire recruits walk into the Yard in a line, each holding the coat hem of the one ahead. The cooks feed them. Vane does not watch them go in.',
               },
               {
                 id: 'tincture-debt',
@@ -614,7 +630,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['d21-pack-threatened', 'pack-alliance'],
                 },
                 response:
-                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young hyena with the bandaged paw stops coming to the postern gate.',
+                  'Vane looks at you a long moment. “The one with the bandaged paw,” he says. “Of course.” He will stand with the tower, and never turn his back on it. The young informant with the bandaged paw stops coming to the postern gate.',
               },
               {
                 id: 'refuse',
@@ -900,8 +916,8 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         npc: 'ottoline-vask',
         faction: 'old-houses',
         lines: [
-          'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a Mole root-knife.',
-          'Three dead at the Ford, Majesty, and the Mole tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
+          'Lady Vask arrives in mourning grey. It suits her. Behind her a steward carries a velvet cushion. On it lies a short hooked knife, a root-knife from the burrows.',
+          'Three dead at the Ford, Majesty, and the burrow tunnels run under it. This was on the bank beside them. The Old Houses ask for justice. Meaning arrests.',
           'Justice delayed is only a longer funeral. The Moles were told the Ford would be argued in council. They argued in the river instead.',
           {
             who: 'Young Komodo',
@@ -912,7 +928,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         options: [
           {
             id: 'blame',
-            label: 'Arrest the Mole cell nearest the Ford.',
+            label: 'Arrest the revolutionary cell nearest the Ford.',
             effects: {
               affinity: { moles: -15 },
               local: { 'old-houses': 3 },
@@ -949,9 +965,9 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'knife',
             lines: [
-              'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a Mole’s root-knife lives in soil like a spoon lives in soup.',
+              'The knife is heavy. Clean. Bright hinge. No soil in it anywhere, and a burrow-digger’s root-knife lives in soil like a spoon lives in soup.',
               'One side of the grip is filed smooth, a neat patch, right where a cutler stamps his mark.',
-              '“Moles may own a clean knife,” says Lady Vask. “Even Moles wash. And many knives are filed, Majesty. Thieves file them.”',
+              '“A burrow cutler might own a clean knife,” says Lady Vask. “Even a thief washes up. And many knives are filed, Majesty. Thieves file them.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -985,7 +1001,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 id: 'blame',
                 label:
-                  'Arrest the Mole cell anyway. A clean knife proves nothing.',
+                  'Arrest the revolutionary cell anyway. A clean knife proves nothing.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
@@ -1074,7 +1090,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               {
                 id: 'blame',
                 label:
-                  'Trinkets are trinkets. Arrest the Mole cell nearest the Ford.',
+                  'Trinkets are trinkets. Arrest the revolutionary cell nearest the Ford.',
                 effects: {
                   affinity: { moles: -15 },
                   local: { 'old-houses': 3 },
@@ -2386,7 +2402,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'mole-truce',
         source: 'Granny Umber’s cell',
-        text: 'The Mole cells will talk truce, if the crown meant its talks.',
+        text: 'The revolutionary cells will talk truce, if the crown meant its talks.',
         truth: true,
         variants: [
           {
@@ -2397,7 +2413,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           },
           {
             flags: ['moles-blamed'],
-            text: 'The Mole cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
+            text: 'The revolutionary cells will talk truce, if the crown meant its talks. First they want back the cell it took at the Ford.',
           },
         ],
       },
@@ -2462,7 +2478,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             requires: { follower: 'F013' },
             effects: { affinity: { jackalwire: 5 } },
             response:
-              'Vane grins with every tooth. “The big one. The rhino. I hoped you’d say her name.”',
+              'Vane grins with every tooth. “The big one. The Watch veteran. I hoped you’d say her name.”',
             postsQuests: ['q-d26-dry-well'],
           },
         ],
@@ -2517,7 +2533,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 requires: { follower: 'F013' },
                 effects: { affinity: { jackalwire: 5 } },
                 response:
-                  'Vane folds the sack away like a letter. “The rhino. Good. They can walk around her, if they can find the end of her.”',
+                  'Vane folds the sack away like a letter. “The Watch veteran. Good. They can walk around her, if they can find the end of her.”',
                 postsQuests: ['q-d26-dry-well'],
               },
             ],
@@ -2527,7 +2543,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'd26-mole-truce',
         title: 'A Genuine Truce',
-        speaker: 'Keel Understone, surveyor of the Mole cells',
+        speaker: 'Keel Understone, surveyor of the revolutionary cells',
         faction: 'moles',
         requires: {
           flags: ['mole-talks-opened'],
@@ -2578,7 +2594,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             id: 'apology',
             label:
-              'Apologise for the Mole cell the crown arrested at the Ford.',
+              'Apologise for the revolutionary cell the crown arrested at the Ford.',
             requires: { flags: ['moles-blamed'] },
             effects: {},
             response:
@@ -2730,7 +2746,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
-            text: 'Forty sacks went down a Mole hole, Majesty. Out of the crown store. Out of my Yard’s winter. My cooks’ children ate soup water that month. I’m not with the Houses. I’m with the soup.',
+            text: 'Forty sacks went down a flooded burrow, Majesty. Out of the crown store. Out of my Yard’s winter. My cooks’ children ate soup water that month. I’m not with the Houses. I’m with the soup.',
           },
           'Flint says nothing in her own defense. Only: “Read the ledgers.”',
           {
@@ -2930,7 +2946,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         lines: [
           'Sister Reedlight comes in after the gallery empties. Green lantern lit at noon again. The flame still does not move. She waits until the doors are shut.',
           'On the Mirefen road your escort counted us, Your Majesty. Quietly, as you asked. Forty-one walked. Forty-one arrived. You are the first crown to count the fen and not sell the number.',
-          'Someone came to buy it. A white goat in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
+          'Someone came to buy it. An Abbey sister in grey, a cord of knots at her belt. She asked how many children walk with us, and how old.',
           'The fen does not love the Abbey. But the fen hears what moves under the mission road. It is getting louder. We would show you.',
           {
             who: 'Young Komodo',
@@ -3058,7 +3074,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
           'The Envoy of the Black Verge is tall, still and pale in a plum court coat. White gloves, never dirtied. They bow exactly as low as protocol requires. A servant sets a lacquered box on the step beside a sack of the Yard’s rotten grain.',
           'The Court has heard of your rot, Majesty. We have charms against it. A gift, between neighbours.',
           'The envoy touches the grain with one gloved finger. The grey bloom fades. The kernels under it are clean, faintly frosted.',
-          'One small thing. A courtier of ours has wandered off. A black leopard, lovely manners. If they come to your gate, we would like them back.',
+          'One small thing. A courtier of ours has wandered off. An exile, lovely manners. If they come to your gate, we would like them back.',
           {
             who: 'Foreman Dunmore Ash',
             npc: 'dunmore-ash',
@@ -3237,7 +3253,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
         speaker: 'Sable Thorne',
         faction: 'black-verge',
         lines: [
-          'Late in the day a black leopard in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
+          'Late in the day an exiled courtier in a moth-eaten plum coat walks up the carpet like someone who once had a herald. White gloves, mended at the fingertips. They stop exactly where petitioners should. Nobody else has, all month.',
           'I had hoped to arrive before my former colleagues, Majesty. I am late. I ask for sanctuary, with impeccable manners.',
           'If you send me back, I will go. I would much rather not.',
           'Through the open doors, across the courtyard, the envoy watches. Does not blink.',
@@ -3375,15 +3391,15 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
       {
         id: 'mole-forgery',
         source: 'Young Komodo’s own runner',
-        text: 'The cut page is a Mole forgery meant to ruin Mayor Reedbell.',
+        text: 'The cut page is a forgery from the burrows meant to ruin Mayor Reedbell.',
         truth: false,
         komodoLie: true,
         hindsight:
-          'No Mole touched that page. He wanted the ledger shut, and the burrows blamed for shutting it.',
+          'No one from the burrows touched that page. He wanted the ledger shut, and the burrows blamed for shutting it.',
         variants: [
           {
             flags: ['mole-truce'],
-            text: 'The cut page is a Mole forgery. The burrows have their water now. They want Hollow Bell’s too.',
+            text: 'The cut page is a forgery from the burrows. The burrows have their water now. They want Hollow Bell’s too.',
           },
         ],
       },
@@ -3651,7 +3667,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
             npc: 'abelard-vellum',
             lines: [
               '“No one, Majesty. The Archive reported a page missing three days ago. The page came this morning. I told only the throne.”',
-              '“Yet your advisor’s runner had decided before dawn it was a Mole forgery.” He blinks, slowly. “I only remark on it. Remarking is most of what keepers do.”',
+              '“Yet your advisor’s runner had decided before dawn it was a forgery from the burrows.” He blinks, slowly. “I only remark on it. Remarking is most of what keepers do.”',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -3797,7 +3813,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
               flags: ['sheltered-moles'],
             },
             response:
-              'The Mole envoy blinks up at the gate. He never once expected it to open.',
+              'The burrow envoy blinks up at the gate. He never once expected it to open.',
           },
           {
             id: 'ask-losses',
@@ -3831,7 +3847,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                 text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Oriel says she isn’t begging. She says it’s arithmetic.',
               },
               {
-                who: 'The Mole envoy',
+                who: 'The burrow envoy',
                 text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
               },
               {
@@ -3855,7 +3871,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                     text: 'The road. Lose the Saltroad tonight and medicine stops everywhere by spring. Your Yard too. Mind, we already pay the Ledger a toll to read our own roads, Majesty. You sold them the copies. Oriel says she isn’t begging. She says it’s arithmetic.',
                   },
                   {
-                    who: 'The Mole envoy',
+                    who: 'The burrow envoy',
                     text: 'Nothing we haven’t lost before. We have tunnels. We survive. I came to see if the gate would open for us. Nobody ever asked what we’d lose.',
                   },
                   {
@@ -3889,7 +3905,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-freeholds'],
                 },
                 response:
-                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old mole thanks you for asking and goes back into the dark.',
+                  'Hester Plowright weeps openly and hates herself for it. The drover leaves without a word. The old tunnel delegate thanks you for asking and goes back into the dark.',
               },
               {
                 id: 'saltroad',
@@ -3914,7 +3930,7 @@ export const ACT_THREE_DAYS: readonly DayDef[] = [
                   flags: ['sheltered-moles'],
                 },
                 response:
-                  'The Mole envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
+                  'The burrow envoy blinks up at the gate. He never expected it to open. Hester Plowright spits on your floor, precisely, and leaves.',
               },
               {
                 // t-043: undo the Day 14 sale, at the Ledger's expense.

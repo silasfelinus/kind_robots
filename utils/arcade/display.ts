@@ -33,6 +33,10 @@ export function isRenderStyle(value: unknown): value is RenderStyle {
 export const MAX_DPR = 3
 /** The HD supersample factor's ceiling: 2400 device pixels across a 480-wide game. */
 export const MAX_HD_SCALE = 5
+/** Bound supersampled canvases to a manageable backing-store memory footprint. */
+export const MAX_HD_CANVAS_PIXELS = 3_240_000
+/** Phones prioritize a responsive 1080p backing surface over invisible supersampling. */
+export const MOBILE_HD_CANVAS_PIXELS = 2_073_600
 /** Pixel fills its box rather than leave more than this share of it empty for a whole multiple. */
 export const PIXEL_MIN_FILL = 0.8
 
@@ -58,19 +62,43 @@ export function fitDisplay(options: {
   width: number
   height: number
   available: number
+  availableHeight?: number
+  maxCanvasPixels?: number
   dpr: number
   style: RenderStyle
 }): DisplayFit {
   const { width, height, style } = options
-  const available = Math.max(1, options.available)
+  const requestedWidth = Math.max(1, options.available)
+  const available =
+    options.availableHeight !== undefined &&
+    Number.isFinite(options.availableHeight) &&
+    options.availableHeight > 0
+      ? Math.min(
+          requestedWidth,
+          Math.max(1, Math.floor((options.availableHeight * width) / height)),
+        )
+      : requestedWidth
   const dpr = Math.min(
     MAX_DPR,
     Number.isFinite(options.dpr) && options.dpr > 0 ? options.dpr : 1,
   )
   const device = available * dpr
   if (style === 'hd') {
+    const pixelBudget = Math.min(
+      MAX_HD_CANVAS_PIXELS,
+      options.maxCanvasPixels !== undefined &&
+        Number.isFinite(options.maxCanvasPixels) &&
+        options.maxCanvasPixels > 0
+        ? options.maxCanvasPixels
+        : MAX_HD_CANVAS_PIXELS,
+    )
+    const budgetScale = Math.max(
+      1,
+      Math.floor(Math.sqrt(pixelBudget / (width * height))),
+    )
     const scale = Math.min(
       MAX_HD_SCALE,
+      budgetScale,
       Math.max(1, Math.ceil(device / width - 1e-9)),
     )
     return {

@@ -1,590 +1,1112 @@
 <template>
   <main class="kr-surface plumber-page">
     <div
-      class="kr-scroll mx-auto max-w-[1500px] space-y-14 px-3 pb-16 pt-5 sm:px-6"
+      class="plumber-console kr-scroll"
+      aria-label="Save the Plumber handheld game menu"
     >
-      <section
-        class="plumber-title relative isolate overflow-hidden rounded-[2rem] border-4 border-[#e2bc7c] bg-[#0c2f47] text-[#fff8e5] shadow-[0_30px_60px_-30px_rgba(6,30,44,.9)]"
-        aria-label="Save the Plumber title screen"
-        @pointermove="onTilt"
-        @pointerleave="tilt = { x: 0, y: 0 }"
-      >
-        <div
-          class="absolute inset-x-0 bottom-0 -z-10 h-[400px] md:inset-0 md:h-auto"
+      <header class="plumber-console-top">
+        <NuxtLink
+          to="/"
+          class="plumber-home"
+          aria-label="Return to Kind Robots dashboard"
+          >⌂</NuxtLink
         >
-          <PlumberTitleScene :heroine="heroine" :tilt="tilt" />
-        </div>
+        <span class="plumber-system"
+          >KIND ROBOTS <strong>◆ ADVENTURE SYSTEM</strong></span
+        >
+        <span class="plumber-progress" aria-live="polite">
+          {{
+            plumber.chosen ? 'SAVE ' + plumber.percent + '%' : 'NEW ADVENTURE'
+          }}
+        </span>
+      </header>
+
+      <div
+        ref="viewport"
+        class="plumber-viewport"
+        tabindex="-1"
+        @keydown="onScreenKey"
+      >
+        <!-- These are the shipped moving Krea world-map plates, not CSS-animated SVG shapes.
+             A real still remains visible on unsupported codecs and for reduced motion. -->
         <div
-          class="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(12,47,71,1)_0%,rgba(12,47,71,.9)_45%,rgba(12,47,71,0)_62%)] md:bg-[linear-gradient(90deg,rgba(8,34,50,.92)_0%,rgba(8,34,50,.6)_40%,rgba(8,34,50,0)_68%)]"
+          v-if="screen !== 'play' && screen !== 'guide'"
+          class="plumber-motion"
           aria-hidden="true"
-        />
-
-        <div
-          class="flex min-h-[640px] flex-col justify-start gap-5 px-6 pb-[340px] pt-8 sm:px-10 md:min-h-[600px] md:justify-center md:pb-10 lg:min-h-[640px]"
         >
-          <p
-            class="w-fit rounded-full border border-amber-100/30 bg-[#0e4255]/80 px-4 py-1 text-[11px] font-bold uppercase tracking-[.22em] text-amber-100 backdrop-blur"
+          <img
+            :src="poster"
+            alt=""
+            decoding="async"
+            class="plumber-motion-image"
+          />
+          <video
+            v-if="!reducedMotion"
+            :key="clipWorld"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="metadata"
+            class="plumber-motion-video"
+            :poster="poster"
           >
-            <span
-              class="mr-1 inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400 align-middle"
-            />
-            Work in progress · eight worlds playable, thirty-two stages and the
-            rescue
-          </p>
-
-          <h2 class="plumber-logo select-none" aria-label="Save the Plumber!">
-            <span class="plumber-logo-line">SAVE</span>
-            <span class="plumber-logo-the">THE</span>
-            <span class="plumber-logo-line plumber-logo-big">PLUMBER!</span>
-          </h2>
-
-          <p
-            class="max-w-[460px] text-base leading-relaxed text-amber-50/90 sm:text-lg"
-          >
-            The rivers are running uphill. Your boyfriend went to find out why
-            and never came back. Eight strange worlds, one fearless heroine, and
-            a very badly behaved waterworks corporation.
-          </p>
-
-          <div class="flex flex-wrap gap-3">
-            <a
-              href="#plumber-play"
-              class="plumber-start btn btn-lg border-0 bg-[#ffcf82] text-[#123c44] hover:bg-white"
-            >
-              ▶ Press Start
-            </a>
-            <a
-              href="#plumber-map"
-              class="btn btn-lg border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
-            >
-              World map
-            </a>
-            <a
-              href="#plumber-casting"
-              class="btn btn-lg border-white/40 bg-white/10 text-white backdrop-blur hover:bg-white/20"
-            >
-              Meet the heroines
-            </a>
-          </div>
-
-          <dl
-            class="grid grid-cols-2 gap-x-6 gap-y-1 pt-1 sm:flex sm:flex-wrap"
-          >
-            <div
-              v-for="stat in stats"
-              :key="stat.label"
-              class="flex items-baseline gap-2"
-            >
-              <dt class="sr-only">{{ stat.label }}</dt>
-              <dd class="plumber-display text-3xl text-[#ffcf82]">
-                {{ stat.value }}
-              </dd>
-              <span
-                class="text-xs font-bold uppercase tracking-widest text-amber-50/70"
-                >{{ stat.label }}</span
-              >
-            </div>
-          </dl>
+            <source :src="clipRoot + '.webm'" type="video/webm" />
+            <source :src="clipRoot + '.mp4'" type="video/mp4" />
+          </video>
         </div>
 
-        <a
-          href="#plumber-casting"
-          class="absolute bottom-4 right-4 flex items-center gap-2 rounded-full border border-white/30 bg-[#0b2a3a]/75 py-1.5 pl-1.5 pr-4 text-sm text-white shadow-lg backdrop-blur transition hover:bg-[#0b2a3a]"
-        >
-          <span class="h-9 w-9 overflow-hidden rounded-full bg-[#ffcf82]">
-            <PlumberHeroineFace :heroine="heroine" face class="h-full w-full" />
-          </span>
-          <span class="leading-tight">
-            <span
-              class="block text-[10px] font-bold uppercase tracking-widest text-amber-100/80"
-              >Starring</span
-            >
-            <span class="font-bold">{{ heroine.name }}</span>
-          </span>
-        </a>
-      </section>
-
-      <section aria-labelledby="plumber-prologue" class="space-y-4">
-        <header class="max-w-2xl">
-          <p class="plumber-kicker">Previously, in the pipes</p>
-          <h3
-            id="plumber-prologue"
-            class="plumber-display text-3xl sm:text-4xl"
+        <Transition name="plumber-screen" mode="out-in">
+          <section
+            v-if="screen === 'title'"
+            key="title"
+            class="plumber-view plumber-title-view"
+            aria-labelledby="plumber-name"
           >
-            One morning, the water went the wrong way.
-          </h3>
-        </header>
-        <ol class="grid gap-4 md:grid-cols-3">
-          <li
-            v-for="(panel, index) in prologue"
-            :key="panel.caption"
-            class="plumber-panel relative overflow-hidden rounded-2xl border-[5px] border-[#1f2d3a] bg-[#1f2d3a] shadow-[6px_6px_0_#e2bc7c]"
-            :class="index === 1 ? 'md:translate-y-4' : ''"
-          >
-            <div
-              class="relative aspect-[4/3] overflow-hidden rounded-lg"
-              :style="{ background: panel.backdrop }"
-            >
-              <PlumberWorldScene
-                v-if="panel.world"
-                :world="panel.world"
-                class="absolute inset-0 h-full w-full"
-              />
-              <PlumberCastPortrait
-                v-if="panel.who"
-                :who="panel.who"
-                class="absolute bottom-0 left-1/2 h-[92%] -translate-x-1/2"
-              />
-            </div>
-            <p
-              class="absolute left-3 top-3 max-w-[78%] rounded-md border-2 border-[#1f2d3a] bg-[#fff1c4] px-3 py-1.5 text-sm font-bold leading-snug text-[#1f2d3a] shadow"
-            >
-              {{ panel.caption }}
-            </p>
-            <span
-              class="plumber-display absolute bottom-2 right-3 text-4xl text-white/90 drop-shadow"
-              aria-hidden="true"
-              >{{ index + 1 }}</span
-            >
-          </li>
-        </ol>
-      </section>
-
-      <section
-        id="plumber-map"
-        class="scroll-mt-8 space-y-4"
-        aria-labelledby="plumber-map-title"
-      >
-        <header class="flex flex-wrap items-end justify-between gap-3">
-          <div class="max-w-2xl">
-            <p class="plumber-kicker">The rescue itinerary</p>
-            <h3
-              id="plumber-map-title"
-              class="plumber-display text-3xl sm:text-4xl"
-            >
-              Eight worlds. Thirty-two stages. All uphill.
-            </h3>
-            <p class="mt-1 opacity-75">
-              Each world teaches a trick, mixes it up, turns it inside out, then
-              throws a boss at you. Pick an island to scout it.
-            </p>
-          </div>
-        </header>
-        <PlumberWorldMap />
-      </section>
-
-      <section
-        id="plumber-casting"
-        class="scroll-mt-8"
-        aria-label="Heroine casting"
-      >
-        <PlumberCasting />
-      </section>
-
-      <section class="space-y-8" aria-labelledby="plumber-cast-title">
-        <header class="max-w-2xl">
-          <p class="plumber-kicker">Who is who</p>
-          <h3
-            id="plumber-cast-title"
-            class="plumber-display text-3xl sm:text-4xl"
-          >
-            A plumber worth saving. A villain worth beating.
-          </h3>
-        </header>
-
-        <div class="grid gap-5 md:grid-cols-2">
-          <article
-            v-for="member in PLUMBER_CAST"
-            :key="member.key"
-            class="flex overflow-hidden rounded-[1.75rem] border border-base-content/10 bg-base-200 shadow-md"
-          >
-            <div
-              class="relative w-2/5 shrink-0 overflow-hidden"
-              :class="
-                member.key === 'teo'
-                  ? 'bg-gradient-to-b from-[#9ad9f0] to-[#3f6fd1]'
-                  : 'bg-gradient-to-b from-[#463a66] to-[#d99a5a]'
-              "
-            >
-              <PlumberCastPortrait
-                :who="member.key"
-                class="absolute bottom-0 left-1/2 h-[88%] -translate-x-1/2"
-              />
-              <PlumberPainted
-                :src="member.art"
-                :alt="`${member.name} portrait`"
-              />
-            </div>
-            <div class="space-y-2 p-5">
-              <p
-                class="text-[11px] font-black uppercase tracking-[.2em]"
-                :class="member.key === 'teo' ? 'text-info' : 'text-error'"
-              >
-                {{ member.role }}
+            <div class="plumber-title-content">
+              <p class="plumber-eyebrow">THE RIVERS ARE RUNNING UPHILL</p>
+              <h2 id="plumber-name" class="plumber-logo">
+                <span>SAVE THE</span>
+                <strong>PLUMBER!</strong>
+              </h2>
+              <p class="plumber-tagline">
+                Eight worlds. One fearless heroine. A missing boyfriend. A very
+                badly behaved waterworks corporation.
               </p>
-              <h4 class="plumber-display text-3xl leading-none">
-                {{ member.name }}
-              </h4>
-              <p class="text-sm font-semibold italic opacity-80">
-                {{ member.line }}
-              </p>
-              <p class="text-sm leading-relaxed opacity-75">{{ member.bio }}</p>
+              <nav class="plumber-main-menu" aria-label="Game menu">
+                <button
+                  type="button"
+                  class="plumber-option plumber-option--primary"
+                  @click="go('play')"
+                >
+                  <span class="plumber-option-icon">▶</span>
+                  {{
+                    plumber.chosen ? 'CONTINUE ADVENTURE' : 'START ADVENTURE'
+                  }}
+                  <span class="plumber-option-arrow">A</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('story')"
+                >
+                  THE STORY <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('worlds')"
+                >
+                  WORLD SELECT <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('crew')"
+                >
+                  THE HEROINES <span>›</span>
+                </button>
+                <button
+                  type="button"
+                  class="plumber-option"
+                  @click="go('guide')"
+                >
+                  CONTROLS <span>›</span>
+                </button>
+              </nav>
             </div>
-          </article>
-        </div>
+            <span class="plumber-title-count"
+              >08 WORLDS · 32 STAGES · 08 BOSSES</span
+            >
+          </section>
 
-        <div class="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div class="space-y-3">
-            <h4 class="plumber-display text-2xl">Every enemy is a toy</h4>
-            <p class="text-sm opacity-70">
-              Fourteen families, each with a tell. Hover or tap one to see its
-              move.
-            </p>
-            <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <li
-                v-for="enemy in PLUMBER_ENEMIES"
-                :key="enemy.key"
-                class="group cursor-pointer rounded-2xl border border-base-content/10 bg-base-200 p-3 transition hover:-translate-y-1 hover:shadow-lg"
-                @pointerenter="poked = enemy.key"
-                @pointerleave="poked = null"
-                @click="poked = poked === enemy.key ? null : enemy.key"
-              >
-                <div
-                  class="mb-2 overflow-hidden rounded-xl bg-gradient-to-b from-[#d6f2ee] to-[#f8e7c9] dark:from-[#1d3c46] dark:to-[#3a3046]"
+          <section
+            v-else-if="screen === 'story'"
+            key="story"
+            class="plumber-view plumber-story-view"
+            aria-labelledby="story-heading"
+          >
+            <div class="plumber-story-panel">
+              <p class="plumber-eyebrow">
+                PROLOGUE / {{ storyIndex + 1 }} OF {{ storySlides.length }}
+              </p>
+              <h2 id="story-heading" class="plumber-section-title">
+                {{ storySlides[storyIndex]!.title }}
+              </h2>
+              <p class="plumber-story-copy">
+                {{ storySlides[storyIndex]!.description }}
+              </p>
+              <div class="plumber-inline-controls">
+                <button
+                  type="button"
+                  class="plumber-control"
+                  :disabled="storyIndex === 0"
+                  @click="stepStory(-1)"
                 >
-                  <PlumberSheetSprite
-                    v-if="ENEMY_ANIMATIONS[enemy.key]"
-                    :animation="ENEMY_ANIMATIONS[enemy.key]!"
-                    :acting="poked === enemy.key"
-                    class="h-28 w-full"
-                  >
-                    <PlumberSprite
-                      v-if="DRAWN_ENEMIES.has(enemy.key)"
-                      :kind="enemy.key"
-                      class="h-24 w-24"
-                    />
-                    <span
-                      v-else
-                      class="h-14 w-14 animate-pulse rounded-full bg-white/60 dark:bg-white/10"
-                    />
-                  </PlumberSheetSprite>
-                  <div v-else class="grid h-28 place-items-center">
-                    <PlumberSprite :kind="enemy.key" class="h-24 w-24" />
-                  </div>
-                </div>
-                <p class="font-bold">{{ enemy.name }}</p>
-                <p class="text-xs leading-snug opacity-70">{{ enemy.toy }}</p>
-              </li>
-            </ul>
-          </div>
-          <div class="space-y-3">
-            <h4 class="plumber-display text-2xl">Three ways to get stronger</h4>
-            <ul class="space-y-3">
-              <li
-                v-for="power in PLUMBER_POWERS"
-                :key="power.key"
-                class="flex items-center gap-3 rounded-2xl border border-base-content/10 bg-base-200 p-3"
-              >
-                <div
-                  class="grid h-16 w-16 shrink-0 place-items-center rounded-xl bg-[#123f52]"
+                  ‹ PREVIOUS
+                </button>
+                <button
+                  type="button"
+                  class="plumber-control plumber-control--accent"
+                  @click="
+                    storyIndex === storySlides.length - 1
+                      ? go('play')
+                      : stepStory(1)
+                  "
                 >
-                  <PlumberSprite :kind="power.key" class="h-16 w-16" />
-                </div>
-                <div>
-                  <p class="font-bold">{{ power.name }}</p>
-                  <p class="text-xs leading-snug opacity-70">
-                    {{ power.does }}
-                  </p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <section
-        id="plumber-play"
-        class="scroll-mt-8 overflow-hidden rounded-[2rem] border-4 border-[#e2bc7c] bg-gradient-to-b from-[#0f3446] to-[#0b2433] p-4 text-[#fff6df] shadow-xl sm:p-6"
-        aria-labelledby="plumber-play-title"
-      >
-        <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div class="min-w-0 space-y-3">
-            <div class="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <p
-                  class="text-xs font-bold uppercase tracking-[.22em] text-[#ffcf82]"
-                >
-                  Worlds 1 to 8 · Bluebell Pipeworks to Stardrain Citadel
-                </p>
-                <h3
-                  id="plumber-play-title"
-                  class="plumber-display text-3xl sm:text-4xl"
-                >
-                  Thirty-two stages, eight bosses
-                </h3>
+                  {{
+                    storyIndex === storySlides.length - 1 ? 'PLAY ▶' : 'NEXT ›'
+                  }}
+                </button>
               </div>
-              <span
-                class="rounded-full border border-white/25 px-3 py-1 text-xs font-bold uppercase tracking-wider text-white/80"
-              >
-                {{
-                  plumber.nextStage
-                    ? `Saved at ${plumber.nextStage} · ${plumber.percent}% · ⚙ ${plumber.gearCount}/${plumber.gearTotal} gears${plumber.endlessBest ? ` · Endless ${plumber.endlessBest} m` : ''}`
-                    : 'Pick your heroine in the cabinet'
-                }}
-              </span>
+              <div class="plumber-progress-dots" aria-hidden="true">
+                <span
+                  v-for="(_, index) in storySlides"
+                  :key="index"
+                  :class="{ active: storyIndex === index }"
+                />
+              </div>
             </div>
-            <ArcadeCabinet slug="save-the-plumber" />
-          </div>
+            <p class="plumber-scene-mark">CHAPTER ZERO · THE GREAT UPHILL</p>
+          </section>
 
-          <aside class="space-y-4" aria-label="How to play">
-            <div class="rounded-2xl bg-white/5 p-5">
-              <h4 class="plumber-display mb-3 text-xl">Controls</h4>
-              <ul class="space-y-2.5 text-sm">
-                <li
-                  v-for="control in controls"
-                  :key="control.does"
-                  class="flex items-center gap-3"
+          <section
+            v-else-if="screen === 'worlds'"
+            key="worlds"
+            class="plumber-view plumber-world-view"
+            aria-labelledby="world-heading"
+          >
+            <div class="plumber-world-panel">
+              <p class="plumber-eyebrow">WORLD {{ currentWorld.id }} / 08</p>
+              <h2 id="world-heading" class="plumber-section-title">
+                {{ currentWorld.name }}
+              </h2>
+              <p class="plumber-world-tag">{{ currentWorld.tagline }}</p>
+              <p class="plumber-world-mechanic">{{ currentWorld.mechanic }}</p>
+              <div class="plumber-stage-grid" aria-label="World stages">
+                <div
+                  v-for="stage in currentWorld.stages"
+                  :key="stage.code"
+                  class="plumber-stage-tile"
                 >
-                  <span class="flex gap-1">
-                    <kbd
-                      v-for="key in control.keys"
-                      :key="key"
-                      class="plumber-key"
-                      >{{ key }}</kbd
-                    >
-                  </span>
-                  <span class="text-white/85">{{ control.does }}</span>
-                </li>
-              </ul>
+                  <small>{{ stage.code }} · {{ stage.beat }}</small>
+                  <strong>{{ stage.name }}</strong>
+                </div>
+              </div>
+              <div class="plumber-world-nav">
+                <button
+                  type="button"
+                  class="plumber-control"
+                  aria-label="Previous world"
+                  @click="stepWorld(-1)"
+                >
+                  ‹
+                </button>
+                <span>{{ currentWorld.boss.name }} · BOSS</span>
+                <button
+                  type="button"
+                  class="plumber-control"
+                  aria-label="Next world"
+                  @click="stepWorld(1)"
+                >
+                  ›
+                </button>
+              </div>
+              <button
+                type="button"
+                class="plumber-control plumber-control--accent plumber-enter-world"
+                @click="go('play')"
+              >
+                ENTER GAME ▶
+              </button>
             </div>
-            <div class="rounded-2xl bg-white/5 p-5">
-              <h4 class="plumber-display mb-3 text-xl">Your goals</h4>
-              <ul class="space-y-2 text-sm text-white/85">
-                <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Press Start, then pick
-                  one of eight heroines.
-                </li>
-                <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Bop pumpbugs from above,
-                  or splash them with your wrench.
-                </li>
-                <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Stun a rivet roller,
-                  then kick it into its friends.
-                </li>
-                <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Wrench a valve to open
-                  water gates; press down on a pipe to find a secret room.
-                </li>
-                <li class="flex gap-2">
-                  <span class="text-[#ffcf82]">◆</span> Turn the goal valve to
-                  clear a stage, and stomp Madame Pressure while she wobbles.
-                </li>
-              </ul>
+          </section>
+
+          <section
+            v-else-if="screen === 'crew'"
+            key="crew"
+            class="plumber-view plumber-crew-view"
+            aria-labelledby="crew-heading"
+          >
+            <div class="plumber-crew-portrait" aria-hidden="true">
+              <PlumberHeroineFace
+                :heroine="heroine"
+                class="plumber-crew-face"
+              />
             </div>
-            <p class="px-1 text-xs leading-relaxed text-white/60">
-              The whole campaign is playable, from the Rainy Courtyard to Lady
-              Spigot and Teo's rescue. Each world is a walkable map: clear a
-              stage to open the path on, and revisit any stage you have cleared.
-              Three save files on this device remember where you stand, every
-              stage and Golden Gear, and your play time.
-            </p>
-          </aside>
+            <div class="plumber-crew-panel">
+              <p class="plumber-eyebrow">PLAYER CHARACTER</p>
+              <h2 id="crew-heading" class="plumber-section-title">
+                {{ heroine.name }}
+              </h2>
+              <p class="plumber-world-tag">
+                {{
+                  plumber.chosen
+                    ? 'Your current heroine'
+                    : 'Your adventure begins with a heroine select'
+                }}
+              </p>
+              <p class="plumber-crew-copy">
+                Eight heroines, each with a different special ability. Pick your
+                fighter inside the game. Saved progress follows the heroine you
+                chose.
+              </p>
+              <div class="plumber-crew-info">
+                <span>CAST</span><strong>8 PLAYABLE HEROINES</strong>
+                <span>STORY</span><strong>RESCUE TEO</strong>
+                <span>PROGRESS</span
+                ><strong>{{ plumber.percent }}% COMPLETE</strong>
+              </div>
+              <button
+                type="button"
+                class="plumber-control plumber-control--accent"
+                @click="go('play')"
+              >
+                CHOOSE HEROINE IN GAME ▶
+              </button>
+            </div>
+          </section>
+
+          <section
+            v-else-if="screen === 'guide'"
+            key="guide"
+            class="plumber-view plumber-guide-view"
+            aria-labelledby="guide-heading"
+          >
+            <div class="plumber-guide-inner">
+              <p class="plumber-eyebrow">CONTROLLER MANUAL</p>
+              <h2 id="guide-heading" class="plumber-section-title">
+                HOW TO PLAY
+              </h2>
+              <div class="plumber-guide-grid">
+                <div
+                  v-for="control in controls"
+                  :key="control.label"
+                  class="plumber-guide-action"
+                >
+                  <kbd>{{ control.key }}</kbd>
+                  <span
+                    ><strong>{{ control.label }}</strong
+                    ><small>{{ control.does }}</small></span
+                  >
+                </div>
+              </div>
+              <div class="plumber-guide-bottom">
+                <p>
+                  Find secrets, collect Golden Gears and clear the goal valve.
+                  Your three local save slots live inside the game.
+                </p>
+                <button
+                  type="button"
+                  class="plumber-control plumber-control--accent"
+                  @click="go('play')"
+                >
+                  START GAME ▶
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section
+            v-else
+            key="play"
+            class="plumber-view plumber-game-view"
+            aria-label="Save the Plumber playable game"
+          >
+            <ArcadeCabinet slug="save-the-plumber" contained />
+          </section>
+        </Transition>
+      </div>
+
+      <footer class="plumber-console-bottom">
+        <span
+          ><span class="plumber-dpad">✚</span>
+          {{
+            screen === 'story' || screen === 'worlds'
+              ? 'CHANGE SCENE'
+              : 'SELECT'
+          }}</span
+        >
+        <div class="plumber-footer-actions">
+          <button
+            v-if="screen !== 'title'"
+            type="button"
+            class="plumber-footer-back"
+            aria-label="Return to Save the Plumber title menu"
+            @click="go('title')"
+          >
+            <b>B</b> MENU
+          </button>
+          <span v-if="screen !== 'play'"><b>A</b> CONFIRM</span>
+          <span v-else>GAME CONTROLS ACTIVE</span>
         </div>
-      </section>
+      </footer>
     </div>
   </main>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useSavePlumberStore } from '~/stores/savePlumberStore'
-import { ENEMY_ANIMATIONS } from '~/utils/arcade/games/savePlumberAnimations'
-import {
-  PLUMBER_CAST,
-  PLUMBER_ENEMIES,
-  PLUMBER_POWERS,
-  PLUMBER_STAGE_COUNT,
-  PLUMBER_WORLDS,
-} from '~/utils/arcade/games/savePlumberWorlds'
+import { PLUMBER_WORLDS } from '~/utils/arcade/games/savePlumberWorlds'
 
+type Screen = 'title' | 'story' | 'worlds' | 'crew' | 'guide' | 'play'
+const screen = ref<Screen>('title')
 const plumber = useSavePlumberStore()
 const heroine = computed(() => plumber.heroine)
+const viewport = ref<HTMLElement | null>(null)
+const storyIndex = ref(0)
+const worldIndex = ref(0)
+const reducedMotion = ref(false)
+const currentWorld = computed(() => PLUMBER_WORLDS[worldIndex.value]!)
+const clipWorld = computed(() =>
+  screen.value === 'worlds'
+    ? currentWorld.value.id
+    : screen.value === 'story' && storyIndex.value === 2
+      ? 8
+      : 1,
+)
+const clipRoot = computed(
+  () => '/save-the-plumber/maps/world-' + clipWorld.value,
+)
+const poster = computed(() => clipRoot.value + '.webp')
 
-const tilt = ref({ x: 0, y: 0 })
-const poked = ref<string | null>(null)
-const DRAWN_ENEMIES = new Set([
-  'pumpbug',
-  'rivet-roller',
-  'umbrella-mite',
-  'moss-lantern',
-  'glass-gull',
-  'cork-crab',
-])
-let reducedMotion = false
-
-function onTilt(event: PointerEvent) {
-  if (reducedMotion || event.pointerType === 'touch') return
-  const box = (event.currentTarget as HTMLElement).getBoundingClientRect()
-  tilt.value = {
-    x: ((event.clientX - box.left) / box.width) * 2 - 1,
-    y: ((event.clientY - box.top) / box.height) * 2 - 1,
-  }
-}
-
-const stats = [
-  { value: PLUMBER_WORLDS.length, label: 'Worlds' },
-  { value: PLUMBER_STAGE_COUNT, label: 'Stages' },
-  { value: PLUMBER_WORLDS.length, label: 'Bosses' },
-  { value: 8, label: 'Heroines' },
-]
-
-const prologue = [
+const storySlides = [
   {
-    caption: 'The rivers of Bluebell started running uphill.',
-    world: PLUMBER_WORLDS[0],
-    backdrop: '#7fd3d1',
+    title: 'THE WATER WENT THE WRONG WAY.',
+    description:
+      'One morning the rivers of Bluebell began flowing uphill. No rain, no warning, and no explanation. The town needed someone brave enough to investigate.',
   },
   {
-    caption: 'Teo, the local plumber, went to find out why.',
-    who: 'teo' as const,
-    backdrop: 'radial-gradient(circle at 50% 30%, #bfe3ff, #3f6fd1)',
+    title: 'TEO DID NOT COME HOME.',
+    description:
+      'Teo, a local plumber, followed the reversed current to its source. The trail ended at the abandoned pumping works, and so did his last message.',
   },
   {
-    caption: 'Lady Spigot took him to her sky-pump. Your move.',
-    world: PLUMBER_WORLDS[7],
-    backdrop: '#1c2946',
+    title: 'SHE HAS EIGHT WORLDS TO CROSS.',
+    description:
+      'Lady Spigot has taken Teo to the sky-pump. The valves are turning, the worlds are changing, and now the rescue belongs to you.',
   },
 ]
 
 const controls = [
-  { keys: ['←', '→'], does: 'Move' },
-  { keys: ['A', '↑'], does: 'Jump (hold for higher)' },
-  { keys: ['B'], does: 'Run (hold with a direction); alone, duck' },
-  {
-    keys: ['↓'],
-    does: 'Duck and crawl under beams and gliders; in the air, drop fast; on a pipe, enter',
-  },
-  { keys: ['X'], does: 'Wrench splash: stun, break crates, turn valves' },
-  { keys: ['Y'], does: 'Your heroine’s special' },
-  { keys: ['↑', '↓'], does: 'Title menu: New Game, Continue or Endless' },
+  { key: '← →', label: 'MOVE', does: 'Run across platforms' },
+  { key: 'A / ↑', label: 'JUMP', does: 'Hold for more height' },
+  { key: 'B', label: 'SPRINT', does: 'Hold while moving' },
+  { key: 'X', label: 'WRENCH', does: 'Break, stun and turn valves' },
+  { key: 'Y', label: 'SPECIAL', does: 'Heroine ability' },
+  { key: '↓', label: 'DUCK / PIPE', does: 'Crawl, drop or enter' },
 ]
 
-onMounted(() => {
-  reducedMotion =
-    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-  if (!document.getElementById('plumber-display-font')) {
-    const link = document.createElement('link')
-    link.id = 'plumber-display-font'
-    link.rel = 'stylesheet'
-    link.href =
-      'https://fonts.googleapis.com/css2?family=Lilita+One&display=swap'
-    document.head.appendChild(link)
+function go(next: Screen) {
+  screen.value = next
+}
+function stepStory(direction: number) {
+  storyIndex.value = Math.max(
+    0,
+    Math.min(storySlides.length - 1, storyIndex.value + direction),
+  )
+}
+function stepWorld(direction: number) {
+  worldIndex.value =
+    (worldIndex.value + direction + PLUMBER_WORLDS.length) %
+    PLUMBER_WORLDS.length
+}
+function onScreenKey(event: KeyboardEvent) {
+  if (screen.value === 'play' || event.altKey || event.ctrlKey || event.metaKey)
+    return
+  const target = event.target
+  if (
+    target instanceof HTMLElement &&
+    target.closest('button, a, input, select, textarea')
+  )
+    return
+  if (screen.value === 'story' || screen.value === 'worlds') {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault()
+      const step = event.key === 'ArrowLeft' ? -1 : 1
+      if (screen.value === 'story') stepStory(step)
+      else stepWorld(step)
+    }
   }
-})
+}
+function onEscape(event: KeyboardEvent) {
+  if (
+    event.key !== 'Escape' ||
+    screen.value === 'play' ||
+    screen.value === 'title'
+  )
+    return
+  event.preventDefault()
+  go('title')
+}
 
-useHead({ title: 'Save the Plumber · Private Arcade' })
+watch(screen, async () => {
+  await nextTick()
+  viewport.value?.focus({ preventScroll: true })
+})
+onMounted(() => {
+  reducedMotion.value = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches
+  window.addEventListener('keydown', onEscape)
+})
+onUnmounted(() => window.removeEventListener('keydown', onEscape))
+useHead({ title: 'Save the Plumber · Kind Robots Arcade' })
 </script>
 
-<style>
-.plumber-page .plumber-display,
-.plumber-page .plumber-logo {
-  font-family:
-    'Lilita One', ui-rounded, 'Arial Rounded MT Bold', ui-sans-serif, system-ui,
-    sans-serif;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-}
-
-.plumber-page .plumber-kicker {
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #d9468f;
-}
-</style>
-
 <style scoped>
-.plumber-logo {
+.plumber-page {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #080f1b;
+  color: #fff6df;
+}
+.plumber-console {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: max(0.4rem, env(safe-area-inset-top))
+    max(0.4rem, env(safe-area-inset-right))
+    max(0.4rem, env(safe-area-inset-bottom))
+    max(0.4rem, env(safe-area-inset-left));
+  background: linear-gradient(120deg, #222b38, #111a29);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.plumber-console-top,
+.plumber-console-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 2.5rem;
+  padding: 0.35rem clamp(0.45rem, 1.5vw, 1.25rem);
+  font-size: clamp(0.6rem, 1.1vw, 0.8rem);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #d0e6e8;
+}
+.plumber-console-top {
+  background: #121f2d;
+  border-radius: 0.8rem 0.8rem 0 0;
+}
+.plumber-console-bottom {
+  background: #121f2d;
+  border-radius: 0 0 0.8rem 0.8rem;
+}
+.plumber-system strong {
+  margin-left: 0.5rem;
+  color: #fbd090;
+}
+.plumber-home {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid #82aab1;
+  border-radius: 0.55rem;
+  font-size: 1.5rem;
+  color: #fbd090;
+}
+.plumber-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.plumber-footer-actions b,
+.plumber-dpad {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.25rem;
+  border-radius: 0.4rem;
+  margin-right: 0.3rem;
+  color: #142335;
+  background: #fbd090;
+}
+.plumber-footer-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: inherit;
+}
+.plumber-viewport {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 0;
+  background: radial-gradient(ellipse at 65% 40%, #235b65, #081b2e 80%);
+  border: 2px solid #a5c9c5;
+  outline-offset: -4px;
+}
+.plumber-motion,
+.plumber-motion-image,
+.plumber-motion-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.plumber-motion {
+  z-index: 0;
+  overflow: hidden;
+}
+.plumber-motion-image,
+.plumber-motion-video {
+  object-fit: cover;
+  object-position: center center;
+}
+.plumber-motion::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(6, 19, 30, 0.94) 0%,
+      rgba(6, 19, 30, 0.83) 32%,
+      rgba(6, 19, 30, 0.25) 78%
+    ),
+    linear-gradient(0deg, rgba(6, 19, 30, 0.85), transparent 45%);
+}
+.plumber-view {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+.plumber-title-view {
+  align-items: center;
+  padding: clamp(0.8rem, 3vw, 3rem);
+}
+.plumber-title-content {
+  width: min(43rem, 76%);
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  line-height: 0.86;
-  transform: rotate(-3deg);
-  transform-origin: left center;
+  justify-content: center;
+  gap: clamp(0.35rem, 1.4vh, 1rem);
 }
-
-.plumber-logo-line {
-  font-size: clamp(3.6rem, 9vw, 6.5rem);
-  color: #fff3d6;
-  -webkit-text-stroke: 3px #0b2a3a;
-  paint-order: stroke fill;
+.plumber-eyebrow {
+  font-size: clamp(0.63rem, 1.1vw, 0.8rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #fbd090;
+}
+.plumber-logo {
+  display: flex;
+  flex-direction: column;
+  font-weight: 1000;
+  font-size: clamp(2.2rem, min(7vw, 10vh), 6.2rem);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
   text-shadow:
-    0 3px 0 #e2bc7c,
-    0 6px 0 #b98a4a,
-    0 9px 0 #7c5a2c,
-    0 16px 22px rgba(0, 0, 0, 0.45);
+    0 4px #12313e,
+    0 8px 24px #07101a;
 }
-
-.plumber-logo-big {
-  font-size: clamp(4.4rem, 12vw, 8.6rem);
-  color: #ffcf82;
+.plumber-logo strong {
+  color: #ffd18b;
+  font-size: 1.12em;
 }
-
-.plumber-logo-the {
-  margin: 0.25rem 0 0.35rem 0.4rem;
-  padding: 0.15rem 1.1rem 0.25rem;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  color: #0b2a3a;
-  background: linear-gradient(180deg, #8fe3dc, #3fa5a3);
-  border: 3px solid #0b2a3a;
-  border-radius: 999px;
-  box-shadow:
-    inset 0 3px 0 rgba(255, 255, 255, 0.55),
-    0 4px 0 #0b2a3a;
+.plumber-tagline {
+  max-width: 33rem;
+  font-size: clamp(0.74rem, 1.2vw, 1.08rem);
+  line-height: 1.4;
+  color: #ecf5f0;
 }
-
-.plumber-start {
-  animation: plumber-start 1.6s ease-in-out infinite;
-  box-shadow: 0 6px 0 #b98a4a;
+.plumber-main-menu {
+  display: flex;
+  flex-direction: column;
+  width: min(24rem, 100%);
+  gap: clamp(0.2rem, 0.7vh, 0.55rem);
 }
-
-.plumber-start:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #b98a4a;
+.plumber-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: clamp(2rem, 5vh, 3.2rem);
+  width: 100%;
+  padding: 0.32rem 0.9rem;
+  background: rgba(9, 28, 42, 0.74);
+  border: 1px solid rgba(216, 243, 235, 0.35);
+  border-radius: 0.45rem;
+  color: #fff8e9;
+  font-size: clamp(0.72rem, 1vw, 0.96rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-align: left;
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
-
-@keyframes plumber-start {
-  0%,
-  100% {
-    filter: brightness(1);
-  }
-
-  50% {
-    filter: brightness(1.12) drop-shadow(0 0 14px rgba(255, 207, 130, 0.6));
-  }
+.plumber-option:hover,
+.plumber-option:focus-visible {
+  background: #235e68;
+  transform: translateX(0.2rem);
 }
-
-.plumber-key {
-  display: inline-grid;
-  min-width: 2rem;
-  height: 2rem;
-  place-items: center;
-  padding: 0 0.45rem;
-  border-radius: 0.5rem;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-bottom-width: 4px;
-  background: rgba(255, 255, 255, 0.1);
+.plumber-option--primary {
+  color: #082437;
+  background: #ffd18b;
+  border-color: #fff3d5;
+}
+.plumber-option--primary:hover,
+.plumber-option--primary:focus-visible {
+  color: #081b2e;
+  background: #fff0cb;
+}
+.plumber-option-icon {
+  margin-right: 0.3rem;
+}
+.plumber-option-arrow {
+  margin-left: auto;
+  border: 1px solid currentColor;
+  border-radius: 0.3rem;
+  padding: 0.05rem 0.4rem;
+}
+.plumber-title-count,
+.plumber-scene-mark {
+  position: absolute;
+  bottom: clamp(0.7rem, 2vw, 1.6rem);
+  right: clamp(0.7rem, 2vw, 2rem);
+  color: #ffebc8;
   font-weight: 800;
-  font-size: 0.85rem;
-  color: #fff6df;
+  letter-spacing: 0.18em;
+  font-size: clamp(0.6rem, 1vw, 0.8rem);
+}
+.plumber-story-view {
+  align-items: center;
+  padding: clamp(0.8rem, 4vw, 4rem);
+}
+.plumber-story-panel,
+.plumber-world-panel,
+.plumber-crew-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.5rem, 1.5vh, 1.3rem);
+  width: min(31rem, 75%);
+  max-height: 100%;
+}
+.plumber-section-title {
+  font-size: clamp(1.7rem, min(4.5vw, 8vh), 4.6rem);
+  font-weight: 1000;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #fff5dd;
+}
+.plumber-story-copy,
+.plumber-crew-copy {
+  font-size: clamp(0.84rem, 1.5vw, 1.22rem);
+  line-height: 1.5;
+  color: #e5f3ef;
+}
+.plumber-inline-controls,
+.plumber-world-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.plumber-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.4rem;
+  padding: 0.45rem 1rem;
+  border-radius: 0.45rem;
+  border: 1px solid #91c8c9;
+  background: rgba(8, 30, 44, 0.8);
+  color: #fdf6df;
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+.plumber-control:hover:not(:disabled),
+.plumber-control:focus-visible {
+  background: #28626e;
+}
+.plumber-control:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+.plumber-control--accent {
+  color: #092334;
+  background: #ffd18b;
+  border-color: #fff3d5;
+}
+.plumber-control--accent:hover:not(:disabled) {
+  background: #fff0cb;
+  color: #092334;
+}
+.plumber-progress-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+.plumber-progress-dots span {
+  display: block;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  border: 1px solid #ffdf9c;
+}
+.plumber-progress-dots span.active {
+  background: #ffdf9c;
+}
+.plumber-world-view {
+  justify-content: flex-end;
+}
+.plumber-world-panel {
+  width: min(33rem, 49%);
+  height: 100%;
+  max-height: none;
+  justify-content: center;
+  gap: clamp(0.25rem, 1.1vh, 0.85rem);
+  padding: clamp(0.75rem, 2vw, 2.5rem);
+  background: linear-gradient(
+    90deg,
+    rgba(6, 20, 32, 0.85),
+    rgba(6, 20, 32, 0.95)
+  );
+  border-left: 2px solid #4e8d91;
+}
+.plumber-world-tag {
+  font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+  color: #ffe3b4;
+  font-weight: 800;
+}
+.plumber-world-mechanic {
+  color: #d4e9e9;
+  font-size: clamp(0.73rem, 1vw, 0.96rem);
+}
+.plumber-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+.plumber-stage-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: clamp(0.4rem, 1vw, 0.8rem);
+  border: 1px solid #527981;
+  background: #132e3e;
+  border-radius: 0.4rem;
+}
+.plumber-stage-tile small {
+  font-size: clamp(0.55rem, 0.75vw, 0.7rem);
+  color: #fbd090;
+}
+.plumber-stage-tile strong {
+  font-size: clamp(0.65rem, 1vw, 0.88rem);
+  line-height: 1.2;
+}
+.plumber-world-nav {
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.72rem;
+  color: #fbd090;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.plumber-enter-world {
+  align-self: flex-start;
+}
+.plumber-crew-view {
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.8rem, 3vw, 3rem);
+  gap: clamp(1rem, 4vw, 5rem);
+}
+.plumber-crew-portrait {
+  flex: 0 1 34%;
+  display: grid;
+  place-items: center;
+  align-self: stretch;
+  min-width: 0;
+  max-width: 24rem;
+}
+.plumber-crew-face {
+  width: 100%;
+  max-height: 100%;
+  filter: drop-shadow(0 20px 18px rgba(0, 0, 0, 0.5));
+}
+.plumber-crew-panel {
+  flex: 1;
+  max-width: 30rem;
+  width: auto;
+}
+.plumber-crew-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.5rem 1rem;
+  font-size: clamp(0.65rem, 0.9vw, 0.85rem);
+}
+.plumber-crew-info span {
+  color: #ffdf9c;
+}
+.plumber-guide-view {
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.6rem, 3vw, 2rem);
+  background: radial-gradient(ellipse at center, #174357, #071521);
+}
+.plumber-guide-inner {
+  width: min(100%, 57rem);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1.4vh, 1rem);
+}
+.plumber-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.35rem, 1vw, 0.8rem);
+}
+.plumber-guide-action {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: clamp(0.5rem, 1.1vw, 1rem);
+  border: 1px solid #437c89;
+  border-radius: 0.6rem;
+  background: #132c3d;
+}
+.plumber-guide-action kbd {
+  flex: 0 0 auto;
+  min-width: 2.8rem;
+  padding: 0.5rem;
+  border: 2px solid #ffc977;
+  border-radius: 0.4rem;
+  text-align: center;
+  font-weight: 900;
+  color: #ffdf9c;
+}
+.plumber-guide-action span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.plumber-guide-action strong {
+  font-size: 0.83rem;
+}
+.plumber-guide-action small {
+  font-size: 0.74rem;
+  color: #c7e0df;
+}
+.plumber-guide-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+}
+.plumber-game-view {
+  background: #070c19;
+}
+.plumber-game-view :deep(.arcade-cabinet) {
+  height: 100%;
+  max-width: none;
+}
+.plumber-screen-enter-active,
+.plumber-screen-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.plumber-screen-enter-from {
+  opacity: 0;
+  transform: translateX(1.5%);
+}
+.plumber-screen-leave-to {
+  opacity: 0;
+  transform: translateX(-1.5%);
 }
 
+@media (max-width: 640px) and (orientation: portrait) {
+  .plumber-system strong {
+    display: none;
+  }
+  .plumber-progress {
+    font-size: 0.6rem;
+    letter-spacing: 0.03em;
+  }
+  .plumber-motion::after {
+    background: linear-gradient(
+      0deg,
+      rgba(6, 19, 30, 0.98) 0%,
+      rgba(6, 19, 30, 0.87) 48%,
+      rgba(6, 19, 30, 0.22) 100%
+    );
+  }
+  .plumber-motion-image,
+  .plumber-motion-video {
+    object-position: 62% center;
+  }
+  .plumber-title-view {
+    align-items: flex-end;
+    padding: 1rem 1rem 1.5rem;
+  }
+  .plumber-title-content {
+    width: 100%;
+  }
+  .plumber-logo {
+    font-size: clamp(2rem, 11vw, 3.9rem);
+  }
+  .plumber-main-menu {
+    width: 100%;
+  }
+  .plumber-option {
+    min-height: 2.8rem;
+  }
+  .plumber-tagline {
+    max-width: 22rem;
+  }
+  .plumber-title-count,
+  .plumber-scene-mark {
+    display: none;
+  }
+  .plumber-story-view {
+    align-items: flex-end;
+    padding: 1.3rem;
+  }
+  .plumber-story-panel {
+    width: 100%;
+  }
+  .plumber-world-view {
+    align-items: flex-end;
+  }
+  .plumber-world-panel {
+    width: 100%;
+    height: auto;
+    max-height: 71%;
+    justify-content: flex-start;
+    border-left: 0;
+    border-top: 2px solid #4e8d91;
+  }
+  .plumber-world-panel .plumber-section-title {
+    font-size: clamp(1.5rem, 7vw, 2.5rem);
+  }
+  .plumber-crew-view {
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+  .plumber-crew-portrait {
+    flex: 1 1 0;
+    min-height: 0;
+    width: min(65%, 17rem);
+  }
+  .plumber-crew-panel {
+    flex: 0 0 auto;
+    width: 100%;
+    gap: 0.4rem;
+  }
+  .plumber-crew-panel .plumber-section-title {
+    font-size: 2rem;
+  }
+  .plumber-crew-copy {
+    font-size: 0.8rem;
+  }
+  .plumber-guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .plumber-guide-action {
+    gap: 0.4rem;
+  }
+  .plumber-guide-action kbd {
+    min-width: 2rem;
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+  .plumber-guide-action strong {
+    font-size: 0.68rem;
+  }
+  .plumber-guide-action small {
+    font-size: 0.63rem;
+  }
+  .plumber-guide-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 0.7rem;
+  }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .plumber-console-top,
+  .plumber-console-bottom {
+    min-height: 1.8rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+  }
+  .plumber-title-content {
+    width: min(37rem, 67%);
+    gap: 0.22rem;
+  }
+  .plumber-logo {
+    font-size: clamp(1.6rem, 6vh, 3rem);
+  }
+  .plumber-tagline {
+    font-size: 0.7rem;
+    line-height: 1.1;
+  }
+  .plumber-option {
+    min-height: 1.45rem;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  .plumber-title-count {
+    display: none;
+  }
+  .plumber-guide-action {
+    padding: 0.3rem;
+  }
+  .plumber-guide-action kbd {
+    padding: 0.2rem;
+  }
+  .plumber-guide-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .plumber-guide-bottom {
+    font-size: 0.7rem;
+  }
+  .plumber-world-panel {
+    gap: 0.22rem;
+  }
+  .plumber-world-panel .plumber-section-title {
+    font-size: 1.55rem;
+  }
+  .plumber-stage-tile {
+    padding: 0.26rem;
+  }
+  .plumber-world-tag,
+  .plumber-world-mechanic {
+    font-size: 0.68rem;
+  }
+  .plumber-crew-copy {
+    font-size: 0.73rem;
+  }
+  .plumber-crew-info {
+    gap: 0.2rem 0.7rem;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
-  .plumber-start {
-    animation: none;
+  .plumber-screen-enter-active,
+  .plumber-screen-leave-active {
+    transition: none;
+  }
+  .plumber-option {
+    transition: none;
   }
 }
 </style>

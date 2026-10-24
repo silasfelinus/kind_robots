@@ -10,11 +10,14 @@ on:
       - 'components/ecotone-board.vue'
       - 'components/ecotone-scene.vue'
       - 'components/ecotone-emblem.vue'
+      - 'components/ecotone-mystery-card.vue'
       - 'pages/play/ecotone.vue'
       - 'content/channels/arcade/ecotone.md'
       - 'public/ecotone/**'
       - 'utils/scripts/verifyEcotone.test.ts'
       - 'utils/scripts/verifyEcotonePlaystyles.test.ts'
+      - 'utils/scripts/verifyEcotoneMysteries.test.ts'
+      - 'utils/scripts/validateEcotoneMystery.ts'
       - 'utils/playbook/**'
       - 'stores/playbookStore.ts'
       - 'server/utils/playbook.ts'
@@ -46,4 +49,5 @@ jobs:
         env:
           CYPRESS_INSTALL_BINARY: '0'
       - run: npm run test:ecotone
+      - run: npm run test:ecotone-mysteries
       - run: npm run test:playbook

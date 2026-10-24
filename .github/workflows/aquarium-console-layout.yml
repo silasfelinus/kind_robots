@@ -1,0 +1,20 @@
+name: Aquarium Console Layout
+
+on:
+  pull_request:
+    paths:
+      - 'components/conductor/aquarium-page.vue'
+      - 'components/cthulhuquarium/cthulhuquarium-game.vue'
+      - 'utils/scripts/verifyCthulhuquariumConsole.mjs'
+      - '.github/workflows/aquarium-console-layout.yml'
+
+jobs:
+  console-shell:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Ensure one bounded game stage and overlay rooms
+        run: node utils/scripts/verifyCthulhuquariumConsole.mjs

@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import prisma from '../../utils/prisma'
 import { errorHandler } from '~/server/utils/error'
 import { applyMana, usdToMana } from '~/server/utils/mana'
+import { sendPatronTokensGrantedEmail } from '~/server/utils/email'
 import {
   PATRON_MONTHLY_TOKENS,
   checkoutHasPaidSubscription,
@@ -209,12 +210,12 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
 
   const user = await prisma.user.findFirst({
     where: { stripeCustomerId: customerId },
-    select: { id: true },
+    select: { id: true, email: true, name: true },
   })
   if (!user)
     throw new Error('Paid Patron invoice has no linked Kind Robots customer')
 
-  await prisma.$transaction(async (tx) => {
+  const newGrant = await prisma.$transaction(async (tx) => {
     // Serializes concurrent duplicate invoice events without adding a schema
     // migration or relying on a check-then-insert outside a transaction.
     const locked = await tx.$queryRaw<Array<{ id: number }>>`
@@ -227,12 +228,12 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
       where: { id: user.id },
       select: { stripeCustomerId: true, stripeSubscriptionId: true },
     })
-    if (current.stripeCustomerId !== customerId) return
+    if (current.stripeCustomerId !== customerId) return false
     if (
       current.stripeSubscriptionId &&
       current.stripeSubscriptionId !== subscriptionId
     )
-      return
+      return false
 
     const existing = await tx.manaTransaction.findFirst({
       where: {
@@ -241,7 +242,7 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
         refId: invoice.id,
       },
     })
-    if (existing) return
+    if (existing) return false
 
     await applyMana({
       userId: user.id,
@@ -261,7 +262,22 @@ async function handlePaidPatronInvoice(invoice: Stripe.Invoice) {
         stripeSubscriptionId: subscriptionId,
       },
     })
+    return true
   })
+
+  // The ledger is committed before email is attempted. Duplicate Stripe
+  // deliveries see the existing invoice grant and do not send another mail.
+  // Brevo failures do not roll back tokens or cause duplicate credits.
+  if (newGrant && user.email) {
+    const result = await sendPatronTokensGrantedEmail(
+      user.email,
+      user.name || '',
+      invoice.amount_paid,
+      invoice.hosted_invoice_url ?? null,
+    )
+    if (!result.sent)
+      console.warn('Patron token confirmation email not sent', invoice.id)
+  }
 
   console.log(
     `🎫 Processed paid Patron invoice ${invoice.id} for subscription ${subscriptionId}`,

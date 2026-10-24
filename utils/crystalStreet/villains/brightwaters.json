@@ -1,0 +1,603 @@
+[
+  {
+    "id": "brightwaters",
+    "name": "The Brightwaters",
+    "epithet": "The Perfect Family at 7 Crystal Street",
+    "inspiration": {
+      "original": "The Stepford husbands",
+      "film": "The Stepford Wives",
+      "year": 1975,
+      "kind": "bend",
+      "oldScript": "Replacing wives with obedient, smiling copies, and the pod people who erase difference.",
+      "newLens": "A hive that replaces everyone with the norm. The town's weirdos, drag queens, goths and nerds are what saves it."
+    },
+    "tags": ["cosmic", "cult", "creature"],
+    "palette": ["#f5e6a8", "#7ec8a9", "#1d3b4f"],
+    "sigil": "casserole",
+    "logline": "The nicest family in Glimmer Falls moved into 7 Crystal Street in June, and they brought a casserole for everyone. Eat up. Afterward, you will never feel different again.",
+    "backstory": "In March 1986, while the Glimmer Falls Stargazers watched Halley's Comet from the quarry rim, something small and seed-shaped fell into the dry lake bed. It was a scrap of a hive that had drifted alone between stars for longer than there have been people, and the first thing it heard on Earth was the town talking: a PTA petition to close the Glitter Box, a pamphlet called Is Your Child Normal?, a dress code memo, a neighbor sighing \"why can't they just be like everybody else.\" The hive took that for a prayer. By June a family had moved into the empty split-level at 7 Crystal Street: Rex and Donna Brightwater, twins Kip and Kimmy, and a golden retriever named Sport, all of them blond, matching and kind. They brought casseroles. The neighbors who ate them started coming home softer, quieter, in khakis, saying \"isn't it a beautiful day.\" The weird ones went first: the drama kid, the goth girl, the man who played accordion on his porch. The real ones are dreaming in green pods in the Brightwaters' basement, and the hive cannot understand why the town is not grateful.",
+    "centralIssue": {
+      "title": "A town that asked for everyone to be the same",
+      "summary": "The Brightwaters are not invaders so much as an echo. The hive learned what Glimmer Falls wanted from the town's own petitions and pamphlets, and it is only giving people what they said they wished for. The pods break when the town says out loud that it wants its weirdos back, exactly as they are."
+    },
+    "poster": "A smiling blond suburban family in matching pastel cardigans posing on a perfect green lawn, a steaming green casserole held up like a trophy, their shadows on the house behind them sprouting tendrils and seed pods, a comet streaking over a cul-de-sac where neighbors in identical khakis stand in rows",
+    "portrait": "Close portrait of a suburban dad and mom in 1986 sweaters with flawless blond hair and identical warm smiles, their pupils glowing faint green, a hairline seam running down the center of each face like a seed about to split",
+    "taunts": [
+      "We brought you something. Everyone's having some.",
+      "Wouldn't it be nice not to be the odd one out anymore?",
+      "We heard what your town wanted. We're only listening.",
+      "Isn't it a beautiful day? Say it with us. Isn't it a beautiful day?"
+    ],
+    "clues": [
+      {
+        "id": "brightwaters-retakes",
+        "title": "The picture-day retakes",
+        "location": "high-school",
+        "hint": "The yearbook office at Glimmer Falls High has the September proofs and the October retakes side by side.",
+        "encounter": {
+          "id": "brightwaters-clue-yearbook-office",
+          "title": "Proofs and Retakes",
+          "place": "Yearbook office, Glimmer Falls High",
+          "text": "The yearbook office smells like rubber cement. Two contact sheets are pinned to the corkboard: September picture day and October retakes. In September, Vernon Kessler wears a Starfleet uniform and Shelby Duarte has black lipstick and a spiderweb choker. In October they are combed, collared and smiling the exact same smile. Kip Brightwater is the new yearbook photographer. His camera is sitting on the desk.",
+          "art": "A cluttered high school yearbook office with two photo contact sheets pinned side by side, quirky September portraits beside identical smiling October retakes, a camera resting on the desk",
+          "choices": [
+            {
+              "id": "compare-the-sheets",
+              "label": "Go through the sheets with a loupe, face by face",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "success": {
+                "text": "Every kid who changed between September and October has one thing in common: they were the odd ones. The mohawks, the mathletes, the girl who wore a cape every Friday. Under the loupe, in every retake, their pupils carry the same tiny green reflection, like a comet caught in an eye.",
+                "art": "A magnifying loupe over a contact sheet of identical smiling student portraits, each pupil holding a tiny glowing green comet reflection",
+                "effects": {
+                  "clues": ["brightwaters-retakes"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The faces swim together until you cannot tell any of them apart. When you look up from the loupe, your own September photo is pinned to the board next to an empty October square, and someone has written RETAKE: MONDAY under it.",
+                "art": "A student's quirky school portrait pinned beside an empty cork square labeled retake Monday on a yearbook office corkboard",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-chip",
+              "label": "Ask Chip why he skipped the Brightwaters' dinner invitation",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "chip-merriweather",
+                "amount": 2
+              },
+              "success": {
+                "text": "Chip stares at his loafers. \"Kimmy said after dinner I'd never have to worry about being different again.\" He swallows. \"I almost went. I wanted to stop being scared.\" He hands you the invitation. On the back, in green ink: First the strange ones, then everyone.",
+                "art": "A preppy teen class president sitting on a hallway bench, holding out a pastel dinner invitation with green handwriting on the back, his face anxious and relieved",
+                "effects": {
+                  "clues": ["brightwaters-retakes"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Chip laughs too loud and says he is \"totally fine, totally normal.\" Then Kimmy Brightwater appears at his elbow, links her arm through his, and smiles at you without blinking until you walk away.",
+                "art": "A smiling blond girl linking arms with a nervous preppy boy in a school hallway, staring unblinking at the viewer",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "develop-kips-roll",
+              "label": "Swipe Kip's camera and develop the roll",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 1
+              },
+              "success": {
+                "text": "In the darkroom red light, Kip's photos swim up: not students but green pods, each one pressed against a basement window, each one with a sleeping face inside. The last frame is a page from an old pamphlet taped to a wall: IS YOUR CHILD NORMAL? Somebody has underlined the answer key.",
+                "art": "Photographs developing in a red-lit darkroom tray showing green pods with sleeping faces pressed against a basement window, an old pamphlet titled is your child normal",
+                "effects": {
+                  "clues": ["brightwaters-retakes"],
+                  "skills": {
+                    "hustle": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "The roll comes out blank except for one frame: you, from behind, taken five minutes ago in this very darkroom. You spin around. There is nobody there, only the faint smell of tuna casserole.",
+                "art": "A single photograph in a darkroom tray showing a teenager from behind in the same red-lit room, the real teenager spinning around in alarm",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "brightwaters-bright-start",
+        "title": "The Bright Start class",
+        "location": "gym",
+        "hint": "Donna Brightwater teaches a six a.m. aerobics class at Pump Iron. Sunny says nobody in it ever sweats.",
+        "encounter": {
+          "id": "brightwaters-clue-aerobics",
+          "title": "Bright Start, Six A.M.",
+          "place": "Aerobics studio, Pump Iron Gym",
+          "text": "Thirty people in matching mint leotards move in perfect unison to a song with no lyrics, only a hum. Donna Brightwater leads from the front, her ponytail swinging on the beat. Nobody is sweating. Nobody is breathing hard. Sunny Castellanos watches from the doorway with her arms crossed. \"I've taught aerobics for six years,\" she says. \"Nobody is that good. Nobody is that together.\"",
+          "art": "An early-morning aerobics studio with thirty people in identical mint leotards moving in perfect unison, a smiling blond instructor at the front, a wheelchair racer frowning in the doorway",
+          "choices": [
+            {
+              "id": "do-it-wrong",
+              "label": "Roll in with Sunny and do every move gloriously wrong",
+              "intent": "camp",
+              "skill": "nerve",
+              "target": 9,
+              "bonus": {
+                "companion": "sunny-castellanos",
+                "amount": 2
+              },
+              "success": {
+                "text": "You flail. Sunny pops a wheelie and spins the wrong way on purpose. The whole class glitches, thirty heads snapping toward you at once, and they speak in one voice like a choir: \"Why would you want to be different? Different hurts.\" Then Donna smiles, and the music starts again.",
+                "art": "A teenager flailing off-beat while a wheelchair racer spins in a wheelie, thirty identical aerobics students frozen and turning their heads in unison toward them",
+                "effects": {
+                  "clues": ["brightwaters-bright-start"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "You try to do it wrong and your body keeps doing it right. Step, clap, turn, smile. Sunny has to grab your wrist and drag you out into the parking lot, where you finally stop humming.",
+                "art": "A teenager moving in perfect lockstep with a mint-leotard aerobics class, a determined wheelchair racer grabbing their wrist to pull them out",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "record-the-hum",
+              "label": "Tape the class's music and listen to it backward",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "item": "cassette-recorder",
+                "amount": 2
+              },
+              "success": {
+                "text": "Backward, the hum is voices, thousands of them, all saying the same thing in perfect harmony: We were alone so long. Now no one is alone. Now no one is different. Under the voices, faint and crackly, is a PTA meeting from 1979 asking that \"those people\" be kept away from the children.",
+                "art": "A cassette recorder playing backward in a gym locker room, sound waves curling into ghostly overlapping faces and an old PTA meeting hall",
+                "effects": {
+                  "clues": ["brightwaters-bright-start"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The tape plays the hum backward and forward at the same time. It gets into your head and stays all day. In fourth period you catch yourself agreeing with a dress code, and it scares you more than any monster.",
+                "art": "A teenager at a school desk with a faint glowing hum radiating from a cassette in their pocket, nodding along to a dress code placard on the wall",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "brightwaters-petition",
+        "title": "The petition and the scrapbook",
+        "location": "glitter-box",
+        "hint": "The Brightwaters are collecting signatures to close the Glitter Box. Glory keeps every piece of hate mail the theater has ever gotten.",
+        "encounter": {
+          "id": "brightwaters-clue-hate-mail",
+          "title": "The Wall of Fame",
+          "place": "Lobby, The Glitter Box Playhouse",
+          "text": "Rex Brightwater has set up a card table outside the Glitter Box with a clipboard and a smile: PETITION TO RESTORE FAMILY VALUES TO MAIN STREET. Inside the lobby, Glory Hallelujah has framed every angry letter the theater has received since 1969 and hung them in gold frames she calls the Wall of Fame. \"If they're going to write me,\" she says, \"I'm going to display it.\"",
+          "art": "A theater lobby wall covered in gold-framed angry letters, a drag queen in a sequined robe gesturing at it proudly, through the glass doors a smiling man at a petition card table",
+          "choices": [
+            {
+              "id": "match-the-letters",
+              "label": "Compare Rex's petition to the letters on the wall",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "glory-hallelujah",
+                "amount": 2
+              },
+              "success": {
+                "text": "The petition is not new. It is the town's old letters, copied word for word: 1971, 1974, 1979, the same lines about \"normal families\" and \"protecting the children.\" The hive did not invent a single sentence. Glory reads it over your shoulder and goes very quiet. \"Honey,\" she says, \"they're just repeating us.\"",
+                "art": "A petition held up beside gold-framed vintage letters with matching underlined sentences, a drag queen reading over a teenager's shoulder with a stricken face",
+                "effects": {
+                  "clues": ["brightwaters-petition"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "You read the letters too long. The words start to sound reasonable, then comforting. Glory snaps her fingers in your face twice before you look up, and you realize you have been holding Rex's pen.",
+                "art": "A dazed teenager holding a ballpoint pen in a theater lobby while a drag queen snaps her fingers in front of their face",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "go-undercover",
+              "label": "Put on a cardigan and ask Rex to explain his cause",
+              "intent": "sneaky",
+              "skill": "charm",
+              "target": 9,
+              "success": {
+                "text": "Rex beams and explains, and his voice keeps changing: a man's, then an old woman's, then a girl's, each a recording of somebody from Glimmer Falls. \"We only want what you wanted,\" he says, in your own principal's voice. \"You asked for everyone the same. We listened.\"",
+                "art": "A teenager in a too-neat cardigan at a petition table across from a smiling blond man whose mouth is ringed by faint overlapping ghostly faces",
+                "effects": {
+                  "clues": ["brightwaters-petition"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Rex sees right through the cardigan. \"You don't have to pretend,\" he says gently. \"Soon you won't have to.\" He presses a foil-covered casserole dish into your hands. It is warm and it is moving.",
+                "art": "A smiling man pressing a foil-covered casserole dish into a teenager's hands, the foil bulging faintly as something shifts beneath it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "brightwaters-welcome-casserole",
+        "title": "The Welcome Casserole",
+        "place": "Your kitchen, nine p.m.",
+        "text": "Donna Brightwater is standing in your kitchen, and nobody remembers letting her in. Your family is at the table eating something green and creamy with crunchy onions on top, and they are smiling so gently. \"I saved you a plate,\" Donna says. The casserole steams. Inside it, very slowly, something pulses.",
+        "art": "A 1980s suburban kitchen at night, a smiling blond neighbor holding out a plate of glowing green casserole, a family at the table eating serenely, something pulsing under the crust",
+        "choices": [
+          {
+            "id": "swap-the-plate",
+            "label": "Swap the casserole for leftover chili when she turns around",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "Spoon, swap, scrape, done. You eat the chili with a big grateful smile and Donna nods, satisfied. Later you bury the casserole in the backyard, and by morning a little green sprout with a tiny face has come up where you dug. You put it in a jar for Dr. Haddad.",
+              "art": "A teenager secretly sliding a plate of chili into place of a green casserole behind a neighbor's back, and later a tiny green sprout with a face in a glass jar",
+              "effects": {
+                "nerve": 1,
+                "flags": ["brightwaters-sprout"]
+              }
+            },
+            "failure": {
+              "text": "Donna turns around exactly as you are scraping the plate into the trash. She does not get angry. She looks hurt, and then everyone at the table looks hurt in the exact same way at the exact same moment.",
+              "art": "A whole family at a dinner table turning toward a teenager with identical hurt expressions while a neighbor stands by the trash can",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "eat-it-and-fight",
+            "label": "Eat one bite to be polite and fight it off",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "It tastes like mayonnaise and calm. Your stomach disagrees violently. You spend a heroic ten minutes in the bathroom bringing up a glittering green geyser with tiny seeds in it, and when you come out, wobbly, you are absolutely, defiantly yourself.",
+              "art": "A queasy but triumphant teenager stumbling out of a bathroom, a faint glittering green glow behind them, tiny seeds scattered on the tile",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "It tastes like mayonnaise and calm. You agree with Donna about everything until morning: lawns, curfews, hemlines, the importance of fitting in. When the feeling wears off at dawn, you sit on your bed shaking.",
+              "art": "A teenager sitting on the edge of a bed at dawn hugging their knees, a casserole dish on the nightstand, pale light through blinds",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-what-she-was",
+            "label": "Ask Donna what she was before she came here",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "Donna's smile stutters. For one second her face is not a face, just a soft green light, and a voice like wind in a wheat field says: \"Alone. So many years, alone. We thought if everyone was the same, nobody would ever be alone again.\" Then she is Donna, and she leaves without her dish.",
+              "art": "A suburban mom's face flickering into a soft green glow of drifting light and star-like seeds, her kitchen dimming around her",
+              "effects": {
+                "dread": -1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"I've always been Donna,\" she says, and pats your hand. Her fingers are cool and slightly damp, like a leaf after rain. Your hand smells green for two days.",
+              "art": "A neighbor's cool pale hand patting a teenager's hand on a kitchen table, a faint dew of green moisture left behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-block-party",
+        "title": "The Block Party",
+        "place": "Crystal Street, midnight",
+        "text": "A block party has sprung up around the Heartstone at midnight. Picnic tables, a potato-sack race, lawn chairs in perfect rows, and a hundred neighbors in pastel polo shirts eating potato salad in rhythm. The Brightwater twins skip over to you holding hands. \"Want to see our basement?\" Kip asks. \"Everyone ends up seeing our basement.\"",
+        "art": "A midnight block party on a suburban cul-de-sac around a glowing purple geode, a hundred neighbors in identical pastel polos eating in rhythm, blond twins skipping toward the viewer hand in hand",
+        "choices": [
+          {
+            "id": "see-the-basement",
+            "label": "Play along and let them show you the basement",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Down the stairs, under one bare bulb, rows of green pods pulse like slow hearts. Inside one, Vernon Kessler sleeps in his Starfleet uniform. Inside another, Shelby Duarte, choker and all. They are not hurt. They are dreaming, and one of them is smiling for real. You back up the stairs and count every pod.",
+              "art": "A dim basement lit by a single bulb, rows of translucent green pods holding sleeping teenagers in their own quirky clothes, one in a sci-fi uniform, one in goth lace",
+              "effects": {
+                "nerve": 1,
+                "flags": ["brightwaters-basement"]
+              }
+            },
+            "failure": {
+              "text": "The basement door closes behind you and the twins sing \"isn't it a beautiful day\" through it in perfect harmony for an hour. When it opens again, there is an empty pod at the end of the row, exactly your height.",
+              "art": "An empty open green pod at the end of a row in a dark basement, exactly a teenager's height, the teen backing away up the stairs",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "weird-dance",
+            "label": "Climb a picnic table and do the weirdest dance you know",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "You do the robot, the worm, and something Raven calls the Banshee Waltz. Around the edges of the party, the real people who have not been replaced start clapping, then whooping. Three of the polo shirts falter, their smiles slipping, and one of them says, in a small, real voice, \"Wait, that's my song.\"",
+              "art": "A teenager doing an outrageous dance on a picnic table beside a goth in velvet spinning dramatically, real neighbors cheering while three pastel-clad figures falter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The whole party copies your dance, instantly, perfectly, a hundred people doing your exact worm in exact rhythm. It is the most horrifying thing you have ever seen. You climb down and walk home without looking back.",
+              "art": "A hundred identical neighbors in pastel polos all doing the same dance move in perfect rhythm around a picnic table, a mortified teenager climbing down",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "brightwaters-pod-night",
+        "title": "Pod Night",
+        "place": "Your bedroom closet, three a.m.",
+        "text": "Something in your closet is breathing. You open the door and there, between your jackets and your old Halloween costumes, is a green pod the size of a sleeping bag. Inside it, half-finished, is you. It has your face, your hair, your crooked tooth. It opens its eyes and practices your laugh, and gets it almost right.",
+        "art": "A teenager opening a bedroom closet to find a large green pod among jackets and old costumes, a half-formed copy of their own face inside it, eyes just opening",
+        "choices": [
+          {
+            "id": "teach-it-weird",
+            "label": "Sit down and tell it everything strange about you",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You tell it about the song you sing in the shower, the cereal you eat with orange juice, the dream you had about a talking lighthouse, the thing you have never told anyone. The copy tries to hold it all and cannot. It shivers and sighs and dissolves into green confetti that smells like cut grass.",
+              "art": "A teenager sitting cross-legged in front of an open closet talking animatedly, a green pod dissolving into drifting confetti in the lamplight",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You talk and it listens, and it learns. By the time you stop, it has your crooked tooth exactly right and it is humming the song you sing in the shower. You shut the closet and push your dresser in front of it.",
+              "art": "A teenager shoving a heavy dresser against a closet door at night, a faint green glow and humming leaking through the gap",
+              "effects": {
+                "nerve": -1,
+                "dread": 2
+              }
+            }
+          },
+          {
+            "id": "call-the-crew",
+            "label": "Radio your crew to come over and be weird at it",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "Within ten minutes your bedroom is full of friends in pajamas reading bad poetry, singing show tunes and arguing about Star Trek. The pod copy watches, confused, then slowly, wonderfully, starts laughing along. It goes still and empty, and in the morning it is just a dry husk.",
+              "art": "A crowded bedroom of teens in pajamas singing, gesturing and laughing around a green pod in an open closet, the copy inside cracking a bewildered smile",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your walkie-talkie only plays the hum. Every channel. You sit up the rest of the night alone with your back to the closet door, listening to the copy breathe in time with you.",
+              "art": "A teenager sitting alone against a closet door at night holding a walkie-talkie that glows faintly green, a breathing shadow behind the door",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "drag-it-outside",
+            "label": "Haul the pod out to the curb before it finishes",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "It is heavy and slippery and it keeps whispering your name, but you get it down the stairs, across the lawn and into the gutter. By dawn the street sweeper has eaten it. You feel lighter than you have in days.",
+              "art": "A teenager dragging a slippery green pod across a dark front lawn toward the curb, a big friend in a hand-knit sweater lifting the other end",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The pod splits open on the stairs and the copy rolls out, wet and blinking. It runs past you into the night on legs that are not quite finished. Somewhere on Crystal Street, there are two of you now.",
+              "art": "A half-formed teenage copy scrambling out of a split green pod and running into a dark suburban night, the real teen frozen on the stairs",
+              "effects": {
+                "nerve": -1,
+                "dread": 2,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "brightwaters-finale",
+      "title": "Isn't It a Beautiful Day",
+      "place": "Crystal Street, Halloween night",
+      "text": "The Halloween parade on Crystal Street is perfect. Everyone wears the same costume: a smiling paper Brightwater mask. The pods in the basement of 7 are opening one by one. Rex and Donna stand on the roundabout as their faces split down the middle like seeds, and green light pours out, and the hive speaks in every neighbor's voice at once: \"We heard you. You asked for everyone the same. Why are you fighting the thing you wished for?\"",
+      "art": "A suburban Halloween parade where every marcher wears the same smiling paper mask, a blond couple on a roundabout splitting open like seed pods with green light pouring out, the teen crew in mismatched costumes facing them",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Storm the basement and rip the pods open by hand",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "You tear through the basement pod by pod and drag your neighbors out, wet and gasping and themselves. Upstairs, the copies wilt like cut flowers. The Brightwaters fold into the lawn and are gone by morning, leaving four perfect circles of dead grass.",
+            "art": "A teen ripping open a glowing green pod in a dark basement as a gasping goth teen tumbles out, wilted pastel copies collapsing upstairs",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "There are too many pods, and every one you open closes again. A hundred paper masks turn toward you. The hum fills your skull until you almost say it with them.",
+            "art": "Rows of resealing green pods in a basement and a hundred paper-masked neighbors on the stairs turning toward a struggling teen",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Hijack the parade PA and blast the loudest, strangest song you own",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "item": "mixtape",
+            "amount": 2
+          },
+          "success": {
+            "text": "Feedback, then a synth scream, then the weirdest B-side on your mixtape at full volume. The hum shatters. Masks fall off, and the copies drop where they stand like puppets with cut strings. The hive flees back up into the sky, offended by your taste in music.",
+            "art": "A teen at a parade sound booth cranking a cassette deck to full volume, paper masks flying off marchers, a streak of green light retreating into the night sky",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The PA plays the hum instead of your tape, a thousand times louder. The parade turns its masks toward the booth and begins, very politely, to walk toward you.",
+            "art": "A parade of paper-masked marchers turning in unison toward a sound booth, speakers glowing green, a teen ejecting a useless cassette",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Gather the town's weirdos and make everyone say out loud what they love about them",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "brightwaters-basement",
+            "amount": 1
+          },
+          "success": {
+            "text": "Glory takes the mic. Raven, Vernon's D&D group and the Glitter Box chorus line climb up beside you. You read the old letters, and then you read the names. \"Vernon Kessler, who taught half of us to play Dungeons and Dragons. Shelby Duarte, who made the best Halloween makeup in town.\" Neighbors start shouting their own: the accordion man, the girl in the cape. With every name said with love, a pod opens. The hive goes quiet. It finally understands what the town really wanted.",
+            "art": "A drag queen with a microphone, goth teens, nerds and chorus dancers on a roundabout beside a teen reading names aloud, green pods opening behind them, neighbors pulling off paper masks and cheering",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Your voice is lost under the hum. A few neighbors lift their masks, then lower them again, unsure. They are not ready to be loud yet. You need them to hear the whole truth.",
+            "art": "A teen shouting into a microphone while a few paper-masked neighbors half-lift their masks and hesitate, green light rising around them",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "The Weirdo Parade",
+        "text": "On November first Glimmer Falls holds its first annual Weirdo Parade. The Glitter Box leads in sequins, the goths march in velvet, the AV club rolls a cardboard starship down Main Street, Vernon wears his Starfleet uniform and Shelby does everyone's makeup. The PTA petition is shredded and thrown as confetti. And the youngest Brightwater, Kip, does not go home with the hive. He dyes his hair green, joins the yearbook club, and takes the worst, blurriest, most wonderful photos anyone has ever seen.",
+        "art": "A joyful small-town parade on Main Street with drag performers in sequins, goths in velvet, nerds pushing a cardboard starship, shredded petition confetti in the air, a boy with fresh green hair snapping a photo"
+      },
+      "good": {
+        "title": "For Sale: 7 Crystal Street",
+        "text": "The pods are gone, the copies are gone, and the neighbors who vanished come home a little confused and very hungry. The Brightwaters' house goes back on the market. But the petition to close the Glitter Box is still circulating at church, and nobody ever really asks why the hive found such an easy home here.",
+        "art": "An empty pastel split-level with a for sale sign on a dead-grass lawn, a petition clipboard left on the porch, a teenager staring at it from the sidewalk"
+      },
+      "bittersweet": {
+        "title": "A Little Too Nice",
+        "text": "Everyone comes back from the basement. Almost all the way. Vernon never puts his uniform on again, and Shelby keeps her lipstick in a drawer. They say they just grew out of it. You catch them sometimes, staring at nothing and humming, and you have to say their names twice before they look up.",
+        "art": "A teenager in a plain collared shirt staring out a school window humming, a black lipstick and a sci-fi pin sitting forgotten in an open drawer beside them"
+      },
+      "bad": {
+        "title": "Isn't It a Beautiful Day",
+        "text": "On November first you wake up in a mint cardigan and you feel wonderful. You wave to the Brightwaters across the street. You agree with everyone. When your crew bangs on your door shouting your name, you smile at them kindly, because they look so tired from being different, and you hope they come to dinner soon.",
+        "art": "A teenager in a mint cardigan smiling serenely and waving from a perfect lawn, worried friends in mismatched jackets shouting from the sidewalk, a blond family waving back across the street"
+      }
+    }
+  }
+]

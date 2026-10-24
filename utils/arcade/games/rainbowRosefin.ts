@@ -360,7 +360,7 @@ export function rosefinDialogue(
     'A04.OPEN': [
       {
         speaker: 'Lilt-7',
-        text: 'Rosefin Express. Civilian convoys ride these light rails, and the current is speeding up.',
+        text: 'Rosefin Express. Motherland convoys ride these light rails, and the current is speeding up.',
       },
       {
         speaker: lead,
@@ -384,31 +384,31 @@ export function rosefinDialogue(
     'A04.TURN': [
       {
         speaker: 'Lilt-7',
-        text: 'The express terminal. Delphion is herding the dolphin fleet into the rails.',
+        text: 'The express terminal. Delphion is throwing the whole dolphin fleet across the rails.',
       },
       {
         speaker: wing,
-        text: 'Those dolphins are not crews. They are the ships, and something is steering them.',
+        text: 'They are not attacking the convoy. They are blocking it, like a gate across a door.',
       },
       {
         speaker: lead,
-        text: 'Break the coupling, not the dolphins. Let them choose their own current.',
+        text: 'Orders stand. Break the coupling, not the dolphins.',
       },
     ],
     'A04.AFTER': [
       {
         speaker: 'Lilt-7',
-        text: 'The coupling is broken. The dolphin fleet is scattering, free.',
+        text: 'The coupling is broken. The dolphins are scattering, and the rail is open behind us.',
       },
       {
         speaker: lead,
         text: rescuedCourier
-          ? 'The courier made it through, and its route data points at the wreckyard.'
-          : 'We lost the courier, but its route data survived. It points at the wreckyard.',
+          ? 'The courier made it through. Its route data shows colony ships booked on this rail.'
+          : 'We lost the courier, but its route data survived: colony ships booked on this rail.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'Then the convoy leads us into the wreckage. Stay close together.',
+        text: 'Settlers, right behind our guns. Into the wreckyard. Stay close together.',
       },
     ],
   }

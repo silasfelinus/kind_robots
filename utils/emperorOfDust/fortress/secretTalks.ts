@@ -309,6 +309,44 @@ export const SECRET_TALKS: readonly TalkDef[] = [
     ],
   },
   {
+    id: 'tarn-2',
+    follower: 'F024',
+    title: 'The Toll Nobody Wrote Down',
+    fromDay: 43,
+    requires: { flags: ['heard:tarn-1'], notFlags: ['komodo-betrayal'] },
+    lines: [
+      'Tarn has walked the pass alone and counted what it costs. Every night a Watch sergeant takes a handful of coins from the families who cross, and not one coin reaches the ledger.',
+      '“He buys lamp oil for the guard post with it,” Tarn says. “Without the oil the post goes dark and the crossing is blind. With the oil, the families are robbed by the people sworn to guard them.”',
+      'Tarn has not told the sergeant what the map shows. The emperor decides what the sergeant hears.',
+    ],
+    options: [
+      {
+        id: 'fund-oil',
+        label:
+          'Fund the lamp oil from the treasury and order the sergeant to stop taking coin.',
+        requires: { cost: 10 },
+        effects: {
+          local: { yard: 1, 'gate-watch': 1 },
+          flags: ['tarn-oil-funded'],
+        },
+        response:
+          'The sergeant returns the coins to the nearest family without a word. The lamps burn all night. Tarn adds a small flame to the crossing on every map.',
+      },
+      {
+        id: 'name-the-toll',
+        label:
+          'Write the toll into the ledger and let the Watch answer to the Archive for it.',
+        effects: {
+          brass: 6,
+          local: { ledger: 2, 'gate-watch': -2 },
+          flags: ['tarn-toll-written'],
+        },
+        response:
+          'The oil is paid for in the open and the sergeant is fined in front of his own watch. Two guards ask for new posts. Tarn says an honest toll is still a toll and keeps walking the pass.',
+      },
+    ],
+  },
+  {
     id: 'tarn-exile',
     follower: 'F024',
     title: 'The Cart without Horses',

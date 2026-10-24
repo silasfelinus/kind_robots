@@ -1,0 +1,637 @@
+[
+  {
+    "id": "the-shape",
+    "name": "Mickey Moore",
+    "epithet": "The Shape in the Cardigan",
+    "inspiration": {
+      "original": "Michael Myers",
+      "film": "Halloween",
+      "year": 1978,
+      "kind": "flip",
+      "oldScript": "The silent Shape stalks teenage girls and cuts down the ones who have boyfriends, tie up the phone or laugh too loud, sparing only the virginal babysitter: purity as the price of surviving the night.",
+      "newLens": "The Shape is a 1971 babysitter a town rumor branded a bad girl and sent away for loving another girl. She enforces the purity rules because they broke her, and the crew wins by tearing the rulebook up so that everyone, bad girls included, lives to see November."
+    },
+    "tags": ["slasher", "paranormal"],
+    "palette": ["#ece6d6", "#8a1f33", "#1c1a26"],
+    "sigil": "needles",
+    "logline": "Every Halloween a pale, silent shape in a hand-knit cardigan walks Crystal Street, and every babysitter who answers the phone hears the same thing on the line: the click, click, click of knitting needles.",
+    "backstory": "In 1971 Michaela \"Mickey\" Moore was the best babysitter on Crystal Street: sixteen, freckled, a shortstop on the girls' softball team, and never without her knitting bag. On Halloween night she sat for baby Teddy Kettering at 45 Crystal Street, and her best friend June Albright came over to watch the Creature Feature. Somewhere in the second movie the girls kissed. Carol Lund, the babysitter next door, saw it through the window. She could not bring herself to say what she saw, so she called the KGLM Party Line the next morning and told the whole valley a story it would believe: that Mickey had snuck a boy in through the back window and, while they were busy on the couch, baby Teddy crawled out the dog door and was found at midnight in the Heartstone roundabout. Mickey was fired, shunned at church, and sent to the Valley Haven School for Girls, where they made her wear a plaster mask of her own face in deportment class to practice a pleasant expression. On Halloween 1972 she ran away to walk home in the fog on Quarry Road. She never arrived. They found only her cardigan, folded on the Crystal Street sign. Every Halloween since, her shape walks home in that mask and that cardigan, and she enforces every rule that broke her: the sitter who answers the phone, the couple on the couch, the girl who laughs too loud.",
+    "centralIssue": {
+      "title": "The purity rules that broke her",
+      "summary": "Mickey was never a bad sitter and never a bad girl. A frightened neighbor turned a first kiss into a scandal, and the town chose the rumor over the truth because the truth scared it more. Her blade is the town's own rulebook. Prove what really happened that night, name who started the lie, and show her a Halloween where nobody has to be pure to survive."
+    },
+    "poster": "A tall, silent young woman in a long cranberry hand-knit cardigan and a pale blank plaster mask standing motionless in the middle of a leafy suburban cul-de-sac on Halloween night, a pair of long steel knitting needles in one hand, jack-o'-lanterns glowing on every porch, a babysitter's silhouette at a lit kitchen window behind her",
+    "portrait": "Close portrait of a pale, expressionless plaster mask with faint fingerprints pressed into its cheeks, surrounded by loose auburn curls and the high collar of a cranberry cable-knit cardigan, a strand of yarn trailing from a steel knitting needle raised beside the mask, cold streetlight from one side",
+    "taunts": [
+      "A good sitter keeps the line clear.",
+      "No boys. No phone. No laughing after nine. Rules are rules.",
+      "Knit one, purl two. Lights out by ten.",
+      "I followed every rule but one. Look where it got me.",
+      "Smile, sweetheart. Practice a pleasant expression."
+    ],
+    "clues": [
+      {
+        "id": "the-shape-party-line",
+        "title": "The Party Line tape",
+        "location": "kglm-radio",
+        "hint": "In 1971 the whole valley heard its gossip on KGLM's morning call-in show, and the station never throws a tape away.",
+        "encounter": {
+          "id": "the-shape-clue-party-line",
+          "title": "Reel 71-11-01",
+          "place": "Tape archive closet, KGLM 103.3",
+          "text": "The KGLM archive is a closet of reel-to-reel tapes stacked to the ceiling, each box labeled in grease pencil. THE PARTY LINE WITH BUD DELACORTE, NOV 1 1971 sits on top of the pile, dust-free, as if someone has been playing it. The station logbook beside it is open to the same date. In the booth down the hall, the call-in line lights up by itself.",
+          "art": "A cramped radio station closet stacked with reel-to-reel tape boxes labeled in grease pencil, one dust-free box on top marked November 1971, an open logbook beside it, a red call-in light glowing through a doorway",
+          "choices": [
+            {
+              "id": "thread-the-reel",
+              "label": "Thread the reel on the old deck and listen",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "mix-bell",
+                "amount": 2
+              },
+              "success": {
+                "text": "Between a recipe for tuna casserole and a lost beagle, a girl's voice says, \"I won't give my name, but I sit for the Halversons and I saw it with my own eyes.\" A boy in the window, a baby in the roundabout. In the logbook, Bud wrote the caller down anyway: Carol L., 16, Pinecone Lane.",
+                "art": "A reel-to-reel tape deck spinning under a desk lamp, a teenager in headphones leaning close, an open station logbook with one handwritten line circled in red grease pencil",
+                "effects": {
+                  "clues": ["the-shape-party-line"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "The reel spins too fast and the voices squeal into chipmunk gossip. Then it slows, and slows, until all that comes out of the speaker is a steady click, click, click, like needles. The tape snaps. The call-in light goes dark.",
+                "art": "A snapped reel of brown audio tape curling off an old tape deck in a dark radio booth, a single red call-in light fading out above the console",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "take-the-call",
+              "label": "Answer the lit call-in line on air",
+              "intent": "brave",
+              "skill": "nerve",
+              "target": 11,
+              "success": {
+                "text": "Nobody speaks. Instead the line plays back a tinny recording of the 1971 show, and the caller giggles nervously before she gives her first name by accident: \"Carol. I mean, just a concerned neighbor.\" Somewhere on the line, needles stop clicking, as if someone else was listening too.",
+                "art": "A teenager in an overnight radio booth holding a phone receiver to one ear, eyes wide, the glowing on-air sign lit red, the window behind them showing the water tower against a moonlit sky",
+                "effects": {
+                  "clues": ["the-shape-party-line"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "You say hello to the whole sleeping valley. On the line, a girl whispers, \"A good sitter keeps the line clear,\" and every phone on the switchboard lights up at once. You yank the cord and sit in the dark, shaking.",
+                "art": "A radio station switchboard with every button lit at once, a yanked phone cord dangling, a frightened teenager in the dim booth lit by the blinking lights",
+                "effects": {
+                  "nerve": -2,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "the-shape-sitter-log",
+        "title": "Doris Kettering's date book",
+        "location": "crystal-street",
+        "hint": "The family Mickey sat for that Halloween still lives at 45 Crystal Street, and this week they are clearing out the garage.",
+        "encounter": {
+          "id": "the-shape-clue-garage-sale",
+          "title": "Everything Must Go",
+          "place": "Garage sale, 45 Crystal Street",
+          "text": "Mrs. Doris Kettering has dragged fifteen years of her family onto card tables in the driveway: a bassinet, a fondue set, a box marked TEDDY'S BABY THINGS 1971. She keeps glancing at the box and away from it. Her son Teddy, sixteen now and mortified, is pricing records. Every one of her porch lights is on in broad daylight.",
+          "art": "A sunny suburban driveway garage sale with card tables of 1970s household goods, a cardboard box labeled with a baby's name and the year 1971, a nervous middle-aged woman in a pantsuit glancing at it, porch lights glowing in daylight",
+          "choices": [
+            {
+              "id": "buy-the-box",
+              "label": "Haggle for the whole baby box, sight unseen",
+              "intent": "sneaky",
+              "skill": "hustle",
+              "target": 9,
+              "bonus": {
+                "companion": "kev-park",
+                "amount": 2
+              },
+              "success": {
+                "text": "Two quarters and a promise to take the bassinet too. Under the bibs is Doris's 1971 date book. October 31: Home 11:40. Teddy asleep in his crib. Girls asleep on the couch, holding hands. Dishes done! Then November 2, in smaller writing: I know Carol's story is a lie. Hal says it's better this way.",
+                "art": "A teenager kneeling on a driveway beside an open cardboard box of baby clothes, reading a small 1971 date book, one handwritten entry underlined, a bassinet beside them",
+                "effects": {
+                  "clues": ["the-shape-sitter-log"],
+                  "quarters": -2
+                }
+              },
+              "failure": {
+                "text": "Doris snatches the box back. \"That one isn't for sale. I don't know how it got out here.\" She carries it inside and locks the door. That night, the box sits on her front step again, and the bassinet is rocking by itself.",
+                "art": "A cardboard baby box on a suburban front step at night, an empty white bassinet rocking beside it under a glowing porch light",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-about-the-sitter",
+              "label": "Ask Mrs. Kettering who used to babysit Teddy",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "pearl-washington",
+                "amount": 1
+              },
+              "success": {
+                "text": "Her hands stop on the fondue forks. \"Mickey Moore. She was wonderful. She even did the dishes.\" Then it pours out: Teddy was asleep in his crib the whole night, she came home to find both girls dozing on the couch, and she said nothing when the rumor flew because her husband was on the council. She hands you her date book. \"Somebody should finally read it.\"",
+                "art": "A middle-aged woman in a pantsuit handing a small worn date book across a garage sale card table to a teenager, her eyes wet, a teenage boy watching from behind a crate of records",
+                "effects": {
+                  "clues": ["the-shape-sitter-log"],
+                  "dread": -1
+                }
+              },
+              "failure": {
+                "text": "Her smile clicks shut like a compact. \"We don't talk about her in this house.\" Teddy mouths sorry. When you turn to go, there is a cranberry cardigan folded neatly on the card table, priced at twenty-five cents in someone else's handwriting.",
+                "art": "A neatly folded cranberry cable-knit cardigan on a garage sale card table with a handwritten price tag, two steel knitting needles crossed on top of it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1,
+                  "flags": ["shape-cardigan-seen"]
+                }
+              }
+            },
+            {
+              "id": "ask-teddy",
+              "label": "Help Teddy price records and ask about the old story",
+              "intent": "camp",
+              "skill": "lore",
+              "target": 9,
+              "success": {
+                "text": "Teddy has heard the story his whole life: he is the baby who got lost. \"Except I wasn't. Mom's date book says so. She just never showed anybody.\" He digs it out of the box and slides it to you between two Bee Gees records. \"Somebody owes that girl.\"",
+                "art": "Two teenagers sitting cross-legged on a driveway among crates of vinyl records, one sliding a small worn date book across to the other, afternoon sun on the garage door",
+                "effects": {
+                  "clues": ["the-shape-sitter-log"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Teddy shrugs. \"I was a baby. Supposedly I almost died. Thanks, Mom.\" He walks off. In the record crate, every album has the same sleeve on top: a 1971 Creature Feature station promo, two girls' initials scratched into the corner.",
+                "art": "A crate of vinyl records on a driveway, the front sleeve a faded 1971 late-night monster movie promo with two sets of initials scratched into one corner",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "the-shape-harvest-hop",
+        "title": "The Harvest Hop negative",
+        "location": "high-school",
+        "hint": "Mickey Moore is missing from the 1972 Glimmer Falls High yearbook, but the yearbook office keeps every negative it ever shot.",
+        "encounter": {
+          "id": "the-shape-clue-darkroom",
+          "title": "Not Pictured",
+          "place": "Yearbook office darkroom, Glimmer Falls High",
+          "text": "The 1972 yearbook lists MICHAELA MOORE, NOT PICTURED, beside a gray square. In the darkroom closet, a binder of negatives from the 1971 Harvest Hop has one strip pulled halfway out of its sleeve. Hold it to the red safelight and you can just make out two girls dancing cheek to cheek in matching knitted cardigans.",
+          "art": "A school darkroom glowing deep red under a safelight, a teenager holding a strip of film negatives up to the light, the tiny inverted image of two girls slow dancing in matching cardigans",
+          "choices": [
+            {
+              "id": "print-the-negative",
+              "label": "Mix the chemicals and print the photo",
+              "intent": "clever",
+              "skill": "brains",
+              "target": 9,
+              "bonus": {
+                "companion": "toby-nakamura",
+                "amount": 1
+              },
+              "success": {
+                "text": "The print blooms up through the developer tray: Mickey and June at the Harvest Hop, foreheads together, laughing too loud at something only they can hear. On the back of the negative sleeve, in looping ballpoint: Knit one, purl two, I'm crazy for you. Save me a dance every year. J.",
+                "art": "A black-and-white photo emerging in a darkroom developer tray, two teenage girls in matching hand-knit cardigans dancing with their foreheads touching, laughing",
+                "effects": {
+                  "clues": ["the-shape-harvest-hop"],
+                  "skills": {
+                    "brains": 1
+                  }
+                }
+              },
+              "failure": {
+                "text": "The print comes up black, then gray, then a single pale oval where a face should be. The safelight flickers. When it steadies, someone has drawn a smiley face on the darkroom door in fixer, still dripping.",
+                "art": "A photographic print floating in a darkroom tray showing a single blank pale oval face, a dripping smiley face drawn on a red-lit darkroom door behind it",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            },
+            {
+              "id": "ask-coach-pruitt",
+              "label": "Show the negative to Coach Pruitt, who has been here forever",
+              "intent": "kind",
+              "skill": "charm",
+              "target": 9,
+              "bonus": {
+                "companion": "tammy-jo-pruitt",
+                "amount": 2
+              },
+              "success": {
+                "text": "Coach Pruitt was in her first year at Glimmer Falls in 1971. She holds the negative to the window a long time. \"Best shortstop I ever had. Knit the whole infield scarves.\" She pulls a team photo from her office wall with Mickey in it, and June beside her, and their two hands not quite hidden behind a glove.",
+                "art": "A tall broad-shouldered softball coach in a track jacket holding a film negative up to a sunny office window, a 1971 girls' softball team photo on the desk in front of a teenager",
+                "effects": {
+                  "clues": ["the-shape-harvest-hop"],
+                  "nerve": 1
+                }
+              },
+              "failure": {
+                "text": "Coach Pruitt is mid-practice and tells you to run two laps for loitering in the darkroom. On the second lap you glance up at the bleachers. A figure in a cardigan is sitting very still in the top row, knitting, watching only you.",
+                "art": "A teenager jogging around an empty school track at dusk, a still figure in a pale mask and cardigan sitting alone at the top of the bleachers, knitting",
+                "effects": {
+                  "nerve": -1,
+                  "dread": 1
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "signature": [
+      {
+        "id": "the-shape-the-phone",
+        "title": "The Babysitter Answers the Phone",
+        "place": "The Quintero house, babysitting, Sunday night",
+        "text": "The Quintero twins are finally asleep and the Creature Feature is on. At 9:41 the kitchen wall phone rings. On the line, nobody speaks. There is only a slow click, click, click, like knitting needles, and then a girl's soft voice: \"A good sitter doesn't tie up the line.\" Across the street, under the streetlight, a pale face is watching the window. You blink, and the streetlight is empty.",
+        "art": "A teenager in a 1980s kitchen holding a yellow wall phone with a long curly cord, a glowing TV in the next room, through the window a pale masked figure in a cardigan standing under a streetlight across the road",
+        "choices": [
+          {
+            "id": "lock-everything",
+            "label": "Hang up and lock every door and window",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Front door, back door, slider, the window over the sink. You reach the dog door last and slam the bolt just as the flap starts to lift. It settles. Footsteps cross the lawn, unhurried. At dawn there is a tiny knitted mitten on the mat, exactly the size of a baby's hand.",
+              "art": "A teenager sliding a bolt across a kitchen dog door, the rubber flap pressed inward, and in a second moment a tiny knitted cranberry mitten on a doormat at dawn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every lock is already locked, from the inside, except the back door, which is standing open. The phone cord has been knitted into a tight, neat cable stitch, and the twins are both awake, whispering about the nice lady in the yard.",
+              "art": "A yellow phone cord tightly knitted into a cable stitch hanging from a kitchen wall, a back door standing open onto a dark yard, two small kids in pajamas peeking from a hallway",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stay-on-the-line",
+            "label": "Stay on the line and talk to her",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "You tell her the twins are asleep, the dishes are done, and the second movie is about a fish man. The clicking slows. \"I did the dishes too,\" the voice whispers, sixteen and so tired. \"Nobody ever wrote that down.\" The line goes quiet, gently, like a phone set back in its cradle.",
+              "art": "A teenager sitting on a kitchen floor with a wall phone receiver pressed to one ear, listening intently, a clean dish rack beside them, warm lamp light and a calm quiet house",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-heard-her"]
+              }
+            },
+            "failure": {
+              "text": "\"Hello? Who is this?\" you say, too loud. The clicking stops. Then every phone in the house rings at once, upstairs and down, and they do not stop until you pull every cord out of every wall.",
+              "art": "A frantic teenager yanking a phone cord out of a wall jack in a dark hallway, three different phones ringing on side tables around them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "go-check-the-twins",
+            "label": "Drop the phone and run upstairs to the twins",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The twins are asleep, a stuffed dinosaur each. You sit between their beds all night with a flashlight and every light on. Once, the hall floor creaks and stops at the door, and you say, out loud, \"They're fine. I've got them.\" The creaking goes away.",
+              "art": "A teenager sitting on the floor between two small beds in a kids' bedroom holding a flashlight, two sleeping children hugging stuffed dinosaurs, a long shadow in the hallway doorway",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You take the stairs two at a time and trip on a skein of cranberry yarn stretched across the top step. You land hard. The twins sleep through it. The dangling phone downstairs is still clicking.",
+              "art": "A teenager sprawled at the top of a carpeted staircase tangled in a strand of cranberry yarn, a phone receiver dangling by its cord in the dark kitchen below",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "the-shape-the-couch",
+        "title": "The Couple on the Couch",
+        "place": "A Halloween-week party on Pinecone Lane",
+        "text": "Somebody's parents are in Reno, so half of Glimmer Falls High is in their rec room. Two of your friends are sharing the plaid couch and a bowl of popcorn, holding hands under an afghan, finally. Through the sliding glass door, past a clothesline of white sheets in the backyard, a pale blank face is watching them. When the sheets flap, she is one sheet closer.",
+        "art": "A wood-paneled 1980s rec room party, two teenagers holding hands on a plaid couch under a crocheted afghan, through a sliding glass door a backyard clothesline of white sheets with a pale masked figure standing among them",
+        "choices": [
+          {
+            "id": "herd-everyone-upstairs",
+            "label": "Get the couple and everyone else upstairs, now",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "You haul the couch couple up by their wrists and the whole party stampedes after you into the upstairs bathroom, twelve kids and a bowl of popcorn in the tub. Out the little window, the Shape stands on the lawn and tilts her head, as if she has never seen anyone protect a couple before.",
+              "art": "A crowd of teenagers crammed into a pink-tiled upstairs bathroom, several standing in the tub with a popcorn bowl, one peering out a small window at a masked figure tilting her head on the moonlit lawn below",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You run for the slider to lock it and the sheets on the line seem to reach for you. You go down in a tangle of wet cotton, wrestling the laundry, while somewhere close by a pair of needles goes click.",
+              "art": "A teenager tangled and struggling in white sheets fallen from a backyard clothesline at night, a pair of steel knitting needles glinting in the grass nearby",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "crank-the-lights",
+            "label": "Hit every light, crank the stereo and call couples skate",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "Every lamp, the porch light, the lava lamp. You put on the slowest song on the tape and yell \"Couples skate!\" in socks on the linoleum, and suddenly everyone is dancing with everyone. The Shape stands in the bright yard a long while, watching a room where nobody is alone, and then she is simply gone.",
+              "art": "A brightly lit rec room full of teenagers slow dancing in socks on linoleum under a glowing lava lamp, a porch-lit backyard outside the sliding door holding an empty clothesline of sheets",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The stereo shrieks and dies. So does every light in the house. In the dark, the couch springs creak as two people stand up fast, and on the glass of the slider a hand writes in fog: LIGHTS OUT BY TEN.",
+              "art": "A dark rec room lit only by moonlight, foggy writing traced by a finger on a sliding glass door, frightened teenagers huddled on a plaid couch",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "walk-toward-her",
+            "label": "Step outside and walk straight up to her",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You cross the wet lawn with your flashlight on her mask. Up close it is plaster, homemade, with a girl's fingerprints pressed into the cheeks where someone shaped it too hard. She raises one needle, slowly, and points it down the hill toward Crystal Street. Toward the Kettering house. Then the sheets flap and she is gone.",
+              "art": "A teenager on a dark wet lawn shining a flashlight on a pale plaster mask pressed with faint fingerprints, the masked figure in a cardigan pointing one knitting needle down a hill toward distant suburban lights",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                },
+                "flags": ["shape-pointed-home"]
+              }
+            },
+            "failure": {
+              "text": "The sheets flap and she is gone. They flap again and she is behind you, close enough that you hear the yarn sliding through her fingers. You run inside, slam the slider, and nobody will sit on that couch for the rest of the night.",
+              "art": "A pale masked figure in a cardigan standing directly behind a frightened teenager on a moonlit lawn, white sheets billowing on a clothesline around them",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "the-shape-the-laugh",
+        "title": "The Girl Who Laughs Too Loud",
+        "place": "Mischief Night skate, Pump Iron roller rink annex",
+        "text": "It is Mischief Night, the disco ball is spinning, and somebody tells a joke so bad you laugh until you snort. The music cuts out. Under the strobe light, between one flash and the next, a pale shape in a cardigan is standing in the middle of the rink without skates. Every flash, she is closer. She is walking toward whoever laughed the loudest, and that was you.",
+        "art": "A crowded 1980s roller rink under a spinning disco ball and strobe lights, skaters frozen mid-glide, a pale masked figure in a cranberry cardigan standing on the wooden floor in sneakers, walking toward one teenager",
+        "choices": [
+          {
+            "id": "hide-in-the-closet",
+            "label": "Duck into the skate-rental closet and hold your breath",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You squeeze in behind racks of brown rental skates and pull the slatted door shut. Through the slats you see her stop. A steel needle slides between two slats, an inch from your eye, and holds there. Then, very softly, she knits one row on it, and walks away.",
+              "art": "View from inside a dark slatted closet full of rental roller skates, a single steel knitting needle poking between the slats, a pale masked figure blurred beyond the door",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The closet door does not quite close. A needle hooks your sleeve through the gap and tugs, once, like a teacher fixing a collar. You tumble out onto the rink floor in a landslide of skates as the lights come up.",
+              "art": "A teenager tumbling out of a rental closet onto a wooden roller rink floor in an avalanche of brown skates, a strand of cranberry yarn caught on their sleeve",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "laugh-louder",
+            "label": "Laugh louder, and get the whole rink laughing with you",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "You laugh like a hyena and point at the next person until they crack, and they point at the next, and in thirty seconds the whole rink is howling. She cannot pick one loud girl out of a building full of them. She stands still in the strobe, and for a moment her shoulders shake too.",
+              "art": "A whole roller rink crowd doubled over laughing under a disco ball, a pale masked figure in a cardigan standing still in the middle with her shoulders lifted as if laughing",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["shape-crowd-laughed"]
+              }
+            },
+            "failure": {
+              "text": "Your laugh comes out thin and alone and dies in the silence. She is right in front of you now. She raises one finger to the lips of the mask. Shh. Then the strobe flashes and she is gone, and you cannot make a sound until morning.",
+              "art": "A pale blank mask inches from a frightened teenager's face, one finger raised to its lips, strobe light flashing across a silent roller rink",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "knock-the-needles",
+            "label": "Grab a rink broom and knock the needles out of her hands",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 2
+            },
+            "success": {
+              "text": "Crack. The needles skitter across the floor, spinning under the disco ball. She looks at her empty hands like she has forgotten what they are for. She picks the needles up one at a time, very carefully, and walks out through the fire door into the dark.",
+              "art": "Two steel knitting needles skittering across a wooden roller rink floor under a disco ball, a masked figure looking down at her empty hands, a teenager gripping a broom",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She catches the broom without looking and snaps it like a pretzel stick. The halves clatter on the floor. You back away across the rink on wobbling ankles while she follows, one calm step at a time, until the lights come up.",
+              "art": "A pale masked figure holding the two halves of a snapped broom on a roller rink floor, a teenager backing away on wobbly skates under strobe lights",
+              "effects": {
+                "nerve": -2,
+                "teleport": "slasher"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "finale": {
+      "id": "the-shape-finale",
+      "title": "Halloween at 45 Crystal Street",
+      "place": "The Kettering house, Halloween night",
+      "text": "At 11:40 on Halloween night every phone on Crystal Street starts ringing at once. Your crew is barricaded in the Kettering living room with the same plaid couch and the same wall phone from 1971. Out in the street, the Shape walks down the center line between the jack-o'-lanterns, needles in hand, and stops at the front walk. Carol Pickett, who was Carol Lund, stands frozen on the sidewalk in her Halloween Safety Committee sash. The mask turns toward her, then toward you. \"Rules are rules,\" says every phone in every house.",
+      "art": "A split-level suburban house on Halloween night with every window lit and teens peering out, a pale masked figure in a cranberry cardigan standing on the front walk holding knitting needles, a woman in a safety sash frozen on the sidewalk, jack-o'-lanterns lining the street",
+      "choices": [
+        {
+          "id": "fight",
+          "label": "Hold the stairs and drive her off the balcony",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 11,
+          "bonus": {
+            "item": "baseball-bat",
+            "amount": 2
+          },
+          "success": {
+            "text": "She comes up the stairs one calm step at a time and you meet her at the top with everything you have. The railing gives. She goes over the balcony into the leaf pile on the lawn below. When you all lean over to look, the leaves are empty except for the shape of a girl pressed into them.",
+            "art": "A teenager with a baseball bat at the top of a staircase beside a broken balcony railing, below on the moonlit lawn a pile of autumn leaves holding the empty pressed outline of a person",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She does not hurry and she does not stop. The bat bounces off the cardigan like you swung at a cloud. A needle pins your sleeve to the banister, neat as a sewing pin, and she walks on past you toward your friends.",
+            "art": "A teenager's jacket sleeve pinned to a wooden banister by a steel knitting needle, a pale masked figure walking past them down a dark upstairs hallway",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "trick",
+          "label": "Stage a final-girl ending straight out of Zelda's movies",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 9,
+          "bonus": {
+            "companion": "zelda-fishbein",
+            "amount": 2
+          },
+          "success": {
+            "text": "Zelda lets loose the scream that ended The Thing from Crystal Springs, the decoy in the borrowed cardigan slumps on the couch, and the Shape goes for it like every slasher in every picture. The moment she is inside the hall closet, you slam the slatted door and wedge it with the couch. \"Every monster falls for the third act,\" Zelda says.",
+            "art": "A silver-haired older woman screaming theatrically in a living room while teenagers shove a plaid couch against a slatted hall closet door, a dummy in a cardigan slumped on the floor",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "She walks straight past the decoy and does not even turn her head. She has seen this movie. She has been in this movie for fifteen years. The closet door swings open on its own, and it is you she steps toward.",
+            "art": "A pale masked figure walking past a slumped decoy dummy on a couch toward a frightened teenager, a slatted hall closet door swinging open behind her",
+            "effects": {
+              "nerve": -3
+            }
+          }
+        },
+        {
+          "id": "heart",
+          "label": "Answer the phone together and tell her what really happened",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 9,
+          "requires": {
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "shape-heard-her",
+            "amount": 1
+          },
+          "success": {
+            "text": "You pick up the wall phone and your whole crew crowds around the receiver. You read her Doris's date book: Teddy asleep, dishes done. You play Carol's voice off the Party Line tape. You hold the Harvest Hop photo up to the window. On the sidewalk, Carol Pickett starts to cry and says it out loud, for the whole street to hear: \"I saw you kiss her. I made up the rest. I'm sorry, Mickey.\" The needles lower. Slowly, the Shape reaches up and takes off the mask.",
+            "art": "A crowd of teens around a kitchen wall phone holding up an old dance photograph and a small date book to the window, outside a woman in a safety sash weeping on the sidewalk, a young woman in a cardigan lifting a pale mask from her freckled face",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "Every phone keeps ringing over your words. She cannot hear the truth through fifteen years of rules and static. You have everything you need in your hands, but she needs it louder, clearer, from more than one voice.",
+            "art": "A teen shouting into a wall phone in a lit kitchen, an old photo and date book clutched in one hand, the pale masked figure outside the window unmoving in the static-blue streetlight",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        }
+      ]
+    },
+    "endings": {
+      "best": {
+        "title": "Everybody Survives the Night",
+        "text": "Under the mask, Mickey Moore is just a freckled sixteen-year-old with a crooked smile. Mix puts Carol on the KGLM line and she tears up her Babysitter Pledge live on the air; Doris Kettering reads her date book from the porch; one by one, every porch light on Crystal Street blinks on and off, which is how this town says sorry. Nobody is punished. The couple stays on the couch, the sitters answer every phone, and the whole crew laughs too loud on purpose. At dawn Mickey finishes the last row of a long cranberry scarf, wraps it around your neck, and walks toward the Heartstone, where the light looks a lot like a porch light left on for a girl in a matching cardigan. The final girl was all of you.",
+        "art": "Dawn on a suburban cul-de-sac strewn with jack-o'-lanterns, every porch light glowing, a crowd of laughing teens arm in arm on the lawn, a freckled young woman in a cranberry cardigan holding a pale mask at her side and walking toward a glowing purple geode"
+      },
+      "good": {
+        "title": "The Leaves Were Empty",
+        "text": "The phones stop ringing at midnight and Crystal Street wakes up on November first with everyone safe. The police find knitting needles in the Kettering leaf pile and nothing else, and the Halloween Safety Committee prints twice as many Babysitter Pledges. You keep one of the needles in your desk drawer. Sometimes, when the phone rings and nobody is there, you wonder what she was trying to tell you.",
+        "art": "A teenager standing at the edge of a scattered pile of autumn leaves on a suburban lawn at dawn, holding a single steel knitting needle, a stack of printed pledge pamphlets on a nearby porch"
+      },
+      "bittersweet": {
+        "title": "Lights Out by Ten",
+        "text": "You all make it to November, but the rules win a little. Two friends who held hands on the couch stop sitting together at lunch. Your little neighbor quits babysitting and will not touch a phone after dark. The Shape is quiet now, not gone. Every Halloween you hear needles somewhere down the street, and you leave your porch light on all night, just in case.",
+        "art": "A teenager on a porch at night beside a glowing porch light, looking down a quiet leafy street where a faint pale figure in a cardigan stands far away under a streetlight"
+      },
+      "bad": {
+        "title": "A Pleasant Expression",
+        "text": "On November first your face feels stiff. You smile at breakfast, a small, pleasant, practiced smile, and you cannot stop. You hang up the phone before it rings. You sit on the very edge of the couch, alone. You do not laugh at anything, ever, and your crew watches you knit, row after neat row, a pale blank mask in your lap.",
+        "art": "A teenager sitting stiffly on the edge of a plaid couch with a frozen polite smile, knitting with steel needles, a pale plaster mask resting in their lap, worried friends in Halloween costumes crowded in the doorway"
+      }
+    }
+  }
+]

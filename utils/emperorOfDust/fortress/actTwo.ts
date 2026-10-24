@@ -48,13 +48,15 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: { affinity: { 'mire-mothers': -10 } },
     outcomes: {
       triumph:
-        'The raiders broke and ran. A young newt-witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
+        'The raiders broke and ran. A novice fen witch with a green lantern walked the party home. On the road she asked one thing: did the throne have room for a witch who disagreed with her elders?',
       success:
-        'The camp is scattered. A newt-witch named Isolde thanks the party, then asks to see the emperor alone.',
-      partial: 'The raiders pulled back. Not far.',
+        'The camp is scattered. A lantern-witch named Isolde thanks the party, then asks to see the emperor alone.',
+      partial:
+        'The raiders retreat into the reed line, close enough for their cooking smoke to reach the village. The watch ties three strips of red cloth to the fence for the families still hiding beyond it.',
       failure:
-        'The party was driven off. Lanterns burned in the fen all night. Not all of them were the Mothers’.',
-      expired: 'No help came. The Mothers will not ask twice.',
+        'The party comes back by the road, stripped of its warning bells. Lanterns burn across the fen until dawn. Sister Reedlight says the raiders hung some of them; she will not say which.',
+      expired:
+        'No aid reaches the fen. Sister Reedlight leaves a dry bundle of broken reeds at the fortress gate. By morning every village pole on the road has been stripped of its lantern.',
     },
   },
   {
@@ -89,9 +91,10 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Jars. Shelves of them, labelled in a neat hand with dates and village names. Some jars are small. The party took the ledger and left the jars.',
-      partial: 'The party saw the cellar door, and the lock, and left.',
+      partial:
+        'Behind the cellar door something glass knocks gently against something else. The lock carries the stamp of Hollow Bell’s old foundry. The investigators leave with a sketch of it and empty hands.',
       failure:
-        'The Mothers caught the party on the stairs and smiled at them all the way out.',
+        'Sister Reedlight meets the party halfway down the stairs with a tray of tea. The investigators climb back into daylight still holding untouched cups. Their map is gone.',
       expired:
         'The party never went down. Sister Reedlight sent the crown a green lantern, unlit. The Mothers saw the search posted, and saw it not dare.',
     },
@@ -132,9 +135,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The engine runs. The Pack cheered Saffron like a captain come home. She wept, then denied it. Hollow Bell’s stream runs lower.',
-      partial: 'The engine coughs. It runs every other day.',
-      failure: 'The engine blew. Nobody is speaking to anybody.',
-      expired: 'The Pack waited. Then it stopped waiting.',
+      partial:
+        'The Rustline pump starts on the second pull and dies by supper. The Pack posts a guard beside it anyway. Hollow Bell’s stream runs low whenever the engine turns.',
+      failure:
+        'The pump breaks its flywheel on the first full load. A chunk lands in the watch tent. Gristle Vane sends the cracked bearing to the throne wrapped in the dead mechanic’s apron.',
+      expired:
+        'The Pack leaves the pump shed open and drains the oil into the dry creek bed. Gristle Vane nails a tally of wasted days to the door. His riders have returned to the toll road.',
     },
   },
   {
@@ -171,10 +177,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'The engine runs clean. In a month it won’t. Nobody in the canyon suspects.',
       partial:
-        'The engine runs. Whether it fails on schedule is anyone’s guess.',
+        'The sabotaged engine turns without complaint. The filed pin slides under the mechanic’s thumb but holds. The party leaves without learning which shift will be blamed when it breaks.',
       failure:
         'Gristle Vane found the filed bolt himself. He kept it. He will show it to people.',
-      expired: 'The chance passed.',
+      expired:
+        'The mechanic replaces the weakened pin before the party arrives. The old one sits on the workbench in a clean envelope. Gristle Vane asks who wanted the engine to fail.',
     },
   },
   {
@@ -214,9 +221,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'Ash Quill will live. The satchel held a brass hourglass addressed to Young Komodo. He waved it off. The court could have it.',
       partial:
-        'The courier lived, barely. A caravan carried them home before anyone asked questions.',
-      failure: 'The fever won.',
-      expired: 'Nobody came in time.',
+        'The fever breaks just before dawn. The courier is carried home wrapped in the caravan master’s spare coat, satchel clenched under one arm. Young Komodo asks whether anyone opened it.',
+      failure:
+        'The courier’s cot is empty when the healers reach it. A stopped hourglass stands beside a sealed satchel. Nobody at the infirmary will sign the delivery receipt.',
+      expired:
+        'The road party reaches the milepost after the stretcher tracks have been washed away. Only the courier’s brass seal remains, pressed into the mud. It bears the tower’s address.',
     },
   },
   {
@@ -248,9 +257,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Struck, the feathers ring on the Hollow Bell’s note. Pell, the salvager who brought them, wants to know what the court learned. And if it’s hiring.',
-      partial: 'The feathers were catalogued. Nobody understands them.',
-      failure: 'One feather cracked. The salvagers took the rest home.',
-      expired: 'The salvagers sold the crate in the market.',
+      partial:
+        'The Archive numbers every feather and pins them under glass. By morning one pin has turned green and the others have not. The clerk locks the specimen drawer and gives the key to the throne.',
+      failure:
+        'The first feather splits when struck and leaves a thin blue line across the measuring table. Pell wraps the others in his coat. He says the Archive may buy the broken piece at full price.',
+      expired:
+        'The feather crate sells before the court answers. A buyer takes it under a canvas sheet through the north gate. The watch officer remembers the cart, not the face behind the reins.',
     },
   },
   {
@@ -282,9 +294,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Two haystacks held grain sacks stamped with an Old House crest. The third held hay. And a Gate Watch lantern, still warm.',
-      partial: 'One haystack held grain. Its owner ran before the questions.',
-      failure: 'The haystacks were hay. The Yard does not believe it.',
-      expired: 'The haystacks were moved in the night.',
+      partial:
+        'The searchers cut open a single haystack and find Old House flour seals under the straw. The farmer’s boots are still by the door. The farmer is gone, and the Yard gets only one wagon.',
+      failure:
+        'The three haystacks hold ordinary winter fodder. Dunmore Ash comes to see the empty evidence sacks himself. He takes one home and hangs it by the oven as a reminder of what the raid cost.',
+      expired:
+        'The hiding place is bare at dawn, the grass underneath still pale. Wagon ruts lead toward the Old Houses’ private ford. They disappear where the road joins the river.',
     },
   },
   {
@@ -320,12 +335,15 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     expired: {},
     outcomes: {
       triumph:
-        'Three runners and a Crow dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead elder crow. It shows a lie for what it is. The court has it now.',
+        'Three runners and a Conclave dead-drop. The trail ended at the fortress gate. In the dead-drop: the glass eye of a long-dead Conclave elder. It shows a lie for what it is. The court has it now.',
       success:
-        'The false reports ran through a Crow dead-drop to somewhere inside the fortress. In the dead-drop: a dead elder crow’s glass eye. It shows a lie for what it is.',
-      partial: 'The trail went cold at the Crow dead-drop.',
-      failure: 'The runners were gone before anyone could follow.',
-      expired: 'The reports kept coming. Some were wrong.',
+        'The false reports ran through a Conclave dead-drop to somewhere inside the fortress. In the dead-drop: a deceased Conclave elder’s glass eye. It shows a lie for what it is.',
+      partial:
+        'The dead-drop is empty except for a black thread caught in its hinge. It smells of lamp oil from inside the fortress. The runner asks whether the court wants the thread or the name.',
+      failure:
+        'Three messengers leave the city before the Watch reaches their lodgings. A fourth bed has been slept in but no one booked it. Its pillowcase bears a court laundry mark.',
+      expired:
+        'Each morning brings another contradictory report, all bearing the tower’s own seal. The Archive clerk keeps them in a separate stack. The stack is taller than the true ones by week’s end.',
     },
   },
   {
@@ -356,10 +374,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'Hollow Bell let them in. Mara Reedbell wrote every name. Then she looked at the crown’s riders and wrote theirs.',
-      partial: 'Some were let in. Some were not.',
+      partial:
+        'Mara opens the bell gate for families with trade papers first. The others make camp in the ditch beneath the walls. Their cookfire smoke reaches the mayor’s bedroom window.',
       failure:
-        'The Bell’s gate stayed shut. The party slept outside it with the refugees.',
-      expired: 'The refugees went to the Abbey.',
+        'Mara keeps the gate barred. The escort sleeps among the refugees, passing one cooking pot between six fires. At dawn someone has painted the crown’s mark on the locked gate.',
+      expired:
+        'The abandoned escort notice remains on the throne board. An Abbey wagon reaches the refugees before the crown does. Its driver leaves a list of names for the tax office to cross out.',
     },
   },
   {
@@ -418,9 +438,11 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
       success:
         'Hollow Bell voted yes, by nine hands. The bell rang. Somebody was holding the rope.',
       partial:
-        'The vote tied. Mara Reedbell broke it and would not say which way.',
-      failure: 'Hollow Bell voted no. Mara was polite about it.',
-      expired: 'Nobody spoke for the crown. Hollow Bell voted no.',
+        'Mara breaks the deadlock behind the old chapel door. When she comes out, she has put the voting tally in her ledger backward. She refuses to read the margin aloud.',
+      failure:
+        'The town votes against the crown. Mara Reedbell delivers the result in person and brings a loaf from the town bakery. It has been cut in half before she arrives.',
+      expired:
+        'The speaker’s chair stays empty through the Bell’s assembly. Mara folds the unused invitation and files it beside the negative tally. The bell rings once, without ceremony.',
     },
   },
   {
@@ -459,11 +481,12 @@ export const ACT_TWO_QUESTS: readonly QuestDef[] = [
     outcomes: {
       success:
         'The dam held. The map room has a new blue line where the reservoir will be.',
-      partial: 'The dam held, mostly. The lower fields flooded.',
+      partial:
+        'The dam keeps its crown and loses its southern spillway. The water finds the tenant fields first. A farmer brings the map room three bricks marked with flood depth.',
       failure:
-        'The dam failed. The Ford took two villages, then came through the burrow ceilings under them.',
+        'The dam tears open at the center. By morning the two riverside villages stand knee-deep in silt. The burrow roofs below them split under the weight of the water, and Granny Umber demands the names of whoever signed the design.',
       expired:
-        'The dam stood cracked and alone. The first hard rain took it in an hour. The Ford took two villages.',
+        'The dam holds without repair until the first hard rain. It breaks in an hour. Two villages are evacuated toward the eastern road, carrying grain ledgers and their door keys because they still intend to return.',
     },
     outcomeVariants: {
       failure: [
@@ -517,7 +540,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'elder-corvane',
         faction: 'storm-crows',
         lines: [
-          'The hall is hot. Fans click in the gallery. At the back, three Freehold reeves hold empty seed sacks folded over their arms like mourning bands. Then the chimes: hundreds of copper bells on an old crow’s mantle, one ring per slow step.',
+          'The hall is hot. Fans click in the gallery. At the back, three Freehold reeves hold empty seed sacks folded over their arms like mourning bands. Then the chimes: hundreds of copper bells on Elder Corvane’s mantle, one ring per slow step.',
           'Elder Corvane does not bow. He unrolls a length of oilcloth down the steps of the dais. It keeps unrolling.',
           'The fields are dying, young ruler. The Conclave can bring rain. A season of it, every farm from the Ford to the Bell.',
           'In return, a covenant. The tower lends the Conclave a service when asked. Every covenant has a price. Ours is written down.',
@@ -698,7 +721,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               'You read *counted* twice. Corvane waits. He has waited for that word before.',
               {
                 who: 'A Freehold reeve at the back of the hall',
-                text: 'How long’s a season, to a crow?',
+                text: 'How long’s a season, to the Conclave?',
               },
               'Corvane looks at the reeve until the reeve looks at the floor.',
             ],
@@ -989,10 +1012,10 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               '“Raiders want bread and brass. The fen has neither.” Her voice does not change. “These want something else. Something they say the Mothers have.”',
               '“They are from Sedgewick and Low Carrow, up the dry river. Grief has made them stupid. They walk the fen’s edge at night with torches, shouting names into the reeds.”',
               {
-                who: 'A young newt at the back of the Mothers’ escort, holding a green lantern',
+                who: 'A young lantern-bearer at the back of the Mothers’ escort, holding a green lantern',
                 text: 'Children’s names, Majesty. The same eleven, every night. I know them all.',
               },
-              '“Hush,” says Sister Reedlight, without turning. The young newt hushes.',
+              '“Hush,” says Sister Reedlight, without turning. The young lantern-bearer hushes.',
               {
                 who: 'Young Komodo',
                 npc: 'young-komodo',
@@ -1006,7 +1029,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'Hold the fen edge anyway. There are children in those houses now.',
                 effects: {},
                 response:
-                  'Sister Reedlight bows low. “The fen remembers kindness.” Behind her the young newt with the green lantern is still mouthing names.',
+                  'Sister Reedlight bows low. “The fen remembers kindness.” Behind her the young lantern-bearer with the green lantern is still mouthing names.',
                 postsQuests: ['q-d12-mirefen-defense'],
               },
               {
@@ -1015,7 +1038,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   'Hold the edge. While the Mothers watch the raiders, send someone into the cellars.',
                 effects: {},
                 response:
-                  '“You are so kind,” says Sister Reedlight. Her lantern gutters. Somewhere under it, a door has opened. The young newt meets your eyes. Nods once.',
+                  '“You are so kind,” says Sister Reedlight. Her lantern gutters. Somewhere under it, a door has opened. The young lantern-bearer meets your eyes. Nods once.',
                 postsQuests: ['q-d12-mirefen-defense', 'q-d12-mirefen-cellars'],
               },
               {
@@ -1049,7 +1072,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
                   schedule: ['d12-low-carrow-names'],
                 },
                 response:
-                  'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” The young newt at the back closes her eyes and stops mouthing names.',
+                  'Sister Reedlight’s lantern stands dead still. “Sworn,” she says. “The fen heard it.” The young lantern-bearer at the back closes her eyes and stops mouthing names.',
                 postsQuests: ['q-d12-mirefen-defense'],
               },
               {
@@ -1213,7 +1236,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         faction: 'jackalwire',
         requires: { follower: 'F002' },
         lines: [
-          'Captain Gristle Vane fills the doorway first. A hyena in a greatcoat of a hundred painted feathers, ear-chain jangling, canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
+          'Captain Gristle Vane fills the doorway first. His greatcoat bears a hundred painted feathers, an ear-chain jangling above the canyon dust in every seam. He bows to the throne. Then, slower, to Saffron beside it.',
           'Our engine is broken, Majesty. One person alive knows how it was built. She’s standing beside you, pretending not to know me.',
           {
             who: 'Saffron Kett',
@@ -1381,7 +1404,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'abelard-vellum',
         faction: 'lamplight',
         lines: [
-          'A sloth in ink-dark robes takes his time crossing the throne room. He does not apologize.',
+          'Keeper Vellum, in ink-dark robes, takes his time crossing the throne room. He does not apologize.',
           '“The old maps are dust in their cases, Majesty. Roads, wells, tunnels nobody living remembers. Copying costs ink, paper and time. Mostly time.”',
           '“I brought one.” He unrolls it on the dais step. A corner lifts in the draught and drifts across the floor like a leaf. The Watch lets it go. “That,” says Keeper Vellum, “was the Eastern Ford, before the Ford moved.”',
         ],
@@ -1881,11 +1904,11 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
       {
         id: 'd16-bandaged-paw',
         title: 'The Mapmaker Comes Back',
-        speaker: 'A young hyena with a bandaged paw',
+        speaker: 'A young informant with a bandaged paw',
         faction: 'jackalwire',
         requires: { flags: ['pack-camp-mapped'] },
         lines: [
-          'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth: the young hyena who sold the crown a map of the Pack’s camp on a ration card.',
+          'She comes to the postern at dawn. The Watch nearly turns her away, then knows the bandage. Same paw, same dirty cloth: the young mapmaker who sold the crown a map of the Pack’s camp on a ration card.',
           'They know, Majesty. Somebody saw the card over the Watch’s fire and knew my drawing. I can’t draw good. That’s how.',
           'I’m not asking much. A bed in the Yard. A different name. I’ll scrub pots.',
           {
@@ -1929,7 +1952,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'turn-away',
             label:
-              'The crown bought a map, not a hyena. Send her back to her own.',
+              'The crown bought a map, not the mapmaker. Send her back to her own.',
             effects: {
               affinity: { jackalwire: 5 },
               local: { 'gate-watch': 1, yard: -2 },
@@ -2112,7 +2135,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'honest-count',
             label:
-              'Remind her the crown once counted the Mole ledger honestly. Offer a survey of the flooded burrows.',
+              'Remind her the crown once counted the burrow ledger honestly. Offer a survey of the flooded burrows.',
             requires: { flags: ['mole-ledger-counted'] },
             effects: {
               affinity: { moles: 5 },
@@ -2293,7 +2316,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
         npc: 'hester-plowright',
         faction: 'freeholds',
         lines: [
-          'A broad speckled hen in a mud-hemmed skirt plants herself before the throne like a fence post.',
+          'Hester Plowright, in a mud-hemmed skirt plants herself before the throne like a fence post.',
           '“Our wells are low, Majesty. Every refugee on the road wants a cup. The Freeholds water Freeholders. That’s all we can do.”',
           '“Sign on every well-head now. Freehold token or nothing. I painted them myself. Didn’t enjoy it.”',
           {
@@ -2324,7 +2347,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['thistledown-burned'] },
             effects: {},
             response:
-              'Hester goes still, the way a hen does when a hawk crosses the sun.',
+              'Hester goes still and watches the shadow cross the floor.',
             next: 'tokens',
           },
           {
@@ -3046,7 +3069,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
           {
             id: 'plum',
             lines: [
-              '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+              '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
               '“He said no. One of them took off a glove and gave it to him. A gift, for his trouble.” Dunmark sets a white glove on the dais step. Spotless. “He’s been sick since.”',
               {
                 who: 'Lady Ottoline Vask',
@@ -3063,7 +3086,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 flags: ['d16-border-silver-seized'],
                 lines: [
-                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
                   '“Then one asked after some silver that went astray on the Freehold road. Grain money, he said. Paid in advance.” Dunmark sets a white glove on the dais step. Spotless. “He left that. My sergeant’s been sick since.”',
                   {
                     who: 'Lady Ottoline Vask',
@@ -3080,7 +3103,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
               {
                 flags: ['d16-grain-followed'],
                 lines: [
-                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a black leopard with good manners had passed this way.”',
+                  '“Far gate, dusk. Six riders, coats the colour of plums, white gloves. Didn’t draw. Asked my sergeant, civil, if a courtier with good manners had passed this way.”',
                   '“And your rider came back from the grain carts. Their horses were eating Freehold oats out of Old House sacks.” Dunmark sets a white glove on the dais step. Spotless. “They gave my sergeant this. He’s been sick since.”',
                   {
                     who: 'Lady Ottoline Vask',
@@ -3235,7 +3258,7 @@ export const ACT_TWO_DAYS: readonly DayDef[] = [
             requires: { flags: ['bonded-runner-clause'] },
             effects: {},
             response:
-              'Corvane’s clouded eyes search the gallery for a small gecko he remembers. “Ah,” he says. “She told you.”',
+              'Corvane’s clouded eyes search the gallery for the courier he remembers. “Ah,” he says. “She told you.”',
             next: 'season',
           },
           {
@@ -3587,7 +3610,7 @@ export const D34_RUNNER_AT_GATE: AudienceDef = {
         flags: ['d34-runner-home', 'd34-runner-bought'],
       },
       response:
-        'A crow takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week every crow on the sills sits with its back to the throne.',
+        'A Conclave courier takes the brass off the gate step in three trips. Linnet stands in the hall and drips. She does not know what to do with her hands. For a week the Conclave watchers on the sills sit with their backs to the throne.',
     },
     {
       id: 'leave',
@@ -3643,7 +3666,7 @@ export const D42_RUNNER_VARIANTS: SceneVariant[] = [
     flags: ['d34-tamsin-swapped'],
     lines: [
       D42_FIRST_LINE,
-      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The gecko took her sash.”',
+      '“You won’t know me, Majesty. You sent three of us up for the rain. Linnet went home. The courier took her sash.”',
       '“Tamsin runs the far paths now, the ones nobody wants. She runs them like she’s late for something. She doesn’t come to the cave while you’re in it.”',
       D42_LAST_LINE,
     ],

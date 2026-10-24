@@ -12,6 +12,10 @@
  * before B08 Prism Leviathan. A clean run takes about ten minutes. Wave ids start at 7000.
  */
 import {
+  RAINBOW_ALLEGIANCE_OPENINGS,
+  type RainbowAllegiance,
+} from './rainbowAllegiance'
+import {
   buildFormationSchedule,
   wave,
   type RainbowSpawn,
@@ -369,6 +373,7 @@ export function palaceDialogue(
     rescuedNavigator: false,
     captivesFreed: 0,
   },
+  allegiance: RainbowAllegiance | null = null,
 ): PalaceDialogue | null {
   const crew = PILOTS.slice(0, Math.max(1, Math.min(4, players)))
   const lead = crew[0]!
@@ -382,7 +387,9 @@ export function palaceDialogue(
       },
       {
         speaker: lead,
-        text: 'Then nobody fires on a captive. Shoot the collar, never the ship.',
+        text: allegiance
+          ? RAINBOW_ALLEGIANCE_OPENINGS[8][allegiance]
+          : 'Then nobody fires on a captive. Shoot the collar, never the ship.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,

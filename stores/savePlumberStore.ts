@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useArcadeStore } from '~/stores/arcadeStore'
 import { DEFAULT_HEROINE_SEED } from '~/utils/arcade/games/savePlumberHeroine'
@@ -20,8 +20,15 @@ import { CAMPAIGN } from '~/utils/arcade/games/savePlumberLevels'
  * run's save on this device; the page reads that save to star the same
  * heroine on the title scene and map.
  */
+export type PlumberScreen = 'title' | 'play' | 'map' | 'heroines' | 'cast'
+
 export const useSavePlumberStore = defineStore('savePlumber', () => {
   const arcade = useArcadeStore()
+  /** Which front-page tab is showing; the cabinet suspends while another is. */
+  const screen = ref<PlumberScreen>('title')
+  function setScreen(next: PlumberScreen) {
+    screen.value = next
+  }
 
   const progress = computed(() => readPlumberSave(arcade.saveFor(PLUMBER_SLUG)))
   const seed = computed(() => progress.value?.heroine ?? DEFAULT_HEROINE_SEED)
@@ -50,6 +57,8 @@ export const useSavePlumberStore = defineStore('savePlumber', () => {
   )
 
   return {
+    screen,
+    setScreen,
     seed,
     heroine,
     rosterSlot,

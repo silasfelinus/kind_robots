@@ -10,10 +10,10 @@ import type { FortressRun } from '../emperorOfDust/fortress/types'
 
 assert.equal(
   SECRET_TALKS.length,
-  11,
+  12,
   'five secret wanderers each have follow-up stories',
 )
-assert.equal(new Set(SECRET_TALKS.map((talk) => talk.id)).size, 11)
+assert.equal(new Set(SECRET_TALKS.map((talk) => talk.id)).size, 12)
 const secretIds = ['F021', 'F022', 'F023', 'F024', 'F025']
 for (const follower of secretIds) {
   const talks = SECRET_TALKS.filter((entry) => entry.follower === follower)
@@ -64,6 +64,19 @@ const nettleFinal = epilogueFor(nettle, 'open-roads').find(
 )
 assert.ok(nettleFinal?.variant.text.includes('carts carried medicine'))
 
+let tarn = withFollower('F024', 39)
+assert.equal(talkFor(tarn, 'F024')?.id, 'tarn-1')
+tarn = chooseTalkOption(tarn, 'tarn-1', 'families').run
+tarn.day = 43
+assert.equal(talkFor(tarn, 'F024')?.id, 'tarn-2')
+tarn = chooseTalkOption(tarn, 'tarn-2', 'name-the-toll').run
+assert.ok(tarn.flags.includes('heard:tarn-2'))
+assert.ok(tarn.flags.includes('tarn-toll-written'))
+const tarnFinal = epilogueFor(tarn, 'open-roads').find(
+  (entry) => entry.subject.follower === 'F024',
+)
+assert.ok(tarnFinal?.variant.text.includes('pass tolls'))
+
 let odo = withFollower('F025', 45)
 odo.flags.push('komodo-betrayal')
 assert.equal(talkFor(odo, 'F025')?.id, 'odo-1')
@@ -79,5 +92,5 @@ const odoFinal = epilogueFor(odo, 'open-roads').find(
 assert.ok(odoFinal?.variant.text.includes('broken rain gauge'))
 
 console.log(
-  'Emperor of Dust: eleven hidden-follower conversations, costly decisions, rare artifacts and remembered endings verified.',
+  'Emperor of Dust: twelve hidden-follower conversations, costly decisions, rare artifacts and remembered endings verified.',
 )

@@ -19,6 +19,23 @@ import {
 } from '../memoryDungeonWaves'
 
 import {
+  BRIAR_STORY_ATLAS,
+  pendingBriarStoryKeys,
+  validateBriarStoryAtlas,
+} from '../memoryDungeonStoryAtlas'
+
+import { firstWorldPhotoChronicle } from '../memoryDungeon/chronicle'
+import {
+  HOUSE_ROOMS,
+  HOUSE_ENTRY,
+  HOUSE_EXIT_POINTS,
+  houseExits,
+  houseWitnessEvidence,
+  newHouseProgress,
+  validateHouseRooms,
+} from '../memoryDungeon/house'
+
+import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_LINKS,
@@ -26,10 +43,16 @@ import {
   BRIAR_START,
   BRIAR_TILES,
   briarConnected,
+  briarTileProgress,
   newBriarSave,
   restoreBriarSave,
   validateBriarLinks,
 } from '../memoryDungeonWorld'
+import {
+  BRIAR_SCENES,
+  briarSceneOpening,
+  canChooseBriarScene,
+} from '../memoryDungeon/scenes'
 
 assert.deepEqual(
   validateBriarLinks(),
@@ -39,6 +62,200 @@ assert.deepEqual(
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
 
+assert.deepEqual(
+  validateHouseRooms(),
+  [],
+  'All 36 House locations are authored and reachable',
+)
+assert.equal(Object.keys(HOUSE_ROOMS).length, 36)
+assert.deepEqual(
+  HOUSE_ROOMS['HD-35']!.choices.map((choice) => choice.id),
+  ['release', 'renew', 'break'],
+)
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-06'))
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-12'))
+assert.ok(HOUSE_EXIT_POINTS.includes('HD-24'))
+const fullHouse = {
+  ...newHouseProgress(),
+  wardenPassed: true,
+  ending: 'release' as const,
+}
+const reachedHouse = new Set([HOUSE_ENTRY])
+const houseQueue: string[] = [HOUSE_ENTRY]
+while (houseQueue.length) {
+  const current = houseQueue.shift()!
+  const progress = { ...fullHouse, current: current as typeof HOUSE_ENTRY }
+  for (const next of houseExits(current as typeof HOUSE_ENTRY, progress)) {
+    if (!reachedHouse.has(next)) {
+      reachedHouse.add(next)
+      houseQueue.push(next)
+    }
+  }
+}
+assert.equal(reachedHouse.size, 36, 'All rooms are reachable from the porch')
+assert.deepEqual(
+  houseExits('HD-01', newHouseProgress()).sort(),
+  ['HD-02', 'HD-07'],
+  'Opening exploration genuinely forks rather than following a linear room list',
+)
+assert.ok(
+  houseExits('HD-01', {
+    ...newHouseProgress(),
+    visited: ['HD-01', 'HD-06'],
+  }).includes('HD-06'),
+  'A discovered return shortcut can be used from the entry porch',
+)
+assert.ok(
+  !houseExits('HD-32', { ...newHouseProgress(), current: 'HD-32' }).includes(
+    'HD-33',
+  ),
+)
+assert.ok(
+  houseExits('HD-32', {
+    ...newHouseProgress(),
+    current: 'HD-32',
+    wardenPassed: true,
+  }).includes('HD-33'),
+)
+assert.ok(
+  !houseExits('HD-35', { ...newHouseProgress(), current: 'HD-35' }).includes(
+    'HD-36',
+  ),
+)
+assert.ok(
+  houseExits('HD-35', {
+    ...newHouseProgress(),
+    current: 'HD-35',
+    ending: 'renew',
+  }).includes('HD-36'),
+)
+assert.equal(houseWitnessEvidence(newHouseProgress(), {}), false)
+assert.equal(
+  houseWitnessEvidence(newHouseProgress(), { '4,6': 'testify' }),
+  true,
+)
+assert.equal(
+  houseWitnessEvidence(
+    { ...newHouseProgress(), decisions: { 'HD-17': 'read' } },
+    {},
+  ),
+  true,
+)
+const houseSave = restoreBriarSave({
+  ...newBriarSave(),
+  room: 'house',
+  house: {
+    ...newHouseProgress(),
+    current: 'HD-18',
+    visited: ['HD-01', 'HD-18'],
+    decisions: { 'HD-03': 'route', 'HD-04': 'share' },
+    ending: 'release',
+  },
+})
+assert.equal(houseSave.room, 'house')
+assert.equal(houseSave.house?.current, 'HD-18')
+assert.equal(houseSave.house?.decisions['HD-03'], 'route')
+assert.equal(houseSave.house?.ending, 'release')
+assert.equal(
+  houseSave.house?.chimeClaimed,
+  false,
+  'Ending choice does not grant unlimited rewards',
+)
+for (const id of ['HD-09', 'HD-19', 'HD-22', 'HD-28', 'HD-32']) {
+  const source = HOUSE_ROOMS[id]!
+  assert.ok(
+    source.choices.some((choice) =>
+      ['duel', 'match', 'fight'].includes(choice.id),
+    ),
+  )
+}
+
+assert.deepEqual(firstWorldPhotoChronicle({}), [])
+assert.deepEqual(
+  firstWorldPhotoChronicle({ '8,6': 'promise', '2,5': 'grieve' }).map(
+    (photo) => photo.key,
+  ),
+  ['2,5', '8,6'],
+  'Photographs are stored in Earth chronology even when collected in reverse map order',
+)
+assert.deepEqual(
+  firstWorldPhotoChronicle(
+    restoreBriarSave({
+      ...newBriarSave(),
+      sceneChoices: { '8,6': 'record', '2,5': 'archive' },
+    }).sceneChoices,
+  ).map((photo) => photo.key),
+  ['2,5', '8,6'],
+  'Photograph records survive saving and reloading',
+)
+
+assert.equal(
+  Object.keys(BRIAR_SCENES).length,
+  64,
+  'Every fixed Briar coordinate has original narrative, art direction and two choices',
+)
+for (const tile of BRIAR_TILES) {
+  const scene = BRIAR_SCENES[tile.key]
+  assert.ok(scene, `Missing authored experience at ${tile.key}`)
+  assert.ok(
+    scene.title.trim() && scene.opening.trim() && scene.artPrompt.trim(),
+  )
+  assert.ok(scene.choices.length >= 2)
+  assert.ok(
+    new Set(scene.choices.map((choice) => choice.id)).size ===
+      scene.choices.length,
+  )
+  for (const choice of scene.choices) {
+    assert.ok(choice.label.trim() && choice.outcome.trim())
+    const save = restoreBriarSave({
+      ...newBriarSave(),
+      revealed: [tile.key],
+      visited: [tile.key],
+      sceneChoices: { [tile.key]: choice.id },
+    })
+    assert.equal(
+      save.sceneChoices[tile.key],
+      choice.id,
+      `Choice at ${tile.key} restores`,
+    )
+  }
+}
+
+assert.deepEqual(
+  validateBriarStoryAtlas(),
+  [],
+  'Canonical atlas stays aligned with runnable scenes and planned sites',
+)
+assert.equal(Object.keys(BRIAR_STORY_ATLAS).length, 64)
+assert.deepEqual(
+  pendingBriarStoryKeys().sort(),
+  BRIAR_TILES.filter((tile) => !BRIAR_SCENES[tile.key])
+    .map((tile) => tile.key)
+    .sort(),
+  'Editorial planning cannot silently masquerade as shipped runtime scenes',
+)
+for (const tile of BRIAR_TILES) {
+  const atlas = BRIAR_STORY_ATLAS[tile.key]!
+  assert.ok(atlas.title && atlas.artDirection && atlas.introduction)
+  assert.ok(atlas.choices.length >= 2)
+  if (BRIAR_SCENES[tile.key]) {
+    assert.equal(atlas.status, 'playable-scene')
+    assert.equal(atlas.introduction, BRIAR_SCENES[tile.key]!.opening)
+    assert.deepEqual(
+      atlas.choices.map((choice) => choice.id),
+      BRIAR_SCENES[tile.key]!.choices.map((choice) => choice.id),
+    )
+  } else {
+    assert.equal(atlas.status, 'planned')
+  }
+}
+assert.ok(
+  !JSON.stringify(BRIAR_STORY_ATLAS).match(
+    /\\b(?:Prince Halden|Prince Vesper)\\b/i,
+  ),
+  'Abandoned prince canon cannot reappear in the new atlas',
+)
+
 const first = newBriarSave()
 assert.deepEqual(first.frontier, [])
 assert.deepEqual(first.revealed, [])
@@ -46,6 +263,29 @@ assert.equal(first.waveIndex, 0)
 assert.equal(first.wavePhase, 'matching')
 assert.equal(first.attempts, 0)
 assert.equal(first.player, BRIAR_START)
+
+assert.equal(
+  first.prologueChoice,
+  null,
+  'New games have not yet chosen a prologue path',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'terms' })
+    .prologueChoice,
+  'terms',
+  'The opening choice survives a browser reload',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'anchor' })
+    .prologueChoice,
+  'anchor',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'invalid' })
+    .prologueChoice,
+  null,
+  'Old and malformed saves cannot invent a prologue outcome',
+)
 
 const visited = new Set([BRIAR_START])
 const queue = [BRIAR_START]
@@ -70,8 +310,28 @@ for (const site of Object.keys(BRIAR_SITES).filter(
     `Player can eventually reveal site ${site}`,
   )
 }
+assert.equal(
+  visited.size,
+  BRIAR_TILES.length,
+  'All 64 fixed Briar squares have a legal route from camp',
+)
+assert.equal(
+  BRIAR_CROSS_MAP_KEYS.filter((key) => visited.has(key)).length,
+  4,
+  'All cross-map seals have a future legal path without inventing a new coordinate',
+)
 assert.equal(visited.has(BRIAR_DUNGEON), true)
 assert.equal(visited.has(BRIAR_GATE), true)
+assert.equal(
+  BRIAR_SITES['1,4']?.name,
+  BRIAR_SCENES['1,4']?.title,
+  'Authored sites have meaningful visible map labels',
+)
+assert.equal(
+  BRIAR_SITES['4,4']?.kind,
+  'story',
+  'Scene-only map locations use a real story site instead of an empty marker',
+)
 assert.equal(BRIAR_SITES['4,2']?.kind, 'merchant')
 assert.equal(BRIAR_SITES['2,7']?.kind, 'puzzle')
 assert.equal(BRIAR_SITES['3,6']?.kind, 'chest')
@@ -81,6 +341,242 @@ assert.equal(BRIAR_SITES['5,2']?.kind, 'sealed')
 const road = ['2,4', '3,4', '4,4', '5,4', '6,4', '7,4', '8,4']
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road), true)
 assert.equal(briarConnected(BRIAR_START, BRIAR_GATE, road.slice(0, -1)), false)
+
+const firstBriarExpansion = [
+  '1,5',
+  '1,6',
+  '1,7',
+  '2,7',
+  '2,2',
+  '2,1',
+  '3,1',
+  '4,1',
+  '6,1',
+  '7,1',
+  '7,2',
+  '4,5',
+  '5,3',
+  '5,6',
+  '6,7',
+  '7,5',
+]
+for (const key of firstBriarExpansion) {
+  assert.ok(BRIAR_SCENES[key], `Expanded scene ${key} is authored`)
+  assert.equal(BRIAR_SCENES[key]?.choices.length, 2)
+  assert.ok(visited.has(key), `Scene ${key} is reachable from Briar Camp`)
+  const savedChoices = Object.fromEntries(
+    firstBriarExpansion.map((site) => [
+      site,
+      BRIAR_SCENES[site]!.choices[0]!.id,
+    ]),
+  )
+  const save = restoreBriarSave({
+    ...newBriarSave(),
+    sceneChoices: savedChoices,
+  })
+  assert.equal(save.sceneChoices[key], BRIAR_SCENES[key]?.choices[0]?.id)
+}
+assert.equal(
+  new Set(firstBriarExpansion).size,
+  16,
+  'First Briar expansion adds exactly sixteen unique coordinates',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['7,2']!, { '2,2': 'observe' }),
+  /wolf patrol tracks/,
+  "Forest court reflects the player's earlier investigation",
+)
+
+const secondBriarExpansion = [
+  '1,4',
+  '1,3',
+  '1,2',
+  '2,3',
+  '3,3',
+  '5,1',
+  '8,2',
+  '6,5',
+  '6,6',
+  '7,7',
+  '7,8',
+  '1,8',
+  '2,8',
+  '4,8',
+  '5,8',
+  '8,3',
+]
+assert.equal(new Set(secondBriarExpansion).size, 16)
+for (const key of secondBriarExpansion) {
+  assert.ok(BRIAR_SCENES[key], `A second-batch scene exists at ${key}`)
+  assert.ok(visited.has(key), `Scene ${key} is reachable from camp`)
+  const scene = BRIAR_SCENES[key]!
+  assert.equal(scene.choices.length, 2, `${key} offers a meaningful fork`)
+  const savedState = restoreBriarSave({
+    ...newBriarSave(),
+    revealed: ['2,4', key],
+    visited: ['2,4', key],
+    player: key,
+    sceneChoices: { [key]: scene.choices[1]!.id },
+  })
+  assert.equal(
+    savedState.sceneChoices[key],
+    scene.choices[1]!.id,
+    `Decision at ${key} survives reload`,
+  )
+  assert.equal(
+    briarTileProgress(savedState, key),
+    'complete',
+    `Resolved story square ${key} receives a completion marker`,
+  )
+}
+assert.equal(
+  Object.keys(BRIAR_SCENES).length,
+  64,
+  'All 64 Briar Marches authored scene records exist',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['1,4']!, { '2,2': 'observe' }),
+  /wolf a raider/,
+  'The red-hooded courier remembers the wolf evidence',
+)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['5,8']!, { '3,3': 'halt' }),
+  /stopped gears/,
+  "The attorney's contract economy responds to the player's earlier mill choice",
+)
+assert.equal(
+  briarSceneOpening(BRIAR_SCENES['5,8']!, {}),
+  BRIAR_SCENES['5,8']!.opening,
+  'Undiscovered earlier choices cannot trigger hidden callbacks',
+)
+
+const sceneCoordinates = Object.keys(BRIAR_SCENES)
+assert.ok(
+  sceneCoordinates.length >= 12,
+  'World 1 begins with authored individual scenes',
+)
+for (const key of sceneCoordinates) {
+  assert.ok(
+    BRIAR_TILES.some((tile) => tile.key === key),
+    `Scene ${key} is on map`,
+  )
+  const scene = BRIAR_SCENES[key]!
+  assert.ok(scene.opening.length > 100, `Scene ${key} has prose`)
+  assert.ok(scene.artPrompt.length > 40, `Scene ${key} has an art brief`)
+  assert.equal(scene.choices.length, 2, `Scene ${key} has two decisions`)
+  assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
+}
+
+assert.equal(
+  BRIAR_SCENES['4,4']?.choices.length,
+  2,
+  'The mermaid twins offer two different responses',
+)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Scylla/)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Charybdis/)
+assert.match(BRIAR_SCENES['4,3']!.opening, /executioner’s hood/)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['4,3']!, { '4,4': 'escort' }),
+  /UNNECESSARY BUT BINDING/,
+  "Oren responds to the player's earlier choice",
+)
+
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['6,4']!, { '3,5': 'light' }),
+  /own voice thanks to you/,
+  'Pip recalls an earlier decision',
+)
+assert.equal(
+  canChooseBriarScene(BRIAR_SCENES['2,4']!.choices[0]!, {
+    lanterns: 0,
+    wildflowers: 0,
+  }),
+  false,
+  'Players cannot spend a lantern they lack',
+)
+assert.equal(
+  canChooseBriarScene(BRIAR_SCENES['2,4']!.choices[1]!, {
+    lanterns: 0,
+    wildflowers: 0,
+  }),
+  true,
+  'A no-cost story continuation remains available',
+)
+const visitSave = {
+  ...newBriarSave(),
+  revealed: ['2,4', '3,4', '3,6', '5,5', '5,2', '6,2', '8,4', '2,7'],
+  visited: ['2,4', '3,6', '5,5', '5,2', '6,2', '8,4', '2,7'],
+}
+assert.equal(briarTileProgress(visitSave, '4,8'), 'hidden')
+assert.equal(briarTileProgress(visitSave, '3,4'), 'unvisited')
+assert.equal(briarTileProgress(visitSave, '2,4'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '3,6'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '5,5'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '5,2'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '6,2'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '8,4'), 'unfinished')
+assert.equal(briarTileProgress(visitSave, '2,7'), 'unfinished')
+const settledSave = {
+  ...visitSave,
+  sceneChoices: {
+    '2,4': 'copy',
+    '3,6': 'read',
+    '5,5': 'gift',
+    '6,2': 'witness',
+    '8,4': 'law',
+    '2,7': 'rehearse',
+  },
+  chestClaims: ['3,6'],
+  completedEncounters: ['5,5'],
+  relics: ['bramble-chime'],
+  gateOpened: true,
+  puzzleSolved: true,
+}
+for (const key of ['2,4', '3,6', '5,5', '6,2', '8,4', '2,7']) {
+  assert.equal(
+    briarTileProgress(settledSave, key),
+    'complete',
+    `${key} clears only when resolved`,
+  )
+}
+assert.equal(
+  briarTileProgress({ ...settledSave, completedEncounters: [] }, '5,5'),
+  'unfinished',
+  'Hearing the Sprite without completing its duel does not clear the square',
+)
+assert.equal(
+  briarTileProgress(
+    {
+      ...settledSave,
+      sceneChoices: { ...settledSave.sceneChoices, '2,7': '' },
+    },
+    '2,7',
+  ),
+  'unfinished',
+  'The stone puzzle requires both solving the glyphs and settling the encounter',
+)
+assert.equal(
+  briarTileProgress(settledSave, '5,2'),
+  'unfinished',
+  'Cross-world seals remain pending',
+)
+const restoredScene = restoreBriarSave({
+  ...settledSave,
+  sceneChoices: { ...settledSave.sceneChoices, '3,4': 'invalid' },
+})
+assert.equal(restoredScene.sceneChoices['2,4'], 'copy')
+assert.equal(restoredScene.sceneChoices['3,4'], undefined)
+assert.ok(restoredScene.visited.includes('3,6'))
+assert.ok(
+  restoreBriarSave({
+    ...newBriarSave(),
+    revealed: ['2,4'],
+    player: '2,4',
+    visited: undefined,
+    sceneChoices: undefined,
+  }).visited.includes('2,4'),
+  'Older saves recover the last visited square',
+)
 
 const saved = {
   ...newBriarSave(),
@@ -372,6 +868,21 @@ const launcherScreen = readFileSync(
 )
 const memoryCore = readFileSync('stores/memoryStore.ts', 'utf8')
 const worldStoreSource = readFileSync('stores/memoryWorldStore.ts', 'utf8')
+assert.match(
+  worldStoreSource,
+  /inspectedSigil\.value = key/,
+  'Inspecting a reserved sigil activates its individually authored response',
+)
+assert.match(
+  worldStoreSource,
+  /isInspectedSeal/,
+  'Regional seal choices are saved without falsely completing the paired puzzle',
+)
+assert.match(
+  mapScreen,
+  /world\.activeSiteKey/,
+  'Decision buttons use the inspected seal instead of the previous map square',
+)
 const deckLoaderSource = readFileSync(
   'stores/helpers/memoryDungeonDeckSource.ts',
   'utf8',
@@ -407,6 +918,28 @@ assert.match(
   /<memory-dungeon-deck-selector/,
   'Overworld settings mount shared art selector',
 )
+
+assert.match(
+  launcherScreen,
+  /data-testid="memory-dungeon-prologue"/,
+  'The new full-screen opening is part of the existing memory game',
+)
+assert.match(
+  launcherScreen,
+  /world\.recordPrologueChoice\(choice\)/,
+  'A prologue choice is persisted before entry',
+)
+assert.match(
+  launcherScreen,
+  /hasExistingSave/,
+  'Existing runs resume without forcing the new prologue',
+)
+assert.match(
+  worldStoreSource,
+  /function recordPrologueChoice\(/,
+  'Only the store changes game state',
+)
+
 assert.match(
   launcherScreen,
   /<memory-dungeon-deck-selector/,
@@ -438,6 +971,11 @@ assert.match(
   'Classic rejects duplicate card faces',
 )
 
+assert.match(mapScreen, /:data-progress="progressFor\(tile\.key\)"/)
+assert.match(mapScreen, /progressLabel\(tile\.key\)/)
+assert.match(mapScreen, /world\.chooseScene\(choice\.id\)/)
+assert.match(worldStoreSource, /state\.value\.sceneChoices\[key\] = choice\.id/)
+assert.match(worldStoreSource, /state\.value\.visited\.push\(key\)/)
 assert.match(
   mapScreen,
   /world\.pickMapCard/,
@@ -550,4 +1088,144 @@ assert.match(
   classicScreen,
   /Public mature only/,
   'Classic summary must not claim that mature mode mixes safe and mature artwork',
+)
+
+const consoleStage = readFileSync(
+  'components/pages/memory-dungeon-overworld.vue',
+  'utf8',
+)
+
+const houseScreen = readFileSync(
+  'components/memory-dungeon/house-stage.vue',
+  'utf8',
+)
+assert.match(consoleStage, /world\.state\.room === 'house'/)
+assert.match(houseScreen, /data-testid="memory-house-console"/)
+assert.match(houseScreen, /grid-cols-6 grid-rows-6/)
+assert.match(houseScreen, /world\.houseMove\(item\.id\)/)
+assert.match(houseScreen, /world\.chooseHouse\(choice\.id\)/)
+assert.match(houseScreen, /memory-house-choice-column/)
+assert.match(
+  houseScreen,
+  /artPath/,
+  'Delivered ArtJob images are wired into the room stage',
+)
+assert.match(worldStoreSource, /house\.decisions\[house\.current\] = id/)
+assert.match(worldStoreSource, /house\.chimeClaimed = true/)
+assert.match(worldStoreSource, /finishHouseCombat\(houseOrigin\)/)
+const generatedBacks = readFileSync('utils/memoryDungeonCardArt.ts', 'utf8')
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-default.webp',
+  ),
+)
+assert.ok(
+  generatedBacks.includes(
+    '/images/memory-dungeon/card-backs/briar-arcane.webp',
+  ),
+)
+assert.match(consoleStage, /DEFAULT_BRIAR_CARD_BACK/)
+assert.match(consoleStage, /ARCANE_BRIAR_CARD_BACK/)
+assert.match(classicScreen, /DEFAULT_BRIAR_CARD_BACK/)
+assert.match(consoleStage, /@error="hideMissingMemoryCardBack"/)
+const choiceColumnStart = consoleStage.indexOf(
+  'data-testid="memory-world-choice-column"',
+)
+const choiceActionsStart = consoleStage.indexOf(
+  'class="md-encounter-actions',
+  choiceColumnStart,
+)
+const mapErrorStart = consoleStage.indexOf(
+  'v-if="world.mapDeckError"',
+  choiceColumnStart,
+)
+assert.ok(
+  choiceColumnStart >= 0 &&
+    choiceActionsStart > choiceColumnStart &&
+    choiceActionsStart < mapErrorStart,
+  'Location decisions belong in the same narrative column as their description',
+)
+assert.ok(consoleStage.includes('overflow-y: auto;'))
+assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-cyan-50'))
+assert.ok(consoleStage.includes('ring-[3px] ring-inset ring-amber-100'))
+
+assert.match(
+  consoleStage,
+  /data-testid="memory-world-console-stage"/,
+  'Overworld renders a dedicated, fully bounded console stage',
+)
+assert.match(
+  consoleStage,
+  /container: md-world \/ size/,
+  'Map stage uses its actual available dimensions, not viewport height',
+)
+assert.match(
+  consoleStage,
+  /@container md-world \(min-width: 760px\)/,
+  'Tablet landscape uses a two-column game layout independent of viewport breakpoint labels',
+)
+assert.match(
+  consoleStage,
+  /grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\)/,
+  'Map and encounter split available landscape width equally',
+)
+assert.match(
+  consoleStage,
+  /width: min\(100cqw, 100cqh\)/,
+  'Map fills its square viewport up to the available panel height',
+)
+assert.match(
+  consoleStage,
+  /class="md-scene-overview"/,
+  'Encounter panel includes a prominent image and narrative',
+)
+assert.match(
+  consoleStage,
+  /world\.activeMapCard\.image/,
+  'The selected picture is rendered at enlarged resolution in the encounter panel',
+)
+assert.match(
+  consoleStage,
+  /md-scene-status/,
+  'Current map status lives alongside the enlarged picture',
+)
+assert.match(
+  consoleStage,
+  /backgroundSize: '800% 800%'/,
+  'Exploration displays a closeup of the current map square',
+)
+assert.doesNotMatch(
+  consoleStage,
+  /kr-scroll min-h-0 w-full flex-1 overflow-y-auto/,
+  'Gameplay location panel does not become a vertically scrolling webpage',
+)
+assert.match(
+  consoleStage,
+  /\.md-map-layout \{[\s\S]*?overflow: hidden/,
+  'Entire game stage remains within the shell instead of scrolling',
+)
+assert.match(
+  worldStoreSource,
+  /const activeMapCard = computed\(/,
+  'Current flipped card is published for full-scale memory preview',
+)
+
+const layoutVerifier = readFileSync(
+  'utils/scripts/verifyLayoutContract.ts',
+  'utf8',
+)
+assert.match(
+  consoleStage,
+  /data-layout="console-fixed"/,
+  'Map explicitly opts into a bounded console instead of requiring scroll',
+)
+assert.match(
+  layoutVerifier,
+  /const fixedConsoleStage =/,
+  'Global layout contract has an explicit bounded-console exception',
+)
+assert.match(
+  layoutVerifier,
+  /!fixedConsoleStage/,
+  'Exception is restricted to named fixed consoles, not all pages',
 )

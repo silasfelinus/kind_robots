@@ -2974,7 +2974,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['romance-nera-sealed', 'nera-oath-sworn'],
         },
         response:
-          'You swear it at morning petitions. Plainly. Every crow on every sill lifts at once. A black wind out of the windows toward the Heights. Nera is at the back of the hall. She closes her eyes, the way people do when the rain finally comes.',
+          'You swear it at morning petitions. Plainly. Every Conclave lookout on every sill lifts at once. A black wind out of the windows toward the Heights. Nera is at the back of the hall. She closes her eyes, the way people do when the rain finally comes.',
       },
       {
         id: 'runners',
@@ -3064,7 +3064,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['nera-warned-freeholds'],
         },
         response:
-          'Riders go out by noon. The Freeholds cut green and lose a third instead of all of it. Four days later a crow leaves a single black feather on Nera’s sill. She keeps it.',
+          'Riders go out by noon. The Freeholds cut green and lose a third instead of all of it. Four days later a Conclave courier leaves a single black feather on Nera’s sill. She keeps it.',
       },
       {
         id: 'silent',
@@ -3740,7 +3740,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'Lumen Shale has her sash off. It hangs over the bunk rail. Every inch is stitched with names, in a dozen hands and a dozen threads. She is unpicking one.',
-      'Two years ago a heron-witch came to the burrows with a charity. Medicine for the croup. Bread in the bad month. The Moles said never trust a Mother. I stood up in the hall and said: this one. Trust this one.',
+      'Two years ago a fen healer came to the burrows with a charity. Medicine for the croup. Bread in the bad month. The Moles said never trust a Mother. I stood up in the hall and said: this one. Trust this one.',
       'Eleven families sent their little ones to the fen clinic because I said so. Nine came home. Two were kept “for the cure”. The clinic writes very kind letters.',
       'She pulls the last thread. The name comes away whole in her paw.',
       'I want to stand up in the hall again and say I was wrong. In front of the burrows and the Mothers’ envoy. Your court will look like it keeps a fool. You say yes or no. I can’t decide it. I decided last time.',
@@ -3802,7 +3802,7 @@ export const TALKS: readonly TalkDef[] = [
               flags: ['lumen-confessed', 'lumen-named-jars'],
             },
             response:
-              'She names the clinic, the heron and the jars. The hall goes silent. The Mothers’ envoy does not leave this time. She sits and listens to all of it, and smiles, and writes nothing down.',
+              'She names the clinic, the fen healer and the jars. The hall goes silent. The Mothers’ envoy does not leave this time. She sits and listens to all of it, and smiles, and writes nothing down.',
           },
           {
             id: 'quiet',
@@ -3820,7 +3820,7 @@ export const TALKS: readonly TalkDef[] = [
           {
             who: 'Isolde Brack',
             npc: 'F015',
-            text: 'Most of the women in that clinic didn’t know. I didn’t, the first year. A heron with a lantern smiles at you and you think: that’s what good looks like.',
+            text: 'Most of the women in that clinic didn’t know. I didn’t, the first year. A lantern-bearing healer smiles at you and you think: that’s what good looks like.',
           },
           'Lumen turns her head.',
           'You were there. You were a Mother when my families walked in.',
@@ -3841,7 +3841,7 @@ export const TALKS: readonly TalkDef[] = [
               flags: ['lumen-confessed', 'lumen-isolde-heard'],
             },
             response:
-              'Lumen names the heron. Only the heron. Isolde sits at the back with her lantern dark. Afterwards the two of them do not speak. Lumen leaves the bunk between them empty.',
+              'Lumen names the healer. Only the healer. Isolde sits at the back with her lantern dark. Afterwards the two of them do not speak. Lumen leaves the bunk between them empty.',
           },
           {
             id: 'walk',
@@ -3895,7 +3895,7 @@ export const TALKS: readonly TalkDef[] = [
       {
         id: 'flinch',
         label:
-          'Ask her about the thirty-eighth day. The Mole boy’s whisper. She was watching the court. Who flinched?',
+          'Ask her about the thirty-eighth day. The young courier’s whisper. She was watching the court. Who flinched?',
         requires: { flags: ['prisoner-pardoned'] },
         effects: {},
         response: 'Lumen stops stitching.',
@@ -3963,7 +3963,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['tamsin-knots-cut'],
         },
         response:
-          'It takes an hour. She cuts every knot herself. You sign the sash in barracks ink. Three days later a crow lands on the sill, looks at Tamsin a long time, and leaves. She sleeps on a bunk that night.',
+          'It takes an hour. She cuts every knot herself. You sign the sash in barracks ink. Three days later a Conclave messenger lands on the sill, looks at Tamsin a long time, and leaves. She sleeps on a bunk that night.',
       },
       {
         id: 'refuse',
@@ -4005,7 +4005,7 @@ export const TALKS: readonly TalkDef[] = [
         id: 'knots',
         lines: [
           'Nothing. Nothing happens. That’s the trick of it.',
-          'You cut them and the Conclave keeps the count. Somewhere in a cave there’s a book with your name and a number. One day a crow lands on a sill near you, and you’re carrying for them again, and you don’t remember agreeing.',
+          'You cut them and the Conclave keeps the count. Somewhere in a cave there’s a book with your name and a number. One day a Conclave messenger lands on a sill near you, and you’re carrying for them again, and you don’t remember agreeing.',
           'A witness is the one thing they can’t argue with. They wrote the rule. They never thought anybody would use it.',
         ],
         options: [
@@ -4183,11 +4183,11 @@ export const TALKS: readonly TalkDef[] = [
   {
     id: 'tamsin-sill',
     follower: 'F011',
-    title: 'A Crow on the Sill',
+    title: 'A Messenger on the Sill',
     fromDay: 12,
     requires: { notFlags: IN_THE_TOWER },
     lines: [
-      'A Conclave messenger sat on the barracks sill at dawn with a forecast tied to its leg. Addressed to Tamsin Gutterwing. By name. In the runners’ hand.',
+      'A Conclave messenger waited on the barracks sill at dawn with a forecast tied to its leg. Addressed to Tamsin Gutterwing. By name. In the runners’ hand.',
       'Tamsin has not touched it. She sits on the wardrobe and watches it sit on the bunk.',
       'It’s a true one. They only send true ones the first time. If I read it, I’m carrying again. That’s how it starts. If I don’t, you lose a true forecast in a dry year.',
     ],
@@ -4200,7 +4200,7 @@ export const TALKS: readonly TalkDef[] = [
           flags: ['tamsin-read-forecast'],
         },
         response:
-          'Tamsin reads it aloud, flat. Rain on the ninth day. It rains on the ninth day. The Yard’s cisterns are open and full. That night a second crow lands on the sill. It sits there.',
+          'Tamsin reads it aloud, flat. Rain on the ninth day. It rains on the ninth day. The Yard’s cisterns are open and full. That night a second Conclave messenger lands on the sill. It sits there.',
       },
       {
         id: 'burn',
@@ -4278,7 +4278,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'The Watch took a Conclave runner off the wall last night. She is nine. Wool in her chimes. She had a map of the gate sewn in her sash.',
-      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold Crow children.',
+      'Dunmark wants her sent back up before the Congress. A gift. Proof the crown doesn’t hold the Conclave’s children.',
       'Send her back and she carries till she dies. Keep her and the Conclave says the crown steals runners. Which is what they do. Pick one.',
     ],
     options: [
@@ -5408,7 +5408,7 @@ export const TALKS: readonly TalkDef[] = [
     requires: { notFlags: IN_THE_TOWER },
     lines: [
       'Isolde comes back from the Yard with her lantern dark and her jaw set.',
-      'Mole family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
+      'A family by the east wall. The little one has fen-fever. I know it by the smell. I can break it in a night.',
       'They won’t let me through the door. A Mother’s hand on their child. They’d rather it died clean. The Watch would carry me in if you said so. I’m asking whether you say so.',
     ],
     options: [

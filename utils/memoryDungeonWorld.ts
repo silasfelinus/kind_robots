@@ -3,6 +3,12 @@ import {
   restoreBriarCombat,
   type BriarCombat,
 } from './memoryDungeon/rooms'
+import { BRIAR_SCENES } from './memoryDungeon/scenes'
+import {
+  newHouseProgress,
+  restoreHouseProgress,
+  type HouseProgress,
+} from './memoryDungeon/house'
 
 export const BRIAR_WIDTH = 8
 export const BRIAR_START = '2,4'
@@ -20,6 +26,7 @@ export type BriarSiteKind =
   | 'enemy'
   | 'gate'
   | 'rune'
+  | 'story'
 
 export interface BriarSite {
   kind: BriarSiteKind
@@ -28,6 +35,12 @@ export interface BriarSite {
 }
 
 export const BRIAR_SITES: Record<string, BriarSite> = {
+  ...Object.fromEntries(
+    Object.entries(BRIAR_SCENES).map(([key, scene]) => [
+      key,
+      { kind: 'story' as const, name: scene.title, description: scene.opening },
+    ]),
+  ),
   '2,4': {
     kind: 'camp',
     name: 'Briar Camp',
@@ -64,8 +77,9 @@ export const BRIAR_SITES: Record<string, BriarSite> = {
   },
   '6,2': {
     kind: 'dungeon',
-    name: 'Rootbound Vault',
-    description: 'Two memory chambers stand between you and the Bramble Chime.',
+    name: 'The House That Remembers · Rootbound Vault',
+    description:
+      'Thirty-six rooms of remembered bargains, with fair choices and a guarded Bramble Chime.',
   },
   '8,4': {
     kind: 'gate',
@@ -124,13 +138,13 @@ const LINK_ENTRIES: [string, string[]][] = [
   ['2,6', ['2,7', '3,6']],
   ['3,5', ['3,6', '4,5']],
   ['7,5', ['7,6', '8,5']],
-  ['5,5', ['5,6']],
+  ['5,5', ['5,6', '6,5']],
   ['3,2', ['2,2', '3,1']],
-  ['2,2', ['2,1']],
+  ['2,2', ['2,1', '2,3']],
   ['3,1', ['4,1']],
-  ['1,5', ['1,6']],
+  ['1,5', ['1,6', '1,4']],
   ['1,6', ['1,7']],
-  ['1,7', ['2,7']],
+  ['1,7', ['2,7', '1,8']],
   ['3,6', ['4,6']],
   ['4,5', ['4,6']],
   ['4,6', ['4,7']],
@@ -139,13 +153,25 @@ const LINK_ENTRIES: [string, string[]][] = [
   ['5,6', ['5,7']],
   ['5,7', ['6,7']],
   ['6,7', ['6,8']],
-  ['7,6', ['8,6']],
+  ['7,6', ['8,6', '7,7']],
   ['8,5', ['8,6']],
   ['8,6', ['8,7']],
   ['6,2', ['6,1']],
   ['7,3', ['7,2']],
-  ['7,2', ['7,1']],
+  ['7,2', ['7,1', '8,2']],
   ['8,4', ['8,3']],
+  ['1,4', ['1,3']],
+  ['1,3', ['1,2']],
+  ['1,2', ['1,1']],
+  ['2,3', ['3,3']],
+  ['4,1', ['5,1']],
+  ['8,2', ['8,1']],
+  ['6,5', ['6,6']],
+  ['7,7', ['7,8']],
+  ['7,8', ['8,8']],
+  ['1,8', ['2,8']],
+  ['3,8', ['4,8']],
+  ['4,8', ['5,8']],
 ]
 
 export const BRIAR_LINKS: Record<string, readonly string[]> =
@@ -184,6 +210,21 @@ export function validateBriarLinks(): string[] {
       if (!briarNeighbors(from).includes(to)) {
         errors.push(`Non-adjacent step ${from} → ${to}`)
       }
+    }
+  }
+  const reached = new Set([BRIAR_START])
+  const todo = [BRIAR_START]
+  for (let i = 0; i < todo.length; i++) {
+    for (const target of BRIAR_LINKS[todo[i]!] ?? []) {
+      if (!reached.has(target)) {
+        reached.add(target)
+        todo.push(target)
+      }
+    }
+  }
+  for (const tile of BRIAR_TILES) {
+    if (!reached.has(tile.key)) {
+      errors.push(`Unreachable map square ${tile.key}`)
     }
   }
   return errors
@@ -229,6 +270,8 @@ export interface BriarMapCard extends BriarMemoryCard {
   tile: string
 }
 
+export type BriarPrologueChoice = 'terms' | 'anchor'
+
 export interface BriarSave {
   waveIndex: number
   wavePhase: 'matching' | 'exploring'
@@ -239,6 +282,9 @@ export interface BriarSave {
   mapDeckSignature: string
   version: number
   revealed: string[]
+  visited: string[]
+  sceneChoices: Record<string, string>
+  prologueChoice: BriarPrologueChoice | null
   frontier: string[]
   player: string
   attempts: number
@@ -250,7 +296,8 @@ export interface BriarSave {
   gateOpened: boolean
   completedEncounters: string[]
   sealedPartnerFound: boolean
-  room: 'map' | 'memory'
+  room: 'map' | 'memory' | 'house'
+  house: HouseProgress | null
   roomId: 'vault-1' | 'vault-2' | 'sprite' | 'patrol' | null
   cards: BriarMemoryCard[]
   /** A combat room in progress (t-007); null in Classic rooms and on the map. */
@@ -264,6 +311,9 @@ export function newBriarSave(): BriarSave {
   return {
     version: BRIAR_SAVE_VERSION,
     revealed: [],
+    visited: [],
+    sceneChoices: {},
+    prologueChoice: null,
     frontier: [],
     waveIndex: 0,
     wavePhase: 'matching',
@@ -281,6 +331,7 @@ export function newBriarSave(): BriarSave {
     completedEncounters: [],
     sealedPartnerFound: false,
     room: 'map',
+    house: null,
     roomId: null,
     cards: [],
     combat: null,
@@ -315,6 +366,27 @@ export function restoreBriarSave(input: unknown): BriarSave {
         ]
       : []
   const revealed = validKeys(saved.revealed)
+  const visited = validKeys([
+    ...(Array.isArray(saved.visited) ? saved.visited : []),
+    saved.player,
+    ...(Array.isArray(saved.chestClaims) ? saved.chestClaims : []),
+    ...(Array.isArray(saved.completedEncounters)
+      ? saved.completedEncounters
+      : []),
+    ...(saved.puzzleSolved ? ['2,7'] : []),
+    ...(saved.gateOpened ? [BRIAR_GATE] : []),
+  ]).filter((key) => revealed.includes(key))
+  const sceneChoices: Record<string, string> = {}
+  if (saved.sceneChoices && typeof saved.sceneChoices === 'object') {
+    for (const [key, choice] of Object.entries(saved.sceneChoices)) {
+      if (
+        typeof choice === 'string' &&
+        BRIAR_SCENES[key]?.choices.some((option) => option.id === choice)
+      ) {
+        sceneChoices[key] = choice
+      }
+    }
+  }
   const frontier = validKeys(saved.frontier).filter(
     (key) => !revealed.includes(key),
   )
@@ -330,6 +402,7 @@ export function restoreBriarSave(input: unknown): BriarSave {
         .map((card) => ({ ...card, flipped: card.matched }))
     : []
   const combat = restoreBriarCombat(saved.combat)
+  const house = restoreHouseProgress(saved.house)
   const waveIndex =
     Number.isInteger(saved.waveIndex) &&
     saved.waveIndex! >= 0 &&
@@ -380,6 +453,12 @@ export function restoreBriarSave(input: unknown): BriarSave {
       ]),
     ],
     revealed,
+    visited,
+    sceneChoices,
+    prologueChoice:
+      saved.prologueChoice === 'terms' || saved.prologueChoice === 'anchor'
+        ? saved.prologueChoice
+        : null,
     frontier,
     player:
       typeof saved.player === 'string' && revealed.includes(saved.player)
@@ -406,7 +485,13 @@ export function restoreBriarSave(input: unknown): BriarSave {
         )
       : [],
     sealedPartnerFound: saved.sealedPartnerFound === true,
-    room: saved.room === 'memory' && roomId && inRoom ? 'memory' : 'map',
+    room:
+      saved.room === 'house' && house
+        ? 'house'
+        : saved.room === 'memory' && roomId && inRoom
+          ? 'memory'
+          : 'map',
+    house,
     roomId: saved.room === 'memory' && inRoom ? roomId : null,
     cards: combatRoom ? [] : cards,
     combat: saved.room === 'memory' && combatRoom ? combat : null,
@@ -420,5 +505,35 @@ export function restoreBriarSave(input: unknown): BriarSave {
       typeof saved.status === 'string'
         ? saved.status.slice(0, 220)
         : fresh.status,
+  }
+}
+
+export type BriarTileProgress =
+  'hidden' | 'unvisited' | 'unfinished' | 'complete'
+
+/** A revealed square is not "clear" until its one-time story and site work are settled. */
+export function briarTileProgress(
+  save: BriarSave,
+  key: string,
+): BriarTileProgress {
+  if (!save.revealed.includes(key)) return 'hidden'
+  if (!save.visited.includes(key)) return 'unvisited'
+  if (BRIAR_SCENES[key] && !save.sceneChoices[key]) return 'unfinished'
+
+  switch (BRIAR_SITES[key]?.kind) {
+    case 'chest':
+      return save.chestClaims.includes(key) ? 'complete' : 'unfinished'
+    case 'puzzle':
+      return save.puzzleSolved ? 'complete' : 'unfinished'
+    case 'enemy':
+      return save.completedEncounters.includes(key) ? 'complete' : 'unfinished'
+    case 'dungeon':
+      return save.relics.includes('bramble-chime') ? 'complete' : 'unfinished'
+    case 'gate':
+      return save.gateOpened ? 'complete' : 'unfinished'
+    case 'sealed':
+      return 'unfinished'
+    default:
+      return 'complete'
   }
 }

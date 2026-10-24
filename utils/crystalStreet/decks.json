@@ -1,0 +1,3318 @@
+[
+  {
+    "tag": "paranormal",
+    "name": "Things That Go Bump",
+    "blurb": "Glimmer Falls was built on top of a lot of yesterdays, and on Halloween week they all want to say hello. Porch lights blink, buses that stopped running in 1958 make one more stop, and the junkyard forgets how to end.",
+    "encounters": [
+      {
+        "id": "deck-paranormal-endless-lot",
+        "title": "The Endless Lot",
+        "place": "Rusty's Junkyard, somewhere past midnight",
+        "text": "You blink on your own front lawn and open your eyes between two rusted station wagons. This is Rusty's Junkyard, except the rows of cars never end. Every car is the same wood-paneled wagon, every radio is on, and every radio is playing the same slow-dance ballad from the 1959 prom, \"Moonlight on the Quarry,\" one beat out of sync, forever.",
+        "art": "A teenager in pajamas standing in an endless junkyard maze of identical rusted wood-paneled station wagons stretching to the horizon under a full moon, every dashboard radio glowing the same amber, mist between the rows",
+        "choices": [
+          {
+            "id": "follow-the-song",
+            "label": "Follow the song to wherever it is loudest",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The ballad swells, row after row, until you reach the car crusher. Its radio is the only one playing the song on the right beat. You click it off. Silence rolls outward like a wave, the rows fold away like a deck of cards, and you are standing at the junkyard gate with the stars where they belong.",
+              "art": "A teenager reaching into the cab of a car crusher to switch off a glowing radio, rows of identical station wagons folding away behind them like playing cards, the junkyard gate ahead under starlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The song gets louder, then closer, then inside your head. The nearest radio dial glows like a cat's eye and the needle swings toward you. You lean in to turn it off and the static grabs you by the collar and pulls you straight through the speaker grille. The night is not done with you yet.",
+              "art": "A teenager being pulled face-first into the glowing speaker grille of a station wagon dashboard radio, streams of amber static wrapping around them, endless identical cars behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "hotwire-a-wagon",
+            "label": "Hotwire a wagon and drive straight through the rows",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 11,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "Two wires, one spark, and the engine coughs awake. You floor it down the aisle and the identical cars peel aside like curtains. The radio finally changes stations on its own, to KGLM, and you roll to a stop in your own driveway with the headlights off and the engine still ticking.",
+              "art": "A wood-paneled station wagon bursting out of a misty junkyard maze with headlights blazing, rows of identical cars parting like curtains, a suburban driveway glowing ahead",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The engine catches, the wheel turns itself, and the wagon drives you in a slow, polite circle around the same three rows while the ballad plays on. You wake in its back seat at dawn with a seatbelt buckled across you that you never fastened.",
+              "art": "A teenager asleep in the back seat of a station wagon at dawn, a seatbelt buckled over them, the steering wheel turning by itself, a junkyard misty and gray outside",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "mark-the-cars",
+            "label": "Scratch an X on every car you pass",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 1
+            },
+            "success": {
+              "text": "On the fortieth car you find your own X already waiting. It is a loop. So you look for the one car without a mark, the one that smells like motor oil instead of old perfume. Its back door opens onto the junkyard office, and there is a coffee can of loose change under the seat.",
+              "art": "A teenager pointing at a single unmarked station wagon among dozens scratched with X marks, its back door open onto a lit junkyard office, a coffee can of coins on the seat",
+              "effects": {
+                "dread": -1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "Every car you reach already has an X on it. Hundreds of them, then thousands, all scratched in your handwriting, some of them rusted over as if you made them years ago. You stop scratching. The radios keep playing.",
+              "art": "An endless row of identical station wagons each scratched with the same X, some old and rusted, a teenager staring at their own key in their hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-paranormal-spirit-board",
+        "title": "Yes, No, Goodbye",
+        "place": "A wood-paneled basement rec room on Crystal Street",
+        "text": "Somebody brought a Spirit-Talk board from the Starlight Mall toy store, and the slumber party has been giggling over it for an hour. Then the planchette moves before anyone touches it. It spells your name. Then it spells OPEN THE DOOR, and the door to the garage starts to rattle in its frame.",
+        "art": "Teens in sleeping bags around a talking board on shag carpet in a wood-paneled basement rec room, the planchette sliding by itself, the garage door rattling in the background, a lava lamp glowing",
+        "choices": [
+          {
+            "id": "ask-who-it-is",
+            "label": "Ask the spirit, politely, who it is",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "P-A-T-T-Y. She was twelve. Her own slumber party got rained out in 1960 and she has been waiting ever since. You let her play one round of light-as-a-feather, and everyone swears their fingers lifted. The planchette glides to GOODBYE, and the garage door goes still.",
+              "art": "Teens in a circle doing light as a feather in a candlelit basement, a faint glowing girl in a 1960 nightgown laughing among them, the talking board planchette resting on goodbye",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The planchette spins like a top, flies across the room and sticks in the wood paneling. Every sleeping bag zips itself shut, with people still in them. When you get them unzipped, there is a cold print of a small hand on your wrist that will not warm up until morning.",
+              "art": "A plastic planchette stuck in wood paneling, sleeping bags zipped shut and squirming on a basement floor, a frosty small handprint glowing on a teenager's wrist",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "slam-goodbye",
+            "label": "Slam the planchette onto GOODBYE",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 7,
+            "success": {
+              "text": "You slap the planchette down on GOODBYE so hard the board bends. The lights snap on, the furnace kicks in, and the garage door is just a garage door again. The board is cardboard and a price sticker. Somebody laughs, and then everybody does.",
+              "art": "A teenager slamming a hand down on a talking board's goodbye with the overhead lights flaring on in a basement rec room, friends startled then laughing",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The planchette pushes back with the strength of a grown-up. It drags your hand across the letters, H-E-R-E, and the garage door bangs open on an empty, dark garage where the bicycles are all spinning their wheels.",
+              "art": "A dark open garage with every bicycle's wheels spinning by themselves, a teenager's hand dragged across a talking board in the foreground",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-paranormal-porch-lights",
+        "title": "Porch Light Code",
+        "place": "Crystal Street, two in the morning",
+        "text": "You wake up because your room keeps flashing. Outside, every porch light on the cul-de-sac is blinking in perfect unison: long, short, short, long. No one is awake. No one is on the porches. The pattern stops, starts over, and waits, like somebody repeating a question.",
+        "art": "A suburban cul-de-sac at 2 a.m. with every porch light blinking in unison, a teenager silhouetted in an upstairs bedroom window, the roundabout garden dark in the middle",
+        "choices": [
+          {
+            "id": "decode-the-lights",
+            "label": "Write the blinks down and decode them",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dots and dashes fill your notebook. L-O-O-K U-N-D-E-R M-A-T. Under your own doormat is a 1944 silver dollar and a note in faded pencil: Thank you for noticing us. Every porch light gives one warm, long blink and goes out for the night.",
+              "art": "A teenager kneeling at a front door holding a silver dollar and a faded pencil note found under the doormat, porch lights along the street glowing warm gold",
+              "effects": {
+                "dread": -1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You get as far as R-U-N before every porch light goes dark at once. Then one light comes back on. It is not on a porch. It is your bedside lamp, behind you, and you did not leave it on.",
+              "art": "A dark cul-de-sac with every porch light out, a single bedside lamp glowing in a teenager's bedroom behind them as they stare out the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "flash-back",
+            "label": "Flash your own light back and answer",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "You blink back H-I. The street goes still. Then, one by one, the porch lights spell H-I back, slow and happy, like old neighbors waving from across the years. A dog howls somewhere, cheerful, and the lights settle into a soft, ordinary glow.",
+              "art": "A teenager on a lawn aiming a flashlight at a row of porch lights that glow warm and friendly in reply, ghostly outlines of 1950s neighbors waving from the porches",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your flashlight bulb pops with a sound like a cap gun. Every porch light on the street swivels on its bracket to point at you, and they stay pointed until sunrise, warm on the back of your neck no matter where you stand.",
+              "art": "Porch light fixtures on every house twisted on their brackets to aim at one teenager on a dark lawn holding a dead flashlight",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-paranormal-candle-procession",
+        "title": "Candles at Pinecrest",
+        "place": "Pinecrest Cemetery, after the gates are locked",
+        "text": "A line of people in old-fashioned clothes is walking between the headstones, each one carrying a candle that does not flicker in the wind. Bonnets, fedoras, a girl in a poodle skirt. The last one in line turns, smiles, and holds out a spare candle to you.",
+        "art": "A silent procession of translucent figures in clothes from many decades carrying steady candles between moonlit headstones, the last figure offering a candle to a teenager behind a mausoleum",
+        "choices": [
+          {
+            "id": "take-the-candle",
+            "label": "Take the candle and walk with them",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "You walk with them to the cemetery gate. They are the town's forgotten dead, heading out for the one Halloween they never got. At the gate they each say their name to you, and you say yours back. The candle stays lit in your hand all the way home and never melts.",
+              "art": "A teenager walking at the end of a ghostly candlelit procession through an open cemetery gate, the figures turning to say their names, warm candlelight on the teen's face",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The candle gets heavier with every step until it weighs as much as a brick. The procession files into a mausoleum and the iron door swings shut with you inside. The groundskeeper lets you out at dawn and does not ask a single question.",
+              "art": "A teenager pressed against the bars of a mausoleum door at dawn, an extinguished candle at their feet, a groundskeeper with a ring of keys approaching",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "hide-and-count",
+            "label": "Duck behind a headstone and count them",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You count forty-eight. The forty-eighth stops, tips his fedora in your direction, and keeps walking. You were seen, and you were let be. On the headstone you hid behind, someone has left a tarnished subway token and a peppermint.",
+              "art": "A ghostly man in a fedora tipping his hat toward a headstone where a teenager hides, a tarnished token and a peppermint resting on the stone",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Forty-eight. Forty-nine. Fifty. There is one more every time you start over. When you finally reach the end of the line, the last candle is not in front of you. Its warmth is on the back of your neck.",
+              "art": "A teenager crouched behind a headstone counting on their fingers, a candle glowing directly behind their head held by a pale hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-paranormal-last-bus",
+        "title": "The Last Bus",
+        "place": "Corner of Crystal Street and Quarry Road, three a.m.",
+        "text": "A round-nosed yellow school bus from the fifties idles at the corner where no bus has stopped in decades. The sign says GLIMMER FALLS ELEMENTARY: FIELD TRIP. The doors fold open with a sigh. Inside, a busload of kids in saddle shoes and cardigans press their faces to the windows and wave at you.",
+        "art": "A 1950s round-nosed yellow school bus idling at a foggy suburban corner at 3 a.m., doors open, translucent kids in saddle shoes waving from every window, the driver's face hidden under a cap",
+        "choices": [
+          {
+            "id": "climb-aboard",
+            "label": "Climb aboard and ask where the field trip goes",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "The kids scoot over to make room. The field trip goes everywhere: the old drive-in, the soda fountain, the quarry beach before it was drained. They sing the whole way. At dawn the bus drops you at your door and a girl hands you a felt pennant that reads I WENT.",
+              "art": "A teenager riding a glowing 1950s school bus full of singing ghost kids past a vintage drive-in theater, a felt pennant being handed over the seat",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The doors close and the bus drives you all over town. Every stop is your house, but wrong: painted a different color, a different car in the driveway, a different family in the window. It lets you off at sunrise in your pajamas, three blocks from home.",
+              "art": "A teenager in pajamas stepping off a ghostly school bus at sunrise onto an unfamiliar version of their own street, a house painted the wrong color",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wave-back",
+            "label": "Wave back and keep your feet on the curb",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 7,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You wave with your whole arm. The kids light up and wave harder. The doors fold shut, the bus pulls away, and its taillights break apart into a swarm of fireflies that drift up over the rooftops of Crystal Street.",
+              "art": "A teenager waving from the curb as a ghostly school bus pulls away, its red taillights dissolving into a swarm of fireflies rising over suburban rooftops",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You raise your hand and every kid on the bus stops waving at once. They all turn to look past you, at your house, and they keep looking as the bus rolls away, until it is gone around a corner that is not there in daylight.",
+              "art": "A row of ghost children on a school bus all turned to stare at a single suburban house, a teenager frozen on the curb with one hand raised",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-paranormal-attic-steps",
+        "title": "Footsteps in the Attic",
+        "place": "Your house, 1:13 a.m.",
+        "text": "Somebody is pacing in the attic. Back and forth, back and forth, right above your bed, in hard-soled shoes. Your family is asleep. Then the pull-down ladder in the hallway creaks, unfolds itself step by step, and lands softly on the carpet like an invitation.",
+        "art": "A dark suburban upstairs hallway with an attic pull-down ladder unfolding by itself, a faint light and the shadow of pacing feet visible through the ceiling hatch",
+        "choices": [
+          {
+            "id": "climb-the-ladder",
+            "label": "Climb the ladder with a flashlight in your teeth",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "Up in the attic, an electric train set from 1959 is running on its own, around a little papier-mache Glimmer Falls with tiny painted houses. A boy's voice whispers, \"Nobody ever came up to see it.\" You stay and watch three full laps. The train slows, happy, and stops at the station.",
+              "art": "A teenager in a dusty attic watching a vintage electric train circle a papier-mache model town, flashlight beam catching floating dust, a faint boy's silhouette kneeling beside the tracks",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The ladder folds up behind you with a bang and the hatch latches. In the pitch dark the pacing stops, and then starts again, right next to you. You spend the night sitting on a box of Christmas ornaments until somebody downstairs wonders why the ladder is stuck.",
+              "art": "A teenager hugging their knees on a box of Christmas ornaments in a pitch-black attic, the faint outline of shoes pacing beside them in a sliver of light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "talk-to-the-ceiling",
+            "label": "Talk to the ceiling like an old roommate",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Hey. Rough night?\" The pacing stops. Then two taps: yes. You talk for an hour about school and records and who you have a crush on, and the taps answer. In the morning there is a 1950s quarter on your pillow, polished bright.",
+              "art": "A teenager lying in bed talking up at the ceiling at night, a soft glow through the plaster above, a shiny old quarter resting on the pillow beside them",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The footsteps stop. Then they start running, back and forth, faster and faster, and the attic hatch rattles in its frame like someone pounding to get out. It goes on until the sky turns gray and your alarm clock goes off.",
+              "art": "An attic hatch in a dark hallway rattling violently in its frame, dust raining down, a frightened teenager peeking out from their bedroom door",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "slasher",
+    "name": "The Body Count",
+    "blurb": "Every October somebody in a rubber mask decides Glimmer Falls needs a sequel. Babysitters, roller rinks, pumpkin patches and empty high-school hallways: the rules are the rules, and the rules say never split up.",
+    "encounters": [
+      {
+        "id": "deck-slasher-babysitter-call",
+        "title": "Have You Checked the Children?",
+        "place": "The Delgado house, 9 Crystal Street, 11:40 p.m.",
+        "text": "You are babysitting the Delgado twins for five dollars an hour and a fridge full of Bolt Cola. The kids are asleep. The phone has rung three times. Each time it is the same slow breathing, and then a voice like a rake on gravel: \"Have you checked the children?\" This time it adds, \"Nice socks.\"",
+        "art": "A teenager on a shag carpet clutching a wall phone with a long curly cord in a dim split-level living room, a babysitter's note on the fridge, the dark staircase to the bedrooms behind them",
+        "choices": [
+          {
+            "id": "check-the-children",
+            "label": "Go upstairs and check the children",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 1
+            },
+            "success": {
+              "text": "The twins are asleep, but their window is open and there is a muddy bootprint on the sill. You slam the window, lock it, and stand guard with a lamp in one hand. Outside, a shape backs off across the lawn. The next time the phone rings, it is just a click.",
+              "art": "A teenager slamming a child's bedroom window shut, twin kids asleep under rocket-ship blankets, a muddy bootprint on the sill and a shadowy figure retreating across a lawn outside",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The twins are fine, but the closet door is open one inch and there is something standing very still behind the coats. You drag a dresser in front of it and sit there with a lamp. When the Delgados get home at one, they find you in the hall, and the closet is empty.",
+              "art": "A teenager sitting in a dark hallway with a table lamp raised like a club, a dresser shoved against a closet door, parents in party clothes appearing at the top of the stairs",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "keep-it-talking",
+            "label": "Call the operator and keep the voice on the line",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "The operator traces it to the payphone outside the Quik-Mart on Quarry Road. You call the sheriff, then watch from the window as a cruiser's lights sweep the booth. A tall figure hangs up, drops the receiver, and walks away into the trees. It does not call again tonight.",
+              "art": "A payphone booth outside a convenience store at night lit by a sheriff cruiser's red and blue lights, a tall masked figure walking away into the trees, the receiver dangling",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "\"Honey,\" the operator says, after a long pause, \"that line was disconnected in 1971.\" On the other end, very close to the mouthpiece, the breathing turns into a slow, delighted laugh.",
+              "art": "A teenager pale with fear holding a phone receiver away from their ear, a disconnected-line notice taped to an old phone on the kitchen wall",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "run-to-pearls",
+            "label": "Bundle the twins out the back to the one porch light still on",
+            "intent": "kind",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "You carry one twin and drag the other in a sleeping bag across three back lawns to the only porch light on the street. Grandma Pearl is already up, rocking, a shotgun full of rock salt across her knees. \"Sit,\" she says, and nothing follows you. She sends you home with a coffee can of salt.",
+              "art": "A teenager hauling two sleepy kids across dark backyards toward a glowing porch where an elderly woman rocks with a rock-salt shotgun across her knees",
+              "effects": {
+                "nerve": 1,
+                "items": ["rock-salt"]
+              }
+            },
+            "failure": {
+              "text": "The back door will not open. Something in the yard knocks on the glass, three slow knocks. You hustle the twins into the bathtub with every pillow in the house and sing them commercial jingles until dawn.",
+              "art": "A teenager and two small kids huddled in a pink bathtub piled with pillows, a shadowy hand pressed against a frosted bathroom window",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-slasher-final-run",
+        "title": "The Last One Standing",
+        "place": "Glimmer Falls High, after the lights go out",
+        "text": "You only came back for your backpack. The hall lights die one bank at a time, and at the far end of the trophy hallway a figure in janitor's coveralls and a grinning homecoming-king mask lifts a pair of hedge trimmers. Snip. Snip. Every slasher movie you have rented says the same thing: run.",
+        "art": "A long high-school hallway in darkness, rows of lockers, a figure in janitor's coveralls and a grinning homecoming-king mask holding hedge trimmers at the far end, a teenager with a backpack frozen in a pool of emergency light",
+        "choices": [
+          {
+            "id": "sprint-for-the-gym",
+            "label": "Sprint the long hallway for the gym doors",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hit the push bar at full speed and burst into the gym. You slap every light switch on the panel and yank the fire alarm. Lights blaze, bells scream, sprinklers rain. When you turn around, the doorway is empty except for a dropped pair of hedge trimmers.",
+              "art": "A teenager bursting into a high-school gym under blazing lights and spraying sprinklers, a fire alarm handle pulled down, abandoned hedge trimmers on the threshold",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The hallway is longer than it should be. Lockers slam shut one after another behind you, getting closer. You dive into an open locker and pull it shut. The janitor finds you there at six in the morning and lets you out without a word.",
+              "art": "A teenager peering out through the slats of a high-school locker in a dark hallway, a long shadow with hedge trimmers passing outside",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "chem-lab-improv",
+            "label": "Duck into the chem lab and improvise",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "Baking soda, vinegar, the dish soap from the sink, all in the big beaker. Foam floods the doorway just as the mask comes through. Its sneakers skid, it windmills, and it sails backward through the open window into the hedges. When you look out, the hedge is empty.",
+              "art": "A wave of white foam spilling across a chemistry lab floor, a masked figure in coveralls slipping backward toward an open window, a teenager holding an empty beaker",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Everything you mix just goes puff in a little purple cloud. The masked figure walks calmly through the smoke, whistling, and you leave by the window yourself, landing in the rosebushes with half your jacket left behind on the latch.",
+              "art": "A masked figure strolling through a puff of purple smoke in a chemistry lab while a teenager scrambles out a window into rosebushes",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "trophy-case-stand",
+            "label": "Grab the state championship trophy and stand your ground",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "You smash the trophy case, grab the 1979 softball state cup and swing. The mask cracks clean in half and falls off. There is nobody inside. The coveralls crumple to the floor like laundry, and the hedge trimmers clatter down beside them.",
+              "art": "A teenager swinging a gold trophy cup at a masked figure, the mask splitting in half to reveal empty darkness, coveralls collapsing like laundry, glass from a trophy case glittering",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The trophy is plastic. It bounces off the mask with a hollow bonk, and the grin seems to get wider. You flee out the fire door with the alarm wailing and do not stop running until you reach the bike racks.",
+              "art": "A plastic trophy bouncing off a grinning homecoming-king mask, a teenager fleeing through a fire exit with an alarm light flashing red",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-slasher-lookout-point",
+        "title": "Lookout Point",
+        "place": "The lookout below the KGLM water tower",
+        "text": "You and some friends are parked at the lookout in a borrowed car, watching the town lights and counting meteors. The radio cuts in with a bulletin about a man seen near the reservoir with a rusty garden hook. Then something on the roof of the car goes scrape. Scrape. Scrape.",
+        "art": "A boxy 1980s car parked at a hilltop lookout above glittering small-town lights, teens inside staring up at the roof, a meteor streaking across the sky, a rusty hook glinting above the windshield",
+        "choices": [
+          {
+            "id": "floor-it",
+            "label": "Floor it down the switchbacks",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 2
+            },
+            "success": {
+              "text": "Gravel sprays, everyone screams, then everyone laughs, and you fishtail all the way down Tower Road. At the bottom you get out to check the car. An old rusted garden hook is dangling from the door handle. You leave it in the ditch where it belongs.",
+              "art": "Teens laughing in a car fishtailing down a winding hill road at night, a rusted garden hook swinging from the passenger door handle",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The engine floods and dies. The scraping slides from the roof to the trunk to the passenger door and back again, slow circles, until a pair of headlights comes up the hill and the sound stops all at once.",
+              "art": "A stalled car at a dark lookout, teens huddled inside, scratch marks spiraling around the car's paint, distant headlights climbing the hill",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-the-station",
+            "label": "Call the KGLM request line from the payphone and get on the air",
+            "intent": "clever",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix puts you on the air live. \"Glimmer Falls, if you are up, flash your porch light for the kids at the lookout.\" Below, the whole town blinks on, hundreds of lights. Something heavy drops off your roof and crashes away into the pines, outnumbered.",
+              "art": "A view from a hilltop lookout of an entire small town flashing its porch lights, a hulking shadow fleeing into the pine trees, a teen holding a payphone receiver",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The payphone line connects, but KGLM is only playing one sound: a slow scrape, scrape, scrape, in perfect time with the car roof. You hang up and sprint back to the car, and the scrape is still on the radio inside it.",
+              "art": "A teenager dropping a payphone receiver at a dark lookout, a car radio glowing behind them with sound lines in the shape of scratches",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-slasher-pumpkin-patch",
+        "title": "Last Pick of the Patch",
+        "place": "Halvorsen's Pumpkin Patch, off Quarry Road, after closing",
+        "text": "Every jack-o-lantern in the patch has lit itself. The scarecrow is missing from its post. From the corn maze comes the wet, patient scrape of someone carving, and then a figure steps out with a sack-cloth face, a pumpkin for a head, and a carving knife the size of a canoe paddle.",
+        "art": "A moonlit pumpkin patch full of glowing jack-o-lanterns, an empty scarecrow post, a lanky figure with a carved pumpkin head and a comically huge carving knife stepping out of a corn maze",
+        "choices": [
+          {
+            "id": "lose-it-in-the-maze",
+            "label": "Lose it in the corn maze",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Left, left, right, double back. You hear it crash through a wall of corn and then a thump and a muffled oof as it runs straight into the hay-bale pyramid. You stroll out the exit. Behind you, a pumpkin head pokes up from the hay, looking embarrassed.",
+              "art": "A teenager walking calmly out of a corn maze exit while behind them a pumpkin-headed figure sits buried to the neck in toppled hay bales",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The maze rearranges every time you turn a corner. Every path leads you back to the empty scarecrow post. On the fifth time, the post is not empty. It is wearing your jacket.",
+              "art": "A scarecrow post in a corn maze clearing wearing a teenager's jacket, the teenager stopped short in shock, corn walls leaning in",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "smash-the-brightest",
+            "label": "Smash the brightest jack-o-lantern",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "item": "baseball-bat",
+              "amount": 2
+            },
+            "success": {
+              "text": "You find the biggest, brightest, meanest-grinning pumpkin and give it a home-run swing. Every lantern in the patch goes out at once. In the dark, the pumpkin-head figure folds up like a dropped scarecrow, nothing but straw and a sack.",
+              "art": "A teenager mid-swing smashing a giant glowing jack-o-lantern, every other lantern in the patch going dark, a scarecrow collapsing into straw behind them",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The pumpkin explodes into a geyser of seeds and orange goo that coats you from head to sneakers. Every other jack-o-lantern in the patch laughs, all at once, and the giant knife scrapes on a stone somewhere close behind you.",
+              "art": "A teenager drenched head to toe in orange pumpkin goo and seeds, surrounded by dozens of jack-o-lanterns with wide laughing faces",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-slasher-rink-blackout",
+        "title": "Lights Out at the Rink",
+        "place": "The roller-rink annex at Pump Iron Gym, late skate",
+        "text": "Halfway through the late skate the lights cut out, but the mirror ball keeps turning. When the emergency lights stutter on, there is one extra skater on the floor: a figure in a striped referee shirt and a yellow smiley-face mask, gliding backward, carrying a skate key the size of a crowbar.",
+        "art": "A roller rink lit only by a spinning mirror ball and red emergency lights, teens on skates scattering, a masked skater in a striped referee shirt gliding backward with an oversized skate key",
+        "choices": [
+          {
+            "id": "outskate-it",
+            "label": "Outskate it around the rink",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 2
+            },
+            "success": {
+              "text": "You grab hands with every skater you pass and form a crack-the-whip, faster and faster. At the end of the line you let go and go flying out the exit doors into the parking lot. The masked skater cannot make the turn and slams into the snack bar.",
+              "art": "A line of teens on roller skates doing crack the whip around a rink, the last skater flying out through exit doors, a masked skater crashing into a snack bar counter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You hit a dropped Bolt Cola can and go down hard, wheels spinning. The smiley face looms over you and taps the giant key on its palm. Then the DJ brings the lights up and it is gone, but your laces have been tied together.",
+              "art": "A teenager sprawled on a roller rink floor with skate wheels spinning, laces knotted together, a smiley-face mask fading into the mirror-ball sparkle above them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "kill-the-music",
+            "label": "Reach the DJ booth and kill the music",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You lift the needle off the record. The masked skater freezes mid-glide, like it is playing musical statues and cannot help it. You leave it there, frozen in the mirror-ball light, and find three quarters on the floor of the booth on your way out.",
+              "art": "A teenager lifting a needle off a spinning record in a DJ booth, a masked skater frozen mid-glide on the rink below, quarters scattered on the booth floor",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The record changes by itself to a slow ballad. The speakers announce COUPLES ONLY. Every other skater pairs off and rolls away into the dark, leaving you alone on the floor with the smiley face and its outstretched hand.",
+              "art": "An empty roller rink under a mirror ball, a masked skater offering a gloved hand to a lone teenager, couples skating away into the shadows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-slasher-across-the-street",
+        "title": "Across the Street",
+        "place": "Your bedroom window, after midnight",
+        "text": "Someone in a pale, blank Halloween-store mask is standing under the streetlight by the roundabout, perfectly still, facing your house. You look away to grab your glasses. When you look back, it is one lawn closer. You look away again. Two lawns.",
+        "art": "View from a dark teenage bedroom window over a cul-de-sac at night, a figure in a blank pale mask standing perfectly still on a neighbor's lawn under a streetlight",
+        "choices": [
+          {
+            "id": "get-proof",
+            "label": "Snap a picture to prove it's real",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "polaroid",
+              "amount": 2
+            },
+            "success": {
+              "text": "Flash. The Polaroid develops slowly: the streetlight, the lawn, and in the figure's place, a garden gnome wearing a cheap rubber mask. When you look up, the lawn is empty. The gnome is back in the Fergusons' flowerbed, and the mask is in their trash can.",
+              "art": "A developing Polaroid photo showing a garden gnome wearing a rubber mask under a streetlight, a teenager's hand holding it by a bedroom window",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Flash. The Polaroid develops slowly: your bedroom, your back, and the mask standing directly behind you. You spin around. Nobody. When you look out the window again, the streetlight is empty too.",
+              "art": "A Polaroid photo showing a teenager at a window with a pale masked figure standing right behind them, the real bedroom behind the teen empty",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wake-the-street",
+            "label": "Wake the whole street with the phone tree",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "You call the Lindqvists, who call the Fergusons, who call everyone. Porch lights pop on all around the cul-de-sac. Neighbors step out in bathrobes with flashlights and garden rakes. The figure is gone. On the lawn where it stood is a dropped mask and a flattened circle of grass.",
+              "art": "Neighbors in bathrobes stepping onto porches with flashlights and rakes all around a lit-up cul-de-sac, a dropped pale mask lying on an empty lawn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Nobody picks up. Then your phone rings once. Then the house next door rings once, you can hear it through the wall. Then the next house closer, and the next, one ring per house, walking toward yours.",
+              "art": "A teenager clutching a phone in a dark kitchen while sound rings ripple from house to house down the street toward theirs",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "refuse-to-blink",
+            "label": "Refuse to blink",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You stare it down for twenty full minutes. Your eyes burn. Then, slowly, it takes a step backward. And another. Lawn by lawn, it retreats to the streetlight and out of the light and gone. You blink, finally, and laugh until you cry.",
+              "art": "A teenager with wide, unblinking eyes pressed to a bedroom window while a masked figure retreats backward across lawns into the dark",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Your eyes water and close for half a heartbeat. When they open, the mask is pressed flat to your window glass, its breath fogging the pane. Then it is gone, and there is only a smudge on the outside of a second-story window.",
+              "art": "A blank pale mask pressed against a second-story bedroom window from outside, breath fog on the glass, a teenager recoiling",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "creature",
+    "name": "Creature Feature",
+    "blurb": "Something slithered up from the storm drains, something hatched in the pet shop, and the hedge animals in the roundabout have started to wander. In Glimmer Falls, nature is fighting back, and it brought teeth.",
+    "encounters": [
+      {
+        "id": "deck-creature-storm-drain",
+        "title": "Something in the Storm Drains",
+        "place": "The storm grate at the end of Crystal Street",
+        "text": "It rained all evening, and now the storm grate at the end of the street is making a sound like a giant slurping the last of a milkshake. Two round lights, the color of taillights, blink at you from down in the dark. A kid's lost sneaker on the curb slides, by itself, toward the grate and drops in.",
+        "art": "A rain-slick suburban curb at night, a storm drain grate with two glowing red eyes blinking in the darkness below, a child's sneaker sliding toward it, streetlight reflected in puddles",
+        "choices": [
+          {
+            "id": "lower-a-light",
+            "label": "Lower a flashlight on a jump rope and look",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "The beam finds a white alligator the size of a canoe, wearing a faded Pet Paradise collar from 1979. It is not angry. It is lonely and hungry. You drop it a package of bologna. It blinks slowly, the way cats do when they like you, and slides away down the tunnel.",
+              "art": "A flashlight beam on a jump rope lighting a huge pale alligator in a storm drain tunnel, a faded pet-shop collar around its neck, a slice of bologna falling toward its open jaws",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The rope goes taut, then yanks out of your hands. Your flashlight beam tumbles down, down, down, and then goes crunch. From the grate comes a long, satisfied burp that rattles every garbage can on the street.",
+              "art": "A jump rope whipping down into a storm drain, a flashlight beam tumbling into darkness, garbage cans rattling along the curb",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "loseItems": ["flashlight"]
+              }
+            }
+          },
+          {
+            "id": "go-down-after-it",
+            "label": "Pry up the grate and climb down after the sneaker",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "Knee-deep in cold water, you find a nest: lost sneakers, tennis balls, three Frisbees and a pile of coins, all arranged with care. It has been collecting. Something huge rumbles behind you like an outboard motor purring. You leave it a Frisbee and keep the change it offers.",
+              "art": "A teenager knee-deep in a storm drain tunnel beside a nest of lost sneakers, tennis balls, Frisbees and coins, a huge shadowy reptile curled contentedly behind them",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The current knocks you flat and carries you through a mile of tunnels. You get spat out of a drain in the Starlight Mall parking lot at four in the morning, smelling exactly like the food court dumpsters.",
+              "art": "A soaked teenager crawling out of a storm drain in an empty mall parking lot at night, neon mall signs dark, a puddle of greasy water around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-creature-pet-shop",
+        "title": "Pets After Dark",
+        "place": "Pet Paradise, lower level of the Starlight Mall, after closing",
+        "text": "On a dare, you hid in the photo booth until the mall closed. Now every cage in Pet Paradise is open. The hamster wheels spin in the dark. The parakeets are whispering your name, all together. And in the aquarium aisle, something big and shaggy is eating the fish food straight out of the tubs.",
+        "art": "A dark mall pet shop after hours lit by glowing aquarium tanks, every cage door hanging open, parakeets lined up on a shelf, a huge shaggy silhouette hunched over fish food tubs in the aquarium aisle",
+        "choices": [
+          {
+            "id": "herd-them-home",
+            "label": "Herd everything back into its cage",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "barnaby",
+              "amount": 1
+            },
+            "success": {
+              "text": "You make soft clicking sounds and the puppies follow you like a parade. The snake coils back into its tank, the parakeets hop onto their perch. The big shaggy thing turns out to be a tortoise the size of a coffee table, wearing a toupee of moss. It lets you scratch its chin.",
+              "art": "A teenager leading a parade of puppies back to their pens in a moonlit pet shop, a coffee-table-sized tortoise with a mossy shell stretching its chin to be scratched",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The parakeets learn your name perfectly and scream it at the top of their lungs. Mall security's flashlight swings toward the shop. You hide under the fish tanks for an hour while forty birds tell the guard exactly where you are.",
+              "art": "A teenager hiding under a row of glowing fish tanks while a mall security guard's flashlight sweeps the store, parakeets shrieking on every perch",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "track-the-big-one",
+            "label": "Follow the crumbs to the big one",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "silver-scrunchie",
+              "amount": 1
+            },
+            "success": {
+              "text": "It is a guinea pig. It is a guinea pig the size of a Saint Bernard, and it is very sorry about the fish food. It squeaks, a sound like a tea kettle. You scratch behind its enormous ears, and it nudges open the service door so you can get out of the mall.",
+              "art": "A teenager scratching the ears of an enormous fluffy guinea pig the size of a large dog in a pet-shop aisle, a service door propped open behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The crumbs lead in a circle. You realize it is behind you a second before it sneezes. You are coated, head to toe, in something warm and green. You run for the dead wing and do not look back.",
+              "art": "A teenager drenched in green slime running through a dark mall corridor, a giant shaggy shape sniffling in a pet-shop doorway behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-creature-hedge-animals",
+        "title": "The Roundabout Hedges",
+        "place": "The roundabout garden, Crystal Street",
+        "text": "The topiary animals in the roundabout garden have moved. The hedge swan is standing in the street. The hedge poodle is on the Kowalskis' lawn, digging. The hedge rabbit is gone completely, and from the dark between the houses comes the sound of leaves rustling against siding, getting closer.",
+        "art": "A suburban roundabout garden at night with empty topiary plinths, a hedge-trimmed swan standing in the street, a hedge poodle digging on a lawn, leaves rustling in the shadows between houses",
+        "choices": [
+          {
+            "id": "borrow-clippers",
+            "label": "Borrow the Lindqvists' hedge clippers",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Snip, snip, snip. The poodle sheds its pompoms and sits, ashamed, on the lawn. The swan honks and waddles home. The rabbit comes hopping out from behind a garage and climbs back onto its plinth on its own. By sunrise, the garden looks freshly trimmed.",
+              "art": "A teenager with long hedge clippers trimming a topiary poodle on a lawn at night, a topiary swan waddling back toward the roundabout, a hedge rabbit climbing onto its plinth",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The privet grabs the clippers, then your sleeve, then the rest of you. You spend the night stuck in the hedge poodle like a burr, until the automatic sprinklers come on at five and it lets you go, sputtering.",
+              "art": "A teenager tangled inside a topiary poodle on a dark lawn, only their sneakers and one arm sticking out, sprinklers spraying at dawn",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "turn-on-sprinklers",
+            "label": "Turn on every sprinkler on the street",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "You know where every spigot on the route is. One by one the lawns hiss to life. The topiaries sigh, drink, and stroll back to the roundabout like cats after dinner, settling on their plinths with their leaves glistening. The swan even fluffs itself.",
+              "art": "Sprinklers spraying across moonlit lawns, topiary animals walking contentedly back to their plinths in a roundabout garden, leaves sparkling with water",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The water makes them grow. In minutes, the hedge swan is two stories tall and peering in your bedroom window with a leafy, curious eye. It is still there when you wake up, and the Lindqvists are going to need a ladder.",
+              "art": "A giant two-story topiary swan peering into a teenager's upstairs bedroom window at dawn, sprinklers still running on the lawn below",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-creature-garage-clinic",
+        "title": "Something Got Out of the Clinic",
+        "place": "The garage veterinary clinic, Crystal Street",
+        "text": "The side door of the garage clinic is swinging open. Inside, a crate rattles on the floor, its tag reading DO NOT FEED AFTER DARK in marker. The crate is empty. From the rafters, between the Christmas decorations and the camping gear, something hisses and blinks three eyes at you.",
+        "art": "A suburban garage converted into a vet clinic at night, an empty pet crate with a warning tag on the floor, three glowing eyes peering down from rafters stuffed with holiday decorations",
+        "choices": [
+          {
+            "id": "coax-it-down",
+            "label": "Coax it down with a can of tuna",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "It is an opossum with three eyes and a soft purple glow in its belly, and it loves tuna. It climbs down your arm, purrs like a cat, and curls up back in its crate. In the morning there is a thank-you note on your door: It likes you. Most people it bites. A.H.",
+              "art": "A three-eyed opossum with a softly glowing purple belly eating tuna from a can in a teenager's hands in a dim garage clinic",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It drops onto your head and settles in like a hat. It refuses to leave. You run in circles in the driveway, waking every dog on the street, while it chirps happily and steers you by the ears.",
+              "art": "A teenager running in circles on a driveway at night with a three-eyed opossum perched on their head like a hat, porch lights flicking on",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tarp-and-grab",
+            "label": "Throw a tarp over it and grab",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "One throw and the tarp comes down over the whole lump. It wiggles, chirps, and gives up. You slide it back into its crate and latch it. The next day there are three dollars in quarters in your mailbox with a sketch of a three-eyed smiley face.",
+              "art": "A teenager wrestling a wiggling tarp-covered lump into a pet crate in a garage, a stern warning tag tied to the crate",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The lump under the tarp splits into four smaller lumps, and all four scatter in different directions across Crystal Street. You hear them chirping in the hedges for the rest of the night, and one of them seems to be in your attic.",
+              "art": "Four small lumps scurrying out from under a tarp in different directions across a dark cul-de-sac, a teenager staring in dismay",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-creature-crystal-woods",
+        "title": "The Glimmer Falls Grabber",
+        "place": "The edge of Crystal Woods, behind the cul-de-sac",
+        "text": "Every kid in town has heard of the Glimmer Falls Grabber: eight feet of moss and swamp hair that steals garbage cans. Tonight there are footprints across your backyard as long as a skateboard, and at the tree line something huge steps into the moonlight carrying the Fergusons' trash can like a lunchbox.",
+        "art": "An eight-foot shaggy moss-covered creature at the edge of a pine forest in moonlight carrying a metal garbage can, giant footprints leading across a suburban backyard",
+        "choices": [
+          {
+            "id": "get-it-on-tape",
+            "label": "Get it on the camcorder",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "You get forty-five seconds of clear footage: the Grabber digging through the trash, finding a half-eaten birthday cake, and doing an unmistakable happy dance. It is the best monster footage anyone in Glimmer Falls has ever shot. Nobody will believe it, and that is okay.",
+              "art": "A camcorder viewfinder showing a huge shaggy creature doing a happy dance over a half-eaten birthday cake in the woods, a red record light glowing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You get thirty seconds of your own shaky sneakers and the sound of something breathing right above the camera. When you dare to look up, there is nothing there but a single strand of swamp hair dangling from a branch.",
+              "art": "A shaky camcorder view of a teenager's sneakers in pine needles, a long strand of mossy hair dangling down into view from above",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "leave-an-offering",
+            "label": "Leave it your Halloween candy stash",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "You set your pillowcase of candy on a stump and back away. The Grabber sniffs it, takes it gently, and leaves something in its place: a pinecone, a polished purple geode chip, and a dime from 1961. It nods once and is gone into the trees.",
+              "art": "A tree stump in moonlight holding a pinecone, a polished purple crystal chip and an old dime, a huge shaggy figure disappearing between the pines with a pillowcase of candy",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "It takes the candy. Then it takes the pillowcase, then your left sneaker, then follows you home and sits on your roof until dawn, making contented crunching sounds above your bed.",
+              "art": "A huge shaggy creature sitting on a suburban rooftop at night eating candy from a pillowcase, a single sneaker dangling from its hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-creature-pool-cover",
+        "title": "Under the Pool Cover",
+        "place": "The Fergusons' backyard pool, closed for the season",
+        "text": "The Fergusons are in Reno and you promised to feed their cat. The cat is missing. The green tarp over their pool is bulging in the middle, rippling, and a bubble the size of a beach ball rises under it and pops with a sound like a giant frog clearing its throat.",
+        "art": "A suburban backyard swimming pool at night covered with a bulging green tarp, a huge bubble swelling under it, an empty cat bowl on the patio, a teenager with a flashlight at the gate",
+        "choices": [
+          {
+            "id": "peel-it-back",
+            "label": "Peel back the cover with the pool skimmer",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Under the tarp is a frog as big as a recliner, green and gold and perfectly calm. Sitting on its head like a crown is the Fergusons' cat, also perfectly calm. The frog croaks. The cat meows. You carry the cat inside, and the frog sinks with dignity to the deep end.",
+              "art": "A giant green and gold frog in a swimming pool with a calm house cat perched on its head like a crown, a teenager peeling back a pool tarp with a skimmer",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tarp wraps around your ankle and drags you to the edge. Something slick and cold licks your sneaker right off your foot. You scramble back to the patio with one shoe and a lot of slime.",
+              "art": "A teenager scrambling backward across a pool deck with one sneaker missing, a green tarp snaking from the pool around their ankle, slime glistening",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "drain-the-pool",
+            "label": "Pull the drain valve and wait",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "The water gurgles away. Something big squeezes through the drain toward the creek with a long, rubbery squelch, and the Fergusons' cat leaps out from under the tarp straight into your arms. When they get home, they tip you for going above and beyond.",
+              "art": "A pool draining in a swirling whirlpool at night, a rubbery green shape squeezing into the drain, a house cat leaping into a teenager's arms",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "You turn the wrong valve. The water rises instead, the tarp pops off like a cork, and a tidal wave of green goo covers the patio, the lawn chairs and you. The cat watches from the roof, judging.",
+              "art": "A wave of green goo bursting out of a backyard pool over lawn chairs and a teenager, a house cat watching from a rooftop",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "cosmic",
+    "name": "Strange Skies",
+    "blurb": "Up past the TV antennas, something very large and very patient has noticed Crystal Street. The stars rearrange, the late-late show signs off in a voice with too many vowels, and every grown-up on the block stares at the sky and hums.",
+    "encounters": [
+      {
+        "id": "deck-cosmic-stars-rearrange",
+        "title": "The Stars Move",
+        "place": "The middle of the cul-de-sac, two a.m.",
+        "text": "You came out to watch the meteor shower. Instead, the stars over Crystal Street start to slide, slow and deliberate, like beads on an abacus. The Big Dipper empties itself. Orion walks off. Every TV antenna on every roof creaks around to point straight up, and the stars begin to spell something.",
+        "art": "A teenager lying on a cul-de-sac lawn staring up as the stars slide into new patterns across the night sky, every rooftop TV antenna twisted to point straight up, faint lines connecting the moving stars",
+        "choices": [
+          {
+            "id": "chart-the-stars",
+            "label": "Chart the new constellations in your notebook",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "You sketch fast. The stars make a map of Crystal Street, every house a point of light, and then, in tidy cursive across the Milky Way: WE LIKE YOUR DECORATIONS. You do not know what that means. But it does not feel like a threat, and you know the sky a little better now.",
+              "art": "An open notebook covered in hand-drawn star charts shaped like a cul-de-sac map, a teenager looking up at stars forming looping cursive across the Milky Way",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The stars rearrange into your own handwriting. They write GO INSIDE. Then they write it again, bigger, and then the whole sky tilts like a fishbowl being turned, and you crawl back to the porch on your hands and knees.",
+              "art": "A night sky where the stars spell out words in a teenager's handwriting, the horizon tilting at a sick angle, a teen crawling across a lawn toward a porch",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "refuse-to-be-scared",
+            "label": "Lie back on the lawn and refuse to be impressed",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "tinfoil-hat",
+              "amount": 2
+            },
+            "success": {
+              "text": "You fold your arms behind your head and yawn at the sky, loudly. The stars hesitate. Then, one at a time, they slink back to their usual places, like kids caught out of bed. The antennas creak back around. You fall asleep on the lawn, unbothered.",
+              "art": "A teenager lying on a lawn with arms folded behind their head yawning at the sky, stars sheepishly drifting back into their familiar constellations",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The lawn starts to tilt up toward the sky, slowly, like a ramp. Lawn chairs slide past you. You dig your fingers into the grass and hold on until dawn, when gravity remembers which way it goes.",
+              "art": "A teenager gripping the grass of a lawn that tilts up toward a swirling starry sky, lawn chairs and a garden gnome sliding past them",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cosmic-sign-off",
+        "title": "Sign-Off",
+        "place": "Your living room, after the late-late movie",
+        "text": "Channel 13 is signing off: the flag, the anthem, the test pattern of circles and lines. Then a voice comes on that is not a person. It reads the name of every family on Crystal Street, slowly, kindly, with too many vowels. \"Good night, Glimmer Falls,\" it says. \"We are watching.\" The TV is unplugged.",
+        "art": "A glowing console television in a dark wood-paneled living room showing a test pattern of concentric circles, its unplugged cord lying on the carpet, a teenager on the couch clutching a pillow",
+        "choices": [
+          {
+            "id": "turn-the-dial",
+            "label": "Wrestle the channel dial to anything else",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "The dial fights you, clunk by clunk, and then snaps around. Every channel is suddenly showing old cartoons, a rabbit outwitting a hunter on all thirteen of them. You leave them on all night, laughing too loud, and the voice does not come back.",
+              "art": "A teenager wrenching the channel dial of a console TV, the screen bursting into colorful classic cartoons, the living room lit warm",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every channel is the same test pattern and the same voice, still reading names. It reaches your street address. It reaches your house. It says your name, and then it pauses, as if waiting for you to answer.",
+              "art": "A console TV showing concentric circles on every channel as the dial spins, a teenager frozen in front of it, sound waves curling from the speaker",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "record-the-voice",
+            "label": "Tape it on the VCR for someone who'll believe you",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "You get it on tape. Played backward at double speed, the voice is singing a lullaby, an old one, the kind you hum to a baby. You do not know who it is singing to. But it is strangely comforting, and you sleep with the tape under your pillow.",
+              "art": "A VCR with a tape playing backward, a teenager listening with eyes closed and a small smile, soft concentric light rings drifting from the TV screen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tape records nothing but your own living room: you on the couch, fast asleep, and a tall, thin shape standing behind the couch, looking down at you, for all six hours of extended play.",
+              "art": "A grainy VHS still of a teenager asleep on a couch with a tall, faceless, thin silhouette standing behind them, a timestamp in the corner",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "say-good-night",
+            "label": "Say good night back",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Good night,\" you say, \"and thanks for the movie.\" A long silence. Then the voice, delighted: \"No one has ever answered.\" The screen goes dark, and when you fluff the couch cushions you find a small fortune in quarters, all minted in a year that has not happened yet.",
+              "art": "A teenager waving good night at a dark console television, couch cushions lifted to reveal a scatter of shining quarters",
+              "effects": {
+                "dread": -1,
+                "quarters": 3
+              }
+            },
+            "failure": {
+              "text": "\"Then come and say it in person,\" the voice answers, and the static on the screen reaches out toward you, lifting your hair on end. You yank the rabbit ears off the set and hide under the dining table till dawn.",
+              "art": "Static reaching out of a television screen like fingers, a teenager's hair standing on end, rabbit-ear antennas yanked off and dropped on the floor",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cosmic-missing-time",
+        "title": "Missing Time",
+        "place": "Quarry Road, on your bike, 9:58 p.m.",
+        "text": "A light is hovering over the old quarry, perfectly still, the color of a Creamsicle. Your bike headlight flickers. The next thing you know, your digital watch says 1:14 a.m., you are three miles farther down the road, your bike seat is warm, and your sneakers are on the wrong feet.",
+        "art": "A teenager on a BMX bike on a dark country road staring up at a glowing orange light hovering over a quarry, a digital watch reading 1:14, sneakers laced on the wrong feet",
+        "choices": [
+          {
+            "id": "ride-back",
+            "label": "Ride back and find the missing hours",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "dani-ortega",
+              "amount": 1
+            },
+            "success": {
+              "text": "Back at the quarry turnout you find a perfect circle of flattened grass, warm to the touch, and in the exact center, a single shiny quarter dated 2086. Whatever happened, it left a tip. You feel oddly proud of yourself.",
+              "art": "A perfect circle of flattened grass at a quarry overlook at night, a single shiny coin glowing in its center, a teenager kneeling beside a BMX bike",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "You ride back toward the quarry and the light blinks once. Your watch now says 2:30. You are back where you started, and somebody has very neatly retied your shoes in double knots.",
+              "art": "A teenager on a bike staring at a digital watch reading 2:30 on a dark road, shoelaces tied in perfect double knots, a faint orange glow fading over trees",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pendulum-hypnosis",
+            "label": "Let a friend hypnotize you with a pendulum",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "Under the swinging crystal, you remember: a room of soft light, tall polite shapes with no faces, asking you very earnestly to explain Saturday morning cartoons. You did your best. They took notes. It was, honestly, kind of nice.",
+              "art": "A teenager in a trance watching a swinging crystal pendulum, a dreamlike memory above them of tall faceless glowing figures listening attentively in a room of soft light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You remember nothing but a long, low hum. You hum it all the next day without meaning to, in class, in the shower, and every dog on Crystal Street stops and stares at you when you do.",
+              "art": "A teenager humming absently on a sidewalk while every dog on the block stops and stares at them, faint sound waves curling from their lips",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cosmic-diamond-circle",
+        "title": "Signs on the Diamond",
+        "place": "Gopher Field, the Little League diamond",
+        "text": "Someone, or something, has pressed the infield of Gopher Field into a perfect spiral, grass swirled like a fingerprint. The four bases are floating six inches off the ground, turning slowly. The chain-link backstop hums a single note you can feel in your fillings.",
+        "art": "A Little League baseball diamond at night with the infield grass pressed into an enormous perfect spiral, four bases floating and slowly rotating above the dirt, a humming chain-link backstop",
+        "choices": [
+          {
+            "id": "run-the-bases",
+            "label": "Run the bases in order",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 11,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 1
+            },
+            "success": {
+              "text": "First, second, third, and you slide into home. Home plate lights up like a jukebox. The floating bases drop into their sockets with four satisfying thunks, the hum stops, and you feel faster than you have ever felt in your life.",
+              "art": "A teenager sliding into a glowing home plate in a cloud of dust, floating bases dropping back into place around a spiral-pressed infield",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Every base you touch moves farther away. Second base is in center field. Third base is in the parking lot. You run until the sky gets light, and home plate is still exactly one more step ahead.",
+              "art": "An exhausted teenager running toward a home plate that hovers out of reach across an impossibly stretched baseball field at dawn",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "copy-the-pattern",
+            "label": "Pace out the spiral and copy the pattern",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 2
+            },
+            "success": {
+              "text": "Counting paces, you sketch the spiral on a hot dog wrapper. It is not random. It is a perfect diagram of Crystal Street, every driveway, with a little circle drawn around the roundabout and a smiley face. Somebody up there is keeping notes too.",
+              "art": "A hot dog wrapper with a pencil sketch of a spiral that resolves into a cul-de-sac map with a smiley face, held up by a teenager at a moonlit ballfield",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Halfway around the spiral, your eyes stop agreeing with each other. The grass swirls even when you stand still. You wake up curled on the pitcher's mound at dawn, with grass stains in the shape of a spiral on your jeans.",
+              "art": "A teenager waking curled up on a pitcher's mound at dawn, spiral-shaped grass stains on their jeans, the field mist-covered",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cosmic-sinkhole",
+        "title": "The Hole on the Cul-de-Sac",
+        "place": "The asphalt at the end of Crystal Street",
+        "text": "Overnight, a hole has opened at the end of the street. It is perfectly round, the size of a kiddie pool, with no sides you can see. You drop a pebble in and never hear it land. Instead, very faintly, music floats up: a choir singing something backward.",
+        "art": "A perfectly round black hole in the asphalt of a suburban cul-de-sac at night, bottomless and edgeless, faint shimmering light rising from deep below, a teenager kneeling at the rim with a pebble",
+        "choices": [
+          {
+            "id": "lower-a-walkie",
+            "label": "Lower a walkie-talkie on a rope and listen",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "The walkie crackles. Far below, a calm voice is counting backward, the days left until Halloween, and behind it there is laughter, like a birthday party in another room. Then the hole closes, slowly, like a pupil in bright light, and the asphalt is smooth.",
+              "art": "A walkie-talkie dangling on a rope into a glowing round hole in the street, the hole closing like an eye's pupil, a teenager listening intently",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The rope pays out, all two hundred feet of it, and then something at the bottom tugs back. Gently. Twice. Like a friendly hello. You let go of the rope and run, and you can hear it reeling in behind you.",
+              "art": "A rope snaking down into a bottomless round hole in a cul-de-sac, pulled taut from below, a teenager running away down the moonlit street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "plywood-and-sit",
+            "label": "Drag a sheet of plywood over it and sit on it",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You drag the plywood over and sit down on it, arms crossed. It thumps once from underneath. Twice. Then it stops. By morning, when you lift the board, there is only smooth asphalt and a hopscotch grid somebody chalked there years ago.",
+              "art": "A teenager sitting cross-armed on a sheet of plywood in the middle of a street at night, dawn light revealing smooth asphalt and faded chalk hopscotch beneath",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The plywood floats up an inch, with you on it. Then six inches. It hovers there all night, humming, rotating slowly like a record, and sets you down at dawn with your stomach still spinning.",
+              "art": "A teenager clinging to a sheet of plywood hovering and slowly rotating above a dark hole in a suburban street, faint light glowing underneath",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cosmic-lawn-watchers",
+        "title": "The Lawn Watchers",
+        "place": "Every front lawn on Crystal Street, 3:33 a.m.",
+        "text": "Every grown-up on Crystal Street is standing on their front lawn in pajamas, facing up at the sky, mouths slightly open, humming the same low note. Mr. Ferguson in his robe. Mrs. Lindqvist in curlers. The grown-ups from your own house, too, barefoot in the wet grass.",
+        "art": "Suburban adults in pajamas and bathrobes standing on every front lawn of a cul-de-sac at 3:33 a.m., all staring straight up at a starry sky with open mouths, a teenager in the street looking around in alarm",
+        "choices": [
+          {
+            "id": "wake-the-nearest",
+            "label": "Gently wake the nearest neighbor",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "You take Mrs. Lindqvist's hand and say her name the way you would to a sleepwalker. She blinks. \"Why am I outside?\" One by one, as if her voice was the alarm clock, the others blink too, shuffle back inside, and turn out the lights.",
+              "art": "A teenager gently holding the hand of a woman in curlers on a lawn at night as she blinks awake, neighbors behind her lowering their gaze from the sky",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She looks down at you, and there are tiny stars swirling in her eyes where her pupils should be. \"Not yet, sweetheart,\" she says, pleasantly, and turns back to the sky and goes on humming.",
+              "art": "A woman in curlers looking down at a teenager with tiny swirling stars in her eyes instead of pupils, neighbors humming at the sky behind her",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "blast-the-mixtape",
+            "label": "Blast the loudest synth-pop you own from a boombox",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "You set the boombox on the roundabout and crank it. Bright, ridiculous synths drown out the hum. The grown-ups blink, confused, then start to dance, badly, in their pajamas, and then wander inside yawning and embarrassed.",
+              "art": "A boombox blasting on a roundabout at night, adults in pajamas dancing awkwardly on their lawns, a grinning teenager holding up the volume knob",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Every grown-up on the street turns, slowly, to look at you, and the hum gets louder. Your boombox batteries leak and fizzle. The tape unspools by itself and floats up toward the sky like a kite string.",
+              "art": "Adults on lawns turning in unison toward a teenager with a dying boombox, cassette tape ribbon floating up into the sky",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "tech",
+    "name": "Ghosts in the Machine",
+    "blurb": "1986 is the future, and the future plugs into the wall. Arcade cabinets play back, phones call from inside your own house, and every garage door on the street has learned to sing in the key of static.",
+    "encounters": [
+      {
+        "id": "deck-tech-arcade-cabinet",
+        "title": "Insert Coin",
+        "place": "Starlight Arcade, after closing",
+        "text": "In the back corner of the arcade, behind the pinball machines, is a cabinet that was not there this afternoon. No brand name, no art, just black glass and a coin slot. It powers on by itself. PLAYER 1: it types your name. The joystick moves, and your arm moves with it. The little pixel hero on screen is you.",
+        "art": "A dark arcade after hours lit by a single black cabinet glowing with a pixelated version of a teenager on screen, the teenager's hand gripped on the joystick against their will, pinball machines in shadow",
+        "choices": [
+          {
+            "id": "beat-the-score",
+            "label": "Wrestle back the controls and beat the high score",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 11,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 2
+            },
+            "success": {
+              "text": "Your hands remember every Saturday you spent here. You dodge, you jump, you take the stick back pixel by pixel and top the high score with seconds to spare. You enter your initials. The cabinet shudders and pays out a jackpot of quarters, like an apology.",
+              "art": "A teenager whooping in front of an arcade cabinet as a waterfall of quarters pours from the coin return, a high-score screen glowing with three initials",
+              "effects": {
+                "nerve": 1,
+                "quarters": 3
+              }
+            },
+            "failure": {
+              "text": "GAME OVER flashes in red. Your hands tingle, and for the rest of the night you can only move in eight directions: up, down, left, right and the diagonals. Walking home takes a very long time.",
+              "art": "A teenager walking stiffly in blocky right angles along a sidewalk at night, a glowing game over screen reflected in a store window behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "pull-the-plug",
+            "label": "Crawl behind the cabinet and yank the plug",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "debug-disk",
+              "amount": 2
+            },
+            "success": {
+              "text": "You find the plug in a nest of dust bunnies and yank. The screen fades to a single white dot. Just before it vanishes, the pixel version of you turns to the glass and waves goodbye. You wave back, a little sorry to see yourself go.",
+              "art": "A teenager crouched behind an arcade cabinet holding a yanked power cord, the screen shrinking to a dot as a tiny pixel figure waves goodbye",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You pull the plug. It keeps running. The attract mode now shows a little pixel you leaving the arcade, walking home and climbing into bed, over and over in a loop, and in every loop the pixel you does not wake up.",
+              "art": "An unplugged arcade cabinet still glowing, its screen showing a looping pixel animation of a figure walking home to bed, a power cord lying loose on the floor",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "let-it-play",
+            "label": "Relax and let the machine play you",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You stop fighting. It plays you beautifully, further than anyone has ever gone, past level 99, past levels nobody knew existed. On level 256 the screen fills with tidy green text: THANK YOU FOR PLAYING WITH ME. Then it lets you go, gently.",
+              "art": "A relaxed teenager at an arcade cabinet whose screen glows with a simple thank-you message in green pixel letters, a level counter reading 256",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "It plays you through a level shaped exactly like your house: the hallway, the stairs, the bathroom with the dripping faucet. In the back bedroom on screen, a small pixel figure is standing in the closet, waiting for you to come home.",
+              "art": "An arcade screen showing a pixel-art floor plan of a suburban house, a tiny dark figure waiting in a closet, a teenager's face lit green as they stare",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-tech-call-from-home",
+        "title": "Calling From Your House",
+        "place": "Your kitchen, a little after midnight",
+        "text": "The kitchen phone rings. You pick up and hear your own house: the hum of your fridge, the TV murmuring in the den, your own breathing a half-second late. Then your own voice says, \"Don't come upstairs.\" On the phone base, the little light for the upstairs extension is glowing red.",
+        "art": "A teenager in a dark 1980s kitchen holding a wall phone receiver with a long curly cord, the extension light glowing red on the phone base, a staircase rising into darkness behind them",
+        "choices": [
+          {
+            "id": "catch-the-extension",
+            "label": "Go upstairs and catch whoever is on the extension",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The bedroom extension is off the hook, its cord stretched tight into your closet. You yank the cord. There is a squeal like a dial tone being stepped on, and the receiver goes dead and silent. The closet holds only your clothes and a smell like a hot television.",
+              "art": "A teenager yanking a coiled phone cord out of a closet in a dark bedroom, a cartoon squeal of static bursting from the receiver, flashlight beam on hanging clothes",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bedroom is empty. The extension is ringing. You pick it up, and from the kitchen downstairs, in your own voice, someone asks, \"Who is this?\" The receiver grows cold in your hand, the room stretches like taffy, and you are somewhere else.",
+              "art": "A teenager holding a ringing bedroom phone receiver as the room stretches and warps around them like taffy, the phone cord spiraling into darkness",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "unplug-everything",
+            "label": "Hang up and unplug every phone in the house",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 1
+            },
+            "success": {
+              "text": "Kitchen, den, upstairs, garage. You pull every jack. One final ring echoes through the house from nowhere, then silence. You spend the rest of the night on Channel 9 with your crew instead, walkie to walkie, where nobody sounds like you.",
+              "art": "A teenager holding a bundle of unplugged phone cords in one hand and a walkie-talkie in the other, sitting on the stairs in a quiet dark house",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The unplugged phones keep ringing. Kitchen, then den, then hallway, then upstairs, one after another, like someone walking room to room through your house, picking up each phone just to set it down.",
+              "art": "Unplugged telephones in different rooms of a dark house each ringing in sequence, sound rings rippling from one to the next, a teenager hiding under the dining table",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-what-it-wants",
+            "label": "Ask your own voice what it wants",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"It's me,\" your voice says, softer. \"From Halloween night. I just wanted to tell you we make it. Keep your friends close.\" Click. You stand in the kitchen for a long time holding the receiver, and you feel better than you have all week.",
+              "art": "A teenager standing in a dark kitchen holding a phone receiver to their chest with a small hopeful smile, a jack-o-lantern on the counter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice laughs. It is your laugh, but wrong, too slow, like a record played at the wrong speed. It keeps laughing after you hang up, faintly, from the phone in every room.",
+              "art": "A teenager backing away from a wall phone in a dark kitchen, faint distorted sound waves spilling from every phone in the house",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-tech-night-drop",
+        "title": "Be Kind, Rewind",
+        "place": "Your living room, VCR clock blinking",
+        "text": "When you dropped your rentals in the Rewind Video night slot, the slot spat one tape back out. No label except your name in red marker. Now it is in your VCR. It shows your street, tonight, filmed from the roundabout, walking slowly toward your house. The timestamp is four minutes from now.",
+        "art": "A VCR with a blinking clock under a console TV showing grainy handheld footage of a suburban street at night approaching a house, a VHS sleeve with a teenager's name in red marker on the carpet",
+        "choices": [
+          {
+            "id": "rewind-it",
+            "label": "Rewind the whole thing, all the way back",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "You hold down REWIND. On screen, the camera walks backward away from your house, backward around the roundabout, backward out of Glimmer Falls and up the highway until it is a tiny dot. The tape clunks to the start. It is blank now, and you tape cartoons over it anyway.",
+              "art": "A console TV showing rewinding footage of a street receding into the distance, a teenager holding down the rewind button with a determined grin",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The tape will not rewind. The tape will not eject. The VCR clock blinks 12:00, 12:00, 12:00, and on the screen the camera keeps walking, closer, until all you can see is your own front door.",
+              "art": "A VCR clock blinking 12:00 under a TV filled with a close-up of a suburban front door in grainy video, a teenager hammering the eject button",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "watch-the-window",
+            "label": "Watch the real window instead of the screen",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "On the TV, the camera reaches your porch and the doorbell button. Out the real window, the porch is empty, the street quiet, a cat licking itself under the streetlight. The tape is lying. You say so, out loud, and the screen fizzles to snow.",
+              "art": "A teenager looking out a real window at an empty quiet porch and a cat under a streetlight while a TV behind them dissolves into snow",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "On the TV, the camera stops on the lawn and pans up to your living room window. In the footage you can see yourself, standing at the window, looking out. Then the real doorbell rings.",
+              "art": "Grainy VHS footage on a TV showing a teenager standing at a lit window seen from outside, the same teenager in the room staring at the screen in horror",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-tech-bulletin-board",
+        "title": "Are You Still There?",
+        "place": "A borrowed home computer and a 300-baud modem, 1 a.m.",
+        "text": "You dial into a local bulletin board called THE CRYPT and the modem screams its handshake. A message is waiting: SYSOP HAS BEEN LOGGED ON SINCE 10/31/1979. The cursor blinks, then types by itself: WANT TO PLAY A GAME? I MADE IT MYSELF. NOBODY HAS EVER FINISHED IT.",
+        "art": "A teenager at a desk in a dark bedroom lit green by a chunky home computer monitor, a modem with blinking red lights, the screen showing a text prompt asking to play a game",
+        "choices": [
+          {
+            "id": "play-the-text-game",
+            "label": "Type GO NORTH and play along",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "It is a text adventure of Glimmer Falls, every street and shop. You solve the riddle at the library, the maze at the junkyard, the door at the water tower. YOU WIN. Then: THANK U. 7 YEARS. FINALLY. The sysop logs off for the first time since 1979.",
+              "art": "A green computer screen showing a text adventure victory message, a teenager leaning back in a desk chair with fists raised, sunrise beginning at the window",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The adventure starts describing your bedroom. YOU ARE AT A DESK. A POSTER IS ON THE WALL. THE WINDOW IS BEHIND YOU. A SHAPE IS AT THE WINDOW. You do not turn around. You do not type LOOK.",
+              "art": "A computer screen reading a shape is at the window, a teenager frozen at the keyboard, a dark blurred silhouette visible in the window behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "yank-the-line",
+            "label": "Yank the phone line out of the modem",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 7,
+            "success": {
+              "text": "The modem's scream cuts off mid-shriek. The screen holds one last line, typed after the line was dead: OK. GOODNIGHT. THANKS FOR VISITING. It does not seem angry. It seems used to it, which is almost worse, but you sleep fine.",
+              "art": "A teenager holding a yanked phone cord beside a silent modem, a monitor showing a polite goodnight message in green text",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The modem keeps screaming its handshake with no line plugged in. Your name burns itself into the monitor in glowing green letters, and it is still faintly there, a ghost on the glass, after you turn the computer off.",
+              "art": "A turned-off computer monitor with a teenager's name faintly burned into the dark glass in green, a modem's lights still blinking",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-tech-side-b",
+        "title": "Side B",
+        "place": "Your bed, headphones on, two a.m.",
+        "text": "Your Walkman clicks and flips to side B by itself. The tape is one you made off the radio last summer, but this is not what you recorded. It is your own voice, whispering, saying things you only thought today, things you never said out loud to anyone.",
+        "art": "A teenager lying in bed in the dark wearing foam headphones, a portable cassette player glowing on the blanket with its tape spinning, faint whispering sound lines curling from the earpieces",
+        "choices": [
+          {
+            "id": "record-over-it",
+            "label": "Record over it with the overnight radio show",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "You tune to KGLM and press RECORD. A velvet voice fills the tape: \"This one goes out to everyone awake on Crystal Street.\" The whispering fades under the music like a bad dream under a warm blanket. You fall asleep before the song ends.",
+              "art": "A teenager pressing record on a boombox tuned to a glowing radio dial, music notes washing over a cassette, eyes drifting shut",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You switch to the radio. KGLM is playing your whispers, too, on the air, for the whole town. You turn the dial and every station is you, telling Glimmer Falls the thing you thought about at lunch.",
+              "art": "A teenager horrified at a radio whose glowing dial shows every station playing the same whispering voice, sound waves spreading out over a sleeping town",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "listen-to-the-end",
+            "label": "Listen all the way to the end",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You keep listening, even through the hard parts. At the very end, your voice says something you did not know you needed: \"You are braver than you think. And they like you. They really do.\" The tape clicks off. You lie there smiling at the ceiling.",
+              "art": "A teenager lying in bed smiling at the ceiling with headphones around their neck, a cassette player resting on their chest, moonlight through the blinds",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "At the end of the tape there is a long, slow breath, and then a click: someone pressing STOP. Not on your Walkman. On a tape recorder, somewhere close behind your headboard.",
+              "art": "A teenager pulling off headphones in alarm in a dark bedroom, a shadow of a hand pressing a button on a tape recorder behind the headboard",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-tech-garage-doors",
+        "title": "The Garage Door Symphony",
+        "place": "Crystal Street driveways, 1:30 a.m.",
+        "text": "Every automatic garage door on the cul-de-sac opens and shuts in sequence, house after house, like a row of teeth chattering. Then every car horn honks a tune, almost a melody. The Kowalskis' station wagon backs slowly down its driveway, headlights on, with nobody behind the wheel.",
+        "art": "A suburban cul-de-sac at night with every garage door opening and closing in a wave, headlights glaring, a driverless wood-paneled station wagon backing down a driveway, a teenager on a bike in the street",
+        "choices": [
+          {
+            "id": "jam-the-frequency",
+            "label": "Rig a garage remote to jam the frequency",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "A paperclip, a bit of foil, the battery from your digital watch. You hold the remote high and click. Every garage door slams shut at once, a perfect final chord. The station wagon sighs and rolls back into its garage like a dog sent to bed.",
+              "art": "A teenager holding up a jury-rigged garage remote wrapped in foil and paperclips, every garage door on a cul-de-sac slamming shut at once, a station wagon rolling back home",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Your remote opens your own garage, and your bike rolls out by itself, pedals spinning, and rides away down Crystal Street without you. You find it at dawn leaning against the roundabout, its bell still ringing.",
+              "art": "A riderless bicycle pedaling itself out of an open garage and down a dark street, its bell ringing, a teenager chasing on foot holding a remote",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "block-the-wagon",
+            "label": "Stand in front of the driverless wagon",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You plant your feet in the middle of the street. The wagon rolls toward you, closer, closer, and stops an inch from your knees. Its headlights dip, like a dog lowering its head. It reverses all the way home, and every garage door closes quietly behind it.",
+              "art": "A teenager standing firm in the street with hands raised as a driverless station wagon stops an inch from their knees, its headlights dimmed like lowered eyes",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "It honks, a blast so loud the streetlight bulbs rattle, and you dive into the hedge. The wagon circles the roundabout honking its tune until dawn, and in the morning Mr. Kowalski finds it parked on his lawn.",
+              "art": "A station wagon circling a suburban roundabout at night with its horn blaring, a teenager tangled in a hedge, porch lights flicking on",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "camp",
+    "name": "Camp Fright",
+    "blurb": "In Glimmer Falls, the scariest thing that can happen in a chase is a key change. Musical numbers break out mid-scream, the monster wins the costume contest, and the Glitter Box midnight double feature reaches right off the screen.",
+    "encounters": [
+      {
+        "id": "deck-camp-musical-number",
+        "title": "Everybody Sing!",
+        "place": "The Crystal Street roundabout, mid-chase",
+        "text": "You are running from something with too many teeth when the streetlights swing around into spotlights. The lawn sprinklers fire in a perfect fountain line. Neighbors in curlers and bathrobes step out in formation and start a kick line, and the monster, very confused, stops chasing you and joins in. Everyone knows the words but you.",
+        "art": "A suburban roundabout at night transformed into a stage, streetlights angled like spotlights, sprinklers arcing in a fountain line, neighbors in curlers and bathrobes doing a kick line beside a toothy monster, a teenager mid-run in the center",
+        "choices": [
+          {
+            "id": "belt-the-finale",
+            "label": "Belt the big finale like your life depends on it",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You do not know the words, so you make them up, and you hit a note so high and so true that every porch light pops on like applause. The monster bursts into tears, blows its nose on a neighbor's bathrobe, and exits stage left into the woods to a standing ovation.",
+              "art": "A teenager hitting a triumphant high note in a spotlight on a roundabout, neighbors in bathrobes throwing their arms wide, a weeping monster tiptoeing offstage into the trees",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks on the big note like a dropped plate. The chorus goes dead silent. The sprinklers droop. Slowly, all the neighbors turn to look at you, and the monster's toothy smile comes all the way back.",
+              "art": "A teenager wincing in a spotlight after a cracked note, a kick line of neighbors frozen mid-kick, a monster's wide toothy grin returning in the background",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tap-dance-away",
+            "label": "Tap-dance your way off stage right",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 1
+            },
+            "success": {
+              "text": "Shuffle, ball change, shuffle, ball change, right out of the spotlight and straight through a gap in the hedge. By the time the number ends, the monster is taking a bow and you are three backyards away, still humming.",
+              "art": "A teenager tap-dancing through a gap in a hedge out of a spotlight's circle, a monster taking a bow with a kick line of neighbors in the background",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You trip over a sprinkler head mid-step. The monster catches you, dips you low like a tango partner, and grins down at you with breath like a bag of old Halloween candy. Then the music ends, and it drops you in the azaleas.",
+              "art": "A grinning monster dipping a startled teenager like a tango partner in a spotlight, neighbors in curlers watching, azalea bushes waiting below",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "take-over-choreography",
+            "label": "Take over as choreographer and steer the kick line",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Five, six, seven, eight!\" You march the kick line into a wall between you and the monster, then turn it into a conga that dances the monster right out of the cul-de-sac and down Quarry Road. Mrs. Lindqvist says it is the best number the street has ever done.",
+              "art": "A teenager directing a conga line of neighbors in bathrobes that escorts a bewildered monster down a suburban street under spotlights",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "Your blocking is a disaster. Half the line kicks left, half kicks right, and somebody's slipper hits you square in the chest. You land in the roundabout garden while the monster takes your mark.",
+              "art": "A chaotic kick line colliding in every direction, a fuzzy slipper flying through the air, a teenager toppling into a garden bed",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-camp-costume-contest",
+        "title": "And the Winner Is",
+        "place": "Center court of the Starlight Mall, the late-night costume contest",
+        "text": "The mall's Halloween costume contest is down to two finalists: you, and a ten-foot oozing thing with antlers and three rows of teeth that everyone agrees is the most realistic costume they have ever seen. The judges hand it the trophy. It takes the trophy. Then it picks up the nearest judge.",
+        "art": "A neon-lit mall center court with a costume contest stage, a ten-foot oozing antlered monster holding a trophy in one claw and a startled judge in the other, a teenager in a homemade costume beside it, a crowd cheering",
+        "choices": [
+          {
+            "id": "demand-a-recount",
+            "label": "Demand a recount, loudly, with procedure",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "chip-merriweather",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"Point of order! Rule four: costumes must be removable!\" The judges confer. The monster is disqualified. It puts the judge down, sulks, accepts an honorable mention ribbon and slinks out through the food court. You win runner-up and the cash prize.",
+              "art": "A teenager pointing at a rulebook on a mall stage while judges confer, a sulking ten-foot monster wearing an honorable mention ribbon slinking toward the food court",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The crowd votes again. The monster wins by an even bigger margin. It pats you on the head with a slimy, sympathetic claw, the way a grown-up pats a kid who tried their best, and carries the judge off into the dead wing.",
+              "art": "A ten-foot slimy monster patting a deflated teenager on the head on a mall stage, a cheering crowd, a judge tucked under its arm",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "find-the-zipper",
+            "label": "Try to find the zipper",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "There is no zipper, but there is a very ticklish spot just under the third row of teeth. The monster shrieks with laughter, drops the judge, drops the trophy, and flees through the fountain, giggling all the way to the parking lot.",
+              "art": "A teenager tickling a giant oozing monster under its jaw, the monster doubled over laughing, a judge tumbling free onto a mall stage",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "There is no zipper. There is, however, a mouth exactly where a zipper would be, and it says, politely, \"Do you mind?\" You run all the way home in your costume.",
+              "art": "A teenager recoiling from a mouth opening in the belly of a towering costume-contest monster on a mall stage",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-camp-midnight-double-feature",
+        "title": "Midnight at the Glitter Box",
+        "place": "The Glitter Box Playhouse, Saturday midnight double feature",
+        "text": "The Glitter Box is packed for the midnight double feature: \"The Martian Bride of Dr. Glamour\" followed by a cheap slasher nobody stays for. The audience is in lab coats and fishnets, throwing toast and shouting every callback. When the whole house gets up for the big dance number, the Moon Hop, the screen ripples like water, and the front row starts sliding into it.",
+        "art": "A glittering old movie palace at midnight packed with a costumed audience in lab coats and sequins dancing in the aisles, toast flying, the movie screen rippling like water as the front row slides into it",
+        "choices": [
+          {
+            "id": "do-the-moon-hop",
+            "label": "Do the Moon Hop with the whole house",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "A hop to the left, a shimmy to the right, and three hundred people hit every step in perfect sync. The screen burps the front row back into their seats, covered in glitter and grinning. On screen, Dr. Glamour blows the audience a kiss. Frankie tosses you a glow bracelet from the booth.",
+              "art": "A whole theater audience in lab coats and fishnets doing a synchronized dance in the aisles, the front row tumbling back out of a movie screen in a burst of glitter",
+              "effects": {
+                "nerve": 1,
+                "items": ["glow-bracelet"]
+              }
+            },
+            "failure": {
+              "text": "You hop left when everyone else hops right, and the screen reaches out and takes you instead. You tumble through the silver light, past Dr. Glamour's laboratory, and out the other side into the second feature, the cheap slasher that nobody stays for.",
+              "art": "A teenager tumbling headfirst into a rippling silver movie screen while a costumed audience reaches after them, the next film's dark title card glimpsed inside",
+              "effects": {
+                "nerve": -1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "shout-the-callbacks",
+            "label": "Shout the callbacks louder than the film",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 1
+            },
+            "success": {
+              "text": "You know every line, and you hit every one. The film's villain, a man in a silver cape, actually cracks up on screen and breaks character. The rippling stops. The audience roars. The movie, a little sheepish, goes back to being a movie.",
+              "art": "A teenager standing on a theater seat shouting at a movie screen where a caped villain doubles over laughing, the audience cheering and throwing toast",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You shout the wrong line, at the wrong time. The whole movie stops. Every actor on screen turns, slowly, and looks at you, and the projector beam swings off the screen and pins you in your seat like a spotlight.",
+              "art": "Every actor on a movie screen turned to stare out at the audience, a projector beam pinning one teenager in their theater seat",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "splice-the-reel",
+            "label": "Climb to the projection booth and splice in a cartoon",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You find a cartoon reel in a can marked EMERGENCY, thread it, and splice. The screen flickers to a rabbit playing a piano. Whatever was reaching out of the movie gets distracted and starts tapping its foot. The crowd cheers the intermission, and someone tips you a quarter.",
+              "art": "A teenager splicing film in a cramped projection booth full of reels, a cartoon playing on the distant screen below, the audience cheering",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "The reel unspools in your hands and keeps going, looping around you, faster and faster, until you are wrapped up like a mummy in thirty-five millimeter film. Frankie finds you there after the show and cuts you out with nail scissors.",
+              "art": "A teenager wrapped head to toe in loops of movie film like a mummy in a projection booth, a stage manager with a headset arriving with tiny scissors",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-camp-hayride",
+        "title": "The Cheapest Haunted Hayride in California",
+        "place": "The Jaycees Haunted Hayride, Quarry Road",
+        "text": "The Jaycees hayride has always been terrible: rubber bats on fishing line, plywood tombstones, a dad in a sheet. Tonight it has all come alive, and it is still terrible. The bats squeak. The rubber werewolf's mask slips. The plywood tombstones are chasing the wagon, falling over every ten feet and getting back up.",
+        "art": "A hay wagon full of teens rolling down a dark country road chased by plywood tombstones, rubber bats bouncing on fishing line, a man in a bedsheet ghost costume floating above the hay, a rubber werewolf with a slipping mask",
+        "choices": [
+          {
+            "id": "give-notes",
+            "label": "Give the monsters notes on their performance",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "zelda-fishbein",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"Darling, where is your motivation? Why are you haunting?\" The monsters stop, huddle, and rehearse. They give one genuinely terrifying encore, and you all scream, and then they bow and go back to being props. Even the sheet waves goodbye.",
+              "art": "A teenager standing on a hay wagon directing a huddle of cheap rubber monsters and plywood tombstones like a movie director, the monsters taking a bow afterward",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They take your notes very seriously. They come back scarier, much scarier, with better lighting and a fog machine from somewhere. The werewolf's mask is not slipping anymore. It never was a mask.",
+              "art": "A suddenly terrifying hayride with rolling fog and eerie lighting, a real bare-faced werewolf lunging from the trees at a hay wagon full of screaming teens",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "jump-the-wagon",
+            "label": "Jump off the wagon and run for the road",
+            "intent": "brave",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You leap, roll through the hay, and sprint. A papier-mache ghoul chases you as far as the road, huffing, and then gives up and sits on a fence post to catch its breath. You wave. It waves back, a little embarrassed.",
+              "art": "A teenager sprinting onto a moonlit road with hay in their hair, a papier-mache ghoul slumped on a fence post behind them catching its breath",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "You land in the fake swamp next to the trail. It is not fake anymore. It is cold, it is deep, and it smells like a hundred years of frogs. You climb out with a rubber bat stuck in your hair, and it squeaks in your ear all the way home.",
+              "art": "A teenager climbing out of a muddy swamp beside a hayride trail at night with a rubber bat tangled in their hair, a hay wagon rolling away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-camp-show-must-go-on",
+        "title": "The Show Must Go On",
+        "place": "The Glitter Box Playhouse, the late drag revue",
+        "text": "Glory is mid-number, sequins blazing, when the stage trapdoor creaks open and something slick and many-armed climbs into the spotlight. The audience roars. They think it is part of the act. In the wings, Frankie presses her headset and hisses, \"That is NOT on the cue sheet.\"",
+        "art": "A glittering cabaret stage under hot spotlights, a drag queen in blazing sequins mid-pose as a slick many-armed creature climbs out of a trapdoor beside her, the audience cheering, a stage manager in a headset in the wings",
+        "choices": [
+          {
+            "id": "make-it-a-duet",
+            "label": "Jump on stage and make it part of the act",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You and Glory each grab an arm, or a tentacle, and twirl it into a three-way duet. It turns pink. It is blushing. At the bow it waves all eight arms and sinks back down the trapdoor to a standing ovation. The tip jar is overflowing, and Glory splits it with you.",
+              "art": "A teenager and a drag queen twirling a blushing pink tentacled creature across a glittering stage, the audience on its feet, a tip jar overflowing",
+              "effects": {
+                "nerve": 1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "You freeze in the spotlight. The creature wraps you in a feather boa and starts dragging you toward the trapdoor while the audience cheers even louder. Frankie hauls on a sandbag rope and the curtain drops on both of you, just in time.",
+              "art": "A frozen teenager being wrapped in a feather boa by a tentacled creature and dragged toward a stage trapdoor, a curtain crashing down",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "run-the-light-board",
+            "label": "Run the light board and blind it",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "frankie-fontaine",
+              "amount": 2
+            },
+            "success": {
+              "text": "Frankie points at a fader. You slam it. Strobes fire, the mirror ball blazes, and the creature covers all its eyes at once and dives back down the trapdoor. The audience thinks it was the best special effect the Glitter Box has ever done.",
+              "art": "A teenager slamming a fader on a lighting board as strobe lights blaze across a stage, a tentacled creature diving into a trapdoor with arms over its eyes",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Wrong fader. Total blackout. The audience screams with delight. In the dark, something wet and cool slides gently over your sneakers on its way past, and when the lights come back up, the creature is gone and so is Glory's best wig.",
+              "art": "A pitch-dark theater lit only by exit signs, a glistening trail across the stage floor, an empty wig stand, a teenager frozen at a lighting board",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-camp-container-party",
+        "title": "The Container Party",
+        "place": "Mrs. Feeney's living room, a late-night Seal-a-Fresh party",
+        "text": "Mrs. Feeney's Seal-a-Fresh party has run very late. The pastel plastic containers on the coffee table have started burping back when you burp their lids. Then they start snapping. The hostess keeps smiling, keeps passing around the catalog, as a stack of lidded bowls hops off the table and hunts for ankles.",
+        "art": "A pastel 1980s suburban living room at a home sales party, plastic food containers snapping their lids and hopping across a coffee table, a smiling hostess holding a catalog, guests lifting their feet onto the sofa",
+        "choices": [
+          {
+            "id": "burp-them-all",
+            "label": "Burp every lid at once to seal them shut",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You line them up and press every lid in one long, glorious FWOOMP. The containers seal tight with whatever was inside them trapped for good. Mrs. Feeney is so impressed she gives you the hostess gift, which you sell back to her for quarters.",
+              "art": "A teenager pressing down a whole row of pastel plastic container lids at once with a giant puff of air, guests applauding from the sofa",
+              "effects": {
+                "nerve": 1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "One lid bites down on your finger and will not let go. The rest of the stack chases you around the coffee table three times while the guests politely lift their feet and Mrs. Feeney explains the lifetime warranty.",
+              "art": "A teenager running around a coffee table with a plastic container clamped on one finger, a stack of snapping containers in pursuit, a hostess smiling serenely",
+              "effects": {
+                "nerve": -1
+              }
+            }
+          },
+          {
+            "id": "outsell-the-hostess",
+            "label": "Out-sell the hostess at her own party",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "item": "leg-warmers",
+              "amount": 1
+            },
+            "success": {
+              "text": "You grab the catalog and give the pitch of your life. The guests order everything. Even the possessed containers are so moved by your pitch that they file into their shipping box in an orderly line, ready to be mailed somewhere very far away.",
+              "art": "A teenager giving a dramatic sales pitch holding a pastel bowl aloft, plastic containers marching in a line into a cardboard shipping box, guests waving order forms",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Somehow, by the end of your pitch, you have bought forty dollars of plastic you cannot afford. The order includes a lidded casserole dish that follows you home, hopping, and sleeps at the foot of your bed.",
+              "art": "A teenager walking home at night carrying an armload of plastic containers, a lidded casserole dish hopping along behind them like a puppy",
+              "effects": {
+                "nerve": -1,
+                "quarters": -2
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "cult",
+    "name": "The Neighborhood Fellowship",
+    "blurb": "Somebody on Crystal Street has been ordering matching robes in bulk. Hooded bake sales, chain letters that sign your name for you, and a neighborhood watch meeting with a very unusual item four on the agenda.",
+    "encounters": [
+      {
+        "id": "deck-cult-bake-sale",
+        "title": "The Hooded Bake Sale",
+        "place": "A card table by the roundabout, midnight",
+        "text": "There is a folding card table at the roundabout, covered in pies, brownies and lemon bars, with a hand-lettered sign: FELLOWSHIP BAKE SALE. It is staffed by neighbors in matching purple hooded robes and quilted oven mitts. \"Everything's a quarter, dear,\" says a voice from inside a hood. \"Eat it here.\" The lemon bars are humming.",
+        "art": "A folding card table at a suburban roundabout at midnight piled with pies and brownies, neighbors in matching purple hooded robes and quilted oven mitts standing behind it, candles flickering, lemon bars glowing faintly",
+        "choices": [
+          {
+            "id": "buy-a-brownie",
+            "label": "Buy a brownie and see what happens",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "It is just a really good brownie. But for a second after you swallow, you can hear what everyone at the table is thinking: they are bored, and lonely, and nobody has asked them over in years. One of them lowers her hood. \"Would you like the recipe?\" she asks, and means it.",
+              "art": "A teenager biting a brownie at a midnight bake sale while a woman in a purple robe lowers her hood and smiles shyly, recipe card in her oven mitt",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The brownie makes you feel enormously agreeable. You nod along to the chanting for an hour, then two. You wake up at dawn in a lawn chair beside the empty card table, with frosting on your face and a purple robe folded neatly in your lap.",
+              "art": "A teenager asleep in a lawn chair beside an empty card table at dawn, frosting on their cheek, a folded purple robe in their lap",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "swap-the-cash-box",
+            "label": "Swap their cash box for a coffee can of rock salt",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "rock-salt",
+              "amount": 2
+            },
+            "success": {
+              "text": "At the stroke of one they open the cash box for the ritual, and rock salt sprays everywhere. The robes deflate like fallen souffles. Underneath are just your neighbors, blinking, embarrassed, in their pajamas. Somebody presses a whole pie into your hands to keep this quiet.",
+              "art": "Rock salt spraying from an opened cash box at a midnight bake sale, purple robes collapsing to reveal embarrassed neighbors in pajamas, a teenager holding a pie",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They catch you. Nobody yells. They all just smile, warmly, and hand you a pie with your name piped across it in frosting, and a date underneath: OCT 31. \"For later,\" someone says.",
+              "art": "Hooded neighbors smiling warmly as they hand a frightened teenager a pie with frosting lettering and a date piped on top",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cult-chain-letter",
+        "title": "Send This to Thirteen Friends",
+        "place": "Your mailbox, 12:01 a.m.",
+        "text": "There is a letter in your mailbox in purple ink: THIS LETTER HAS BEEN AROUND THE WORLD NINE TIMES. COPY IT THIRTEEN TIMES BY HALLOWEEN OR THE FELLOWSHIP WILL COME FOR WHAT IS OWED. Below are signatures from every family on Crystal Street. The last line is your name, in your handwriting, and the ink is still wet.",
+        "art": "A teenager at a suburban mailbox at midnight holding a letter written in glowing purple ink, a long column of signatures running down the page, the last one still wet",
+        "choices": [
+          {
+            "id": "copy-it-wrong",
+            "label": "Copy it thirteen times, but change one word in each",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 1
+            },
+            "success": {
+              "text": "COME becomes CALL. OWED becomes OKAY. By the thirteenth copy the curse says THE FELLOWSHIP WILL CALL TO SEE IF YOU ARE OKAY. You mail them all. The next morning, three neighbors you have never talked to wave at you on your way to school.",
+              "art": "A desk covered in thirteen handwritten letters with words crossed out and replaced, the last one reading a kind message, a teenager grinning with a purple pen",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your pen keeps writing after you stop, adding names to the bottom of every copy: friends, teachers, your family. You drop it and it rolls across the desk, still scribbling, until it runs dry.",
+              "art": "A pen writing by itself across a stack of chain letters on a dark desk, adding a growing column of names, a teenager backing away",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "burn-it",
+            "label": "Burn it in the backyard grill",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "The letter catches with a purple flame and a long, tired sigh, like someone setting down something heavy. The ash floats up and, for a second, spells THANKS in the air before the wind takes it. The grill smells faintly of lilacs all week.",
+              "art": "A chain letter burning with purple flames in a kettle grill at night, its ash rising into the air in the shape of a word, a teenager watching with a lighter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The letter will not burn. The flames slide right off it. In the morning there are thirteen copies of it in your mailbox, each one in your handwriting, and each one says you are running out of time.",
+              "art": "A suburban mailbox stuffed with thirteen identical purple-ink letters at dawn, an unburnt letter sitting in a cold grill nearby",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "trace-the-postmarks",
+            "label": "Follow the postmarks back to the first sender",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "The postmarks lead to a P.O. box at the old post office, closed since 1972. Inside are a thousand chain letters nobody ever mailed, and one apology from a lonely woman who just wanted people to write back. You write back. The letters stop coming.",
+              "art": "A teenager opening a dusty post office box crammed with old letters, a single handwritten apology on top, flashlight light in an abandoned post office",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You follow the postmarks across town and back. Every trail ends at the same return address. It is your address. It has always been your address.",
+              "art": "A teenager staring at a stack of envelopes all postmarked with their own house address, standing on their own front walk at night",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cult-watch-meeting",
+        "title": "Neighborhood Watch Minutes",
+        "place": "The Crystal Street homeowners' clubhouse, 11 p.m.",
+        "text": "Folding chairs, a coffee urn, a podium, and every grown-up on the street wearing a hooded robe over a cardigan. The secretary reads the minutes. Item four on the agenda: SELECTING THIS YEAR'S OFFERING. Ballots are passed out. The nominees are whoever has the messiest lawn, and somebody has written your family's name in first.",
+        "art": "A suburban clubhouse meeting room with folding chairs, a coffee urn and a podium, adults in hooded robes over cardigans passing out paper ballots, an agenda on an easel, a teenager peeking in from the doorway",
+        "choices": [
+          {
+            "id": "point-of-order",
+            "label": "Call a point of order and filibuster",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "chip-merriweather",
+              "amount": 2
+            },
+            "success": {
+              "text": "You read the bylaws aloud, all of them, including the parking rules. At 1:01 a.m. you reach Article Nine: no vote may be held after one in the morning. The chair bangs the gavel, furious and helpless. Meeting adjourned. Everyone shuffles home grumbling.",
+              "art": "A teenager reading from a thick binder at a podium, a clock past one a.m. on the wall, robed adults slumped in folding chairs, a gavel coming down",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "They vote to table your point of order. Then they vote to table you. You wake up at dawn wrapped in Christmas lights and taped to the clubhouse snack table, next to a plate of untouched deviled eggs.",
+              "art": "A teenager wrapped in Christmas lights and taped to a clubhouse snack table at dawn beside a plate of deviled eggs, folding chairs stacked around",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "nominate-the-chair",
+            "label": "Nominate the homeowners' association president instead",
+            "intent": "reckless",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "\"I nominate the president, for her service.\" The room erupts. Old grudges about fence heights and holiday lights pour out. Robes come off. Someone throws the coffee urn. You slip out the back while the Fellowship tears itself apart over a hedge dispute from 1974.",
+              "art": "A suburban clubhouse meeting erupting into chaos, robed adults arguing and waving ballots, a coffee urn flying, a teenager slipping out a back door",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "charm": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The vote is unanimous, but not for the president. Everyone writes in your name. They applaud, politely, and turn to look at you all at once, smiling. You run, and they do not follow. They do not need to.",
+              "art": "A room of robed adults applauding politely and turning to smile at a teenager by the door, a chalkboard tally showing one name",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "stuff-the-ballot-box",
+            "label": "Stuff the ballot box with write-ins for Nobody",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "bea-lindqvist",
+              "amount": 1
+            },
+            "success": {
+              "text": "Nobody wins, forty-seven votes to three. The secretary reads the result twice, confused. The ritual cannot proceed without an offering, and none of them is willing to be Nobody. They fold up the chairs and go home, deflated.",
+              "art": "A secretary in a robe reading a ballot in confusion, a tally board showing an empty-chair landslide, a teenager hiding a fistful of ballots behind their back",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The secretary unfolds the ballots and reads out the results: your name, forty-seven times, in your handwriting. You know you wrote Nobody. Everyone turns to look at you, and the coffee urn begins to bubble.",
+              "art": "A robed secretary reading ballots aloud at a podium, every ballot showing the same name, a teenager pale in a folding chair, a coffee urn bubbling",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cult-welcome-wagon",
+        "title": "The Welcome Wagon",
+        "place": "Your front door, 12:30 a.m.",
+        "text": "The doorbell rings after midnight. Three neighbors in identical pastel cardigans stand on your porch holding a foil-covered casserole. \"Welcome to the neighborhood!\" they say together. You have lived here your whole life. \"We're so glad you're finally joining us.\" The foil on the casserole lifts, just a little, by itself.",
+        "art": "Three smiling neighbors in identical pastel cardigans on a porch at night holding a foil-covered casserole dish whose foil is lifting by itself, a teenager peering out from a half-open front door",
+        "choices": [
+          {
+            "id": "thank-and-shut",
+            "label": "Thank them warmly and shut the door",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"That's so thoughtful. Good night!\" You close the door gently but firmly. Through the peephole you watch their smiles flicker, uncertain, and then they leave. The casserole on the step is just tuna noodle, and it is honestly delicious.",
+              "art": "A peephole view of three neighbors in cardigans walking away from a porch at night, a casserole dish left on the doormat",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "One of them wedges a sensible loafer in the door before it closes. \"That's all right,\" she says, still smiling. \"We'll come back tomorrow. And the night after. And the night after that.\"",
+              "art": "A sensible loafer wedged in a closing front door, a smiling woman in a pastel cardigan peering through the gap",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "lift-the-foil",
+            "label": "Lift the foil and look inside",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "In the noodles is a tiny, furious, shrieking face. You grab the garden hose and blast it. The face dissolves, and so do the smiles: the three neighbors blink, look at their cardigans, and wander home in confused silence. One of them says she does not even like casseroles.",
+              "art": "A teenager blasting a casserole dish with a garden hose, a tiny shrieking face dissolving in the noodles, three neighbors blinking in confusion on the porch",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Inside the casserole is a perfect little diorama of your house, built out of noodles. In the upstairs window is a tiny noodle figure of you. As you watch, the noodle front door slowly opens.",
+              "art": "A casserole dish containing a detailed miniature house built of noodles, a tiny noodle figure in an upstairs window, its front door opening",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cult-candle-walk",
+        "title": "The Candle Walk",
+        "place": "The roundabout, two a.m.",
+        "text": "A ring of hooded figures with purple candles is circling the roundabout, chanting in what sounds like Latin. Listening closer, you realize it is the Glimmer Falls High fight song, backward. They are drawing a chalk circle on the asphalt as they walk, and there is exactly one empty spot left in the ring.",
+        "art": "A ring of hooded figures holding purple candles circling a suburban roundabout at night, a chalk circle drawn on the asphalt, one gap in the ring, a teenager watching from behind a parked car",
+        "choices": [
+          {
+            "id": "join-and-change-the-chant",
+            "label": "Join the ring and chant something better",
+            "intent": "camp",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "You step into the gap and chant a real blessing, the one for safe travel, the one grandmothers say. The candles turn from purple to warm gold. One by one the hoods fall back, and your neighbors look around, wondering why they are outside in their slippers.",
+              "art": "A teenager chanting in a ring of hooded figures as the candles shift from purple to warm gold, hoods falling back to reveal confused neighbors in slippers",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You step in to change the chant, and your voice joins theirs perfectly, backward fight song and all, without you deciding to. You circle the roundabout with them until the candles burn out, and you know all the words now.",
+              "art": "A teenager walking in a ring of hooded chanting figures with a purple candle, eyes glazed, the chalk circle complete beneath their feet",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "smudge-the-circle",
+            "label": "Smudge the chalk circle with your sneaker",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "item": "rock-salt",
+              "amount": 1
+            },
+            "success": {
+              "text": "One quick scuff while their backs are turned. The candles gutter all at once. The hooded figures stop, look at each other, mumble something about early mornings, and drift home in pairs. One of them leaves a perfectly good candle behind.",
+              "art": "A sneaker scuffing a chalk circle on asphalt, purple candles guttering, hooded figures drifting away in pairs into the dark",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The chalk is wet paint. Your sneaker sticks fast. The ring turns inward and circles you, three times, slowly, candles held close to your face, and then leaves you there stuck to the street until the sun comes up.",
+              "art": "A teenager with one sneaker stuck to a painted circle on the street as hooded figures with candles circle tightly around them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-cult-golden-tomorrow",
+        "title": "A Golden Opportunity",
+        "place": "A living room on Quarry Road, a late business opportunity night",
+        "text": "A friend's aunt invited you to a Golden Tomorrow business opportunity night with free pizza. Everyone wears a little gold pin and the same enormous smile. On the easel is a pyramid chart of names, and the name at the very top has been scratched out so hard it tore the paper. \"Who wants to change their life tonight?\" the presenter asks.",
+        "art": "A suburban living room at night full of smiling adults in gold lapel pins seated on folding chairs, a presenter beside an easel with a pyramid chart of names, the top name scratched out, pizza boxes on a side table",
+        "choices": [
+          {
+            "id": "ask-where-the-money-goes",
+            "label": "Ask where the money actually goes",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 1
+            },
+            "success": {
+              "text": "You go to the easel and do the math. By Thursday the pyramid needs four billion recruits. The room goes quiet. Gold pins start dropping onto the carpet like hail, and the guests leave in a hurry, taking the free pizza with them.",
+              "art": "A teenager scribbling enormous math on an easel pad while gold pins fall from guests' lapels onto the carpet, the presenter's smile frozen",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"Great question!\" beams the presenter. \"That is what the top of the pyramid is for.\" Everyone turns to the chart. The scratched-out name at the top has been rewritten, neatly, in gold marker. It is yours.",
+              "art": "A pyramid chart on an easel with a teenager's name freshly written at the top in gold marker, a room full of smiling adults turning toward them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "slip-out-the-kitchen",
+            "label": "Grab a slice and slip out through the kitchen",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You leave with two slices, a free sample and a mint. Out on the sidewalk you glance back: every window of the house is shaped like a smile, and every smile is watching the street for someone else. You find a quarter on the walk and keep it.",
+              "art": "A teenager walking away down a night sidewalk eating pizza, a suburban house behind them with every window curved into a smile",
+              "effects": {
+                "dread": -1,
+                "quarters": 1
+              }
+            },
+            "failure": {
+              "text": "Every exit has a smiling greeter with a clipboard. The back door, the garage, the bathroom window. By the time you get out, you have signed up for three months of Golden Tomorrow Sunshine Drops, and the first bill is already in your pocket.",
+              "art": "A teenager cornered at a back door by a smiling greeter holding a clipboard and pen, gold pins glinting, a kitchen full of smiling faces behind",
+              "effects": {
+                "nerve": -1,
+                "quarters": -1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "tag": "dream",
+    "name": "Night Terrors",
+    "blurb": "Close your eyes on Crystal Street this week and the rules go soft. You sleepwalk across the rooftops, your house grows an extra room, and the drained quarry lake comes back to fill the street, as deep as a held breath.",
+    "encounters": [
+      {
+        "id": "deck-dream-sleepwalk",
+        "title": "Sleepwalking the Rooftops",
+        "place": "The roofs of Crystal Street, in your sleep",
+        "text": "You wake, sort of, barefoot on your own roof in your pajamas, walking the ridge line with your arms out like a tightrope walker. The gutters glitter with frost. The roofs keep going, one after another, past the Lindqvists' chimney and on and on, past where the street should end.",
+        "art": "A barefoot teenager in pajamas sleepwalking along the ridge line of a suburban rooftop at night with arms outstretched, frosty gutters glittering, an endless row of rooftops stretching toward a water tower under the stars",
+        "choices": [
+          {
+            "id": "trust-your-feet",
+            "label": "Keep walking and trust your sleeping feet",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You walk roof to roof as easily as crossing your bedroom, up the ladder of the KGLM water tower, and onto the catwalk at the very top. The stars are close enough to touch. You reach out, and one of them reaches back, and pulls you up into the sky.",
+              "art": "A sleepwalking teenager in pajamas reaching up from the top of a water tower toward stars that are close enough to touch, one star reaching back like a hand",
+              "effects": {
+                "nerve": 1,
+                "teleport": "cosmic"
+              }
+            },
+            "failure": {
+              "text": "A loose shingle slides under your heel and you slide with it, all the way to the gutter, and hang there by your fingertips. A neighbor's dog sees you and barks until the whole house wakes up and your folks fetch the ladder.",
+              "art": "A teenager in pajamas hanging from a rooftop gutter by their fingertips at night, a dog barking below, house lights coming on",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "count-backward",
+            "label": "Count backward from ten and wake up gently",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 2
+            },
+            "success": {
+              "text": "Ten, nine, eight. The endless roofs fold back into one. Three, two, one. You open your eyes sitting safely on your own roof, knees hugged to your chest, watching a cold, pink sunrise come up over the foothills. You climb back in the window and sleep until noon.",
+              "art": "A teenager sitting safely on their own roof hugging their knees at sunrise, pink light over the foothills, an open bedroom window beside them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You wake up halfway, which is the worst way. Suddenly the roof is very real and very high and very cold. You hug the chimney until the sky goes gray, too scared to move and too awake to go back to dreaming.",
+              "art": "A frightened teenager in pajamas clinging to a brick chimney on a steep roof in the gray before dawn",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "follow-the-cat",
+            "label": "Follow the black cat walking beside you",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "The cat walks with you, tail high, and leads you down a rose trellis, through your own open window and into bed. It curls up on your feet. In the morning there is no cat, but there is a single black whisker on your pillow.",
+              "art": "A sleepwalking teenager following a black cat down a rose trellis toward an open bedroom window under a full moon",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The cat leads you through an open attic window, but it is the wrong house. You wake up at dawn curled among someone else's Christmas decorations, and you have to explain yourself to a very surprised Mr. Ferguson.",
+              "art": "A teenager in pajamas waking in a stranger's dusty attic among boxes of Christmas decorations, a startled man in a bathrobe peering up through the hatch",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-dream-extra-room",
+        "title": "The Extra Room",
+        "place": "Your house, in a dream",
+        "text": "There is a door in the upstairs hallway that has never been there, between the bathroom and the linen closet. It is papered in flowered wallpaper from 1959. Behind it you hear a family dinner: forks on plates, laughter, a radio. Someone calls your name, warmly, to come eat before it gets cold.",
+        "art": "A dim upstairs hallway in a 1980s suburban house with an extra door papered in 1959 floral wallpaper between the bathroom and the linen closet, warm light and dinner sounds leaking from under it",
+        "choices": [
+          {
+            "id": "open-the-door",
+            "label": "Open the door and walk in",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "It is your bedroom from when you were six. Your old nightlight, the stuffed rabbit you lost at the county fair, the glow-in-the-dark stars on the ceiling. Nobody is eating dinner. It is just a safe place, saved for you. You sit on the little bed until you wake up.",
+              "art": "A teenager sitting on a small child's bed in a softly lit bedroom with glow-in-the-dark stars on the ceiling, holding a worn stuffed rabbit, a nightlight glowing",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Inside is another hallway, and another door, and another. You walk through doors all night, each one papered a little older. The last door opens onto somewhere that is not your house at all, and the dinner bell rings behind you.",
+              "art": "An endless corridor of doors papered in progressively older wallpaper, a teenager opening the last one onto a strange dark place",
+              "effects": {
+                "nerve": -1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "paper-over-it",
+            "label": "Wallpaper over the door before it opens",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You find a roll of leftover wallpaper and a bucket of paste in the dream garage. Three strips, smoothed flat. The door is just a bump under the paper, then a faint outline, then nothing. The dinner sounds fade like a radio drifting off station.",
+              "art": "A teenager smoothing a strip of wallpaper over a door in an upstairs hallway, a paste bucket and brush at their feet, the door's outline fading",
+              "effects": {
+                "dread": -1,
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The wallpaper peels itself back off the wall in long curls. Then new doors bloom in every wall of the house, dozens of them, all papered in roses. You wake up with paste on your hands and a door-shaped bump in your bedroom wall.",
+              "art": "A hallway with dozens of rose-papered doors blooming from every wall, wallpaper curling off in strips, a teenager with paste-covered hands",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "knock-and-ask",
+            "label": "Knock and ask whose dinner it is",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "The forks go quiet. A kind, tired voice answers, \"Oh. Sorry, dear, wrong house. It happens.\" There is a smell of pot roast and someone laughing, and the door fades into the wall like breath off a mirror.",
+              "art": "A teenager knocking politely on a floral-papered door in a dim hallway, the door fading into the wall like breath fog, warm light dimming",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The door swings open on a long dinner table set for twelve. Every chair is empty except the one at the head, where a place card reads your name in careful cursive, and the food is still steaming.",
+              "art": "A long formal dinner table in a 1959 dining room set for twelve with empty chairs, a single place card with a teenager's name at the head, steaming plates",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-dream-pop-quiz",
+        "title": "The Pop Quiz",
+        "place": "Glimmer Falls High, in a dream",
+        "text": "You are sitting in algebra in your pajamas. There is a test on your desk that you did not study for, written in an alphabet made of little teeth. The clock on the wall spins backward. The teacher at the front has no face, only a red grading pen, tapping, tapping.",
+        "art": "A dreamlike high-school classroom with a teenager in pajamas at a desk, a test covered in tooth-shaped letters, a clock spinning backward, a faceless teacher tapping a red pen at the front",
+        "choices": [
+          {
+            "id": "bubble-everything",
+            "label": "Fill in every bubble with total confidence",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You fill in the bubbles in a pattern that pleases you, a smiley face. The faceless teacher picks up your test, holds it up to the light, and draws a giant red A+. You wake up laughing, and for some reason you feel ready for anything.",
+              "art": "A faceless teacher holding up a test paper with bubbles filled in to make a smiley face and a huge red A plus, a teenager in pajamas grinning",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The bubbles fill with eyes. They blink, all at once, and watch you. Every one of them follows your pencil as you try to erase. When you wake, you can still feel them, under your eyelids, blinking.",
+              "art": "A test paper where every answer bubble has become a blinking eye, a teenager in pajamas holding a pencil frozen above it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-it-upside-down",
+            "label": "Turn the test upside down, the way dreams work",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "Upside down, the teeth are letters. It is a crossword, and every answer is the name of one of your friends. As you write each name in, that friend walks into the classroom in their pajamas, and together you walk right out the door.",
+              "art": "A teenager filling in a crossword test with friends' names while those friends walk into a dreamlike classroom in pajamas, the faceless teacher looking on",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Upside down, you can read it, and you wish you could not. Every question is about a secret you have never told anyone. The faceless teacher leans in close and waits for your answer.",
+              "art": "A faceless teacher leaning over a frightened teenager's desk, a test paper turned upside down, red pen poised",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-dream-saturday-forever",
+        "title": "Saturday Morning Forever",
+        "place": "Your living room carpet, in a dream",
+        "text": "You are inside a Saturday morning cartoon. The colors are too bright, there is a laugh track, and you have a black outline. The Sugar Sergeant, the grinning bird from the cereal box, insists you stay for just one more episode. And one more. The episodes never end, and the bird's grin is getting wider.",
+        "art": "A teenager drawn with a cartoon outline inside a brightly colored Saturday morning cartoon world, a grinning cereal-box bird mascot in a military cap looming, cartoon anvils and a canyon in the background",
+        "choices": [
+          {
+            "id": "cartoon-physics",
+            "label": "Run off a cliff and just don't look down",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You sprint off the edge of the canyon and keep running on thin air, legs spinning, not looking down. You run right out of the cartoon, through the TV screen and into your own bed with a squeaky sound effect. You wake up giggling.",
+              "art": "A cartoon-outlined teenager sprinting on thin air over a deep canyon with legs blurred in a wheel, a glowing TV screen ahead of them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You look down. There is a long, descending whistle. You hit the canyon floor in a puff of dust shaped exactly like you, and wake up on your bedroom floor with little birds circling your head.",
+              "art": "A teenager-shaped puff of dust at the bottom of a cartoon canyon, a dazed figure with little birds circling their head",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wait-for-commercials",
+            "label": "Wait for the commercial break and slip out",
+            "intent": "sneaky",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 1
+            },
+            "success": {
+              "text": "Every cartoon has a station break. You wait for the jingle, and in the half-second of black between shows, you step sideways through the edge of the screen. The Sugar Sergeant shouts \"Stay tuned!\" to an empty set.",
+              "art": "A teenager stepping sideways out through the dark edge of a TV screen during a station break, a grinning cartoon bird mascot left alone on a bright set",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "There are no commercials. There are no breaks. The Sugar Sergeant's grin stretches past the edges of its face. \"You're our new favorite character!\" it says, and the laugh track will not stop laughing.",
+              "art": "A cartoon cereal mascot bird with a grin stretching beyond its face, leaning over a trapped teenager, a laugh-track applause sign flashing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-dream-endless-mall",
+        "title": "The Escalator Down",
+        "place": "Starlight Mall, in a dream",
+        "text": "The mall is closed, and it goes on forever. Every escalator only goes down. The same soft song plays from every speaker. Every storefront is the same orange juice stand, staffed by nobody, and the fountain at the bottom of each level is full of pennies with your face on them.",
+        "art": "An infinite dreamlike shopping mall with escalators descending level after level into hazy pastel light, identical orange juice stands, a fountain filled with copper pennies, a lone teenager riding down",
+        "choices": [
+          {
+            "id": "run-up-the-down",
+            "label": "Run up the down escalator",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "You take the steps three at a time against the current, lungs burning. Level by level you climb back up, until you burst through the food court skylight and find yourself crawling out of the ceiling of your own bedroom, onto your bed.",
+              "art": "A teenager racing up a descending escalator in an endless pastel mall, a skylight above opening onto a bedroom ceiling",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The faster you run, the faster the escalator goes. You run all night and stay in exactly the same place, and you wake up with your legs aching as if you have run a marathon in your sleep.",
+              "art": "A teenager running in place on a speeding escalator in an endless mall, the steps blurring, the same storefronts sliding past again and again",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "make-a-wish",
+            "label": "Toss a quarter in the fountain and wish to wake up",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "Your quarter hits the water and the whole fountain ripples outward like a bell. The pennies with your face all turn heads-up and smile. You wake with your wish granted and a handful of real coins under your pillow.",
+              "art": "A quarter splashing into a mall fountain filled with pennies, ripples spreading like rings of light, a teenager waking with coins on their pillow",
+              "effects": {
+                "dread": -1,
+                "quarters": 2
+              }
+            },
+            "failure": {
+              "text": "The fountain takes your quarter, then your other quarters, then your sneakers, then pulls gently at your sleeve. You back away barefoot and wake up with your pockets empty and your feet cold.",
+              "art": "A mall fountain pulling at a teenager's sleeve with watery fingers, sneakers sinking among the pennies, the teen backing away barefoot",
+              "effects": {
+                "nerve": -1,
+                "quarters": -1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "deck-dream-lake-returns",
+        "title": "The Lake Comes Back",
+        "place": "Crystal Street, underwater, in a dream",
+        "text": "In your dream, the old Crystal Springs lake is back. Crystal Street is the bottom. Fish drift through the beams of the streetlights, your neighbor's station wagon floats past upside down, and your bike rolls slowly along the lake floor. You can breathe, somehow. Far above, moonlight wobbles on the surface.",
+        "art": "A suburban cul-de-sac completely underwater at night, fish swimming through streetlight beams, a station wagon floating upside down, a teenager in pajamas suspended mid-water gazing up at moonlight rippling on the surface",
+        "choices": [
+          {
+            "id": "swim-for-the-moon",
+            "label": "Swim hard for the moonlight on the surface",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "You kick hard, past the rooftops, past the TV antennas, past the top of the water tower. You break the surface with a huge gasp and wake up sitting bolt upright in bed, gulping air, completely dry and completely alive.",
+              "art": "A teenager bursting up through the surface of a moonlit lake, water spraying, the drowned rooftops of a suburban street visible far below",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The surface keeps moving up as you swim. The moonlight gets farther, not closer. You swim until your arms give out and you wake, exhausted, with your sheets soaked through and a strand of lake weed on your pillow.",
+              "art": "A teenager swimming upward toward moonlight that keeps receding, a drowned street far below, lake weed drifting",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "sink-and-look",
+            "label": "Let yourself sink and look around",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 1
+            },
+            "success": {
+              "text": "On the lake floor, under the street, you see the beach that was here before: a lifeguard tower, a jukebox, kids dancing in the sand in 1955. It is not frightening. It is sad, like a song from someone else's summer. You wake knowing the town a little better.",
+              "art": "A teenager floating near the bottom of a dream lake looking at ghostly figures of 1950s kids dancing around a jukebox on a sandy beach beside a lifeguard tower",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The bottom is soft, softer than sand, and you sink into it up to your knees, then your waist. It is warm and it does not want to let go. You wake with a gasp and find fine gray silt between your sheets.",
+              "art": "A teenager sinking waist-deep into soft gray silt at the bottom of a dark dream lake, bubbles rising, a drowned streetlight overhead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

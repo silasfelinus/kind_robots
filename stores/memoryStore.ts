@@ -9,7 +9,7 @@ import { useUserStore } from './userStore'
 import { usePromptStore } from './promptStore'
 import { useArtStore } from './artStore'
 import { handleError, performFetch } from './utils'
-import { useCollectionStore } from './collectionStore'
+import { loadMemoryArtCandidates, type MemoryArtFeedPage } from '@/utils/memoryArtFeed'
 
 type NotificationType = 'error' | 'info' | 'success'
 type PowerupId = 'lantern' | 'shield' | 'compass' | 'jellybean'
@@ -247,7 +247,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   const viewportStore = useViewportStore()
   const promptStore = usePromptStore()
   const artStore = useArtStore()
-  const collectionStore = useCollectionStore()
 
   const difficulties: DifficultyOption[] = [
     {
@@ -410,66 +409,6 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     })
   }
 
-  function unwrapArtImage(value: unknown): ArtImage | null {
-    if (!value || typeof value !== 'object') return null
-
-    const record = value as Record<string, unknown>
-
-    if (typeof record.id === 'number') {
-      return record as ArtImage
-    }
-
-    const nestedCandidates = [
-      record.ArtImage,
-      record.artImage,
-      record.image,
-      record.art,
-    ]
-
-    for (const candidate of nestedCandidates) {
-      if (candidate && typeof candidate === 'object') {
-        const nested = candidate as Record<string, unknown>
-
-        if (typeof nested.id === 'number') {
-          return nested as ArtImage
-        }
-      }
-    }
-
-    return null
-  }
-
-  function getCollectionArtImages(collection: unknown): ArtImage[] {
-    if (!collection || typeof collection !== 'object') return []
-
-    const record = collection as Record<string, unknown>
-
-    const candidates = [
-      record.ArtImages,
-      record.artImages,
-      record.images,
-      record.Art,
-      record.art,
-      record.items,
-    ]
-
-    const results: ArtImage[] = []
-
-    for (const candidate of candidates) {
-      if (!Array.isArray(candidate)) continue
-
-      for (const item of candidate) {
-        const image = unwrapArtImage(item)
-
-        if (image) {
-          results.push(image)
-        }
-      }
-    }
-
-    return uniqueArtImages(results)
-  }
-
   function uniqueArtImages(images: ArtImage[]): ArtImage[] {
     const map = new Map<number, ArtImage>()
 
@@ -494,32 +433,12 @@ export const useMemoryStore = defineStore('memoryStore', () => {
 
   async function getMemoryCardPool(): Promise<ArtImage[]> {
     const source = cardSource.value
-    const needsCollections =
-      source.type === 'collection' || source.type === 'collections'
 
     await artStore.initialize({
-      fetchRemote: source.type === 'all' && !artStore.hasCachedImages,
+      fetchRemote: false,
       hydrateImages: true,
       initializeCollections: false,
     })
-
-    if (needsCollections) {
-      await collectionStore.fetchCollections()
-
-      const requestedIds =
-        source.type === 'collection' && source.collectionId
-          ? [source.collectionId]
-          : source.collectionIds
-
-      const missingOrEmpty = requestedIds.some((id) => {
-        const collection = collectionStore.findCollectionById(id)
-        return !collection || !getCollectionArtImages(collection).length
-      })
-
-      if (missingOrEmpty) {
-        await collectionStore.fetchCollections(true)
-      }
-    }
 
     if (source.type === 'generated') {
       return filterPlayableArtImages(artStore.generatedArtImages)
@@ -533,24 +452,48 @@ export const useMemoryStore = defineStore('memoryStore', () => {
       )
     }
 
-    if (source.type === 'collection' && source.collectionId) {
-      const collection =
-        collectionStore.findCollectionById(source.collectionId) ?? null
+    const collectionIds =
+      source.type === 'collection' && source.collectionId
+        ? [source.collectionId]
+        : source.type === 'collections'
+          ? source.collectionIds
+          : []
 
-      return filterPlayableArtImages(getCollectionArtImages(collection))
-    }
+    const images = await loadMemoryArtCandidates<ArtImage>({
+      collectionIds,
+      pairCount: pairsNeeded.value,
+      playable: (image) =>
+        (artStore.showMature || !image.isMature) &&
+        Boolean(extractArtImagePath(image)),
+      fetchPage: async (collectionId, cursor) => {
+        const query = new URLSearchParams({
+          range: 'all',
+          limit: '96',
+          maturity: artStore.showMature ? 'all' : 'safe',
+        })
+        if (collectionId) query.set('collectionId', String(collectionId))
+        if (cursor) query.set('cursor', String(cursor))
 
-    if (source.type === 'collections' && source.collectionIds.length) {
-      const ids = new Set(source.collectionIds)
+        const response = await performFetch<MemoryArtFeedPage<ArtImage>>(
+          `/api/art/image/feed?${query.toString()}`,
+        )
 
-      const images = collectionStore.collections
-        .filter((collection) => ids.has(collection.id))
-        .flatMap((collection) => getCollectionArtImages(collection))
+        if (
+          !response.success ||
+          !response.data ||
+          !Array.isArray(response.data.items)
+        ) {
+          throw new Error(
+            response.message || 'The dungeon could not load the art library.',
+          )
+        }
 
-      return filterPlayableArtImages(images)
-    }
+        artStore.addOrUpdateArtImages(response.data.items)
+        return response.data
+      },
+    })
 
-    return filterPlayableArtImages(artStore.artImages)
+    return filterPlayableArtImages(images)
   }
 
   function useManualArtImages(artImageIds: number[]): void {
@@ -763,13 +706,13 @@ export const useMemoryStore = defineStore('memoryStore', () => {
   }
 
   function normalizeImagePath(value: unknown): string {
-    if (typeof value !== 'string') return ''
+    if (typeof value !== 'string' || !value.trim()) return ''
 
-    if (value.startsWith('http') || value.startsWith('/')) {
-      return value
-    }
+    const path = value.trim()
+    if (/^(?:https?:|\/|data:|blob:)/i.test(path)) return path
+    if (path.includes(':')) return ''
 
-    return `/images/gallery/${value}`
+    return `/images/gallery/${path}`
   }
 
   function extractArtImagePath(image: unknown): string {
@@ -778,6 +721,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
     const record = image as Record<string, unknown>
 
     const candidates = [
+      record.thumbnailUrl,
       record.imagePath,
       record.path,
       record.thumbnailPath,
@@ -920,7 +864,7 @@ export const useMemoryStore = defineStore('memoryStore', () => {
         console.info('Memory Dungeon card pool', {
           source: cardSource.value,
           poolCount: pool.length,
-          collectionCount: collectionStore.collections.length,
+          selectedCollectionCount: cardSource.value.collectionIds.length + Number(Boolean(cardSource.value.collectionId)),
           selectedCollectionIds: cardSource.value.collectionIds,
           selectedCollectionId: cardSource.value.collectionId,
         })

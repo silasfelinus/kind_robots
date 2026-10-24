@@ -34,6 +34,10 @@ import {
 } from '../shiftingDesks/rules'
 import { GAMEBOOK_LIVE_TEXT, scene } from '../zuzuGamebook/adventure'
 import {
+  CRYSTAL_STREET_LIVE_TEXT,
+  encounterById as crystalEncounter,
+} from '../crystalStreet/rules'
+import {
   DAYS,
   FORTRESS_LIVE_TEXT,
   dayDef,
@@ -446,6 +450,10 @@ const LOOKUPS: Record<
     },
   },
   'zuzu-gamebook': { overlay: GAMEBOOK_LIVE_TEXT, read: (key) => scene(key) },
+  'crystal-street': {
+    overlay: CRYSTAL_STREET_LIVE_TEXT,
+    read: (key) => crystalEncounter(key),
+  },
   'emperor-of-dust': {
     overlay: FORTRESS_LIVE_TEXT,
     read: (key) => {

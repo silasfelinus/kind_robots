@@ -182,7 +182,10 @@ for (let world = 1; world <= 8; world++) {
     )
   }
 }
-assert.ok(!/localStorage|\\$fetch/.test(page), 'the page leaves storage and APIs to stores')
+assert.ok(
+  !/localStorage|\\$fetch/.test(page),
+  'the page leaves storage and APIs to stores',
+)
 assert.match(
   source('../../stores/savePlumberStore.ts'),
   /readPlumberSave\\(arcade\\.saveFor\\(PLUMBER_SLUG\\)\\)/,

@@ -315,6 +315,7 @@ onMounted(() => {
     color-mix(in oklch, var(--color-primary) 60%, transparent);
 }
 .cs .cs-terrors {
+  font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #ff2d55;
@@ -322,6 +323,15 @@ onMounted(() => {
   text-shadow:
     0 3px 0 #1a0005,
     0 0 24px rgb(255 45 85 / 0.55);
+}
+.cs .cs-on-street {
+  margin-top: 0.35rem;
+  font-size: clamp(0.95rem, 1.6cqi + 0.6rem, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 6px rgb(0 0 0 / 0.8);
 }
 .cs .cs-kicker {
   font-size: 0.7rem;

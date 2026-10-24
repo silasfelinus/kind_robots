@@ -469,11 +469,11 @@ export function trenchDialogue(
       },
       {
         speaker: lead,
-        text: 'Abandoned weapons do not fire on their own. Somebody built these.',
+        text: 'Feral fleets do not build guns. Somebody built these.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,
-        text: 'Every hull down here wears the same fleet sigil, scratched half off.',
+        text: 'Every hull down here wears the Motherland’s sigil, scratched half off.',
       },
     ],
     'A03.FORK': [
@@ -491,12 +491,12 @@ export function trenchDialogue(
         speaker: 'Lilt-7',
         text:
           route === 'vault'
-            ? 'Vault salvage aboard. Its locks answered to Crown-compatible hardware.'
-            : 'The vault is behind us, and its locks answer to Crown-compatible hardware.',
+            ? 'Vault salvage aboard. Its locks answered to Motherland command codes.'
+            : 'The vault is behind us, and its locks answer to Motherland command codes.',
       },
       {
         speaker: wing,
-        text: 'Crown hardware this deep? Then this trench was an armoury, not a wreck.',
+        text: 'Our codes this deep? Then this trench was a Motherland armoury, not a wreck.',
       },
       {
         speaker: lead,
@@ -506,11 +506,11 @@ export function trenchDialogue(
     'A03.AFTER': [
       {
         speaker: 'Lilt-7',
-        text: 'Clawburst is down and its pilot is alive. Their orders came from old fleet command.',
+        text: 'Clawburst is down and its pilot is alive. Its collar is stamped with old fleet command.',
       },
       {
         speaker: lead,
-        text: 'Then we keep the pilot safe and the evidence safer. Both of them matter.',
+        text: 'Our fleet command. Keep the pilot safe and the evidence safer.',
       },
       {
         speaker: wing === lead ? 'Lilt-7' : wing,

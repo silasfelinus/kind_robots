@@ -12,6 +12,19 @@ import {
   sceneMomentOffer,
 } from '../ecotone/sceneOffers'
 
+assert.equal(PLAYER_AVATARS.length, 12)
+assert.deepEqual(
+  PLAYER_AVATARS.map((avatar) => avatar.portrait),
+  PLAYER_AVATARS.map(
+    (avatar) => `/images/ecotone/avatars/${avatar.id}.webp`,
+  ),
+  'each stable saved-avatar ID needs its own canonical portrait path',
+)
+assert.equal(
+  new Set(PLAYER_AVATARS.map((avatar) => avatar.portrait)).size,
+  12,
+  'no two avatar identities may share the same painted portrait',
+)
 assert.ok(PLAYER_AVATARS.length >= 10)
 assert.ok(PLAYER_PERSONALITIES.length >= 5)
 assert.equal(
@@ -112,6 +125,10 @@ assert.match(store, /function loadSlot\(/)
 assert.match(store, /function exportSave\(/)
 assert.match(store, /function importSave\(/)
 assert.match(store, /restoreRun\(payload\.run\)/)
+assert.match(board, /:src="avatar.portrait"/)
+assert.match(board, /:aria-pressed="pickedAvatar === avatar.id"/)
+assert.match(board, /failedAvatarPortraits.push\\(avatar.id\\)/)
+assert.ok(!board.includes('grid grid-cols-6 gap-1.5'), 'emoji-only selection grid was retired')
 assert.match(board, /Confirm your decision/)
 assert.match(board, /Change my mind/)
 assert.match(board, /Undo last decision/)

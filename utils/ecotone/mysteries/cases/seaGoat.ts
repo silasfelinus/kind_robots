@@ -134,7 +134,7 @@ export const SEA_GOAT: Mystery = {
         ],
       },
       body: [
-        'The cottages stand in tidy rows with the dunes at their backs, built a century ago for mill families and kept painted ever since by people who refuse to let anything go shabby. Dolores Ybarra, seventy-six, pours coffee strong enough to strip a deck and tells you about the whistle: brass, the size of a fire hydrant, blown by hand at every shift change by Walt Keough, the last foreman, from the year he made foreman to the day the doors closed. “The day the doors closed, Walt carried it home on his shoulder, and the whole street came out to watch. When he went south to his sister’s, it stayed in his garage. Hasn’t made a sound since. Until last month.”',
+        'The cottages stand in tidy rows with the dunes at their backs, built a century ago for mill families and kept painted ever since by people who refuse to let anything go shabby. Dolores Ybarra, seventy-six, pours coffee strong enough to strip a deck and tells you about the whistle: brass, the size of a fire hydrant, blown by hand at every shift change by Walt Keough, the last foreman, from the year he made foreman until the very last shift. “The day the doors closed, Walt carried it home on his shoulder, and the whole street came out to watch. When he went south to his sister’s, it stayed in his garage. Hasn’t made a sound since. Until last month.”',
         'Walt’s cottage is two doors down. The lawn is mowed in perfect stripes, which is a lot of effort for a man in Arizona. The garage light is on. Through the window you can see a sewing machine, a laptop open to a spreadsheet titled INCIDENTS, and something long and green draped over the workbench, half covered by a tarp.',
       ],
       approaches: [
@@ -401,7 +401,7 @@ export const SEA_GOAT: Mystery = {
       choices: [
         {
           id: 'answer',
-          label: 'Pull the whistle line with her and answer him',
+          label: 'Pull the whistle line with her and answer it',
           text: 'Tess opens the valve by hand and you pull the line together, the cord running forty rungs down to the brass. The two whistles hold one note across the bay, and out past the eelgrass the great horned head dips once, like a foreman initialing a card.',
           ending: 'half-new',
         },

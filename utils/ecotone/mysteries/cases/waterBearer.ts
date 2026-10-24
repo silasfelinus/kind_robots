@@ -363,7 +363,7 @@ export const WATER_BEARER: Mystery = {
       chapter: 4,
       scene: 'meadow',
       body: [
-        'Pruitt Basin Partners, it turns out, brokers water. “I don’t want their houses,” Pruitt says. “I want what’s under them. I buy the parcel, keep the well rights, and resell the house dry. Nobody sells because a well might fail in 2049. They sell because there’s a light over the backyard humming at them, and a jug on the porch counting down. I just mail the offer the next morning.” He nods at the dry well. “I calibrate off hers every dawn. If my sounder agrees with her jug for that one, I trust the rest.”',
+        'Pruitt Basin Partners, it turns out, brokers water. “I don’t want their houses,” Pruitt says. “I want what’s under them. I buy the parcel, keep the well rights, and resell the house dry. Nobody sells because a well might fail in 2049. They sell because there’s a light over the backyard humming at them, and a jug on the porch counting down. I just mail the offer the next morning.” He tips his head at the dry well. “I calibrate off hers every dawn. If my sounder agrees with her jug for that one, I trust the rest.”',
         'He nods at Saff, almost respectfully. “Her dates are the best survey in the county, and she gives them away. The late ones are the deep wells. That’s my whole buy list.” Saff sits down on her hand-truck as if her knees have been cut. All those labels, all those dawns, and she has been drawing a treasure map. “I was the bucket kid up here in ’74,” she says, to nobody. “Fifty years making sure nobody’s well goes dry without warning. I never once thought about who else could read.”',
       ],
       choices: [

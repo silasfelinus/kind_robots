@@ -2,7 +2,7 @@ import type { DayDef, DueDef, QuestDef, SceneLine, SceneVariant } from './types'
 import type { EpilogueSubject } from './epilogue'
 
 // Act III, Days 21-30, "Kind Roads" (conductor DAY-PLAN.md): the Black
-// Verge at the border, the mission road, the Abbess at court, Flint's trial,
+// Verge at the border, the mission road, the Abbess at court, Flint’s trial,
 // Mara's secret page and the terms of shelter before the faction wars
 // resolve on the map. Harm to children stays off-screen: neat empty cots,
 // tracks that only lead in, a door kept locked (WORLD-GUIDE.md).
@@ -349,9 +349,9 @@ export const ACT_THREE_QUESTS: readonly QuestDef[] = [
       success:
         'The grain went to the Moles, yes. From the Old Houses’ own granary, at three times market price. Flint was trying to stop it.',
       partial:
-        'The grain accounts disagree. One bears Flint's signature; another names a broker dead three years. The Old Houses demand a verdict before either book can be traced.',
+        'The grain accounts disagree. One bears Flint’s signature; another names a broker dead three years. The Old Houses demand a verdict before either book can be traced.',
       failure:
-        'The auditors return clean accounts bearing the Old House seal. Flint's witnesses were not asked to sign. By evening the tower steps are crowded with people holding missing receipts.',
+        'The auditors return clean accounts bearing the Old House seal. Flint’s witnesses were not asked to sign. By evening the tower steps are crowded with people holding missing receipts.',
       expired:
         'The ledger packet sits unopened through the hearing. Flint is judged by rumor instead. A junior clerk keeps the sealed packet beneath her desk in case someone still wants the facts.',
     },

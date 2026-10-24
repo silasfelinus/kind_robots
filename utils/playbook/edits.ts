@@ -7,6 +7,7 @@ import type {
   LeadId,
   LensId,
   Outcome,
+  SceneKind,
   SkillId,
 } from '../ecotone/content'
 
@@ -42,6 +43,26 @@ export type CardEdit = {
   variants?: Partial<Record<LeadId, string[]>>
   choices?: Record<string, ChoiceEdit>
   added?: AddedChoice[]
+  /** Marks a Studio-authored "+ New beat": dealt from this chapter's fork pool like an authored encounter. */
+  beat?: { chapter: number; scene: SceneKind }
+}
+
+export const NEW_BEAT_PREFIX = 'new-beat-'
+const NEW_BEAT_KEY = /^new-beat-[a-z0-9-]{1,48}$/
+const BEAT_CHAPTERS = [1, 2, 3, 4, 5, 6]
+const BEAT_SCENES: SceneKind[] = [
+  'meadow',
+  'theater',
+  'beach',
+  'bay',
+  'plaza',
+  'highway',
+  'marsh',
+  'rivermouth',
+]
+
+export function isNewBeatKey(key: string): boolean {
+  return NEW_BEAT_KEY.test(key)
 }
 
 const SKILLS: SkillId[] = ['rizz', 'burly', 'wits', 'lore', 'psyche']
@@ -197,6 +218,12 @@ export function sanitizeCardEdit(raw: unknown): CardEdit {
       .flatMap((value, index) => addedChoice(value, index) ?? [])
     if (added.length) edit.added = added
   }
+  const beat = record(source.beat)
+  const chapter = Number(beat?.chapter)
+  if (beat && BEAT_CHAPTERS.includes(chapter)) {
+    const scene = BEAT_SCENES.find((s) => s === beat.scene) ?? 'meadow'
+    edit.beat = { chapter, scene }
+  }
   return edit
 }
 
@@ -247,5 +274,31 @@ export function applyCardEdit(
       ? { ...card.variants, ...edit.variants }
       : card.variants,
     choices: [...choices, ...added],
+  }
+}
+
+/**
+ * A new beat is playable only when it has a title, a body and at least one choice;
+ * otherwise it stays a draft and the engine never deals it.
+ */
+export function newBeatCard(key: string, raw: CardEdit): EncounterCard | null {
+  if (!isNewBeatKey(key)) return null
+  const edit = sanitizeCardEdit(raw)
+  if (!edit.beat || !edit.title || !edit.body || !edit.added?.length)
+    return null
+  return {
+    id: key,
+    kind: 'encounter',
+    chapter: edit.beat.chapter,
+    scene: edit.beat.scene,
+    place: edit.place ?? 'Somewhere along the route',
+    title: edit.title,
+    body: edit.body,
+    lensLines: edit.lensLines,
+    leadLines: edit.leadLines,
+    aloneLine: edit.aloneLine,
+    variants: edit.variants,
+    provenance: edit.provenance ?? 'Written in the Playbook Studio.',
+    choices: edit.added.map((choice): Choice => ({ ...choice })),
   }
 }

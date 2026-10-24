@@ -6,6 +6,7 @@ import {
   advance,
   chooseBeat,
   chooseEvent,
+  chooseFork,
   createRun,
   findCard,
   setLiveEdits,
@@ -43,6 +44,7 @@ import {
   applyCardEdit,
   isEmptyEdit,
   sanitizeCardEdit,
+  type CardEdit,
 } from '../playbook/edits'
 import { PLAYBOOK_ART_LANES, playbookArtRequest } from '../playbook/artLanes'
 import {
@@ -283,6 +285,65 @@ assert.ok(run.pending, 'an added choice plays like any other')
 setLiveEdits({})
 assert.equal(findCard('KN-1')?.title, 'The Night Before on the Plaza')
 
+// A Studio "+ New beat" is a whole row, not an overlay: it is dealt from its
+// chapter's fork pool and played to the end like an authored encounter.
+const NEW_BEAT = 'new-beat-lantern-swap'
+const newBeatRow: CardEdit = {
+  title: 'The Lantern Swap',
+  place: 'Arcata Plaza',
+  body: ['A stranger offers to trade lanterns.'],
+  beat: { chapter: 3, scene: 'bay' },
+  added: [
+    {
+      id: 'ignored',
+      label: 'Trade',
+      check: { skill: 'rizz', target: 7 },
+      success: { text: 'You swap.', effects: { goodwill: 1, flag: 'swapped' } },
+      failure: { text: 'They walk off.', effects: { nerve: -1 } },
+    },
+    { id: 'ignored', label: 'Decline', success: { text: 'You keep yours.' } },
+  ],
+}
+assert.equal(
+  sanitizeCardEdit({ ...newBeatRow, beat: { chapter: 99 } }).beat,
+  undefined,
+  'a beat with no real chapter is not a beat',
+)
+setLiveEdits({ [NEW_BEAT]: { ...newBeatRow, added: undefined } })
+assert.equal(findCard(NEW_BEAT), null, 'a draft with no choices is never dealt')
+setLiveEdits({ 'not-a-beat': newBeatRow })
+assert.equal(findCard('not-a-beat'), null, 'only new-beat keys make cards')
+setLiveEdits({ [NEW_BEAT]: newBeatRow })
+assert.equal(findCard(NEW_BEAT)?.choices.length, 2)
+let dealt: ReturnType<typeof createRun> | null = null
+for (let seed = 1; seed <= 4000 && !dealt; seed++) {
+  let r = chooseEvent(createRun(seed, 'rower'), 'kinetic')
+  for (let guard = 0; guard < 40 && r.phase !== 'fork'; guard++) {
+    if (r.phase === 'beat' && !r.pending) {
+      const playable = findCard(r.card)?.choices.find((c) => !c.locked)
+      r = chooseBeat(r, playable!.id)
+    } else r = advance(r)
+  }
+  if (r.phase === 'fork' && r.offered.includes(NEW_BEAT)) dealt = r
+}
+const reached = dealt ? 1 : 0
+let finished = 0
+if (dealt) {
+  let r = chooseFork(dealt, NEW_BEAT)
+  assert.equal(r.card, NEW_BEAT)
+  const first = findCard(NEW_BEAT)!.choices[0]!
+  r = chooseBeat(r, first.id)
+  assert.ok(r.pending, 'the new beat resolves its rolled choice')
+  r = advance(r)
+  assert.ok(r.played.includes(NEW_BEAT), 'and is recorded as played')
+  assert.notEqual(r.card, NEW_BEAT, 'the run moves on afterwards')
+  finished = 1
+}
+assert.ok(reached > 0, 'a new beat is reached in seeded play')
+assert.ok(finished > 0, 'and its choice resolves like any other')
+setLiveEdits({})
+assert.equal(findCard(NEW_BEAT), null, 'withdrawing the row withdraws the beat')
+
 // Server validation.
 assert.equal(resolvePlaybookGame('ecotone'), 'ecotone')
 assert.throws(() => resolvePlaybookGame('pinball'))
@@ -294,6 +355,15 @@ assert.throws(
   'assembled beats are not edited directly',
 )
 assert.equal(resolvePlaybookNode('ecotone', 'GR-1', { editable: true }), 'GR-1')
+assert.equal(
+  resolvePlaybookNode('ecotone', 'new-beat-x', { editable: true }),
+  'new-beat-x',
+  'a new beat key is accepted for saving',
+)
+assert.throws(() => resolvePlaybookNode('ecotone', 'new-beat-x'))
+assert.throws(() =>
+  resolvePlaybookNode('shifting-lands', 'new-beat-x', { editable: true }),
+)
 assert.deepEqual(normalizePlaybookNote({ kind: 'comment', body: ' Hi ' }), {
   kind: 'comment',
   body: 'Hi',

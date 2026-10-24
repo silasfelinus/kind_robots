@@ -833,6 +833,279 @@
             }
           }
         ]
+      },
+      {
+        "id": "goody-hale-apples",
+        "act": 1,
+        "title": "Apples on the Doorstep",
+        "place": "The porches of Crystal Street, eleven p.m.",
+        "text": "It is 1986, the year every parent in Glimmer Falls inspects Halloween candy like a bomb squad, and tonight a woven basket of shining red apples has appeared on every porch on Crystal Street. They are a small, striped, old-fashioned kind that nobody has grown in this valley for a hundred years. Mrs. Dolores Pell is already going door to door in her bathrobe with a flashlight, stuffing them into a garbage bag and announcing that they are poisoned. Your basket is still sitting on your welcome mat, smelling like late summer.",
+        "art": "A woven basket of small striped red apples glowing on a suburban welcome mat at night, a porch light casting warm gold, a woman in a bathrobe with a flashlight and a garbage bag marching up the next driveway",
+        "choices": [
+          {
+            "id": "take-a-bite",
+            "label": "Take a bite, right there on the porch",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 7,
+            "success": {
+              "text": "It is crisp and tart and tastes like a summer afternoon a long time ago. For one second you see an orchard where the roundabout stands, and a tall woman in gray on a ladder, tossing apples down to children. The ache of the whole week drains out of your shoulders, and you sleep like a stone.",
+              "art": "A teenager biting a striped red apple on a porch at night, a dreamy vision of a sunlit orchard shimmering around them, a tall woman in a gray homespun dress on a wooden ladder tossing apples to laughing children",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-apple"]
+              }
+            },
+            "failure": {
+              "text": "The apple is perfectly fine. You, unfortunately, bite it at the exact moment Mrs. Pell's flashlight finds you, and she screams so loudly the whole street comes out to watch you get marched home \"for observation.\" You lie awake all night, healthy and thoroughly embarrassed.",
+              "art": "A woman in a bathrobe shrieking and pointing a flashlight at a teenager mid-bite on a porch at night, neighbors in robes peering from doorways, a basket of red apples spilling across the steps",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "x-ray-it",
+            "label": "Take an apple to Dr. Haddad's garage clinic and X-ray it",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "Dr. Haddad, in a bathrobe over his scrubs, slides the apple under his clinic's old X-ray machine, the same way the hospital is screening candy bars this week. The film shows exactly what an apple should hold: seeds, set in a perfect five-pointed star. \"This is an old variety,\" he says, turning it in his hand. \"Somebody here grew these once.\"",
+              "art": "A veterinarian in a bathrobe over scrubs holding an X-ray film to a light box in a cluttered garage clinic at night, the film showing apple seeds in a star, a curious teenager and a three-legged cat beside him",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The X-ray machine coughs and blacks out the whole garage, and Dr. Haddad's three-legged cat knocks the apple into a bin of rubber gloves. By the time you find it, Mrs. Pell's patrol has collected every basket on the street and is carrying them to the burning can.",
+              "art": "A dark garage clinic lit by a single sparking X-ray machine, a three-legged cat leaping off a counter, a teenager digging through a bin of rubber gloves, flashlights bobbing outside the window",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "bake-a-pie",
+            "label": "Bake the apples into a pie and bring a slice to Mrs. Pell",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You bake until two in the morning and carry a slice across the street on your best plate. Mrs. Pell eyes it, sniffs it, takes one bite, and her face goes soft and young. \"My grandmother made pie with apples just like these,\" she says quietly, \"from a tree behind the church that the town cut down.\" She sets the garbage bag on the porch and does not pick it up again.",
+              "art": "A teenager offering a warm slice of apple pie on a china plate to a woman in a bathrobe on her porch at night, her face softening as she takes a bite, a garbage bag of apples slumped beside her slippers",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The pie comes out black on top and raw in the middle, and when you open the kitchen window to clear the smoke, every crow on the street lands on your sill. Mrs. Pell sees the crows and adds your house to her list.",
+              "art": "A smoky suburban kitchen at night with a burnt pie on the counter, a row of glossy black crows crowding the open window sill, a teenager waving a dish towel, a flashlight peering in from across the street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-pageant",
+        "act": 2,
+        "title": "The Founders' Day Pageant",
+        "place": "The Glimmer Falls High auditorium, dress rehearsal, 11 p.m.",
+        "text": "Your history class got roped into the Founders' Day pageant, and the drama teacher has cast you, without asking, as the Witch. The script is the founders' version: a wicked woman, three brave men, a township meeting and a happy town. At the late dress rehearsal, the cardboard meetinghouse starts to smell of real woodsmoke, the actors' fake beards grow in thick and gray, and the boy playing Reverend Pell points at you with a hand that is not his own. \"Speak, witch,\" he says, in a voice from 1859. Out in the dark seats, the parents who came to pick up their kids have all gone very still.",
+        "art": "A high school stage at night dressed as a cardboard 1859 meetinghouse, three teen actors in thick gray beards and black hats pointing at a teenager in a pointed witch hat, wisps of woodsmoke, silent parents in the dark seats",
+        "choices": [
+          {
+            "id": "speak-for-her",
+            "label": "Answer for her: say what she actually did that summer",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "\"I sat up with Eliza for three nights,\" you hear yourself say, and you mean every word. \"Willow bark, cool cloths, broth by the spoonful, and the fever was turning when they sent me away.\" The beards fall off the actors like dead leaves, and a mother in the third row stands up and says, \"Let the kid talk.\" Nobody in that auditorium forgets it.",
+              "art": "A teenager in a witch costume speaking out boldly center stage, fake gray beards drifting off three startled teen actors like leaves, a mother rising from her seat in the dark auditorium",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["goody-hale-spoke-for-her"]
+              }
+            },
+            "failure": {
+              "text": "Your voice comes out thin and shaking, and the meetinghouse answers with a gavel crack that shakes dust from the rafters. \"Guilty,\" the three founders say together, the parents in the seats murmur along, and the stage lights go out on you standing alone in a pointed hat.",
+              "art": "A lone teenager in a pointed witch hat in a fading spotlight on a high school stage, three bearded figures with a raised gavel, dust falling from the rafters, murmuring parents in shadow",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "play-her-the-hero",
+            "label": "Throw away the green nose and play the Witch as the hero of the show",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "You fling the green rubber nose into the orchestra pit and play her like a leading lady: a midwife with a bag of herbs, a sharp tongue and two hundred babies to her name. Glory slips in from the wings with a lantern and starts feeding you better lines. By the end of the scene the parents are cheering, and the founders' beards have wilted into crepe hair.",
+              "art": "A teenager striding center stage as a proud frontier midwife with an herb satchel, a drag queen in sequins holding a lantern in the wings, cheering parents, wilted crepe beards on three teen actors",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The audience laughs, but in the wrong places, the way people laugh at the witch in a school play. The cardboard meetinghouse leans in over you, and the green rubber nose stays stuck until you scrub it off at home with dish soap.",
+              "art": "A teenager in a green rubber witch nose on a high school stage, a cardboard meetinghouse leaning over them, an audience laughing in the dark, a crooked pointed hat",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-for-proof",
+            "label": "Demand that the prosecution show its evidence",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 1
+            },
+            "success": {
+              "text": "\"Objection,\" you say. \"What exactly is the evidence?\" The boy playing Josiah Crane flips through his script, and the pages are blank, and so are the Reverend's, and even the gavel turns out to be cardboard. With nothing behind it, the 1859 meeting fades back into a high school rehearsal, and the drama teacher looks at the script for the first time like he is actually reading it.",
+              "art": "A teenager in a witch costume raising a hand in objection on a high school stage, a bearded teen actor flipping through blank script pages, a cardboard gavel, a drama teacher frowning at a binder in the aisle",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The founders produce their evidence: a grieving father, a burned garden, a frightened town. None of it proves a thing, but the parents in the dark seats nod anyway, and you are hustled off the stage with a pointed hat jammed down over your ears.",
+              "art": "Three bearded figures in black hats looming on a high school stage, a teenager hustled offstage with a pointed hat jammed over their ears, parents nodding in the dark auditorium",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "goody-hale-torchlight",
+        "act": 3,
+        "title": "The Torchlight Walk",
+        "place": "Crystal Street to the old spring, October 30, midnight",
+        "text": "Every year on the night before Founders' Day, Glimmer Falls holds its Torchlight Walk from the roundabout to the old spring in Crystal Woods, to \"drive the witch out of the valley.\" This year the committee has handed out real torches, and nearly the whole town has come, in parkas and Halloween costumes, flames bobbing down the cul-de-sac. At the edge of the woods the briars have risen into a wall taller than a house, and behind it the sleepwalking women of the circle kneel in a ring. Somebody near the front starts shouting about fire.",
+        "art": "A long procession of townspeople in parkas and Halloween costumes carrying flaming torches down a suburban street at midnight toward a towering wall of thorny briars blooming with white roses at the edge of dark oak woods",
+        "choices": [
+          {
+            "id": "tell-the-walkers",
+            "label": "Climb onto the trailhead bench and tell the walkers who really lived at the spring",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 2
+            },
+            "success": {
+              "text": "You climb onto the bench and tell them: a widow lived at this spring before there was a town, and she delivered more than two hundred of their great-grandparents. A woman in a parka near the front says, \"My great-grandmother was one of them. There's a story in our family.\" Then a man says it, and another, and one by one the torches go down into the wet grass, hissing out.",
+              "art": "A teenager standing on a wooden trailhead bench speaking to a crowd at night, townspeople in parkas lowering their torches into wet grass in curls of smoke, a wall of briars glowing softly behind them",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["goody-hale-torches-down"]
+              }
+            },
+            "failure": {
+              "text": "The walkers cannot hear you over the committee's bullhorn. The torches surge past your bench toward the briars, the wall of thorns bristles and leans out to meet them, and you spend the rest of the night running buckets from the creek with the few neighbors who believed you.",
+              "art": "A torchlit crowd surging past a teenager on a trailhead bench toward a bristling wall of briars at night, a man with a bullhorn at the front, a few neighbors hauling buckets of creek water",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "switch-the-route",
+            "label": "Swap the route markers and lead the walk in circles around the cul-de-sac",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "Kev knows every path in Glimmer Falls, and the two of you run ahead swapping the committee's little reflector arrows. The Torchlight Walk marches confidently around the roundabout once, twice, five times, until the torches burn low, the bullhorn goes hoarse and everybody goes home grumbling about bad planning. The briars never see a flame.",
+              "art": "Two teens sprinting through suburban hedges at night carrying armfuls of reflector arrows, a torchlit procession circling a glowing purple geode roundabout behind them, torches burning low",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The committee chairman catches you with an armful of arrows and announces it over the bullhorn. Now the whole Torchlight Walk follows you, very slowly, all the way to your house, and the briars on your own lawn burst up a foot higher behind the crowd.",
+              "art": "A teenager clutching reflector arrows caught in a man's flashlight and bullhorn at night, a torchlit crowd trailing them up a suburban driveway, thorny briars bursting from the front lawn",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "conga-line",
+            "label": "Hijack the walk with a boombox and turn it into a Halloween parade",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "mixtape",
+              "amount": 1
+            },
+            "success": {
+              "text": "You hoist a boombox on your shoulder, crank the mixtape and start a conga line at the front of the walk. Costumed kids join first, then their parents, then half the street, kicking their knees up, and somehow the torches end up stuck in a pumpkin patch like birthday candles. At the edge of the woods, the briar wall sways along to the music and reaches for nobody.",
+              "art": "A joyful conga line of townspeople in Halloween costumes dancing behind a teenager with a boombox on their shoulder at night, torches planted in a pumpkin patch like birthday candles, a briar wall swaying in the background",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The batteries die halfway through the first song. In the sudden silence the committee's bullhorn takes up the old chant, and your conga line becomes the front of the march, carrying torches right up to the thorns.",
+              "art": "A teenager with a silent boombox at the head of a torchlit march at night, costumed townspeople pressing forward, a towering wall of thorns looming ahead, a bullhorn raised in the crowd",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -915,6 +1188,94 @@
           "failure": {
             "text": "Your voice is lost in the wind and the crows. Temperance has heard apologies before, from men who went home and changed nothing. The thorns hold. You have the truth. Make her believe someone will act on it.",
             "art": "A teenager shouting from a register into a storm of crows and wind before a wall of thorns, a gray woman turning her face away",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Speak to the thorns as her garden, the way you learned to on the first nights",
+          "intent": "clever",
+          "skill": "lore",
+          "target": 7,
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "goody-hale-rose",
+            "amount": 1
+          },
+          "success": {
+            "text": "On the first nights you learned these briars were a garden before they were a weapon. You lay your palm on the thorn cathedral and tell them, \"You were medicine. Let them out, and nobody burns you again.\" The canes unknot one by one into a doorway, and the founders' families crawl out into the night, while Temperance lowers her lantern and sinks back into her soil to sleep.",
+            "art": "A teenager with a palm pressed to a cathedral of thorny briars at night, the canes unknotting into an arched doorway, frightened families crawling out, a tall woman in gray with a green lantern sinking into the earth",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The briars remember you, but they remember the Cranes better, and tonight the Cranes are inside. The canes shiver and hold fast. They nearly listened; say it like you mean it.",
+            "art": "A teenager's hand on a shivering wall of briars at night, thorns tightening, faces of trapped families visible through the canes, a green lantern glowing beyond",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Plant yourself between the thorns and the town, the way you stood up when the town turned on her",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "goody-hale-spoke-for-her",
+            "amount": 1
+          },
+          "success": {
+            "text": "The town has already watched you stand up for her once. You do it again in front of everyone: you kick the bonfire wood away from the thorns, push the committee back from their matches, then put your shoulder into the briars and haul the founders' families out through the gap. Temperance watches you protect both sides at once, and the cathedral sags and sinks back into the soil.",
+            "art": "A teenager shoving bonfire logs away from a cathedral of briars at night while dragging trapped families through a gap in the thorns, a crowd held back behind them, a tall woman in gray watching with a green lantern",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You shove, and the thorns shove back harder while the committee shouts over you about devil work. You end up scratched and breathless on the curb. You know how to stand in the middle; plant your feet.",
+            "art": "A scratched teenager sitting breathless on a curb at night, a wall of briars surging behind them, a committee of townspeople in bathrobes shouting with flashlights",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Tell the whole town her name, the way you protected her the night before Halloween",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "goody-hale-torches-down",
+            "amount": 1
+          },
+          "success": {
+            "text": "The neighbors who stood with you the night before step up beside you at the thorns. You read the register and her receipt book aloud, and the whole crowd says her name with you: Temperance Hale, midwife and healer. Hollis Crane steps up, voice shaking, and promises her a stone. The briars burst into calendula and feverfew, the cathedral opens like a gate, and the healer of Crystal Springs finally smiles.",
+            "art": "A crowd of townspeople speaking together before a cathedral of briars bursting into orange calendula and white feverfew at night, a teenager reading from an old ledger, a tall woman in gray crowned with flowers smiling, green lantern lowered",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "The crowd's voices falter on her name, and Temperance has heard half-hearted apologies before. The thorns hold. Hold the truth up higher, and give the town a moment to catch up with you.",
+            "art": "A hesitant crowd murmuring before a wall of thorns at night, a teenager holding up an old ledger, a tall woman in gray with a green lantern watching with tired eyes",
             "effects": {
               "nerve": -2
             }

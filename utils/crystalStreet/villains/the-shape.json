@@ -791,6 +791,255 @@
             }
           }
         ]
+      },
+      {
+        "id": "the-shape-babysitter-pledge",
+        "title": "The Babysitter Pledge",
+        "place": "St. Jude's church basement, the Halloween Safety Committee sitter meeting, 8 p.m.",
+        "text": "Somebody signed you up for the Halloween Safety Committee's sitter meeting, so you are in a folding chair in St. Jude's basement holding a Babysitter Pledge card while Mrs. Carol Pickett reads the rules aloud in her orange sash. No boys in the house. No long phone calls. Lights out by ten. No laughing loud enough to wake the baby. In the very back row, past the coffee urn, a girl in a cranberry cardigan sits perfectly still, knitting. Every time Mrs. Pickett reads a rule, the needles click once, like a gavel, and the fluorescent lights dim.",
+        "art": "A church basement at night with rows of folding chairs, teenage babysitters holding small cards, a woman in an orange sash reading at a podium beside a coffee urn, and in the back row a pale masked girl in a cranberry cardigan knitting under dimming fluorescent lights",
+        "choices": [
+          {
+            "id": "add-a-rule",
+            "label": "Stand up and propose a new rule for the pledge, with feeling",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Point of order!\" you announce, and propose Rule Eleven: every sitter laughs out loud at least once a night. The room giggles. Pearl Washington, rocking in a lawn chair she brought from home, seconds the motion. Mrs. Pickett sputters, and the room votes yes by a landslide. In the back row, the needles stop. When you look, the chair is vacant, and on it lies a pledge card with your new rule copied neatly at the bottom in round, careful handwriting.",
+              "art": "A teenager standing in a church basement proposing a motion with one raised finger, rows of babysitters laughing, an elderly woman in a lawn chair seconding it, a vacant back-row chair holding a small card and a ball of cranberry yarn",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-rewrote-the-pledge"]
+              }
+            },
+            "failure": {
+              "text": "You stand up to propose a new rule and every head turns, including the one in the back row. Your mouth goes dry. Mrs. Pickett says, \"Sit down, dear,\" and you do, and for the rest of the meeting you can feel a plaster stare on the back of your neck and hear the needles keeping time.",
+              "art": "A nervous teenager sinking into a folding chair at a church basement meeting, a woman in an orange sash at the podium, a pale plaster-masked girl in a cranberry cardigan staring from the back row",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "sit-in-the-back",
+            "label": "Carry two cups of coffee to the back row and sit beside the knitting girl",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You sit down beside her and set the second cup of terrible church coffee on the chair between you. She keeps her smooth plaster face turned toward the front, but her needles slow. After the next rule, very quietly, she says, \"I signed one of those in 1971. I kept every rule but one.\" When the lights come up, the second cup is half gone and wearing a tiny knitted cozy.",
+              "art": "A teenager sitting in the back row of a church basement beside a pale plaster-masked girl in a cranberry cardigan, two paper cups of coffee on the chair between them, one wearing a tiny knitted cozy",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You sit down beside her and the folding chair collapses under you with a bang that echoes off the cinderblock. The whole basement turns to look. When you scramble up, the back row is vacant, and your pledge card has been knitted neatly into the seat of your chair.",
+              "art": "A teenager sprawled on the floor of a church basement among the pieces of a collapsed folding chair, rows of babysitters turning to stare, cranberry yarn draped over a vacant back-row chair",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-whose-rules",
+            "label": "Raise your hand and ask Mrs. Pickett who wrote these rules",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "\"Who wrote these?\" you ask, all innocence. Mrs. Pickett opens her mouth and nothing comes out. Her hand drifts to her sash. \"They're just common sense, dear. Every good girl knows them.\" Down the rows, a few sitters trade looks, and you watch Mrs. Pickett's eyes flick to the back row and away, fast, the way people glance at something they have spent fifteen years not looking at.",
+              "art": "A woman in an orange sash at a church basement podium touching her sash nervously, a teenager with a raised hand among the rows, babysitters glancing toward a shadowy back row",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "\"Who wrote these?\" you ask, and the lights die. In the dark, every pledge card in the basement rustles at once, and a girl's voice right beside your ear whispers, \"Rules are rules.\" When the custodian finds the breaker, your card has a new line stitched across the bottom in cranberry yarn: Don't ask.",
+              "art": "A dark church basement lit by a single flashlight beam, rows of folding chairs, small cards fluttering in the air, a pale plaster mask glimpsed close beside a startled teenager's ear",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 1
+      },
+      {
+        "id": "the-shape-pleasant-expression",
+        "title": "Practice a Pleasant Expression",
+        "place": "The art room at Glimmer Falls High, after the late bus",
+        "text": "You go back to the art room for your backpack after the late bus and find the plaster masks from Mr. Ferreira's sculpture unit drying on the shelves: thirty white faces of kids you know, every one smiling the same small, polite, practiced smile. So is the one with your name under it, though you never made one. At the teacher's desk sits a girl in a cranberry cardigan and a plaster mask, tapping a steel needle on the desk like a ruler. \"Again,\" she says, in the voice of every grown-up who ever told a girl to smile. \"Practice a pleasant expression.\"",
+        "art": "A dim high school art room after hours, shelves of white plaster face masks all smiling the same small smile, a pale masked girl in a cranberry cardigan seated at the teacher's desk tapping a steel knitting needle, a teenager with a backpack frozen at the entrance",
+        "choices": [
+          {
+            "id": "make-a-face",
+            "label": "Make the ugliest, silliest face of your life, right at her",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You cross your eyes, stretch your mouth with both pinkies and stick out your tongue as far as it goes. Then the fish. Then the gorilla. Along the shelves, thirty plaster masks crack, pop and grin, gap-toothed and goofy, every one a different face. The girl at the desk drops her needle. In the morning the whole school crowds into the art room to see the masks that made themselves funny, and Mr. Ferreira gives everybody an A.",
+              "art": "A teenager making a ridiculous cross-eyed face in a dim art room, shelves of white plaster masks cracking into goofy grins, a pale masked girl in a cranberry cardigan dropping a knitting needle",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["shape-made-a-face"]
+              }
+            },
+            "failure": {
+              "text": "You try to make a face, but it comes out stiff, then small, then polite. Your cheeks lock into the practiced smile and stay that way all the way home, through dinner and into homeroom, where three different teachers tell you how pleasant you look today.",
+              "art": "A teenager at a breakfast table wearing a stiff polite smile, a plate of eggs untouched, family members glancing at each other across the kitchen in morning light",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ask-about-the-mask",
+            "label": "Ask her gently who made her practice",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"Who made you practice?\" you ask. The tapping stops. \"Valley Haven,\" she says at last. \"Deportment class. They pressed plaster on our faces and made us hold still until it set. Smiling.\" She touches the cheek of her mask, where a girl's fingerprints are pressed in too deep. \"I was sixteen. I wasn't sorry for anything.\" She turns the mask with your name face down on the desk, gently, like she is letting you off the hook.",
+              "art": "A pale girl in a cranberry cardigan at a teacher's desk touching the fingerprint dents in the cheek of her plaster mask, a teenager sitting across from her listening in a dim art room",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"Who made you practice?\" you ask, and she tilts her head the way a teacher does right before detention. \"You did,\" she says. \"All of you. Every time you said smile.\" The masks on the shelves turn to face you one by one, and you back out into a hallway that is very long and very dark.",
+              "art": "A long dark high school hallway at night, a teenager backing away from an art room where rows of white plaster masks have all turned to face them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "smash-your-mask",
+            "label": "Take the mask with your name off the shelf and break it on the floor",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "You lift the plaster face with your name under it, raise it over your head and bring it down on the linoleum. It shatters like a dropped plate. The sound rings through the empty school, and every other mask on the shelves cracks down the middle in sympathy. The girl at the desk stands, very slowly, and looks at the pieces for a long time, like she has wanted to do that for fifteen years.",
+              "art": "A teenager smashing a white plaster mask on an art room floor, shards flying, shelves of masks cracking down the middle, a pale masked girl in a cranberry cardigan rising slowly behind the desk",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The plaster is harder than it looks. It bounces off the linoleum without a scratch and lands face up, smiling at you. When you bend to grab it, the girl from the desk is already standing over you, handing it back like a lost assignment. You take it home. In the morning it is on your pillow.",
+              "art": "A smiling white plaster mask resting on a pillow in a dark bedroom at dawn, a teenager sitting bolt upright in bed staring at it",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 2
+      },
+      {
+        "id": "the-shape-every-sitter",
+        "title": "Every Sitter on the Block",
+        "place": "Crystal Street, Mischief Night, a babysitter in every house",
+        "text": "Every parent on Crystal Street has gone to the Jaycees' costume ball, so every house on the cul-de-sac has a sitter tonight, and you are one of them. At 9:30 the walkie-talkies start crackling: a figure on the Hendersons' lawn, then by the Okafors' mailbox, then under your streetlight. The Shape is walking the circle of houses, needles in hand, stopping at each lit window to count what she sees: a sitter on the phone, a boyfriend on the couch, a girl laughing too loud. Eight houses. Eight sitters. Twenty-three sleeping kids. She is checking every rule on every one.",
+        "art": "A suburban cul-de-sac on a misty autumn night, every house glowing with lit rooms and teenage babysitters inside, a teenager holding a walkie-talkie on a porch, a pale masked girl in a cranberry cardigan walking the curving sidewalk with knitting needles",
+        "choices": [
+          {
+            "id": "block-party",
+            "label": "Call every sitter and every kid out to the roundabout for a Mischief Night block party",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "item": "walkie-talkies",
+              "amount": 2
+            },
+            "success": {
+              "text": "Over the walkie-talkies you call it: \"Everybody out! Flashlights, blankets, snacks, bring the babies!\" Ten minutes later the roundabout is a block party, eight sitters and twenty-three kids in pajamas around the Heartstone, a boombox playing, everyone breaking every rule at once and all of them together. The Shape stands at the edge of the light, counting, and keeps getting the same number. Everyone. At last she sits down on the curb to watch.",
+              "art": "A cheerful block party around a glowing purple geode at night, teenage babysitters and children in pajamas with flashlights and blankets, a boombox, a pale masked girl in a cranberry cardigan sitting on the curb watching",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["shape-block-party"]
+              }
+            },
+            "failure": {
+              "text": "Half the sitters come out. The other half lock their doors and will not answer, and you spend the night running between the party and the dark porches while needles click behind every hedge. Everyone is fine by midnight. You are not sure your heart is.",
+              "art": "A teenager running between dark suburban porches at night clutching a walkie-talkie, a glowing roundabout party in the distance, knitting needles glinting behind a hedge",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "walkie-check-in",
+            "label": "Run a walkie-talkie roll call: every house checks in, every ten minutes",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You run roll call on channel nine like an air-traffic controller. \"House three, check in.\" \"House three, all good, Joey's asleep.\" \"House six?\" Every ten minutes, again and again. Out on the street the Shape stops at each window and hears a sitter reporting that the kids are safe, and you watch her nod once at every house, as if checking it off a list.",
+              "art": "A teenager on a porch speaking into a walkie-talkie under a porch light, lit rooms all around a cul-de-sac with babysitters answering on their own radios, a pale masked girl nodding beside a lit house",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "At the 10:20 check-in, house five does not answer. You sprint over. The sitter is fine, she dropped her walkie in the toilet, but by the time you get back, every walkie on the street is playing the same slow click, click, click.",
+              "art": "A teenager sprinting across a dark lawn toward a lit house at night, a crackling walkie-talkie in hand, a pale cardigan-clad shape at the edge of a streetlight",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "walk-the-circle",
+            "label": "Walk the circle of houses yourself, ten paces behind her, flashlight on",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You fall in step ten paces behind her, flashlight steady. She stops at a window; you stop. She goes on; you go on. At the last house she turns and looks at you for a long time, and you realize you have been doing exactly what she is doing: counting everyone, checking every window, making sure. She lowers her needles and walks on, and at the next window she passes, she does not stop.",
+              "art": "A teenager with a flashlight walking ten paces behind a pale masked girl in a cranberry cardigan along a misty suburban sidewalk at night, her knitting needles lowered, lit houses glowing on both sides",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "She stops. You stop. She turns around, and you drop the flashlight. By the time you find it rolling in the gutter she is gone, every porch light on the street has switched off at once, and you walk the rest of the circle in the dark, calling the sitters' names.",
+              "art": "A teenager alone on a pitch-dark suburban street at night, a flashlight rolling in the gutter, every porch light dark, a ball of cranberry yarn unspooling across the asphalt",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 3
       }
     ],
     "finale": {
@@ -873,6 +1122,94 @@
           "failure": {
             "text": "Every phone keeps ringing over your words. She cannot hear the truth through fifteen years of rules and static. You have everything you need in your hands, but she needs it louder, clearer, from more than one voice.",
             "art": "A teen shouting into a wall phone in a lit kitchen, an old photo and date book clutched in one hand, the pale masked figure outside the window unmoving in the static-blue streetlight",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Give her a better sitter rule, the way the first nights taught you",
+          "intent": "clever",
+          "skill": "brains",
+          "target": 7,
+          "bonus": {
+            "flag": "shape-rewrote-the-pledge",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "The first nights of the week taught you how the Shape thinks: she does not break rules, she enforces them. So you give her a better one. You lean out the Kettering front door and call it down the walk the way a head sitter calls it: \"New rule! Nobody gets left alone tonight. Not the sitters, not the couple, not Mrs. Pickett. Everybody stays together.\" Your crew pulls Carol Pickett up onto the porch with the rest of you. The Shape stops at the foot of the walk, needles raised, counting face after face. Everyone together. Every rule kept. Slowly the needles come down, and all along Crystal Street the phones stop ringing.",
+            "art": "A teenager leaning out the front entrance of a suburban house on Halloween night calling out, friends pulling a woman in an orange sash onto the porch, a pale masked girl in a cranberry cardigan lowering her knitting needles on the front walk",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You shout the new rule, but every phone on the street rings over you, and the Shape keeps walking up the path at the same calm pace. She has not heard your rule yet. The crew drags you back inside and slams the door, shaken but whole.",
+            "art": "Friends pulling a teenager back inside a suburban house on Halloween night, jack-o-lanterns lining the walk, a pale masked girl in a cranberry cardigan walking calmly up the path with needles raised",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Walk down the front walk and look her in the mask, the way you did all week",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "shape-made-a-face",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "All week she watched you through sliding doors and hedges and from behind a teacher's desk, and all week you looked right back. You walk down the front walk between the jack-o'-lanterns and stop square between the Shape and Carol Pickett. \"No,\" you say. \"Not her. Not anybody. Nobody gets punished tonight.\" The needles rise and hold. You do not move. One by one your crew comes down the steps and stands with you, a wall of kids who refuse to be sorted into good and bad. The Shape lowers her needles, steps back off the walk and stands quietly under the streetlight, and the phones fall silent.",
+            "art": "A row of teenagers standing shoulder to shoulder on a jack-o-lantern-lined front walk on Halloween night, a woman in an orange sash behind them, a pale masked girl in a cranberry cardigan lowering her needles under a streetlight",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You plant yourself on the walk, but your voice shakes and the needles do not even pause. She steps around you, calm as a crossing guard, and your crew has to yank Carol Pickett up the porch steps just ahead of her. You are fine. You are shaking. The night is not over.",
+            "art": "A shaking teenager on a front walk on Halloween night as a pale masked girl in a cranberry cardigan steps calmly past, friends hauling a woman in an orange sash up the porch steps",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Bring the whole street out like the night before Halloween, and let her count everyone safe",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "shape-block-party",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "Last night, in a crowd where nobody got left behind, she counted and came up with the right number. So you open the Kettering door and bring the whole street out onto the lawn: sitters, couples, kids, the loud laughers, everyone under the porch lights. You read Doris's date book, play the Party Line tape and hold up the Harvest Hop photo, and then you hand Carol Pickett the phone. She says it for the whole street to hear: \"I saw you kiss her. I made up the rest. I'm sorry, Mickey.\" The needles lower. The Shape counts the lawn one last time, everyone, all here, and slowly lifts her hands and takes off the mask.",
+            "art": "A pale freckled teenage girl in a cranberry cardigan lifting away a plaster mask on a suburban lawn on Halloween night, neighbors, babysitters and kids gathered under glowing porch lights, a woman in an orange sash in tears holding a corded phone",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You bring the street out onto the lawn, but there are too many voices and too many phones ringing, and Carol freezes with the receiver in her hand. The Shape stands at the curb, counting and recounting, still waiting to hear the truth clearly enough to believe it.",
+            "art": "A crowded suburban lawn on Halloween night full of neighbors and kids, a woman in an orange sash frozen with a phone receiver on a long cord, a pale masked girl in a cranberry cardigan waiting at the curb",
             "effects": {
               "nerve": -2
             }

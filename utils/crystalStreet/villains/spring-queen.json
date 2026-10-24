@@ -726,6 +726,260 @@
             }
           }
         ]
+      },
+      {
+        "id": "spring-queen-corsage-delivery",
+        "title": "Special Delivery",
+        "place": "Your front porch on Crystal Street, midnight",
+        "text": "At midnight the doorbell rings once, politely. Nobody is on the porch, only a clear plastic florist's box tied with mint ribbon and beaded with rainwater, though the sky is full of stars. Inside is a wrist corsage of three gardenias, browning at the edges, and a tiny card in looping cursive: Save the last dance. R. A line of wet footprints leads off the porch toward the high school, and the whole yard smells like a storm that happened twenty years ago.",
+        "art": "A suburban front porch at midnight under a starry sky, a clear florist box tied with mint ribbon and beaded with rainwater on the welcome mat, a browning gardenia wrist corsage inside, wet footprints leading down the steps toward a distant high school",
+        "choices": [
+          {
+            "id": "follow-the-footprints",
+            "label": "Slip the corsage on your wrist and follow the wet footprints",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "The footprints lead you down Crystal Street, around the Heartstone and up to the gym doors, where they stop toes together, like someone waiting to be let in. The corsage on your wrist turns warm. Behind you a girl's voice says, \"Thanks for walking me. Nobody ever walks me,\" and when you turn there is only a puddle shaped like a high-heeled shoe.",
+              "art": "A teenager in socks standing at the doors of a high school gym at night, a gardenia corsage glowing on one wrist, a puddle shaped like a high-heeled shoe on the step, wet footprints ending toe to toe",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The footprints lead you in circles around the Heartstone, faster and faster, until you are jogging in your socks and the corsage is cinched tight as a blood-pressure cuff. You wake on the roundabout lawn at three in the morning with wet feet and a gardenia petal in each fist.",
+              "art": "A teenager in wet socks sprawled on a moonlit roundabout lawn beside a giant purple geode, fists full of gardenia petals, a looping trail of wet footprints circling the grass",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "keep-it-fresh",
+            "label": "Put it in the fridge like a real corsage and keep it safe for whoever it's for",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "You tuck the box in the vegetable crisper the way your aunt kept her prom flowers and stick a note on it for the family: DO NOT EAT. By morning the gardenias are snow white and fresh, and the little card has changed. Now it reads: For Del. Please get it to her. The corsage was never for you. You were just the one who answered the door.",
+              "art": "A refrigerator vegetable crisper glowing in a dark kitchen, a florist box holding snow white gardenias tied with mint ribbon, a small handwritten card tucked in the bow, a teenager in pajamas smiling down at it",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-kept-the-corsage"]
+              }
+            },
+            "failure": {
+              "text": "The fridge hums, shudders and fills with rain. In the morning every shelf is a puddle, the milk carton is floating, and the corsage has sprouted a tangle of brown stems that wraps the eggs like a vine. Your mom takes one look, closes the fridge and walks away.",
+              "art": "An open refrigerator flooded with rainwater at dawn, a milk carton floating on a shelf, brown gardenia stems curling around an egg carton, a parent in a bathrobe squinting at it in disbelief",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "call-the-florist",
+            "label": "Call the after-hours number printed on the florist's box",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "It rings and rings, and then a cheerful woman picks up through a crackle of 1966 static. \"Petal and Stem, after-hours orders! Oh, the Vance corsage. Paid in full, to be delivered to the gym for Miss Hart, Spring Fling night. Was there a problem, hon?\" You tell her it never got there. There is a long pause, and then she says softly, \"Oh, that poor girl,\" and the dial tone sounds like rain.",
+              "art": "A teenager on a yellow kitchen wall phone at midnight, a florist box open on the counter, a faint shimmering vision of a 1960s flower shop with buckets of gardenias glowing in the air behind them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "A busy signal. Then the receiver goes cold and wet in your hand, and the busy signal turns into a slow-dance song, the same eight bars over and over. You hang up. The phone rings back every fifteen minutes until dawn, and every time you lift it, the band is still playing.",
+              "art": "A yellow kitchen wall phone dripping with rainwater at three in the morning, a tired teenager in pajamas staring at the ringing receiver, gardenia petals drifting across the linoleum",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 1
+      },
+      {
+        "id": "spring-queen-rain-check",
+        "title": "Rain Check",
+        "place": "Main Street at dusk, walking home past the library",
+        "text": "It is a clear, warm evening on Main Street, and it is raining on you. Only you. A stubborn little storm cloud the size of a beach umbrella followed you out of the pharmacy, and it drizzles on your head while people stop to stare: Mr. Pak sweeping outside his dry cleaners, two kids on BMX bikes, a Gazette reporter raising a camera. Inside the cloud, something hums a slow song. Whoever Roz is waiting for, she has decided you are going to help her find them.",
+        "art": "A sunny dusk on a small-town main street, a teenager walking under a tiny private storm cloud raining only on them, a shopkeeper with a broom staring, two kids on BMX bikes pointing, a reporter lifting a camera",
+        "choices": [
+          {
+            "id": "walk-to-the-library",
+            "label": "Walk your little storm up the library steps to Ms. Hart",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 2
+            },
+            "success": {
+              "text": "You drip across the marble lobby and Ms. Hart looks up from the returns cart. She does not ask. She steps out from behind the desk and stands under your cloud with you, rain spotting her cardigan, eyes closed. \"Gardenias,\" she says. \"She hated umbrellas. Said they were for people who weren't sure.\" For one minute the drizzle is warm as bathwater, and then the cloud thins to blue.",
+              "art": "A librarian in a cardigan standing with her eyes closed beside a teenager under a small indoor rain cloud in a marble library lobby, warm drizzle falling, gardenia petals scattered on the floor",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["spring-walked-the-rain"]
+              }
+            },
+            "failure": {
+              "text": "You make it up the steps, but the cloud gets nervous at the door and pours. Water sheets across the lobby, the microfiche reader sparks, and you spend the evening helping Ms. Hart lay the newspaper archive out to dry on every table. She keeps glancing at the ceiling like she is listening for something she missed.",
+              "art": "A flooded library lobby with old newspapers spread to dry across every table, a teenager with a mop, a librarian in a cardigan gazing up at a dripping ceiling",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "sing-in-the-rain",
+            "label": "Swing around a lamppost and sing in the rain like a big movie-musical number",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "You hook one arm around a lamppost and belt the only rain song you know, splashing in the gutter, and the BMX kids join in. Mr. Pak taps his broom in time. The little cloud swirls like a dancing skirt, the drizzle turns to glitter in the streetlight, and somewhere inside it a girl laughs, delighted, like she has never been the audience before.",
+              "art": "A teenager swinging around a lamppost on a twilight main street, splashing in the gutter, two BMX kids singing along, a small storm cloud overhead swirling like a skirt and sparkling with glitter",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks on the first high note, your sneaker slips, and you sit down hard in a puddle in front of half of Main Street. The Gazette reporter takes another photo. The cloud thunders once, embarrassed for both of you, and follows you home, soaking you to the skin.",
+              "art": "A soaked teenager sitting in a gutter puddle on a twilight main street, a small grumbling thundercloud overhead, a reporter snapping a camera, shopkeepers wincing from their doorsteps",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "lose-the-cloud",
+            "label": "Cut through backyards and shortcuts to lose the cloud before the whole town sees",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "Through the Okafors' side gate, under a carport, across the high school parking lot at a sprint. The cloud snags on the gym's drainpipe, the very one, and stays there, raining softly on that single corner of the roof. You watch from the shadows as it drizzles in a slow circle, like someone pacing.",
+              "art": "A small gray rain cloud snagged on the drainpipe of a high school gym at dusk, raining in a slow circle on one corner of the roof, a teenager watching from the shadow of the bleachers",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The cloud keeps up with every shortcut, and by the time you reach Crystal Street it is the size of a garage and has brought thunder. Half the street watches from their lawns as you sprint home under a private downpour, and your little neighbor asks if you are cursed.",
+              "art": "A teenager sprinting down a suburban cul-de-sac at dusk under a huge private thundercloud, neighbors watching from their lawns, a little kid on a tricycle pointing",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ],
+        "act": 2
+      },
+      {
+        "id": "spring-queen-pass-the-note",
+        "title": "Pass It On",
+        "place": "Glimmer Falls High gym, Halloween Hop decorating night, October 30",
+        "text": "The Hop committee is hanging orange streamers when the gym clock spins backward and the storm comes in through the ceiling. The streamers turn into paper moons, the bleachers fill with faceless boys in 1966 letterman jackets, and a folded sheet of pink stationery starts traveling hand to hand up the rows, every echo laughing as he reads it. You know what it is. It is Roz's letter, the one about asking Del to dance, and it is two rows from the three boys waiting at the top. On the stage, Roz watches it climb, white-knuckled, as if this time someone might stop it.",
+        "art": "A high school gym in a sudden indoor storm, orange streamers turning into paper moons, bleachers full of faceless boys in 1960s letterman jackets passing a folded pink letter upward, a rain-soaked prom queen in a gardenia crown watching from the stage",
+        "choices": [
+          {
+            "id": "intercept-the-note",
+            "label": "Slip up the bleachers and snatch the letter before it reaches the top row",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You go up the rows in a crouch, under elbows, around knees, and pluck the pink letter out of an echo's hand one row from the top. The laughter stops like a needle lifted off a record. On the stage, Roz breathes out for what looks like the first time in twenty years. You tuck the letter, still folded, safe inside your jacket.",
+              "art": "A teenager crouched on rainy gym bleachers clutching a folded pink letter, faceless boys in letterman jackets frozen mid-laugh around them, a ghostly prom queen on the stage sighing with relief",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "An echo holds the letter high, out of reach, and passes it over your head. It lands in the hands of the three at the top, who read it aloud in voices like a broken radio. The whole gym of echoes laughs, and the storm comes down so hard the Hop streamers wash off the walls.",
+              "art": "Three faceless boys in 1960s letterman jackets on the top row of gym bleachers holding a pink letter high, rain pouring from the rafters, streamers washing off the walls, a teenager reaching up below",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "read-it-aloud",
+            "label": "Take the letter and read it to the whole gym yourself, the way it deserved to be heard",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 11,
+            "bonus": {
+              "flag": "spring-forged-note",
+              "amount": 1
+            },
+            "success": {
+              "text": "You unfold it and read every word into the Hop committee's microphone: a girl planning to cross a dance floor in front of everyone and ask another girl to dance, scared and sure and funny about it. The echoes stop laughing. One by one they fade. The real Hop committee stands in the rain with their mouths open, and then Tasha from student council starts clapping, and everyone does. Roz puts both hands over her face.",
+              "art": "A teenager reading a pink letter into a microphone in a rainy gym, a decorating committee applauding, ghostly boys in letterman jackets fading on the bleachers, a prom queen in a gardenia crown covering her face on the stage",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["spring-read-the-letter"]
+              }
+            },
+            "failure": {
+              "text": "Your voice wobbles, and the echoes laugh over the first line, louder with every sentence, until you cannot hear yourself. You stop. The storm stops with you, the way a held breath stops, and Roz turns away on the stage. The letter goes soggy and blank in your hands.",
+              "art": "A teenager holding a soggy sheet of pink stationery in a stormy gym, faceless boys laughing on the bleachers, a prom queen in a mint gown turning away on the stage",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "face-the-top-row",
+            "label": "Climb to the top row and stare down the three boys waiting for the letter",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You plant yourself in front of them: three faceless jackets and three smirks. \"It's not yours,\" you say. \"It never was.\" They look at each other. Without a crowd laughing along, they are just three nervous boys in borrowed jackets, and they fade like breath on cold glass. The letter drifts down through the rain into Roz's hands.",
+              "art": "A teenager standing tall on the top row of gym bleachers facing three fading boys in letterman jackets, a pink letter drifting down through the rain toward a prom queen on the stage",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "nerve": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The three of them stand up together, much taller than boys should be, and the bleachers rattle like thunder under your feet. You lose your footing and slide down ten rows on your back. When you look up the letter is gone, and the 1966 laughter goes on echoing in the rafters until dawn.",
+              "art": "A teenager sliding down rain-slick gym bleachers on their back, three towering faceless boys in letterman jackets standing on the top row, lightning flashing through the high gym rafters",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 3
       }
     ],
     "finale": {
@@ -808,6 +1062,94 @@
           "failure": {
             "text": "The needle skips. The song warps into a moan, and the storm swallows the doorway. You have the truth in your hands, the photo, the names and the song, but the gym is too loud with twenty years of thunder for Roz to hear it.",
             "art": "A record needle skipping on a warped spinning single, a storm swallowing the gym doorway, a teen holding up a photograph that a raging prom queen ghost cannot see",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Look up, like you learned to the first week, and find what she has rigged in the rafters",
+          "intent": "clever",
+          "skill": "lore",
+          "target": 7,
+          "bonus": {
+            "flag": "spring-caught-the-bucket",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "Since the first nights of the week you have known what Roz knows: every year, nobody looks up. You do. High in the rafters over the frozen couples hangs a galvanized bucket full of thunder on a fraying rope. You climb, swing it wide, and tip it out over the bare stage in one huge crash of rain. The storm runs out with it. The couples blink awake mid-sway, the band finally lands on a new chord, and Roz, soaked and startled, laughs out loud at the oldest prank in the book turned around.",
+            "art": "A teenager on a high gym catwalk tipping a galvanized bucket of storm water onto a bare stage, frozen prom couples waking below under paper moons, a soaked prom queen in a gardenia crown laughing",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You spot the bucket in the rafters, but the catwalk ladder is slick and you miss the rope by an inch. The bucket swings down and empties over you instead, cold rain and brown gardenia petals, and the frozen floor chuckles in an echo from 1966. You are soaked, but the other ways out are still open.",
+            "art": "A drenched teenager clinging to a catwalk ladder in a stormy gym, a swinging galvanized bucket spilling rain and brown gardenia petals over them, frozen couples below under paper moons",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Walk into her storm the way you did all week and stop the band yourself",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "spring-walked-the-rain",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "All week you stood in Roz's rain, on a roof, in a mirror, on Main Street, and it never washed you away. You walk straight through the storm, past the frozen couples and the lightning, climb onto the stage and stand in front of the band in white jackets with both hands up like a crossing guard. \"That's the last song,\" you say. The band stops mid-bar. In the silence the couples stagger free, and Roz stares at you through the rain like someone who has finally been told no by a person who cares what happens to her.",
+            "art": "A teenager standing on a gym stage with both hands raised in front of a band in white jackets, rain falling from the rafters onto paper moons, couples waking on the dance floor, a prom queen staring",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The storm shoves back. Wind howls through the gym and drives you to one knee halfway across the floor, rain stinging your face, and the band plays louder to drown you out. You are still standing, barely, and there is a way through tonight, just not this one.",
+            "art": "A teenager down on one knee on a gym dance floor in an indoor storm, wind and rain whipping paper moons, a band in white jackets playing on behind a prom queen crowned with lightning",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Say her love out loud again, like the night before Halloween, and open the doors for Delphine",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "spring-read-the-letter",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween you said out loud what three boys laughed at in 1966. Tonight you say it into the band's microphone, for the whole frozen floor: Roz Vance was going to cross this gym and ask Delphine Hart to dance. You drop the needle on the forty-five nobody ever opened, the doors swing wide, and Delphine walks in out of the dark in her leather jacket with Roz's ring on her finger. The rain stops in midair. Roz looks at you once, a thank-you, and steps down off the stage to cross the floor exactly the way she planned.",
+            "art": "A librarian in a leather jacket and cardigan stepping through open gym doors, raindrops frozen in midair, a prom queen in a mint gown and gardenia crown descending the stage steps toward her, a teenager by a record player smiling",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You start to tell the gym the truth, but the thunder rolls over every word, and the doors stick on twenty years of swollen wood. Delphine is out there; you can hear her motorcycle idling in the lot. Roz hears it too, and the storm wavers, but it does not break yet.",
+            "art": "A teenager at a microphone in a stormy gym shouting over thunder, rain-swollen double doors stuck half open, motorcycle headlights glowing in the parking lot beyond, a prom queen on the stage turning toward the light",
             "effects": {
               "nerve": -2
             }

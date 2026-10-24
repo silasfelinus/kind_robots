@@ -733,6 +733,269 @@
             }
           }
         ]
+      },
+      {
+        "id": "bobo-confetti-sink",
+        "act": 1,
+        "title": "Everything Down Here Floats",
+        "place": "Your bathroom, midnight",
+        "text": "You are brushing your teeth when you hear it: a giggle, deep down the bathroom drain, and a voice like a kazoo in a tunnel. \"Psst. Hey, kiddo. Wanna see a trick?\" The sink gurgles, burps and erupts in a fountain of rainbow confetti, streamers and tiny paper party hats that pours over the counter and fills the tub knee-deep. Your folks walk past the open door, look right at the mess and say goodnight like there is nothing there. From the drain, the voice chuckles: \"Grown-ups never get the good tricks.\"",
+        "art": "A small suburban bathroom at midnight, the sink erupting a fountain of rainbow confetti, streamers and tiny paper party hats, the bathtub filled knee-deep with confetti, a teenager in pajamas frozen with a toothbrush in hand",
+        "choices": [
+          {
+            "id": "ask-if-hes-okay",
+            "label": "Lean over the drain and ask if he's okay down there",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "success": {
+              "text": "\"Hey,\" you say into the drain. \"Are you okay down there?\" The confetti stops in midair and drifts down like snow. A long silence, then a small, tired voice: \"Nobody asks the clown that, kiddo.\" By morning the bathroom is spotless, except for one blue paper party hat sitting on your pillow.",
+              "art": "Rainbow confetti hanging still in midair and drifting down like snow in a quiet bathroom, a teenager leaning gently over the sink drain, a single blue paper party hat resting on the counter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-asked-okay"]
+              }
+            },
+            "failure": {
+              "text": "The drain answers with a big honking laugh, and a second gusher hits you full in the face. You spend an hour picking glitter out of your eyebrows. In the morning there is still glitter in your ears that only you can see.",
+              "art": "A gusher of rainbow confetti and glitter blasting a teenager full in the face over a bathroom sink, streamers tangled in their hair, a toothbrush flying from their hand",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "toot-back",
+            "label": "Grab a party horn out of the confetti and blow a trick right back",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You fish a party blower out of the confetti and give a long, rude toot down the drain. A shocked pause. Then the drain toots back, twice, and the two of you go back and forth like a duet until you are both wheezing. The confetti curls itself into one neat bow on the faucet.",
+              "art": "A teenager in pajamas blowing a curly party horn into a bathroom sink drain, an answering puff of confetti shooting back up, streamers curling into a neat bow on the faucet",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-party-horn"]
+              }
+            },
+            "failure": {
+              "text": "Your toot comes out as a sad little raspberry, and the drain howls with laughter. The confetti rises around you like a tide until it reaches your chin. You wake up at dawn in the bathtub, buried in it.",
+              "art": "A teenager asleep in a bathtub buried up to the chin in rainbow confetti at dawn, a party horn drooping from their lips, streamers draped over the shower rod",
+              "effects": {
+                "nerve": -1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "plug-the-drain",
+            "label": "Jam the stopper in and lean on it with all your weight",
+            "intent": "reckless",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You slam the stopper home and lean. The sink bucks and gurgles and goes quiet with a disappointed squeak. In the silence, very faintly, you hear a slide whistle going down, down, down, like something sliding back into the dark.",
+              "art": "A teenager leaning with both hands on a bathroom sink stopper, confetti settling on the tiles around their feet, the pipes under the sink rattling, a dim nightlight glowing",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The stopper shoots out like a champagne cork and pings off the ceiling. The confetti geyser lifts you clean off your feet and drops you in the laundry hamper. From the drain comes a delighted honk: \"Again! Again!\"",
+              "art": "A rubber sink stopper rocketing toward a bathroom ceiling, a towering geyser of confetti lifting a startled teenager off their feet toward a wicker laundry hamper",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-fall-down-chant",
+        "act": 2,
+        "title": "Fall Down!",
+        "place": "The Glimmer Falls High pep rally bonfire, 10 p.m.",
+        "text": "The pep rally bonfire is roaring on the practice field when a sophomore trips over an extension cord and sprawls face-first in the mud. Somebody starts the chant, the one every grown-up in Glimmer Falls learned in 1979: \"Fall down! Fall down!\" The whole crowd picks it up, parents included, laughing and pointing. With every chant, the balloon animals tied along the bleachers swell bigger and grow thumbtack teeth. At the very top of the stands, in the dark, a pair of size-twenty shoes taps along to the beat.",
+        "art": "A roaring high school bonfire at night on a muddy practice field, a sophomore sprawled in the mud, a jeering crowd of teens and parents, giant balloon animals with thumbtack teeth tied to the bleachers, huge clown shoes in the dark stands",
+        "choices": [
+          {
+            "id": "pratfall-partner",
+            "label": "Flop down beside the kid and turn the fall into an act",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 1
+            },
+            "success": {
+              "text": "You flop into the mud next to the sophomore, wave your legs in the air and announce, \"And for our next trick!\" The kid catches on, laughing, and the two of you do a sloppy double cartwheel to wild applause. The chant breaks into real cheering. Up in the stands the big shoes stop tapping, and somebody blows one soft honk of approval.",
+              "art": "Two muddy teenagers cartwheeling side by side in front of a roaring bonfire, a crowd in the bleachers cheering and clapping, balloon animals shrinking on their strings, big clown shoes resting in the shadows",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-pratfall-pals"]
+              }
+            },
+            "failure": {
+              "text": "You flop into the mud and the crowd only chants louder, now at both of you. The balloon animals strain at their strings, grinning. You help the kid up, and you both slink off behind the band bus, muddy to the eyebrows.",
+              "art": "Two mud-covered teenagers slinking away behind a yellow band bus at night, a chanting crowd silhouetted by a bonfire, grinning balloon animals with thumbtack teeth straining at their strings",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "shut-it-down",
+            "label": "Climb the bleachers and tell the whole crowd to knock it off",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "\"Hey! KNOCK IT OFF!\" Your voice cracks, but it carries. The chant stumbles. Coach Pruitt climbs up beside you and folds her arms, and the parents in the front row suddenly find their shoes very interesting. In the hush, every balloon animal on the bleachers sighs and shrinks, and somebody in the dark at the top of the stands whispers, \"Thank you.\"",
+              "art": "A teenager standing tall on the bleachers pointing at a hushed crowd, a big fierce softball coach with folded arms beside them, deflating balloon animals drooping along the rails, bonfire light on every face",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["bobo-stopped-the-chant"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks into a squeak, and the crowd turns the chant on you. \"Fall down! Fall down!\" You don't, quite, but your knees shake all the way home, and a balloon poodle follows you to your door, snapping.",
+              "art": "A balloon poodle with thumbtack teeth snapping at the heels of a teenager hurrying up a dark suburban sidewalk, distant bonfire glow and a chanting crowd behind them",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "cut-the-strings",
+            "label": "Slip under the bleachers and cut the balloon animals loose",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You crawl under the bleachers through a forest of legs and spilled popcorn and snip string after string. The toothy balloons float up over the bonfire and away into the dark, drifting toward Main Street and a little magic shop with its lights off. The chant fizzles out while everyone tries to figure out where the balloons went.",
+              "art": "Balloon animals drifting up over a bonfire into the night sky toward a small town main street, a teenager with scissors crouched in the shadows beneath wooden bleachers, popcorn scattered on the ground",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "A balloon giraffe notices you snipping. It swivels on its string, thumbtacks bared, and honks an alarm. The whole herd comes down under the bleachers after you, and you spend the night running laps around the practice field.",
+              "art": "A herd of toothy balloon animals chasing a teenager around a moonlit high school practice field, a balloon giraffe leading the charge, wooden bleachers and a dying bonfire behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bobo-everybody-floats",
+        "act": 3,
+        "title": "Everybody Floats",
+        "place": "The KGLM water tower, 2 a.m. the night before Halloween",
+        "text": "Every balloon in Glimmer Falls has slipped its string tonight, and they have all gone looking for kids. From the base of the KGLM water tower you watch your neighbors drift past overhead in their pajamas, lifted by great bunches of balloons, rising toward the catwalk at the top. Up there, against the moon, Bobo stands with a fistful of strings, honking Honkers in time to the circus music pouring out of the radio booth. \"Everybody floats, kiddo!\" he calls down. \"Up here, nobody can laugh at you!\"",
+        "art": "A tall water tower at night under a huge moon, children in pajamas floating upward on bunches of colorful balloons, a towering clown on the catwalk at the top holding a fistful of strings and a bike horn, a radio booth glowing below",
+        "choices": [
+          {
+            "id": "callers-remember",
+            "label": "Get Mix to open the phone lines for the town's good Bobo memories",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "mix-bell",
+              "amount": 2
+            },
+            "success": {
+              "text": "Mix puts you on the air: \"Glimmer Falls, if Bobo ever made your birthday, call in.\" The switchboard lights up like a pinball machine: a mechanic who still has the balloon dinosaur's photo, a nurse whose sick little brother got a free show. Each story floats up to the catwalk on the tower speakers, and the balloons sink gently, setting kids down on the lawns one bunch at a time. At the top of the tower, Bobo sits down with his face in his gloves, listening.",
+              "art": "A radio booth switchboard blazing with lit call buttons, a teen DJ and a teenager at the microphone, children drifting gently down onto lawns on sinking balloons, a clown seated on a water tower catwalk with his face in his gloves",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bobo-good-memories"]
+              }
+            },
+            "failure": {
+              "text": "The phones stay dark. One caller gets through, and all he wants is to chant \"Fall down, Bobo\" before Mix cuts him off. Up on the catwalk the honking gets louder, and another bunch of balloons lifts off from Crystal Street.",
+              "art": "A dark radio switchboard with one blinking call button, a teen DJ wincing at the microphone, another bunch of balloons lifting a child off a suburban street toward a moonlit water tower",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "climb-and-catch",
+            "label": "Climb the tower ladder and catch the floating kids by their ankles",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 1
+            },
+            "success": {
+              "text": "Rung after rung, wind in your face, you snag a pajama ankle here and a sneaker there, untying balloons and passing kids down to your crew below. By the time you reach the catwalk, there is nobody left to catch. Bobo looks at you, out of breath and furious and holding his last balloon, and lets it go himself.",
+              "art": "A teenager climbing a water tower ladder at night, catching a floating child in pajamas by the ankle, friends below reaching up, a towering clown on the catwalk releasing one last balloon into the moonlight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Halfway up, a gust swings you out over Crystal Street, hanging on by one hand. A bunch of balloons bumps into you, friendly, and ties itself to your belt loop. You float up to the catwalk and stand with the others until dawn.",
+              "art": "A teenager dangling by one hand from a water tower ladder high above moonlit suburban rooftops, a bunch of bright balloons tying itself to their belt loop and tugging them upward",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tow-truck-reel",
+            "label": "Hook the loose strings to Joey's tow truck winch and reel everyone in",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "joey-benally",
+              "amount": 2
+            },
+            "success": {
+              "text": "Joey backs the tow truck up to the tower, and you run across the lawns gathering trailing strings like kite tails and hooking them to the winch. The cable hums. One by one, slow and steady, the floating kids are reeled down to the grass, giggling and dizzy. Up top, Bobo watches his whole sky clear out, and honks once, sadly.",
+              "art": "A rusty tow truck at the base of a water tower at night, its winch reeling in dozens of balloon strings, children in pajamas drifting down to the grass, a teen mechanic working the levers",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The winch reels in, the balloons pull up, and the tow truck's front wheels lift off the asphalt. Joey says a word his grandmother would not approve of. The truck bobs in the air until sunrise, with both of you sitting on its roof.",
+              "art": "A rusty tow truck floating off the ground beneath an enormous cluster of balloons at dawn, two teenagers sitting glumly on its roof, a water tower rising behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -817,6 +1080,94 @@
             "art": "A deflated blue balloon dog floating up out of a boy's hand into the dark rafters of a mall, a towering clown turning away",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Answer his gag with a gag of your own, the way you traded tricks that first week",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "bobo-shared-joke",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "That first week, on your doorstep and down the drains, you learned that Bobo cannot leave a setup hanging. So you cup your hands and yell up at him, \"Knock knock!\" The mallet stops mid-swing. \"Who's there?\" \"Interrupting cow.\" \"Interrupting c...\" \"MOO!\" It is terrible, and the frozen grown-ups laugh at the joke instead of at him, and Bobo loses his rhythm on the stilts, sits down hard on the edge of the center ring, giggling helplessly, while the whole circus sags around him like a tired balloon.",
+            "art": "A giant clown on stilts sitting down hard on the edge of a circus ring in a mall food court, wheezing with laughter, a costumed teenager grinning up at him, huge balloon animals sagging and deflating",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "\"Knock knock.\" \"Who's there?\" Your mind goes completely blank. The whole circus waits, and then it laughs at you, and Bobo laughs loudest. You still have the timing; you just need the punchline.",
+            "art": "A costumed teenager frozen in a spotlight in the middle of a circus ring in a mall food court, mouth open, a giant clown on stilts laughing above them, frozen grown-ups laughing at the tables",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Shut the jeering down cold, like you did midweek when the town's laughter turned mean",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "bobo-stopped-the-chant",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "Midweek you learned what feeds him: laughter aimed like a thrown rock, from TV sets, funhouse mirrors and a chanting crowd. So you plant your feet in the center ring and roar at the frozen grown-ups, \"STOP LAUGHING AT HIM!\" One by one their mouths close, and the spotlights dim with nothing left to shine on. Bobo stands on his stilts in the sudden quiet, mallet raised over nobody, and slowly lowers it, and the circus collapses around him like a tent with its pole pulled out.",
+            "art": "A costumed teenager standing firm in a circus ring shouting at a crowd of grown-ups who fall silent, dimming spotlights, a giant clown on stilts slowly lowering a huge mallet, a striped tent collapsing overhead",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You shout, but the laughter is seven years deep and it rolls right over you. The mallet comes down with a cartoon BOING an inch from your sneakers. The grown-ups are still laughing, but a couple of them look embarrassed about it, which is a start.",
+            "art": "A giant cartoonish mallet slamming down beside a costumed teenager's sneakers in a circus ring, a clown on stilts looming, laughing grown-ups in spotlights, two of them covering their mouths sheepishly",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Tell the kind-clown story you told the night before Halloween, then fall down laughing together",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "bobo-good-memories",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "You step into the center ring and tell it the way the night before Halloween taught you: the balloon dinosaur that lasted a week, the free show for a sick kid, the clown who fell down on purpose so a crying boy would laugh. Trevor steps up beside you, and the frozen grown-ups start remembering out loud, their own birthdays, their own Bobo. When the last story is told, your whole crew takes the worst pratfall in history, together, on purpose, and the food court laughs the right way, warm and with him. Bobo laughs too, a real laugh, and shrinks down off his stilts into an old man in striped pajamas, waking up surrounded by people who are glad to see him.",
+            "art": "An old man in striped pajamas laughing with tears on his face in a mall food court, a crew of costumed teenagers sprawled in a joyful pile beside him, smiling grown-ups gathering close, deflated balloons on the floor",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You start the story, but the frozen laughter is too loud, and Bobo cannot hear the kind parts over it. He turns away, mallet drooping. You have the story right; the room just isn't ready to listen.",
+            "art": "A costumed teenager speaking earnestly in a circus ring while grown-ups laugh frozen in spotlights, a giant clown on stilts turning away with his mallet drooping, balloon animals prowling between tables",
+            "effects": {
+              "nerve": -1
             }
           }
         }

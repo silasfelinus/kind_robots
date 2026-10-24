@@ -704,6 +704,261 @@
             }
           }
         ]
+      },
+      {
+        "id": "vonda-velour-slumber-party-workout",
+        "title": "Slumber Party Workout",
+        "place": "Ronnie Patterson's slumber party, the rec room, 1 a.m.",
+        "text": "At Ronnie Patterson's slumber party somebody digs BURN IT OFF! out of her mom's tape drawer and puts it on as a joke, and for ten minutes everyone is shrieking at the leotards. Then the laughing stops. Everyone else in a sleeping bag is doing crunches in perfect unison, eyes glassy, counting along with Vonda. Ronnie pinches her own stomach and says, in a voice that sounds dubbed, \"Nobody loves a before picture.\" The pizza in the box has gone cold and untouched. Vonda smiles out of the screen. \"Who's next, sweeties?\"",
+        "art": "A cozy 1980s rec room slumber party at night, kids in sleeping bags doing crunches in perfect unison with glassy eyes, a glowing television showing a smiling aerobics star in a magenta leotard, a cold pizza box on the shag carpet",
+        "choices": [
+          {
+            "id": "pillow-fight",
+            "label": "Bop the nearest crunching kid with a pillow and start an all-out pillow fight",
+            "intent": "camp",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "Whump. A pillow to the back of Ronnie's head breaks her count. She blinks, grabs a pillow and whumps you back, and in seconds the rec room is a blizzard of feathers and shrieking. Nobody can do crunches in a pillow fight. On the screen Vonda counts to eight, then to eight again, then stammers, her smile slipping, while the whole party collapses in a giggling heap and finally eats the pizza.",
+              "art": "A wild slumber party pillow fight in a 1980s rec room at night, feathers swirling, kids in pajamas shrieking with laughter, a flustered aerobics star stammering on the glowing television",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-pillow-fight"]
+              }
+            },
+            "failure": {
+              "text": "You swing, the pillow bursts, and Vonda laughs along from the screen. \"Ooh, a cardio burst! Feathers count as reps!\" Everyone keeps crunching in a snowfall of feathers, and somehow you are crunching too, sneezing, until the tape runs out at dawn.",
+              "art": "Kids in sleeping bags doing crunches in a snowfall of feathers in a dark rec room, a burst pillow on the carpet, a grinning aerobics star in a magenta leotard counting on the television",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tape-over-her",
+            "label": "Hit REC and record the late-night monster movie right over her",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You flip to Channel 44's Creature Double Feature and punch REC. Vonda's face smears sideways mid-count and turns into a giant rubber ant stomping a cardboard city. The crunching stops. Everyone blinks at the screen. \"Wait,\" says Ronnie, \"is that the ant one? I love the ant one.\" The whole party piles onto the couch with the cold pizza.",
+              "art": "Kids in pajamas piled on a couch with cold pizza watching a giant rubber ant stomp a cardboard city on a glowing television, a teenager holding a VCR remote triumphantly",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The record tab is snapped off. Of course it is. The VCR whirs, spits the tape onto the carpet, swallows it again, and Vonda comes back mid-sentence: \"Sneaky, sneaky! That's twenty extra burpees for the whole slumber party.\" Nobody sleeps.",
+              "art": "A VCR spitting a tangled videotape onto shag carpet in a dark rec room, a smiling aerobics star on the television wagging her finger, groaning kids in sleeping bags doing burpees",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "compliment-circle",
+            "label": "Turn the TV to face the wall and start a circle: one thing you love about the person on your left",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You heave the TV around to face the wall, sit down among the sleeping bags and say, \"Okay. Circle. One thing you love about the person on your left.\" It is awkward for exactly one round. Then Ronnie says Dee has the best laugh in the eighth grade, and Dee says Ronnie's freckles look like a map of the stars, and by the end of the circle half the room is crying the good kind of crying and the TV is muttering to the wallpaper.",
+              "art": "Kids in pajamas sitting in a circle on sleeping bags in a 1980s rec room, laughing and hugging, a television turned around to face the wall glowing faintly",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You turn the TV to the wall, but Vonda's voice keeps coming out of the speaker, and every compliment someone starts, she finishes for them: \"You have such a pretty face, if only.\" The circle breaks up in hurt silence, and you spend the rest of the night trying to fix it.",
+              "art": "Kids in pajamas sitting apart in hurt silence in a dim rec room, a television turned toward the wall glowing magenta, a worried teenager in the middle of the scattered sleeping bags",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 1
+      },
+      {
+        "id": "vonda-velour-biggest-burner",
+        "title": "Biggest Burner",
+        "place": "The Glimmer Falls Community Center, a midnight weigh-in",
+        "text": "The town council has gone Burner. At midnight the Community Center is packed for the Biggest Burner Halloween Challenge, sponsored by BURN IT OFF!, with a giant industrial scale on the stage, clusters of magenta balloons and a gold trophy shaped like a sweatband. Vonda emcees from a TV on a rolling cart, calling contestants up one by one while the crowd applauds every number on the dial. Your gym teacher is in line. So is the mayor. And at the top of the contestant clipboard, in handwriting you don't recognize, is your name.",
+        "art": "A packed small-town community center at midnight, a giant industrial scale on a stage under clusters of magenta balloons, a gold sweatband-shaped trophy, a glossy aerobics star smiling from a television on a rolling cart, a line of townspeople in sweatbands waiting",
+        "choices": [
+          {
+            "id": "team-weigh-in",
+            "label": "Climb on the scale with the whole crew at once and declare it a team sport",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Team weigh-in!\" you yell, and your crew piles onto the scale behind you, then Mr. Delgado the gym teacher, then the mayor, laughing, then half the line, arms around each other, until the needle spins all the way around the dial and snaps off with a ping. The crowd roars. There is no number for a whole town hugging. On the TV cart, Vonda opens her mouth and only static comes out.",
+              "art": "A teenager, friends, a gym teacher and a laughing mayor all piled onto a giant industrial scale on a community center stage, the needle snapped off, a television on a cart crackling with static, a cheering crowd",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-team-weigh-in"]
+              }
+            },
+            "failure": {
+              "text": "Your crew piles on, but the scale only counts you. The needle swings, the TV dings like a game show, and Vonda coos, \"Ooh, honey, let's talk about that number!\" Your face burns. You walk off the stage and out of the building, and it takes a long, long walk home to shake her voice out of your ears.",
+              "art": "A red-faced teenager walking off a community center stage past a giant industrial scale, a glossy aerobics star leaning toward them from a television on a rolling cart, a crowd watching",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "unplug-the-cart",
+            "label": "Crawl under the stage and unplug Vonda's TV cart",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You slither under the stage through decades of stacked chairs and dust bunnies and find the extension cord. One yank. Vonda blinks out mid-coo, and the line of contestants mumbles and shuffles and starts asking each other what time it is and why they are holding their shoes. Somebody finds the lights. Somebody else finds the doughnuts.",
+              "art": "A dusty crawlspace under a community center stage, a teenager yanking an extension cord, above them a confused crowd in sweatbands blinking under dimming lights",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You yank the wrong cord and the stage lights die instead. Vonda's TV glows brighter in the dark, the only light in the hall, and the crowd presses toward it, chanting your name to come up next. You crawl out the back under the stage and run for it.",
+              "art": "A dark community center lit only by a glowing television on a cart showing a smiling aerobics star, townspeople in sweatbands crowding toward it, a teenager crawling out from under the stage",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "take-the-mic",
+            "label": "Take the mic and ask the room to cheer for something their bodies did this week",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You take the mic. \"Forget the dial. Tell me something your body did this week.\" Silence. Then the mayor says, \"I carried my granddaughter up three flights of stairs.\" Mr. Delgado: \"I danced at my sister's wedding.\" A little kid: \"I did a cartwheel!\" Every answer gets louder applause than any number did. The giant scale creaks, forgotten, and the gold trophy tips over on its own.",
+              "art": "A teenager at a microphone on a community center stage, townspeople in sweatbands raising their hands and smiling, a little kid mid-cartwheel in the aisle, a gold trophy tipping over beside a giant scale",
+              "effects": {
+                "nerve": 2,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You take the mic and your voice cracks into feedback. Vonda's TV cart rolls itself across the stage until it is right beside you, and she pats the inside of the screen sympathetically. \"Stage fright burns calories, sweetie!\" The crowd laughs. You hand back the mic and sit down.",
+              "art": "A teenager wincing at a squealing microphone on a community center stage, a television on a rolling cart beside them showing a sympathetic aerobics star, a laughing crowd",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 2
+      },
+      {
+        "id": "vonda-velour-dance-marathon",
+        "title": "Dance Till You Drop",
+        "place": "The KGLM Halloween Dance-a-Thon, Starlight Mall center court, October 30",
+        "text": "The KGLM Halloween Dance-a-Thon was supposed to raise money for the children's hospital. Thirty hours in, it has raised Vonda. She fills every TV in the electronics store display, her count booming over the mall speakers, and the couples on the center court floor cannot stop moving, sagging against each other, sneakers squeaking, eyes glassy. Every hour a buzzer sounds and Vonda calls out the couple she likes least, \"Too slow, sweeties! Out!\", and their own feet march them toward the glowing screens. Sunny Castellanos is out on the floor in her racing chair, refusing to be counted out, but her partner is about to fall.",
+        "art": "A 1980s mall center court at night during a dance marathon, exhausted couples sagging against each other on the floor, a wall of televisions in an electronics store showing a glossy aerobics star counting, a young woman in a racing wheelchair dancing fiercely",
+        "choices": [
+          {
+            "id": "sit-down-dance",
+            "label": "Drag folding chairs onto the floor and call a sit-down dance, with Sunny leading",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "sunny-castellanos",
+              "amount": 2
+            },
+            "success": {
+              "text": "You haul a stack of folding chairs onto the floor and shout, \"Sit-down dance! Sunny's leading!\" Sunny grins and spins into the center, all shoulders and arms and attitude, and couple by couple the exhausted dancers drop into chairs and follow her: shoulder rolls, hand jive, the swim. It is the best dancing the marathon has seen in thirty hours. Vonda calls out couple after couple, but you cannot eliminate somebody who is resting and having the time of their life.",
+              "art": "A young woman in a racing wheelchair leading a joyful seated dance in a mall center court at night, rows of tired dancers in folding chairs doing the hand jive, a teenager clapping beside her",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["vonda-sit-down-dance"]
+              }
+            },
+            "failure": {
+              "text": "You haul in the chairs, but Vonda's count is faster than your voice, and the couples will not sit, too afraid of the buzzer. Sunny keeps dancing in the center with fierce, furious style while everyone else staggers on around her, and you finish the night as her partner, worn to the bone.",
+              "art": "A young woman in a racing wheelchair dancing fiercely in a mall center court at night while exhausted couples stagger around her, a worn-out teenager as her partner, televisions glowing magenta",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "freeze-frame",
+            "label": "Get into the electronics store and hit PAUSE on every VCR in the display",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "toby-nakamura",
+              "amount": 2
+            },
+            "success": {
+              "text": "Toby knows every VCR in the electronics store by model number. The two of you sprint down the display hitting PAUSE, PAUSE, PAUSE, and Vonda freezes mid-kick on every screen in a jittering, flickering row, one leg up, mouth open on \"eight.\" The count stops. Out on the center court, two hundred dancers stop with it and sink to the floor, wheezing and laughing and pulling off their shoes.",
+              "art": "A wall of televisions in an electronics store all frozen on an aerobics star mid-kick, two teenagers at the VCR display, exhausted dancers sinking to the floor of the mall court beyond",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "You hit PAUSE and the screen unpauses itself. You hit STOP and it rewinds, and every dancer on the floor dances backward, faster and faster, sneakers screeching, while Vonda laughs in reverse. The store's security gate rolls down with you inside, and you watch the rest of the marathon through the bars.",
+              "art": "A teenager gripping the bars of a rolled-down security gate in a mall electronics store at night, televisions rewinding, dancers spinning backward on the center court floor",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "tech"
+              }
+            }
+          },
+          {
+            "id": "carry-them-out",
+            "label": "Wade onto the floor and help the fallen dancers off it, one by one",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "success": {
+              "text": "Whenever someone starts to fall, you are there, hauling them off the floor with an arm under their shoulders. Someone sees you and does the same, then the cheerleaders from the bleachers, then the mall cops, until every exhausted couple has been helped off the court to sit on the fountain's edge with a paper cup of water. Vonda calls the next couple out, and there is not a single dancer left on the floor to call.",
+              "art": "A teenager helping an exhausted dancer off a mall center court floor at night, cheerleaders and mall security doing the same, tired couples resting on a fountain edge with paper cups",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You catch the first dancer, but the floor grabs your own sneakers the moment you step onto it, and suddenly you are in the marathon too, partnered with a sleepwalking assistant manager from the shoe store. You dance until dawn, and your feet do not forgive you for a week.",
+              "art": "A teenager dancing with a sleepwalking shoe store assistant manager on a mall center court floor at dawn, both exhausted, televisions glowing magenta behind them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 3
       }
     ],
     "finale": {
@@ -778,6 +1033,94 @@
           "failure": {
             "text": "The deck jams and the raw tape won't seat. You have Wanda's real voice right there in your hands, but the town can't hear it over the count, not yet.",
             "art": "A teenager struggling to jam a videotape into a stubborn VCR while the workout around them roars on, an aerobics star laughing overhead",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Remember the first tapes at home: hit REC on the master deck and record the street laughing over her count",
+          "intent": "clever",
+          "skill": "hustle",
+          "target": 7,
+          "bonus": {
+            "flag": "vonda-joy",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "The first nights of the week, when the tape crept into living rooms and kitchens, taught you the secret: Vonda is a recording, and a recording cannot keep up with real people having fun. You shove through the rings to the master deck, punch REC and hold up the microphone. Your crew starts it, then the Haskinses, then the whole street: laughing, booing, singing off-key, telling terrible jokes. The master tape records right over her count. When Vonda opens her mouth for \"and burn,\" what comes out of every TV on Crystal Street is the town cracking up, and the Burners stop to listen, and laugh, and sit down on the lawns.",
+            "art": "A teenager pressing a button on a big master VCR in a suburban street at night while holding up a microphone, neighbors in sweatbands laughing and sitting down on lawns, televisions in every house glowing with static",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You punch REC, but the master deck's record tab is snapped off, and it spits the microphone cord back at you. \"Nice try, sweetie,\" Vonda sings from every screen. You stumble back into the outer ring, short of breath but still yourself.",
+            "art": "A teenager stumbling back from a master VCR deck into rings of neighbors in sweatbands working out around a glowing purple geode at night, a glossy aerobics star smiling from every television",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Refuse to be counted, like you did all week, and pull your neighbors out of the rings",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "vonda-sit-in",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "All week Vonda tried to measure you: on the street at dawn, on a gym rope, on a stage with a dial. All week you refused. So you step out of the ring, plant yourself in the middle of Crystal Street and stop moving. Then you start pulling people out. Mrs. Haskins. Your science teacher. The kid from homeroom. One by one you take their wrists and sit them down on the curb beside you, and every person who sits makes the rings thinner and the count weaker, until Vonda is shouting reps at a street full of people who have decided they are done. Her voice cracks, and every TV goes to snow.",
+            "art": "A teenager sitting firmly on a suburban curb at night, pulling a neighbor in a sweatband down to sit beside them, a growing row of seated townspeople, rings of exercisers thinning around a glowing purple geode, televisions fizzing",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You plant your feet, but the count drags at your knees like a current, and the people you pull out keep drifting back in. You end up on the curb alone, stubborn and out of breath, but you are sitting, and she cannot make you stand.",
+            "art": "A stubborn out-of-breath teenager sitting alone on a curb at night, rings of neighbors in magenta sweatbands still working out around a glowing purple geode, a glittering aerobics star smiling on a big screen",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Say what you learned the night before Halloween: a body isn't a before, it's the whole movie",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "vonda-whole-movie",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween you learned to say it out loud: a body is not a before picture, it is the whole movie. You say it now, straight to Vonda, and then you slam the raw tape into the master deck. Every screen flickers, and there is Wanda, round and radiant and laughing, saying the very same thing in her own voice. Vonda stops mid-kick and looks down at her glittering hands. \"That's me,\" she whispers. \"That was always me.\" She pulls off her sweatband and dances, off the count, for joy, and Crystal Street dances with her, slow and silly, sitting down whenever anyone wants to.",
+            "art": "A glittering aerobics star pulling off her magenta sweatband and dancing joyfully off the beat around a softly glowing purple geode at night, neighbors dancing slow and silly beside her or resting on the grass, a teenager beaming",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You say it, and you mean it, but the count is still booming and the raw tape skips in the deck. Vonda hesitates, one glittering hand at her ear as if she heard something familiar, and then the beat swallows it.",
+            "art": "A glittering aerobics star pausing mid-kick with one hand at her ear beside a pulsing purple geode at night, rings of neighbors still exercising, a teenager beside a jammed master VCR",
             "effects": {
               "nerve": -2
             }

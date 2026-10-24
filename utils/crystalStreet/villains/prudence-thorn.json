@@ -730,6 +730,280 @@
             }
           }
         ]
+      },
+      {
+        "id": "prudence-thorn-sticker-shock",
+        "act": 1,
+        "title": "Sticker Shock",
+        "place": "Crystal Street, 1 a.m.",
+        "text": "Somebody has been up all night with a roll of bright orange stickers: CONCERNED PARENTS ADVISORY: CONTENT MAY BE HARMFUL. They're on the Rewind Video bag on your porch, your little cousin's Saturday-morning lunchbox, the Lindgrens' wind chimes and a library copy of Charlotte's Web. Then you watch one peel itself off a roll in the gutter and flutter, all on its own, onto your bedroom window. Every time a porch light snaps on and a grown-up gasps at a sticker, a curl of black smoke rises from it and drifts toward the Heartstone.",
+        "art": "A moonlit suburban street papered with bright orange warning stickers on mailboxes, lunchboxes, wind chimes and porch railings, thin curls of black smoke rising from them and drifting toward a glowing purple geode on a roundabout",
+        "choices": [
+          {
+            "id": "sticker-everything",
+            "label": "Grab the roll and sticker absolutely everything",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 1
+            },
+            "success": {
+              "text": "If everything is dangerous, nothing is. You and Kev sticker a lawn flamingo, a birdbath, a garden gnome and finally Pastor Prudence's own wood-paneled station wagon, parked by the roundabout: CONTENT MAY BE HARMFUL. By the time the neighbors come out in their bathrobes they're laughing, and the curls of smoke thin out and vanish.",
+              "art": "A teenager and a young paperboy slapping orange warning stickers on a plastic lawn flamingo and a wood-paneled station wagon, neighbors in bathrobes laughing on porches, wisps of smoke fading in moonlight",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-sticker-shock"]
+              }
+            },
+            "failure": {
+              "text": "You sticker the flamingo, and somehow the flamingo stickers you back. By dawn there's an orange warning on your forehead, your Walkman and your bedroom door, and your mom has started reading the fine print.",
+              "art": "A teenager in pajamas with a bright orange warning sticker on their forehead staring at a stickered bedroom door, a worried parent squinting closely at a sticker, pale dawn light",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "read-the-fine-print",
+            "label": "Hold your flashlight up and read the tiny print at the bottom",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The print is so small the Concerned Parents' printer must have sneezed it out: Warning: this sticker may cause adults to stop asking their kids what they think. Under your light the sticker curls up, embarrassed, and drops off the lunchbox. You go porch to porch reading the fine print aloud, and stickers fall like autumn leaves.",
+              "art": "A teenager holding a flashlight close to an orange warning sticker on a child's lunchbox, stickers curling and falling from porch railings like autumn leaves along a quiet moonlit street",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The fine print just says WARNING, over and over, smaller and smaller, until your eyes swim. When you look up, a sticker has crawled onto your flashlight lens, and the whole street glows warning orange.",
+              "art": "A flashlight beam glowing bright orange through a sticker stuck on its lens, a dizzy teenager on a dark sidewalk, smoke curling from stickered mailboxes",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "give-it-back",
+            "label": "Peel the sticker off your cousin's lunchbox and give it back clean",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Your cousin Teo, seven and sleeping over, is sitting on the porch steps in his pajamas holding his Thunder Tigers lunchbox at arm's length like it might bite. You peel the sticker off slowly with your thumbnail and wipe the lunchbox on your sleeve. \"It's just your lunchbox,\" you tell him. \"It was never bad.\" He hugs it, and the curl of smoke above it goes out like a match.",
+              "art": "A teenager sitting on porch steps beside a small boy in pajamas, gently peeling an orange sticker off a cartoon lunchbox, a thin wisp of smoke going out above it, warm porch light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The sticker tears in half and half of it stays. Teo bursts into tears, his mom comes out and takes the lunchbox away just to be safe, and the smoke above your porch thickens.",
+              "art": "A tired parent in a bathrobe carrying away a cartoon lunchbox with a torn orange sticker, a small boy crying on porch steps, a teenager holding a scrap of sticker, smoke thickening overhead",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-lock-in",
+        "act": 2,
+        "title": "The Lock-In",
+        "place": "The Lamplight Fellowship youth lock-in, 2 a.m.",
+        "text": "After a Concerned Parents pamphlet landed on every porch in town, your parents signed you up for the Lamplight Fellowship's Halloween-alternative youth lock-in, so here you are in a sleeping bag on the old carpet-showroom floor. At the door a volunteer confiscated every Walkman, comic and cassette into a laundry basket, for safekeeping. At 2 a.m. the basket starts to smoke. The confiscated tapes are unspooling into a shape with horns and a grin, the youth group kids are pressed against the locked glass doors, and their chaperone, Mrs. Kettering, is screaming that this is exactly what she warned everyone about. The shape grows with every scream.",
+        "art": "A converted carpet showroom at night full of sleeping bags and frightened teens, a laundry basket of confiscated cassettes and comics billowing smoke into a horned grinning shape, a chaperone shrieking by locked glass doors",
+        "choices": [
+          {
+            "id": "sing-along",
+            "label": "Start a sing-along everybody knows, hymn or pop song",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "iggy-reyes",
+              "amount": 2
+            },
+            "success": {
+              "text": "You start with the camp song everyone at a lock-in knows, the one with hand motions, and the youth group kids join in, shaky at first. Somebody slides into a Cyndi Lauper chorus and the harmony holds, hymn and pop song in one big off-key choir. The smoke-shape tilts its head, finds nobody scared enough to eat, and sinks back into the basket like a slow leak.",
+              "art": "Teens in sleeping bags singing together in a circle on a showroom floor with arms around each other, a deflated wisp of smoke sinking back into a laundry basket of cassettes, warm lamp light",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-harmony"]
+              }
+            },
+            "failure": {
+              "text": "You start the song, and the smoke-shape sings it back at you in reverse, in a voice like a record dragged under a needle. The youth group kids scream, and their screams are delicious to it. It doubles in size.",
+              "art": "A towering smoke shape with horns of tangled cassette tape looming over a crowd of screaming teens in sleeping bags, a teenager stumbling back from a smoking laundry basket",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "give-back-the-walkmans",
+            "label": "Sneak past the chaperone and give everyone their stuff back",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "You belly-crawl past Mrs. Kettering and pull Walkmans out of the smoke one by one, sliding each back to its owner across the carpet. Kids clutch their tapes, press play and slip on their headphones, and the basket stops smoking. The music was never the fuel. The fear of it was.",
+              "art": "A teenager belly-crawling across a showroom carpet sliding Walkmans back to teens in sleeping bags, kids putting on headphones with relieved smiles, a laundry basket smoking less and less",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "hustle": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Mrs. Kettering catches you with an armful of Walkmans and shrieks \"THIEF!\" so loudly that the smoke-shape practically purrs. You spend the rest of the lock-in shut in the folding-chair storage room, listening to it grow.",
+              "art": "A shrieking chaperone pointing at a teenager holding an armful of Walkmans, a horned smoke shape swelling behind her, teens in sleeping bags ducking for cover",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cult"
+              }
+            }
+          },
+          {
+            "id": "find-the-pastor",
+            "label": "Find Pastor Prudence's office and get her to unlock the doors",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Prudence is alone in her dark office, holding an old record sleeve she shoves into a drawer the second you walk in. You tell her the kids are scared and the doors are locked, and something in her face changes at the word kids. She unlocks every door herself, the youth group spills out under the stars, and the shape, robbed of its audience, unravels into loose tape.",
+              "art": "A tense pastor in a cardigan unlocking glass doors as teens in pajamas pour out into a starry parking lot, a smoke shape unraveling into loose ribbons of cassette tape behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-record-sleeve"]
+              }
+            },
+            "failure": {
+              "text": "Her office door is locked, and through it you hear her praying, fast and frightened, while ribbons of smoke coil under the door to listen. You pound and call her name until dawn.",
+              "art": "A teenager pounding on a closed office door in a dim church hallway, ribbons of dark smoke curling under the door, a sliver of lamplight beneath it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "prudence-thorn-night-watch",
+        "act": 3,
+        "title": "The Night Before the Bonfire",
+        "place": "The Heartstone roundabout, 3 a.m. on October 30",
+        "text": "The Hallelujah Night pile is stacked against the Heartstone, two stories of seized things waiting for tomorrow's match: Priya's campaign binders, Rewind Video's whole horror shelf, forty library books and a crate of the Glitter Box's show-tune records. Around it the Concerned Parents keep night watch in lawn chairs with thermoses, flashlights and Bibles, scared stiff of the dark. Deep in the pile something breathes, slow and smoky. Every time a parent jumps at a cricket, it breathes a little deeper.",
+        "art": "A towering heap of records, comics, rulebooks and videotapes stacked against a glowing purple geode on a suburban roundabout at night, nervous parents in lawn chairs with flashlights and thermoses, smoke breathing from the heap",
+        "choices": [
+          {
+            "id": "cocoa-for-the-watch",
+            "label": "Bring the night watch hot cocoa and ask what they're afraid of",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "pearl-washington",
+              "amount": 1
+            },
+            "success": {
+              "text": "You pour cocoa into their cups, and you ask. Mr. Dobbs says his daughter stopped talking to him at dinner. Mrs. Kettering says her son plays a game she doesn't understand and she's afraid she's losing him. Nobody mentions the devil once, and with every honest answer the breathing in the pile slows, until three parents are planning to call their kids in the morning.",
+              "art": "A teenager pouring hot cocoa for worried parents in lawn chairs on a dark roundabout, the adults talking earnestly with softened faces, a towering heap of records and books looming behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["prudence-asked-the-watch"]
+              }
+            },
+            "failure": {
+              "text": "Mrs. Kettering asks you, sweetly, what your parents would think of you being out at three in the morning. Then she writes your name on her clipboard. The pile breathes deep and contented.",
+              "art": "A smiling parent in a lawn chair writing on a clipboard by flashlight, a teenager holding a thermos looking caught, smoke billowing up from a heap of books and records",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "rescue-the-records",
+            "label": "Climb the pile and pull out the Glitter Box's records before dawn",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "The pile shifts and grumbles under you like a sleeping animal, but you dig until you find it: a crate of show tunes and disco, Glory's whole revue on vinyl, her name on every sleeve in purple marker. You lower it to the curb, where Glory, in a sequined bathrobe, hugs it like a lost child. \"Twenty years of Friday nights,\" she says. \"Thank you, baby.\"",
+              "art": "A teenager climbing down a towering heap of seized books and videotapes with a crate of vinyl records, a drag queen in a sequined bathrobe waiting at the curb with open arms, flashlights sweeping the dark",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Halfway up, a horror tape slides loose and the whole pile groans. A smoky hand rises out of the books and pats you on the head, almost fondly. You scramble down with nothing, and every flashlight on the roundabout swings your way.",
+              "art": "A smoky hand made of tangled videotape rising out of a towering heap of books and records to pat a startled teenager, flashlight beams from lawn chairs swinging toward them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "camp"
+              }
+            }
+          },
+          {
+            "id": "library-relay",
+            "label": "Run a library relay, smuggling the books out one armful at a time",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 2
+            },
+            "success": {
+              "text": "Delphine parks her motorcycle around the corner with the saddlebags open, and you run a relay all night: an armful of books from the back of the pile, a sprint across the lawn, into the saddlebags, back again. By dawn all forty library books are home on their shelves. The pile is a little shorter and a lot hungrier, and you are very, very tired.",
+              "art": "A teenager sprinting across a dark lawn with an armful of library books toward a motorcycle with open saddlebags, a librarian in a cardigan loading books, a towering heap glowing faintly behind",
+              "effects": {
+                "nerve": 1,
+                "flags": ["prudence-books-home"]
+              }
+            },
+            "failure": {
+              "text": "A parent's flashlight lands on you halfway across the lawn with your arms full of Judy Blume. You drop everything and run, and by morning the books are back on the pile with a note pinned on top: CAUGHT RED-HANDED.",
+              "art": "A flashlight beam catching a teenager mid-sprint on a dark lawn, library books tumbling from their arms, parents rising from lawn chairs, a towering heap of seized books behind",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -812,6 +1086,94 @@
           "failure": {
             "text": "She hears the first note and covers her ears. \"That's the music that took him!\" The fire leaps, Backmask roars, and you understand that she still is not ready to hear what the record actually says.",
             "art": "A woman pastor covering her ears in front of a small record player, a bonfire leaping higher, a smoke demon roaring above a teen",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "approach": "trick",
+          "label": "Get the whole crowd laughing, the way you did that first week, and watch the demon shrink",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 7,
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "prudence-laughter",
+            "amount": 1
+          },
+          "success": {
+            "text": "You learned it the very first week, with the bullhorn, the work lights and the orange stickers: Backmask can't eat a laugh. So you grab Prudence's bullhorn and host the demon like a midnight movie. \"Ooh, terrifying, a chest made of easy-listening records! Hairdo by a VCR that ate the tape!\" The crew howls. Then a dad snorts, then a mom, then the whole roundabout is laughing, and Backmask shrinks with every giggle, thirty feet, ten, the size of a lawn flamingo, and finally a puff of smoke that smells like a burnt album sleeve. Prudence stares at the laughing crowd as if she has never heard the sound before.",
+            "art": "A teenager in a Halloween costume hosting into a bullhorn beside a bonfire, a crowd of parents doubled over laughing, a smoke demon shrunk to the size of a lawn flamingo, a stunned pastor clutching a Bible",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Your first joke lands in dead silence, and in the silence a parent whimpers. Backmask leans down, delighted, and swallows the whimper whole. You'll have to win this crowd some other way.",
+            "art": "A towering smoke demon with videotape hair leaning over a silent frightened crowd at a bonfire, a teenager lowering a bullhorn, sparks swirling into the night sky",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "approach": "fight",
+          "label": "Lock arms with the crew in front of the fire, refuse out loud to be afraid, then tear the pile apart",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "prudence-harmony",
+            "amount": 1
+          },
+          "success": {
+            "text": "You've stood your ground before, the week the fear came into your own house, down the basement stairs and through the lock-in doors. So you lock arms with the crew between the crowd and the fire and say it together, loud: \"We are not afraid of you.\" Backmask lunges and finds nothing to eat. It lunges again, smaller. Then you break the line, grab rakes and shovels and drag the burning pile apart into the wet grass, ember by ember, until the demon is a puddle of steam and soggy album covers and the Concerned Parents are blinking at their kids through the drifting smoke.",
+            "art": "A teen crew in Halloween costumes raking a huge bonfire apart into wet grass, a smoke demon with videotape hair recoiling and shrinking, startled parents standing in drifting steam",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Someone in the crowd screams, someone in the line flinches, and Backmask pours itself into the gap. The heat drives you back across the roundabout. You're still standing. So is it.",
+            "art": "A teen crew in costumes driven back across a roundabout by roaring flames, a towering smoke demon pouring through a gap in their line, parents screaming behind them",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "approach": "heart",
+          "label": "Ask Prudence the question you asked the town that last night, what she's really afraid of, then play the record",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "prudence-asked",
+            "amount": 1
+          },
+          "success": {
+            "text": "You kneel beside her in the grass. The night before Halloween you asked this town what it was afraid of, and nobody said the devil. \"Your whole town told me what scares them,\" you say. \"What scares you, Pastor Thorn? Really.\" She looks at the fire a long time. \"That he left because of me,\" she whispers. So you show her the form she signed in 1972 and the page about the fear-eater, set a battery record player in the grass and play Come Find Me. She knows her son's voice from the first note. When the song ends you spin it backward, and a boy says, Mom. I'm okay. Come find me. Prudence makes a sound like something breaking open. She is not afraid now, only sad and missing him, and Backmask has nothing left to eat.",
+            "art": "A teenager in a Halloween costume kneeling in the grass beside a weeping pastor, a battery record player spinning a single vinyl record between them, a smoke demon fading into wisps above a dying bonfire",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She opens her mouth to answer, a parent screams, and she shuts it again. \"I'm afraid of that,\" she says, pointing at the demon, and covers her ears. She isn't ready to hear it yet.",
+            "art": "A pastor in a cardigan kneeling with her hands over her ears before a towering bonfire, a teenager holding out a vinyl record, a smoke demon roaring above the crowd",
             "effects": {
               "nerve": -2
             }

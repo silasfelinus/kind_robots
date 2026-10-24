@@ -741,6 +741,262 @@
             }
           }
         ]
+      },
+      {
+        "id": "counselor-jess-pool-closed",
+        "act": 1,
+        "title": "The Pool Is Closed",
+        "place": "The Glimmer Falls municipal pool, closed for the season, midnight",
+        "text": "Kev bet Danny Delgado a dollar he would not climb the high dive at the closed-up town pool, so now four of you are over the fence at midnight. The pool was drained in September. Tonight it is full to the brim with black, cold water that smells like cattails, and the moon wobbles on the surface. The lifeguard chair stands at the edge with nobody in it, a tin whistle hanging from its arm. Danny is halfway up the high-dive ladder when you see the shape walking along the bottom of the pool, tall and slow, looking up at the unoccupied chair.",
+        "art": "A closed suburban swimming pool at midnight brimming with black lake water, moonlight rippling on the surface, a tall lifeguard chair with a tin whistle hanging from its arm, a boy climbing a high dive ladder, a tall dark shape walking along the bottom",
+        "choices": [
+          {
+            "id": "take-the-chair",
+            "label": "Climb up into the lifeguard chair and blow the whistle",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You scramble up, grab the whistle and blow one long blast: everybody out. Danny freezes on the ladder and climbs back down. In the water, the tall shape stops and tilts its head back, and through the black water you see a cracked hockey mask looking up at you, sitting where a grown-up should have been. It turns and walks away into the deep end, and the pool drains like a long sigh.",
+              "art": "A teenager perched in a tall lifeguard chair blowing a tin whistle under the moon, a cracked hockey mask gazing up from beneath black pool water, a boy climbing down a high dive ladder",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-lifeguard-chair"]
+              }
+            },
+            "failure": {
+              "text": "The whistle is full of lake water and gargles pathetically. The shape at the bottom looks up at the chair, finds nobody there worth trusting, and starts to climb the pool ladder. All four of you go over the fence so fast that Kev leaves a sneaker behind.",
+              "art": "Four teenagers scrambling over a chain-link fence at night, a lone sneaker left on the pool deck, a towering dripping figure in a torn navy dress rising up the pool ladder behind them",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "slasher"
+              }
+            }
+          },
+          {
+            "id": "talk-danny-down",
+            "label": "Talk Danny down off the high dive before anyone goes in",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "\"Danny. The bet's off. Kev will pay you the dollar anyway, just come down.\" He hesitates at the top, then sees your face and climbs down rung by rung. The moment his sneakers touch concrete, the dark water goes still as glass, and a cracked voice from under the surface says, \"Good. Good job.\"",
+              "art": "A boy climbing carefully down a high dive ladder toward a teenager holding out a hand, the black pool below going still as glass, a faint pale shape resting under the moonlit surface",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"I'm not chicken!\" Danny yells, and jumps. He comes up gasping and freezing but fine, and something under the water bumps his feet the whole way to the ladder. You haul him out together, all four of you shaking, and the walk home is very quiet.",
+              "art": "A soaked shivering boy being hauled out of a black moonlit pool by three teenagers, ripples spreading behind him, a tall dark shape gliding beneath the surface",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "cover-the-pool",
+            "label": "Drag the pool tarp back over the water and weigh it down",
+            "intent": "clever",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "You grab the heavy blue tarp and drag it across, weighting the corners with lounge chairs and a trash can. The water underneath heaves once, gently, like something rolling over in bed, then goes calm. In the morning the pool is drained again, and the tarp has been folded into a perfect square, the way a camp counselor would fold it.",
+              "art": "Teenagers hauling a heavy blue tarp across a moonlit swimming pool, lounge chairs and a trash can weighting its corners, the tarp bulging gently in the middle as if something beneath is rolling over",
+              "effects": {
+                "nerve": 1
+              }
+            },
+            "failure": {
+              "text": "The tarp slips out of your hands and sinks slowly into the black water. A hand pushes it back up and flings it onto the deck with a wet slap. Then a whistle blows from somewhere under the surface: one long blast, which means get out.",
+              "art": "A soaked blue tarp flung onto a pool deck with a splash, a long scarred arm sinking back into black water, teenagers scrambling backward under the moon",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-safety-assembly",
+        "act": 2,
+        "title": "The Midnight Assembly",
+        "place": "The Glimmer Falls High gym, midnight",
+        "text": "The school bell rings at midnight, and you wake up in the gym bleachers in your pajamas with the rest of Glimmer Falls High. A filmstrip clicks on, EYES ON THE WATER, GIRLS, 1958, and a cheerful narrator explains that drownings happen when girl counselors get distracted by boys. Teachers and parents line the walls, nodding along. Lake water is seeping across the gym floor and climbing the bleachers one row at a time. At the very top, under the scoreboard, a seven-foot figure in a torn navy dress sits with her knees up, watching the film about herself.",
+        "art": "A dim high school gym at midnight, students in pajamas packed in the bleachers, an old filmstrip glowing on a pull-down screen, teachers and parents lining the walls, dark lake water creeping up the bleacher rows, a towering figure in a torn navy dress seated at the top",
+        "choices": [
+          {
+            "id": "narrate-it-right",
+            "label": "Grab the narrator's mic and tell the filmstrip the right way",
+            "intent": "camp",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "jess-story-told",
+              "amount": 1
+            },
+            "success": {
+              "text": "You step up to the projector and talk right over the narrator. \"And here is Director Harlan Pratt, playing poker in the lodge instead of hiring a lifeguard.\" The gym laughs, at him for once. \"And here is Jess Mercer, age twelve, who asked for swim lessons three times.\" The water stops climbing, and at the top of the bleachers the figure leans forward, mask in her hands, listening to her own name in front of the whole school.",
+              "art": "A teenager speaking into a microphone beside a clattering filmstrip projector in a dark gym, students in pajamas laughing, lake water halted at the bottom row, a towering figure at the top of the bleachers leaning forward with a hockey mask in her hands",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-filmstrip"]
+              }
+            },
+            "failure": {
+              "text": "The narrator's voice gets louder and louder until it drowns yours out: EYES ON THE WATER, GIRLS. The teachers shush you. The water reaches the third row, and you wake up with wet pajama cuffs.",
+              "art": "Teachers shushing a teenager standing at a filmstrip projector in a dark gym, a cheerful 1950s narrator image glowing on the screen, black water lapping at the third row of bleachers",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tear-it-down",
+            "label": "Climb the wall and tear down the old swim-safety notice",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 9,
+            "success": {
+              "text": "That warning has hung by the gym doors since 1958. You climb the folded bleachers, grab a corner and rip it down the middle with a sound like a slap. The filmstrip sputters, and the water stops at your ankles. Up under the scoreboard, Jess stands up very slowly, and through the cracked mask you think you see the corner of a smile.",
+              "art": "A teenager on folded bleachers ripping a faded old swim-safety notice off a gym wall, torn paper fluttering down, a filmstrip sputtering on the screen, a towering masked figure rising slowly under the scoreboard",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-poster-down"]
+              }
+            },
+            "failure": {
+              "text": "It will not tear. The paper stretches like wet taffy and snaps back flat, and the lake water surges up two rows at once. A whistle blows from the top of the bleachers, one long blast, and every kid in the gym lifts their feet.",
+              "art": "A teenager straining to tear a stubborn faded notice off a gym wall, black water surging up the bleachers, students in pajamas lifting their feet, a masked figure blowing a whistle at the top",
+              "effects": {
+                "nerve": -2,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "sit-with-the-nurse",
+            "label": "Go sit beside Nurse Kessler, who is shaking by the doors",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "Nurse Kessler stands by the gym doors, white as chalk, her shoes already in the water. You sit beside her on the bottom bleacher and take her hand. \"I was sixteen,\" she whispers. You tell her it was never a sixteen-year-old's job to be the only grown-up at the lake, and she grips your hand hard as the water slides back off the gym floor like a tide going out.",
+              "art": "A teenager sitting on the bottom bleacher holding the hand of a pale middle-aged school nurse in a cardigan, dark water retreating across a gym floor like a tide, a filmstrip glowing faintly behind them",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She flinches away from you. \"Not now,\" she says. \"Not here.\" She walks out of the gym into the dark hallway, the water follows her, and the filmstrip starts over from the beginning.",
+              "art": "A pale school nurse in a cardigan walking away down a dark school hallway, a trail of lake water following her out of a gym, a filmstrip restarting on the screen behind a lone teenager",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "counselor-jess-the-lodge",
+        "act": 3,
+        "title": "The Lodge",
+        "place": "The Camp Crystal Pines lodge, risen on the roundabout, midnight the night before Halloween",
+        "text": "A thunderstorm rolls over Crystal Street the night before Halloween, and when the lightning flashes, the Camp Crystal Pines lodge is standing on the roundabout, dripping, risen whole out of 1957. Inside, the fire is lit and a poker game is frozen mid-hand: four grown men in short sleeves, cards fanned, cigar smoke hanging in the air, and at the head of the table Director Harlan Pratt, chuckling at nothing. The lodge clock reads 9:58, two minutes before the night swim went wrong. Someone is pounding on the front door hard enough to rattle the antlers on the wall, and a cracked voice outside is shouting, \"Let me in! Nobody's watching the water!\"",
+        "art": "A rustic summer camp lodge at night in a thunderstorm, a crackling fireplace, four men in short sleeves frozen around a poker table with cards fanned and cigar smoke, an old wall clock near ten, the heavy front door shaking from pounding",
+        "choices": [
+          {
+            "id": "let-her-in",
+            "label": "Slide back the bolt and let her in out of the storm",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "flag": "jess-saved-a-seat",
+              "amount": 1
+            },
+            "success": {
+              "text": "You slide back the bolt. Jess ducks through the doorway, enormous and soaked, rain sheeting off her dress, and stops, staring at the warm room she was never allowed into. You pull a chair up to the fire for her. She sits, carefully, and holds her scarred hands out to the flames, and the frozen men at the poker table flicker and fade like smoke up the chimney.",
+              "art": "A towering soaked woman in a torn navy dress seated by a lodge fireplace holding her scarred hands to the flames, a teenager pulling up beside her, ghostly poker players fading like smoke behind them",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["jess-let-in"]
+              }
+            },
+            "failure": {
+              "text": "You open the door and the storm comes in with her: wind, rain and lake water all at once, knocking you flat. Jess looks around the lodge, sees the poker table, and pulls her mask down. She goes back out into the storm, and the door slams behind her.",
+              "art": "A storm blasting through an open lodge door, a teenager knocked flat by a wave of rain and lake water, a towering masked woman turning away from a poker table into the lightning",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "ring-the-bell",
+            "label": "Haul on the lodge alarm bell: lifeguard to the waterfront",
+            "intent": "clever",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "There is a brass bell by the door with a frayed rope beneath it. You haul on it, and the bell nobody rang in 1957 clangs out across the lake, again and again. The poker players look up, startled, for the first time in twenty-nine years. Outside, the pounding stops, and the clock ticks past ten with the whole lodge listening.",
+              "art": "A teenager hauling on the rope of a big brass bell beside a lodge door in a thunderstorm, ghostly poker players looking up startled from their cards, an old wall clock ticking past ten",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["jess-bell-rang"]
+              }
+            },
+            "failure": {
+              "text": "The bell rope comes apart in your hands, rotten from twenty-nine years underwater. The clock strikes ten. Outside, the pounding stops, and the silence is worse.",
+              "art": "A teenager staring at a snapped rotten bell rope in their hands inside a firelit lodge, a wall clock striking ten, rain streaming down the dark windows",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "flip-the-table",
+            "label": "Flip the poker table and drag the director down to the dock",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 2
+            },
+            "success": {
+              "text": "Cards, chips and cigars go flying. You grab Director Pratt by his short-sleeved collar and haul him, sputtering, out into the rain and down to the end of the dock. \"Look,\" you tell him. \"Forty kids. No lifeguard. Look at the water.\" For the first time, the memory of Harlan Pratt looks, and sees, and his face crumples, and the whole lodge folds into the lake behind you like a house of cards.",
+              "art": "A teenager dragging a sputtering middle-aged man in short sleeves down a rain-lashed wooden dock toward black water, playing cards whirling in the wind, a rustic lodge collapsing into the lake behind them",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                },
+                "flags": ["jess-pratt-looked"]
+              }
+            },
+            "failure": {
+              "text": "The table will not budge, bolted to the floor by twenty-nine years of habit. Pratt deals you a hand without looking up. \"Sit down, kid. The girls will handle it.\" You hear the clock tick toward ten.",
+              "art": "A smug middle-aged man in short sleeves dealing cards to a teenager straining against a heavy bolted poker table, a lodge clock ticking toward ten, a storm flashing at the windows",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -825,6 +1081,94 @@
             "art": "A towering masked woman flinching away from a teen's outstretched hand and sinking into moonlit black water, the flood rising around a broken human chain",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Shout \"BUDDY CHECK!\" across the whole lake, the rule that stopped her that first week",
+          "intent": "clever",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "jess-buddy-rule",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "That first week taught you that Jess cannot ignore a camp rule, any more than she can stop being twelve. So you cup your hands and bellow across the black water, \"BUDDY CHECK!\" Every teen in the lake grabs a hand and holds it high, pairs and pairs and pairs, and Jess has to count them, porch by porch and raft by raft, mask pushed up so she can see. When she finishes, nobody is missing, and the girl nobody counted lowers her machete, blows one soft blast that means swim's over, and wades away into the dark as the water drains after her.",
+            "art": "Dozens of costumed teenagers treading moonlit water and holding joined hands high in pairs, a towering woman in a torn navy dress on a raft counting them with her hockey mask pushed up, porch roofs poking above the lake",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "\"BUDDY CHECK!\" Half the teens in the water are too cold to lift their hands. Jess counts, comes up short, and her shoulders sag under the dripping dress. \"See,\" she says. \"Somebody always gets left.\"",
+            "art": "Shivering costumed teenagers treading black water around a raft, only a few hands raised, a towering masked woman on the raft with slumped shoulders, jack-o'-lanterns bobbing past",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Rally every teen in the water to shout her rule down: we watch out for each other now",
+          "intent": "brave",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "jess-saw-them-help",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "Midweek you watched teenagers prove the town wrong: skinny-dippers who swam for a little kid, friends who went into a dark garage in pairs, a gym full of kids who finally heard who really left the lake unwatched. So you shout it across the black water, and every teen treading water shouts it back: \"WE WATCH EACH OTHER NOW!\" They link arms and kick together, a raft of costumes pushing back against her raft, until Jess staggers with the machete drooping and her rule broken in front of her. With a long, cracked wail she sinks off the raft, and the lake pours down every storm drain on Crystal Street after her.",
+            "art": "A huge ring of costumed teenagers linking arms in moonlit water and shouting together, pushing toward a wooden raft, a towering masked woman staggering backward with her machete drooping, water swirling down toward storm drains",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Your shout breaks against the cold. A few teens try to link arms, but their teeth chatter too hard to say the words. Jess shakes her head slowly. \"That's what they always say,\" she says, \"right before they look away.\"",
+            "art": "A few shivering costumed teenagers trying to link arms in black water, a towering masked woman on a raft shaking her head slowly, moonlight on drowned porch roofs",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Say her name, hold out the hand she trusted the night before Halloween, and float with her",
+          "intent": "kind",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "jess-boat-ride",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween you showed her that somebody stays, so you do it again, out loud, in front of the whole town. \"Jess,\" you say, and slide off the porch into the black water and swim for the raft, your crew linking hands behind you, porch to raft, with Nurse Judy Kessler wading in at the end of the chain. You hold out your hand, the same hand that reached for her before. \"It wasn't your fault, or Judy's, or any girl's. Lie back. We've got you.\" The machete sinks, the mask floats away, and Jess lies back on the lake with a dozen hands holding her up, and floats.",
+            "art": "A towering scarred woman in a torn navy dress floating on her back on a moonlit lake, a dozen hands of costumed teenagers holding her up, a middle-aged nurse in a coat waist-deep at the end of a human chain, a hockey mask drifting away",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "She reaches for your hand, then the cold and the old fear win, and she pulls back under her mask. \"Not yet,\" she whispers. \"Everybody says they'll stay.\" She was so close.",
+            "art": "A towering masked woman on a raft pulling her scarred hand back from a costumed teenager treading water, moonlight on the black lake, a human chain of friends stretching back to a porch",
+            "effects": {
+              "nerve": -1
             }
           }
         }

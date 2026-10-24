@@ -697,6 +697,278 @@
             }
           }
         ]
+      },
+      {
+        "id": "bog-baby-milk-run",
+        "act": 1,
+        "title": "Something Drank the Milk",
+        "place": "Crystal Street, 4 a.m.",
+        "text": "At four in the morning a crash and a yelp bring you to the window. The Glimmer Dairy milk truck is stopped crooked in the middle of Crystal Street with its back doors hanging open, and every glass bottle it carried lies in the gutter, licked clean. Mr. Petrosyan the milkman is standing on the roof of his truck in his white cap, clutching his clipboard to his chest. Leading from the truck to the corner storm drain is a trail of duckweed and tiny muddy handprints, each one the size of a baby's, each one webbed between the fingers.",
+        "art": "A white vintage milk truck stopped crooked on a moonlit suburban street before dawn, licked-clean glass milk bottles strewn in the gutter, a milkman in a white cap standing on the truck roof, tiny webbed muddy handprints leading to a storm drain",
+        "choices": [
+          {
+            "id": "leave-a-bottle",
+            "label": "Rinse a bottle, fill it with cold water and set it by the drain",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "bog-baby-soothed",
+              "amount": 1
+            },
+            "success": {
+              "text": "You set the bottle at the edge of the grate like a gift. A long moment passes. Then a small, muddy, webbed hand reaches up, curls around the bottle and pulls it down with a soft clink. From the drain comes a contented glug, a hiccup and a sleepy croak, and the handprints on the asphalt begin to sprout tiny green cattails.",
+              "art": "A small webbed muddy hand reaching up out of a storm drain grate to take a glass bottle of water, tiny green cattails sprouting from handprints on the moonlit asphalt, a teenager kneeling nearby",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-bottle"]
+              }
+            },
+            "failure": {
+              "text": "Before you can set it down, the bottle is snatched out of your hand. Something gulps, gags and spits it back out, coated in fryer grease. It wanted something, and it does not know the word for it, and a wail rises out of every storm drain on the street.",
+              "art": "A glass bottle coated in golden fryer grease rolling out of a storm drain at a teenager's feet, a mournful glow rising from every drain along a dark suburban street",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "follow-the-prints",
+            "label": "Follow the little handprints down to the storm drain",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "Flashlight in your teeth, you crouch at the grate and shine it in. Far down the culvert, two golden eyes the size of dinner plates blink up at you, wet and enormous, then shyly close. Behind them, deep in the dark, a violet light pulses like a slow heartbeat. You back away very carefully, and it does not follow.",
+              "art": "A teenager crouching at a storm drain with a flashlight beam reaching into a dark culvert, two enormous golden frog eyes blinking far below, a faint violet glow pulsing deeper in the tunnel",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You lean too close. A long, sticky tongue shoots out of the drain, slurps your flashlight right out of your hand and pulls it down into the dark. You hear it crunching, curious, and then a disappointed burp.",
+              "art": "A long sticky frog tongue snatching a flashlight from a startled teenager's hand at a storm drain, the beam spinning down into a dark culvert, duckweed splattered across the curb",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "milkman-down",
+            "label": "Coax the milkman off the roof like a cat out of a tree",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 7,
+            "success": {
+              "text": "\"Here, Mr. Petrosyan. Nice and easy. Nobody's going to lick you.\" He climbs down, shaking, and over cocoa on your porch he tells you every bottle went in under a minute. \"Like a baby with a bottle,\" he says. \"A big one. My route runs right along the old marsh line, you know. I used to see herons.\"",
+              "art": "A shaky milkman in a white cap sipping cocoa on a suburban porch at dawn beside a teenager, his milk truck parked crooked in the street, duckweed trailing toward a storm drain",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "He does not want to come down, and you cannot blame him. You end up on the roof beside him until sunrise, both of you holding very still while something below sniffs every tire and wheel well, crooning like a sad frog.",
+              "art": "A milkman and a teenager huddled together on the roof of a white milk truck before dawn, a dark muddy shape sniffing around the tires below, cattails poking from the gutter",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-sewer-gator",
+        "act": 2,
+        "title": "Sewer Gator",
+        "place": "The Main Street storm culvert, 1 a.m.",
+        "text": "Somebody saw an alligator in the storm drains, and now half the town is out on Main Street in bathrobes. Channel 6 has a van with a spotlight on its roof, and a county animal-control officer in hip waders is climbing down into the culvert with a catch pole and a net. You know what is really down there. Behind the culvert grate, just outside the spotlight, a small muddy hand is clinging to the bars and trembling, and the frog-crying drifting up out of the dark sounds exactly like a baby frightened of the noise.",
+        "art": "A night street crowd in bathrobes around a storm culvert, a news van with a rooftop spotlight, an animal control officer in hip waders climbing down with a catch pole and net, a small trembling mud hand clinging to a grate in the shadows",
+        "choices": [
+          {
+            "id": "fake-gator-trail",
+            "label": "Lead the hunters off with a splashy fake trail down the next block",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "bonus": {
+              "companion": "lou-tran",
+              "amount": 1
+            },
+            "success": {
+              "text": "You drag a garden hose through the gutter, kick over a trash can and splash off two blocks yelling, \"There it goes!\" The spotlight swings. The man in hip waders goes sloshing after you with the Channel 6 van behind him, and back at the grate the little mud hand lets go and slips safely into the dark.",
+              "art": "A teenager splashing down a wet gutter dragging a garden hose at night, a news van spotlight swinging after them, an officer in hip waders sloshing in pursuit, a storm grate in the background",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-hid-it"]
+              }
+            },
+            "failure": {
+              "text": "The spotlight swings onto you instead, right as you trip over the hose. You make the eleven o'clock news soaking wet and holding a garden hose, and the hunter goes back down into the culvert anyway.",
+              "art": "A soaking-wet teenager sprawled over a garden hose in a bright television spotlight on a night street, a reporter with a microphone, an officer in hip waders climbing into a culvert",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "on-camera",
+            "label": "Step in front of the Channel 6 camera and tell the town what's really down there",
+            "intent": "brave",
+            "skill": "charm",
+            "target": 11,
+            "success": {
+              "text": "\"It isn't an alligator,\" you tell the camera, as calm as you can. \"It's the marsh they paved over for Lot C, and it's scared.\" The reporter laughs, then stops laughing when the whole crowd hears it: frogs singing under Main Street. An old man in a bathrobe says, \"I used to catch tadpoles out there,\" and the hunter climbs back up his ladder with his net hanging limp.",
+              "art": "A teenager speaking calmly into a television camera on a night street, a reporter lowering her microphone in surprise, townspeople in bathrobes leaning toward a storm grate, an officer climbing back up a ladder",
+              "effects": {
+                "nerve": 2,
+                "dread": -1,
+                "flags": ["bog-baby-on-the-news"]
+              }
+            },
+            "failure": {
+              "text": "The camera light hits you and your mind goes blank. You say \"swamp baby\" on live television. The reporter thanks you very kindly, and by morning everyone at school is calling you Swamp Baby, which honestly could be worse.",
+              "art": "A teenager blinking into a blinding television camera light on a night street, a smiling reporter holding a microphone, a crowd in bathrobes stifling giggles behind them",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          },
+          {
+            "id": "shield-it",
+            "label": "Slip down to the grate and hide it under your jacket until the lights pass",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 1
+            },
+            "success": {
+              "text": "You crouch by the grate and drape your jacket over the little hand. It grabs your finger, cold and wet, and holds on hard while the spotlight sweeps right over you both. When the van finally drives off, a tiny head of mud and reeds peeks out, blinks two golden eyes at you and croaks, very softly, like a thank-you.",
+              "art": "A teenager crouched by a storm grate draping a denim jacket over a tiny head of mud and reeds with golden frog eyes, a spotlight beam sweeping past overhead, a small webbed hand gripping their finger",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-sheltered"]
+              }
+            },
+            "failure": {
+              "text": "The hand grabs your finger and squeezes in panic, and when the spotlight hits, it yanks. You are dragged elbow-deep into cold grease before it lets go and flees down the culvert, wailing, with the hunter splashing after it.",
+              "art": "A teenager yanked elbow-deep into a greasy storm grate under a harsh spotlight, a small muddy shape fleeing down a dark culvert, an officer with a net splashing after it",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "bog-baby-under-lot-c",
+        "act": 3,
+        "title": "Under Lot C",
+        "place": "The sealed culvert beneath Starlight Mall, 3 a.m. the night before Halloween",
+        "text": "You squeeze through a storm grate behind the mall and down into the culvert the county sealed in 1981. Down here the concrete sweats, warm grease runs ankle-deep, and the whole tunnel thuds with a slow, enormous heartbeat. But the marsh is down here too, or the ghost of it: cattails of pale light sprouting from the cracks, mist shaped like herons wading ahead of you, the faint chorus of a summer pond. Somewhere up the tunnel, the old spring is pounding against a welded steel valve, and tomorrow is Halloween.",
+        "art": "A dark concrete storm culvert beneath a mall, ankle-deep golden grease, glowing pale cattails sprouting from cracks, misty ghostly herons wading ahead, a teenager with a flashlight, a rusted welded steel valve at the far end pulsing violet",
+        "choices": [
+          {
+            "id": "follow-the-heron",
+            "label": "Follow the mist heron upstream to the welded valve",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "item": "flashlight",
+              "amount": 1
+            },
+            "success": {
+              "text": "The mist heron wades ahead, pausing whenever you fall behind, until it stops beside a huge valve wheel welded shut with a fat seam of rust and stamped COUNTY OF GLIMMER, JULY 1981. Behind the steel you can hear the spring, cold and furious, wanting out. You chalk a big X on the culvert wall above it. The heron dips its head, and dissolves.",
+              "art": "A ghostly heron made of mist bowing beside a huge rusted valve wheel welded shut in a concrete culvert, a teenager chalking a large white X on the wall above, faint violet light behind the steel",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-found-valve"]
+              }
+            },
+            "failure": {
+              "text": "The heron leads you into a side tunnel and fades, and you are alone in the dark with the grease rising to your knees. You find your way out two hours later by following the food-court music overhead, smelling like a corn dog.",
+              "art": "A lone teenager wading knee-deep in golden grease through a pitch-dark side tunnel, a fading wisp of mist ahead, faint neon mall light glowing through a grate far above",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "drum-the-heartbeat",
+            "label": "Press your palms to the concrete and drum its heartbeat back",
+            "intent": "kind",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "Thud. Thud. You drum back, palms flat on the warm concrete, in rhythm. The heartbeat falters, then quickens, the way a baby's does when it hears someone close by. The grease around your ankles clears to cool green water for a dozen feet in every direction, and a tadpole wriggles past your sneaker.",
+              "art": "A teenager pressing both palms to a warm concrete culvert wall, golden grease clearing into cool green water around their sneakers, a tadpole wriggling past, glowing cattails along the cracks",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["bog-baby-heartbeat"]
+              }
+            },
+            "failure": {
+              "text": "You drum out of rhythm, and the heartbeat races in alarm. The tunnel shudders, grease sloshes over your shoes, and a wail rolls up the culvert so loud it rattles your teeth. You run for the grate.",
+              "art": "A teenager sprinting toward a distant storm grate through a shuddering concrete culvert, waves of golden grease sloshing at their heels, dust shaking loose from the ceiling",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wade-upstream",
+            "label": "Wade straight up the tunnel against the grease tide",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "wade-whitfield",
+              "amount": 1
+            },
+            "success": {
+              "text": "You lean into the current and push, one heavy step at a time, until the grease thins and the water runs cold and clear around your knees. Ahead the tunnel opens into a round chamber where violet crystals glitter on every wall like a geode turned inside out. You have found the heart of the old marsh, and it is beating.",
+              "art": "A teenager wading knee-deep into a round underground chamber with walls glittering with violet crystals like the inside of a geode, cold clear spring water swirling, pale cattails glowing at the entrance",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The tide sweeps your feet out from under you and carries you, spluttering, all the way back down the culvert and out into the storm channel behind the mall. You sit in the shallows, coated head to toe, while three frogs sit on your knees and stare.",
+              "art": "A grease-coated teenager sitting dazed in the shallows of a concrete storm channel behind a mall at night, three frogs perched on their knees staring at them",
+              "effects": {
+                "nerve": -2
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -773,6 +1045,94 @@
             "art": "Teens straining together against a rusted culvert valve in a flooded storm drain, a giant mud baby wailing above them",
             "effects": {
               "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "Hum the lullaby it learned from you the first week and rock it back to sleep",
+          "intent": "clever",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "bog-baby-soothed",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "That first week taught you the oldest trick in any nursery: it is a baby, and babies quiet down for a song and a bottle. You fill a mall mop bucket at the fountain, hold it up like a bottle, and hum the same low lullaby you sang to the asphalt in Lot C. The Bog Baby's wail breaks into a hiccup, then a yawn the size of a parking garage, and it settles back into its crater, sucks one giant muddy thumb and falls asleep under a blanket of cattails. The black water stops rising, and by morning the county has roped off Lot C, where nobody dares to wake it.",
+            "art": "A giant baby made of mud and reeds curled asleep in a parking lot crater under a blanket of cattails, sucking its thumb, a costumed teenager humming and holding up a mop bucket, the mall neon glowing softly",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "Your lullaby comes out wobbly and the bucket sloshes empty. The Bog Baby cries harder, the way babies do when they can tell you are nervous. But for one second, it turned its frog eyes toward the song.",
+            "art": "A giant crying baby of mud and grease towering over a flooded parking lot, a costumed teenager holding a sloshing mop bucket, black water swirling around parked cars",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Stand between it and the extinguishers, the way you stood up for it midweek",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "bog-baby-sheltered",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "Mall security charges across Lot C with fire extinguishers raised, and you do what you did midweek, when the whole town wanted it plunged, netted or starved: you get in the way. Your crew links arms beside you at the edge of the crater, and you shout until the guards skid to a stop. \"It's a baby! Shut off the grease line, not the baby!\" Behind you the Bog Baby goes quiet, peeking at its protectors through giant muddy fingers, and while the guards argue on their radios it sits down in its crater and stops flooding the lot.",
+            "art": "A line of costumed teenagers linking arms at the edge of a muddy crater, mall security guards with fire extinguishers skidding to a halt, a giant mud baby peeking shyly through its fingers behind them",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The guards push past your arms and the foam flies. The Bog Baby flails, more scared than ever, and a wave of black water knocks you flat. It saw you try, though; its frog eyes keep finding you in the crowd.",
+            "art": "Mall security guards spraying white foam at a giant wailing mud baby, a wave of black water knocking a costumed teenager off their feet, frog eyes on the creature turned toward them",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Take its hand when it calls for its mama, like the night before Halloween, and walk it home to its spring",
+          "intent": "kind",
+          "skill": "lore",
+          "target": 7,
+          "bonus": {
+            "flag": "bog-baby-touched",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween it looked at you and knew you, so now you walk right up to its enormous muddy foot and hold out your hand. \"Come on,\" you say. \"I know where your water is.\" The Bog Baby wraps one giant finger around your hand and toddles after you across Lot C to the grate over the old spring, where your crew is waiting with crowbars, and when the welded valve gives, cold water roars up through the asphalt. The baby sits down in its water, sighs, and melts into reeds and lilies and singing frogs, and a violet light settles at the bottom of the new pond like a nightlight.",
+            "art": "A costumed teenager leading a towering mud baby by one finger across a moonlit parking lot toward a gushing spring, cold water bursting up through cracked asphalt, reeds and lilies blooming, a violet glow in the pool",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "It reaches for you, then the mall's flood alarms start shrieking, and it snatches its hand back and wails. You were close enough to feel its cold, wet finger. You know the way; it just needs to trust you a little longer.",
+            "art": "A giant mud baby pulling its hand back from a costumed teenager under flashing alarm lights on a flooded parking lot, cattails trembling on its head, its violet heart flickering",
+            "effects": {
+              "nerve": -1
             }
           }
         }

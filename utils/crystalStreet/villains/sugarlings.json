@@ -768,6 +768,265 @@
             }
           }
         ]
+      },
+      {
+        "id": "sugarlings-last-call",
+        "title": "Last Call at the Quik-Stop",
+        "place": "The all-night Quik-Stop on Route 49, 12:40 a.m.",
+        "text": "You bike to the all-night Quik-Stop for batteries and find the night clerk, Mrs. Oyelaran, asleep on her stool with her head on the counter. The store is having a party. Sugarlings ride the hot-dog rollers like a carnival ride, slurp from the Slushee machine's spout and stack candy bars into a wobbly tower beside the register. One stands on the arcade cabinet in the corner, mashing buttons with both paws. The radio behind the counter is playing the jingle, and the candy aisle is already half gone.",
+        "art": "A brightly lit 1980s all-night convenience store, fuzzy pastel critters riding hot dog rollers, slurping from a slush machine and stacking candy bars by the register, a night clerk asleep on her stool, a teenager in the entrance holding a bike helmet",
+        "choices": [
+          {
+            "id": "holler-last-call",
+            "label": "Flick the lights and holler \"Last call!\" like the bartender in an old Western",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You flick the lights three times and bang the counter. \"Last call, folks! You don't have to go home, but you can't stay here!\" The Sugarlings freeze, then very politely climb off the hot-dog rollers and form a single-file line. They waddle out the automatic doors one by one into the night, the last one tipping an imaginary hat. Creatures made of wanting, it turns out, understand closing time.",
+              "art": "A teenager behind a convenience store counter flicking the lights and shouting, a single-file line of fuzzy pastel critters waddling out sliding glass doors into the night, the last one tipping its paw",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-last-call"]
+              }
+            },
+            "failure": {
+              "text": "You flick the lights and holler, and the Sugarlings cheer, because to them last call means one more round. They swarm the candy rack in a pastel wave, and the tower by the register topples in a landslide of chocolate bars. By the time you dig yourself out there are twice as many of them, and every one is wearing a paper Quik-Stop hat.",
+              "art": "A teenager buried in a landslide of chocolate bars in a convenience store, dozens of fuzzy pastel critters in paper hats swarming the candy rack under flickering fluorescent lights",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "wake-the-clerk",
+            "label": "Wake Mrs. Oyelaran gently and help her close up the store",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You touch her shoulder and she wakes with a start. \"Second double this week,\" she says, rubbing her eyes. \"The kids need Halloween costumes.\" She takes one look at the party, sighs, and pulls a ring of keys out of her smock. Together you lock the candy cases and roll the snack racks into the back room, and the Sugarlings, finding nothing left to want, curl up on the warm hot-dog rollers and fall asleep. She makes you a free cocoa.",
+              "art": "A tired night clerk in a smock and a teenager rolling snack racks into the back room of a convenience store, fuzzy critters asleep in a pile on warm hot dog rollers, two cups of cocoa on the counter",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "She wakes up, sees forty fuzzy critters drinking from her Slushee machine and screams so loud the Sugarlings scream back. In the stampede somebody knocks over the gumball display, and you spend an hour on your hands and knees chasing gumballs while the critters chase them too, multiplying every time one gets caught.",
+              "art": "A screaming night clerk on her stool, fuzzy pastel critters scattering across a convenience store floor covered in rolling gumballs, a teenager on hands and knees chasing them",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "cart-sweep",
+            "label": "Shove a shopping cart down the candy aisle at full speed and scoop up the whole party",
+            "intent": "reckless",
+            "skill": "hustle",
+            "target": 11,
+            "success": {
+              "text": "You grab a cart, take a running start and plow down the candy aisle like a game-show contestant on a shopping spree. Sugarlings tumble in by the dozen, squealing with joy. You wheel the heaped cart straight out the doors and across Route 49 to the dark church parking lot, where the purring pile falls asleep in the cart, a whole highway away from any candy.",
+              "art": "A teenager racing a shopping cart heaped with squealing fuzzy pastel critters across a dark highway toward a church parking lot, a convenience store glowing behind them",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "The front wheel wobbles, catches and flips you over the handle into the chip display. You land in a crunching avalanche of snack bags, and the Sugarlings dive in after the chips, then after you. The arcade cabinet in the corner plays a little game-over tune.",
+              "art": "A teenager flipped over a shopping cart into a crunching pile of chip bags in a convenience store, fuzzy pastel critters diving in after them, an arcade cabinet glowing in the corner",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          }
+        ],
+        "act": 1
+      },
+      {
+        "id": "sugarlings-cash-for-critters",
+        "title": "Cash for Critters",
+        "place": "The curb at the end of Crystal Street, dusk",
+        "text": "A Happimore Toys van with a giant plush Sugarling bolted to its roof is parked at the end of Crystal Street, and half your neighbors are lined up beside it holding shoeboxes. A man in a pastel blazer named Chet Varney is paying five dollars a head to buy Sugarlings back, \"for the safety of the community.\" Through the van's open back doors you can see stacked cages, and Chet's assistant feeding candy corn through the bars by the scoopful. Every cage is splitting. A Channel 6 news van is pulling up to cover the story, and Mrs. Albescu is next in line with eleven of them.",
+        "art": "A pastel toy company van with a giant plush critter on its roof parked at a suburban curb at dusk, neighbors lined up holding shoeboxes, a man in a pastel blazer handing out cash, stacked cages of fuzzy critters in the open back of the van, a news van arriving",
+        "choices": [
+          {
+            "id": "swap-the-feed",
+            "label": "Sneak around the van and swap the candy corn sacks for plain rice cakes",
+            "intent": "sneaky",
+            "skill": "hustle",
+            "target": 9,
+            "success": {
+              "text": "While Chet smiles for the Channel 6 camera, you slip around back, trade three sacks of candy corn for a bag of plain rice cakes from Kev's mom's pantry and slip away again. The assistant scoops. The Sugarlings sniff, sneeze and stop splitting, then sulk in their cages with their backs to the world. Mid-interview, Chet cannot work out why his inventory has stopped growing.",
+              "art": "A teenager sneaking away from the back of a toy company van at dusk carrying sacks, caged fuzzy critters sulking with their backs turned, a man in a pastel blazer smiling for a news camera out front",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "A sack splits open in your arms and showers candy corn down the van's back steps. Every cage rattles at once. You sprint back along the line of neighbors with forty Sugarlings bouncing after you, and Channel 6 runs the footage at eleven under the headline Toy Panic on Crystal Street.",
+              "art": "A teenager sprinting along a line of startled neighbors at dusk with dozens of bouncing fuzzy pastel critters chasing them, candy corn scattered down the van steps, a news camera filming",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "talk-the-line",
+            "label": "Walk the line and talk your neighbors out of selling",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "kev-park",
+              "amount": 2
+            },
+            "success": {
+              "text": "You go neighbor to neighbor down the line. \"Mrs. Albescu, if you sell him eleven, he sells forty back by Christmas.\" Kev backs you up with hard facts from his paper route about who has already bought three times. One by one the neighbors look at the van, at the cages, at their own shoeboxes, and walk home. Mrs. Albescu is last, and she hands you one of her eleven. \"Keep it,\" she says. \"One's plenty.\"",
+              "art": "Suburban neighbors walking home at dusk carrying shoeboxes, a teenager and a young paperboy talking with an older woman who is handing over a single fuzzy critter, a toy van with cages in the background",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-no-sale"]
+              }
+            },
+            "failure": {
+              "text": "Chet hears you and raises his offer to seven dollars a head, and the line surges forward with a cheer. Mrs. Albescu elbows right past you. By the time the van pulls away it is so heavy with cages that it scrapes the curb, and the giant plush on its roof turns its head to wink at you.",
+              "art": "A heavily loaded toy company van scraping a suburban curb at dusk, a giant plush critter on its roof winking, a crowd of neighbors cheering after it, a teenager left behind",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "block-the-van",
+            "label": "Stand in front of the van and refuse to move until Chet stops feeding them",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "success": {
+              "text": "You plant yourself in front of the van's bumper with your arms folded. Chet honks. You stay. Then the Channel 6 camera swings around to film you, and Chet, who has never once been on the news as the bad guy, goes pale and orders his assistant to put the candy corn away. The neighbors start booing him. He drives off with empty pockets and a van full of very sleepy Sugarlings.",
+              "art": "A teenager standing with folded arms in front of a pastel toy company van at dusk, a news camera filming, a pale man in a pastel blazer behind the wheel, neighbors booing",
+              "effects": {
+                "nerve": 2,
+                "skills": {
+                  "nerve": 1
+                },
+                "flags": ["sugarlings-blocked-the-van"]
+              }
+            },
+            "failure": {
+              "text": "Chet just smiles and backs up, and up, and around you, and the line of neighbors follows the van down the street like a parade. You end up alone at the curb in a cloud of exhaust, and on the eleven o'clock news you are a blurry shape in the background, shaking your fist.",
+              "art": "A teenager standing alone at a curb in drifting exhaust at dusk, a pastel toy van rolling away down the street with a crowd of neighbors following it like a parade",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 2
+      },
+      {
+        "id": "sugarlings-parade-balloon",
+        "title": "Up, Up and Away",
+        "place": "The parade staging lot behind Main Street, the night before Halloween",
+        "text": "Tomorrow's Happimore Halloween Parade is supposed to star a four-story inflatable Sugarling balloon, and tonight it is tethered in the staging lot behind Main Street, moon-eyed and enormous. It is also moving. Real Sugarlings have chewed in through the valve by the thousand, and the balloon is swelling and purring, straining at its ropes as it fills up with critters instead of helium. One rope snaps. The whole thing lifts ten feet off the asphalt and turns, slowly, toward the lights of Crystal Street and every stockpiled bowl of Halloween candy in town.",
+        "art": "A four-story inflatable fuzzy pastel critter balloon straining against tether ropes in a parade staging lot at night, its moon eyes glowing, tiny fuzzy critters crawling in through its valve, one rope snapped and whipping, the lights of a suburban street beyond",
+        "choices": [
+          {
+            "id": "haul-the-ropes",
+            "label": "Grab a tether rope with the crew and haul it down by main strength",
+            "intent": "brave",
+            "skill": "brawn",
+            "target": 11,
+            "bonus": {
+              "companion": "moose-kowalski",
+              "amount": 2
+            },
+            "success": {
+              "text": "You wrap the rope around your wrists, dig in your heels and pull, and Moose pulls behind you, and the marching band, still in uniform from rehearsal, grabs on too. Hand over hand the balloon comes down until it sits on the asphalt like a sulky beanbag chair. Inside, a thousand muffled purrs settle into snores.",
+              "art": "A teenager, a big gentle lineman and a marching band in uniforms hauling a giant pastel critter balloon down by its ropes in a parade lot at night, the balloon slumping onto the asphalt",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brawn": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "The balloon gives a lazy tug and your sneakers leave the ground. For one long, swinging minute you dangle over Main Street at rooftop height, then drop into the bed of a parked pickup full of hay bales. The balloon drifts on, purring, scattering critters like confetti over the hardware store.",
+              "art": "A teenager dangling from a tether rope beneath a giant pastel critter balloon high over a small-town main street at night, tiny fuzzy critters raining down onto rooftops like confetti",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "creature"
+              }
+            }
+          },
+          {
+            "id": "soft-landing",
+            "label": "Crack the valve a little at a time and float it down onto the empty Grange field",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "success": {
+              "text": "You read the parade crew's inflation manual by flashlight, shinny up a rope to the valve and ease it open a quarter turn at a time, steering the sagging giant by its tail rope. It drifts down onto the Grange field and settles in the dark with a long, contented sigh. Thousands of Sugarlings tumble out into the grass, too sleepy and too far from any candy to care.",
+              "art": "A teenager clinging to a tether rope beside the valve of a giant sagging critter balloon settling onto a dark grange field, thousands of sleepy fuzzy critters tumbling out into the grass",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["sugarlings-landed-the-float"]
+              }
+            },
+            "failure": {
+              "text": "You open the valve too far. The balloon lets out a gigantic raspberry and zooms off over Main Street like a let-go party balloon, whizzing in loops and sprinkling purring Sugarlings over every lawn in town before it splashes down in the high school pool.",
+              "art": "A giant pastel critter balloon zooming in loops over a small town at night like a released party balloon, fuzzy critters scattering over lawns, a teenager on the ground with arms thrown up",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "parade-it-away",
+            "label": "Start the parade a night early and march it out of town",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "glory-hallelujah",
+              "amount": 2
+            },
+            "success": {
+              "text": "Glory climbs onto a float in a sequined drum major's coat, you rally the marching band, and the Glimmer Falls Halloween Parade starts twenty hours early, at full volume, going the wrong way. The balloon cannot resist a parade. It bobs after the band, tethers dragging, all the way out Route 49 to the empty fairgrounds, where the band plays one last number and the balloon settles down to watch, perfectly happy just to be in a parade at all.",
+              "art": "A drag queen in a sequined drum major coat leading a marching band down a dark highway at night, a giant pastel critter balloon bobbing happily after them on dragging ropes, a teenager marching alongside",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "The band plays, the balloon follows, and so does every Sugarling in Glimmer Falls, pouring out of storm drains to join the parade. By the time you reach the fairgrounds you are leading a pastel procession a mile long, and the balloon is twice as big as when you started.",
+              "art": "A mile-long procession of fuzzy pastel critters following a marching band and a swollen giant critter balloon along a moonlit highway, a teenager at the front looking back in alarm",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ],
+        "act": 3
       }
     ],
     "finale": {
@@ -850,6 +1109,94 @@
           "failure": {
             "text": "You read the tag, but the mountain is too loud and the street is too hungry. Nobody lets go of their pillowcase. The Mallow trembles in your hands. They need to understand where the wanting came from first.",
             "art": "A teenager holding a small handmade plush up to a roaring mountain of critters while neighbors clutch their candy bags tightly",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "label": "End the show the way the first nights taught you, and call closing time on the mountain",
+          "intent": "camp",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "sugarlings-last-call",
+            "amount": 1
+          },
+          "approach": "trick",
+          "requires": {
+            "flag": "edge-1"
+          },
+          "success": {
+            "text": "The first nights of the week taught you something the jingle never says: Sugarlings settle down when the show is over. So you end it. You get every porch light on Crystal Street to dim at once, climb onto the roundabout curb and announce in your best usher voice, \"That's the show, folks! Thank you for coming! Closing time!\" Ten thousand eyes blink. The mountain yawns, a yawn three stories tall, and slumps into a snoring pastel heap while the floating pillowcases drift back down to the kids who own them.",
+            "art": "A teenager on a curb announcing like an usher to a three-story mountain of fuzzy pastel critters yawning hugely at night, porch lights dimmed along a cul-de-sac, pillowcases of candy floating back down to costumed kids",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You call closing time, but the mountain has heard that one before. It sings the jingle back as an encore, louder, and the porch lights flicker back on house by house. You do get your own pillowcase back, slightly chewed.",
+            "art": "A three-story mountain of fuzzy pastel critters singing loudly under a full moon, porch lights flickering back on along a cul-de-sac, a teenager clutching a chewed pillowcase",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "label": "Plant yourself between the mountain and the trick-or-treaters, the way you stood your ground all week",
+          "intent": "brave",
+          "skill": "nerve",
+          "target": 7,
+          "bonus": {
+            "flag": "sugarlings-blocked-the-van",
+            "amount": 1
+          },
+          "approach": "fight",
+          "requires": {
+            "flag": "edge-2"
+          },
+          "success": {
+            "text": "All week you stood between Glimmer Falls and the wanting, at the mall, on a porch full of tiny costumes, wherever the grown-ups forgot how to stop. You do it one more time. You step in front of the mountain with your arms out, snatch floating pillowcases out of the air and shove each one back into a kid's hands, saying the parents' names until they blink and put their wallets away. The mountain lunges, finds only a kid who will not move, and sags, purring uncertainly, its tide of candy cut off.",
+            "art": "A teenager standing with arms spread before a three-story mountain of fuzzy pastel critters at night, grabbing floating pillowcases out of the air and handing them back to costumed kids, dazed parents lowering their wallets",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The mountain's pull is stronger than anything you faced all week. A gust of floating pillowcases knocks you flat on the roundabout grass, and two parents step right over you with their wallets out. You are up again in a second, grass-stained, but the tide is already past.",
+            "art": "A grass-stained teenager knocked flat on a roundabout lawn at night, floating pillowcases sailing overhead toward a towering mountain of fuzzy critters, glassy-eyed parents stepping past with wallets out",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "label": "Remember the night before Halloween, when the town let go, and pour your candy out for everyone",
+          "intent": "kind",
+          "skill": "charm",
+          "target": 7,
+          "bonus": {
+            "flag": "sugarlings-gave-away",
+            "amount": 1
+          },
+          "approach": "heart",
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "success": {
+            "text": "The night before Halloween you learned that the wanting stops when nobody is hoarding anything. So you sit down on the roundabout curb, empty your pillowcase onto the grass and say, \"Everybody, take what you need.\" The crew does it next, then the kid in the dinosaur costume, then the parents, until all of Crystal Street is sitting in a circle, trading and sharing. The mountain goes quiet. It folds down, and down, into one round, fuzzy creature with moon eyes, which waddles across the grass, takes exactly one gumdrop and climbs into your lap. \"Enough,\" it purrs.",
+            "art": "Neighbors and costumed kids sitting in a wide circle on a roundabout lawn at night sharing piles of candy, a single round fuzzy critter with moon eyes climbing into a smiling teenager's lap, a purple geode glowing softly",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You pour out your candy and offer it around, but the street is still clutching, every hand tight on its pillowcase. The mountain wavers above the circle you started, listening, half in and half out of the wanting.",
+            "art": "A teenager offering an armful of candy to a circle of wary neighbors clutching pillowcases on a roundabout lawn at night, a towering mountain of fuzzy critters swaying above them",
             "effects": {
               "nerve": -2
             }

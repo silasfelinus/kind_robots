@@ -687,6 +687,282 @@
             }
           }
         ]
+      },
+      {
+        "id": "queen-neferet-read-the-curse",
+        "act": 1,
+        "title": "Read the Curse Out Loud!",
+        "place": "A sleepover in the Oyelarans' basement, midnight",
+        "text": "Somebody brought a souvenir from the library exhibit's gift kiosk: a rolled parchment scroll, $1.99, printed in Minneapolis, with READ THE MUMMY'S CURSE OUT LOUD! IF YOU DARE! across the top. Everyone at the sleepover takes a turn hamming it up, flashlight under the chin. On the fourth turn every flashlight dims to candle glow, fine golden sand hisses out of the heating vent, and a woman's voice, low and very old and deeply unimpressed, speaks from the dark: \"That is not my language. That is nonsense your grandfather's printer invented.\" The fake squiggles on the scroll begin to crawl.",
+        "art": "A cozy 1980s basement sleepover with teens in sleeping bags, flashlights dimmed to warm amber, a cheap souvenir parchment scroll unrolled on the carpet with squiggly ink marks crawling off it, golden sand trickling from a heating vent",
+        "choices": [
+          {
+            "id": "apologize",
+            "label": "Roll up the scroll and apologize to her, sincerely",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "flag": "neferet-trusted",
+              "amount": 1
+            },
+            "success": {
+              "text": "You roll up the scroll and say to the dark, \"Sorry. We didn't know. It's a gift-shop thing.\" A long pause, and then, a little gentler: \"I know what it is. Seventy-five years of children shrieking my so-called curse at each other, and you are the first to say sorry.\" The sand stops and the flashlights come back up. On the carpet the squiggles have gathered into one neat oval, a name inside a ring, that none of you can read yet.",
+              "art": "A teenager kneeling on a basement carpet rolling up a souvenir scroll with an apologetic face, sleepover friends sitting up in sleeping bags, flashlights brightening, a small glowing oval of golden sand on the carpet",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-apologized"]
+              }
+            },
+            "failure": {
+              "text": "You try to apologize, and out of habit it comes out in the spooky curse voice. Sand pours from every vent in the basement, ankle-deep and warm as a beach at noon, and everyone spends the rest of the night on the couch.",
+              "art": "Teens huddled together on a basement couch with flashlights, warm golden sand pooled ankle deep across the carpet, sleeping bags half buried, a heating vent pouring more",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "spot-the-fake",
+            "label": "Have Priya study the scroll and prove the curse is a fake",
+            "intent": "clever",
+            "skill": "brains",
+            "target": 9,
+            "bonus": {
+              "companion": "priya-raman",
+              "amount": 2
+            },
+            "success": {
+              "text": "Priya holds the scroll under a flashlight for ten seconds. \"These aren't hieroglyphs. It's the English alphabet in a spooky font. Look, A, B, C.\" She decodes it out loud, and the ancient curse reads THANK YOU FOR VISITING THE HALVORSEN COLLECTION. The voice in the dark laughs, low and delighted. \"A scholar. Finally.\"",
+              "art": "A teen girl with glasses studying a souvenir parchment scroll under a flashlight and pointing at its squiggles, friends leaning in amazed, golden sand settling quietly around a heating vent",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "brains": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "Priya starts to decode it, and the squiggles crawl off the paper and up her arm like ants. She flings the scroll across the basement into the popcorn bowl. Nobody touches the popcorn again.",
+              "art": "Spooky ink squiggles crawling off a souvenir scroll like a line of ants, teens shrieking and leaping out of sleeping bags, a bowl of popcorn spilling, amber flashlight glow",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "keep-reading",
+            "label": "Grab the scroll and read the curse even louder",
+            "intent": "reckless",
+            "skill": "nerve",
+            "target": 9,
+            "success": {
+              "text": "You stand on the couch and bellow the whole fake curse at the top of your lungs, and of course it does absolutely zilch. The voice in the dark sighs. \"Yes. Exactly. It does nothing. It never did. There was never a curse, child. There was a robbery.\" The sand stops, and the whole sleepover stares at you, and then at the vent.",
+              "art": "A teenager standing on a basement couch bellowing from a souvenir scroll, sleepover friends staring wide-eyed, golden sand settling around a heating vent, flashlights glowing amber",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "\"Since you enjoy it so much,\" the voice says coolly, and you can't stop. You read the gift-shop curse forty-one times in a row, in a spooky voice, while your friends fall asleep one by one around you.",
+              "art": "A hoarse exhausted teenager reading from a souvenir scroll at dawn, sleepover friends asleep in sleeping bags around them, pale light through a small basement window, drifts of golden sand",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "queen-neferet-live-at-eleven",
+        "act": 2,
+        "title": "Live at Eleven: Breaking the Curse",
+        "place": "The library exhibit room, live on Channel 8, 11 p.m.",
+        "text": "The Halvorsen Foundation has hired Madame Zorova, Psychic to the Stars, to break the Mummy's Curse live on Channel 8's late news, and half of Glimmer Falls is crowded outside the library windows with flashlights to watch. Madame Zorova waves a smoking bundle of incense over the coffin and announces she will release the evil spirit by burning the queen's linen wrappings. A Foundation man in a blazer is already holding the lighter. The coffin trembles, sand lifts off the floor in slow spinning ribbons, and the voice you know from the book drop says, very quietly, \"Again?\"",
+        "art": "A library exhibit room under harsh television news lights, a flamboyant fake psychic in a sequined cape waving smoking incense over an ancient painted coffin, a man in a blazer holding a lighter, ribbons of golden sand rising, townspeople pressed to the windows",
+        "choices": [
+          {
+            "id": "stand-in-front",
+            "label": "Step between the lighter and the coffin",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 9,
+            "bonus": {
+              "companion": "tammy-jo-pruitt",
+              "amount": 1
+            },
+            "success": {
+              "text": "You step in front of the coffin with the TV lights in your eyes. \"Nobody's burning anything. She's a person. She's a queen.\" The camera swings to your face, and across Glimmer Falls a few thousand people watch a teenager refuse to move until the Foundation man lowers the lighter. Behind you the sand settles to the floor, every grain, like a held breath let go.",
+              "art": "A teenager standing with arms spread before an ancient painted coffin, squinting into television lights, a man in a blazer lowering a lighter, a camera operator filming, golden sand settling to the floor",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-stood-guard"]
+              }
+            },
+            "failure": {
+              "text": "Two rent-a-cops walk you out past the camera while Madame Zorova intones, \"You see? The curse has possessed the young.\" It runs on the late news, and your mom sees it.",
+              "art": "Two security guards escorting a teenager past a television camera outside a library at night, a sequined fake psychic gesturing dramatically, a crowd with flashlights watching",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "tell-the-town",
+            "label": "Take the news mic and tell the town what she really is",
+            "intent": "kind",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "companion": "delphine-hart",
+              "amount": 1
+            },
+            "success": {
+              "text": "You take the microphone right out of the anchorman's hand. \"There's no curse,\" you tell Glimmer Falls. \"There's a woman somebody dug up and shipped here in a crate marked machine parts. She has a name. She wants to go home.\" Outside the windows the flashlights lower one by one, and the anchorman doesn't ask for his mic back. Somewhere in the room a very old voice says, \"Again. Louder.\"",
+              "art": "A teenager speaking earnestly into a news microphone under bright television lights, a startled anchorman beside them, townspeople outside the library windows lowering their flashlights, an ancient painted coffin behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-on-air"]
+              }
+            },
+            "failure": {
+              "text": "The anchorman yanks the mic back and cuts to commercial while Madame Zorova laughs. The sand rises to your knees, and outside the windows people scream and run, which is exactly the story Channel 8 wanted.",
+              "art": "Golden sand swirling knee deep in a library exhibit room, an anchorman clutching his microphone, a sequined psychic laughing, townspeople fleeing from the windows into the night",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          },
+          {
+            "id": "out-psychic",
+            "label": "Out-psychic the psychic, live on camera",
+            "intent": "camp",
+            "skill": "charm",
+            "target": 9,
+            "bonus": {
+              "companion": "raven",
+              "amount": 2
+            },
+            "success": {
+              "text": "Raven shuffles a real tarot deck, cool as ice, and you announce on live TV that you're reading Madame Zorova's future. \"I see a lawsuit. I see a refund. I see you getting in your car, right now.\" Raven flips the Tower for emphasis. Madame Zorova looks at the trembling coffin, then at Raven, grabs her incense and leaves, and from the coffin comes a sound suspiciously like a laugh.",
+              "art": "A goth teen in thrifted velvet flipping a tarot card with deadpan confidence beside a teenager pointing dramatically, a sequined fake psychic fleeing with smoking incense, television lights, an ancient coffin behind",
+              "effects": {
+                "nerve": 1,
+                "dread": -1
+              }
+            },
+            "failure": {
+              "text": "Madame Zorova reads YOUR future first, very loudly, on live TV, and it involves a great deal of detention. The audience at home laughs at you, and the man with the lighter steps closer to the coffin.",
+              "art": "A sequined fake psychic pointing dramatically at a mortified teenager under television lights, a man in a blazer edging toward an ancient painted coffin with a lighter, golden sand stirring",
+              "effects": {
+                "nerve": -1,
+                "dread": 1
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "queen-neferet-weighing",
+        "act": 3,
+        "title": "The Weighing of the Heart",
+        "place": "The Crystal Street roundabout, under another sky, 3 a.m.",
+        "text": "The night before Halloween, the starry woman arching over Crystal Street lowers her hands, and the roundabout becomes a hall of judgment. The Heartstone tips like one pan of an enormous golden scale, and in the other pan rests a single white feather. Into the Heartstone's pan, piece by piece, float the things Glimmer Falls took and kept: a stolen stop sign, a 1911 ticket stub, a souvenir curse scroll, the gala's rubber mummy suit, and it sinks, and sinks. At the edge of the grass pads a patient creature with a crocodile's head, a lion's mane and a hippo's heavy body, waiting to see which way the scale tips. \"In my country,\" says the queen's voice, \"the dead are weighed. Tonight I weigh your town.\"",
+        "art": "A suburban roundabout at night under a vast arching figure made of stars, a glowing purple geode tilted as one pan of an enormous golden scale, a single white feather on the other pan, a crocodile-headed lion-maned creature pacing nearby",
+        "choices": [
+          {
+            "id": "confess-for-the-town",
+            "label": "Step up to the scale and confess for the town: we kept what wasn't ours",
+            "intent": "kind",
+            "skill": "charm",
+            "target": 9,
+            "success": {
+              "text": "You step up and say it plainly, for everybody asleep behind their doors. \"We kept things that weren't ours. We kept you. We bought tickets. We're sorry, and we're going to give it back.\" The Heartstone's pan rises slowly until it hangs level with the feather. \"A true word weighs less than a lie,\" says the queen. \"Your town is not yet light. But it is level.\"",
+              "art": "A teenager standing before an enormous golden scale on a moonlit roundabout with a hand on their heart, the glowing purple geode pan rising level with a white feather, a vast starry figure arching overhead",
+              "effects": {
+                "nerve": 1,
+                "dread": -1,
+                "flags": ["neferet-level"]
+              }
+            },
+            "failure": {
+              "text": "Your voice cracks and you blurt that it wasn't you, you never stole anything, you weren't even born. It's true, and it weighs like a stone. The Heartstone sinks lower, and the creature pads one step closer.",
+              "art": "A glowing purple geode sinking low on one side of an enormous golden scale, a crocodile-headed creature stepping closer across moonlit grass, a teenager stepping back with raised hands",
+              "effects": {
+                "nerve": -2,
+                "dread": 1
+              }
+            }
+          },
+          {
+            "id": "lay-down-the-record",
+            "label": "Lay the true record in the pan: what was taken, from where, and by whom",
+            "intent": "clever",
+            "skill": "lore",
+            "target": 9,
+            "bonus": {
+              "flag": "neferet-bill-of-lading",
+              "amount": 1
+            },
+            "success": {
+              "text": "A lie got her here, so you answer it with the truth: one crate, Alexandria to Minneapolis, marked MACHINE PARTS, customs waived, and under it, in your own handwriting, SHE HAS A NAME. SHE WAS STOLEN. The curse scroll and the rubber mummy suit slide off the Heartstone and blow away like old newspaper. The scale settles, level and calm.",
+              "art": "A teenager kneeling to place a handwritten page and an old shipping document on a glowing golden scale pan, a cheap souvenir scroll and a rubber costume blowing away on the wind, the pans settling level under starlight",
+              "effects": {
+                "nerve": 1,
+                "skills": {
+                  "lore": 1
+                }
+              }
+            },
+            "failure": {
+              "text": "You lay down what you know, and the wind takes it page by page out over the rooftops. With only the stolen things left to weigh, the scale sinks, and the stars overhead flicker like a candle about to go out.",
+              "art": "Loose papers whirling away over suburban rooftops under a starry sky, an enormous golden scale tipping low beneath a glowing purple geode, a teenager reaching after the pages",
+              "effects": {
+                "nerve": -1,
+                "dread": 1,
+                "teleport": "cosmic"
+              }
+            }
+          },
+          {
+            "id": "face-the-devourer",
+            "label": "Stand between the Devourer and the sleeping street",
+            "intent": "brave",
+            "skill": "nerve",
+            "target": 11,
+            "bonus": {
+              "companion": "amir-haddad",
+              "amount": 2
+            },
+            "success": {
+              "text": "The Devourer pads up to you, crocodile jaws as long as your arm, and breathes river mud and old incense in your face. You hold out the back of your hand, the way Dr. Haddad says to greet a strange dog. It sniffs, considers, and yawns enormously. Then it lies down at your feet with a thump, chin on its paws, guarding the street beside you until the weighing is done.",
+              "art": "A teenager holding out the back of one hand to a huge crocodile-headed lion-maned creature on a moonlit roundabout, the creature lying down with its chin on its paws, a golden scale glowing behind",
+              "effects": {
+                "nerve": 2
+              }
+            },
+            "failure": {
+              "text": "It looks at you with ancient yellow eyes and begins to slurp up your shadow from the grass, a little at a time, like spaghetti. You run. Your shadow catches up with you at home about an hour later, noticeably shorter.",
+              "art": "A huge crocodile-headed creature slurping up a teenager's long moonlit shadow from the grass, the teenager sprinting away down a dark suburban street, a golden scale glowing on the roundabout",
+              "effects": {
+                "nerve": -2,
+                "dread": 1,
+                "teleport": "paranormal"
+              }
+            }
+          }
+        ]
       }
     ],
     "finale": {
@@ -765,6 +1041,94 @@
           "failure": {
             "text": "You stumble over her name, and the gala crowd's screaming drowns out your voice. The queen hears that someone knows the truth, but not who, and not loudly enough. The sand keeps rising. You need the whole room to stop and listen.",
             "art": "A teenager shouting into a panicking gala crowd in a dark library, sand rising around their legs, a queen in gold turning her head as if straining to hear",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-1",
+          "approach": "trick",
+          "label": "Knock three times on the coffin, with the manners she taught you the first nights, and ask for an audience",
+          "intent": "clever",
+          "skill": "lore",
+          "target": 7,
+          "requires": {
+            "flag": "edge-1"
+          },
+          "bonus": {
+            "flag": "neferet-trusted",
+            "amount": 1
+          },
+          "success": {
+            "text": "You wade through the sand to the coffin and knock three times, slow and polite, the way a guest knocks. The first nights of the week she spoke to you through a book slot, a shipping crate, a heating vent, and she always answered good manners. She answers now. The sand stops pouring. \"An audience,\" she says, amused, \"in the middle of my own escape.\" With every courtesy you know, you ask her to wait one more night, not in a box this time, but as an honored guest of the library with her name on the door. She considers the plastic palms, the fog machine, the man in the rubber suit. \"One night,\" she says. \"As a guest.\" She lies down, and the sky folds back over Glimmer Falls as gently as a blanket.",
+            "art": "A teenager in a Halloween costume knocking politely on an ancient painted coffin amid drifts of golden sand, a regal queen in white linen and gold rising with an amused expression, plastic palms and a fog machine behind",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "You knock, but the fog machine roars and somebody shrieks \"THE CURSE!\" and your knock is lost in the noise. The queen doesn't hear a guest. She hears a crowd, and the sand keeps coming.",
+            "art": "Golden sand pouring down library stairs over panicking gala guests in costumes, a fog machine billowing, a teenager knocking on a coffin lid half buried in sand",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-2",
+          "approach": "fight",
+          "label": "Storm the gala stage and shut the curse show down, the way you stood up for her that week",
+          "intent": "brave",
+          "skill": "brawn",
+          "target": 7,
+          "requires": {
+            "flag": "edge-2"
+          },
+          "bonus": {
+            "flag": "neferet-stood-guard",
+            "amount": 1
+          },
+          "success": {
+            "text": "You've done this before. In front of a theater, a TV camera and a whole street of drifting names, you stood up for her in public. So you climb onto the gala stage, rip down the CURSE OF THE PHARAOH banner, yank the fog machine's plug and take the Foundation director's microphone right out of his hand. \"Show's over. She isn't a curse. She's a person, and she was robbed.\" The man in the rubber mummy suit pulls off his head and nods. The screaming stops. In the sudden quiet the queen looks at you, and the sand stops rising. \"Someone fights for me,\" she says, \"instead of against me.\" She lies down to wait, and for the first time in seventy-five years she believes the waiting will end.",
+            "art": "A teenager in a Halloween costume tearing down a gala banner on a library stage among plastic palms, a man in a rubber mummy costume pulling off his mask, a queen in white linen and gold watching with surprise",
+            "effects": {
+              "nerve": 1
+            }
+          },
+          "failure": {
+            "text": "The Foundation's security man reaches the stage first, and you go down in a heap of plastic palms. The crowd laughs, thinking it's part of the show, and the sand rises around the laughter.",
+            "art": "A teenager in a Halloween costume sprawled in a tangle of plastic palm trees on a library gala stage, a security guard looming, golden sand rising around laughing costumed guests",
+            "effects": {
+              "nerve": -2
+            }
+          }
+        },
+        {
+          "id": "edge-3",
+          "approach": "heart",
+          "label": "Give back what was taken, the way you learned to the night before: her name first",
+          "intent": "kind",
+          "skill": "lore",
+          "target": 7,
+          "requires": {
+            "flag": "edge-3",
+            "clues": 3
+          },
+          "bonus": {
+            "flag": "neferet-returned",
+            "amount": 1
+          },
+          "success": {
+            "text": "The night before Halloween you learned how giving back works: you carry it yourself, and you say whose it is. So you wade through the sand and say it: \"Neferet, Great Royal Wife.\" Beside you Mrs. Mansour speaks the old offering words, bread and beer and every good and pure thing. You hold up the cartouche, the confession in the diary and the 1972 letter, and Gil Halvorsen pushes through the crowd and signs a release on the back of a gala program. \"She's going home,\" he says. \"I'll pay for the flight.\" The queen takes the program in her own hands and reads her name on it, spelled right. Then she smiles, and lies down to wait, for the last time, a little longer.",
+            "art": "A regal queen in white linen and gold holding a folded gala program, an elderly woman speaking beside her, a young man in a rumpled safari jacket holding a pen, a smiling teenager in costume, golden sand settling",
+            "effects": {
+              "nerve": 2
+            }
+          },
+          "failure": {
+            "text": "You say her name, but a Foundation lawyer is shouting about property and the crowd is shouting about curses. The queen hears that someone knows her, but not who, and not loudly enough. You need the whole room to listen.",
+            "art": "A teenager in a Halloween costume calling out across a crowded gala as golden sand pours down library stairs, a man in a suit shouting and waving papers, a queen in white linen listening intently",
             "effects": {
               "nerve": -2
             }

@@ -10,7 +10,112 @@
     <div
       class="pointer-events-none absolute inset-0 bg-linear-to-r from-[#0e191a]/95 via-[#172a26]/80 to-[#111a22]/60"
     ></div>
+
     <div
+      v-if="prologueOpen"
+      class="relative z-10 grid min-h-0 flex-1 grid-rows-[minmax(0,1fr)_minmax(0,1.2fr)] overflow-hidden lg:grid-cols-2 lg:grid-rows-1"
+      data-testid="memory-dungeon-prologue"
+    >
+      <section
+        class="relative min-h-0 overflow-hidden"
+        aria-label="The exchanged lives"
+      >
+        <img
+          src="/images/background/memorydungeon.webp"
+          alt="An uncanny forest awaits beyond the border of the everyday world"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div
+          class="absolute inset-0 bg-linear-to-t from-[#101c1d] via-[#142226]/20 to-[#111c1b]/40"
+        ></div>
+        <div
+          class="absolute inset-x-4 bottom-4 rounded-xl border border-[#f2d99c]/50 bg-[#102126]/90 p-4 shadow-2xl backdrop-blur-md sm:inset-x-8 sm:bottom-8"
+        >
+          <p
+            class="text-[11px] font-bold uppercase tracking-[.22em] text-[#eac88e]"
+          >
+            The life you left behind
+          </p>
+          <p
+            class="mt-2 font-serif text-lg font-semibold leading-snug sm:text-2xl"
+          >
+            One ordinary world. One impossible bargain.
+          </p>
+        </div>
+      </section>
+      <section
+        class="kr-scroll flex min-h-0 flex-col overflow-y-auto overscroll-contain bg-[#101a1d]/95 p-4 sm:p-7 lg:p-9"
+      >
+        <p class="text-xs font-bold uppercase tracking-[.22em] text-[#eac88e]">
+          Prologue · The Changeling's Trade
+        </p>
+        <h2
+          class="mt-2 font-serif text-3xl font-black text-[#fff1d2] sm:text-4xl"
+        >
+          A life without magic
+        </h2>
+        <div
+          class="mt-3 space-y-3 text-sm leading-relaxed text-[#f1dfbe] sm:text-base"
+        >
+          <p>
+            You were a data researcher. The deadlines were real, the coffee was
+            dreadful, and nobody at the office believed in fairies. You had
+            grown used to all three.
+          </p>
+          <p>
+            Morrow appeared after hours, studying your spreadsheets with the
+            hunger of someone seeing an entire new universe. A world where
+            numbers never changed because a witch was angry. A life that could
+            be understood.
+          </p>
+          <p
+            class="border-l-2 border-[#d6b779] pl-3 font-serif italic text-[#ffeac0]"
+          >
+            “You can have my story,” Morrow said. “And I shall try yours.”
+          </p>
+          <p>
+            You thought it was a joke. The next moment, the fluorescent lights
+            were stars and your reflection belonged to somebody else.
+          </p>
+        </div>
+        <p
+          class="mt-4 text-xs font-bold uppercase tracking-[.16em] text-[#e9c98b]"
+        >
+          What did you hold onto as the worlds changed?
+        </p>
+        <div class="mt-2 grid gap-2">
+          <button
+            type="button"
+            class="rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-sm font-bold text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
+            @click="finishPrologue('terms')"
+          >
+            Demand the terms of the bargain
+            <span class="mt-1 block text-xs font-normal text-[#e4cfab]">
+              Keep a question burning. Begin with an extra Lantern.
+            </span>
+          </button>
+          <button
+            type="button"
+            class="rounded-xl border border-[#d7bd84]/75 bg-[#344940] px-4 py-3 text-left text-sm font-bold text-[#fff2d6] hover:bg-[#46624e] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f7dfaa]"
+            @click="finishPrologue('anchor')"
+          >
+            Remember one unremarkable morning
+            <span class="mt-1 block text-xs font-normal text-[#e4cfab]">
+              Preserve a fragment of home. Begin with a silver wildflower.
+            </span>
+          </button>
+        </div>
+        <button
+          type="button"
+          class="mt-3 self-start rounded-lg px-2 py-2 text-xs font-semibold text-[#e6c99a] underline underline-offset-4 hover:text-white"
+          @click="prologueOpen = false"
+        >
+          Return to game selection
+        </button>
+      </section>
+    </div>
+    <div
+      v-else
       class="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center p-2 sm:p-5"
     >
       <div
@@ -41,11 +146,11 @@
               Memory<br />Dungeon
             </h2>
             <p class="mt-2 max-w-sm text-sm text-[#f0ddb8]">
-              One lantern. A forest full of secrets. Every image has a story to
-              remember.
+              Morrow took your ordinary life. The fairy tales are yours to
+              survive.
             </p>
             <p class="mt-2 text-xs font-semibold text-[#e5c98b]">
-              🌿 Briar Camp · 64 hidden squares · Rootbound Vault
+              🌿 Briar Marches · World 1 of 16 · House That Remembers
             </p>
           </div>
         </section>
@@ -91,9 +196,12 @@
             <button
               type="button"
               class="rounded-xl border-2 border-[#efdcaa] bg-[#b9d88d] px-4 py-3 text-sm font-black text-[#202b23] shadow-lg transition hover:bg-[#d4ecaa] sm:text-lg"
-              @click="emit('explore')"
+              @click="beginAdventure"
             >
-              🌿 Enter Briar Camp
+              🌿
+              {{
+                hasExistingSave ? 'Continue Briar Marches' : 'Begin the tale'
+              }}
             </button>
             <button
               type="button"
@@ -121,13 +229,37 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useMemoryWorldStore } from '~/stores/memoryWorldStore'
+import type { BriarPrologueChoice } from '~/utils/memoryDungeonWorld'
 import { useMemoryStore } from '~/stores/memoryStore'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'
 defineProps<{ error?: string }>()
 const emit = defineEmits<{ explore: []; classic: [] }>()
 const world = useMemoryWorldStore()
 const memoryStore = useMemoryStore()
+const prologueOpen = ref(false)
+const hasExistingSave = computed(
+  () =>
+    world.state.prologueChoice !== null ||
+    world.state.revealed.length > 0 ||
+    world.state.mapCards.length > 0 ||
+    world.state.attempts > 0,
+)
+
+function beginAdventure(): void {
+  if (hasExistingSave.value) {
+    emit('explore')
+    return
+  }
+  prologueOpen.value = true
+}
+
+function finishPrologue(choice: BriarPrologueChoice): void {
+  world.recordPrologueChoice(choice)
+  prologueOpen.value = false
+  emit('explore')
+}
+
 onMounted(() => world.hydrate())
 </script>

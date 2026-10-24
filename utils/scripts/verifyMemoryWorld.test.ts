@@ -53,6 +53,29 @@ assert.equal(first.wavePhase, 'matching')
 assert.equal(first.attempts, 0)
 assert.equal(first.player, BRIAR_START)
 
+assert.equal(
+  first.prologueChoice,
+  null,
+  'New games have not yet chosen a prologue path',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'terms' })
+    .prologueChoice,
+  'terms',
+  'The opening choice survives a browser reload',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'anchor' })
+    .prologueChoice,
+  'anchor',
+)
+assert.equal(
+  restoreBriarSave({ ...newBriarSave(), prologueChoice: 'invalid' })
+    .prologueChoice,
+  null,
+  'Old and malformed saves cannot invent a prologue outcome',
+)
+
 const visited = new Set([BRIAR_START])
 const queue = [BRIAR_START]
 while (queue.length) {
@@ -104,6 +127,21 @@ for (const key of sceneCoordinates) {
   assert.equal(scene.choices.length, 2, `Scene ${key} has two decisions`)
   assert.equal(new Set(scene.choices.map((option) => option.id)).size, 2)
 }
+
+assert.equal(
+  BRIAR_SCENES['4,4']?.choices.length,
+  2,
+  'The mermaid twins offer two different responses',
+)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Scylla/)
+assert.match(BRIAR_SCENES['4,4']!.opening, /Charybdis/)
+assert.match(BRIAR_SCENES['4,3']!.opening, /executioner’s hood/)
+assert.match(
+  briarSceneOpening(BRIAR_SCENES['4,3']!, { '4,4': 'escort' }),
+  /UNNECESSARY BUT BINDING/,
+  "Oren responds to the player's earlier choice",
+)
+
 assert.match(
   briarSceneOpening(BRIAR_SCENES['6,4']!, { '3,5': 'light' }),
   /own voice thanks to you/,
@@ -508,6 +546,28 @@ assert.match(
   /<memory-dungeon-deck-selector/,
   'Overworld settings mount shared art selector',
 )
+
+assert.match(
+  launcherScreen,
+  /data-testid="memory-dungeon-prologue"/,
+  'The new full-screen opening is part of the existing memory game',
+)
+assert.match(
+  launcherScreen,
+  /world\.recordPrologueChoice\(choice\)/,
+  'A prologue choice is persisted before entry',
+)
+assert.match(
+  launcherScreen,
+  /hasExistingSave/,
+  'Existing runs resume without forcing the new prologue',
+)
+assert.match(
+  worldStoreSource,
+  /function recordPrologueChoice\(/,
+  'Only the store changes game state',
+)
+
 assert.match(
   launcherScreen,
   /<memory-dungeon-deck-selector/,

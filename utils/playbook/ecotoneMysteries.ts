@@ -10,6 +10,7 @@ import {
   mysteryEndingArtKey,
   type Mystery,
   type MysteryMessage,
+  type MysteryScene,
 } from '../ecotone/mysteries'
 import { playbookCardNode } from './ecotone'
 import { blankNode, type PlaybookNode, type PlaybookSection } from './types'
@@ -88,7 +89,7 @@ function caseNodes(mystery: Mystery): PlaybookNode[] {
     for (const choice of cold.choices) choice.tags.push('Trail goes cold')
   }
 
-  const finaleChoices = (key: string, scene: Mystery['reveal']) => {
+  const finaleChoices = (key: string, scene: MysteryScene) => {
     const node = byKey.get(key)
     if (!node) return
     for (const choice of node.choices) {

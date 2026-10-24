@@ -173,7 +173,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
             'Settle at the edge of the haul-out and let the song come to you',
           check: { skill: 'psyche', target: 7 },
           success: {
-            text: 'You sit on the cold sand and make yourself smaller than the seals. They forget you. Between one wave and the next, the far mermaid is two women at once: one on the rock in a banner tail, and one on the Plaza at this same minute, juggling fire for a crowd, in a life where she never left. Both of them look tired, and neither one has decided.',
+            text: 'You sit on the cold sand and make yourself smaller than the seals. They forget you. Between one wave and the next, the far mermaid is two women at once: one on the rock in a banner tail, and one on the Plaza at this same minute, juggling fire for a crowd, in a life where she never left. Both of them look tired, and neither one has decided which life to keep.',
             effects: { weird: 1 },
           },
           failure: {
@@ -374,7 +374,7 @@ export const TWO_TAILED_MERMAID: Mystery = {
         {
           id: 'keep-secret',
           label: 'Promise to keep her secret and let her stay',
-          text: 'You promise. Nadia promises too, through tears, and says she only needed to know. Coral touches her hand once and slides back into the river.',
+          text: 'You promise. Nadia promises too, through tears, and says she only needed to know. Coral touches her hand once and wades back toward her camp under the bluff.',
           ending: 'let-her-swim',
         },
       ],

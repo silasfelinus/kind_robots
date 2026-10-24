@@ -58,7 +58,7 @@ export const SECOND_VOICE: Mystery = {
         from: '87.9 FM, no call sign, 6:02 a.m.',
         lines: [
           '“Good morning, harbor. This is the Harbor Hour. Here’s what nobody’s said yet.',
-          'Somebody at the bait shop is sick to death of squid. The Okafors’ spaniel would rather live on the Sea Wren. And Darlene thinks Mo’s joke has never once been funny.',
+          'Somebody at the bait shop is sick to death of squid. The Kowalskis’ spaniel would rather live on the Sea Wren. And Darlene thinks Mo’s joke has never once been funny.',
           'Oh, and somebody new on the pier has a question they haven’t asked yet. Answer it. They mean well.”',
         ],
       },
@@ -288,7 +288,7 @@ export const SECOND_VOICE: Mystery = {
     ],
     recall: {
       'g3:pass':
-        'Last night you got as close as anyone ever has: the loft, the voices, the locks. But with nothing from the pier and nothing from Westhaven to ask them with, you stood in the doorway with your mouth open, and a voice said, kindly, “Get some sleep, kid.” By morning the loft is swept bare.',
+        'Last night you got as close as anyone ever has: the loft, the voices, two men with one face. But with nothing from the pier and nothing from Westhaven to ask them with, you stood in the doorway with your mouth open, and a voice said, kindly, “Get some sleep, kid.” By morning the loft is swept bare.',
     },
     choices: [
       {

@@ -312,7 +312,7 @@ export const WATER_BEARER: Mystery = {
     chapter: 4,
     scene: 'meadow',
     body: [
-      'First light finds the UFO grounded in the wet grass: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot did not get far. He sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS.',
+      'First light finds the UFO grounded for good: a rented survey drone wearing a ring of party lights, a waterproof speaker zip-tied to its belly, and a sonar sounder on a line. Its pilot is not going anywhere. He sits on the cattle guard in a camouflage hunting poncho, night-vision goggles pushed up on his forehead like a crown. When you pull back the hood he hands you a business card out of pure reflex: CHANCE PRUITT, PRUITT BASIN PARTNERS. WE BUY WELLS.',
       'Up the road comes a hand-truck stacked with empty jugs, pushed by a woman in a waxed canvas hat and muddy boots. She sets it down and looks at you, at the drone, at the man on the cattle guard. “You got my note. Good,” she says. “Saffron Gutierrez. Saff. I leave the jugs. I am not the light.” She reads the card, and her face goes very still. “Oh,” she says. “Oh, no. He’s been reading them.”',
     ],
     afterMiss: [
@@ -348,7 +348,7 @@ export const WATER_BEARER: Mystery = {
         'Cedar squints at the drone. “Folks up 299 been blaming those lights on outer space since ’74. Turns out it’s a guy with an acquisitions budget. Honestly? Scarier.”',
     },
     aloneLine:
-      'Alone with the two of them in the meadow, you realize the woman with the jugs has been doing this alone so long she has stopped noticing.',
+      'Alone with the two of them, you realize the woman with the jugs has been doing this alone so long she has stopped noticing.',
     recall: {
       'g1:fail':
         'Nell’s road gave you nothing you could use, and nobody on it had pictured a man with a rental truck and a business card.',

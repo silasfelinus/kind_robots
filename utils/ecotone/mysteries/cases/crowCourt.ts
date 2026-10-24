@@ -259,7 +259,7 @@ export const CROW_COURT: Mystery = {
         juniper:
           'Juniper hums something low, and the crows on the fence stop rustling to listen. “They like me better,” she tells you. “Don’t take it personally. Take it a little personally.”',
         cedar:
-          '“Dead man’s mail and a bird funeral,” Cedar says, leaving his truck lights off and his keys in. “If the universe is sending somebody a message, it picked the slowest carrier there is. Nobody’s getting chased down this road tonight.”',
+          '“Dead man’s mail and a bird funeral,” Cedar says, parking his truck across the road with the lights off. “If the universe is sending somebody a message, it picked the slowest carrier there is. Nobody’s getting chased down this road tonight.”',
       },
       aloneLine:
         'With nobody to catch you if you run, you decide, for once, not to run.',

@@ -385,7 +385,11 @@ export const BRIAR_STORY_ATLAS: Record<string, DungeonStoryTile> =
           },
         ]
       }
-      return [tile.key, PLANNED_BRIAR_BEATS[tile.key]]
+      const planned = PLANNED_BRIAR_BEATS[tile.key]
+      if (!planned) {
+        throw new Error(`No editorial plan for Briar coordinate ${tile.key}`)
+      }
+      return [tile.key, planned]
     }),
   )
 

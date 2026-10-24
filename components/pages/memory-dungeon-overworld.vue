@@ -70,8 +70,50 @@
         <memory-dungeon-deck-selector
           :selected="world.deck"
           :mature-available="world.matureAvailable"
+          :unlocked-realms="world.unlockedRealms"
+          :realm-art-ready="world.realmArtReady"
           @change="world.selectDeck"
         />
+        <fieldset class="mt-3 border-t border-[#9f875e]/50 pt-3">
+          <legend class="px-2 text-sm font-bold">Playing card backs</legend>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="back in MEMORY_CARD_BACKS"
+              :key="back.id"
+              type="button"
+              class="flex min-w-0 items-center gap-2 rounded-lg border-2 bg-[#182d32] p-2 text-left transition focus-visible:outline-2 focus-visible:outline-[#f6db9a]"
+              :class="
+                world.cardBack === back.id
+                  ? 'border-[#ffe29a]'
+                  : 'border-[#7b806b]'
+              "
+              :aria-pressed="world.cardBack === back.id"
+              @click="world.selectCardBack(back.id)"
+            >
+              <span
+                class="relative flex h-16 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-[#e3c78c] bg-[#354b48] text-xl text-[#f6db9a]"
+                aria-hidden="true"
+              >
+                ✥
+                <img
+                  :src="back.path"
+                  alt=""
+                  class="absolute inset-0 h-full w-full object-cover"
+                  @error="hideMissingMemoryCardBack"
+                />
+              </span>
+              <span class="min-w-0 text-xs">
+                <strong class="block text-sm">{{ back.name }}</strong>
+                {{ back.description }}
+              </span>
+            </button>
+          </div>
+          <p class="mt-2 text-xs text-[#e4d0a8]">
+            Card-back choices are saved separately from your expedition.
+            Illustrated crests appear automatically when their Comfy artwork is
+            delivered.
+          </p>
+        </fieldset>
         <p class="mt-2 text-xs text-[#e7d29e]">
           Selecting art refreshes unmatched cards immediately. Revealed terrain,
           completed pairs and attempts stay intact.
@@ -166,7 +208,8 @@
                     >
                       ✥
                       <img
-                        :src="DEFAULT_BRIAR_CARD_BACK"
+                        :key="world.cardBack"
+                        :src="memoryCardBackPath(world.cardBack)"
                         class="absolute inset-0 h-full w-full object-cover"
                         alt=""
                         draggable="false"
@@ -678,11 +721,8 @@
               >
                 ✦
                 <img
-                  :src="
-                    world.state.roomId === 'vault-2'
-                      ? ARCANE_BRIAR_CARD_BACK
-                      : DEFAULT_BRIAR_CARD_BACK
-                  "
+                  :key="world.cardBack"
+                  :src="memoryCardBackPath(world.cardBack)"
                   class="absolute inset-0 h-full w-full object-cover"
                   alt=""
                   draggable="false"
@@ -744,8 +784,8 @@ import {
 import { DESIGNED_DUNGEON_ART } from '~/utils/memoryDungeonDeck'
 import { firstWorldPhotoChronicle } from '~/utils/memoryDungeon/chronicle'
 import {
-  DEFAULT_BRIAR_CARD_BACK,
-  ARCANE_BRIAR_CARD_BACK,
+  MEMORY_CARD_BACKS,
+  memoryCardBackPath,
   hideMissingMemoryCardBack,
 } from '~/utils/memoryDungeonCardArt'
 import MemoryDungeonDeckSelector from '~/components/memory-dungeon/deck-selector.vue'

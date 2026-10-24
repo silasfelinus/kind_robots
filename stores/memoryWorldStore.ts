@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useUserStore } from './userStore'
+import { WORLD_ONE_GALLERY } from '~/utils/memoryDungeon/realmGallery'
+import {
+  normalizeMemoryCardBack,
+  type MemoryCardBackId,
+} from '~/utils/memoryDungeonCardArt'
 import { resolveMemoryDungeonDeck } from './helpers/memoryDungeonDeckSource'
 import {
   DEFAULT_DUNGEON_DECK,
@@ -56,6 +61,8 @@ import {
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
+const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
+const REALM_UNLOCKS_KEY = 'memoryDungeonRealmGalleryUnlocksV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -69,6 +76,9 @@ function shuffle<T>(list: T[]): T[] {
 export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const userStore = useUserStore()
   const deck = ref<DungeonDeckSelection>({ ...DEFAULT_DUNGEON_DECK })
+  const cardBack = ref<MemoryCardBackId>('briar')
+  const unlockedRealms = ref<number[]>([])
+  const realmArtReady = ref(false)
   const state = ref<BriarSave>(newBriarSave())
   const ready = ref(false)
   const loading = ref(false)
@@ -177,7 +187,52 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       userStore.showMature === true,
   )
 
+  async function checkRealmGalleryReady(): Promise<void> {
+    if (!import.meta.client || !unlockedRealms.value.includes(1)) return
+    const results = await Promise.all(
+      WORLD_ONE_GALLERY.map(async (card) => {
+        try {
+          const response = await fetch(card.artPath, { method: 'HEAD' })
+          return (
+            response.ok &&
+            (response.headers.get('content-type') ?? '').startsWith('image/')
+          )
+        } catch {
+          return false
+        }
+      }),
+    )
+    realmArtReady.value = results.every(Boolean)
+    if (!realmArtReady.value && deck.value.family === 'realm') {
+      selectDeck({ family: 'designed' })
+      state.value.status =
+        'The painted realm gallery is incomplete. Enchanted Deck restored without changing your expedition.'
+    }
+  }
+
+  function selectCardBack(selection: MemoryCardBackId): void {
+    cardBack.value = normalizeMemoryCardBack(selection)
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(CARD_BACK_KEY, cardBack.value)
+    } catch {
+      state.value.status =
+        'Card-back choice is active for this visit; browser storage is unavailable.'
+    }
+  }
+
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {
+    if (
+      selection.family === 'realm' &&
+      (!unlockedRealms.value.includes(
+        selection.realmId ?? deck.value.realmId,
+      ) ||
+        !realmArtReady.value)
+    ) {
+      state.value.status =
+        'Finish a realm and collect its painted gallery before reusing that deck.'
+      return
+    }
     const previous = JSON.stringify(deck.value)
     deck.value = normalizeDungeonDeck({ ...deck.value, ...selection })
     if (!matureAvailable.value) deck.value.includeMature = false
@@ -223,6 +278,29 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
+        const savedUnlocks = window.localStorage.getItem(REALM_UNLOCKS_KEY)
+        const parsedUnlocks: unknown = savedUnlocks
+          ? JSON.parse(savedUnlocks)
+          : []
+        unlockedRealms.value = Array.isArray(parsedUnlocks)
+          ? parsedUnlocks.filter(
+              (value): value is number =>
+                typeof value === 'number' &&
+                Number.isSafeInteger(value) &&
+                value >= 1 &&
+                value <= 16,
+            )
+          : []
+        if (state.value.gateOpened && !unlockedRealms.value.includes(1)) {
+          unlockedRealms.value.push(1)
+          window.localStorage.setItem(
+            REALM_UNLOCKS_KEY,
+            JSON.stringify(unlockedRealms.value),
+          )
+        }
+        cardBack.value = normalizeMemoryCardBack(
+          window.localStorage.getItem(CARD_BACK_KEY),
+        )
         const previousDeck = window.localStorage.getItem(DECK_KEY)
         if (previousDeck)
           deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
@@ -241,6 +319,7 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       }
     }
     ready.value = true
+    if (import.meta.client) void checkRealmGalleryReady()
   }
 
   /** A saved round can predate the source selector; resync it without losing matches. */
@@ -1089,6 +1168,19 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   function openGate(): void {
     if (state.value.player !== BRIAR_GATE || !hasChime.value) return
     state.value.gateOpened = true
+    if (!unlockedRealms.value.includes(1)) unlockedRealms.value.push(1)
+    if (import.meta.client) {
+      try {
+        window.localStorage.setItem(
+          REALM_UNLOCKS_KEY,
+          JSON.stringify(unlockedRealms.value),
+        )
+      } catch {
+        state.value.status =
+          'Realm gallery unlock is active but could not be saved.'
+      }
+    }
+    void checkRealmGalleryReady()
     state.value.status =
       'The Bramble Chime parts the thorns! Briar Camp is complete. Bloom Orchard is the next region to build.'
     persist()
@@ -1097,6 +1189,11 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   return {
     state,
     deck,
+    cardBack,
+    selectCardBack,
+    unlockedRealms,
+    realmArtReady,
+    checkRealmGalleryReady,
     matureAvailable,
     selectDeck,
     ready,

@@ -123,6 +123,8 @@
           <memory-dungeon-deck-selector
             :selected="world.deck"
             :mature-available="world.matureAvailable"
+            :unlocked-realms="world.unlockedRealms"
+            :realm-art-ready="world.realmArtReady"
             @change="world.selectDeck"
           />
 
@@ -693,6 +695,7 @@ const dungeonLog = ref<LogEntry[]>([])
 const deckSummary = computed(() => {
   const selected = world.deck
   if (selected.family === 'designed') return 'Enchanted Deck'
+  if (selected.family === 'realm') return 'Briar Marches Gallery'
   if (selected.family === 'entities') {
     return selected.entityKind.charAt(0).toUpperCase() + selected.entityKind.slice(1)
   }

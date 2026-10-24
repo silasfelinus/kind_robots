@@ -1124,8 +1124,9 @@ assert.ok(
     '/images/memory-dungeon/card-backs/briar-arcane.webp',
   ),
 )
-assert.match(consoleStage, /DEFAULT_BRIAR_CARD_BACK/)
-assert.match(consoleStage, /ARCANE_BRIAR_CARD_BACK/)
+assert.match(consoleStage, /memoryCardBackPath\(world\.cardBack\)/)
+assert.match(consoleStage, /MEMORY_CARD_BACKS/)
+assert.match(consoleStage, /world\.selectCardBack\(back\.id\)/)
 assert.match(classicScreen, /DEFAULT_BRIAR_CARD_BACK/)
 assert.match(consoleStage, /@error="hideMissingMemoryCardBack"/)
 const choiceColumnStart = consoleStage.indexOf(

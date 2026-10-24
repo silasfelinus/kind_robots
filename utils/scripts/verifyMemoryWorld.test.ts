@@ -19,6 +19,12 @@ import {
 } from '../memoryDungeonWaves'
 
 import {
+  BRIAR_STORY_ATLAS,
+  pendingBriarStoryKeys,
+  validateBriarStoryAtlas,
+} from '../memoryDungeonStoryAtlas'
+
+import {
   BRIAR_DUNGEON,
   BRIAR_GATE,
   BRIAR_LINKS,
@@ -44,6 +50,41 @@ assert.deepEqual(
 )
 assert.equal(BRIAR_TILES.length, 64)
 assert.equal(new Set(BRIAR_TILES.map((tile) => tile.key)).size, 64)
+
+assert.deepEqual(
+  validateBriarStoryAtlas(),
+  [],
+  'Canonical atlas stays aligned with runnable scenes and planned sites',
+)
+assert.equal(Object.keys(BRIAR_STORY_ATLAS).length, 64)
+assert.deepEqual(
+  pendingBriarStoryKeys().sort(),
+  BRIAR_TILES.filter((tile) => !BRIAR_SCENES[tile.key])
+    .map((tile) => tile.key)
+    .sort(),
+  'Editorial planning cannot silently masquerade as shipped runtime scenes',
+)
+for (const tile of BRIAR_TILES) {
+  const atlas = BRIAR_STORY_ATLAS[tile.key]!
+  assert.ok(atlas.title && atlas.artDirection && atlas.introduction)
+  assert.ok(atlas.choices.length >= 2)
+  if (BRIAR_SCENES[tile.key]) {
+    assert.equal(atlas.status, 'playable-scene')
+    assert.equal(atlas.introduction, BRIAR_SCENES[tile.key]!.opening)
+    assert.deepEqual(
+      atlas.choices.map((choice) => choice.id),
+      BRIAR_SCENES[tile.key]!.choices.map((choice) => choice.id),
+    )
+  } else {
+    assert.equal(atlas.status, 'planned')
+  }
+}
+assert.ok(
+  !JSON.stringify(BRIAR_STORY_ATLAS).match(
+    /\\b(?:Prince Halden|Prince Vesper)\\b/i,
+  ),
+  'Abandoned prince canon cannot reappear in the new atlas',
+)
 
 const first = newBriarSave()
 assert.deepEqual(first.frontier, [])

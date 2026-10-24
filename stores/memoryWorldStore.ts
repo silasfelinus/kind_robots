@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useUserStore } from './userStore'
+import {
+  normalizeMemoryCardBack,
+  type MemoryCardBackId,
+} from '~/utils/memoryDungeonCardArt'
 import { resolveMemoryDungeonDeck } from './helpers/memoryDungeonDeckSource'
 import {
   DEFAULT_DUNGEON_DECK,
@@ -56,6 +60,7 @@ import {
 
 const STORAGE_KEY = 'memoryDungeonBriarCampV1'
 const DECK_KEY = 'memoryDungeonDeckChoiceV1'
+const CARD_BACK_KEY = 'memoryDungeonCardBackV1'
 
 function shuffle<T>(list: T[]): T[] {
   const shuffled = [...list]
@@ -69,6 +74,7 @@ function shuffle<T>(list: T[]): T[] {
 export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   const userStore = useUserStore()
   const deck = ref<DungeonDeckSelection>({ ...DEFAULT_DUNGEON_DECK })
+  const cardBack = ref<MemoryCardBackId>('briar')
   const state = ref<BriarSave>(newBriarSave())
   const ready = ref(false)
   const loading = ref(false)
@@ -177,6 +183,17 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       userStore.showMature === true,
   )
 
+  function selectCardBack(selection: MemoryCardBackId): void {
+    cardBack.value = normalizeMemoryCardBack(selection)
+    if (!import.meta.client) return
+    try {
+      window.localStorage.setItem(CARD_BACK_KEY, cardBack.value)
+    } catch {
+      state.value.status =
+        'Card-back choice is active for this visit; browser storage is unavailable.'
+    }
+  }
+
   function selectDeck(selection: Partial<DungeonDeckSelection>): void {
     const previous = JSON.stringify(deck.value)
     deck.value = normalizeDungeonDeck({ ...deck.value, ...selection })
@@ -223,6 +240,9 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
       try {
         const saved = window.localStorage.getItem(STORAGE_KEY)
         if (saved) state.value = restoreBriarSave(JSON.parse(saved) as unknown)
+        cardBack.value = normalizeMemoryCardBack(
+          window.localStorage.getItem(CARD_BACK_KEY),
+        )
         const previousDeck = window.localStorage.getItem(DECK_KEY)
         if (previousDeck)
           deck.value = normalizeDungeonDeck(JSON.parse(previousDeck) as unknown)
@@ -1097,6 +1117,8 @@ export const useMemoryWorldStore = defineStore('memoryWorld', () => {
   return {
     state,
     deck,
+    cardBack,
+    selectCardBack,
     matureAvailable,
     selectDeck,
     ready,

@@ -51,6 +51,9 @@ jobs:
       - name: Memory Dungeon first overworld reachability and save contract
         run: npx tsx utils/scripts/verifyMemoryWorld.test.ts
 
+      - name: Memory Dungeon World One Comfy art and 32-card gallery contract
+        run: npx tsx utils/scripts/verifyMemoryWorldArt.test.ts
+
       - name: Oracle reading engine contract
         run: npm run test:oracle-engine
 
